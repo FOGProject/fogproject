@@ -114,6 +114,17 @@ class Snapin extends FOGController {
         if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min($this->getSubObjectIDs('StorageGroup','','id')));
         return $this->getClass('StorageGroup',@min($this->get('storageGroups')));
     }
+    public function getPrimaryGroup($groupID) {
+        if (!$this->getClass('SnapinGroupAssociationManager')->count(array('snapinID'=>$this->get('id'),'primary'=>1)) && $groupID == @min($this->getSubObjectIDs('StorageGroup','','id'))) {
+            $this->setPrimaryGroup($groupID);
+            return true;
+        }
+        return (bool)$this->getClass('SnapinGroupAssociation',@min($this->getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$groupID,'snapinID'=>$this->get('id')),'id')))->getPrimary();
+    }
+    public function setPrimaryGroup($groupID) {
+        $this->getClass('SnapinGroupAssociationManager')->update(array('snapinID'=>$this->get('id'),'storageGroupID'=>array_diff((array)$this->get('storageGroups'),(array)$groupID)),'',array('primary'=>0));
+        $this->getClass('SnapinGroupAssociationManager')->update(array('snapinID'=>$this->get('id'),'storageGroupID'=>$groupID),'',array('primary'=>1));
+    }
     protected function loadHosts() {
         if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID'));
     }

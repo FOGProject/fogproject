@@ -115,8 +115,8 @@ abstract class FOGController extends FOGBase {
         if (count($this->aliasedFields)) $this->array_remove($this->aliasedFields, $this->databaseFields);
         foreach((array)$this->databaseFields AS $name => &$field) {
             $key = sprintf('`%s`',$this->DB->sanitize($field));
-            if ($name == 'createdBy') $val = $this->DB->sanitize(trim($_SESSION['FOG_USERNAME']) ? trim($_SESSION['FOG_USERNAME']) : 'fog');
-            else if ($name == 'createdTime') $val = $this->DB->sanitize($this->formatTime('now','Y-m-d H:i:s'));
+            if ($name == 'createdBy' && !$this->get($name)) $val = $this->DB->sanitize(trim($_SESSION['FOG_USERNAME']) ? trim($_SESSION['FOG_USERNAME']) : 'fog');
+            else if ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) $val = $this->DB->sanitize($this->formatTime('now','Y-m-d H:i:s'));
             else $val = $this->DB->sanitize($this->get($name));
             $insertKeys[] = $key;
             $insertValues[] = $val;
@@ -131,7 +131,13 @@ abstract class FOGController extends FOGBase {
         );
         try {
             if (!$this->DB->query($query)) throw new Exception($this->DB->sqlerror());
-            if (!$this->get('id')) $this->set('id',$this->DB->insert_id());
+            if (!$this->get('id')) {
+                if ($this->DB->insert_id() < 1) {
+                    $this->destroy();
+                    throw new Exception(_('Insert id is invalid'));
+                }
+                $this->set('id',$this->DB->insert_id());
+            }
             if (!$this->isValid()) {
                 $this->destroy();
                 throw new Exception(sprintf('%s: %s %s',_('Object'),get_class($this),_('is not valid')));

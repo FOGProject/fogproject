@@ -1,19 +1,23 @@
 <?php
 class SnapinGroupAssociation extends FOGController {
-    // Table
-    public $databaseTable = 'snapinGroupAssoc';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'snapinGroupAssoc';
+    protected $databaseFields = array(
         'id' => 'sgaID',
         'snapinID' => 'sgaSnapinID',
         'storageGroupID' => 'sgaStorageGroupID',
+        'primary' => 'sgaPrimary',
     );
-    // Custom
-    public function getSnapin() {return $this->getClass('Snapin',$this->get('snapinID'));}
-    public function getStorageGroup() {return $this->getClass('StorageGroup',$this->get('storageGroupID'));}
+    protected $databaseFieldsRequired = array(
+        'snapinID',
+        'storageGroupID',
+    );
+    public function getSnapin() {
+        return $this->getClass('Snapin',$this->get('snapinID'));
+    }
+    public function getStorageGroup() {
+        return $this->getClass('StorageGroup',$this->get('storageGroupID'));
+    }
+    public function getPrimary() {
+        return (bool)$this->get('primary');
+    }
 }
-/* Local Variables: */
-/* indent-tabs-mode: t */
-/* c-basic-offset: 4 */
-/* tab-width: 4 */
-/* End: */

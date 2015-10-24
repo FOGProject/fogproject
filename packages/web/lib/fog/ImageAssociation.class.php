@@ -1,24 +1,23 @@
 <?php
 class ImageAssociation extends FOGController {
-    /** @var $databaseTable the table to work with */
-    public $databaseTable = 'imageGroupAssoc';
-    /** @var $databaseFields the fields within the table */
-    public $databaseFields = array(
+    protected $databaseTable = 'imageGroupAssoc';
+    protected $databaseFields = array(
         'id' => 'igaID',
         'imageID' => 'igaImageID',
         'storageGroupID' => 'igaStorageGroupID',
+        'primary' => 'igaPrimary',
     );
-    /** @function getImage() returns the image
-     * @return the image
-     */
-    public function getImage() {return $this->getClass('Image',$this->get('imageID'));}
-    /** @function getStorageGroup() returns the storage group
-     * @return the storage group
-     */
-        public function getStorageGroup() {return $this->getClass('StorageGroup',$this->get('storageGroupID'));}
+    protected $databaseFieldsRequired = array(
+        'imageID',
+        'storageGroupID',
+    );
+    public function getImage() {
+        return $this->getClass('Image',$this->get('imageID'));
+    }
+    public function getStorageGroup() {
+        return $this->getClass('StorageGroup',$this->get('storageGroupID'));
+    }
+    public function getPrimary() {
+        return (bool)$this->get('primary');
+    }
 }
-/* Local Variables: */
-/* indent-tabs-mode: t */
-/* c-basic-offset: 4 */
-/* tab-width: 4 */
-/* End: */

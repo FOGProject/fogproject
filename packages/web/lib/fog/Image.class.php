@@ -124,6 +124,17 @@ class Image extends FOGController {
         else $IPT = $this->getClass('ImagePartitionType',1);
         return $IPT;
     }
+    public function getPrimaryGroup($groupID) {
+        if (!$this->getClass('ImageAssociationManager')->count(array('imageID'=>$this->get('id'),'primary'=>1)) && $groupID == @min($this->getSubObjectIDs('StorageGroup','','id'))) {
+            $this->setPrimaryGroup($groupID);
+            return true;
+        }
+        return (bool)$this->getClass('ImageAssociation',@min($this->getSubObjectIDs('ImageAssociation',array('storageGroupID'=>$groupID,'imageID'=>$this->get('id')),'id')))->getPrimary();
+    }
+    public function setPrimaryGroup($groupID) {
+        $this->getClass('ImageAssociationManager')->update(array('imageID'=>$this->get('id'),'storageGroupID'=>array_diff((array)$this->get('storageGroups'),(array)$groupID)),'',array('primary'=>0));
+        $this->getClass('ImageAssociationManager')->update(array('imageID'=>$this->get('id'),'storageGroupID'=>$groupID),'',array('primary'=>1));
+    }
     protected function loadHosts() {
         if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'id'));
     }
