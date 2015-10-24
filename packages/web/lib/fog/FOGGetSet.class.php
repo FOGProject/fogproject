@@ -1,7 +1,6 @@
 <?php
 class FOGGetSet extends FOGBase {
     protected $data = array();
-    // Constructor
     public function __construct($data = array()) {
         foreach((array)$data AS $key => &$value) $this->set($key,$value);
         unset($value);
@@ -15,7 +14,6 @@ class FOGGetSet extends FOGBase {
         }
         return $this;
     }
-    // Get
     public function get($key = '') {
         return (!empty($key) && isset($this->data[$key]) ? $this->data[$key] : (empty($key) ? $this->data : ''));
     }

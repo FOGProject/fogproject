@@ -1,16 +1,9 @@
 <?php
 class MySQL extends DatabaseManager {
-    /** @var $link the link after connected */
     private $link;
-    /** @var $query the query to call */
     private $query;
-    /** @var $queryResult the result of the query */
     private $queryResult;
-    /** @var $result the result set */
     private $result;
-    /** __construct initializes the class
-     * @return void
-     */
     public function __construct() {
         parent::__construct();
         try {
@@ -20,9 +13,6 @@ class MySQL extends DatabaseManager {
             $this->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
     }
-    /** connect establishes the link
-     * @return the class
-     */
     public function connect() {
         try {
             if (!$this->link) $this->link = new mysqli(DATABASE_HOST,DATABASE_USERNAME, DATABASE_PASSWORD);
@@ -36,11 +26,6 @@ class MySQL extends DatabaseManager {
         }
         return $this;
     }
-    /** query performs the db query
-     * @param string sql
-     * @param array data
-     * @return this class
-     */
     public function query($sql, $data = array()) {
         try {
             $this->queryResult = null;
@@ -56,10 +41,6 @@ class MySQL extends DatabaseManager {
         }
         return $this;
     }
-    /** fetch() fetches the data
-     * @param $type what type of data to fetch in
-     * @return the class as is
-     */
     public function fetch($type = MYSQLI_ASSOC,$fetchType = 'fetch_assoc') {
         try {
             if (empty($this->queryResult)) throw new Exception(_('No query result, use query() first'));
@@ -79,10 +60,6 @@ class MySQL extends DatabaseManager {
         }
         return $this;
     }
-    /** get() get the information as called
-     * @param $field the field to get or all
-     * @return the requested data or all
-     */
     public function get($field = '') {
         if ($this->result === true) return $this->result;
         try {
@@ -102,15 +79,9 @@ class MySQL extends DatabaseManager {
         if (count($result)) return $result;
         return $this->result;
     }
-    /** result() result of the query
-     * @return the result
-     */
     public function result() {
         return $this->result;
     }
-    /** queryResult() queryResult of the sql query
-     * @return the queryResult
-     */
     public function queryResult() {
         return $this->queryResult;
     }
