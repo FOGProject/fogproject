@@ -2070,3 +2070,8 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE`".DATABASE_NAME."`.`hostMAC` MODIFY `hmMAC` VARCHAR(59) NOT NULL",
 );
+// 198
+$this->schema[] = array(
+    "ALTER TABLE `" . DATABASE_NAME ."`.`snapinGroupAssoc` ADD COLUMN `sgaPrimary`",
+    "ALTER TABLE `" .DATABASE_NAME ."`.`imageGroupAssoc` ADD COLUMN `igaPrimary`",
+);
