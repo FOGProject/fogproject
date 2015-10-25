@@ -611,7 +611,7 @@ configureMySql() {
 }
 configureFOGService() {
 	echo "<?php
-define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php
+define('WEBROOT','${webdirdest}');" > ${servicedst}/etc/config.php
     startInitScript
 }
 configureNFS() {

@@ -750,6 +750,7 @@ abstract class FOGPage extends FOGBase {
         $ClassCall = ($objType ? 'Group' : 'Host');
         $Hosts = $this->obj->get(strtolower($ClassCall).'snotinme');
         foreach($Hosts AS $i => &$Host) {
+            if (!$this->getClass($ClassCall,$Host)->isValid()) continue;
             $this->data[] = array(
                 'host_id'=>$Host,
                 'host_name'=>$this->getClass($ClassCall,$Host)->get('name'),
@@ -774,6 +775,7 @@ abstract class FOGPage extends FOGBase {
         );
         $Hosts = $this->obj->get(strtolower($ClassCall).'s');
         foreach($Hosts AS $i => &$Host) {
+            if (!$this->getClass($ClassCall,$Host)->isValid()) continue;
             $this->data[] = array(
                 'host_id'=>$Host,
                 'host_name'=>$this->getClass($ClassCall,$Host)->get('name'),
