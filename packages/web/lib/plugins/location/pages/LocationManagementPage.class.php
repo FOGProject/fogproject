@@ -42,55 +42,54 @@ class LocationManagementPage extends FOGPage {
             array('class' => 'r'),
         );
     }
-    // Pages
     public function index() {
-        // Set title
         $this->title = _('Search');
         if ($this->getSetting(FOG_DATA_RETURNED)>0 && $this->getClass(LocationManager)->count() > $this->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
             $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        // Find data
-        $Locations = $this->getClass(LocationManager)->find();
-        // Row data
-        foreach ((array)$Locations AS $i => &$Location) {
-            $StorageGroup = $this->getClass(StorageGroup,$Location->get(storageGroupID));
+        $ids = $this->getSubObjectIDs('Location');
+        foreach ((array)$ids AS $i => &$id) {
+            $Location = $this->getClass('Location',$id);
+            if (!$Location->isValid()) {
+                unset($Location);
+                continue;
+            }
+            $StorageGroup = $this->getClass('StorageGroup',$Location->get('storageGroupID'));
+            if (!$StorageGroup->isValid()) {
+                unset($StorageGroup,$Location);
+                continue;
+            }
             $this->data[] = array(
-                id=>$Location->get(id),
-                name=>$Location->get(name),
-                storageNode=>($Location->get(storageNodeID)?$this->getClass(StorageNode,$Location->get(storageNodeID))->get(name):'Not Set'),
-                storageGroup=>$StorageGroup->get(name),
-                tftp=>$Location->get(tftp)?_('Yes'):_('No'),
+                'id'=>$Location->get('id'),
+                'name'=>$Location->get('name'),
+                'storageNode'=>($Location->get('storageNodeID')?$this->getClass('StorageNode',$Location->get('storageNodeID'))->get('name'):'Not Set'),
+                'storageGroup'=>$StorageGroup->get('name'),
+                'tftp'=>$Location->get(tftp)?_('Yes'):_('No'),
             );
         }
         unset($Location);
-        // Hook
         $this->HookManager->event[] = 'LOCATION_DATA';
         $this->HookManager->processEvent(LOCATION_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
         $this->render();
     }
     public function search_post() {
-        // Variables
-        $keyword = preg_replace('#%+#','%','%'.preg_replace('#[[:space:]]#','%',$_REQUEST[crit]).'%');
-        // To assist with finding by storage group or location.
-        $where = array(
-            id=>$keyword,
-            name=>$keyword,
-            description=>$keyword,
-            storageGroupID=>$keyword,
-        );
-        // Find data -> Push data
-        $Locations = $this->getClass(LocationManager)->search();
-        foreach ($Locations AS $i => &$Location) {
+        $keyword = preg_replace('#%+#','%','%'.preg_replace('#[[:space:]]#','%',$_REQUEST['crit']).'%');
+        $ids = $this->getClass('LocationManager')->search();
+        foreach ($ids AS $i => &$id) {
+            $Location = $this->getClass('Location',$id);
+            if (!$Location->isValid()) {
+                unset($Location);
+                continue;
+            }
             $this->data[] = array(
-                id=>$Location->get(id),
-                name=>$Location->get(name),
-                storageGroup=>$this->getClass(StorageGroup,$Location->get(storageGroupID))->get (name),
-                storageNode=>$Location->get(storageNodeID)?$this->getClass(StorageNode,$Location->get(storageNodeID))->get(name) : 'Not Set',
-                tftp=>$Location->get(tftp) ? 'Yes' : 'No',
+                'id'=>$Location->get('id'),
+                'name'=>$Location->get('name'),
+                'storageGroup'=>$this->getClass('StorageGroup',$Location->get('storageGroupID'))->get('name'),
+                'storageNode'=>$Location->get('storageNodeID')?$this->getClass('StorageNode',$Location->get('storageNodeID'))->get('name') : 'Not Set',
+                'tftp'=>$Location->get('tftp') ? 'Yes' : 'No',
             );
+            unset($Location);
         }
-        unset($Location);
-        // Hook
+        unset($id,$ids);
         $this->HookManager->event[] = 'LOCATION_DATA';
         $this->HookManager->processEvent(LOCATION_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output

@@ -46,10 +46,13 @@ class LDAPManagementPage extends FOGPage {
         $this->title = _('Search');
         if ($this->getSetting(FOG_DATA_RETURNED) > 0 && $this->getClass(LDAPManager)->count() > $this->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
             $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        // Find data
-        $LDAPs = $this->getClass(LDAPManager)->find();
-        // Row data
-        foreach ((array)$LDAPs AS $i => &$LDAP) {
+        $ids = $this->getSubObjectIDs('LDAP');
+        foreach ((array)$ids AS $i => &$id) {
+            $LDAP = $this->getClass('LDAP',$id);
+            if (!$LDAP->isValid()) {
+                unset($LDAP);
+                continue;
+            }
             $this->data[] = array(
                 id => $LDAP->get(id),
                 name => $LDAP->get(name),
@@ -68,19 +71,14 @@ class LDAPManagementPage extends FOGPage {
         $this->render();
     }
     public function search_post() {
-        // Variables
         $keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $_REQUEST[crit]) . '%');
-        // To assist with finding by storage group or location.
-        $where = array(
-            id => $keyword,
-            name => $keyword,
-            description => $keyword,
-            address => $keyword,
-            DN => $keyword,
-        );
-        // Find data -> Push data
-        $LDAPs = $this->getClass(LDAPManager)->search();
-        foreach ($LDAPs AS $i => &$LDAP) {
+        $ids = $this->getClass('LDAPManager')->search();
+        foreach ($ids AS $i => &$id) {
+            $LDAP = $this->getClass('LDAP',$id);
+            if (!$LDAP->isValid()) {
+                unset($LDAP);
+                continue;
+            }
             $this->data[] = array(
                 id => $LDAP->get(id),
                 name => $LDAP->get(name),
