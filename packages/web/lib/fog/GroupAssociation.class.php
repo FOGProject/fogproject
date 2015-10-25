@@ -1,13 +1,19 @@
 <?php
 class GroupAssociation extends FOGController {
-    // Table
-    public $databaseTable = 'groupMembers';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'groupMembers';
+    protected $databaseFields = array(
         'id' => 'gmID',
         'hostID' => 'gmHostID',
         'groupID' => 'gmGroupID',
     );
-    public function getGroup() {return $this->getClass('Group',$this->get('groupID'));}
-    public function getHost() {return $this->getClass('Host',$this->get('hostID'));}
+    protected $databaseFieldsRequired = array(
+        'hostID',
+        'groupID',
+    );
+    public function getGroup() {
+        return $this->getClass('Group',$this->get('groupID'));
+    }
+    public function getHost() {
+        return $this->getClass('Host',$this->get('hostID'));
+    }
 }

@@ -1,9 +1,7 @@
 <?php
 class PXEMenuOptions extends FOGController {
-    // Table
-    public $databaseTable = 'pxeMenu';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'pxeMenu';
+    protected $databaseFields = array(
         'id' => 'pxeID',
         'name' => 'pxeName',
         'description' => 'pxeDesc',
@@ -11,5 +9,8 @@ class PXEMenuOptions extends FOGController {
         'default' => 'pxeDefault',
         'regMenu' => 'pxeRegOnly',
         'args' => 'pxeArgs',
+    );
+    protected $databaseFieldsRequired = array(
+        'name',
     );
 }

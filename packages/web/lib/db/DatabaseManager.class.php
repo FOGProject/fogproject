@@ -8,14 +8,14 @@ class DatabaseManager extends FOGCore {
             die(sprintf('Failed: %s: Error: %s',__METHOD__,$e->getMessage()));
         }
         switch (strtolower(DATABASE_TYPE)) {
-            case 'mysql':
-                $this->DB = new MySQL();
-                break;
-            case 'oracle':
-                $this->DB = new Oracle();
-                break;
-            default:
-                break;
+        case 'mysql':
+            $this->DB = new MySQL();
+            break;
+        case 'oracle':
+            $this->DB = new Oracle();
+            break;
+        default:
+            break;
         }
         // Database Schema Version Check
         if ($this->getVersion() < FOG_SCHEMA && !preg_match('#schemaupdater#i',$_SERVER['PHP_SELF']) && !preg_match('#schemaupdater#i',$_SERVER['QUERY_STRING'])) $this->redirect('?node=schemaupdater');

@@ -1,20 +1,20 @@
 <?php
 class Location extends FOGController {
-	protected $databaseTable = 'location';
-	protected $databaseFields = array(
-		'id' => 'lID',
-		'name' => 'lName',
-		'description' => 'lDesc',
-		'createdBy' => 'lCreatedBy',
-		'createdTime' => 'lCreatedTime',
-		'storageGroupID' => 'lStorageGroupID',
-		'storageNodeID' => 'lStorageNodeID',
-		'tftp' => 'lTftpEnabled',
-	);
-	protected $databaseFieldsRequired = array(
-		'name',
-		'storageGroupID',
-	);
+    protected $databaseTable = 'location';
+    protected $databaseFields = array(
+        'id' => 'lID',
+        'name' => 'lName',
+        'description' => 'lDesc',
+        'createdBy' => 'lCreatedBy',
+        'createdTime' => 'lCreatedTime',
+        'storageGroupID' => 'lStorageGroupID',
+        'storageNodeID' => 'lStorageNodeID',
+        'tftp' => 'lTftpEnabled',
+    );
+    protected $databaseFieldsRequired = array(
+        'name',
+        'storageGroupID',
+    );
     protected $additionalFields = array(
         'hosts',
         'hostsnotinme',
@@ -56,12 +56,12 @@ class Location extends FOGController {
         $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
         return $this;
     }
-	public function getStorageGroup() {
-		return $this->getClass('StorageGroup',$this->get('storageGroupID'));
-	}
-	public function getStorageNode() {
-		return $this->getClass('StorageNode',$this->get('storageNodeID'));
-	}
+    public function getStorageGroup() {
+        return $this->getClass('StorageGroup',$this->get('storageGroupID'));
+    }
+    public function getStorageNode() {
+        return $this->getClass('StorageNode',$this->get('storageNodeID'));
+    }
     protected function loadHosts() {
         if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id')),'hostID'));
     }

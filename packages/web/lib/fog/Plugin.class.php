@@ -10,7 +10,6 @@ class Plugin extends FOGController {
     private $blIsInstalled;
     private $blIsActive;
     protected $databaseTable = 'plugins';
-    // Name -> Database field name
     protected $databaseFields = array(
         'id' => 'pID',
         'name' => 'pName',
@@ -23,7 +22,6 @@ class Plugin extends FOGController {
         'pAnon4' => 'pAnon4',
         'pAnon5' => 'pAnon5',
     );
-    // Required database fields
     protected $databaseFieldsRequired = array(
         'name',
     );

@@ -1,9 +1,7 @@
 <?php
 class ScheduledTask extends FOGController {
-    // Table
-    public $databaseTable = 'scheduledTasks';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'scheduledTasks';
+    protected $databaseFields = array(
         'id' => 'stID',
         'name' => 'stName',
         'description' => 'stDesc',
@@ -26,17 +24,41 @@ class ScheduledTask extends FOGController {
         'isActive' => 'stActive',
         'imageID' => 'stImageID',
     );
-    // Custom Functions
-    public function getHost() {return $this->getClass('Host',$this->get('hostID'));}
-    public function getGroup() {return $this->getClass('Group',$this->get('hostID'));}
-    public function getImage() {return $this->getClass('Image',$this->get('imageID'));}
-    public function getShutdownAfterTask() {return $this->get('shutdown');}
-    public function setShutdownAfterTask($value) {return $this->set('shutdown', $value);}
-    public function setOther1($value) {return $this->set('other1', $value);}
-    public function setOther2($value) {return $this->set('other2', $value);}
-    public function setOther3($value) {return $this->set('other3', $value);}
-    public function setOther4($value) {return $this->set('other4', $value);}
-    public function setOther5($value) {return $this->set('other5', $value);}
+    protected $databaseFieldsRequired = array(
+        'type',
+        'taskType',
+        'hostID',
+    );
+    public function getHost() {
+        return $this->getClass('Host',$this->get('hostID'));
+    }
+    public function getGroup() {
+        return $this->getClass('Group',$this->get('hostID'));
+    }
+    public function getImage() {
+        return $this->getClass('Image',$this->get('imageID'));
+    }
+    public function getShutdownAfterTask() {
+        return $this->get('shutdown');
+    }
+    public function setShutdownAfterTask($value) {
+        return $this->set('shutdown', $value);
+    }
+    public function setOther1($value) {
+        return $this->set('other1', $value);
+    }
+    public function setOther2($value) {
+        return $this->set('other2', $value);
+    }
+    public function setOther3($value) {
+        return $this->set('other3', $value);
+    }
+    public function setOther4($value) {
+        return $this->set('other4', $value);
+    }
+    public function setOther5($value) {
+        return $this->set('other5', $value);
+    }
     public function getTimer() {
         if($this->get('type') == 'C') $minute = trim($this->get('minute'));
         else $minute = trim($this->get('scheduleTime'));
@@ -46,6 +68,10 @@ class ScheduledTask extends FOGController {
         $dow = trim($this->get('dayOfWeek'));
         return new Timer($minute,$hour,$dom,$month,$dow);
     }
-    public function getTaskType() {return $this->getClass('TaskType',$this->get('taskType'));}
-        public function isGroupBased() {return ($this->get('isGroupTask') == 1);}
+    public function getTaskType() {
+        return $this->getClass('TaskType',$this->get('taskType'));
+    }
+    public function isGroupBased() {
+        return ($this->get('isGroupTask') == 1);
+    }
 }

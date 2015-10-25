@@ -1,20 +1,21 @@
 <?php
 class TaskType extends FOGController {
-    // Table
-    public $databaseTable = 'taskTypes';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'taskTypes';
+    protected $databaseFields = array(
         'id' => 'ttID',
         'name' => 'ttName',
         'description' => 'ttDescription',
         'icon' => 'ttIcon',
         'kernel' => 'ttKernel',
         'kernelArgs' => 'ttKernelArgs',
-        'type' => 'ttType',		// fog or user
+        'type' => 'ttType',
         'isAdvanced' => 'ttIsAdvanced',
-        'access' => 'ttIsAccess'		// both, host or group
+        'access' => 'ttIsAccess',
     );
-    // Fontawesome Icon list
+    protected $databaseFieldsRequired = array(
+        'name',
+        'icon',
+    );
     public function iconlist($selected = '') {
         $selected = trim($selected);
         $icons = array(
@@ -696,7 +697,6 @@ class TaskType extends FOGController {
         unset($unicode);
         return $selectlist.'</select>';
     }
-    // Custom functions
     public function isUpload() {
         return in_array($this->get(id),array(2,16)) || preg_match('#type=(2|16|up)#i',$this->get(kernelArgs));
     }

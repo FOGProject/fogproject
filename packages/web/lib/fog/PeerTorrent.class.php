@@ -1,9 +1,7 @@
 <?php
 class PeerTorrent extends FOGController {
-    /** @var $databaseTable the table to work with */
-    public $databaseTable = 'peer_torrent';
-    /** @var $databaseFields the fields within the table */
-    public $databaseFields = array(
+    protected $databaseTable = 'peer_torrent';
+    protected $databaseFields = array(
         'id' => 'id',
         'peerID' => 'peer_id',
         'torrentID' => 'torrent_id',
@@ -13,8 +11,7 @@ class PeerTorrent extends FOGController {
         'lastUpdated' => 'last_updated',
         'stopped' => 'stopped',
     );
-    // Required database fields
-    public $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = array(
         'peerID',
         'torrentID',
     );

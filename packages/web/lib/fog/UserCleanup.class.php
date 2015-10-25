@@ -1,10 +1,11 @@
 <?php
 class UserCleanup extends FOGController {
-    // Table
-    public $databaseTable = 'userCleanup';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'userCleanup';
+    protected $databaseFields = array(
         'id'		=> 'ucID',
         'name'		=> 'ucName',
+    );
+    protected $databaseFieldsRequired = array(
+        'name',
     );
 }

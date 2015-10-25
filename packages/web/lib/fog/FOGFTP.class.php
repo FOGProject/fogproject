@@ -1,11 +1,11 @@
 <?php
 class FOGFTP extends FOGGetSet {
     protected $data = array(
-        'host'		=> '',
-        'username'	=> '',
-        'password'	=> '',
-        'port'		=> '',
-        'timeout'	=> '',
+        'host' => '',
+        'username' => '',
+        'password' => '',
+        'port' => '',
+        'timeout' => '',
     );
     private $link;
     private $loginLink;
