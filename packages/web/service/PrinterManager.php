@@ -1,3 +1,3 @@
 <?php
 require_once('../commons/base.inc.php');
-$FOGCore->getClass(PrinterClient);
+$FOGCore->getClass('PrinterClient');

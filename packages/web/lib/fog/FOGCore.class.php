@@ -6,15 +6,6 @@ class FOGCore extends FOGBase {
     public function stopScheduledTask($task) {
         return $this->getClass('ScheduledTask',$task->get('id'))->set('isActive',(int)false)->save();
     }
-    /** getSetting($key)
-        Get's global Setting Values
-     */
-    /** setSetting($key, $value)
-        Set's a new default value.
-     */
-    /** addUpdateMACLookupTable($macprefix,$strMan)
-        Updates/add's MAC Manufacturers
-     */
     public function addUpdateMACLookupTable($macprefix) {
         $this->clearMACLookupTable();
         foreach($macprefix AS $macpre => &$maker) $macArray[] = "('".$this->DB->sanitize($macpre)."','".$this->DB->sanitize($maker)."')";
@@ -22,35 +13,19 @@ class FOGCore extends FOGBase {
         $sql = "INSERT INTO `oui` (`ouiMACPrefix`,`ouiMan`) VALUES ".implode((array)$macArray,',');
         return $this->DB->query($sql);
     }
-    /** clearMACLookupTable()
-        Clear's all entries in the table.
-     */
     public function clearMACLookupTable() {
         return !$this->DB->query("TRUNCATE TABLE %s",$this->getClass(OUI)->databaseTable);
     }
-    /** getMACLookupCount()
-        returns the number of MAC's loaded.
-     */
     public function getMACLookupCount() {
         return $this->getClass(OUIManager)->count();
     }
-    /** resolveHostname($host)
-        Returns the hostname.  Useful for Hostname dns translating for the server (e.g. fogserver instead of 127.0.0.1) in the address
-        bar.
-     */
     public function resolveHostname($host) {
         if (filter_var(trim($host),FILTER_VALIDATE_IP)) return trim($host);
         return trim(gethostbyname(trim($host)));
     }
-    /** makeTempFilePath()
-        creates the temporary file.
-     */
     public function makeTempFilePath() {
         return tempnam(sys_get_temp_dir(),'FOG');
     }
-    /** SystemUptime()
-        Returns the uptime of the server.
-     */
     public function SystemUptime() {
         $data = trim(shell_exec('uptime'));
         $tmp = explode(' load average: ', $data);
@@ -61,15 +36,9 @@ class FOGCore extends FOGBase {
         $uptime = (count($uptime) > 1 ? $uptime[0] . ', ' . $uptime[1] : 'uptime not found');
         return array(uptime=>$uptime,load=>$load);
     }
-    /** clear_screen($outputdevice)
-        Clears the screen for information.
-     */
     public function clear_screen($outputdevice) {
         $this->out(chr(27)."[2J".chr(27)."[;H",$outputdevice);
     }
-    /** wait_interface_ready($interface,$outputdevice)
-        Waits for the network interface to be ready so services operate.
-     */
     public function wait_interface_ready($interface,$outputdevice) {
         while (true) {
             $retarr = array();
@@ -88,9 +57,6 @@ class FOGCore extends FOGBase {
             sleep(10);
         }
     }
-    /** getBroadcast()
-     * Gets the interfaces broadcast ip
-     */
     public function getBroadcast() {
         $output = array();
         exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $6}'|grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs, $retVal);
@@ -102,10 +68,6 @@ class FOGCore extends FOGBase {
         unset($IP);
         return array_values(array_unique((array)$output));
     }
-    /** getHWInfo()
-     * Returns the hardware information for hwinfo link on dashboard.
-     * @return $data
-     */
     public function getHWInfo() {
         $data['general'] = '@@general';
         $data['kernel'] = trim(php_uname('r'));
@@ -145,14 +107,6 @@ class FOGCore extends FOGBase {
         $data['end'] = '@@end';
         return $data;
     }
-    /**
-     * track($list, $c = 0, $i = 0)
-     * @param $list the data to bencode.
-     * @param $c completed jobs (seeders)
-     * @param $i incompleted jobs (leechers)
-     * @return void
-     * Will "return" but through throw/catch statement.
-     */
     public function track($list, $c = 0, $i = 0) {
         if (is_string($list)) return 'd14:failure reason'.strlen($list).':'.$list.'e';
         $p = '';
@@ -164,14 +118,6 @@ class FOGCore extends FOGBase {
         unset($d);
         return 'd8:intervali'.$this->getSetting(FOG_TORRENT_INTERVAL).'e12:min intervali'.$this->getSetting(FOG_TORRENT_INTERVAL_MIN).'e8:completei'.$c.'e10:incompletei'.$i.'e5:peersl'.$p.'ee';
     }
-    /**
-     * valdata($g,$fixed_size=false)
-     * Function simply checks if the required data is met and valid
-     * Could use for other functions possibly too.
-     * @param $g the request/get/post info to validate.
-     * @return void
-     * Sends info back to track.
-     */
     public function valdata($g,$fixed_size=false) {
         try {
             if (!$_REQUEST[$g]) throw new Exception($this->track('Invalid request, missing data'));
@@ -184,15 +130,11 @@ class FOGCore extends FOGBase {
     }
     public function setSessionEnv() {
         $_SESSION['HostCount'] = $this->getClass('HostManager')->count();
-        /** This allows the database concatination system based on number of hosts */
         $this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
-        /** This below ensures the database is always MyISAM */
         $this->DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
-        /** $tables just stores the tables to cycle through and change as needed */
         $tables = $this->DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
         foreach ((array)$tables AS $i => &$table) $this->DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
         unset($table);
-        /** frees the memory of the $tables and $table values */
         unset($tables,$table);
         $_SESSION['PluginsInstalled'] = (array)$this->getActivePlugins();
         $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = $this->getSetting('FOG_VIEW_DEFAULT_SCREEN');
@@ -206,13 +148,11 @@ class FOGCore extends FOGBase {
         $_SESSION['SnapinCount'] = $this->getClass('SnapinManager')->count();
         $_SESSION['PrinterCount'] = $this->getClass('PrinterManager')->count();
         $_SESSION['FOGPingActive'] = $this->getSetting('FOG_HOST_LOOKUP');
-        // Set the memory limits
         $_SESSION['memory'] = $this->getSetting('FOG_MEMORY_LIMIT');
         ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
         $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $this->getSetting('FOG_FORMAT_FLAG_IN_GUI');
         $_SESSION['FOG_SNAPINDIR'] = $this->getSetting('FOG_SNAPINDIR');
         $_SESSION['FOG_REPORT_DIR'] = $this->getSetting('FOG_REPORT_DIR');
-        /** $TimeZone set the TimeZone based on the stored data */
         $_SESSION['TimeZone'] = (ini_get('date.timezone')?ini_get('date.timezone'):$this->getSetting('FOG_TZ_INFO'));
         ini_set('max_input_vars',5000);
     }

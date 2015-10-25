@@ -1,14 +1,7 @@
 <?php
 class EventManager extends FOGBase {
-    /** @var $loglevel the default loglevel */
     public $logLevel = 0;
-    /** @var $data the data as passed */
     public $data = array();
-    /** @function register() registers the event with the fog system
-     * @param $event the event to register
-     * @param $listener the listener of the event
-     * @returns boolean of registered status
-     */
     public function register($event, $listener) {
         try {
             if (!class_exists($listener, false)) throw new Exception('Listiner is invalid');
@@ -22,11 +15,6 @@ class EventManager extends FOGBase {
         }
         return false;
     }
-    /** @function notify() notifies/sends the event
-     * @param $event the event to notify
-     * @param $eventData the data of the event to notify
-     * @return boolean of notified status
-     */
     public function notify($event, $eventData=array()) {
         try {
             if  (!is_array($eventData)) throw new Exception('Data is invalid');
@@ -43,9 +31,6 @@ class EventManager extends FOGBase {
         }
         return false;
     }
-    /** @function load() loads the events into the system
-     * @return void
-     */
     public function load() {
         global $Init;
         foreach($Init->EventPaths AS $i => &$subscriberDirectory) {
@@ -70,11 +55,6 @@ class EventManager extends FOGBase {
         }
         unset($subscriberDirectory);
     }
-    /** @function log() logs the event as it happens
-     * @param $txt the string to log
-     * @param $level the level of logging
-     * @return void
-     */
     public function log($txt, $level = 1) {
         if (!$this->ajax && $this->logLevel >= $level)
             printf('[%s] %s%s', $this->nice_date()->format("d-m-Y H:i:s"), trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt)), "<br />\n");

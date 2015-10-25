@@ -181,6 +181,7 @@ abstract class FOGBase {
         } else {
             foreach ($array AS $k => &$value) {
                 if (is_array($value)) $this->array_remove($key, $value);
+                else unset($array[$key]);
             }
             unset($value);
         }
@@ -447,11 +448,24 @@ abstract class FOGBase {
                 ->save();
         }
     }
-    public function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id',$not = false,$operator = 'AND') {
+    public function orderBy(&$orderBy) {
+        if (empty($orderBy)) {
+            $orderBy = 'id';
+            if (isset($this->databaseFields['name'])) $orderBy = 'name';
+        } else {
+            $orderBy = trim($orderBy);
+            if (!isset($this->databaseFields[$orderBy])) {
+                $orderBy = 'id';
+                if (isset($this->databaseFields['name'])) $orderBy = 'name';
+            }
+        }
+    }
+    public function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id',$not = false,$operator = 'AND',$orderBy = 'name') {
         if (empty($object)) $object = 'Host';
         if (empty($getField)) $getField = 'id';
         if (empty($operator)) $operator = 'AND';
-        return array_values(array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,$operator,'','','','',$not,$getField))));
+        $this->orderBy($orderBy);
+        return array_values(array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','','',$not,$getField))));
     }
     public function getSetting($key) {
         $value = $this->getSubObjectIDs('Service',array('name'=>$key),'value');

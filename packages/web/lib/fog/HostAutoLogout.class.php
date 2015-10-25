@@ -1,11 +1,13 @@
 <?php
 class HostAutoLogout extends FOGController {
-    // Database Table
-    public $databaseTable = 'hostAutoLogOut';
-    // Fields
-    public $databaseFields = array(
+    protected $databaseTable = 'hostAutoLogOut';
+    protected $databaseFields = array(
         'id' => 'haloID',
         'hostID' => 'haloHostID',
         'time' => 'haloTime',
+    );
+    protected $databaseFieldsRequired = array(
+        'hostID',
+        'time',
     );
 }

@@ -1,10 +1,15 @@
 <?php
 class Pushbullet extends FOGController {
-    public $databaseTable = 'pushbullet';
-    public $databaseFields = array(
+    protected $databaseTable = 'pushbullet';
+    protected $databaseFields = array(
         'id'     => 'pID',
         'token'  => 'pToken',
         'name'   => 'pName',
         'email'  => 'pEmail',
+    );
+    protected $databaseFieldsRequired = array(
+        'token',
+        'name',
+        'email',
     );
 }

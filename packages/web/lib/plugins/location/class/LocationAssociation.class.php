@@ -1,43 +1,33 @@
 <?php
-
-class LocationAssociation extends FOGController
-{
-	// Table
-	public $databaseTable = 'locationAssoc';
-	
-	// Name -> Database field name
-	public $databaseFields = array(
-		'id'		=> 'laID',
-		'locationID'		=> 'laLocationID',
+class LocationAssociation extends FOGController {
+	protected $databaseTable = 'locationAssoc';
+	protected $databaseFields = array(
+		'id' => 'laID',
+		'locationID' => 'laLocationID',
 		'hostID' => 'laHostID',
-	);
-
-	// Get the storageNode for this location
-	public function getStorageNode()
-	{
-		$Location = new Location($this->get('locationID'));
-		if ($Location && $Location->isValid())
-		{
-			if ($Location->get('storageNodeID'))
-				$StorageNode = new StorageNode($Location->get('storageNodeID'));
-			else
-				$StorageNode = $this->getStorageGroup()->getOptimalStorageNode();
-		}
-		return $StorageNode;
+    );
+    protected $databaseFieldsRequired = array(
+        'locationID',
+        'hostID',
+    );
+    public function getLocation() {
+        return $this->getClass('Location',$this->get('locationID'));
+    }
+    public function getHost() {
+        return $this->getClass('Host',$this->get('hostID'));
+    }
+    public function getStorageGroup() {
+        if (!$this->getLocation()->isValid()) return;
+        return $this->getClass('StorageGroup',$this->getLocation()->get('storageGroupID'));
+    }
+    public function getStorageNode() {
+        if (!$this->getLocation()->isValid()) return;
+		$Location = $this->getLocation();
+		if ($this->get('storageNodeID')) return $this->getClass('StorageNode',$Location->get('storageNodeID'));
+		return $this->getStorageGroup()->getOptimalStorageNode();
 	}
-	// Get the storageGroup for this location
-	public function getStorageGroup()
-	{
-		$Location = new Location($this->get('locationID'));
-		if ($Location && $Location->isValid())
-			$StorageGroup = new StorageGroup($Location->get('storageGroupID'));
-		return $StorageGroup;
-	}
-	// Get if the location is tftp or not.
-	public function isTFTP()
-	{
-		$Location = new Location($this->get('locationID'));
-		if ($Location && $Location->isValid())
-			return $Location->get('tftp');
+    public function isTFTP() {
+        if (!$this->getLocation()->isValid()) return false;
+        return (bool)$this->getLocation()->get('tftp');
 	}
 }

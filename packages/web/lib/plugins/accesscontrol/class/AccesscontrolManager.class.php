@@ -1,11 +1,5 @@
 <?php
 class AccesscontrolManager extends FOGManagerController {
-	/**	install($name)
-		Method that installs the relevant plugin.
-
-		$name just sends the plugin name.  Useful
-		for schema adding.
-	*/
 	public function install($name) {
         $sql = "CREATE TABLE accessControls
         (acID INTEGER NOT NULL AUTO_INCREMENT,
@@ -18,13 +12,11 @@ class AccesscontrolManager extends FOGManagerController {
         INDEX new_index (acUserID),
         INDEX new_index2 (acGroupID))
         ENGINE = MyISAM";
-        if (!$this->DB->query($sql))
-			return false;
+        if (!$this->DB->query($sql)) return false;
 		return true;
-    } 
+    }
 	public function uninstall() {
-		if (!$this->DB->query("DROP TABLE accessControls"))
-			return false;
+		if (!$this->DB->query("DROP TABLE accessControls")) return false;
 		return true;
 	}
 }

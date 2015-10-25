@@ -1,4 +1,2 @@
 <?php
-class LocationAssociationManager extends FOGManagerController
-{
-}
+class LocationAssociationManager extends FOGManagerController {}

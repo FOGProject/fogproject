@@ -15,23 +15,14 @@ abstract class FOGController extends FOGBase {
     protected $insertQueryTemplate = "INSERT INTO %s (%s) VALUES ('%s') ON DUPLICATE KEY UPDATE %s";
     protected $destroyQueryTemplate = "DELETE FROM %s WHERE %s='%s'";
     public function __construct($data = '') {
-        /** FOGBase Constructor */
         parent::__construct();
-        /** After FOGBase is called, these variables allow
-         * Display and debug to happen for better development
-         */
-        /** The called Table cleaned up as needed */
         $this->databaseTable = trim($this->databaseTable);
-        /** The databaseFields to work from */
         $this->databaseFields = array_filter(array_unique((array)$this->databaseFields));
         try {
-            // Error Checking
             if (!isset($this->databaseTable)) throw new Exception(_('No database table defined for this class'));
             if (!count($this->databaseFields)) throw new Exception(_('No database fields defined for this class'));
             if (is_numeric($data) && intval($data) < 1) throw new Exception(_('Improper data passed'));
-            // Flip the generic and real table values for ease
             $this->databaseFieldsFlipped = array_flip($this->databaseFields);
-            // If the data called is a valid ID load the object
             if (is_numeric($data)) $this->set('id',$data)->load();
             else if (is_array($data)) {
                 foreach ($data AS $key => &$val) {
@@ -152,13 +143,10 @@ abstract class FOGController extends FOGBase {
         $this->info(sprintf(_('Loading data to field %s'),$field));
         try {
             if (!trim($this->get($field))) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
-            // Get the query elements
             list($join, $where) = $this->buildQuery();
             foreach ((array)$field AS $i => &$key) {
                 $key = $this->key($key);
-                // Actually Build the real query:
                 if (!is_array($this->get($key))) {
-                    // Single Value
                     $query = sprintf($this->loadQueryTemplateSingle,
                         $this->databaseTable,
                         $join,
@@ -170,7 +158,6 @@ abstract class FOGController extends FOGBase {
                     $fieldData = array();
                     $fields = $this->get($key);
                     foreach((array)$fields AS $i => &$fieldValue) $fieldData[] = sprintf("%s='%s'",$this->databaseFields[$key],$this->DB->sanitize($fieldValue));
-                    // Multiple Values
                     $query = sprintf($this->loadQueryTemplateMultiple,
                         $this->databaseTable,
                         $join,

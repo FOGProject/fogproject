@@ -36,38 +36,38 @@ class Snapin extends FOGController {
     public function save() {
         parent::save();
         switch (true) {
-            case ($this->isLoaded('hosts')):
+        case ($this->isLoaded('hosts')):
+            $DBHostIDs = $this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID');
+            $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
+            if (count($RemoveHostIDs)) {
+                $this->getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
                 $DBHostIDs = $this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID');
-                $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
-                if (count($RemoveHostIDs)) {
-                    $this->getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
-                    $DBHostIDs = $this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID');
-                    unset($RemoveHostIDs);
-                }
-                $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
-                foreach ((array)$Hosts AS $i => &$Host) {
-                    $this->getClass('SnapinAssociation')
-                        ->set('hostID',$Host)
-                        ->set('snapinID',$this->get('id'))
-                        ->save();
-                }
-                unset($Host,$Hosts,$DBHostIDs);
-            case ($this->isLoaded('storageGroups')):
+                unset($RemoveHostIDs);
+            }
+            $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
+            foreach ((array)$Hosts AS $i => &$Host) {
+                $this->getClass('SnapinAssociation')
+                    ->set('hostID',$Host)
+                    ->set('snapinID',$this->get('id'))
+                    ->save();
+            }
+            unset($Host,$Hosts,$DBHostIDs);
+        case ($this->isLoaded('storageGroups')):
+            $DBGroupIDs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID');
+            $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('storageGroups'));
+            if (count($RemoveGroupIDs)) {
+                $this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$this->get('id'),'storageGroupID'=>$RemoveGroupIDs));
                 $DBGroupIDs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID');
-                $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('storageGroups'));
-                if (count($RemoveGroupIDs)) {
-                    $this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$this->get('id'),'storageGroupID'=>$RemoveGroupIDs));
-                    $DBGroupIDs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID');
-                    unset($RemoveGroupIDs);
-                }
-                $Groups = array_diff((array)$this->get('storageGroups'),(array)$DBGroupIDs);
-                foreach ((array)$Groups AS $i => &$Group) {
-                    $this->getClass('SnapinGroupAssociation')
-                        ->set('snapinID',$this->get('id'))
-                        ->set('storageGroupID',$Group)
-                        ->save();
-                }
-                unset($Group,$Groups,$DBGroupIDs);
+                unset($RemoveGroupIDs);
+            }
+            $Groups = array_diff((array)$this->get('storageGroups'),(array)$DBGroupIDs);
+            foreach ((array)$Groups AS $i => &$Group) {
+                $this->getClass('SnapinGroupAssociation')
+                    ->set('snapinID',$this->get('id'))
+                    ->set('storageGroupID',$Group)
+                    ->save();
+            }
+            unset($Group,$Groups,$DBGroupIDs);
         }
         return $this;
     }
