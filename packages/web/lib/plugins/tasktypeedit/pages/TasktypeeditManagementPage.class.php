@@ -3,7 +3,6 @@ class TasktypeeditManagementPage extends FOGPage {
     public $node = 'tasktypeedit';
     public function __construct($name = '') {
         $this->name = 'Task Type Management';
-        // Call parent constructor
         parent::__construct($this->name);
         $this->menu = array(
             'search' => $this->foglang[NewSearch],
@@ -18,13 +17,11 @@ class TasktypeeditManagementPage extends FOGPage {
                 _('Type')=>$this->obj->get(type),
             );
         }
-        // Header row
         $this->headerData = array(
             _('Name'),
             _('Access'),
             _('Kernel Args'),
         );
-        // Row templates
         $this->templates = array(
             '<a href="?node='.$this->node.'&sub=edit&id=${id}" title="Edit"><i class="fa fa-${icon} fa-1x"> ${name}</i></a>',
             '${access}',
@@ -36,38 +33,42 @@ class TasktypeeditManagementPage extends FOGPage {
             array('class'=>r),
         );
     }
-    // Pages
     public function index() {
-        // Set title
         $this->title = _('All Task Types');
         if ($this->getSetting(FOG_DATA_RETURNED)>0 && $this->getClass(TaskTypeManager)->count() > $this->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
             $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        // Find data
-        $TaskTypes = $this->getClass(TaskTypeManager)->find('','','id');
-        // Row data
-        foreach ((array)$TaskTypes AS $i => &$TaskType) {
+        $ids = $this->getSubObjectIDs('TaskType');
+        foreach ((array)$ids AS $i => &$id) {
+            $TaskType = $this->getClass('TaskType',$id);
+            if (!$TaskType->isValid()) {
+                unset($TaskType);
+                continue;
+            }
             $this->data[] = array(
-                icon=>$TaskType->get(icon),
-                id=>$TaskType->get(id),
-                name=>$TaskType->get(name),
-                access=>$TaskType->get(access),
-                args=>$TaskType->get(kernelArgs),
+                'icon'=>$TaskType->get('icon'),
+                'id'=>$TaskType->get('id'),
+                'name'=>$TaskType->get('name'),
+                'access'=>$TaskType->get('access'),
+                'args'=>$TaskType->get('kernelArgs'),
             );
+            unset($TaskType);
         }
         unset($TaskType);
-        // Hook
         $this->HookManager->event[] = 'TASKTYPE_DATA';
         $this->HookManager->processEvent(TASKTYPE_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
         $this->render();
     }
     public function search_post() {
-        // Variables
         $keyword = preg_replace('#%+#','%','%'.preg_replace('#[[:space:]]#','%',$_REQUEST[crit]).'%');
         foreach ($this->getClass(TaskType)->databaseFields AS $field => &$val) $where[$field] = $keyword;
         // Find data -> Push data
-        $TaskTypes = $this->getClass(TaskTypeManager)->search();
-        foreach ($TaskTypes AS $i => &$TaskType) {
+        $ids = $this->getClass('TaskTypeManager')->search();
+        foreach ($ids AS $i => &$id) {
+            $TaskType = $this->getClass('TaskType',$id);
+            if (!$TaskType->isValid()) {
+                unset($TaskType);
+                continue;
+            }
             $this->data[] = array(
                 icon=>$TaskType->get(icon),
                 id=>$TaskType->get(id),
@@ -77,22 +78,17 @@ class TasktypeeditManagementPage extends FOGPage {
             );
         }
         unset($TaskType);
-        // Hook
         $this->HookManager->event[] = 'TASKTYPE_DATA';
         $this->HookManager->processEvent(TASKTYPE_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
         $this->render();
     }
     public function add() {
         $this->title = 'New Task Type';
-        // Header Data
         unset($this->headerData);
-        // Attributes
         $this->attributes = array(
             array(),
             array(),
         );
-        // Templates
         $this->templates = array(
             '${field}',
             '${input}',
