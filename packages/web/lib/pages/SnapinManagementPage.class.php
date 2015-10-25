@@ -43,14 +43,16 @@ class SnapinManagementPage extends FOGPage {
     }
     // Pages
     public function index() {
-        // Set title
         $this->title = _('All Snap-ins');
         if ($this->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('SnapinManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
             $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        // Find data
-        $Snapins = $this->getClass('SnapinManager')->find();
-        // Row data
-        foreach ($Snapins AS $i => &$Snapin) {
+        $ids = $this->getSubObjectIDs('Snapin');
+        foreach ((array)$ids AS $i => &$id) {
+            $Snapin = $this->getClass('Snapin',$id);
+            if (!$Snapin->isValid()) {
+                unset($Snapin);
+                continue;
+            }
             $this->data[] = array(
                 'id'=>$Snapin->get('id'),
                 'name'=>$Snapin->get('name'),
@@ -66,9 +68,13 @@ class SnapinManagementPage extends FOGPage {
         $this->render();
     }
     public function search_post() {
-        // Find data -> Push data
-        $Snapins = $this->getClass('SnapinManager')->search();
-        foreach ($Snapins AS $i => &$Snapin) {
+        $ids = $this->getClass('SnapinManager')->search();
+        foreach ((array)$ids AS $i => &$id) {
+            $Snapin = $this->getClass('Snapin',$id);
+            if (!$Snapin->isValid()) {
+                unset($Snapin);
+                continue;
+            }
             $this->data[] = array(
                 'id'=>$Snapin->get('id'),
                 'name'=>$Snapin->get('name'),
@@ -78,18 +84,12 @@ class SnapinManagementPage extends FOGPage {
             );
         }
         unset($Snapin);
-        // Hook
         $this->HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        // Output
         $this->render();
     }
-    // STORAGE NODE
     public function add() {
-        // Set title
         $this->title = _('Add New Snapin');
-        // Header Data
         unset($this->headerData);
-        // Attributes (cell information)
         $this->attributes = array(
             array(),
             array(),
@@ -341,7 +341,6 @@ class SnapinManagementPage extends FOGPage {
     public function edit_post() {
         // Hook
         $this->HookManager->processEvent('SNAPIN_EDIT_POST',array('Snapin'=>&$this->obj));
-        // POST
         try {
             switch ($_REQUEST['tab']) {
                 case 'snap-gen':

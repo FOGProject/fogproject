@@ -61,7 +61,7 @@ class TaskMobile extends FOGPage {
     }
     public function search() {
         unset($this->headerData[0],$this->headerData[5],$this->attributes[0],$this->attributes[5],$this->templates[0],$this->templates[5]);
-        parent::search();
+        $this->getClass('TaskManager')->search();
     }
     public function search_post() {
         unset($this->headerData[0],$this->headerData[5],$this->attributes[0],$this->attributes[5],$this->templates[0],$this->templates[5]);
