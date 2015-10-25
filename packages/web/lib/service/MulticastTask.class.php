@@ -4,10 +4,8 @@ class MulticastTask extends MulticastManager {
         if (!in_array($method,array('find','count'))) $method = 'find';
         return $this->getClass('MulticastSessionsManager')->$method(array('stateID'=>array(0,1,2,3)));
     }
-    // Updated to only care about tasks in its group
     public function getAllMulticastTasks($root) {
         $Tasks = array();
-        // Grace period to ensure tasks are actually submitted to the db
         if (self::getSession('count')) {
             $this->outall(sprintf(' | Sleeping for %s seconds to ensure tasks are properly submitted',$this->zzz));
             sleep($this->zzz);
@@ -215,8 +213,3 @@ class MulticastTask extends MulticastManager {
         return -1;
     }
 }
-/* Local Variables: */
-/* indent-tabs-mode: t */
-/* c-basic-offset: 4 */
-/* tab-width: 4 */
-/* End: */

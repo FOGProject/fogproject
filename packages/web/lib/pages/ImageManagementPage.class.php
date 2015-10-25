@@ -1,36 +1,28 @@
 <?php
 class ImageManagementPage extends FOGPage {
-    // Base variables
     public $node = 'image';
-    // __construct
-    /** __construct($name = '')
-     * The basic constructor template for
-     * index and search functions.
-     */
     public function __construct($name = '') {
         $this->name = 'Image Management';
-        // Call parent constructor
         parent::__construct($this->name);
-        $this->menu[multicast] = $this->foglang[Multicast].' '.$this->foglang[Image];
-        $SizeServer = $_SESSION[FOG_FTP_IMAGE_SIZE];
-        if ($_REQUEST[id]) {
-            $this->obj = $this->getClass(Image,$_REQUEST[id]);
+        $this->menu['multicast'] = $this->foglang['Multicast'].' '.$this->foglang['Image'];
+        $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
+        if ($_REQUEST['id']) {
+            $this->obj = $this->getClass('Image',$_REQUEST['id']);
             $this->subMenu = array(
-                "$this->linkformat#image-gen" => $this->foglang[General],
-                "$this->linkformat#image-storage" => $this->foglang[Storage].' '.$this->foglang[Group],
-                $this->membership => $this->foglang[Membership],
+                "$this->linkformat#image-gen" => $this->foglang['General'],
+                "$this->linkformat#image-storage" => $this->foglang['Storage'].' '.$this->foglang['Group'],
+                $this->membership => $this->foglang['Membership'],
                 $this->delformat => $this->foglang['Delete'],
             );
             $this->notes = array(
-                $this->foglang[Images] => $this->obj->get(name),
-                $this->foglang[LastUploaded] => $this->obj->get(deployed),
-                $this->foglang[DeployMethod] => $this->obj->get(format) ? _('Partimage') : _('Partclone'),
-                $this->foglang[ImageType] => $this->obj->getImageType() ? $this->obj->getImageType() : $this->foglang[NoAvail],
-                _('Primary Storage Group') => $this->obj->getStorageGroup()->get(name),
+                $this->foglang['Images'] => $this->obj->get('name'),
+                $this->foglang['LastUploaded'] => $this->obj->get('deployed'),
+                $this->foglang['DeployMethod'] => $this->obj->get('format') ? _('Partimage') : _('Partclone'),
+                $this->foglang['ImageType'] => $this->obj->getImageType() ? $this->obj->getImageType() : $this->foglang['NoAvail'],
+                _('Primary Storage Group') => $this->obj->getStorageGroup()->get('name'),
             );
         }
-        $this->HookManager->processEvent(SUB_MENULINK_DATA,array(menu=>&$this->menu,submenu=>&$this->subMenu,id=>&$this->id,notes=>&$this->notes));
-        // Header row
+        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
         $this->headerData = array(
             '',
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
@@ -44,7 +36,6 @@ class ImageManagementPage extends FOGPage {
             _('Uploaded'),
             _('Edit/Remove')
         );
-        // Row templates
         $this->templates = array(
             '${protected}',
             '<input type="checkbox" name="image[]" value="${id}" class="toggle-action" />',
@@ -58,97 +49,96 @@ class ImageManagementPage extends FOGPage {
             '${deployed}',
             '<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').'"><i class="fa fa-pencil"></i></a> <a href="?node='.$this->node.'&sub=delete&'.$this->id.'=${id}" title="'._('Delete').'"><i class="fa fa-minus-circle"></i></a>'
         );
-        // Row attributes
         $this->attributes = array(
-            array(width=>5,'class'=>'c disabled filter-false'),
-            array(width=>16,'class'=>'c disabled filter-false'),
-            array(width=>50,'class'=>l),
-            array(width=>50,'class'=>c),
+            array('width'=>5,'class'=>'c filter-false'),
+            array('width'=>16,'class'=>'c filter-false'),
+            array('width'=>50,'class'=>'l'),
+            array('width'=>50,'class'=>'c'),
         );
-        $SizeServer ? array_push($this->attributes,array(width=>50,'class'=>c)) : null;
+        $SizeServer ? array_push($this->attributes,array('width'=>50,'class'=>'c')) : null;
         array_push(
             $this->attributes,
-            array(width=>50,'class'=>c),
-            array(width=>50,'class'=>c),
-            array(width=>50,'class'=>c)
+            array('width'=>50,'class'=>'c'),
+            array('width'=>50,'class'=>'c'),
+            array('width'=>50,'class'=>'c')
         );
     }
-    // Pages
-    /** index()
-     * The default page view for Image Management.  If search is default view, this is not displayed.
-     */
     public function index() {
-        // Set title
         $this->title = _('All Images');
-        if ($_SESSION[DataReturn] > 0 && $_SESSION[ImageCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        // Find data
-        $Images = $this->getClass(ImageManager)->find();
-        $SizeServer = $_SESSION[FOG_FTP_IMAGE_SIZE];
-        // Row data
-        foreach ($Images AS $i => &$Image) {
-            $imageSize = $this->FOGCore->formatByteSize((double)$Image->get(size));
+        if ($_SESSION['DataReturn'] > 0 && $_SESSION['ImageCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        $ids = $this->getSubObjectIDs('Image');
+        $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
+        foreach ($ids AS $i => &$id) {
+            $Image = $this->getClass('Image',$id);
+            if (!$Image->isValid()) {
+                unset($Image);
+                continue;
+            }
+            $imageSize = $this->formatByteSize((double)$Image->get('size'));
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-            if ($StorageNode && $StorageNode->isValid() && $SizeServer) $servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get(ftppath).'/'.$Image->get(path) : null));
+            if (!$StorageNode->isValid()) {
+                unset($StorageNode,$Image);
+                continue;
+            }
+            if ($SizeServer) $servSize = $this->getFTPByteSize($StorageNode,$StorageNode->get('ftppath').'/'.$Image->get('path'));
+            unset($StorageNode);
             $this->data[] = array(
-                id=>$Image->get(id),
-                name=>$Image->get(name),
-                description=>$Image->get(description),
-                storageGroup=>$Image->getStorageGroup()->get(name),
-                os=>$Image->getOS() && $Image->getOS()->isValid() ? $Image->getOS()->get(name) : _('Not set'),
-                deployed=>$this->validDate($Image->get(deployed)) ? $this->FOGCore->formatTime($Image->get(deployed)) : 'No Data',
-                size => $imageSize,
-                $SizeServer ? serv_size : null => $SizeServer ? $servSize : null,
-                image_type=>$Image->getImageType()->get(name),
-                image_partition_type => $Image->getImagePartitionType()->get(name),
+                'id'=>$Image->get('id'),
+                'name'=>$Image->get('name'),
+                'description'=>$Image->get('description'),
+                'storageGroup'=>$Image->getStorageGroup()->get('name'),
+                'os'=>$Image->getOS()->isValid() ? $Image->getOS()->get('name') : _('Not set'),
+                'deployed'=>$this->validDate($Image->get('deployed')) ? $this->formatTime($Image->get('deployed')) : 'No Data',
+                'size' => $imageSize,
+                $SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
+                'image_type'=>$Image->getImageType()->get('name'),
+                'image_partition_type' => $Image->getImagePartitionType()->get('name'),
                 'protected'=>'<i class="fa fa-'.(!$Image->get('protected') ? 'un' : '').'lock fa-1x icon hand" title="'.(!$Image->get('protected') ? _('Not Protected') : _('Protected')).'"></i>',
-                type=>$Image->get(format) ? _('Partimage') : _('Partclone'),
+                'type'=>$Image->get('format') ? _('Partimage') : _('Partclone'),
             );
+            unset($Image,$imageSize);
         }
         unset($Image);
-        // Hook
-        $this->HookManager->processEvent(IMAGE_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        $this->HookManager->processEvent('IMAGE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
-    /** search_post()
-     * Used from the search field.  If search is default view, this is how the data gets displayed based
-     * on what was searched for.
-     */
     public function search_post() {
-        // Get All images based on the keyword
-        $SizeServer = $_SESSION[FOG_FTP_IMAGE_SIZE];
-        // Find data -> Push data
-        $Images = $this->getClass(ImageManager)->search();
-        foreach ($Images AS $i => &$Image) {
-            $imageSize = $this->FOGCore->formatByteSize((double)$Image->get(size));
+        $ids = $this->getClass('ImageManager')->search();
+        $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
+        foreach ($ids AS $i => &$id) {
+            $Image = $this->getClass('Image',$id);
+            if (!$Image->isValid()) {
+                unset($Image);
+                continue;
+            }
+            $imageSize = $this->formatByteSize((double)$Image->get('size'));
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-            if ($StorageNode && $StorageNode->isValid() && $SizeServer) $servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get(ftppath).'/'.$Image->get(path) : null));
+            if (!$StorageNode->isValid()) {
+                unset($StorageNode,$Image);
+                continue;
+            }
+            if ($SizeServer) $servSize = $this->getFTPByteSize($StorageNode,$StorageNode->get('ftppath').'/'.$Image->get('path'));
             $this->data[] = array(
-                id=>$Image->get(id),
-                name=>$Image->get(name),
-                description=>$Image->get(description),
-                storageGroup=>$Image->getStorageGroup()->get(name),
-                os=>$Image->getOS()->get(name),
-                deployed=>$this->validDate($Image->get(deployed)) ? $this->FOGCore->formatTime($Image->get(deployed)) : _('No Data'),
-                size=>$imageSize,
-                $SizeServer ? serv_size : null => $SizeServer ? $servSize : null,
-                image_type=>$Image->getImageType()->get(name),
-                image_partition_type=>$Image->getImagePartitionType()->get(name),
-                type=>_($Image->get(format) ? _('Partimage') : _('Partclone')),
+                'id'=>$Image->get('id'),
+                'name'=>$Image->get('name'),
+                'description'=>$Image->get('description'),
+                'storageGroup'=>$Image->getStorageGroup()->get('name'),
+                'os'=>$Image->getOS()->get('name'),
+                'deployed'=>$this->validDate($Image->get('deployed')) ? $this->formatTime($Image->get('deployed')) : _('No Data'),
+                'size'=>$imageSize,
+                $SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
+                'image_type'=>$Image->getImageType()->get('name'),
+                'image_partition_type'=>$Image->getImagePartitionType()->get('name'),
+                'type'=>_($Image->get('format') ? _('Partimage') : _('Partclone')),
                 'protected' => '<i class="fa fa-'.(!$Image->get('protected') ? 'un' : '').'lock fa-1x icon hand" title="'.(!$Image->get('protected') ? _('Not Protected') : _('Protected')).'"></i>',
             );
+            unset($Image,$imageSize);
         }
-        unset($Image);
-        // Hook
-        $this->HookManager->processEvent(IMAGE_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        unset($id);
+        $this->HookManager->processEvent('IMAGE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
-    /** add()
-     * Displays the form to create a new image object.
-     */
     public function add() {
-        // Set title
         $this->title = _('New Image');
         unset($this->headerData);
         $this->attributes = array(
@@ -162,16 +152,16 @@ class ImageManagementPage extends FOGPage {
         $StorageNode = $this->getClass('StorageGroup',@min($this->getSubObjectIDs('StorageGroup','','id')))->getMasterStorageNode();
         if (!(($StorageNode instanceof StorageNode) && $StorageNode)) die(_('There is no active/enabled Storage nodes on this server.'));
         $StorageGroups = $this->getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup'] ? $_REQUEST['storagegroup'] : $StorageNode->get('storageGroupID'));
-        $OSs = $this->getClass(OSManager)->buildSelectBox($_REQUEST[os]);
-        $ImageTypes = $this->getClass(ImageTypeManager)->buildSelectBox($_REQUEST[imagetype] ? $_REQUEST[imagetype] : 1,'','id');
-        $ImagePartitionTypes = $this->getClass(ImagePartitionTypeManager)->buildSelectBox($_REQUEST[imagepartitiontype] ? $_REQUEST[imagepartitiontype] : 1,'','id');
+        $OSs = $this->getClass('OSManager')->buildSelectBox($_REQUEST['os']);
+        $ImageTypes = $this->getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'] ? $_REQUEST['imagetype'] : 1,'','id');
+        $ImagePartitionTypes = $this->getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'] ? $_REQUEST['imagepartitiontype'] : 1,'','id');
         $compression = is_numeric($_REQUEST['compress']) && $_REQUEST['compress'] > -1 && $_REQUEST['compress'] < 10 ? intval($_REQUEST['compress']) : $this->getSetting('FOG_PIGZ_COMP');
         $fields = array(
-            _('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="'.$_REQUEST[name].'" />',
-            _('Image Description') => '<textarea name="description" rows="8" cols="40">'.$_REQUEST[description].'</textarea>',
+            _('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="'.$_REQUEST['name'].'" />',
+            _('Image Description') => '<textarea name="description" rows="8" cols="40">'.$_REQUEST['description'].'</textarea>',
             _('Storage Group') => $StorageGroups,
             _('Operating System') => $OSs,
-            _('Image Path') => $StorageNode->get(path).'/&nbsp;<input type="text" name="file" id="iFile" value="'.$_REQUEST['file'].'" />',
+            _('Image Path') => $StorageNode->get('path').'/&nbsp;<input type="text" name="file" id="iFile" value="'.$_REQUEST['file'].'" />',
             _('Image Type') => $ImageTypes,
             _('Partition') => $ImagePartitionTypes,
             _('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="'.$compression.'" />',
@@ -180,35 +170,27 @@ class ImageManagementPage extends FOGPage {
         echo '<h2>'._('Add new image definition').'</h2><form method="post" action="'.$this->formAction.'">';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
-                field=>$field,
-                input=>$input,
+                'field'=>$field,
+                'input'=>$input,
             );
         }
         unset($input);
-        // Hook
-        $this->HookManager->processEvent(IMAGE_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        $this->HookManager->processEvent('IMAGE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
-    /** add_post()
-     * Actually creates the new image object.
-     */
     public function add_post() {
-        // Hook
-        $this->HookManager->processEvent(IMAGE_ADD_POST);
-        // POST
+        $this->HookManager->processEvent('IMAGE_ADD_POST');
         try {
             $_REQUEST['file'] = trim($_REQUEST['file']);
-            $name = trim($_REQUEST[name]);
-            // Error checking
+            $name = trim($_REQUEST['name']);
             if (!$name) throw new Exception('An image name is required!');
-            if ($this->getClass(ImageManager)->exists($name)) throw new Exception('An image already exists with this name!');
+            if ($this->getClass('ImageManager')->exists($name)) throw new Exception('An image already exists with this name!');
             if (empty($_REQUEST['file'])) throw new Exception('An image file name is required!');
             if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception('Please choose a different name, this one is reserved for FOG.');
-            if (empty($_REQUEST[storagegroup])) throw new Exception('A Storage Group is required!');
-            if (empty($_REQUEST[os])) throw new Exception('An Operating System is required!');
-            if (empty($_REQUEST[imagetype]) || !is_numeric($_REQUEST[imagetype])) throw new Exception('An image type is required!');
+            if (empty($_REQUEST['storagegroup'])) throw new Exception('A Storage Group is required!');
+            if (empty($_REQUEST['os'])) throw new Exception('An Operating System is required!');
+            if (empty($_REQUEST['imagetype']) || !is_numeric($_REQUEST[imagetype])) throw new Exception('An image type is required!');
             if (empty($_REQUEST[imagepartitiontype]) || !is_numeric($_REQUEST[imagepartitiontype])) throw new Exception('An image partition type is required!');
             // Create new Object
             $Image = $this->getClass(Image)

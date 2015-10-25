@@ -2,7 +2,6 @@
 class UserManagementPage extends FOGPage {
     public $node = 'user';
     public $name = 'User Management';
-    // __construct
     public function __construct($name = '') {
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
@@ -16,52 +15,55 @@ class UserManagementPage extends FOGPage {
             );
         }
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
-        // Header row
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Username'),
             _('Edit')
         );
-        // Row templates
         $this->templates = array(
             '<input type="checkbox" name="user[]" value="${id}" class="toggle-action" />',
             sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit User')),
             sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a>', $this->node, $this->id, _('Edit User'))
         );
-        // Row attributes
         $this->attributes = array(
             array('class'=>'c filter-false','width'=>16),
             array(),
             array('class'=>'c filter-false','width'=>55),
         );
     }
-    // Pages
     public function index() {
-        // Set title
         $this->title = _('All Users');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['UserCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
-        // Find data
-        $Users = $this->getClass('UserManager')->find();
-        // Row data
-        foreach ($Users AS $i => &$User) $this->data[] = $User->get();
-        unset($User);
-        // Hook
+        $ids = $this->getSubObjectIDs('User');
+        foreach ($ids AS $i => &$id) {
+            $User = $this->getClass('User',$id);
+            if (!$User->isValid()) {
+                unset($User);
+                continue;
+            }
+            $this->data[] = $User->get();
+            unset($User);
+        }
+        unset($ids,$id);
         $this->HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        // Output
         $this->render();
     }
     public function search_post() {
-        // Find data -> Push data
-        $Users = $this->getClass('UserManager')->search();
-        foreach ($Users AS $i => &$User) $this->data[] = $User->get();
-        unset($User);
-        // Hook
+        $ids = $this->getClass('UserManager')->search();
+        foreach ($ids AS $i => &$id) {
+            $User = $this->getClass('User',$id);
+            if (!$User->isValid()) {
+                unset($User);
+                continue;
+            }
+            $this->data[] = $User->get();
+            unset($User);
+        }
+        unset($id,$ids);
         $this->HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        // Output
         $this->render();
     }
     public function add() {
-        // Set title
         $this->title = _('New User');
         unset ($this->headerData);
         $this->templates = array(
@@ -87,41 +89,31 @@ class UserManagementPage extends FOGPage {
                 'input'=>$input,
             );
         }
-        unset($input);
+        unset($input,$fields);
         $this->HookManager->processEvent('USER_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
     public function add_post() {
-        // Hook
         $this->HookManager->processEvent('USER_ADD_POST');
-        // POST
         try {
-            // Error checking
             if ($this->getClass('UserManager')->exists($_REQUEST['name'])) throw new Exception(_('Username already exists'));
             if (!$this->getClass('UserManager')->isPasswordValid($_REQUEST['password'],$_REQUEST['password_confirm'])) throw new Exception(_('Password is invalid'));
-            // Create new Object
             $User = $this->getClass('User')
                 ->set('name',$_REQUEST['name'])
                 ->set('type',(int)isset($_REQUEST['isGuest']))
                 ->set('password',$_REQUEST['password']);
-            // Save
             if (!$User->save()) throw new Exception(_('Failed to create user'));
-            // Hook
-            $this->HookManager->processEvent(USER_ADD_SUCCESS,array(User=>&$User));
-            // Set session message
+            $this->HookManager->processEvent('USER_ADD_SUCCESS',array('User'=>&$User));
             $this->setMessage(_('User created').'<br>'._('You may now create another'));
         } catch (Exception $e) {
-            // Hook
-            $this->HookManager->processEvent(USER_ADD_FAIL,array(User=>&$User));
-            // Set session message
+            $this->HookManager->processEvent('USER_ADD_FAIL',array('User'=>&$User));
             $this->setMessage($e->getMessage());
         }
-        // Redirect to new entry
+        unset($User);
         $this->redirect($this->formAction);
     }
     public function edit() {
-        // Title
         $this->title = sprintf('%s: %s',_('Edit'),$this->obj->get('name'));
         $fields = array(
             _('User Name') => '<input type="text" name="name" value="'.$this->obj->get('name').'" />',
@@ -139,47 +131,38 @@ class UserManagementPage extends FOGPage {
             array(),
             array(),
         );
-        echo '<form method="post" action="'.$this->formAction.'"><input type="hidden" name="update" value="'.$this->obj->get(id).'" />';
+        echo '<form method="post" action="'.$this->formAction.'"><input type="hidden" name="update" value="'.$this->obj->get('id').'" />';
         foreach ((array)$fields AS $field => &$formData) {
             $this->data[] = array(
                 'field'=>$field,
                 'formData'=>$formData,
             );
         }
-        unset($formData);
+        unset($fields,$formData);
         $this->HookManager->processEvent('USER_EDIT',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        // Find
         $User = $this->obj;
-        // Hook
         $this->HookManager->processEvent('USER_EDIT_POST',array('User'=>&$this->obj));
-        // POST
         try {
             $name = trim($_REQUEST['name']);
-            // Error checking
             if ($name != trim($this->obj->get('name')) && $this->obj->getManager()->exists($name,$this->obj->get('id'))) throw new Exception(_('Username already exists'));
             if ($_REQUEST['password'] && $_REQUEST['password_confirm']) {
-                if (!$this->obj->getManager()->isPasswordValid($_REQUEST['password'],$_REQUEST[password_confirm])) throw new Exception(_('Password is invalid'));
+                if (!$this->obj->getManager()->isPasswordValid($_REQUEST['password'],$_REQUEST['password_confirm'])) throw new Exception(_('Password is invalid'));
             }
             $this->obj
                 ->set('name',$name)
                 ->set('type',(int)isset($_REQUEST['isGuest']))
                 ->set('password',$_REQUEST['password']);
             if (!$this->obj->save()) throw new Exception(_('User update failed'));
-            // Hook
             $this->HookManager->processEvent('USER_UPDATE_SUCCESS',array('User'=>&$this->obj));
-            // Set session message
             $this->setMessage(_('User updated'));
         } catch (Exception $e) {
-            // Hook
             $this->HookManager->processEvent('USER_UPDATE_FAIL',array('User'=>&$User));
-            // Set session message
             $this->setMessage($e->getMessage());
         }
-        // Redirect to new entry
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
     }
 }
