@@ -203,21 +203,16 @@ class SnapinManagementPage extends FOGPage {
         }
     }
     public function edit() {
-        // Title
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
-        // Header Data
         unset($this->headerData);
-        // Attributes (cell information)
         $this->attributes = array(
             array(),
             array(),
         );
-        // Template
         $this->templates = array(
             '${field}',
             '${input}',
         );
-        // See's what files are available and sorts them.
         if ($this->obj->get('storageGroups')) {
             $StorageGroups = $this->getClass('StorageGroup')->getManager()->find(array('id'=>$this->obj->get('storageGroups')));
             foreach($StorageGroups AS $i => &$StorageGroup) {
@@ -237,7 +232,6 @@ class SnapinManagementPage extends FOGPage {
             unset($filelist);
             $filelist = $files;
         } else {
-            // See's what files are available and sorts them.
             $files = array_diff(preg_grep('#^([^.])#',scandir($_SESSION['FOG_SNAPINDIR'])), array('..', '.'));
             foreach($files AS $i => &$file) {
                 if (!is_dir(rtrim($_SESSION['FOG_SNAPINDIR'],'/').'/'.$file)) $filelist[] = $file;
@@ -248,7 +242,6 @@ class SnapinManagementPage extends FOGPage {
         foreach((array)$filelist AS $i => &$file)
             $filesFound .= '<option value="'.basename($file).'" '.(basename($file) == basename($this->obj->get('file')) ? 'selected="selected"' : '').'>'. basename($file) .'</option>';
         unset($file);
-        // Fields to work from:
         $fields = array(
             _('Snapin Name') => '<input type="text" name="name" value="'.$this->obj->get('name').'" />',
             _('Snapin Description') => '<textarea name="description" rows="8" cols="40">'.$this->obj->get('description').'</textarea>',
@@ -273,48 +266,42 @@ class SnapinManagementPage extends FOGPage {
             );
         }
         unset($input);
-        // Hook
         $this->HookManager->processEvent('SNAPIN_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        // Output
         $this->render();
         echo '</form></div>';
         unset($this->data);
-        echo "<!-- Storage Groups with Assigned Snapin -->";
-        // Get groups with this snapin assigned
-        $GroupsWithMe = $this->getClass('StorageGroupManager')->find(array('id' => $this->obj->get('storageGroups')));
-        $GroupsNotWithMe = $this->getClass('StorageGroupManager')->find(array('id' => $this->obj->get('storageGroups')),'','','','','',true);
+        echo "<!-- Snapin Groups -->";
         echo '<div id="snap-storage">';
-        // Create the Header Data:
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin1" class="toggle-checkbox1"/>',
             _('Storage Group Name'),
         );
-        // Create the template data:
         $this->templates = array(
             '<input type="checkbox" name="storagegroup[]" value="${storageGroup_id}" class="toggle-snapin${check_num}" />',
             '${storageGroup_name}',
         );
-        // Create the attributes data:
         $this->attributes = array(
             array('class'=>'c filter-false','width'=>16),
             array(),
         );
-        // All Groups not with this set as the Snapin
-        foreach((array)$GroupsNotWithMe AS $i => &$Group) {
+        $GroupIDs = $this->obj->get('storageGroupsnotinme');
+        foreach ((array)$GroupIDs AS $i => &$id) {
+            if (!$this->getClass('StorageGroup',$id)->isValid()) continue;
+            $Group = $this->getClass('StorageGroup',$id);
+            $name = $Group->get('name');
             $this->data[] = array(
-                'storageGroup_id'=>$Group->get('id'),
-                'storageGroup_name'=>$Group->get('name'),
-                'check_num'=>1,
+                'storageGroup_id' => $id,
+                'storageGroup_name' => $name,
             );
+            unset($Group,$name);
         }
-        unset($Group);
+        unset($id,$GroupIDs);
         if (count($this->data) > 0) {
             $this->HookManager->processEvent('SNAPIN_GROUP_ASSOC',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             echo '<center><label for="groupMeShow">'._('Check here to see groups not assigned with this snapin').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label><div id="groupNotInMe"><form method="post" action="'.$this->formAction.'&tab=snap-storage"><h2>'._('Modify group association for').' '.$this->obj->get('name').'</h2><p>'._('Add snapin to groups').'</p>';
             $this->render();
             echo '<br/><input type="submit" value="'._('Add Snapin to Group(s)').'" /></form></center>';
         }
-        // Reset the data for the next value
         unset($this->data);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
@@ -331,17 +318,21 @@ class SnapinManagementPage extends FOGPage {
             '<input class="primary" type="radio" name="primary" id="group${storageGroup_id}" value="${storageGroup_id}" ${is_primary}/><label for ="group${storageGroup_id}" class="icon icon-hand" title="'._('Primary Group Selector').'">&nbsp;</label>',
             '${storageGroup_name}',
         );
-        foreach($GroupsWithMe AS $i => &$Group) {
+        $GroupIDs = $this->obj->get('storageGroups');
+        foreach ((array)$GroupIDs AS $i => &$id) {
+            if (!$this->getClass('StorageGroup',$id)->isValid()) continue;
+            $Group = $this->getClass('StorageGroup',$id);
+            $name = $Group->get('name');
+            $is_primary = $this->obj->getPrimaryGroup($id) ? 'checked' : '';
             $this->data[] = array(
-                'storageGroup_id'=>$Group->get('id'),
-                'storageGroup_name'=>$Group->get('name'),
-                'is_primary'=>$this->obj->getPrimaryGroup($Group->get('id')) ? 'checked' : '',
+                'storageGroup_id' => $id,
+                'storageGroup_name' => $name,
+                'is_primary' => $is_primary,
             );
+            unset($Group,$name,$is_primary);
         }
-        unset($Group);
-        // Hook
+        unset($id,$GroupIDs);
         $this->HookManager->processEvent('SNAPIN_EDIT_GROUP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        // Output
         echo '<form method="post" action="'.$this->formAction.'&tab=snap-storage">';
         $this->render();
         if (count($this->data) > 0) echo '<center><input name="update" type="submit" value="'._('Update Primary Group').'"/>&nbsp;<input name="deleteGroup" type="submit" value="'._('Delete Selected Group associations').'" name="remstorgroups"/></center>';
