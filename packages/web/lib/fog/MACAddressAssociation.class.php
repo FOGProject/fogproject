@@ -1,9 +1,7 @@
 <?php
 class MACAddressAssociation extends FOGController {
-    // Table
-    public $databaseTable = 'hostMAC';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'hostMAC';
+    protected $databaseFields = array(
         'id' => 'hmID',
         'hostID' => 'hmHostID',
         'mac' => 'hmMAC',
@@ -13,6 +11,11 @@ class MACAddressAssociation extends FOGController {
         'clientIgnore' => 'hmIgnoreClient',
         'imageIgnore' => 'hmIgnoreImaging',
     );
-    // Custom
-    public function getHost() {$this->getClass(Host,$this->get(hostID));}
+    protected $databaseFieldsRequired = array(
+        'hostID',
+        'mac',
+    );
+    public function getHost() {
+        return $this->getClass(Host,$this->get(hostID));
+    }
 }

@@ -1,9 +1,7 @@
 <?php
 class Peer extends FOGController {
-    // Table
-    public $databaseTable = 'peer';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'peer';
+    protected $databaseFields = array(
         'id' => 'id',
         'hash' => 'hash',
         'agent' => 'user_agent',

@@ -40,7 +40,7 @@ class Registration extends FOGBase {
             if (base64_decode($_REQUEST[productKey],true)) $productKey = trim($_REQUEST[productKey]);
             $username = $this->stripAndDecode($_REQUEST['username']);
             $hostname = $this->stripAndDecode($_REQUEST[host]);
-            $hostname = ($this->getClass('HostManager')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
+            $hostname = ($this->getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
             $ip = $this->stripAndDecode($_REQUEST[ip]);
             $imageid = $this->stripAndDecode($_REQUEST[imageid]);
             $imageid = ($this->getClass(Image,$imageid)->isValid() ? $imageid : 0);
@@ -107,14 +107,14 @@ class Registration extends FOGBase {
             $autoRegSysName = trim($this->getSetting(FOG_QUICKREG_SYS_NAME));
             $autoRegSysNumber = (int)$this->getSetting(FOG_QUICKREG_SYS_NUMBER);
             $hostname = trim((strtoupper($autoRegSysName) == 'MAC' ? $this->macsimple : $autoRegSysName));
-            $hostname = ($this->getClass(HostManager)->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
+            $hostname = ($this->getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
             $paddingLen = substr_count($autoRegSysName,'*');
             $paddingString = null;
             if ($paddingLen > 0) {
                 $paddingString = str_repeat('*',$paddingLen);
                 $paddedInsert = str_pad($autoRegSysNumber,$paddingLen,0,STR_PAD_LEFT);
                 $hostname = trim((strtoupper($autoRegSysName) == 'MAC' ? $this->macsimple : str_replace($paddingString,$paddedInsert,$autoRegSysName)));
-                $hostname = ($this->getClass(HostManager)->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
+                $hostname = ($this->getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
             }
             $imageid = $this->getSetting(FOG_QUICKREG_IMG_ID);
             $this->Host = $this->getClass(Host)

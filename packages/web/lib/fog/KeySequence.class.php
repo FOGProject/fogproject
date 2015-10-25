@@ -1,11 +1,13 @@
 <?php
 class KeySequence extends FOGController {
-    // Table
-    public $databaseTable = 'keySequence';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'keySequence';
+    protected $databaseFields = array(
         'id' => 'ksID',
         'name' => 'ksValue',
         'ascii' => 'ksAscii',
+    );
+    protected $databaseFieldsRequired = array(
+        'name',
+        'ascii',
     );
 }

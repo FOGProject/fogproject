@@ -1,10 +1,5 @@
 <?php
 abstract class Hook extends Event {
-    /** @function log() logs the Hook
-     * @param $txt the text to log
-     * @param $level the level of logging defaults to 1
-     * @return void
-     */
     public function log($txt, $level = 1) {
         $log = trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt));
         if ($this->logToBrowser && $this->logLevel >= $level && !$this->post)

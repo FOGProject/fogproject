@@ -1,11 +1,12 @@
 <?php
 class OS extends FOGController {
-    // Table
-    public $databaseTable = 'os';
-    // Name -> Database field name
-    public $databaseFields = array(
-        'id'		=> 'osID',
-        'name'		=> 'osName',
-        'description'	=> 'osDescription'
+    protected $databaseTable = 'os';
+    protected $databaseFields = array(
+        'id' => 'osID',
+        'name' => 'osName',
+        'description' => 'osDescription'
+    );
+    protected $databaseFieldsRequired = array(
+        'name',
     );
 }

@@ -1,11 +1,13 @@
 <?php
 class ImageType extends FOGController {
-    // Table
-    public $databaseTable = 'imageTypes';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'imageTypes';
+    protected $databaseFields = array(
         'id' => 'imageTypeID',
         'name' => 'imageTypeName',
         'type' => 'imageTypeValue'
+    );
+    protected $databaseFieldsRequired = array(
+        'name',
+        'type',
     );
 }

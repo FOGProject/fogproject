@@ -1,17 +1,19 @@
 <?php
 class MulticastSessionsAssociation extends FOGController {
-    // Table
-    public $databaseTable = 'multicastSessionsAssoc';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'multicastSessionsAssoc';
+    protected $databaseFields = array(
         'id' => 'msaID',
         'msID' => 'msID',
         'taskID' => 'tID',
     );
+    protected $databaseFieldsRequired = array(
+        'msID',
+        'taskID',
+    );
     public function getMulticastSession() {
-        return $this->getClass(MulticastSessions,$this->get(msID));
+        return $this->getClass('MulticastSessions',$this->get('msID'));
     }
     public function getTask() {
-        return $this->getClass(Task,$this->get(taskID));
+        return $this->getClass('Task',$this->get('taskID'));
     }
 }

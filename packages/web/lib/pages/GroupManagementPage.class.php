@@ -581,38 +581,27 @@ class GroupManagementPage extends FOGPage {
                 unset($Host);
                 break;
             }
-            // Save to database
-            if ($this->obj->save()) {
-                // Hook
-                $this->HookManager->processEvent('GROUP_EDIT_SUCCESS', array('Group' => &$this->obj));
-                // Set session message
-                $this->setMessage('Group information updated!');
-                // Redirect to new entry
-                $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $_REQUEST[node],$this->id,$this->obj->get(id),$_REQUEST[tab]));
-            } else throw new Exception('Database update failed');
+            if (!$this->obj->save()) throw new Exception('Database update failed');
+            $this->HookManager->processEvent('GROUP_EDIT_SUCCESS', array('Group' => &$this->obj));
+            $this->setMessage('Group information updated!');
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $_REQUEST[node],$this->id,$this->obj->get(id),$_REQUEST[tab]));
         } catch (Exception $e) {
-            // Hook
             $this->HookManager->processEvent('GROUP_EDIT_FAIL', array('Group' => &$this->obj));
-            // Set session message
             $this->setMessage($e->getMessage());
-            // Redirect
             $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $_REQUEST[node],$this->id,$this->obj->get(id),$_REQUEST[tab]));
         }
     }
     public function delete_hosts() {
         $this->title = _('Delete Hosts');
         unset($this->data);
-        // Header Data
         $this->headerData = array(
             _('Host Name'),
             _('Last Deployed'),
         );
-        // Attributes
         $this->attributes = array(
             array(),
             array(),
         );
-        // Templates
         $this->templates = array(
             '${host_name}<br/><small>${host_mac}</small>',
             '<small>${host_deployed}</small>',
@@ -627,11 +616,9 @@ class GroupManagementPage extends FOGPage {
         unset($Host);
         printf('<p>%s</p>',_('Confirm you really want to delete the following hosts'));
         printf('<form method="post" action="?node=group&sub=delete&id=%s" class="c">',$this->obj->get(id));
-        // Hook
         $this->HookManager->processEvent('GROUP_DELETE_HOST_FORM',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-        // Output
         $this->render();
-        printf('<input type="hidden" name="delHostConfirm" value="1" /><input type="submit" value="%s" />',_('Delete listed hosts'));
+        printf('<input type="submit" name="delHostConfirm" value="%s" />',_('Delete listed hosts'));
         printf('</form>');
     }
 }

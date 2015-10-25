@@ -1,11 +1,5 @@
 <?php
 class PushbulletManager extends FOGManagerController {
-    /**	install($name)
-        Method that installs the relevant plugin.
-
-        $name just sends the plugin name.  Useful
-        for schema adding.
-     */
     public function install($name) {
         $sql = "CREATE TABLE pushbullet
             (pID INTEGER NOT NULL AUTO_INCREMENT,

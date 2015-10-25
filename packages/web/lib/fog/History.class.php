@@ -1,9 +1,7 @@
 <?php
 class History extends FOGController {
-    // Table
-    public $databaseTable = 'history';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'history';
+    protected $databaseFields = array(
         'id' => 'hID',
         'info' => 'hText',
         'createdBy' => 'hUser',

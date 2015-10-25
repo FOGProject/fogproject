@@ -1,9 +1,7 @@
 <?php
 class Schema extends FOGController {
-    // Table
-    public $databaseTable = 'schemaVersion';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'schemaVersion';
+    protected $databaseFields = array(
         'id' => 'vID',
         'version' => 'vValue',
     );

@@ -1,9 +1,7 @@
 <?php
 class ImagingLog extends FOGController {
-    /** @var $databaseTable the table to work with */
-    public $databaseTable = 'imagingLog';
-    /** @var $databaseFields the fields within the table */
-    public $databaseFields = array(
+    protected $databaseTable = 'imagingLog';
+    protected $databaseFields = array(
         'id' => 'ilID',
         'hostID' => 'ilHostID',
         'start' => 'ilStartTime',
@@ -11,8 +9,7 @@ class ImagingLog extends FOGController {
         'image' => 'ilImageName',
         'type' => 'ilType',
     );
-    // Required database fields
-    public $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = array(
         'hostID',
         'start',
         'finish',

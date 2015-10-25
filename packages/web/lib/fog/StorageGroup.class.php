@@ -49,7 +49,7 @@ class StorageGroup extends FOGController {
     }
     public function getQueuedSlotCount() {
         return $this->getClass('TaskManager')->count(array(
-            'stateID'=>array(1,2),
+            'stateID'=>array(-1,0,1,2),
             'typeID'=>array(1,2,8,15,16,17,24),
             'NFSGroupID'=>$this->get('id'),
         ));
