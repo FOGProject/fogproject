@@ -2072,6 +2072,6 @@ $this->schema[] = array(
 );
 // 198
 $this->schema[] = array(
-    "ALTER TABLE `" . DATABASE_NAME ."`.`snapinGroupAssoc` ADD COLUMN `sgaPrimary`",
-    "ALTER TABLE `" .DATABASE_NAME ."`.`imageGroupAssoc` ADD COLUMN `igaPrimary`",
+    "ALTER TABLE `" . DATABASE_NAME ."`.`snapinGroupAssoc` ADD COLUMN `sgaPrimary` TINYINT(1)",
+    "ALTER TABLE `" .DATABASE_NAME ."`.`imageGroupAssoc` ADD COLUMN `igaPrimary` TINYINT(1)",
 );
