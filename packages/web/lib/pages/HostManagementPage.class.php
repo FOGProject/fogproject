@@ -288,7 +288,6 @@ class HostManagementPage extends FOGPage {
         $this->redirect($url);
     }
     public function edit() {
-        $Inventory = $this->obj->get('inventory');
         $this->title = sprintf('%s: %s', 'Edit', $this->obj->get('name'));
         if ($_REQUEST['approveHost']) {
             $this->obj->set('pending',null);
@@ -388,15 +387,21 @@ class HostManagementPage extends FOGPage {
             array('width'=>50,'class'=>'l'),
             array('width'=>50,'class'=>'r'),
         );
-        $Printers = $this->getClass('PrinterManager')->find(array('id'=>$this->obj->get('printersnotinme')));
-        foreach ($Printers AS $i => &$Printer) {
+        $ids = $this->obj->get('printersnotinme');
+        foreach ((array)$ids AS $i => &$id) {
+            $Printer = $this->getClass('Printer',$id);
+            if (!$Printer->isValid()) {
+                unset($Printer);
+                continue;
+            }
             $this->data[] = array(
                 'printer_id'=>$Printer->get('id'),
                 'printer_name'=>addslashes($Printer->get('name')),
                 'printer_type'=>$Printer->get('config'),
             );
+            unset($Printer);
         }
-        unset($Printer);
+        unset($id,$id);
         $PrintersFound = false;
         if (count($this->data) > 0) {
             $PrintersFound = true;
@@ -404,7 +409,6 @@ class HostManagementPage extends FOGPage {
             echo '<div id="printerNotInHost">';
             echo '<h2>'._('Add new printer(s) to this host').'</h2>';
             $this->HookManager->processEvent('HOST_ADD_PRINTER',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-            // Output
             $this->render();
             echo '</div>';
         }
@@ -428,52 +432,58 @@ class HostManagementPage extends FOGPage {
             '${printer_type}',
         );
         echo '<h2>'._('Host Printer Configuration').'</h2><p>'._('Select Management Level for this Host').'</p><p><span class="icon fa fa-question hand" title="'._('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety').'"></span><input type="radio" name="level" value="0"'.($this->obj->get('printerLevel') == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/><span class="icon fa fa-question hand" title="'._('This setting only adds and removes printers that are managed by FOG.  If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unsigned host.  It will add printers to the host that are assigned.').'"></span><input type="radio" name="level" value="1"'.($this->obj->get('printerLevel') == 1 ? 'checked' : '').' />'._('FOG Managed Printers').'<br/><span class="icon fa fa-question hand" title="'._('This setting will only allow FOG Assigned printers to be added to the host.  Any printer that is not assigned will be removed including non-FOG managed printers.').'"></span><input type="radio" name="level" value="2"'.($this->obj->get('printerLevel') == 2 ? 'checked' : '').' />'._('Only Assigned Printers').'<br/></p>';
-        $Printers = $this->obj->get('printers');
-        foreach ($Printers AS $i => &$Printer) {
+        $ids = $this->obj->get('printers');
+        foreach ((array)$ids AS $i => &$id) {
+            $Printer = $this->getClass('Printer',$id);
+            if (!$Printer->isValid()) {
+                unset($Printer);
+                continue;
+            }
             $this->data[] = array(
-                'printer_id'=>$Printer,
-                'is_default'=>($this->obj->getDefault($Printer) ? 'checked' : ''),
-                'printer_name'=>$this->DB->sanitize($this->getClass('Printer',$Printer)->get('name')),
-                'printer_type'=>$this->getClass('Printer',$Printer)->get('config'),
+                'printer_id'=>$id,
+                'is_default'=>($this->obj->getDefault($id) ? 'checked' : ''),
+                'printer_name'=>$this->DB->sanitize($Printer->get('name')),
+                'printer_type'=>$Printer->get('config'),
             );
+            unset($Printer);
         }
-        unset($Printer);
-        // Hook
+        unset($id,$ids);
         $this->HookManager->processEvent('HOST_EDIT_PRINTER',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        // Output
         $this->render();
         if ($PrintersFound || count($this->data) > 0) echo '<center><input type="submit" value="'._('Update').'" name="updateprinters"/>';
         if (count($this->data) > 0) echo '&nbsp;&nbsp;<input type="submit" value="'._('Remove selected printers').'" name="printdel"/></center>';
-        // Reset for next tab
         unset($this->data, $this->headerData);
         echo '</form></div><!-- Snapins --><div id="host-snapins" ><h2>'._('Snapins').'</h2><form method="post" action="'.$this->formAction.'&tab=host-snapins">';
-        // Create the header:
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin" class="toggle-checkboxsnapin" />',
             _('Snapin Name'),
             _('Created'),
         );
-        // Create the template:
         $this->templates = array(
             '<input type="checkbox" name="snapin[]" value="${snapin_id}" class="toggle-snapin" />',
             sprintf('<a href="?node=%s&sub=edit&id=${snapin_id}" title="%s">${snapin_name}</a>','snapin',_('Edit')),
             '${snapin_created}',
         );
-        // Create the attributes:
         $this->attributes = array(
             array('width'=>16,'class'=>'c disabled filter-false'),
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );
-        $Snapins = $this->getClass('SnapinManager')->find(array('id'=>$this->obj->get('snapinsnotinme')));
-        foreach($Snapins AS $i => &$Snapin) {
+        $ids = $this->obj->get('snapinsnotinme');
+        foreach((array)$ids AS $i => &$id) {
+            $Snapin = $this->getClass('Snapin',$id);
+            if (!$Snapin->isValid()) {
+                unset($Snapin);
+                continue;
+            }
             $this->data[] = array(
                 'snapin_id'=>$Snapin->get('id'),
                 'snapin_name'=>$Snapin->get('name'),
                 'snapin_created'=>$Snapin->get('createdTime'),
             );
+            unset($Snapin);
         }
-        unset($Snapin);
+        unset($ids,$id);
         if (count($this->data) > 0) {
             echo '<center><label for="hostSnapinShow">'._('Check here to see what snapins can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostSnapinShow" id="hostSnapinShow" /></label><div id="snapinNotInHost">';
             $this->HookManager->processEvent('HOST_SNAPIN_JOIN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
@@ -493,20 +503,23 @@ class HostManagementPage extends FOGPage {
             '<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="toggle-action" />',
             '<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
         );
-        $Snapins = $this->getClass('SnapinManager')->find(array('id'=>$this->obj->get('snapins')));
-        foreach ($Snapins AS $i => &$Snapin) {
+        $ids = $this->obj->get('snapins');
+        foreach ((array)$ids AS $i => &$id) {
+            $Snapin = $this->getClass('Snapin',$id);
+            if (!$Snapin->isValid()) {
+                unset($Snapin);
+                continue;
+            }
             $this->data[] = array(
                 'snap_id'=>$Snapin->get('id'),
                 'snap_name'=>$Snapin->get('name'),
             );
+            unset($Snapin);
         }
-        unset($Snapin);
-        // Hook
+        unset($ids,$id);
         $this->HookManager->processEvent('HOST_EDIT_SNAPIN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        // Output
         $this->render();
         echo '<center><input type="submit" name="snaprem" value="'._('Remove selected snapins').'"/></center></form></div>';
-        // Reset for next tab
         unset($this->data, $this->headerData);
         echo '<!-- Service Configuration -->';
         $this->attributes = array(
@@ -525,10 +538,15 @@ class HostManagementPage extends FOGPage {
             'span'=>''
         );
         echo '<div id="host-service" ><form method="post" action="'.$this->formAction.'&tab=host-service"><h2>'._('Service Configuration').'</h2><fieldset><legend>'._('General').'</legend>';
-        $ModOns = $this->getClass('ModuleAssociationManager')->find(array('hostID'=>$this->obj->get('id')),'','','','','','','moduleID');
+        $ModOns = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('id')),'moduleID');
         $moduleName = $this->getGlobalModuleStatus();
-        $Modules = $this->getClass('ModuleManager')->find();
-        foreach ($Modules AS $i => &$Module) {
+        $ids = $this->getSubObjectIDs('Module');
+        foreach ((array)$ids AS $i => &$id) {
+            $Module = $this->getClass('Module',$id);
+            if (!$Module->isValid()) {
+                unset($Module);
+                continue;
+            }
             $this->data[] = array(
                 'input'=>'<input type="checkbox" '.($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes"' : '').' name="modules[]" value="${mod_id}" ${checked} '.(!$moduleName[$Module->get('shortName')] ? 'disabled' : '').' />',
                 'span'=>'<span class="icon fa fa-question fa-1x hand" title="${mod_desc}"></span>',
@@ -538,83 +556,84 @@ class HostManagementPage extends FOGPage {
                 'mod_id'=>$Module->get('id'),
                 'mod_desc'=>str_replace('"','\"',$Module->get('description')),
             );
+            unset($Module);
         }
-        unset($ModOns,$Module);
+        unset($ModOns,$id,$ids);
         $this->data[] = array(
-            mod_name=>'&nbsp',
-            input=>'',
-            span=>'<input type="submit" name="updatestatus" value="'._('Update').'" />',
+            'mod_name'=>'&nbsp',
+            'input'=>'',
+            'span'=>'<input type="submit" name="updatestatus" value="'._('Update').'" />',
         );
-        // Hook
-        $this->HookManager->processEvent(HOST_EDIT_SERVICE,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        $this->HookManager->processEvent('HOST_EDIT_SERVICE',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
-        // Reset for next tab
         unset($this->data);
         echo '</fieldset></form>';
         echo '<form method="post" action="'.$this->formAction.'&tab=host-service"><fieldset><legend>'._('Host Screen Resolution').'</legend>';
         $this->attributes = array(
-            array('class'=>l,style=>'padding-right: 25px'),
-            array('class'=>c),
-            array('class'=>r),
+            array('class'=>'l','style'=>'padding-right: 25px'),
+            array('class'=>'c'),
+            array('class'=>'r'),
         );
         $this->templates = array(
             '${field}',
             '${input}',
             '${span}',
         );
-        $Services = $this->getClass(ServiceManager)->find(array(name=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id');
-        foreach($Services AS $i => &$Service) {
+        $ids = $this->getSubObjectIDs('Service',array('name'=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'','','OR');
+        foreach((array)$ids AS $i => &$id) {
+            $Service = $this->getClass('Service',$id);
+            if (!$Service->isValid()) {
+                unset($Service);
+                continue;
+            }
             $this->data[] = array(
-                input=>'<input type="text" name="${type}" value="${disp}" />',
-                span=>'<span class="icon fa fa-question fa-1x hand" title="${desc}"></span>',
-                field=>($Service->get(name) == 'FOG_SERVICE_DISPLAYMANAGER_X' ? _('Screen Width (in pixels)') : ($Service->get(name) == 'FOG_SERVICE_DISPLAY_MANAGER_Y' ? _('Screen Height (in pixels)') : ($Service->get(name) == 'FOG_SERVICE_DISPLAYMANAGER_R' ? _('Screen Refresh Rate (in Hz)') : ''))),
-                type=>($Service->get(name) == 'FOG_SERVICE_DISPLAYMANAGER_X' ? 'x' : ($Service->get(name) == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? 'y' : ($Service->get(name) == 'FOG_SERVICE_DISPLAYMANAGER_R' ? 'r' : ''))),
-                disp=>($Service->get(name) == 'FOG_SERVICE_DISPLAYMANAGER_X' ? $this->obj->getDispVals(width) : ($Service->get(name) == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? $this->obj->getDispVals(height) : ($Service->get(name) == 'FOG_SERVICE_DISPLAYMANAGER_R' ? $this->obj->getDispVals(refresh) : ''))),
-                desc=>$Service->get(description),
+                'input'=>'<input type="text" name="${type}" value="${disp}" />',
+                'span'=>'<span class="icon fa fa-question fa-1x hand" title="${desc}"></span>',
+                'field'=>($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? _('Screen Width (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAY_MANAGER_Y' ? _('Screen Height (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? _('Screen Refresh Rate (in Hz)') : ''))),
+                'type'=>($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? 'x' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? 'y' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? 'r' : ''))),
+                'disp'=>($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? $this->obj->getDispVals('width') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? $this->obj->getDispVals('height') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? $this->obj->getDispVals('refresh') : ''))),
+                'desc'=>$Service->get('description'),
             );
+            unset($Service);
         }
-        unset($Service);
+        unset($ids,$id);
         $this->data[] = array(
-            field=>'',
-            input=>'',
-            span=>'<input type="submit" name="updatedisplay" value="'._('Update').'" />',
+            'field'=>'',
+            'input'=>'',
+            'span'=>'<input type="submit" name="updatedisplay" value="'._('Update').'" />',
         );
-        // Hook
-        $this->HookManager->processEvent(HOST_EDIT_DISPSERV,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        $this->HookManager->processEvent('HOST_EDIT_DISPSERV',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
-        // Reset for next tab
         unset($this->data);
         echo '</fieldset></form><form method="post" action="'.$this->formAction.'&tab=host-service"><fieldset><legend>'._('Auto Log Out Settings').'</legend>';
         $this->attributes = array(
-            array(width=>270),
-            array('class'=>c),
-            array('class'=>r),
+            array('width'=>270),
+            array('class'=>'c'),
+            array('class'=>'r'),
         );
         $this->templates = array(
             '${field}',
             '${input}',
             '${desc}',
         );
-        $Service = current($this->getClass(ServiceManager)->find(array(name=>'FOG_SERVICE_AUTOLOGOFF_MIN')));
+        $Service = $this->getClass('Service',@min($this->getSubObjectIDs('Service',array('name'=>'FOG_SERVICE_AUTOLOGOFF_MIN'))));
+        if ($Service->isValid()) {
+            $this->data[] = array(
+                'field'=>_('Auto Log Out Time (in minutes)'),
+                'input'=>'<input type="text" name="tme" value="${value}" />',
+                'desc'=>'<span class="icon fa fa-question fa-1x hand" title="${serv_desc}"></span>',
+                'value'=>$this->obj->getAlo() ? $this->obj->getAlo() : $Service->get('value'),
+                'serv_desc'=>$Service->get('description'),
+            );
+        }
+        unset($Service);
         $this->data[] = array(
-            field=>_('Auto Log Out Time (in minutes)'),
-            input=>'<input type="text" name="tme" value="${value}" />',
-            desc=>'<span class="icon fa fa-question fa-1x hand" title="${serv_desc}"></span>',
-            value=>$this->obj->getAlo() ? $this->obj->getAlo() : $Service->get('value'),
-            serv_desc=>$Service->get(description),
+            'field'=>'',
+            'input'=>'',
+            'desc'=>'<input type="submit" name="updatealo" value="'._('Update').'" />',
         );
-        $this->data[] = array(
-            field=>'',
-            input=>'',
-            desc=>'<input type="submit" name="updatealo" value="'._('Update').'" />',
-        );
-        // Hook
-        $this->HookManager->processEvent(HOST_EDIT_ALO,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        $this->HookManager->processEvent('HOST_EDIT_ALO',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
-        // Reset for next tab
         unset($this->data,$fields);
         echo '</fieldset></form></div><!-- Inventory -->';
         $this->attributes = array(
@@ -657,51 +676,48 @@ class HostManagementPage extends FOGPage {
             '<input type="hidden" name="update" value="1" />' => '<input type="submit" value="'._('Update').'" />',
         );
         echo '<div id="host-hardware-inventory" ><form method="post" action="'.$this->formAction.'&tab=host-hardware-inventory"><h2>'._('Host Hardware Inventory').'</h2>';
-        if ($Inventory && $Inventory->isValid()) {
-            foreach(array('cpuman','cpuversion') AS &$x) $Inventory->set($x,implode(' ',array_unique(explode(' ',$Inventory->get($x)))));
+        if ($this->obj->get('inventory')->isValid()) {
+            foreach(array('cpuman','cpuversion') AS &$x) $this->obj->get('inventory')->set($x,implode(' ',array_unique(explode(' ',$this->obj->get('inventory')->get($x)))));
             unset($x);
             foreach((array)$fields AS $field => &$input) {
                 $this->data[] = array(
-                    field=>$field,
-                    input=>$input,
-                    inv_user=>$Inventory->get(primaryUser),
-                    inv_oth1=>$Inventory->get(other1),
-                    inv_oth2=>$Inventory->get(other2),
-                    inv_sysman=>$Inventory->get(sysman),
-                    inv_sysprod=>$Inventory->get(sysproduct),
-                    inv_sysver=>$Inventory->get(sysversion),
-                    inv_sysser=>$Inventory->get(sysserial),
-                    inv_systype=>$Inventory->get(systype),
-                    bios_ven=>$Inventory->get(biosvendor),
-                    bios_ver=>$Inventory->get(biosversion),
-                    bios_date=>$Inventory->get(biosdate),
-                    mb_man=>$Inventory->get(mbman),
-                    mb_name=>$Inventory->get(mbproductname),
-                    mb_ver=>$Inventory->get(mbversion),
-                    mb_ser=>$Inventory->get(mbserial),
-                    mb_asset=>$Inventory->get(mbasset),
-                    cpu_man=>$Inventory->get(cpuman),
-                    cpu_ver=>$Inventory->get(cpuversion),
-                    cpu_nspeed=>$Inventory->get(cpucurrent),
-                    cpu_mspeed=>$Inventory->get(cpumax),
-                    inv_mem=>$Inventory->getMem(),
-                    hd_model=>$Inventory->get(hdmodel),
-                    hd_firm=>$Inventory->get(hdfirmware),
-                    hd_ser=>$Inventory->get(hdserial),
-                    case_man=>$Inventory->get(caseman),
-                    case_ver=>$Inventory->get(caseversion),
-                    case_ser=>$Inventory->get(caseserial),
-                    case_asset=>$Inventory->get(caseasset),
+                    'field'=>$field,
+                    'input'=>$input,
+                    'inv_user'=>$this->obj->get('inventory')->get('primaryUser'),
+                    'inv_oth1'=>$this->obj->get('inventory')->get('other1'),
+                    'inv_oth2'=>$this->obj->get('inventory')->get('other2'),
+                    'inv_sysman'=>$this->obj->get('inventory')->get('sysman'),
+                    'inv_sysprod'=>$this->obj->get('inventory')->get('sysproduct'),
+                    'inv_sysver'=>$this->obj->get('inventory')->get('sysversion'),
+                    'inv_sysser'=>$this->obj->get('inventory')->get('sysserial'),
+                    'inv_systype'=>$this->obj->get('inventory')->get('systype'),
+                    'bios_ven'=>$this->obj->get('inventory')->get('biosvendor'),
+                    'bios_ver'=>$this->obj->get('inventory')->get('biosversion'),
+                    'bios_date'=>$this->obj->get('inventory')->get('biosdate'),
+                    'mb_man'=>$this->obj->get('inventory')->get('mbman'),
+                    'mb_name'=>$this->obj->get('inventory')->get('mbproductname'),
+                    'mb_ver'=>$this->obj->get('inventory')->get('mbversion'),
+                    'mb_ser'=>$this->obj->get('inventory')->get('mbserial'),
+                    'mb_asset'=>$this->obj->get('inventory')->get('mbasset'),
+                    'cpu_man'=>$this->obj->get('inventory')->get('cpuman'),
+                    'cpu_ver'=>$this->obj->get('inventory')->get('cpuversion'),
+                    'cpu_nspeed'=>$this->obj->get('inventory')->get('cpucurrent'),
+                    'cpu_mspeed'=>$this->obj->get('inventory')->get('cpumax'),
+                    'inv_mem'=>$this->obj->get('inventory')->getMem(),
+                    'hd_model'=>$this->obj->get('inventory')->get('hdmodel'),
+                    'hd_firm'=>$this->obj->get('inventory')->get('hdfirmware'),
+                    'hd_ser'=>$this->obj->get('inventory')->get('hdserial'),
+                    'case_man'=>$this->obj->get('inventory')->get('caseman'),
+                    'case_ver'=>$this->obj->get('inventory')->get('caseversion'),
+                    'case_ser'=>$this->obj->get('inventory')->get('caseserial'),
+                    'case_asset'=>$this->obj->get('inventory')->get('caseasset'),
                 );
             }
             unset($input);
         }
         else unset($this->data);
-        // Hook
-        $this->HookManager->processEvent(HOST_INVENTORY,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        $this->HookManager->processEvent('HOST_INVENTORY',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
-        // Reset for next tab
         unset($this->data,$fields);
         echo '</form></div><!-- Virus -->';
         $this->headerData = array(
@@ -727,23 +743,26 @@ class HostManagementPage extends FOGPage {
         );
         echo '<div id="host-virus-history" ><form method="post" action="'.$this->formAction.'&tab=host-virus-history"><h2>'._('Virus History').'</h2><h2><a href="#"><input type="checkbox" class="delvid" id="all" name="delvid" value="all" onclick="this.form.submit()" /><label for="all">('._('clear all history').')</label></a></h2>';
         $MACs = $this->obj->getMyMacs();
-        $Viruses = $this->getClass(VirusManager)->find(array(hostMAC=>$MACs));
+        $ids = $this->getSubObjectIDs('Virus',array('hostMAC'=>$MACs));
         unset($MACs);
-        foreach($Viruses AS $i => &$Virus) {
+        foreach((array)$ids AS $i => &$id) {
+            $Virus = $this->getClass('Virus',$id);
+            if (!$Virus->isValid()) {
+                unset($Virus);
+                continue;
+            }
             $this->data[] = array(
-                virus_name=>$Virus->get(name),
-                virus_file=>$Virus->get('file'),
-                virus_mode=>($Virus->get(mode) == 'q' ? _('Quarantine') : ($Virus->get(mode) == 's' ? _('Report') : 'N/A')),
-                virus_date=>$Virus->get('date'),
-                virus_id=>$Virus->get(id),
+                'virus_name'=>$Virus->get('name'),
+                'virus_file'=>$Virus->get('file'),
+                'virus_mode'=>($Virus->get('mode') == 'q' ? _('Quarantine') : ($Virus->get('mode') == 's' ? _('Report') : 'N/A')),
+                'virus_date'=>$Virus->get('date'),
+                'virus_id'=>$Virus->get('id'),
             );
+            unset($Virus);
         }
-        unset($Virus);
-        // Hook
-        $this->HookManager->processEvent(HOST_VIRUS,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        unset($ids,$id);
+        $this->HookManager->processEvent('HOST_VIRUS',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
-        // Reset for next tab
         unset($this->data,$this->headerData);
         echo '</form></div><!-- Login History --><div id="host-login-history" ><h2>'._('Host Login History').'</h2><form id="dte" method="post" action="'.$this->formAction.'&tab=host-login-history">';
         $this->headerData = array(
@@ -764,71 +783,75 @@ class HostManagementPage extends FOGPage {
             '${user_name}',
             '${user_desc}',
         );
-        $Dates = $this->getClass(UserTrackingManager)->find(array(id=>$this->obj->get(users)),'','','','','','','date');
+        $Dates = $this->getSubObjectIDs('UserTracking',array('id'=>$this->obj->get('users')),'date');
         $Dates = array_unique((array)$Dates);
         if ($Dates) {
             rsort($Dates);
             echo '<p>'._('View History for').'</p>';
             foreach((array)$Dates AS $i => &$Date) {
-                if ($_REQUEST[dte] == '') $_REQUEST[dte] = $Date;
+                if ($_REQUEST['dte'] == '') $_REQUEST['dte'] = $Date;
                 $optionDate[] = '<option value="'.$Date.'" '.($Date == $_REQUEST[dte] ? 'selected="selected"' : '').'>'.$Date.'</option>';
             }
             unset($Date);
             echo '<select name="dte" id="loghist-date" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select><a href="#" onclick="document.getElementByID(\'dte\').submit()"><i class="icon fa fa-play noBorder"></i></a></p>';
-            $UserTracking = $this->getClass(UserTrackingManager)->find(array(id=>$this->obj->get(users)));
-            foreach ($UserTracking AS $i => &$UserLogin) {
-                if ($UserLogin->get('date') == $_REQUEST[dte]) {
+            $UserTrackingIDs = $this->getSubObjectIDs('UserTracking',array('id'=>$this->obj->get('users')));
+            foreach ($UserTrackingIDs AS $i => &$id) {
+                $UserLogin = $this->getClass('UserTracking',$id);
+                if (!$UserLogin->isValid()) {
+                    unset($UserLogin);
+                    continue;
+                }
+                if ($UserLogin->get('date') == $_REQUEST['dte']) {
                     $this->data[] = array(
-                        action=>($UserLogin->get(action) == 1 ? _('Login') : ($UserLogin->get(action) == 0 ? _('Logout') : '')),
-                        user_name=>$UserLogin->get(username),
-                        user_time=>$UserLogin->get(datetime),
-                        user_desc=>$UserLogin->get(description),
+                        'action'=>($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : '')),
+                        'user_name'=>$UserLogin->get('username'),
+                        'user_time'=>$UserLogin->get('datetime'),
+                        'user_desc'=>$UserLogin->get('description'),
                     );
                 }
+                unset($UserLogin);
             }
-            unset($UserLogin);
-            // Hook
-            $this->HookManager->processEvent(HOST_USER_LOGIN,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-            // Output
+            unset($UserTrackingIDs,$id);
+            $this->HookManager->processEvent('HOST_USER_LOGIN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             $this->render();
         }
         else echo '<p>'._('No user history data found!').'</p>';
-        // Reset for next tab
         unset($this->data,$this->headerData);
         echo '<div id="login-history" style="width:575px;height:200px;" /></div></form></div><div id="host-image-history" ><h2>'._('Host Imaging History').'</h2>';
-        // Header Data for host image history
         $this->headerData = array(
             _('Image Name'),
             _('Imaging Type'),
             '<small>'._('Completed').'</small><br />'._('Duration'),
         );
-        // Templates for the host image history
         $this->templates = array(
             '${image_name}',
             '${image_type}',
             '<small>${completed}</small><br />${duration}',
         );
-        // Attributes
         $this->attributes = array(
             array(),
             array(),
             array(),
         );
-        $ImagingLogs = $this->getClass(ImagingLogManager)->find(array(hostID=>$this->obj->get(id)));
-        foreach ($ImagingLogs AS $i => &$ImageLog) {
-            $Start = $ImageLog->get(start);
-            $End = $ImageLog->get(finish);
+        $ImagingLogIDs = $this->getSubObjectIDs('ImagingLog',array('hostID'=>$this->obj->get('id')));
+        foreach ($ImagingLogIDs AS $i => &$id) {
+            $ImageLog = $this->getClass('ImagingLog',$id);
+            if (!$ImageLog->isValid()) {
+                unset($ImageLog);
+                continue;
+            }
+            $Start = $ImageLog->get('start');
+            $End = $ImageLog->get('finish');
             $this->data[] = array(
-                completed=>$this->formatTime($End),
-                duration=>$this->diff($Start,$End),
-                image_name=>$ImageLog->get(image),
-                image_type=>$ImageLog->get(type),
+                'completed'=>$this->formatTime($End),
+                'duration'=>$this->diff($Start,$End),
+                'image_name'=>$ImageLog->get('image'),
+                'image_type'=>$ImageLog->get('type'),
             );
+            unset($ImageLog,$Start,$End);
         }
-        unset($ImageLog);
-        // Hook
-        $this->HookManager->processEvent(HOST_IMAGE_HIST,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        unset($ImagingLogIDs,$id);
+        $this->HookManager->processEvent('HOST_IMAGE_HIST',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
         echo '</div><div id="host-snapin-history">';
@@ -853,7 +876,7 @@ class HostManagementPage extends FOGPage {
             if (!$SnapinTask->isValid()) {
                 unset($SnapinTask);
                 continue;
-            } 
+            }
             $Snapin = $SnapinTask->getSnapin();
             if (!$Snapin->isValid()) {
                 unset($SnapinTask,$Snapin);
@@ -866,46 +889,30 @@ class HostManagementPage extends FOGPage {
                 snapin_duration => $this->diff($SnapinTask->get(checkin),$SnapinTask->get(complete)),
                 snapin_return=>$SnapinTask->get('return'),
             );
-            unset($Snapin,$SnapinTask);
+            unset($SnapinJobIDs,$Snapin,$SnapinTask);
         }
         unset($SnapinTaskIDs,$id);
-        $this->HookManager->processEvent(HOST_SNAPIN_HIST,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        $this->HookManager->processEvent('HOST_SNAPIN_HIST',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</div></div>';
     }
-    /** edit_ajax()
-     * Ajax is used to remove macs automatically
-     */
     public function edit_ajax() {
         $this->obj->removeAddMAC($_REQUEST['additionalMACsRM'])->save();
     }
-    /** edit_post()
-        Actually saves the data.
-     */
     public function edit_post() {
-        $Inventory = $this->obj->get('inventory');
-        // Hook
         $this->HookManager->processEvent('HOST_EDIT_POST',array('Host'=>&$this->obj));
-        // POST
         try {
-            // Tabs
             switch ($_REQUEST['tab']) {
                 case 'host-general';
                 $hostName = trim($_REQUEST['host']);
-                // Error checking
                 if (empty($hostName)) throw new Exception('Please enter a hostname');
                 if ($this->obj->get('name') != $hostName && !$this->obj->isHostnameSafe($hostName)) throw new Exception(_('Please enter a valid hostname'));
                 if ($this->obj->get('name') != $hostName && $this->obj->getManager()->exists($hostName)) throw new Exception('Hostname Exists already');
                 if (empty($_REQUEST['mac'])) throw new Exception('MAC Address is required');
-                // Variables
                 $mac = $this->getClass('MACAddress',$_REQUEST['mac']);
-                // Task variable.
                 $Task = $this->obj->get('task');
-                // Error checking
                 if (!$mac->isValid()) throw new Exception(_('MAC Address is not valid'));
                 if ((!$_REQUEST['image'] && $Task->isValid()) || ($_REQUEST['image'] && $_REQUEST['image'] != $this->obj->get('imageID') && $Task->isValid())) throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
-                // Define new Image object with data provided
-
                 $this->obj
                     ->set('name',$hostName)
                     ->set('description',$_REQUEST['description'])
@@ -937,125 +944,104 @@ class HostManagementPage extends FOGPage {
                 break;
                 case 'host-printers';
                 $PrinterManager = $this->getClass('PrinterAssociationManager');
-                // Set printer level for Host
-                if (isset($_REQUEST['level']))
-                    $this->obj->set('printerLevel',$_REQUEST['level']);
-                // Add
+                if (isset($_REQUEST['level'])) $this->obj->set('printerLevel',$_REQUEST['level']);
                 if (isset($_REQUEST['updateprinters'])) {
                     if (isset($_REQUEST['printer'])) $this->obj->addPrinter($_REQUEST['printer']);
-                    // Set Default
                     $this->obj->updateDefault($_REQUEST['default'],isset($_REQUEST['default']));
                     unset($printerid);
                 }
-                // Remove
-                if (isset($_REQUEST[printdel]))
-                    $this->obj->removePrinter($_REQUEST[printerRemove]);
+                if (isset($_REQUEST['printdel'])) $this->obj->removePrinter($_REQUEST['printerRemove']);
                 break;
                 case 'host-snapins';
-                // Add
-                if (!isset($_REQUEST[snapinRemove]))
-                    $this->obj->addSnapin($_REQUEST[snapin]);
-                // Remove
-                if (isset($_REQUEST[snaprem]))
-                    $this->obj->removeSnapin($_REQUEST[snapinRemove]);
+                if (!isset($_REQUEST['snapinRemove'])) $this->obj->addSnapin($_REQUEST['snapin']);
+                if (isset($_REQUEST['snaprem'])) $this->obj->removeSnapin($_REQUEST['snapinRemove']);
                 break;
                 case 'host-service';
-                // be set to the default values within the system.
-                $x =(is_numeric($_REQUEST[x]) ? $_REQUEST[x] : $this->getSetting(FOG_SERVICE_DISPLAYMANAGER_X));
-                $y =(is_numeric($_REQUEST[y]) ? $_REQUEST[y] : $this->getSetting(FOG_SERVICE_DISPLAYMANAGER_Y));
-                $r =(is_numeric($_REQUEST[r]) ? $_REQUEST[r] : $this->getSetting(FOG_SERVICE_DISPLAYMANAGER_R));
-                $tme = (is_numeric($_REQUEST[tme]) ? $_REQUEST[tme] : $this->getSetting(FOG_SERVICE_AUTOLOGOFF_MIN));
-                if (isset($_REQUEST[updatestatus])) {
-                    $modOn = $_REQUEST[modules];
-                    $modOff = $this->getClass(ModuleManager)->find(array(id=>$modOn),'','','','','',true,'id');
-                    if (count($modOn)) $this->obj->addModule($modOn);
-                    if (count($modOff)) $this->obj->removeModule($modOff);
+                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
+                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
+                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
+                $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $this->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
+                if (isset($_REQUEST['updatestatus'])) {
+                    $modOn = $_REQUEST['modules'];
+                    $modOff = $this->getClass('Module',array('id'=>$modOn),'',true);
+                    $this->obj->addModule($modOn);
+                    $this->obj->removeModule($modOff);
                 }
-                if (isset($_REQUEST[updatedisplay]))
-                    $this->obj->setDisp($x,$y,$r);
-                if (isset($_REQUEST[updatealo])) $this->obj->setAlo($tme);
+                if (isset($_REQUEST['updatedisplay'])) $this->obj->setDisp($x,$y,$r);
+                if (isset($_REQUEST['updatealo'])) $this->obj->setAlo($tme);
                 break;
                 case 'host-hardware-inventory';
-                $pu = trim($_REQUEST[pu]);
-                $other1 = trim($_REQUEST[other1]);
-                $other2 = trim($_REQUEST[other2]);
-                if ($_REQUEST[update] == 1) {
-                    $Inventory->set(primaryUser,$pu)
-                        ->set(other1,$other1)
-                        ->set(other2,$other2)
+                $pu = trim($_REQUEST['pu']);
+                $other1 = trim($_REQUEST['other1']);
+                $other2 = trim($_REQUEST['other2']);
+                if ($_REQUEST['update'] == 1) {
+                    $this->obj
+                        ->set('primaryUser',$pu)
+                        ->set('other1',$other1)
+                        ->set('other2',$other2)
                         ->save();
                 }
                 break;
                 case 'host-login-history';
-                $this->redirect("?node=host&sub=edit&id=".$this->obj->get(id)."&dte=".$_REQUEST[dte]."#".$_REQUEST[tab]);
+                $this->redirect("?node=host&sub=edit&id=".$this->obj->get('id')."&dte=".$_REQUEST['dte']."#".$_REQUEST['tab']);
                 break;
                 case 'host-virus-history';
-                if (isset($_REQUEST[delvid]) && $_REQUEST[delvid] == 'all') {
+                if (isset($_REQUEST['delvid']) && $_REQUEST['delvid'] == 'all') {
                     $this->obj->clearAVRecordsForHost();
-                    $this->redirect('?node=host&sub=edit&id='.$this->obj->get(id).'#'.$_REQUEST[tab]);
-                }
-                else if (isset($_REQUEST[delvid])) $this->getClass(VirusManager)->destroy(array('id' => $_REQUEST[delvid]));
+                    $this->redirect('?node=host&sub=edit&id='.$this->obj->get('id').'#'.$_REQUEST['tab']);
+                } else if (isset($_REQUEST['delvid'])) $this->getClass('VirusManager')->destroy(array('id' => $_REQUEST['delvid']));
                 break;
             }
-            // Save to database
             if (!$this->obj->save()) throw new Exception(_('Host Update Failed'));
             $this->obj->setAD();
             if ($_REQUEST['tab'] == 'host-general') $this->obj->ignore($_REQUEST['igimage'],$_REQUEST['igclient']);
-            // Hook
-            $this->HookManager->processEvent(HOST_EDIT_SUCCESS,array(Host=>&$this->obj));
-            // Set session message
+            $this->HookManager->processEvent('HOST_EDIT_SUCCESS',array('Host'=>&$this->obj));
             $this->setMessage('Host updated!');
         } catch (Exception $e) {
-            // Hook
-            $this->HookManager->processEvent(HOST_EDIT_FAIL,array(Host=>&$this->obj));
-            // Set session message
+            $this->HookManager->processEvent('HOST_EDIT_FAIL',array('Host'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
-        // Redirect
         $this->redirect(sprintf('%s#%s',$this->formAction, $_REQUEST['tab']));
     }
-    /** save_group()
-        Saves the data to a host.
-     */
     public function save_group() {
         try {
-            // Error checking
-            if (empty($_REQUEST[hostIDArray])) throw new Exception(_('No Hosts were selected'));
-            if (empty($_REQUEST[group_new]) && empty($_REQUEST[group])) throw new Exception(_('No Group selected and no new Group name entered'));
-            // Determine which method to use
-            // New group
-            if (!empty($_REQUEST[group_new])) {
-                $Group = $this->getClass(Group)
-                    ->set(name,$_REQUEST[group_new]);
+            if (empty($_REQUEST['hostIDArray'])) throw new Exception(_('No Hosts were selected'));
+            if (empty($_REQUEST['group_new']) && empty($_REQUEST['group'])) throw new Exception(_('No Group selected and no new Group name entered'));
+            if (!empty($_REQUEST['group_new'])) {
+                $Group = $this->getClass('Group')
+                    ->set('name',$_REQUEST['group_new']);
                 if (!$Group->save()) throw new Exception(_('Failed to create new Group'));
-            } else $Group = $this->getClass(Group,$_REQUEST[group]);
-            // Valid
+            } else $Group = $this->getClass('Group',$_REQUEST['group']);
             if (!$Group->isValid()) throw new Exception(_('Group is Invalid'));
-            // Main
-            $Group->addHost(explode(',',$_REQUEST[hostIDArray]))->save();
-            // Success
-            echo '<div class="task-start-ok"><p>'._('Successfully associated Hosts with the Group ').$Group->get(name).'</p></div>';
+            $Group->addHost(explode(',',$_REQUEST['hostIDArray']))->save();
+            echo '<div class="task-start-ok"><p>'._('Successfully associated Hosts with the Group ').$Group->get('name').'</p></div>';
         } catch (Exception $e) {
             printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>', _('Failed to Associate Hosts with Group'), $e->getMessage());
         }
     }
     public function hostlogins() {
-        $MainDate = $this->nice_date($_REQUEST[dte])->getTimestamp();
-        $MainDate_1 = $this->nice_date($_REQUEST[dte])->modify('+1 day')->getTimestamp();
-        $Users = $this->getClass(UserTrackingManager)->find(array(hostID=>$_REQUEST[id],'date'=>$_REQUEST[dte],action=>array(null,0,1)),'','date','DESC');
-        foreach($Users AS $i => &$Login) {
-            if ($Login->get(username) != 'Array') {
-                $time = $this->nice_date($Login->get(datetime))->format('U');
-                if (!$Data[$Login->get('username')]) $Data[$Login->get(username)] = array(user=>$Login->get(username),'min'=>$MainDate,'max'=>$MainDate_1);
-                if ($Login->get('action')) $Data[$Login->get(username)][login] = $time;
-                if (array_key_exists('login',$Data[$Login->get(username)]) && !$Login->get(action)) $Data[$Login->get(username)][logout] = $time;
-                if (array_key_exists('login',$Data[$Login->get(username)]) && array_key_exists('logout',$Data[$Login->get(username)])) {
-                    $data[] = $Data[$Login->get(username)];
-                    unset($Data[$Login->get(username)]);
+        $MainDate = $this->nice_date($_REQUEST['dte'])->getTimestamp();
+        $MainDate_1 = $this->nice_date($_REQUEST['dte'])->modify('+1 day')->getTimestamp();
+        $UserIDs = $this->getClass('UserTrackingManager')->find(array('hostID'=>$_REQUEST['id'],'date'=>$_REQUEST['dte'],'action'=>array(null,0,1)),'','date','DESC','','','','id');
+        foreach($UserIDs AS $i => &$id) {
+            $Login = $this->getClass('UserTracking',$id);
+            if (!$Login->isValid()) {
+                unset($Login);
+                continue;
+            }
+            if ($Login->get('username') != 'Array') {
+                $time = $this->nice_date($Login->get('datetime'))->format('U');
+                if (!$Data[$Login->get('username')]) $Data[$Login->get('username')] = array('user'=>$Login->get('username'),'min'=>$MainDate,'max'=>$MainDate_1);
+                if ($Login->get('action')) $Data[$Login->get('username')]['login'] = $time;
+                if (array_key_exists('login',$Data[$Login->get('username')]) && !$Login->get('action')) $Data[$Login->get('username')]['logout'] = $time;
+                if (array_key_exists('login',$Data[$Login->get('username')]) && array_key_exists('logout',$Data[$Login->get('username')])) {
+                    $data[] = $Data[$Login->get('username')];
+                    unset($Data[$Login->get('username')]);
                 }
             }
+            unset($Login);
         }
-        unset($Login);
+        unset($UserIDs,$id);
         echo json_encode($data);
     }
 }
