@@ -846,24 +846,30 @@ class HostManagementPage extends FOGPage {
             '${snapin_duration}',
             '${snapin_return}',
         );
-        $SnapinJobIDs = $this->getClass(SnapinJobManager)->find(array(hostID=>$this->obj->get(id)),'','','','','','','id');
-        $SnapinTasks = $this->getClass(SnapinTaskManager)->find(array(jobID=>$SnapinJobIDs));
-        foreach($SnapinTasks AS $i => &$SnapinTask) {
+        $SnapinJobIDs = $this->getSubObjectIDs('SnapinJob',array('hostID'=>$this->obj->get('id')));
+        $SnapinTaskIDs = $this->getSubObjectIDs('SnapinTask',array('jobID'=>$SnapinJobIDs));
+        foreach($SnapinTaskIDs AS $i => &$id) {
+            $SnapinTask = $this->getClass('SnapinTask',$id);
+            if (!$SnapinTask->isValid()) {
+                unset($SnapinTask);
+                continue;
+            } 
             $Snapin = $SnapinTask->getSnapin();
-            if ($Snapin->isValid()) {
-                $this->data[] = array(
-                    snapin_name=>$Snapin->get(name),
-                    snapin_start=>$this->formatTime($SnapinTask->get(checkin)),
-                    snapin_end => '<span class="icon" title="'.$this->formatTime($SnapinTask->get(complete)).'">'.$this->getClass(TaskState,$SnapinTask->get(stateID)).'</span>',
-                    snapin_duration => $this->diff($SnapinTask->get(checkin),$SnapinTask->get(complete)),
-                    snapin_return=>$SnapinTask->get('return'),
-                );
+            if (!$Snapin->isValid()) {
+                unset($SnapinTask,$Snapin);
+                continue;
             }
+            $this->data[] = array(
+                snapin_name=>$Snapin->get(name),
+                snapin_start=>$this->formatTime($SnapinTask->get(checkin)),
+                snapin_end => '<span class="icon" title="'.$this->formatTime($SnapinTask->get(complete)).'">'.$this->getClass(TaskState,$SnapinTask->get(stateID)).'</span>',
+                snapin_duration => $this->diff($SnapinTask->get(checkin),$SnapinTask->get(complete)),
+                snapin_return=>$SnapinTask->get('return'),
+            );
+            unset($Snapin,$SnapinTask);
         }
-        unset($SnapinTask);
-        // Hook
+        unset($SnapinTaskIDs,$id);
         $this->HookManager->processEvent(HOST_SNAPIN_HIST,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
         $this->render();
         echo '</div></div>';
     }
