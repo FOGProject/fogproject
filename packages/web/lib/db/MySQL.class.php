@@ -13,11 +13,24 @@ class MySQL extends DatabaseManager {
             $this->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
     }
+    public function __destruct() {
+        $this->result = null;
+        $this->queryResult = null;
+        $this->link = null;
+        if (!$this->link) return;
+        $this->link->close();
+        return;
+    }
+    private function close() {
+        $this->__destruct();
+    }
     public function connect() {
         try {
-            if (!$this->link) $this->link = new mysqli(DATABASE_HOST,DATABASE_USERNAME, DATABASE_PASSWORD);
-            if (!$this->link) die(_('MySQL does not appear to be running'));
-            if ($this->link->connect_error) die(_('Could not connect to the MySQL Server'));
+            if ($this->link) $this->close();
+            if (!$this->link) {
+                $this->link = mysqli_init();
+                if (!($this->link->real_connect(DATABASE_HOST,DATABASE_USERNAME, DATABASE_PASSWORD))) die(_('MySQL does not appear to be running'));
+            } else if ($this->link->connect_error) die(_('Could not connect to the MySQL Server'));
             if (!$this->link->select_db(DATABASE_NAME)) throw new Exception(_('Issue working with the current DB, maybe it has not been created yet'));
             $this->link->set_charset('utf8');
         } catch (Exception $e) {
@@ -71,11 +84,17 @@ class MySQL extends DatabaseManager {
         $result = array();
         foreach ((array)$field AS $i => &$key) {
             $key = trim($key);
-            if (array_key_exists($key, (array)$this->result)) return $this->result[$key];
+            if (array_key_exists($key, (array)$this->result)) {
+                if ($this->queryResult instanceof mysqli_result) $this->queryResult->free_result();
+                unset($this->queryResult);
+                return $this->result[$key];
+            }
             foreach ((array)$this->result AS $i => &$value) {
                 if (array_key_exists($key, (array)$value)) $result[] = $value[$key];
             }
         }
+        if ($this->queryResult instanceof mysqli_result) $this->queryResult->free_result();
+        unset($this->queryResult);
         if (count($result)) return $result;
         return $this->result;
     }
