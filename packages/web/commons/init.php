@@ -66,7 +66,6 @@ class Initiator {
      * @return void
      */
     public static function startInit() {
-        ignore_user_abort();
         @set_time_limit(0);
         @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
         @set_magic_quotes_runtime(0);
@@ -169,11 +168,6 @@ class Initiator {
         return $buffer;
     }
 }
-/*ini_set('opcache.enable',1);
-ini_set('opcache.memory_consumption',256);
-ini_set('opcache.max_accelerated_files',4000);
-ini_set('opcache_revalidate_freq',240);*/
-ignore_user_abort();
 /** $Init the initiator class */
 $Init = new Initiator();
 /** Starts the init itself */
