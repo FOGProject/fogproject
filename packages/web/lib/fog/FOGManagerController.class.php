@@ -20,7 +20,7 @@ abstract class FOGManagerController extends FOGBase {
         }
         unset($name,$value,$prop);
     }
-    public function find($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false, $idField = false) {
+    public function find($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false, $idField = false,$onecompare = true) {
         // Fail safe defaults
         if (empty($findWhere)) $findWhere = array();
         if (empty($whereOperator)) $whereOperator = 'AND';
@@ -29,10 +29,12 @@ abstract class FOGManagerController extends FOGBase {
         if (empty($compare)) $compare = '=';
         $not = ($not ? ' NOT ' : ' ');
         if (count($findWhere)) {
+            $count = 0;
             foreach ((array)$findWhere AS $field => &$value) {
                 $field = trim($field);
                 if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN ('%s')",$this->databaseTable,$this->databaseFields[$field],$not,implode("','",$value));
-                else $whereArray[] = sprintf("`%s`.`%s`%s'%s'",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE' : (trim($not) ? '!' : '').$compare), (string)$value);
+                else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value ? "'".(string)$value."'" : null));
+                $count++;
             }
             unset($value);
         }
@@ -75,12 +77,12 @@ abstract class FOGManagerController extends FOGBase {
             if (is_array($idField)) {
                 foreach ($idField AS $i => &$idstore) {
                     $idstore = trim($idstore);
-                    $ids[$idstore] = $this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore]);
+                    $ids[$idstore] = array_values(array_filter(array_unique($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore]))));
                 }
                 unset($idstore);
             } else {
                 $idField = trim($idField);
-                $ids = $this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField]);
+                $ids = array_values(array_filter(array_unique($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField]))));
             }
             $data = $ids;
         } else {

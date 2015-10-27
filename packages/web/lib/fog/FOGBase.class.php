@@ -465,7 +465,7 @@ abstract class FOGBase {
         if (empty($getField)) $getField = 'id';
         if (empty($operator)) $operator = 'AND';
         $this->orderBy($orderBy);
-        return array_values(array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','','',$not,$getField))));
+        return $this->getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','','',$not,$getField);
     }
     public function getSetting($key) {
         $value = $this->getSubObjectIDs('Service',array('name'=>$key),'value');
