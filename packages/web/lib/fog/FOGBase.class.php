@@ -70,7 +70,7 @@ abstract class FOGBase {
         $MACs = $this->parseMacList($mac,!$service,$service);
         if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC'].' '.$_REQUEST[mac]);
         if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
-        $Host = $this->getClass(HostManager)->getHostByMacAddresses($MACs);
+        $Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
         if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get(pending)) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
         return $Host;
     }
