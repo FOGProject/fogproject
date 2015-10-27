@@ -190,9 +190,11 @@ abstract class FOGController extends FOGBase {
         return $this;
     }
     protected function key(&$key) {
-        $key = trim($key);
-        if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
-        return $key;
+        if (!is_array($key)) {
+            $key = trim($key);
+            if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
+            return $key;
+        }
     }
     protected function loadItem($key) {
         if (!array_key_exists($key, $this->databaseFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !in_array($key, $this->additionalFields)) return $this;
