@@ -14,28 +14,31 @@ class MySQL extends DatabaseManager {
         }
     }
     public function __destruct() {
-        $this->result = null;
-        $this->queryResult = null;
-        $this->link = null;
         if (!$this->link) return;
+        $this->result = null;
+        if ($this->queryResult instanceof mysqli_result) $this->queryResult->close();
+        $this->queryResult = null;
         $this->link->close();
+        $this->link = null;
         return;
     }
-    private function close() {
+    public function close() {
         $this->__destruct();
     }
     public function connect() {
         try {
             if ($this->link) $this->close();
             if (!$this->link) {
-                $this->link = mysqli_init();
-                if (!($this->link->real_connect(DATABASE_HOST,DATABASE_USERNAME, DATABASE_PASSWORD))) die(_('MySQL does not appear to be running'));
-            } else if ($this->link->connect_error) die(_('Could not connect to the MySQL Server'));
+                $this->link = $this->getClass('mysqli',DATABASE_HOST,DATABASE_USERNAME, DATABASE_PASSWORD);
+                if ($this->link->connect_error) die(_('Could not connect to the MySQL Server'));
+            }
             if (!$this->link->select_db(DATABASE_NAME)) throw new Exception(_('Issue working with the current DB, maybe it has not been created yet'));
             $this->link->set_charset('utf8');
         } catch (Exception $e) {
             if (strstr($e->getMessage(),'MySQL server has gone away')) $this->connect();
-            else $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+            else {
+                $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+            }
         }
         return $this;
     }
@@ -85,7 +88,6 @@ class MySQL extends DatabaseManager {
         foreach ((array)$field AS $i => &$key) {
             $key = trim($key);
             if (array_key_exists($key, (array)$this->result)) {
-                if ($this->queryResult instanceof mysqli_result) $this->queryResult->free_result();
                 unset($this->queryResult);
                 return $this->result[$key];
             }
@@ -93,7 +95,6 @@ class MySQL extends DatabaseManager {
                 if (array_key_exists($key, (array)$value)) $result[] = $value[$key];
             }
         }
-        if ($this->queryResult instanceof mysqli_result) $this->queryResult->free_result();
         unset($this->queryResult);
         if (count($result)) return $result;
         return $this->result;
@@ -114,7 +115,7 @@ class MySQL extends DatabaseManager {
      * @return the value of the id
      */
     public function insert_id() {
-		$insert_id = $this->queryResult()->insert_id;
+		$insert_id = $this->queryResult->insert_id;
 		if (intval($insert_id) <= 0) $insert_id = $this->link->insert_id;
 		if (intval($insert_id) <= 0) throw new Exception(_('No insert id found'));
 		return (int)$insert_id;
@@ -123,7 +124,7 @@ class MySQL extends DatabaseManager {
      * @return the number
      */
     public function affected_rows() {
-		$affected_rows = $this->queryResult()->affected_rows;
+		$affected_rows = $this->queryResult->affected_rows;
 		if (intval($affected_rows) <= 0) $affected_rows = $this->link->affected_rows;
 		if (intval($affected_rows) <= 0) throw new Exception(_('No affected rows found'));
 		return (int)$affected_rows;
@@ -132,7 +133,7 @@ class MySQL extends DatabaseManager {
      * @return the number
      */
     public function num_rows() {
-		$num_rows = $this->queryResult()->num_rows;
+		$num_rows = $this->queryResult->num_rows;
 		if (intval($num_rows) <= 0) $num_rows = $this->link->num_rows;
 		if (intval($num_rows) <= 0) throw new Exception(_('No num rows found'));
 		return (int)$num_rows;

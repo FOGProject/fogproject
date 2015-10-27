@@ -163,8 +163,11 @@ class Page extends FOGBase {
     public function render($path = '') {
         ob_start(array('Initiator','sanitize_output'),8192);
         require_once '../management/other/index.php';
-        ob_end_flush();
-        ob_flush();
-        flush();
+        while (ob_get_level()) {
+            ob_end_flush();
+            ob_flush();
+            flush();
+        }
+        $this->DB->close();
     }
 }
