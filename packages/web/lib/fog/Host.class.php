@@ -69,12 +69,6 @@ class Host extends FOGController {
         'modules',
         'users',
     );
-    public function get($key = '') {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        if (in_array($key,(array)$this->arrayKeys)) return (array)parent::get($key);
-        return parent::get($key);
-    }
     public function set($key, $value) {
         $key = $this->key($key);
         if (!$this->isLoaded($key)) $this->loadItem($key);
