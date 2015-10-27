@@ -16,13 +16,13 @@ class MySQL extends DatabaseManager {
     public function __destruct() {
         if (!$this->link) return;
         $this->result = null;
-        if ($this->queryResult instanceof mysqli_result) $this->queryResult->close();
         $this->queryResult = null;
-        $this->link->close();
         $this->link = null;
         return;
     }
     public function close() {
+        if ($this->queryResult instanceof mysqli_result) $this->queryResult->close();
+        $this->link->close();
         $this->__destruct();
     }
     public function connect() {
