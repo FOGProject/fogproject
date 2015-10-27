@@ -83,24 +83,25 @@ class FOGPageManager Extends FOGBase {
         return $this;
     }
     private function loadPageClasses() {
-        if ($this->isLoaded('PageClasses')) return;
         global $Init;
         foreach ($Init->PagePaths AS $i => &$path) {
-            if (file_exists($path)) {
-                $iterator = new DirectoryIterator($path);
-                foreach ($iterator AS $i => $fileInfo) {
-                    $className = null;
-                    if ($fileInfo->isDot() || !$fileInfo->isFile() || substr($fileInfo->getFilename(),-10) != '.class.php') continue;
-                    $className = substr($fileInfo->getFilename(),0,-10);
-                    if (($this->isMobile && !preg_match('#mobile#i',$className)) || (!$this->isMobile && preg_match('#mobile#i',$className)) && !preg_match('#plugins#',$path)) continue;
-                    if (!$className || in_array($className,get_declared_classes())) continue;
-                    $vals = $this->getClass('ReflectionClass',$className)->getDefaultProperties();
-                    if ($vals['node'] === $this->classValue) {
-                        $className = $this->getClass($className);
-                        $this->register($className);
-                    }
-                    unset($vals);
+            if (!file_exists($path)) continue;
+            $iterator = new DirectoryIterator($path);
+            foreach ($iterator AS $i => $fileInfo) {
+                $className = null;
+                if ($fileInfo->isDot() || !$fileInfo->isFile() || substr($fileInfo->getFilename(),-10) != '.class.php') continue;
+                $className = substr($fileInfo->getFilename(),0,-10);
+                if (!$className) continue;
+                if (in_array($className,get_declared_classes())) continue;
+                if ($this->isMobile && !preg_match('#mobile#i',$className)) continue;
+                if ($this->isMobile && !preg_match('#plugins#i',$path)) continue;
+                if (!$this->isMobile && preg_match('#mobile#i',$className)) continue;
+                $vals = $this->getClass('ReflectionClass',$className)->getDefaultProperties();
+                if ($vals['node'] === $this->classValue) {
+                    $className = $this->getClass($className);
+                    $this->register($className);
                 }
+                unset($vals);
             }
         }
         unset($path);
