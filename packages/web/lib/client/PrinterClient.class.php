@@ -44,7 +44,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                 $Printer = $this->getClass('Printer',$_REQUEST['id']);
                 if (!$Printer->isValid()) throw new Exception(_('Printer is invalid'));
                 $strtosend = "#!ok\n#type=%s\n#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s";
-                $this->send .= sprintf($strtosend,$Printer->get('config'),$Printer->get('file'),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id')));
+                $this->send .= sprintf($strtosend,$Printer->get('config'),$Printer->get('port'),$Printer->get('file'),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id')));
             }
         }
     }

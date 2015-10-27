@@ -33,7 +33,7 @@ abstract class FOGManagerController extends FOGBase {
             foreach ((array)$findWhere AS $field => &$value) {
                 $field = trim($field);
                 if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN ('%s')",$this->databaseTable,$this->databaseFields[$field],$not,implode("','",$value));
-                else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value ? "'".(string)$value."'" : null));
+                else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? "'".(string)$value."'" : null));
                 $count++;
             }
             unset($value);
