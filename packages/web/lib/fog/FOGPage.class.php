@@ -443,21 +443,25 @@ abstract class FOGPage extends FOGBase {
         printf("<!-- Basic Tasks -->");
         printf("%s",'<div id="'.$this->node.'-tasks">');
         printf("<h2>%s</h2>",_($this->childClass.' Tasks'));
-        $TaskTypes = $this->getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>0),'AND','id');
-        foreach($TaskTypes AS $i => &$TaskType) {
-            if ($TaskType->isValid()) {
-                $this->data[] = array(
-                    'node'=>$this->node,
-                    'sub'=>'deploy',
-                    $this->node.'_id' => $this->obj->get('id'),
-                    'task_type'=>'&type='.$TaskType->get('id'),
-                    'task_icon'=>$TaskType->get('icon'),
-                    'task_name'=>$TaskType->get('name'),
-                    'task_desc'=>$TaskType->get('description'),
-                );
+        $TaskTypeIDs = $this->getSubObjectIDs('TaskType',array('access'=>array('both',$this->node),'isAdvanced'=>0),'','','','id');
+        foreach($TaskTypeIDs AS $i => &$id) {
+            $TaskType = $this->getClass('TaskType',$id);
+            if (!$TaskType->isValid()) {
+                unset($TaskType);
+                continue;
             }
+            $this->data[] = array(
+                'node'=>$this->node,
+                'sub'=>'deploy',
+                $this->node.'_id' => $this->obj->get('id'),
+                'task_type'=>'&type='.$TaskType->get('id'),
+                'task_icon'=>$TaskType->get('icon'),
+                'task_name'=>$TaskType->get('name'),
+                'task_desc'=>$TaskType->get('description'),
+            );
+            unset($TaskType);
         }
-        unset($TaskType);
+        unset($TaskTypeIDs,$id);
         $this->data[] = array(
             'node'=>$this->node,
             'sub'=>'edit',
