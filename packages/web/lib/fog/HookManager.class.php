@@ -73,22 +73,24 @@ class HookManager extends EventManager {
     }
     public function load() {
         global $Init;
-        foreach($Init->HookPaths AS $hookDirectory) {
-            if (file_exists($hookDirectory)) {
-                $hookIterator = new DirectoryIterator($hookDirectory);
-                foreach ($hookIterator AS $fileInfo) {
-                    $className = null;
-                    if ($fileInfo->isDot() || !$fileInfo->isFile() || substr($fileInfo->getFilename(),-9) != '.hook.php') continue;
-                    $className = substr($fileInfo->getFilename(),0,-9);
-                    if (!$className || in_array($className,get_declared_classes())) continue;
-                    if (preg_match('#plugins#',$hookDirectory) && !in_array(basename(substr($hookDirectory,0,-6)),(array)$_SESSION['PluginsInstalled'])) continue;
-                    else if (preg_match('#plugins#',$fileInfo->getPathname())) {
-                        $this->getClass($className);
-                        continue;
-                    } else if ($this->getClass('ReflectionClass',$className)->getProperty('active')->getValue($this->getClass($className))) $this->getClass($className);
+        foreach($Init->HookPaths AS $i => &$path) {
+            if (!file_exists($path)) continue;
+            $iterator = new DirectoryIterator($path);
+            foreach ($iterator AS $i => $fileInfo) {
+                $className = null;
+                if ($fileInfo->isDot() || !$fileInfo->isFile() || substr($fileInfo->getFilename(),-9) != '.hook.php') continue;
+                $className = substr($fileInfo->getFilename(),0,-9);
+                if (!$className) continue;
+                if (in_array($className,get_declared_classes())) continue;
+                if (preg_match('#plugins#',$fileInfo->getPathname()) && !in_array(basename(substr($path,0,-6)),(array)$_SESSION['PluginsInstalled'])) continue;
+                if (preg_match('#plugins#',$fileInfo->getPathname())) {
+                    $this->getClass($className);
+                    continue;
                 }
+                if ($this->getClass('ReflectionClass',$className)->getProperty('active')->getValue($this->getClass($className))) $this->getClass($className);
             }
         }
+        unset($path);
     }
     public function log($txt, $level = 1) {
         if (!$this->ajax && $this->logLevel >= $level)
