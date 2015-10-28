@@ -42,7 +42,7 @@ class FOGURLRequests extends FOGBase {
     public function process($urls, $method = 'GET',$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
         if (!is_array($urls)) $urls = array($urls);
         if (empty($method)) $method = 'GET';
-        foreach ($urls AS $i => &$url) {
+        foreach ((array)$urls AS $i => &$url) {
             $ProxyUsed = false;
             if ($this->DB && $this->getSetting(FOG_PROXY_IP)) {
                 $IPs = $this->getClass(StorageNodeManager)->find('','','','','','','','ip');
@@ -87,7 +87,7 @@ class FOGURLRequests extends FOGBase {
         do {
             curl_multi_exec($this->handle,$active);
         } while ($active > 0);
-        foreach ($curl AS $key => &$val) {
+        foreach ((array)$curl AS $key => &$val) {
             $response[] = curl_multi_getcontent($val);
             curl_multi_remove_handle($this->handle,$val);
         }
