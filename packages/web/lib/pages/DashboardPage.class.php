@@ -73,16 +73,24 @@ class DashboardPage extends FOGPage {
      * Display's the bandwidth bar on the dashboard page.
      */
     public function bandwidth() {
-        $Nodes = $this->getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1));
-        // Loop each storage node -> grab stats
-        foreach($Nodes AS $i => &$StorageNode) {
-            $fetchedData = $this->FOGURLRequests->process(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'), $StorageNode->get('interface')),'GET');
-            foreach((array)$fetchedData AS $i => &$dataSet) {
-                if (preg_match('/(.*)##(.*)/U', $dataSet,$match)) $data[$StorageNode->get(name)] = array(rx=>$match[1],tx=>$match[2]);
-                else $data[$StorageNode->get('name')] = json_decode($dataSet,true);
+        $URLs = array();
+        $Nodes = $this->getSubObjectIDs('StorageNode',array('isGraphEnabled'=>1),'','','','name');
+        foreach((array)$Nodes AS $i => &$id) {
+            $StorageNode = $this->getClass('StorageNode',$id);
+            if (!$StorageNode->isValid()) {
+                unset($StorageNode);
+                continue;
             }
-            unset($dataSet);
+            $URLs[] = sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface'));
+            unset($StorageNode);
         }
+        unset($id);
+        $fetchedData = $this->FOGURLRequests->process($URLs,'GET');
+        foreach((array)$fetchedData AS $i => &$dataSet) {
+            if (preg_match('/(.*)##(.*)/U', $dataSet,$match)) $data[$this->getClass('StorageNode',$Nodes[$i])->get('name')] = array('rx'=>$match[1],'tx'=>$match[2]);
+            else $data[$this->getClass('StorageNode',$Nodes[$i])->get('name')] = json_decode($dataSet,true);
+        }
+        unset($dataSet);
         unset($StorageNode);
         echo json_encode((array)$data);
         exit;

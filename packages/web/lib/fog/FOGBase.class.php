@@ -464,7 +464,6 @@ abstract class FOGBase {
         if (empty($object)) $object = 'Host';
         if (empty($getField)) $getField = 'id';
         if (empty($operator)) $operator = 'AND';
-        $this->orderBy($orderBy);
         return $this->getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','','',$not,$getField);
     }
     public function getSetting($key) {

@@ -5,7 +5,6 @@ require_once(dirname(realpath(__FILE__)).'/../etc/config.php');
 require_once(dirname(realpath(__FILE__)).'/../lib/service_lib.php');
 $service_name = 'FOGTaskScheduler';
 service_persist($service_name);
-require_once(WEBROOT."/commons/base.inc.php");
 $ServiceClass = $FOGCore->getClass('TaskScheduler');
 @unlink($ServiceClass->log);
 $ServiceClass->getBanner();
