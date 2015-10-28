@@ -73,7 +73,7 @@ dhcpconfigother="/etc/dhcp/dhcpd.conf"
 tftpdirdst="/srv/tftp"
 
 # where is the tftpd config file?
-tftpconfig="/usr/lib/systemd/system/tftpd.service"
+tftpconfig="/etc/xinetd.d/tftpd"
 
 # where is the ftp server config file?
 #ftpconfig="/etc/xinetd.d/vsftpd"
