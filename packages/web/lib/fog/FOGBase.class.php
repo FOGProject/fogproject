@@ -138,7 +138,7 @@ abstract class FOGBase {
     }
     protected function redirect($url = '') {
         if (empty($url)) $url = sprintf('%s?%s',$_SERVER['PHP_SELF'],$_SERVER['QUERY_STRING']);
-        if (!headers_sent()) {
+        if (!headers_sent() && !$this->service) {
             header('Strict-Transport-Security: "max-age=15768000"');
             header('X-Content-Type-Options: nosniff');
             header('X-XSS-Protection: 1; mode=block');
@@ -148,7 +148,6 @@ abstract class FOGBase {
             header("Location: $url");
             exit;
         }
-        $this->getMessages();
     }
     protected function array_insert_before($key, array &$array, $new_key, $new_value) {
         if ($this->binary_search($key, $array) > -1) {
