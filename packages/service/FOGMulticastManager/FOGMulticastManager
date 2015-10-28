@@ -6,11 +6,11 @@ require_once(dirname(realpath(__FILE__)).'/../lib/service_lib.php');
 $service_name = 'FOGMulticastManager';
 service_persist($service_name);
 $ServiceClass = $FOGCore->getClass('MulticastManager');
-@unlink($ServiceClass->log);
-if (!file_exists('UDPSENDERPATH')) {
+if (!file_exists(UDPSENDERPATH)) {
     $ServiceClass->outall(' * Unable to locate udp-sender!.');
     exit(1);
 }
+@unlink($ServiceClass->log);
 $ServiceClass->getBanner();
 $ServiceClass->wait_interface_ready();
 $ServiceClass->wait_db_ready();
