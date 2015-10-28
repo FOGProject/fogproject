@@ -199,6 +199,9 @@ configureFTP() {
 	if [ -f "$ftpconfig" ]; then
 		mv "$ftpconfig" "${ftpconfig}.fogbackup";
 	fi
+	if [ -f "$ftpxinetd" ]; then
+		mv "$ftpxinetd" "${ftpxinetd}.fogbackup";
+	fi
 	vsftp=`vsftpd -version 0>&1 | awk -F'version ' '{print $2}'`
     vsvermaj=`echo $vsftp | awk -F. '{print $1}'`
 	vsverbug=`echo $vsftp | awk -F. '{print $3}'`

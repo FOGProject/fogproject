@@ -76,7 +76,7 @@ tftpdirdst="/srv/tftp"
 tftpconfig="/etc/xinetd.d/tftpd"
 
 # where is the ftp server config file?
-#ftpconfig="/etc/xinetd.d/vsftpd"
+ftpxinetd="/etc/xinetd.d/vsftpd"
 ftpconfig="/etc/vsftpd.conf"
 dhcpd="dhcpd"
 # where do snapins go?
