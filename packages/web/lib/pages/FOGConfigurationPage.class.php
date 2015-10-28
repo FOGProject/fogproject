@@ -742,7 +742,10 @@ class FOGConfigurationPage extends FOGPage {
             $snapinreplog = $ftpstart.@array_shift($snapinreplog);
             $pinghostlog = preg_grep('#(pinghosts.log$)#i',$fogfiles);
             $pinghostlog = $ftpstart.@array_shift($pinghostlog);
+            $svcmasterlog = preg_grep('#(servicemaster.log$)#i',$fogfiles);
+            $svcmasterlog = $ftpstart.@array_shift($svcmasterlog);
             $files[$StorageNode->get('name')] = array(
+                $svcmasterlog ? _('Service Master') : null => $svcmasterlog ? $svcmasterlog : null,
                 $multicastlog ? _('Multicast') : null => $multicastlog ? $multicastlog : null,
                 $schedulerlog ? _('Scheduler') : null => $schedulerlog ? $schedulerlog : null,
                 $imgrepliclog ? _('Image Replicator') : null => $imgrepliclog ? $imgrepliclog : null,
