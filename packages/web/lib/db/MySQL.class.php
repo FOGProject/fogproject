@@ -14,20 +14,13 @@ class MySQL extends DatabaseManager {
         }
     }
     public function __destruct() {
+        unset($this->result,$this->queryResult);
         if (!$this->link) return;
-        $this->result = null;
-        $this->queryResult = null;
-        $this->link = null;
+        unset($this->link);
         return;
-    }
-    public function close() {
-        if ($this->queryResult instanceof mysqli_result) $this->queryResult->close();
-        $this->link->close();
-        $this->__destruct();
     }
     public function connect() {
         try {
-            if ($this->link) $this->close();
             if (!$this->link) {
                 $this->link = $this->getClass('mysqli',DATABASE_HOST,DATABASE_USERNAME, DATABASE_PASSWORD);
                 if ($this->link->connect_error) die(_('Could not connect to the MySQL Server'));

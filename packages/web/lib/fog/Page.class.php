@@ -168,6 +168,5 @@ class Page extends FOGBase {
             ob_flush();
             flush();
         }
-        $this->DB->close();
     }
 }
