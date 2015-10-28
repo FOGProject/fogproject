@@ -1,24 +1,26 @@
 <?php
 require_once ('../commons/base.inc.php');
 if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'], array('deletemulti', 'deleteconf'))) unset($_SESSION['delitems']);
-/** Get the current user */
-if (!in_array($_REQUEST['sub'],array('configure','authorize','loginInfo')) && !in_array($_REQUEST['node'],array('schemaupdater','client')) && $_SESSION['FOG_USER']) $currentUser = unserialize($_SESSION['FOG_USER']);
-else $currentUser = $FOGCore->getClass('User');
+$currentUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : $FOGCore->getClass('User'));
 $currentUser->isLoggedIn();
 $FOGPageManager = $FOGCore->getClass('FOGPageManager');
-$FOGCore->getClass('ProcessLogin')->processMainLogin();
 $Page = $FOGCore->getClass('Page');
+$FOGCore->getClass('ProcessLogin')->processMainLogin();
 if ($_REQUEST['node'] == 'logout' || (!in_array($_REQUEST['sub'],array('configure','authorize','loginInfo')) && !in_array($_REQUEST['node'],array('schemaupdater','client')) && !$currentUser->isValid())) {
-    $currentUser->logout();
     $HookManager->processEvent('LOGOUT', array('user'=>&$currentUser));
+    $currentUser->logout();
+    $Page->setTitle($foglang['Login']);
+    $Page->setSecTitle($foglang['ManagementLogin']);
     $Page->startBody();
     $FOGCore->getClass('ProcessLogin')->mobileLoginForm();
     $Page->endBody();
     $Page->render();
 } else {
     $content = $FOGPageManager->render();
-    $Page->setTitle($FOGPageManager->getFOGPageTitle());
-    $Page->setSecTitle($FOGPageManager->getFOGPageName());
+    $sectionTitle = $FOGPageManager->getFOGPageName();
+    $pageTitle = $FOGPageManager->getFOGPageTitle();
+    $Page->setTitle($pageTitle);
+    $Page->setSecTitle($sectionTitle);
     $Page->startBody();
     echo $content;
     $Page->endBody();
