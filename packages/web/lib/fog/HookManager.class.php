@@ -79,7 +79,7 @@ class HookManager extends EventManager {
                 if (!in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) continue;
             }
             $iterator = new DirectoryIterator($path);
-            foreach ($iterator AS $i => $fileInfo) {
+            foreach ((array)$iterator AS $i => $fileInfo) {
                 $className = null;
                 if (substr($fileInfo->getFilename(),-9) != '.hook.php') continue;
                 $className = substr($fileInfo->getFilename(),0,-9);
@@ -88,12 +88,8 @@ class HookManager extends EventManager {
                     $this->getClass($className);
                     continue;
                 }
-                $file = file($fileInfo->getPathname());
-                $key = '$active';
-                foreach ($file AS $lineNumber => &$line) {
-                    if (strpos($line,$key) !== false) break;
-                }
-                if (preg_match('#true#i',$file[$lineNumber])) $this->getClass($className);
+                $active = (bool)shell_exec(sprintf('grep -r "\$active\ " %s|grep -o "true"',$fileInfo->getPathname()));
+                if ($active) $this->getClass($className);
             }
         }
         unset($path);
