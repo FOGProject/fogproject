@@ -20,18 +20,12 @@ class FOGConfigurationPage extends FOGPage {
         );
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
-    /** index()
-     * Displays the configuration page.  Right now it redirects to display
-     * whether the user is on the current version.
-     */
     public function index() {
         $this->version();
     }
-    /** version() Pulls the current version from the internet. */
     public function version() {
         $URLs = array();
         $Names = array();
-        // Set title
         $this->title = _('FOG Version Information');
         echo '<p>'._('Version: ').FOG_VERSION.'</p>';
         $URLs[] = 'https://fogproject.org/version/index.php?version='.FOG_VERSION;
@@ -39,78 +33,48 @@ class FOGConfigurationPage extends FOGPage {
         foreach($Nodes AS $i => &$StorageNode) {
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
             $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
-            $Names[] = $StorageNode->get('name');
             $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
+            unset($StorageNode);
         }
-        unset($StorageNode);
         $Responses = $this->FOGURLRequests->process($URLs,'GET');
-        asort($Responses);
         foreach($Responses AS $i => &$data) {
             if ($i === 0) {
                 echo '<p><div class="sub">'.$Responses[$i].'</div></p>';
                 echo '<h1>Kernel Versions</h1>';
             } else {
-                echo "<h2>{$Names[$i]}</h2>";
+                echo "<h2>{$Nodes[($i - 1)]->get(name)}</h2>";
                 echo "<pre>$data</pre>";
             }
+            unset($data);
         }
-        unset($data);
+        unset($Responses,$Nodes);
     }
-    /** license()
-     * Displays the GNU License to the user.  Currently Version 3.
-     */
     public function license() {
-        // Set title
         $this->title = _('FOG License Information');
         if (file_exists('./languages/'.$_SESSION['locale'].'/gpl-3.0.txt')) echo "<pre>".file_get_contents('./languages/'.$_SESSION['locale'].'/gpl-3.0.txt').'</pre>';
         else echo "<pre>".file_get_contents('./other/gpl-3.0.txt').'</pre>';
     }
-    /** kernel()
-     * Redirects as the sub information is currently incorrect.
-     * This is because the class files go to post, but it only
-     * tries to kernel_post.  The sub is kernel_update though.
-     */
     public function kernel() {
         $this->kernel_update_post();
     }
-    /** kernel_update()
-     * Display's the published kernels for update.
-     * This information is obtained from the internet.
-     * Displays the default of Published kernels.
-     */
     public function kernel_update() {
         $this->kernelselForm('pk');
         $htmlData = $this->FOGURLRequests->process('https://fogproject.org/kernels/kernelupdate.php?version='.FOG_VERSION,'GET');
         echo $htmlData[0];
     }
-    /** kernelselForm($type)
-     * Gives the user the option to select between:
-     * Published Kernels (from sourceforge)
-     * Unofficial Kernels (from mastacontrola.com)
-     */
     public function kernelselForm($type) {
         echo '<div class="hostgroup">';
         echo _('This section allows you to update the Linux kernel which is used to boot the client computers.  In FOG, this kernel holds all the drivers for the client computer, so if you are unable to boot a client you may wish to update to a newer kernel which may have more drivers built in.  This installation process may take a few minutes, as FOG will attempt to go out to the internet to get the requested Kernel, so if it seems like the process is hanging please be patient.');
         echo '</div><div><form method="post" action="'.$this->formAction.'"><select name="kernelsel" onchange="this.form.submit()">';
         echo '<option value="pk"'.($type == 'pk' ? ' selected="selected"' : '').'>'._('Published Kernels').'</option>';
-        echo '<option value="ok"'.($type == 'ok' ? ' selected="selected"' : '').'>'._('Old Published Kernels').'</option>';
-        echo '<option value="uk"'.($type == 'uk' ? ' selected="selected"' : '').'>'._('Unofficial Kernels').'</option></select></form></div>';
+        echo '<option value="ok"'.($type == 'ok' ? ' selected="selected"' : '').'>'._('Old Published Kernels').'</option></select></form></div>';
     }
-    /** kernel_update_post()
-     * Displays the kernel based on the list selected.
-     * Defaults to published kernels.
-     */
     public function kernel_update_post() {
-        if ($_REQUEST['sub'] == 'kernel-update') {
-            switch ($_REQUEST[kernelsel]) {
+        if (in_array($_REQUEST['sub'],array('kernel-update','kernel_update'))) {
+            switch ($_REQUEST['kernelsel']) {
             case 'pk':
                 $this->kernelselForm('pk');
                 $htmlData = $this->FOGURLRequests->process("https://fogproject.org/kernels/kernelupdate.php?version=" . FOG_VERSION,'GET');
-                echo $htmlData[0];
-                break;
-            case 'uk':
-                $this->kernelselForm('uk');
-                $htmlData = $this->FOGURLRequests->process("http://mastacontrola.com/fogboot/kernel/index.php?version=" . FOG_VERSION,'GET');
                 echo $htmlData[0];
                 break;
             case 'ok':
@@ -137,41 +101,26 @@ class FOGConfigurationPage extends FOGPage {
             echo '<p><input class="smaller" type="submit" value="Next" /></p></form>';
         }
     }
-    /** pxemenu()
-     * Displays the pxe/ipxe menu selections.
-     * Hidden menu requires user login from FOG GUI login.
-     * Also, hidden menu enforces a key press to access the menu.
-     * If none is selected, defaults to esc key.  Otherwise you
-     * need to use the key combination chosen.
-     * Also used to setup the default timeout.  This time out is
-     * the timeout it uses to boot to the system.  If hidden menu
-     * is selected it sets both the hidden menu timeout and the menu,
-     * if none is selected, and the menu items.
-     */
     public function pxemenu() {
-        // Set title
         $this->title = _('FOG PXE Boot Menu Configuration');
-        // Headerdata
         unset($this->headerData);
-        // Attributes
         $this->attributes = array(
             array(),
             array(),
         );
-        // Templates
         $this->templates = array(
             '${field}',
             '${input}',
         );
-        $noMenu = $this->getSetting(FOG_NO_MENU) ? 'checked' : '';
-        $hidChecked = ($this->getSetting(FOG_PXE_MENU_HIDDEN) ? 'checked' : '');
-        $hideTimeout = $this->getSetting(FOG_PXE_HIDDENMENU_TIMEOUT);
-        $timeout = $this->getSetting(FOG_PXE_MENU_TIMEOUT);
-        $bootKeys = $this->getClass(KeySequenceManager)->buildSelectBox($this->getSetting(FOG_KEY_SEQUENCE));
-        $advLogin = ($this->getSetting(FOG_ADVANCED_MENU_LOGIN) ? 'checked' : '');
-        $advanced = $this->getSetting(FOG_PXE_ADVANCED);
-        $exitNorm = Service::buildExitSelector('bootTypeExit',$this->getSetting(FOG_BOOT_EXIT_TYPE));
-        $exitEfi = Service::buildExitSelector('efiBootTypeExit',$this->getSetting(FOG_EFI_BOOT_EXIT_TYPE));
+        $noMenu = $this->getSetting('FOG_NO_MENU') ? 'checked' : '';
+        $hidChecked = ($this->getSetting('FOG_PXE_MENU_HIDDEN') ? 'checked' : '');
+        $hideTimeout = $this->getSetting('FOG_PXE_HIDDENMENU_TIMEOUT');
+        $timeout = $this->getSetting('FOG_PXE_MENU_TIMEOUT');
+        $bootKeys = $this->getClass('KeySequenceManager')->buildSelectBox($this->getSetting('FOG_KEY_SEQUENCE'));
+        $advLogin = ($this->getSetting('FOG_ADVANCED_MENU_LOGIN') ? 'checked' : '');
+        $advanced = $this->getSetting('FOG_PXE_ADVANCED');
+        $exitNorm = Service::buildExitSelector('bootTypeExit',$this->getSetting('FOG_BOOT_EXIT_TYPE'));
+        $exitEfi = Service::buildExitSelector('efiBootTypeExit',$this->getSetting('FOG_EFI_BOOT_EXIT_TYPE'));
         $fields = array(
             _('No Menu') => '<input type="checkbox" name="nomenu" value="1" '.$noMenu.'/><i class="icon fa fa-question hand" title="Option sets if there will even be the presence of a menu to the client systems.  If there is not a task set, it boots to the first device, if there is a task, it performs that task."></i>',
             _('Hide Menu') => '<input type="checkbox" name="hidemenu" value="1" '.$hidChecked.'/><i class="icon fa fa-question hand" title="Option below sets the key sequence.  If none is specified, ESC is defaulted. Login with the FOG credentials and you will see the menu.  Otherwise it will just boot like normal."></i>',
@@ -187,40 +136,35 @@ class FOGConfigurationPage extends FOGPage {
         echo '<form method="post" action="'.$this->formAction.'">';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
-                field=>$field,
-                input=>$input,
+                'field'=>$field,
+                'input'=>$input,
             );
         }
         unset($input);
-        // Hook
-        $this->HookManager->processEvent(PXE_BOOT_MENU,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        $this->HookManager->processEvent('PXE_BOOT_MENU',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
-    /** pxemenu_post()
-     * Performs the updates for the form sent from pxemenu().
-     */
     public function pxemenu_post() {
         try {
-            $timeout = trim($_REQUEST[timeout]);
+            $timeout = trim($_REQUEST['timeout']);
             $timeout = (is_numeric($timeout) || intval($timeout) >= 0 ? true : false);
             if (!$timeout) throw new Exception(_('Invalid Timeout Value'));
-            else $timeout = trim($_REQUEST[timeout]);
-            $hidetimeout = trim($_REQUEST[hidetimeout]);
+            else $timeout = trim($_REQUEST['timeout']);
+            $hidetimeout = trim($_REQUEST['hidetimeout']);
             $hidetimeout = (is_numeric($hidetimeout) || intval($hidetimeout) >= 0 ? true : false);
             if (!$hidetimeout) throw new Exception(_('Invalid Timeout Value'));
-            else $hidetimeout = trim($_REQUEST[hidetimeout]);
-            if (!$this->FOGCore
-                ->setSetting(FOG_PXE_MENU_HIDDEN,$_REQUEST[hidemenu])
-                ->setSetting(FOG_PXE_MENU_TIMEOUT,$timeout)
-                ->setSetting(FOG_PXE_ADVANCED,$_REQUEST[adv])
-                ->setSetting(FOG_KEY_SEQUENCE,$_REQUEST[keysequence])
-                ->setSetting(FOG_NO_MENU,$_REQUEST[nomenu])
-                ->setSetting(FOG_BOOT_EXIT_TYPE,$_REQUEST[bootTypeExit])
-                ->setSetting(FOG_EFI_BOOT_EXIT_TYPE,$_REQUEST[efiBootTypeExit])
-                ->setSetting(FOG_ADVANCED_MENU_LOGIN,$_REQUEST[advmenulogin])
-                ->setSetting(FOG_PXE_HIDDENMENU_TIMEOUT,$hidetimeout)) throw new Exception(_('PXE Menu update failed'));
+            else $hidetimeout = trim($_REQUEST['hidetimeout']);
+            if (!$this
+                ->setSetting('FOG_PXE_MENU_HIDDEN',$_REQUEST['hidemenu'])
+                ->setSetting('FOG_PXE_MENU_TIMEOUT',$timeout)
+                ->setSetting('FOG_PXE_ADVANCED',$_REQUEST['adv'])
+                ->setSetting('FOG_KEY_SEQUENCE',$_REQUEST['keysequence'])
+                ->setSetting('FOG_NO_MENU',$_REQUEST['nomenu'])
+                ->setSetting('FOG_BOOT_EXIT_TYPE',$_REQUEST['bootTypeExit'])
+                ->setSetting('FOG_EFI_BOOT_EXIT_TYPE',$_REQUEST['efiBootTypeExit'])
+                ->setSetting('FOG_ADVANCED_MENU_LOGIN',$_REQUEST['advmenulogin'])
+                ->setSetting('FOG_PXE_HIDDENMENU_TIMEOUT',$hidetimeout)) throw new Exception(_('PXE Menu update failed'));
             throw new Exception(_('PXE Menu has been updated'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
@@ -228,70 +172,65 @@ class FOGConfigurationPage extends FOGPage {
         }
     }
     public function customize_edit() {
-        $this->title = $this->foglang[PXEMenuCustomization];
+        $this->title = $this->foglang['PXEMenuCustomization'];
         echo '<p>'._('This item allows you to edit all of the PXE Menu items as you see fit.  Mind you, iPXE syntax is very finicky when it comes to edits.  If you need help understanding what items are needed, please see the forums.  You can also look at ipxe.org for syntactic usage and methods.  Some of the items here are bound to limitations.  Documentation will follow when enough time is provided.').'</p>';
         echo '<div id="tab-container-1">';
         $this->templates = array(
             '${field}',
             '${input}',
         );
-        $Menus = $this->getClass(PXEMenuOptionsManager)->find('','','id');
+        $Menus = $this->getClass('PXEMenuOptionsManager')->find('','','id');
         foreach ($Menus AS $i => &$Menu) {
+            if (!$Menu->isValid()) continue;
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/\./','_',preg_replace('/:/','_',$Menu->get('name'))));
-            echo '<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get(name).'</h3></a>';
+            echo '<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get('name').'</h3></a>';
             echo '<div id="'.$divTab.'">';
             echo '<form method="post" action="'.$this->formAction.'">';
-            $menuid = in_array($Menu->get(id),array(1,2,3,4,5,6,7,8,9,10,11,12,13));
+            $menuid = in_array($Menu->get('id'),range(1,13));
             $menuDefault = $Menu->get('default') ? 'checked' : '';
             $fields = array(
-                _('Menu Item:') => '<input type="text" name="menu_item" value="'.$Menu->get(name).'" id="menu_item"/>',
-                _('Description:') => '<textarea cols="40" rows="2" name="menu_description">'.$Menu->get(description).'</textarea>',
-                _('Parameters:') => '<textarea cols="40" rows="8" name="menu_params">'.$Menu->get(params).'</textarea>',
-                _('Boot Options:') => '<input type="text" name="menu_options" id="menu_options" value="'.$Menu->get(args).'" />',
+                _('Menu Item:') => '<input type="text" name="menu_item" value="'.$Menu->get('name').'" id="menu_item"/>',
+                _('Description:') => '<textarea cols="40" rows="2" name="menu_description">'.$Menu->get('description').'</textarea>',
+                _('Parameters:') => '<textarea cols="40" rows="8" name="menu_params">'.$Menu->get('params').'</textarea>',
+                _('Boot Options:') => '<input type="text" name="menu_options" id="menu_options" value="'.$Menu->get('args').'" />',
                 _('Default Item:') => '<input type="checkbox" name="menu_default" value="1" '.$menuDefault.'/>',
-                _('Menu Show with:') => $this->getClass(PXEMenuOptionsManager)->regSelect($Menu->get(regMenu)),
-                '<input type="hidden" name="menu_id" value="'.$Menu->get(id).'" />' => '<input type="submit" name="saveform" value="'.$this->foglang[Submit].'" />',
-                !$menuid ? '<input type="hidden" name="rmid" value="'.$Menu->get(id).'" />' : '' => !$menuid ? '<input type="submit" name="delform" value="'.$this->foglang['Delete'].' '.$Menu->get(name).'" />' : '',
+                _('Menu Show with:') => $this->getClass('PXEMenuOptionsManager')->regSelect($Menu->get('regMenu')),
+                '<input type="hidden" name="menu_id" value="'.$Menu->get('id').'" />' => '<input type="submit" name="saveform" value="'.$this->foglang['Submit'].'" />',
+                !$menuid ? '<input type="hidden" name="rmid" value="'.$Menu->get('id').'" />' : '' => !$menuid ? '<input type="submit" name="delform" value="'.$this->foglang['Delete'].' '.$Menu->get('name').'"/>' : '',
             );
             foreach($fields AS $field => &$input) {
                 $this->data[] = array(
-                    field=>$field,
-                    input=>$input,
+                    'field'=>$field,
+                    'input'=>$input,
                 );
             }
             unset($input);
-            // Hook
-            $this->HookManager->processEvent('BOOT_ITEMS_'.$divTab,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes,headerData=>&$this->headerData));
-            // Output
+            $this->HookManager->processEvent('BOOT_ITEMS_'.$divTab,array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
             $this->render();
             echo '</form></div>';
-            // Reset for use again.
             unset($this->data);
         }
         unset($Menu);
         echo '</div>';
     }
     public function customize_edit_post() {
-        if (isset($_REQUEST[saveform]) && $_REQUEST[menu_id]) {
-            $this->getClass(PXEMenuOptionsManager)->update('','',array('default'=>0));
-            $Menu = $this->getClass(PXEMenuOptions,$_REQUEST[menu_id])
-                ->set(name,$_REQUEST[menu_item])
-                ->set(description,$_REQUEST[menu_description])
-                ->set(params,$_REQUEST[menu_params])
-                ->set(regMenu,$_REQUEST[menu_regmenu])
-                ->set(args,$_REQUEST[menu_options])
-                ->set('default',$_REQUEST[menu_default]);
-            if ($Menu->save()) $this->setMessage($Menu->get(name).' '._('successfully updated').'!');
+        if (isset($_REQUEST['saveform']) && $_REQUEST['menu_id']) {
+            $this->getClass('PXEMenuOptionsManager')->update('','',array('default'=>0));
+            $Menu = $this->getClass('PXEMenuOptions',$_REQUEST['menu_id'])
+                ->set('name',$_REQUEST['menu_item'])
+                ->set('description',$_REQUEST['menu_description'])
+                ->set('params',$_REQUEST['menu_params'])
+                ->set('regMenu',$_REQUEST['menu_regmenu'])
+                ->set('args',$_REQUEST['menu_options'])
+                ->set('default',$_REQUEST['menu_default']);
+            if ($Menu->save()) $this->setMessage($Menu->get('name').' '._('successfully updated').'!');
         }
-        if (isset($_REQUEST[delform]) && $_REQUEST[rmid]) {
-            $Menu = $this->getClass(PXEMenuOptions,$_REQUEST[rmid]);
-            $menuname = $Menu->get(name);
-            if($Menu->destroy()) $this->setMessage($menuname.' '._('successfully removed').'!');
+        if (isset($_REQUEST['delform']) && $_REQUEST['rmid']) {
+            $menuname = $this->getClass('PXEMenuOptions',$_REQUEST['rmid'])->get('name');
+            if ($this->getClass('PXEMenuOptions',$_REQUEST['rmid'])->destroy()) $this->setMessage($menuname.' '._('successfully removed').'!');
         }
-        // Ensure there's only one default value.
-        $countDefault = $this->getClass(PXEMenuOptionsManager)->count(array('default'=>1));
-        // If there's no defaults, set the first id (local disk) to default.
-        if ($countDefault == 0 || $countDefault > 1) $this->getClass(PXEMenuOptions,1)->set('default',1)->save();
+        $countDefault = $this->getClass('PXEMenuOptionsManager')->count(array('default'=>1));
+        if ($countDefault == 0 || $countDefault > 1) $this->getClass('PXEMenuOptions',1)->set('default',1)->save();
         $this->redirect($this->formAction);
     }
     public function new_menu() {
@@ -301,72 +240,52 @@ class FOGConfigurationPage extends FOGPage {
             '${input}',
         );
         echo '<form method="post" action="'.$this->formAction.'">';
-        $menudefault = $_REQUEST[menu_default] ? 'checked' : '';
+        $menudefault = $_REQUEST['menu_default'] ? 'checked' : '';
         $fields = array(
-            _('Menu Item:') => '<input type="text" name="menu_item" value="'.$_REQUEST[menu_item].'" id="menu_item" />',
-            _('Description:') => '<textarea cols="40" rows="2" name="menu_description">'.$_REQUEST[menu_description].'</textarea>',
-            _('Parameters:') => '<textarea cols="40" rows="8" name="menu_params">'.$_REQUEST[menu_params].'</textarea>',
-            _('Boot Options:') => '<input type="text" name="menu_options" id="menu_options" value="'.$_REQUEST[menu_options].'" />',
+            _('Menu Item:') => '<input type="text" name="menu_item" value="'.$_REQUEST['menu_item'].'" id="menu_item" />',
+            _('Description:') => '<textarea cols="40" rows="2" name="menu_description">'.$_REQUEST['menu_description'].'</textarea>',
+            _('Parameters:') => '<textarea cols="40" rows="8" name="menu_params">'.$_REQUEST['menu_params'].'</textarea>',
+            _('Boot Options:') => '<input type="text" name="menu_options" id="menu_options" value="'.$_REQUEST['menu_options'].'" />',
             _('Default Item:') => '<input type="checkbox" name="menu_default" value="1" '.$menudefault.'/>',
-            _('Menu Show with:') => $this->getClass(PXEMenuOptionsManager)->regSelect($_REQUEST[menu_regmenu]),
-            '&nbsp;' => '<input type="submit" value="'._($this->foglang[Add].' New Menu').'" />',
+            _('Menu Show with:') => $this->getClass('PXEMenuOptionsManager')->regSelect($_REQUEST['menu_regmenu']),
+            '&nbsp;' => '<input type="submit" value="'._($this->foglang['Add'].' New Menu').'" />',
         );
         foreach($fields AS $field => &$input) {
             $this->data[] = array(
-                field=>$field,
-                input=>$input,
+                'field'=>$field,
+                'input'=>$input,
             );
         }
         unset($input);
-        // Hook
-        $this->HookManager->processEvent(BOOT_ITEMS_ADD,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes,headerData=>&$this->headerData));
-        // Output
+        $this->HookManager->processEvent('BOOT_ITEMS_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
         $this->render();
         echo "</form>";
     }
     public function new_menu_post() {
         try {
-            // Error checking
-            // At the least, you should have an item and a description.
-            if (!$_REQUEST[menu_item]) throw new Exception(_('Menu Item or title cannot be blank'));
-            if (!$_REQUEST[menu_description]) throw new Exception(_('A description needs to be set'));
-            // Set all other menus that are default to non-default value.
-            if ($_REQUEST[menu_default]) $this->getClass(PXEMenuOptionsManager)->update('','',array('default'=>0));
-            $Menu = $this->getClass(PXEMenuOptions)
-                ->set(name,$_REQUEST[menu_item])
-                ->set(description,$_REQUEST[menu_description])
-                ->set(params,$_REQUEST[menu_params])
-                ->set(regMenu,$_REQUEST[menu_regmenu])
-                ->set(args,$_REQUEST[menu_options])
-                ->set('default',$_REQUEST[menu_default]);
+            if (!$_REQUEST['menu_item']) throw new Exception(_('Menu Item or title cannot be blank'));
+            if (!$_REQUEST['menu_description']) throw new Exception(_('A description needs to be set'));
+            if ($_REQUEST['menu_default']) $this->getClass('PXEMenuOptionsManager')->update('','',array('default'=>0));
+            $Menu = $this->getClass('PXEMenuOptions')
+                ->set('name',$_REQUEST['menu_item'])
+                ->set('description',$_REQUEST['menu_description'])
+                ->set('params',$_REQUEST['menu_params'])
+                ->set('regMenu',$_REQUEST['menu_regmenu'])
+                ->set('args',$_REQUEST['menu_options'])
+                ->set('default',$_REQUEST['menu_default']);
             if (!$Menu->save()) throw new Exception(_('Menu create failed'));
-            // Ensure there's only one default value.
-            $countDefault = $this->getClass(PXEMenuOptionsManager)->count(array('default'=>1));
-            // If there's no defaults, set the first id (local disk) to default.
-            if ($countDefault == 0 || $countDefault > 1) $this->getClass(PXEMenuOptions,1)->set('default',1)->save();
-            // Hook
-            $this->HookManager->processEvent(MENU_ADD_SUCCESS,array(Menu=>&$Menu));
-            // Set session message
+            $countDefault = $this->getClass('PXEMenuOptionsManager')->count(array('default'=>1));
+            if ($countDefault == 0 || $countDefault > 1) $this->getClass('PXEMenuOptions',1)->set('default',1)->save();
+            $this->HookManager->processEvent('MENU_ADD_SUCCESS',array('Menu'=>&$Menu));
             $this->setMessage(_('Menu Added'));
-            // Redirect to edit entry
-            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s',$this->node,$this->id,$Menu->get(id)));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s',$this->node,$this->id,$Menu->get('id')));
         } catch (Exception $e) {
-            // Hook
-            $this->HookManager->processEvent(MENU_ADD_FAIL,array(Menu=>&$Menu));
-            // Set session message
+            $this->HookManager->processEvent('MENU_ADD_FAIL',array('Menu'=>&$Menu));
             $this->setMessage($e->getMessage());
-            // Redirect to original entry
             $this->redirect($this->formAction);
         }
     }
-    /** client_updater()
-     * You update the client files through here.
-     * This is used for the Host systems with FOG Service installed.
-     * Here is where you can update the files an push these files to
-     * the client.
-     */
     public function client_updater() {
-        // Set title
         $this->title = _("FOG Client Service Updater");
         $this->headerData = array(
             _('Module Name'),
@@ -387,24 +306,21 @@ class FOGConfigurationPage extends FOGPage {
             array('class'=>'filter-false disabled'),
         );
         echo '<div class="hostgroup">'._('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.').'</div>';
-        $ClientUpdates = $this->getClass(ClientUpdaterManager)->find('','name');
+        $ClientUpdates = $this->getClass('ClientUpdaterManager')->find();
         foreach ($ClientUpdates AS $i => &$ClientUpdate) {
             $this->data[] = array(
-                name=>$ClientUpdate->get(name),
-                module=>$ClientUpdate->get('md5'),
-                type=>$ClientUpdate->get(type),
-                client_id=>$ClientUpdate->get(id),
-                id=>$ClientUpdate->get(id),
+                'name'=>$ClientUpdate->get('name'),
+                'module'=>$ClientUpdate->get('md5'),
+                'type'=>$ClientUpdate->get('type'),
+                'client_id'=>$ClientUpdate->get('id'),
+                'id'=>$ClientUpdate->get('id'),
             );
         }
         unset($ClientUpdate);
-        // Hook
-        $this->HookManager->processEvent(CLIENT_UPDATE,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        $this->HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         echo '<form method="post" action="'.$this->formAction.'&tab=clientupdater">';
         $this->render();
         echo '</form>';
-        // reset for next element
         unset($this->headerData,$this->attributes,$this->templates,$this->data);
         echo '<p class="header">'._('Upload a new client module/configuration file').'</p>';
         $this->attributes = array(
@@ -425,69 +341,51 @@ class FOGConfigurationPage extends FOGPage {
             );
         }
         unset($input);
-        // Hook
-        $this->HookManager->processEvent(CLIENT_UPDATE,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        $this->HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         echo '<form method="post" action="'.$this->formAction.'&tab=clientupdater" enctype="multipart/form-data"><input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED"/>';
-        // Output
         $this->render();
         echo '</form>';
     }
-    /** client_updater_post()
-     * Just updates the values set in client_updater().
-     */
     public function client_updater_post() {
-        if ($_REQUEST[delcu]) {
-            $this->getClass(ClientUpdaterManager)->destroy(array(id=>$_REQUEST[delcu]));
+        if ($_REQUEST['delcu']) {
+            $this->getClass('ClientUpdaterManager')->destroy(array('id'=>$_REQUEST['delcu']));
             $this->setMessage(_('Client module update deleted!'));
         }
-        if ($_FILES[module]) {
-            foreach((array)$_FILES[module][tmp_name] AS $index => &$tmp_name) {
+        if ($_FILES['module']) {
+            foreach((array)$_FILES['module']['tmp_name'] AS $index => &$tmp_name) {
                 if (file_exists($tmp_name)) {
                     if (file_get_contents($tmp_name)) {
                         $md5 = md5(file_get_contents($tmp_name));
-                        $filename = basename($_FILES[module][name][$index]);
-                        $ClientUpdater = $this->getClass(ClientUpdaterManager)->find(array(name=>$filename));
-                        $ClientUpdater = @array_shift($ClientUpdater);
-                        if (!$ClientUpdater || $ClientUpdater->get(md5) != $md5) $ClientUpdater = $this->getClass(ClientUpdater);
-                        $ClientUpdater->set(name,$filename)
-                            ->set(md5,$md5)
-                            ->set(type,$this->FOGCore->endsWith($filename,'.ini')?'txt':'bin')
-                            ->set(file,file_get_contents($tmp_name));
+                        $filename = basename($_FILES['module']['name'][$index]);
+                        $ClientUpdater = $this->getClass('ClientUpdater',@max($this->getClass('ClientUpdater',array('name'=>$filename))));
+                        if (!$ClientUpdater->isValid() || $ClientUpdater->get('md5') != $md5) $ClientUpdater = $this->getClass('ClientUpdater');
+                        $ClientUpdater->set('name',$filename)
+                            ->set('md5',$md5)
+                            ->set('type',$this->FOGCore->endsWith($filename,'.ini')?'txt':'bin')
+                            ->set('file',file_get_contents($tmp_name));
                         if ($ClientUpdater->save()) $this->setMessage(_('Modules Added/Updated'));
                     }
                 }
             }
             unset($tmp_name);
         }
-        $this->redirect(sprintf('?node=%s&sub=%s#%s',$_REQUEST[node],edit,$_REQUEST[tab]));
+        $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
     }
-    /** mac_list()
-     * This is where you update the mac address listing.
-     * If you choose to update, it downloads the latest oui.txt file
-     * from http://standards.ieee.org/regauth/oui/oui.txt.
-     * Then it updates the database with these values.
-     */
     public function mac_list() {
-        // Set title
         $this->title = _('MAC Address Manufacturer Listing');
-        // Allow the updating and deleting of the mac-lists.
         echo '<div class="hostgroup">'._('This section allows you to import known mac address makers into the FOG database for easier identification.').'</div><div><p>'._('Current Records: ').$this->FOGCore->getMACLookupCount().'</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="'._('Delete MACs').'" value="'._('Delete Current Records').'" onclick="clearMacs()" /><input class="macButtons" style="margin-left: 20px" type="button" title="'._('Update MACs').'" value="'._('Update Current Listing').'" onclick="updateMacs()" /></p><p>'._('MAC address listing source: ').'<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>';
     }
-    /** mac_list_post()
-     * This just performs the actions when mac_list() is updated.
-     */
     public function mac_list_post() {
-        if ($_REQUEST[update]) {
+        if ($_REQUEST['update']) {
             $f = "/tmp/oui.txt";
             exec("rm -rf $f");
             exec("wget -O $f  http://standards.ieee.org/develop/regauth/oui/oui.txt");
-            if (file_exists($f)) {
-                $handle = fopen($f, "r");
+            if (false !== ($handle = fopen($f,'rb'))) {
                 $start = 18;
                 $imported = 0;
                 while (!feof($handle)) {
                     $line = trim(fgets($handle));
-                    if (preg_match("#^([0-9a-fA-F][0-9a-fA-F][:-]){2}([0-9a-fA-F][0-9a-fA-F]).*$#", $line)) {
+                    if (preg_match("#^([0-9a-fA-F][0-9a-fA-F][:-]){2}([0-9a-fA-F][0-9a-fA-F]).*$#",$line)) {
                         $macprefix = substr($line,0,8);
                         $maker = substr($line,$start,strlen($line)-$start);
                         if (strlen($macprefix) == 8 && strlen($maker) > 0) {
@@ -506,16 +404,6 @@ class FOGConfigurationPage extends FOGPage {
         $this->resetRequest();
         $this->redirect('?node=about&sub=mac-list');
     }
-    /** settings()
-     * This is where you set the values for FOG itself.  You can update
-     * both the default service information and global information beyond
-     * services.  The default kernel, the fog user information, etc...
-     * Major things of note is that the system is now more user friendly.
-     * Meaning, off/on values are checkboxes, items that are more specific
-     * (e.g. image setting, default view,) are now select boxes.  This should
-     * help limit typos in the old text based system.
-     * Passwords are blocked with the password form field.
-     */
     public function settings() {
         $ServiceNames = array(
             'FOG_REGISTRATION_ENABLED',
@@ -554,47 +442,49 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_FTP_IMAGE_SIZE',
             'FOG_KERNEL_DEBUG',
         );
-        // Set title
         $this->title = _("FOG System Settings");
         echo '<p class="hostgroup">'._('This section allows you to customize or alter the way in which FOG operates.  Please be very careful changing any of the following settings, as they can cause issues that are difficult to troubleshoot.').'</p><form method="post" action="'.$this->formAction.'"><div id="tab-container-1">';
-        // Header Data
         unset($this->headerData);
-        // Attributes
         $this->attributes = array(
-            array(width=>270,height=>35),
+            array('width'=>270,'height'=>35),
             array(),
-            array('class'=>r),
+            array('class'=>'r'),
         );
-        // Templates
         $this->templates = array(
             '${service_name}',
             '${input_type}',
             '${span}',
         );
-        $ServiceCats = $this->getClass(ServiceManager)->getSettingCats();
+        $ServiceCats = $this->getClass('ServiceManager')->getSettingCats();
         echo '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
         foreach ((array)$ServiceCats AS $i => &$ServiceCAT) {
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',$ServiceCAT));
             echo '<a id="'.$divTab.'" class="expand_trigger" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$ServiceCAT.'</h3></a>';
             echo '<div id="'.$divTab.'">';
-            $ServMan = $this->getClass(ServiceManager)->find(array(category=>$ServiceCAT),'AND','id');
+            $ServMan = $this->getClass('ServiceManager')->find(array('category'=>$ServiceCAT),'AND','id');
             foreach ((array)$ServMan AS $i => &$Service) {
-                if ($Service->get(name) == 'FOG_PIGZ_COMP') $type = '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
-                else if ($Service->get(name) == 'FOG_KERNEL_LOGLEVEL') $type = '<div id="loglvl" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showlogVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
-                else if ($Service->get(name) == 'FOG_INACTIVITY_TIMEOUT') $type = '<div id="inact" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValInAct" maxsize="2" style="width: 15px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
-                else if ($Service->get(name) == 'FOG_REGENERATE_TIMEOUT') $type = '<div id="regen" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValRegen" maxsize="5" style="width: 25px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
-                else if (preg_match('#(pass|PASS)#i',$Service->get(name)) && !preg_match('#(VALID|MIN)#i',$Service->get('name'))) {
-                    if ($Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY') {
-                        $type = '<input id="'.$Service->get(name).'_text" type="password" name="${service_id}" value="${service_value}" autocomplete="off" readonly="true" maxlength="50" />';
-                        $type .= '<br/><small><input type="button" value="Randomize Above Key" id="'.$Service->get(name).'_button" title="You will have to recompile the client if you change this key.'.($Service->get(name) == 'FOG_AES_ADPASS_ENCRYPT_KEY' ? ' You will also o need to reset the password for all hosts and the FOG_AD_DEFAULT_PASSWORD field.' : '').'" /></small>';
-                    } else $type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off" />';
-                } else if ($Service->get(name) == 'FOG_VIEW_DEFAULT_SCREEN') {
+                if (!$Service->isValid()) continue;
+                switch ($Service->get('name')) {
+                case 'FOG_PIGZ_COMP':
+                    $type = '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
+                    break;
+                case 'FOG_KERNEL_LOGLEVEL':
+                    $type = '<div id="loglvl" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showlogVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
+                    break;
+                case 'FOG_INACTIVITY_TIMEOUT':
+                    $type = '<div id="inact" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValInAct" maxsize="2" style="width: 15px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
+                    break;
+                case 'FOG_REGENERATE_TIMEOUT':
+                    $type = '<div id="regen" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValRegen" maxsize="5" style="width: 25px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
+                    break;
+                case 'FOG_VIEW_DEFAULT_SCREEN':
                     $screens = array('SEARCH','LIST');
-                    foreach ($screens AS $i => &$viewop) $options[] = '<option value="'.strtolower($viewop).'" '.($Service->get(value) == strtolower($viewop) ? 'selected="selected"' : '').'>'.$viewop.'</option>';
+                    foreach ($screens AS $i => &$viewop) $options[] = '<option value="'.strtolower($viewop).'" '.($Service->get('value') == strtolower($viewop) ? 'selected="selected"' : '').'>'.$viewop.'</option>';
                     unset($viewop);
                     $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
                     unset($options);
-                } else if ($Service->get(name) == 'FOG_MULTICAST_DUPLEX') {
+                    break;
+                case 'FOG_MULTICAST_DUPLEX':
                     $duplexTypes = array(
                         'HALF_DUPLEX' => '--half-duplex',
                         'FULL_DUPLEX' => '--full-duplex',
@@ -602,115 +492,130 @@ class FOGConfigurationPage extends FOGPage {
                     foreach($duplexTypes AS $types => &$val) $options[] = '<option value="'.$val.'" '.($Service->get(value) == $val ? 'selected="selected"' : '').'>'.$types.'</option>';
                     unset($val);
                     $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
-                } else if (in_array($Service->get(name),array('FOG_BOOT_EXIT_TYPE','FOG_EFI_BOOT_EXIT_TYPE'))) {
+                    break;
+                case 'FOG_BOOT_EXIT_TYPE':
+                case 'FOG_EFI_BOOT_EXIT_TYPE':
                     $type = Service::buildExitSelector($Service->get(id),$Service->get(value));
-                } else if ($Service->get(name) == 'FOG_DHCP_BOOTFILENAME') {
+                    break;
+                case 'FOG_DHCP_BOOTFILENAME':
                     $type = null;
-                } else if (in_array($Service->get(name),$ServiceNames)) $type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get(value) ? 'checked' : '').' />';
-                else if ($Service->get(name) == 'FOG_DEFAULT_LOCALE') {
-                    foreach((array)$this->foglang[Language] AS $lang => &$humanreadable) $options2[] = '<option value="'.$lang.'" '.($this->getSetting(FOG_DEFAULT_LOCALE) == $lang || $this->getSetting(FOG_DEFAULT_LOCALE) == $this->foglang[Language][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
+                    break;
+                case 'FOG_DEFAULT_LOCALE':
+                    foreach((array)$this->foglang['Language'] AS $lang => &$humanreadable) $options2[] = '<option value="'.$lang.'" '.($this->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->getSetting('FOG_DEFAULT_LOCALE') == $this->foglang['Language'][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
                     unset($humanreadable);
                     $type = '<select name="${service_id}" autocomplete="off" style="width: 220px">'.implode($options2).'</select>';
-                } else if ($Service->get(name) == 'FOG_QUICKREG_IMG_ID') $type = $this->getClass(ImageManager)->buildSelectBox($this->getSetting(FOG_QUICKREG_IMG_ID),$Service->get(id).'" id="${service_name}');
-                else if ($Service->get(name) == 'FOG_QUICKREG_GROUP_ASSOC') $type = $this->getClass(GroupManager)->buildSelectBox($this->getSetting(FOG_QUICKREG_GROUP_ASSOC),$Service->get(id));
-                else if ($Service->get(name) == 'FOG_KEY_SEQUENCE') $type = $this->getClass(KeySequenceManager)->buildSelectBox($this->getSetting(FOG_KEY_SEQUENCE),$Service->get(id));
-                else if ($Service->get(name) == 'FOG_QUICKREG_OS_ID') {
-                    if ($this->getSetting(FOG_QUICKREG_IMG_ID) > 0) $Image = $this->getClass(Image,$this->getSetting(FOG_QUICKREG_IMG_ID));
-                    $type = '<p id="${service_name}">'.($Image && $Image->isValid() ? $Image->getOS()->get(name) : _('No image specified')).'</p>';
-                } else if ($Service->get(name) == 'FOG_TZ_INFO') {
+                    break;
+                case 'FOG_QUICKREG_IMG_ID':
+                    $type = $this->getClass('ImageManager')->buildSelectBox($this->getSetting('FOG_QUICKREG_IMG_ID'),$Service->get('id').'" id="${service_name}');
+                    break;
+                case 'FOG_QUICKREG_GROUP_ASSOC':
+                    $type = $this->getClass('GroupManager')->buildSelectBox($this->getSetting('FOG_QUICKREG_GROUP_ASSOC'),$Service->get('id'));
+                    break;
+                case 'FOG_KEY_SEQUENCE':
+                    $type = $this->getClass('KeySequenceManager')->buildSelectBox($this->getSetting('FOG_KEY_SEQUENCE'),$Service->get('id'));
+                    break;
+                case 'FOG_QUICKREG_OS_ID':
+                    $ImageName = _('No image specified');
+                    if ($this->getSetting('FOG_QUICKREG_IMG_ID') > 0) $ImageName = $this->getClass('Image',$this->getSetting('FOG_QUICKREG_IMG_ID'))->get('name');
+                    $type = '<p id="${service_name}">'.$ImageName.'</p>';
+                    break;
+                case 'FOG_TZ_INFO':
                     $dt = $this->nice_date('now',$utc);
                     $tzIDs = DateTimeZone::listIdentifiers();
                     $type = '<select name="${service_id}">';
                     foreach($tzIDs AS $i => &$tz) {
-                        $current_tz = new DateTimeZone($tz);
+                        $current_tz = $this->getClass('DateTimeZone',$tz);
                         $offset = $current_tz->getOffset($dt);
                         $transition = $current_tz->getTransitions($dt->getTimestamp(),$dt->getTimestamp());
-                        $abbr = $transition[0][abbr];
+                        $abbr = $transition[0]['abbr'];
                         $offset = sprintf('%+03d:%02u', floor($offset / 3600), floor(abs($offset) % 3600 / 60));
-                        $type .= '<option value="'.$tz.'"'.($Service->get(value) == $tz ? ' selected' : '').'>'.$tz.' ['.$abbr.' '.$offset.']</option>';
+                        $type .= '<option value="'.$tz.'"'.($Service->get('value') == $tz ? ' selected' : '').'>'.$tz.' ['.$abbr.' '.$offset.']</option>';
                     }
-                    unset($current_tz,$offset,$transition,$tz);
+                    unset($current_tz,$offset,$transition,$tzIDs,$dt);
                     $type .= '</select>';
-                } else if ($Service->get(name) == 'FOG_AD_DEFAULT_OU') {
+                    break;
+                case (preg_match('#pass#i',$Service->get('name')) && !preg_match('#(valid|min)#i',$Service->get('name'))):
+                    $type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off" />';
+                    break;
+                case (in_array($Service->get('name'),$ServiceNames)):
+                    $type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get('value') ? 'checked' : '').' />';
+                    break;
+                case 'FOG_AD_DEFAULT_OU':
                     $type = '<textarea rows="5" name="${service_id}">${service_value}</textarea>';
-                } else $type = '<input id="${service_name}" type="text" name="${service_id}" value="${service_value}" autocomplete="off" />';
+                    break;
+                default:
+                    $type = '<input id="${service_name}" type="text" name="${service_id}" value="${service_value}" autocomplete="off" />';
+                    break;
+                }
                 $this->data[] = array(
-                    input_type=>(count(explode(chr(10),$Service->get(value))) <= 1 ? $type : '<textarea rows="5" name="${service_id}">${service_value}</textarea>'),
-                    service_name=> $Service->get(name),
-                    span=>'<i class="icon fa fa-question hand" title="${service_desc}"></i>',
-                    service_id=>$Service->get(id),
-                    id=>$Service->get(id),
-                    service_value=>$Service->get(value),
-                    service_desc=>$Service->get(description),
+                    'input_type'=>(count(explode(chr(10),$Service->get('value'))) <= 1 ? $type : '<textarea rows="5" name="${service_id}">${service_value}</textarea>'),
+                    'service_name'=> $Service->get('name'),
+                    'span'=>'<i class="icon fa fa-question hand" title="${service_desc}"></i>',
+                    'service_id'=>$Service->get('id'),
+                    'id'=>$Service->get('id'),
+                    'service_value'=>$Service->get('value'),
+                    'service_desc'=>$Service->get('description'),
                 );
+                unset($Service);
             }
-            unset($Service);
+            unset($ServMan);
             $this->data[] = array(
-                span=>'&nbsp;',
-                service_name=>'<input type="hidden" value="1" name="update" />',
-                input_type=>'<input type="submit" value="'._('Save Changes').'" />',
+                'span'=>'&nbsp;',
+                'service_name'=>'',
+                'input_type'=>'<input name="update" type="submit" value="'._('Save Changes').'" />',
             );
-            // Hook
-            $this->HookManager->processEvent('CLIENT_UPDATE_'.$divTab,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-            // Output
+            $this->HookManager->processEvent('CLIENT_UPDATE_'.$divTab,array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             $this->render();
             echo '</div>';
-            unset($this->data,$options);
+            unset($this->data,$options,$ServiceCAT);
         }
-        unset($ServiceCAT);
+        unset($ServiceCats);
         echo '</div></form>';
     }
     public function getOSID() {
-        $osname = $this->getClass(Image,$_REQUEST[image_id])->getOS()->get(name);
+        $osname = $this->getClass('Image',$_REQUEST['image_id'])->getOS()->get('name');
         echo json_encode($osname ? $osname : _('No Image specified'));
+        exit;
     }
-    /** settings_post()
-     * Updates the settings set from the fields.
-     */
     public function settings_post() {
-        $ServiceMan = $this->getClass(ServiceManager)->find();
+        $ServiceMan = $this->getClass('ServiceManager')->find();
         foreach ((array)$ServiceMan AS $i => &$Service) {
-            $key = $Service->get(id);
+            $key = $Service->get('id');
             $_REQUEST[$key] = trim($_REQUEST[$key]);
-            if ($Service->get(name) == 'FOG_MEMORY_LIMIT' && ($_REQUEST[$key] < 128 || !is_numeric($_REQUEST[$key]))) $Service->set(value,128);
-            else if ($Service->get(name) == 'FOG_QUICKREG_IMG_ID' && empty($_REQUEST[$key])) $Service->set(value,-1);
-            else if ($Service->get(name) == 'FOG_USER_VALIDPASSCHARS') $Service->set(value,addslashes($_REQUEST[$key]));
-            else if ($Service->get(name) == 'FOG_AD_DEFAULT_PASSWORD') $Service->set(value,$this->encryptpw($_REQUEST[$key]));
-            else if ($Service->get(name) == 'FOG_MULTICAST_PORT_OVERRIDE') {
-                if (is_numeric($_REQUEST[$key]) && $_REQUEST[$key] > 0) {
-                    if ($_REQUEST[$key] < 65536)
-                        $Service->set(value,$_REQUEST[$key]);
-                } else $Service->set(value,0);
-            } else if ($Service->get(name) == 'FOG_MULTICAST_ADDRESS') {
-                if (filter_var($_REQUEST[$key], FILTER_VALIDATE_IP)) $Service->set(value,$_REQUEST[$key]);
-                else $Service->set(value,0);
-            } else if ($Service->get(name) == 'FOG_MAX_UPLOADSIZE') {
-                $val = $_REQUEST[$key];
-                if (!is_numeric($val) || $val < 2) $val = 2;
-                $Service->set(value,$val);
-            } else if ($Service->get(name) == 'FOG_POST_MAXSIZE') {
-                $val = $_REQUEST[$key];
-                if ($val < 8 || !is_numeric($val)) $val = 8;
-                $Service->set(value,$val);
-            } else if ($Service->get(name) == 'FOG_INACTIVITY_TIMEOUT') {
-                $val = $_REQUEST[$key];
-                if (!is_numeric($val) || $val <= 0 || $val > 24) $val = 1;
-                $Service->set(value,$val);
-            } else if ($Service->get(name) == 'FOG_REGENERATE_TIMEOUT') {
-                $val = $_REQUEST[$key];
-                if (!is_numeric($val)) $val = 0;
-                $Service->set(value,$val);
-            } else $Service->set(value,$_REQUEST[$key]);
+            $Service->set('value',$_REQUEST[$key]);
+            switch ($Service->get('name')) {
+            case 'FOG_MEMORY_LIMIT':
+                if ($_REQUEST[$key] < 128 || !is_numeric($_REQUEST[$key])) $Service->set('value',128);
+                break;
+            case 'FOG_QUICKREG_IMG_ID':
+                if (empty($_REQUEST[$key])) $Service->set('value',-1);
+                break;
+            case 'FOG_USER_VALIDPASSCHARS':
+                $Service->set('value',$this->DB->sanitize($_REQUEST[$key]));
+                break;
+            case 'FOG_AD_DEFAULT_PASSWORD':
+                $Service->set('value',$this->encryptpw($_REQUEST[$key]));
+                break;
+            case 'FOG_MULTICAST_PORT_OVERRIDE':
+                if (!is_numeric($_REQUEST[$key]) || $_REQUEST[$key] < 0 || $_REQUEST[$key] > 65536) $Service->set('value',0);
+                break;
+            case 'FOG_MULTICAST_ADDRESS':
+                if (!filter_var($_REQUEST[$key],FILTER_VALIDATE_IP)) $Service->set('value',0);
+                break;
+            case 'FOG_INACTIVITY_TIMEOUT':
+                if (!is_numeric($_REQUEST[$key]) || $_REQUEST[$key] < 1 || $_REQUEST[$key] > 24) $Service->set('value',1);
+                break;
+            case 'FOG_REGENERATE_TIMEOUT':
+                if (!is_numeric($_REQUEST[$key])) $Service->set('value',0);
+                break;
+            }
             $Service->save();
+            unset($Service);
         }
-        unset($Service);
+        unset($ServiceMan);
         $this->setMessage('Settings Successfully stored!');
-        $this->redirect(sprintf('?node=%s&sub=%s',$_REQUEST[node],$_REQUEST[sub]));
+        $this->redirect($this->formAction);
     }
-    /** log()
-     * Views the log files for the FOG Services on the server (FOGImageReplicator, FOGTaskScheduler, FOGMulticastManager).
-     * Just used to view these logs.  Can be used for more than this as well with some tweeking.
-     */
     public function log() {
         $StorageGroups = $this->getClass('StorageGroupManager')->find();
         foreach($StorageGroups AS $i => &$StorageGroup) {
@@ -770,7 +675,6 @@ class FOGConfigurationPage extends FOGPage {
             unset($file);
         }
         unset($filearray);
-        // Set title
         $this->title = _('FOG Log Viewer');
         echo '<p><form method="post" action="'.$this->formAction.'"><p>'._('File:');
         echo '<select name="logtype" id="logToView">'.implode((array)$options3).'</select>'._('Number of lines:');
@@ -779,11 +683,6 @@ class FOGConfigurationPage extends FOGPage {
         unset($value);
         echo '<select name="n" id="linesToView">'.implode((array)$options4).'</select><center><input type="button" id="logpause" /></center></p></form><div id="logsGoHere">&nbsp;</div></p>';
     }
-    /** config()
-     * This feature is relatively new.  It's a means for the user to save the fog database
-     * and/or replace the current one with your own, say if it's a fresh install, but you want
-     * the old information restored.
-     */
     public function config() {
         $this->HookManager->processEvent('IMPORT');
         $this->title='Configuration Import/Export';
@@ -820,12 +719,8 @@ class FOGConfigurationPage extends FOGPage {
         unset($this->data);
         echo "</form>";
     }
-    /** config_post()
-     * Imports the file and installs the file as needed.
-     */
     public function config_post() {
         $this->HookManager->processEvent('IMPORT_POST');
-        //POST
         try {
             if($_FILES['dbFile'] != null) {
                 $dbFileName = BASEPATH.'/management/other/'.basename($_FILES['dbFile']['name']);
