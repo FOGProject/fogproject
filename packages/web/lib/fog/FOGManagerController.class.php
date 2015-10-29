@@ -184,7 +184,7 @@ abstract class FOGManagerController extends FOGBase {
         );
         return (bool)$this->DB->query($query)->fetch()->get(total);
     }
-    public function search($keyword = '') {
+    public function search($keyword = '',$returnObjects = false) {
         if (empty($keyword)) $keyword = trim($this->isMobile ? $_REQUEST['host-search'] : $_REQUEST['crit']);
         $mac_keyword = join(':',str_split(str_replace(array('-',':'),'',$keyword),2));
         $mac_keyword = preg_replace('#%+#','%','%'.preg_replace('#[[:space:]]#','%',$mac_keyword).'%');
@@ -236,8 +236,8 @@ abstract class FOGManagerController extends FOGBase {
             if (count($HostIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs($this->childClass.'Association',array(hostID=>$HostIDs),strtolower($this->childClass).'ID'));
             break;
         }
-        //$itemIDs = array_values(array_filter(array_unique($itemIDs)));
-        return array_values(array_filter(array_unique($itemIDs)));
-        return $this->getClass($this->childClass)->getManager()->find(array(id=>$this->getSubObjectIDs($this->childClass,array(id=>$itemIDs))));
+        $itemIDs = array_values(array_filter(array_unique($itemIDs)));
+        if ($returnObject) return $this->getClass($this->childClass)->getManager()->find(array(id=>$this->getSubObjectIDs($this->childClass,array(id=>$itemIDs))));
+        return $itemIDs;
     }
 }
