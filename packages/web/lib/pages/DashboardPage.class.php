@@ -74,13 +74,9 @@ class DashboardPage extends FOGPage {
      */
     public function bandwidth() {
         $URLs = array();
-        $Nodes = $this->getSubObjectIDs('StorageNode',array('isGraphEnabled'=>1),'','','','name');
-        foreach((array)$Nodes AS $i => &$id) {
-            $StorageNode = $this->getClass('StorageNode',$id);
-            if (!$StorageNode->isValid()) {
-                unset($StorageNode);
-                continue;
-            }
+        $Nodes = $this->getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1));
+        foreach((array)$Nodes AS $i => &$StorageNode) {
+            if (!$StorageNode->isValid()) continue;
             $URLs[] = sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface'));
             unset($StorageNode);
         }
@@ -88,7 +84,7 @@ class DashboardPage extends FOGPage {
         $fetchedData = $this->FOGURLRequests->process($URLs,'GET');
         foreach((array)$fetchedData AS $i => &$dataSet) {
             if (preg_match('/(.*)##(.*)/U', $dataSet,$match)) $data[$this->getClass('StorageNode',$Nodes[$i])->get('name')] = array('rx'=>$match[1],'tx'=>$match[2]);
-            else $data[$this->getClass('StorageNode',$Nodes[$i])->get('name')] = json_decode($dataSet,true);
+            else $data[$Nodes[$i]->get('name')] = json_decode($dataSet,true);
         }
         unset($dataSet);
         unset($StorageNode);

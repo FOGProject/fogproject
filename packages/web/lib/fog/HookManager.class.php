@@ -60,7 +60,6 @@ class HookManager extends EventManager {
         asort($this->events);
     }
     public function processEvent($event, $arguments = array()) {
-        if (!in_array($event,(array)$this->events)) array_push($this->events,$event);
         if ($this->data[$event]) {
             foreach ($this->data[$event] AS $i => &$function) {
                 // Is hook active?
