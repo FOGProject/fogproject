@@ -75,19 +75,26 @@ class HookManager extends EventManager {
         global $Init;
         foreach($Init->HookPaths AS $i => &$path) {
             if (!file_exists($path)) continue;
+            if (preg_match('#plugins#i',$path)) {
+                $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
+                if (!in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) continue;
+            }
             $iterator = new DirectoryIterator($path);
             foreach ($iterator AS $i => $fileInfo) {
                 $className = null;
-                if ($fileInfo->isDot() || !$fileInfo->isFile() || substr($fileInfo->getFilename(),-9) != '.hook.php') continue;
+                if (substr($fileInfo->getFilename(),-9) != '.hook.php') continue;
                 $className = substr($fileInfo->getFilename(),0,-9);
-                if (!$className) continue;
-                if (in_array($className,get_declared_classes())) continue;
-                if (preg_match('#plugins#',$fileInfo->getPathname()) && !in_array(basename(substr($path,0,-6)),(array)$_SESSION['PluginsInstalled'])) continue;
-                if (preg_match('#plugins#',$fileInfo->getPathname())) {
+                if (!$className || in_array($className,get_declared_classes())) continue;
+                if (preg_match('#plugins#i',$fileInfo->getPathname())) {
                     $this->getClass($className);
                     continue;
                 }
-                if ($this->getClass('ReflectionClass',$className)->getProperty('active')->getValue($this->getClass($className))) $this->getClass($className);
+                $file = file($fileInfo->getPathname());
+                $key = '$active';
+                foreach ($file AS $lineNumber => &$line) {
+                    if (strpos($line,$key) !== false) break;
+                }
+                if (preg_match('#true#i',$file[$lineNumber])) $this->getClass($className);
             }
         }
         unset($path);
