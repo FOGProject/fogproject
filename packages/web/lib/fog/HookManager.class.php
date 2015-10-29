@@ -89,12 +89,8 @@ class HookManager extends EventManager {
                     $this->getClass($className);
                     continue;
                 }
-                $file = file($fileInfo->getPathname());
-                $key = '$active';
-                foreach ($file AS $lineNumber => &$line) {
-                    if (strpos($line,$key) !== false) break;
-                }
-                if (preg_match('#true#i',$file[$lineNumber])) $this->getClass($className);
+                $classVars = $this->getClass('ReflectionClass',$className);
+                if ($classVars['active']) $this->getClass($className);
             }
         }
         unset($path);
