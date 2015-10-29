@@ -14,7 +14,9 @@ class FOGCore extends FOGBase {
         return $this->DB->query($sql);
     }
     public function clearMACLookupTable() {
-        return !$this->DB->query("TRUNCATE TABLE %s",$this->getClass(OUI)->databaseTable);
+        $OUITable = $this->getClass('ReflectionClass','OUI')->getDefaultProperties();
+        $OUITable = $OUITable['databaseTable'];
+        return !$this->DB->query("TRUNCATE TABLE $OUITable");
     }
     public function getMACLookupCount() {
         return $this->getClass(OUIManager)->count();
@@ -34,7 +36,7 @@ class FOGCore extends FOGBase {
         $tmp = explode(',', end($tmp));
         $uptime = $tmp;
         $uptime = (count($uptime) > 1 ? $uptime[0] . ', ' . $uptime[1] : 'uptime not found');
-        return array(uptime=>$uptime,load=>$load);
+        return array('uptime'=>$uptime,'load'=>$load);
     }
     public function clear_screen($outputdevice) {
         $this->out(chr(27)."[2J".chr(27)."[;H",$outputdevice);
