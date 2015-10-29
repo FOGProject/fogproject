@@ -31,13 +31,9 @@ class TaskMobile extends FOGPage {
         );
     }
     public function index() {
-        $ids = $this->getSubObjectIDs('Task',array('stateID'=>array(1,2,3)));
-        foreach ((array)$ids AS $i => &$id) {
-            $Task = $this->getClass('Task',$id);
-            if (!$Task->isValid()) {
-                unset($Task);
-                continue;
-            }
+        $Tasks = $this->getClass('TaskManager')->find(array('stateID'=>array(1,2,3)));
+        foreach ((array)$Tasks AS $i => &$Task) {
+            if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
             if (!$Host->isValid()) {
                 unset($Task,$Host);
@@ -65,13 +61,9 @@ class TaskMobile extends FOGPage {
     }
     public function search_post() {
         unset($this->headerData[0],$this->headerData[5],$this->attributes[0],$this->attributes[5],$this->templates[0],$this->templates[5]);
-        $ids = $this->getClass('TaskManager')->search();
-        foreach((array)$ids AS $i => &$id) {
-            $Task = $this->getClass('Task',$id);
-            if (!$Task->isValid()) {
-                unset($Task);
-                continue;
-            }
+        $Tasks = $this->getClass('TaskManager')->search('',true);
+        foreach((array)$Tasks AS $i => &$Task) {
+            if (!$Task->isValid()) continue;
             if (in_array($Task->get('stateID'),array(0,1,2,3))) {
                 $Host = $Task->getHost();
                 if (!$Host->isValid()) {
@@ -102,13 +94,9 @@ class TaskMobile extends FOGPage {
         $this->redirect('?node='.$this->node);
     }
     public function active() {
-        $ids = $this->getSubObjectIDs('Task',array('stateID'=>array(1,2,3)));
-        foreach ((array)$ids AS $i => &$id) {
-            $Task = $this->getClass('Task',$id);
-            if (!$Task->isValid()) {
-                unset($Task);
-                continue;
-            }
+        $Tasks = $this->getClasss('TaskManager')->find(array('stateID'=>array(1,2,3)));
+        foreach ((array)$Tasks AS $i => &$Task) {
+            if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
             if (!$Host->isValid()) {
                 unset($Task,$Host);

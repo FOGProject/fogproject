@@ -85,14 +85,11 @@ class HostManagementPage extends FOGPage {
     public function index() {
         $this->title = $this->foglang['AllHosts'];
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        $ids = $this->getSubObjectIDs('Host',array('pending'=>array('',0,null)));
-        foreach ($ids AS $i => &$id) {
-            $Host = $this->getClass('Host',$id);
-            if (!$Host->isValid()) {
-                unset($Host);
-                continue;
-            }
+        $Hosts = $this->getClass('HostManager')->find(array('pending'=>array('',0,null)));
+        foreach ($Hosts AS $i => &$Host) {
+            if (!$Host->isValid()) continue;
             $deployed = $this->formatTime($Host->get('deployed'));
+            $id = $Host->get('id');
             $name = $Host->get('name');
             $mac = $Host->get('mac');
             $desc = $Host->get('description');

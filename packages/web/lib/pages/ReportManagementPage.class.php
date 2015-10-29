@@ -142,13 +142,9 @@ class ReportManagementPage extends FOGPage {
         foreach((array)$csvHead AS $i => &$csvHeader) $this->ReportMaker->addCSVCell($csvHeader);
         unset($csvHeader);
         $this->ReportMaker->endCSVLine();
-        $ImagingLogIDs = $this->getClass('ImagingLogManager')->find(array('start'=>null,'finish'=>null),'OR','',''," BETWEEN '$date1' AND '$date2'",'','','id',false);
-        foreach((array)$ImagingLogIDs AS $i => &$id) {
-            $ImagingLog = $this->getClass('ImagingLog',$id);
-            if (!$ImagingLog->isValid()) {
-                unset($ImagingLog);
-                continue;
-            }
+        $ImagingLogs = $this->getClass('ImagingLogManager')->find(array('start'=>null,'finish'=>null),'OR','',''," BETWEEN '$date1' AND '$date2'",'','','',false);
+        foreach((array)$ImagingLogs AS $i => &$ImagingLog) {
+            if (!$ImagingLog->isValid()) continue;
             $start = $this->nice_date($ImagingLog->get('start'));
             $end = $this->nice_date($ImagingLog->get('finish'));
             if (!$this->validDate($start) || !$this->validDate($end)) {
@@ -239,13 +235,9 @@ class ReportManagementPage extends FOGPage {
             '${host_mac}',
             '${image_name}',
         );
-        $HostIDs = $this->getSubObjectIDs('Host');
-        foreach($HostIDs AS $i => &$id) {
-            $Host = $this->getClass('Host',$id);
-            if (!$Host->isValid()) {
-                unset($Host);
-                continue;
-            }
+        $Hosts = $this->getClass('HostManager')->find();
+        foreach($Hosts AS $i => &$Host) {
+            if (!$Host->isValid()) continue;
             $Image = $Host->getImage();
             $imgID = $Image->get('id');
             $imgName = $Image->get('name');
@@ -331,13 +323,9 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
         );
-        $HostIDs = $this->getSubObjectIDs('Host');
-        foreach($HostIDs AS $i => &$id) {
-            $Host = $this->getClass('Host',$id);
-            if (!$Host->isValid()) {
-                unset($Host);
-                continue;
-            }
+        $Hosts = $this->getClass('HostManager')->find();
+        foreach($Hosts AS $i => &$Host) {
+            if (!$Host->isValid()) continue;
             if (!$Host->get('inventory')->isValid()) {
                 unset($Host);
                 continue;
@@ -486,13 +474,9 @@ class ReportManagementPage extends FOGPage {
         foreach((array)$csvHead AS $csvHeader => &$classGet) $this->ReportMaker->addCSVCell($csvHeader);
         unset($classGet);
         $this->ReportMaker->endCSVLine();
-        $ViruseIDs = $this->getSubObjectIDs('Virus');
-        foreach($ViruseIDs AS $i => &$id) {
-            $Virus = $this->getClass('Virus',$id);
-            if (!$Virus->isValid()) {
-                unset($Virus);
-                continue;
-            }
+        $Viruses = $this->getClass('VirusManager')->find();
+        foreach($Viruses AS $i => &$Virus) {
+            if (!$Virus->isValid()) continue;
             $Host = $this->getClass('HostManager')->getHostByMacAddresses($Virus->get('hostMAC'));
             if (!$Host->isValid()) {
                 unset($Virus,$Host);
@@ -611,13 +595,9 @@ class ReportManagementPage extends FOGPage {
         $hostsearch = str_replace('*','%','%'.trim($_REQUEST['hostsearch']).'%');
         $usersearch = str_replace('*','%','%'.trim($_REQUEST['usersearch']).'%');
         if (trim($_REQUEST['hostsearch']) && !trim($_REQUEST['usersearch'])) {
-            $HostIDs = $this->getSubObjectIDs('Host',array('name'=>$hostsearch));
-            foreach ((array)$HostIDs AS $i => &$id) {
-                $Host = $this->getClass('Host',$id);
-                if (!$Host->isValid()) {
-                    unset($Host);
-                    continue;
-                }
+            $Hosts = $this->getClass('HostManager')->find(array('name'=>$hostsearch));
+            foreach ((array)$Hosts AS $i => &$Host) {
+                if (!$Host->isValid()) continue;
                 $hostName = $Host->get('name');
                 unset($Host);
                 $this->data[] = array(
@@ -822,15 +802,11 @@ class ReportManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $SnapinLogIDs = $this->getSubObjectIDs('SnapinTask');
+        $SnapinLogs = $this->getClass('SnapinTaskManager')->find();
         $datesold = array();
         $datesnew = array();
-        foreach ($SnapinLogs AS $i => &$id) {
-            $SnapinLog = $this->getClass('SnapinLog',$id);
-            if (!$SnapinLog->isValid()) {
-                unset($SnapinLog);
-                continue;
-            }
+        foreach ($SnapinLogs AS $i => &$SnapinLog) {
+            if (!$SnapinLog->isValid()) continue;
             $tmp1 = $SnapinLog->get('checkin');
             $tmp2 = $SnapinLog->get('complete');
             if (!$this->validDate($tmp1) || !$this->validDate($tmp2)) {
@@ -923,13 +899,9 @@ class ReportManagementPage extends FOGPage {
         foreach((array)$csvHead AS $i => &$csvHeader) $this->ReportMaker->addCSVCell($csvHeader);
         unset($csvHeader);
         $this->ReportMaker->endCSVLine();
-        $SnapinTaskIDs = $this->getClass('SnapinTaskManager')->find(array('checkin'=>'','complete'=>''),'OR','','',"BETWEEN '$date1' AND '$date2'",'','','id',false);
+        $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('checkin'=>'','complete'=>''),'OR','','',"BETWEEN '$date1' AND '$date2'",'','','',false);
         foreach($SnapinTaskIDs AS $i => &$id) {
-            $SnapinTask = $this->getClass('SnapinTask',$id);
-            if (!$SnapinTask->isValid()) {
-                unset($SnapinTask);
-                continue;
-            }
+            if (!$SnapinTask->isValid()) continue;
             $Snapin = $SnapinTask->getSnapin();
             if (!$Snapin->isValid()) {
                 unset($Snapin,$SnapinTask);
@@ -1015,17 +987,13 @@ class ReportManagementPage extends FOGPage {
             _('Select User') => '${users}',
             '&nbsp;' => '<input type="submit" value="'._('Create Report').'" />',
         );
-        $InventoryIDs = $this->getSubObjectIDs('Inventory');
+        $Inventorys = $this->getSubObjectIDs('InventoryManager');
         foreach($InventoryIDs AS $i => &$id) {
-            $Inventory = $this->getClass('Inventory',$id);
-            if (!($Inventory->isValid() && $Inventory->get('primaryUser'))) {
-                unset($Inventory);
-                continue;
-            }
+            if (!($Inventory->isValid() && $Inventory->get('primaryUser'))) continue;
             $useropt .= '<option value="'.$id.'">'.$Inventory->get('primaryUser').'</option>';
             unset($Inventory);
         }
-        unset($InventoryIDs,$id);
+        unset($Inventorys,$id);
         if ($useropt) {
             $selForm = '<select name="user" size= "1">'.$useropt.'</select>';
             foreach((array)$fields AS $field => &$input) {
