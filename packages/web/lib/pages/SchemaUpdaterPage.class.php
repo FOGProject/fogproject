@@ -31,7 +31,7 @@ class SchemaUpdaterPage extends FOGPage {
                         unset($update);
                     }
                     unset($updates);
-                    $this->DB->connect();
+                    //$this->DB->connect();
                     $newSchema = $this->getClass(SchemaManager)->find();
                     $newSchema = @array_shift($newSchema);
                     if ($newSchema && $newSchema->isValid()) $newSchema->set(version,$version);
