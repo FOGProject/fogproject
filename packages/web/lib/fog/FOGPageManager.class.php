@@ -86,24 +86,24 @@ class FOGPageManager Extends FOGBase {
         global $Init;
         foreach ($Init->PagePaths AS $i => &$path) {
             if (!file_exists($path)) continue;
+            if (preg_match('#plugins#i',$path)) {
+                $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
+                if (!in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) continue;
+            }
             $iterator = new DirectoryIterator($path);
             foreach ($iterator AS $i => $fileInfo) {
                 $className = null;
-                if ($fileInfo->isDot() || !$fileInfo->isFile() || substr($fileInfo->getFilename(),-10) != '.class.php') continue;
+                if (substr($fileInfo->getFilename(),-10) != '.class.php') continue;
                 $className = substr($fileInfo->getFilename(),0,-10);
-                if (!$className) continue;
-                if (in_array($className,get_declared_classes())) continue;
+                if (!$className || in_array($className,get_declared_classes())) continue;
                 if ($this->isMobile && !preg_match('#mobile#i',$className)) continue;
-                if ($this->isMobile && !preg_match('#plugins#i',$path)) continue;
                 if (!$this->isMobile && preg_match('#mobile#i',$className)) continue;
-                $vals = $this->getClass('ReflectionClass',$className)->getDefaultProperties();
-                if ($vals['node'] === $this->classValue) {
-                    $className = $this->getClass($className);
-                    $this->register($className);
-                }
+                if ($this->isMobile && !preg_match('#plugins#i',$path)) continue;
+                $vals = get_class_vars($className);
+                if ($vals['node'] === $this->classValue) $this->register($this->getClass($className));
                 unset($vals);
             }
+            unset($path);
         }
-        unset($path);
     }
 }
