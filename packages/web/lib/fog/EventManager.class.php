@@ -36,7 +36,7 @@ class EventManager extends FOGBase {
         foreach($Init->HookPaths AS $i => &$path) {
             if (!file_exists($path)) continue;
             if (preg_match('#plugins#i',$path)) {
-                $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
+                $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-7)) : null;
                 if (!in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) continue;
             }
             $iterator = $this->getClass('DirectoryIterator',$path);
@@ -49,8 +49,9 @@ class EventManager extends FOGBase {
                     $this->getClass($className);
                     continue;
                 }
-                $active = (bool)shell_exec(sprintf('grep -r "\$active\ " %s|grep -o "true"',$fileInfo->getPathname()));
-                if ($active) $this->getClass($className);
+                if (!($handle = fopen($fileInfo->getPathname(),'rb'))) continue;
+                while (($line = fgets($handle,4096)) !== false && !$linefound) $linefound = (strpos($line,'$active') !== false) ? $line : false;
+                if (strpos($linefound,'true')) $this->getClass($className);
             }
         }
         unset($path);

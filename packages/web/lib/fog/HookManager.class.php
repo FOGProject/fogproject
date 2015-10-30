@@ -88,11 +88,13 @@ class HookManager extends EventManager {
                     $this->getClass($className);
                     continue;
                 }
-                $active = (bool)shell_exec(sprintf('grep -r "\$active\ " %s|grep -o "true"',$fileInfo->getPathname()));
-                if ($active) $this->getClass($className);
+                if (!($handle = fopen($fileInfo->getPathname(),'rb'))) continue;
+                while (($line = fgets($handle,4096)) !== false && !$linefound) $linefound = (strpos($line,'$active') !== false) ? $line : false;
+                if (strpos($linefound,'true')) $this->getClass($className);
             }
         }
         unset($path);
+        parent::load();
     }
     public function log($txt, $level = 1) {
         if (!$this->ajax && $this->logLevel >= $level)
