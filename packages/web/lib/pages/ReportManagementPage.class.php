@@ -372,7 +372,11 @@ class ReportManagementPage extends FOGPage {
             $this->redirect('?node=report&sub=pend-mac');
         }
         $this->title = _('Pending MAC Export');
-        echo '<h2><a href="export.php?type=csv&filename=PendingMACsList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=PendingMACsList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a><br /><a href="?node=report&sub=pend-mac&aprvall=1">'._('Approve All Pending MACs for all hosts?').'</a></h2>';
+        echo '<h2><a href="export.php?type=csv&filename=PendingMACsList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=PendingMACsList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a><br />';
+        if ($_SESSION['Pending-MACs']) {
+            echo '<a href="?node=report&sub=pend-mac&aprvall=1">'._('Approve All Pending MACs for all hosts?').'</a>';
+        }
+        echo '</h2>';
         $csvHead = array(
             _('Host ID'),
             _('Host name'),
@@ -398,7 +402,7 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
         );
-        $PendingMACs = $this->getSubObjectIDs('MACAddressAssociation',array('pending'=>1),'id','','','hostID');
+        $PendingMACs = $this->getClass('MACAddressAssociationManager')->find(array('pending'=>1));
         foreach ((array)$PendingMACs AS $PendingMAC) {
             if (!$PendingMAC->isValid() || !$this->getClass('MACAddress',$PendingMAC)->isValid()) continue;
             $Host = $this->getClass('Host',$PendingMAC->get('hostID'));
