@@ -273,7 +273,7 @@ class TaskManagementPage extends FOGPage {
         $this->form = '<center><input type="button" id="taskpause"/></center><br/>';
         $this->title = _('Active Tasks');
         $i = 0;
-        $Tasks = $this->Class('TaskManager')->find(array('stateID'=>array(1,2,3)));
+        $Tasks = $this->getClass('TaskManager')->find(array('stateID'=>array(1,2,3)));
         foreach ($Tasks AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
