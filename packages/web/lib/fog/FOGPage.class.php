@@ -401,17 +401,18 @@ abstract class FOGPage extends FOGBase {
             '<input type="hidden" value="${id}" name="remitems[]"/>',
         );
         $this->additional = array();
-        $ids = array_filter(array_unique(explode(',',$_REQUEST[strtolower($this->childClass).'IDArray'])));
-        foreach ($ids AS $i => &$id) {
-            if ($this->getClass($this->childClass,$id)->get('protected')) continue;
-            $name = $this->getClass($this->childClass,$id)->get('name');
+        $Objects = $this->getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[strtolower($this->childClass).'IDArray'])))));
+        foreach ($Objects AS $i => &$Object) {
+            if ($Object->get('protected')) continue;
+            $name = $Object->get('name');
             $this->data[] = array(
-                'id'=>$id,
+                'id'=>$Object->get('id'),
                 'name'=>$name,
             );
             array_push($this->additional,sprintf('<p>%s</p>',$name));
+            unset($Object,$name);
         }
-        unset($id,$name);
+        unset($Objects);
         if (count($this->data)) {
             echo '<div class="confirm-message">';
             echo '<p>'._($this->childClass.'s to be removed').':</p>';

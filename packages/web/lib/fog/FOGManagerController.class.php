@@ -13,6 +13,7 @@ abstract class FOGManagerController extends FOGBase {
         $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
         $this->classVariables = $this->getClass('ReflectionClass',$this->childClass)->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
         foreach ((array)$this->classVariables AS $i => &$prop) {
+            if (in_array($prop->getName(),array('loadQueryTemplate','loadQueryGroupTemplate','countQueryTemplate','updateQueryTemplate','destroyQueryTemplate','existsQueryTemplate'))) continue;
             if ($prop->isProtected()) $prop->setAccessible(true);
             $name = $prop->getName();
             $value = $prop->getValue($this->getClass($this->childClass));
@@ -152,10 +153,8 @@ abstract class FOGManagerController extends FOGBase {
             $this->databaseTable,
             $this->databaseTable,
             $this->databaseFields['id'],
-            implode(',',(array)$ids)
+            implode("','",(array)$ids)
         );
-        foreach ((array)$ids AS $i => &$id) $this->getClass($this->childClass,$id)->destroy('id');
-        unset($id);
         return $this->DB->query($query)->fetch()->get();
     }
     public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '', $template = false) {
