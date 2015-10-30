@@ -2075,3 +2075,8 @@ $this->schema[] = array(
     "ALTER TABLE `" . DATABASE_NAME ."`.`snapinGroupAssoc` ADD COLUMN `sgaPrimary` TINYINT(1)",
     "ALTER TABLE `" .DATABASE_NAME ."`.`imageGroupAssoc` ADD COLUMN `igaPrimary` TINYINT(1)",
 );
+// 199
+$this->schema[] = array(
+    "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_AES_ENCRYPT'",
+    "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_DHCP_BOOTFILENAME'",
+);
