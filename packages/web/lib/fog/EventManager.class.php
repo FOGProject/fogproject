@@ -33,27 +33,27 @@ class EventManager extends FOGBase {
     }
     public function load() {
         global $Init;
-        foreach($Init->EventPaths AS $i => &$subscriberDirectory) {
-            if (file_exists($subscriberDirectory)) {
-                $subscriberIterator = new DirectoryIterator($subscriberDirectory);
-                foreach ($subscriberIterator AS $fileInfo) {
-                    $file = !$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.event.php' ? file($fileInfo->getPathname()) : null;
-                    $PluginName = preg_match('#plugins#i',$subscriberDirectory) ? basename(substr($subscriberDirectory,0,-7)) : null;
-                    if (in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) $className = (substr($fileInfo->getFilename(),-10) == '.event.php' ? substr($fileInfo->getFilename(),0,-10) : null);
-                    else if ($file && !preg_match('#plugins#',$fileInfo->getPathname())) {
-                        $key = '$active';
-                        foreach($file AS $lineNumber => &$line) {
-                            if (strpos($line,$key) !== false)
-                                break;
-                        }
-                        unset($line);
-                        if(preg_match('#true#i',$file[$lineNumber])) $className = (substr($fileInfo->getFileName(),-10) == '.event.php' ? substr($fileInfo->getFilename(),0,-10) : null);
-                    }
-                    if ($className && !in_array($className,get_declared_classes())) $this->getClass($className);
+        foreach($Init->HookPaths AS $i => &$path) {
+            if (!file_exists($path)) continue;
+            if (preg_match('#plugins#i',$path)) {
+                $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
+                if (!in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) continue;
+            }
+            $iterator = new DirectoryIterator($path);
+            foreach ((array)$iterator AS $i => $fileInfo) {
+                $className = null;
+                if (substr($fileInfo->getFilename(),-10) != '.event.php') continue;
+                $className = substr($fileInfo->getFilename(),0,-10);
+                if (!$className || in_array($className,get_declared_classes())) continue;
+                if (preg_match('#plugins#i',$fileInfo->getPathname())) {
+                    $this->getClass($className);
+                    continue;
                 }
+                $active = (bool)shell_exec(sprintf('grep -r "\$active\ " %s|grep -o "true"',$fileInfo->getPathname()));
+                if ($active) $this->getClass($className);
             }
         }
-        unset($subscriberDirectory);
+        unset($path);
     }
     public function log($txt, $level = 1) {
         if (!$this->ajax && $this->logLevel >= $level)
