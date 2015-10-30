@@ -10,8 +10,8 @@ class DashboardPage extends FOGPage {
         $this->notes = array();
     }
     public function index() {
-        $hostPend = '<i class="fa fa-circle fa-1x notifier"></i>&nbsp;'._('There are pending hosts awaiting approval').'<br/>'._('Click').' '.'<a href="?node=host&sub=pending">'._('here').'</a> '._('to go to the approval page');
-        $macPend = '<i class="fa fa-circle fa-1x notifier"></i>&nbsp;'._('There are pending macs awaiting approval').'<br/>'._('Click').' '.'<a href="?node=report&sub=pend-mac">'._('here').'</a> '._('to go to the approval page');
+        $hostPend = '<i class="fa fa-circle fa-1x notifier"></i>&nbsp;'._('Pending hosts').'<br/>'._('Click').' '.'<a href="?node=host&sub=pending">'._('here').'</a> '._('to review.');
+        $macPend = '<i class="fa fa-circle fa-1x notifier"></i>&nbsp;'._('Pending macs').'<br/>'._('Click').' '.'<a href="?node=report&sub=pend-mac">'._('here').'</a> '._('to review');
         if ($_SESSION['Pending-Hosts'] && $_SESSION['Pending-MACs']) $this->setMessage($hostPend.'<br/>'.$macPend);
         else if ($_SESSION['Pending-Hosts']) $this->setMessage($hostPend);
         else if ($_SESSION['Pending-MACs']) $this->setMessage($macPend);
@@ -57,9 +57,6 @@ class DashboardPage extends FOGPage {
         for ($i = 0; $i <= 30; $i++) $Graph30dayData .= '["'.(1000*$this->nice_date()->modify("-$i days")->getTimestamp()).'", '.$this->getClass('ImagingLogManager')->count(array('start'=>$this->nice_date()->modify("-$i days")->format('Y-m-d%'),'finish'=>$this->nice_date()->modify("-$i days")->format('Y-m-d%')),'OR').']'.($i < 30 ? ', ' : '');
         echo '<div class="fog-variable" id="ActivityActive"></div><div class="fog-variable" id="ActivityQueued"></div><div class="fog-variable" id="ActivitySlots"></div><!-- Variables --><div class="fog-variable" id="Graph30dayData">['.$Graph30dayData.']</div>';
     }
-    /** bandwidth()
-     * Display's the bandwidth bar on the dashboard page.
-     */
     public function bandwidth() {
         $URLs = array();
         $Nodes = $this->getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1));
@@ -78,9 +75,6 @@ class DashboardPage extends FOGPage {
         echo json_encode((array)$data);
         exit;
     }
-    /** diskusage()
-     * Display's the disk usage graph on the dashboard page.
-     */
     public function diskusage() {
         if (!($this->obj->isValid() && $this->obj->get('isGraphEnabled'))) exit;
         try {
@@ -100,9 +94,6 @@ class DashboardPage extends FOGPage {
         echo json_encode((array)$Data);
         exit;
     }
-    /** clientCount()
-     * Display's the current client count on the activity graph
-     */
     public function clientcount() {
         if (!($this->obj->isValid() && $this->obj->get('isGraphEnabled'))) exit;
         $StorageGroup = $this->getClass('StorageGroup',$this->obj->get('storageGroupID'));
