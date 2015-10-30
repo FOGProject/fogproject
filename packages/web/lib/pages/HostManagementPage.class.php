@@ -166,7 +166,7 @@ class HostManagementPage extends FOGPage {
             array('width'=>80,'class'=>'c'),
             array('width'=>50,'class'=>'r filter-false'),
         );
-        $Hosts = $this->getClass('HostManager',array('pending'=>1));
+        $Hosts = $this->getClass('HostManager')->find(array('pending'=>1));
         foreach ((array)$Hosts AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $id = $Host->get('id');

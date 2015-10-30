@@ -50,9 +50,9 @@ class TaskMobile extends FOGPage {
                 'task_type'=>$Task->getTaskTypeText(),
                 'task_state'=>$Task->getTaskStateText(),
             );
-            unset($Task);
+            unset($Task,$name);
         }
-        unset($id,$ids,$name);
+        unset($Tasks,$name);
         $this->render();
     }
     public function search() {
@@ -82,7 +82,7 @@ class TaskMobile extends FOGPage {
             }
             unset($Task);
         }
-        unset($id,$ids,$name);
+        unset($Tasks,$name);
         $this->render();
     }
     public function force() {
@@ -114,7 +114,7 @@ class TaskMobile extends FOGPage {
             );
             unset($Task,$Host);
         }
-        unset($id,$ids,$name);
+        unset($Tasks,$name);
         $this->render();
     }
 }

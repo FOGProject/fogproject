@@ -24,18 +24,14 @@ class PrinterClient extends FOGClient implements FOGClientSend {
             if (!isset($_REQUEST['id'])) {
                 $strtosend = "#printer%s=%s\n";
                 $count = 0;
-                foreach ($PrinterIDs AS $i => &$id) {
-                    $Printer = $this->getClass('Printer',$id);
-                    if (!$Printer->isValid()) {
-                        unset($Printer);
-                        continue;
-                    }
+                foreach ($Printers AS $i => &$Printer) {
+                    if (!$Printer->isValid()) continue;
                     if ($count == 0) $this->send = "#!ok\n#mode=$mode\n";
                     $count++;
                     $this->send .= sprintf($strtosend,$count,$Printer->get('id'));
                     unset($Printer);
                 }
-                unset($id,$count);
+                unset($Printers,$count);
             } else {
                 $Printer = $this->getClass('Printer',$_REQUEST['id']);
                 if (!$Printer->isValid()) throw new Exception(_('Printer is invalid'));
