@@ -666,8 +666,12 @@ abstract class FOGPage extends FOGBase {
         printf('</form>');
     }
     public function configure() {
-        $Datatosend = "#!ok\n#sleep={$this->getSetting(FOG_SERVICE_CHECKIN_TIME)}\n#force={$this->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={$this->getSetting(FOG_GRACE_TIMEOUT)}";
-        echo $Datatosend;
+        $randTime = mt_rand(0,90);
+        $setTime = intval($this->getSetting('FOG_SERVICE_CHECKIN_TIME'));
+        $randTime += $setTime;
+        unset($setTime);
+        echo "#!ok\n#sleep=$randTime\n#force={$this->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={$this->getSetting(FOG_GRACE_TIMEOUT)}";
+        unset($randTime);
         exit;
     }
     public function authorize() {
