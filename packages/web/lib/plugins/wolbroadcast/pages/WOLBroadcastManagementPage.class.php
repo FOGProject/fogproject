@@ -70,7 +70,7 @@ class WOLBroadcastManagementPage extends FOGPage {
     }
     public function search_post() {
         // Variables
-        $keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
+        $keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $_REQUEST['crit']) . '%');
         // To assist with finding wol broadcasts.
         $where = array(
             'id'		=> $keyword,

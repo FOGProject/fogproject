@@ -42,7 +42,7 @@ class ReportManagementPage extends FOGPage {
         echo '<p>'._('FOG reports exist to give you information about what is going on with your FOG system.  To view a report, select an item from the menu on the left-hand side of this page.').'</p>';
     }
     public function file() {
-        $path = rtrim($this->getSetting('FOG_REPORT_DIR'), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.basename(base64_decode($this->REQUEST['f']));
+        $path = rtrim($this->getSetting('FOG_REPORT_DIR'), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.basename(base64_decode($_REQUEST['f']));
         if (!file_exists($path)) $this->fatalError('Report file does not exist! Path: %s', array($path));
         require_once($path);
     }
@@ -326,10 +326,7 @@ class ReportManagementPage extends FOGPage {
         $Hosts = $this->getClass('HostManager')->find();
         foreach($Hosts AS $i => &$Host) {
             if (!$Host->isValid()) continue;
-            if (!$Host->get('inventory')->isValid()) {
-                unset($Host);
-                continue;
-            }
+            if (!$Host->get('inventory')->isValid()) continue;
             $Image = $Host->getImage();
             $this->data[] = array(
                 'host_name'=>$Host->get('name'),
@@ -401,18 +398,11 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
         );
-        $PendingMACIDs = $this->getSubObjectIDs('MACAddressAssociation',array('pending'=>1),'id','','','hostID');
-        foreach ((array)$PendingMACIDs AS $id) {
-            $PendingMAC = $this->getClass('MACAddressAssociation',$id);
-            if (!$PendingMAC->isValid() || !$this->getClass('MACAddress',$PendingMAC)->isValid()) {
-                unset($PendingMAC);
-                continue;
-            }
+        $PendingMACs = $this->getSubObjectIDs('MACAddressAssociation',array('pending'=>1),'id','','','hostID');
+        foreach ((array)$PendingMACs AS $PendingMAC) {
+            if (!$PendingMAC->isValid() || !$this->getClass('MACAddress',$PendingMAC)->isValid()) continue;
             $Host = $this->getClass('Host',$PendingMAC->get('hostID'));
-            if (!$Host->isValid()) {
-                unset($PendingMAC,$Host);
-                continue;
-            }
+            if (!$Host->isValid()) continue;
             $hostID = $Host->get('id');
             $hostName = $Host->get('name');
             $hostMac = $Host->get('mac');
@@ -431,8 +421,9 @@ class ReportManagementPage extends FOGPage {
             $this->ReportMaker->addCSVCell($hostPend);
             $this->ReportMaker->endCSVLine();
             unset($hostID,$hostName,$hostMac,$hostDesc,$hostPend);
+            unset($Host,$PendingMAC);
         }
-        unset($id,$PendingMACIDs);
+        unset($PendingMACs);
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
@@ -478,10 +469,7 @@ class ReportManagementPage extends FOGPage {
         foreach($Viruses AS $i => &$Virus) {
             if (!$Virus->isValid()) continue;
             $Host = $this->getClass('HostManager')->getHostByMacAddresses($Virus->get('hostMAC'));
-            if (!$Host->isValid()) {
-                unset($Virus,$Host);
-                continue;
-            }
+            if (!$Host->isValid()) continue;
             $hostName = $Host->get('name');
             unset($Host);
             $virusName = $Virus->get('name');
@@ -512,7 +500,7 @@ class ReportManagementPage extends FOGPage {
             unset($classGet,$Virus);
             $this->ReportMaker->endCSVLine();
         }
-        unset($id,$VirusIDs);
+        unset($Virus);
         $this->ReportMaker->appendHTML($this->__toString());
         echo '<form method="post" action="'.$this->formAction.'">';
         $this->ReportMaker->outputReport(false);
@@ -560,8 +548,7 @@ class ReportManagementPage extends FOGPage {
             $userSelForm = '<select name="usersearch"><option value="">- '._('Please select an option').' -</option>'.$userSel.'</select>';
         }
         if ($HostNames) {
-            foreach($HostNames AS $i => &$Hostname)
-                $hostSel .= '<option value="'.$Hostname.'">'.$Hostname.'</option>';
+            foreach($HostNames AS $i => &$Hostname) $hostSel .= '<option value="'.$Hostname.'">'.$Hostname.'</option>';
             unset($Hostname);
             $hostSelForm = '<select name="hostsearch"><option value="">- '._('Please select an option').' -</option>'.$hostSel.'</option>';
         }
@@ -607,27 +594,20 @@ class ReportManagementPage extends FOGPage {
                     'user_name'=>'',
                 );
             }
-            unset($id,$HostIDs);
+            unset($id,$Hosts);
         } else if (!trim($_REQUEST['hostsearch']) && trim($_REQUEST['usersearch'])) {
             $ids = $this->getSubObjectIDs('UserTracking',array('username'=>$usersearch),array('id','hostID'));
-            $UserIDs = $ids['id'];
-            $HostIDs = $ids['hostID'];
-            unset($ids);
             $lastUser = '';
-            foreach((array)$UserIDs AS $i => &$id) {
-                $User = $this->getClass('UserTracking',$id);
-                if (!$User->isValid()) {
-                    unset($User);
-                    continue;
-                }
-                if (!count($HostIDs)) continue;
-                foreach ($HostIDs AS $i => &$hostID) {
-                    $Host = $this->getClass('Host',$hostID);
-                    if (!$Host->isValid()) $HostIDs = array_diff((array)$hostID,(array)$HostIDs);
-                    unset($Host);
-                }
-                unset($hostID);
-                if (!count($HostIDs)) continue;
+            $Users = $this->getClass('UserTrackingManager')->find(array('id'=>$ids['id']));
+            $Hosts = $this->getClass('HostManager')->find(array('id'=>$ids['hostID']));
+            foreach ($Hosts AS $i => &$Host) {
+                if (!$Host->isValid()) $ids['hostID'] = array_diff((array)$Host->get('id'),(array)$ids['hostID']);
+                unset($Host);
+            }
+            unset($Hosts);
+            foreach((array)$Users AS $i => &$User) {
+                if (!$User->isValid()) continue;
+                if (!count($ids['hostID'])) continue;
                 $Username = trim($User->get('username'));
                 unset($User);
                 if ($lastUser != $Username) {
@@ -641,34 +621,30 @@ class ReportManagementPage extends FOGPage {
                 $lastUser = $Username;
                 unset($Username);
             }
-            unset($id,$UserIDs,$HostIDs,$lastUser);
+            unset($Users,$Hosts,$lastUser);
         } else if (trim($_REQUEST['hostsearch']) && trim($_REQUEST['usersearch'])) {
             $HostIDs = $this->getSubObjectIDs('Host',array('name'=>$hostsearch));
-            $UserIDs = $this->getSubObjectIDs('UserTracking',array('username'=>$usersearch,'hostID'=>$HostIDs));
-            foreach((array)$HostIDs AS $i => &$id) {
-                $Host = $this->getClass('Host',$id);
+            $Users = $this->getClass('UserTrackingManager')->find(array('username'=>$usersearch,'hostID'=>$HostIDs));
+            foreach((array)$Users AS $i => &$User) {
+                if (!$User->isValid()) continue;
+                $Host = $this->getClass('Host',$User->get('hostID'));
                 if (!$Host->isValid()) {
                     unset($Host);
                     continue;
                 }
-                $User = $this->getClass('UserTracking',@max($this->getSubObjectIDs('UserTracking',array('hostID'=>$id,'id'=>$UserIDs))));
-                if (!$User->isValid()) {
-                    unset($Host,$User);
-                    continue;
-                }
+                $hostID = $Host->get('id');
                 $hostName = $Host->get('name');
-                unset($Host);
-                $userName = $User->get('username');
-                unset($User);
+                $userName = $User->get('name');
+                unset($Host,$User);
                 $this->data[] = array(
-                    'host_id'=>$id,
+                    'host_id'=>$hostID,
                     'hostuser_name'=>$hostName,
                     'user_id'=>base64_encode($userName),
                     'user_name'=>$userName,
                 );
-                unset($userName,$hostName);
+                unset($userName,$hostName,$hostID);
             }
-            unset($id,$HostIDs,$UserIDs);
+            unset($HostIDs,$Users);
         } else if (!$hostsearch && !$usersearch) $this->redirect('?node='.$this->node.'sub=user-track');
         $this->render();
     }
@@ -756,19 +732,14 @@ class ReportManagementPage extends FOGPage {
             $date2 = $_REQUEST['date1'];
         }
         $date2 = date('Y-m-d',strtotime($date2.'+1 day'));
-        $UserTracker = $this->getClass('UserTracking');
         $UserToSearch = base64_decode($_REQUEST['userID']);
         $compare = "BETWEEN '$date1' AND '$date2'";
-        $UserTrackerIDs = $this->getClass('UserTrackingManager')->find(array('datetime' => '','username' => '%'.$UserToSearch.'%','hostID'=>($_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%')),'','','',$compare,'','','id');
-        foreach((array)$UserTrackerIDs AS $i => &$id) {
-            $User = $this->getClass('UserTracking',$id);
-            if (!$User->isValid()) {
-                unset($User);
-                continue;
-            }
+        $UserTrackers = $this->getClass('UserTrackingManager')->find(array('datetime' => '','username' => '%'.$UserToSearch.'%','hostID'=>($_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%')),'','','',$compare);
+        foreach((array)$UserTrackers AS $i => &$User) {
+            if (!$User->isValid()) continue;
             $Host = $this->getClass('Host',$User->get('hostID'));
             if (!$Host->isValid()) {
-                unset($User,$Host);
+                unset($Host);
                 continue;
             }
             $date = $this->nice_date($User->get('datetime'));
@@ -788,9 +759,9 @@ class ReportManagementPage extends FOGPage {
             $this->ReportMaker->addCSVCell($this->formatTime($User->get('datetime')));
             $this->ReportMaker->addCSVCell($User->get('description'));
             $this->ReportMaker->endCSVLine();
-            unset($User,$Host);
+            unset($User,$Host,$date,$logintext);
         }
-        unset($id,$UserTrackerIDs);
+        unset($UserTrackers);
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
@@ -900,21 +871,21 @@ class ReportManagementPage extends FOGPage {
         unset($csvHeader);
         $this->ReportMaker->endCSVLine();
         $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('checkin'=>'','complete'=>''),'OR','','',"BETWEEN '$date1' AND '$date2'",'','','',false);
-        foreach($SnapinTaskIDs AS $i => &$id) {
+        foreach($SnapinTasks AS $i => &$SnapinTask) {
             if (!$SnapinTask->isValid()) continue;
             $Snapin = $SnapinTask->getSnapin();
             if (!$Snapin->isValid()) {
-                unset($Snapin,$SnapinTask);
+                unset($Snapin);
                 continue;
             }
             $SnapinJob = $SnapinTask->getSnapinJob();
             if (!$SnapinJob->isValid()) {
-                unset($Snapin,$SnapinJob,$SnapinTask);
+                unset($Snapin,$SnapinJob);
                 continue;
             }
             $Host = $SnapinJob->getHost();
             if (!$Host->isValid()) {
-                unset($Host,$Snapin,$SnapinJob,$SnapinTask);
+                unset($Host,$Snapin,$SnapinJob);
                 continue;
             }
             $TaskCheckinDate = $this->formatTime($SnapinTask->get('checkin'),'Y-m-d');
@@ -967,7 +938,7 @@ class ReportManagementPage extends FOGPage {
             unset($Host,$Snapin,$SnapinJob,$SnapinTask,$hostID,$hostName,$hostMac);
             unset($snapinID,$snapinName,$snapinDesc,$snapinFile,$snapinArgs,$snapinRw,$snapinRwa,$snapinState,$snapinReturn,$snapinDetail,$snapinCreateDate,$snapinCreateTime,$jobCreateDate,$jobCreateTime,$TaskCheckinDate,$TaskCheckinTime);
         }
-        unset($SnapinTaskIDs,$id);
+        unset($SnapinTasks);
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
@@ -987,13 +958,13 @@ class ReportManagementPage extends FOGPage {
             _('Select User') => '${users}',
             '&nbsp;' => '<input type="submit" value="'._('Create Report').'" />',
         );
-        $Inventorys = $this->getSubObjectIDs('InventoryManager');
-        foreach($InventoryIDs AS $i => &$id) {
+        $Inventorys = $this->getClass('InventoryManager')->find();
+        foreach($Inventorys AS $i => &$Inventory) {
             if (!($Inventory->isValid() && $Inventory->get('primaryUser'))) continue;
-            $useropt .= '<option value="'.$id.'">'.$Inventory->get('primaryUser').'</option>';
+            $useropt .= '<option value="'.$Inventory->get('id').'">'.$Inventory->get('primaryUser').'</option>';
             unset($Inventory);
         }
-        unset($Inventorys,$id);
+        unset($Inventorys);
         if ($useropt) {
             $selForm = '<select name="user" size= "1">'.$useropt.'</select>';
             foreach((array)$fields AS $field => &$input) {

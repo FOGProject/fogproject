@@ -425,8 +425,7 @@ abstract class FOGBase {
         if ($service) {
             $Host = $this->getHostItem();
             if ($this->nice_date() >= $this->nice_date($Host->get(sec_time))) $Host->set(pub_key,null)->save();
-            if (isset($_REQUEST[newService]) && $this->getClass(FOGCore)->getSetting(FOG_AES_ENCRYPT)) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
-            else if (isset($_REQUEST[newService]) && ($Host->get(useAD) && preg_match('#hostname.php#',$_SERVER['REQUEST_URI']))) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
+            if (isset($_REQUEST['newService']) && $this->getSetting('FOG_AES_ENCRYPT')) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
             else echo $datatosend;
         }
     }
@@ -449,13 +448,13 @@ abstract class FOGBase {
     }
     public function orderBy(&$orderBy) {
         if (empty($orderBy)) {
-            $orderBy = 'id';
-            if (isset($this->databaseFields['name'])) $orderBy = 'name';
+            $orderBy = 'name';
+            if (!array_key_exists($orderBy,$this->databaseFields)) $orderBy = 'id';
         } else {
-            $orderBy = trim($orderBy);
-            if (!isset($this->databaseFields[$orderBy])) {
-                $orderBy = 'id';
-                if (isset($this->databaseFields['name'])) $orderBy = 'name';
+            if (!is_array($orderBy)) {
+                $orderBy = trim($orderBy);
+                if (!array_key_exists($orderBy,$this->databaseFields)) $orderBy = 'name';
+                if (!array_key_exists($orderBy,$this->databaseFields)) $orderBy = 'id';
             }
         }
     }

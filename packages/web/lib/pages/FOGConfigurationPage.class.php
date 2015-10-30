@@ -437,7 +437,6 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_ALWAYS_LOGGED_IN',
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_TASK_FORCE_REBOOT',
-            'FOG_AES_ENCRYPT',
             'FOG_EMAIL_ACTION',
             'FOG_FTP_IMAGE_SIZE',
             'FOG_KERNEL_DEBUG',
@@ -496,9 +495,6 @@ class FOGConfigurationPage extends FOGPage {
                 case 'FOG_BOOT_EXIT_TYPE':
                 case 'FOG_EFI_BOOT_EXIT_TYPE':
                     $type = Service::buildExitSelector($Service->get(id),$Service->get(value));
-                    break;
-                case 'FOG_DHCP_BOOTFILENAME':
-                    $type = null;
                     break;
                 case 'FOG_DEFAULT_LOCALE':
                     foreach((array)$this->foglang['Language'] AS $lang => &$humanreadable) $options2[] = '<option value="'.$lang.'" '.($this->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->getSetting('FOG_DEFAULT_LOCALE') == $this->foglang['Language'][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
