@@ -808,6 +808,7 @@ caCreated=\"$caCreated\";
 startrange=\"$startrange\";
 endrange=\"$endrange\";
 bootfilename=\"$bootfilename\";
+packages=\"$packages\";
 " > "$fogprogramdir/.fogsettings";
 }
 displayBanner() {
