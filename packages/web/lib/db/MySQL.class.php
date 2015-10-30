@@ -41,7 +41,9 @@ class MySQL extends DatabaseManager {
             $this->query = $sql;
             if (!$this->query) throw new Exception(_('No query sent'));
             if (!$this->link) $this->connect();
-            if (!$this->queryResult = $this->link->query($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
+            if (!$this->queryResult = $this->link->prepare($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
+            $this->queryResult->execute();
+            $this->queryResult = $this->queryResult->get_result();
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
