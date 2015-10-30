@@ -103,6 +103,7 @@ if [ "$doupdate" = "1" ]; then
         echo -n "  * Performing upgrade using these settings...";
         . "$fogpriorconfig";
         doOSSpecificIncludes;
+        . "$fogpriorconfig";
     fi
 else
     echo "";
