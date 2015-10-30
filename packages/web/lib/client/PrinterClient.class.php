@@ -2,23 +2,19 @@
 class PrinterClient extends FOGClient implements FOGClientSend {
     public function send() {
         $level = $this->Host->get('printerLevel');
-        $PrinterIDs = $this->Host->get('printers');
+        $Printers = $this->getClass('PrinterManager')->find(array('id'=>$this->Host->get('printers')));
         if ($level > 2 || $level <= 0) $level = 0;
         if (!$this->newService) {
             $level = "#!mg=$level";
             $this->send = '';
             if ($level) {
                 $strtosend = "%s|%s|%s|%s|%s|%s";
-                foreach ($PrinterIDs AS $i => &$id) {
-                    $Printer = $this->getClass('Printer',$id);
-                    if (!$Printer->isValid()) {
-                        unset($Printer);
-                        continue;
-                    }
-                    $this->send .= base64_encode(sprintf($strtosend,$Printer->get('file'),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id'))))."\n";
+                foreach ($Printers AS $i => &$Printer) {
+                    if (!$Printer->isValid()) continue;
+                    $this->send .= base64_encode(sprintf($strtosend,$this->DB->sanitize($Printer->get('file')),$Printer->get('model'),$this->DB->sanitize($Printer->get('name')),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id'))))."\n";
                     unset($Printer);
                 }
-                unset($id,$PrinterIDs);
+                unset($Printers);
             }
             $this->send = base64_encode($level)."\n".$this->send;
         } else {

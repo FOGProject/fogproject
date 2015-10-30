@@ -378,7 +378,7 @@ class Host extends FOGController {
         if ($this->get('id')) $this->set('modules',$this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID'));
     }
     protected function loadUsers() {
-        if ($this->get('id')) $this->set('users',$this->getSubObjectIDs('UserTracking',array('hostID'=>$this->get('id'),'action'=>array(null,0,'')),'id'));
+        if ($this->get('id')) $this->set('users',$this->getSubObjectIDs('UserTracking',array('hostID'=>$this->get('id'))));
     }
     protected function loadSnapinjob() {
         if ($this->get('id')) $this->set('snapinjob',@max($this->getSubObjectIDs('SnapinJob',array('stateID'=>array(-1,0,1,2,3),'hostID'=>$this->get('id')),'id')));

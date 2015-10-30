@@ -237,7 +237,7 @@ abstract class FOGManagerController extends FOGBase {
             break;
         }
         $itemIDs = array_values(array_filter(array_unique($itemIDs)));
-        if ($returnObject) return $this->getClass($this->childClass)->getManager()->find(array(id=>$this->getSubObjectIDs($this->childClass,array(id=>$itemIDs))));
+        if ($returnObjects) return $this->getClass($this->childClass)->getManager()->find(array('id'=>$itemIDs));
         return $itemIDs;
     }
 }
