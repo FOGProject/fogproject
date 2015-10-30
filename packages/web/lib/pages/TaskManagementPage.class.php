@@ -48,13 +48,9 @@ class TaskManagementPage extends FOGPage {
         $this->active();
     }
     public function search_post() {
-        $ids = $this->getClass('TaskManager')->search();
-        foreach ((array)$ids AS $i => &$id) {
-            $Task = $this->getClass('Task',$id);
-            if (!$Task->isValid()) {
-                unset($Task);
-                continue;
-            }
+        $Tasks = $this->getClass('TaskManager')->search('',true);
+        foreach ((array)$Tasks AS $i => &$Task) {
+            if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
             if (!$Host->isValid()) {
                 unset($Task,$Host);
@@ -91,7 +87,7 @@ class TaskManagementPage extends FOGPage {
             );
             unset($Task);
         }
-        unset($ids,$id,$hostname,$MAC);
+        unset($Tasks,$hostname,$MAC);
         $this->HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -112,13 +108,9 @@ class TaskManagementPage extends FOGPage {
             array('width'=>60,'class'=>'c'),
             array('width'=>60,'class'=>'r filter-false'),
         );
-        $ids = $this->getSubObjectIDs('Host','','','','name');
-        foreach((array)$ids AS $i => &$id) {
-            $Host = $this->getClass('Host',$id);
-            if (!$Host->isValid() || $Host->get('pending')) {
-                unset($Host);
-                continue;
-            }
+        $Hosts = $this->getClass('HostManager')->find();
+        foreach((array)$Hosts AS $i => &$Host) {
+            if (!$Host->isValid() || $Host->get('pending')) continue;
             $hostname = $Host->get('name');
             $MAC = $Host->get('mac');
             $imgUp = '<a href="?node=task&sub=hostdeploy&type=2&id=${id}"><i class="icon hand fa fa-${upicon} fa-1x" title="'._('Upload').'"></i></a>';
@@ -137,7 +129,7 @@ class TaskManagementPage extends FOGPage {
             );
             unset($Host);
         }
-        unset($ids,$id);
+        unset($Hosts);
         $this->HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -228,13 +220,9 @@ class TaskManagementPage extends FOGPage {
             '<a href="?node=group&sub=edit&id=${id}"/>${name}</a>',
             '${deployLink}&nbsp;${multicastLink}&nbsp;${advancedLink}',
         );
-        $ids = $this->getSubObjectIDs('Group');
-        foreach ((array)$ids AS $i => &$id) {
-            $Group = $this->getClass('Group',$id);
-            if (!$Group->isValid()) {
-                unset($Group);
-                continue;
-            }
+        $Groups = $this->getClass('GroupManager')->find();
+        foreach ((array)$Groups AS $i => &$Group) {
+            if (!$Group->isValid()) continue;
             $deployLink = '<a href="?node=task&sub=groupdeploy&type=1&id=${id}"><i class="icon hand fa fa-${downicon} fa-1x" title="'._('Download').'"></i></a>';
             $multicastLink = '<a href="?node=task&sub=groupdeploy&type=8&id=${id}"><i class="icon hand fa fa-${multicon} fa-1x" title="'._('Multicast').'"></i></a>';
             $advancedLink = '<a href="?node=task&sub=groupadvanced&id=${id}"><i class="icon hand fa fa-arrows-alt" title="'._('Advanced').'"></i></a>';
@@ -247,8 +235,9 @@ class TaskManagementPage extends FOGPage {
                 'downicon'=>$this->getClass('TaskType',1)->get('icon'),
                 'multiicon'=>$this->getClass('TaskType',8)->get('icon'),
             );
+            unset($Group);
         }
-        unset($Group);
+        unset($Groups);
         $this->HookManager->processEvent('TasksListGroupData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -263,18 +252,14 @@ class TaskManagementPage extends FOGPage {
         $imagingTasks = array(1,2,8,15,16,17,24);
         $taskName = _(($taskTypeID == 8 ? 'Multicast Group Quick Deploy' : 'Group Quick Deploy'));
         try {
-            $ids = $Group->get('hosts');
-            foreach ((array)$ids AS $i => &$id) {
-                $Host = $this->getClass('Host',$id);
-                if (!$Host->isValid()) {
-                    unset($Host);
-                    continue;
-                }
+            $Hosts = $this->getClass('HostManager')->find(array('id'=>$Group->get('hosts')));
+            foreach ((array)$Hosts AS $i => &$Host) {
+                if (!$Host->isValid()) continue;
                 if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID')) throw new Exception(_('You need to assign an image to all of the hosts'));
                 if (!$Host->checkIfExist($taskTypeID)) throw new Exception(_('To setup download task, you must first upload an image'));
                 unset($Host);
             }
-            unset($ids,$id);
+            unset($Hosts);
             $Group->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $_SESSION['FOG_USERNAME']);
             $this->setMessage('Successfully created Group tasking!');
             $this->redirect('?node=task&sub=active');
@@ -283,19 +268,14 @@ class TaskManagementPage extends FOGPage {
             $this->redirect('?node=task&sub=listgroups');
         }
     }
-    // Active Tasks
     public function active() {
         unset($this->data);
         $this->form = '<center><input type="button" id="taskpause"/></center><br/>';
         $this->title = _('Active Tasks');
         $i = 0;
-        $ids = $this->getSubObjectIDs('Task',array('stateID'=>array(1,2,3)));
-        foreach ($ids AS $i => &$id) {
-            $Task = $this->getClass('Task',$id);
-            if (!$Task->isValid()) {
-                unset($Task);
-                continue;
-            }
+        $Tasks = $this->Class('TaskManager')->find(array('stateID'=>array(1,2,3)));
+        foreach ($Tasks AS $i => &$Task) {
+            if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
             if (!$Host->isValid()) {
                 unset($Task,$Host);
@@ -329,19 +309,16 @@ class TaskManagementPage extends FOGPage {
                 'icon_state'=>$Task->getTaskState()->getIcon(),
                 'icon_type'=>$Task->getTaskType()->get('icon'),
             );
+            unset($Task);
         }
-        unset($Task);
+        unset($Tasks);
         $this->HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function canceltasks() {
-        $ids = $this->getSubObjectIDs('Task',array('id'=>(array)$_REQUEST['task']));
-        foreach ((array)$ids AS $i => &$id) {
-            $Task = $this->getClass('Task',$id);
-            if (!$Task->isValid()) {
-                unset($Task);
-                continue;
-            }
+        $ids = $this->getClass('TaskManager')->find(array('id'=>(array)$_REQUEST['task']));
+        foreach ((array)$Tasks AS $i => &$Task) {
+            if (!$Task->isValid()) continue;
             $Task->cancel();
             unset($Task);
         }
@@ -379,18 +356,17 @@ class TaskManagementPage extends FOGPage {
     public function remove_multicast_post() {
         $MulticastSessionIDs = $this->getSubObjectIDs('MulticastSessions',array('id'=>$_REQUEST['task']));
         $TaskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('id'=>$_REQUEST['task']),'taskID');
-        foreach ($TaskIDs AS $i => &$id) {
-            $Task = $this->getClass('Task',$id);
-            if (!$Task->isValid()) {
-                unset($Task);
-                continue;
-            }
+        $Tasks = $this->getClass('TaskManager')->find(array('id'=>$TaskIDs));
+        foreach ((array)$Tasks AS $i => &$Task) {
+            if (!$Task->isValid()) continue;
             $Task->cancel();
             unset($Task);
         }
+        unset($Tasks);
         $this->getClass('MulticastSessionsAssociationManager')->destroy(array('taskID'=>$TaskIDs));
+        unset($TaskIDs);
         $this->getClass('MulticastSessionsManager')->destroy(array('id'=>$MulticastSessionIDs));
-        unset($TaskIDs,$id);
+        unset($MulticastSessionIDs);
         $this->setMessage(_('Successfully cancelled selected tasks'));
         $this->redirect('?node='.$this->node.'&sub=active');
     }
@@ -420,13 +396,9 @@ class TaskManagementPage extends FOGPage {
             array('class'=>'c'),
             array('width'=>40,'class'=>'c')
         );
-        $ids = $this->getSubObjectIDs('MulticastSessions',array('stateID'=>array(1,2,3)));
-        foreach($ids AS $i => &$id) {
-            $MS = $this->getClass('MulticastSessions',$id);
-            if (!$MS->isValid()) {
-                unset($MS);
-                continue;
-            }
+        $MulticastSessions = $this->getClass('MulticastSessionsManager')->find(array('stateID'=>array(1,2,3)));
+        foreach($MulticastSessions AS $i => &$MS) {
+            if (!$MS->isValid()) continue;
             $TS = $this->getClass('TaskState',$MS->get('stateID'));
             $this->data[] = array(
                 'id'=>$MS->get('id'),
@@ -438,7 +410,7 @@ class TaskManagementPage extends FOGPage {
             );
             unset($MS,$TS);
         }
-        unset($id);
+        unset($MulticastSessions);
         $this->HookManager->processEvent('TaskActiveMulticastData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -465,13 +437,9 @@ class TaskManagementPage extends FOGPage {
             array('class'=>'l','width'=>50),
             array('class'=>'r','width'=>40),
         );
-        $TaskIDs = $this->getSubObjectIDs('SnapinTask',array('stateID'=>array(-1,0,1,2,3)));
-        foreach($TaskIDs AS $i => &$id) {
-            $SnapinTask = $this->getClass('SnapinTask',$id);
-            if (!$SnapinTask->isValid()) {
-                unset($SnapinTask);
-                continue;
-            }
+        $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('stateID'=>array(-1,0,1,2,3)));
+        foreach($SnapinTasks AS $i => &$SnapinTask) {
+            if (!$SnapinTask->isValid()) continue;
             $Host = $this->getClass('SnapinJob',$SnapinTask->get('jobID'))->getHost();
             if (!$Host->isValid()) {
                 unset($Host,$SnapinTask);
@@ -498,15 +466,15 @@ class TaskManagementPage extends FOGPage {
             }
             unset($Host,$SnapinTask,$Snapin);
         }
-        unset($ids,$id);
+        unset($SnapinTasks);
         $this->HookManager->processEvent('TaskActiveSnapinsData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function active_snapins_post() {
         $SnapinTaskIDs = $this->getSubObjectIDs('SnapinTask',array('id'=>$_REQUEST['task']));
         $SnapinJobIDs = $this->getSubObjectIDs('SnapinTask',array('id'=>$_REQUEST['task']),'jobID');
-        $this->getClass('SnapinTaskManager')->destroy(array('id'=>$SnapinTaskIDs,'jobID'=>$SnapinJobIDs));
-        $this->getClass('SnapinJobManager')->destroy(array('id'=>$SnapinJobIDs));
+        $this->getClass('SnapinTaskManager')->destroy(array('id'=>$SnapinTaskIDs));
+        if (!$this->getClass('SnapinTaskManager')->count(array('jobID'=>$SnapinJobIDs))) $this->getClass('SnapinJobManager')->destroy(array('id'=>$SnapinJobIDs));
         $this->setMessage(_('Successfully cancelled selected tasks'));
         $this->redirect('?node='.$this->node.'&sub=active');
     }
@@ -544,39 +512,35 @@ class TaskManagementPage extends FOGPage {
             array('width'=>70,'class'=>'c'),
             array('width'=>100,'class'=>'c','style'=>'padding-right: 10px'),
         );
-        $ids = $this->getSubObjectIDs('ScheduledTask');
-        foreach ((array)$ids AS $i => &$id) {
-            $task = $this->getClass('ScheduledTask',$id);
-            if (!$task->isValid()) {
-                unset($task);
-                continue;
-            }
-            $Host = $task->getHost();
+        $ScheduledTasks = $this->getClass('ScheduledTaskManager')->find();
+        foreach ((array)$ScheduledTasks AS $i => &$ScheduledTask) {
+            if (!$ScheduledTask->isValid()) continue;
+            $Host = $ScheduledTask->getHost();
             if (!$Host->isValid()) {
-                unset($task,$Host);
+                unset($ScheduledTask,$Host);
                 continue;
             }
-            $taskType = $task->getTaskType();
-            if ($task->get('type') == 'C') $taskTime = FOGCron::parse($this->FOGCore,$task->get('minute').' '.$task->get('hour').' '.$task->get('dayOfMonth').' '.$task->get('month').' '.$task->get('dayOfWeek'));
-            else $taskTime = $task->get('scheduleTime');
+            $taskType = $ScheduledTask->getTaskType();
+            if ($ScheduledTask->get('type') == 'C') $taskTime = FOGCron::parse($this->FOGCore,$ScheduledTask->get('minute').' '.$ScheduledTask->get('hour').' '.$ScheduledTask->get('dayOfMonth').' '.$ScheduledTask->get('month').' '.$ScheduledTask->get('dayOfWeek'));
+            else $taskTime = $ScheduledTask->get('scheduleTime');
             $taskTime = $this->nice_date()->setTimestamp($taskTime);
-            $hostGroupName = ($task->isGroupBased() ? $task->getGroup() : $task->getHost());
+            $hostGroupName = ($ScheduledTask->isGroupBased() ? $ScheduledTask->getGroup() : $ScheduledTask->getHost());
             $this->data[] = array(
-                'id'=>$task->get('id'),
-                'hostgroup'=>$task->isGroupBased() ? 'group' : 'host',
+                'id'=>$ScheduledTask->get('id'),
+                'hostgroup'=>$ScheduledTask->isGroupBased() ? 'group' : 'host',
                 'hostgroupname'=>$hostGroupName,
                 'host_id'=>$hostGroupName->get('id'),
-                'groupbased'=>$task->isGroupBased() ? _('Yes') : _('No'),
-                'details_taskname'=>$task->get('name'),
+                'groupbased'=>$ScheduledTask->isGroupBased() ? _('Yes') : _('No'),
+                'details_taskname'=>$ScheduledTask->get('name'),
                 'time'=>$this->formatTime($taskTime),
-                'active'=>$task->get('isActive') ? 'Yes' : 'No',
-                'type'=>$task->get('type') == 'C' ? 'Cron' : 'Delayed',
-                'schedtaskid'=>$task->get('id'),
+                'active'=>$ScheduledTask->get('isActive') ? 'Yes' : 'No',
+                'type'=>$ScheduledTask->get('type') == 'C' ? 'Cron' : 'Delayed',
+                'schedtaskid'=>$ScheduledTask->get('id'),
                 'task_type'=>$taskType,
             );
-            unset($task,$Host,$taskType,$taskTime,$hostGroupName);
+            unset($ScheduledTask,$Host,$taskType,$taskTime,$hostGroupName);
         }
-        unset($id);
+        unset($ScheduledTasks);
         $this->HookManager->processEvent('TaskScheduledData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
