@@ -78,8 +78,8 @@ class HookManager extends EventManager {
                 $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
                 if (!in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) continue;
             }
-            $iterator = new DirectoryIterator($path);
-            foreach ((array)$iterator AS $i => $fileInfo) {
+            $iterator = $this->getClass('DirectoryIterator',$path);
+            foreach ($iterator AS $i => $fileInfo) {
                 $className = null;
                 if (substr($fileInfo->getFilename(),-9) != '.hook.php') continue;
                 $className = substr($fileInfo->getFilename(),0,-9);

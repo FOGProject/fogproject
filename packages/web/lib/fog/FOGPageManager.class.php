@@ -90,7 +90,7 @@ class FOGPageManager Extends FOGBase {
                 $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
                 if (!in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) continue;
             }
-            $iterator = new DirectoryIterator($path);
+            $iterator = $this->getClass('DirectoryIterator',$path);
             foreach ($iterator AS $i => $fileInfo) {
                 $className = null;
                 if (substr($fileInfo->getFilename(),-10) != '.class.php') continue;
