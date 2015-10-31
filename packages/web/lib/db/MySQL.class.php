@@ -35,7 +35,7 @@ class MySQL extends DatabaseManager {
     public function query($sql, $data = array()) {
         try {
             $this->queryResult = null;
-            if (!is_array($data)) $data = array($data);
+            if (isset($data) && !is_array($data)) $data = array($data);
             if (count($data)) $sql = vsprintf($sql,$data);
             $this->info($sql);
             $this->query = $sql;
