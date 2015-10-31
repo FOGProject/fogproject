@@ -93,8 +93,8 @@ class HookManager extends EventManager {
                 if (strpos($linefound,'true')) $this->getClass($className);
             }
             unset($iterator);
+            unset($path);
         }
-        unset($path);
         parent::load();
     }
     public function log($txt, $level = 1) {

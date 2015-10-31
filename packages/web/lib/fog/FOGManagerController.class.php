@@ -1,7 +1,6 @@
 <?php
 abstract class FOGManagerController extends FOGBase {
     protected $childClass;
-    protected $classVariables;
     protected $loadQueryTemplate = 'SELECT * FROM `%s` %s %s %s %s %s';
     protected $loadQueryGroupTemplate = 'SELECT * FROM (%s) `%s` %s %s %s %s %s';
     protected $countQueryTemplate = 'SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s`%s LIMIT 1';
@@ -11,15 +10,13 @@ abstract class FOGManagerController extends FOGBase {
     public function __construct() {
         parent::__construct();
         $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
-        $this->classVariables = $this->getClass('ReflectionClass',$this->childClass)->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
-        foreach ((array)$this->classVariables AS $i => &$prop) {
-            if (in_array($prop->getName(),array('loadQueryTemplate','loadQueryGroupTemplate','countQueryTemplate','updateQueryTemplate','destroyQueryTemplate','existsQueryTemplate'))) continue;
-            if ($prop->isProtected()) $prop->setAccessible(true);
-            $name = $prop->getName();
-            $value = $prop->getValue($this->getClass($this->childClass));
-            $this->$name = $value;
-        }
-        unset($name,$value,$prop);
+        $classVars = $this->getClass($this->childClass,'',true);
+        $this->databaseTable = $classVars['databaseTable'];
+        $this->databaseFields = $classVars['databaseFields'];
+        $this->databaseFieldsRequired = $classVars['databaseFieldsRequired'];
+        $this->databaseFieldClassRelationships = $classVars['databaseFieldClassRelationships'];
+        $this->additionalFields = $classVars['additionalFields'];
+        unset($classVars);
     }
     public function find($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false, $idField = false,$onecompare = true) {
         // Fail safe defaults

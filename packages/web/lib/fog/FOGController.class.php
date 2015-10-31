@@ -165,8 +165,7 @@ abstract class FOGController extends FOGBase {
                         count($where) ? ' AND '.implode(' AND ',$where) : ''
                     );
                 }
-                $vals = $this->DB->query($query)->fetch('','fetch_all')->get();
-                $vals = @array_shift($vals);
+                $vals = $this->DB->query($query)->fetch()->get();
                 $this->setQuery($vals);
             }
         } catch (Exception $e) {
@@ -231,12 +230,13 @@ abstract class FOGController extends FOGBase {
         return array(implode((array)$join),$whereArrayAnd);
     }
     public function setQuery(&$queryData) {
+        unset($this->data);
         $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
-        foreach ((array)$classData AS $key => &$val) {
-            $key = $this->key($key);
-            $this->data[$key] = $val;
+        foreach ($this->databaseFieldsFlipped AS $db_key => &$obj_key) {
+            $this->array_change_key($classData,$db_key,$obj_key);
+            unset($obj_key);
         }
-        unset($val);
+        $this->data = $classData;
         foreach((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
         unset($fields);
         return $this;

@@ -29,14 +29,13 @@ abstract class FOGPage extends FOGBase {
         $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST['id']}";
         $this->childClass = preg_replace('#ManagementPage#', '', preg_replace('#Mobile#','',get_class($this)));
         if (in_array(strtolower($this->childClass),array('user','host','image','group','snapin','printer'))) {
-            $classVars = $this->getClass('ReflectionClass',$this->childClass)->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
-            foreach((array)$classVars AS $i => &$prop) {
-                if ($prop->isProtected()) $prop->setAccessible(true);
-                $name = $prop->getName();
-                $value = $prop->getValue($this->getClass($this->childClass));
-                $this->$name = $value;
-            }
-            unset($name,$value,$prop,$classVars);
+            $classVars = $this->getClass($this->childClass,'',true);
+            $this->databaseTable = $classVars['databaseTable'];
+            $this->databaseFields = $classVars['databaseFields'];
+            $this->databaseFieldsRequired = $classVars['databaseFieldsRequired'];
+            $this->databaseFieldClassRelationships = $classVars['databaseFieldClassRelationships'];
+            $this->additionalFields = $classVars['additionalFields'];
+            unset($classVars);
         }
         $this->menu = array(
             'search'=>$this->foglang['NewSearch'],
