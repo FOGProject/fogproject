@@ -13,7 +13,7 @@ class Module extends FOGController {
         'shortName',
     );
     public function isValid() {
-        return ($this->get('id') && $this->get('name') && $this->get('shortName'));
+        return (bool)parent::isValid() && $this->get('shortName');
     }
     public function destroy($field = 'id') {
         $this->getClass('ModuleAssociationManager')->destroy(array('moduleID' => $this->get('id')));

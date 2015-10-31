@@ -62,9 +62,7 @@ abstract class FOGBase {
         array_shift($args);
         $obj = new ReflectionClass($class);
         if ($props === true) return $obj->getDefaultProperties();
-        else if ($obj->getConstructor() === null) return $obj->newInstanceWithoutConstructor();
-        else if (count($args)) return $obj->newInstanceArgs($args);
-        else return $obj->newInstance($data);
+        return $obj->getConstructor() ? (count($args) ? $obj->newInstanceArgs($args) : $obj->newInstance($data)) : $obj->newInstanceWithoutConstructor();
     }
     public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false) {
         $mac = $_REQUEST[mac];
@@ -323,6 +321,7 @@ abstract class FOGBase {
         return $input;
     }
     protected function array_change_key(&$array, $old_key, $new_key) {
+        if ($old_key == $new_key) return;
         $array[$new_key] = $array[$old_key];
         unset($array[$old_key]);
         return;
