@@ -434,6 +434,11 @@ while [ "$blGo" = "" ]; do
             configureMySql;
             backupReports;
             configureHttpd;
+            dots "Backuping up database"
+            if [ -d "$backupPath/fog_web_${version}.BACKUP" ]; then
+                wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql >/dev/null 2>&1
+            fi
+            errorStat $?
             if [ "$installtype" == "N" -a -z "$dbupdate" ]; then
                 echo
                 echo "  You still need to install/update your database schema.";

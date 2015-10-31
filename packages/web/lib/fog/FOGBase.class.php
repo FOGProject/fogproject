@@ -57,11 +57,14 @@ abstract class FOGBase {
     public function __toString() {
         return (string)get_class($this);
     }
-    public function getClass($class, $data = '') {
+    public function getClass($class, $data = '',$props = false) {
         $args = func_get_args();
         array_shift($args);
-        $r = new ReflectionClass($class);
-        return $r->getConstructor() ? (count($args) ? $r->newInstanceArgs($args) : $r->newInstance($data)) : $r->newInstanceWithoutConstructor();
+        $obj = new ReflectionClass($class);
+        if ($props === true) return $obj->getDefaultProperties();
+        else if ($obj->getConstructor() === null) return $obj->newInstanceWithoutConstructor();
+        else if (count($args)) return $obj->newInstanceArgs($args);
+        else return $obj->newInstance($data);
     }
     public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false) {
         $mac = $_REQUEST[mac];
@@ -318,6 +321,11 @@ abstract class FOGBase {
         $input = array_filter($input);
         if (!$keepkeys) $input = array_values($input);
         return $input;
+    }
+    protected function array_change_key(&$array, $old_key, $new_key) {
+        $array[$new_key] = $array[$old_key];
+        unset($array[$old_key]);
+        return;
     }
     protected function byteconvert($kilobytes) {
         return (($kilobytes / 8) * 1024);

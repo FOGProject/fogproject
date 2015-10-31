@@ -34,7 +34,7 @@ class ReportMaker extends FOGBase {
         if (!isset($_REQUEST['export'])) $this->setFileName($_REQUEST['filename']);
         if ($intType !== false) $intType = (isset($_REQUEST['export']) ? 3 : $this->types[$_REQUEST['type']]);
         else $intType = 0;
-        if ($intType == 0) echo implode($this->strHTML,"\n");
+        if ($intType == 0) echo implode("\n",(array)$this->strHTML);
         else if ($intType == 1) {
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="'.$this->filename.'.csv"');
@@ -48,21 +48,8 @@ class ReportMaker extends FOGBase {
             fpassthru($pipes[1]);
             $status = proc_close($proc);
         } else if ($intType == 3) {
-            $filename="fog_backup.sql";
-            $path=BASEPATH.'/management/other/';
-            exec('mysqldump --opt -u'.DATABASE_USERNAME.' -p"'.DATABASE_PASSWORD.'" -h'.preg_replace('#p:#','',DATABASE_HOST).' '.DATABASE_NAME.' > '.$path.$filename);
-            header('X-Sendfile: '.$path.$filename);
-            header('Content-Type: application/octet-stream');
-            header('Content-Length: '.filesize($path.$filename));
-            header('Content-Disposition: attachment; filename='.$filename);
-            if (false !== ($handle = fopen($path.$filename,'rb'))) {
-                while (!feof($handle)) {
-                    echo fread($handle,8*1024*1024);
-                    ob_flush();
-                    flush();
-                }
-            }
-            exec('rm -rf "'.$path.$filename.'"');
+            $SchemaSave = $this->getClass('Schema');
+            $SchemaSave->send_file($SchemaSave->export_db());
         } else if ($intType == 4) {
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=".$_REQUEST[type]."_export.csv");

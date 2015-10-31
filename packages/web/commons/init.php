@@ -37,14 +37,7 @@ class Initiator {
         $this->HookPaths = array_merge((array)$HookPaths,(array)$plug_hook);
         $this->EventPaths = array_merge((array)$EventPaths,(array)$plug_event);
         $this->PagePaths = array_merge((array)$PagePaths,(array)$plug_page);
-        $AllPaths = array_merge($this->FOGPaths,$this->HookPaths,$this->EventPaths,$this->PagePaths);
-        $pathStr = '';
-        foreach ($AllPaths AS $i => &$Path) $pathStr .= $Path.PATH_SEPARATOR;
-        set_include_path(get_include_path().PATH_SEPARATOR.$pathStr);
         spl_autoload_register(array($this,'FOGLoader'));
-        spl_autoload_register(array($this,'FOGPages'));
-        spl_autoload_register(array($this,'FOGHooks'));
-        spl_autoload_register(array($this,'FOGEvents'));
     }
     /** DetermineBasePath() Gets the base path and sets WEB_ROOT constant
      * @return null
@@ -57,10 +50,10 @@ class Initiator {
      * @return void
      */
     public function __destruct() {
-        spl_autoload_unregister(array($this,'FOGLoader'));
-        spl_autoload_unregister(array($this,'FOGPages'));
-        spl_autoload_unregister(array($this,'FOGHooks'));
-        spl_autoload_unregister(array($this,'FOGEvents'));
+        foreach (spl_autoload_functions() AS $i => &$function) {
+            spl_autoload_unregister($function);
+            unset($function);
+        }
     }
     /** startInit() initiates the environment
      * @return void
@@ -124,30 +117,27 @@ class Initiator {
      * @return void
      */
     private function FOGLoader($className) {
-        foreach($this->FOGPaths AS $path) (!class_exists($className) && file_exists($path.$className.'.class.php') ? require_once($path.$className.'.class.php') : null);
-    }
-    /** FOGPages() Loads the page files as they're needed.
-     * @param $className the page classes to include as called.
-     * @return void
-     */
-    private function FOGPages($className) {
-        foreach($this->PagePaths as $path) (!class_exists($className) && file_exists($path.$className.'.class.php') ? require_once($path.$className.'.class.php') : null);
-    }
-    /** FOGHooks() Loads the hook files as they're needed.
-     * @param $className the class to include as called.
-     * @return void
-     */
-    private function FOGHooks($className) {
-        global $HookManager;
-        foreach($this->HookPaths AS $path) (!class_exists($className) && file_exists($path.$className.'.hook.php') ? include_once($path.$className.'.hook.php') : null);
-    }
-    /** FOGEvents() Loads the event files as they're needed.
-     * @param $className the class to include as called.
-     * @return void
-     */
-    private function FOGEvents($className) {
-        global $EventManager;
-        foreach($this->EventPaths AS $path) (!class_exists($className) && file_exists($path.$className.'.event.php') ? include_once($path.$className.'.event.php') : null);
+        if (in_array($className,get_declared_classes())) return;
+        $allPaths = array_merge($this->FOGPaths,$this->PagePaths,$this->HookPaths,$this->EventPaths);
+        foreach($allPaths AS $i => &$path) {
+            if (file_exists($path.$className.'.class.php')) {
+                require($path.$className.'.class.php');
+                unset($path);
+                break;
+            } else if (file_exists($path.$className.'.hook.php')) {
+                global $HookManager;
+                include($path.$className.'.hook.php');
+                unset($path);
+                break;
+            } else if (file_exists($path.$className.'.event.php')) {
+                global $HookManager;
+                include($path.$className.'.event.php');
+                unset($path);
+                break;
+            }
+            unset($path);
+        }
+        unset($allPaths);
     }
     /** sanitize_output() Clean the buffer
      * @param $buffer the buffer to clean
