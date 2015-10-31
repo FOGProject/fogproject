@@ -158,7 +158,8 @@ class FOGCore extends FOGBase {
         $_SESSION['PrinterCount'] = $this->getClass('PrinterManager')->count();
         $_SESSION['FOGPingActive'] = $this->getSetting('FOG_HOST_LOOKUP');
         $_SESSION['memory'] = $this->getSetting('FOG_MEMORY_LIMIT');
-        ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
+        $memorySet = preg_replace('#M#','',ini_get('memory_limit'));
+        if (intval($memorySet) < $_SESSION['memory']) ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
         $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $this->getSetting('FOG_FORMAT_FLAG_IN_GUI');
         $_SESSION['FOG_SNAPINDIR'] = $this->getSetting('FOG_SNAPINDIR');
         $_SESSION['FOG_REPORT_DIR'] = $this->getSetting('FOG_REPORT_DIR');
