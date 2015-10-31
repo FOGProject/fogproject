@@ -424,6 +424,7 @@ class HostManagementPage extends FOGPage {
         $Printers = $this->getClass('PrinterManager')->find(array('id'=>$this->obj->get('printers')));
         foreach ((array)$Printers AS $i => &$Printer) {
             if (!$Printer->isValid()) continue;
+            $id = $Printer->get('id');
             $this->data[] = array(
                 'printer_id'=>$id,
                 'is_default'=>($this->obj->getDefault($id) ? 'checked' : ''),
