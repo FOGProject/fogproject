@@ -8,15 +8,22 @@ class FOGCore extends FOGBase {
     }
     public function addUpdateMACLookupTable($macprefix) {
         $this->clearMACLookupTable();
-        foreach($macprefix AS $macpre => &$maker) $macArray[] = "('".$this->DB->sanitize($macpre)."','".$this->DB->sanitize($maker)."')";
-        unset($maker);
-        $sql = "INSERT INTO `oui` (`ouiMACPrefix`,`ouiMan`) VALUES ".implode((array)$macArray,',');
-        return $this->DB->query($sql);
+        $macfields = '';
+        foreach($macprefix AS $macpre => &$maker) {
+            $macfields .= "('".$this->DB->sanitize($macpre)."','".$this->DB->sanitize($maker)."'),";
+            unset($maker);
+        }
+        $macfields = rtrim($macfields,',');
+        $OUITable = $this->getClass('OUI','',true);
+        $OUITable = $OUITable['databaseTable'];
+        $this->DB->query("INSERT INTO `$OUITable` (`ouiMACPrefix`,`ouiMan`) VALUES $macfields");
+        return $this->DB->fetch()->get();
     }
     public function clearMACLookupTable() {
-        $OUITable = $this->getClass('ReflectionClass','OUI')->getDefaultProperties();
+        $OUITable = $this->getClass('OUI','',true);
         $OUITable = $OUITable['databaseTable'];
-        return !$this->DB->query("TRUNCATE TABLE $OUITable");
+        $this->DB->query("TRUNCATE TABLE `$OUITable`");
+        return $this->DB->fetch()->get();
     }
     public function getMACLookupCount() {
         return $this->getClass(OUIManager)->count();

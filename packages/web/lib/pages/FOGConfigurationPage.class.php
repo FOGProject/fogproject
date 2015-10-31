@@ -30,14 +30,14 @@ class FOGConfigurationPage extends FOGPage {
         echo '<p>'._('Version: ').FOG_VERSION.'</p>';
         $URLs[] = 'https://fogproject.org/version/index.php?version='.FOG_VERSION;
         $Nodes = $this->getClass('StorageNodeManager')->find(array('isEnabled'=>1));
-        foreach($Nodes AS $i => &$StorageNode) {
+        foreach ((array)$Nodes AS $i => &$StorageNode) {
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
             $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
-            $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
+            $URLs[$i] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
             unset($StorageNode);
         }
         $Responses = $this->FOGURLRequests->process($URLs,'GET');
-        foreach($Responses AS $i => &$data) {
+        foreach ((array)$Responses AS $i => &$data) {
             if ($i === 0) {
                 echo '<p><div class="sub">'.$Responses[$i].'</div></p>';
                 echo '<h1>Kernel Versions</h1>';
@@ -139,8 +139,9 @@ class FOGConfigurationPage extends FOGPage {
                 'field'=>$field,
                 'input'=>$input,
             );
+            unset($input);
         }
-        unset($input);
+        unset($fields);
         $this->HookManager->processEvent('PXE_BOOT_MENU',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
@@ -180,7 +181,7 @@ class FOGConfigurationPage extends FOGPage {
             '${input}',
         );
         $Menus = $this->getClass('PXEMenuOptionsManager')->find('','','id');
-        foreach ($Menus AS $i => &$Menu) {
+        foreach ((array)$Menus AS $i => &$Menu) {
             if (!$Menu->isValid()) continue;
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/\./','_',preg_replace('/:/','_',$Menu->get('name'))));
             echo '<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get('name').'</h3></a>';
@@ -198,19 +199,20 @@ class FOGConfigurationPage extends FOGPage {
                 '<input type="hidden" name="menu_id" value="'.$Menu->get('id').'" />' => '<input type="submit" name="saveform" value="'.$this->foglang['Submit'].'" />',
                 !$menuid ? '<input type="hidden" name="rmid" value="'.$Menu->get('id').'" />' : '' => !$menuid ? '<input type="submit" name="delform" value="'.$this->foglang['Delete'].' '.$Menu->get('name').'"/>' : '',
             );
-            foreach($fields AS $field => &$input) {
+            foreach ((array)$fields AS $field => &$input) {
                 $this->data[] = array(
                     'field'=>$field,
                     'input'=>$input,
                 );
+                unset($input);
             }
-            unset($input);
+            unset($fields);
             $this->HookManager->processEvent('BOOT_ITEMS_'.$divTab,array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
             $this->render();
             echo '</form></div>';
-            unset($this->data);
+            unset($this->data,$Menu);
         }
-        unset($Menu);
+        unset($Menus);
         echo '</div>';
     }
     public function customize_edit_post() {
@@ -250,13 +252,14 @@ class FOGConfigurationPage extends FOGPage {
             _('Menu Show with:') => $this->getClass('PXEMenuOptionsManager')->regSelect($_REQUEST['menu_regmenu']),
             '&nbsp;' => '<input type="submit" value="'._($this->foglang['Add'].' New Menu').'" />',
         );
-        foreach($fields AS $field => &$input) {
+        foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
             );
+            unset($input);
         }
-        unset($input);
+        unset($fields);
         $this->HookManager->processEvent('BOOT_ITEMS_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
         $this->render();
         echo "</form>";
@@ -307,7 +310,7 @@ class FOGConfigurationPage extends FOGPage {
         );
         echo '<div class="hostgroup">'._('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.').'</div>';
         $ClientUpdates = $this->getClass('ClientUpdaterManager')->find();
-        foreach ($ClientUpdates AS $i => &$ClientUpdate) {
+        foreach ((array)$ClientUpdates AS $i => &$ClientUpdate) {
             $this->data[] = array(
                 'name'=>$ClientUpdate->get('name'),
                 'module'=>$ClientUpdate->get('md5'),
@@ -315,8 +318,9 @@ class FOGConfigurationPage extends FOGPage {
                 'client_id'=>$ClientUpdate->get('id'),
                 'id'=>$ClientUpdate->get('id'),
             );
+            unset($ClientUpdate);
         }
-        unset($ClientUpdate);
+        unset($ClientUpdates);
         $this->HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         echo '<form method="post" action="'.$this->formAction.'&tab=clientupdater">';
         $this->render();
@@ -339,8 +343,9 @@ class FOGConfigurationPage extends FOGPage {
                 'field' => $field,
                 'input' => $input,
             );
+            unset($input);
         }
-        unset($input);
+        unset($fields);
         $this->HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         echo '<form method="post" action="'.$this->formAction.'&tab=clientupdater" enctype="multipart/form-data"><input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED"/>';
         $this->render();
@@ -352,23 +357,20 @@ class FOGConfigurationPage extends FOGPage {
             $this->setMessage(_('Client module update deleted!'));
         }
         if ($_FILES['module']) {
-            foreach((array)$_FILES['module']['tmp_name'] AS $index => &$tmp_name) {
-                if (file_exists($tmp_name)) {
-                    if (file_get_contents($tmp_name)) {
-                        $md5 = md5(file_get_contents($tmp_name));
-                        $filename = basename($_FILES['module']['name'][$index]);
-                        $ClientUpdater = $this->getClass('ClientUpdater',@max($this->getClass('ClientUpdater',array('name'=>$filename))));
-                        if (!$ClientUpdater->isValid() || $ClientUpdater->get('md5') != $md5) $ClientUpdater = $this->getClass('ClientUpdater');
-                        $ClientUpdater->set('name',$filename)
-                            ->set('md5',$md5)
-                            ->set('type',$this->FOGCore->endsWith($filename,'.ini')?'txt':'bin')
-                            ->set('file',file_get_contents($tmp_name));
-                        if ($ClientUpdater->save()) $this->setMessage(_('Modules Added/Updated'));
-                    }
-                }
+            foreach ((array)$_FILES['module']['tmp_name'] AS $index => &$tmp_name) {
+                if (!file_exists($tmp_name)) continue;
+                if (!($md5 = md5(file_get_contents($tmp_name)))) continue;
+                $filename = basename($_FILES['module']['name'][$index]);
+                $this->getClass('ClientUpdater',@max($this->getClass('ClientUpdater',array('name'=>$filename),'id')))
+                    ->set('name',$filename)
+                    ->set('md5',$md5)
+                    ->set('type',$this->endsWith($filename,'.ini') ? 'txt' : 'bin')
+                    ->set('file',file_get_contents($tmp_name))
+                    ->save();
+                unset($tmp_name);
             }
-            unset($tmp_name);
         }
+        $this->setMessage(_('Modules added/updated'));
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
     }
     public function mac_list() {
@@ -377,7 +379,7 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function mac_list_post() {
         if ($_REQUEST['update']) {
-            $f = "/tmp/oui.txt";
+            $f = '/tmp/oui.txt';
             exec("rm -rf $f");
             exec("wget -O $f  http://standards.ieee.org/develop/regauth/oui/oui.txt");
             if (false !== ($handle = fopen($f,'rb'))) {
@@ -400,7 +402,7 @@ class FOGConfigurationPage extends FOGPage {
                 $this->FOGCore->addUpdateMACLookupTable($macsandmakers);
                 $this->setMessage($imported._(' mac addresses updated!'));
             } else echo (_('Unable to locate file').': '.$f);
-        } else if ($_REQUEST[clear]) $this->FOGCore->clearMACLookupTable();
+        } else if ($_REQUEST['clear']) $this->FOGCore->clearMACLookupTable();
         $this->resetRequest();
         $this->redirect('?node=about&sub=mac-list');
     }
@@ -617,6 +619,7 @@ class FOGConfigurationPage extends FOGPage {
         foreach($StorageGroups AS $i => &$StorageGroup) {
             if (!$StorageGroup->getMasterStorageNode()->isValid()) continue;
             $StorageNode = $StorageGroup->getMasterStorageNode();
+            if (!$StorageNode->isValid()) continue;
             $user = $StorageNode->get('user');
             $pass = $StorageNode->get('pass');
             $host = $StorageNode->get('ip');
@@ -656,10 +659,11 @@ class FOGConfigurationPage extends FOGPage {
                 $apacheacclog ? _('Apache Access Log') : null  => $apacheacclog ? $apacheacclog : null,
             );
             $files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
+            unset($StorageGroup);
         }
-        unset($StorageGroup);
+        unset($StorageGroups);
         $this->HookManager->processEvent('LOG_VIEWER_HOOK',array('files'=>&$files,'ftpstart'=>&$ftpstarter));
-        foreach((array)$files AS $nodename => &$filearray) {
+        foreach ((array)$files AS $nodename => &$filearray) {
             $first = true;
             foreach((array)$filearray AS $value => &$file) {
                 if ($first) {
@@ -667,16 +671,20 @@ class FOGConfigurationPage extends FOGPage {
                     $first = false;
                 }
                 $options3[] = '<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$file.'">'.$value.'</option>';
+                unset($file);
             }
-            unset($file);
+            unset($filearray);
         }
-        unset($filearray);
+        unset($files);
         $this->title = _('FOG Log Viewer');
         echo '<p><form method="post" action="'.$this->formAction.'"><p>'._('File:');
         echo '<select name="logtype" id="logToView">'.implode((array)$options3).'</select>'._('Number of lines:');
         $vals = array(20,50,100,200,400,500,1000);
-        foreach ($vals AS $i => &$value) $options4[] = '<option '.($value == $_REQUEST[n] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
-        unset($value);
+        foreach ((array)$vals AS $i => &$value) {
+            $options4[] = '<option '.($value == $_REQUEST['n'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
+            unset($value);
+        }
+        unset($vals);
         echo '<select name="n" id="linesToView">'.implode((array)$options4).'</select><center><input type="button" id="logpause" /></center></p></form><div id="logsGoHere">&nbsp;</div></p>';
     }
     public function config() {
@@ -717,24 +725,20 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function config_post() {
         $this->HookManager->processEvent('IMPORT_POST');
+        $Schema = $this->getClass('Schema');
         try {
-            if($_FILES['dbFile'] != null) {
-                $dbFileName = BASEPATH.'/management/other/'.basename($_FILES['dbFile']['name']);
-                if(!move_uploaded_file($_FILES[dbFile][tmp_name],$dbFileName)) throw new Exception('Could not upload file!');
-                echo '<h2>'._('File Import successful!').'</h2>';
-                $password = (DATABASE_PASSWORD ? ' -p"'.DATABASE_PASSWORD.'"' : '');
-                $command = 'mysql -u ' . DATABASE_USERNAME . $password .' -h '.preg_replace('#p:#','',DATABASE_HOST).' '.DATABASE_NAME.' < "'.$dbFileName.'"';
-                $output = array();
-                exec($command,$output,$worked);
-                switch ($worked) {
-                case 0:
-                    echo '<h2>'._('Database Added!').'</h2>';
-                    exec('rm -rf "'.$dbFileName.'" > /dev/null 2>/dev/null &');
-                    break;
-                case 1:
-                    echo "<h2>"._('Database import failed!').'</h2>';
-                    break;
-                }
+            if (!$_FILES['dbFile']) throw new Exception(_('No files uploaded'));
+            $original = $Schema->export_db();
+            $result = $this->getClass('Schema')->import_db($_FILES['dbFile']['tmp_name']);
+            if ($result === true) echo '<h2>'._('Database Imported and added successfully').'</h2>';
+            else {
+                echo '<h2>'._('Errors detected on import').'</h2>';
+                $origres = $result;
+                $result = $Schema->import_db($original);
+                unset($original);
+                if ($result === true) echo '<h2>'._('Database changes reverted').'</h2>';
+                else _('Errors on revert detected')."<br/><br/><code><pre>$result</pre></code>";
+                echo '<h2>'._('There were errors during import')."</h2><code><pre>$origres</pre></code>";
             }
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
