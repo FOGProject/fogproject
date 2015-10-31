@@ -436,6 +436,9 @@ while [ "$blGo" = "" ]; do
             configureHttpd;
             dots "Backing up database"
             if [ -d "$backupPath/fog_web_${version}.BACKUP" ]; then
+                if [ ! -d "$backupPath/fogDBbackups" ]; then
+                    mkdir -p $backupPath/fogDBbackups >/dev/null 2>&1
+                fi
                 wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php?type=sql" >/dev/null 2>&1
             fi
             errorStat $?
