@@ -24,7 +24,10 @@ class MySQL extends DatabaseManager {
         try {
             if (!$this->link) {
                 $this->link = $this->getClass('mysqli',DATABASE_HOST,DATABASE_USERNAME, DATABASE_PASSWORD);
-                if ($this->link->connect_error) die(_('Could not connect to the MySQL Server'));
+                if ($this->link->connect_error) {
+                    usleep(5000000);
+                    die(_('Could not connect to the MySQL Server'));
+                }
             }
             $this->current_db();
             $this->link->set_charset('utf8');
@@ -46,8 +49,8 @@ class MySQL extends DatabaseManager {
             $this->query = $sql;
             $this->current_db();
             if (!$this->query) throw new Exception(_('No query sent'));
-            if (!$this->db_name) throw new Exception(_('No database to work off'));
-            if (!$this->queryResult = $this->link->query($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
+            else if (!$this->db_name) throw new Exception(_('No database to work off'));
+            else if (!$this->queryResult = $this->link->query($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
