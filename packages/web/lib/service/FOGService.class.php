@@ -19,21 +19,22 @@ abstract class FOGService extends FOGBase {
     }
     protected function checkIfNodeMaster() {
 		$this->getIPAddress();
-        $StorageNodes = $this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'isEnabled'=>1),'id');
-		foreach ($StorageNodes AS $i => &$StorageNode) {
-			if ($this->getClass('StorageNode',$StorageNode)->isValid() && in_array($this->FOGCore->resolveHostname($this->getClass('StorageNode',$StorageNode)->get('ip')),$this->ips)) return $this->getClass('StorageNode',$StorageNode);
+        $StorageNodes = $this->getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1));
+        foreach ($StorageNodes AS $i => &$StorageNode) {
+            if (!$StorageNode->isValid()) continue;
+            if (!in_array($this->FOGCore->resolveHostname($StorageNode->get('ip')),$this->ips)) continue;
+            return $StorageNode;
 		}
         throw new Exception(' | '._('This is not the master node'));
     }
     public function wait_interface_ready() {
-        $ipaddresses = $this->getIPAddress();
-        $ipcount = count($ipaddresses);
-        if (!$ipcount) {
+        $this->getIPAddress();
+        if (!count($this->ips)) {
             $this->out('Interface not ready, waiting.',$this->dev);
             sleep(10);
             $this->wait_interface_ready();
         }
-        foreach ($ipaddresses AS $i => &$ip) $this->out("Interface Ready with IP Address: $ip",$this->dev);
+        foreach ($this->ips AS $i => &$ip) $this->out("Interface Ready with IP Address: $ip",$this->dev);
         unset($ip);
     }
     public function wait_db_ready() {
@@ -72,7 +73,7 @@ abstract class FOGService extends FOGBase {
     protected function out($string,$device) {
         $strOut = $string."\n";
         if (!$hdl = fopen($device,'w')) return;
-        if (fwrite($hdl,$strOut) === FALSE) return;
+        if (fwrite($hdl,$strOut) === false) return;
         fclose($hdl);
     }
     protected function getDateTime() {
@@ -101,22 +102,16 @@ abstract class FOGService extends FOGBase {
      * auto sets to false
      */
     protected function replicate_items($myStorageGroupID,$myStorageNodeID,$Obj,$master = false) {
-        // Ensure clean variables
         unset($username,$password,$ip,$remItem,$myItem,$limitmain,$limitsend,$limit,$includeFile);
         $message = $onlyone = false;
         $itemType = $master ? 'group' : 'node';
-        // Define the way to search for items
         $findWhere['isEnabled'] = 1;
         $findWhere['isMaster'] = (int)$master;
         $findWhere['storageGroupID'] = $master ? $Obj->get('storageGroups') : $myStorageGroupID;
-        // Storage Node
         $StorageNode = $this->getClass('StorageNode',$myStorageNodeID);
         if (!($StorageNode->isValid() && $StorageNode->get('isMaster'))) throw new Exception(_('I am not the master'));
-        // Get the Object Type
         $objType = get_class($Obj);
-        // Get count of items to transfer to
         $groupOrNodeCount = $this->getClass('StorageNodeManager')->count($findWhere);
-        // No need to try doing anything as nothing exists for it to do
         if ((!$master && $groupOrNodeCount <= 0) || ($master && $groupOrNodeCount <= 1)) {
             $this->outall(_(" * Not syncing $objType between $itemType(s)"));
             $this->outall(_(" | $objType Name: ".$Obj->get('name')));
@@ -126,13 +121,9 @@ abstract class FOGService extends FOGBase {
         if (!$onlyone) {
             $this->outall(sprintf(" * Found $objType to transfer to %s %s(s)",$groupOrNodeCount,$itemType));
             $this->outall(sprintf(" | $objType name: %s",$Obj->get('name')));
-            // Get the path based off the object
             $getPathOfItemField = $objType == 'Snapin' ? 'snapinpath' : 'ftppath';
-            // Get the file itself
             $getFileOfItemField = $objType == 'Snapin' ? 'file' : 'path';
-            // Get all the potential nodes of this group
             $PotentialStorageNodes = array_diff((array)$this->getSubObjectIDs('StorageNode',$findWhere,'id'),(array)$myStorageNodeID);
-            // Group to group is item specific
             foreach ($PotentialStorageNodes AS $i => &$PotentialStorageNode) {
                 $StorageNodeToSend = $this->getClass('StorageNode',$PotentialStorageNode);
                 if (($master && $StorageNodeToSend->get('storageGroupID') != $myStorageGroupID) || !$master) {
@@ -140,7 +131,6 @@ abstract class FOGService extends FOGBase {
                         ->set('username',$StorageNodeToSend->get('user'))
                         ->set('password',$StorageNodeToSend->get('pass'))
                         ->set('host',$StorageNodeToSend->get('ip'));
-                    // Test if we can even talk with the remote end
                     if (!$this->FOGFTP->connect()) {
                         $this->outall(_(' * Cannot connect to '.$StorageNodeToSend->get('name')));
                         break;
