@@ -8,34 +8,26 @@ class PingHosts extends FOGService {
             if (!$this->getSetting('FOG_HOST_LOOKUP')) throw new Exception(_('Host Ping is not enabled'));
             $webServerIP = $this->FOGCore->resolveHostName($this->getSetting('FOG_WEB_HOST'));
             $this->outall(sprintf(' * FOG Web Host IP: %s',$webServerIP));
-            $serverIPs = $this->getIPAddress();
-            foreach ((array)$serverIPs AS $i => &$ip) {
+            $this->getIPAddress();
+            foreach ((array)$this->ips AS $i => &$ip) {
                 if (!$i) $this->outall(" * This server's IP Addresses");
                 $this->outall(" |\t$ip");
+                unset($ip);
             }
-            if (!in_array($this->FOGCore->resolveHostname($this->getSetting('FOG_WEB_HOST')),$this->getIPAddress())) throw new Exception(_('I am not the fog web server'));
+            if (!in_array($webServerIP,$this->ips)) throw new Exception(_('I am not the fog web server'));
             $this->outall(' * Attempting to ping '.$this->getClass('HostManager')->count().' host(s).');
-            $Hosts = $this->getClass('HostManager')->getSubObjectIDs('','','id');
+            $Hosts = $this->getClass('HostManager')->find();
             foreach ($Hosts AS $i => &$Host) {
-                // Ensures the hostIP regardless of how it is entered,
-                // to remove any beginning/ending white space
-                $hostIP = trim($this->getClass('Host',$Host)->get('ip'));
-                // Test IP Value and if valid, use it as the pinging source
-                if (filter_var($hostIP,FILTER_VALIDATE_IP)) $ip = $hostIP;
-                // Otherwise attempt to get the hostname resolved.
-                else $ip = $this->FOGCore->resolveHostname($this->getClass('Host',$Host)->get('name'));
-                // If the host still isn't found, set value to -1
-                // Allows us to clarify what is up.
-                if (!filter_var($ip,FILTER_VALIDATE_IP)) {
-                    $this->getClass('Host',$Host)->set('pingstatus',-1)->save();
-                    continue;
-                }
-                // If all above makes it here, perform the ping
-                $this->getClass('Host',$Host)->set('pingstatus',(int)$this->getClass('Ping',$ip)->execute())->save();
-                // Give CPU a little breather between pings
+                if (!$Host->isValid()) continue;
+                $Host->set('pingstatus',-1);
+                $hostIP = trim($Host->get('ip'));
+                if (!filter_var($hostIP,FILTER_VALIDATE_IP)) $hostIP = $this->FOGCore->resolveHostname($Host->get('name'));
+                if (filter_var($ip,FILTER_VALIDATE_IP)) $Host->set('pingstatus',(int)$this->getClass('Ping',$hostIP)->execute());
+                $Host->save();
                 usleep(100000);
+                unset($Host);
             }
-            unset($Host);
+            unset($Hosts);
             $this->outall(' * All status\' have been updated');
         } catch (Exception $e) {
             $this->outall($e->getMessage());

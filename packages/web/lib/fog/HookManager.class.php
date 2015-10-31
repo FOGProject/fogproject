@@ -92,6 +92,7 @@ class HookManager extends EventManager {
                 while (($line = fgets($handle,4096)) !== false && !$linefound) $linefound = (strpos($line,'$active') !== false) ? $line : false;
                 if (strpos($linefound,'true')) $this->getClass($className);
             }
+            unset($iterator);
         }
         unset($path);
         parent::load();

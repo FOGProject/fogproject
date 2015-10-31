@@ -26,14 +26,14 @@ class MulticastTask extends MulticastManager {
                     $Image->get('osID')
                 );
             }
+            unset($MultiSess);
         }
-        unset($MultiSess);
+        unset($MulticastSessions);
         return array_filter($Tasks);
     }
     private $intID, $strName, $intPort, $strImage, $strEth, $intClients;
     private $intImageType, $intOSID;
     private $procRef, $arPipes;
-    private $deathTime;
     public function __construct($id,$name,$port,$image,$eth,$clients,$imagetype,$osid) {
         parent::__construct();
         $this->intID = $id;
@@ -43,9 +43,7 @@ class MulticastTask extends MulticastManager {
         $this->strEth = $eth;
         $this->intClients = $clients;
         $this->intImageType = $imagetype;
-        $this->deathTime = null;
         $this->intOSID = $osid;
-        $this->dubPercent = null;
     }
     public function getID() {
         return $this->intID;
@@ -93,56 +91,91 @@ class MulticastTask extends MulticastManager {
             ' --nopointopoint;',
         );
         $buildcmd = array_values(array_filter($buildcmd));
-        if ($this->getImageType() == 4) {
-            if (is_dir($this->getImagePath())) {
-                if($handle = opendir($this->getImagePath())) {
-                    while (false !== ($file = readdir($handle))) {
-                        if ($file != '.' && $file != '..') $filelist[] = $file;
+        switch ((int)$this->getImageType()) {
+        case 1:
+            switch ((int)$this->getOSID()) {
+            case 1:
+            case 2:
+                if (is_file($this->getImagePath())) $filelist[] = $this->getImagePath();
+                else {
+                    $iterator = $this->getClass('DirectoryIterator',$this->getImagePath());
+                    foreach ($iterator AS $i => $fileInfo) {
+                        if ($fileInfo->isDot()) continue;
+                        $filelist[] = $fileInfo->getFilename();
                     }
-                    closedir($handle);
+                    unset($iterator);
                 }
-            }
-        } else if ($this->getImageType() == 1 && in_array($this->getOSID(),array(1,2))) {
-            if (is_dir($this->getImagePath())) {
-                if ($handle = opendir($this->getImagePath())) {
-                    while (false !== ($file = readdir($handle))) {
-                        if ($file != '.' && $file != '..') $filelist[] = $file;
+                break;
+            case 5:
+            case 6:
+            case 7:
+                $files = scandir($this->getImagePath());
+                $sys = preg_grep('#(sys\.img\..*$)#i',$files);
+                $rec = preg_grep('#(rec\.img\..*$)#i',$files);
+                if (count($sys) || count($rec)) {
+                    if (count($sys)) $filelist[] = 'sys.img.*';
+                    if (count($rec)) $filelist[] = 'rec.img.*';
+                } else {
+                    $filename = 'd1p%d.%s';
+                    $iterator = $this->getClass('DirectoryIterator',$this->getImagePath());
+                    foreach ($iterator AS $i => $fileInfo) {
+                        if ($fileInfo->isDot()) continue;
+                        sscanf($fileInfo->getFilename(),$filename,$part,$ext);
+                        if ($ext == 'img') $filelist[] = $fileInfo->getFilename();
+                        unset($part,$ext);
                     }
-                    closedir($handle);
                 }
-            } else if (is_file($this->getImagePath())) $filelist[] = $this->getImagePath();
-        } else {
-            $device = 1;
-            $part = 0;
-            if (in_array($this->getImageType(),array(1,2))) $filename = 'd1p%d.%s';
-            if ($this->getImageType() == 3) $filename = 'd%dp%d.%s';
-            if (is_dir($this->getImagePath())) {
-                if ($handle = opendir($this->getImagePath())) {
-                    while (false !== ($file = readdir($handle))) {
-                        if ($file != '.' && $file != '..') {
-                            $ext = '';
-                            if ($this->getImageType() == 3) sscanf($file,$filename,$device,$part,$ext);
-                            else sscanf($file,$filename,$part,$ext);
-                            if ($ext == 'img') $filelist[] = $file;
-                        }
-                    }
-                    closedir($handle);
+                unset($files,$sys,$rec);
+                break;
+            default:
+                $filename = 'd1p%d.%s';
+                $iterator = $this->getClass('DirectoryIterator',$this->getImagePath());
+                foreach ($iterator AS $i => $fileInfo) {
+                    if ($fileInfo->isDot()) continue;
+                    sscanf($fileInfo->getFilename(),$filename,$part,$ext);
+                    if ($ext == 'img') $filelist[] = $fileInfo->getFilename();
+                    unset($part,$ext);
                 }
+                break;
             }
-        }
-        if (in_array($this->getOSID(),array(5,6,7)) && $this->getImageType() == 1) {
-            if (is_dir($this->getImagePath())) {
-                if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000') || file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000')) {
-                    unset($filelist);
-                    if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000')) $filelist[] = 'rec.img.*';
-                    if (file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000')) $filelist[] = 'sys.img.*';
-                }
+            break;
+        case 2:
+            $filename = 'd1p%d.%s';
+            $iterator = $this->getClass('DirectoryIterator',$this->getImagePath());
+            foreach ($iterator AS $i => $fileInfo) {
+                if ($fileInfo->isDot()) continue;
+                sscanf($fileInfo->getFilename(),$filename,$part,$ext);
+                if ($ext == 'img') $filelist[] = $fileInfo->getFilename();
+                unset($part,$ext);
             }
+            break;
+        case 3:
+            $filename = 'd%dp%d.%s';
+            $iterator = $this->getClass('DirectoryIterator',$this->getImagePath());
+            foreach ($iterator AS $i => $fileInfo) {
+                if ($fileInfo->isDot()) continue;
+                sscanf($fileInfo->getFilename(),$filename,$device,$part,$ext);
+                if ($ext == 'img') $filelist[] = $fileInfo->getFilename();
+                unset($device,$part,$ext);
+            }
+            break;
+        case 4:
+            $iterator = $this->getClass('DirectoryIterator',$this->getImagePath());
+            foreach ($iterator AS $i => $fileInfo) {
+                if ($fileInfo->isDot()) continue;
+                $filelist[] = $fileInfo->getFilename();
+            }
+            unset($iterator);
+            break;
         }
         natsort($filelist);
-        foreach ($filelist AS $i => &$file) $cmd[] = sprintf('cat %s | %s',rtrim($this->getImagePath(),'/').'/'.$file,implode($buildcmd));
+        $cmd = '';
+        foreach ($filelist AS $i => &$file) {
+            $cmd .= sprintf('cat %s | %s',rtrim($this->getImagePath(),DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file,implode($buildcmd));
+            unset($file);
+        }
         unset($filelist);
-        return implode($cmd);
+        return $cmd;
     }
     public function startTask() {
         @unlink($this->getUDPCastLogFile());
@@ -154,9 +187,6 @@ class MulticastTask extends MulticastManager {
             ->save();
         return $this->isRunning();
     }
-    public function flagAsDead() {
-        if($this->deathTime == null) $this->deathTime = time();
-    }
     private static function killAll($pid,$sig) {
         exec("ps -ef|awk '\$3 == '$pid' {print \$2}'",$output,$ret);
         if ($ret) return false;
@@ -166,8 +196,10 @@ class MulticastTask extends MulticastManager {
         @posix_kill($pid,$sig);
     }
     public function killTask() {
-        foreach($this->arPipes AS $i => &$closeme) @fclose($closeme);
-        unset($closeme);
+        foreach($this->arPipes AS $i => &$closeme) {
+            @fclose($closeme);
+            unset($closeme);
+        }
         $running = 4;
         if ($this->isRunning()) {
             $running = 5;
@@ -178,13 +210,15 @@ class MulticastTask extends MulticastManager {
         @proc_close($this->procRef);
         $this->procRef=null;
         @unlink($this->getUDPCastLogFile());
-        $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$RMTask->getID()),'taskID');
-        foreach((array)$taskIDs AS $i => &$taskID) {
-            $this->getClass('Task',$taskID)
+        $Tasks = $this->getClass('TaskManager')->find(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$RMTask->getID()),'taskID')));
+        foreach((array)$Tasks AS $i => &$Task) {
+            if (!$Task->isValid()) continue;
+            $Task
                 ->set('stateID',$running)
                 ->save();
+            unset($Task);
         }
-        unset($taskID);
+        unset($Tasks);
         $this->getClass('MulticastSessions',$this->intID)
             ->set('name',null)
             ->set('stateID',$running)
@@ -192,9 +226,12 @@ class MulticastTask extends MulticastManager {
         return true;
     }
     public function updateStats() {
-        $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->intID),'taskID');
-        foreach($taskIDs AS $i => &$taskID) $TaskPercent[] = $this->getClass('Task',$taskID)->get('percent');
-        unset($taskID);
+        $Tasks = $this->getClass('TaskManager')->find(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->intID),'taskID')));
+        foreach($Tasks AS $i => &$Task) {
+            $TaskPercent[] = $Task->get('percent');
+            unset($Task);
+        }
+        unset($Tasks);
         $TaskPercent = array_unique((array)$TaskPercent);
         $this->getClass('MulticastSessions',$this->intID)->set('percent',@max((array)$TaskPercent))->save();
     }

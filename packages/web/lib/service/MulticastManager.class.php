@@ -43,7 +43,7 @@ class MulticastManager extends FOGService {
                 $taskCount = MulticastTask::getSession('count');
                 if ($oldCount != $taskCount) $allTasks = MulticastTask::getAllMulticastTasks($myroot);
                 $RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
-                $this->outall(sprintf(' | %s task%s found',$taskCount,($taskCount > 1 || !$taskCount ? 's' : '')));
+                if ($taskCount > 0) $this->outall(sprintf(' | %s task%s found',$taskCount,($taskCount > 1 || !$taskCount ? 's' : '')));
                 if (!count($RMTasks) && (!$taskCount || $taskCount < 0)) throw new Exception(' * No tasks found!');
                 $jobcancelled = false;
                 if (count($RMTasks)) $this->outall(sprintf(" | Cleaning %s task(s) removed from FOG Database.",count($RMTasks)));
@@ -110,19 +110,14 @@ class MulticastManager extends FOGService {
             } catch(Exception $e) {
                 $this->outall($e->getMessage());
             }
-            $this->outall(sprintf(" +---------------------------------------------------------"));
+            $this->out(' +---------------------------------------------------------',$this->dev);
             sleep(MULTICASTSLEEPTIME);
             $oldCount = $taskCount;
         }
     }
     public function serviceRun() {
-        $this->out(sprintf(' '),$this->dev);
-        $this->out(sprintf(' +---------------------------------------------------------'),$this->dev);
+        $this->out(' ',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
         $this->serviceLoop();
     }
 }
-/* Local Variables: */
-/* indent-tabs-mode: t */
-/* c-basic-offset: 4 */
-/* tab-width: 4 */
-/* End: */
