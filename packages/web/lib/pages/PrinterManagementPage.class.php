@@ -14,7 +14,7 @@ class PrinterManagementPage extends FOGPage {
                 $this->delformat => $this->foglang['Delete'],
             );
             $this->notes = array(
-                $this->foglang['Printer'] => $this->obj->get('name'),
+                $this->foglang['Printer'] => stripslashes($this->obj->get('name')),
                 $this->foglang['Type'] => $this->config,
             );
         }
@@ -66,11 +66,11 @@ class PrinterManagementPage extends FOGPage {
             $this->config = stripos($Printer->get('config'),'local') !== false ? _('TCP/IP') : $Printer->get('config');
             $this->data[] = array(
                 'id'=>$Printer->get('id'),
-                'name'=>$this->DB->sanitize($Printer->get('name')),
+                'name'=>$Printer->get('name'),
                 'config'=>$this->config,
                 'model'=>$Printer->get('model'),
                 'port'=>$Printer->get('port'),
-                'file'=>$this->DB->sanitize($Printer->get('file')),
+                'file'=>$Printer->get('file'),
                 'ip'=>$Printer->get('ip'),
                 'desc'=>$Printer->get('description'),
             );
@@ -90,11 +90,11 @@ class PrinterManagementPage extends FOGPage {
             $this->config = stripos($Printer->get('config'),'local') !== false ? _('TCP/IP') : $Printer->get('config');
             $this->data[] = array(
                 'id'=>$Printer->get('id'),
-                'name'=>$this->DB->sanitize($Printer->get('name')),
+                'name'=>$Printer->get('name'),
                 'config'=>$this->config,
                 'model'=>$Printer->get('model'),
                 'port'=>$Printer->get('port'),
-                'file'=>$this->DB->sanitize($Printer->get('file')),
+                'file'=>$Printer->get('file'),
                 'ip'=>$Printer->get('ip'),
                 'desc'=>$Printer->get('description'),
             );
@@ -133,8 +133,8 @@ class PrinterManagementPage extends FOGPage {
             _('Printer Alias').'*' => '<input type="text" name="alias" value="${printer_name}"/>',
         );
         switch (strtolower($_REQUEST['printertype'])) {
-            case 'network';
-            $fields[addslashes('e.g. \\\\printerserver\\printername')] = '&nbsp;';
+        case 'network':
+            $fields[addslashes('e.g. \\\\printerserver\printername')] = '&nbsp;';
             break;
             case 'cups';
             $fields = array_merge($fields, array(_('Printer INF File').'*' => '<input type="text" name="inf" value="${printer_inf}" />',_('Printer IP').'*' => '<input type="text" name="ip" value="${printer_ip}" />'));
@@ -162,10 +162,10 @@ class PrinterManagementPage extends FOGPage {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
-                'printer_name'=>$this->DB->sanitize($_REQUEST['alias']),
+                'printer_name'=>$_REQUEST['alias'],
                 'printer_port'=>$_REQUEST['port'],
                 'printer_model'=>$_REQUEST['model'],
-                'printer_inf'=>$this->DB->sanitize($_REQUEST['inf']),
+                'printer_inf'=>$_REQUEST['inf'],
                 'printer_ip'=>$_REQUEST['ip'],
                 'desc'=>$_REQUEST['description'],
             );
@@ -204,10 +204,10 @@ class PrinterManagementPage extends FOGPage {
                 if ($this->getClass('PrinterManager')->exists($_REQUEST['alias'])) throw new Exception(_('Printer already exists'));
                 $Printer = $this->getClass('Printer')
                     ->set('description',$_REQUEST['description'])
-                    ->set('name',$this->DB->sanitize($_REQUEST['alias']))
+                    ->set('name',$_REQUEST['alias'])
                     ->set('config',$printertype)
                     ->set('model',$_REQUEST['model'])
-                    ->set('file',$this->DB->sanitize($_REQUEST['inf']))
+                    ->set('file',$_REQUEST['inf'])
                     ->set('port',$_REQUEST['port'])
                     ->set('ip',$_REQUEST['ip']);
                 if (!$Printer->save()) throw new Exception(_('Could not create printer'));
@@ -222,7 +222,7 @@ class PrinterManagementPage extends FOGPage {
         }
     }
     public function edit() {
-        $this->title = sprintf('%s: %s', 'Edit', $this->obj->get('name'));
+        $this->title = sprintf('%s: %s', _('Edit'), stripslashes($this->obj->get('name')));
         echo '<div id="tab-container">';
         unset($this->headerData);
         $this->attributes = array(
@@ -249,7 +249,7 @@ class PrinterManagementPage extends FOGPage {
             $fields = array(
                 _('Printer Description')=>'<textarea name="description" rows="8" cols="40">${desc}</textarea>',
                 _('Printer Alias').'*'=>'<input type="text" name="alias" value="${printer_name}" />',
-                'e.g. \\\\printerserver\\printername'=>'&nbsp;',
+                addslashes('e.g. \\\\printerserver\printername')=>'&nbsp;',
             );
             break;
             case 'cups';
@@ -278,22 +278,22 @@ class PrinterManagementPage extends FOGPage {
             );
             break;
         }
-        $fields['&nbsp;'] = '<input name="'.strtolower($_REQUEST['printertype']).'" type="submit" value="'._('Update Printer').'" />';
+        $fields['&nbsp;'] = '<input class="c" name="'.strtolower($_REQUEST['printertype']).'" type="submit" value="'._('Update Printer').'" />';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
-                'printer_name'=>$this->DB->sanitize($this->obj->get('name')),
+                'printer_name'=>$this->obj->get('name'),
                 'printer_port'=>$this->obj->get('port'),
                 'printer_model'=>$this->obj->get('model'),
-                'printer_inf'=>$this->DB->sanitize($this->obj->get('file')),
+                'printer_inf'=>$this->obj->get('file'),
                 'printer_ip'=>$this->obj->get('ip'),
                 'desc'=>$this->obj->get('description'),
             );
         }
         unset($input);
         $this->HookManager->processEvent('PRINTER_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        echo '<form method="post" action="'.$this->formAction.'&tab=printer-type"><select name="printertype" onchange="this.form.submit()">'.$optionPrinter.'</select></form><form method="post" action="'.$this->formAction.'&tab=printer-gen">';
+        echo '<form method="post" action="'.$this->formAction.'&tab=printer-type"><center><select class="c" name="printertype" onchange="this.form.submit()">'.$optionPrinter.'</select></center><br/></form><form method="post" action="'.$this->formAction.'&tab=printer-gen">';
         $this->render();
         echo '</form></div></div>';
         unset($this->data);
@@ -317,7 +317,7 @@ class PrinterManagementPage extends FOGPage {
                 else if (isset($_REQUEST['iprint']) && (empty($_REQUEST['alias']) || empty($_REQUEST['port']))) throw new Exception(_('You must specify the alias and port. Unable to create!'));
                 else if (isset($_REQUEST['network']) && empty($_REQUEST['alias'])) throw new Exception(_('You must specify the alias. Unable to create!'));
                 else if (isset($_REQUEST['cups']) && (empty($_REQUEST['alias']) || empty($_REQUEST['inf']))) throw new Exception(_('You must specify the alias and inf!'));
-                if ($this->DB->sanitize($this->obj->get('name')) != $this->DB->sanitize($_REQUEST['alias']) && $this->obj->getManager()->exists($this->DB->sanitize($_REQUEST['alias']))) throw new Exception(_('Printer name already exists, please choose another'));
+                if ($this->obj->get('name') != $_REQUEST['alias'] && $this->obj->getManager()->exists($_REQUEST['alias'])) throw new Exception(_('Printer name already exists, please choose another'));
                 if (isset($_REQUEST['local'])) $printertype = "Local";
                 else if (isset($_REQUEST['network'])) $printertype = "Network";
                 else if (isset($_REQUEST['iprint'])) $printertype = "iPrint";

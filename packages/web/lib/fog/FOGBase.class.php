@@ -322,7 +322,9 @@ abstract class FOGBase {
     }
     protected function array_change_key(&$array, $old_key, $new_key) {
         if ($old_key == $new_key) return;
-        $array[$new_key] = $array[$old_key];
+        $headersList = headers_list();
+        if (preg_grep('#text/plain#',$headersList)) $array[$new_key] = $array[$old_key];
+        else $array[$new_key] = $this->DB->sanitize($array[$old_key]);
         unset($array[$old_key]);
         return;
     }

@@ -12,39 +12,41 @@ class Schema extends FOGController {
         $queryTables = $mysqli->query('SHOW TABLES');
         while ($row = $queryTables->fetch_row()) $target_tables[] = $row[0];
         if ($tables !== false) $target_tables = array_intersect($target_tables,$tables);
-        $content = '-- FOG MySQL Dump created '.$this->formatTime('','r')."\n\n";
+        ob_start();
+        ob_implicit_flush(false);
+        printf('-- FOG MySQL Dump created %s%s',$this->formatTime('','r'),"\n\n");
         if ($tables === false) {
-            $content .= 'DROP DATABASE IF EXISTS `'.DATABASE_NAME."`;\n\n";
-            $content .= 'CREATE DATABASE IF NOT EXISTS `'.DATABASE_NAME."`;\n\n";
+            printf('DROP DATABASE IF EXISTS `%s`;%s',DATABASE_NAME,"\n\n");
+            printf('CREATE DATABASE IF NOT EXISTS `%s`;%s',DATABASE_NAME,"\n\n");
         }
-        $content .= 'USE `'.DATABASE_NAME."`;\n\n";
+        printf('USE `%s`;%s',DATABASE_NAME,"\n\n");
         foreach ($target_tables AS $i => &$table) {
             $result = $mysqli->query("SELECT * FROM `$table`");
             $fields_amount = $result->field_count;
             $rows_num = $mysqli->affected_rows;
             $res = $mysqli->query("SHOW CREATE TABLE `$table`");
             $TableMLine = $res->fetch_row();
-            $content .= "DROP TABLE IF EXISTS `$table`;";
-            $content .= "\n\n".$TableMLine[1].";\n\n";
+            echo "DROP TABLE IF EXISTS `$table`;";
+            echo "\n\n{$TableMLine[1]};\n\n";
             for ($i=0,$st_counter=0;$i<$fields_amount;$i++,$st_counter=0) {
                 while ($row = $result->fetch_row()) {
-                    if ($st_counter % 100 == 0 || $st_counter == 0) $content .= "\nINSERT INTO `$table` VALUES";
-                    $content .= "\n(";
+                    if ($st_counter % 100 == 0 || $st_counter == 0) echo "\nINSERT INTO `$table` VALUES";
+                    echo "\n(";
                     for ($j=0;$j<$fields_amount;$j++) {
                         $row[$j] = str_replace("\n","\\n",addslashes($row[$j]));
-                        if (isset($row[$j])) $content .='"'.$row[$j].'"';
-                        else $content .= '""';
-                        if ($j < ($fields_amount - 1)) $content .= ',';
+                        if (isset($row[$j])) printf('"%s"',$row[$j]);
+                        else echo '""';
+                        if ($j < ($fields_amount - 1)) echo ',';
                     }
-                    $content .= ')';
-                    if ((($st_counter + 1) % 100 == 0 && $st_counter != 0) || $st_counter+1 == $rows_num) $content .= ';';
-                    else $content .= ',';
+                    echo ')';
+                    if ((($st_counter + 1) % 100 == 0 && $st_counter != 0) || $st_counter+1 == $rows_num) echo ';';
+                    else echo ',';
                     $st_counter++;
                 }
-                $content .= "\n\n\n";
+                echo "\n\n\n";
             }
         }
-        return $content;
+        return ob_get_clean();
     }
     public function import_db($file) {
         $mysqli = $this->DB->link();

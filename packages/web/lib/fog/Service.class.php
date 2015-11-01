@@ -12,7 +12,7 @@ class Service extends FOGController {
         'name',
     );
     public function addDir($dir) {
-        if ($this->getClass(DirCleanerManager)->count(array(path=>addslashes($dir))) > 0) throw new Exception($this->foglang['n/a']);
+        if ($this->getClass(DirCleanerManager)->count(array('path'=>$dir)) > 0) throw new Exception($this->foglang['n/a']);
         $this->getClass(DirCleaner)
             ->set(path,$dir)
             ->save();

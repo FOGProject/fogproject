@@ -18,7 +18,7 @@ class ReportMaker extends FOGBase {
         return $this;
     }
     public function addCSVCell($item) {
-        $this->strCSV[] = addslashes(trim($item));
+        $this->strCSV[] = $this->DB->sanitize($item);
         return $this;
     }
     public function endCSVLine() {
@@ -52,8 +52,8 @@ class ReportMaker extends FOGBase {
             $SchemaSave->send_file($SchemaSave->export_db());
         } else if ($intType == 4) {
             header('Content-Type: application/octet-stream');
-            header("Content-Disposition: attachment; filename=".$_REQUEST[type]."_export.csv");
-            echo implode($this->strLine,"\n");
+            header("Content-Disposition: attachment; filename=\"{$_REQUEST['type']}_export.csv\"");
+            echo implode("\n",$this->strLine);
         }
     }
 }

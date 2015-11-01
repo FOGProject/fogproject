@@ -589,7 +589,7 @@ class FOGConfigurationPage extends FOGPage {
                 if (empty($_REQUEST[$key])) $Service->set('value',-1);
                 break;
             case 'FOG_USER_VALIDPASSCHARS':
-                $Service->set('value',$this->DB->sanitize($_REQUEST[$key]));
+                $Service->set('value',$_REQUEST[$key]);
                 break;
             case 'FOG_AD_DEFAULT_PASSWORD':
                 $Service->set('value',$this->encryptpw($_REQUEST[$key]));
@@ -616,7 +616,7 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function log() {
         $StorageGroups = $this->getClass('StorageGroupManager')->find();
-        foreach($StorageGroups AS $i => &$StorageGroup) {
+        foreach ((array)$StorageGroups AS $i => &$StorageGroup) {
             if (!$StorageGroup->getMasterStorageNode()->isValid()) continue;
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if (!$StorageNode->isValid()) continue;
