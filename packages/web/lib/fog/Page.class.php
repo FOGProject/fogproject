@@ -155,18 +155,16 @@ class Page extends FOGBase {
         else $this->javascripts[] = $path;
     }
     public function startBody() {
-        ob_start(array('Initiator','sanitize_output'));
+        ob_start();
+        ob_implicit_flush(false);
     }
     public function endBody() {
         $this->body = ob_get_clean();
     }
     public function render($path = '') {
-        ob_start(array('Initiator','sanitize_output'),8192);
+        while (ob_get_level()) ob_end_clean();
+        ob_start(array('Initiator','sanitize_output'));
         require_once '../management/other/index.php';
-        while (ob_get_level()) {
-            ob_end_flush();
-            ob_flush();
-            flush();
-        }
+        ob_end_flush();
     }
 }

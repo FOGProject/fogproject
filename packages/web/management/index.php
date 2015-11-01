@@ -16,15 +16,14 @@ if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && !in_array($_
     $Page->render();
 } else {
     $_SESSION['AllowAJAXTasks'] = true;
-    $content = $FOGPageManager->render();
     if ($FOGCore->ajax) {
-        echo $content;
+        $FOGPageManager->render();
         exit;
     }
+    $Page->startBody();
+    $FOGPageManager->render();
     $Page->setTitle($FOGPageManager->getFOGPageTitle());
     $Page->setSecTitle($FOGPageManager->getFOGPageName());
-    $Page->startBody();
-    echo $content;
     $Page->endBody();
     $Page->render();
 }
