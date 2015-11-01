@@ -11,7 +11,7 @@ abstract class FOGClient extends FOGBase {
             //if ($this->Host->get('sec_token') && !$this->Host->get('pub_key')) throw new Exception(_('#!ist'));
             $this->send();
             if (in_array(strtolower(get_class($this)),array('autologout','displaymanager','printerclient','servicemodule'))) throw new Exception($this->send);
-            $this->sendData(trim($this->send));
+            $this->sendData(stripslashes(trim($this->send)));
         } catch (Exception $e) {
             echo $e->getMessage();
             exit;

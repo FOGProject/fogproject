@@ -64,12 +64,27 @@ class Initiator {
         @set_magic_quotes_runtime(0);
         self::verCheck();
         self::extCheck();
-        foreach($_REQUEST as $key => $val) $_REQUEST[$key] = is_array($val) ? filter_var_array($val,FILTER_SANITIZE_FULL_SPECIAL_CHARS,FILTER_FLAG_NO_ENCODE_QUOTES) : filter_var($val,FILTER_SANITIZE_FULL_SPECIAL_CHARS,FILTER_FLAG_NO_ENCODE_QUOTES);
-        foreach($_GET as $key => $val) $_GET[$key] = is_array($val) ? filter_var_array($val,FILTER_SANITIZE_FULL_SPECIAL_CHARS,FILTER_FLAG_NO_ENCODE_QUOTES) : filter_var($val,FILTER_SANITIZE_FULL_SPECIAL_CHARS,FILTER_FLAG_NO_ENCODE_QUOTES);
-        foreach($_POST as $key => $val) $_POST[$key] = is_array($val) ? filter_var_array($val,FILTER_SANITIZE_FULL_SPECIAL_CHARS,FILTER_FLAG_NO_ENCODE_QUOTES) : filter_var($val,FILTER_SANITIZE_FULL_SPECIAL_CHARS,FILTER_FLAG_NO_ENCODE_QUOTES);
+        foreach($_REQUEST as $key => $val) {
+            if (is_array($val)) {
+                $_REQUEST[$key] = filter_var_array($val,
+                    FILTER_SANITIZE_FULL_SPECIAL_CHARS,
+                    FILTER_FLAG_NO_ENCODE_QUOTES
+                );
+            } else {
+                $_REQUST[$key] = filter_var($val,
+                    FILTER_SANITIZE_FULL_SPECIAL_CHARS,
+                    FILTER_FLAG_NO_ENCODE_QUOTES
+                );
+            }
+        }
         foreach(array('node','sub','printertype','id','sub','crit','sort','confirm','tab') AS $x) {
             global $$x;
-            $$x = isset($_REQUEST[$x]) ? filter_var($_REQUEST[$x],FILTER_SANITIZE_FULL_SPECIAL_CHARS,FILTER_FLAG_NO_ENCODE_QUOTES) : '';
+            if (isset($_REQUEST[$x])) {
+                $$x = filter_var($_REQUEST[$x],
+                    FILTER_SANITIZE_FULL_SPECIAL_CHARS,
+                    FILTER_FLAG_NO_ENCODE_QUOTES
+                );
+            }
         }
         unset($x);
         new System();

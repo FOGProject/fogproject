@@ -645,7 +645,7 @@ abstract class FOGPage extends FOGBase {
             '${input}',
         );
         $fields = array(
-            sprintf('%s <b>%s</b>',_('Please confirm you want to delete'),addslashes($this->obj->get(name))) => '&nbsp;',
+            sprintf('%s <b>%s</b>',_('Please confirm you want to delete'),$this->obj->get('name')) => '&nbsp;',
             ($this->obj instanceof Group ? _('Delete all hosts within group') : null) => ($this->obj instanceof Group ? '<input type="checkbox" name="massDelHosts" value="1" />' : null),
             ($this->obj instanceof Image || $this->obj instanceof Snapin ? _('Delete file data') : null) => ($this->obj instanceof Image || $this->obj instanceof Snapin ? '<input type="checkbox" name="andFile" id="andFile" value="1" />' : null),
             '&nbsp;' => '<input type="submit" value="${label}" />',
@@ -655,7 +655,7 @@ abstract class FOGPage extends FOGBase {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
-                'label' => addslashes($this->title),
+                'label' => $this->title,
             );
         }
         unset($input);

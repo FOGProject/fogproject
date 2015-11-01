@@ -11,7 +11,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                 $strtosend = "%s|%s|%s|%s|%s|%s";
                 foreach ($Printers AS $i => &$Printer) {
                     if (!$Printer->isValid()) continue;
-                    $this->send .= base64_encode(sprintf($strtosend,$this->DB->sanitize($Printer->get('file')),$Printer->get('model'),$this->DB->sanitize($Printer->get('name')),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id'))))."\n";
+                    $this->send .= base64_encode(sprintf($strtosend,$Printer->get('file'),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id'))))."\n";
                     unset($Printer);
                 }
                 unset($Printers);

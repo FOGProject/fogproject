@@ -56,7 +56,6 @@ abstract class FOGController extends FOGBase {
         } catch (Exception $e) {
             $this->debug(sprintf(_('Get Failed: Key: %s, Error: %s'),$key,$e->getMessage()));
         }
-        return '';
     }
     public function set($key, $value) {
         $key = $this->key($key);

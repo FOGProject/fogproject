@@ -160,7 +160,7 @@ class HostManagementPage extends FOGPage {
         );
         $this->attributes = array(
             array('width'=>22,'id'=>'host-${host_name}','class'=>'filter-false'),
-            array('class' =>'c filter-false','width'=>16),
+            array('class' =>'l filter-false','width'=>16),
             ($_SESSION['FOGPingActive'] ? array('width'=>20,'class'=>'filter-false') : ''),
             array(),
             array('width'=>80,'class'=>'c'),
@@ -376,7 +376,7 @@ class HostManagementPage extends FOGPage {
             '${printer_type}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'c disabled filter-false'),
+            array('width'=>16,'class'=>'l filter-false'),
             array('width'=>50,'class'=>'l'),
             array('width'=>50,'class'=>'r'),
         );
@@ -385,7 +385,7 @@ class HostManagementPage extends FOGPage {
             if (!$Printer->isValid()) continue;
             $this->data[] = array(
                 'printer_id'=>$Printer->get('id'),
-                'printer_name'=>addslashes($Printer->get('name')),
+                'printer_name'=>$Printer->get('name'),
                 'printer_type'=>$Printer->get('config'),
             );
             unset($Printer);
@@ -409,8 +409,8 @@ class HostManagementPage extends FOGPage {
             _('Printer Type'),
         );
         $this->attributes = array(
-            array('class'=>'c disabled filter-false','width'=>16),
-            array(),
+            array('class'=>'l filter-false','width'=>16),
+            array('class'=>'l filter-false','width'=>22),
             array(),
             array(),
         );
@@ -428,7 +428,7 @@ class HostManagementPage extends FOGPage {
             $this->data[] = array(
                 'printer_id'=>$id,
                 'is_default'=>($this->obj->getDefault($id) ? 'checked' : ''),
-                'printer_name'=>$this->DB->sanitize($Printer->get('name')),
+                'printer_name'=>$Printer->get('name'),
                 'printer_type'=>$Printer->get('config'),
             );
             unset($Printer);
@@ -451,7 +451,7 @@ class HostManagementPage extends FOGPage {
             '${snapin_created}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'c disabled filter-false'),
+            array('width'=>16,'class'=>'l filter-false'),
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );
@@ -478,7 +478,7 @@ class HostManagementPage extends FOGPage {
             _('Snapin Name'),
         );
         $this->attributes = array(
-            array('class'=>'c disabled filter-false','width'=>16),
+            array('class'=>'l disabled filter-false','width'=>16),
             array(),
         );
         $this->templates = array(
@@ -497,7 +497,8 @@ class HostManagementPage extends FOGPage {
         unset($Snapins);
         $this->HookManager->processEvent('HOST_EDIT_SNAPIN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
-        echo '<center><input type="submit" name="snaprem" value="'._('Remove selected snapins').'"/></center></form></div>';
+        if (count($this->data)) $inputremove = sprintf('<input type="submit" name="snaprem" value="%s"/>',_('Remove selected snapins'));
+        echo "<center>$inputremove</center></form></div>";
         unset($this->data, $this->headerData);
         echo '<!-- Service Configuration -->';
         $this->attributes = array(
@@ -566,7 +567,7 @@ class HostManagementPage extends FOGPage {
             );
             unset($Service);
         }
-        unset($ids,$id);
+        unset($Services);
         $this->data[] = array(
             'field'=>'',
             'input'=>'',
@@ -647,9 +648,13 @@ class HostManagementPage extends FOGPage {
         );
         echo '<div id="host-hardware-inventory" ><form method="post" action="'.$this->formAction.'&tab=host-hardware-inventory"><h2>'._('Host Hardware Inventory').'</h2>';
         if ($this->obj->get('inventory')->isValid()) {
-            foreach(array('cpuman','cpuversion') AS &$x) $this->obj->get('inventory')->set($x,implode(' ',array_unique(explode(' ',$this->obj->get('inventory')->get($x)))));
-            unset($x);
-            foreach((array)$fields AS $field => &$input) {
+            $cpustuff = array('cpuman','cpuversion');
+            foreach ((array)$cpustuff AS $i => &$x) {
+                $this->obj->get('inventory')->set($x,implode(' ',array_unique(explode(' ',$this->obj->get('inventory')->get($x)))));
+                unset($x);
+            }
+            unset($cpustuff);
+            foreach ((array)$fields AS $field => &$input) {
                 $this->data[] = array(
                     'field'=>$field,
                     'input'=>$input,
@@ -684,8 +689,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
             unset($input);
-        }
-        else unset($this->data);
+        } else unset($this->data);
         $this->HookManager->processEvent('HOST_INVENTORY',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data,$fields);
