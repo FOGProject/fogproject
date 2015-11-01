@@ -162,8 +162,6 @@ class Page extends FOGBase {
         $this->body = ob_get_clean();
     }
     public function render($path = '') {
-        while (ob_get_level()) ob_end_clean();
-        ob_start(array('Initiator','sanitize_output'));
         require_once '../management/other/index.php';
         ob_end_flush();
     }
