@@ -106,18 +106,13 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             }
             $this->send = implode("\n",$goodArray);
         } else if (isset($_REQUEST['taskid'])) {
-            // Clear out the buffer just in case
             while (ob_get_level()) ob_end_clean();
             header("X-Sendfile: $SnapinFile");
             header('Content-Type: application/octet-stream');
             header("Content-Length: $size");
             header("Content-Disposition: attachment; filename=$file");
             if (false !== ($handle = fopen($SnapinFile,'rb'))) {
-                while (!feof($handle)) {
-                    echo fread($handle,4*1024*1024);
-                    flush();
-                    ob_flush();
-                }
+                while (!feof($handle)) echo fread($handle,4*1024*1024);
             }
             if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',3)->save();
             $SnapinTask->set('stateID',3)->set('return',-1)->set('details',_('Pending...'))->save();
