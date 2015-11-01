@@ -64,10 +64,8 @@ class FOGPageManager Extends FOGBase {
             } catch (Exception $e) {
                 $this->debug(_('Failed to Render Page: Node: %s, Error: %s'),array(get_class($class),$e->getMessage()));
             }
-            ob_start();
             call_user_func(array($class, $method));
             $this->resetRequest();
-            return ob_get_clean();
         }
     }
     private function register($class) {
