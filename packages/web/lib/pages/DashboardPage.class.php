@@ -48,7 +48,7 @@ class DashboardPage extends FOGPage {
             if (!$StorageNode->isValid()) continue;
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
             $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
-            $version = $this->FOGURLRequests->process($StorageNode->get('ip').$webroot.'/service/getversion.php','GET');
+            $version = $this->FOGURLRequests->process(sprintf('http://%s%s/service/getversion.php',$StorageNode->get('ip'),$webroot),'GET');
             $options .= '<option value="'.$StorageNode->get('id').'">'.$StorageNode->get('name').($StorageNode->get('isMaster') == 1 ? " * " : ' ')."(${version[0]})".'</option>';
             unset($StorageNode);
         }

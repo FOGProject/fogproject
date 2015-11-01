@@ -43,21 +43,30 @@ class FOGURLRequests extends FOGBase {
         if (!is_array($urls)) $urls = array($urls);
         if (empty($method)) $method = 'GET';
         foreach ((array)$urls AS $i => &$url) {
+            $url = filter_var($url, FILTER_SANITIZE_URL);
+            if (filter_var($url,FILTER_VALIDATE_URL) === false) {
+                unset($url);
+                continue;
+            }
             $ProxyUsed = false;
-            if ($this->DB && $this->getSetting(FOG_PROXY_IP)) {
-                $IPs = $this->getClass(StorageNodeManager)->find('','','','','','','','ip');
-                $IPs = array_filter(array_unique((array)$IPs));
+            if ($this->DB && ($ip = $this->getSetting('FOG_PROXY_IP'))) {
+                if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
+                    unset($url,$ip);
+                    continue;
+                }
+                $IPs = $this->getSubObjectIDs('StorageNode','','ip');
                 if (!preg_match('#^(?!.*'.implode('|',(array)$IPs).')$#i',$url)) $ProxyUsed = true;
-                $username = $this->getSetting(FOG_PROXY_USERNAME);
-                $password = $this->getSetting(FOG_PROXY_PASSWORD);
+                $username = $this->getSetting('FOG_PROXY_USERNAME');
+                $password = $this->getSetting('FOG_PROXY_PASSWORD');
             }
             if ($ProxyUsed) {
                 $this->contextOptions[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
-                $this->contextOptions[CURLOPT_PROXYPORT] = $this->getSetting(FOG_PROXY_PORT);
-                $this->contextOptions[CURLOPT_PROXY] = $this->getSetting(FOG_PROXY_IP);
+                $this->contextOptions[CURLOPT_PROXYPORT] = $this->getSetting('FOG_PROXY_PORT');
+                $this->contextOptions[CURLOPT_PROXY] = $ip;
                 if ($username) $this->contextOptions[CURLOPT_PROXYUSERPWD] = $username.':'.$password;
             }
-            if ($method == 'GET' && $data !== null) $url .= '?'.http_build_query($data);
+            unset($ProxyUsed);
+            if ($method == 'GET' && $data !== null) $url = sprintf('%s?%s',$url,http_build_query($data));
             $ch = @curl_init($url);
             $this->contextOptions[CURLOPT_URL] = $url;
             if ($auth) $this->contextOptions[CURLOPT_USERPWD] = $auth;

@@ -21,10 +21,10 @@ class FOGPageManager Extends FOGBase {
         return $this->nodes[$this->classValue];
     }
     public function getFOGPageName() {
-        return (string)$this->getFOGPageClass()->name;
+        return $this->getFOGPageClass()->name;
     }
     public function getFOGPageTitle() {
-        return (string)$this->getFOGPageClass()->title;
+        return $this->getFOGPageClass()->title;
     }
     public function isFOGPageTitleEnabled() {
         return (bool)$this->getFOGPageClass()->titleEnabled == true && !empty($this->FOGPageClass()->title);
