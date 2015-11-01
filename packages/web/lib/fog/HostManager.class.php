@@ -7,7 +7,10 @@ class HostManager extends FOGManagerController {
     }
     public function destroy($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false) {
         if (empty($findWhere)) return parent::destroy($field);
-        if (isset($findWhere['id'])) $findWhere = array('hostID'=>$findWhere['id']);
+        if (isset($findWhere['id'])) {
+            $fieldWhere = $findWhere;
+            $findWhere = array('hostID'=>$findWhere['id']);
+        }
         $this->getClass('NodeFailureManager')->destroy($findWhere);
         $this->getClass('ImagingLogManager')->destroy($findWhere);
         $this->getClass('SnapinTaskManager')->destroy(array('jobID'=>$this->getSubObjectIDs('SnapinJob',$findWhere,'id')));
