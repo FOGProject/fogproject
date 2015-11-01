@@ -33,7 +33,7 @@ class FOGConfigurationPage extends FOGPage {
         foreach ((array)$Nodes AS $i => &$StorageNode) {
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
             $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
-            $URLs[$i] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
+            $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
             unset($StorageNode);
         }
         $Responses = $this->FOGURLRequests->process($URLs,'GET');
