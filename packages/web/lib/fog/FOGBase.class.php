@@ -476,7 +476,7 @@ abstract class FOGBase {
         return array_shift($value);
     }
     public function setSetting($key, $value) {
-        $this->getClass('ServiceManager')->update(array('name'=>$key),'',$value);
+        $this->getClass('ServiceManager')->update(array('name'=>$key),'',array('value'=>$value));
         return $this;
     }
 }
