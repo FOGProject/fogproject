@@ -316,12 +316,13 @@ class TaskManagementPage extends FOGPage {
         $this->render();
     }
     public function canceltasks() {
-        $ids = $this->getClass('TaskManager')->find(array('id'=>(array)$_REQUEST['task']));
+        $Tasks = $this->getClass('TaskManager')->find(array('id'=>(array)$_REQUEST['task']));
         foreach ((array)$Tasks AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Task->cancel();
             unset($Task);
         }
+        unset($Tasks);
     }
     public function force_task() {
         $Task = $this->getClass('Task',$_REQUEST['id']);
