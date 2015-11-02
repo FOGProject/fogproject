@@ -10,11 +10,13 @@ class TaskScheduler extends FOGService {
             if ($taskcount) {
                 $this->outall(sprintf(" * %s active task(s) awaiting check-in.",$taskcount));
                 $this->outall(' | Sending WOL Packet(s)');
-                $Hosts = $this->getSubObjectIDs('Task',$findWhere,'hostID');
-                foreach($Hosts AS $i => &$Host) {
+                $Hosts = $this->getClass('HostManager')->find(array('id'=>$this->getSubObjectIDs('Task',$findWhere,'hostID')));
+                foreach ((array)$Hosts AS $i => &$Host) {
+                    if (!$Host->isValid()) continue;
                     $this->outall(sprintf("\t\t- Host: %s WOL sent to all macs associated",$Host->get(name)));
                     $Host->wakeOnLan();
-                    usleep(500000);
+                    usleep(50000);
+                    unset($Host);
                 }
                 unset($Hosts,$taskcount,$findWhere);
             } else $this->outall(" * 0 active task(s) awaiting check-in.");
