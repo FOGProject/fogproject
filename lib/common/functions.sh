@@ -882,6 +882,10 @@ EOF
     errorStat $?
     dots "Setting up SSL FOG Server"
     echo "<VirtualHost *:80>
+    KeepAlive On
+    <IfModule mod_headers.c>
+        Header set Connection keep-alive
+    </IfModule>
     ServerName $ipaddress
     DocumentRoot $docroot
     ${forcehttps}RewriteEngine On
@@ -889,6 +893,10 @@ EOF
     ${forcehttps}RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
 </VirtualHost>
 <VirtualHost *:443>
+    KeepAlive On
+    <IfModule mod_headers.c>
+        Header set Connection keep-alive
+    </IfModule>
     Servername $ipaddress
     DocumentRoot $docroot
     SSLEngine On
