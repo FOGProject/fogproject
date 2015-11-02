@@ -23,7 +23,7 @@ class MySQL extends DatabaseManager {
     public function connect() {
         try {
             if (!$this->link) {
-                $this->link = $this->getClass('mysqli',DATABASE_HOST,DATABASE_USERNAME, DATABASE_PASSWORD);
+                $this->link = $this->getClass('mysqli',preg_replace('#p:#','',DATABASE_HOST),DATABASE_USERNAME, DATABASE_PASSWORD);
                 if ($this->link->connect_error) {
                     usleep(5000000);
                     die(_('Could not connect to the MySQL Server'));

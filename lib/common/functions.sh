@@ -883,6 +883,8 @@ EOF
     dots "Setting up SSL FOG Server"
     echo "<VirtualHost *:80>
     KeepAlive On
+    KeepAliveTimeout 1
+    MaxKeepAliveRequests 25
     <IfModule mod_headers.c>
         Header set Connection keep-alive
     </IfModule>
@@ -894,6 +896,8 @@ EOF
 </VirtualHost>
 <VirtualHost *:443>
     KeepAlive On
+    KeepAliveTimeout 1
+    MaxKeepAliveRequests 25
     <IfModule mod_headers.c>
         Header set Connection keep-alive
     </IfModule>
