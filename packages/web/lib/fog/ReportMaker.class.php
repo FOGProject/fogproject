@@ -71,7 +71,7 @@ class ReportMaker extends FOGBase {
             $filename = 'fog_backup.sql';
             $path = sprintf('%s/management/other/',BASEPATH);
             $filepath = "{$path}{$filename}";
-            $ip = preg_replace('#p:#',DATABASE_HOST);
+            $ip = preg_replace('#p:#','',DATABASE_HOST);
             if (false === filter_var($ip,FILTER_VALIDATE_IP)) $ip = gethostbyname($ip);
             if (!filter_var($ip,FILTER_VALIDATE_IP) === false) {
                 $cmd = sprintf("mysqldump --opt -u'%s' -p'%s' -h'$ip' %s > $filepath",DATABASE_USERNAME,DATABASE_PASSWORD,DATABASE_NAME);
