@@ -885,9 +885,6 @@ EOF
     KeepAlive On
     KeepAliveTimeout 1
     MaxKeepAliveRequests 25
-    <IfModule mod_headers.c>
-        Header set Connection keep-alive
-    </IfModule>
     ServerName $ipaddress
     DocumentRoot $docroot
     ${forcehttps}RewriteEngine On
@@ -898,9 +895,6 @@ EOF
     KeepAlive On
     KeepAliveTimeout 1
     MaxKeepAliveRequests 25
-    <IfModule mod_headers.c>
-        Header set Connection keep-alive
-    </IfModule>
     Servername $ipaddress
     DocumentRoot $docroot
     SSLEngine On
