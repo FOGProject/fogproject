@@ -12,6 +12,7 @@ class ReportMaker extends FOGBase {
         'image' => 4,
         'snapin' => 4,
         'printer' => 4,
+        'sqldump' => 5,
     );
     public function appendHTML($html) {
         $this->strHTML[] = $html;
@@ -34,26 +35,58 @@ class ReportMaker extends FOGBase {
         if (!isset($_REQUEST['export'])) $this->setFileName($_REQUEST['filename']);
         if ($intType !== false) $intType = (isset($_REQUEST['export']) ? 3 : $this->types[$_REQUEST['type']]);
         else $intType = 0;
-        if ($intType == 0) echo implode("\n",(array)$this->strHTML);
-        else if ($intType == 1) {
+        switch (intval($intType)) {
+        case 0:
+            echo implode("\n",(array)$this->strHTML);
+            unset($this->strHTML);
+            break;
+        case 1:
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="'.$this->filename.'.csv"');
-            echo implode($this->strLine,"\n");
-        } else if ($intType == 2) {
+            echo implode("\n",(array)$this->strLine);
+            unset($this->filename,$this->strLine);
+            break;
+        case 2:
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="'.$this->filename.'.pdf"');
             $proc = proc_open("htmldoc --links --header . --linkstyle plain --numbered --size letter --no-localfiles -t pdf14 --quiet --jpeg --webpage --size letter --left 0.25in --right 0.25in --top 0.25in --bottom 0.25in --header ... --footer ... -", array(0 => array("pipe", "r"), 1 => array("pipe", "w")), $pipes);
-            fwrite($pipes[0], '<html><body>'.implode($this->strHTML,"\n")."</body></html>" );
+            fwrite($pipes[0], sprintf('<html><body>%s</body></html>',implode("\n",(array)$this->strHTML)));
             fclose($pipes[0]);
             fpassthru($pipes[1]);
             $status = proc_close($proc);
-        } else if ($intType == 3) {
+            unset($status);
+            break;
+        case 3:
             $SchemaSave = $this->getClass('Schema');
             $SchemaSave->send_file($SchemaSave->export_db());
-        } else if ($intType == 4) {
+            unset($SchemaSave);
+            break;
+        case 4:
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"{$_REQUEST['type']}_export.csv\"");
-            echo implode("\n",$this->strLine);
+            echo implode("\n",(array)$this->strLine);
+            break;
+        case 5:
+            while (ob_get_level()) ob_end_clean();
+            $filename = 'fog_backup.sql';
+            $path = sprintf('%s/management/other/',BASEPATH);
+            $filepath = "{$path}{$filename}";
+            $ip = preg_replace('#p:#',DATABASE_HOST);
+            if (false === filter_var($ip,FILTER_VALIDATE_IP)) $ip = gethostbyname($ip);
+            if (!filter_var($ip,FILTER_VALIDATE_IP) === false) {
+                $cmd = sprintf("mysqldump --opt -u'%s' -p'%s' -h'$ip' %s > $filepath",DATABASE_USERNAME,DATABASE_PASSWORD,DATABASE_NAME);
+                exec($cmd);
+                $filesize = filesize($filepath);
+                header("X-Sendfile: $filepath");
+                header('Content-Type: application/octet-stream');
+                header("Content-Length: $filesize");
+                header("Content-Disposition: attachment; filename=\"$filename\"");
+                if (false !== ($handle = fopen($filepath,'rb'))) {
+                    while (!feof($handle)) echo fread($handle,8*1024*1024);
+                }
+                exec ("rm -rf '$filepath'");
+            }
         }
+        unset($cmd,$ip,$filename,$path,$filepath,$this->strLine,$this->filename,$this->strHTML,$SchemaSave);
     }
 }

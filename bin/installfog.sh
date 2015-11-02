@@ -439,7 +439,7 @@ while [ "$blGo" = "" ]; do
                 if [ ! -d "$backupPath/fogDBbackups" ]; then
                     mkdir -p $backupPath/fogDBbackups >/dev/null 2>&1
                 fi
-                wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php?type=sql" >/dev/null 2>&1
+                wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php?type=sqldump" >/dev/null 2>&1
             fi
             errorStat $?
             if [ "$installtype" == "N" -a -z "$dbupdate" ]; then
