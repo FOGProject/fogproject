@@ -8,8 +8,7 @@ isset ${next-server} && goto netboot || goto setserv
 :setserv
 echo -n Please enter tftp server: && read next-server && goto bootme
 :bootme
-isset ${next-server} && goto netboot || 
-set next-server ${proxydhcp/next-server}
-isset ${next-server} && goto netboot || goto netstart 
+isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server}
+isset ${next-server} && goto netboot || goto setserv
 :netboot
 chain tftp://${next-server}/default.ipxe || exit

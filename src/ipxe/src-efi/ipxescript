@@ -1,2 +1,3 @@
 #!ipxe
+isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server}
 dhcp && chain tftp://${next-server}/default.ipxe || echo Failed to get IP, Booting back to bios && exit
