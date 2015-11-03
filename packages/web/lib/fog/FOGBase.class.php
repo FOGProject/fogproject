@@ -434,7 +434,7 @@ abstract class FOGBase {
         if ($service) {
             $Host = $this->getHostItem();
             if ($this->nice_date() >= $this->nice_date($Host->get(sec_time))) $Host->set(pub_key,null)->save();
-            if (isset($_REQUEST['newService']) && $this->getSetting('FOG_AES_ENCRYPT')) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
+            if (isset($_REQUEST['newService'])) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
             else echo $datatosend;
         }
     }
