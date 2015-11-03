@@ -882,9 +882,7 @@ EOF
     errorStat $?
     dots "Setting up SSL FOG Server"
     echo "<VirtualHost *:80>
-    KeepAlive On
-    KeepAliveTimeout 1
-    MaxKeepAliveRequests 25
+    KeepAlive Off
     ServerName $ipaddress
     DocumentRoot $docroot
     ${forcehttps}RewriteEngine On
@@ -892,9 +890,7 @@ EOF
     ${forcehttps}RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
 </VirtualHost>
 <VirtualHost *:443>
-    KeepAlive On
-    KeepAliveTimeout 1
-    MaxKeepAliveRequests 25
+    KeepAlive Off
     Servername $ipaddress
     DocumentRoot $docroot
     SSLEngine On
