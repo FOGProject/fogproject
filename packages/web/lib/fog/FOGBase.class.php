@@ -364,7 +364,9 @@ abstract class FOGBase {
         } else $key = $this->hex2bin($key);
         $iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
         $cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
-        return bin2hex($iv).'|'.bin2hex($cipher).($addKey ? '|'.bin2hex($key) : '');
+        $ivDataComb = sprintf('%s|%s',bin2hex($iv),bin2hex($cipher));
+        unset($iv, $cipher);
+        return sprintf('%s%s',$ivDataComb,($addKey ? sprintf('|%s',bin2hex($key)) : ''));
     }
     protected function aesdecrypt($encdata,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
         $iv_size = mcrypt_get_iv_size($enctype,$mode);
@@ -434,7 +436,7 @@ abstract class FOGBase {
         if ($service) {
             $Host = $this->getHostItem();
             if ($this->nice_date() >= $this->nice_date($Host->get(sec_time))) $Host->set(pub_key,null)->save();
-            if (isset($_REQUEST['newService']) && $this->getSetting('FOG_AES_ENCRYPT')) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
+            if (isset($_REQUEST['newService'])) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
             else echo $datatosend;
         }
     }
