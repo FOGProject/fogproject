@@ -109,8 +109,9 @@ abstract class FOGController extends FOGBase {
             else if ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) $val = $this->DB->sanitize($this->formatTime('now','Y-m-d H:i:s'));
             else $val = $this->DB->sanitize($this->get($name));
             $insertKeys[] = $key;
+			if (!trim($val)) $val = 'NULL';
             $insertValues[] = $val;
-            $updateData[] = sprintf("%s=%s",$key,($val === 'NULL' ? $val : "'$val'"));
+            $updateData[] = sprintf("%s='%s'",$key,$val);
         }
         unset($field);
         $query = sprintf($this->insertQueryTemplate,
