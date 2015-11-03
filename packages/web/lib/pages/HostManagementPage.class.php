@@ -856,6 +856,8 @@ class HostManagementPage extends FOGPage {
     }
     public function edit_ajax() {
         $this->obj->removeAddMAC($_REQUEST['additionalMACsRM'])->save();
+        echo 'Success!';
+        exit;
     }
     public function edit_post() {
         $this->HookManager->processEvent('HOST_EDIT_POST',array('Host'=>&$this->obj));
