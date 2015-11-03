@@ -121,7 +121,10 @@ abstract class FOGController extends FOGBase {
         );
         try {
             if (!$this->DB->query($query)) throw new Exception($this->DB->sqlerror());
-            if (!$this->get('id')) $this->set('id',$insert_id);
+            if (!$this->get('id')) {
+                $insert_id = $this->DB->insert_id();
+                $this->set('id',$insert_id);
+            }
             if (!$this->isValid()) {
                 $this->destroy();
                 throw new Exception(sprintf('%s: %s %s',_('Object'),get_class($this),_('is not valid')));
