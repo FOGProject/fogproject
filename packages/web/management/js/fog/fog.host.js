@@ -30,11 +30,10 @@ function removeMACField() {
         remove = $(this);
         val = remove.prev().val();
         if (val.length > 0) {
-            url = remove.parents('form').prop('action');
-            $.post(url,
-                {additionalMACsRM: [val]},
+            $.post(
+                remove.prev('form').prop('action'),
+                {additionalMACsRM: val},
                 function(data) {
-                    console.log(val);
                     console.log(data);
                 }
             );
