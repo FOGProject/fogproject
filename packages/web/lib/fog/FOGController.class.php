@@ -111,7 +111,7 @@ abstract class FOGController extends FOGBase {
             $insertKeys[] = $key;
 			if (!trim($val)) $val = 'NULL';
             $insertValues[] = $val;
-            $updateData[] = sprintf("%s='%s'",$key,$val);
+            $updateData[] = sprintf("%s=%s",$key,($val === 'NULL' ? $val : "'$val'"));
         }
         unset($field);
         $query = sprintf($this->insertQueryTemplate,
