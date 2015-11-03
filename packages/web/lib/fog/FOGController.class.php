@@ -109,6 +109,7 @@ abstract class FOGController extends FOGBase {
             else if ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) $val = $this->DB->sanitize($this->formatTime('now','Y-m-d H:i:s'));
             else $val = $this->DB->sanitize($this->get($name));
             $insertKeys[] = $key;
+			if (!trim($val)) $val = 'NULL';
             $insertValues[] = $val;
             $updateData[] = sprintf("%s='%s'",$key,$val);
         }
@@ -121,11 +122,7 @@ abstract class FOGController extends FOGBase {
         );
         try {
             if (!$this->DB->query($query)) throw new Exception($this->DB->sqlerror());
-            if (!$this->get('id')) {
-                $insert_id = $this->DB->insert_id();
-                if ($insert_id < 1) $insert_id = @max($this->getSubObjectIDs(get_class($this))) + 1;
-                $this->set('id',$insert_id);
-            }
+            if (!$this->get('id')) $this->set('id',$insert_id);
             if (!$this->isValid()) {
                 $this->destroy();
                 throw new Exception(sprintf('%s: %s %s',_('Object'),get_class($this),_('is not valid')));
