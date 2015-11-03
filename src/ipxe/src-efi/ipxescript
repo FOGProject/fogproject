@@ -1,3 +1,15 @@
 #!ipxe
-isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server}
-dhcp && chain tftp://${next-server}/default.ipxe || echo Failed to get IP, Booting back to bios && exit
+ifopen && goto bootme || goto netstart
+:netstart
+dhcp
+ifopen && goto nextserverset || reboot
+goto nextserverset
+:setserv
+echo -n Please enter tftp server: && read next-server && goto bootme || goto setserv
+:bootme
+goto nextserverset
+:nextserverset
+isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server} ||
+isset ${next-server} && goto netboot || goto setserv
+:netboot
+chain tftp://${next-server}/default.ipxe || exit

@@ -1,14 +1,15 @@
 #!ipxe
-ifclose
 ifopen && goto bootme || goto netstart
 :netstart
 dhcp
-ifopen || reboot
-isset ${next-server} && goto netboot || goto setserv
+ifopen && goto nextserverset || reboot
+goto nextserverset
 :setserv
-echo -n Please enter tftp server: && read next-server && goto bootme
+echo -n Please enter tftp server: && read next-server && goto bootme || goto setserv
 :bootme
-isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server}
+goto nextserverset
+:nextserverset
+isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server} ||
 isset ${next-server} && goto netboot || goto setserv
 :netboot
 chain tftp://${next-server}/default.ipxe || exit
