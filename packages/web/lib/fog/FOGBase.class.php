@@ -436,6 +436,7 @@ abstract class FOGBase {
             if ($this->nice_date() >= $this->nice_date($Host->get(sec_time))) $Host->set(pub_key,null)->save();
             if (isset($_REQUEST['newService'])) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
             else echo $datatosend;
+            exit;
         }
     }
     protected function array_strpos($haystack, $needles, $case = true) {
