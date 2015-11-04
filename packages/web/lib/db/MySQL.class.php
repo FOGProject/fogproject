@@ -49,8 +49,9 @@ class MySQL extends DatabaseManager {
             $this->query = $sql;
             $this->current_db();
             if (!$this->query) throw new Exception(_('No query sent'));
-            else if (!$this->db_name) throw new Exception(_('No database to work off'));
             else if (!$this->queryResult = $this->link->query($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
+            else $this->current_db();
+            if (!$this->db_name) throw new Exception(_('No database to work off'));
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
