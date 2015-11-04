@@ -315,7 +315,7 @@ class HostManagementPage extends FOGPage {
         }
         foreach ((array)$this->obj->get('additionalMACs') AS $i => &$MAC) {
             if (!$MAC->isValid()) continue;
-            $addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" />&nbsp;&nbsp;<i class="icon fa fa-minus-circle remove-mac hand" title="'._('Remove MAC').'"></i><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$this->obj->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$this->obj->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span><index type="hidden" name="additionalMACsRM[]"/></div>';
+            $addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" />&nbsp;&nbsp;<i class="icon fa fa-minus-circle remove-mac hand" title="'._('Remove MAC').'"></i><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$this->obj->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$this->obj->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
             unset($MAC);
         }
         foreach ((array)$this->obj->get('pendingMACs') AS $i => &$MAC) {
@@ -884,14 +884,7 @@ class HostManagementPage extends FOGPage {
                     ->set('biosexit',$_REQUEST['bootTypeExit'])
                     ->set('efiexit',$_REQUEST['efiBootTypeExit']);
                 if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) $this->obj->addPriMAC($mac->__toString());
-                $AddMe = array();
-                foreach ((array)$_REQUEST['additionalMACs'] AS $i => &$MAC) {
-                    $MAC = (!($MAC instanceof MACAddress) ? $this->getClass('MACAddress',$MAC) : $MAC);
-                    if ($MAC->isValid()) $AddMe[] = strtolower($MAC->__toString());
-                }
-                unset($MAC);
-                if (count($AddMe)) $this->obj->addAddMAC($AddMe);
-                if(isset($_REQUEST['additionalMACsRM'])) $this->obj->removeAddMAC($_REQUEST['additionalMACsRM']);
+                $this->obj->addAddMAC($_REQUEST['additionalMACs']);
                 break;
                 case 'host-active-directory';
                 $useAD = isset($_REQUEST['domain']);
