@@ -15,13 +15,13 @@ class BootMenu extends FOGBase {
         $StorageNode = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1,isMaster=>1));
         $StorageNode = @array_shift($StorageNode);
         // Sets up the default values stored in the server. Lines 51 - 64
-        $webserver = $this->getSetting(FOG_WEB_HOST);
-        $curroot = trim(trim($this->getSetting(FOG_WEB_ROOT),'/'));
-        $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
+        $webserver = $this->getSetting('FOG_WEB_HOST');
+        $curroot = trim(trim($this->getSetting('FOG_WEB_ROOT'),'/'));
+        $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
         $Send['booturl'] = array(
             '#!ipxe',
-            'set fog-ip '.$this->getSetting(FOG_WEB_HOST),
-            'set fog-webroot '.basename($this->getSetting(FOG_WEB_ROOT)),
+            "set fog-ip $webserver",
+            sprintf('set fog-webroot %s',basename($this->getSetting('FOG_WEB_ROOT'))),
             'set boot-url http://${fog-ip}/${fog-webroot}',
         );
         $this->parseMe($Send);

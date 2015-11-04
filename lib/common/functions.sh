@@ -317,12 +317,15 @@ installPackages() {
         fi
     elif [ "$osid" -eq 2 ]; then
         if [[ "$linuxReleaseName" != +(*'ebian'*) ]]; then
-            DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >/dev/null 2>&1;
+            DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >/dev/null 2>&1
+            ntpdate pool.ntp.org >/dev/null 2>&1
             add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
             if [ "$?" != 0 ]; then
                 apt-get update >/dev/null 2>&1
-                apt-get -yq install python-software-properties >/dev/null 2>&1
-                add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
+                apt-get -yq install python-software-properties ntpdate >/dev/null 2>&1
+                ntpdate pool.ntp.org >/dev/null 2>&1
+                locale-gen 'en_US.UTF-8' >/dev/null 2>&1
+                LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
             fi
         elif [[ "$linuxReleaseName" == +(*'ebian'*) ]]; then
             if [ "$OSVersion" -eq 7 ]; then
