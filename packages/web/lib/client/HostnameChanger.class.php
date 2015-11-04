@@ -17,8 +17,8 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
         if (!$this->newService || $this->Host->get('useAD')) {
             $this->send .= '#ADDom='.$this->Host->get('ADDomain')."\n";
             $this->send .= '#ADOU='.$this->Host->get('ADOU')."\n";
-            $this->send .= '#ADUser='.$adUser."\n";
-            $this->send .= '#ADPass='.$password;
+            $this->send .= '#ADUser='.$this->DB->sanitize($adUser)."\n";
+            $this->send .= '#ADPass='.$this->DB->sanitize($password);
             $productKey = trim(base64_decode($this->Host->get('productKey')));
             if ($productKey) $this->send .= "\n#Key=".$productKey;
         }
