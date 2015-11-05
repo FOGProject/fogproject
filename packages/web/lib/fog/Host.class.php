@@ -143,7 +143,7 @@ class Host extends FOGController {
             $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
             if (count($HostWithMAC) && !in_array($this->get('id'),$HostWithMAC)) throw new Exception(_('This MAC Belongs to another host'));
             $DBMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id')),'mac');
-            if (false !== $this->array_strpos($RealPriMAC,$DBMACs)) {
+            if ($this->array_strpos($RealPriMAC,$DBMACs) !== false) {
                 foreach ((array)$DBMACs AS $i => $DBMAC) {
                     if ($RealPriMAC === $DBMAC) {
                         $this->removeAddMAC($RealPriMAC);
@@ -158,7 +158,7 @@ class Host extends FOGController {
                 unset($RemoveMAC);
                 $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
             }
-            if (!$this->array_strpos($RealPriMAC,$DBPriMACs)) {
+            if ($this->array_strpos($RealPriMAC,$DBPriMACs) === false) {
                 $this->getClass('MACAddressAssociation')
                     ->set('hostID',$this->get('id'))
                     ->set('mac',$RealPriMAC)
@@ -170,62 +170,73 @@ class Host extends FOGController {
             $RealAddMACs = $PreOwnedMACs = array();
             foreach ((array)$theseMACs AS $i => &$thisMAC) {
                 if (($thisMAC instanceof MACAddress) && $thisMAC->isValid() && !in_array($thisMAC->__toString(),(array)$RealAddMACs)) $RealAddMACs[] = $thisMAC->__toString();
+                unset($thisMAC);
             }
-            $RealAddMACs = array_diff((array)$RealAddMACs,(array)$PreOwnedMACs);
-            $DBPriMACs = $this->getClass('MACAddressAssociationManager')->find(array('primary'=>1),'','','','','','','mac');
+            unset($theseMACs);
+            $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('primary'=>1),'mac');
             foreach ((array)$DBPriMACs AS $i => &$DBPriMAC) {
-                if (false !== $this->array_strpos($DBPriMAC,$RealAddMACs)) throw new Exception(_('Cannot add a pre-existing Primary MAC as an additional MAC'));
+                if ($this->array_strpos($DBPriMAC,$RealAddMACs) !== false) throw new Exception(_('Cannot add a pre-existing Primary MAC as an additional MAC'));
+                unset($DBPriMAC);
             }
-            $HostsWithMACs = $this->getClass('MACAddressAssociationManager')->find(array('mac'=>$RealAddMACs));
-            foreach ((array)$HostsWithMACs AS $i => $HostWithMAC) {
-                if ($HostWithMAC->get('hostID') && $HostWithMAC->get('hostID') != $this->get('id') && !in_array($this->getClass('MACAddress',$HostWithMAC)->__toString(),(array)$PreOwnedMACs)) $PreOwnedMACs[] = $this->getClass('MACAddress',$HostWithMAC)->__toString();
-            }
-            $DBAddMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>array(0,null,''),'pending'=>array(0,null,'')),'','','','','','','mac');
-            $DBMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>array(0,null,'')),'','','','','','','mac');
+            unset($DBPriMACs);
+            $PreOwnedMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>1),'mac',true);
+            $RealAddMACs = array_diff((array)$RealAddMACs,(array)$PreOwnedMACs);
+            unset($PreOwnedMACs);
+            $DBAddMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>array(0,null)),'mac');
             $RemoveAddMAC = array_diff((array)$DBAddMACs,(array)$RealAddMACs);
             if (count($RemoveAddMAC)) {
-                $this->getClass('MACAddressAssociationManager')->destroy(array('mac'=>$RemoveAddMAC));
-                $DBAddMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>array(0,null,''),'pending'=>array(0,null,'')),'','','','','','','mac');
+                $this->getClass('MACAddressAssociationManager')->destroy(array('hostID'=>$this->get('id'),'mac'=>$RemoveAddMAC));
+                $DBAddMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>array(0,null)),'mac');
                 unset($RemoveAddMAC);
             }
             $RealAddMACs = array_diff((array)$RealAddMACs,(array)$DBAddMACs);
+            unset($DBAddMACs);
             foreach ((array)$RealAddMACs AS $i => &$RealAddMAC) {
                 $this->getClass('MACAddressAssociation')
                     ->set('hostID',$this->get('id'))
                     ->set('mac',$RealAddMAC)
+                    ->set('primary',0)
+                    ->set('pending',0)
                     ->save();
+                unset($RealAddMAC);
             }
+            unset($RealAddMACs);
         case ($this->isLoaded('pendingMACs')):
             $theseMACs = $this->get('pendingMACs');
             $RealPendMACs = $PreOwnedMACs = array();
             foreach ((array)$theseMACs AS $i => &$thisMAC) {
-                if (($thisMAC instanceof MACAddress) && $thisMAC->isValid() && !in_array($thisMAC->__toString(),(array)$RealPendMACs)) $RealPendMACs[] = $thisMAC->__toString();
+                if (($thisMAC instanceof MACAddress) && $thisMAC->isValid() && false === $this->array_strpos($thisMAC->__toString(),$RealPendMACs)) $RealPendMACs[] = $thisMAC->__toString();
+                unset($thisMAC);
             }
-            $RealPendMACs = array_diff((array)$RealPendMACs,(array)$PreOwnedMACs);
-            $DBPriMACs = $this->getClass('MACAddressAssociationManager')->find(array('primary'=>1),'','','','','','','mac');
+            unset($theseMACs);
+            $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('primary'=>1),'mac');
             foreach ((array)$DBPriMACs AS $i => &$DBPriMAC) {
-                if (false !== $this->array_strpos($DBPriMAC,$RealPendMACs)) throw new Exception(_('Cannot add a pre-existing Primary MAC as a pending MAC'));
+                if ($this->array_strpos($DBPriMAC,$RealPendMACs) !== false) throw new Exception(_('Cannot add a pre-existing Primary MAC as a pending MAC'));
+                unset($DBPriMAC);
             }
-            $HostsWithMACs = $this->getClass('MACAddressAssociationManager')->find(array('mac'=>$RealPendMACs));
-            foreach ((array)$HostsWithMACs AS $i => $HostWithMAC) {
-                if ($HostWithMAC->get('hostID') && $HostWithMAC->get('hostID') != $this->get('id') && !in_array($this->getClass('MACAddress',$HostWithMAC)->__toString(),(array)$PreOwnedMACs)) $PreOwnedMACs[] = $this->getClass('MACAddress',$HostWithMAC)->__toString();
-            }
-            $DBPendMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>array(0,null,''),'pending'=>1),'','','','','','','mac');
-            $DBMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>array(0,null,'')),'','','','','','','mac');
+            unset($DBPriMACs);
+            $PreOwnedMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>array(0,null)),'mac',true);
+            $RealPendMACs = array_diff((array)$RealPendMACs,(array)$PreOwnedMACs);
+            unset($PreOwnedMACs);
+            $DBPendMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>1),'mac');
             $RemovePendMAC = array_diff((array)$DBPendMACs,(array)$RealPendMACs);
             if (count($RemovePendMAC)) {
-                $this->getClass('MACAddressAssociationManager')->destroy(array('mac'=>$RemovePendMAC));
-                $DBPendMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>array(0,null,''),'pending'=>1),'','','','','','','mac');
+                $this->getClass('MACAddressAssociationManager')->destroy(array('hostID'=>$this->get('id'),'mac'=>$RemovePendMAC));
+                $DBPendMACs = $this->getSubObjectIDs('MACAddressAssociation',array('primary'=>array(0,null),'pending'=>1),'mac');
                 unset($RemovePendMAC);
             }
             $RealPendMACs = array_diff((array)$RealPendMACs,(array)$DBPendMACs);
+            unset($DBPendMACs);
             foreach ((array)$RealPendMACs AS $i => &$RealPendMAC) {
                 $this->getClass('MACAddressAssociation')
                     ->set('hostID',$this->get('id'))
                     ->set('mac',$RealPendMAC)
+                    ->set('primary',0)
                     ->set('pending',1)
                     ->save();
+                unset($RealPendMAC);
             }
+            unset($RealPendMACs);
         case ($this->isLoaded('modules')):
             $DBModuleIDs = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
             $RemoveModuleIDs = array_diff((array)$DBModuleIDs,(array)$this->get('modules'));
@@ -650,22 +661,6 @@ class Host extends FOGController {
         $this->FOGURLRequests->process($URLs,'GET');
         return $this;
     }
-    public function addPrinter($addArray) {
-        $Prints = array_unique(array_diff((array)$addArray,(array)$this->get('printers')));
-        // Add
-        if (count($Prints)) {
-            $Prints = array_merge((array)$this->get('printers'),(array)$Prints);
-            $this->set('printers',$Prints);
-        }
-        // Return
-        return $this;
-    }
-    public function removePrinter($removeArray) {
-        $Prints = array_unique(array_diff((array)$this->get('printers'),(array)$removeArray));
-        $this->set('printers',$Prints);
-        // Return
-        return $this;
-    }
     public function addAddMAC($addArray,$pending = false) {
         if ($pending) foreach((array)$addArray AS $i => &$item) $this->add('pendingMACs', $item);
         else foreach((array)$addArray AS $i => &$item) $this->add('additionalMACs', $item);
@@ -708,41 +703,32 @@ class Host extends FOGController {
         $this->addAddMAC($MAC,true);
         return $this;
     }
+    public function addPrinter($addArray) {
+        $this->set('printers',array_unique(array_merge((array)$this->get('printers'),(array)$addArray)));
+        return $this;
+    }
+    public function removePrinter($removeArray) {
+        $this->set('printers',array_unique(array_diff((array)$this->get('printers'),(array)$removeArray)));
+        return $this;
+    }
     public function addSnapin($addArray) {
         $limit = $this->getSetting('FOG_SNAPIN_LIMIT');
         if ($limit > 0) {
             if ($this->getClass('SnapinManager')->count(array('id'=>$this->get('snapins'))) >= $limit || count($addArray) > $limit) throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
         }
-        $Snaps = array_unique(array_diff((array)$addArray,(array)$this->get('snapins')));
-        // Add
-        if (count($Snaps)) {
-            $Snaps = array_merge((array)$this->get('snapins'),(array)$Snaps);
-            $this->set('snapins',$Snaps);
-        }
-        // Return
+        $this->set('snapins',array_unique(array_merge((array)$this->get('snapins'),(array)$addArray)));
         return $this;
     }
     public function removeSnapin($removeArray) {
-        $Snaps = array_unique(array_diff((array)$this->get('snapins'),(array)$removeArray));
-        $this->set('snapins',$Snaps);
-        // Return
+        $this->set('snapins',array_unique(array_diff((array)$this->get('snapins'),(array)$removeArray)));
         return $this;
     }
     public function addModule($addArray) {
-        $Mods = array_unique(array_diff((array)$addArray,(array)$this->get('modules')));
-        // Add
-        if (count($Mods)) {
-            $Mods = array_merge((array)$this->get('modules'),$Mods);
-            $this->set('modules',$Mods);
-        }
-        // Return
+        $this->set('modules',array_unique(array_merge((array)$this->get('modules'),(array)$addArray)));
         return $this;
     }
     public function removeModule($removeArray) {
-        $Mods = array_unique(array_diff((array)$this->get('modules'),(array)$removeArray));
-        // Remove
-        $this->set('modules',$Mods);
-        // Return
+        $this->set('modules',array_unique(array_diff((array)$this->get('modules'),(array)$removeArray)));
         return $this;
     }
     public function getMyMacs($justme = true) {

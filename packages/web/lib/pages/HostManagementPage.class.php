@@ -915,8 +915,8 @@ class HostManagementPage extends FOGPage {
                 $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
                 $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $this->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
                 if (isset($_REQUEST['updatestatus'])) {
-                    $modOn = $_REQUEST['modules'];
-                    $modOff = $this->getSubObjectIDs('Module',array('id'=>$modOn),'',true);
+                    $modOn = (array)$_REQUEST['modules'];
+                    $modOff = $this->getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
                     $this->obj->addModule($modOn);
                     $this->obj->removeModule($modOff);
                 }
