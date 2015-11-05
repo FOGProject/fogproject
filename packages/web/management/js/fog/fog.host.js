@@ -36,7 +36,7 @@ function removeMACField() {
                 {additionalMACsRM: val}
             );
         }
-        remove.parent().remove();
+        remove.parent('div').remove();
         HookTooltips();
     });
 }
