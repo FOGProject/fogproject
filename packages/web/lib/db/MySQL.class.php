@@ -68,8 +68,13 @@ class MySQL extends DatabaseManager {
             else {
                 switch (strtolower($fetchType)) {
                 case 'fetch_all':
-                    if (method_exists('mysqli_result','fetch_all')) $this->result = $this->queryResult->$fetchType($type);
-                    else for ($this->result=array();$tmp = $this->queryResult->fetch_array($type);) $this->result[] = $tmp;
+                    if (method_exists('mysqli_result','fetch_all')) {
+                        $this->result = $this->queryResult->$fetchType($type);
+                        $this->queryResult->close();
+                    } else {
+                        for ($this->result=array();$tmp = $this->queryResult->fetch_array($type);) $this->result[] = $tmp;
+                        $this->queryResult->close();
+                    }
                     break;
                 case 'fetch_assoc':
                 case 'fetch_row':
@@ -114,6 +119,7 @@ class MySQL extends DatabaseManager {
             foreach ((array)$field AS $i => &$key) {
                 $key = trim($key);
                 if (array_key_exists($key, (array)$this->result)) {
+                    $this->queryResult->close();
                     unset($this->queryResult);
                     return $this->result[$key];
                 }

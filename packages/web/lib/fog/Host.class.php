@@ -129,6 +129,13 @@ class Host extends FOGController {
     public function save() {
         parent::save();
         switch ($this->get('id')) {
+        case 0:
+        case null:
+        case false:
+        case '0':
+            $this->destroy();
+            throw new Exception(_('ID was not set, or unable to be created'));
+            break;
         case ($this->isLoaded('mac')):
             if (!(($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())) throw new Exception($this->foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
