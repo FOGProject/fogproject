@@ -24,13 +24,7 @@ abstract class FOGController extends FOGBase {
             if (is_numeric($data) && intval($data) < 1) throw new Exception(_('Improper data passed'));
             $this->databaseFieldsFlipped = array_flip($this->databaseFields);
             if (is_numeric($data)) $this->set('id',$data)->load();
-            else if (is_array($data)) {
-                foreach ((array)$data AS $key => &$val) {
-                    $key = $this->key($key);
-                    $this->set($key, $val);
-                    unset($val);
-                }
-            }
+            else if (is_array($data)) $this->setQuery($data);
         } catch (Exception $e) {
             $this->error(_('Record not found, Error: %s'),array($e->getMessage()));
         }
@@ -120,8 +114,11 @@ abstract class FOGController extends FOGBase {
             implode(',',(array)$updateData)
         );
         try {
-            if (!$this->DB->query($query)) throw new Exception($this->DB->sqlerror());
-            if (!$this->get('id')) $this->set('id',$this->DB->insert_id());
+            $mysqli = $this->DB->link();
+            if (!($res = $mysqli->prepare($query))) throw new Exception(sprintf(_('Bad Query being sent. Error: %s'),$mysqli->error));
+            $res->execute();
+            if (!$this->get('id')) $this->set('id',$mysqli->insert_id);
+            unset($mysqli);
         } catch (Exception $e) {
             $this->debug(_('Database save failed: ID: %s, Error: %s'),array($this->data['id'],$e->getMessage()));
             return false;
@@ -144,9 +141,9 @@ abstract class FOGController extends FOGBase {
                         count($where) ? ' AND '.implode(' AND ',$where) : ''
                     );
                 } else {
-                    $fieldData = array();
                     $fields = $this->get($key);
-                    foreach((array)$fields AS $i => &$fieldValue) $fieldData[] = sprintf("%s='%s'",$this->databaseFields[$key],$this->DB->sanitize($fieldValue));
+                    foreach((array)$fields AS $i => &$fieldValue) $fieldData[] = sprintf("`%s`.`%s`='%s'",$this->databaseTable,$this->databaseFields[$key],$this->DB->sanitize($fieldValue));
+                    unset($fieldValue);
                     $query = sprintf($this->loadQueryTemplateMultiple,
                         $this->databaseTable,
                         $join,
@@ -154,8 +151,14 @@ abstract class FOGController extends FOGBase {
                         count($where) ? ' AND '.implode(' AND ',$where) : ''
                     );
                 }
-                $vals = $this->DB->query($query)->fetch()->get();
-                $this->setQuery($vals);
+                $mysqli = $this->DB->link();
+                if (!($res = $mysqli->prepare($query))) throw new Exception(sprintf(_('Bad Query being sent. Error: %s'),$mysqli->error));
+                $res->execute();
+                $res = $res->get_result();
+                $vals = $res->fetch_all(MYSQLI_ASSOC);
+                $res->close();
+                unset($mysqli);
+                $this->setQuery(@array_shift($vals));
             }
         } catch (Exception $e) {
             $this->debug(_('Load failed: %s'),array($e->getMessage()));
@@ -206,11 +209,11 @@ abstract class FOGController extends FOGBase {
     public function buildQuery($not = false, $compare = '=') {
         foreach ((array)$this->databaseFieldClassRelationships AS $class => &$fields) {
             $class = $this->getClass($class);
-            $join[] = sprintf(' LEFT OUTER JOIN %s ON %s.%s=%s.%s ',(string)$class->databaseTable,(string)$class->databaseTable,(string)$class->databaseFields[$fields[0]],(string)$this->databaseTable,(string)$this->databaseFields[$fields[1]]);
+            $join[] = sprintf(' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',$class->databaseTable,$class->databaseTable,$class->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);
             if ($fields[3]) {
                 foreach ((array)$fields[3] AS $field => &$value) {
-                    if (is_array($value)) $whereArrayAnd[] = sprintf("%s.%s IN ('%s')",$this->DB->sanitize($class->databaseTable),$this->DB->sanitize($class->databaseFields[$field]),implode("','",$value));
-                    else $whereArrayAnd[] = sprintf("%s.%s %s '%s'",$this->DB->sanitize($class->databaseTable),$this->DB->sanitize($class->databaseFields[$field]),(preg_match('#%#',$value) ? 'LIKE' : $compare), $this->DB->sanitize($value));
+                    if (is_array($value)) $whereArrayAnd[] = sprintf("`%s`.`%s` IN ('%s')",$class->databaseTable,$field,implode("','",$value));
+                    else $whereArrayAnd[] = sprintf("`%s`.`%s` %s '%s'",$class->databaseTable,$class->databaseFields[$field],(preg_match('#%#',$value) ? 'LIKE' : $compare), $value);
                 }
                 unset($value);
             }
@@ -219,13 +222,11 @@ abstract class FOGController extends FOGBase {
         return array(implode((array)$join),$whereArrayAnd);
     }
     public function setQuery(&$queryData) {
-        unset($this->data);
-        $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
+        $this->data = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
         foreach ($this->databaseFieldsFlipped AS $db_key => &$obj_key) {
-            $this->array_change_key($classData,$db_key,$obj_key);
+            $this->array_change_key($this->data,$db_key,$obj_key);
             unset($obj_key);
         }
-        $this->data = $classData;
         foreach((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
         unset($fields);
         return $this;
