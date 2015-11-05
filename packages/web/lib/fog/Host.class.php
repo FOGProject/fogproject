@@ -78,7 +78,7 @@ class Host extends FOGController {
             break;
         case 'additionalMACs':
         case 'pendingMACs':
-            foreach((array)$value AS $i => &$mac) $newValue[] = $this->getClass('MACAddress',$this->getClass('MACAddressAssociation',$mac));
+            foreach((array)$value AS $i => &$mac) $newValue[] = $this->getClass('MACAddress',$mac);
             unset($mac);
             $value = (array)$newValue;
             break;
@@ -91,8 +91,6 @@ class Host extends FOGController {
         case 'task':
             if (!($value instanceof Task)) $value = $this->getClass('Task',$value);
             break;
-        default:
-            break;
         }
         // Set
         return parent::set($key, $value);
@@ -104,8 +102,6 @@ class Host extends FOGController {
         case 'additionalMACs':
         case 'pendingMACs':
             if (!($value instanceof MACAddress)) $value = $this->getClass('MACAddress',$value);
-            break;
-        default:
             break;
         }
         return parent::add($key,$value);
@@ -132,15 +128,15 @@ class Host extends FOGController {
     }
     public function save() {
         parent::save();
-        switch (true) {
+        switch ($this->get('id')) {
         case ($this->isLoaded('mac')):
             if (!(($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())) throw new Exception($this->foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
-            $HostWithMAC = $this->getClass('MACAddressAssociationManager')->find(array('mac'=>$RealPriMAC),'','','','','','','hostID');
-            $DBPriMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>1),'','','','','','','mac');
+            $HostWithMAC = $this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$RealPriMAC),'hostID');
+            $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
             if (count($HostWithMAC) && !in_array($this->get('id'),$HostWithMAC)) throw new Exception(_('This MAC Belongs to another host'));
-            $DBMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id')),'','','','','','','mac');
-            if (in_array($RealPriMAC,(array)$DBMACs)) {
+            $DBMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id')),'mac');
+            if (false !== $this->array_strpos($RealPriMAC,$DBMACs)) {
                 foreach ((array)$DBMACs AS $i => $DBMAC) {
                     if ($RealPriMAC === $DBMAC) {
                         $this->removeAddMAC($RealPriMAC);
@@ -153,9 +149,9 @@ class Host extends FOGController {
             if (count($RemoveMAC)) {
                 $this->getClass('MACAddressAssociationManager')->destroy(array('mac'=>$RemoveMAC));
                 unset($RemoveMAC);
-                $DBPriMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>1),'','','','','','','mac');
+                $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
             }
-            if (!in_array($RealPriMAC,$DBPriMACs)) {
+            if (!$this->array_strpos($RealPriMAC,$DBPriMACs)) {
                 $this->getClass('MACAddressAssociation')
                     ->set('hostID',$this->get('id'))
                     ->set('mac',$RealPriMAC)
@@ -335,10 +331,10 @@ class Host extends FOGController {
         if ($this->get('id')) $this->set('mac',$this->getClass('MACAddress',$this->get('primac')->get('mac')));
     }
     protected function loadAdditionalMACs() {
-        if ($this->get('id')) $this->set('additionalMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>array(null,0,'')),'id'));
+        if ($this->get('id')) $this->set('additionalMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>array(null,0,'')),'mac'));
     }
     protected function loadPendingMACs() {
-        if ($this->get('id')) $this->set('pendingMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>1),'id'));
+        if ($this->get('id')) $this->set('pendingMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>1),'mac'));
     }
     protected function loadGroups() {
         if ($this->get('id')) $this->set('groups',$this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID'));
