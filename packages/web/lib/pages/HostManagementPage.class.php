@@ -455,7 +455,7 @@ class HostManagementPage extends FOGPage {
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );
-        $Snapins = $this->getClass('SnapinManager')->find($this->obj->get('snapinsnotinme'));
+        $Snapins = $this->getClass('SnapinManager')->find(array('id'=>$this->obj->get('snapinsnotinme')));
         foreach((array)$Snapins AS $i => &$Snapin) {
             if (!$Snapin->isValid()) continue;
             $this->data[] = array(
