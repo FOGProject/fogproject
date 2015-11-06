@@ -830,15 +830,23 @@ class Host extends FOGController {
     public function getActiveSnapinJob() {
         return $this->get('snapinjob');
     }
+    public function setPingStatus() {
+        $org_ip = $this->get('ip');
+        if (filter_var($this->get('ip'),FILTER_VALIDATE_IP) === false) $this->set('ip',$this->FOGCore->resolveHostname($this->get('name')));
+        if (filter_var($this->get('ip'),FILTER_VALIDATE_IP) === false) $this->set('ip',$this->get('name'));
+        $this
+            ->set('pingstatus',$this->getClass('Ping',$this->get('ip'))->execute())
+            ->set('ip',$org_ip);
+        unset($org_ip);
+        return $this;
+    }
     public function getPingCodeStr() {
-        if ((int)$this->get('pingstatus') === 0) return '<span class="icon-ping-down fa fa-exclamation-circle fa-1x" style="color: #ce0f0f" title="'._('No Response').'"></span>';
-        if ((int)$this->get('pingstatus') === -1) return '<span class="icon-ping-down fa fa-exclamation-circle fa-1x" style="color: #ce0f0f" title="'._('Unable to resolve hostname').'"></span>';
-        if ((int)$this->get('pingstatus') === 1) return '<span class="icon-ping-up fa fa-exclamation-circle fa-1x" style="color: #18f008" title="'._('Host Up').'"></span>';
-        return '<span class="icon-ping-down fa fa-exclamation-circle fa-1x" style="color: #ce0f0f" title="'._(socket_strerror((int)$this->get('pingstatus'))).'"></span>';
+        $val = intval($this->get('pingstatus'));
+        $socketstr = socket_strerror($val);
+        $strtoupdate = "<i class=\"icon-ping-%s fa fa-exclamation-circle fa-1x\" style=\"color: %s\" title=\"$socketstr\"></i>";
+        ob_start();
+        if ($val === 0) printf($strtoupdate,'up','#18f008');
+        else printf($strtoupdate,'down','#ce0f0f');
+        return ob_get_clean();
     }
 }
-/* Local Variables: */
-/* indent-tabs-mode: t */
-/* c-basic-offset: 4 */
-/* tab-width: 4 */
-/* End: */
