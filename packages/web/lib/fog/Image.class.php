@@ -46,7 +46,7 @@ class Image extends FOGController {
         case '0':
         case '':
             $this->destroy();
-            throw new Exception(_('ID was not set, or unable to be created'));
+            throw new Exception(_('Image ID was not set, or unable to be created'));
             break;
         case ($this->isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
@@ -67,11 +67,15 @@ class Image extends FOGController {
                 $DBGroupIDs = $this->getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
                 unset($RemoveGroupIDs);
             }
-            $Groups = array_diff((array)$this->get('storageGroups'),(array)$DBGroupIDs);
+            $Groups = $this->getClass('StorageGroupManager')->find(array('id'=>array_diff((array)$this->get('storageGroups'),(array)$DBGroupIDs)));
             foreach ((array)$Groups AS $i => &$Group) {
+                if (!$Group->isValid()) {
+                    $Group->destroy();
+                    continue;
+                }
                 $this->getClass('ImageAssociation')
                     ->set('imageID',$this->get('id'))
-                    ->set('storageGroupID',$Group)
+                    ->set('storageGroupID',$Group->get('id'))
                     ->save();
                 unset($Group);
             }
@@ -95,11 +99,7 @@ class Image extends FOGController {
         $this->FOGFTP->close();
     }
     public function addHost($addArray) {
-        $Hosts = array_unique(array_diff((array)$addArray,(array)$this->get('hosts')));
-        if (count($Hosts)) {
-            $Hosts = array_merge((array)$this->get('hosts'),(array)$Hosts);
-            $this->set('hosts',$Hosts);
-        }
+        $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
         return $this;
     }
     public function removeHost($removeArray) {
@@ -107,11 +107,7 @@ class Image extends FOGController {
         return $this;
     }
     public function addGroup($addArray) {
-        $Groups = array_unique(array_merge((array)$addArray,(array)$this->get('storageGroups')));
-        if (count($Groups)) {
-            $Hosts = array_merge((array)$this->get('storageGroups'),(array)$Groups);
-            $this->set('storageGroups',$Groups);
-        }
+        $this->set('storageGroups',array_unique(array_merge((array)$this->get('storageGroups'))));
         return $this;
     }
     public function removeGroup($removeArray) {
