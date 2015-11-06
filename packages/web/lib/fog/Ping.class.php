@@ -35,11 +35,10 @@ class Ping {
      * @return error codes
      */
     protected static function execSend($host,$timeout,$port) {
-        $fsocket = @pfsockopen($host,$port,$errno,$errstr,$timeout);
-        if (!$fsocket) $status = 111;
-        else $status = $errno;
+        $fsocket = @fsockopen($host,$port,$errno,$errstr,$timeout);
         @fclose($fsocket);
-        return ($errno == 0 ? true : $errno);
+        if ($errno === 0 && trim($errstr)) return 6;
+        return intval($errno);
     }
     public function execute() {
         return self::execSend($this->host,$this->timeout,$this->port);
