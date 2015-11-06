@@ -25,11 +25,21 @@ class Group extends FOGController {
     }
     public function save() {
         parent::save();
-        if ($this->isLoaded('hosts')) {
+        switch ($this->get('id')) {
+        case 0:
+        case null:
+        case false:
+        case '0':
+        case '':
+            $this->destroy();
+            throw new Exception(_('ID was not set, or unable to be createds'));
+            break;
+        case ($this->isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
                 $this->getClass('GroupAssociationManager')->destroy(array('groupID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
+                $DBHostIDs = $this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
                 unset($RemoveHostIDs);
             }
             $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
@@ -38,8 +48,10 @@ class Group extends FOGController {
                     ->set('hostID',$Host)
                     ->set('groupID',$this->get('id'))
                     ->save();
+                unset($Host);
             }
-            unset($Host);
+            unset($Hosts,$DBHostIDs,$RemoveHostIDs);
+            break;
         }
         return $this;
     }

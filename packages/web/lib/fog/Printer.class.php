@@ -28,7 +28,16 @@ class Printer extends FOGController {
     }
     public function save() {
         parent::save();
-        if ($this->isLoaded('hosts')) {
+        switch ($this->get('id')) {
+        case 0:
+        case null:
+        case false:
+        case '0':
+        case '':
+            $this->destroy();
+            throw new Exception(_('ID was not set, or unable to be created'));
+            break;
+        case ($this->isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_unique(array_diff((array)$DBHostIDs,(array)$this->get('hosts')));
             if (count($RemoveHostIDs)) {
@@ -44,8 +53,9 @@ class Printer extends FOGController {
                     ->set('hostID',$Host)
                     ->set('isDefault',($hasDefault != 1))
                     ->save();
+                unset($Host);
             }
-            unset($Host);
+            unset($Hosts);
         }
         return $this;
     }
