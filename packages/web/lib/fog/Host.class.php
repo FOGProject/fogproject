@@ -133,6 +133,7 @@ class Host extends FOGController {
         case null:
         case false:
         case '0':
+        case '':
             $this->destroy();
             throw new Exception(_('ID was not set, or unable to be created'));
             break;
