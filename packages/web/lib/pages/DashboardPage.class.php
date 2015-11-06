@@ -10,9 +10,10 @@ class DashboardPage extends FOGPage {
         $this->notes = array();
     }
     public function index() {
-        $hostPend = '<i class="fa fa-circle fa-1x notifier"></i>&nbsp;'._('Pending hosts').'<br/>'._('Click').' '.'<a href="?node=host&sub=pending">'._('here').'</a> '._('to review.');
-        $macPend = '<i class="fa fa-circle fa-1x notifier"></i>&nbsp;'._('Pending macs').'<br/>'._('Click').' '.'<a href="?node=report&sub=pend-mac">'._('here').'</a> '._('to review');
-        if ($_SESSION['Pending-Hosts'] && $_SESSION['Pending-MACs']) $this->setMessage($hostPend.'<br/>'.$macPend);
+        $pendingInfo = '<i class="fa fa-circle fa-1x notifier"></i>&nbsp;%s<br/>%s <a href="?node=%s&sub=%s">%s</a> %s';
+        $hostPend = sprintf($pendingInfo,_('Pending hosts'),_('Click'),'host','pending',_('here'),_('to review.'));
+        $macPend = sprintf($pendingInfo,_('Pending macs'),_('Click'),'report','pend-mac',_('here'),_('to review.'));
+        if ($_SESSION['Pending-Hosts'] && $_SESSION['Pending-MACs']) $this->setMessage("$hostPend<br/>$macPend");
         else if ($_SESSION['Pending-Hosts']) $this->setMessage($hostPend);
         else if ($_SESSION['Pending-MACs']) $this->setMessage($macPend);
         $SystemUptime = $this->FOGCore->SystemUptime();
@@ -31,7 +32,7 @@ class DashboardPage extends FOGPage {
             array(),
             array(),
         );
-        echo '<ul id="dashboard-boxes"><li><h4>'._('System Overview').'</h4>';
+        printf('<ul id="dashboard-boxes"><li><h4>%s</h4>',_('System Overview'));
         foreach ((array)$fields AS $field => &$fielddata) {
             $this->data[] = array(
                 'field' => $field,
@@ -42,20 +43,38 @@ class DashboardPage extends FOGPage {
         unset($fields);
         $this->HookManager->processEvent('DashboardData',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
-        echo '</li><li><h4>'._('System Activity').'</h4><div class="graph pie-graph" id="graph-activity"></div></li><li><h4>'._('Disk Information').'</h4><div id="diskusage-selector">';
+        printf('</li><li><h4>%s</h4><div class="graph pie-graph" id="graph-activity"></div></li><li><h4>%s</h4><div id="diskusage-selector">',_('System Activity'),_('Disk Information'));
         $Nodes = $this->getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>1));
+        $URLs = array();
         foreach ($Nodes AS $i => &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
-            $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
-            $version = $this->FOGURLRequests->process(sprintf('http://%s%s/service/getversion.php',$StorageNode->get('ip'),$webroot),'GET');
-            $options .= '<option value="'.$StorageNode->get('id').'">'.$StorageNode->get('name').($StorageNode->get('isMaster') == 1 ? " * " : ' ')."(${version[0]})".'</option>';
-            unset($StorageNode);
+            $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s',$curroot) : ''));
+            $URLs[] = sprintf('http://%s%s/service/getversion.php',$StorageNode->get('ip'),$webroot);
+            unset($StorageNode,$curroot,$webroot);
         }
-        echo ($options ? '<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">'.$options.'</select>' : null);
-        echo '</div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li></ul><h3>'._('Imaging over the last 30 days').'</h3><div id="graph-30day" class="graph"></div><h3 id="graph-bandwidth-title">'.$this->foglang['Bandwidth'].'- <span>'.$this->foglang['Transmit'].'</span><!-- (<span>2 Minutes</span>)--></h3><div id="graph-bandwidth-filters"><div><a href="#" id="graph-bandwidth-filters-transmit" class="l active">'.$this->foglang['Transmit'].'</a><a href="#" id="graph-bandwidth-filters-receive" class="l">'.$this->foglang['Receive'].'</a></div><div class="spacer"></div><div><a href="#" rel="3600" class="r">'._('1 hour').'</a><a href="#" rel="1800" class="r">'._('30 Minutes').'</a><a href="#" rel="600" class="r">'._('10 Minutes').'</a><a href="#" rel="120" class="r active">'._('2 Minutes').'</a></div></div><div id="graph-bandwidth" class="graph"></div>';
-        for ($i = 0; $i <= 30; $i++) $Graph30dayData .= '["'.(1000*$this->nice_date()->modify("-$i days")->getTimestamp()).'", '.$this->getClass('ImagingLogManager')->count(array('start'=>$this->nice_date()->modify("-$i days")->format('Y-m-d%'),'finish'=>$this->nice_date()->modify("-$i days")->format('Y-m-d%')),'OR').']'.($i < 30 ? ', ' : '');
-        echo '<div class="fog-variable" id="ActivityActive"></div><div class="fog-variable" id="ActivityQueued"></div><div class="fog-variable" id="ActivitySlots"></div><!-- Variables --><div class="fog-variable" id="Graph30dayData">['.$Graph30dayData.']</div>';
+        $version = $this->FOGURLRequests->process($URLs,'GET');
+        unset($URLs,$curroot,$webroot);
+        ob_start();
+        foreach ($Nodes AS $i => &$StorageNode) {
+            if (!$StorageNode->isValid()) continue;
+            $curroot = trim(trim($StorageNode->get('webroot'),'/'));
+            $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s',$curroot) : ''));
+            printf('<option value="%s">%s%s (%s)</option>',$StorageNode->get('id'),$StorageNode->get('name'),($StorageNode->get('isMaster') ? ' *' : ''),$version[$i]);
+            unset($StorageNode,$curroot,$webroot);
+        }
+        unset($Nodes);
+        $options = ob_get_clean();
+        if ($options) printf('<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">%s</select>',$options);
+        printf('</div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li></ul><h3>%s</h3><div id="graph-30day" class="graph"></div><h3 id="graph-bandwidth-title">%s - <span>%s</span><!-- (<span>2 Minutes</span>)--></h3><div id="graph-bandwidth-filters"><div><a href="#" id="graph-bandwidth-filters-transmit" class="l active">%s</a><a href="#" id="graph-bandwidth-filters-receive" class="l">%s</a></div><div class="spacer"></div><div><a href="#" rel="3600" class="r">%s</a><a href="#" rel="1800" class="r">%s</a><a href="#" rel="600" class="r">%s</a><a href="#" rel="120" class="r active">%s</a></div></div><div id="graph-bandwidth" class="graph"></div>',_('Imaging over the last 30 days'),$this->foglang['Bandwidth'],$this->foglang['Transmit'],$this->foglang['Transmit'],$this->foglang['Receive'],_('1 hour'),_('30 Minutes'),_('10 Minutes'),_('2 Minutes'));
+        ob_start();
+        for ($i = 0; $i <= 30; $i++) {
+            $Date = $this->nice_date()->modify("-$i days");
+            printf('["%s", %s]%s',(1000 * $Date->getTimestamp()),$this->getClass('ImagingLogManager')->count(array('start'=>$Date->format('Y-m-d%'),'finish'=>$Date->format('Y-m-d%')),'OR'),($i < 30 ? ', ' : ''));
+            unset($Date);
+        }
+        $Graph30dayData = ob_get_clean();
+        printf('<div class="fog-variable" id="ActivityActive"></div><div class="fog-variable" id="ActivityQueued"></div><div class="fog-variable" id="ActivitySlots"></div><!-- Variables --><div class="fog-variable" id="Graph30dayData">[%s]</div>',$Graph30dayData);
     }
     public function bandwidth() {
         $URLs = array();
