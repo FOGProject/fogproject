@@ -18,13 +18,11 @@ class PingHosts extends FOGService {
             $this->outall(' * Attempting to ping '.$this->getClass('HostManager')->count().' host(s).');
             $Hosts = $this->getClass('HostManager')->find();
             foreach ((array)$Hosts AS $i => &$Host) {
-                if (!$Host->isValid()) continue;
-                $Host->set('pingstatus',-1);
-                $hostIP = trim($Host->get('ip'));
-                if (!filter_var($hostIP,FILTER_VALIDATE_IP)) $hostIP = $this->FOGCore->resolveHostname($Host->get('name'));
-                $Host->set('pingstatus',(int)$this->getClass('Ping',$hostIP)->execute());
-                $Host->save();
-                usleep(100000);
+                if (!$Host->isValid()) {
+                    unset($Host);
+                    continue;
+                }
+                $Host->setPingStatus()->save();
                 unset($Host);
             }
             unset($Hosts);
