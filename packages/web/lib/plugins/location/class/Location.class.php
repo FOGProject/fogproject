@@ -25,7 +25,16 @@ class Location extends FOGController {
     }
     public function save() {
         parent::save();
-        if ($this->isLoaded('hosts')) {
+        switch ($this->get('id')) {
+        case 0:
+        case null:
+        case false:
+        case '0':
+        case '':
+            $this->destroy();
+            throw new Exception(_('ID was not set, or unable to be created'));
+            break;
+        case ($this->isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id'),'hostID'));
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
@@ -39,8 +48,9 @@ class Location extends FOGController {
                     ->set('hostID',$Host)
                     ->set('locationID',$this->get('id'))
                     ->save();
+                unset($Host);
             }
-            unset($Host);
+            unset($Hosts);
         }
         return $this;
     }

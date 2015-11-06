@@ -39,7 +39,15 @@ class Image extends FOGController {
     }
     public function save() {
         parent::save();
-        switch (true) {
+        switch ($this->get('id')) {
+        case 0:
+        case null:
+        case false:
+        case '0':
+        case '':
+            $this->destroy();
+            throw new Exception(_('ID was not set, or unable to be created'));
+            break;
         case ($this->isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
@@ -65,8 +73,9 @@ class Image extends FOGController {
                     ->set('imageID',$this->get('id'))
                     ->set('storageGroupID',$Group)
                     ->save();
+                unset($Group);
             }
-            unset($Group,$Groups,$DBGroupIDs);
+            unset($Groups,$DBGroupIDs);
         }
         return $this;
     }

@@ -35,7 +35,15 @@ class Snapin extends FOGController {
     }
     public function save() {
         parent::save();
-        switch (true) {
+        switch ($this->get('id')) {
+        case 0:
+        case null:
+        case false:
+        case '0':
+        case '':
+            $this->destroy();
+            throw new Exception(_('ID was not set, or unable to be created'));
+            break;
         case ($this->isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
@@ -50,8 +58,9 @@ class Snapin extends FOGController {
                     ->set('hostID',$Host)
                     ->set('snapinID',$this->get('id'))
                     ->save();
+                unset($Host);
             }
-            unset($Host,$Hosts,$DBHostIDs);
+            unset($Hosts,$DBHostIDs);
         case ($this->isLoaded('storageGroups')):
             $DBGroupIDs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID');
             $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('storageGroups'));
@@ -66,8 +75,9 @@ class Snapin extends FOGController {
                     ->set('snapinID',$this->get('id'))
                     ->set('storageGroupID',$Group)
                     ->save();
+                unset($Group);
             }
-            unset($Group,$Groups,$DBGroupIDs);
+            unset($Groups,$DBGroupIDs);
         }
         return $this;
     }
