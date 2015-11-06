@@ -51,7 +51,7 @@ if [ -z "$OSVersion" ]; then
 fi
 OSVersion=`echo $OSVersion | cut -d '.' -f1`
 if [[ "$OSVersion" -ge 7 && "$linuxReleaseName" == +(*[Cc]'ent'[Oo][Ss]*|*[Rr]'ed'*[Hh]'at'*) ]] || [[ "$OSVersion" -ge 15 && "$linuxReleaseName" == +(*[Ff]'edora'*|*'buntu'*) ]] || [[ "$OSVersion" -ge 8 && "$linuxReleaseName" == +(*[Dd]'ebian'*) ]]; then
-    if [ $(command -v systemctl >/dev/null 2>&1 && echo $?) == "0"]; then
+    if [ $(command -v systemctl >/dev/null 2>&1 && echo $?) == "0" ]; then
         systemctl="yes";
     fi
 fi
