@@ -135,7 +135,7 @@ class Host extends FOGController {
         case '0':
         case '':
             $this->destroy();
-            throw new Exception(_('ID was not set, or unable to be created'));
+            throw new Exception(_('Host ID was not set, or unable to be created'));
             break;
         case ($this->isLoaded('mac')):
             if (!(($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())) throw new Exception($this->foglang['InvalidMAC']);
@@ -266,9 +266,16 @@ class Host extends FOGController {
                 $DBPrinterIDs = $this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
                 unset($RemovePrinterIDs);
             }
-            $PrinterIDs = array_diff((array)$this->get('printers'),(array)$DBPrinterIDs);
-            foreach ((array)$PrinterIDs AS $i => $Printer) $this->getClass('Printer',$Printer)->addHost($this->get('id'))->save();
-            unset($Printer);
+            $Printers = $this->getClass('PrinterManager')->find(array('id'=>array_diff((array)$this->get('printers'),(array)$DBPrinterIDs)));
+            foreach ((array)$Printers AS $i => $Printer) {
+                if (!$Printer->isValid()) {
+                    $Printer->destroy();
+                    continue;
+                }
+                $Printer->addHost($this->get('id'))->save();
+                unset($Printer);
+            }
+            unset($Printers);
         case ($this->isLoaded('snapins')):
             $DBSnapinIDs = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
             $RemoveSnapinIDs = array_diff((array)$DBSnapinIDs,(array)$this->get('snapins'));
@@ -277,9 +284,16 @@ class Host extends FOGController {
                 $DBSnapinIDs = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
                 unset($RemoveSnapinIDs);
             }
-            $Snapins = array_diff((array)$this->get('snapins'),(array)$DBSnapinIDs);
-            foreach ((array)$Snapins AS $i => $Snapin) $this->getClass('Snapin',$Snapin)->addHost($this->get('id'))->save();
-            unset($Snapin);
+            $Snapins = $this->getClass('SnapinManager')->find(array('id'=>array_diff((array)$this->get('snapins'),(array)$DBSnapinIDs)));
+            foreach ((array)$Snapins AS $i => $Snapin) {
+                if (!$Snapin->isValid()) {
+                    $Snapin->destroy();
+                    continue;
+                }
+                $Snapin->addHost($this->get('id'))->save();
+                unset($Snapin);
+            }
+            unset($Snapins);
         case ($this->isLoaded('groups')):
             $DBGroupIDs = $this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
             $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('groups'));
@@ -288,9 +302,16 @@ class Host extends FOGController {
                 $DBGroupIDs = $this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
                 unset($RemoveGroupIDs);
             }
-            $Groups = array_diff((array)$this->get('groups'),(array)$DBGroupIDs);
-            foreach ((array)$Groups AS $i => $Group) $this->getClass('Group',$Group)->addHost($this->get('id'))->save();
-            unset($Group);
+            $Groups = $this->getClass('GroupManager')->find(array('id'=>array_diff((array)$this->get('groups'),(array)$DBGroupIDs)));
+            foreach ((array)$Groups AS $i => $Group) {
+                if (!$Group->isValid()) {
+                    $Group->destroy();
+                    continue;
+                }
+                $Group->addHost($this->get('id'))->save();
+                unset($Group);
+            }
+            unset($Groups);
         }
         return $this;
     }
@@ -776,20 +797,11 @@ class Host extends FOGController {
         return $this->removeHost($removeArray);
     }
     public function addHost($addArray) {
-        $Groups = array_unique(array_diff((array)$addArray,(array)$this->get('groups')));
-        // Add
-        if (count($Groups)) {
-            $Groups = array_merge((array)$this->get('groups'),(array)$Groups);
-            $this->set('groups',$Groups);
-        }
-        // Return
+        $this->set('groups',array_unique(array_merge((array)$this->get('groups'),(array)$addArray)));
         return $this;
     }
     public function removeHost($removeArray) {
-        $Groups = array_unique(array_diff((array)$this->get('groups'),(array)$removeArray));
-        // Iterate array (or other as array)
-        $this->set('groups',$Groups);
-        // Return
+        $this->set('groups',array_unique(array_diff((array)$this->get('groups'),(array)$removeArray)));
         return $this;
     }
     public function clientMacCheck($MAC = false) {
