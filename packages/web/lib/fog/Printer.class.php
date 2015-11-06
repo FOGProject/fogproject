@@ -35,7 +35,7 @@ class Printer extends FOGController {
         case '0':
         case '':
             $this->destroy();
-            throw new Exception(_('ID was not set, or unable to be created'));
+            throw new Exception(_('Printer ID was not set, or unable to be created'));
             break;
         case ($this->isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
@@ -45,12 +45,16 @@ class Printer extends FOGController {
                 $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
                 unset($RemoveHostIDs);
             }
-            $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
+            $Hosts = $this->getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs)));
             foreach ((array)$Hosts AS $i => &$Host) {
-                $hasDefault = $this->getClass('PrinterAssociationManager')->count(array('isDefault'=>1,'hostID'=>$Host));
+                if (!$Host->isValid()) {
+                    $Host->destroy();
+                    continue;
+                }
+                $hasDefault = $this->getClass('PrinterAssociationManager')->count(array('isDefault'=>1,'hostID'=>$Host->get('id')));
                 $this->getClass('PrinterAssociation')
                     ->set('printerID',$this->get('id'))
-                    ->set('hostID',$Host)
+                    ->set('hostID',$Host->get('id'))
                     ->set('isDefault',($hasDefault != 1))
                     ->save();
                 unset($Host);
