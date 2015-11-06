@@ -351,7 +351,7 @@ installPackages() {
                 false
             fi
         fi
-        packages="${packages} libapache2-mod-php5";
+        packages="${packages}";
     fi
     errorStat $?
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
