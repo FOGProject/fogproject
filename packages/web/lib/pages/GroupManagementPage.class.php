@@ -233,7 +233,7 @@ class GroupManagementPage extends FOGPage {
         foreach ((array)$Snapins AS $i => &$Snapin) {
             if (!$Snapin->isValid()) continue;
             $this->data[] = array(
-                'snapin_id'=>$id,
+                'snapin_id'=>$Snapin->get('id'),
                 'snapin_name'=>$Snapin->get('name'),
                 'snapin_created'=>$this->formatTime($Snapin->get('createdTime')),
             );
@@ -405,6 +405,7 @@ class GroupManagementPage extends FOGPage {
             );
             $Printers = $this->getClass('PrinterManager')->find();
             foreach($Printers AS $i => &$Printer) {
+                if (!$Printer->isValid()) continue;
                 $this->data[] = array(
                     'printer_id'=>$Printer->get('id'),
                     'printer_name'=>$Printer->get('name'),
