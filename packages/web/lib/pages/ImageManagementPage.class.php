@@ -7,7 +7,6 @@ class ImageManagementPage extends FOGPage {
         $this->menu['multicast'] = $this->foglang['Multicast'].' '.$this->foglang['Image'];
         $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
         if ($_REQUEST['id']) {
-            $this->obj = $this->getClass('Image',$_REQUEST['id']);
             $this->subMenu = array(
                 "$this->linkformat#image-gen" => $this->foglang['General'],
                 "$this->linkformat#image-storage" => $this->foglang['Storage'].' '.$this->foglang['Group'],
