@@ -42,10 +42,11 @@ class Location extends FOGController {
                 $DBHostIDs = $this->getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id'),'hostID'));
                 unset($RemoveHostIDs);
             }
-            $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
+            $Hosts = $this->getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs)));
             foreach ((array)$Hosts AS $i => &$Host) {
+                if (!$Host->isValid()) continue;
                 $this->getClass('LocationAssociation')
-                    ->set('hostID',$Host)
+                    ->set('hostID',$Host->get('id'))
                     ->set('locationID',$this->get('id'))
                     ->save();
                 unset($Host);
@@ -55,11 +56,7 @@ class Location extends FOGController {
         return $this;
     }
     public function addHost($addArray) {
-        $Hosts = array_unique(array_diff((array)$addArray,(array)$this->get('hosts')));
-        if (count($Hosts)) {
-            $Hosts = array_merge((array)$this->get('hosts'),(array)$Hosts);
-            $this->set('hosts',$Hosts);
-        }
+        $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
         return $this;
     }
     public function removeHost($removeArray) {

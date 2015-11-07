@@ -17,7 +17,6 @@ class GroupManagementPage extends FOGPage {
                 $this->membership => $this->foglang['Membership'],
                 $this->delformat => $this->foglang['Delete'],
             );
-            $this->obj = $this->getClass('Group',$_REQUEST['id']);
             $this->notes = array(
                 $this->foglang['Group'] => $this->obj->get('name'),
                 $this->foglang['Members'] => $this->obj->getHostCount(),
@@ -141,7 +140,6 @@ class GroupManagementPage extends FOGPage {
         $imageID = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'imageID');
         $imageMatchID = (count($imageID) == 1 ? $imageID[0] : '');
         $groupKey = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'productKey');
-        $groupKeyMatch = (count($groupKey) == 1 ? base64_decode($groupKey[0]) : '');
         $aduse = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'useAD');
         $adDomain = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADDomain');
         $adOU = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADOU');
@@ -155,6 +153,8 @@ class GroupManagementPage extends FOGPage {
         $adPass = (count($adPass) == $this->obj->getHostCount() ? @array_shift($adPass) : '');
         $ADPass = $this->encryptpw($adPass);
         $ADPassLegacy = (count($adPassLegacy) == 1 ? @array_shift($adPassLegacy) : '');
+        $productKey = (count($groupKey) == $this->obj->getHostCount() ? @array_shift($groupKey) : '');
+        $groupKeyMatch = $this->encryptpw($productKey);
         $biosExit = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'biosexit');
         $efiExit = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'efiexit');
         $exitNorm = Service::buildExitSelector('bootTypeExit',(count($biosExit) == 1 ? @array_shift($biosExit) : $_REQUEST['bootTypeExit']),true);
@@ -469,7 +469,7 @@ class GroupManagementPage extends FOGPage {
                         ->set('kernel',$_REQUEST['kern'])
                         ->set('kernelArgs',$_REQUEST['args'])
                         ->set('kernelDevice',$_REQUEST['dev']);
-                    $this->getClass('HostManager')->update(array('id'=>$this->obj->get('hosts')),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit']));
+                    $this->getClass('HostManager')->update(array('id'=>$this->obj->get('hosts')),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->aesencrypt(trim($_REQUEST['productKey']))));
                 }
                 break;
                 case 'group-image';

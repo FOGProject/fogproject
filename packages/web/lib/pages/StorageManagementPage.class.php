@@ -11,26 +11,40 @@ class StorageManagementPage extends FOGPage {
             'storage-group' => $this->foglang['AllSG'],
             'add-storage-group' => $this->foglang['AddSG'],
         );
-        if (in_array($_REQUEST['sub'],array('edit','delete','delete-storage-node','delete_storage_node')) && $_REQUEST[id]) {
-            $this->obj = $this->getClass('StorageNode',$_REQUEST['id']);
-            $this->subMenu = array(
-                "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => $this->foglang['General'],
-                "?node={$this->node}&sub=delete-storage-node&id={$_REQUEST['id']}" => $this->foglang['Delete'],
-            );
-            $this->notes = array(
-                "{$this->foglang['Storage']} {$this->foglang['Node']}" => $this->obj->get('name'),
-                $this->foglang['ImagePath'] => $this->obj->get('path'),
-                $this->foglang['FTPPath'] => $this->obj->get('ftppath'),
-            );
-        } else if (in_array($_REQUEST['sub'],array('edit-storage-group','delete-storage-group','edit_storage_group','delete_storage_group')) && $_REQUEST['id']) {
-            $this->obj = $this->getClass('StorageGroup',$_REQUEST['id']);
-            $this->subMenu = array(
-                "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => $this->foglang['General'],
-                "?node={$this->node}&sub=delete-storage-group&id={$_REQUEST['id']}" => $this->foglang['Delete'],
-            );
-            $this->notes = array(
-                "{$this->foglang['Storage']} {$this->foglang['Group']}" => $this->obj->get('name'),
-            );
+        if (in_array($_REQUEST['sub'],array('edit','delete','delete-storage-node','delete_storage_node'))) {
+            if (isset($_REQUEST['id'])) {
+                $this->obj = $this->getClass('StorageNode',$_REQUEST['id']);
+                if (intval($_REQUEST['id']) === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
+                    unset($this->obj);
+                        $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
+                    $this->redirect(sprintf('?node=%s',$this->node));
+                }
+                $this->subMenu = array(
+                    "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => $this->foglang['General'],
+                    "?node={$this->node}&sub=delete-storage-node&id={$_REQUEST['id']}" => $this->foglang['Delete'],
+                );
+                $this->notes = array(
+                    "{$this->foglang['Storage']} {$this->foglang['Node']}" => $this->obj->get('name'),
+                    $this->foglang['ImagePath'] => $this->obj->get('path'),
+                    $this->foglang['FTPPath'] => $this->obj->get('ftppath'),
+                );
+            }
+        } else if (in_array($_REQUEST['sub'],array('edit-storage-group','delete-storage-group','edit_storage_group','delete_storage_group'))) {
+            if (isset($_REQUEST['id'])) {
+                $this->obj = $this->getClass('StorageGroup',$_REQUEST['id']);
+                if (intval($_REQUEST['id']) === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
+                    unset($this->obj);
+                        $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
+                    $this->redirect(sprintf('?node=%s',$this->node));
+                }
+                $this->subMenu = array(
+                    "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => $this->foglang['General'],
+                    "?node={$this->node}&sub=delete-storage-group&id={$_REQUEST['id']}" => $this->foglang['Delete'],
+                );
+                $this->notes = array(
+                    "{$this->foglang['Storage']} {$this->foglang['Group']}" => $this->obj->get('name'),
+                );
+            }
         }
     }
     // Common functions - call Storage Node functions if the default sub's are used

@@ -5,20 +5,18 @@ class LocationManagementPage extends FOGPage {
         $this->name = 'Location Management';
         // Call parent constructor
         parent::__construct($this->name);
-        if ($_REQUEST[id]) {
-            $this->obj = $this->getClass(Location,$_REQUEST[id]);
+        if ($_REQUEST['id']) {
             $this->subMenu = array(
-                "$this->linkformat" => $this->foglang[General],
-                $this->membership => $this->foglang[Membership],
-                "$this->delformat" => $this->foglang[Delete],
+                "$this->linkformat" => $this->foglang['General'],
+                $this->membership => $this->foglang['Membership'],
+                "$this->delformat" => $this->foglang['Delete'],
             );
             $this->notes = array(
-                $this->foglang[Location] => $this->obj->get(name),
-                $this->foglang[Storage].' '.$this->foglang[Group] => $this->obj->getStorageGroup(),
+                $this->foglang['Location'] => $this->obj->get('name'),
+                "{$this->foglang['Storage']} {$this->foglang['Group']}" => $this->obj->getStorageGroup(),
             );
-            if ($this->obj->getStorageNode()->isValid()) $this->notes[$this->foglang[Storage].' '.$this->foglang[Node]] = $this->obj->getStorageNode();
+            if ($this->obj->getStorageNode()->isValid()) $this->notes["{$this->foglang['Storage']} {$this->foglang['Node']}"] = $this->obj->getStorageNode();
         }
-        // Header row
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
             'Location Name',

@@ -6,47 +6,44 @@ class HostManagementPage extends FOGPage {
         parent::__construct($this->name);
         if ($_SESSION['Pending-Hosts']) $this->menu['pending'] = $this->foglang['PendingHosts'];
         if ($_REQUEST['id']) {
-            $this->obj = $this->getClass('Host',$_REQUEST['id']);
-            if ($this->obj->isValid()) {
-                $this->subMenu = array(
-                    "$this->linkformat#host-general"=>$this->foglang['General'],
-                );
-                if (!$this->obj->get('pending')) $this->subMenu = array_merge($this->subMenu,array("$this->linkformat#host-tasks"=>$this->foglang['BasicTasks']));
-                $this->subMenu = array_merge($this->subMenu,array(
-                    "$this->linkformat#host-active-directory"=>$this->foglang['AD'],
-                    "$this->linkformat#host-printers"=>$this->foglang['Printers'],
-                    "$this->linkformat#host-snapins"=>$this->foglang['Snapins'],
-                    "$this->linkformat#host-service"=>"{$this->foglang['Service']} {$this->foglang['Settings']}",
-                    "$this->linkformat#host-hardware-inventory"=>$this->foglang['Inventory'],
-                    "$this->linkformat#host-virus-history"=>$this->foglang['VirusHistory'],
-                    "$this->linkformat#host-login-history"=>$this->foglang['LoginHistory'],
-                    "$this->linkformat#host-image-history"=>$this->foglang['ImageHistory'],
-                    "$this->linkformat#host-snapin-history"=>$this->foglang['SnapinHistory'],
-                    $this->membership=>$this->foglang['Membership'],
-                    $this->delformat=>$this->foglang['Delete'],
-                ));
-                $this->notes = array(
-                    $this->foglang['Host']=>$this->obj->get('name'),
-                    $this->foglang['MAC']=>$this->obj->get('mac'),
-                    $this->foglang['Image']=>$this->obj->getImageName(),
-                    $this->foglang['LastDeployed']=>$this->obj->get('deployed'),
-                );
-                $Groups = $this->getClass('GroupManager')->find(array('id'=>$this->obj->get('groups')));
-                foreach ((array)$Groups AS $i => &$Group) {
-                    if (!$Group->isValid()) continue;
-                    $this->notes[$this->foglang['PrimaryGroup']] = $Group->get('name');
-                    unset($Group);
-                    break;
-                }
-                unset($Groups);
+            $this->subMenu = array(
+                "$this->linkformat#host-general"=>$this->foglang['General'],
+            );
+            if (!$this->obj->get('pending')) $this->subMenu = array_merge($this->subMenu,array("$this->linkformat#host-tasks"=>$this->foglang['BasicTasks']));
+            $this->subMenu = array_merge($this->subMenu,array(
+                "$this->linkformat#host-active-directory"=>$this->foglang['AD'],
+                "$this->linkformat#host-printers"=>$this->foglang['Printers'],
+                "$this->linkformat#host-snapins"=>$this->foglang['Snapins'],
+                "$this->linkformat#host-service"=>"{$this->foglang['Service']} {$this->foglang['Settings']}",
+                "$this->linkformat#host-hardware-inventory"=>$this->foglang['Inventory'],
+                "$this->linkformat#host-virus-history"=>$this->foglang['VirusHistory'],
+                "$this->linkformat#host-login-history"=>$this->foglang['LoginHistory'],
+                "$this->linkformat#host-image-history"=>$this->foglang['ImageHistory'],
+                "$this->linkformat#host-snapin-history"=>$this->foglang['SnapinHistory'],
+                $this->membership=>$this->foglang['Membership'],
+                $this->delformat=>$this->foglang['Delete'],
+            ));
+            $this->notes = array(
+                $this->foglang['Host']=>$this->obj->get('name'),
+                $this->foglang['MAC']=>$this->obj->get('mac'),
+                $this->foglang['Image']=>$this->obj->getImageName(),
+                $this->foglang['LastDeployed']=>$this->obj->get('deployed'),
+            );
+            $Groups = $this->getClass('GroupManager')->find(array('id'=>$this->obj->get('groups')));
+            foreach ((array)$Groups AS $i => &$Group) {
+                if (!$Group->isValid()) continue;
+                $this->notes[$this->foglang['PrimaryGroup']] = $Group->get('name');
+                unset($Group);
+                break;
             }
+            unset($Groups);
         }
         $this->exitNorm = Service::buildExitSelector('bootTypeExit',($this->obj && $this->obj->isValid() ? $this->obj->get('biosexit') : $_REQUEST['bootTypeExit']),true);
         $this->exitEfi = Service::buildExitSelector('efiBootTypeExit',($this->obj && $this->obj->isValid() ? $this->obj->get('efiexit') : $_REQUEST['efiBootTypeExit']),true);
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'biosexit'=>&$this->exitNorm,'efiexit'=>&$this->exitEfi));
         $this->headerData = array(
             '',
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
         );
         $_SESSION['FOGPingActive'] ? array_push($this->headerData,'') : null;
         array_push($this->headerData,
@@ -58,7 +55,7 @@ class HostManagementPage extends FOGPage {
         );
         $this->templates = array(
             '<span class="icon fa fa-question hand" title="${host_desc}"></span>',
-            '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-action" />',
+            '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-action"/>',
         );
         $_SESSION['FOGPingActive'] ? array_push($this->templates,'${pingstatus}') : null;
         $up = $this->getClass('TaskType',2);
@@ -155,7 +152,7 @@ class HostManagementPage extends FOGPage {
             '<i class="icon fa fa-question hand" title="${host_desc}"></i>',
             '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host" />',
             ($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
-            '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+            '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
             '<a href="?node=host&sub=edit&id=${host_id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${host_id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
         );
         $this->attributes = array(
@@ -256,6 +253,7 @@ class HostManagementPage extends FOGPage {
             $user = trim($_REQUEST['domainuser']);
             $pass = $password;
             $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
+            $productKey = trim($_REQUEST['productKey']);
             $Host = $this->getClass('Host')
                 ->set('name',$hostName)
                 ->set('description',$_REQUEST['description'])
@@ -263,12 +261,11 @@ class HostManagementPage extends FOGPage {
                 ->set('kernel',$_REQUEST['kern'])
                 ->set('kernelArgs',$_REQUEST['args'])
                 ->set('kernelDevice',$_REQUEST['dev'])
-                ->set('productKey',base64_encode($_REQUEST['key']))
                 ->set('biosexit',$_REQUEST['bootTypeExit'])
                 ->set('efiexit',$_REQUEST['efiBootTypeExit'])
                 ->addModule($ModuleIDs)
                 ->addPriMAC($MAC)
-                ->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy);
+                ->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey);
             if (!$Host->save()) throw new Exception(_('Host create failed'));
             $this->HookManager->processEvent('HOST_ADD_SUCCESS',array('Host'=>&$Host));
             $this->setMessage(_('Host added'));
@@ -332,7 +329,7 @@ class HostManagementPage extends FOGPage {
             '<div id="additionalMACsRow">'._('Additional MACs').'</div>' => '<div id="additionalMACsCell">'.$addMACs.'</div>',
             ($this->obj->get('pendingMACs') ? _('Pending MACs') : null) => ($this->obj->get('pendingMACs') ? $pending : null),
             _('Host Description') => '<textarea name="description" rows="8" cols="40">'.$this->obj->get('description').'</textarea>',
-            _('Host Product Key') => '<input id="productKey" type="text" name="key" value="'.base64_decode($this->obj->get('key')).'" />',
+            _('Host Product Key') => '<input id="productKey" type="text" name="key" value="'.$this->obj->get('key').'" />',
             _('Host Image') => $imageSelect,
             _('Host Kernel') => '<input type="text" name="kern" value="'.$this->obj->get('kernel').'" />',
             _('Host Kernel Arguments') => '<input type="text" name="args" value="'.$this->obj->get('kernelArgs').'" />',
@@ -880,7 +877,6 @@ class HostManagementPage extends FOGPage {
                     ->set('kernel',$_REQUEST['kern'])
                     ->set('kernelArgs',$_REQUEST['args'])
                     ->set('kernelDevice',$_REQUEST['dev'])
-                    ->set('productKey',base64_encode($_REQUEST['key']))
                     ->set('biosexit',$_REQUEST['bootTypeExit'])
                     ->set('efiexit',$_REQUEST['efiBootTypeExit']);
                 if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) $this->obj->addPriMAC($mac->__toString());
@@ -893,7 +889,8 @@ class HostManagementPage extends FOGPage {
                 $user = trim($_REQUEST['domainuser']);
                 $pass = trim($_REQUEST['domainpassword']);
                 $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-                $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,false,$passlegacy);
+                $productKey = trim($_REQUEST['productKey']);
+                $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,false,$passlegacy,$productKey);
                 break;
                 case 'host-printers';
                 $PrinterManager = $this->getClass('PrinterAssociationManager');
