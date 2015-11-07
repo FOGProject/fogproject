@@ -6,7 +6,6 @@ class SnapinManagementPage extends FOGPage {
         // Call parent constructor
         parent::__construct($name);
         if ($_REQUEST['id']) {
-            $this->obj = $this->getClass('Snapin',$_REQUEST['id']);
             $this->subMenu = array(
                 "$this->linkformat#snap-gen" => $this->foglang['General'],
                 "$this->linkformat#snap-storage" => "{$this->foglang['Storage']} {$this->foglang['Group']}",

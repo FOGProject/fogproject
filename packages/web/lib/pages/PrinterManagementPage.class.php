@@ -6,7 +6,6 @@ class PrinterManagementPage extends FOGPage {
         $this->name = 'Printer Management';
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
-            $this->obj = $this->getClass('Printer',$_REQUEST['id']);
             $this->config = stripos($this->obj->get('config'),'local') !== false ? _('TCP/IP') : $this->obj->get('config');
             $this->subMenu = array(
                 "$this->linkformat#$this->node-gen" => $this->foglang['General'],

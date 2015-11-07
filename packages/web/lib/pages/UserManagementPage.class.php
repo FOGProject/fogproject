@@ -9,7 +9,6 @@ class UserManagementPage extends FOGPage {
                 $this->linkformat => $this->foglang['General'],
                 $this->delformat => $this->foglang['Delete'],
             );
-            $this->obj = $this->getClass('User',$_REQUEST['id']);
             $this->notes = array(
                 $this->foglang['User'] => $this->obj->get('name'),
             );
