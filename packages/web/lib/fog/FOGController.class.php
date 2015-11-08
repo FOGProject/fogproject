@@ -159,7 +159,8 @@ abstract class FOGController extends FOGBase {
                     );
                 }
                 if (!($vals = $this->DB->query($query)->fetch('','fetch_all')->get())) throw new Exception($this->DB->sqlerror());
-                $this->setQuery(@array_shift($vals));
+                $vals = @array_shift($vals);
+                $this->setQuery($vals);
             }
         } catch (Exception $e) {
             $this->debug(_('Load failed: %s'),array($e->getMessage()));

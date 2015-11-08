@@ -23,6 +23,7 @@ $(function() {
         .val(hostIDArray.join(','));
     });
     MACUpdate();
+    ProductUpdate();
 });
 function removeMACField() {
     $('.remove-mac').click(function(e) {

@@ -245,7 +245,7 @@ class HostManagementPage extends FOGPage {
             $user = trim($_REQUEST['domainuser']);
             $pass = $password;
             $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-            $productKey = trim($_REQUEST['productKey']);
+            $productKey = strtoupper(trim($_REQUEST['key']));
             $Host = $this->getClass('Host')
                 ->set('name',$hostName)
                 ->set('description',$_REQUEST['description'])
@@ -255,6 +255,7 @@ class HostManagementPage extends FOGPage {
                 ->set('kernelDevice',$_REQUEST['dev'])
                 ->set('biosexit',$_REQUEST['bootTypeExit'])
                 ->set('efiexit',$_REQUEST['efiBootTypeExit'])
+                ->set('productKey',$this->encryptpw($productKey))
                 ->addModule($ModuleIDs)
                 ->addPriMAC($MAC)
                 ->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey);
@@ -321,7 +322,7 @@ class HostManagementPage extends FOGPage {
             '<div id="additionalMACsRow">'._('Additional MACs').'</div>' => '<div id="additionalMACsCell">'.$addMACs.'</div>',
             ($this->obj->get('pendingMACs') ? _('Pending MACs') : null) => ($this->obj->get('pendingMACs') ? $pending : null),
             _('Host Description') => '<textarea name="description" rows="8" cols="40">'.$this->obj->get('description').'</textarea>',
-            _('Host Product Key') => '<input id="productKey" type="text" name="key" value="'.$this->obj->get('key').'" />',
+            _('Host Product Key') => '<input id="productKey" type="text" name="key" value="'.$this->aesdecrypt($this->obj->get('productKey')).'" />',
             _('Host Image') => $imageSelect,
             _('Host Kernel') => '<input type="text" name="kern" value="'.$this->obj->get('kernel').'" />',
             _('Host Kernel Arguments') => '<input type="text" name="args" value="'.$this->obj->get('kernelArgs').'" />',
@@ -839,6 +840,7 @@ class HostManagementPage extends FOGPage {
                 $Task = $this->obj->get('task');
                 if (!$mac->isValid()) throw new Exception(_('MAC Address is not valid'));
                 if ((!$_REQUEST['image'] && $Task->isValid()) || ($_REQUEST['image'] && $_REQUEST['image'] != $this->obj->get('imageID') && $Task->isValid())) throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
+                $productKey = strtoupper(trim($_REQUEST['key']));
                 $this->obj
                     ->set('name',$hostName)
                     ->set('description',$_REQUEST['description'])
@@ -847,7 +849,8 @@ class HostManagementPage extends FOGPage {
                     ->set('kernelArgs',$_REQUEST['args'])
                     ->set('kernelDevice',$_REQUEST['dev'])
                     ->set('biosexit',$_REQUEST['bootTypeExit'])
-                    ->set('efiexit',$_REQUEST['efiBootTypeExit']);
+                    ->set('efiexit',$_REQUEST['efiBootTypeExit'])
+                    ->set('productKey',$this->encryptpw($productKey));
                 if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) $this->obj->addPriMAC($mac->__toString());
                 $this->obj->addAddMAC($_REQUEST['additionalMACs']);
                 break;
@@ -858,7 +861,6 @@ class HostManagementPage extends FOGPage {
                 $user = trim($_REQUEST['domainuser']);
                 $pass = trim($_REQUEST['domainpassword']);
                 $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-                $productKey = trim($_REQUEST['productKey']);
                 $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey);
                 break;
                 case 'host-printers';
@@ -921,7 +923,7 @@ class HostManagementPage extends FOGPage {
             $this->HookManager->processEvent('HOST_EDIT_FAIL',array('Host'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
-        $this->redirect(sprintf('%s#%s',$this->formAction, $_REQUEST['tab']));
+        $this->redirect(sprintf('%s#%s',preg_replace('#(&tab.*)$#','',$this->formAction), $_REQUEST['tab']));
     }
     public function save_group() {
         try {

@@ -762,7 +762,7 @@ class Host extends FOGController {
                 if (empty($user)) $user = trim($this->get('ADUser'));
                 if (empty($pass)) $pass = trim($this->encryptpw($this->get('ADPass')));
                 if (empty($legacy)) $legacy = trim($this->get('ADPassLegacy'));
-                if (empty($productKey)) $productKey = trim($this->encryptpw($this->get('key')));
+                if (empty($productKey)) $productKey = trim($this->encryptpw($this->get('productKey')));
             }
         }
         if ($pass) $pass = trim($this->encryptpw($pass));
@@ -772,7 +772,7 @@ class Host extends FOGController {
             ->set('ADUser',trim($user))
             ->set('ADPass',trim($this->encryptpw($pass)))
             ->set('ADPassLegacy',$legacy)
-            ->set('key',trim($this->encryptpw($productKey)));
+            ->set('productKey',trim($this->encryptpw($productKey)));
         if (!$nosave) $this->save();
         return $this;
     }

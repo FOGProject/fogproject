@@ -2080,3 +2080,7 @@ $this->schema[] = array(
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_AES_ENCRYPT'",
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_DHCP_BOOTFILENAME'",
 );
+// 200
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` MODIFY `hostProductKey` LONGTEXT",
+);
