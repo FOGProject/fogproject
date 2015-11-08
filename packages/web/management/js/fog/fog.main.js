@@ -176,13 +176,13 @@ $(function() {
         return $icon;
     }
     $('select')
-    .not('[name="storagesel"]')
-    .select2();
+        .not('[name="storagesel"]')
+        .select2();
     $('[name="icon"]')
-    .select2({
-        templateResult: format,
-        templateSelection: format
-    });
+        .select2({
+            templateResult: format,
+            templateSelection: format
+        });
     $('#scheduleSingleTime').datetimepicker({
         dateFormat: 'yy/mm/dd',
         timeFormat: 'HH:mm'
@@ -240,31 +240,31 @@ function duplicateImageName() {
 }
 function DeployStuff() {
     $('#isDebugTask').click(function() {
-            if ($(this).is(':checked')) {
+        if ($(this).is(':checked')) {
             $('#scheduleInstant').checked = true;
             $('.hideFromDebug').slideUp('fast');
-            } else {
+        } else {
             $('.hideFromDebug').slideDown('fast');
             $('.hidden').hide();
-            }
-            });
+        }
+    });
     // Bind radio buttons for 'Single' and 'Cron' scheduled task
     $('input[name="scheduleType"]').click(function() {
-            var $content = $(this).parents('p').parent().find('p').eq($(this).parent().index());
-            if ($(this).is(':checked') && !$('#isDebugTask').is(':checked')) {
+        var $content = $(this).parents('p').parent().find('p').eq($(this).parent().index());
+        if ($(this).is(':checked') && !$('#isDebugTask').is(':checked')) {
             $content.slideDown('fast').siblings('.hidden').slideUp('fast');
-            } else if (!$('#isDebugTask').is(':checked')) {
+        } else if (!$('#isDebugTask').is(':checked')) {
             $content.slideDown('fast');
             $('.calendar').remove();
             $('.error').removeClass('error');
-            }
-            });
+        }
+    });
     // Basic validation on deployment page
     $('form#deploy-container').submit(function() {
-            var result = true;
-            var scheduleType = $('input[name="scheduleType"]:checked', $(this)).val();
-            var inputsToValidate = $('#' + scheduleType + 'Options > input').removeClass('error');
-            if (scheduleType == 'cron') {
+        var result = true;
+        var scheduleType = $('input[name="scheduleType"]:checked', $(this)).val();
+        var inputsToValidate = $('#' + scheduleType + 'Options > input').removeClass('error');
+        if (scheduleType == 'cron') {
             inputsToValidate.each(function() {
                 var $min = $('#scheduleCronMin');
                 var $hour = $('#scheduleCronHour');
@@ -273,41 +273,41 @@ function DeployStuff() {
                 var $dow = $('#scheduleCronDOW');
                 // Basic checks
                 if (!checkMinutesField($min.val())) {
-                result = false;
-                $min.addClass('error');
+                    result = false;
+                    $min.addClass('error');
                 }
                 if (!checkHoursField($hour.val())) {
-                result = false;
-                $hour.addClass('error');
+                    result = false;
+                    $hour.addClass('error');
                 }
                 if (!checkDOMField($dom.val())) {
-                result = false;
-                $dom.addClass('error');
+                    result = false;
+                    $dom.addClass('error');
                 }
                 if (!checkMonthField($month.val())) {
-                result = false;
-                $month.addClass('error');
+                    result = false;
+                    $month.addClass('error');
                 }
                 if (!checkDOWField($dow.val())) {
                     result = false;
                     $dow.addClass('error');
                 }
             });
-            } else if (scheduleType == 'single') {
-                // Format check
-                if (!inputsToValidate.val().match(/\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}/)) {
-                    result = false;
-                    inputsToValidate.addClass('error').click();
-                }
+        } else if (scheduleType == 'single') {
+            // Format check
+            if (!inputsToValidate.val().match(/\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}/)) {
+                result = false;
+                inputsToValidate.addClass('error').click();
             }
-            return result;
+        }
+        return result;
     });
     // Auto open the calendar when chosen
     $('#scheduleSingle').click(function() {
-            if ($(this).is(':checked')) {
+        if ($(this).is(':checked')) {
             $('#scheduleSingleTime').focus();
-            }
-            });
+        }
+    });
 }
 function checkField(field, min, max) {
     // Trim the values to ensure we have valid data.
@@ -320,24 +320,24 @@ function checkField(field, min, max) {
     var v = field.split(',');
     // Loop through all of them.
     $.each(v,function(key,vv) {
-            // Split the values on slash
-            vvv = vv.split('/');
-            // Set the step pattern
-            step = (vvv[1] === '' || vvv[1] === undefined || vvv[1] === null ? 1 : vvv[1]);
-            // Split the values on dash
-            vvvv = vvv[0].split('-');
-            // Set the new min and max values.
-            _min = vvvv.length == 2 ? vvvv[0] : (vvv[0] == '*' ? min : vvv[0]);
-            _max = vvvv.length == 2 ? vvvv[1] : (vvv[0] == '*' ? max : vvv[0]);
-            result = true;
-            if (!checkIntValue(step,min,max,true)) {
+        // Split the values on slash
+        vvv = vv.split('/');
+        // Set the step pattern
+        step = (vvv[1] === '' || vvv[1] === undefined || vvv[1] === null ? 1 : vvv[1]);
+        // Split the values on dash
+        vvvv = vvv[0].split('-');
+        // Set the new min and max values.
+        _min = vvvv.length == 2 ? vvvv[0] : (vvv[0] == '*' ? min : vvv[0]);
+        _max = vvvv.length == 2 ? vvvv[1] : (vvv[0] == '*' ? max : vvv[0]);
+        result = true;
+        if (!checkIntValue(step,min,max,true)) {
             result = false;
-            } else if (!checkIntValue(_min,min,max,true)) {
+        } else if (!checkIntValue(_min,min,max,true)) {
             result = false;
-            } else if (!checkIntValue(_max,min,max,true)) {
+        } else if (!checkIntValue(_max,min,max,true)) {
             result = false;
-            }
-            });
+        }
+    });
     return result;
 }
 function checkIntValue(value,min,max,extremity) {
@@ -370,7 +370,19 @@ function checkboxToggleSearchListPages() {
     // Checkbox toggle
     $('.toggle-checkboxAction').click(function() {
         $('input.toggle-action[type="checkbox"]')
-        .not(':hidden')
-        .prop('checked',$(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked',$(this).is(':checked'));
+    });
+}
+function ProductChange(data) {
+    var content = data;
+    var content1 = content.val().replace(/\-/g,'').toUpperCase();
+    data.val(content1.replace(/(.{5})/g,'$1-'));
+    if (data.val().length > 29) data.val(data.val().substring(0,29));
+}
+function ProductUpdate() {
+    $('#productKey').on('change keyup',function(e) {
+        e.preventDefault();
+        ProductChange($(this));
     });
 }

@@ -168,7 +168,7 @@ class GroupManagementPage extends FOGPage {
         $fields = array(
             _('Group Name') => sprintf('<input type="text" name="name" value="%s"/>',$this->obj->get('name')),
             _('Group Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
-            _('Group Product Key') => sprintf('<input id="productKey" type="text" name="key" value="%s"/>',$groupKeyMatch),
+            _('Group Product Key') => sprintf('<input id="productKey" type="text" name="key" value="%s"/>',$this->aesdecrypt($groupKeyMatch)),
             _('Group Kernel') => sprintf('<input type="text" name="kern" value="%s"/>',$this->obj->get('kernel')),
             _('Group Kernel Arguments') => sprintf('<input type="text" name="args" value="%s"/>',$this->obj->get('kernelArgs')),
             _('Group Primary Disk') => sprintf('<input type="text" name="dev" value="%s"/>',$this->obj->get('kernelDev')),
@@ -461,7 +461,7 @@ class GroupManagementPage extends FOGPage {
                         ->set('kernel',$_REQUEST['kern'])
                         ->set('kernelArgs',$_REQUEST['args'])
                         ->set('kernelDevice',$_REQUEST['dev']);
-                    $this->getClass('HostManager')->update(array('id'=>$this->obj->get('hosts')),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->aesencrypt(trim($_REQUEST['productKey']))));
+                    $this->getClass('HostManager')->update(array('id'=>$this->obj->get('hosts')),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->encryptpw(trim($_REQUEST['productKey']))));
                 }
                 break;
                 case 'group-image';
