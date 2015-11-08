@@ -37,12 +37,13 @@ class FOGConfigurationPage extends FOGPage {
             unset($StorageNode);
         }
         $Responses = $this->FOGURLRequests->process($URLs,'GET');
+        array_unshift($Nodes,'');
         foreach ((array)$Responses AS $i => &$data) {
             if ($i === 0) {
                 echo '<p><div class="sub">'.$Responses[$i].'</div></p>';
                 echo '<h1>Kernel Versions</h1>';
             } else {
-                echo "<h2>{$Nodes[($i - 1)]->get(name)}</h2>";
+                echo "<h2>{$Nodes[$i]->get(name)}</h2>";
                 echo "<pre>$data</pre>";
             }
             unset($data);
@@ -180,8 +181,7 @@ class FOGConfigurationPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $Menus = $this->getClass('PXEMenuOptionsManager')->find('','','id');
-        foreach ((array)$Menus AS $i => &$Menu) {
+        foreach ((array)$this->getClass('PXEMenuOptionsManager')->find('','','id') AS $i => &$Menu) {
             if (!$Menu->isValid()) continue;
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/\./','_',preg_replace('/:/','_',$Menu->get('name'))));
             echo '<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get('name').'</h3></a>';
@@ -212,7 +212,6 @@ class FOGConfigurationPage extends FOGPage {
             echo '</form></div>';
             unset($this->data,$Menu);
         }
-        unset($Menus);
         echo '</div>';
     }
     public function customize_edit_post() {
@@ -309,8 +308,7 @@ class FOGConfigurationPage extends FOGPage {
             array('class'=>'filter-false disabled'),
         );
         echo '<div class="hostgroup">'._('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.').'</div>';
-        $ClientUpdates = $this->getClass('ClientUpdaterManager')->find();
-        foreach ((array)$ClientUpdates AS $i => &$ClientUpdate) {
+        foreach ((array)$this->getClass('ClientUpdaterManager')->find() AS $i => &$ClientUpdate) {
             $this->data[] = array(
                 'name'=>$ClientUpdate->get('name'),
                 'module'=>$ClientUpdate->get('md5'),
@@ -320,7 +318,6 @@ class FOGConfigurationPage extends FOGPage {
             );
             unset($ClientUpdate);
         }
-        unset($ClientUpdates);
         $this->HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         echo '<form method="post" action="'.$this->formAction.'&tab=clientupdater">';
         $this->render();
@@ -456,14 +453,13 @@ class FOGConfigurationPage extends FOGPage {
             '${input_type}',
             '${span}',
         );
-        $ServiceCats = $this->getClass('ServiceManager')->getSettingCats();
         echo '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
-        foreach ((array)$ServiceCats AS $i => &$ServiceCAT) {
+        foreach ((array)$this->getClass('ServiceManager')->getSettingCats() AS $i => &$ServiceCAT) {
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',$ServiceCAT));
             echo '<a id="'.$divTab.'" class="expand_trigger" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$ServiceCAT.'</h3></a>';
             echo '<div id="'.$divTab.'">';
             $ServMan = $this->getClass('ServiceManager')->find(array('category'=>$ServiceCAT),'AND','id');
-            foreach ((array)$ServMan AS $i => &$Service) {
+            foreach ((array)$this->getClass('ServiceManager')->find(array('category'=>$ServiceCAT),'AND','id') AS $i => &$Service) {
                 if (!$Service->isValid()) continue;
                 switch ($Service->get('name')) {
                 case 'FOG_PIGZ_COMP':
@@ -480,7 +476,7 @@ class FOGConfigurationPage extends FOGPage {
                     break;
                 case 'FOG_VIEW_DEFAULT_SCREEN':
                     $screens = array('SEARCH','LIST');
-                    foreach ($screens AS $i => &$viewop) $options[] = '<option value="'.strtolower($viewop).'" '.($Service->get('value') == strtolower($viewop) ? 'selected="selected"' : '').'>'.$viewop.'</option>';
+                    foreach ((array)$screens AS $i => &$viewop) $options[] = '<option value="'.strtolower($viewop).'" '.($Service->get('value') == strtolower($viewop) ? 'selected="selected"' : '').'>'.$viewop.'</option>';
                     unset($viewop);
                     $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
                     unset($options);
@@ -490,7 +486,7 @@ class FOGConfigurationPage extends FOGPage {
                         'HALF_DUPLEX' => '--half-duplex',
                         'FULL_DUPLEX' => '--full-duplex',
                     );
-                    foreach($duplexTypes AS $types => &$val) $options[] = '<option value="'.$val.'" '.($Service->get(value) == $val ? 'selected="selected"' : '').'>'.$types.'</option>';
+                    foreach ((array)$duplexTypes AS $types => &$val) $options[] = '<option value="'.$val.'" '.($Service->get('value') == $val ? 'selected="selected"' : '').'>'.$types.'</option>';
                     unset($val);
                     $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
                     break;
@@ -499,7 +495,7 @@ class FOGConfigurationPage extends FOGPage {
                     $type = Service::buildExitSelector($Service->get(id),$Service->get(value));
                     break;
                 case 'FOG_DEFAULT_LOCALE':
-                    foreach((array)$this->foglang['Language'] AS $lang => &$humanreadable) $options2[] = '<option value="'.$lang.'" '.($this->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->getSetting('FOG_DEFAULT_LOCALE') == $this->foglang['Language'][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
+                    foreach ((array)$this->foglang['Language'] AS $lang => &$humanreadable) $options2[] = '<option value="'.$lang.'" '.($this->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->getSetting('FOG_DEFAULT_LOCALE') == $this->foglang['Language'][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
                     unset($humanreadable);
                     $type = '<select name="${service_id}" autocomplete="off" style="width: 220px">'.implode($options2).'</select>';
                     break;
@@ -521,7 +517,7 @@ class FOGConfigurationPage extends FOGPage {
                     $dt = $this->nice_date('now',$utc);
                     $tzIDs = DateTimeZone::listIdentifiers();
                     $type = '<select name="${service_id}">';
-                    foreach($tzIDs AS $i => &$tz) {
+                    foreach ((array)$tzIDs AS $i => &$tz) {
                         $current_tz = $this->getClass('DateTimeZone',$tz);
                         $offset = $current_tz->getOffset($dt);
                         $transition = $current_tz->getTransitions($dt->getTimestamp(),$dt->getTimestamp());
@@ -576,8 +572,7 @@ class FOGConfigurationPage extends FOGPage {
         exit;
     }
     public function settings_post() {
-        $ServiceMan = $this->getClass('ServiceManager')->find();
-        foreach ((array)$ServiceMan AS $i => &$Service) {
+        foreach ((array)$this->getClass('ServiceManager')->find() AS $i => &$Service) {
             $key = $Service->get('id');
             $_REQUEST[$key] = trim($_REQUEST[$key]);
             $Service->set('value',$_REQUEST[$key]);
@@ -617,9 +612,9 @@ class FOGConfigurationPage extends FOGPage {
     public function log() {
         $StorageGroups = $this->getClass('StorageGroupManager')->find();
         foreach ((array)$StorageGroups AS $i => &$StorageGroup) {
-            if (!$StorageGroup->getMasterStorageNode()->isValid()) continue;
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if (!$StorageNode->isValid()) continue;
+            if (!$StorageNode->get('isEnabled')) continue;
             $user = $StorageNode->get('user');
             $pass = $StorageNode->get('pass');
             $host = $StorageNode->get('ip');
@@ -662,7 +657,7 @@ class FOGConfigurationPage extends FOGPage {
             unset($StorageGroup);
         }
         unset($StorageGroups);
-        $this->HookManager->processEvent('LOG_VIEWER_HOOK',array('files'=>&$files,'ftpstart'=>&$ftpstarter));
+        $this->HookManager->processEvent('LOG_VIEWER_HOOK_'.$StorageGroup->get('name'),array('files'=>&$files,'ftpstart'=>&$ftpstarter));
         foreach ((array)$files AS $nodename => &$filearray) {
             $first = true;
             foreach((array)$filearray AS $value => &$file) {

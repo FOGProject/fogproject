@@ -945,6 +945,18 @@ configureHttpd() {
         service php-fpm stop >/dev/null 2>&1
     fi
     errorStat $?
+    dots "Testing and removing symbolic links if found"
+    if [ -h "/var/www/fog" ]; then
+        rm -f "/var/www/fog" >/dev/null 2>&1
+    else
+        true
+    fi
+    if [ -h "/var/www/html/fog" ]; then
+        rm -f "/var/www/html/fog" >/dev/null 2>&1
+    else
+        true
+    fi
+    errorStat $?
     if [ -f "$etcconf" ]; then
         dots "Removing vhost file"
         if [ "$osid" == "2" ]; then
@@ -1048,7 +1060,7 @@ class Config {
     public function __construct() {
         self::db_settings();
         self::svc_setting();
-        if (\$_REQUEST[node] == 'schemaupdater') self::init_setting();
+        if (\$_REQUEST['node'] == 'schemaupdater') self::init_setting();
     }
     /** @function db_settings() Defines the database settings for FOG
      * @return void

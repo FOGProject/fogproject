@@ -13,8 +13,7 @@ class ExampleManager extends FOGManagerController {
         INDEX new_index (eHostID),
         ENGINE = MyISAM";
         *** ACTUALLY CREATES THE DATABASE TABLE FROM ABOVE ***
-        if ($this->DB->query($sql))
-        {
+        if ($this->DB->query($sql)) {
             *** IF NEEDED CREATE GLOBAL ENTRIES ***
             $Example1 = new Service(array(
                 'name' => 'FOG_EXAMPLE_ONE',

@@ -46,7 +46,7 @@ class DashboardPage extends FOGPage {
         printf('</li><li><h4>%s</h4><div class="graph pie-graph" id="graph-activity"></div></li><li><h4>%s</h4><div id="diskusage-selector">',_('System Activity'),_('Disk Information'));
         $Nodes = $this->getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>1));
         $URLs = array();
-        foreach ($Nodes AS $i => &$StorageNode) {
+        foreach ((array)$Nodes AS $i => &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));

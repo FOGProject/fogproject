@@ -468,11 +468,11 @@ abstract class FOGBase {
             }
         }
     }
-    public function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id',$not = false,$operator = 'AND',$orderBy = 'name') {
+    public function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id',$not = false,$operator = 'AND',$orderBy = 'name',$groupBy = false) {
         if (empty($object)) $object = 'Host';
         if (empty($getField)) $getField = 'id';
         if (empty($operator)) $operator = 'AND';
-        return $this->getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','','',$not,$getField);
+        return $this->getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','',$groupBy,$not,$getField);
     }
     public function getSetting($key) {
         $value = $this->getSubObjectIDs('Service',array('name'=>$key),'value');

@@ -1,20 +1,13 @@
 <?php
 class BootMenu extends FOGBase {
-    // Variables
     private $Host,$kernel,$initrd,$booturl,$memdisk,$memtest,$web,$defaultChoice,$bootexittype,$loglevel;
     private $storage, $shutdown, $path;
     private $hiddenmenu, $timeout, $KS;
-    /** @function __construct() builds the menu base elements
-     * @param $Host the host to work across or null otherwise
-     * @return void
-     */
     public function __construct($Host = null) {
         parent::__construct();
         $this->loglevel = 'loglevel='.$this->getSetting(FOG_KERNEL_LOGLEVEL);
-        // Setups of the basic construct for the menu system.
         $StorageNode = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1,isMaster=>1));
         $StorageNode = @array_shift($StorageNode);
-        // Sets up the default values stored in the server. Lines 51 - 64
         $webserver = $this->getSetting('FOG_WEB_HOST');
         $curroot = trim(trim($this->getSetting('FOG_WEB_ROOT'),'/'));
         $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
@@ -48,45 +41,33 @@ class BootMenu extends FOGBase {
         $keymap = $this->getSetting('FOG_KEYMAP');
         $memdisk = 'memdisk';
         $memtest = $this->getSetting('FOG_MEMTEST_KERNEL');
-        // Default bzImage and imagefile based on arch received.
         $bzImage = ($_REQUEST['arch'] == 'x86_64' ? $this->getSetting('FOG_TFTP_PXE_KERNEL') : $this->getSetting('FOG_TFTP_PXE_KERNEL_32'));
         $kernel = $bzImage;
         $imagefile = ($_REQUEST['arch'] == 'x86_64' ? $this->getSetting('FOG_PXE_BOOT_IMAGE') : $this->getSetting('FOG_PXE_BOOT_IMAGE_32'));
         $initrd = $imagefile;
-        // Adjust file info if host is valid.
         if ($Host && $Host->isValid()) {
-            // If the host kernel param is set, use that kernel to boot the host.
             ($Host->get('kernel') ? $bzImage = $Host->get('kernel') : null);
             $kernel = $bzImage;
             $this->HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS',array('Host'=>&$Host,'StorageGroup'=>&$StorageGroup,'StorageNode'=>&$StorageNode,'memtest'=>&$memtest,'memdisk'=>&$memdisk,'bzImage'=>&$bzImage,'initrd'=>&$initrd,'webroot'=>&$webroot,'imagefile'=>&$imagefile));
         }
-        // Sets the key sequence.  Only used if the hidden menu option is selected.
         $keySequence = $this->getSetting('FOG_KEY_SEQUENCE');
         if ($keySequence) $this->KS = $this->getClass('KeySequence',$keySequence);
-        // menu Access sets if the menu is displayed.  Menu access is a url get variable if a user has specified hidden menu it will override if menuAccess is set.
         if (!$_REQUEST['menuAccess']) $this->hiddenmenu = $this->getSetting('FOG_PXE_MENU_HIDDEN');
         $timeout = ($this->hiddenmenu ? $this->getSetting('FOG_PXE_HIDDENMENU_TIMEOUT') : $this->getSetting('FOG_PXE_MENU_TIMEOUT'))* 1000;
         $this->timeout = $timeout;
-        // Generate the URL to boot from.
         $this->booturl = "http://${webserver}${webroot}service";
-        // Store the host call into class global.
         $this->Host = $Host;
-        // Capone menu setup.
         $CaponePlugInst = in_array('capone',(array)$_SESSION['PluginsInstalled']);
         $DMISet = $CaponePlugInst ? $this->getSetting('FOG_PLUGIN_CAPONE_DMI') : false;
-        // If it is installed store the needed elements into variables.
         if ($CaponePlugInst) {
             $this->storage = $StorageNode->get('ip');
             $this->path = $StorageNode->get('path');
             $this->shutdown = $this->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN');
         }
-        // Create menu item if not exists and Capone is installed as well as the DMI is specified.
         if ($CaponePlugInst && $DMISet) {
-            // Check for fog.capone if the pxe menu entry exists.
             $PXEMenuItem = $this->getClass('PXEMenuOptionsManager')->find(array('name'=>'fog.capone'));
             $PXEMenuItme = @array_shift($PxeMenuItem);
             if ($PXEMenuItem instanceof PXEMenuOptions && $PXEMenuItem->isValid()) $PXEMenuItem->set(args,"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path")->save();
-            // If it does not exist, create the menu entry.
             else {
                 $this->getClass('PXEMenuOptions')
                     ->set('name','fog.capone')
@@ -99,15 +80,12 @@ class BootMenu extends FOGBase {
             }
             $PXEMenuItem->save();
         }
-        // Specify the default calls.
         $this->memdisk = "kernel $memdisk";
         $this->memtest = "initrd $memtest";
         $this->kernel = "kernel $bzImage $this->loglevel initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0".($this->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '');
         $this->initrd = "imgfetch $imagefile";
-        // Set the default line based on all the menu entries and only the one with the default set.
         $defMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('default'=>1)));
         $this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local').(!$this->hiddenmenu ? " --timeout $timeout" : " --timeout 0").' target && goto ${target}';
-        // Register the success of the boot to the database:
         $iPXE = $this->getClass(iPXEManager)->find(array('product'=>$_REQUEST['product'],'manufacturer'=>$_REQUEST['manufacturer'],'file'=>$_REQUEST['filename']));
         $iPXE = @array_shift($iPXE);
         if ($iPXE instanceof iPXE && $iPXE->isValid()) {
@@ -133,20 +111,7 @@ class BootMenu extends FOGBase {
         else if (!$Host || !$Host->isValid()) $this->printDefault();
         else $this->getTasking();
     }
-    /** @function chainBoot() Prints the bootmenu or hides it.  If access is not allowed but tried
-     * requests login information from WEB GUI.
-     * Used often for return to menu/check tasking after setting somthing.
-     * $debug is a flat to indicate if we show the debug menu item.  Typically
-     * you only want this after a person authenticates.
-     * $shortCircuit is a flag that will shortCircuit the hiddenMenu check.
-     * This is needed for quick image.
-     * @param $debug set to false but if true enables access.
-     * @param $shortCircuit set to false, but if true enables display.
-     * @return void
-     */
     private function chainBoot($debug=false, $shortCircuit=false) {
-        // csyperski: added hiddenMenu check; without it entering
-        // any string for username and password would show the menu, even if it was hidden
         if (!$this->hiddenmenu || $shortCircuit) {
             $Send['chainnohide'] = array(
                 "#!ipxe",
@@ -187,11 +152,6 @@ class BootMenu extends FOGBase {
         }
         $this->parseMe($Send);
     }
-    /** @function delHost() Deletes the host from the system.
-     * If it fails will return that it failed.
-     * Each interval sends back to chainBoot()
-     * @return void
-     */
     private function delHost() {
         if($this->Host->destroy()) {
             $Send['delsuccess'] = array(
@@ -209,9 +169,6 @@ class BootMenu extends FOGBase {
         $this->parseMe($Send);
         $this->chainBoot();
     }
-    /** @function printImageIgnored() prints message if the mac is ignored for imaging
-     * @return void
-     */
     private function printImageIgnored() {
         $Send['ignored'] = array(
             "#!ipxe",
@@ -221,9 +178,6 @@ class BootMenu extends FOGBase {
         $this->parseMe($Send);
         $this->noMenu();
     }
-    /** @function approveHost() approves pending hosts from the menu
-     * @return void
-     */
     private function approveHost() {
         if ($this->Host->set('pending',null)->save()) {
             $Send['approvesuccess'] = array(
@@ -242,13 +196,6 @@ class BootMenu extends FOGBase {
         $this->parseMe($Send);
         $this->chainBoot();
     }
-    /** @function printTasking() Sends the Tasking file.  In PXE this is equivalent to the creation
-     * of the 01-XX-XX-XX-XX-XX-XX file.
-     * Just tells the system it's got a task.
-     * @param $kernelArgsArray sets up the tasking through the
-     * kernelArgs information.
-     * @return void
-     */
     private function printTasking($kernelArgsArray) {
         foreach($kernelArgsArray AS $i => &$arg) {
             if (!is_array($arg) && !empty($arg) || (is_array($arg) && $arg['active'] && !empty($arg))) $kernelArgs[] = (is_array($arg) ? $arg['value'] : $arg);
@@ -263,9 +210,6 @@ class BootMenu extends FOGBase {
         );
         $this->parseMe($Send);
     }
-    /** @function delConf() If you're trying to delete the host, requests confirmation of deletion.
-     * @return void
-     */
     public function delConf() {
         $Send['delconfirm'] = array(
             "#!ipxe",
@@ -283,9 +227,6 @@ class BootMenu extends FOGBase {
         );
         $this->parseMe($Send);
     }
-    /** @function aprvConf() If you're trying to approve the host, request confirmation.
-     * @return void
-     */
     public function aprvConf() {
         $Send['aprvconfirm'] = array(
             "#!ipxe",
@@ -303,9 +244,6 @@ class BootMenu extends FOGBase {
         );
         $this->parseMe($Send);
     }
-    /** @function keyreg() If you're trying to change the key, request what the key is.
-     * @return void
-     */
     public function keyreg() {
         $Send['keyreg'] = array(
             "#!ipxe",
@@ -324,9 +262,6 @@ class BootMenu extends FOGBase {
         );
         $this->parseMe($Send);
     }
-    /** @function sesscheck() Verifies a session name for multicast
-     * @return void
-     */
     public function sesscheck() {
         $sesscount = current($this->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'],'stateID' => array(0,1,2,3))));
         if (!$sesscount || !$sesscount->isValid()) {
@@ -349,9 +284,6 @@ class BootMenu extends FOGBase {
             $this->parseMe($Send);
         } else $this->multijoin($sesscount->get('id'));
     }
-    /** @functoin sessjoin() joins a multicast session when verified
-     * @return void
-     */
     public function sessjoin() {
         $Send['joinsession'] = array(
             "#!ipxe",
@@ -370,13 +302,6 @@ class BootMenu extends FOGBase {
         );
         $this->parseMe($Send);
     }
-    /** @function falseTasking() only runs if hosts aren't registered
-     * generates a false tasking so quick image or session joining
-     * can occur without needing to be registered
-     * @param $mc = false, only specified if the task is multicast.
-     * @param $Image = send the specified image, really only needed for non-multicast
-     * @return void
-     */
     public function falseTasking($mc = false,$Image = false) {
         $TaskType = new TaskType(1);
         if ($mc) {
@@ -438,9 +363,6 @@ class BootMenu extends FOGBase {
         );
         $this->printTasking($kernelArgsArray);
     }
-    /** @function printImageList() generates an ipxe menu of all images on the system
-     * @return void
-     */
     public function printImageList() {
         $Send['ImageListing'] = array(
             '#!ipxe',
@@ -460,17 +382,13 @@ class BootMenu extends FOGBase {
             $this->chainBoot();
         } else {
             foreach($Images AS $i => &$Image) {
-                // Only create menu items if the image is valid.
                 if ($Image && $Image->isValid()) {
                     array_push($Send['ImageListing'],"item ".$Image->get('path').' '.$Image->get('name'));
-                    // If the host is valid and the image is set and valid, set the selected target.
                     if ($this->Host && $this->Host->isValid() && $this->Host->getImage() && $this->Host->getImage()->isValid() && $this->Host->getImage()->get('id') == $Image->get('id')) $defItem = 'choose --default '.$Image->get('path').' --timeout '.$this->timeout.' target && goto ${target}';
                 }
             }
             unset($Image);
-            // Add the return to other menu
             array_push($Send['ImageListing'],'item return Return to menu');
-            // Insert the choice of menu item.
             array_push($Send['ImageListing'],$defItem);
             foreach($Images AS $i => &$Image) {
                 if ($Image && $Image->isValid()) {
@@ -506,22 +424,15 @@ class BootMenu extends FOGBase {
             $this->parseMe($Send);
         }
     }
-    /** @function multijoin() Joins the host to an already generated multicast session
-     * @return void
-     */
     public function multijoin($msid) {
         $MultiSess = new MulticastSessions($msid);
         if ($MultiSess && $MultiSess->isValid()) {
             if ($this->Host && $this->Host->isValid()) {
                 $this->Host->set(imageID,$MultiSess->get(image));
-                // Create the host task
                 if($this->Host->createImagePackage(8,$MultiSess->get(name),false,false,-1,false,$_REQUEST['username'],'',true)) $this->chainBoot(false,true);
             } else $this->falseTasking($MultiSess);
         }
     }
-    /** @function keyset() Set's the product key using the ipxe menu.
-     * @return void
-     */
     public function keyset() {
         $this->Host->set('productKey',base64_encode($_REQUEST['key']));
         if ($this->Host->save()) {
@@ -534,18 +445,11 @@ class BootMenu extends FOGBase {
             $this->chainBoot();
         }
     }
-    /** @function parseMe() Just prints the ipxe script allowing for hooking to operate
-     * @param $Send the data to parse through and print
-     * @return void
-     */
     private function parseMe($Send) {
         $this->HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send,'Host' => &$this->Host,'kernel' => &$this->kernel,'initrd' => &$this->initrd,'booturl' => &$this->booturl, 'memdisk' => &$this->memdisk,'memtest' => &$this->memtest, 'web' => &$this->web, 'defaultChoice' => &$this->defaultChoice, 'bootexittype' => &$this->bootexittype,'storage' => &$this->storage,'shutdown' => &$this->shutdown,'path' => &$this->path,'timeout' => &$this->timeout,'KS' => $this->ks));
         foreach($Send AS $ipxe => &$val) echo implode("\n",$val)."\n";
         unset($val);
     }
-    /** @function advLogin() If advanced login is set this just passes when verifyCreds is correct
-     * @return void
-     */
     public function advLogin() {
         $Send['advancedlogin'] = array(
             "#!ipxe",
@@ -553,9 +457,6 @@ class BootMenu extends FOGBase {
         );
         $this->parseMe($Send);
     }
-    /** @function debugAccess()* Set's up for debug menu as requested.
-     * @return void
-     */
     private function debugAccess() {
         $Send['debugaccess'] = array(
             "#!ipxe",
@@ -565,10 +466,6 @@ class BootMenu extends FOGBase {
         );
         $this->parseMe($Send);
     }
-    /** @function verifyCreds() Verifies the login information is valid
-     * Otherwise return that it's broken.
-     * @return void
-     */
     public function verifyCreds() {
         if ($this->FOGCore->attemptLogin($_REQUEST['username'],$_REQUEST['password'])) {
             if ($this->getSetting('FOG_ADVANCED_MENU_LOGIN') && $_REQUEST['advLog']) $this->advLogin();
@@ -595,12 +492,6 @@ class BootMenu extends FOGBase {
             $this->chainBoot();
         }
     }
-    /** @function setTasking() If quick image tasking requested, this sets up the tasking.
-     * @param $imgID the ID to set for the host.  Not needed, but is set if image id of the host
-     * is not the same as the one trying to be used.  This allows the host to image using another
-     * image without setting the image to the host
-     * @return void
-     */
     public function setTasking($imgID = '') {
         if (!$imgID) $this->printImageList();
         if ($imgID) {
@@ -622,9 +513,6 @@ class BootMenu extends FOGBase {
             $this->chainBoot(false,true);
         }
     }
-    /** @function noMenu() If no menu option is set, just exits to harddrive if there's no tasking.
-     * @return void
-     */
     public function noMenu() {
         $Send['nomenu'] = array(
             "#!ipxe",
@@ -632,11 +520,6 @@ class BootMenu extends FOGBase {
         );
         $this->parseMe($Send);
     }
-    /** @function getTasking() Finds out if there's a tasking for the relevant host.
-     * if there is, returns the printTasking, otherwise
-     * presents the menu.
-     * @return void
-     */
     public function getTasking() {
         $Task = $this->Host->get('task');
         if (!$Task->isValid()) {
@@ -803,18 +686,7 @@ class BootMenu extends FOGBase {
             } else $this->printTasking($kernelArgsArray);
         }
     }
-    /** @function menuItem() set's up the menu items as passed
-     * @param $option the menu option
-     * @param $desc the description of the menu item.
-     * Prints the menu items.
-     * @return the string as passed.
-     */
     private function menuItem($option, $desc) {return array("item ".$option->get('name')." ".$option->get('description'));}
-        /** @function menuOpt() Prints the actual menu related items for booting.
-         * @param $option the related menu option
-         * @param $type the type of menu information
-         * @return $Send sends the data for the menu item.
-         */
         private function menuOpt($option,$type) {
             if ($option->get('id') == 1) {
                 $Send = array(
@@ -848,12 +720,7 @@ class BootMenu extends FOGBase {
             }
             return $Send;
         }
-    /** @function printDefault() Prints the Menu which is equivalent to the
-     * old default file from PXE boot.
-     * @return void
-     */
     public function printDefault() {
-        // Gets all the database menu items.
         $Menus = $this->getClass('PXEMenuOptionsManager')->find('','','id');
         $Send['head'] = array(
             "#!ipxe",
@@ -907,8 +774,3 @@ class BootMenu extends FOGBase {
         } else $this->chainBoot(true);
     }
 }
-/* Local Variables: */
-/* indent-tabs-mode: t */
-/* c-basic-offset: 4 */
-/* tab-width: 4 */
-/* End: */
