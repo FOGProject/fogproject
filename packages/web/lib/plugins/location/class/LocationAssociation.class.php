@@ -1,10 +1,10 @@
 <?php
 class LocationAssociation extends FOGController {
-	protected $databaseTable = 'locationAssoc';
-	protected $databaseFields = array(
-		'id' => 'laID',
-		'locationID' => 'laLocationID',
-		'hostID' => 'laHostID',
+    protected $databaseTable = 'locationAssoc';
+    protected $databaseFields = array(
+        'id' => 'laID',
+        'locationID' => 'laLocationID',
+        'hostID' => 'laHostID',
     );
     protected $databaseFieldsRequired = array(
         'locationID',
@@ -17,17 +17,19 @@ class LocationAssociation extends FOGController {
         return $this->getClass('Host',$this->get('hostID'));
     }
     public function getStorageGroup() {
-        if (!$this->getLocation()->isValid()) return;
-        return $this->getClass('StorageGroup',$this->getLocation()->get('storageGroupID'));
+        $Location = $this->getLocation();
+        if (!$Location->isValid()) return;
+        return $this->getClass('StorageGroup',$Location->get('storageGroupID'));
     }
     public function getStorageNode() {
-        if (!$this->getLocation()->isValid()) return;
-		$Location = $this->getLocation();
-		if ($this->get('storageNodeID')) return $this->getClass('StorageNode',$Location->get('storageNodeID'));
-		return $this->getStorageGroup()->getOptimalStorageNode();
-	}
+        $Location = $this->getLocation();
+        if (!$Location->isValid()) return;
+        if ($this->get('storageNodeID')) return $this->getClass('StorageNode',$Location->get('storageNodeID'));
+        return $this->getStorageGroup()->getOptimalStorageNode();
+    }
     public function isTFTP() {
-        if (!$this->getLocation()->isValid()) return false;
-        return (bool)$this->getLocation()->get('tftp');
-	}
+        $Location = $this->getLocation();
+        if (!$Location->isValid()) return;
+        return (bool)$Location->get('tftp');
+    }
 }

@@ -49,8 +49,12 @@ class MySQL extends DatabaseManager {
             $this->query = $sql;
             $this->current_db();
             if (!$this->query) throw new Exception(_('No query sent'));
-            else if (!$this->queryResult = $this->link->query($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
-            else $this->current_db();
+            else if (!$this->queryResult = $this->link->prepare($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
+            else {
+                $this->queryResult->execute();
+                $this->queryResult = $this->queryResult->get_result();
+                if (!$this->db_name) $this->current_db();
+            }
             if (!$this->db_name) throw new Exception(_('No database to work off'));
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
@@ -120,7 +124,6 @@ class MySQL extends DatabaseManager {
                 $key = trim($key);
                 if (array_key_exists($key, (array)$this->result)) {
                     $this->queryResult->close();
-                    unset($this->queryResult);
                     return $this->result[$key];
                 }
                 foreach ((array)$this->result AS $i => &$value) {
@@ -128,7 +131,6 @@ class MySQL extends DatabaseManager {
                 }
             }
         }
-        unset($this->queryResult);
         if (count($result)) return $result;
         return $this->result;
     }
@@ -138,63 +140,27 @@ class MySQL extends DatabaseManager {
     public function queryResult() {
         return $this->queryResult;
     }
-    /** sqlerror() the error if there is one
-     * @return the connection or sql error
-     */
     public function sqlerror() {
         return $this->link->connect_error ? $this->link->connect_error.', Message: '.'Check that database is running' : $this->link->error;
     }
-    /** fieldCount() the total field count
-     * @return the field count
-     */
     public function field_count() {
-        $field_count = $this->queryResult->field_count;
-        if (intval($field_count) <= 0) $insert_id = $this->link->insert_id;
-        return (int)$field_count;
+        return $this->link->field_count;
     }
-    /** insert_id() the last insert id
-     * @return the value of the id
-     */
     public function insert_id() {
-		$insert_id = $this->queryResult->insert_id;
-		if (intval($insert_id) <= 0) $insert_id = $this->link->insert_id;
-		if (intval($insert_id) <= 0) throw new Exception(_('No insert id found'));
-		return (int)$insert_id;
+		return $this->link->insert_id;
     }
-    /** affected_rows() the number of affected rows
-     * @return the number
-     */
     public function affected_rows() {
-		$affected_rows = $this->queryResult->affected_rows;
-		if (intval($affected_rows) <= 0) $affected_rows = $this->link->affected_rows;
-		return (int)$affected_rows;
+        return $this->link->affected_rows;
     }
-    /** num_rows() the number of rows.
-     * @return the number
-     */
     public function num_rows() {
-		$num_rows = $this->queryResult->num_rows;
-		if (intval($num_rows) <= 0) $num_rows = $this->link->num_rows;
-		return (int)$num_rows;
+        $this->link->num_rows;
     }
-    /** escape() escape/clean the data
-     * @param $data the data to be cleaned
-     * @return the sanitized data
-     */
     public function escape($data) {
         return $this->sanitize($data);
     }
-    /** clean() escape/clean the data
-     * @param $data the data to be cleaned
-     * @return the sanitized data
-     */
     private function clean(&$data) {
         return $this->link->real_escape_string(htmlentities(mb_convert_encoding(trim($data),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8'));
     }
-    /** sanitize() escape/clean the data
-     * @param $data the data to be cleaned
-     * @return the sanitized data
-     */
     public function sanitize($data) {
         if (!is_array($data)) return $this->clean($data);
         foreach ($data AS $key => &$val) {
@@ -203,9 +169,6 @@ class MySQL extends DatabaseManager {
         }
         return $data;
     }
-    /** link() returns the link as is
-     * @return the link as connected
-     */
     public function link() {
         return $this->link;
     }
