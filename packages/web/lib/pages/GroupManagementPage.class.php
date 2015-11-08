@@ -50,8 +50,7 @@ class GroupManagementPage extends FOGPage {
     public function index() {
         $this->title = _('All Groups');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['GroupCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        $Groups = $this->getClass('GroupManager')->find();
-        foreach ((array)$Groups AS $i => &$Group) {
+        foreach ((array)$this->getClass('GroupManager')->find() AS $i => &$Group) {
             if (!$Group->isValid()) continue;
             $this->data[] = array(
                 'id'=>$Group->get('id'),
@@ -61,13 +60,11 @@ class GroupManagementPage extends FOGPage {
             );
             unset($Group);
         }
-        unset($Groups);
         $this->HookManager->processEvent('GROUP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
-        $Groups = $this->getClass('GroupManager')->search('',true);
-        foreach ((array)$Groups AS $i => &$Group) {
+        foreach ((array)$this->getClass('GroupManager')->search('',true) AS $i => &$Group) {
             if (!$Group->isValid()) continue;
             $this->data[] = array(
                 'id'=>$Group->get('id'),
@@ -77,7 +74,6 @@ class GroupManagementPage extends FOGPage {
             );
             unset($Group);
         }
-        unset($Groups);
         $this->HookManager->processEvent('GROUP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -229,8 +225,7 @@ class GroupManagementPage extends FOGPage {
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );
-        $Snapins = $this->getClass('SnapinManager')->find();
-        foreach ((array)$Snapins AS $i => &$Snapin) {
+        foreach ((array)$this->getClass('SnapinManager')->find() AS $i => &$Snapin) {
             if (!$Snapin->isValid()) continue;
             $this->data[] = array(
                 'snapin_id'=>$Snapin->get('id'),
@@ -258,7 +253,7 @@ class GroupManagementPage extends FOGPage {
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );
-        foreach ((array)$Snapins AS $i => &$Snapin) {
+        foreach ((array)$this->getClass('SnapinManager')->find() AS $i => &$Snapin) {
             if (!$Snapin->isValid()) continue;
             $this->data[] = array(
                 'snapin_id'=>$Snapin->get('id'),
@@ -291,8 +286,7 @@ class GroupManagementPage extends FOGPage {
         $ModOns = array_count_values($this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID'));
         $moduleName = $this->getGlobalModuleStatus();
         $HostCount = $this->obj->getHostCount();
-        $Modules = $this->getClass('ModuleManager')->find();
-        foreach ((array)$Modules AS $i => &$Module) {
+        foreach ((array)$this->getClass('ModuleManager')->find() AS $i => &$Module) {
             if (!$Module->isValid()) continue;
             $this->data[] = array(
                 'input'=>sprintf('<input %stype="checkbox" name="modules[]" value="%s" %s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ' : ''), $Module->get('id'), ($ModOns[$Module->get('id')] ? 'checked ' : ''), !$moduleName[$Module->get('shortName')] ? 'disabled' : ''),
@@ -321,8 +315,7 @@ class GroupManagementPage extends FOGPage {
             '${input}',
             '${span}',
         );
-        $Services = $this->getClass('ServiceManager')->find(array('name'=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id');
-        foreach ((array)$Services AS $i => &$Service) {
+        foreach ((array)$this->getClass('ServiceManager')->find(array('name'=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id') AS $i => &$Service) {
             if (!$Service->isValid()) continue;
             switch ($Service->get('name')) {
             case 'FOG_SERVICE_DISPLAYMANAGER_X':
@@ -403,8 +396,7 @@ class GroupManagementPage extends FOGPage {
                 array('width'=>50,'class'=>'l'),
                 array('width'=>50,'class'=>'r'),
             );
-            $Printers = $this->getClass('PrinterManager')->find();
-            foreach($Printers AS $i => &$Printer) {
+            foreach ((array)$this->getClass('PrinterManager')->find() AS $i => &$Printer) {
                 if (!$Printer->isValid()) continue;
                 $this->data[] = array(
                     'printer_id'=>$Printer->get('id'),
@@ -434,7 +426,7 @@ class GroupManagementPage extends FOGPage {
                 array('width'=>50,'class'=>'l'),
                 array('width'=>50,'class'=>'r'),
             );
-            foreach ((array)$Printers AS $i => &$Printer) {
+            foreach ((array)$this->getClass('PrinterManager')->find() AS $i => &$Printer) {
                 if (!$Printer->isValid()) continue;
                 $this->data[] = array(
                     'printer_id'=>$Printer->get('id'),
@@ -503,8 +495,7 @@ class GroupManagementPage extends FOGPage {
                 $modOn = $_REQUEST['modules'];
                 $modOff = $this->getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
                 $this->obj->addModule($modOn)->removeModule($modOff);
-                $Hosts = $this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts')));
-                foreach ((array)$Hosts AS $i => &$Host) {
+                foreach ((array)$this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))) AS $i => &$Host) {
                     if (!$Host->isValid()) continue;
                     if (isset($_REQUEST['updatedisplay'])) $Host->setDisp($x,$y,$r);
                     if (isset($_REQUEST['updatealo'])) $Host->setAlo($time);
@@ -538,8 +529,7 @@ class GroupManagementPage extends FOGPage {
             '${host_name}<br/><small>${host_mac}</small>',
             '<small>${host_deployed}</small>',
         );
-        $Hosts = $this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts')));
-        foreach ((array)$Hosts AS $i => &$Host) {
+        foreach ((array)$this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))) AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
                 'host_name' => $Host->get('name'),
@@ -548,7 +538,6 @@ class GroupManagementPage extends FOGPage {
             );
             unset($Host);
         }
-        unset($Hosts);
         printf('<p>%s</p>',_('Confirm you really want to delete the following hosts'));
         printf('<form method="post" action="?node=group&sub=delete&id=%s" class="c">',$this->obj->get('id'));
         $this->HookManager->processEvent('GROUP_DELETE_HOST_FORM',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));

@@ -38,39 +38,45 @@ abstract class FOGController extends FOGBase {
         return ($this->get('name') ? $this->get('name') : sprintf('%s ID: %s',get_class($this),$this->get('id')));
     }
     public function get($key = '') {
-        if (!$key) {
-            $this->info(sprintf(_('Getting All values of: %s'),get_class($this)));
-            return $this->data;
-        }
         try {
             $key = $this->key($key);
-            if (!$this->isLoaded($key)) $this->loadItem($key);
-            if ($key) $this->info(sprintf(_('Getting Value of Key: %s, Value: %s'),$key, $this->data[$key]));
+            if (!$key) throw new Exception(_('No key being requested'));
+            else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
+                unset($this->data[$key]);
+                throw new Exception(_('Invalid key being requested'));
+            } else if (!$this->isLoaded($key)) $this->loadItem($key);
+            $this->info(sprintf(_('Returning Value of Key: %s, Value: %s'),$key, is_object($this->data[$key]) ? $this->data[$key]->__toString() : $this->data[$key]));
             return $this->data[$key];
         } catch (Exception $e) {
             $this->debug(sprintf(_('Get Failed: Key: %s, Error: %s'),$key,$e->getMessage()));
         }
+        return $this->data;
     }
     public function set($key, $value) {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        $this->info(sprintf(_('Setting Key: %s, Value: %s'),$key, $value));
         try {
-            if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being set'));
+            $key = $this->key($key);
+            if (!$key) throw new Exception(_('No key being requested'));
+            else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
+                unset($this->data[$key]);
+                throw new Exception(_('Invalid key being set'));
+            } else if (!$this->isLoaded($key)) $this->loadItem($key);
             if (is_numeric($value) && $value < ($key == 'id' ? 1 : -1)) throw new Exception(_('Invalid numeric entry'));
+            $this->info(sprintf(_('Setting Key: %s, Value: %s'),$key, is_object($value) ? $value->__toString() : $value));
             $this->data[$key] = $value;
         } catch (Exception $e) {
-            unset($this->data);
             $this->debug(_('Set Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
         }
         return $this;
     }
     public function add($key, $value) {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        $this->info(sprintf(_('Adding Key: %s, Values: %s'),$key, $value));
         try {
-            if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being added'));
+            $key = $this->key($key);
+            if (!$key) throw new Exception(_('No key being requested'));
+            else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
+                unset($this->data[$key]);
+                throw new Exception(_('Invalid key being added'));
+            } else if (!$this->isLoaded($key)) $this->loadItem($key);
+            $this->info(sprintf(_('Adding Key: %s, Values: %s'),$key, is_object($value) ? $value->__toString() : $value));
             $this->data[$key][] = $value;
         } catch (Exception $e) {
             $this->debug(_('Add Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
@@ -78,15 +84,18 @@ abstract class FOGController extends FOGBase {
         return $this;
     }
     public function remove($key, $value) {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        $this->info(sprintf(_('Removing Key: %s, Value: %s'),$key, $value));
         try {
-            if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being removed'));
+            $key = $this->key($key);
+            if (!$key) throw new Exception(_('No key being requested'));
+            else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
+                unset($this->data[$key]);
+                throw new Exception(_('Invalid key being removed'));
+            } else if (!$this->isLoaded($key)) $this->loadItem($key);
             if (!is_array($this->data[$key])) $this->data[$key] = array($this->data[$key]);
             asort($this->data[$key]);
             $this->data[$key] = array_unique($this->data[$key]);
             $index = $this->binary_search($value,$this->data[$key]);
+            $this->info(sprintf(_('Removing Key: %s, Value: %s'),$key, $value));
             unset($this->data[$key][$index]);
             $this->data[$key] = array_values(array_filter($this->data[$key]));
         } catch (Exception $e) {
@@ -95,30 +104,28 @@ abstract class FOGController extends FOGBase {
         return $this;
     }
     public function save() {
-        $insertKeys = $insertValues = $updateData = $fieldData = array();
-        if (count($this->aliasedFields)) $this->array_remove($this->aliasedFields, $this->databaseFields);
-        foreach((array)$this->databaseFields AS $name => &$field) {
-            $key = sprintf('`%s`',$this->DB->sanitize($field));
-            if ($name == 'createdBy' && !$this->get($name)) $val = $this->DB->sanitize(trim($_SESSION['FOG_USERNAME']) ? trim($_SESSION['FOG_USERNAME']) : 'fog');
-            else if ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) $val = $this->DB->sanitize($this->formatTime('now','Y-m-d H:i:s'));
-            else $val = $this->DB->sanitize($this->get($name));
-            $insertKeys[] = $key;
-            $insertValues[] = $val;
-            $updateData[] = sprintf("%s='%s'",$key,$val);
-        }
-        unset($field);
-        $query = sprintf($this->insertQueryTemplate,
-            $this->databaseTable,
-            implode(',',(array)$insertKeys),
-            implode("','",(array)$insertValues),
-            implode(',',(array)$updateData)
-        );
+        $this->info(sprintf(_('Saving data for %s object'),get_class($this)));
         try {
-            $mysqli = $this->DB->link();
-            if (!($res = $mysqli->prepare($query))) throw new Exception(sprintf(_('Bad Query being sent. Error: %s'),$mysqli->error));
-            $res->execute();
-            if (!$this->get('id')) $this->set('id',$mysqli->insert_id);
-            unset($mysqli);
+            $insertKeys = $insertValues = $updateData = $fieldData = array();
+            if (count($this->aliasedFields)) $this->array_remove($this->aliasedFields, $this->databaseFields);
+            foreach((array)$this->databaseFields AS $name => &$field) {
+                $key = sprintf('`%s`',$this->DB->sanitize($field));
+                if ($name == 'createdBy' && !$this->get($name)) $val = $this->DB->sanitize(trim($_SESSION['FOG_USERNAME']) ? trim($_SESSION['FOG_USERNAME']) : 'fog');
+                else if ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) $val = $this->DB->sanitize($this->formatTime('now','Y-m-d H:i:s'));
+                else $val = $this->DB->sanitize($this->get($name));
+                $insertKeys[] = $key;
+                $insertValues[] = $val;
+                $updateData[] = sprintf("%s='%s'",$key,$val);
+            }
+            unset($field);
+            $query = sprintf($this->insertQueryTemplate,
+                $this->databaseTable,
+                implode(',',(array)$insertKeys),
+                implode("','",(array)$insertValues),
+                implode(',',(array)$updateData)
+            );
+            if (!$this->DB->query($query)->fetch()->get()) throw new Exception($this->DB->sqlerror());
+            if (!$this->get('id')) $this->set('id',$this->DB->insert_id());
         } catch (Exception $e) {
             $this->debug(_('Database save failed: ID: %s, Error: %s'),array($this->data['id'],$e->getMessage()));
             return false;
@@ -151,13 +158,7 @@ abstract class FOGController extends FOGBase {
                         count($where) ? ' AND '.implode(' AND ',$where) : ''
                     );
                 }
-                $mysqli = $this->DB->link();
-                if (!($res = $mysqli->prepare($query))) throw new Exception(sprintf(_('Bad Query being sent. Error: %s'),$mysqli->error));
-                $res->execute();
-                $res = $res->get_result();
-                $vals = $res->fetch_all(MYSQLI_ASSOC);
-                $res->close();
-                unset($mysqli);
+                if (!($vals = $this->DB->query($query)->fetch('','fetch_all')->get())) throw new Exception($this->DB->sqlerror());
                 $this->setQuery(@array_shift($vals));
             }
         } catch (Exception $e) {
@@ -222,11 +223,12 @@ abstract class FOGController extends FOGBase {
         return array(implode((array)$join),$whereArrayAnd);
     }
     public function setQuery(&$queryData) {
-        $this->data = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
+        $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
         foreach ($this->databaseFieldsFlipped AS $db_key => &$obj_key) {
-            $this->array_change_key($this->data,$db_key,$obj_key);
+            $this->array_change_key($classData,$db_key,$obj_key);
             unset($obj_key);
         }
+        $this->data = array_merge((array)$this->data,(array)$classData);
         foreach((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
         unset($fields);
         return $this;

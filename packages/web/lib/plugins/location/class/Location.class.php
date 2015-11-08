@@ -32,7 +32,7 @@ class Location extends FOGController {
         case '0':
         case '':
             $this->destroy();
-            throw new Exception(_('ID was not set, or unable to be created'));
+            throw new Exception(_('Location ID was not set, or unable to be created'));
             break;
         case ($this->isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id'),'hostID'));
@@ -42,8 +42,7 @@ class Location extends FOGController {
                 $DBHostIDs = $this->getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id'),'hostID'));
                 unset($RemoveHostIDs);
             }
-            $Hosts = $this->getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs)));
-            foreach ((array)$Hosts AS $i => &$Host) {
+            foreach ((array)$this->getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))) AS $i => &$Host) {
                 if (!$Host->isValid()) continue;
                 $this->getClass('LocationAssociation')
                     ->set('hostID',$Host->get('id'))
@@ -51,7 +50,7 @@ class Location extends FOGController {
                     ->save();
                 unset($Host);
             }
-            unset($Hosts);
+            unset($DBHostIDs,$RemoveHostIDs);
         }
         return $this;
     }
@@ -75,7 +74,7 @@ class Location extends FOGController {
     protected function loadHostsnotinme() {
         if ($this->get('id')) {
             $find = array('id'=>$this->get('hosts'));
-            $this->set('hostsnotinme',$this->getSubObjectIDs('Host',$find,'',true));
+            $this->set('hostsnotinme',$this->getSubObjectIDs('Host',$find,'id',true));
             unset($find);
         }
     }

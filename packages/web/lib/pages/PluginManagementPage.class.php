@@ -45,9 +45,8 @@ class PluginManagementPage extends FOGPage {
         // Set title
         $this->title = _('Activate Plugins');
         // Find data
-        $AllPlugins = $this->getClass('Plugin')->getPlugins();
-        foreach ((array)$AllPlugins AS $i => &$Plugin) {
-            if(!$Plugin->isActive()) {
+        foreach ((array)$this->getClass('Plugin')->getPlugins() AS $i => &$Plugin) {
+            if ($Plugin->isActive()) continue;
                 $this->data[] = array(
                     'name'=>$Plugin->getName(),
                     'type'=>'activate',
@@ -56,7 +55,6 @@ class PluginManagementPage extends FOGPage {
                     'desc'=>$Plugin->getDesc(),
                     'icon'=>$Plugin->getIcon(),
                 );
-            }
         }
         //Hook
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
@@ -71,9 +69,7 @@ class PluginManagementPage extends FOGPage {
     }
     public function install() {
         $this->title = 'Install Plugins';
-        $AllPlugins = $this->getClass('Plugin')->getPlugins();
-        // Find data
-        foreach ((array)$AllPlugins AS $i => &$Plugin) {
+        foreach ((array)$this->getClass('Plugin')->getPlugins() AS $i => &$Plugin) {
             $PluginMan = $this->getClass('PluginManager')->find(array('name'=>$Plugin->getName()));
             $PluginMan = @array_shift($PluginMan);
             if (($Plugin->isActive() && !$Plugin->isInstalled() && !$_REQUEST['plug_name']) || ($_REQUEST['plug_name'] && $_REQUEST['plug_name'] == $Plugin->getName())) {
@@ -87,10 +83,9 @@ class PluginManagementPage extends FOGPage {
                     'pluginid'=>$PluginMan ? $PluginMan->get('id') : '',
                 );
             }
+            unset($Plugin);
         }
-        //Hook
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        // Output
         $this->render();
         if ($_REQUEST['run']) {
             $runner = $Plugin->getRunInclude($_REQUEST['run']);
@@ -100,9 +95,7 @@ class PluginManagementPage extends FOGPage {
     }
     public function installed() {
         $this->title = _('Installed Plugins');
-        // Find data
-        $AllPlugins = $this->getClass('Plugin')->getPlugins();
-        foreach ((array)$AllPlugins AS $i => &$Plugin) {
+        foreach ((array)$this->getClass('Plugin')->getPlugins() AS $i => &$Plugin) {
             $PluginMan = $this->getClass('PluginManager')->find(array('name'=>$Plugin->getName()));
             $PluginMan = @array_shift($PluginMan);
             if($Plugin->isActive() && $Plugin->isInstalled()) {
@@ -168,7 +161,7 @@ class PluginManagementPage extends FOGPage {
                     array(),
                     array(),
                 );
-                foreach((array)$dmiFields AS $i => &$dmifield) {
+                foreach ((array)$dmiFields AS $i => &$dmifield) {
                     $checked = $this->getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? 'selected="selected"' : '';
                     $dmiOpts[] = '<option value="'.$dmifield.'" label="'.$dmifield.'" '.$checked.'>'.$dmifield.'</option>';
                 }
@@ -201,7 +194,7 @@ class PluginManagementPage extends FOGPage {
                     _('DMI Result').':' => '<input type="text" name="key" />',
                     '<input type="hidden" name="addass" value="1" />' => '<input type="submit" style="margin-top: 7px;" value="'._('Add Association').'" />',
                 );
-                foreach((array)$fields AS $field => &$input) {
+                foreach ((array)$fields AS $field => &$input) {
                     $this->data[] = array(
                         'field' => $field,
                         'input' => $input,
@@ -212,7 +205,6 @@ class PluginManagementPage extends FOGPage {
                 $this->render();
                 echo '</form>';
                 unset($this->headerData,$this->data,$fields);
-                $Capones = $this->getClass('CaponeManager')->find();
                 echo '<p class="titleBottomLeft">'._('Current Image to DMI Associations').'</p>';
                 $this->headerData = array(
                     _('Image Name'),
@@ -232,7 +224,7 @@ class PluginManagementPage extends FOGPage {
                     array(),
                     array('class'=>'filter-false'),
                 );
-                foreach((array)$Capones AS $i => &$Capone) {
+                foreach ((array)$this->getClass('CaponeManager')->find() AS $i => &$Capone) {
                     $Image = $this->getClass('Image',$Capone->get('imageID'));
                     $OS = $Image->getOS();
                     $this->data[] = array(

@@ -55,8 +55,7 @@ class HostMobile extends FOGPage {
         $this->redirect('?node=tasks');
     }
     public function search_post() {
-        $Hosts = $this->getClass('HostManager')->search('',true);
-        foreach ((array)$Hosts AS $i => &$Host) {
+        foreach ((array)$this->getClass('HostManager')->search('',true) AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
                 'host_id' => $Host->get('id'),
@@ -66,7 +65,6 @@ class HostMobile extends FOGPage {
             );
             unset($Host);
         }
-        unset($id);
         $this->render();
     }
 }
