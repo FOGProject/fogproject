@@ -21,7 +21,7 @@ class AddLDAPMenuItem extends Hook {
         array_push($arguments['PagesWithObjects'],$this->node);
     }
 }
-$AddLDAPMenuItem = new AddLocationMenuItem();
+$AddLDAPMenuItem = new AddLDAPMenuItem();
 $HookManager->register('MAIN_MENU_DATA', array($AddLDAPMenuItem, 'MenuData'));
 $HookManager->register('SEARCH_PAGES',array($AddLDAPMenuItem,'addSearch'));
 $HookManager->register('PAGES_WITH_OBJECTS', array($AddLDAPMenuItem, 'addPageWithObject'));
