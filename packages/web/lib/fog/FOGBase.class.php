@@ -371,10 +371,8 @@ abstract class FOGBase {
         $data = explode('|',$encdata);
         $iv = @pack('H*',$data[0]);
         $encoded = @pack('H*',$data[1]);
-        if (!$key && $data[2]) {
-            $key = @pack('H*',$data[2]);
-            $decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
-        }
+        if (!$key && $data[2]) $key = @pack('H*',$data[2]);
+        $decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
         return html_entity_decode($decipher);
     }
     protected function certEncrypt($data,$Host) {
