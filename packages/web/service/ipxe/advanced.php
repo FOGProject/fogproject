@@ -15,8 +15,8 @@ $parseMe = function($Send) {
 	foreach($Send AS $ipxe => $val)
 		echo implode("\n",$val)."\n";
 };
-if (isset($_REQUEST[login])) {
-	$Send[loginstuff] = array(
+if (isset($_REQUEST['login'])) {
+	$Send['loginstuff'] = array(
 		'#!ipxe',
 		'clear username',
 		'clear password',
@@ -27,17 +27,17 @@ if (isset($_REQUEST[login])) {
 		'chain ${boot-url}/service/ipxe/advanced.php##params',
 	);
 	$parseMe($Send);
-	unset($_REQUEST[login]);
+	unset($_REQUEST['login']);
 }
-if (isset($_REQUEST[username])) {
-	if ($FOGCore->attemptLogin($_REQUEST[username],$_REQUEST[password])) {
-		$Send[loginsuccess] = array(
+if (isset($_REQUEST['username'])) {
+	if ($FOGCore->attemptLogin($_REQUEST['username'],$_REQUEST['password'])) {
+		$Send['loginsuccess'] = array(
 			'#!ipxe',
 			'set userID ${username}',
 			'chain ${boot-url}/service/ipxe/advanced.php',
 		);
 	} else {
-		$Send[loginfail] = array(
+		$Send['loginfail'] = array(
 			'#!ipxe',
 			'clear username',
 			'clear password',
@@ -46,8 +46,7 @@ if (isset($_REQUEST[username])) {
 			'chain -ar ${boot-url}/service/ipxe/advanced.php',
 		);
 		$parseMe($Send);
-		unset($_REQUEST[username],$_REQUEST[password]);
+		unset($_REQUEST['username'],$_REQUEST['password']);
 	}
 }
-echo "#!ipxe\n";
-echo $FOGCore->getSetting(FOG_PXE_ADVANCED);
+echo "#!ipxe\n{$FOGCore->getSetting(FOG_PXE_ADVANCED)}";

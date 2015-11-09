@@ -46,7 +46,7 @@ abstract class FOGController extends FOGBase {
                 throw new Exception(_('Invalid key being requested'));
             } else if (!$this->isLoaded($key)) $this->loadItem($key);
             $this->info(sprintf(_('Returning Value of Key: %s, Value: %s'),$key, is_object($this->data[$key]) ? $this->data[$key]->__toString() : $this->data[$key]));
-            return $this->data[$key];
+            return (is_object($this->data[$key]) || is_array($this->data[$key]) ? $this->data[$key] : html_entity_decode($this->data[$key]));
         } catch (Exception $e) {
             $this->debug(sprintf(_('Get Failed: Key: %s, Error: %s'),$key,$e->getMessage()));
         }
