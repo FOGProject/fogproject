@@ -50,7 +50,7 @@ class DashboardPage extends FOGPage {
             if (!$StorageNode->isValid()) continue;
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-            $URLs[] = sprintf('http://%s%sservice/getversion.php',$StorageNode->get('ip'),$webroot);
+            $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}service/getversion.php";
             unset($StorageNode,$curroot,$webroot);
         }
         $version = $this->FOGURLRequests->process($URLs,'GET');
@@ -72,8 +72,7 @@ class DashboardPage extends FOGPage {
             printf('["%s", %s]%s',(1000 * $Date->getTimestamp()),$this->getClass('ImagingLogManager')->count(array('start'=>$Date->format('Y-m-d%'),'finish'=>$Date->format('Y-m-d%')),'OR'),($i < 30 ? ', ' : ''));
             unset($Date);
         }
-        $Graph30dayData = ob_get_clean();
-        printf('<div class="fog-variable" id="ActivityActive"></div><div class="fog-variable" id="ActivityQueued"></div><div class="fog-variable" id="ActivitySlots"></div><!-- Variables --><div class="fog-variable" id="Graph30dayData">[%s]</div>',$Graph30dayData);
+        printf('<div class="fog-variable" id="ActivityActive"></div><div class="fog-variable" id="ActivityQueued"></div><div class="fog-variable" id="ActivitySlots"></div><!-- Variables --><div class="fog-variable" id="Graph30dayData">[%s]</div>',ob_get_clean());
     }
     public function bandwidth() {
         $URLs = array();

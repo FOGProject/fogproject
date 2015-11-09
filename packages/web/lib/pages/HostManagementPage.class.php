@@ -322,7 +322,7 @@ class HostManagementPage extends FOGPage {
             '<div id="additionalMACsRow">'._('Additional MACs').'</div>' => '<div id="additionalMACsCell">'.$addMACs.'</div>',
             ($this->obj->get('pendingMACs') ? _('Pending MACs') : null) => ($this->obj->get('pendingMACs') ? $pending : null),
             _('Host Description') => '<textarea name="description" rows="8" cols="40">'.$this->obj->get('description').'</textarea>',
-            _('Host Product Key') => '<input id="productKey" type="text" name="key" value="'.$this->aesdecrypt($this->obj->get('productKey')).'" />',
+            _('Host Product Key') => '<input id="productKey" type="text" name="key" value="'.($this->obj->get('productKey') ? $this->aesdecrypt($this->obj->get('productKey')) : '').'" />',
             _('Host Image') => $imageSelect,
             _('Host Kernel') => '<input type="text" name="kern" value="'.$this->obj->get('kernel').'" />',
             _('Host Kernel Arguments') => '<input type="text" name="args" value="'.$this->obj->get('kernelArgs').'" />',
