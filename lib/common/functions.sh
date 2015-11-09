@@ -945,18 +945,6 @@ configureHttpd() {
         service php-fpm stop >/dev/null 2>&1
     fi
     errorStat $?
-    dots "Testing and removing symbolic links if found"
-    if [ -h "/var/www/fog" ]; then
-        rm -f "/var/www/fog" >/dev/null 2>&1
-    else
-        true
-    fi
-    if [ -h "/var/www/html/fog" ]; then
-        rm -f "/var/www/html/fog" >/dev/null 2>&1
-    else
-        true
-    fi
-    errorStat $?
     if [ -f "$etcconf" ]; then
         dots "Removing vhost file"
         if [ "$osid" == "2" ]; then
@@ -1029,6 +1017,18 @@ configureHttpd() {
     sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' $phpini >/dev/null 2>&1
     sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' $phpini >/dev/null 2>&1
     errorStat $?
+    dots "Testing and removing symbolic links if found"
+    if [ -h "/var/www/fog" ]; then
+        rm -f "/var/www/fog" >/dev/null 2>&1
+    else
+        true
+    fi
+    if [ -h "/var/www/html/fog" ]; then
+        rm -f "/var/www/html/fog" >/dev/null 2>&1
+    else
+        true
+    fi
+    errorStat $?
     dots "Backing up old data"
     if [ -d "$backupPath/fog_web_${version}.BACKUP" ]; then
         rm -rf "$backupPath/fog_web_${version}.BACKUP" >/dev/null 2>&1
@@ -1037,11 +1037,15 @@ configureHttpd() {
         cp -RT "$webdirdest" "${backupPath}/fog_web_${version}.BACKUP" >/dev/null 2>&1
         rm -rf "$webdirdest" >/dev/null 2>&1
     fi
-    if [ "$osid" == 2 -a -d "/var/www/fog" ]; then
-        rm -rf /var/www/fog >/dev/null 2>&1
-        ln -s $webdirdest  /var/www/fog >/dev/null 2>&1
+    if [ "$osid" == 2 ]; then
+        if [ -d "/var/www/fog" ]; then
+            rm -rf /var/www/fog >/dev/null 2>&1
+        fi
     fi
     mkdir -p "$webdirdest" >/dev/null 2>&1
+    if [ -d "/var/www" ] && [ ! -h "/var/www/fog" -o ! -d "/var/www/fog" ]; then
+        ln -s $webdirdest  /var/www/fog >/dev/null 2>&1
+    fi
     errorStat $?
     if [ -d "${backupPath}/fog_web_${version}.BACKUP" ]; then
         dots "Copying back old web folder as is";
