@@ -113,7 +113,7 @@ abstract class FOGController extends FOGBase {
                 if ($name == 'createdBy' && !$this->get($name)) $val = $this->DB->sanitize(trim($_SESSION['FOG_USERNAME']) ? trim($_SESSION['FOG_USERNAME']) : 'fog');
                 else if ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) $val = $this->DB->sanitize($this->formatTime('now','Y-m-d H:i:s'));
                 else $val = $this->DB->sanitize($this->get($name));
-                if ($name == 'id' && (empty($this->get('name')) || $this->get('id') == null || $this->get('id') == 0 || $this->get('id') == false)) continue;
+                if ($name == 'id' && (empty($val) || $val == null || $val == 0 || $val == false)) continue;
                 $insertKeys[] = $key;
                 $insertValues[] = $val;
                 $updateData[] = sprintf("%s='%s'",$key,$val);
