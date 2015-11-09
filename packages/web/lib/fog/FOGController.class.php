@@ -171,11 +171,13 @@ abstract class FOGController extends FOGBase {
     public function destroy($field = 'id') {
         $this->info(sprintf(_('Destroying data from field %s'),$field));
         try {
-            if (!trim($this->get($field))) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
+            if (!$this->get($field)) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
+            if (!array_key_exists($field, $this->databaseFields) && !array_key_exists($field, $this->databaseFieldsFlipped)) throw new Exception(_('Invalid Operation Field set'));
+            if (array_key_exists($field, $this->databaseFields)) $fieldToGet = $this->databaseFields[$field];
             $query = sprintf($this->destroyQueryTemplate,
                 $this->databaseTable,
-                $this->databaseFields[$field],
-                $this->DB->sanitize($this->get($field))
+                $fieldToGet,
+                $this->DB->sanitize($this->get($this->getClass($this->childClass)->key($field)))
             );
             if (!$this->DB->query($query)->fetch()->get()) throw new Exception(_('Could not delete item'));
         } catch (Exception $e) {
