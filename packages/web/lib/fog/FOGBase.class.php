@@ -372,7 +372,7 @@ abstract class FOGBase {
         $iv = @pack('H*',$data[0]);
         $encoded = @pack('H*',$data[1]);
         if (!$key && $data[2]) $key = @pack('H*',$data[2]);
-        if (!$key) throw new Exception(_('No key to decrypt the data'));
+        if (empty($key)) return '';
         $decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
         return html_entity_decode($decipher);
     }

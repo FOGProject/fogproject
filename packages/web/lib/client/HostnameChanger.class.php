@@ -6,6 +6,7 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
         if ($this->newService) {
             $this->send .= "\n#hostname=".$this->Host->get('name')."\n";
             $password = $this->aesdecrypt($this->Host->get('ADPass'));
+            $productKey = $this->aesdecrypt($this->Host->get('productKey'));
             $this->Host->setAD();
         }
         else $this->send .= '='.$this->Host->get('name')."\n";
@@ -19,7 +20,6 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
             $this->send .= '#ADOU='.$this->Host->get('ADOU')."\n";
             $this->send .= '#ADUser='.$this->DB->sanitize($adUser)."\n";
             $this->send .= '#ADPass='.$this->DB->sanitize($password);
-            $productKey = $this->Host->get('productKey') ? trim($this->aesdecrypt($this->Host->get('productKey'))) : false;
             if ($productKey) $this->send .= "\n#Key=".$productKey;
         }
     }
