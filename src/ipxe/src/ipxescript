@@ -1,5 +1,7 @@
 #!ipxe
-ifopen && goto nextserverset ||
+isset ${net0/ip} && ifopen && goto nextserverset ||
+isset ${net1/ip} && ifopen && goto nextserverset ||
+isset ${net2/ip} && ifopen && goto nextserverset ||
 dhcp && goto nextserverset || gotosetserv
 :setserv
 echo -n Please enter tftp server: && read next-server && goto bootme || goto setserv

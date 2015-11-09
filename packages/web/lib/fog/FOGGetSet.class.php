@@ -15,6 +15,7 @@ class FOGGetSet extends FOGBase {
         return $this;
     }
     public function get($key = '') {
-        return (!empty($key) && isset($this->data[$key]) ? $this->data[$key] : (empty($key) ? $this->data : ''));
+        if (empty($key) || !isset($this->data[$key])) return '';
+        return html_entity_decode($this->data[$key]);
     }
 }

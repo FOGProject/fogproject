@@ -75,12 +75,12 @@ abstract class FOGManagerController extends FOGBase {
             if (is_array($idField)) {
                 foreach ($idField AS $i => &$idstore) {
                     $idstore = trim($idstore);
-                    $ids[$idstore] = array_values(array_filter(array_unique($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore]))));
+                    $ids[$idstore] = array_map('html_entity_decode',array_values(array_filter(array_unique($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
                 }
                 unset($idstore);
             } else {
                 $idField = trim($idField);
-                $ids = array_values((array)array_filter((array)array_unique((array)$this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField]))));
+                $ids = array_map('html_entity_decode',array_values((array)array_filter((array)array_unique((array)$this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
             }
             $data = $ids;
         } else {
