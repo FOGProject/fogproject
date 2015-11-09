@@ -142,9 +142,11 @@ class FOGCore extends FOGBase {
         $this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
         $this->DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
         $tables = $this->DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
-        foreach ((array)$tables AS $i => &$table) $this->DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
-        unset($table);
-        unset($tables,$table);
+        if (is_array($tables)) {
+            foreach ((array)$tables AS $i => &$table) $this->DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
+            unset($table);
+            unset($tables,$table);
+        }
         $_SESSION['PluginsInstalled'] = (array)$this->getActivePlugins();
         $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = $this->getSetting('FOG_VIEW_DEFAULT_SCREEN');
         $_SESSION['FOG_FTP_IMAGE_SIZE'] = $this->getSetting('FOG_FTP_IMAGE_SIZE');

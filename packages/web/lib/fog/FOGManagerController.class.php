@@ -80,7 +80,7 @@ abstract class FOGManagerController extends FOGBase {
                 unset($idstore);
             } else {
                 $idField = trim($idField);
-                $ids = array_values((array)array_filter((array)array_unique($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField]))));
+                $ids = array_values((array)array_filter((array)array_unique((array)$this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField]))));
             }
             $data = $ids;
         } else {
