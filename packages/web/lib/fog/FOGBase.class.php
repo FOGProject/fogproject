@@ -402,7 +402,7 @@ abstract class FOGBase {
     }
     protected function parseMacList($stringlist,$image = false,$client = false) {
         $MAClist = array();
-        $MACs = $this->getClass('MACAddressAssociationManager')->find(array('mac'=>explode('|',$stringlist)));
+        $MACs = $this->getSubObjectIDs('MACAddressAssociation',array('mac'=>explode('|',$stringlist)),'mac');
         foreach((array)$MACs AS $i => &$MAC) {
             $MAC = $this->getClass('MACAddress',$MAC);
             if ($MAC->isValid() && (($image && !$MAC->isImageIgnored()) || ($client && !$MAC->isClientIgnored()) || (!$image && !$client))) $MAClist[] = $this->getClass('MACAddress',$MAC)->__toString();

@@ -434,7 +434,7 @@ class BootMenu extends FOGBase {
         }
     }
     public function keyset() {
-        $this->Host->set('productKey',base64_encode($_REQUEST['key']));
+        $this->Host->set('productKey',$this->encryptpw($_REQUEST['key']));
         if ($this->Host->save()) {
             $Send['keychangesuccess'] = array(
                 "#!ipxe",
