@@ -139,32 +139,23 @@ class Host extends FOGController {
         case ($this->isLoaded('mac')):
             if (!(($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())) throw new Exception($this->foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
-            $HostWithMAC = $this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$RealPriMAC),'hostID');
+            $HostWithMAC = array_diff((array)$this->get('id'),(array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$RealPriMAC),'hostID'));
+            if (count($HostWithMAC) && !in_array($this->get('id'),(array)$HostWithMAC)) throw new Exception(_('This MAC Belongs to another host'));
             $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
-            if (count($HostWithMAC) && !in_array($this->get('id'),$HostWithMAC)) throw new Exception(_('This MAC Belongs to another host'));
-            $DBMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id')),'mac');
-            if ($this->array_strpos($RealPriMAC,$DBMACs) !== false) {
-                foreach ((array)$DBMACs AS $i => $DBMAC) {
-                    if ($RealPriMAC === $DBMAC) {
-                        $this->removeAddMAC($RealPriMAC);
-                        $this->removePendMAC($RealPriMAC);
-                    }
-                }
-            }
-            $RemoveMAC = array_diff((array)$DBPriMACs,(array)$RealPriMAC);
-            if (in_array($RealPriMAC,$DBMACs)) $RemoveMAC = array_merge((array)$RemoveMAC,(array)$RealPriMAC);
+            $RemoveMAC = array_diff((array)$RealPriMAC,(array)$DBPriMACs);
             if (count($RemoveMAC)) {
                 $this->getClass('MACAddressAssociationManager')->destroy(array('mac'=>$RemoveMAC));
                 unset($RemoveMAC);
                 $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
             }
-            if ($this->array_strpos($RealPriMAC,$DBPriMACs) === false) {
+            if (!in_array($RealPriMAC,$DBPriMACs)) {
                 $this->getClass('MACAddressAssociation')
                     ->set('hostID',$this->get('id'))
                     ->set('mac',$RealPriMAC)
                     ->set('primary',1)
                     ->save();
             }
+            unset($DBPriMACs,$RealPriMAC,$RemoveMAC,$HostWithMAC);
         case ($this->isLoaded('additionalMACs')):
             $theseMACs = $this->get('additionalMACs');
             $RealAddMACs = $PreOwnedMACs = array();

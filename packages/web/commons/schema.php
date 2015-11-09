@@ -895,22 +895,17 @@ $this->schema[] = array(
 "UPDATE `" . DATABASE_NAME . "`.`schemaVersion` set vValue = '28'",
 );
 // 29
+$this->DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
+while ($Host = $this->DB->fetch()->get()) $allImageID[$Host['hostImage']] = $Host['hostOS'];
+foreach ((array)$allImageID AS $imageID => $osID) {
+    $Image = $this->getClass('Image',$imageID);
+    if (!$Image->isValid()) continue;
+    $OS = $this->getClass('OS',$osID);
+    if (!$OS->isValid()) continue;
+    if (!$Image->set('osID',$osID)->save()) $errors[] = sprintf('<div>Failed updating the osID of imageID: %s, osID: %s</div>',$imageID,$osID);
+}
 $this->schema[] = array(
-	// 29 - Blackout - 9:08 PM 20/12/2011
-	// Update `images`.`imageOSID`
-	function() {
-		// Get all imageID's from Hosts -> Push imageID and osID into an array
-        $this->DB->query("SELECT DISTINCT hostImage, hostOS FROM `%s`.`hosts` WHERE hostImage > 0", array(DATABASE_NAME));
-        while ($host = $this->DB->fetch()->get()) $allImageID[$host['hostImage']] = $host['hostOS'];
-		// Iterate imageID's -> Update Image setting new osID -> Save
-		foreach ((array)$allImageID AS $imageID => $osID) {
-            $Image = $this->getClass('Image',$imageID);
-            if (!$Image->set('osID', $osID)->save()) $errors[] = sprintf('<div>Failed updating the osID of imageID: imageID: %s, osID: %s</div>', $imageID, $osID);
-        }
-        // Return true on succes, (string) on error
-        return (count($errors) ? implode('', $errors) : true);
-    },
-        "UPDATE `" . DATABASE_NAME . "`.`schemaVersion` set vValue = '29'",
+    "UPDATE `".DATABASE_NAME."`.`schemaVersion` SET `vValue`=29",
 );
 // 30
 $this->schema[] = array(
