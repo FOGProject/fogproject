@@ -1,13 +1,10 @@
 <?php
 class ClientManagementPage extends FOGPage {
     public $node = 'client';
-    // __construct
     public function __construct($name = '') {
         $this->name = 'Client Management';
-        // Call parent constructor
         parent::__construct($this->name);
     }
-    // Pages
     public function index() {
         $this->title = _('FOG Client Installer');
         $curroot = trim(trim($this->getSetting('FOG_WEB_ROOT'),'/'));
