@@ -42,7 +42,7 @@ class ReportMaker extends FOGBase {
             break;
         case 1:
             header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="'.$this->filename.'.csv"');
+            header("Content-Disposition: attachment; filename=\"$this->filename.csv\"");
             echo implode("\n",(array)$this->strLine);
             unset($this->filename,$this->strLine);
             break;
@@ -74,7 +74,8 @@ class ReportMaker extends FOGBase {
             $ip = preg_replace('#p:#','',DATABASE_HOST);
             if (false === filter_var($ip,FILTER_VALIDATE_IP)) $ip = gethostbyname($ip);
             if (!filter_var($ip,FILTER_VALIDATE_IP) === false) {
-                $cmd = sprintf("mysqldump --opt -u'%s' -p'%s' -h'$ip' %s > $filepath",DATABASE_USERNAME,DATABASE_PASSWORD,DATABASE_NAME);
+                $cmd = sprintf("mysqldump --opt -u'%s' -h'$ip' %s > $filepath",DATABASE_USERNAME,DATABASE_NAME);
+                if (DATABASE_PASSWORD) $cmd = sprintf("mysqldump --opt -u'%s' -p'%s' -h'$ip' %s > $filepath",DATABASE_USERNAME,DATABASE_PASSWORD,DATABASE_NAME);
                 exec($cmd);
                 $filesize = filesize($filepath);
                 header("X-Sendfile: $filepath");
