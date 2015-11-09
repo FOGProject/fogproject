@@ -73,13 +73,13 @@ class Registration extends FOGBase {
                 ->set('name',$hostname)
                 ->set('description',$this->description)
                 ->set('imageID',$imageid)
-                ->set('productKey',$productKey)
+                ->set('productKey',$this->encryptpw($productKey))
                 ->addModule($this->modulesToJoin)
                 ->addGroup($groupsToJoin)
                 ->addSnapin($snapinsToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs)
-                ->setAD($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,false,true,$ADPassLegacy);
+                ->setAD($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,false,true,$ADPassLegacy,$productKey);
             $this->HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
             try {
