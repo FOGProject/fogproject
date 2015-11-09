@@ -19,7 +19,7 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
             $this->send .= '#ADOU='.$this->Host->get('ADOU')."\n";
             $this->send .= '#ADUser='.$this->DB->sanitize($adUser)."\n";
             $this->send .= '#ADPass='.$this->DB->sanitize($password);
-            $productKey = trim($this->aesdecrypt($this->Host->get('productKey')));
+            $productKey = $this->Host->get('productKey') ? trim($this->aesdecrypt($this->Host->get('productKey'))) : false;
             if ($productKey) $this->send .= "\n#Key=".$productKey;
         }
     }

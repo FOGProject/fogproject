@@ -27,48 +27,44 @@ class FOGConfigurationPage extends FOGPage {
         $URLs = array();
         $Names = array();
         $this->title = _('FOG Version Information');
-        echo '<p>'._('Version: ').FOG_VERSION.'</p>';
-        $URLs[] = 'https://fogproject.org/version/index.php?version='.FOG_VERSION;
+        printf('<p>%s: %s</p>',_('Version'),FOG_VERSION);
+        $URLs[] = sprintf('https://fogproject.org/version/index.php?version=%s',FOG_VERSION);
         $Nodes = $this->getClass('StorageNodeManager')->find(array('isEnabled'=>1));
         foreach ((array)$Nodes AS $i => &$StorageNode) {
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
-            $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
+            $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
             $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
             unset($StorageNode);
         }
         $Responses = $this->FOGURLRequests->process($URLs,'GET');
         array_unshift($Nodes,'');
         foreach ((array)$Responses AS $i => &$data) {
-            if ($i === 0) {
-                echo '<p><div class="sub">'.$Responses[$i].'</div></p>';
-                echo '<h1>Kernel Versions</h1>';
-            } else {
-                echo "<h2>{$Nodes[$i]->get(name)}</h2>";
-                echo "<pre>$data</pre>";
-            }
+            if ($i === 0) echo "<p><div class=\"sub\">{$Responses[$i]}</div></p><h1>Kernel Versions</h1>";
+            else echo "<h2>{$Nodes[$i]->get(name)}</h2><pre>$data</pre>";
             unset($data);
         }
         unset($Responses,$Nodes);
     }
     public function license() {
         $this->title = _('FOG License Information');
-        if (file_exists('./languages/'.$_SESSION['locale'].'/gpl-3.0.txt')) echo "<pre>".file_get_contents('./languages/'.$_SESSION['locale'].'/gpl-3.0.txt').'</pre>';
-        else echo "<pre>".file_get_contents('./other/gpl-3.0.txt').'</pre>';
+        $file = "./languages/{$_SESSION['locale']}/gpl-3.0.txt";
+        if ($handle = fopen($file,'rb')) {
+            echo '<pre>';
+            while (($line = fgets($handle)) !== false) echo $line;
+            echo '</pre>';
+        }
+        fclose($handle);
     }
     public function kernel() {
         $this->kernel_update_post();
     }
     public function kernel_update() {
         $this->kernelselForm('pk');
-        $htmlData = $this->FOGURLRequests->process('https://fogproject.org/kernels/kernelupdate.php?version='.FOG_VERSION,'GET');
+        $htmlData = $this->FOGURLRequests->process(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),'GET');
         echo $htmlData[0];
     }
     public function kernelselForm($type) {
-        echo '<div class="hostgroup">';
-        echo _('This section allows you to update the Linux kernel which is used to boot the client computers.  In FOG, this kernel holds all the drivers for the client computer, so if you are unable to boot a client you may wish to update to a newer kernel which may have more drivers built in.  This installation process may take a few minutes, as FOG will attempt to go out to the internet to get the requested Kernel, so if it seems like the process is hanging please be patient.');
-        echo '</div><div><form method="post" action="'.$this->formAction.'"><select name="kernelsel" onchange="this.form.submit()">';
-        echo '<option value="pk"'.($type == 'pk' ? ' selected="selected"' : '').'>'._('Published Kernels').'</option>';
-        echo '<option value="ok"'.($type == 'ok' ? ' selected="selected"' : '').'>'._('Old Published Kernels').'</option></select></form></div>';
+        printf('<div class="hostgroup">%s</div><div><form method="post" action="%s"><select name="kernelsel" onchange="this.form.submit()"><option value="pk" %s>%s</option><option value="ok" %s>%s</option></select></form></div>',_('This section allows you to update the Linux kernel which is used to boot the client computers.  In FOG, this kernel holds all the drivers for the client computer, so if you are unable to boot a client you may wish to update to a newer kernel which may have more drivers built in.  This installation process may take a few minutes, as FOG will attempt to go out to the internet to get the requested Kernel, so if it seems like the process is hanging please be patient.'),$this->formAction,($type == 'pk' ? 'selected' : ''),_('Published Kernel'),($type == 'ok' ? 'selected' : ''),_('Old Published Kernels'));
     }
     public function kernel_update_post() {
         if (in_array($_REQUEST['sub'],array('kernel-update','kernel_update'))) {
