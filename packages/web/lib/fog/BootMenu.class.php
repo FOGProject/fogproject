@@ -708,7 +708,7 @@ class BootMenu extends FOGBase {
             } else if ($option->get('params')) {
                 $Send = array(
                     ':'.$option->get('name'),
-                    html_entity_decode($option->get(params)),
+                    $option->get('params'),
                 );
             } else {
                 $Send = array(
