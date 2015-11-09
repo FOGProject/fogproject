@@ -654,10 +654,10 @@ class FOGConfigurationPage extends FOGPage {
                 $apacheacclog ? _('Apache Access Log') : null  => $apacheacclog ? $apacheacclog : null,
             );
             $files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
+            $this->HookManager->processEvent('LOG_VIEWER_HOOK_'.$StorageGroup->get('name'),array('files'=>&$files,'ftpstart'=>&$ftpstarter));
             unset($StorageGroup);
         }
         unset($StorageGroups);
-        $this->HookManager->processEvent('LOG_VIEWER_HOOK_'.$StorageGroup->get('name'),array('files'=>&$files,'ftpstart'=>&$ftpstarter));
         foreach ((array)$files AS $nodename => &$filearray) {
             $first = true;
             foreach((array)$filearray AS $value => &$file) {
