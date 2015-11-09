@@ -4,6 +4,7 @@ class MySQL extends DatabaseManager {
     private $query;
     private $queryResult;
     private $result;
+    private $execute = false;
     public $db_name;
     public function __construct() {
         parent::__construct();
@@ -23,7 +24,10 @@ class MySQL extends DatabaseManager {
     public function connect() {
         try {
             if (!$this->link) {
-                $this->link = $this->getClass('mysqli',preg_replace('#p:#','',DATABASE_HOST),DATABASE_USERNAME, DATABASE_PASSWORD);
+                $this->link = mysqli_init();
+                if (!$this->link) die(_('Could not initialize MySQL session'));
+                if (!$this->link->options(MYSQLI_OPT_CONNECT_TIMEOUT,5)) die(_('Could not set MySQL session timeout'));
+                $this->link->real_connect(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
                 if ($this->link->connect_error) {
                     usleep(5000000);
                     die(_('Could not connect to the MySQL Server'));
@@ -49,10 +53,11 @@ class MySQL extends DatabaseManager {
             $this->query = $sql;
             $this->current_db();
             if (!$this->query) throw new Exception(_('No query sent'));
-            else if (!$this->queryResult = $this->link->prepare($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
+            else if (!$queryResult = $this->link->prepare($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
             else {
-                $this->queryResult->execute();
-                $this->queryResult = $this->queryResult->get_result();
+                if (!$queryResult->execute()) throw new Exception(_('Error: ').$this->sqlerror());
+                $this->queryResult = $queryResult->get_result();
+                if (!$this->queryResult) $this->queryResult = $queryResult->store_result();
                 if (!$this->db_name) $this->current_db();
             }
             if (!$this->db_name) throw new Exception(_('No database to work off'));
@@ -63,17 +68,16 @@ class MySQL extends DatabaseManager {
     }
     public function fetch($type = MYSQLI_ASSOC,$fetchType = 'fetch_assoc',$params = false) {
         try {
-            if (empty($this->queryResult)) throw new Exception(_('No query result, use query() first'));
             $this->result = array();
             if (empty($type)) $type = MYSQLI_ASSOC;
             if (empty($fetchType)) $fetchType = 'fetch_assoc';
-            if (in_array($this->queryResult,array(true,false),true)) $this->result = $this->queryResult;
-            else if (!is_object($this->queryResult)) $this->result = $this->link;
+            if (!is_object($this->queryResult) && in_array($this->queryResult,array(true,false),true)) $this->result = $this->queryResult;
+            else if (empty($this->queryResult)) throw new Exception(_('No query result, use query() first'));
             else {
                 switch (strtolower($fetchType)) {
                 case 'fetch_all':
                     if (method_exists('mysqli_result','fetch_all')) {
-                        $this->result = $this->queryResult->$fetchType($type);
+                        $this->result = $this->queryResult->fetch_all($type);
                         $this->queryResult->close();
                     } else {
                         for ($this->result=array();$tmp = $this->queryResult->fetch_array($type);) $this->result[] = $tmp;
@@ -88,8 +92,6 @@ class MySQL extends DatabaseManager {
                     $this->result = $this->queryResult->$fetchType();
                     break;
                 case 'fetch_object':
-                    print $fetchType;
-                    print $type;
                     if (isset($type) && !class_exists($type)) throw new Exception(_('No valid class sent'));
                     else $this->result = $this->queryResult->$fetchType();
                     if (isset($type) && count($params) && !is_array($params)) $this->result = $this->queryResult->$fetchType($type,array($params));
@@ -111,27 +113,27 @@ class MySQL extends DatabaseManager {
         return $this;
     }
     public function get($field = '') {
-        if ($this->result === true) return $this->result;
         try {
             if ($this->result === false) throw new Exception(_('No data returned'));
+            if ($this->result === true) return $this->result;
+            $result = array();
+            if ($field) {
+                foreach ((array)$field AS $i => &$key) {
+                    $key = trim($key);
+                    if (array_key_exists($key, (array)$this->result)) {
+                        $this->queryResult->close();
+                        return $this->result[$key];
+                    }
+                    foreach ((array)$this->result AS $i => &$value) {
+                        if (array_key_exists($key, (array)$value)) $result[] = $value[$key];
+                    }
+                }
+            }
+            if (count($result)) return $result;
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
             return false;
         }
-        $result = array();
-        if ($field) {
-            foreach ((array)$field AS $i => &$key) {
-                $key = trim($key);
-                if (array_key_exists($key, (array)$this->result)) {
-                    $this->queryResult->close();
-                    return $this->result[$key];
-                }
-                foreach ((array)$this->result AS $i => &$value) {
-                    if (array_key_exists($key, (array)$value)) $result[] = $value[$key];
-                }
-            }
-        }
-        if (count($result)) return $result;
         return $this->result;
     }
     public function result() {
