@@ -33,7 +33,7 @@ class TaskQueue extends TaskingElement {
                     $nodeAvailableSlots = $StorageNode->get(maxClients) - $StorageNode->getUsedSlotCount();
                     if ($nodeAvailableSlots > 0) {
                         if (!isset($this->StorageNode)) {
-                            $this->StorageNode = self::nodeFail($StorageNode,$this->Host);
+                            $this->StorageNode = self::nodeFail($StorageNode,$this->Host->get('id'));
                             continue;
                         }
                         if ($StorageNode->getClientLoad() < $this->StorageNode->getClientLoad()) $this->StorageNode = self::nodeFail($StorageNode,$this->Host);

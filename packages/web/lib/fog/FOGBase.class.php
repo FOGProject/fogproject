@@ -65,11 +65,11 @@ abstract class FOGBase {
         return $obj->getConstructor() ? (count($args) ? $obj->newInstanceArgs($args) : $obj->newInstance($data)) : $obj->newInstanceWithoutConstructor();
     }
     public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false) {
-        $mac = $_REQUEST[mac];
+        $mac = $_REQUEST['mac'];
         if ($encoded === true) $mac = base64_decode($mac);
         $mac = trim($mac);
         $MACs = $this->parseMacList($mac,!$service,$service);
-        if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC'].' '.$_REQUEST[mac]);
+        if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC'].' '.$_REQUEST['mac']);
         if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
         $Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
         if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get(pending)) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
@@ -403,28 +403,37 @@ abstract class FOGBase {
     }
     protected function parseMacList($stringlist,$image = false,$client = false) {
         $MAClist = array();
-        $MACs = $this->getSubObjectIDs('MACAddressAssociation',array('mac'=>explode('|',$stringlist)),'mac');
-        foreach((array)$MACs AS $i => &$MAC) {
+        $MACs = $stringlist;
+        if (!is_array($MACs) && strpos('|',$MACs)) $MACs = $this->getSubObjectIDs('MACAddressAssociation',array('mac'=>explode('|',$MACS)),'mac');
+        foreach ((array)$MACs AS $i => &$MAC) {
             $MAC = $this->getClass('MACAddress',$MAC);
-            if ($MAC->isValid() && (($image && !$MAC->isImageIgnored()) || ($client && !$MAC->isClientIgnored()) || (!$image && !$client))) $MAClist[] = $this->getClass('MACAddress',$MAC)->__toString();
+            if (!$MAC->isValid()) continue;
+            if ($image && $MAC->isImageIgnored()) continue;
+            if ($client && $MAC->isClientIgnored()) continue;
+            $MAClist[] = $MAC->__toString();
+            unset($MAC);
         }
-        unset($MAC);
-        $MACs = explode('|',$stringlist);
-        foreach((array)$MACs AS $i => &$MAC) {
+        if (!is_array($MACs) && strpos('|',$MACs)) $MACs = explode('|',$MACS);
+        foreach ((array)$MACs AS $i => &$MAC) {
             $MAC = $this->getClass('MACAddress',$MAC);
-            if ($MAC->isValid() && !in_array(strtolower($MAC->__toString()),(array)$MAClist) && (($image && !$MAC->isImageIgnored()) || ($client && !$MAC->isClientIgnored()) || (!$image && !$client))) $MAClist[] = $this->getClass('MACAddress',$MAC)->__toString();
+            if (!$MAC->isValid()) continue;
+            if (in_array($MAC->__toString(),$MAClist)) continue;
+            if ($image && $MAC->isImageIgnored()) continue;
+            if ($client && $MAC->isClientIgnored()) continue;
+            $MAClist[] = $MAC->__toString();
+            unset($MAC);
         }
-        unset($MAC);
-        $Ignore = array_filter(array_map('trim',explode(',',$this->getClass('FOGCore')->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
+        unset($MACs);
+        $Ignore = array_filter(array_map('trim',explode(',',$this->FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
         if (count($Ignore)) {
-            foreach($Ignore AS $i => &$ignore) {
+            foreach ((array)$Ignore AS $i => &$ignore) {
                 $matches = preg_grep("#$ignore#i",(array)$MAClist);
-                if (count($matches)) {
-                    $NewMatches = array_merge((array)$NewMatches,$matches);
-                    unset($matches);
-                }
+                if (!count($matches)) continue;
+                $NewMatches = array_merge((array)$NewMatches,$matches);
+                unset($matches);
+                unset($ignore);
             }
-            unset($ignore);
+            unset($Ignore);
         }
         if (!count($MAClist)) return false;
         return array_unique(array_diff((array)$MAClist,(array)$NewMatches));

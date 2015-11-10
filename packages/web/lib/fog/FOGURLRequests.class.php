@@ -1,12 +1,7 @@
 <?php
 class FOGURLRequests extends FOGBase {
-    /** @var $handle the handle connector for curl */
     private $handle;
-    /** @var $contextOptions the context for the curl sessions to operate */
     private $contextOptions;
-    /** @function __construct the constructor to build the basic defaults
-     * @return void
-     */
     public function __construct() {
         parent::__construct();
         $this->handle = @curl_multi_init();
@@ -23,22 +18,9 @@ class FOGURLRequests extends FOGBase {
             CURLOPT_HEADER => false,
         );
     }
-    /** @function __destruct the destructor when class no longer needed.  Closes all open handles
-     * @return void
-     */
     public function __destruct() {
         @curl_multi_close($this->handle);
     }
-    /** @function process the actual process to send
-     * @param $urls the url or array of urls to process required
-     * @param $method the method to send pass the url (GET or POST) defaults to GET
-     * @param $data the specific data to send (defaults to null)
-     * @param $sendAsJSON whether to send the data in JSON or not faults to false
-     * @param $auth whether to send an auth string.  Defaults to false, other wise takes the actual auth string to pass
-     * @param $callback whether to use a user passed callback to process.  Defaults to false
-     * @param $file whether we're downloading a file or not.  Defaults to false, others takes the file resource
-     * @return if $file it just closes the handle otherwise it returns the response
-     */
     public function process($urls, $method = 'GET',$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
         if (!is_array($urls)) $urls = array($urls);
         if (empty($method)) $method = 'GET';

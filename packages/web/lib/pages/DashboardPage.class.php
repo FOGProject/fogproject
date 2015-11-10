@@ -124,6 +124,8 @@ class DashboardPage extends FOGPage {
             if (!$Node->isValid()) continue;
             $ActivityActive += $Node->getUsedSlotCount();
             $ActivityQueued += $Node->getQueuedSlotCount();
+            $ActivityTotalClients -= $ActivityActive;
+            if ($ActivityTotalClients <= 0) $ActivityTotalClients = 0;
             unset($Node);
         }
         unset($Nodes);

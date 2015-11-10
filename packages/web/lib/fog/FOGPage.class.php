@@ -887,9 +887,10 @@ abstract class FOGPage extends FOGBase {
     public function import_post() {
         try {
             if ($_FILES['file']['error'] > 0) throw new Exception(sprintf('Error: '.(is_array($_FILES['file']['error']) ? implode(', ',$_FILES['file']['error']) : $_FILES['file']['error'])));
-            if (!file_exists($_FILES['file']['tmp_name'])) throw new Exception(_('Could not find temp filename'));
+            $file = sprintf('%s%s%s',dirname($_FILES['file']['tmp_name']),DIRECTORY_SEPARATOR,basename($_FILES['file']['tmp_name']));
+            if (!file_exists($file)) throw new Exception(_('Could not find temp filename'));
             $numSuccess = $numFailed = $numAlreadExist = 0;
-            $handle = fopen($_FILES['file']['tmp_name'],'rb');
+            $handle = fopen($file,'rb');
             $this->array_remove('id',$this->databaseFields);
             while (($data = fgetcsv($handle, 1000, ',')) !== false) {
                 $totalRows++;

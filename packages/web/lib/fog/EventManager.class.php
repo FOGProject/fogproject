@@ -20,23 +20,23 @@ class EventManager extends FOGBase {
             if  (!is_array($eventData)) throw new Exception('Data is invalid');
             $this->log(sprintf('Notifiying listeners: Event: %s, Data: %d', $event, $eventData));
             if (isset($this->data[$event])) {
-                foreach ($this->data[$event] AS $i => &$className) {
+                foreach ((array)$this->data[$event] AS $i => &$className) {
                     if ($className->active) $className->onEvent($event, $eventData);
+                    unset($className);
                 }
-                unset($classname);
             }
-            return true;
         } catch (Exception $e) {
             $this->log(sprintf('Could not register v: Error: %s, Event: %s, Class: %s', $e->getMessage(), $event, $class[1]));
+            return false;
         }
-        return false;
+        return true;
     }
     public function load() {
         global $Init;
-        foreach($Init->HookPaths AS $i => &$path) {
+        foreach((array)$Init->HookPaths AS $i => &$path) {
             if (!file_exists($path)) continue;
             if (preg_match('#plugins#i',$path)) {
-                $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-7)) : null;
+                $PluginName = basename(substr($path,0,-7));
                 if (!in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) continue;
             }
             $iterator = $this->getClass('DirectoryIterator',$path);
