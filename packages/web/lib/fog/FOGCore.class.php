@@ -94,25 +94,25 @@ class FOGCore extends FOGBase {
         $t = shell_exec('df | grep -vE "^Filesystem|shm"');
         $l = explode("\n",$t);
         foreach ($l AS $i => &$n) {
-            if (preg_match("/(\d+) +(\d+) +(\d+) +\d+%/",$n,$matches)) {
-                if (is_numeric($matches[1])) $hdtotal += $matches[1]*1024;
-                if (is_numeric($matches[2])) $hdused += $matches[2]*1024;
-            }
+            if (!preg_match("/(\d+) +(\d+) +(\d+) +\d+%/",$n,$matches)) continue;
+            $hdtotal += intval($matches[1])*1024;
+            $hdused += intval($matches[2])*1024;
+            unset($n);
         }
-        unset($n);
+        unset($l);
         $data['totalspace'] = $this->formatByteSize($hdtotal);
         $data['usedspace'] = $this->formatByteSize($hdused);
         $data['nic'] = '@@nic';
         $NET = shell_exec('cat "/proc/net/dev"');
         $lines = explode("\n",$NET);
         foreach ($lines AS $i => &$line) {
-            if (preg_match('/:/',$line)) {
-                list($dev_name,$stats_list) = preg_split('/:/',$line,2);
-                $stats = preg_split('/\s+/', trim($stats_list));
-                $data[$dev_name] = trim($dev_name).'$$'.$stats[0].'$$'.$stats[8].'$$'.($stats[2]+$stats[10]).'$$'.($stats[3]+$stats[11]);
-            }
+            if (!preg_match('#:#',$line)) continue;
+            list($dev_name,$stats_list) = preg_split('/:/',$line,2);
+            $stats = preg_split('/\s+/', trim($stats_list));
+            $data[$dev_name] = sprintf('%s$$%s$$%s$$%s$$%s',trim($dev_name),$stats[0],$stats[8],($stats[2]+$stats[10]),($stats[3]+$stats[11]));
+            unset($line);
         }
-        unset($line);
+        unset($lines);
         $data['end'] = '@@end';
         return $data;
     }

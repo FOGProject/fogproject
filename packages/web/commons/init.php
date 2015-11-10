@@ -64,13 +64,16 @@ class Initiator {
         @set_magic_quotes_runtime(0);
         self::verCheck();
         self::extCheck();
-        foreach($_REQUEST as $key => $val) {
+        foreach($_REQUEST as $key => &$val) {
             if (is_array($val)) {
+                foreach ((array)$val AS $i => &$v) $v = htmlentities($v,ENT_QUOTES,'UTF-8');
+                unset($v);
                 $_REQUEST[$key] = filter_var_array($val,
                     FILTER_SANITIZE_FULL_SPECIAL_CHARS,
                     FILTER_FLAG_NO_ENCODE_QUOTES
                 );
             } else {
+                $val = htmlentities($val,ENT_QUOTES,'UTF-8');
                 $_REQUST[$key] = filter_var($val,
                     FILTER_SANITIZE_FULL_SPECIAL_CHARS,
                     FILTER_FLAG_NO_ENCODE_QUOTES
