@@ -39,15 +39,10 @@ class StorageNode extends FOGController {
     }
     public function getNodeFailure($Host) {
         $CurrTime = $this->nice_date();
-        $NodeFailures = $this->getClass('NodeFailureManager')->find(array(
-            'storageNodeID'=>$this->get('id'),
-            'hostID'=>($Host instanceof Host ? $Host->get('id') : $Host),
-        ));
-        foreach($NodeFailures AS $i => &$NodeFailure) {
-            $FailUntil = $this->nice_date($NodeFailure->get('failureTime'));
-            if ($CurrTime < $FailUntil) return $NodeFailure;
+        foreach ((array)$this->getClass('NodeFailureManager')->find(array('storageNodeID'=>$this->get('id'),'hostID'=>$Host)) AS $i => &$NodeFailure) {
+            if ($CurrTime < $this->nice_date($NodeFailure->get('failureTime'))) return $NodeFailure;
+            unset($NodeFailure);
         }
-        unset($NodeFailure);
     }
     public function getClientLoad() {
         if ($this->get('maxClients') > 0 ) return (($this->getUsedSlotCount() + $this->getQueuedSlotCount()) / $this->get('maxClients'));
@@ -56,32 +51,23 @@ class StorageNode extends FOGController {
     public function getUsedSlotCount() {
         $UsedTasks = explode(',',$this->getSetting('FOG_USED_TASKS'));
         $countTasks = 0;
-        if (in_array(8,(array)$UsedTasks)) {
-            foreach($UsedTasks AS $ind => &$val) if ($val = 8) unset($UsedTasks[$ind]);
-            unset($val);
-            $MCTasks = $this->getClass('TaskManager')->find(array('stateID'=>3,'typeID'=>8));
-            foreach ($MCTasks AS $i => &$MulticastTask) {
-                $Multicast = $this->getClass('MulticastSessionsAssociationManager')->find(array('taskID'=>$MulticastTask->get('id')));
-                $Multicast = @array_shift($Multicast);
-                if ($Multicast->isValid()) $MulticastJobID = $this->getSubObjectIDs('MulticastSessions',array('id'=>$Multicast->get('msID')),'id');
-            }
-            unset($MulticastTask);
-            $MulticastJobID = array_unique((array)$MulticastJobID);
-            $countTasks = count($MulticastJobID);
-            $UsedTasks = array_values((array)$UsedTasks);
+        asort($UsedTasks);
+        if (($index = $this->binary_search(8,$UsedTasks)) > -1) {
+            unset($UsedTasks[$index]);
+            $UsedTasks = array_values(array_filter((array)$UsedTasks));
+            $countTasks = count(array_unique($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->getSubObjectIDs('Task',array('stateID'=>3,'typeID'=>8))),'msID')));
         }
-        $countTasks += $this->getClass('TaskManager')->count(array(
-            'stateID'=>3,
-            'typeID'=>$UsedTasks,
-            'NFSMemberID'=>$this->get('id'),
-        ));
-        return $countTasks;
+        return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>3,'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
     }
     public function getQueuedSlotCount() {
-        return $this->getClass('TaskManager')->count(array(
-            'stateID'=>array(1,2),
-            'typeID'=>array(1,2,8,15,16,17),
-            'NFSMemberID'=>$this->get('id'),
-        ));
+        $UsedTasks = explode(',',$this->getSetting('FOG_USED_TASKS'));
+        $countTasks = 0;
+        asort($UsedTasks);
+        if (($index = $this->binary_search(8,$UsedTasks)) > -1) {
+            unset($UsedTasks[$index]);
+            $UsedTasks = array_values(array_filter((array)$UsedTasks));
+            $countTasks = count(array_unique($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->getSubObjectIDs('Task',array('stateID'=>array(0,1,2),'typeID'=>8))),'msID')));
+        }
+        return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>array(0,1,2),'typeID'=>$usedTasks,'NFSMemberID'=>$this->get('id'))));
     }
 }

@@ -108,7 +108,7 @@ abstract class FOGController extends FOGBase {
         try {
             $insertKeys = $insertValues = $updateData = $fieldData = array();
             if (count($this->aliasedFields)) $this->array_remove($this->aliasedFields, $this->databaseFields);
-            foreach((array)$this->databaseFields AS $name => &$field) {
+            foreach ((array)$this->databaseFields AS $name => &$field) {
                 $key = sprintf('`%s`',$this->DB->sanitize($field));
                 if ($name == 'createdBy' && !$this->get($name)) $val = $this->DB->sanitize(trim($_SESSION['FOG_USERNAME']) ? trim($_SESSION['FOG_USERNAME']) : 'fog');
                 else if ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) $val = $this->DB->sanitize($this->formatTime('now','Y-m-d H:i:s'));
@@ -201,7 +201,7 @@ abstract class FOGController extends FOGBase {
     }
     public function isValid() {
         try {
-            foreach ($this->databaseFieldsRequired AS $i => &$field) if (!trim($this->get($field)) === 0 && !trim($this->get($field))) throw new Exception($this->foglang['RequiredDB']);
+            foreach ((array)$this->databaseFieldsRequired AS $i => &$field) if (!trim($this->get($field)) === 0 && !trim($this->get($field))) throw new Exception($this->foglang['RequiredDB']);
             unset($field);
             if (!$this->get('id')) throw new Exception(_('Invalid ID'));
             if (array_key_exists('name',(array)$this->databaseFields) && !trim($this->get('name'))) throw new Exception(_(get_class($this).' no longer exists'));
@@ -228,12 +228,12 @@ abstract class FOGController extends FOGBase {
     }
     public function setQuery(&$queryData) {
         $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
-        foreach ($this->databaseFieldsFlipped AS $db_key => &$obj_key) {
+        foreach ((array)$this->databaseFieldsFlipped AS $db_key => &$obj_key) {
             $this->array_change_key($classData,$db_key,$obj_key);
             unset($obj_key);
         }
         $this->data = array_merge((array)$this->data,(array)$classData);
-        foreach((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
+        foreach ((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
         unset($fields);
         return $this;
     }

@@ -36,9 +36,11 @@ abstract class FOGManagerController extends FOGBase {
             }
             unset($value);
         }
-        $orderBy = sprintf('ORDER BY `%s`.`%s`',$this->databaseTable,$this->databaseFields[$orderBy]);
-        if ($groupBy) $groupBy = sprintf('GROUP BY `%s`.`%s`',$this->databaseTable,$this->databaseFields[$groupBy]);
-        else $groupBy = '';
+        if (!is_array($orderBy)) {
+            $orderBy = sprintf('ORDER BY `%s`.`%s`',$this->databaseTable,$this->databaseFields[$orderBy]);
+            if ($groupBy) $groupBy = sprintf('GROUP BY `%s`.`%s`',$this->databaseTable,$this->databaseFields[$groupBy]);
+            else $groupBy = '';
+        } else $orderBy = '';
         list($join, $whereArrayAnd) = $this->getClass($this->childClass)->buildQuery($not, $compare);
         $query = sprintf(
             $this->loadQueryTemplate,
