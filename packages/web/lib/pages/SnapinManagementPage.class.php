@@ -216,16 +216,15 @@ class SnapinManagementPage extends FOGPage {
             $StorageGroups = $this->getClass('StorageGroup')->getManager()->find(array('id'=>$this->obj->get('storageGroups')));
             foreach($StorageGroups AS $i => &$StorageGroup) {
                 $StorageNode = $StorageGroup->getMasterStorageNode();
-                if ($StorageNode->isValid()) {
-                    $this->FOGFTP
-                        ->set('host',$StorageNode->get('ip'))
-                        ->set('username',$StorageNode->get('user'))
-                        ->set('password',$StorageNode->get('pass'))
-                        ->connect();
-                    $filelist = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
-                    foreach($filelist AS $i => &$file) if (!$this->FOGFTP->chdir($file)) $files[] = basename($file);
-                    unset($file);
-                }
+                if (!$StorageNode->isValid()) continue;
+                $this->FOGFTP
+                    ->set('host',$StorageNode->get('ip'))
+                    ->set('username',$StorageNode->get('user'))
+                    ->set('password',$StorageNode->get('pass'))
+                    ->connect();
+                $filelist = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
+                foreach($filelist AS $i => &$file) if (!$this->FOGFTP->chdir($file)) $files[] = basename($file);
+                unset($file);
                 $this->FOGFTP->close();
             }
             unset($filelist);
