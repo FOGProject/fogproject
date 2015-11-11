@@ -148,7 +148,7 @@ class Initiator {
                 unset($path);
                 break;
             } else if (file_exists($path.$className.'.event.php')) {
-                global $HookManager;
+                global $EventManager;
                 include($path.$className.'.event.php');
                 unset($path);
                 break;
