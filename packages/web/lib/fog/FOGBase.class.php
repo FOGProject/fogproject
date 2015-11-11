@@ -404,16 +404,17 @@ abstract class FOGBase {
     protected function parseMacList($stringlist,$image = false,$client = false) {
         $MAClist = array();
         $MACs = $stringlist;
-        if (!is_array($MACs) && strpos('|',$MACs)) $MACs = $this->getSubObjectIDs('MACAddressAssociation',array('mac'=>explode('|',$MACS)),'mac');
-        foreach ((array)$MACs AS $i => &$MAC) {
+        if (!is_array($stringlist) && strpos($stringlist,'|')) $MACs = explode('|',$stringlist);
+        $AssocMACs = $this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs),'mac');
+        foreach ((array)$AssocMACs AS $i => &$MAC) {
             $MAC = $this->getClass('MACAddress',$MAC);
             if (!$MAC->isValid()) continue;
+            if (in_array($MAC->__toString(),$MAClist)) continue;
             if ($image && $MAC->isImageIgnored()) continue;
             if ($client && $MAC->isClientIgnored()) continue;
             $MAClist[] = $MAC->__toString();
             unset($MAC);
         }
-        if (!is_array($MACs) && strpos('|',$MACs)) $MACs = explode('|',$MACS);
         foreach ((array)$MACs AS $i => &$MAC) {
             $MAC = $this->getClass('MACAddress',$MAC);
             if (!$MAC->isValid()) continue;
