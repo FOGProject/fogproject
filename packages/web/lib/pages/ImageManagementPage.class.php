@@ -94,7 +94,7 @@ class ImageManagementPage extends FOGPage {
     }
     public function search_post() {
         $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
-        foreach ($this->getClass('ImageManager')->search('',true) AS $i => &$id) {
+        foreach ($this->getClass('ImageManager')->search('',true) AS $i => &$Image) {
             if (!$Image->isValid()) continue;
             $imageSize = $this->formatByteSize((double)$Image->get('size'));
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
