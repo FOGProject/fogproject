@@ -26,10 +26,10 @@ class MySQL extends DatabaseManager {
             if (!$this->link) {
                 $this->link = mysqli_init();
                 if (!$this->link) die(_('Could not initialize MySQL session'));
-                if (!$this->link->options(MYSQLI_OPT_CONNECT_TIMEOUT,5)) die(_('Could not set MySQL session timeout'));
                 $this->link->real_connect(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
                 if ($this->link->connect_error) {
                     usleep(5000000);
+                    unset($this->link);
                     die(_('Could not connect to the MySQL Server'));
                 }
             }

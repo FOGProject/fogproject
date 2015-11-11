@@ -92,17 +92,25 @@ class Snapin extends FOGController {
     public function deleteFile() {
         if ($this->get('protected')) throw new Exception($this->foglang['ProtectedSnapin']);
         if (!$this->getStorageGroup()->getMasterStorageNode()->get('isEnabled')) throw new Exception($this->foglang['NoMasterNode']);
-        $delete = rtrim($this->getStorageGroup()->getMasterStorageNode()->get('snapinpath'),'/').DIRECTORY_SEPARATOR.$this->get('file');
-        $this->FOGFTP
-            ->set('host',$this->getStorageGroup()->getMasterStorageNode()->get('ip'))
-            ->set('username',$this->getStorageGroup()->getMasterStorageNode()->get('username'))
-            ->set('password',$this->getStorageGroup()->getMasterStorageNode()->get('password'));
-        if (!$this->FOGFTP->connect()) throw new Exception(_('Failed to connect to node'));
-        if (!$this->FOGFTP->delete($delete)) {
-            $this->FOGFTP->close();
-            throw new Exception($this->foglang['FailedDelete']);
+        foreach ((array)$this->getClass('StorageNodeManager')->find(array('storageGroupID'=>'id',$this->get('storageGroups'),'isEnabled'=>1)) AS $i => &$StorageNode) {
+            if (!$StorageNode->isValid()) continue;
+            $snapinfiles = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
+            $snapinfile = preg_grep(sprintf('#%s#',$Snapin->get('file')),$snapinfiles);
+            if (!count($snapinfile)) continue;
+            $delete = rtrim($StorageNode->get('snapinpath'),DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$this->get('file');
+            $this->FOGFTP
+                ->set('host',$StorageNode->get('ip'))
+                ->set('username',$StorageNode->get('username'))
+                ->set('password',$StorageNode->get('password'));
+            if (!$this->FOGFTP->connect()) {
+                $this->FOGFTP->close();
+                continue;
+            }
+            $this->FOGFTP
+                ->delete($delete)
+                ->close();
+            unset($StorageNode);
         }
-        $this->FOGFTP->close();
     }
     public function addHost($addArray) {
         $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
