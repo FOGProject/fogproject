@@ -44,7 +44,7 @@ abstract class TaskingElement extends FOGBase {
     protected static function checkStorageNodes(&$StorageGroup) {
         if (!$StorageGroup->get('enablednodes')) throw new Exception(_('Could not find a Storage Node, is there one enabled within this group?'));
     }
-    protected static function nodeFail(&$StorageNode,&$Host) {
+    protected static function nodeFail($StorageNode,$Host) {
         if ($StorageNode->getNodeFailure($Host)) {
             $StorageNode = $StorageNode->getClass('StorageNode',0);
             printf('%s %s (%s) %s',_('Storage Node'),$StorageNode->get('name'),$StorageNode->get('ip'),_('is open, but has recently failed for this Host'));
