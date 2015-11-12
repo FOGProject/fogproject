@@ -727,7 +727,7 @@ class BootMenu extends FOGBase {
             "cpuid --ext 29 && set arch x86_64 || set arch i386",
             "goto get_console",
             ":console_set",
-            "colour --rgb 0x00567a 2 ||",
+            "colour --rgb 0x00567a 1 && colour --rgb 0x00567a 2 && colour --rgb 0x00567a 4 ||",
             "cpair --foreground 7 --background 2 2 ||",
             "goto MENU",
             ":alt_console",
@@ -738,11 +738,14 @@ class BootMenu extends FOGBase {
         );
         if (!$this->hiddenmenu) {
             $showDebug = $_REQUEST["debug"] === "1";
+            $hostRegColor = $this->Host && $this->Host->isValid() ? '0x00567a' : '0xff0000';
             $Send['menustart'] = array(
                 ":MENU",
                 "menu",
-                "colour --rgb ".($this->Host && $this->Host->isValid() ? "0x00567a" : "0xff0000")." 0 ||",
+                "colour --rgb $hostRegColor 0 ||",
+                "cpair --foreground 1 1 ||",
                 "cpair --foreground 0 3 ||",
+                "cpair --foreground 4 4 ||",
                 "item --gap Host is ".($this->Host && $this->Host->isValid() ? ($this->Host->get('pending') ? 'pending ' : '')."registered as ".$this->Host->get('name') : "NOT registered!"),
                 "item --gap -- -------------------------------------",
             );
