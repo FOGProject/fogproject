@@ -403,9 +403,10 @@ class ReportManagementPage extends FOGPage {
             array(),
         );
         $PendingMACs = $this->getClass('MACAddressAssociationManager')->find(array('pending'=>1));
-        foreach ((array)$PendingMACs AS $PendingMAC) {
-            if (!$PendingMAC->isValid() || !$this->getClass('MACAddress',$PendingMAC)->isValid()) continue;
-            $Host = $this->getClass('Host',$PendingMAC->get('hostID'));
+        foreach ((array)$this->getSubObjectIDs('MACAddressAssociation',array('pending'=>1),'mac') AS $i => &$PendingMAC) {
+            $PendingMAC = $this->getClass('MACAddress',$PendingMAC);
+            if (!$PendingMAC->isValid()) continue;
+            $Host = $PendingMAC->getHost();
             if (!$Host->isValid()) continue;
             $hostID = $Host->get('id');
             $hostName = $Host->get('name');
@@ -427,7 +428,6 @@ class ReportManagementPage extends FOGPage {
             unset($hostID,$hostName,$hostMac,$hostDesc,$hostPend);
             unset($Host,$PendingMAC);
         }
-        unset($PendingMACs);
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
