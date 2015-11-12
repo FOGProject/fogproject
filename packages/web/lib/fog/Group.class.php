@@ -23,8 +23,8 @@ class Group extends FOGController {
         $this->getClass('GroupAssociationManager')->destroy(array('groupID'=>$this->get('id')));
         return parent::destroy($field);
     }
-    public function save() {
-        parent::save();
+    public function save($mainObject = true) {
+        if ($mainObject) parent::save();
         switch ($this->get('id')) {
         case 0:
         case null:
