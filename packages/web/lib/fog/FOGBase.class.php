@@ -133,7 +133,7 @@ abstract class FOGBase {
         if ($this->HookManager instanceof HookManager) $this->HookManager->processEvent('MessageBox',array('data'=>&$messages));
         foreach ((array)$messages AS $i => &$message) {
             if (!$i) echo '<!-- FOG Messages -->';
-            echo '<div class="fog-message-box">'.$message.'</div>';
+            printf('<div class="fog-message-box">%s</div>',stripslashes($message));
         }
         unset($message);
     }

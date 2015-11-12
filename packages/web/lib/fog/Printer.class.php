@@ -26,8 +26,8 @@ class Printer extends FOGController {
         $this->getClass('PrinterAssociationManager')->destroy(array('printerID'=>$this->get('id')));
         return parent::destroy($field);
     }
-    public function save() {
-        parent::save();
+    public function save($mainObject = true) {
+        if ($mainObject) parent::save();
         switch ($this->get('id')) {
         case 0:
         case null:
