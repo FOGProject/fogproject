@@ -33,7 +33,7 @@ class EventManager extends FOGBase {
     }
     public function load() {
         global $Init;
-        foreach((array)$Init->HookPaths AS $i => &$path) {
+        foreach((array)$Init->EventPaths AS $i => &$path) {
             if (!file_exists($path)) continue;
             if (preg_match('#plugins#i',$path)) {
                 $PluginName = basename(substr($path,0,-7));
