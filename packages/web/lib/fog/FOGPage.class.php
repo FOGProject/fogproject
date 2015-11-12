@@ -761,8 +761,7 @@ abstract class FOGPage extends FOGBase {
             array('width'=>150,'class'=>'l'),
         );
         $ClassCall = ($objType ? 'Group' : 'Host');
-        $Hosts = $this->getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(strtolower($ClassCall).'snotinme')));
-        foreach($Hosts AS $i => &$Host) {
+        foreach($this->getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(strtolower($ClassCall).'snotinme'))) AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
                 'host_id'=>$Host->get('id'),
@@ -771,7 +770,6 @@ abstract class FOGPage extends FOGBase {
             );
             unset ($Host);
         }
-        unset($Hosts);
         if (count($this->data) > 0) {
             $this->HookManager->processEvent('OBJ_'.strtoupper($ClassCall).'_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
             echo '<form method="post" action="'.$this->formAction.'"><center><label for="'.strtolower($ClassCall).'MeShow">'._('Check here to see '.strtolower($ClassCall).'s not within this '.$this->node).'&nbsp;&nbsp;<input type="checkbox" name="'.strtolower($ClassCall).'MeShow" id="'.strtolower($ClassCall).'MeShow" /></label></center><div id="'.strtolower($ClassCall).'NotInMe"><h2>'._('Modify Membership for').' '.$this->obj->get('name').'</h2>';
@@ -787,8 +785,7 @@ abstract class FOGPage extends FOGBase {
             '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" />',
             sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',strtolower($ClassCall)),
         );
-        $Hosts = $this->getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(strtolower($ClassCall).'s')));
-        foreach($Hosts AS $i => &$Host) {
+        foreach($this->getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(strtolower($ClassCall).'s'))) AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
                 'host_id'=>$Host->get('id'),
@@ -796,7 +793,6 @@ abstract class FOGPage extends FOGBase {
             );
             unset($Host);
         }
-        unset($Hosts);
         $this->HookManager->processEvent('OBJ_MEMBERSHIP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         echo '<form method="post" action="'.$this->formAction.'">';
         $this->render();
@@ -805,7 +801,7 @@ abstract class FOGPage extends FOGBase {
     public function membership_post() {
         if (isset($_REQUEST['addHosts'])) $this->obj->addHost($_REQUEST['host']);
         if (isset($_REQUEST['remhosts'])) $this->obj->removeHost($_REQUEST['hostdel']);
-        if ($this->obj->save()) {
+        if ($this->obj->save(false)) {
             $this->setMessage($this->obj->get('name').' '._('saved successfully'));
             $this->redirect($this->formAction);
         }

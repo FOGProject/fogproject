@@ -125,8 +125,8 @@ class Host extends FOGController {
         $this->getClass('MACAddressAssociationManager')->destroy($find);
         return parent::destroy($field);
     }
-    public function save() {
-        parent::save();
+    public function save($mainObject = true) {
+        if ($mainObject) parent::save();
         switch ($this->get('id')) {
         case 0:
         case null:
@@ -262,7 +262,7 @@ class Host extends FOGController {
                     $Printer->destroy();
                     continue;
                 }
-                $Printer->addHost($this->get('id'))->save();
+                $Printer->addHost($this->get('id'))->save(false);
                 unset($Printer);
             }
             unset($DBPrinterIDs,$RemovePrinterIDs);
@@ -279,7 +279,7 @@ class Host extends FOGController {
                     $Snapin->destroy();
                     continue;
                 }
-                $Snapin->addHost($this->get('id'))->save();
+                $Snapin->addHost($this->get('id'))->save(false);
                 unset($Snapin);
             }
             unset($DBSnapinIDs,$RemoveSnapinIDs);
@@ -296,7 +296,7 @@ class Host extends FOGController {
                     $Group->destroy();
                     continue;
                 }
-                $Group->addHost($this->get('id'))->save();
+                $Group->addHost($this->get('id'))->save(false);
                 unset($Group);
             }
             unset($DBGroupIDs,$RemoveGroupIDs);
