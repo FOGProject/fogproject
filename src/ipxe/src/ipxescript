@@ -1,5 +1,5 @@
 #!ipxe
-dhcp && goto nextserverset || gotosetserv
+dhcp && goto nextserverset || goto setserv
 :setserv
 echo -n Please enter tftp server: && read next-server && goto bootme || goto setserv
 :bootme
