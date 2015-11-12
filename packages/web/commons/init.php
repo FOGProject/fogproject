@@ -74,7 +74,7 @@ class Initiator {
                 );
             } else {
                 $val = htmlentities($val,ENT_QUOTES,'UTF-8');
-                $_REQUST[$key] = filter_var($val,
+                $_REQUEST[$key] = filter_var($val,
                     FILTER_SANITIZE_FULL_SPECIAL_CHARS,
                     FILTER_FLAG_NO_ENCODE_QUOTES
                 );
