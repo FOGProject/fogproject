@@ -410,8 +410,7 @@ abstract class FOGPage extends FOGBase {
             '<input type="hidden" value="${id}" name="remitems[]"/>',
         );
         $this->additional = array();
-        $Objects = $this->getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[strtolower($this->childClass).'IDArray'])))));
-        foreach ($Objects AS $i => &$Object) {
+        foreach ((array)$this->getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[strtolower($this->childClass).'IDArray']))))) AS $i => &$Object) {
             if ($Object->get('protected')) continue;
             $name = $Object->get('name');
             $this->data[] = array(
