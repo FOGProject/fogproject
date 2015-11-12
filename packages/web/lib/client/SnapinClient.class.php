@@ -21,7 +21,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         if ($Snapin->getStorageGroup()->isValid() && $Snapin->isValid()) $StorageGroup = $Snapin->getStorageGroup();
         $this->HookManager->processEvent('SNAPIN_GROUP',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageGroup'=>&$StorageGroup));
         if (!($StorageGroup instanceof StorageGroup && $StorageGroup->isValid())) {
-            $SnapinFile = sprintf('%s%s',dirname(trim($this->getSetting('FOG_SNAPINDIR'))),DIRECTORY_SEPARATOR);
+            $SnapinFile = sprintf('%s%s',trim($this->getSetting('FOG_SNAPINDIR')),DIRECTORY_SEPARATOR);
             if (!file_exists($SnapinFile) && !file_exists($Snapin->get('file'))) throw new Exception('Snapin file does not exist');
         } else {
             $StorageNode = $StorageGroup->getMasterStorageNode();
@@ -33,7 +33,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 ->set('password',$StorageNode->get('pass'));
             if (!$this->FOGFTP->connect()) throw new Exception(_('Failed to connect to download'));
             $this->FOGFTP->close();
-            $path = dirname($StorageNode->get('snapinpath'));
+            $path = rtrim($StorageNode->get('snapinpath'),'/');
             $file = basename($Snapin->get('file'));
             $SnapinFile = "ftp://{$StorageNode->get(user)}:{$StorageNode->get(pass)}@{$StorageNode->get(ip)}$path/$file";
             if (!file_exists($SnapinFile) || !is_readable($SnapinFile)) {
@@ -43,11 +43,20 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             $size = filesize($SnapinFile);
         }
         if (strlen($_REQUEST['exitcode']) > 0 && is_numeric($_REQUEST['exitcode'])) {
-            $SnapinTask->set('stateID',4)->set('return',$_REQUEST['exitcode'])->set('details',$_REQUEST['exitdesc'])->set('complete',$this->nice_date()->format('Y-m-d H:i:s'));
+            $SnapinTask
+                ->set('stateID',4)
+                ->set('return',$_REQUEST['exitcode'])
+                ->set('details',$_REQUEST['exitdesc'])
+                ->set('complete',$this->nice_date()->format('Y-m-d H:i:s'));
             if ($SnapinTask->save()) echo '#!ok';
             if ($this->getClass('SnapinTaskManager')->count(array('stateID'=>array(-1,0,1,2,3))) < 1) {
-                if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',4)->save();
-                $this->Host->get('snapinjob')->set('stateID',4)->save();
+                $Task = $this->Host->get('task');
+                if ($Task->isValid()) {
+                    $Task
+                        ->set('stateID',4)
+                        ->save();
+                    $this->Host->get('snapinjob')->set('stateID',4)->save();
+                }
             }
         } else if (!isset($_REQUEST['taskid']) || !is_numeric($_REQUEST['taskid'])) {
             $this->Host->get('snapinjob')->set('stateID',3)->save();
