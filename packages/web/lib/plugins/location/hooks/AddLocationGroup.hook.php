@@ -20,9 +20,9 @@ class AddLocationGroup extends Hook {
         if ($_REQUEST['node'] != 'group') return;
         if (str_replace('_','-',$_REQUEST['tab']) != 'group-general') return;
         if (!$_REQUEST['location']) return;
+        $this->getClass('LocationAssociationManager')->destroy(array('hostID'=>$arguments['Group']->get('hosts')));
         $Location = $this->getClass('Location',$_REQUEST['location']);
-        if (!$Location->isValid()) return;
-        $Location->addHost($arguments['Group']->get('hosts'))->save(false);
+        if ($Location->isValid()) $Location->addHost($arguments['Group']->get('hosts'))->save(false);
     }
 }
 $AddLocationGroup = new AddLocationGroup();
