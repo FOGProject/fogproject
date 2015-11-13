@@ -783,9 +783,7 @@ class Host extends FOGController {
         $org_ip = $this->get('ip');
         if (filter_var($this->get('ip'),FILTER_VALIDATE_IP) === false) $this->set('ip',$this->FOGCore->resolveHostname($this->get('name')));
         if (filter_var($this->get('ip'),FILTER_VALIDATE_IP) === false) $this->set('ip',$this->get('name'));
-        $this
-            ->set('pingstatus',$this->getClass('Ping',$this->get('ip'))->execute())
-            ->set('ip',$org_ip);
+        $this->getManager()->update(array('id'=>$this->get('id')),'',array('pingstatus'=>$this->getClass('Ping',$this->get('ip')),'ip'=>$org_ip));
         unset($org_ip);
         return $this;
     }
