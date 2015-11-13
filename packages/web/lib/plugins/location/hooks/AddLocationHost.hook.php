@@ -37,7 +37,6 @@ class AddLocationHost extends Hook {
         if ($_REQUEST['node'] != 'host') return;
         $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
         $locID = array_shift($locationID);
-        if (!$this->getClass('Location',$locID)->isValid()) return;
         $arguments['fields'] = $this->array_insert_after(_('Host Product Key'),$arguments['fields'],_('Host Location'),$this->getClass('LocationManager')->buildSelectBox($locID));
     }
     public function HostAddLocation($arguments) {

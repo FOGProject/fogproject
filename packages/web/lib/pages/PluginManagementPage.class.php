@@ -83,7 +83,6 @@ class PluginManagementPage extends FOGPage {
                     'pluginid'=>$PluginMan ? $PluginMan->get('id') : '',
                 );
             }
-            unset($Plugin);
         }
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
@@ -92,6 +91,7 @@ class PluginManagementPage extends FOGPage {
             if (file_exists($runner) && $Plugin->isInstalled()) require_once($runner);
             else $this->run();
         }
+        unset($Plugin);
     }
     public function installed() {
         $this->title = _('Installed Plugins');
