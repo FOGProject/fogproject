@@ -38,19 +38,14 @@ abstract class FOGController extends FOGBase {
         return ($this->get('name') ? $this->get('name') : sprintf('%s ID: %s',get_class($this),$this->get('id')));
     }
     public function get($key = '') {
-        try {
-            $key = $this->key($key);
-            if (!$key) throw new Exception(_('No key being requested'));
-            else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
-                unset($this->data[$key]);
-                throw new Exception(_('Invalid key being requested'));
-            } else if (!$this->isLoaded($key)) $this->loadItem($key);
-            $this->info(sprintf(_('Returning Value of Key: %s, Value: %s'),$key, is_object($this->data[$key]) ? $this->data[$key]->__toString() : $this->data[$key]));
-            return (is_object($this->data[$key]) || is_array($this->data[$key]) ? $this->data[$key] : html_entity_decode($this->data[$key]));
-        } catch (Exception $e) {
-            $this->debug(sprintf(_('Get Failed: Key: %s, Error: %s'),$key,$e->getMessage()));
-        }
-        return $this->data;
+        $key = $this->key($key);
+        if (!$key) return $this->data;
+        else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
+            unset($this->data[$key]);
+            return false;
+        } else if (!$this->isLoaded($key)) $this->loadItem($key);
+        $this->info(sprintf(_('Returning Value of Key: %s, Value: %s'),$key, is_object($this->data[$key]) ? $this->data[$key]->__toString() : $this->data[$key]));
+        return (is_object($this->data[$key]) || is_array($this->data[$key]) ? $this->data[$key] : html_entity_decode($this->data[$key]));
     }
     public function set($key, $value) {
         try {
@@ -177,7 +172,7 @@ abstract class FOGController extends FOGBase {
             $query = sprintf($this->destroyQueryTemplate,
                 $this->databaseTable,
                 $fieldToGet,
-                $this->DB->sanitize($this->get($this->getClass($this->childClass)->key($field)))
+                $this->DB->sanitize($this->get($this->key($field)))
             );
             if (!$this->DB->query($query)->fetch()->get()) throw new Exception(_('Could not delete item'));
         } catch (Exception $e) {

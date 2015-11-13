@@ -85,18 +85,25 @@ class Image extends FOGController {
     }
     public function deleteFile() {
         if ($this->get('protected')) throw new Exception($this->foglang['ProtectedImage']);
-        if (!$this->getStorageGroup()->getMasterStorageNode()->get('isEnabled')) throw new Exception($this->foglang['NoMasterNode']);
-        $delete = rtrim($this->getStorageGroup()->getMasterStorageNode()->get('ftppath'),'/').DIRECTORY_SEPARATOR.$this->get('path');
-        $this->FOGFTP
-            ->set('host',$this->getStorageGroup()->getMasterStorageNode()->get('ip'))
-            ->set('username',$this->getStorageGroup()->getMasterStorageNode()->get('username'))
-            ->set('password',$this->getStorageGroup()->getMasterStorageNode()->get('password'));
-        if (!$this->FOGFTP->connect()) throw new Exception(_('Failed to connect to node'));
-        if (!$this->FOGFTP->delete($delete)) {
-            $this->FOGFTP->close();
-            throw new Exception($this->foglang['FailedDelete']);
+        foreach ((array)$this->getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'),'isEnabled'=>1)) AS $i => &$StorageNode) {
+            if (!$StorageNode->isValid()) continue;
+            $this->FOGFTP
+                ->set('host',$StorageNode->get('ip'))
+                ->set('username',$StorageNode->get('user'))
+                ->set('password',$StorageNode->get('pass'));
+            if (!$this->FOGFTP->connect()) {
+                $this->FOGFTP->close();
+                continue;
+            }
+            $imagefiles = $this->FOGFTP->nlist($StorageNode->get('ftppath'));
+            $imagefile = preg_grep(sprintf('#%s#',$this->get('path')),$imagefiles);
+            if (!count($snapinfile)) continue;
+            $delete = sprintf('/%s/%s',trim($StorageNode->get('ftppath'),'/'),$this->get('path'));
+            $this->FOGFTP
+                ->delete($delete)
+                ->close();
+            unset($StorageNode);
         }
-        $this->FOGFTP->close();
     }
     public function addHost($addArray) {
         $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));

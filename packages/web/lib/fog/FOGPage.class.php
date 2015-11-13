@@ -410,17 +410,15 @@ abstract class FOGPage extends FOGBase {
             '<input type="hidden" value="${id}" name="remitems[]"/>',
         );
         $this->additional = array();
-        foreach ((array)$this->getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[strtolower($this->childClass).'IDArray']))))) AS $i => &$Object) {
+        foreach ((array)$this->getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[sprintf('%sIDArray',$this->node)]))))) AS $i => &$Object) {
             if ($Object->get('protected')) continue;
-            $name = $Object->get('name');
             $this->data[] = array(
                 'id'=>$Object->get('id'),
-                'name'=>$name,
+                'name'=>$Object->get('name'),
             );
-            array_push($this->additional,sprintf('<p>%s</p>',$name));
+            array_push($this->additional,sprintf('<p>%s</p>',$Object->get('name')));
             unset($Object,$name);
         }
-        unset($Objects);
         if (count($this->data)) {
             echo '<div class="confirm-message">';
             echo '<p>'._($this->childClass.'s to be removed').':</p>';
@@ -660,6 +658,7 @@ abstract class FOGPage extends FOGBase {
             '&nbsp;' => '<input type="submit" value="${label}" />',
         );
         $fields = array_filter($fields);
+        $this->HookManager->processEvent(sprintf('%s_DEL_FIELDS',strtoupper($this->node)),array($this->childClass=>&$this->obj));
         foreach($fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
@@ -710,18 +709,12 @@ abstract class FOGPage extends FOGBase {
     public function delete_post() {
         $this->HookManager->processEvent(strtoupper($this->node).'_DEL_POST', array($this->childClass=>&$this->obj));
         try {
+            if ($this->obj->get('protected')) throw new Exception(sprintf('%s %s',$this->childClass,_('is protected, removal not allowed')));
             if ($this->obj instanceof Group) {
-                if (isset($_REQUEST['delHostConfirm'])) {
-                    $Hosts = $this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts')));
-                    foreach($Hosts AS $i => &$Host) $Host->destroy();
-                    unset($Host);
-                }
-                if (isset($_REQUEST['massDelHosts'])) $this->redirect('?node=group&sub=delete_hosts&id='.$this->obj->get('id'));
+                if (isset($_REQUEST['delHostConfirm'])) $this->getClass('HostManager')->destroy(array('id'=>$this->obj->get('hosts')));
+                if (isset($_REQUEST['massDelHosts'])) $this->redirect("?node=group&sub=delete_hosts&id={$this->obj->get(id)}");
             }
-            else if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
-                if ($this->obj->get('protected')) throw new Exception($this->childClass.' '._('is protected, removal not allowed'));
-                if (isset($_REQUEST['andFile'])) $this->obj->deleteFile();
-            }
+            if (isset($_REQUEST['andFile'])) $this->obj->deleteFile();
             if (!$this->obj->destroy()) throw new Exception(_('Failed to destroy'));
             $this->HookManager->processEvent(strtoupper($this->childClass).'_DELETE_SUCCESS', array($this->childClass => &$this->obj));
             $this->setMessage($this->childClass.' deleted: '.$this->obj->get('name'));

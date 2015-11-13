@@ -56,7 +56,7 @@ class AddLocationHost extends Hook {
     }
     public function HostExport($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $locationID = $this->subObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
+        $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
         $locID = array_shift($locationID);
         $arguments['report']->addCSVCell($locID > 0 ? $locID : null);
     }
@@ -66,7 +66,7 @@ class AddLocationHost extends Hook {
     }
     public function HostEmailHook($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $locationID = $this->subObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
+        $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
         $locID = array_shift($locationID);
         if (!$this->getClass('Location',$locID)->isValid()) return;
         $arguments['email'] = $this->array_insert_after("\nSnapin Used: ",$arguments['email'],"\nImaged From (Location): ",$this->getClass('Location',$locID)->get('name'));
