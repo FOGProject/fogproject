@@ -27,7 +27,6 @@ class AddLocationHost extends Hook {
         foreach((array)$arguments['data'] AS $index => &$vals) {
             $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['data'][$index]['host_id']),'locationID');
             $locID = array_shift($locationID);
-            if (!$this->getClass('Location',$locID)->isValid()) return;
             $arguments['data'][$index]['location'] = $this->getClass('Location',$locID)->get('name');
             unset($vals);
         }
@@ -47,13 +46,13 @@ class AddLocationHost extends Hook {
         if (!$_REQUEST['location']) return;
         $Location = $this->getClass('Location',$_REQUEST['location']);
         if (!$Location->isValid()) return;
-        $Location->addHost($arguments['Host']->get('id'))->save();
+        $Location->addHost($arguments['Host']->get('id'))->save(false);
     }
     public function HostImport($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         $Location = $this->getClass('Location',$arguments['data'][5]);
         if (!$Location->isValid()) return;
-        $Location->addHost($arguments['Host']->get('id'))->save();
+        $Location->addHost($arguments['Host']->get('id'))->save(false);
     }
     public function HostExport($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
@@ -77,7 +76,7 @@ class AddLocationHost extends Hook {
         $locationID = trim(base64_decode($_REQUEST['location']));
         $Location = $this->getClass('Location',$locationID);
         if (!$Location->isValid()) return;
-        $Location->addHost($arguments['Host']->get('id'))->save();
+        $Location->addHost($arguments['Host']->get('id'))->save(false);
     }
 }
 $AddLocationHost = new AddLocationHost();
