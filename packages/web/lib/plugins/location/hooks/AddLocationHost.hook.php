@@ -41,7 +41,7 @@ class AddLocationHost extends Hook {
     public function HostAddLocation($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if ($_REQUEST['node'] != 'host') return;
-        if (!in_array($_REQUEST['sub'],array('add','add_post'))) return;
+        if (!in_array($_REQUEST['sub'],array('add','add_post','edit','edit_post'))) return;
         if (str_replace('_','-',$_REQUEST['tab']) != 'host-general') return;
         if (!$_REQUEST['location']) return;
         $Location = $this->getClass('Location',$_REQUEST['location']);
