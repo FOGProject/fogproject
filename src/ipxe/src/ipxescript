@@ -1,10 +1,10 @@
 #!ipxe
 ifclose
-ifopen && dhcp && goto nextserverset || goto setserv
+ifopen && goto nextserverset || goto setserv
 :setserv
 echo -n Please enter tftp server: && read next-server && goto bootme || goto setserv
 :bootme
-goto nextserverset
+dhcp && ifopen && goto nextserverset || reboot
 :nextserverset
 isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server} ||
 isset ${next-server} && goto netboot || goto setserv
