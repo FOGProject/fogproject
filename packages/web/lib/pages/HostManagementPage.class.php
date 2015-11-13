@@ -211,7 +211,7 @@ class HostManagementPage extends FOGPage {
         );
         echo '<h2>'._('Add new host definition').'</h2>';
         echo '<form method="post" action="'.$this->formAction.'">';
-        $this->HookManager->processEvent('HOST_FIELDS',array('fields'=>&$fields));
+        $this->HookManager->processEvent('HOST_FIELDS',array('fields'=>&$fields,'Host'=>$this->getClass('Host')));
         foreach ($fields AS $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
