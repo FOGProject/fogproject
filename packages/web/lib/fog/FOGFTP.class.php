@@ -19,14 +19,14 @@ class FOGFTP extends FOGGetSet {
         $this->set('port',$this->getSetting('FOG_FTP_PORT'));
         $this->set('timeout',$this->getSetting('FOG_FTP_TIMEOUT'));
         $connectionHash = md5(serialize($this->data));
-        $connected = (($this->link && $this->lastConnectionHash == md5(serialize($this->data))) || !$this->get('host') || !$this->get('username') || !$this->get('password') || !$this->get('port'));
+        $connected = $this->link && $this->lastConnectionHash == $connectionHash;
         if ($connected) return $this;
         if (!($this->link = @ftp_connect($this->get('host'), $this->get('port'), $this->get('timeout')))) {
             $error = error_get_last();
             throw new Exception(sprintf('%s: Failed to connect. Host: %s, Error: %s', get_class($this), $this->get('host'), $error['message']));
-        } else if (!($this->loginLink = @ftp_login($this->link,stripslashes($this->get('username')),$this->get('password')))) {
+        } else if (!($this->loginLink = @ftp_login($this->link,stripslashes($this->get('username')),htmlentities($this->get('password'))))) {
             $error = error_get_last();
-            throw new Exception(sprintf('%s: Login failed. Host: %s, Username: %s, Password: %s, Error: %s',get_class($this),$this->get('host'),stripslashes($this->get('username')),$this->get('password'),$error['message']));
+            throw new Exception(sprintf('%s: Login failed. Host: %s, Username: %s, Password: %s, Error: %s',get_class($this),$this->get('host'),stripslashes($this->get('username')),htmlentities($this->get('password')),$error['message']));
         }
         if ($this->passiveMode) @ftp_pasv($this->link,true);
         $this->lastConnectionHash = $connectionHash;

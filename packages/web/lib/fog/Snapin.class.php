@@ -30,7 +30,7 @@ class Snapin extends FOGController {
         $this->getClass('SnapinJobManager')->destroy(array('id'=>$this->getSubObjectIDs('SnapinTask',array('snapinID'=>$this->get('id')),'jobID')));
         $this->getClass('SnapinTaskManager')->destroy(array('snapinID'=>$this->get('id')));
         $this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$this->get('id')));
-        $this->getClass('SnapinAssociation')->destroy(array('snapinID'=>$this->get('id')));
+        $this->getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$this->get('id')));
         return parent::destroy($field);
     }
     public function save($mainObject = true) {
@@ -91,21 +91,20 @@ class Snapin extends FOGController {
     }
     public function deleteFile() {
         if ($this->get('protected')) throw new Exception($this->foglang['ProtectedSnapin']);
-        if (!$this->getStorageGroup()->getMasterStorageNode()->get('isEnabled')) throw new Exception($this->foglang['NoMasterNode']);
-        foreach ((array)$this->getClass('StorageNodeManager')->find(array('storageGroupID'=>'id',$this->get('storageGroups'),'isEnabled'=>1)) AS $i => &$StorageNode) {
+        foreach ((array)$this->getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'),'isEnabled'=>1)) AS $i => &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
-            $snapinfiles = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
-            $snapinfile = preg_grep(sprintf('#%s#',$Snapin->get('file')),$snapinfiles);
-            if (!count($snapinfile)) continue;
-            $delete = rtrim($StorageNode->get('snapinpath'),DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$this->get('file');
             $this->FOGFTP
                 ->set('host',$StorageNode->get('ip'))
-                ->set('username',$StorageNode->get('username'))
-                ->set('password',$StorageNode->get('password'));
+                ->set('username',$StorageNode->get('user'))
+                ->set('password',$StorageNode->get('pass'));
             if (!$this->FOGFTP->connect()) {
                 $this->FOGFTP->close();
                 continue;
             }
+            $snapinfiles = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
+            $snapinfile = preg_grep(sprintf('#%s#',$this->get('file')),$snapinfiles);
+            if (!count($snapinfile)) continue;
+            $delete = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$this->get('file'));
             $this->FOGFTP
                 ->delete($delete)
                 ->close();
