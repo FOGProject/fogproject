@@ -9,12 +9,11 @@ class ChangeItems extends Hook {
     }
     public function StorageNodeSetting($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
+        if (!$arguments['Host']->isValid()) return;
         $LocAssocs = $this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id')));
         foreach ($LocAssocs AS $i => &$LA) {
-            if ($arguments['Host'] && $arguments['Host']->isValid()) {
-                $arguments['StorageNode'] = $LA->getStorageNode();
-                break;
-            }
+            $arguments['StorageNode'] = $LA->getStorageNode();
+            break;
             unset($LA);
         }
     }
