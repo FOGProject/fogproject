@@ -222,8 +222,10 @@ class ReportManagementPage extends FOGPage {
             _('HD Device') => 'kernelDevice',
             _('OS Name') => 'name',
         );
-        foreach((array)$csvHead AS $csvHeader => &$classGet) $this->ReportMaker->addCSVCell($csvHeader);
-        unset($classGet);
+        foreach((array)$csvHead AS $csvHeader => &$classGet) {
+            $this->ReportMaker->addCSVCell($csvHeader);
+            unset($classGet);
+        }
         $this->ReportMaker->endCSVLine();
         $this->headerData = array(
             _('Hostname'),
@@ -235,8 +237,7 @@ class ReportManagementPage extends FOGPage {
             '${host_mac}',
             '${image_name}',
         );
-        $Hosts = $this->getClass('HostManager')->find();
-        foreach($Hosts AS $i => &$Host) {
+        foreach($this->getClass('HostManager')->find() AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $Image = $Host->getImage();
             $imgID = $Image->get('id');
@@ -249,18 +250,30 @@ class ReportManagementPage extends FOGPage {
                 'image_name'=>$imgName,
             );
             foreach ((array)$csvHead AS $head => &$classGet) {
-                if ($head == _('Image ID')) $this->ReportMaker->addCSVCell($imgID);
-                else if ($head == _('Image Name')) $this->ReportMaker->addCSVCell($imgName);
-                else if ($head == _('Image Desc')) $this->ReportMaker->addCSVCell($imgDesc);
-                else if ($head == _('AD Join')) $this->ReportMaker->addCSVCell(($Host->get(useAD) == 1 ? _('Yes') : _('No')));
-                else $this->ReportMaker->addCSVCell($Host->get($classGet));
+                switch ($head) {
+                case _('Image ID'):
+                    $this->ReportMaker->addCSVCell($imgID);
+                    break;
+                case _('Image Name'):
+                    $this->ReportMaker->addCSVCell($imgName);
+                    break;
+                case _('Image Desc'):
+                    $this->ReportMaker->addCSVCell($imgDesc);
+                    break;
+                case _('AD Join'):
+                    $this->ReportMaker->addCSVCell(($Host->get('useAD') == 1 ? _('Yes') : _('No')));
+                    break;
+                default:
+                    $this->ReportMaker->addCSVCell($Host->get($classGet));
+                    break;
+                }
+                unset($classGet);
             }
-            unset($Host,$classGet);
+            unset($Host);
             $this->ReportMaker->endCSVLine();
         }
-        unset($id);
         $this->ReportMaker->appendHTML($this->__toString());
-        $this->ReportMaker->outputReport(false);
+        $this->ReportMaker->outputReport(0);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
     public function inventory() {
@@ -987,40 +1000,39 @@ class ReportManagementPage extends FOGPage {
     }
     public function equip_loan_post() {
         $Inventory = $this->getClass('Inventory',$_REQUEST['user']);
-        if (!$Inventory->isValid()) {
-            $this->title = _('FOG Equipment Loan Form');
-            echo '<h2><a href="export.php?type=pdf&filename='.$Inventory->get(primaryuser).'EquipmentLoanForm" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
-            $this->ReportMaker->appendHTML("<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " . $this->nice_date()->format("D M j G:i:s T Y") . "\" -->" );
-            $this->ReportMaker->appendHTML("<center><h2>"._("[YOUR ORGANIZATION HERE]")."</h2></center>" );
-            $this->ReportMaker->appendHTML("<center><h3>"._("[sub-unit here]")."</h3></center>" );
-            $this->ReportMaker->appendHTML("<center><h2><u>"._("PC Check-Out Agreement")."</u></h2></center>" );
-            $this->ReportMaker->appendHTML("<h4><u>"._("Personal Information")."</u></h4>");
-            $this->ReportMaker->appendHTML("<h4><b>"._("Name").": </b><u>".$Inventory->get('primaryUser')."</u></h4>");
-            $this->ReportMaker->appendHTML("<h4><b>"._("Location").": </b><u>"._("Your Location Here")."</u></h4>");
-            $this->ReportMaker->appendHTML("<h4><b>"._("Home Address").": </b>__________________________________________________________________</h4>");
-            $this->ReportMaker->appendHTML("<h4><b>"._("City / State / Zip").": </b>__________________________________________________________________</h4>");
-            $this->ReportMaker->appendHTML("<h4><b>"._("Extension").":</b>_________________ &nbsp;&nbsp;&nbsp;<b>"._("Home Phone").":</b> (__________)_____________________________</h4>" );
-            $this->ReportMaker->appendHTML( "<h4><u>"._("Computer Information")."</u></h4>" );
-            $this->ReportMaker->appendHTML( "<h4><b>"._("Serial Number / Service Tag").": </b><u>" . $Inventory->get('sysserial')." / ".$Inventory->get('caseasset')."_____________________</u></h4>" );
-            $this->ReportMaker->appendHTML( "<h4><b>"._("Barcode Numbers").": </b><u>" . $Inventory->get('other1') . "   " . $Inventory->get('other2') . "</u>________________________</h4>" );
-            $this->ReportMaker->appendHTML( "<h4><b>"._("Date of Checkout").": </b>____________________________________________</h4>" );
-            $this->ReportMaker->appendHTML( "<h4><b>"._("Notes / Miscellaneous / Included Items").": </b></h4>" );
-            $this->ReportMaker->appendHTML( "<h4><b>_____________________________________________________________________________________________</b></h4>" );
-            $this->ReportMaker->appendHTML( "<h4><b>_____________________________________________________________________________________________</b></h4>" );
-            $this->ReportMaker->appendHTML( "<h4><b>_____________________________________________________________________________________________</b></h4>" );
-            $this->ReportMaker->appendHTML( "<hr />" );
-            $this->ReportMaker->appendHTML( "<h4><b>"._("Releasing Staff Initials").": </b>_____________________     "._("(To be released only by XXXXXXXXX)")."</h4>" );
-            $this->ReportMaker->appendHTML( "<h4>"._("I have read, understood, and agree to all the Terms and Condidtions on the following pages of this document.")."</h4>" );
-            $this->ReportMaker->appendHTML( "<br />" );
-            $this->ReportMaker->appendHTML( "<h4><b>"._("Signed").": </b>X _____________________________  "._("Date").": _________/_________/20_______</h4>" );
-            $this->ReportMaker->appendHTML( _("<!-- "._("NEW PAGE")." -->") );
-            $this->ReportMaker->appendHTML( "<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " .$this->nice_date()->format("D M j G:i:s T Y") . "\" -->" );
-            $this->ReportMaker->appendHTML( "<center><h3>"._("Terms and Conditions")."</h3></center>" );
-            $this->ReportMaker->appendHTML( "<hr />" );
-            $this->ReportMaker->appendHTML( "<h4>"._("Your terms and conditions here")."</h4>" );
-            $this->ReportMaker->appendHTML( "<h4><b>"._("Signed").": </b>"._("X")." _____________________________  "._("Date").": _________/_________/20_______</h4>" );
-            echo '<p>'._('Your form is ready.').'</p>';
-            $_SESSION['foglastreport'] = serialize($this->ReportMaker);
-        }
+        if (!$Inventory->isValid()) return;
+        $this->title = _('FOG Equipment Loan Form');
+        echo '<h2><a href="export.php?type=pdf&filename='.$Inventory->get(primaryuser).'EquipmentLoanForm" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        $this->ReportMaker->appendHTML("<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " . $this->nice_date()->format("D M j G:i:s T Y") . "\" -->" );
+        $this->ReportMaker->appendHTML("<center><h2>"._("[YOUR ORGANIZATION HERE]")."</h2></center>" );
+        $this->ReportMaker->appendHTML("<center><h3>"._("[sub-unit here]")."</h3></center>" );
+        $this->ReportMaker->appendHTML("<center><h2><u>"._("PC Check-Out Agreement")."</u></h2></center>" );
+        $this->ReportMaker->appendHTML("<h4><u>"._("Personal Information")."</u></h4>");
+        $this->ReportMaker->appendHTML("<h4><b>"._("Name").": </b><u>".$Inventory->get('primaryUser')."</u></h4>");
+        $this->ReportMaker->appendHTML("<h4><b>"._("Location").": </b><u>"._("Your Location Here")."</u></h4>");
+        $this->ReportMaker->appendHTML("<h4><b>"._("Home Address").": </b>__________________________________________________________________</h4>");
+        $this->ReportMaker->appendHTML("<h4><b>"._("City / State / Zip").": </b>__________________________________________________________________</h4>");
+        $this->ReportMaker->appendHTML("<h4><b>"._("Extension").":</b>_________________ &nbsp;&nbsp;&nbsp;<b>"._("Home Phone").":</b> (__________)_____________________________</h4>" );
+        $this->ReportMaker->appendHTML( "<h4><u>"._("Computer Information")."</u></h4>" );
+        $this->ReportMaker->appendHTML( "<h4><b>"._("Serial Number / Service Tag").": </b><u>" . $Inventory->get('sysserial')." / ".$Inventory->get('caseasset')."_____________________</u></h4>" );
+        $this->ReportMaker->appendHTML( "<h4><b>"._("Barcode Numbers").": </b><u>" . $Inventory->get('other1') . "   " . $Inventory->get('other2') . "</u>________________________</h4>" );
+        $this->ReportMaker->appendHTML( "<h4><b>"._("Date of Checkout").": </b>____________________________________________</h4>" );
+        $this->ReportMaker->appendHTML( "<h4><b>"._("Notes / Miscellaneous / Included Items").": </b></h4>" );
+        $this->ReportMaker->appendHTML( "<h4><b>_____________________________________________________________________________________________</b></h4>" );
+        $this->ReportMaker->appendHTML( "<h4><b>_____________________________________________________________________________________________</b></h4>" );
+        $this->ReportMaker->appendHTML( "<h4><b>_____________________________________________________________________________________________</b></h4>" );
+        $this->ReportMaker->appendHTML( "<hr />" );
+        $this->ReportMaker->appendHTML( "<h4><b>"._("Releasing Staff Initials").": </b>_____________________     "._("(To be released only by XXXXXXXXX)")."</h4>" );
+        $this->ReportMaker->appendHTML( "<h4>"._("I have read, understood, and agree to all the Terms and Condidtions on the following pages of this document.")."</h4>" );
+        $this->ReportMaker->appendHTML( "<br />" );
+        $this->ReportMaker->appendHTML( "<h4><b>"._("Signed").": </b>X _____________________________  "._("Date").": _________/_________/20_______</h4>" );
+        $this->ReportMaker->appendHTML( _("<!-- "._("NEW PAGE")." -->") );
+        $this->ReportMaker->appendHTML( "<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " .$this->nice_date()->format("D M j G:i:s T Y") . "\" -->" );
+        $this->ReportMaker->appendHTML( "<center><h3>"._("Terms and Conditions")."</h3></center>" );
+        $this->ReportMaker->appendHTML( "<hr />" );
+        $this->ReportMaker->appendHTML( "<h4>"._("Your terms and conditions here")."</h4>" );
+        $this->ReportMaker->appendHTML( "<h4><b>"._("Signed").": </b>"._("X")." _____________________________  "._("Date").": _________/_________/20_______</h4>" );
+        echo '<p>'._('Your form is ready.').'</p>';
+        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }
