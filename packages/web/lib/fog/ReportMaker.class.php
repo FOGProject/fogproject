@@ -38,7 +38,6 @@ class ReportMaker extends FOGBase {
         switch (intval($intType)) {
         case 0:
             echo implode("\n",(array)$this->strHTML);
-            unset($this->strHTML);
             break;
         case 1:
             header('Content-Type: application/octet-stream');
@@ -54,7 +53,7 @@ class ReportMaker extends FOGBase {
             fclose($pipes[0]);
             fpassthru($pipes[1]);
             $status = proc_close($proc);
-            unset($status);
+            unset($status,$this->strHTML);
             break;
         case 3:
             $SchemaSave = $this->getClass('Schema');
@@ -65,6 +64,7 @@ class ReportMaker extends FOGBase {
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"{$_REQUEST['type']}_export.csv\"");
             echo implode("\n",(array)$this->strLine);
+            unset($this->strLine);
             break;
         case 5:
             while (ob_get_level()) ob_end_clean();
@@ -88,6 +88,5 @@ class ReportMaker extends FOGBase {
                 exec ("rm -rf '$filepath'");
             }
         }
-        unset($cmd,$ip,$filename,$path,$filepath,$this->strLine,$this->filename,$this->strHTML,$SchemaSave);
     }
 }

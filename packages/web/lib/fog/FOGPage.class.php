@@ -98,10 +98,10 @@ abstract class FOGPage extends FOGBase {
                 ));
                 exit;
             }
-            $result = array();
+            ob_start();
             $contentField = 'active-tasks';
             if ($this->searchFormURL) {
-                $result[] = sprintf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><%s id="%s-search-submit" class="search-submit" type="%s" value="%s"></form>%s',
+                printf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><%s id="%s-search-submit" class="search-submit" type="%s" value="%s"></form>%s',
                     $this->searchFormURL,
                     (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
                     sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
@@ -114,25 +114,25 @@ abstract class FOGPage extends FOGBase {
                 );
                 $contentField = 'search-content';
             }
-            if ($this->form) $res .= printf($this->form);
-            $result[] = sprintf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<tbody>',
+            if ($this->form) printf($this->form);
+            printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<tbody>',
                 '100%',
                 $contentField,
                 count($this->data) ? $this->buildHeaderRow() : ''
             );
             if (!count($this->data)) {
                 $contentField = 'no-active-tasks';
-                $result[] = sprintf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
+                printf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
                     count($this->templates),
                     $contentField,
-                    ($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : ($this->node != 'tasks' ? (!$this->isMobile ? $this->foglang['NoResults'] : '') : ''))
+                    ($this->data['error'] ? (is_array($this->data['error']) ? sprintf('<p>%s</p>',implode('</p><p>',$this->data['error'])) : $this->data['error']) : ($this->node != 'tasks' ? (!$this->isMobile ? $this->foglang['NoResults'] : '') : ''))
                 );
             } else {
                 if ((!$_REQUEST['sub'] && $defaultScreen == 'list') || (in_array($_REQUEST['sub'],$defaultScreens) && in_array($_REQUEST['node'],$this->searchPages)))
-                    if ($this->node != 'home') $this->setMessage(count($this->data).' '.$this->childClass.(count($this->data) > 1 ? 's' : '')._(' found'));
-                $id_field = $_REQUEST['node'].'_id';
+                    if ($this->node != 'home') $this->setMessage(sprintf('%s %s%s found',count($this->data),$this->childClass,(count($this->data) != 1 ? 's' : '')));
+                $id_field = "{$_REQUEST['node']}_id";
                 foreach ($this->data AS $i => &$rowData) {
-                    $result[] = sprintf('<tr id="%s-%s"%s>%s</tr>',
+                    printf('<tr id="%s-%s"%s>%s</tr>',
                         strtolower($this->childClass),
                         $rowData['id'] ? $rowData['id'] : $rowData[$id_field],
                         ((++$i % 2) ? ' class="alt1"' : ((!$_REQUEST['sub'] && $defaultScreen == 'list') || (in_array($_REQUEST['sub'],$defaultScreens) && in_array($_REQUEST['node'],$this->searchPages)) ? ' class="alt2"' : '')),
@@ -141,14 +141,27 @@ abstract class FOGPage extends FOGBase {
                 }
                 unset($rowData);
             }
-            $result[] = '</tbody></table>';
+            echo '</tbody></table>';
             if (((!$_REQUEST['sub'] || ($_REQUEST['sub'] && in_array($_REQUEST['sub'],$defaultScreens))) && in_array($_REQUEST['node'],$this->searchPages)) && !$this->isMobile) {
-                if ($this->childClass == 'Host') $actionbox = sprintf('<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>');
-                $actionbox .= sprintf('<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value="" autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>');
+                if ($this->childClass == 'Host') {
+                    printf('<form method="post" action="%s", id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" value="%s"/></p></form>',
+                        sprintf('?node=%s&sub=save_group',$this->node),
+                        _('Create new group'),
+                        _('Add to group'),
+                        $this->getClass('GroupManager')->buildSelectBox(),
+                        _('Process Group Changes')
+                    );
+                }
+                printf('<form method="post" class="c" id="action-boxdel" action="%s"><p>%s</p><input type="hidden" name="%sIDArray" value="" autocomplete="off"/><input type="submit" value="%s?"/></form>',
+                    sprintf('?node=%s&sub=save_group',$this->node),
+                    _('Delete all selected items'),
+                    strtolower($this->childClass),
+                    sprintf(_('Delete all selected %ss'),strtolower($this->childClass))
+                );
             }
             $this->HookManager->event[] = 'ACTIONBOX';
             $this->HookManager->processEvent('ACTIONBOX',array('actionbox'=>&$actionbox));
-            $result[] = $actionbox;
+            return ob_get_clean();
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -690,12 +703,9 @@ abstract class FOGPage extends FOGBase {
                 $Host->set('pub_key',null)->save();
                 throw new Exception('#!ist');
             }
-            $Host->set('sec_tok',$this->createSecToken())
-                ->set('sec_time',$this->nice_date('+30 minutes')->format('Y-m-d H:i:s'));
+            $this->getClass('HostManager')->update(array('id'=>$Host->get('id')),'',array('sec_tok'=>$this->createSecToken(),'sec_time'=>$this->nice_date('+30 minutes')->format('Y-m-d H:i:s'),'key'=>$key));
             if ($Host->get('sec_tok') && !$key) throw new Exception('#!ihc');
-            $Host->set('pub_key',$key)
-                ->save();
-            echo '#!en='.$this->certEncrypt("#!ok\n#token=".$Host->get(sec_tok),$Host);
+            printf('#!en=%s',$this->certEncrypt("#!ok\n#token={$Host->get(sec_tok)}",$Host));
         }
         catch (Exception $e) {
             echo  $e->getMessage();
@@ -703,8 +713,8 @@ abstract class FOGPage extends FOGBase {
         exit;
     }
     public function clearAES() {
-        if (isset($_REQUEST['groupid'])) $this->getClass('HostManager')->update(array('id'=>$this->getClass('Group',$_REQUEST['groupid'])->get('hosts')),'',array('pub_key'=>'','sec_tok'=>''));
-        else if (isset($_REQUEST['id'])) $this->getClass('HostManager')->update(array('id'=>$_REQUEST['id']),'',array('pub_key'=>'','sec_tok'=>''));
+        if (isset($_REQUEST['groupid'])) $this->getClass('HostManager')->update(array('id'=>$this->getClass('Group',$_REQUEST['groupid'])->get('hosts')),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
+        else if (isset($_REQUEST['id'])) $this->getClass('HostManager')->update(array('id'=>$_REQUEST['id']),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
     }
     public function delete_post() {
         $this->HookManager->processEvent(strtoupper($this->node).'_DEL_POST', array($this->childClass=>&$this->obj));
@@ -858,8 +868,8 @@ abstract class FOGPage extends FOGBase {
             $this->HookManager->processEvent(strtoupper($this->childClass).'_EXPORT_REPORT',array('report'=>&$report,$this->childClass=>&$Item));
             $report->endCSVLine();
             unset($macs);
+            unset($Item);
         }
-        unset($Item);
         $_SESSION['foglastreport']=serialize($report);
         printf('<form method="post" action="export.php?type=%s">',strtolower($this->childClass));
         foreach ((array)$fields AS $field => &$input) {
