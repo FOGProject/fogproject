@@ -56,7 +56,7 @@ class PushbulletManagementPage extends FOGPage {
         );
         $fields = array(
             _('Access Token') => '<input class="smaller" type="text" name="apiToken" />',
-            '&nbsp;' => printf('<input name="add" class="smaller" type="submit" value="%s"/>',_('Add')),
+            '&nbsp;' => sprintf('<input name="add" class="smaller" type="submit" value="%s"/>',_('Add')),
         );
         printf('<form method="post" action="%s">',$this->formAction);
         foreach((array)$fields AS $field => $input) {
@@ -65,7 +65,6 @@ class PushbulletManagementPage extends FOGPage {
                 'input' => $input,
             );
         }
-        $this->HookManager->event[] = 'PUSHBULLET_ADD';
         $this->HookManager->processEvent('PUSHBULLET_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
         echo '</form>';
@@ -76,16 +75,14 @@ class PushbulletManagementPage extends FOGPage {
             if ($this->getClass('PushbulletManager')->exists(trim($_REQUEST['apiToken']))) throw new Exception('Account already linked');
             if (!$token) throw new Exception('Please enter an access token');
             $userInfo = $this->getClass('PushbulletHandler',$token)->getUserInformation();
-            $Bullet = new Pushbullet(array(
-                'token' => $token,
-                'name'  => $userInfo->name,
-                'email' => $userInfo->email,
-            ));
-            if ($Bullet->save()) {
-                $this->getClass('PushbulletHandler',$token)->pushNote('', 'FOG', 'Account linked');
-                $this->setMessage('Account Added!');
-                $this->redirect('?node=pushbullet&sub=list');
-            }
+            $Bullet = $this->getClass('Pushbullet')
+                ->set('token',$token)
+                ->set('name',$userInfo->name)
+                ->set('email',$userInfo->email);
+            if (!$Bullet->save()) throw new Exception(_('Failed to create'));
+            $this->getClass('PushbulletHandler',$token)->pushNote('', 'FOG', 'Account linked');
+            $this->setMessage('Account Added!');
+            $this->redirect('?node=pushbullet&sub=list');
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
