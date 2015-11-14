@@ -178,14 +178,14 @@ class ImageManagementPage extends FOGPage {
             if (empty($_REQUEST[imagepartitiontype]) || !is_numeric($_REQUEST[imagepartitiontype])) throw new Exception('An image partition type is required!');
             // Create new Object
             $Image = $this->getClass(Image)
-                ->set(name,$_REQUEST[name])
-                ->set(description,$_REQUEST[description])
-                ->set(osID,$_REQUEST[os])
-                ->set(path,$_REQUEST['file'])
-                ->set(imageTypeID,$_REQUEST[imagetype])
-                ->set(imagePartitionTypeID,$_REQUEST[imagepartitiontype])
-                ->set(compress,$_REQUEST[compress])
-                ->addGroup($_REQUEST[storagegroup]);
+                ->set('name',$_REQUEST['name'])
+                ->set('description',$_REQUEST['description'])
+                ->set('osID',$_REQUEST['os'])
+                ->set('path',$_REQUEST['file'])
+                ->set('imageTypeID',$_REQUEST['imagetype'])
+                ->set('imagePartitionTypeID',$_REQUEST['imagepartitiontype'])
+                ->set('compress',$_REQUEST['compress'])
+                ->addGroup($_REQUEST['storagegroup']);
             // Save
             if (!$Image->save()) throw new Exception('Database update failed');
             // Hook
@@ -310,7 +310,7 @@ class ImageManagementPage extends FOGPage {
             $this->data[] = array(
                 'storageGroup_id'=>$Group->get('id'),
                 'storageGroup_name'=>$Group->get('name'),
-                'is_primary'=>$this->obj->getPrimaryGroup($Group->get('id')),
+                'is_primary'=>$this->obj->getPrimaryGroup($Group->get('id')) ? 'checked' : '',
             );
             unset($Group);
         }
