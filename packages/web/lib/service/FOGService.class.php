@@ -106,9 +106,6 @@ abstract class FOGService extends FOGBase {
      */
     protected function replicate_items($myStorageGroupID,$myStorageNodeID,$Obj,$master = false) {
         unset($username,$password,$ip,$remItem,$myItem,$limitmain,$limitsend,$limit,$includeFile);
-        if (count($this->procRef)) {
-            $replication = false;
-        }
         $message = $onlyone = false;
         $itemType = $master ? 'group' : 'node';
         $findWhere['isEnabled'] = 1;
@@ -172,21 +169,26 @@ abstract class FOGService extends FOGBase {
                 $date = $this->formatTime('','Ymd_His');
                 $logname = "$this->log.transfer.$nodename.$date.log";
                 if (!$i) $this->outall(_(' * Starting Sync Actions'));
-                if ($this->isRunning($this->procRef[$i])) {
+                if ($this->isRunning($this->procRef[$itemType][$i])) {
                     $this->outall(_(' | Replication not complete'));
-                    $this->outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$i])));
+                    $this->outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$itemType][$i])));
                 } else {
-                    $this->killTasking($index);
+                    $this->killTasking($index,$itemType);
                     $this->startTasking("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c -R --ignore-time $includeFile -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip",$logname,$i);
                 }
                 unset($PotentialStorageNode);
             }
         }
     }
-    public function startTasking($cmd,$logname,$index = 0) {
+    public function startTasking($cmd,$logname,$index = 0,$itemType = false) {
         $descriptor = array(0=>array('pipe','r'),1=>array('file',$logname,'w'),2=>array('file',$this->log,'a'));
-        $this->procRef[$index] = @proc_open($cmd,$descriptor,$pipes);
-        $this->procPipes[$index] = $pipes;
+        if ($itemType === false) {
+            $this->procRef[$index] = @proc_open($cmd,$descriptor,$pipes);
+            $this->procPipes[$index] = $pipes;
+        } else {
+            $this->procRef[$itemType][$index] = @proc_open($cmd,$descriptor,$pipes);
+            $this->procPipes[$itemType][$index] = $pipes;
+        }
     }
     public function killAll($pid,$sig) {
         exec("ps -ef|awk '\$3 == '$pid' {print \$2}'",$output,$ret);
@@ -196,19 +198,34 @@ abstract class FOGService extends FOGBase {
         }
         posix_kill($pid,$sig);
     }
-    public function killTasking($index = 0) {
-        @fclose($this->procPipe[$index]);
-        unset($this->procPipe[$index]);
-        $running = 4;
-        if ($this->isRunning($this->procRef[$index])) {
-            $running = 5;
-            $pid = $this->getPID($this->procRef[$index]);
-            if ($pid) $this->killAll($pid,SIGTERM);
-            @proc_terminate($this->procRef[$index],SIGTERM);
+    public function killTasking($index = 0,$itemType = false) {
+        if ($itemType === false) {
+            @fclose($this->procPipe[$index]);
+            unset($this->procPipe[$index]);
+            $running = 4;
+            if ($this->isRunning($this->procRef[$index])) {
+                $running = 5;
+                $pid = $this->getPID($this->procRef[$index]);
+                if ($pid) $this->killAll($pid,SIGTERM);
+                @proc_terminate($this->procRef[$index],SIGTERM);
+            }
+            @proc_close($this->procRef[$index]);
+            unset($this->procRef[$index]);
+            return (bool)$this->isRunning($this->procRef[$index]);
+        } else {
+            @fclose($this->procPipe[$itemType][$index]);
+            unset($this->procPipe[$itemType][$index]);
+            $running = 4;
+            if ($this->isRunning($this->procRef[$itemType][$index])) {
+                $running = 5;
+                $pid = $this->getPID($this->procRef[$itemType][$index]);
+                if ($pid) $this->killAll($pid,SIGTERM);
+                @proc_terminate($this->procRef[$itemType][$index],SIGTERM);
+            }
+            @proc_close($this->procRef[$itemType][$index]);
+            unset($this->procRef[$itemType][$index]);
+            return (bool)$this->isRunning($this->procRef[$itemType][$index]);
         }
-        @proc_close($this->procRef[$index]);
-        unset($this->procRef[$index]);
-        return (bool)$this->isRunning($this->procRef[$index]);
     }
     public function getPID($procRef) {
         if (!$procRef) return false;
