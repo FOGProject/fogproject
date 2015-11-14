@@ -13,6 +13,7 @@ class MulticastTask extends MulticastManager {
         $MulticastSessions = self::getSession('find');
         foreach($MulticastSessions AS $i => &$MultiSess) {
             $Image = $this->getClass('Image',$MultiSess->get('image'));
+            if (!$Image->isValid()) continue;
             if (in_array($this->FOGCore->resolveHostname($Image->getStorageGroup()->getMasterStorageNode()->get('ip')),$this->getIPAddress())) {
                 $count = $this->getClass('MulticastSessionsAssociationManager')->count(array(msID=>$MultiSess->get('id')));
                 $Tasks[] = new self(
@@ -33,7 +34,8 @@ class MulticastTask extends MulticastManager {
     }
     private $intID, $strName, $intPort, $strImage, $strEth, $intClients;
     private $intImageType, $intOSID;
-    private $procRef, $arPipes;
+    public $procRef;
+    public $procPipes;
     public function __construct($id,$name,$port,$image,$eth,$clients,$imagetype,$osid) {
         parent::__construct();
         $this->intID = $id;
@@ -179,36 +181,15 @@ class MulticastTask extends MulticastManager {
     }
     public function startTask() {
         @unlink($this->getUDPCastLogFile());
-        $descriptor = array(0 => array('pipe','r'), 1 => array('file',$this->getUDPCastLogFile(),'w'), 2 => array('file',$this->getUDPCastLogFile(),'w'));
-        $this->procRef = @proc_open($this->getCMD(),$descriptor,$pipes);
-        $this->arPipes = $pipes;
+        $this->startTasking($this->getCMD(),$this->getUDPCastLogFile());
+        $this->procRef = array_shift($this->procRef);
         $this->getClass('MulticastSessions',$this->intID)
             ->set(stateID,1)
             ->save();
-        return $this->isRunning();
-    }
-    private static function killAll($pid,$sig) {
-        exec("ps -ef|awk '\$3 == '$pid' {print \$2}'",$output,$ret);
-        if ($ret) return false;
-        while (list(,$t) = each($output)) {
-            if  ($t != $pid) self::killAll($t,$sig);
-        }
-        @posix_kill($pid,$sig);
+        return $this->isRunning($this->procRef);
     }
     public function killTask() {
-        foreach($this->arPipes AS $i => &$closeme) {
-            @fclose($closeme);
-            unset($closeme);
-        }
-        $running = 4;
-        if ($this->isRunning()) {
-            $running = 5;
-            $pid = $this->getPID();
-            if ($pid) self::killAll($pid, SIGTERM);
-            @proc_terminate($this->procRef, SIGTERM);
-        }
-        @proc_close($this->procRef);
-        $this->procRef=null;
+        $this->killTasking();
         @unlink($this->getUDPCastLogFile());
         $Tasks = $this->getClass('TaskManager')->find(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$RMTask->getID()),'taskID')));
         foreach((array)$Tasks AS $i => &$Task) {
@@ -234,19 +215,5 @@ class MulticastTask extends MulticastManager {
         unset($Tasks);
         $TaskPercent = array_unique((array)$TaskPercent);
         $this->getClass('MulticastSessions',$this->intID)->set('percent',@max((array)$TaskPercent))->save();
-    }
-    public function isRunning() {
-        if ($this->procRef) {
-            $ar = proc_get_status($this->procRef);
-            return $ar['running'];
-        }
-        return false;
-    }
-    public function getPID() {
-        if ($this->procRef) {
-            $ar = proc_get_status($this->procRef);
-            return $ar['pid'];
-        }
-        return -1;
     }
 }

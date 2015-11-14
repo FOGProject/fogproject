@@ -114,7 +114,7 @@ class Image extends FOGController {
         return $this;
     }
     public function addGroup($addArray) {
-        $this->set('storageGroups',array_unique(array_merge((array)$this->get('storageGroups'))));
+        $this->set('storageGroups',array_unique(array_merge((array)$this->get('storageGroups'),(array)$addArray)));
         return $this;
     }
     public function removeGroup($removeArray) {

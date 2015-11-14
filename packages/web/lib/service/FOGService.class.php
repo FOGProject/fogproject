@@ -4,6 +4,9 @@ abstract class FOGService extends FOGBase {
     protected $log = '';
     protected $zzz = '';
     protected $ips = array();
+    private $transferLog = array();
+    public $procRefs = array();
+    public $procPipes = array();
     protected function getIPAddress() {
         $output = array();
         exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
@@ -103,6 +106,17 @@ abstract class FOGService extends FOGBase {
      */
     protected function replicate_items($myStorageGroupID,$myStorageNodeID,$Obj,$master = false) {
         unset($username,$password,$ip,$remItem,$myItem,$limitmain,$limitsend,$limit,$includeFile);
+        if (count($this->procRef)) {
+            $replication = false;
+            foreach ((array)$this->procRef AS $i => $procRef) {
+                if ($this->isRunning($procRef)) {
+                    $replication = true;
+                    $this->outall(sprintf(_('Replication not complete running with pid %d'),$this->getPID($procRef)));
+                }
+                unset($procRef);
+            }
+            if ($replication === true) throw new Exception(_(' * Waiting for previous replication to complete'));
+        }
         $message = $onlyone = false;
         $itemType = $master ? 'group' : 'node';
         $findWhere['isEnabled'] = 1;
@@ -112,75 +126,103 @@ abstract class FOGService extends FOGBase {
         if (!($StorageNode->isValid() && $StorageNode->get('isMaster'))) throw new Exception(_('I am not the master'));
         $objType = get_class($Obj);
         $groupOrNodeCount = $this->getClass('StorageNodeManager')->count($findWhere);
-        if ((!$master && $groupOrNodeCount <= 0) || ($master && $groupOrNodeCount <= 1)) {
+        $countTest = ($master ? 1 : 0);
+        if ($groupOrNodeCount <= $countTest) {
             $this->outall(_(" * Not syncing $objType between $itemType(s)"));
             $this->outall(_(" | $objType Name: ".$Obj->get('name')));
             $this->outall(_(" | I am the only member"));
             $onlyone = true;
         }
+        unset($countTest);
         if (!$onlyone) {
             $this->outall(sprintf(" * Found $objType to transfer to %s %s(s)",$groupOrNodeCount,$itemType));
             $this->outall(sprintf(" | $objType name: %s",$Obj->get('name')));
             $getPathOfItemField = $objType == 'Snapin' ? 'snapinpath' : 'ftppath';
             $getFileOfItemField = $objType == 'Snapin' ? 'file' : 'path';
             $PotentialStorageNodes = array_diff((array)$this->getSubObjectIDs('StorageNode',$findWhere,'id'),(array)$myStorageNodeID);
-            foreach ($PotentialStorageNodes AS $i => &$PotentialStorageNode) {
-                $StorageNodeToSend = $this->getClass('StorageNode',$PotentialStorageNode);
-                if (($master && $StorageNodeToSend->get('storageGroupID') != $myStorageGroupID) || !$master) {
-                    $this->FOGFTP
-                        ->set('username',$StorageNodeToSend->get('user'))
-                        ->set('password',$StorageNodeToSend->get('pass'))
-                        ->set('host',$StorageNodeToSend->get('ip'));
-                    if (!$this->FOGFTP->connect()) {
-                        $this->outall(_(' * Cannot connect to '.$StorageNodeToSend->get('name')));
-                        break;
-                    }
-                    $this->FOGFTP->close();
-                    $removeItem = '/'.trim($StorageNodeToSend->get($getPathOfItemField),'/').($master ? '/'.$Obj->get($getFileOfItemField) : '');
-                    $myAddItem = '/'.trim($StorageNode->get($getPathOfItemField),'/').($master ? '/'.$Obj->get($getFileOfItemField) : '');
-                    if (!file_exists($myAddItem)) {
-                        $this->outall(_(" * Not syncing $objType between $itemType(s)"));
-                        $this->outall(_(" | $objType Name: ".$Obj->get('name')));
-                        $this->outall(_(" | File or path cannot be reached"));
-                        continue;
-                    }
-                    if (is_file($myAddItem)) {
-                        $remItem[] = dirname($removeItem).'/';
-                        $myItem[] = dirname($myAddItem).'/';
-                        $includeFile[] = '-i '.basename($removeItem);
-                    } else {
-                        $remItem[] = $removeItem;
-                        $myItem[] = $myAddItem;
-                        $includeFile[] = null;
-                    }
-                    $nodename[] = $StorageNodeToSend->get('name');
-                    $username[] = $StorageNodeToSend->get('user');
-                    $password[] = $StorageNodeToSend->get('pass');
-                    $ip[] = $StorageNodeToSend->get('ip');
-                    $limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
-                    $limitsend = $this->byteconvert($StorageNodeToSend->get('bandwidth'));
-                    if ($limitmain > 0) $limitset = "set net:limit-total-rate 0:$limitmain;";
-                    if ($limitsend > 0) $limitset .= "set net:limit-rate 0:$limitsend;";
-                    $limit[] = $limitset;
+            $myAddItem = sprintf('/%s%s',trim($StorageNode->get($getPathOfItemField),'/'),($master ? sprintf('/%s',$Obj->get($getFileOfItemField)) : ''));
+            if (is_file($myAddItem)) $myAddItem = sprintf('%s/',dirname($myAddItem));
+            foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
+                if (!$PotentialStorageNode->isValid()) continue;
+                if ($master && $PotentialStorageNode->get('storageGroupID') == $myStorageGroupID) continue;
+                if (!file_exists($myAddItem)) {
+                    $this->outall(_(" * Not syncing $objType between $itemType(s)"));
+                    $this->outall(_(" | $objType Name: {$Obj->get(name)}"));
+                    $this->outall(_(" | File or path cannot be reached"));
+                    continue;
                 }
-            }
-            unset($StorageNodeToSend);
-            $this->outall(_(' * Starting Sync Actions'));
-            foreach ((array)$nodename AS $i => &$name) {
-                $process[$name] = popen("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; ".$limit[$i]." mirror -c -R --ignore-time ".$includeFile[$i]." -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first ".$myItem[$i].' '.$remItem[$i]."; exit' -u ".$username[$i].','.$password[$i].' '.$ip[$i]." 2>&1","r");
-                stream_set_blocking($process[$name],false);
-            }
-            unset($name);
-            foreach((array)$process AS $nodename => &$proc) {
-                while (!feof($proc) && $proc != null) {
-                    $output = fgets($proc,256);
-                    if ($output) $this->outall(sprintf(' * %s - SubProcess -> %s',$nodename,$output));
+                $this->FOGFTP
+                    ->set('username',$PotentialStorageNode->get('user'))
+                    ->set('password',$PotentialStorageNode->get('pass'))
+                    ->set('host',$PotentialStorageNode->get('ip'));
+                if (!$this->FOGFTP->connect()) {
+                    $this->outall(_(" * Cannot connect to {$StorageNodeToSend->get(name)}"));
+                    continue;
                 }
-                pclose($proc);
-                $this->outall(sprintf(' * %s - SubProcess -> Complete',$nodename));
+                $nodename = $this->FOGFTP->get('name');
+                $username = $this->FOGFTP->get('username');
+                $password = $this->FOGFTP->get('password');
+                $ip = $this->FOGFTP->get('host');
+                $this->FOGFTP->close();
+                $removeItem = sprintf('/%s%s',trim($PotentialStorageNode->get($getPathOfItemField),'/'),($master ? sprintf('/%s',$Obj->get($getFileOfItemField)) : ''));
+                $limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
+                $limitsend = $this->byteconvert($PotentialStorageNode->get('bandwidth'));
+                if ($limitmain > 0) $limitset = "set net:limit-total-rate 0:$limitmain;";
+                if ($limitsend > 0) $limitset .= "set net:limit-rate 0:$limitsend;";
+                $limit = $limitset;
+                if (is_file($myAddItem)) {
+                    $remItem = sprintf('%s/',dirname($removeItem));
+                    $includeFile = sprintf('-i %s',basename($removeItem));
+                } else {
+                    $remItem = $removeItem;
+                    $includeFile = null;
+                }
+                $date = $this->formatTime('','Ymd_His');
+                $logname = "$this->log.transfer.$nodename.$date.log";
+                if (!$i) $this->outall(_(' * Starting Sync Actions'));
+                $this->startTasking("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c -R --ignore-time $includeFile -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip",$logname);
+                unset($PotentialStorageNode);
             }
-            unset($process,$proc);
-            $this->outall(_(' * Sync Actions all complete'));
         }
+    }
+    public function startTasking($cmd,$logname) {
+        $descriptor = array(0=>array('pipe','r'),1=>array('file',$logname,'w'),2=>array('file',$this->log,'a'));
+        $this->procRef[] = @proc_open($cmd,$descriptor,$pipes);
+        $this->procPipes[] = $pipes;
+    }
+    public function killAll($pid,$sig) {
+        exec("ps -ef|awk '\$3 == '$pid' {print \$2}'",$output,$ret);
+        if ($ret) return false;
+        while (list(,$t) = each($output)) {
+            if ($t != $pid) $this->killAll($t,$sig);
+        }
+        posix_kill($pid,$sig);
+    }
+    public function killTasking() {
+        foreach ((array)$this->procRef AS $i => $procRef) {
+            @fclose($this->procPipe[$i]);
+            unset($this->procPipe[$i]);
+            $running = 4;
+            if ($this->isRunning($procRef)) {
+                $running = 5;
+                $pid = $this->getPID($procRef);
+                if ($pid) $this->killAll($pid,SIGTERM);
+                @proc_terminate($procRef,SIGTERM);
+            }
+            @proc_close($procRef);
+            unset($procRef);
+        }
+        $this->procRef = $this->procPipes = array();
+        return true;
+    }
+    public function getPID($procRef) {
+        if (!$procRef) return false;
+        $ar = proc_get_status($procRef);
+        return $ar['pid'];
+    }
+    public function isRunning($procRef) {
+        if (!$procRef) return false;
+        $ar = proc_get_status($procRef);
+        return $ar['running'];
     }
 }
