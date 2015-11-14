@@ -442,7 +442,7 @@ abstract class FOGBase {
     protected function sendData($datatosend,$service = true) {
         if ($service) {
             $Host = $this->getHostItem();
-            if ($this->nice_date() >= $this->nice_date($Host->get(sec_time))) $Host->set(pub_key,null)->save();
+            if ($this->nice_date() >= $this->nice_date($Host->get('sec_time'))) $this->getClass('HostManager')->update(array('id'=>$Host->get('id')),'',array('pub_key'=>''));
             if (isset($_REQUEST['newService'])) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
             else echo $datatosend;
             exit;
