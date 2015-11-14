@@ -174,7 +174,7 @@ abstract class FOGService extends FOGBase {
                     $this->outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$itemType][$i])));
                 } else {
                     $this->killTasking($index,$itemType);
-                    $this->startTasking("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c -R --ignore-time $includeFile -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip",$logname,$i);
+                    $this->startTasking("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c -R --ignore-time $includeFile -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip",$logname,$i,$itemType);
                 }
                 unset($PotentialStorageNode);
             }
