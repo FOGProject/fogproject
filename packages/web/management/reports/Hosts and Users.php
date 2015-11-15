@@ -16,39 +16,36 @@ class HostUsers extends ReportManagementPage {
 		$report->addCSVCell('MAC');
 		$report->addCSVCell('Registered');
 		$report->endCSVLine();
-		$Hosts = $this->FOGCore->getClass('HostManager')->find('','','','','','name');
 		$cnt = 0;
-		foreach ($Hosts AS $Host)
-		{
+		foreach ($this->getClass('HostManager')->find('','','','','','name') AS $i => &$Host) {
+            if (!$Host->isValid()) continue;
 			$bg = ($cnt++ % 2 == 0 ? "#E7E7E7" : '');
-			$report->appendHTML('<tr bgcolor="'.$bg.'"><td>'.$Host->get('name').'</td><td>'.$Host->get('mac').'</td><td>'.$Host->get('createdTime').'</td></tr>');
+            $report->appendHTML(sprintf('<tr bgcolor="%s"><td>%s</td><td>%s</td><td>%s</td></tr>',$bg,$Host->get('name'),$Host->get('mac'),$Host->get('createdTime')));
 			$report->addCSVCell($Host->get('name'));
 			$report->addCSVCell($Host->get('mac'));
-			$report->addCSVCell($Host->get('createdTime'));
-			if ($Host->get('users'))
-			{
-				$report->endCSVLine();
-				$report->appendHTML('<tr bgcolor="#BDBDBD"><td><b>Username</b></td><td><b>Action</b></td><td><b>Date</b></td><td><b>Time</b></td></tr>');
-				$report->addCSVCell('Username');
-				$report->addCSVCell('Action');
-				$report->addCSVCell('Time');
-				$report->endCSVLine();
-				$cnt1 = 0;
-				$Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'action' => array(null,0,1)),'',array('username','datetime'),'DESC','','username');
-				foreach ($Users AS $User)
-				{
-					if ($User->get('username') != 'Array')
-					{
-						$bg1 = ($cnt1++ % 2 == 0 ? "#E7E7E7" : '');
-						$logintext = ($User->get('action') == 1 ? 'Login' : 'Logout' );
-						$report->appendHTML('<tr bgcolor="'.$bg1.'"><td>'.$User->get('username').'</td><td>'.$logintext.'</td><td>'.$User->get('date').'</td><td>'.$User->get('datetime').'</td></tr>');
-						$report->addCSVCell($User->get('username'));
-						$report->addCSVCell($logintext);
-						$report->addCSVCell($User->get('date'));
-						$report->addCSVCell($User->get('datetime'));
-						$report->endCSVLine();
-					}
-				}
+            $report->addCSVCell($Host->get('createdTime'));
+            if (!count($Host->get('users'))) {
+                $report->endCSVLine();
+                continue;
+            }
+            $report->endCSVLine();
+            $report->appendHTML('<tr bgcolor="#BDBDBD"><td><b>Username</b></td><td><b>Action</b></td><td><b>Date</b></td><td><b>Time</b></td></tr>');
+            $report->addCSVCell('Username');
+            $report->addCSVCell('Action');
+            $report->addCSVCell('Time');
+            $report->endCSVLine();
+            $cnt1 = 0;
+            foreach ((array)$this->getClass('UserTrackingManager')->find(array('id'=>$Host->get('users'),'action'=>array(null,0,1)),'','datetime','DESC','','username') AS $i => $User) {
+                if (!$User->isValid()) continue;
+                if ($User->get('username') == 'Array') continue;
+                $bg1 = ($cnt1++ % 2 == 0 ? "#E7E7E7" : '');
+                $logintext = ($User->get('action') == 1 ? 'Login' : 'Logout' );
+                $report->appendHTML(sprintf('<tr bgcolor="%s"><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',$bg1,$User->get('username'),$logintext,$User->get('date'),$User->get('datetime')));
+                $report->addCSVCell($User->get('username'));
+                $report->addCSVCell($logintext);
+                $report->addCSVCell($User->get('date'));
+                $report->addCSVCell($User->get('datetime'));
+                $report->endCSVLine();
 				$report->appendHTML('<table cellpadding="0" cellspacing="0" border="0" width="100%">');
 				$report->appendHTML('<tr bgcolor="#BDBDBD"><td><b>Hostname</b></td><td><b>MAC</b></td><td><b>Registered</b></td></tr>');
 				$report->addCSVCell('Hostname');
