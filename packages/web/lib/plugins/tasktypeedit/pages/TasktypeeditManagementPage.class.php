@@ -5,16 +5,15 @@ class TasktypeeditManagementPage extends FOGPage {
         $this->name = 'Task Type Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'search' => $this->foglang[NewSearch],
-            'list' => sprintf($this->foglang[ListAll],_('Task Types')),
-            'add' => sprintf($this->foglang[CreateNew],_('Task Type')),
+            'search' => $this->foglang['NewSearch'],
+            'list' => sprintf($this->foglang['ListAll'],_('Task Types')),
+            'add' => sprintf($this->foglang['CreateNew'],_('Task Type')),
         );
-        if ($_REQUEST[id]) {
-            $this->obj = $this->getClass(TaskType,$_REQUEST[id]);
+        if ($_REQUEST['id']) {
             $this->notes = array(
-                _('Name')=>$this->obj->get(name),
-                _('Icon')=>'<i class="fa fa-'.$this->obj->get(icon).' fa-2x"></i>',
-                _('Type')=>$this->obj->get(type),
+                _('Name')=>$this->obj->get('name'),
+                _('Icon')=>sprintf('<i class="fa fa-%s fa-2x"></i>',$this->obj->get('icon')),
+                _('Type')=>$this->obj->get('type'),
             );
         }
         $this->headerData = array(
@@ -23,27 +22,21 @@ class TasktypeeditManagementPage extends FOGPage {
             _('Kernel Args'),
         );
         $this->templates = array(
-            '<a href="?node='.$this->node.'&sub=edit&id=${id}" title="Edit"><i class="fa fa-${icon} fa-1x"> ${name}</i></a>',
+            sprintf('<a href="?node=%s&sub=edit&id=${id}" title="Edit"><i class="fa fa-${icon} fa-1x"> ${name}</i></a>',$this->node),
             '${access}',
             '${args}',
         );
         $this->attributes = array(
-            array('class'=>l),
-            array('class'=>c),
-            array('class'=>r),
+            array('class'=>'l'),
+            array('class'=>'c'),
+            array('class'=>'r'),
         );
     }
     public function index() {
         $this->title = _('All Task Types');
-        if ($this->getSetting(FOG_DATA_RETURNED)>0 && $this->getClass(TaskTypeManager)->count() > $this->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
-            $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        $ids = $this->getSubObjectIDs('TaskType');
-        foreach ((array)$ids AS $i => &$id) {
-            $TaskType = $this->getClass('TaskType',$id);
-            if (!$TaskType->isValid()) {
-                unset($TaskType);
-                continue;
-            }
+        if ($this->getSetting('FOG_DATA_RETURNED')>0 && $this->getClass('TaskTypeManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        foreach ((array)$this->getClass('TaskTypeManager')->find() AS $i => &$TaskType) {
+            if (!$TaskType->isValid()) continue;
             $this->data[] = array(
                 'icon'=>$TaskType->get('icon'),
                 'id'=>$TaskType->get('id'),
@@ -53,33 +46,23 @@ class TasktypeeditManagementPage extends FOGPage {
             );
             unset($TaskType);
         }
-        unset($TaskType);
-        $this->HookManager->event[] = 'TASKTYPE_DATA';
-        $this->HookManager->processEvent(TASKTYPE_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        $this->HookManager->processEvent('TASKTYPE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
-        $keyword = preg_replace('#%+#','%','%'.preg_replace('#[[:space:]]#','%',$_REQUEST[crit]).'%');
-        foreach ($this->getClass(TaskType)->databaseFields AS $field => &$val) $where[$field] = $keyword;
-        // Find data -> Push data
         $ids = $this->getClass('TaskTypeManager')->search();
-        foreach ($ids AS $i => &$id) {
-            $TaskType = $this->getClass('TaskType',$id);
-            if (!$TaskType->isValid()) {
-                unset($TaskType);
-                continue;
-            }
+        foreach ($this->getClass('TaskTypeManager')->search('',true) AS $i => &$TaskType) {
+            if (!$TaskType->isValid()) continue;
             $this->data[] = array(
-                icon=>$TaskType->get(icon),
-                id=>$TaskType->get(id),
-                name=>$TaskType->get(name),
-                access=>$TaskType->get(access),
-                args=>$TaskType->get(kernelArgs),
+                'icon'=>$TaskType->get('icon'),
+                'id'=>$TaskType->get('id'),
+                'name'=>$TaskType->get('name'),
+                'access'=>$TaskType->get('access'),
+                'args'=>$TaskType->get('kernelArgs'),
             );
+            unset($TaskType);
         }
-        unset($TaskType);
-        $this->HookManager->event[] = 'TASKTYPE_DATA';
-        $this->HookManager->processEvent(TASKTYPE_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        $this->HookManager->processEvent('TASKTYPE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -95,136 +78,125 @@ class TasktypeeditManagementPage extends FOGPage {
         );
         $accessTypes = array('both','host','group');
         $access_opt = '';
-        foreach ($accessTypes AS $i => &$type) $access_opt .= sprintf('<option value="%s"%s>%s</option>',$type,$_REQUEST[access] == $type ? ' selected' : '',ucfirst($type));
+        foreach ($accessTypes AS $i => &$type) $access_opt .= sprintf('<option value="%s"%s>%s</option>',$type,$_REQUEST['access'] == $type ? ' selected' : '',ucfirst($type));
         $fields = array(
-            _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$_REQUEST[name]),
-            _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST[description]),
-            _('Icon') => $this->getClass(TaskType)->iconlist($_REQUEST[icon]),
-            _('Kernel') => sprintf('<input type="text" name="kernel" class="smaller" value="%s"/>',$_REQUEST[kernel]),
-            _('Kernel Arguments') => sprintf('<input type="text" name="kernelargs" class="smaller" value="%s"/>',$_REQUEST[kernelargs]),
-            _('Type') => sprintf('<input type="text" name="type" class="smaller" value="%s"/>',$_REQUEST[type]),
-            _('Is Advanced') => '<input type="checkbox" name="advanced" '.(isset($_REQUEST[advanced]) ? 'checked' : '').'/>',
-            _('Accessed By') => '<select name="access">'.$access_opt.'</select>',
-            '&nbsp;'=>'<input class="smaller" type="submit" value="'._('Add').'"/>',
+            _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$_REQUEST['name']),
+            _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
+            _('Icon') => $this->getClass('TaskType')->iconlist($_REQUEST['icon']),
+            _('Kernel') => sprintf('<input type="text" name="kernel" class="smaller" value="%s"/>',$_REQUEST['kernel']),
+            _('Kernel Arguments') => sprintf('<input type="text" name="kernelargs" class="smaller" value="%s"/>',$_REQUEST['kernelargs']),
+            _('Type') => sprintf('<input type="text" name="type" class="smaller" value="%s"/>',$_REQUEST['type']),
+            _('Is Advanced') => sprintf('<input type="checkbox" name="advanced"%s>',(isset($_REQUEST['advanced']) ? ' checked' : '')),
+            _('Accessed By') => sprintf('<select name="access">%s</select>',$access_opt),
+            '&nbsp;'=> sprintf('<input class="smaller" type="submit" value="%s"/>',_('Add'))
         );
-        echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
-                field=>$field,
-                input=>$input,
+                'field'=>$field,
+                'input'=>$input,
             );
         }
         unset($input);
-        // Hook
-        $this->HookManager->event[] = 'TASKTYPE_ADD';
-        $this->HookManager->processEvent(TASKTYPE_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        $this->HookManager->processEvent('TASKTYPE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function add_post() {
         try {
-            $name = trim($_REQUEST[name]);
-            $description = trim($_REQUEST[description]);
-            $icon = trim($_REQUEST[icon]);
-            $kernel = trim($_REQUEST[kernel]);
-            $kernelargs = trim($_REQUEST[kernelargs]);
-            $type = trim($_REQUEST[type]);
-            $advanced = (int)isset($_REQUEST[advanced]);
-            $access = trim($_REQUEST[access]);
+            $name = trim($_REQUEST['name']);
+            $description = trim($_REQUEST['description']);
+            $icon = trim($_REQUEST['icon']);
+            $kernel = trim($_REQUEST['kernel']);
+            $kernelargs = trim($_REQUEST['kernelargs']);
+            $type = trim($_REQUEST['type']);
+            $advanced = (int)isset($_REQUEST['advanced']);
+            $access = trim($_REQUEST['access']);
             if (!$name) throw new Exception(_('You must enter a name'));
-            if ($this->getClass(TaskTypeManager)->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
-            $TaskType = $this->getClass(TaskType)
-                ->set(name,$name)
-                ->set(description,$description)
-                ->set(icon,$icon)
-                ->set(kernel,$kernel)
-                ->set(kernelArgs,$kernelargs)
-                ->set(type,$type)
-                ->set(isAdvanced,$advanced)
-                ->set(access,$access);
-            if ($TaskType->save()) {
-                $this->setMessage(_('Task Type added, editing'));
-                $this->redirect(sprintf('?node=%s&sub=edit&id=%s',$this->node,$TaskType->get(id)));
-            }
+            if ($this->getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
+            $TaskType = $this->getClass('TaskType')
+                ->set('name',$name)
+                ->set('description',$description)
+                ->set('icon',$icon)
+                ->set('kernel',$kernel)
+                ->set('kernelArgs',$kernelargs)
+                ->set('type',$type)
+                ->set('isAdvanced',$advanced)
+                ->set('access',$access);
+            if (!$TaskType->save()) throw new Exception(_('Failed to create'));
+            $this->setMessage(_('Task Type added, editing'));
+            $this->redirect(sprintf('?node=%s&sub=edit&id=%s',$this->node,$TaskType->get(id)));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
     }
     public function edit() {
-        // Get the Storage Node ID if it's set
-        // Title
-        $this->title = sprintf('%s: %s', 'Edit', $this->obj->get(name));
-        // Header Data
+        $this->title = sprintf('%s: %s', 'Edit', $this->obj->get('name'));
         unset($this->headerData);
-        // Attributes
         $this->attributes = array(
             array(),
             array(),
         );
-        // Templates
         $this->templates = array(
             '${field}',
             '${input}',
         );
         $accessTypes = array('both','host','group');
         $access_opt = '';
-        foreach ($accessTypes AS $i => &$type) $access_opt .= sprintf('<option value="%s"%s>%s</option>',$type,$this->obj->get(access) == $type ? ' selected' : '',ucfirst($type));
+        foreach ($accessTypes AS $i => &$type) {
+            $access_opt .= sprintf('<option value="%s"%s>%s</option>',$type,$this->obj->get('access') == $type ? ' selected' : '',ucfirst($type));
+            unset($type);
+        }
         $fields = array(
-            _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$this->obj->get(name)),
-            _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get(description)),
-            _('Icon') => sprintf('<input type="text" name="icon" class="smaller" value="%s"/>',$this->obj->get(icon)),
-            _('Icon') => $this->getClass(TaskType)->iconlist($this->obj->get(icon)),
-            _('Kernel') => sprintf('<input type="text" name="kernel" class="smaller" value="%s"/>',$this->obj->get(kernel)),
-            _('Kernel Arguments') => sprintf('<input type="text" name="kernelargs" class="smaller" value="%s"/>',$this->obj->get(kernelArgs)),
+            _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$this->obj->get('name')),
+            _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
+            _('Icon') => sprintf('<input type="text" name="icon" class="smaller" value="%s"/>',$this->obj->get('icon')),
+            _('Icon') => $this->getClass('TaskType')->iconlist($this->obj->get('icon')),
+            _('Kernel') => sprintf('<input type="text" name="kernel" class="smaller" value="%s"/>',$this->obj->get('kernel')),
+            _('Kernel Arguments') => sprintf('<input type="text" name="kernelargs" class="smaller" value="%s"/>',$this->obj->get('kernelArgs')),
             _('Type') => sprintf('<input type="text" name="type" class="smaller" value="%s"/>',$this->obj->get(type)),
-            _('Is Advanced') => '<input type="checkbox" name="advanced" '.($this->obj->get(isAdvanced) ? 'checked' : '').'/>',
-            _('Accessed By') => '<select name="access">'.$access_opt.'</select>',
-            '&nbsp;'=>'<input class="smaller" type="submit" value="'._('Update').'"/>',
+            _('Is Advanced') => sprintf('<input type="checkbox" name="advanced"%s/>',($this->obj->get('isAdvanced') ? ' checked' : '')),
+            _('Accessed By') => sprintf('<select name="access">%s</select>',$access_opt),
+            '&nbsp;' => sprintf('<input class="smaller" type="submit" value="%s"/>',_('Update')),
         );
-        echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
-                field=>$field,
-                input=>$input,
+                'field'=>$field,
+                'input'=>$input,
             );
+            unset($input);
         }
-        unset($input);
-        // Hook
-        $this->HookManager->event[] = 'TASKTYPE_EDIT';
-        $this->HookManager->processEvent(TASKTYPE_EDIT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
+        $this->HookManager->processEvent('TASKTYPE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        $this->HookManager->event[] = 'TASKTYPE_EDIT_POST';
-        $this->HookManager->processEvent(TASKTYPE_EDIT_POST,array(TaskType=>&$this->obj));
+        $this->HookManager->processEvent('TASKTYPE_EDIT_POST',array('TaskType'=>&$this->obj));
         try {
-            $name = trim($_REQUEST[name]);
-            $description = trim($_REQUEST[description]);
-            $icon = trim($_REQUEST[icon]);
-            $kernel = trim($_REQUEST[kernel]);
-            $kernelargs = trim($_REQUEST[kernelargs]);
-            $type = trim($_REQUEST[type]);
-            $advanced = (int)isset($_REQUEST[advanced]);
-            $access = trim($_REQUEST[access]);
+            $name = trim($_REQUEST['name']);
+            $description = trim($_REQUEST['description']);
+            $icon = trim($_REQUEST['icon']);
+            $kernel = trim($_REQUEST['kernel']);
+            $kernelargs = trim($_REQUEST['kernelargs']);
+            $type = trim($_REQUEST['type']);
+            $advanced = (int)isset($_REQUEST['advanced']);
+            $access = trim($_REQUEST['access']);
             if (!$name) throw new Exception(_('You must enter a name'));
-            if ($this->obj->get(name) != $name && $this->getClass(TaskTypeManager)->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
+            if ($this->obj->get('name') != $name && $this->getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
             $this->obj
-                ->set(name,$name)
-                ->set(description,$description)
-                ->set(icon,$icon)
-                ->set(kernel,$kernel)
-                ->set(kernelArgs,$kernelargs)
-                ->set(type,$type)
-                ->set(isAdvanced,$advanced)
-                ->set(access,$access);
-            if ($this->obj->save()) {
-                $this->setMessage('TaskType Updated');
-                $this->redirect('?node='.$this->node.'&sub=edit&id='.$this->obj->get(id));
-            }
+                ->set('name',$name)
+                ->set('description',$description)
+                ->set('icon',$icon)
+                ->set('kernel',$kernel)
+                ->set('kernelArgs',$kernelargs)
+                ->set('type',$type)
+                ->set('isAdvanced',$advanced)
+                ->set('access',$access);
+            if (!$this->obj->save()) throw new Exception(_('Failed to update'));
+            $this->setMessage('TaskType Updated');
+            $this->redirect($this->formAction);
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
