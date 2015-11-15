@@ -48,7 +48,7 @@ class FOGURLRequests extends FOGBase {
                 if ($username) $this->contextOptions[CURLOPT_PROXYUSERPWD] = $username.':'.$password;
             }
             unset($ProxyUsed);
-            if ($method == 'GET' && $data !== null) $url = sprintf('%s?%s',$url,http_build_query($data));
+            if ($method == 'GET' && $data !== null) $url = sprintf('%s?%s',$url,http_build_query((array)$data));
             $ch = @curl_init($url);
             $this->contextOptions[CURLOPT_URL] = $url;
             if ($auth) $this->contextOptions[CURLOPT_USERPWD] = $auth;
