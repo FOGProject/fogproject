@@ -5,4 +5,3 @@ $fog_plugin["description"] = "Location is a plugin that allows your FOG Server t
 $fog_plugin["menuicon"] = "html/images/{$fog_plugin['name']}.png";
 $fog_plugin["menuicon_hover"] = null;
 $fog_plugin["entrypoint"] = "html/run.php";
-?>

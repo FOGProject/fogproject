@@ -27,8 +27,9 @@ class LocationManager extends FOGManagerController {
         return false;
     }
     public function uninstall() {
-        if (!$this->DB->query("DROP TABLE locationAssoc")->fetch()->get()) return false;
-        else if (!$this->DB->query("DROP TABLE location")->fetch()->get()) return false;
-        return true;
+        $res = true;
+        if (!$this->DB->query("DROP TABLE locationAssoc")->fetch()->get()) $res = false;
+        else if (!$this->DB->query("DROP TABLE location")->fetch()->get()) $res = false;
+        return $res;
     }
 }
