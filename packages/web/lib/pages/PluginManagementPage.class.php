@@ -12,19 +12,16 @@ class PluginManagementPage extends FOGPage {
             'installed'=>$this->foglang['InstalledPlugins'],
         );
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
-        // Header row
         $this->headerData = array(
             _('Plugin Name'),
             _('Description'),
             _('Location'),
         );
-        //Row templates
         $this->templates = array(
-            '<a href="?node=plugin&sub=${type}&run=${encname}&${type}=${encname}" title="Plugin: ${name}"><img alt="${name}" src="${icon}"/><br/><small>${name}</small></a>',
+            '<a href="?node=plugin&sub=${type}&run=${encname}&${type}=${encname}" class="icon" title="Plugin: ${name}"><img alt="${name}" src="${icon}"/><br/><small>${name}</small></a>',
             '${desc}',
             '${location}',
         );
-        //Row attributes
         $this->attributes = array(
             array(),
             array(),
@@ -36,31 +33,25 @@ class PluginManagementPage extends FOGPage {
             array_push($this->attributes,array('class'=>'c filter-false'));
         }
     }
-    // Pages
     public function index() {
-        // Set title
         $this->title = $this->name;
     }
     public function activate() {
-        // Set title
         $this->title = _('Activate Plugins');
-        // Find data
         foreach ((array)$this->getClass('Plugin')->getPlugins() AS $i => &$Plugin) {
             if ($Plugin->isActive()) continue;
-                $this->data[] = array(
-                    'name'=>$Plugin->getName(),
-                    'type'=>'activate',
-                    'encname'=>trim(md5(trim($Plugin->getName()))),
-                    'location'=>$Plugin->getPath(),
-                    'desc'=>$Plugin->getDesc(),
-                    'icon'=>$Plugin->getIcon(),
-                );
+            $this->data[] = array(
+                'name'=>$Plugin->getName(),
+                'type'=>'activate',
+                'encname'=>trim(md5(trim($Plugin->getName()))),
+                'location'=>$Plugin->getPath(),
+                'desc'=>$Plugin->getDesc(),
+                'icon'=>$Plugin->getIcon(),
+            );
+            //unset($Plugin);
         }
-        //Hook
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        // Output
         $this->render();
-        // Activate plugin if it's not already!
         if (!empty($_REQUEST['activate']) && $_REQUEST['sub'] == 'activate') {
             $Plugin->activatePlugin($_REQUEST['activate']);
             $this->setMessage('Successfully added Plugin!');
@@ -88,7 +79,7 @@ class PluginManagementPage extends FOGPage {
         $this->render();
         if ($_REQUEST['run']) {
             $runner = $Plugin->getRunInclude($_REQUEST['run']);
-            if (file_exists($runner) && $Plugin->isInstalled()) require_once($runner);
+            if (file_exists($runner) && $Plugin->isInstalled()) require($runner);
             else $this->run();
         }
         unset($Plugin);
@@ -110,13 +101,11 @@ class PluginManagementPage extends FOGPage {
                 );
             }
         }
-        //Hook
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        // Output
         $this->render();
         if ($_REQUEST['run']) {
             $runner = $Plugin->getRunInclude($_REQUEST['run']);
-            if (file_exists($runner) && $Plugin->isInstalled()) require_once($runner);
+            if (file_exists($runner) && $Plugin->isInstalled()) require($runner);
             else $this->run();
         }
     }
@@ -125,123 +114,136 @@ class PluginManagementPage extends FOGPage {
         try {
             if ($plugin == null) throw new Exception('Unable to determine plugin details.');
             $this->title = _('Plugin').': '.$plugin->getName();
-            echo '<p>'._('Plugin Description').': '.$plugin->getDesc().'</p>';
-            if ($plugin->isInstalled() && $plugin->getName() == 'capone') {
-                $dmiFields = array(
-                    "bios-vendor",
-                    "bios-version",
-                    "bios-release-date",
-                    "system-manufacturer",
-                    "system-product-name",
-                    "system-version",
-                    "system-serial-number",
-                    "system-uuid",
-                    "baseboard-manufacturer",
-                    "baseboard-product-name",
-                    "baseboard-version",
-                    "baseboard-serial-number",
-                    "baseboard-asset-tag",
-                    "chassis-manufacturer",
-                    "chassis-type",
-                    "chassis-version",
-                    "chassis-serial-number",
-                    "chassis-asset-tag",
-                    "processor-family",
-                    "processor-manufacturer",
-                    "processor-version",
-                    "processor-frequency",
-                );
-                echo '<p class="titleBottomLeft">'._('Settings').'</p>';
-                unset($this->headerData,$this->data);
-                $this->templates = array(
-                    '${field}',
-                    '${input}',
-                );
-                $this->attributes = array(
-                    array(),
-                    array(),
-                );
-                foreach ((array)$dmiFields AS $i => &$dmifield) {
-                    $checked = $this->getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? 'selected="selected"' : '';
-                    $dmiOpts[] = '<option value="'.$dmifield.'" label="'.$dmifield.'" '.$checked.'>'.$dmifield.'</option>';
-                }
-                unset($dmifield);
-                $ShutdownFields = array(
-                    _('Reboot after deploy'),
-                    _('Shutdown after deploy'),
-                );
-                $shutOpts[] = '<option value="0" '.(!$this->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? 'selected="selected"' : ''). '>'._('Reboot after deploy').'</option>';
-                $shutOpts[] = '<option value="1" '.($this->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? 'selected="selected"' : ''). '>'._('Shutdown after deploy').'</option>';
-                $fields = array(
-                    _('DMI Field').':' => '<select name="dmifield" size="1"><option value="">- '._('Please select an option').' -</option>'.implode($dmiOpts).'</select>',
-                    _('Shutdown').':' => '<select name="shutdown" size="1"><option value="">- '._('Please select an option').' -</option>'.implode($shutOpts).'</select>',
-                    '<input type="hidden" name="basics" value="1" />' => '<input style="margin-top: 7px;" type="submit" value="'._('Update Settings').'" />',
-                );
-                foreach ((array)$fields AS $field => &$input) {
-                    $this->data[] = array(
-                        'field'=>$field,
-                        'input'=>$input,
+            printf('<p>%s: %s</p>',_('Plugin Description'),$plugin->getDesc());
+            switch ($plugin->isInstalled()) {
+            case true:
+                switch (strtolower($plugin->getName())) {
+                case 'capone':
+                    $dmiFields = array(
+                        "bios-vendor",
+                        "bios-version",
+                        "bios-release-date",
+                        "system-manufacturer",
+                        "system-product-name",
+                        "system-version",
+                        "system-serial-number",
+                        "system-uuid",
+                        "baseboard-manufacturer",
+                        "baseboard-product-name",
+                        "baseboard-version",
+                        "baseboard-serial-number",
+                        "baseboard-asset-tag",
+                        "chassis-manufacturer",
+                        "chassis-type",
+                        "chassis-version",
+                        "chassis-serial-number",
+                        "chassis-asset-tag",
+                        "processor-family",
+                        "processor-manufacturer",
+                        "processor-version",
+                        "processor-frequency",
                     );
-                }
-                unset($input);
-                echo '<form method="post" action="'.$this->formAction.'">';
-                $this->render();
-                echo '</form>';
-                unset($this->headerData,$this->data,$fields);
-                echo '<p class="titleBottomLeft">'._('Add Image to DMI Associations').'</p>';
-                $fields = array(
-                    _('Image Definition').':' => $this->getClass('ImageManager')->buildSelectBox(),
-                    _('DMI Result').':' => '<input type="text" name="key" />',
-                    '<input type="hidden" name="addass" value="1" />' => '<input type="submit" style="margin-top: 7px;" value="'._('Add Association').'" />',
-                );
-                foreach ((array)$fields AS $field => &$input) {
-                    $this->data[] = array(
-                        'field' => $field,
-                        'input' => $input,
+                    printf('<p class="titleBottomLeft">%s</p>',_('Settings'));
+                    unset($this->headerData,$this->data);
+                    $this->templates = array(
+                        '${field}',
+                        '${input}',
                     );
-                }
-                unset($input);
-                echo '<form method="post" action="'.$this->formAction.'">';
-                $this->render();
-                echo '</form>';
-                unset($this->headerData,$this->data,$fields);
-                echo '<p class="titleBottomLeft">'._('Current Image to DMI Associations').'</p>';
-                $this->headerData = array(
-                    _('Image Name'),
-                    _('OS Name'),
-                    _('DMI Key'),
-                    _('Clear'),
-                );
-                $this->templates = array(
-                    '${image_name}',
-                    '${os_name}',
-                    '${capone_key}',
-                    '<input type="checkbox" name="kill" value="${capone_id}" class="delid" onclick="this.form.submit()" id="rmcap${capone_id}" /><label for="rmcap${capone_id}"><i class="icon icon-hand fa fa-minus-circle fa-1x" title="'._('Delete').'"></i></label>',
-                );
-                $this->attributes = array(
-                    array(),
-                    array(),
-                    array(),
-                    array('class'=>'filter-false'),
-                );
-                foreach ((array)$this->getClass('CaponeManager')->find() AS $i => &$Capone) {
-                    $Image = $this->getClass('Image',$Capone->get('imageID'));
-                    $OS = $Image->getOS();
-                    $this->data[] = array(
-                        'image_name'=>$Image->get('name'),
-                        'os_name'=>$OS->get('name'),
-                        'capone_key'=>$Capone->get('key'),
-                        'link'=>$this->formAction.'&kill=${capone_id}',
-                        'capone_id'=>$Capone->get('id'),
+                    $this->attributes = array(
+                        array(),
+                        array(),
                     );
+                    ob_start();
+                    foreach ((array)$dmiFields AS $i => &$dmifield) {
+                        $checked = $this->getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? ' selected' : '';
+                        printf('<option value="%s" label="%s"%s>%s</option>',$dmifield,$dmifield,$checked,$dmifield);
+                        unset($dmifield);
+                    }
+                    $dmiOpts = ob_get_clean();
+                    $ShutdownFields = array(
+                        _('Reboot after deploy'),
+                        _('Shutdown after deploy'),
+                    );
+                    ob_start();
+                    printf('<option value="0"%s>%s</option>',(!$this->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''),_('Reboot after deploy'));
+                    printf('<option value="1"%s>%s</option>',($this->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''),_('Shutdown after deploy'));
+                    $shutOpts = ob_get_clean();
+                    $fields = array(
+                        sprintf('%s:',_('DMI Field')) => sprintf('<select name="dmifield" size="1"><option value="">- %s -</option>%s</select>',_('Please select an option'),$dmiOpts),
+                        sprintf('%s:',_('Shutdown')) => sprintf('<select name="shutdown" size="1"><option value="">- %s -</option>%s</select>',_('Please select an option'),$shutOpts),
+                        '&nbsp;' => sprintf('<input style="margin-top: 7px;" type="submit" name="basics" value="%s"/>',_('Update Settings')),
+                    );
+                    foreach ((array)$fields AS $field => &$input) {
+                        $this->data[] = array(
+                            'field'=>$field,
+                            'input'=>$input,
+                        );
+                        unset($input);
+                    }
+                    printf('<form method="post" action="%s">',$this->formAction);
+                    $this->render();
+                    echo '</form>';
+                    unset($this->headerData,$this->data,$fields);
+                    printf('<p class="titleBottomLeft">%s</p>',_('Add Image to DMI Associations'));
+                    $fields = array(
+                        sprintf('%s:',_('Image Definition')) => $this->getClass('ImageManager')->buildSelectBox(),
+                        sprintf('%s:',_('DMI Result')) => '<input type="text" name="key" />',
+                        '&nbps;' => sprintf('<input type="submit" style="margin-top: 7px;" name="addass" value="%s"/>',_('Add Association')),
+                    );
+                    foreach ((array)$fields AS $field => &$input) {
+                        $this->data[] = array(
+                            'field' => $field,
+                            'input' => $input,
+                        );
+                        unset($input);
+                    }
+                    printf('<form method="post" action="%s">',$this->formAction);
+                    $this->render();
+                    echo '</form>';
+                    unset($this->headerData,$this->data,$fields);
+                    printf('<p class="titleBottomLeft">%s</p>',_('Current Image to DMI Associations'));
+                    $this->headerData = array(
+                        _('Image Name'),
+                        _('OS Name'),
+                        _('DMI Key'),
+                        _('Clear'),
+                    );
+                    $this->templates = array(
+                        '${image_name}',
+                        '${os_name}',
+                        '${capone_key}',
+                        sprintf('<input type="checkbox" name="kill" value="${capone_id}" class="delid" onclick="this.form.submit()" id="rmcap${capone_id}" /><label for="rmcap${capone_id}"><i class="icon icon-hand fa fa-minus-circle fa-1x" title="%s"></i></label>',_('Delete')),
+                    );
+                    $this->attributes = array(
+                        array(),
+                        array(),
+                        array(),
+                        array('class'=>'filter-false'),
+                    );
+                    foreach ((array)$this->getClass('CaponeManager')->find() AS $i => &$Capone) {
+                        $Image = $this->getClass('Image',$Capone->get('imageID'));
+                        if (!$Image->isValid()) continue;
+                        $OS = $Image->getOS();
+                        if (!$OS->isValid()) continue;
+                        $this->data[] = array(
+                            'image_name'=>$Image->get('name'),
+                            'os_name'=>$OS->get('name'),
+                            'capone_key'=>$Capone->get('key'),
+                            'link'=>$this->formAction.'&kill=${capone_id}',
+                            'capone_id'=>$Capone->get('id'),
+                        );
+                        unset($Capone,$Image,$OS);
+                    }
+                    printf('<form method="post" action="%s">',$this->formAction);
+                    $this->render();
+                    echo '</form>';
+                    unset($this->headerData,$this->data,$fields);
+                    break;
                 }
-                unset($Capone);
-                echo '<form method="post" action="'.$this->formAction.'">';
-                $this->render();
-                echo '</form>';
-            } else if ($plugin->isInstalled() && !$plugin->getName() == 'capone') $this->setMessage(_('Already installed!'));
-            else if (!$plugin->isInstalled()) {
-                echo '<p class="titleBottomLeft">'._('Plugin Installation').'</p><p>'._('This plugin is currently not installed, would you like to install it now?').'</p><div><form method="post" action="'.$this->formAction.'"><input type="submit" value="Install Plugin" name="install" /></form></div>';
+                break;
+                case false:
+                    printf('<p class="titleBottomLeft">%s</p><p>%s</p><div><form method="post" action="%s"><input type="submit" value="Install Plugin" name="install"/></form></div>',_('Plugin Installation'),_('This plugin is currently not installed, would you like to install it now?'),$this->formAction);
+                    break;
             }
         } catch (Exception $e) {
             echo $this->setMessage($e->getMessage());
@@ -252,25 +254,27 @@ class PluginManagementPage extends FOGPage {
         $this->getClass('Plugin')->getRunInclude($_REQUEST['run']);
         $plugin = unserialize($_SESSION['fogactiveplugin']);
         if (isset($_REQUEST['install'])) {
-            if($this->getClass(ucfirst($plugin->getName()).'Manager')->install($plugin->getName())) {
-                $Plugin = $this->getClass(PluginManager)->find(array(name=>$plugin->getName()));
-                $Plugin = @array_shift($Plugin);
-                if ($Plugin->isValid()) {
+            if($this->getClass(sprintf('%sManager',ucfirst($plugin->getName())))->install($plugin->getName())) {
+                $Plugin = $this->getClass('PluginManager')->find(array('name'=>$plugin->getName()));
+                foreach ((array)$this->getClass('PluginManager')->find(array('name'=>$plugin->getName())) AS $i => &$Plugin) {
+                    if (!$Plugin->isValid()) continue;
                     $Plugin
-                        ->set(installed,1)
-                        ->set(version,1);
-                    if (!$Plugin->save()) $this->setMessage(_('Plugin Install Failed!'));
-                    else $this->setMessage(_('Plugin Installed!'));
+                        ->set('installed',1)
+                        ->set('version',1);
+                    if (!$Plugin->save()) {
+                        $this->setMessage(_('Plugin Install Failed!'));
+                        break;
+                    }
+                    $this->setMessage(_('Plugin Installed!'));
                 }
             }
             if ($_REQUEST['sub'] == 'install') $_REQUEST['sub'] = 'installed';
-            $this->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&run='.$_REQUEST[run]);
+            $this->redirect(sprintf('?node=%s&sub=%s&run=%s',$_REQUEST['node'],$_REQUEST['sub'],$_REQUEST['run']));
         }
-        if ($_REQUEST['basics']) {
+        if (isset($_REQUEST['basics'])) {
             $this->setSetting('FOG_PLUGIN_CAPONE_DMI',$_REQUEST['dmifield']);
             $this->setSetting('FOG_PLUGIN_CAPONE_SHUTDOWN',$_REQUEST['shutdown']);
-        }
-        if ($_REQUEST['addass']) {
+        } else if (isset($_REQUEST['addass'])) {
             $this->getClass('Capone')
                 ->set('imageID',$_REQUEST['image'])
                 ->set('osID',$this->getClass('Image',$_REQUEST['image'])->getOS()->get('id'))
@@ -286,7 +290,7 @@ class PluginManagementPage extends FOGPage {
         $Plugin->getManager()->uninstall();
         if ($Plugin->destroy()) {
             $this->setMessage('Plugin Removed');
-            $this->redirect('?node='.$_REQUEST['node'].'&sub=activate');
+            $this->redirect(sprintf('?node=%s&sub=activate',$_REQUEST['node']));
         }
     }
 }
