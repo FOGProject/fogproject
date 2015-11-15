@@ -12,7 +12,8 @@ class RemoveUpload extends Hook {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$this->FOGUser->isValid()) return;
         if (!in_array($this->FOGUser->get('type'),array(2))) return;
-        if ($_REQUEST['node'] == 'tasks' && $_REQUEST['sub'] == 'listhosts') unset($arguments['headerData'][3],$arguments['templates'][3]);
+        if (!($_REQUEST['node'] == 'tasks' && $_REQUEST['sub'] == 'listhosts')) return;
+        unset($arguments['headerData'][3],$arguments['templates'][3]);
     }
     public function EditTasks($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
@@ -27,8 +28,8 @@ class RemoveUpload extends Hook {
         if (!in_array($this->FOGUser->get('type'),array(2))) return;
         $i = 0;
         foreach($arguments['submenu'][$_REQUEST['node']]['id'] AS $link => &$info) {
-            if (in_array($i,array(0,5,10,3))) unset($arguments['submenu'][$_REQUEST['node']]['id'][$link]);
-            $i++;
+            if (!in_array($i++,array(0,5,10,3))) continue;
+            unset($arguments['submenu'][$_REQUEST['node']]['id'][$link]);
         }
         unset($info);
     }

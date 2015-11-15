@@ -35,7 +35,7 @@ abstract class FOGPage extends FOGBase {
                 $this->obj = $this->getClass($this->childClass,$_REQUEST['id']);
                 if (intval($_REQUEST['id']) === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
                     unset($this->obj);
-                        $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
+                    $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
                     $this->redirect(sprintf('?node=%s',$this->node));
                 }
             }

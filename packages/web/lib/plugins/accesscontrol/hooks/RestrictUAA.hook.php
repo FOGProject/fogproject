@@ -15,9 +15,10 @@ class RestrictUAA extends Hook {
         if (!$this->FOGUser->isValid()) return;
         if (!in_array($this->FOGUser->get('type'),array(2))) return;
         foreach ($arguments['data'] AS $i => &$data) {
-            if($arguments['data'][$i]['name'] != $this->FOGUser->get('name')) unset($arguments['data'][$i]);
+            if ($data['name'] == $_SESSION['FOG_USERNAME']) continue;
+            unset($arguments['data'][$i]);
+            unset($data);
         }
-        unset($data);
     }
     public function RemoveName($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
@@ -31,9 +32,8 @@ class RestrictUAA extends Hook {
         if (!$this->FOGUser->isValid()) return;
         if (!in_array($this->FOGUser->get('type'),array(2))) return;
         foreach($arguments['submenu'] AS $node => &$link) {
-            if (in_array($node,(array)$this->linksToFilter)) {
-                unset($arguments['submenu'][$node]['add']);
-            }
+            if (!in_array($node,(array)$this->linksToFilter)) continue;
+            unset($arguments['submenu'][$node]['add']);
         }
         unset($link);
     }

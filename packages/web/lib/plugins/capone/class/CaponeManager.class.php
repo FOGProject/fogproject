@@ -10,7 +10,7 @@ class CaponeManager extends FOGManagerController {
         INDEX new_index (cImageID),
         INDEX new_index2 (cKey))
         ENGINE = MyISAM";
-        if ($this->DB->query($sql)) {
+        if ($this->DB->query($sql)->fetch()->get()) {
             $category = sprintf('Plugin: %s',$name);
             $this->getClass('Service')
                 ->set('name','FOG_PLUGIN_CAPONE_DMI')
@@ -36,7 +36,7 @@ class CaponeManager extends FOGManagerController {
     }
     public function uninstall() {
         $res = true;
-        if (!$this->DB->query("DROP TABLE capone")) $res = false;
+        if (!$this->DB->query("DROP TABLE capone")->fetch()->get()) $res = false;
         if (!$this->getClass('ServiceManager')->destroy(array('name'=> 'FOG_PLUGIN_CAPONE_%'))) $res = false;
         if (!$this->getClass('PXEMenuOptionsManager')->destroy(array('name' => 'fog.capone'))) $res = false;
         return $res;

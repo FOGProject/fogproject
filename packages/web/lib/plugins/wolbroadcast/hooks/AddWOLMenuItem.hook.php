@@ -24,4 +24,4 @@ class AddWOLMenuItem extends Hook {
 $AddWOLMenuItem = new AddWOLMenuItem();
 $HookManager->register('MAIN_MENU_DATA', array($AddWOLMenuItem, 'MenuData'));
 $HookManager->register('SEARCH_PAGES', array($AddWOLMenuItem, 'addSearch'));
-$HookManager->register('PAGES_WITH_OBJECTS', array($AddMenuNotesItems, 'addPageWithObject'));
+$HookManager->register('PAGES_WITH_OBJECTS', array($AddWOLMenuItem, 'addPageWithObject'));

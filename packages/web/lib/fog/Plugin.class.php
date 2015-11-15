@@ -42,49 +42,48 @@ class Plugin extends FOGController {
     }
     private function getDirs() {
         $dir = trim($this->getSetting('FOG_PLUGINSYS_DIR'));
-        // For now, automatically sets the plugin directory.  Should not be moved though so classes work properly.
         if ($dir != '../lib/plugins/') $this->setSetting('FOG_PLUGINSYS_DIR','../lib/plugins/');
         $dir='../lib/plugins/';
-        $handle=opendir($dir);
-        while(false !== ($file=readdir($handle))) {
-            if(file_exists($dir.$file.'/config/plugin.config.php')) $files[] = $dir.$file.'/';
+        $handle = opendir($dir);
+        while (false !== ($file = readdir($handle))) {
+            if(file_exists(sprintf('%s%s/config/plugin.config.php',$dir,$file))) $files[] = sprintf('%s%s/',$dir,$file);
         }
         closedir($handle);
         return $files;
     }
     public function getPlugins() {
         $cfgfile = 'plugin.config.php';
-        $Dirs = $this->getDirs();
-        foreach($Dirs AS $i => &$file) {
-            require(rtrim($file,'/').'/config/'.$cfgfile);
+        foreach ((array)$this->getDirs() AS $i => &$file) {
+            require(sprintf('%s/config/%s',rtrim($file,'/'),$cfgfile));
             $p = $this->getClass('Plugin',array('name'=>$fog_plugin['name']));
             $p->strPath = $file;
             $p->strName = $fog_plugin['name'];
             $p->strDesc = $fog_plugin['description'];
-            $p->strEntryPoint = $file.$fog_plugin['entrypoint'];
-            $p->strIcon = $file.$fog_plugin['menuicon'];
-            $p->strIconHover = $file.$fog_plugin['menuicon_hover'];
+            $p->strEntryPoint = sprintf('%s%s',$file,$fog_plugin['entrypoint']);
+            $p->strIcon = sprintf('%s%s',$file,$fog_plugin['menuicon']);
+            $p->strIconHover = sprintf('%s%s',$file,$fog_plugin['menuicon_hover']);
             $arPlugs[] = $p;
+            unset($file);
         }
-        unset($file);
+        unset($cfgfile);
         return $arPlugs;
     }
     public function activatePlugin($plugincode) {
+        $this->debug = true;
         $Plugins = $this->getPlugins();
-        foreach($Plugins AS $i => &$Plugin) {
-            if(trim(md5(trim($Plugin->getName()))) == trim($plugincode)) {
-                $this->set('state',1)
-                    ->set('installed',0)
-                    ->set('name',$Plugin->getName())
-                    ->save();
-            }
+        foreach ((array)$this->getPlugins() AS $i => &$Plugin) {
+            if (trim(md5(trim($Plugin->getName()))) != trim($plugincode)) continue;
+            $Plugin->set('state',1)
+                ->set('installed',0)
+                ->set('name',$Plugin->getName())
+                ->save();
+            unset($Plugin);
         }
-        unset($Plugin);
         return $this;
     }
     public function getManager() {
-        if (!class_exists(ucfirst($this->get('name')).'Manager')) return parent::getManager();
-        return $this->getClass(ucfirst($this->get('name')).'Manager');
+        if (!class_exists(sprintf('%sManager',ucfirst($this->get('name'))))) return parent::getManager();
+        return $this->getClass(sprintf('%sManager',ucfirst($this->get('name'))));
     }
     public function getPath() {
         return $this->strPath;

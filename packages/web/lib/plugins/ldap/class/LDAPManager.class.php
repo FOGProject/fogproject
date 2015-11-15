@@ -13,11 +13,9 @@ class LDAPManager extends FOGManagerController {
             PRIMARY KEY(lsID),
         KEY new_index (lsName))
         ENGINE = MyISAM";
-        if ($this->DB->query($sql)) return true;
-        return false;
+        return $this->DB->query($query)->fetch()->get();
     }
     public function uninstall() {
-        if (!$this->DB->query("DROP TABLE LDAPServers")) return false;
-        return true;
+        return $this->DB->query("DROP TABLE LDAPServers")->fetch()->get();
     }
 }

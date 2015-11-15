@@ -55,7 +55,6 @@ class LDAPManagementPage extends FOGPage {
         $this->render();
     }
     public function search_post() {
-        $ids = $this->getClass('LDAPManager')->search();
         foreach ($this->getClass('LDAPManager')->search('',true) AS $i => &$LDAP) {
             if (!$LDAP->isValid()) continue;
             $this->data[] = array(
