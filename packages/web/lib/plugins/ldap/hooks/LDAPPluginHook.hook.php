@@ -13,25 +13,22 @@ class LDAPPluginHook extends Hook {
         $password = $arguments['password'];
         $User = $arguments['User'];
         if ($User instanceof User && $User->isValid()) return;
-        $LDAPs = $this->getClass('LDAPManager')->find();
-        foreach($LDAPs AS $i => &$LDAP) {
+        foreach($this->getClass('LDAPManager')->find() AS $i => &$LDAP) {
             $User = $this->getClass('UserManager')->find(array('name'=>$username));
             $User = @array_shift($User);
-            if ($LDAP->authLDAP($username,$password)) {
-                if ($User instanceof User && $User->isValid()) $User->set('password',$password);
-                else {
-                    $noUser = true;
-                    $User = $this->getClass('User')
-                        ->set('name',$username)
-                        ->set('type',1)
-                        ->set('password',md5($password));
-                }
-                if (!$User->save()) throw new Exception('User create/update failed');
-                $arguments['User'] = $User;
-                break;
+            if (!$LDAP->authLDAP($username,$password)) continue;
+            if ($User instanceof User && $User->isValid()) $User->set('password',$password);
+            else {
+                $User = $this->getClass('User')
+                    ->set('name',$username)
+                    ->set('type',1)
+                    ->set('password',md5($password));
             }
+            if (!$User->save()) throw new Exception('User create/update failed');
+            $arguments['User'] = $User;
+            unset($LDAP);
+            break;
         }
-        unset($LDAP);
     }
 }
 $LDAPPluginHook = new LDAPPluginHook();
