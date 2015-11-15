@@ -71,31 +71,29 @@ class FOGConfigurationPage extends FOGPage {
             switch ($_REQUEST['kernelsel']) {
             case 'pk':
                 $this->kernelselForm('pk');
-                $htmlData = $this->FOGURLRequests->process("https://fogproject.org/kernels/kernelupdate.php?version=" . FOG_VERSION,'GET');
+                $htmlData = $this->FOGURLRequests->process(sprintf("https://fogproject.org/kernels/kernelupdate.php?version=%s",FOG_VERSION),'GET');
                 echo $htmlData[0];
                 break;
             case 'ok':
                 $this->kernelselForm('ok');
-                $htmlData = $this->FOGURLRequests->process("http://freeghost.sourceforge.net/kernelupdates/index.php?version=".FOG_VERSION,'GET');
+                $htmlData = $this->FOGURLRequests->process(sprintf("http://freeghost.sourceforge.net/kernelupdates/index.php?version=%s",FOG_VERSION),'GET');
                 echo $htmlData[0];
                 break;
             default:
                 $this->kernelselForm('pk');
-                $htmlData = $this->FOGURRequests->process('https://fogproject.org/kernels/kernelupdate.php?version='.FOG_VERSION,'GET');
+                $htmlData = $this->FOGURRequests->process(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),'GET');
                 echo $htmlData[0];
                 break;
             }
         } else if ($_REQUEST['install']) {
             $_SESSION['allow_ajax_kdl'] = true;
             $_SESSION['dest-kernel-file'] = trim($_REQUEST['dstName']);
-            $_SESSION['tmp-kernel-file'] = rtrim(sys_get_temp_dir(),'/').'/'.basename($_SESSION['dest-kernel-file']);
+            $_SESSION['tmp-kernel-file'] = sprintf('%s%s%s%s',DIRECTORY_SEPARATOR,trim(sys_get_temp_dir(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,basename($_SESSION['dest-kernel-file']));
             $_SESSION['dl-kernel-file'] = base64_decode($_REQUEST['file']);
             if (file_exists($_SESSION['tmp-kernel-file'])) @unlink($_SESSION['tmp-kernel-file']);
-            echo '<div id="kdlRes"><p id="currentdlstate">'._('Starting process...').'</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>';
+            printf('<div id="kdlRes"><p id="currentdlstate">%s</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>',_('Starting process...'));
         } else {
-            echo '<form method="post" action="?node='.$_REQUEST['node'].'&sub=kernel&install=1&file='.$_REQUEST['file'].'">';
-            echo "<p>"._('New Kernel name:').'<input class="smaller" type="text" name="dstName" value="'.($_REQUEST['arch'] == 64 || !$_REQUEST['arch'] ? 'bzImage' : 'bzImage32').'" /></p>';
-            echo '<p><input class="smaller" type="submit" value="Next" /></p></form>';
+            printf('<form method="post" action="?node=%s&sub=kernel&install=1&file=%s"><p>%s: <input class="smaller" type="text" name="dstName" value="%s"/></p><p><input class="smaller" type="submit" value="%s"/></p></form>',$this->node,basename($_REQUEST['file']),_('Kernel Name'),($_REQUEST['arch'] == 64 || !$_REQUEST['arch'] ? 'bzImage' : 'bzImage32'),_('Next'));
         }
     }
     public function pxemenu() {
@@ -109,28 +107,27 @@ class FOGConfigurationPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $noMenu = $this->getSetting('FOG_NO_MENU') ? 'checked' : '';
-        $hidChecked = ($this->getSetting('FOG_PXE_MENU_HIDDEN') ? 'checked' : '');
+        $noMenu = $this->getSetting('FOG_NO_MENU') ? ' checked' : '';
+        $hidChecked = ($this->getSetting('FOG_PXE_MENU_HIDDEN') ? ' checked' : '');
         $hideTimeout = $this->getSetting('FOG_PXE_HIDDENMENU_TIMEOUT');
         $timeout = $this->getSetting('FOG_PXE_MENU_TIMEOUT');
         $bootKeys = $this->getClass('KeySequenceManager')->buildSelectBox($this->getSetting('FOG_KEY_SEQUENCE'));
-        $advLogin = ($this->getSetting('FOG_ADVANCED_MENU_LOGIN') ? 'checked' : '');
+        $advLogin = ($this->getSetting('FOG_ADVANCED_MENU_LOGIN') ? ' checked' : '');
         $advanced = $this->getSetting('FOG_PXE_ADVANCED');
         $exitNorm = Service::buildExitSelector('bootTypeExit',$this->getSetting('FOG_BOOT_EXIT_TYPE'));
         $exitEfi = Service::buildExitSelector('efiBootTypeExit',$this->getSetting('FOG_EFI_BOOT_EXIT_TYPE'));
         $fields = array(
-            _('No Menu') => '<input type="checkbox" name="nomenu" value="1" '.$noMenu.'/><i class="icon fa fa-question hand" title="Option sets if there will even be the presence of a menu to the client systems.  If there is not a task set, it boots to the first device, if there is a task, it performs that task."></i>',
-            _('Hide Menu') => '<input type="checkbox" name="hidemenu" value="1" '.$hidChecked.'/><i class="icon fa fa-question hand" title="Option below sets the key sequence.  If none is specified, ESC is defaulted. Login with the FOG credentials and you will see the menu.  Otherwise it will just boot like normal."></i>',
-            _('Hide Menu Timeout') => '<input type="text" name="hidetimeout" value="'.$hideTimeout.'" /><i class="icon fa fa-question hand" title="Option specifies the timeout value for the hidden menu system."></i>',
-            _('Advanced Menu Login') => '<input type="checkbox" name="advmenulogin" value="1" '.$advLogin.'/><i class="icon fa fa-question hand" title="Option below enforces a Login system for the Advanced menu parameters.  If off no login will appear, if on, it will only allow login to the advanced system.."></i>',
+            _('No Menu') => sprintf('<input type="checkbox" name="nomenu" value="1"%s/><i class="icon fa fa-question hand" title="%s"></i>',$noMenu,_('Option sets if there will even be the presence of a menu to the client systems. If there is not a task set, it boots to the first device, if there is a task, it performs that task.')),
+            _('Hide Menu') => sprintf('<input type="checkbox" name="hidemenu" value="1"%s/><i class="icon fa fa-question hand" title="%s"></i>',$hidChecked,_('Option below sets the key sequence. If none is specified, ESC is defaulted. Login with the FOG Credentials and you will see the menu. Otherwise it will just boot like normal.')),
+            _('Hide Menu Timeout') => sprintf('<input type="text" name="hidetimeout" value="%s"/><i class="icon fa fa-question hand" title="%s"></i>',$hideTimeout,_('Option specifies the timeout value for the hidden menu system')),
+            _('Advanced Menu Login') => sprintf('<input type="checkbox" name="advmenulogin" value="1"%s/><i class="icon fa fa-question hand" title="%s"></i>',$advLogin,_('Option below enforces a Login system for the Advanced menu parameters. If off, no login will appear, if on, it will ony allow login to the advanced system.')),
             _('Boot Key Sequence') => $bootKeys,
-            _('Menu Timeout (in seconds)').':*' => '<input type="text" name="timeout" value="'.$timeout.'" id="timeout" />',
+            sprintf('%s:*',_('Menu Timeout (in seconds)')) => sprintf('<input type="text" name="timeout" value="%s" id="timeout"/>',$timeout),
             _('Exit to Hard Drive Type') => $exitNorm,
             _('Exit to Hard Drive Type(EFI)') => $exitEfi,
-            '<a href="#" onload="$(\'#advancedTextArea\').hide();" onclick="$(\'#advancedTextArea\').toggle();" id="pxeAdvancedLink">Advanced Configuration Options</a>' => '<div id="advancedTextArea" class="hidden"><div class="lighterText tabbed">Add any custom text you would like included added as part of your <i>default</i> file.</div><textarea rows="5" cols="40" name="adv">'.$advanced.'</textarea></div>',
-            '&nbsp;' => '<input type="submit" value="'._('Save PXE MENU').'" />',
+            '<a href="#" onload="$(\'#advancedTextArea\').hide();" onclick="$(\'#advancedTextArea\').toggle();" id="pxeAdvancedLink">Advanced Configuration Options</a>' => sprintf('<div id="advancedTextArea" class="hidden"><div class="lighterText tabbed">%s</div><textarea rows="5" cols="40" name="adv">%s</textarea></div>',_('Add any custom text you would like included added as a part of your <i>default</i> file.'),$advanced),
+            '&nbsp;' => sprintf('<input type="submit" value="%s"/>',_('Save PXE MENU')),
         );
-        echo '<form method="post" action="'.$this->formAction.'">';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
@@ -140,6 +137,7 @@ class FOGConfigurationPage extends FOGPage {
         }
         unset($fields);
         $this->HookManager->processEvent('PXE_BOOT_MENU',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
@@ -171,8 +169,7 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function customize_edit() {
         $this->title = $this->foglang['PXEMenuCustomization'];
-        echo '<p>'._('This item allows you to edit all of the PXE Menu items as you see fit.  Mind you, iPXE syntax is very finicky when it comes to edits.  If you need help understanding what items are needed, please see the forums.  You can also look at ipxe.org for syntactic usage and methods.  Some of the items here are bound to limitations.  Documentation will follow when enough time is provided.').'</p>';
-        echo '<div id="tab-container-1">';
+        printf('<p>%s</p><div id="tab-container-1">',_('This item allows you to edit all of the PXE Menu items as you see fit.  Mind you, iPXE syntax is very finicky when it comes to edits.  If you need help understanding what items are needed, please see the forums.  You can also look at ipxe.org for syntactic usage and methods.  Some of the items here are bound to limitations.  Documentation will follow when enough time is provided.'));
         $this->templates = array(
             '${field}',
             '${input}',
@@ -180,20 +177,18 @@ class FOGConfigurationPage extends FOGPage {
         foreach ((array)$this->getClass('PXEMenuOptionsManager')->find('','','id') AS $i => &$Menu) {
             if (!$Menu->isValid()) continue;
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/\./','_',preg_replace('/:/','_',$Menu->get('name'))));
-            echo '<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get('name').'</h3></a>';
-            echo '<div id="'.$divTab.'">';
-            echo '<form method="post" action="'.$this->formAction.'">';
+            printf('<a id="%s" style="text-decoration:none;" href="#%s"><h3>%s</h3></a><div id="%s"><form method="post" action="%s">',$divTab,$divTab,$Menu->get('name'),$divTab,$this->formAction);
             $menuid = in_array($Menu->get('id'),range(1,13));
-            $menuDefault = $Menu->get('default') ? 'checked' : '';
+            $menuDefault = $Menu->get('default') ? ' checked' : '';
             $fields = array(
-                _('Menu Item:') => '<input type="text" name="menu_item" value="'.$Menu->get('name').'" id="menu_item"/>',
-                _('Description:') => '<textarea cols="40" rows="2" name="menu_description">'.$Menu->get('description').'</textarea>',
-                _('Parameters:') => '<textarea cols="40" rows="8" name="menu_params">'.$Menu->get('params').'</textarea>',
-                _('Boot Options:') => '<input type="text" name="menu_options" id="menu_options" value="'.$Menu->get('args').'" />',
-                _('Default Item:') => '<input type="checkbox" name="menu_default" value="1" '.$menuDefault.'/>',
+                _('Menu Item:') => sprintf('<input type="text" name="menu_item" value="%s" id="menu_item"/>',$Menu->get('name')),
+                _('Description:') => sprintf('<textarea cols="40" rows="2" name="menu_description">%s</textarea>',$Menu->get('description')),
+                _('Parameters:') => sprintf('<textarea cols="40" rows="8" name="menu_params">%s</textarea>',$Menu->get('params')),
+                _('Boot Options:') => sprintf('<input type="text" name="menu_options" id="menu_options" value="%s"/>',$Menu->get('args')),
+                _('Default Item:') => sprintf('<input type="checkbox" name="menu_default" value="1"%s/>',$menuDefault),
                 _('Menu Show with:') => $this->getClass('PXEMenuOptionsManager')->regSelect($Menu->get('regMenu')),
-                '<input type="hidden" name="menu_id" value="'.$Menu->get('id').'" />' => '<input type="submit" name="saveform" value="'.$this->foglang['Submit'].'" />',
-                !$menuid ? '<input type="hidden" name="rmid" value="'.$Menu->get('id').'" />' : '' => !$menuid ? '<input type="submit" name="delform" value="'.$this->foglang['Delete'].' '.$Menu->get('name').'"/>' : '',
+                sprintf('<input type="hidden" name="menu_id" value="%s"/>',$Menu->get('id')) => sprintf('<input type="submit" name="saveform" value="%s"/>',$this->foglang['Submit']),
+                !$menuid ? sprintf('<input type="hidden" name="rmid" value="%s"/>',$Menu->get('id')) : '' => !$menuid ? sprintf('<input type="submit" name="delform" value="%s %s"/>',$this->foglang['Delete'],$Menu->get('name')) : '',
             );
             foreach ((array)$fields AS $field => &$input) {
                 $this->data[] = array(
@@ -203,7 +198,7 @@ class FOGConfigurationPage extends FOGPage {
                 unset($input);
             }
             unset($fields);
-            $this->HookManager->processEvent('BOOT_ITEMS_'.$divTab,array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
+            $this->HookManager->processEvent(sprintf('BOOT_ITEMS_%s',$divTab),array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
             $this->render();
             echo '</form></div>';
             unset($this->data,$Menu);
@@ -220,11 +215,11 @@ class FOGConfigurationPage extends FOGPage {
                 ->set('regMenu',$_REQUEST['menu_regmenu'])
                 ->set('args',$_REQUEST['menu_options'])
                 ->set('default',$_REQUEST['menu_default']);
-            if ($Menu->save()) $this->setMessage($Menu->get('name').' '._('successfully updated').'!');
+            if ($Menu->save()) $this->setMessage(sprintf('%s %s!',$Menu->get('name'),_('successfully updated')));
         }
         if (isset($_REQUEST['delform']) && $_REQUEST['rmid']) {
             $menuname = $this->getClass('PXEMenuOptions',$_REQUEST['rmid'])->get('name');
-            if ($this->getClass('PXEMenuOptions',$_REQUEST['rmid'])->destroy()) $this->setMessage($menuname.' '._('successfully removed').'!');
+            if ($this->getClass('PXEMenuOptions',$_REQUEST['rmid'])->destroy()) $this->setMessage(sprintf('%s %s!',$menuname,_('successfully removed')));
         }
         $countDefault = $this->getClass('PXEMenuOptionsManager')->count(array('default'=>1));
         if ($countDefault == 0 || $countDefault > 1) $this->getClass('PXEMenuOptions',1)->set('default',1)->save();
@@ -236,16 +231,15 @@ class FOGConfigurationPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        echo '<form method="post" action="'.$this->formAction.'">';
-        $menudefault = $_REQUEST['menu_default'] ? 'checked' : '';
+        $menudefault = $_REQUEST['menu_default'] ? ' checked' : '';
         $fields = array(
-            _('Menu Item:') => '<input type="text" name="menu_item" value="'.$_REQUEST['menu_item'].'" id="menu_item" />',
-            _('Description:') => '<textarea cols="40" rows="2" name="menu_description">'.$_REQUEST['menu_description'].'</textarea>',
-            _('Parameters:') => '<textarea cols="40" rows="8" name="menu_params">'.$_REQUEST['menu_params'].'</textarea>',
-            _('Boot Options:') => '<input type="text" name="menu_options" id="menu_options" value="'.$_REQUEST['menu_options'].'" />',
-            _('Default Item:') => '<input type="checkbox" name="menu_default" value="1" '.$menudefault.'/>',
+            _('Menu Item:') => sprintf('<input type="text" name="menu_item" value="%s" id="menu_item"/>',$_REQUEST['menu_item']),
+            _('Description:') => sprintf('<textarea cols="40" rows="2" name="menu_description">%s</textarea>',$_REQUEST['menu_description']),
+            _('Parameters:') => sprintf('<textarea cols="40" rows="8" name="menu_params">%s</textarea>',$_REQUEST['menu_params']),
+            _('Boot Options:') => sprintf('<input type="text" name="menu_options" id="menu_options" value="%s"/>',$_REQUEST['menu_options']),
+            _('Default Item:') => sprintf('<input type="checkbox" name="menu_default" value="1"%s/>',$menudefault),
             _('Menu Show with:') => $this->getClass('PXEMenuOptionsManager')->regSelect($_REQUEST['menu_regmenu']),
-            '&nbsp;' => '<input type="submit" value="'._($this->foglang['Add'].' New Menu').'" />',
+            '&nbsp;' => sprintf('<input type="submit" value="%s %s"/>',$this->foglang['Add'],_('New Menu')),
         );
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
@@ -256,6 +250,7 @@ class FOGConfigurationPage extends FOGPage {
         }
         unset($fields);
         $this->HookManager->processEvent('BOOT_ITEMS_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
+        printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo "</form>";
     }
@@ -295,7 +290,7 @@ class FOGConfigurationPage extends FOGPage {
             '<input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED" />${name}',
             '${module}',
             '${type}',
-            '<input type="checkbox" onclick="this.form.submit()" name="delcu" class="delid" id="delcuid${client_id}" value="${client_id}" /><label for="delcuid${client_id}" class="icon fa fa-minus-circle icon-hand" title="'._('Delete').'">&nbsp;</label>',
+            sprintf('<input type="checkbox" onclick="this.form.submit()" name="delcu" class="delid" id="delcuid${client_id}" value="${client_id}" /><label for="delcuid${client_id}" class="icon fa fa-minus-circle icon-hand" title="%s">&nbsp;</label>',_('Delete')),
         );
         $this->attributes = array(
             array(),
@@ -303,7 +298,7 @@ class FOGConfigurationPage extends FOGPage {
             array(),
             array('class'=>'filter-false disabled'),
         );
-        echo '<div class="hostgroup">'._('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.').'</div>';
+        printf('<div class="hostgroup">%s</div>',_('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.'));
         foreach ((array)$this->getClass('ClientUpdaterManager')->find() AS $i => &$ClientUpdate) {
             $this->data[] = array(
                 'name'=>$ClientUpdate->get('name'),
@@ -315,11 +310,11 @@ class FOGConfigurationPage extends FOGPage {
             unset($ClientUpdate);
         }
         $this->HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        echo '<form method="post" action="'.$this->formAction.'&tab=clientupdater">';
+        printf('<form method="post" action="%s&tab=clientupdater">',$this->formAction);
         $this->render();
         echo '</form>';
         unset($this->headerData,$this->attributes,$this->templates,$this->data);
-        echo '<p class="header">'._('Upload a new client module/configuration file').'</p>';
+        printf('<p class="header">%s</p>',_('Upload a new client module/configuration file'));
         $this->attributes = array(
             array(),
             array('class'=>'filter-false'),
@@ -329,7 +324,7 @@ class FOGConfigurationPage extends FOGPage {
             '${input}',
         );
         $fields = array(
-            '<input type="file" name="module[]" value="" multiple/> <span class="lightColor">'._('Max Size:').ini_get('post_max_size').'</span>' => '<input type="submit" value="'._('Upload File').'" />',
+            sprintf('<input type="file" name="module[]" value="" multiple/> <span class="lightColor">%s%s</span>',_('Max Size:'),ini_get('post_max_size')) => sprintf('<input type="submit" value="%s"/>',_('Upload File')),
         );
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
@@ -340,7 +335,7 @@ class FOGConfigurationPage extends FOGPage {
         }
         unset($fields);
         $this->HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        echo '<form method="post" action="'.$this->formAction.'&tab=clientupdater" enctype="multipart/form-data"><input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED"/>';
+        printf('<form method="post" action="%s&tab=clientupdater" enctype="multipart/form-data"><input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED"/>',$this->formAction);
         $this->render();
         echo '</form>';
     }
