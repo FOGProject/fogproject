@@ -1,8 +1,15 @@
 <?php
-$vals = function() {
+$vals = function($currentUser) {
+    if (!$currentUser->isValid()) return _('Must be logged in to view');
 	ini_set("auto_detect_line_endings", true);
-	$linearr = array();
-	if(($fp = fopen(dirname($_REQUEST['file']).DIRECTORY_SEPARATOR.basename($_REQUEST['file']),'rb')) !== false) {
+    $linearr = array();
+    $ftp = trim($_REQUEST['ftp']);
+    $folder = sprintf('/%s/',trim(trim(dirname($_REQUEST['file']),'/')));
+    $file = trim(basename($_REQUEST['file']));
+    $folders = array('/var/log/fog/','/opt/fog/log/','/var/log/httpd/','/var/log/apache2');
+    $pattern = sprintf('#^%s$#',$folder);
+    if (false === preg_grep($pattern,$folders)) return _('Invalid Folder');
+    if (($fp = fopen(sprintf('%s/%s/%s',$ftp,$folder,$file),'rb')) !== false) {
 		stream_set_blocking($fp,false);
 		while (!feof($fp)) {
 			$line = stream_get_line($fp,8192,"\n");
@@ -14,5 +21,6 @@ $vals = function() {
 	else return _("No data to read")."\n";
 	return implode("\n",$linearr);
 };
-echo json_encode($vals());
+require('../commons/base.inc.php');
+echo json_encode($vals($currentUser));
 exit;
