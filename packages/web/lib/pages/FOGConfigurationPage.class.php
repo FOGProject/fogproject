@@ -363,7 +363,7 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function mac_list() {
         $this->title = _('MAC Address Manufacturer Listing');
-        echo '<div class="hostgroup">'._('This section allows you to import known mac address makers into the FOG database for easier identification.').'</div><div><p>'._('Current Records: ').$this->FOGCore->getMACLookupCount().'</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="'._('Delete MACs').'" value="'._('Delete Current Records').'" onclick="clearMacs()" /><input class="macButtons" style="margin-left: 20px" type="button" title="'._('Update MACs').'" value="'._('Update Current Listing').'" onclick="updateMacs()" /></p><p>'._('MAC address listing source: ').'<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>';
+        printf('<div class="hostgroup">%s</div><div><p>%s: %s</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="%s" value="%s" onclick="clearMacs()"/><input class="macButtons" style="margin-left: 20px" type="button" title="%s" value="%s" onclick="updateMacs()"/></p><p>%s<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>',_('This section allows you to import known mac address makers into the FOG Database for easier identification.'),_('Current Records'),$this->FOGCore->getMACLookupCount(),_('Delete MACs'),_('Delete Current Records'),_('Update MACs'),_('Update Current Listing'),_('MAC Address listing source: '));
     }
     public function mac_list_post() {
         if ($_REQUEST['update']) {
@@ -388,8 +388,8 @@ class FOGConfigurationPage extends FOGPage {
                 }
                 fclose($handle);
                 $this->FOGCore->addUpdateMACLookupTable($macsandmakers);
-                $this->setMessage($imported._(' mac addresses updated!'));
-            } else echo (_('Unable to locate file').': '.$f);
+                $this->setMessage(sprintf('%s %s',$imported,_(' mac addresses updated!')));
+            } else printf('%s: %s',_('Unable to locate file'),$f);
         } else if ($_REQUEST['clear']) $this->FOGCore->clearMACLookupTable();
         $this->resetRequest();
         $this->redirect('?node=about&sub=mac-list');
@@ -431,8 +431,8 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_FTP_IMAGE_SIZE',
             'FOG_KERNEL_DEBUG',
         );
-        $this->title = _("FOG System Settings");
-        echo '<p class="hostgroup">'._('This section allows you to customize or alter the way in which FOG operates.  Please be very careful changing any of the following settings, as they can cause issues that are difficult to troubleshoot.').'</p><form method="post" action="'.$this->formAction.'"><div id="tab-container-1">';
+        $this->title = _('FOG System Settings');
+        printf('<p class="hostgroup">%s</p><form method="post" action="%s"><div id="tab-container-1">',_('This section allows you to customize or alter the way in which FOG operates. Please be very careful changing any of the following settings, as they can cause issues that are difficult to troubleshoot.'),$this->formAction);
         unset($this->headerData);
         $this->attributes = array(
             array('width'=>270,'height'=>35),
@@ -447,51 +447,58 @@ class FOGConfigurationPage extends FOGPage {
         echo '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
         foreach ((array)$this->getClass('ServiceManager')->getSettingCats() AS $i => &$ServiceCAT) {
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',$ServiceCAT));
-            echo '<a id="'.$divTab.'" class="expand_trigger" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$ServiceCAT.'</h3></a>';
-            echo '<div id="'.$divTab.'">';
-            $ServMan = $this->getClass('ServiceManager')->find(array('category'=>$ServiceCAT),'AND','id');
+            printf('<a id="%s" class="expand_trigger" style="text-decoration:none;" href="#%s"><h3>%s</h3></a><div id="%s">',$divTab,$divTab,$ServiceCAT,$divTab);
             foreach ((array)$this->getClass('ServiceManager')->find(array('category'=>$ServiceCAT),'AND','id') AS $i => &$Service) {
                 if (!$Service->isValid()) continue;
                 switch ($Service->get('name')) {
                 case 'FOG_PIGZ_COMP':
-                    $type = '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
+                    $type = '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}"/>';
                     break;
                 case 'FOG_KERNEL_LOGLEVEL':
-                    $type = '<div id="loglvl" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showlogVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
+                    $type = '<div id="loglvl" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showlogVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}"/>';
                     break;
                 case 'FOG_INACTIVITY_TIMEOUT':
-                    $type = '<div id="inact" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValInAct" maxsize="2" style="width: 15px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
+                    $type = '<div id="inact" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValInAct" maxsize="2" style="width: 15px; top: -5px; left:225px; position: relative;" value="${service_value}"/>';
                     break;
                 case 'FOG_REGENERATE_TIMEOUT':
-                    $type = '<div id="regen" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValRegen" maxsize="5" style="width: 25px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
+                    $type = '<div id="regen" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValRegen" maxsize="5" style="width: 25px; top: -5px; left:225px; position: relative;" value="${service_value}"/>';
                     break;
                 case 'FOG_VIEW_DEFAULT_SCREEN':
                     $screens = array('SEARCH','LIST');
-                    foreach ((array)$screens AS $i => &$viewop) $options[] = '<option value="'.strtolower($viewop).'" '.($Service->get('value') == strtolower($viewop) ? 'selected="selected"' : '').'>'.$viewop.'</option>';
-                    unset($viewop);
-                    $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
-                    unset($options);
+                    ob_start();
+                    foreach ((array)$screens AS $i => &$viewop) {
+                        printf('<option value="%s"%s>%s</option>',strtolower($viewop),($Service->get('value') == strtolower($viewop) ? ' selected' : ''),$viewop);
+                        unset($viewop);
+                    }
+                    unset($screens);
+                    $type = sprintf('<select name="${service_id}" style="width: 220px" autocomplete="off">%s</select>',ob_get_clean());
                     break;
                 case 'FOG_MULTICAST_DUPLEX':
                     $duplexTypes = array(
                         'HALF_DUPLEX' => '--half-duplex',
                         'FULL_DUPLEX' => '--full-duplex',
                     );
-                    foreach ((array)$duplexTypes AS $types => &$val) $options[] = '<option value="'.$val.'" '.($Service->get('value') == $val ? 'selected="selected"' : '').'>'.$types.'</option>';
-                    unset($val);
-                    $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
+                    ob_start();
+                    foreach ((array)$duplexTypes AS $types => &$val) {
+                        printf('<option value="%s"%s>%s</option>',$val,($Service->get('value') == $val ? ' selected' : ''),$types);
+                        unset($val);
+                    }
+                    $type = sprintf('<select name="${service_id}" style="width: 220px" autocomplete="off">%s</select>',ob_get_clean());
                     break;
                 case 'FOG_BOOT_EXIT_TYPE':
                 case 'FOG_EFI_BOOT_EXIT_TYPE':
-                    $type = Service::buildExitSelector($Service->get(id),$Service->get(value));
+                    $type = Service::buildExitSelector($Service->get('id'),$Service->get('value'));
                     break;
                 case 'FOG_DEFAULT_LOCALE':
-                    foreach ((array)$this->foglang['Language'] AS $lang => &$humanreadable) $options2[] = '<option value="'.$lang.'" '.($this->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->getSetting('FOG_DEFAULT_LOCALE') == $this->foglang['Language'][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
-                    unset($humanreadable);
-                    $type = '<select name="${service_id}" autocomplete="off" style="width: 220px">'.implode($options2).'</select>';
+                    ob_start();
+                    foreach ((array)$this->foglang['Language'] AS $lang => &$humanreadable) {
+                        printf('<option value="%s"%s>%s</option>',$lang,($this->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->getSetting('FOG_DEFAULT_LOCALE') == $this->foglang['Language'][$lang] ? ' selected' : ''),$humanreadable);
+                        unset($humanreadable);
+                    }
+                    $type = sprintf('<select name="${service_id}" autocomplete="off" style="width: 220px">%s</select>',ob_get_clean());
                     break;
                 case 'FOG_QUICKREG_IMG_ID':
-                    $type = $this->getClass('ImageManager')->buildSelectBox($this->getSetting('FOG_QUICKREG_IMG_ID'),$Service->get('id').'" id="${service_name}');
+                    $type = $this->getClass('ImageManager')->buildSelectBox($this->getSetting('FOG_QUICKREG_IMG_ID'),sprintf('%s" id="${service_name}"',$Service->get('id')));
                     break;
                 case 'FOG_QUICKREG_GROUP_ASSOC':
                     $type = $this->getClass('GroupManager')->buildSelectBox($this->getSetting('FOG_QUICKREG_GROUP_ASSOC'),$Service->get('id'));
@@ -502,34 +509,36 @@ class FOGConfigurationPage extends FOGPage {
                 case 'FOG_QUICKREG_OS_ID':
                     $ImageName = _('No image specified');
                     if ($this->getSetting('FOG_QUICKREG_IMG_ID') > 0) $ImageName = $this->getClass('Image',$this->getSetting('FOG_QUICKREG_IMG_ID'))->get('name');
-                    $type = '<p id="${service_name}">'.$ImageName.'</p>';
+                    $type = sprintf('<p id="${service_name}">%s</p>',$ImageName);
                     break;
                 case 'FOG_TZ_INFO':
                     $dt = $this->nice_date('now',$utc);
                     $tzIDs = DateTimeZone::listIdentifiers();
-                    $type = '<select name="${service_id}">';
+                    ob_start();
+                    echo '<select name="${service_id}">';
                     foreach ((array)$tzIDs AS $i => &$tz) {
                         $current_tz = $this->getClass('DateTimeZone',$tz);
                         $offset = $current_tz->getOffset($dt);
                         $transition = $current_tz->getTransitions($dt->getTimestamp(),$dt->getTimestamp());
                         $abbr = $transition[0]['abbr'];
                         $offset = sprintf('%+03d:%02u', floor($offset / 3600), floor(abs($offset) % 3600 / 60));
-                        $type .= '<option value="'.$tz.'"'.($Service->get('value') == $tz ? ' selected' : '').'>'.$tz.' ['.$abbr.' '.$offset.']</option>';
+                        printf('<option value="%s"%s>%s [%s %s]</option>',$tz,($Service->get('value') == $tz ? ' selected' : ''),$tz,$abbr,$offset);
+                        unset($current_tz,$offset,$transition,$abbr,$offset,$tz);
                     }
-                    unset($current_tz,$offset,$transition,$tzIDs,$dt);
-                    $type .= '</select>';
+                    echo '</select>';
+                    $type = ob_get_clean();
                     break;
                 case (preg_match('#pass#i',$Service->get('name')) && !preg_match('#(valid|min)#i',$Service->get('name'))):
-                    $type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off" />';
+                    $type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off"/>';
                     break;
                 case (in_array($Service->get('name'),$ServiceNames)):
-                    $type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get('value') ? 'checked' : '').' />';
+                    $type = sprintf('<input type="checkbox" name="${service_id" value="1"%s/>',($Service->get('value') ? ' checked' : ''));
                     break;
                 case 'FOG_AD_DEFAULT_OU':
                     $type = '<textarea rows="5" name="${service_id}">${service_value}</textarea>';
                     break;
                 default:
-                    $type = '<input id="${service_name}" type="text" name="${service_id}" value="${service_value}" autocomplete="off" />';
+                    $type = '<input id="${service_name}" type="text" name="${service_id}" value="${service_value}" autocomplete="off"/>';
                     break;
                 }
                 $this->data[] = array(
@@ -547,9 +556,9 @@ class FOGConfigurationPage extends FOGPage {
             $this->data[] = array(
                 'span'=>'&nbsp;',
                 'service_name'=>'',
-                'input_type'=>'<input name="update" type="submit" value="'._('Save Changes').'" />',
+                'input_type'=>sprintf('<input name="update" type="submit" value="%s"/>',_('Save Changes')),
             );
-            $this->HookManager->processEvent('CLIENT_UPDATE_'.$divTab,array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+            $this->HookManager->processEvent(sprintf('CLIENT_UPDATE_%s',$divTab),array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             $this->render();
             echo '</div>';
             unset($this->data,$options,$ServiceCAT);
@@ -601,8 +610,8 @@ class FOGConfigurationPage extends FOGPage {
         $this->redirect($this->formAction);
     }
     public function log() {
-        $StorageGroups = $this->getClass('StorageGroupManager')->find();
-        foreach ((array)$StorageGroups AS $i => &$StorageGroup) {
+        foreach ((array)$this->getClass('StorageGroupManager')->find() AS $i => &$StorageGroup) {
+            if (!$StorageGroup->isValid()) continue;
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if (!$StorageNode->isValid()) continue;
             if (!$StorageNode->get('isEnabled')) continue;
@@ -619,21 +628,21 @@ class FOGConfigurationPage extends FOGPage {
             $fogfiles = array_merge($this->FOGFTP->nlist('/var/log/httpd/'),$this->FOGFTP->nlist('/var/log/apache2/'),$this->FOGFTP->nlist('/var/log/fog'));
             $this->FOGFTP->close();
             $apacheerrlog = preg_grep('#(error\.log$|.*error_log$)#i',$fogfiles);
-            $apacheerrlog = $ftpstart.@array_shift($apacheerrlog);
+            $apacheerrlog = sprintf('%s%s',$ftpstart,@array_shift($apacheerrlog));
             $apacheacclog = preg_grep('#(access\.log$|.*access_log$)#i',$fogfiles);
-            $apacheacclog = $ftpstart.@array_shift($apacheacclog);
+            $apacheacclog = sprintf('%s%s',$ftpstart,@array_shift($apacheacclog));
             $multicastlog = preg_grep('#(multicast.log$)#i',$fogfiles);
-            $multicastlog = $ftpstart.@array_shift($multicastlog);
+            $multicastlog = sprintf('%s%s',$ftpstart,@array_shift($multicastlog));
             $schedulerlog = preg_grep('#(fogscheduler.log$)#i',$fogfiles);
-            $schedulerlog = $ftpstart.@array_shift($schedulerlog);
+            $schedulerlog = sprintf('%s%s',$ftpstart,@array_shift($schedulerlog));
             $imgrepliclog = preg_grep('#(fogreplicator.log$)#i',$fogfiles);
-            $imgrepliclog = $ftpstart.@array_shift($imgrepliclog);
+            $imgrepliclog = sprintf('%s%s',$ftpstart,@array_shift($imgrepliclog));
             $snapinreplog = preg_grep('#(fogsnapinrep.log$)#i',$fogfiles);
-            $snapinreplog = $ftpstart.@array_shift($snapinreplog);
+            $snapinreplog = sprintf('%s%s',$ftpstart,@array_shift($snapinreplog));
             $pinghostlog = preg_grep('#(pinghosts.log$)#i',$fogfiles);
-            $pinghostlog = $ftpstart.@array_shift($pinghostlog);
+            $pinghostlog = sprintf('%s%s',$ftpstart,@array_shift($pinghostlog));
             $svcmasterlog = preg_grep('#(servicemaster.log$)#i',$fogfiles);
-            $svcmasterlog = $ftpstart.@array_shift($svcmasterlog);
+            $svcmasterlog = sprintf('%s%s',$ftpstart,@array_shift($svcmasterlog));
             $files[$StorageNode->get('name')] = array(
                 $svcmasterlog ? _('Service Master') : null => $svcmasterlog ? $svcmasterlog : null,
                 $multicastlog ? _('Multicast') : null => $multicastlog ? $multicastlog : null,
@@ -645,33 +654,34 @@ class FOGConfigurationPage extends FOGPage {
                 $apacheacclog ? _('Apache Access Log') : null  => $apacheacclog ? $apacheacclog : null,
             );
             $files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
-            $this->HookManager->processEvent('LOG_VIEWER_HOOK_'.$StorageGroup->get('name'),array('files'=>&$files,'ftpstart'=>&$ftpstarter));
+            $this->HookManager->processEvent(sprintf('LOG_VIEWER_HOOK_%s',$StorageGroup->get('name')),array('files'=>&$files,'ftpstart'=>&$ftpstarter));
             unset($StorageGroup);
         }
         unset($StorageGroups);
+        ob_start();
         foreach ((array)$files AS $nodename => &$filearray) {
             $first = true;
             foreach((array)$filearray AS $value => &$file) {
                 if ($first) {
-                    $options3[] = '<option disabled="disabled"> ------- '.$nodename.' ------- </option>';
+                    printf('<option disabled="disabled"> ------- %s ------- </option>',$nodename);
                     $first = false;
                 }
-                $options3[] = '<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$file.'">'.$value.'</option>';
+                printf('<option value="%s"%s>%s</option>',$file,($value == $_REQUEST['logtype'] ? ' selected' : ''),$value);
                 unset($file);
             }
             unset($filearray);
         }
         unset($files);
         $this->title = _('FOG Log Viewer');
-        echo '<p><form method="post" action="'.$this->formAction.'"><p>'._('File:');
-        echo '<select name="logtype" id="logToView">'.implode((array)$options3).'</select>'._('Number of lines:');
+        printf('<p><form method="post" action="%s"><p>%s:<select name="logtype" id="logToView">%s</select>%s:',$this->formAction,_('File'),ob_get_clean(),_('Number of lines'));
         $vals = array(20,50,100,200,400,500,1000);
+        ob_start();
         foreach ((array)$vals AS $i => &$value) {
-            $options4[] = '<option '.($value == $_REQUEST['n'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
+            printf('<option value="%s"%s>%s</option>',$value,($value == $_REQUEST['n'] ? ' selected' : ''),$value);
             unset($value);
         }
         unset($vals);
-        echo '<select name="n" id="linesToView">'.implode((array)$options4).'</select><center><input type="button" id="logpause" /></center></p></form><div id="logsGoHere">&nbsp;</div></p>';
+        printf('<select name="n" id="linesToView">%s</select><center><input type="button" id="logpause"/></center></p></form><div id="logsGoHere">&nbsp;</div></p>',ob_get_clean());
     }
     public function config() {
         $this->HookManager->processEvent('IMPORT');
@@ -687,9 +697,9 @@ class FOGConfigurationPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $this->data[0] = array(
+        $this->data[] = array(
             'field' => _('Click the button to export the database.'),
-            'input' => '<input type="submit" name="export" value="'._('Export').'" />',
+            'input' => sprintf('<input type="submit" name="export" value="%s"/>',_('Export')),
         );
         echo '<form method="post" action="export.php?type=sql">';
         $this->render();
@@ -702,12 +712,12 @@ class FOGConfigurationPage extends FOGPage {
         );
         $this->data[] = array(
             'field' => null,
-            'input' => '<input type="submit" value="'._('Import').'" />',
+            'input' => sprintf('<input type="submit" value="%s"/>',_('Import')),
         );
-        echo '<form method="post" action="'.$this->formAction.'" enctype="multipart/form-data">';
+        printf('<form method="post" action="%s" enctype="multipart/form-data">',$this->formAction);
         $this->render();
-        unset($this->data);
         echo "</form>";
+        unset($this->attributes,$this->templates,$this->data);
     }
     public function config_post() {
         $this->HookManager->processEvent('IMPORT_POST');
@@ -716,15 +726,15 @@ class FOGConfigurationPage extends FOGPage {
             if (!$_FILES['dbFile']) throw new Exception(_('No files uploaded'));
             $original = $Schema->export_db();
             $result = $this->getClass('Schema')->import_db($_FILES['dbFile']['tmp_name']);
-            if ($result === true) echo '<h2>'._('Database Imported and added successfully').'</h2>';
+            if ($result === true) printf('<h2>%s</h2>',_('Database Imported and added successfully'));
             else {
-                echo '<h2>'._('Errors detected on import').'</h2>';
+                printf('<h2>%s</h2>',_('Errors detected on import'));
                 $origres = $result;
                 $result = $Schema->import_db($original);
                 unset($original);
-                if ($result === true) echo '<h2>'._('Database changes reverted').'</h2>';
-                else _('Errors on revert detected')."<br/><br/><code><pre>$result</pre></code>";
-                echo '<h2>'._('There were errors during import')."</h2><code><pre>$origres</pre></code>";
+                if ($result === true) printf('<h2>%s</h2>',_('Database changes reverted'));
+                else printf('%s<br/><br/><code><pre>%s</pre></code>',_('Errors on revert detected'),$result);
+                printf('<h2>%s</h2><code><pre>%s</pre></code>',_('There were errors during import'),$origres);
             }
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
