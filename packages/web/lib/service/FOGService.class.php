@@ -129,12 +129,13 @@ abstract class FOGService extends FOGBase {
             $getPathOfItemField = $objType == 'Snapin' ? 'snapinpath' : 'ftppath';
             $getFileOfItemField = $objType == 'Snapin' ? 'file' : 'path';
             $PotentialStorageNodes = array_diff((array)$this->getSubObjectIDs('StorageNode',$findWhere,'id'),(array)$myStorageNodeID);
-            $myAddItem = sprintf('/%s%s',trim($StorageNode->get($getPathOfItemField),'/'),($master ? sprintf('/%s',$Obj->get($getFileOfItemField)) : ''));
-            if (is_file($myAddItem)) $myAddItem = sprintf('%s/',dirname($myAddItem));
+            $myDir = sprintf('/%s/',trim($StorageNode->get($getPathOfItemField),'/'));
+            $myFile = ($master ? basename($Obj->get($getFileOfItemField)) : '');
+            $myAddItem = $myDir;
             foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
                 if (!$PotentialStorageNode->isValid()) continue;
                 if ($master && $PotentialStorageNode->get('storageGroupID') == $myStorageGroupID) continue;
-                if (!file_exists($myAddItem)) {
+                if (!file_exists("$myDir$myFile")) {
                     $this->outall(_(" * Not syncing $objType between $itemType(s)"));
                     $this->outall(_(" | $objType Name: {$Obj->get(name)}"));
                     $this->outall(_(" | File or path cannot be reached"));
@@ -148,26 +149,27 @@ abstract class FOGService extends FOGBase {
                     $this->outall(_(" * Cannot connect to {$StorageNodeToSend->get(name)}"));
                     continue;
                 }
-                $nodename = $this->FOGFTP->get('name');
+                $nodename = $PotentialStorageNode->get('name');
                 $username = $this->FOGFTP->get('username');
                 $password = $this->FOGFTP->get('password');
                 $ip = $this->FOGFTP->get('host');
                 $this->FOGFTP->close();
-                $removeItem = sprintf('/%s%s',trim($PotentialStorageNode->get($getPathOfItemField),'/'),($master ? sprintf('/%s',$Obj->get($getFileOfItemField)) : ''));
+                $removeDir = sprintf('/%s/',trim($PotentialStorageNode->get($getPathOfItemField),'/'));
+                $removeFile = $myFile;
                 $limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
                 $limitsend = $this->byteconvert($PotentialStorageNode->get('bandwidth'));
                 if ($limitmain > 0) $limitset = "set net:limit-total-rate 0:$limitmain;";
                 if ($limitsend > 0) $limitset .= "set net:limit-rate 0:$limitsend;";
                 $limit = $limitset;
-                if (is_file($myAddItem)) {
-                    $remItem = sprintf('%s/',dirname($removeItem));
-                    $includeFile = sprintf('-i %s',basename($removeItem));
+                if (is_file("$myDir$myFile")) {
+                    $remItem = "$removeDir";
+                    $includeFile = sprintf('-i %s',$myFile);
                 } else {
-                    $remItem = $removeItem;
+                    $remItem = $removeDir;
                     $includeFile = null;
                 }
                 $date = $this->formatTime('','Ymd_His');
-                $logname = "$this->log.transfer.$nodename.$date.log";
+                $logname = "$this->log.transfer.$nodename.log";
                 if (!$i) $this->outall(_(' * Starting Sync Actions'));
                 if ($this->isRunning($this->procRef[$itemType][$i])) {
                     $this->outall(_(' | Replication not complete'));
@@ -181,7 +183,7 @@ abstract class FOGService extends FOGBase {
         }
     }
     public function startTasking($cmd,$logname,$index = 0,$itemType = false) {
-        $descriptor = array(0=>array('pipe','r'),1=>array('file',$logname,'w'),2=>array('file',$this->log,'a'));
+        $descriptor = array(0=>array('pipe','r'),1=>array('file',$logname,'a'),2=>array('file',$this->log,'a'));
         if ($itemType === false) {
             $this->procRef[$index] = @proc_open($cmd,$descriptor,$pipes);
             $this->procPipes[$index] = $pipes;
