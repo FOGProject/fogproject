@@ -28,7 +28,7 @@ $(function() {
 })
 function LogGetData() {
     if (! $('#logpause').hasClass('active')) {
-        splitUs = LogToView.split('|');
+        splitUs = LogToView.split('||');
         ftp = splitUs[0];
         file = splitUs[1];
         $.ajax({
