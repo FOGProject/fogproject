@@ -704,7 +704,11 @@ abstract class FOGPage extends FOGBase {
                 throw new Exception('#!ist');
             }
             if ($Host->get('sec_tok') && !$key) throw new Exception('#!ihc');
-            $this->getClass('HostManager')->update(array('id'=>$Host->get('id')),'',array('sec_tok'=>$this->createSecToken(),'sec_time'=>$this->nice_date('+30 minutes')->format('Y-m-d H:i:s'),'key'=>$key));
+            $Host
+                ->set('sec_time',$this->nice_date('+30 minutes')->format('Y-m-d H:i:s'))
+                ->set('pub_key',$key)
+                ->set('sec_token',$this->createSecToken())
+                ->save();
             printf('#!en=%s',$this->certEncrypt("#!ok\n#token={$Host->get(sec_tok)}",$Host));
         }
         catch (Exception $e) {
