@@ -318,7 +318,7 @@ class ImageManagementPage extends FOGPage {
         $this->HookManager->processEvent(IMAGE_EDIT_GROUP,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         echo '<form method="post" action="'.$this->formAction.'&tab=image-storage">';
         $this->render();
-        if (count($this->data) > 0) echo '<center><input name="update" type="submit" value="'._('Update Primary Group').'"/>&nbsp;<input name="deleteGroup" type="submit" value="'._('Delete Selected Group associations').'" name="remstorgroups"/></center>';
+        if (count($this->data) > 0) echo '<center><input name="update" type="submit" value="'._('Update Primary Group').'"/>&nbsp;<input name="deleteGroup" type="submit" value="'._('Delete Selected Group associations').'"/></center>';
         echo '</form></div></div>';
     }
     public function edit_post() {
@@ -348,7 +348,7 @@ class ImageManagementPage extends FOGPage {
             case 'image-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);
                 if (isset($_REQUEST['update'])) $this->obj->setPrimaryGroup($_REQUEST['primary']);
-                if (isset($_REQUEST['deleteGroup']) && isset($_REQUEST['remstorgroups'])) {
+                if (isset($_REQUEST['deleteGroup'])) {
                     if (count($this->obj->get('storageGroups')) < 2) throw new Exception(_('Image must be assigned to one Storage Group'));
                     $this->obj->removeGroup($_REQUEST['storagegroup-rm']);
                 }
