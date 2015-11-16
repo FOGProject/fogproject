@@ -532,7 +532,7 @@ class FOGConfigurationPage extends FOGPage {
                     $type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off"/>';
                     break;
                 case (in_array($Service->get('name'),$ServiceNames)):
-                    $type = sprintf('<input type="checkbox" name="${service_id" value="1"%s/>',($Service->get('value') ? ' checked' : ''));
+                    $type = sprintf('<input type="checkbox" name="${service_id}" value="1"%s/>',($Service->get('value') ? ' checked' : ''));
                     break;
                 case 'FOG_AD_DEFAULT_OU':
                     $type = '<textarea rows="5" name="${service_id}">${service_value}</textarea>';
