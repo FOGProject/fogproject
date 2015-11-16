@@ -623,26 +623,25 @@ class FOGConfigurationPage extends FOGPage {
                 ->set('username',$user)
                 ->set('password',$pass);
             if (!$this->FOGFTP->connect()) continue;
-            $ftpstart = "ftp://$user:$pass@$host";
             $fogfiles = array();
             $fogfiles = array_merge($this->FOGFTP->nlist('/var/log/httpd/'),$this->FOGFTP->nlist('/var/log/apache2/'),$this->FOGFTP->nlist('/var/log/fog'));
             $this->FOGFTP->close();
             $apacheerrlog = preg_grep('#(error\.log$|.*error_log$)#i',$fogfiles);
-            $apacheerrlog = sprintf('%s%s',$ftpstart,@array_shift($apacheerrlog));
+            $apacheerrlog = @array_shift($apacheerrlog);
             $apacheacclog = preg_grep('#(access\.log$|.*access_log$)#i',$fogfiles);
-            $apacheacclog = sprintf('%s%s',$ftpstart,@array_shift($apacheacclog));
+            $apacheacclog = @array_shift($apacheacclog);
             $multicastlog = preg_grep('#(multicast.log$)#i',$fogfiles);
-            $multicastlog = sprintf('%s%s',$ftpstart,@array_shift($multicastlog));
+            $multicastlog = @array_shift($multicastlog);
             $schedulerlog = preg_grep('#(fogscheduler.log$)#i',$fogfiles);
-            $schedulerlog = sprintf('%s%s',$ftpstart,@array_shift($schedulerlog));
+            $schedulerlog = @array_shift($schedulerlog);
             $imgrepliclog = preg_grep('#(fogreplicator.log$)#i',$fogfiles);
-            $imgrepliclog = sprintf('%s%s',$ftpstart,@array_shift($imgrepliclog));
+            $imgrepliclog = @array_shift($imgrepliclog);
             $snapinreplog = preg_grep('#(fogsnapinrep.log$)#i',$fogfiles);
-            $snapinreplog = sprintf('%s%s',$ftpstart,@array_shift($snapinreplog));
+            $snapinreplog = @array_shift($snapinreplog);
             $pinghostlog = preg_grep('#(pinghosts.log$)#i',$fogfiles);
-            $pinghostlog = sprintf('%s%s',$ftpstart,@array_shift($pinghostlog));
+            $pinghostlog = @array_shift($pinghostlog);
             $svcmasterlog = preg_grep('#(servicemaster.log$)#i',$fogfiles);
-            $svcmasterlog = sprintf('%s%s',$ftpstart,@array_shift($svcmasterlog));
+            $svcmasterlog = @array_shift($svcmasterlog);
             $files[$StorageNode->get('name')] = array(
                 $svcmasterlog ? _('Service Master') : null => $svcmasterlog ? $svcmasterlog : null,
                 $multicastlog ? _('Multicast') : null => $multicastlog ? $multicastlog : null,
@@ -654,6 +653,7 @@ class FOGConfigurationPage extends FOGPage {
                 $apacheacclog ? _('Apache Access Log') : null  => $apacheacclog ? $apacheacclog : null,
             );
             $files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
+            $ip[$StorageNode->get('name')] = sprintf('ftp://%s:%s@%s',$StorageNode->get('user'),$StorageNode->get('pass'),$StorageNode->get('ip'));
             $this->HookManager->processEvent(sprintf('LOG_VIEWER_HOOK_%s',$StorageGroup->get('name')),array('files'=>&$files,'ftpstart'=>&$ftpstarter));
             unset($StorageGroup);
         }
@@ -663,10 +663,10 @@ class FOGConfigurationPage extends FOGPage {
             $first = true;
             foreach((array)$filearray AS $value => &$file) {
                 if ($first) {
-                    printf('<option disabled="disabled"> ------- %s ------- </option>',$nodename);
+                    printf('<option disabled> ------- %s ------- </option>',$nodename);
                     $first = false;
                 }
-                printf('<option value="%s"%s>%s</option>',$file,($value == $_REQUEST['logtype'] ? ' selected' : ''),$value);
+                printf('<option value="%s|%s"%s>%s</option>',$ip[$nodename],$file,($value == $_REQUEST['logtype'] ? ' selected' : ''),$value);
                 unset($file);
             }
             unset($filearray);

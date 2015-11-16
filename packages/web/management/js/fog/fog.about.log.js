@@ -28,12 +28,16 @@ $(function() {
 })
 function LogGetData() {
     if (! $('#logpause').hasClass('active')) {
+        splitUs = LogToView.split('|');
+        ftp = splitUs[0];
+        file = splitUs[1];
         $.ajax({
             url: '../status/logtoview.php',
             cache: false,
             type: 'POST',
             data: {
-                file: LogToView,
+                ftp: ftp,
+                file: file,
                 lines: LinesToView,
             },
             dataType: 'json',
