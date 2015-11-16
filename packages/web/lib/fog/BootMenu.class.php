@@ -48,7 +48,7 @@ class BootMenu extends FOGBase {
         if ($Host && $Host->isValid()) {
             ($Host->get('kernel') ? $bzImage = $Host->get('kernel') : null);
             $kernel = $bzImage;
-            $this->HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS',array('Host'=>&$Host,'StorageGroup'=>&$StorageGroup,'StorageNode'=>&$StorageNode,'memtest'=>&$memtest,'memdisk'=>&$memdisk,'bzImage'=>&$bzImage,'initrd'=>&$initrd,'webroot'=>&$webroot,'imagefile'=>&$imagefile));
+            $this->HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS',array('Host'=>&$Host,'StorageGroup'=>&$StorageGroup,'StorageNode'=>&$StorageNode,'memtest'=>&$memtest,'memdisk'=>&$memdisk,'bzImage'=>&$bzImage,'initrd'=>&$initrd,'webroot'=>&$webroot,'imagefile'=>&$imagefile,'init'=>&$initrd));
         }
         $keySequence = $this->getSetting('FOG_KEY_SEQUENCE');
         if ($keySequence) $this->KS = $this->getClass('KeySequence',$keySequence);
@@ -82,7 +82,7 @@ class BootMenu extends FOGBase {
         }
         $this->memdisk = "kernel $memdisk";
         $this->memtest = "initrd $memtest";
-        $this->kernel = "kernel $bzImage $this->loglevel initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0".($this->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '');
+        $this->kernel = "kernel $bzImage $this->loglevel init=$initrd initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0".($this->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '');
         $this->initrd = "imgfetch $imagefile";
         $defMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('default'=>1)));
         $this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local').(!$this->hiddenmenu ? " --timeout $timeout" : " --timeout 0").' target && goto ${target}';
