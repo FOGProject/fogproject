@@ -9,11 +9,9 @@ class PushbulletManager extends FOGManagerController {
             PRIMARY KEY(pID),
         KEY new_index (pToken))
         ENGINE = MyISAM";
-        if (!$this->DB->query($sql)) return false;
-        return true;
+        return $this->DB->query($sql)->fetch()->get();
     }
     public function uninstall() {
-        if (!$this->DB->query("DROP TABLE pushbullet")) return false;
-        return true;
+        return $this->DB->query("DROP TABLE pushbullet")->fetch()->get();
     }
 }
