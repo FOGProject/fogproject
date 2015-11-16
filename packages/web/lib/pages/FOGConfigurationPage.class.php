@@ -666,7 +666,7 @@ class FOGConfigurationPage extends FOGPage {
                     printf('<option disabled> ------- %s ------- </option>',$nodename);
                     $first = false;
                 }
-                printf('<option value="%s|%s"%s>%s</option>',$ip[$nodename],$file,($value == $_REQUEST['logtype'] ? ' selected' : ''),$value);
+                printf('<option value="%s||%s"%s>%s</option>',$this->aesencrypt($ip[$nodename]),$file,($value == $_REQUEST['logtype'] ? ' selected' : ''),$value);
                 unset($file);
             }
             unset($filearray);

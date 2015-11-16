@@ -356,7 +356,7 @@ abstract class FOGBase {
         if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true)) $newpass = $decrypt;
         return ($newpass ? $this->aesencrypt($newpass) : '');
     }
-    protected function aesencrypt($data,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
+    public function aesencrypt($data,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
         $iv_size = mcrypt_get_iv_size($enctype,$mode);
         if (!$key) {
             $addKey = true;
@@ -366,7 +366,7 @@ abstract class FOGBase {
         $cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
         return bin2hex($iv).'|'.bin2hex($cipher).($addKey ? '|'.bin2hex($key) : '');
     }
-    protected function aesdecrypt($encdata,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
+    public function aesdecrypt($encdata,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
         $iv_size = mcrypt_get_iv_size($enctype,$mode);
         $data = explode('|',$encdata);
         $iv = @pack('H*',$data[0]);
