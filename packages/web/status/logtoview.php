@@ -3,7 +3,7 @@ $vals = function() {
     ini_set("auto_detect_line_endings", true);
     $folder = sprintf('/%s/',trim(trim(dirname($_REQUEST['file']),'/')));
     $pattern = sprintf('#^%s$#',$folder);
-    $folders = array('/var/log/fog/','/opt/fog/log/','/var/log/httpd/','/var/log/apache2');
+    $folders = array('/var/log/fog/','/opt/fog/log/','/var/log/httpd/','/var/log/apache2/');
     if (!preg_grep($pattern,$folders)) return _('Invalid Folder');
     $lines = array();
     $line_count = is_numeric(trim($_REQUEST['lines'])) ? trim($_REQUEST['lines']) : 20;
@@ -31,20 +31,16 @@ $vals = function() {
     return implode("\n",array_slice($lines,0,$line_count));
 };
 require('../commons/base.inc.php');
-if (!$currentUser->isValid()) {
-    echo json_encode(_('Must be logged in to view'));
-    exit;
-}
 $ip = trim($FOGCore->aesdecrypt($_REQUEST['ip']));
 if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
     echo json_encode(_('IP Passed is incorrect'));
 } else {
     $pat = sprintf('#%s#',$ip);
-    if (preg_match($pat,$ip)) echo json_encode($vals());
+    if (preg_match($pat,$_SERVER['HTTP_HOST'])) echo json_encode($vals());
     else {
-        $url = sprintf('http://%s/fog/status/logtoview.php?ip=%s&file=%s',$ip,$_REQUEST['ip'],$_REQUEST['file']);
-        $data = $FOGCore->FOGURLRequests($url,'GET');
-        echo json_encode(array_shift($data));
+        $url = sprintf('http://%s/fog/status/logtoview.php',$ip);
+        $response = $FOGURLRequests->process($url,'POST',array('ip'=>$_REQUEST['ip'],'file'=>$_REQUEST['file'],'lines'=>$_REQUEST['lines']));
+        echo array_shift($response);
     }
 }
 exit;

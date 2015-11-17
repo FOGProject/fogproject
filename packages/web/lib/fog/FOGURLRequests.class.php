@@ -65,6 +65,7 @@ class FOGURLRequests extends FOGBase {
                         'Expect:',
                     );
                 }
+                $this->contextOptions[CURLOPT_POST] = true;
                 $this->contextOptions[CURLOPT_POSTFIELDS] = $data;
             }
             $this->contextOptions[CURLOPT_CUSTOMREQUEST] = $method;
