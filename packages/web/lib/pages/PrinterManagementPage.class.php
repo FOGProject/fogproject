@@ -116,7 +116,7 @@ class PrinterManagementPage extends FOGPage {
         );
         echo '<!-- General --><div id="printer-gen">';
         if(!isset($_REQUEST['printertype'])) $_REQUEST['printertype'] = "Local";
-        echo '<form id="printerform" action="?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&tab=printer-type" method="post" >';
+        printf('<form method="post" id="printerform" action="%s&tab=printer-type">',$this->formAction);
         $printerTypes = array(
             'Local'=>_('TCP/IP Printer'),
             'iPrint'=>_('iPrint Printer'),

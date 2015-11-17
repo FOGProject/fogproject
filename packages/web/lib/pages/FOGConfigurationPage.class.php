@@ -93,7 +93,7 @@ class FOGConfigurationPage extends FOGPage {
             if (file_exists($_SESSION['tmp-kernel-file'])) @unlink($_SESSION['tmp-kernel-file']);
             printf('<div id="kdlRes"><p id="currentdlstate">%s</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>',_('Starting process...'));
         } else {
-            printf('<form method="post" action="?node=%s&sub=kernel&install=1&file=%s"><p>%s: <input class="smaller" type="text" name="dstName" value="%s"/></p><p><input class="smaller" type="submit" value="%s"/></p></form>',$this->node,basename($_REQUEST['file']),_('Kernel Name'),($_REQUEST['arch'] == 64 || !$_REQUEST['arch'] ? 'bzImage' : 'bzImage32'),_('Next'));
+            printf('<form method="post" action="?node=%s&sub=kernel&install=1&file=%s"><p>%s: <input class="smaller" type="text" name="dstName" value="%s"/></p><p><input class="smaller" type="submit" value="%s"/></p></form>',$this->node,basename(htmlentities($_REQUEST['file'],ENT_QUOTES,'UTF-8')),_('Kernel Name'),(htmlentities($_REQUEST['arch'],ENT_QUOTES,'UTF-8') == 64 || !htmlentities($_REQUEST['arch'],ENT_QUOTES,'UTF-8') ? 'bzImage' : 'bzImage32'),_('Next'));
         }
     }
     public function pxemenu() {
@@ -567,7 +567,8 @@ class FOGConfigurationPage extends FOGPage {
         echo '</div></form>';
     }
     public function getOSID() {
-        $osname = $this->getClass('Image',$_REQUEST['image_id'])->getOS()->get('name');
+        $imageid = is_numeric(trim(htmlentities($_REQUEST['image_id'],ENT_QUOTES,'UTF-8'))) ? trim(htmlentities($_REQUEST['image_id'])) : 0;
+        $osname = $this->getClass('Image',$imageid)->getOS()->get('name');
         echo json_encode($osname ? $osname : _('No Image specified'));
         exit;
     }
@@ -725,7 +726,7 @@ class FOGConfigurationPage extends FOGPage {
         try {
             if (!$_FILES['dbFile']) throw new Exception(_('No files uploaded'));
             $original = $Schema->export_db();
-            $result = $this->getClass('Schema')->import_db($_FILES['dbFile']['tmp_name']);
+            $result = $this->getClass('Schema')->import_db(htmlentities($_FILES['dbFile']['tmp_name'],ENT_QUOTES,'UTF-8'));
             if ($result === true) printf('<h2>%s</h2>',_('Database Imported and added successfully'));
             else {
                 printf('<h2>%s</h2>',_('Errors detected on import'));

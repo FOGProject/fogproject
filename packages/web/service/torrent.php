@@ -1,7 +1,7 @@
 <?php
 require_once('../commons/base.inc.php');
 try {
-    $torrentFile = ($_REQUEST[torrent].'.torrent');
+    $torrentFile = sprintf('%s.torrent',basename(htmlentities($_REQUEST['torrent'],ENT_QUOTES,'UTF-8')));
     // Assign the file for sending.
     if (file_exists(rtrim($FOGCore->getSetting(FOG_TORRENTDIR),'/').'/'.$torrentFile)) $torrentFile = (rtrim($FOGCore->getSetting(FOG_TORRENTDIR),'/').'/'.$torrentFile);
     // If it exists and is readable send it!
