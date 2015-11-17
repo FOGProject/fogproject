@@ -67,7 +67,7 @@ expandPartition() {
         return;
     fi
     if [ -n "$fixed_size_partitions" ]; then
-        local partNum=`echo $1 | sed -r 's/^[^0-9]+//g'`;
+        local partNum=`echo $1 | grep -o '[0-9]*$'`;
         is_fixed=`echo $fixed_size_partitions | egrep "(${partNum}|^${partNum}|${partNum}$)" | wc -l`;
         if [ "$is_fixed" == "1" ]; then
             dots "Not expanding ($1) fixed size";
@@ -173,7 +173,7 @@ shrinkPartition() {
     # Save filesystem type information
     echo "$1 $fstype" >> "$2"
     if [ -n "$fixed_size_partitions" ]; then
-        local partNum=`echo $1 | sed -r 's/^[^0-9]+//g'`;
+        local partNum=`echo $1 | grep -o '[0-9]*$'`;
         is_fixed=`echo "$fixed_size_partitions" | egrep ':'${partNum}':|^'${partNum}':|:'${partNum}'$' | wc -l`;
         if [ "$is_fixed" == "1" ]; then
             dots "Not shrinking ($1) fixed size";
@@ -383,12 +383,11 @@ getValidRestorePartitions() {
     local imagePath="$3";
     local valid_parts="";
     local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
-    local diskLength=`expr length $drive`;
     local part="";
     local partNum="";
     local imgpart="";
     for part in $parts; do
-        partNum=${part:$diskLength};
+        partNum=`echo $part | grep -o '[0-9]*$'`;
         imgpart="$imagePath/d${driveNum}p${partNum}.img*";
         if [ -f $imgpart ]; then
             valid_parts="$valid_parts $part";
@@ -407,11 +406,10 @@ makeAllSwapSystems() {
     local imgPartitionType="$4";
     local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
     local part="";
-    local diskLength=`expr length $drive`;
     local partNum="";
     local swapuuidfilename=`swapUUIDFileName "$imagePath" "${driveNum}"`;
     for part in $parts; do
-        partNum=${part:$diskLength};
+        partNum=`echo $part | grep -o '[0-9]*$'`;
         if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
             makeSwapSystem "$swapuuidfilename" "$part";
         fi
@@ -1185,15 +1183,14 @@ savePartition() {
     local part="$1";
     local intDisk="$2";
     local imagePath="$3";
-    local diskLength="$4";
-    local cores="$5";
-    local imgPartitionType="$6";
+    local cores="$4";
+    local imgPartitionType="$5";
     local partNum="";
     local fstype="";
     local parttype="";
     local imgpart="";
     local fifoname="/tmp/pigz1";
-    partNum=${part:$diskLength};
+    partNum=`echo $part | grep -o '[0-9]*$'`
     if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
         mkfifo $fifoname;
         echo " * Processing Partition: $part ($partNum)";
@@ -1249,18 +1246,13 @@ restorePartition() {
         local imagePath="$3";
     fi
     if [ -z "$4" ]; then
-        local diskLength="`expr length $hd`";
-    else
-        local diskLength="$4";
-    fi
-    if [ -z "$5" ]; then
         local imgPartitionType="$imgPartitionType";
     else
-        local imgPartitionType="$5";
+        local imgPartitionType="$4";
     fi
     local partNum="";
     local imgpart="";
-    partNum=${part:$diskLength};
+    partNum=`echo $part | grep -o '[0-9]*$'`
 
     echo " * Processing Partition: $part ($partNum)";
     if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then

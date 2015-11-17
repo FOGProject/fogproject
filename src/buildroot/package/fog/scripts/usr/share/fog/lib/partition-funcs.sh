@@ -52,8 +52,8 @@ hasExtendedPartition() {
 # $1 is the name of the partition device (e.g. /dev/sda3)
 partitionHasEBR() {
     local part="$1";
-    local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
-    local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+    local part_number=`echo $part | grep -o '[0-9]\+$'`;
+    local disk=`echo $part | sed 's/p\?[0-9]\+$//g'`;
     local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}'`;
     if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
         echo "1";
@@ -67,8 +67,8 @@ partitionHasEBR() {
 saveEBR() {
     local part="$1";
     local dstfilename="$2";
-    local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
-    local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+    local part_number=`echo $part | grep -o '[0-9]\+$'`;
+    local disk=`echo $part | sed  's/p\?[0-9]\+$//g'`;
     local table_type=`getPartitionTableType "$disk"`;
     if [ "$table_type" != "MBR" ]; then
         return
@@ -91,10 +91,9 @@ saveAllEBRs() {
     local imagePath="$3";
     local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
     local part="";
-    local diskLength=`expr length $drive`;
     local partNum="";
     for part in $parts; do
-        partNum=${part:$diskLength};
+        partNum=`echo $part | grep -o '[0-9]\+$'`;
         ebrfilename=`EBRFileName "${imagePath}" "${driveNum}" "${partNum}"`;
         saveEBR "$part" "$ebrfilename";
     done
@@ -106,8 +105,8 @@ saveAllEBRs() {
 restoreEBR() {
     local part="$1";
     local srcfilename="$2";
-    local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
-    local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+    local part_number=`echo $part | grep -o '[0-9]\+$'`;
+    local disk=`echo $part | sed 's/p\?[0-9]\+$//g'`;
     local table_type=`getPartitionTableType "$disk"`;
     if [ "$table_type" != "MBR" ]; then
         return
@@ -134,10 +133,9 @@ restoreAllEBRs() {
     local imgPartitionType="$4";
     local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
     local part="";
-    local diskLength=`expr length $drive`;
     local partNum="";
     for part in $parts; do
-        partNum=${part:$diskLength};
+        partNum=`echo $part | grep -p '[0-9]\+$'`;
         if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
             local ebrfilename=`EBRFileName "${imagePath}" "${driveNum}" "${partNum}"`;
             restoreEBR "$part" "$ebrfilename";
@@ -224,7 +222,6 @@ saveAllSwapUUIDs() {
     local imagePath="$3";
     local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
     local part="";
-    local diskLength=`expr length $drive`;
     local partNum="";
     local swapfilename=`swapUUIDFileName "$imagePath" "$driveNum"`;
     for part in $parts; do
@@ -240,7 +237,7 @@ saveAllSwapUUIDs() {
 makeSwapSystem() {
     local uuid="";
     local option="";
-    local disk=`echo $2 | sed -r 's/[0-9]+$//g'`;
+    local disk=`echo $2 | sed 's/p\?[0-9]\+$//g'`;
     local part_type="0";
     local hasgpt=`hasGPT $disk`;
     if [ "$hasgpt" == "1" ]; then
@@ -275,7 +272,7 @@ makeSwapSystem() {
 resizeSfdiskPartition() {
     local part="$1";
     local size="$2";
-    local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+    local disk=`echo $part | sed  's/p\?[0-9]\+$//g'`;
     local imagePath="$3";
     local tmp_file="/tmp/sfdisk.$$";
     local tmp_file2="/tmp/sfdisk2.$$";
@@ -478,14 +475,13 @@ saveSgdiskPartitions() {
     local filename="$2";
     local parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
     local part="";
-    local diskLength=`expr length $disk`;
     local partNum="";
     rm -f $filename;
     sgdisk -p "$disk" | \
     awk '/^Logical sector size:/{sectorsize=$4;} /Disk identifier \(GUID\):/{diskcode=$4;}  /^First usable sector is/{split($5, a, ",", seps); first=a[1]; last=$10;}  /^Partitions will be aligned on/{split($6, a, "-", seps); boundary=a[1];}  /^ *[0-9]+ +/{partnum=$1; start=$2; end=$3; code=$6; print "part:" partnum ":" start ":" end ":" code;}  END{print "'$disk':" sectorsize ":" diskcode ":" first ":" last ":" boundary}' \
     >> $filename;
     for part in $parts; do
-        partNum=${part:$diskLength};
+        partNum=`echo $part | grep -o '[0-9]\+$'`;
 
         sgdisk -i "$partNum" "$disk" | \
         awk '/^Partition GUID code:/{typecode=$4;} /Partition unique GUID:/{partcode=$4;} /^Partition name:/{name=$3; for(i=4;i<=NF;i++) {name = name " " $i}} /^First sector:/{first=$3;} /^Last sector:/{last=$3;} END{print "'$part':" typecode ":" partcode ":" first ":" last ":" name;}' \
@@ -515,7 +511,7 @@ restoreSgdiskPartitions() {
     fi
 
     for part in $parts; do
-        local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
+        local part_number=`echo $part | grep -o '[0-9]\+$'`;
         local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
         local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
         local partend=`awk -F: '/^'"$escape_part"':/{print $5;}' $filename`;
@@ -587,7 +583,7 @@ fillSgdiskWithPartitions() {
     local original_variable=0;
     local original_fixed=$first_start;  # pre-first partition is fixed
     for part in $parts; do
-        local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
+        local part_number=`echo $part | grep -o '[0-9]\+$'`;
         local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
         local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
         local partend=`awk -F: '/^'"$escape_part"':/{print $5;}' $filename`;
@@ -618,7 +614,7 @@ fillSgdiskWithPartitions() {
     # find new start, size, end for all partitions, and create them
     local g_start="$first_start";
     for part in $parts; do
-        local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
+        local part_number=`echo $part | grep -o '[0-9]\+$'`;
         local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
         local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
         local partend=`awk -F: '/^'"$escape_part"':/{print $5;}' $filename`;
@@ -681,8 +677,8 @@ resizeSgdiskPartition() {
     local part="$1";
     local size="$2";
     local imagePath="$3";
-    local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
-    local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
+    local disk=`echo $part | sed 's/p\?[0-9]\+$//g'`;
+    local part_number=`echo $part | grep -o '[0-9]\+$'`;
 
 
     local escape_disk=`echo "$disk" | sed -r 's%/%\\\\/%g'`;
@@ -738,7 +734,7 @@ resizePartition() {
     local part="$1";
     local size="$2";
     local imagePath="$3";
-    local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+    local disk=`echo $part | sed  's/p\?[0-9]+$//g'`;
     local table_type=`getPartitionTableType "$disk"`;
 
     if [ "$table_type" == "MBR" ]; then
