@@ -138,7 +138,7 @@ class LocationManagementPage extends FOGPage {
             _('Storage Group') => $this->getClass('StorageGroupManager')->buildSelectBox($this->obj->get('storageGroupID')),
             _('Storage Node') => $this->getClass('StorageNodeManager')->buildSelectBox($this->obj->get('storageNodeID')),
             _('TFTP From Node') => sprintf('<input type="checkbox" name="tftp" value="on"%s/>',$this->obj->get('tftp') ? ' checked' : ''),
-            '&nbsp;' => sprintf('<input type="submit" class="smaller" value="%s"/>',_('Update')),
+            '&nbsp;' => sprintf('<input type="submit" class="smaller" name="update" value="%s"/>',_('Update')),
         );
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(

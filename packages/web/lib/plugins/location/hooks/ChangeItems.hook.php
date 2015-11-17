@@ -21,7 +21,7 @@ class ChangeItems extends Hook {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$arguments['Host']->isValid()) return;
         $LocAssocs = $this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id')));
-        foreach ($LocAssocs AS $i => &$LA) {
+        foreach ((array)$this->getClass('LocationAssociationManager')->find(array('hostID'=>$arguments['Host']->get('id'))) AS $i => &$LA) {
             $arguments['StorageGroup'] = $LA->getStorageGroup();
             break;
             unset($LA);
@@ -30,8 +30,9 @@ class ChangeItems extends Hook {
     public function BootItemSettings($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$arguments['Host']->isValid()) return;
-        $LocAssocs = $this->getClass('LocationAssociationManager')->find(array('hostID'=>$arguments['Host']->get('id')));
-        foreach ($LocAssocs AS $i => &$LA) {
+        foreach ((array)$this->getClass('LocationAssociationManager')->find(array('hostID'=>$arguments['Host']->get('id'))) AS $i => &$LA) {
+            $Location = $LA->getLocation();
+            if (!$Location->isValid()) continue;
             if (!$LA->isTFTP()) continue;
             $StorageNode = $LA->getStorageNode();
             if (!$StorageNode->isValid()) continue;
