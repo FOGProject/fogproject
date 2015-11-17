@@ -12,7 +12,7 @@ if [ -n "$hd" ]; then
     part=$hd'1'
     if [[ "$osid" == +([5-7]|9) ]]; then
         win7partcnt="0"
-        parts=`fogpartinfo --list-parts $hd 2>/dev/null`
+        getPartitions $hd
         for prt in $parts; do
             win7partcnt=`expr ${win7partcnt} + 1`
         done

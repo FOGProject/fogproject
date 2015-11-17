@@ -320,7 +320,7 @@ countNtfs() {
     local part="";
     local parts="";
     if [ -n "$1" ]; then
-        parts=`fogpartinfo --list-parts $1 2>/dev/null`;
+        getPartitions $1
         for part in $parts; do
             fstype=`fsTypeSetting "$part"`;
             if [ "$fstype" == "ntfs" ]; then
@@ -337,7 +337,7 @@ countExtfs() {
     local part="";
     local parts="";
     if [ -n "$1" ]; then
-        parts=`fogpartinfo --list-parts $1 2>/dev/null`;
+        getPartitions $1
         for part in $parts; do
             fstype=`fsTypeSetting "$part"`;
             if [ "$fstype" == "extfs" ]; then
@@ -382,9 +382,8 @@ getValidRestorePartitions() {
     local driveNum="$2";
     local imagePath="$3";
     local valid_parts="";
-    local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
+    getPartitions $drive
     local diskLength=`expr length $drive`;
-    local part="";
     local partNum="";
     local imgpart="";
     for part in $parts; do
@@ -405,8 +404,7 @@ makeAllSwapSystems() {
     local driveNum="$2";
     local imagePath="$3";
     local imgPartitionType="$4";
-    local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
-    local part="";
+    getPartitions $drive
     local diskLength=`expr length $drive`;
     local partNum="";
     local swapuuidfilename=`swapUUIDFileName "$imagePath" "${driveNum}"`;
@@ -684,7 +682,10 @@ getPartitionCount() {
 }
 # $1 is the partition to search for.
 getPartitions() {
-    echo `lsblk -pno KNAME,MAJ:MIN -x KNAME | awk -f'[ :]+' '{
+    if [[ -z $1 ]]; then
+        1=$hd;
+    fi
+    parts=`lsblk -pno KNAME,MAJ:MIN -x KNAME | awk -f'[ :]+' '{
     if (($2 == "3" || $2 == "8" || $2 == "9") && ($3 > 0))
         print $1
     }' | grep $1`;
@@ -696,15 +697,21 @@ getHardDisk() {
         hd="${fdrive}";
         return 0;
     else
-        hd=`lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
-        if ($2 == "3" || $2 == "8" || $2 == "9")
-            print $1
-        }' | head -n1`
-
-        if [ -z "$hd" ]; then
-            handleError "Cannot find HDD on system";
-        else
-            return 0;
+        if [[ -z $1 || $1 != true ]]; then
+            hd=`lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
+            if ($2 == "3" || $2 == "8" || $2 == "9")
+                print $1
+            }' | head -n1`
+            if [ -z "$hd" ]; then
+                handleError "Cannot find HDD on system";
+            else
+                return 0;
+            fi
+        elif [[ $1 == true ]]; then
+            disks=`lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
+            if ($2 == "3" || $2 == "8" || $2 == "9")
+                print $1
+            }'`
         fi
     fi
     return 1;
@@ -796,9 +803,9 @@ handleError() {
     # Linux:
     if [ "$2" == "yes" ]; then
         if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
-            parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+            getPartitions $hd
             for part in $parts; do
-                expandPartition "$part";
+                expandPartition "$part"
             done
         fi
     fi

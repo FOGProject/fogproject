@@ -2,15 +2,8 @@
 # Makefile for the fog initrd binaries
 #
 #
-
-all: fogmbrfix fogpartinfo
-
+all: fogmbrfix
 fogmbrfix:
 	$(CXX) $(CXXFLAGS) -o fogmbrfix fogmbrfix.cpp
-
-fogpartinfo: 
-	$(CXX) $(CXXFLAGS) -o fogpartinfo fogpartinfo.cpp -lparted
-
 clean:
-	rm -f *.o fogmbrfix fogpartinfo
-
+	rm -f *.o fogmbrfix

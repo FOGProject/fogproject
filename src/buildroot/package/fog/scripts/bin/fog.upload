@@ -54,7 +54,7 @@ if [ -f "/images/.mntcheck" ]; then
             fixed_size_partitions="";
             # All:
             #  find fixed size partitions, based on fstype
-            parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+            getPartitions $hd;
             for part in $parts; do
                 fstype=`fsTypeSetting $part`;
                 if [ "$fstype" != "extfs" -a "$fstype" != "ntfs" ]; then
@@ -80,7 +80,6 @@ if [ -f "/images/.mntcheck" ]; then
                     part="${hd}1";
                     win7sys="$part";
                 elif [ "$win7partcnt" == "2" ]; then
-                    parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
                     tmpCnt="0";
                     for part in $parts; do
                         if [ "$tmpCnt" == "0" ]; then
@@ -153,7 +152,6 @@ if [ -f "/images/.mntcheck" ]; then
             #  Attempt to shrink all filesystems and partitions, except swap, extended.
             #  Save partition table with shrunken partitions for use on download
             if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
-                parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
                 for part in $parts; do
                     shrinkPartition "$part" "${imagePath}/d1.original.fstypes";
                 done
@@ -177,7 +175,6 @@ if [ -f "/images/.mntcheck" ]; then
                 echo "";
                 echo " * Now FOG will attempt to upload the image using Partclone.";
                 echo "";
-                parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
                 diskLength=`expr length $hd`;
                 for part in $parts; do
                     savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType";
@@ -199,7 +196,6 @@ if [ -f "/images/.mntcheck" ]; then
             # Windows 2000/XP, Vista:
             # Linux:
             if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
-                parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
                 for part in $parts; do
                     expandPartition "$part";
                 done
@@ -208,7 +204,6 @@ if [ -f "/images/.mntcheck" ]; then
             if [ -d "$imagePath" ]; then
                 savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
                 debugPause
-                parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
                 diskLength=`expr length $hd`;
                 for part in $parts; do
                     savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType";
@@ -219,14 +214,14 @@ if [ -f "/images/.mntcheck" ]; then
                 handleError "Unable to create $imagePath";
             fi
         elif [ "$imgType" == "mpa" ]; then
-            disks=`fogpartinfo --list-devices 2>/dev/null`;
+            getHardDisk "true"
             intDisk=1;
             for disk in $disks; do
                 echo " * Processing Hard Disk: $disk";
                 if [ -d "$imagePath" ]; then
                     savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$imgPartitionType"
                     debugPause
-                    parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
+                    getPartitions $disk
                     diskLength=`expr length $disk`;
                     for part in $parts; do
                         savePartition "$part" "$intDisk" "$imagePath" "$diskLength" "$cores" "$imgPartitionType"
