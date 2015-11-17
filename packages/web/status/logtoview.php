@@ -7,7 +7,7 @@ $vals = function() {
     if (!preg_grep($pattern,$folders)) return _('Invalid Folder');
     $lines = array();
     $line_count = is_numeric(trim($_REQUEST['lines'])) ? trim($_REQUEST['lines']) : 20;
-    $block_size = 4096;
+    $block_size = 8192;
     $leftover = "";
     $file = trim(basename($_REQUEST['file']));
     $path = sprintf('%s%s',$folder,$file);
@@ -17,7 +17,7 @@ $vals = function() {
     do {
         $can_read = $block_size;
         if (ftell($fh) < $block_size) $can_read = ftell($fh);
-        fseek($fh, -$can_reed, SEEK_CUR);
+        fseek($fh, -$can_read, SEEK_CUR);
         $data = fread($fh,$can_read);
         $data .= $leftover;
         fseek($fh, -$can_read, SEEK_CUR);
