@@ -682,7 +682,13 @@ getSAMLoc() {
 getPartitionCount() {
     echo `lsblk -pno KNAME ${1}|wc -l`;
 }
-
+# $1 is the partition to search for.
+getPartitions() {
+    echo `lsblk -pno KNAME,MAJ:MIN -x KNAME | awk -f'[ :]+' '{
+    if (($2 == "3" || $2 == "8" || $2 == "9") && ($3 > 0))
+        print $1
+    }' | grep $1`;
+}
 # Gets the hard drive on the host
 # Note: This function makes a best guess
 getHardDisk() {
