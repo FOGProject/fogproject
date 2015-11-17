@@ -149,30 +149,22 @@ class SnapinManagementPage extends FOGPage {
             if ($SnapinManager->exists($snapinName)) throw new Exception(_('Snapin already exists'));
             if (!$_REQUEST['storagegroup']) throw new Exception(_('Please select a storage group for this snapin to reside in'));
             if ($_REQUEST['snapin'] || $_FILES['snapin']['name']) {
-                if (!$_REQUEST['storagegroup']) {
-                    $uploadfile = rtrim($_SESSION['FOG_SNAPINDIR'],'/').'/'.basename($_FILES['snapin']['name']);
-                    if(!is_dir($_SESSION['FOG_SNAPINDIR']) && !is_writeable($_SESSION['FOG_SNAPINDIR'])) throw new Exception('Failed to add snapin, unable to locate snapin directory.');
-                    else if (!is_writeable($_SESSION['FOG_SNAPINDIR'])) throw new Exception('Failed to add snapin, snapin directory is not writeable.');
-                    else if (file_exists($uploadfile)) throw new Exception('Failed to add snapin, file already exists.');
-                    else if (!move_uploaded_file($_FILES['snapin']['tmp_name'],$uploadfile)) throw new Exception('Failed to add snapin, file upload failed.');
-                } else {
-                    // Will fail if the storage group is not assigned or found.
-                    $StorageNode = $this->getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
-                    $src = $_FILES['snapin']['tmp_name'];
-                    $dest = rtrim($StorageNode->get('snapinpath'),'/').'/'.$_FILES['snapin']['name'];
-                    $this->FOGFTP
-                        ->set('host',$StorageNode->get('ip'))
-                        ->set('username',$StorageNode->get('user'))
-                        ->set('password',$StorageNode->get('pass'));
-                    if (!$this->FOGFTP->connect()) throw new Exception(_('Storage Node: '.$StorageNode->get('ip').' FTP Connection has failed!'));
-                    if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                        if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
-                    }
-                    // Try to delete the file.
-                    $this->FOGFTP->delete($dest);
-                    if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add snapin'));
-                    $this->FOGFTP->close();
+                if (!$_REQUEST['storagegroup']) throw new Exception(_('Must have snapin associated to a group'));
+                $StorageNode = $this->getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
+                $src = $_FILES['snapin']['tmp_name'];
+                $dest = rtrim($StorageNode->get('snapinpath'),'/').'/'.$_FILES['snapin']['name'];
+                $this->FOGFTP
+                    ->set('host',$StorageNode->get('ip'))
+                    ->set('username',$StorageNode->get('user'))
+                    ->set('password',$StorageNode->get('pass'));
+                if (!$this->FOGFTP->connect()) throw new Exception(_('Storage Node: '.$StorageNode->get('ip').' FTP Connection has failed!'));
+                if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                    if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
                 }
+                // Try to delete the file.
+                $this->FOGFTP->delete($dest);
+                if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add snapin'));
+                $this->FOGFTP->close();
             } else if (empty($_REQUEST['snapinfileexist'])) throw new Exception('Failed to add snapin, no file was uploaded or selected for use');
             // Create new Object
             $Snapin = $this->getClass('Snapin')
@@ -346,28 +338,20 @@ class SnapinManagementPage extends FOGPage {
                 $SnapinManager = $this->getClass('SnapinManager');
                 // Error checking
                 if ($_REQUEST['snapin'] || $_FILES['snapin']['name']) {
-                    if (!$this->obj->getStorageGroup()) {
-                        $uploadfile = rtrim($_SESSION['FOG_SNAPINDIR'],'/').'/'.basename($_FILES['snapin']['name']);
-                        if(!is_dir($_SESSION['FOG_SNAPINDIR']) && !is_writeable($_SESSION['FOG_SNAPINDIR'])) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
-                        else if (!is_writeable($_SESSION['FOG_SNAPINDIR'])) throw new Exception(_('Failed to add snapin, snapin directory is not writeable.'));
-                        else if (file_exists($uploadfile)) throw new Exception(_('Failed to add snapin, file already exists.'));
-                        else if (!move_uploaded_file($_FILES['snapin']['tmp_name'],$uploadfile)) throw new Exception(_('Failed to add snapin, file upload failed.'));
-                    } else {
-                        // Will fail if the storage group is not assigned or found.
-                        $StorageNode = $this->obj->getStorageGroup()->getMasterStorageNode();
-                        $src = $_FILES['snapin']['tmp_name'];
-                        $dest = rtrim($StorageNode->get('snapinpath'),'/').'/'.$_FILES['snapin']['name'];
-                        $this->FOGFTP
-                            ->set('host',$StorageNode->get('ip'))
-                            ->set('username',$StorageNode->get('user'))
-                            ->set('password',$StorageNode->get('pass'));
-                        if (!$this->FOGFTP->connect()) throw new Exception(_('Storage Node: '.$StorageNode->get('ip').' FTP Connection has failed!'));
-                        if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
-                        // Try to delete the file.
-                        $this->FOGFTP->delete($dest);
-                        if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add snapin'));
-                        $this->FOGFTP->close();
-                    }
+                    if (!$this->obj->getStorageGroup()) throw new Exception(_('Must have snapin associated to a group'));
+                    $StorageNode = $this->obj->getStorageGroup()->getMasterStorageNode();
+                    $src = $_FILES['snapin']['tmp_name'];
+                    $dest = rtrim($StorageNode->get('snapinpath'),'/').'/'.$_FILES['snapin']['name'];
+                    $this->FOGFTP
+                        ->set('host',$StorageNode->get('ip'))
+                        ->set('username',$StorageNode->get('user'))
+                        ->set('password',$StorageNode->get('pass'));
+                    if (!$this->FOGFTP->connect()) throw new Exception(_('Storage Node: '.$StorageNode->get('ip').' FTP Connection has failed!'));
+                    if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+                    // Try to delete the file.
+                    $this->FOGFTP->delete($dest);
+                    if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add snapin'));
+                    $this->FOGFTP->close();
                 }
                 if ($_REQUEST['name'] != $this->obj->get('name') && $this->obj->getManager()->exists($_REQUEST['name'], $this->obj->get('id'))) throw new Exception('Snapin already exists');
                 // Update Object

@@ -2,6 +2,7 @@
 class ProcessLogin extends FOGBase {
     private $username, $password, $currentUser, $langSet;
     private $mobileMenu, $langMenu;
+    private $lang;
     private function getLanguages() {
         $translang = $this->transLang();
         foreach($this->foglang['Language'] AS $i => &$lang) $this->langMenu .= '<option value="'.$lang.'" '.($translang == $lang ? 'selected="selected"' : '').'>'.$lang.'</option>';
@@ -46,37 +47,36 @@ class ProcessLogin extends FOGBase {
         }
     }
     private function specLang() {
-        switch ($_REQUEST['ulang']) {
+        switch ($this->lang[1]) {
         case $this->foglang['Language']['en']:
-            $_REQUEST['ulang'] = 'en_US.UTF-8';
+            $this->lang = 'en_US.UTF-8';
             break;
         case $this->foglang['Language']['fr']:
-            $_REQUEST['ulang'] = 'fr_FR.UTF-8';
+            $this->lang = 'fr_FR.UTF-8';
             break;
         case $this->foglang['Language']['it']:
-            $_REQUEST['ulang'] = 'it_IT.UTF-8';
+            $this->lang = 'it_IT.UTF-8';
             break;
         case $this->foglang['Language']['zh']:
-            $_REQUEST['ulang'] = 'zh_CN.UTF-8';
+            $this->lang = 'zh_CN.UTF-8';
             break;
         case $this->foglang['Language']['es']:
-            $_REQUEST['ulang'] = 'es_ES.UTF-8';
+            $this->lang = 'es_ES.UTF-8';
             break;
         case $this->foglang['Language']['de']:
-            $_REQUEST['ulang']	= 'de_DE.UTF-8';
+            $this->lang = 'de_DE.UTF-8';
             break;
         case $this->foglang['Language']['pt']:
-            $_REQUEST['ulang'] = 'pt_BR.UTF-8';
+            $this->lang = 'pt_BR.UTF-8';
             break;
         default :
-            $lang = $this->defaultLang();
-            $_REQUEST['ulang'] = $lang[1];
+            $this->lang = $this->defaultLang();
+            $this->specLang();
             break;
         }
     }
     public function setLang() {
         $langs = array(
-            '' => true,
             'en_US.UTF-8' => true,
             'fr_FR.UTF-8' => true,
             'it_IT.UTF-8' => true,
@@ -85,9 +85,13 @@ class ProcessLogin extends FOGBase {
             'de_DE.UTF-8' => true,
             'pt_BR.UTF-8' => true,
         );
-        if (!isset($langs[$_REQUEST['ulang']])) die('Invalid language specification');
+        if (!isset($this->lang)) {
+            $this->lang = $this->defaultLang();
+            $this->specLang();
+        }
+        if (!isset($langs[$this->lang])) die('Invalid language specification');
         $this->specLang();
-        $_SESSION['locale'] = $_REQUEST['ulang'];
+        $_SESSION['locale'] = $this->lang;
         putenv("LC_ALL=".$_SESSION['locale']);
         setlocale('LC_ALL',$_SESSION['locale']);
         bindtextdomain('messages','languages');
@@ -100,10 +104,10 @@ class ProcessLogin extends FOGBase {
         if (!$this->isMobile) $this->HookManager->processEvent('LoginSuccess',array('user'=>&$this->currentUser,'username'=>$this->username, 'password'=>&$this->password));
     }
     private function setRedirMode() {
-        $redirect = array_merge($_GET, $_POST);
+        $redirect = $_REQUEST;
         unset($redirect['upass'],$redirect['uname'],$redirect['ulang']);
         if (in_array($redirect['node'],array('login','logout'))) unset($redirect['node']);
-        foreach ($redirect AS $key => &$value) $redirectData[] = $key.'='.$value;
+        foreach ($redirect AS $key => &$value) $redirectData[] = sprintf('%s=%s',$key,$value);
         unset($value);
         $this->redirect(($redirectData ? '?' . implode('&',(array)$redirectData) : ''));
     }
@@ -130,9 +134,11 @@ class ProcessLogin extends FOGBase {
             $this->redirect('index.php');
         }
         echo '<form method="post" action="?node=login" id="login-form">';
-        if ($_REQUEST['node'] != 'logout') {
-            foreach ($_GET AS $key => &$value) echo '<input type ="hidden" name="'.$key.'" value="'.$value.'" />';
-            unset($value);
+        if (htmlentities($_REQUEST['node'],ENT_QUOTES,'UTF-8') != 'logout') {
+            foreach ($_REQUEST AS $key => &$value) {
+                echo sprintf('<input type="hidden" name="%s" value="%s"/>',htmlentities($key,ENT_QUOTES,'UTF-8'),htmlentities($value,ENT_QUOTES,'UTF-8'));
+                unset($value);
+            }
         }
         echo '<label for="username">'.$this->foglang['Username'].'</label><input type="text" class="input" name="uname" id="username" /><label for="password">'.$this->foglang['Password'].'</label><input type="password" class="input" name="upass" id="password" /><label for="language">'.$this->foglang['LanguagePhrase'].'</label>';
         $this->getLanguages();
@@ -140,7 +146,7 @@ class ProcessLogin extends FOGBase {
     }
     public function mobileLoginForm() {
         if (!$_SESSION['locale']) $this->setLang();
-        if (in_array($_GET['node'],array('login','logout'))) $this->redirect('index.php');
+        if (in_array($_REQUEST['node'],array('login','logout'))) $this->redirect('index.php');
         echo '<center><div class="login"><p class="loginTitle">'.$this->foglang['FOGMobile'].'</p><form method="post" action="?node=login"><div class="loginElement">'.$this->foglang['Username'].':</div><div class="loginElement"><input type="text" class="login" name="uname" /></div><div class="loginElement">'.$this->foglang['Password'].':</div><div class="loginElement"><input type="password" class="login" name="upass" /></div>'."\n";
         $this->getLanguages();
         echo '<div class="loginElement">'.$this->foglang['LanguagePhrase'].':</div><div class="loginElement"><select class="login" name="ulang">';
