@@ -685,7 +685,7 @@ getPartitions() {
     if [[ -z $1 ]]; then
         1=$hd;
     fi
-    parts=`lsblk -pno KNAME,MAJ:MIN -x KNAME | awk -f'[ :]+' '{
+    parts=`lsblk -pno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
     if (($2 == "3" || $2 == "8" || $2 == "9") && ($3 > 0))
         print $1
     }' | grep $1`;
