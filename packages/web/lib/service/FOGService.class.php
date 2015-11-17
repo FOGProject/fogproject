@@ -132,6 +132,7 @@ abstract class FOGService extends FOGBase {
             $myDir = sprintf('/%s/',trim($StorageNode->get($getPathOfItemField),'/'));
             $myFile = ($master ? basename($Obj->get($getFileOfItemField)) : '');
             $myAddItem = $myDir;
+            if (is_dir("$myDir$myFile")) $myAddItem = "$myDir$myFile";
             foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
                 if (!$PotentialStorageNode->isValid()) continue;
                 if ($master && $PotentialStorageNode->get('storageGroupID') == $myStorageGroupID) continue;
@@ -164,6 +165,9 @@ abstract class FOGService extends FOGBase {
                 if (is_file("$myDir$myFile")) {
                     $remItem = "$removeDir";
                     $includeFile = sprintf('-i %s',$myFile);
+                } else if (is_dir("$myDir$myFile")) {
+                    $remItem = "$removeDir$myFile";
+                    $includeFile = null;
                 } else {
                     $remItem = $removeDir;
                     $includeFile = null;
