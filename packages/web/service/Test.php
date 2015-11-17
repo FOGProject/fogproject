@@ -27,22 +27,23 @@ $AESDecryption = function($key,$iv,$data) {
     echo "$iv|$cipher";
 };
 $RawResponse = function() {echo 'Foobar22!';};
-$units = array_keys(array('Response','ResponseArray','BadResponse','Download','AESDecryptionResponse1','AESDecryptionResponse2','AESDecryption','RawResponse'));
-if (in_array($_REQUEST['unit'],$units)) {
-    if (strpos($_REQUEST['unit'],'AESDecryption') !== false) {
-        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128,MCRYPT_MODE_CBC);
-        $iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
-        $n = strlen($_REQUEST['key']);
-        $i = 0;
-        while ($i < $n) {
-            $a = substr($_REQUEST['key'],$i,2);
-            $c = pack("H*",$a);
-            if ($i == 0) $key = $c;
-            else $key .= $c;
-            $i += 2;
-        }
-        $$_REQUEST['unit']($key,$iv,'Foobar22!');
-    } else {
-        $$_REQUEST['unit']();
+$units = array('Response','ResponseArray','BadResponse','Download','AESDecryptionResponse1','AESDecryptionResponse2','AESDecryption','RawResponse');
+if (!in_array(htmlentities($_REQUEST['unit'],ENT_QUOTES,'UTF-8'))) exit;
+$unit = htmlentities($_REQUEST['unit'],ENT_QUOTES,'UTF-8');
+if (strpos($unit,'AESDecryption') !== false) {
+    $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128,MCRYPT_MODE_CBC);
+    $iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
+    $key = htmlentities($_REQUEST['key'],ENT_QUOTES,'UTF-8');
+    $n = strlen($key);
+    $i = 0;
+    while ($i < $n) {
+        $a = substr($key,$i,2);
+        $c = pack("H*",$a);
+        if ($i == 0) $key = $c;
+        else $key .= $c;
+        $i += 2;
     }
+    $$unit($key,$iv,'Foobar22!');
+} else {
+    $$unit();
 }

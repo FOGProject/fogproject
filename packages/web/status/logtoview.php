@@ -31,7 +31,7 @@ $vals = function() {
     return implode("\n",array_slice($lines,0,$line_count));
 };
 require('../commons/base.inc.php');
-$ip = trim($FOGCore->aesdecrypt($_REQUEST['ip']));
+$ip = trim($FOGCore->aesdecrypt(htmlentities($_REQUEST['ip'],ENT_QUOTES,'UTF-8')));
 if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
     echo json_encode(_('IP Passed is incorrect'));
 } else {
@@ -39,7 +39,7 @@ if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
     if (preg_match($pat,$_SERVER['HTTP_HOST'])) echo json_encode($vals());
     else {
         $url = sprintf('http://%s/fog/status/logtoview.php',$ip);
-        $response = $FOGURLRequests->process($url,'POST',array('ip'=>$_REQUEST['ip'],'file'=>$_REQUEST['file'],'lines'=>$_REQUEST['lines']));
+        $response = $FOGURLRequests->process($url,'POST',array('ip'=>htmlentities($_REQUEST['ip'],ENT_QUOTES,'UTF-8'),'file'=>htmlentities($_REQUEST['file'],ENT_QUOTES,'UTF-8'),'lines'=>htmlentities($_REQUEST['lines'],ENT_QUOTES,'UTF-8')));
         echo array_shift($response);
     }
 }

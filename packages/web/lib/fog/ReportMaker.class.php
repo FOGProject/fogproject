@@ -32,9 +32,12 @@ class ReportMaker extends FOGBase {
         return $this;
     }
     public function outputReport($intType = 0) {
-        if (!isset($_REQUEST['export'])) $this->setFileName($_REQUEST['filename']);
-        if ($intType !== false) $intType = (isset($_REQUEST['export']) ? 3 : $this->types[$_REQUEST['type']]);
+        if (!isset($_REQUEST['export'])) $this->setFileName(htmlentities($_REQUEST['filename'],ENT_QUOTES,'UTF-8'));
+        $type = trim(htmlentities($_REQUEST['type'],ENT_QUOTES,'UTF-8'));
+        $pattern = sprintf('#^%s$#i',$type);
+        if ($intType !== false) $intType = (isset($_REQUEST['export']) ? 3 : $this->types[$type]);
         else $intType = 0;
+        if (isset($_REQUEST['type']) && !preg_grep($pattern, array_keys($this->types))) die(_('Invalid type passed'));
         switch (intval($intType)) {
         case 0:
             echo implode("\n",(array)$this->strHTML);
@@ -62,7 +65,7 @@ class ReportMaker extends FOGBase {
             break;
         case 4:
             header('Content-Type: application/octet-stream');
-            header("Content-Disposition: attachment; filename=\"{$_REQUEST['type']}_export.csv\"");
+            header("Content-Disposition: attachment; filename=\"{$type}_export.csv\"");
             echo implode("\n",(array)$this->strLine);
             unset($this->strLine);
             break;
