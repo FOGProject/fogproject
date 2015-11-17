@@ -6,7 +6,6 @@ clearScreen
 displayBanner
 hd=""
 getHardDisk
-#setupDNS ${dns}
 echo -e "\n"
 if [ -n "$hd" ]; then
     part=$hd'1'

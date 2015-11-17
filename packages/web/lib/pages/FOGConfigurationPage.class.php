@@ -653,7 +653,7 @@ class FOGConfigurationPage extends FOGPage {
                 $apacheacclog ? _('Apache Access Log') : null  => $apacheacclog ? $apacheacclog : null,
             );
             $files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
-            $ip[$StorageNode->get('name')] = sprintf('ftp://%s:%s@%s',$StorageNode->get('user'),$StorageNode->get('pass'),$StorageNode->get('ip'));
+            $ip[$StorageNode->get('name')] = $StorageNode->get('ip');
             $this->HookManager->processEvent(sprintf('LOG_VIEWER_HOOK_%s',$StorageGroup->get('name')),array('files'=>&$files,'ftpstart'=>&$ftpstarter));
             unset($StorageGroup);
         }

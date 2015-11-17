@@ -29,14 +29,14 @@ $(function() {
 function LogGetData() {
     if (! $('#logpause').hasClass('active')) {
         splitUs = LogToView.split('||');
-        ftp = splitUs[0];
+        ip = splitUs[0];
         file = splitUs[1];
         $.ajax({
             url: '../status/logtoview.php',
             cache: false,
             type: 'POST',
             data: {
-                ftp: ftp,
+                ip: ip,
                 file: file,
                 lines: LinesToView,
             },
