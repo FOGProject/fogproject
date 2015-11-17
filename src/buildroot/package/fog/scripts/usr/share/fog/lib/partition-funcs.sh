@@ -89,8 +89,7 @@ saveAllEBRs() {
     local drive="$1";
     local driveNum="$2";
     local imagePath="$3";
-    local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
-    local part="";
+    getPartitions $drive
     local diskLength=`expr length $drive`;
     local partNum="";
     for part in $parts; do
@@ -132,8 +131,7 @@ restoreAllEBRs() {
     local driveNum="$2";
     local imagePath="$3";
     local imgPartitionType="$4";
-    local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
-    local part="";
+    getPartitions $drive
     local diskLength=`expr length $drive`;
     local partNum="";
     for part in $parts; do
@@ -209,7 +207,7 @@ saveSwapUUID() {
 # saveSwapUUID SwapUUIDFileName PartitionName
 #   checks if paritionIsSwap, if so, obtains UUID and saves it
 # saveAllSwapUUIDs DriveName DriveNumber ImagePath
-#   checks all fogpartinfo partitions if partitionIsSwap, calles saveSwapUUID
+#   checks all partitions if partitionIsSwap, calles saveSwapUUID
 # savePartition:
 #   calls saveSwapUUID for swap partitions
 #
@@ -222,8 +220,7 @@ saveAllSwapUUIDs() {
     local drive="$1";
     local driveNum="$2";
     local imagePath="$3";
-    local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
-    local part="";
+    getPartitions $drive
     local diskLength=`expr length $drive`;
     local partNum="";
     local swapfilename=`swapUUIDFileName "$imagePath" "$driveNum"`;
@@ -476,8 +473,7 @@ hasGPT() {
 saveSgdiskPartitions() {
     local disk="$1";
     local filename="$2";
-    local parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
-    local part="";
+    getPartitions $disk
     local diskLength=`expr length $disk`;
     local partNum="";
     rm -f $filename;

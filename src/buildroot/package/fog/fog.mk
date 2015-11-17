@@ -19,9 +19,7 @@ endef
 
 define FOG_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/src/fogmbrfix $(TARGET_DIR)/bin/fogmbrfix
-	$(INSTALL) -D -m 0755 $(@D)/src/fogpartinfo $(TARGET_DIR)/bin/fogpartinfo
 	$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/bin/fogmbrfix
-	$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/bin/fogpartinfo
 	$(foreach script, \
 	$(shell find $(@D)/scripts/ -type f | sed 's:$(@D)/scripts/:./:g'), \
 	$(INSTALL) -D -m 0755 $(@D)/scripts/$(script) $(TARGET_DIR)/$(script);)
