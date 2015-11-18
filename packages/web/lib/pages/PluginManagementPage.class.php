@@ -3,7 +3,6 @@ class PluginManagementPage extends FOGPage {
     public $node = 'plugin';
     public function __construct($name = '') {
         $this->name = 'Plugin Management';
-        // Call parent constructor
         parent::__construct($this->name);
         $this->menu = array(
             'home'=>$this->foglang['Home'],
@@ -48,12 +47,12 @@ class PluginManagementPage extends FOGPage {
                 'desc'=>$Plugin->getDesc(),
                 'icon'=>$Plugin->getIcon(),
             );
-            //unset($Plugin);
+            unset($Plugin);
         }
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if (!empty($_REQUEST['activate']) && $_REQUEST['sub'] == 'activate') {
-            $Plugin->activatePlugin($_REQUEST['activate']);
+            $this->getClass('Plugin')->activatePlugin($_REQUEST['activate']);
             $this->setMessage('Successfully added Plugin!');
             $this->redirect('?node=plugin&sub=activate');
         }
@@ -63,17 +62,19 @@ class PluginManagementPage extends FOGPage {
         foreach ((array)$this->getClass('Plugin')->getPlugins() AS $i => &$Plugin) {
             $PluginMan = $this->getClass('PluginManager')->find(array('name'=>$Plugin->getName()));
             $PluginMan = @array_shift($PluginMan);
-            if (($Plugin->isActive() && !$Plugin->isInstalled() && !$_REQUEST['plug_name']) || ($_REQUEST['plug_name'] && $_REQUEST['plug_name'] == $Plugin->getName())) {
-                $this->data[] = array(
-                    'name'=>$Plugin->getName(),
-                    'type'=>'install',
-                    'encname'=>trim(md5(trim($Plugin->getName()))).'&plug_name='.$Plugin->getName(),
-                    'location'=>$Plugin->getPath(),
-                    'desc'=>$Plugin->getDesc(),
-                    'icon'=>$Plugin->getIcon(),
-                    'pluginid'=>$PluginMan ? $PluginMan->get('id') : '',
-                );
-            }
+            if (!$Plugin->isActive()) continue;
+            if ($Plugin->isInstalled()) continue;
+            if ($_REQUEST['plug_name']) continue;
+            if ($_REQUEST['plug_name'] != $Plugin->getName()) continue;
+            $this->data[] = array(
+                'name'=>$Plugin->getName(),
+                'type'=>'install',
+                'encname'=>sprintf('%s&plug_name=%s',trim(md5(trim($Plugin->getName()))),$Plugin->getName()),
+                'location'=>$Plugin->getPath(),
+                'desc'=>$Plugin->getDesc(),
+                'icon'=>$Plugin->getIcon(),
+                'pluginid'=>$PluginMan ? $PluginMan->get('id') : '',
+            );
         }
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
@@ -89,17 +90,17 @@ class PluginManagementPage extends FOGPage {
         foreach ((array)$this->getClass('Plugin')->getPlugins() AS $i => &$Plugin) {
             $PluginMan = $this->getClass('PluginManager')->find(array('name'=>$Plugin->getName()));
             $PluginMan = @array_shift($PluginMan);
-            if($Plugin->isActive() && $Plugin->isInstalled()) {
-                $this->data[] = array(
-                    'name'=>$Plugin->getName(),
-                    'type'=>'installed',
-                    'encname'=>trim(md5(trim($Plugin->getName()))),
-                    'location'=>$Plugin->getPath(),
-                    'desc'=>$Plugin->getDesc(),
-                    'icon'=>$Plugin->getIcon(),
-                    'pluginid'=>$PluginMan ? $PluginMan->get('id') : '',
-                );
-            }
+            if (!$Plugin->isActive()) continue;
+            if (!$Plugin->isInstalled()) continue;
+            $this->data[] = array(
+                'name'=>$Plugin->getName(),
+                'type'=>'installed',
+                'encname'=>trim(md5(trim($Plugin->getName()))),
+                'location'=>$Plugin->getPath(),
+                'desc'=>$Plugin->getDesc(),
+                'icon'=>$Plugin->getIcon(),
+                'pluginid'=>$PluginMan ? $PluginMan->get('id') : '',
+            );
         }
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
@@ -113,35 +114,35 @@ class PluginManagementPage extends FOGPage {
         $plugin = unserialize($_SESSION['fogactiveplugin']);
         try {
             if ($plugin == null) throw new Exception('Unable to determine plugin details.');
-            $this->title = _('Plugin').': '.$plugin->getName();
+            $this->title = sprintf('%s: %s',_('Plugin'),$plugin->getName());
             printf('<p>%s: %s</p>',_('Plugin Description'),$plugin->getDesc());
             switch ($plugin->isInstalled()) {
             case true:
                 switch (strtolower($plugin->getName())) {
                 case 'capone':
                     $dmiFields = array(
-                        "bios-vendor",
-                        "bios-version",
-                        "bios-release-date",
-                        "system-manufacturer",
-                        "system-product-name",
-                        "system-version",
-                        "system-serial-number",
-                        "system-uuid",
-                        "baseboard-manufacturer",
-                        "baseboard-product-name",
-                        "baseboard-version",
-                        "baseboard-serial-number",
-                        "baseboard-asset-tag",
-                        "chassis-manufacturer",
-                        "chassis-type",
-                        "chassis-version",
-                        "chassis-serial-number",
-                        "chassis-asset-tag",
-                        "processor-family",
-                        "processor-manufacturer",
-                        "processor-version",
-                        "processor-frequency",
+                        'bios-vendor',
+                        'bios-version',
+                        'bios-release-date',
+                        'system-manufacturer',
+                        'system-product-name',
+                        'system-version',
+                        'system-serial-number',
+                        'system-uuid',
+                        'baseboard-manufacturer',
+                        'baseboard-product-name',
+                        'baseboard-version',
+                        'baseboard-serial-number',
+                        'baseboard-asset-tag',
+                        'chassis-manufacturer',
+                        'chassis-type',
+                        'chassis-version',
+                        'chassis-serial-number',
+                        'chassis-asset-tag',
+                        'processor-family',
+                        'processor-manufacturer',
+                        'processor-version',
+                        'processor-frequency',
                     );
                     printf('<p class="titleBottomLeft">%s</p>',_('Settings'));
                     unset($this->headerData,$this->data);
@@ -187,7 +188,7 @@ class PluginManagementPage extends FOGPage {
                     printf('<p class="titleBottomLeft">%s</p>',_('Add Image to DMI Associations'));
                     $fields = array(
                         sprintf('%s:',_('Image Definition')) => $this->getClass('ImageManager')->buildSelectBox(),
-                        sprintf('%s:',_('DMI Result')) => '<input type="text" name="key" />',
+                        sprintf('%s:',_('DMI Result')) => '<input type="text" name="key"/>',
                         '&nbps;' => sprintf('<input type="submit" style="margin-top: 7px;" name="addass" value="%s"/>',_('Add Association')),
                     );
                     foreach ((array)$fields AS $field => &$input) {
@@ -221,6 +222,7 @@ class PluginManagementPage extends FOGPage {
                         array('class'=>'filter-false'),
                     );
                     foreach ((array)$this->getClass('CaponeManager')->find() AS $i => &$Capone) {
+                        if (!$Capone->isValid()) continue;
                         $Image = $this->getClass('Image',$Capone->get('imageID'));
                         if (!$Image->isValid()) continue;
                         $OS = $Image->getOS();
@@ -229,7 +231,7 @@ class PluginManagementPage extends FOGPage {
                             'image_name'=>$Image->get('name'),
                             'os_name'=>$OS->get('name'),
                             'capone_key'=>$Capone->get('key'),
-                            'link'=>$this->formAction.'&kill=${capone_id}',
+                            'link'=>sprintf('%s&kill=${capone_id}',$this->formAction),
                             'capone_id'=>$Capone->get('id'),
                         );
                         unset($Capone,$Image,$OS);
@@ -247,7 +249,7 @@ class PluginManagementPage extends FOGPage {
             }
         } catch (Exception $e) {
             echo $this->setMessage($e->getMessage());
-            $this->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&run='.$_REQUEST['run']);
+            $this->redirect(sprintf('?node=%s&sub=%s&run=%s',$_REQUEST['node'],$_REQUEST['sub'],$_REQUEST['run']));
         }
     }
     public function install_post() {
