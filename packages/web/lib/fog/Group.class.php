@@ -142,6 +142,7 @@ class Group extends FOGController {
         return $success;
     }
     public function setAD($useAD, $domain, $ou, $user, $pass, $legacy) {
+        $pass = trim($this->encryptpw($pass));
         $this->getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('useAD'=>$useAD,'ADDomain'=>trim($domain),'ADOU'=>trim($ou),'ADUser'=>trim($user),'ADPass'=>$pass,'ADPassLegacy'=>$legacy));
         return $this;
     }
