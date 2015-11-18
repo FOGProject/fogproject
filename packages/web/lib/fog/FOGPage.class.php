@@ -54,7 +54,7 @@ abstract class FOGPage extends FOGBase {
             'export'=>sprintf($this->foglang['Export'.$this->childClass]),
             'import'=>sprintf($this->foglang['Import'.$this->childClass]),
         );
-        $this->formAction = filter_var(html_entity_decode(sprintf('%s?%s',htmlentities($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8'),htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'UTF-8'))),FILTER_SANITIZE_URL);
+        $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',htmlentities($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8'),htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'UTF-8'))),FILTER_SANITIZE_URL));
         $this->HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
@@ -69,16 +69,10 @@ abstract class FOGPage extends FOGBase {
         return $this->$key;
     }
     public function __toString() {
-        $this->result = $this->process();
-        $res = '';
-        foreach ((array)$this->result AS $i => &$line) $res .= $line;
-        unset($line);
-        return $res;
+        return $this->process();
     }
     public function render() {
-        $this->result = $this->process();
-        foreach ((array)$this->result AS $i => &$line) echo $line;
-        unset($line);
+        echo $this->process();
     }
     public function process() {
         try {
