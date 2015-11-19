@@ -885,7 +885,7 @@ class HostManagementPage extends FOGPage {
                 $pu = trim($_REQUEST['pu']);
                 $other1 = trim($_REQUEST['other1']);
                 $other2 = trim($_REQUEST['other2']);
-                if ($_REQUEST['update'] == 1) {
+                if (isset($_REQUEST['update'])) {
                     $this->obj
                         ->get('inventory')
                         ->set('primaryUser',$pu)
