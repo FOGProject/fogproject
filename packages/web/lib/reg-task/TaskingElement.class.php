@@ -55,7 +55,7 @@ abstract class TaskingElement extends FOGBase {
         if ($checkin === true) return $this->getClass('ImagingLog',@max($this->getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id'),'type'=>$_REQUEST['type'],'complete'=>'0000-00-00 00:00:00'))))
             ->set('hostID',$this->Host->get('id'))
             ->set('start',$this->formatTime('','Y-m-d H:i:s'))
-            ->set('image',$this->Task->getImage()->get('name'))
+            ->set('image',$this->Image->get('name'))
             ->set('type',$_REQUEST['type'])
             ->save();
         return $this->getClass('ImagingLog',@max($this->getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id')))))
