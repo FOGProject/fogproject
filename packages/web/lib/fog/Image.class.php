@@ -95,9 +95,6 @@ class Image extends FOGController {
                 $this->FOGFTP->close();
                 continue;
             }
-            $imagefiles = $this->FOGFTP->nlist($StorageNode->get('ftppath'));
-            $imagefile = preg_grep(sprintf('#%s#',$this->get('path')),$imagefiles);
-            if (!count($snapinfile)) continue;
             $delete = sprintf('/%s/%s',trim($StorageNode->get('ftppath'),'/'),$this->get('path'));
             $this->FOGFTP
                 ->delete($delete)
