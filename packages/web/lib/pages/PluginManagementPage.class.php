@@ -64,8 +64,7 @@ class PluginManagementPage extends FOGPage {
             $PluginMan = @array_shift($PluginMan);
             if (!$Plugin->isActive()) continue;
             if ($Plugin->isInstalled()) continue;
-            if ($_REQUEST['plug_name']) continue;
-            if ($_REQUEST['plug_name'] != $Plugin->getName()) continue;
+            if ($_REQUEST['plug_name'] && $_REQUEST['plug_name'] != $Plugin->getName()) continue;
             $this->data[] = array(
                 'name'=>$Plugin->getName(),
                 'type'=>'install',
