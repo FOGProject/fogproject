@@ -11,7 +11,7 @@ class AddLocationTasks extends Hook {
     public function TasksActiveTableHeader($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if ($_REQUEST['node'] != 'task') return;
-        $arguments['headerData'][3] = _('Location');
+        $arguments['headerData'][4] = _('Location');
     }
     public function TasksActiveData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
