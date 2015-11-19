@@ -137,7 +137,7 @@ abstract class FOGPage extends FOGBase {
             }
             echo '</tbody></table>';
             if (((!$_REQUEST['sub'] || ($_REQUEST['sub'] && in_array($_REQUEST['sub'],$defaultScreens))) && in_array($_REQUEST['node'],$this->searchPages)) && !$this->isMobile) {
-                if ($this->childClass == 'Host' && $_REQUEST['node'] == 'host') {
+                if ($_REQUEST['node'] == 'host') {
                     printf('<form method="post" action="%s", id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" value="%s"/></p></form>',
                         sprintf('?node=%s&sub=save_group',$this->node),
                         _('Create new group'),
