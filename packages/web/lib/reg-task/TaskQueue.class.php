@@ -26,7 +26,6 @@ class TaskQueue extends TaskingElement {
                 $this->HookManager->processEvent('TASK_NODE',array('StorageNode'=>&$this->StorageNode,'Host'=>&$this->Host));
                 if ($this->Task->isUpload()) $this->StorageNode = $this->StorageGroup->getMasterStorageNode();
             } else {
-                $this->HookManager->processEvent('TASK_GROUP',array('StorageGroup'=>&$this->StorageGroup,'Host'=>&$this->Host));
                 $totalSlots = $this->StorageGroup->getTotalSupportedClients();
                 $usedSlots = $this->StorageGroup->getUsedSlotCount();
                 $inFront = $this->Task->getInFrontOfHostCount();
@@ -45,7 +44,6 @@ class TaskQueue extends TaskingElement {
                         if ($StorageNode->getClientLoad() < $this->StorageNode->getClientLoad()) $this->StorageNode = self::nodeFail($StorageNode,$this->Host);
                     }
                 }
-                $this->HookManager->processEvent('TASK_NODE',array('StorageNode'=>&$this->StorageNode,'Host'=>&$this->Host));
             }
             if (!$this->StorageNode->isValid()) throw new Exception(_('Unable to find a auitable Storage Node for imaging!'));
             $this->Task
