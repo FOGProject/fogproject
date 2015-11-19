@@ -22,6 +22,6 @@ class FOGGetSet extends FOGBase {
             unset($this->data[$key]);
             return false;
         }
-        return (is_object($this->data[$key]) || is_array($this->data[$key]) ? $this->data[$key] : $this->data[$key]);
+        return (is_object($this->data[$key]) || is_array($this->data[$key]) ? $this->data[$key] : html_entity_decode(str_replace('\r\n',"\n",$this->data[$key])));
     }
 }
