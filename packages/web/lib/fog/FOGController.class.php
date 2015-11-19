@@ -45,7 +45,7 @@ abstract class FOGController extends FOGBase {
             return false;
         } else if (!$this->isLoaded($key)) $this->loadItem($key);
         $this->info(sprintf(_('Returning Value of Key: %s, Value: %s'),$key, is_object($this->data[$key]) ? $this->data[$key]->__toString() : $this->data[$key]));
-        return (is_object($this->data[$key]) || is_array($this->data[$key]) ? $this->data[$key] : html_entity_decode($this->data[$key]));
+        return (is_object($this->data[$key]) || is_array($this->data[$key]) ? $this->data[$key] : html_entity_decode(str_replace('\r\n',"\n",$this->data[$key])));
     }
     public function set($key, $value) {
         try {
