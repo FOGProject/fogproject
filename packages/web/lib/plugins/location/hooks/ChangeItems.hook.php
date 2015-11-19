@@ -33,12 +33,12 @@ class ChangeItems extends Hook {
         foreach ((array)$this->getClass('LocationAssociationManager')->find(array('hostID'=>$arguments['Host']->get('id'))) AS $i => &$LA) {
             $Location = $LA->getLocation();
             if (!$Location->isValid()) continue;
-            if (!$LA->isTFTP()) continue;
             $StorageNode = $LA->getStorageNode();
             if (!$StorageNode->isValid()) continue;
             $ip = $StorageNode->get('ip');
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
+            if (!$LA->isTFTP()) continue;
             $memtest = $arguments['memtest'];
             $memdisk = $arguments['memdisk'];
             $bzImage = $arguments['bzImage'];
@@ -51,8 +51,6 @@ class ChangeItems extends Hook {
     }
 }
 $ChangeItems = new ChangeItems();
-$HookManager->register('TASK_NODE', array($ChangeItems, 'StorageNodeSetting'));
-$HookManager->register('TASK_GROUP', array($ChangeItems, 'StorageGroupSetting'));
 $HookManager->register('SNAPIN_NODE', array($ChangeItems, 'StorageNodeSetting'));
 $HookManager->register('SNAPIN_GROUP', array($ChangeItems, 'StorageGroupSetting'));
 $HookManager->register('BOOT_ITEM_NEW_SETTINGS', array($ChangeItems,'BootItemSettings'));
@@ -60,3 +58,4 @@ $HookManager->register('BOOT_TASK_NEW_SETTINGS', array($ChangeItems,'StorageGrou
 $HookManager->register('HOST_NEW_SETTINGS', array($ChangeItems,'StorageNodeSetting'));
 $HookManager->register('HOST_NEW_SETTINGS', array($ChangeItems,'StorageGroupSetting'));
 $HookManager->register('BOOT_TASK_NEW_SETTINGS', array($ChangeItems,'StorageNodeSetting'));
+$HookManager->register('HOST_EDIT_AFTER_SAVE', array($ChangeItems,'HostEditAfterSave'));

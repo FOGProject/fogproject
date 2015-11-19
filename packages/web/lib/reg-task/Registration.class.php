@@ -39,7 +39,7 @@ class Registration extends FOGBase {
             if (base64_decode($_REQUEST['productKey'],true)) $productKey = trim($_REQUEST['productKey']);
             $username = $this->stripAndDecode($_REQUEST['username']);
             $hostname = $this->stripAndDecode($_REQUEST['host']);
-            $hostname = ($this->getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
+            $hostname = strtoupper(($this->getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple));
             $ip = $this->stripAndDecode($_REQUEST['ip']);
             $imageid = $this->stripAndDecode($_REQUEST['imageid']);
             $imageid = ($this->getClass('Image',$imageid)->isValid() ? $imageid : 0);
