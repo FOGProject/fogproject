@@ -92,4 +92,7 @@ class Task extends FOGController {
     public function getTaskStateText() {
         return $this->getTaskState()->get('name');
     }
+    public function isForced() {
+        return (bool)($this->get('isForced') > 0);
+    }
 }

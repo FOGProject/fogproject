@@ -51,6 +51,8 @@ class ChangeItems extends Hook {
     }
 }
 $ChangeItems = new ChangeItems();
+$HookManager->register('TASK_NODE', array($ChangeItems, 'StorageNodeSetting'));
+$HookManager->register('TASK_GROUP', array($ChangeItems, 'StorageGroupSetting'));
 $HookManager->register('SNAPIN_NODE', array($ChangeItems, 'StorageNodeSetting'));
 $HookManager->register('SNAPIN_GROUP', array($ChangeItems, 'StorageGroupSetting'));
 $HookManager->register('BOOT_ITEM_NEW_SETTINGS', array($ChangeItems,'BootItemSettings'));
