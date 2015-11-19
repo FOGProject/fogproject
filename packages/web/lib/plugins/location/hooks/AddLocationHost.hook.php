@@ -1,10 +1,5 @@
 <?php
 class AddLocationHost extends Hook {
-    public $name = 'AddLocationHost';
-    public $description = 'Add Location to Hosts';
-    public $author = 'Rowlett';
-    public $active = true;
-    public $node = 'location';
     public function __construct() {
         parent::__construct();
         $this->name = 'AddLocationHost';
@@ -76,6 +71,8 @@ class AddLocationHost extends Hook {
         $Location = $this->getClass('Location',$locationID);
         if (!$Location->isValid()) return;
         $Location->addHost($arguments['Host']->get('id'))->save(false);
+        $Host = $arguments['Host'];
+        $this->HookManager->processEvent('HOST_REGISTER_LOCATION',array('Host'=>$Host,'Location'=>&$Location));
     }
 }
 $AddLocationHost = new AddLocationHost();
