@@ -22,7 +22,7 @@ class TaskQueue extends TaskingElement {
                 $this->Host->set('imageID',$MulticastSession->get('image'));
             } else if ($this->Task->isForced()) {
                 $this->HookManager->processEvent('TASK_GROUP',array('StorageGroup'=>&$this->StorageGroup,'Host'=>&$this->Host));
-                $this->StorageNode = $this->Host->getOptimalStorageNode();
+                $this->StorageNode = $this->Image->getStorageGroup()->getOptimalStorageNode();
                 $this->HookManager->processEvent('TASK_NODE',array('StorageNode'=>&$this->StorageNode,'Host'=>&$this->Host));
                 if ($this->Task->isUpload()) $this->StorageNode = $this->StorageGroup->getMasterStorageNode();
             } else {
@@ -32,7 +32,7 @@ class TaskQueue extends TaskingElement {
                 $groupOpenSlots = $totalSlots - $usedSlots;
                 if ($groupOpenSlots <= 0) throw new Exception(sprintf('%s %s %s %s',_('Waiting on'),$inFront,_('other'),$inFront > 1 ? _('clients') : _('client')));
                 if ($groupOpenSlots <= $inFront) throw new Exception(sprintf('%s %s %s %s',_('Open slots but there are'),$inFront,_('that are queued before me')));
-                $this->StorageNode = self::nodeFail($this->Host->getOptimalStorageNode(),$this->Host->get('id'));
+                $this->StorageNode = self::nodeFail($this->Image->getStorageGroup()->getOptimalStorageNode(),$this->Host->get('id'));
                 foreach ($this->StorageNodes AS $i => &$StorageNode) {
                     if ($StorageNode->get('maxClients') < 1) continue;
                     $nodeAvailableSlots = $StorageNode->get('maxClients') - $StorageNode->getUsedSlotCount();
@@ -41,7 +41,7 @@ class TaskQueue extends TaskingElement {
                             $this->StorageNode = self::nodeFail($StorageNode,$this->Host->get('id'));
                             continue;
                         }
-                        if ($StorageNode->getClientLoad() < $this->StorageNode->getClientLoad()) $this->StorageNode = self::nodeFail($StorageNode,$this->Host);
+                        if ($StorageNode->getClientLoad() < $this->StorageNode->getClientLoad()) $this->StorageNode = self::nodeFail($StorageNode,$this->Host->get('id'));
                     }
                 }
             }
