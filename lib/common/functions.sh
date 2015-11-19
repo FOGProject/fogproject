@@ -1152,26 +1152,11 @@ class Config {
      }
  }" > "${webdirdest}/lib/fog/Config.class.php"
     errorStat $?
-    dots "Downloading inits and kernels"
-    curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz >/dev/null 2>&1 & disown
-    curl --silent -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz >/dev/null 2>&1 & disown
-    curl --silent -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage >/dev/null 2>&1 & disown
-    curl --silent -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >/dev/null 2>&1 & disown
-    echo "Backgrounded"
-    dots "Downloading New FOG Client file"
+    dots "Downloading inits, kernels, and the fog client"
     clientVer="`awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`"
     clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
-    curl -sl --silent -f -L $clienturl >/dev/null 2>&1
-    if [ "$?" -eq 0 ]; then
-        curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl >/dev/null 2>&1 & disown
-        echo "Backgrounded"
-    else
-        echo "Failed";
-        echo -e "\n\t\tYou can try downloading the file yourself by running";
-        echo -e "\n\t\tInstallation will continue.  Once complete you can";
-        echo -e "\n\t\trun the command:";
-        echo -e "\n\t\t\twget -O ${webdirdest}/client/FOGService.msi $clienturl";
-    fi
+    curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 "${webdirdest}/client/FOGService.msi" -L $clienturl >/dev/null 2>&1
+    errorStat $?
     if [ "$osid" -eq 2 ]; then
         php -m | grep mysqlnd >/dev/null 2>&1
         if [ "$?" != 0 ]; then
