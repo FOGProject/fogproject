@@ -7,7 +7,6 @@ $(function() {
     $('#logpause').val('Pause');
     LogGetData();
     $('input[name=reverse]').click(function(e) {
-        e.preventDefault();
         LogGetData();
     });
     $('#logpause').click(function(e) {
@@ -34,6 +33,7 @@ function LogGetData() {
         splitUs = LogToView.split('||');
         ip = splitUs[0];
         file = splitUs[1];
+        reverse = $('input[name=reverse]').is(':checked') ? 1 : 0;
         $.ajax({
             url: '../status/logtoview.php',
             cache: false,
@@ -42,7 +42,7 @@ function LogGetData() {
                 ip: ip,
                 file: file,
                 lines: LinesToView,
-                reverse: $('input[name=reverse]').prop('checked'),
+                reverse: reverse,
             },
             dataType: 'json',
             success: displayLog,
