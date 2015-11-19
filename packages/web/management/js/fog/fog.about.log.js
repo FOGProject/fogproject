@@ -6,6 +6,10 @@ $(function() {
     LinesToView = $('#linesToView').val();
     $('#logpause').val('Pause');
     LogGetData();
+    $('input[name=reverse]').click(function(e) {
+        e.preventDefault();
+        LogGetData();
+    });
     $('#logpause').click(function(e) {
         e.preventDefault();
         if ($(this).hasClass('active')) {
@@ -23,7 +27,7 @@ $(function() {
         $('#logpause').val('Pause');
         if ($('#logpause').hasClass('active')) $('#logpause').removeClass('active');
         LogGetData();
-    })
+    });
 })
 function LogGetData() {
     if (! $('#logpause').hasClass('active')) {
@@ -38,6 +42,7 @@ function LogGetData() {
                 ip: ip,
                 file: file,
                 lines: LinesToView,
+                reverse: $('input[name=reverse]').prop('checked'),
             },
             dataType: 'json',
             success: displayLog,

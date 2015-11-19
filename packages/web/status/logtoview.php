@@ -1,5 +1,5 @@
 <?php
-$vals = function() {
+$vals = function($reverse) {
     ini_set("auto_detect_line_endings", true);
     $folder = sprintf('/%s/',trim(trim(dirname($_REQUEST['file']),'/')));
     $pattern = sprintf('#^%s$#',$folder);
@@ -18,10 +18,11 @@ $vals = function() {
         $can_read = $block_size;
         if (ftell($fh) < $block_size) $can_read = ftell($fh);
         fseek($fh, -$can_read, SEEK_CUR);
-        $data = fread($fh,$can_read);
+        $data = htmlentities(fread($fh,$can_read),ENT_QUOTES,'UTF-8');
         $data .= $leftover;
         fseek($fh, -$can_read, SEEK_CUR);
-        $split_data = array_reverse(explode("\n",$data));
+        if (intval($reverse) > 0) $split_data = array_reverse(explode("\n",$data));
+        else $split_data = explode("\n",$data);
         $new_lines = array_slice($split_data, 0, -1);
         $lines = array_merge($lines, $new_lines);
         $leftover = $split_data[count($split_data)-1];
@@ -36,10 +37,10 @@ if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
     echo json_encode(_('IP Passed is incorrect'));
 } else {
     $pat = sprintf('#%s#',$ip);
-    if (preg_match($pat,$_SERVER['HTTP_HOST'])) echo json_encode($vals());
+    if (preg_match($pat,$_SERVER['HTTP_HOST'])) echo json_encode($vals(intval($_REQUEST['reverse'])));
     else {
         $url = sprintf('http://%s/fog/status/logtoview.php',$ip);
-        $response = $FOGURLRequests->process($url,'POST',array('ip'=>htmlentities($_REQUEST['ip'],ENT_QUOTES,'UTF-8'),'file'=>htmlentities($_REQUEST['file'],ENT_QUOTES,'UTF-8'),'lines'=>htmlentities($_REQUEST['lines'],ENT_QUOTES,'UTF-8')));
+        $response = $FOGURLRequests->process($url,'POST',array('ip'=>htmlentities($_REQUEST['ip'],ENT_QUOTES,'UTF-8'),'file'=>htmlentities($_REQUEST['file'],ENT_QUOTES,'UTF-8'),'lines'=>htmlentities($_REQUEST['lines'],ENT_QUOTES,'UTF-8'),'reverse'=>intval($_REQUEST['reverse'])));
         echo array_shift($response);
     }
 }
