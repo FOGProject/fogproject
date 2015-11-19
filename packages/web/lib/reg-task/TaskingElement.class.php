@@ -54,7 +54,7 @@ abstract class TaskingElement extends FOGBase {
     protected function ImageLog($checkin = false) {
         if ($checkin === true) return $this->getClass('ImagingLog',@max($this->getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id'),'type'=>$_REQUEST['type'],'complete'=>'0000-00-00 00:00:00'))))
             ->set('hostID',$this->Host->get('id'))
-            ->set('start',$this->formatTimeformat('','Y-m-d H:i:s'))
+            ->set('start',$this->formatTime('','Y-m-d H:i:s'))
             ->set('image',$this->Task->getImage()->get('name'))
             ->set('type',$_REQUEST['type'])
             ->save();
