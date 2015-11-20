@@ -116,10 +116,10 @@ class PrinterManagementPage extends FOGPage {
         foreach ((array)$printerTypes AS $short => &$long) printf('<option value="%s"%s>%s</option>',$short,($_REQUEST['printertype'] == $short ? ' selected' : ''),$long);
         unset($long);
         $optionPrinter = ob_get_clean();
-        printf('<center><select name="printertype" onchange="this.form.submit()">%s</select></center></form><br/>',$optionPrinter);
+        printf('<p class="c"><select name="printertype" onchange="this.form.submit()">%s</select></p></form><br/>',$optionPrinter);
         $fields = array(
             _('Printer Description') => '<textarea name="description">${desc}</textarea>',
-            _('Printer Alias').'*' => '<input type="text" name="alias" value="${printer_name}"/>',
+            sprintf('%s*',_('Printer Alias')) => '<input type="text" name="alias" value="${printer_name}"/>',
         );
         switch (strtolower($_REQUEST['printertype'])) {
         case 'network':

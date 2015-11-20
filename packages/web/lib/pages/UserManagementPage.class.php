@@ -33,32 +33,27 @@ class UserManagementPage extends FOGPage {
     public function index() {
         $this->title = _('All Users');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['UserCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
-        $ids = $this->getSubObjectIDs('User');
-        foreach ($ids AS $i => &$id) {
-            $User = $this->getClass('User',$id);
-            if (!$User->isValid()) {
-                unset($User);
-                continue;
-            }
-            $this->data[] = $User->get();
+        foreach ((array)$this->getClass('UserManager')->find() AS $i => &$User) {
+            if (!$User->isValid()) continue;
+            $this->data[] = array(
+                'id' => $User->get('id'),
+                'name' => $User->get('name'),
+            );
             unset($User);
         }
-        unset($ids,$id);
         $this->HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $ids = $this->getClass('UserManager')->search();
-        foreach ($ids AS $i => &$id) {
-            $User = $this->getClass('User',$id);
-            if (!$User->isValid()) {
-                unset($User);
-                continue;
-            }
-            $this->data[] = $User->get();
+        foreach ((array)$this->getClass('UserManager')->search('',true) AS $i => &$User) {
+            if (!$User->isValid()) continue;
+            $this->data[] = array(
+                'id' => $User->get('id'),
+                'name' => $User->get('name'),
+            );
             unset($User);
         }
-        unset($id,$ids);
         $this->HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -75,13 +70,12 @@ class UserManagementPage extends FOGPage {
         );
         $fields = array(
             '<input style="display:none" type="text" name="fakeusernameremembered"/>'=>'<input style="display:none" type="password" name="fakepasswordremembered"/>',
-            _('User Name') => '<input type="text" name="name" value="'.$_REQUEST['name'].'" autocomplete="off" />',
-            _('User Password') => '<input type="password" name="password" value="" autocomplete="off" />',
-            _('User Password (confirm)') => '<input type="password" name="password_confirm" value="" autocomplete="off" />',
-            _('Mobile/Quick Image Access Only?').'&nbsp;'.'<span class="icon icon-help hand" title="'._('Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future.').'"></span>' => '<input type="checkbox" name="isGuest" autocomplete="off" />',
-            '&nbsp;' => '<input type="submit" value="'._('Create User').'" />',
+            _('User Name') => sprintf('<input type="text" name="name" value="%s" autocomplete="off"/>',$_REQUEST['name']),
+            _('User Password') => '<input type="password" name="password" value="" autocomplete="off"/>',
+            _('User Password (confirm)') => '<input type="password" name="password_confirm" value="" autocomplete="off"/>',
+            sprintf('%s&nbsp;<i class="icon icon-help hand fa fa-question" title="%s"></i>',_('Mobile/Quick Image Access Only?'),_('Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future.')) => '<input type="checkbox" name="isGuest" autocomplete="off"/>',
+            '&nbsp;' => sprintf('<input name="add" type="submit" value="%s"/>',_('Create User')),
         );
-        echo '<h2>'._('Add new user account').'</h2><form method="post" action="'.$this->formAction.'"><input type="hidden" name="add" value="1" />';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
@@ -90,6 +84,7 @@ class UserManagementPage extends FOGPage {
         }
         unset($input,$fields);
         $this->HookManager->processEvent('USER_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        printf('<h2>%s</h2><form method="post" action="%s">',_('Add new user account'),$this->formAction);
         $this->render();
         echo '</form>';
     }
@@ -104,7 +99,7 @@ class UserManagementPage extends FOGPage {
                 ->set('password',$_REQUEST['password']);
             if (!$User->save()) throw new Exception(_('Failed to create user'));
             $this->HookManager->processEvent('USER_ADD_SUCCESS',array('User'=>&$User));
-            $this->setMessage(_('User created').'<br>'._('You may now create another'));
+            $this->setMessage(sprintf('%s<br/>%s',_('User created'),_('You may now create another')));
         } catch (Exception $e) {
             $this->HookManager->processEvent('USER_ADD_FAIL',array('User'=>&$User));
             $this->setMessage($e->getMessage());
@@ -115,11 +110,12 @@ class UserManagementPage extends FOGPage {
     public function edit() {
         $this->title = sprintf('%s: %s',_('Edit'),$this->obj->get('name'));
         $fields = array(
-            _('User Name') => '<input type="text" name="name" value="'.$this->obj->get('name').'" />',
-            _('New Password') => '<input type="password" name="password" value="" />',
-            _('New Password (confirm)') => '<input type="password" name="password_confirm" value="" />',
-            _('Mobile/Quick Image Access Only?').'&nbsp;'.'<span class="icon icon-help hand" title="'._('Warning - if you tick this box, this user     will not be able to log into this FOG Management Console in the future.').'"></span>' => '<input type="checkbox" name="isGuest" '.($this->obj->get('type') == 1 ? 'checked' : '').' />',
-            '&nbsp;' => '<input type="submit" value="'._('Update').'" />',
+            _('User Name') => sprintf('<input type="text" name="name" value="%s"/>',$this->obj->get('name')),
+            _('New Password') => '<input type="password" name="password" value=""/>',
+            _('New Password (confirm)') => '<input type="password" name="password_confirm" value=""/>',
+            _('Mobile/Quick Image Access Only?').'&nbsp;'.'<span class="icon icon-help hand" title=<"'._('Warning - if you tick this box, this user     will not be able to log into this FOG Management Console in the future.').'"></span>' => '<input type="checkbox" name="isGuest" '.($this->obj->get('type') == 1 ? 'checked' : '').' />',
+            sprintf('%s&nbsp;<i class="icon icon-help hand fa fa-question" title="%s"></i>',_('Mobile/Quick Image Access Only?'),_('Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future.')) => sprintf('<input type="checkbox" name="isGuest" autocomplete="off"%s/>',($this->obj->get('type') == 1 ? ' checked' : '')),
+            '&nbsp;' => sprintf('<input name="update" type="submit" value="%s"/>',_('Update')),
         );
         unset ($this->headerData);
         $this->templates = array(
@@ -130,7 +126,6 @@ class UserManagementPage extends FOGPage {
             array(),
             array(),
         );
-        echo '<form method="post" action="'.$this->formAction.'"><input type="hidden" name="update" value="'.$this->obj->get('id').'" />';
         foreach ((array)$fields AS $field => &$formData) {
             $this->data[] = array(
                 'field'=>$field,
@@ -139,11 +134,11 @@ class UserManagementPage extends FOGPage {
         }
         unset($fields,$formData);
         $this->HookManager->processEvent('USER_EDIT',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        $User = $this->obj;
         $this->HookManager->processEvent('USER_EDIT_POST',array('User'=>&$this->obj));
         try {
             $name = trim($_REQUEST['name']);
@@ -159,7 +154,7 @@ class UserManagementPage extends FOGPage {
             $this->HookManager->processEvent('USER_UPDATE_SUCCESS',array('User'=>&$this->obj));
             $this->setMessage(_('User updated'));
         } catch (Exception $e) {
-            $this->HookManager->processEvent('USER_UPDATE_FAIL',array('User'=>&$User));
+            $this->HookManager->processEvent('USER_UPDATE_FAIL',array('User'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
