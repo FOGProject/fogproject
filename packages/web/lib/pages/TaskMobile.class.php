@@ -4,7 +4,6 @@ class TaskMobile extends FOGPage {
     public function __construct($name = '') {
         $this->name = 'Task Management';
         parent::__construct($this->name);
-        if (is_numeric($_REQUEST['id']) && intval($_REQUEST['id'])) $this->obj = $this->getClass('Task',$_REQUEST['id']);
         $this->headerData = array(
             _('Force'),
             _('Task Name'),
@@ -31,19 +30,14 @@ class TaskMobile extends FOGPage {
         );
     }
     public function index() {
-        $Tasks = $this->getClass('TaskManager')->find(array('stateID'=>array(1,2,3)));
-        foreach ((array)$Tasks AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->find(array('stateID'=>array(1,2,3))) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
-            if (!$Host->isValid()) {
-                unset($Task,$Host);
-                continue;
-            }
-            $name = ($Task->get('isForced') ? '* ' : '').$Host->get('name');
+            if (!$Host->isValid()) continue;
+            $name = sprintf('%s %s',$Task->isForced() ? '*' : '',$Host->get('name'));
             unset($Host);
             $this->data[] = array(
-                'task_force'=>(!$Task->get('isForced') ? '<a href="?node=${node}&sub=force&id=${task_id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
-                'node'=>$_REQUEST['node'],
+                'task_force'=>(!$Task->get('isForced') ? '<a href="?node=task&sub=force&id=${task_id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
                 'task_id'=>$Task->get('id'),
                 'task_name'=>$Task->get('name'),
                 'host_name'=>$name,
@@ -57,29 +51,23 @@ class TaskMobile extends FOGPage {
     }
     public function search() {
         unset($this->headerData[0],$this->headerData[5],$this->attributes[0],$this->attributes[5],$this->templates[0],$this->templates[5]);
-        $this->getClass('TaskManager')->search();
     }
     public function search_post() {
         unset($this->headerData[0],$this->headerData[5],$this->attributes[0],$this->attributes[5],$this->templates[0],$this->templates[5]);
-        $Tasks = $this->getClass('TaskManager')->search('',true);
-        foreach((array)$Tasks AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->search('',true) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
-            if (in_array($Task->get('stateID'),array(0,1,2,3))) {
-                $Host = $Task->getHost();
-                if (!$Host->isValid()) {
-                    unset($Host,$Task);
-                    continue;
-                }
-                $name = ($Task->get('isForced') ? '* ' : '').$Host->get('name');
-                unset($Host);
-                $this->data[] = array(
-                    'task_id'=>$Task->get('id'),
-                    'task_name'=>$Task->get('name'),
-                    'host_name'=>$name,
-                    'task_type'=>$Task->getTaskTypeText(),
-                    'task_state'=>$Task->getTaskStateText(),
-                );
-            }
+            if (!in_array($Task->get('stateID'),array(0,1,2,3))) continue;
+            $Host = $Task->getHost();
+            if (!$Host->isValid()) continue;
+            $name = sprintf('%s %s',$Task->isForced() ? '*' : '',$Host->get('name'));
+            unset($Host);
+            $this->data[] = array(
+                'task_id'=>$Task->get('id'),
+                'task_name'=>$Task->get('name'),
+                'host_name'=>$name,
+                'task_type'=>$Task->getTaskTypeText(),
+                'task_state'=>$Task->getTaskStateText(),
+            );
             unset($Task);
         }
         unset($Tasks,$name);
@@ -87,22 +75,18 @@ class TaskMobile extends FOGPage {
     }
     public function force() {
         $this->obj->set('isForced',1)->save();
-        $this->redirect('?node='.$this->node);
+        $this->redirect(sprintf('?node=%s',$this->node));
     }
     public function killtask() {
         $this->obj->cancel();
-        $this->redirect('?node='.$this->node);
+        $this->redirect(sprintf('?node=%s',$this->node));
     }
     public function active() {
-        $Tasks = $this->getClasss('TaskManager')->find(array('stateID'=>array(1,2,3)));
-        foreach ((array)$Tasks AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->find(array('stateID'=>array(1,2,3,))) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
-            if (!$Host->isValid()) {
-                unset($Task,$Host);
-                continue;
-            }
-            $name = ($Task->get('isForced') ? '* ' : '').$Host->get('name');
+            if (!$Host->isValid()) continue;
+            $name = sprintf('%s %s',$Task->isForced() ? '*' : '',$Host->get('name'));
             unset($Host);
             $this->data[] = array(
                 'task_id'=>$Task->get('id'),
@@ -110,11 +94,10 @@ class TaskMobile extends FOGPage {
                 'host_name'=>$name,
                 'task_type'=> $Task->getTaskTypeText(),
                 'task_state'=> $Task->getTaskStateText(),
-                'task_force'=>(!$Task->get(isForced) ? '<a href="?node=${node}&sub=force&id=${task_id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
+                'task_force'=>(!$Task->isForced() ? '<a href="?node=${node}&sub=force&id=${task_id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
             );
-            unset($Task,$Host);
+            unset($Task);
         }
-        unset($Tasks,$name);
         $this->render();
     }
 }

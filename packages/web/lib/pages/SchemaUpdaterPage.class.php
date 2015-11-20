@@ -12,7 +12,16 @@ class SchemaUpdaterPage extends FOGPage {
      */
     public function index() {
         $this->title = _('Database Schema Installer / Updater');
-        echo '<p>'._('Your FOG database schema is not up to date, either because you have updated FOG or this is a new FOG installation.  If this is a upgrade, we highly recommend that you backup your FOG database before updating the schema (this will allow you to return the previous installed version)').'.</p><p>'._('Are you sure you wish to install/update the FOG database?').'</p><br/><form method="post" action="'.$this->formAction.'"><center><input type="submit" name="confirm" value="'._('Install/Upgrade Now').'" /></center></form><p>'._('If you would like to backup your FOG database you can do so my using MySql Administrator or by running the following command in a terminal window (Applications -> System Tools -> Terminal), this will save sqldump in your home directory').'.</p><div id="sidenotes">cd ~;mysqldump --allow-keywords -x -v fog > fogbackup.sql</div><br/><p>'._('Alternatively, you can use the button below to obtain a copy of your current fog database').'.</p><form method="post" action="export.php?type=sql"><center><input type="submit" name="export" value="'._('Export-Backup DB').'" /></center></form>';
+        $vals = array(
+            _('Your FOG database schema is not up to date, either because you have updated FOG or this is a new FOG Installation. If this is an upgrade, there will be a database back stored on your FOG Server defaulting under the folder /home/fogDBbackups/. Should anything go wrong, this backup will enable you to return to the previous install if needed.'),
+            _('Are you sure you wish to install or update the FOG database?'),
+            $this->formAction,
+            _('Install/Upgrade Now'),
+            _('If you would like to backup your FOG database you can do so using MySQL Administrator or by running the following command in a terminal window (Applications -> System Tools -> Terminal), this will save sqldump in your home directory).'),
+            _('Alternatively, you can use the button below to obtain a copy of your current fog database.'),
+            _('Export-Backup DB'),
+        );
+        vprintf('<p>%s</p><p>%s</p><br/><form method="post" action="%s"><p class="c"><input type="submit" name="confirm" value="%s"/></p></form><p>%s</p><div id="sidenotes">cd ~;mysqldump --allowkeywords -x -v fog > fogbackup.sql</div><br/><p>%s</p><form method="post" action="export.php?type=sql"><p class="c"><input type="submit" name="export" value="%s"/></p></form>',$vals);
     }
     public function index_post() {
         if (isset($_REQUEST['confirm'])) {
@@ -38,17 +47,15 @@ class SchemaUpdaterPage extends FOGPage {
                         if ($newSchema && $newSchema->isValid()) $newSchema->set(version,$version);
                         if (!$newSchema->save() || count($this->schema) != $newSchema->get(version)) throw new Exception(_('Install / Update Failed!'));
                     }
-                    echo '<p>'._('Install / Update Successful!').'</p>';
+                    printf('<p>%s</p>',_('Install/Upgrade Successful!'));
                     if (count($errors)) throw new Exception(sprintf('<h2>%s</h2>%s',_('The following errors occured'),implode('<hr/>',$errors)));
 
-                } else {
-                    echo '<p>'._('Update not required, your database schema is up to date').'!</p>';
-                }
+                } else printf('<p>%s</p>',_('Update not required!'));
             } catch (Exception $e) {
-                echo '<p>'.$e->getMessage().'</p>';
+                printf('<p>%s</p>',$e->getMessage());
                 exit;
             }
-            echo '<p>'._('Click').' <a href="./index.php">'._('here').'</a> '._('to login').'.</p>';
+            printf('<p>%s <a href="./index.php">%s</a> %s</p>',_('Click'),_('here'),_('to login'));
         }
     }
 }
