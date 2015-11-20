@@ -21,15 +21,14 @@ $vals = function($reverse) {
         $data = htmlentities(fread($fh,$can_read),ENT_QUOTES,'UTF-8');
         $data .= $leftover;
         fseek($fh, -$can_read, SEEK_CUR);
-        if (intval($reverse) > 0) $split_data = array_reverse(explode("\n",$data));
-        else $split_data = explode("\n",$data);
+        $split_data = array_reverse(explode("\n",$data));
         $new_lines = array_slice($split_data, 0, -1);
         $lines = array_merge($lines, $new_lines);
         $leftover = $split_data[count($split_data)-1];
     } while (count($lines) < $line_count && ftell($fh) != 0);
     if (ftell($fh) == 0) $lines[] = $leftover;
     fclose($fh);
-    return implode("\n",array_slice($lines,0,$line_count));
+    return implode("\n",($reverse ? array_slice($lines,0,$line_count) : array_reverse(array_slice($lines,0,$line_count))));
 };
 require('../commons/base.inc.php');
 $ip = trim($FOGCore->aesdecrypt(htmlentities($_REQUEST['ip'],ENT_QUOTES,'UTF-8')));

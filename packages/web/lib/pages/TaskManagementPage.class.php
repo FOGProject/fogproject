@@ -48,19 +48,13 @@ class TaskManagementPage extends FOGPage {
         $this->active();
     }
     public function search_post() {
-        $Tasks = $this->getClass('TaskManager')->search('',true);
-        foreach ((array)$Tasks AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->search('',true) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
-            if (!$Host->isValid()) {
-                unset($Task,$Host);
-                continue;
-            }
+            if (!$Host->isValid()) continue;
             $hostname = $Host->get('name');
-            $MAC = $Host->get('mac');
+            $MAC = $Host->get('mac')->__toString();
             unset($Host);
-            if ($MAC instanceof MACAddress) $MAC = $MAC->__toString();
-            else $MAC = $this->getClass('MACAddress',$MAC)->__toString();
             $this->data[] = array(
                 'startedby'=>$Task->get('createdBy'),
                 'id'=>$Task->get('id'),
@@ -98,38 +92,40 @@ class TaskManagementPage extends FOGPage {
             _('Image Name'),
             _('Deploy'),
         );
+        $up = $this->getClass('TaskType',2);
+        $down = $this->getClass('TaskType',1);
         $this->templates = array(
-            '<a href="?node=host&sub=edit&id=${id}"/>${host_name}</a><br /><small>${host_mac}</small>',
+            '<a href="?node=host&sub=edit&id=${id}"/>${host_name}</a><br/><small>${host_mac}</small>',
             '<small>${image_name}</small>',
-            '${downLink}&nbsp;${uploadLink}&nbsp;${advancedLink}',
-        );
+            sprintf('<a href="?node=task&sub=hostdeploy&type=%s&id=${id}"><i class="icon hand fa fa-%s" title="%s"></i></a><a href="?node=task&sub=hostdeploy&type=%s&id=${id}"><i class="icon hand fa fa-%s" title="%s"></i></a><a href="?node=task&sub=hostadvanced&id=${id}#host-tasks"><i class="icon hand fa fa-%s" title="%s"></i></a>',
+            $up->get('id'),
+            $up->get('icon'),
+            $up->get('name'),
+            $down->get('id'),
+            $down->get('icon'),
+            $down->get('name'),
+            'arrows-alt',
+            _('Advanced')
+        ),
+    );
+        unset($up,$down);
         $this->attributes = array(
             array('class'=>'l'),
             array('width'=>60,'class'=>'c'),
             array('width'=>60,'class'=>'r filter-false'),
         );
-        $Hosts = $this->getClass('HostManager')->find();
-        foreach((array)$Hosts AS $i => &$Host) {
+        foreach((array)$this->getClass('HostManager')->find() AS $i => &$Host) {
             if (!$Host->isValid() || $Host->get('pending')) continue;
             $hostname = $Host->get('name');
             $MAC = $Host->get('mac');
-            $imgUp = '<a href="?node=task&sub=hostdeploy&type=2&id=${id}"><i class="icon hand fa fa-${upicon} fa-1x" title="'._('Upload').'"></i></a>';
-            $imgDown = '<a href="?node=task&sub=hostdeploy&type=1&id=${id}"><i class="icon hand fa fa-${downicon} fa-1x" title="'._('Download').'"></i></a>';
-            $imgAdvanced = '<a href="?node=task&sub=hostadvanced&id=${id}#host-tasks"><i class="icon hand fa fa-arrows-alt fa-1x" title="'._('Advanced').'"></i></a>';
             $this->data[] = array(
-                'uploadLink'=>$imgUp,
-                'downLink'=>$imgDown,
-                'advancedLink'=>$imgAdvanced,
                 'id'=>$Host->get('id'),
                 'host_name'=>$Host->get('name'),
                 'host_mac'=>$MAC,
                 'image_name'=>$Host->getImageName(),
-                'upicon'=>$this->getClass('TaskType',2)->get('icon'),
-                'downicon'=>$this->getClass('TaskType',1)->get('icon'),
             );
             unset($Host);
         }
-        unset($Hosts);
         $this->HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -160,9 +156,8 @@ class TaskManagementPage extends FOGPage {
             '<a href="?node=${node}&sub=${sub}&id=${id}&type=${type}"><i class="fa fa-${task_icon} fa-fw fa-2x" /></i><br />${task_name}</a>',
             '${task_desc}',
         );
-        echo '<div><h2>'._('Advanced Actions').'</h2>';
-        $TaskTypes = $this->getClass('TaskTypeManager')->find(array('access'=>array('both', 'host'),'isAdvanced'=>1),'AND','id');
-        foreach ($TaskTypes AS $i => &$TaskType) {
+        foreach ((array)$this->getClass('TaskTypeManager')->find(array('access'=>array('both','host'))) AS $i => &$TaskType) {
+            if (!$TaskType->isValid()) continue;
             $this->data[] = array(
                 'node' => $_REQUEST['node'],
                 'sub' => 'hostdeploy',
@@ -172,9 +167,10 @@ class TaskManagementPage extends FOGPage {
                 'task_name' => $TaskType->get('name'),
                 'task_desc' => $TaskType->get('description'),
             );
+            unset($TaskType);
         }
-        unset($TaskType);
         $this->HookManager->processEvent('TASK_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        printf('<div><h2>%s</h2>',_('Advanced Actions'));
         $this->render();
         echo '</div>';
     }
@@ -188,9 +184,9 @@ class TaskManagementPage extends FOGPage {
             '<a href="?node=${node}&sub=${sub}&id=${id}&type=${type}"><i class="fa fa-${task_icon} fa-fw fa-2x" /></i><br />${task_name}</a>',
             '${task_desc}',
         );
-        echo '<div><h2>'._('Advanced Actions').'</h2>';
         $TaskTypes = $this->getClass('TaskTypeManager')->find(array('access'=>array('both', 'group'),'isAdvanced'=>1),'AND','id');
-        foreach ($TaskTypes AS $i => &$TaskType) {
+        foreach ((array)$this->getClass('TaskTypeManager')->find(array('access'=>array('both','group'),'isAdvanced'=>1),'AND','id') AS $i => &$TaskType) {
+            if (!$TaskType->isValid()) continue;
             $this->data[] = array(
                 'node'=>$_REQUEST['node'],
                 'sub'=>'groupdeploy',
@@ -200,9 +196,10 @@ class TaskManagementPage extends FOGPage {
                 'task_name'=>$TaskType->get('name'),
                 'task_desc'=>$TaskType->get('description'),
             );
+            unset($TaskType);
         }
-        unset($TaskTypes);
         $this->HookManager->processEvent('TASK_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        printf('<div><h2>%s</h2>',_('Advanced Actions'));
         $this->render();
         echo '</div>';
     }
@@ -213,27 +210,29 @@ class TaskManagementPage extends FOGPage {
             _('Deploy'),
         );
         $this->attributes = array(
-            array('class'=>l),
+            array('class'=>'l'),
             array('width'=>60,'class'=>'r filter-false'),
         );
+        $down = $this->getClass('TaskType',1);
+        $mc = $this->getClass('TaskType',8);
         $this->templates = array(
             '<a href="?node=group&sub=edit&id=${id}"/>${name}</a>',
-            '${deployLink}&nbsp;${multicastLink}&nbsp;${advancedLink}',
-        );
-        $Groups = $this->getClass('GroupManager')->find();
-        foreach ((array)$Groups AS $i => &$Group) {
+            sprintf('<a href="?node=task&sub=groupdeploy&type=%s&id=${id}"><i class="icon hand fa fa-%s" title="%s"></i></a><a href="?node=task&sub=groupdeploy&type=%s&id=${id}"><i class="icon hand fa fa-%s" title="%s"></i></a><a href="?node=task&sub=groupadvanced&id=${id}#host-tasks"><i class="icon hand fa fa-%s" title="%s"></i></a>',
+            $down->get('id'),
+            $down->get('icon'),
+            $down->get('name'),
+            $mc->get('id'),
+            $mc->get('icon'),
+            $mc->get('name'),
+            'arrows-alt',
+            _('Advanced')
+        ),
+    );
+        foreach ((array)$this->getClass('GroupManager')->find() AS $i => &$Group) {
             if (!$Group->isValid()) continue;
-            $deployLink = '<a href="?node=task&sub=groupdeploy&type=1&id=${id}"><i class="icon hand fa fa-${downicon} fa-1x" title="'._('Download').'"></i></a>';
-            $multicastLink = '<a href="?node=task&sub=groupdeploy&type=8&id=${id}"><i class="icon hand fa fa-${multicon} fa-1x" title="'._('Multicast').'"></i></a>';
-            $advancedLink = '<a href="?node=task&sub=groupadvanced&id=${id}"><i class="icon hand fa fa-arrows-alt" title="'._('Advanced').'"></i></a>';
             $this->data[] = array(
-                'deployLink'=>$deployLink,
-                'advancedLink'=>$advancedLink,
-                'multicastLink'=>$multicastLink,
                 'id'=>$Group->get('id'),
                 'name'=>$Group->get('name'),
-                'downicon'=>$this->getClass('TaskType',1)->get('icon'),
-                'multiicon'=>$this->getClass('TaskType',8)->get('icon'),
             );
             unset($Group);
         }
@@ -252,14 +251,12 @@ class TaskManagementPage extends FOGPage {
         $imagingTasks = array(1,2,8,15,16,17,24);
         $taskName = _(($taskTypeID == 8 ? 'Multicast Group Quick Deploy' : 'Group Quick Deploy'));
         try {
-            $Hosts = $this->getClass('HostManager')->find(array('id'=>$Group->get('hosts')));
-            foreach ((array)$Hosts AS $i => &$Host) {
+            foreach ((array)$this->getClass('HostManager')->find(array('id'=>$Group->get('hosts'))) AS $i => &$Host) {
                 if (!$Host->isValid()) continue;
                 if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID')) throw new Exception(_('You need to assign an image to all of the hosts'));
                 if (!$Host->checkIfExist($taskTypeID)) throw new Exception(_('To setup download task, you must first upload an image'));
                 unset($Host);
             }
-            unset($Hosts);
             $Group->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $_SESSION['FOG_USERNAME']);
             $this->setMessage('Successfully created Group tasking!');
             $this->redirect('?node=task&sub=active');
@@ -274,17 +271,12 @@ class TaskManagementPage extends FOGPage {
         $this->title = _('Active Tasks');
         $i = 0;
         $Tasks = $this->getClass('TaskManager')->find(array('stateID'=>array(1,2,3)));
-        foreach ($Tasks AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->find(array('stateID'=>array(1,2,3,))) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
-            if (!$Host->isValid()) {
-                unset($Task,$Host);
-                continue;
-            }
+            if (!$Host->isValid()) continue;
             $hostname = $Host->get('name');
-            $MAC = $Host->get('mac');
-            if ($MAC instanceof MACAddress) $MAC = $MAC->__toString();
-            else $MAC = $this->getClass('MACAddress',$MAC)->__toString();
+            $MAC = $Host->get('mac')->__toString();
             $this->data[] = array(
                 'startedby'=>$Task->get('createdBy'),
                 'id'=>$Task->get('id'),
@@ -311,18 +303,15 @@ class TaskManagementPage extends FOGPage {
             );
             unset($Task);
         }
-        unset($Tasks);
         $this->HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function canceltasks() {
-        $Tasks = $this->getClass('TaskManager')->find(array('id'=>(array)$_REQUEST['task']));
-        foreach ((array)$Tasks AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->find(array('id'=>(array)$_REQUEST['task'])) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Task->cancel();
             unset($Task);
         }
-        unset($Tasks);
     }
     public function force_task() {
         $Task = $this->getClass('Task',$_REQUEST['id']);
@@ -357,8 +346,7 @@ class TaskManagementPage extends FOGPage {
     public function remove_multicast_post() {
         $MulticastSessionIDs = $this->getSubObjectIDs('MulticastSessions',array('id'=>$_REQUEST['task']));
         $TaskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('id'=>$_REQUEST['task']),'taskID');
-        $Tasks = $this->getClass('TaskManager')->find(array('id'=>$TaskIDs));
-        foreach ((array)$Tasks AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->find(array('id'=>$TaskIDs)) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Task->cancel();
             unset($Task);
@@ -369,7 +357,7 @@ class TaskManagementPage extends FOGPage {
         $this->getClass('MulticastSessionsManager')->destroy(array('id'=>$MulticastSessionIDs));
         unset($MulticastSessionIDs);
         $this->setMessage(_('Successfully cancelled selected tasks'));
-        $this->redirect('?node='.$this->node.'&sub=active');
+        $this->redirect(sprintf('?node=%s&sub=active',$this->node));
     }
     public function active_multicast() {
         $this->title = _('Active Multi-cast Tasks');
@@ -390,15 +378,14 @@ class TaskManagementPage extends FOGPage {
             '${percent}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'c'),
+            array('width'=>16,'class'=>'l filter-false'),
             array('class'=>'c'),
             array('class'=>'c'),
             array('class'=>'c'),
             array('class'=>'c'),
             array('width'=>40,'class'=>'c')
         );
-        $MulticastSessions = $this->getClass('MulticastSessionsManager')->find(array('stateID'=>array(1,2,3)));
-        foreach($MulticastSessions AS $i => &$MS) {
+        foreach((array)$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array(1,2,3))) AS $i => &$MS) {
             if (!$MS->isValid()) continue;
             $TS = $this->getClass('TaskState',$MS->get('stateID'));
             $this->data[] = array(
@@ -411,7 +398,6 @@ class TaskManagementPage extends FOGPage {
             );
             unset($MS,$TS);
         }
-        unset($MulticastSessions);
         $this->HookManager->processEvent('TaskActiveMulticastData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -438,8 +424,7 @@ class TaskManagementPage extends FOGPage {
             array('class'=>'l','width'=>50),
             array('class'=>'r','width'=>40),
         );
-        $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('stateID'=>array(-1,0,1,2,3)));
-        foreach($SnapinTasks AS $i => &$SnapinTask) {
+        foreach ((array)$this->getClass('SnapinTaskManager')->find(array('stateID'=>array(-1,0,1,2,3))) AS $i => &$SnapinTask) {
             if (!$SnapinTask->isValid()) continue;
             $Host = $this->getClass('SnapinJob',$SnapinTask->get('jobID'))->getHost();
             if (!$Host->isValid()) {
@@ -467,7 +452,6 @@ class TaskManagementPage extends FOGPage {
             }
             unset($Host,$SnapinTask,$Snapin);
         }
-        unset($SnapinTasks);
         $this->HookManager->processEvent('TaskActiveSnapinsData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -477,12 +461,12 @@ class TaskManagementPage extends FOGPage {
         $this->getClass('SnapinTaskManager')->destroy(array('id'=>$SnapinTaskIDs));
         if (!$this->getClass('SnapinTaskManager')->count(array('jobID'=>$SnapinJobIDs))) $this->getClass('SnapinJobManager')->destroy(array('id'=>$SnapinJobIDs));
         $this->setMessage(_('Successfully cancelled selected tasks'));
-        $this->redirect('?node='.$this->node.'&sub=active');
+        $this->redirect(sprintf('?node=%s&sub=active',$this->node));
     }
     public function cancelscheduled() {
         $this->getClass('ScheduledTaskManager')->destroy(array('id'=>$_REQUEST['task']));
         $this->setMessage(_('Successfully cancelled selected tasks'));
-        $this->redirect('?node='.$this->node.'&sub=active');
+        $this->redirect(sprintf('?node=%s&sub=active',$this->node));
     }
     public function scheduled() {
         $this->title = 'Scheduled Tasks';
@@ -505,7 +489,7 @@ class TaskManagementPage extends FOGPage {
             '${active}/${type}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'c'),
+            array('width'=>16,'class'=>'l filter-false'),
             array('width'=>120,'class'=>'l'),
             array(),
             array('width'=>110,'class'=>'l'),
@@ -513,8 +497,7 @@ class TaskManagementPage extends FOGPage {
             array('width'=>70,'class'=>'c'),
             array('width'=>100,'class'=>'c','style'=>'padding-right: 10px'),
         );
-        $ScheduledTasks = $this->getClass('ScheduledTaskManager')->find();
-        foreach ((array)$ScheduledTasks AS $i => &$ScheduledTask) {
+        foreach ((array)$this->getClass('ScheduledTaskManager')->find() AS $i => &$ScheduledTask) {
             if (!$ScheduledTask->isValid()) continue;
             $Host = $ScheduledTask->getHost();
             if (!$Host->isValid()) {
@@ -522,7 +505,7 @@ class TaskManagementPage extends FOGPage {
                 continue;
             }
             $taskType = $ScheduledTask->getTaskType();
-            if ($ScheduledTask->get('type') == 'C') $taskTime = FOGCron::parse($this->FOGCore,$ScheduledTask->get('minute').' '.$ScheduledTask->get('hour').' '.$ScheduledTask->get('dayOfMonth').' '.$ScheduledTask->get('month').' '.$ScheduledTask->get('dayOfWeek'));
+            if ($ScheduledTask->get('type') == 'C') $taskTime = FOGCron::parse($this->FOGCore,sprintf('%s %s %s %s %s',$ScheduledTask->get('minute'),$ScheduledTask->get('hour'),$ScheduledTask->get('dayOfMonth'),$ScheduledTask->get('month'),$ScheduledTask->get('dayOfWeek')));
             else $taskTime = $ScheduledTask->get('scheduleTime');
             $taskTime = $this->nice_date()->setTimestamp($taskTime);
             $hostGroupName = ($ScheduledTask->isGroupBased() ? $ScheduledTask->getGroup() : $ScheduledTask->getHost());
