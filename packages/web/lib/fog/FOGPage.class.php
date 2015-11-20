@@ -511,9 +511,9 @@ abstract class FOGPage extends FOGBase {
             $optFound = false;
             foreach ((array)$OUs AS $i => &$OU) {
                 if (!$optFound && preg_match('#;#i',$OU)) {
-                    $optFound = trim(preg_replace('#;#','',$OU));
-                    unset($OU);
-                    break;
+                $optFound = trim(preg_replace('#;#','',$OU));
+                unset($OU);
+                break;
                 }
                 unset($OU);
             }
@@ -544,10 +544,10 @@ abstract class FOGPage extends FOGBase {
             _('Domain name') => sprintf('<input id="adDomain" class="smaller" type="text" name="domainname" value="%s" autocomplete="off"/>',$ADDomain),
             sprintf('%s<br/><span class="lightColor">(%s)</span>',_('Organizational Unit'),_('Blank for default')) => $OUOptions,
             _('Domain Username') => sprintf('<input id="adUsername" class="smaller" type="text"name="domainuser" value="%s" autocomplete="off"/>',$ADUser),
-           sprintf('%s<br/>(%s)',_('Domain Password'),_('Will auto-encrypt plaintext')) => sprintf('<input id="adPassword" class="smaller" type="password" name="domainpassword" value="%s" autocomplete="off"/>',$ADPass),
-           sprintf('%s<br/>(%s)',_('Domain Password Legacy'),_('Must be encrypted')) => sprintf('<input id="adPasswordLegacy" class="smaller" type="password" name="domainpasswordlegacy" value="%s" autocomplete="off"/>',$ADPassLegacy),
-           '&nbsp;' => sprintf('<input name="updatead" type="submit" value="%s"/>',($_REQUEST['sub'] == 'add' ? _('Add') : _('Update'))),
-       );
+            sprintf('%s<br/>(%s)',_('Domain Password'),_('Will auto-encrypt plaintext')) => sprintf('<input id="adPassword" class="smaller" type="password" name="domainpassword" value="%s" autocomplete="off"/>',$ADPass),
+            sprintf('%s<br/>(%s)',_('Domain Password Legacy'),_('Must be encrypted')) => sprintf('<input id="adPasswordLegacy" class="smaller" type="password" name="domainpasswordlegacy" value="%s" autocomplete="off"/>',$ADPassLegacy),
+            '&nbsp;' => sprintf('<input name="updatead" type="submit" value="%s"/>',($_REQUEST['sub'] == 'add' ? _('Add') : _('Update'))),
+        );
         printf('<div id="%s-active-directory"><form method="post" action="%s&tab=%s-active-directory"><h2>%s<div id="adClear"></div></h2>',$this->node,$this->formAction,$this->node,_('Active Directory'));
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
@@ -737,18 +737,18 @@ abstract class FOGPage extends FOGBase {
         printf('<div id="%s-membership">',$this->node);
         $this->headerData = array(
             sprintf('<input type="checkbox" name="toggle-checkbox%s1" class="toggle-checkbox1"',$this->node),
-            _(($objType?'Group':'Host').' Name'),
+            sprintf('%s %s',($objType ? _('Group') : _('Host')),_('Name')),
         );
         $this->templates = array(
             '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-'.($objType ? 'group' : 'host').'${check_num}" />',
             sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',($objType ? 'group' : 'host')),
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'c filter-false'),
+            array('width'=>16,'class'=>'l filter-false'),
             array('width'=>150,'class'=>'l'),
         );
         $ClassCall = ($objType ? 'Group' : 'Host');
-        foreach($this->getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(strtolower($ClassCall).'snotinme'))) AS $i => &$Host) {
+        foreach($this->getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(sprintf('%ssnotinme',strtolower($ClassCall))))) AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
                 'host_id'=>$Host->get('id'),
@@ -758,18 +758,33 @@ abstract class FOGPage extends FOGBase {
             unset ($Host);
         }
         if (count($this->data) > 0) {
-            $this->HookManager->processEvent('OBJ_'.strtoupper($ClassCall).'_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-            echo '<form method="post" action="'.$this->formAction.'"><center><label for="'.strtolower($ClassCall).'MeShow">'._('Check here to see '.strtolower($ClassCall).'s not within this '.$this->node).'&nbsp;&nbsp;<input type="checkbox" name="'.strtolower($ClassCall).'MeShow" id="'.strtolower($ClassCall).'MeShow" /></label></center><div id="'.strtolower($ClassCall).'NotInMe"><h2>'._('Modify Membership for').' '.$this->obj->get('name').'</h2>';
+            $this->HookManager->processEvent(sprintf('OBJ_%s_NOT_IN_ME',strtoupper($ClassCall)),array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+            printf('<form method="post" action="%s"><label for="%sMeShow"><p class="c">%s %ss %s %s&nbsp;&nbsp;<input type="checkbox" name="%sMeShow" id="%sMeShow"/></p></label><div id="%sNotInMe"><h2>%s %s</h2>',
+                $this->formAction,
+                strtolower($ClassCall),
+                _('Check here to see'),
+                strtolower($ClassCall),
+                _('not within this'),
+                $this->node,
+                strtolower($ClassCall),
+                strtolower($ClassCall),
+                strtolower($ClassCall),
+                _('Modify Membership for'),$this->obj->get('name')
+            );
             $this->render();
-            echo '</div></center><br/><center><input type="submit" value="'._('Add '.($objType ? 'Group' : 'Host').'(s) to '.$this->node).'" name="addHosts" /></center><br/></form>';
+            printf('</div><br/><p class="c"><input type="submit" value="%s %s(s) to %s" name="addHosts"/></p><br/>',
+                _('Add'),
+                ($objType ? _('Group') : _('Host')),
+                $this->node
+            );
         }
         unset($this->data);
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
-            _($ClassCall.' Name'),
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
+            sprintf('%s %s',_($ClassCall), _('Name')),
         );
         $this->templates = array(
-            '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" />',
+            '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action"/>',
             sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',strtolower($ClassCall)),
         );
         foreach($this->getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(strtolower($ClassCall).'s'))) AS $i => &$Host) {
@@ -781,15 +796,15 @@ abstract class FOGPage extends FOGBase {
             unset($Host);
         }
         $this->HookManager->processEvent('OBJ_MEMBERSHIP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        echo '<form method="post" action="'.$this->formAction.'">';
+        printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
-        if (count($this->data)) echo '<center><input type="submit" value="'._('Delete Selected '.$ClassCall.'s From '.$this->node).'" name="remhosts"/></center>';
+        if (count($this->data)) printf('<p class="c"><input type="submit" value="%s %ss %s %s" name="remhosts"/></p>',_('Delete Selected'),$ClassCall,_('From'),$this->node);
     }
     public function membership_post() {
         if (isset($_REQUEST['addHosts'])) $this->obj->addHost($_REQUEST['host']);
         if (isset($_REQUEST['remhosts'])) $this->obj->removeHost($_REQUEST['hostdel']);
         if ($this->obj->save(false)) {
-            $this->setMessage($this->obj->get('name').' '._('saved successfully'));
+            $this->setMessage(sprintf('%s %s',$this->obj->get('name'),_('saved successfully')));
             $this->redirect($this->formAction);
         }
     }
@@ -819,7 +834,7 @@ abstract class FOGPage extends FOGBase {
                 'input'=>$input,
             );
         }
-        $this->HookManager->processEvent(strtoupper($this->childClass).'_IMPORT_OUT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        $this->HookManager->processEvent(sprintf('%s_IMPORT_OUT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
@@ -838,20 +853,27 @@ abstract class FOGPage extends FOGBase {
             _(sprintf("Click the button to download the %s's table backup.",strtolower($this->childClass))) => sprintf('<input type="submit" value="%s"/>',_('Export')),
         );
         $report = $this->getClass('ReportMaker');
-        $Items = $this->getClass($this->childClass)->getManager()->find();
         $this->array_remove('id',$this->databaseFields);
-        foreach ($Items AS $i => &$Item) {
-            if ($Item instanceof Host) {
-                $macs[] = $Item->get('mac');
-                foreach ($Item->get('additionalMACs') AS $i => &$AddMAC) $macs[] = $AddMAC->__toString();
-                unset($AddMAC);
-                $report->addCSVCell(implode('|',(array)$macs));
+        foreach ((array)$this->getClass($this->childClass)->getManager()->find() AS $i => &$Item) {
+            if (!$Item->isValid()) continue;
+            if ($this->childClass == 'Host') {
+                if (!$Item->get('mac')->isValid()) continue;
+                ob_start();
+                echo $Item->get('mac')->__toString();
+                foreach ((array)$Item->get('additionalMACs') AS $i => &$AddMAC) {
+                    if (!$AddMAC->isValid()) continue;
+                    printf('|%s',$AddMAC->__toString());
+                    unset($AddMAC);
+                }
+                $macColumn = ob_get_clean();
+                $report->addCSVCell($macColumn);
             }
-            foreach (array_keys((array)$this->databaseFields) AS $i => &$field) $report->addCSVCell($Item->get($field));
-            unset($field);
-            $this->HookManager->processEvent(strtoupper($this->childClass).'_EXPORT_REPORT',array('report'=>&$report,$this->childClass=>&$Item));
+            foreach (array_keys((array)$this->databaseFields) AS $i => &$field) {
+                $report->addCSVCell($Item->get($field));
+                unset($field);
+            }
+            $this->HookManager->processEvent(sprintf('%s_EXPORT_REPORT',strtoupper($this->childClass)),array('report'=>&$report,$this->childClass=>&$Item));
             $report->endCSVLine();
-            unset($macs);
             unset($Item);
         }
         $_SESSION['foglastreport']=serialize($report);
@@ -862,7 +884,7 @@ abstract class FOGPage extends FOGBase {
                 'input'=>$input,
             );
         }
-        $this->HookManager->processEvent(strtoupper($this->childClass).'_EXPORT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        $this->HookManager->processEvent(sprintf('%s_EXPORT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
@@ -882,11 +904,11 @@ abstract class FOGPage extends FOGBase {
                         $ModuleIDs = $this->getSubObjectIDs('Module','','id');
                         $MACs = $this->parseMacList($data[0]);
                         $Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
-                        if ($Host && $Host->isValid()) throw new Exception(_('Host al ready exists with at least one of the listed MACs'));
+                        if ($Host && $Host->isValid()) throw new Exception(_('Host already exists with at least one of the listed MACs'));
                         $PriMAC = array_shift($MACs);
                         $iterator = 1;
                     } else $iterator = 0;
-                    if ($Item->getManager()->exists($data[$iterator])) throw new Exception(_($this->childClass.' already exists with this name: '.$data[$iterator]));
+                    if ($Item->getManager()->exists($data[$iterator])) throw new Exception(sprintf('%s %s: %s',$this->childClass,_('already exists with this name'),$data[$iterator]));
                     foreach (array_keys((array)$this->databaseFields) AS $i => $field) {
                         if ($Item instanceof Host) $i++;
                         $Item->set($field,$data[$i],($field == 'password'));
@@ -910,7 +932,7 @@ abstract class FOGPage extends FOGBase {
         } catch (Exception $e) {
             $error = $e->getMessage();
         }
-        $this->title = _(sprintf('Import %s Results',$this->childClass));
+        $this->title = sprintf('%s %s %s',_('Import'),$this->childClass,_('Results'));
         unset($this->headerData);
         $this->templates = array(
             '${field}',
@@ -921,10 +943,10 @@ abstract class FOGPage extends FOGBase {
             array(),
         );
         $fields = array(
-            _('Total Rows')=>$totalRows,
-            _(sprintf("Successful %s's",$this->childClass))=>$numSuccess,
-            _(sprintf("Failed %s's",$this->childClass))=>$numFailed,
-            _('Errors')=>$uploadErrors,
+            _('Total Rows') => $totalRows,
+            sprintf('%s %ss',_('Successful'),$this->childClass) => $numSuccess,
+            sprintf('%s %ss',_('Failed'),$this->childClass) => $numFailed,
+            _('Errors') => $uploadErrors,
         );
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
@@ -933,7 +955,7 @@ abstract class FOGPage extends FOGBase {
             );
         }
         unset($input);
-        $this->HookManager->processEvent(strtoupper($this->childClass).'_IMPORT_FIELDS',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        $this->HookManager->processEvent(sprintf('%s_IMPORT_FIELDS',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
 }

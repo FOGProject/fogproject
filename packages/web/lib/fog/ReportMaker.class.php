@@ -23,7 +23,7 @@ class ReportMaker extends FOGBase {
         return $this;
     }
     public function endCSVLine() {
-        $this->strLine[] = '"'.implode('","',$this->strCSV).'"';
+        $this->strLine[] = sprintf('"%s"%s',implode('","',$this->strCSV),"\n");
         unset($this->strCSV);
         return $this;
     }
@@ -45,7 +45,7 @@ class ReportMaker extends FOGBase {
         case 1:
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"$this->filename.csv\"");
-            echo implode("\n",(array)$this->strLine);
+            echo implode((array)$this->strLine);
             unset($this->filename,$this->strLine);
             break;
         case 2:
@@ -66,7 +66,7 @@ class ReportMaker extends FOGBase {
         case 4:
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"{$type}_export.csv\"");
-            echo implode("\n",(array)$this->strLine);
+            echo implode((array)$this->strLine);
             unset($this->strLine);
             break;
         case 5:
