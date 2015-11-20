@@ -38,7 +38,13 @@ class ServiceConfigurationPage extends FOGPage {
         $this->index();
     }
     public function index() {
-        echo '<h2>'._('FOG Client Download').'</h2><p>'._('Use the following link to go to the Client page to download the FOG Client, FOG Prep, and FOG Crypt Information.').'</p><a href="?node=client">'._('Click Here').'</a><h2>'._('FOG Service Configuration Information').'</h2><p>'._('This section of the FOG management portal allows you to configure how the FOG service functions on client computers.  The settings in this section tend to be global settings that effect all hosts.  If you are looking to configure settings for a service module that is specific to a host, please see the Servicesection.  To get started editing global settings, please select an item from the left hand menu.').'</p>';
+        printf('<h2>%s</h2><p>%s</p><a href="?node=client">%s</a><h2>%s</h2><p>%s</p>',
+            _('FOG Client Download'),
+            _('Use the following link to go to the client page. There you can download utilities such as FOG Prep, FOG Crypt, and both the legacy and new FOG Clients.'),
+            _('Click Here'),
+            _('FOG Service Configuration Information'),
+            _('This will allow you to configure how services function on client computers.  The settings tend to be global settings which affect all hosts. If you are looking to configure settings for a specific host, please see the Hosts Service Settings section. To get started please select an item from the left hand menu.')
+        );
     }
     public function edit() {
         echo '<div id="tab-container"><div id="home">';
@@ -46,13 +52,13 @@ class ServiceConfigurationPage extends FOGPage {
         echo '</div>';
         $moduleName = $this->getGlobalModuleStatus();
         $modNames = $this->getGlobalModuleStatus(true);
-        $Modules = $this->getClass(ModuleManager)->find();
-        foreach ($Modules AS $i => &$Module) {
+        foreach ((array)$this->getClass('ModuleManager')->find() AS $i => &$Module) {
+            if (!$Module->isValid()) continue;
             unset($this->data,$this->headerData,$this->attributes,$this->templates);
             $this->attributes = array(
-                array(width=>270,'class'=>l),
-                array('class'=>c),
-                array('class'=>r),
+                array('width'=>270,'class'=>'l'),
+                array('class'=>'c'),
+                array('class'=>'r'),
             );
             $this->templates = array(
                 '${field}',
@@ -60,62 +66,81 @@ class ServiceConfigurationPage extends FOGPage {
                 '${span}',
             );
             $fields = array(
-                _($Module->get('name').' Enabled?')=>'<input type="checkbox" name="en" ${checked}/>',
-                ($moduleName[$Module->get('shortName')] ? _($Module->get('name').' Enabled as default?') : null) => ($moduleName[$Module->get('shortName')] ? '<input type="checkbox" name="defen" ${is_on}/>' : null),
+                sprintf('%s %s?',$Module->get('name'),_('Enabled')) => sprintf('<input type="checkbox" name="en"%s/>',$moduleName[$Module->get('shortName')] ? ' checked' : ''),
+                sprintf('%s',($moduleName[$Module->get('shortName')] ? sprintf('%s %s?',$Module->get('name'),_('Enabled as default')) : '')) => sprintf('%s',($moduleName[$Module->get('shortName')] ? sprintf('<input type="checkbox" name="defen"%s/>',$Module->get('isDefault') ? ' checked' : '') : '')),
             );
             $fields = array_filter($fields);
             foreach((array)$fields AS $field => &$input) {
                 $this->data[] = array(
                     'field'=>$field,
                     'input'=>$input,
-                    'checked'=>($moduleName[$Module->get(shortName)] ? 'checked' : ''),
-                    'span'=>'<i class="icon fa fa-question hand" title="${module_desc}"></i>',
-                    'module_desc'=>$Module->get('description'),
-                    'is_on'=>($Module->get('isDefault') ? 'checked' : ''),
+                    'span'=>sprintf('<i class="icon fa fa-question hand" title="%s"></i>',$Module->get('description')),
                 );
+                unset($input);
             }
-            unset($input);
             $this->data[] = array(
-                'field'=>'<input type="hidden" name="name" value="${mod_name}" />',
+                'field'=>sprintf('<input type="hidden" name="name" value="%s"/>',$modNames[$Module->get('shortName')]),
                 'input'=>'',
-                'span'=>'<input type="submit" name="updatestatus" value="'._('Update').'" />',
-                'mod_name'=>$modNames[$Module->get('shortName')],
+                'span'=>sprintf('<input type="submit" name="updatestatus" value="%s"/>',_('Update')),
             );
-            echo '<!-- '._($Module->get('name')).'  --><div id="'.$Module->get('shortName').'"><h2>'._($Module->get('name')).'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'"><p>'._($Module->get('description')).'</p><h2>'._('Service Status').'</h2>';
+            printf('<!-- %s --><div id="%s"><h2>%s</h2><form method="post" action="?node=service&sub=edit&tab=%s"><p>%s</p><h2>%s</h2>',
+                $Module->get('name'),
+                $Module->get('shortName'),
+                $Module->get('name'),
+                $Module->get('shortName'),
+                $Module->get('description'),
+                _('Service Status')
+            );
             $this->render();
             echo '</form>';
-            if ($Module->get('shortName') == 'autologout') {
-                echo '<h2>'._('Default Setting').'</h2>';
-                echo '<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'"><p>'._('Default log out time (in minutes): ').'<input type="text" name="tme" value="'.$this->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN').'" /></p><p><input type="hidden" name="name" value="FOG_SERVICE_AUTOLOGOFF_MIN" /><input type="hidden" name="updatedefaults" value="1" /><input type="submit" value="'._('Update Defaults').'" /></p></form>';
-            } else if ($Module->get('shortName') == 'clientupdater') {
+            switch ($Module->get('shortName')) {
+            case 'autologout':
+                printf('<h2>%s</h2><form method="post" action="?node=service&sub=edit&tab=%s"><p>%s: <input type="text" name="tme" value="%s"/></p><p><input type="hidden" name="name" value="FOG_SERVICE_AUTOLOGOFF_MIN"/><input name="updatedefaults" type="submit" value="%s"/></p></form>',
+                    _('Default Setting'),
+                    $Module->get('shortName'),
+                    _('Default log out time (in minutes)'),
+                    $this->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'),
+                    _('Update Defaults')
+                );
+                break;
+            case 'clientupdater':
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->getClass('FOGConfigurationPage')->client_updater();
-            } else if ($Module->get('shortName') == 'dircleanup') {
+                break;
+            case 'dircleanup':
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->headerData = array(
                     _('Path'),
                     _('Remove'),
                 );
                 $this->attributes = array(
-                    array('class'=>l),
+                    array('class'=>'l'),
                     array('class'=>'filter-false'),
                 );
                 $this->templates = array(
                     '${dir_path}',
-                    '<input type="checkbox" id="rmdir${dir_id}" class="delid" name="delid" onclick="this.form.submit()" value="${dir_id}" /><label for="rmdir${dir_id}" class="icon fa fa-minus-circle hand" title="'._('Delete').'">&nbsp;</label>',
+                    sprintf('<input type"checkbox" id="rmdir${dir_id}" class="delid" name="delid" onclick="this.form.submit()" value="${dir_id}"/><label for="rmdir${dir_id}" class="icon fa fa-minus-circle hand" title="%s">&nbsp;</label>',_('Delete')),
                 );
-                echo '<h2>'._('Add Directory').'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'"><p>'._('Directory Path').': <input type="text" name="adddir" /></p><p><input type="hidden" name="name" value="'.$modNames[$Module->get('shortName')].'" /><input type="submit" value="'._('Add Directory').'" /></p><h2>'._('Directories Cleaned').'</h2>';
-                $dirs = $this->getClass('DirCleanerManager')->find();
-                foreach ((array)$dirs AS $i => &$DirCleaner) {
+                printf('<h2>%s</h2><form method="post" action="%s&tab=%s"><p>%s: <input type="text" name="adddir"/></p><p><input type="hidden" name="name" value="%s"/><input type="submit" value="%s"/></p><h2>%s</h2>',
+                    _('Add Directory'),
+                    $this->formAction,
+                    $Module->get('shortName'),
+                    _('Directory Path'),
+                    $modNames[$Module->get('shortName')],
+                    _('Add Directory'),
+                    _('Directories Cleaned')
+                );
+                foreach ((array)$this->getClass('DirCleanerManager')->find() AS $i => &$DirCleaner) {
+                    if (!$DirCleaner->isValid()) continue;
                     $this->data[] = array(
                         'dir_path'=>$DirCleaner->get('path'),
                         'dir_id'=>$DirCleaner->get('id'),
                     );
                 }
-                unset($DirCleaner);
                 $this->render();
                 echo '</form>';
-            } else if ($Module->get('shortName') == 'displaymanager') {
+                break;
+            case 'displaymanager':
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->attributes = array(
                     array(),
@@ -126,27 +151,27 @@ class ServiceConfigurationPage extends FOGPage {
                     '${input}',
                 );
                 $fields = array(
-                    _('Default Width') => '<input type="text" name="width" value="${width}" />',
-                    _('Default Height') => '<input type="text" name="height" value="${height}" />',
-                    _('Default Refresh Rate') => '<input type="text" name="refresh" value="${refresh}" />',
-                    '<input type="hidden" name="name" value="${mod_name}" /><input type="hidden" name="updatedefaults" value="1" />' => '<input type="submit" value="'._('Update Defaults').'" />',
+                    _('Default Width') => sprintf('<input type="text" name="width" value="%s"/>',$this->getSetting('FOG_SERVICE_DISPLAYMANAGER_X')),
+                    _('Default Height') => sprintf('<input type="text" name="height" value="%s"/>',$this->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y')),
+                    _('Default Refresh Rate') => sprintf('<input type="text" name="refresh" value="%s"/>',$this->getSetting('FOG_SERVICE_DISPLAYMANAGER_R')),
+                    sprintf('<input type="hidden" name="name" value="%s"/>',$modNames[$Module->get('shortName')]) => sprintf('<input name="updatedefaults" type="submit" value="%s"/>',_('Update Defaults')),
                 );
-                echo '<h2>'._('Default Setting').'</h2>';
-                echo '<form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'">';
+                printf('<h2>%s</h2><form method="post" action="%s&tab=%s">',
+                    _('Default Setting'),
+                    $this->formAction,
+                    $Module->get('shortName')
+                );
                 foreach((array)$fields AS $field => &$input) {
                     $this->data[] = array(
                         'field'=>$field,
                         'input'=>$input,
-                        'width'=>$this->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'),
-                        'height'=>$this->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'),
-                        'refresh'=>$this->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'),
-                        'mod_name'=>$modNames[$Module->get('shortName')],
                     );
+                    unset($input);
                 }
-                unset($input);
                 $this->render();
                 echo '</form>';
-            } else if ($Module->get('shortName') == 'greenfog') {
+                break;
+            case 'greenfog':
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->headerData = array(
                     _('Time'),
@@ -161,24 +186,33 @@ class ServiceConfigurationPage extends FOGPage {
                 $this->templates = array(
                     '${gf_time}',
                     '${gf_action}',
-                    '<input type="checkbox" id="gfrem${gf_id}" class="delid" name="delid" onclick="this.form.submit()" value="${gf_id}" /><label for="gfrem${gf_id}" class="icon fa fa-minus-circle hand" title="'._('Delete').'">&nbsp;</label>',
+                    sprintf('<input type="checkbox" id="gfrem${gf_id}" class="delid" name="delid" onclick="this.form.submit()" value="${gf_id}"/><label for="gfrem${gf_id}" class="icon fa fa-minus-circle hand" title="%s">&nbsp;</label>',_('Delete')),
                 );
-                echo '<h2>'._('Shutdown/Reboot Schedule').'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'"><p>'._('Add Event (24 Hour Format):').'<input class="short" type="text" name="h" maxlength="2" value="HH" onFocus="this.value=\'\'" />:<input class="short" type="text" name="m" maxlength="2" value="MM" onFocus="this.value=\'\'" /><select name="style" size="1"><option value="">'._('Select One').'</option><option value="s">'._('Shut Down').'</option><option value="r">'._('Reboot').'</option></select></p><p><input type="hidden" name="name" value="'.$modNames[$Module->get('shortName')].'" /><input type="submit" name="addevent" value="'._('Add Event').'" /></p>';
-                $greenfogs = $this->getClass('GreenFogManager')->find();
-                foreach((array)$greenfogs AS $i => &$GreenFog) {
-                    if ($GreenFog && $GreenFog->isValid()) {
-                        $gftime = $this->nice_date($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
-                        $this->data[] = array(
-                            'gf_time'=>$gftime,
-                            'gf_action'=>($GreenFog->get('action') == 'r' ? 'Reboot' : ($GreenFog->get('action') == 's' ? _('Shutdown') : _('N/A'))),
-                            'gf_id'=>$GreenFog->get('id'),
-                        );
-                    }
+                printf('<h2>%s</h2><form method="post" action="%s&tab=%s"><p>%s <input class="short" type="text" name="h" maxlength="2" value="HH" onFocus="$(this).val(\'\');"/>:<input class="short" type="text" name="m" maxlength="2" value="MM" onFocus="$(this).val(\'\');"/><select name="style" size="1"><option value="">- %s -</option><option value="s">%s</option><option value="r">%s</option></select></p><p><input type="hidden" name="name" value="%s"/><input type="submit" name="addevent" value="%s"/></p>',
+                    _('Shutdown/Reboot Schedule'),
+                    $this->formAction,
+                    $Module->get('shortName'),
+                    _('Add Event (24 Hour Format)'),
+                    _('Please select an option'),
+                    _('Shutdown'),
+                    _('Reboot'),
+                    $modNames[$Module->get('shortName')],
+                    _('Add Event')
+                );
+                foreach ((array)$this->getClass('GreenFogManager')->find() AS $i => &$GreenFog) {
+                    if (!$GreenFog->isValid()) continue;
+                    $gftime = $this->nice_date($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
+                    $this->data[] = array(
+                        'gf_time'=>$this->nice_date(sprintf('%s:%s',$GreenFog->get('hour'),$GreenFog->get('min')))->format('H:i'),
+                        'gf_action'=>($GreenFog->get('action') == 'r' ? 'Reboot' : ($GreenFog->get('action') == 's' ? _('Shutdown') : _('N/A'))),
+                        'gf_id'=>$GreenFog->get('id'),
+                    );
+                    unset($GreenFog);
                 }
-                unset($GreenFog);
                 $this->render();
                 echo '</form>';
-            } else if ($Module->get('shortName') == 'usercleanup') {
+                break;
+            case 'usercleanup':
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->attributes = array(
                     array(),
@@ -189,18 +223,21 @@ class ServiceConfigurationPage extends FOGPage {
                     '${input}',
                 );
                 $fields = array(
-                    _('Username') => '<input type="text" name="usr" />',
-                    '<input type="hidden" name="name" value="${mod_name}" /><input type="hidden" name="adduser" value="1" />' => '<input type="submit" value="'._('Add User').'" />',
+                    _('Username') => '<input type="text" name="usr"/>',
+                    sprintf('<input type="hidden" name="name" value="%s"/>',$modNames[$Module->get('shortName')]) => sprintf('<input type="submit" name="adduser" value="%s"/>',_('Add User')),
                 );
-                echo '<h2>'._('Add Protected User').'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
+                printf('<h2>%s</h2><form method="post" action="%s&tab=%s">',
+                    _('Add Protected User'),
+                    $this->formAction,
+                    $Module->get('shortName')
+                );
                 foreach((array)$fields AS $field => &$input) {
                     $this->data[] = array(
                         'field'=>$field,
                         'input'=>$input,
-                        'mod_name'=>$modNames[$Module->get('shortName')],
                     );
+                    unset($input);
                 }
-                unset($input);
                 $this->render();
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->headerData = array(
@@ -227,10 +264,11 @@ class ServiceConfigurationPage extends FOGPage {
                 unset($UserCleanup);
                 $this->render();
                 echo '</form>';
+                break;
             }
             echo '</div>';
+            unset($Module);
         }
-        unset($Module);
         echo '</div>';
     }
     public function edit_post() {

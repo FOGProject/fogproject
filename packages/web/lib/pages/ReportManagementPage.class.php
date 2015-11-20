@@ -16,11 +16,12 @@ class ReportManagementPage extends FOGPage {
             'vir-hist' => $this->foglang['VirusHistory'],
         );
         $reportlink = "?node={$this->node}&sub=file&f=";
-        $dh = opendir($_SESSION['FOG_REPORT_DIR']);
-        if ($dh) {
-            while (!(($f=readdir($dh)) === false)) {
-                if (is_file($_SESSION['FOG_REPORT_DIR'].$f) && substr($f,strlen($f) - strlen('.php')) === '.php') $this->menu = array_merge($this->menu, array($reportlink.base64_encode($f) => substr($f,0,strlen($f) - 4)));
-            }
+        foreach ($this->getClass('DirectoryIterator',$_SESSION['FOG_REPORT_DIR']) AS $fileInfo) {
+            if ($fileInfo->isDot()) continue;
+            if (!$fileInfo->isFile()) continue;
+            if (!$this->endsWith($fileInfo->getFilename(),'.php')) continue;
+            $this->menu = array_merge($this->menu,array(sprintf('%s%s',$reportlink,base64_encode($fileInfo->getFilename()))=>substr($fileInfo->getFilename(),0,-strlen('.php'))));
+            unset($fileInfo);
         }
         $this->menu = array_merge($this->menu,array('upload'=>$this->foglang['UploadRprts']));
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
@@ -33,7 +34,6 @@ class ReportManagementPage extends FOGPage {
         $this->index();
     }
     public function upload() {
-        // Title
         $this->title = _('Upload FOG Reports');
         echo '<div class="hostgroup">'._('This section allows you to upload user defined reports that may not be part of the base FOG package.  The report files should end in .php').'</div><p class="titleBottomLeft">'._('Upload a FOG report').'</p><form method="post" action="'.$this->formAction.'" enctype="multipart/form-data"><input type="file" name="report" /><span class="lightColor">Max Size: '.ini_get('post_max_size').'</span><p><input type="submit" value="'._('Upload File').'" /></p></form>';
     }
