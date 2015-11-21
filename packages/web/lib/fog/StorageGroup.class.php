@@ -25,19 +25,20 @@ class StorageGroup extends FOGController {
     public function getMasterStorageNode() {
         $masternode = $this->getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes'),'isMaster'=>1,'isEnabled'=>1),'id');
         $masternode = array_shift($masternode);
-        if (!count($masternode)) $masternode = @min($this->get('enablednodes'));
-        if (!count($masternode)) $masternode = @min($this->getSubObjectIDs('StorageNode',array('isEnabled'=>1),'id'));
+        if (!$masternode > 0) $masternode = @min($this->get('enablednodes'));
+        if (!$masternode > 0) throw New Exception(_('No Storage nodes enabled for this group'));
         return $this->getClass('StorageNode',$masternode);
     }
     public function getOptimalStorageNode() {
         $winner = null;
-        foreach ((array)$this->get('enablednodes') AS $i => &$StorageNode) {
-            if ($this->getClass('StorageNode',$StorageNode)->get('maxClients') > 0) {
-                if ($winner == null) $winner = $this->getClass('StorageNode',$StorageNode);
-                else if ($this->getClass('StorageNode',$StorageNode)->getClientLoad() < $winner->getClientLoad()) $winner = $this->getClass('StorageNode',$StorageNode);
+        foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes'))) AS $i => &$StorageNode) {
+            if (!$StorageNode->isValid()) continue;
+            if ($StorageNode->get('maxClients') > 0) {
+                if ($winner == null) $winner = $StorageNode;
+                else if ($StorageNode->getClientLoad() < $winner->getClientLoad()) $winner = $StorageNode;
             }
+            unset($StorageNode);
         }
-        unset($StorageNode);
         return $winner;
     }
     public function getUsedSlotCount() {

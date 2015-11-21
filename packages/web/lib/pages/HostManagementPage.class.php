@@ -374,7 +374,7 @@ class HostManagementPage extends FOGPage {
         $PrintersFound = false;
         if (count($this->data) > 0) {
             $PrintersFound = true;
-            printf('<center><label for="hostPrinterShow">%s&nbsp;&nbsp;<input type="checkbox" name="hostPrinterShow" id="hostPrinterShow"/></label></center><div id="printerNotInHost"><h2>%s</h2>',_('Check here to see what printers can be added'),_('Add new printer(s) to this host'));
+            printf('<p class="c"><label for="hostPrinterShow">%s&nbsp;&nbsp;<input type="checkbox" name="hostPrinterShow" id="hostPrinterShow"/></label></p><div id="printerNotInHost"><h2>%s</h2>',_('Check here to see what printers can be added'),_('Add new printer(s) to this host'));
             $this->HookManager->processEvent('HOST_ADD_PRINTER',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             $this->render();
             echo '</div>';
@@ -394,7 +394,7 @@ class HostManagementPage extends FOGPage {
         );
         $this->templates = array(
             '<input type="checkbox" name="printerRemove[]" value="${printer_id}" class="toggle-action" />',
-            sprintf('<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}" ${is_default}/><label for="printer${printer_id}" class="icon icon-hand" title="%s">&nbsp;</label><input type="hidden" name="printerid[]" value="${printer_id}" />',_('Default Printer Select')),
+            sprintf('<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}" ${is_default}/><label for="printer${printer_id}" class="icon icon-hand" title="%s">&nbsp;</label><input type="hidden" name="printerid[]" value="${printer_id}"/>',_('Default Printer Select')),
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
             '${printer_type}',
         );

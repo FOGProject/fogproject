@@ -67,7 +67,7 @@ class Initiator {
         foreach($_REQUEST as $key => &$val) {
             if (is_array($val)) {
                 foreach ((array)$val AS $i => &$v) {
-                    $val[$i] = htmlentities(strip_tags($v),ENT_QUOTES,'UTF-8');
+                    $val[$i] = trim(htmlentities(strip_tags($v),ENT_QUOTES,'UTF-8'));
                     unset($v);
                 }
                 $_REQUEST[$key] = filter_var_array($val,
@@ -75,20 +75,20 @@ class Initiator {
                     FILTER_FLAG_NO_ENCODE_QUOTES
                 );
             } else {
-                $val = htmlentities(strip_tags($val),ENT_QUOTES,'UTF-8');
-                $_REQUEST[$key] = filter_var($val,
+                $val = trim(htmlentities(strip_tags($val),ENT_QUOTES,'UTF-8'));
+                $_REQUEST[$key] = trim(filter_var($val,
                     FILTER_SANITIZE_FULL_SPECIAL_CHARS,
                     FILTER_FLAG_NO_ENCODE_QUOTES
-                );
+                ));
             }
         }
         foreach(array('node','sub','printertype','id','sub','crit','sort','confirm','tab') AS $x) {
             global $$x;
             if (isset($_REQUEST[$x])) {
-                $$x = filter_var(strip_tags($_REQUEST[$x]),
+                $$x = trim(filter_var(strip_tags($_REQUEST[$x]),
                     FILTER_SANITIZE_FULL_SPECIAL_CHARS,
                     FILTER_FLAG_NO_ENCODE_QUOTES
-                );
+                ));
             }
         }
         unset($x);
