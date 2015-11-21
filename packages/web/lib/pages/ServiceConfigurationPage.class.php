@@ -253,15 +253,16 @@ class ServiceConfigurationPage extends FOGPage {
                     '${input}',
                 );
                 echo '<h2>'._('Current Protected User Accounts').'</h2>';
-                $UCs = $this->getClass('UserCleanupManager')->find();
-                foreach ((array)$UCs AS $i => &$UserCleanup) {
+                printf('<h2>%s</h2>',_('Current Protected User Accounts'));
+                foreach ((array)$this->getClass('UserCleanupManager')->find() AS $i => &$UserCleanup) {
+                    if (!$UserCleanup->isValid()) continue;
                     $this->data[] = array(
                         'user_name'=>$UserCleanup->get('name'),
-                        'input'=>$UserCleanup->get('id') < 7 ? null : '<input type="checkbox" id="rmuser${user_id}" class="delid" name="delid" onclick="this.form.submit()" value="${user_id}" /><label for="rmuser${user_id}" class="icon fa fa-minus-circle hand" title="'._('Delete').'">&nbsp;</label>',
+                        'input'=>$UserCleanup->get('id') < 7 ? '' : sprintf('<input type="checkbox" id="rmuser${user_id}" class="delid" name="delid" onclick="this.form.submit()" value="${user_id}"/><label for="rmuser${user_id}" class="icon fa fa-minus-circle hand" title="%s"> </label>',_('Delete')),
                         'user_id'=>$UserCleanup->get('id'),
                     );
+                    unset($UserCleanup);
                 }
-                unset($UserCleanup);
                 $this->render();
                 echo '</form>';
                 break;
@@ -285,38 +286,37 @@ class ServiceConfigurationPage extends FOGPage {
                 if ($Module) $Module->set('isDefault',$defen)->save();
             }
             switch ($_REQUEST['tab']) {
-                case 'autologout';
-                if ($_REQUEST['updatedefaults'] == 1 && is_numeric($_REQUEST['tme']))
-                    $Service->set('value',$_REQUEST['tme']);
+            case 'autologout':
+                if (isset($_REQUEST['updatedefaults']) && is_numeric($_REQUEST['tme'])) $Service->set('value',$_REQUEST['tme']);
                 break;
-                case 'dircleanup';
+            case 'dircleanup':
                 if(trim($_REQUEST['adddir'])) $Service->addDir($_REQUEST['adddir']);
                 if(isset($_REQUEST['delid'])) $Service->remDir($_REQUEST['delid']);
                 break;
-                case 'displaymanager';
-                if($_REQUEST['updatedefaults'] == 1 && (is_numeric($_REQUEST['height']) && is_numeric($_REQUEST['width']) && is_numeric($_REQUEST['refresh']))) $Service->setDisplay($_REQUEST['width'],$_REQUEST['height'],$_REQUEST['refresh']);
+            case 'displaymanager':
+                if(isset($_REQUEST['updatedefaults']) && (is_numeric($_REQUEST['height']) && is_numeric($_REQUEST['width']) && is_numeric($_REQUEST['refresh']))) $Service->setDisplay($_REQUEST['width'],$_REQUEST['height'],$_REQUEST['refresh']);
                 break;
-                case 'greenfog';
+            case 'greenfog':
                 if(isset($_REQUEST['addevent'])) {
                     if((is_numeric($_REQUEST['h']) && is_numeric($_REQUEST['m'])) && ($_REQUEST['h'] >= 0 && $_REQUEST['h'] <= 23) && ($_REQUEST['m'] >= 0 && $_REQUEST['m'] <= 59) && ($_REQUEST['style'] == 'r' || $_REQUEST['style'] == 's'))
                         $Service->setGreenFog($_REQUEST['h'],$_REQUEST['m'],$_REQUEST['style']);
                 }
                 if(isset($_REQUEST['delid'])) $Service->remGF($_REQUEST['delid']);
                 break;
-                case 'usercleanup';
+            case 'usercleanup':
                 $addUser = trim($_REQUEST['usr']);
                 if(!empty($addUser)) $Service->addUser($addUser);
                 if(isset($_REQUEST['delid'])) $Service->remUser($_REQUEST['delid']);
                 break;
-                case 'clientupdater';
+            case 'clientupdater':
                 $this->getClass('FOGConfigurationPage')->client_updater_post();
                 break;
             }
             if (!$Service->save()) throw new Exception(_('Service update failed'));
             $this->HookManager->processEvent('SERVICE_EDIT_SUCCESS',array('Service'=>&$Service));
-            $this->setMessage('Service Updated!');
+            $this->setMessage(_('Service Updated!'));
         } catch (Exception $e) {
-            $this->HookManager->processEvent(SERVICE_EDIT_FAIL,array(Service=>&$Service));
+            $this->HookManager->processEvent('SERVICE_EDIT_FAIL',array('Service'=>&$Service));
             $this->setMessage($e->getMessage());
         }
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
