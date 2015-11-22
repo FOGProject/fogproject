@@ -19,20 +19,23 @@ class Initiator {
             session_cache_limiter('no-cache');
         }
         define('BASEPATH', self::DetermineBasePath());
-        $this->plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
+        $plugs = sprintf('%s%slib%splugins%s*',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,BASEPATH),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
+        $path = sprintf('%s%slib%s%s%s',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,BASEPATH),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,'%s',DIRECTORY_SEPARATOR);
+        $this->plugPaths = array_filter(glob($plugs),'is_dir');
         foreach($this->plugPaths AS $plugPath) {
-            $plug_class[] = $plugPath.'/class/';
-            $plug_class[] = $plugPath.'/client/';
-            $plug_class[] = $plugPath.'/reg-task/';
-            $plug_class[] = $plugPath.'/service/';
-            $plug_hook[] = $plugPath.'/hooks/';
-            $plug_event[] = $plugPath.'/events/';
-            $plug_page[] = $plugPath.'/pages/';
+            $plug_class[] = sprintf('%s%s%sclass%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
+            $plug_class[] = sprintf('%s%s%sclient%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
+            $plug_class[] = sprintf('%s%s%sreg-task%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
+            $plug_class[] = sprintf('%s%s%sservice%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
+            $plug_hook[] = sprintf('%s%s%shooks%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
+            $plug_event[] = sprintf('%s%s%sevents%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
+            $plug_page[] = sprintf('%s%s%spages%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
         }
-        $FOGPaths = array(BASEPATH . '/lib/fog/', BASEPATH . '/lib/db/',BASEPATH.'/lib/client/',BASEPATH.'/lib/reg-task/',BASEPATH.'/lib/service/');
-        $HookPaths = array(BASEPATH . '/lib/hooks/');
-        $EventPaths = array(BASEPATH . '/lib/events/');
-        $PagePaths = array(BASEPATH . '/lib/pages/');
+        $FOGPaths = array()
+        $FOGPaths = array(sprintf($path,'fog'),sprintf($path,'db'),sprintf($path,'client'),sprintf($path,'reg-task'),sprintf($path,'service'));
+        $HookPaths = array(sprintf($path,'hooks'));
+        $EventPaths = array(sprintf($path,'events'));
+        $PagePaths = array(sprintf($path,'pages'));
         $this->FOGPaths = array_merge((array)$FOGPaths,(array)$plug_class);
         $this->HookPaths = array_merge((array)$HookPaths,(array)$plug_hook);
         $this->EventPaths = array_merge((array)$EventPaths,(array)$plug_event);
@@ -115,7 +118,7 @@ class Initiator {
             if (!in_array($extension, get_loaded_extensions())) $missingExtensions[] = $extension;
         }
         try {
-            if (count($missingExtensions)) throw new Exception('Missing Extensions: '. implode(', ',(array)$missingExtensions));
+            if (count($missingExtensions)) throw new Exception(sprintf('%s: %s',_('Missing Extensions'),implode(', ',(array)$missingExtensions)));
         } catch (Exception $e) {
             echo $e->getMessage();
             exit;
@@ -126,7 +129,7 @@ class Initiator {
      */
     public static function endInit() {
         if ($_SESSION['locale']) {
-            putenv('LC_ALL='.$_SESSION['locale']);
+            putenv("LC_ALL={$_SESSION['locale']}");
             setlocale(LC_ALL, $_SESSION['locale']);
         }
         bindtextdomain('messages', 'languages');
@@ -140,22 +143,24 @@ class Initiator {
         if (in_array($className,get_declared_classes())) return;
         $allPaths = array_merge($this->FOGPaths,$this->PagePaths,$this->HookPaths,$this->EventPaths);
         foreach($allPaths AS $i => &$path) {
-            if (file_exists($path.$className.'.class.php')) {
-                require($path.$className.'.class.php');
+            $class = sprintf('%s%s.class.php',$path,$className);
+            $event = sprintf('%s%s.event.php',$path,$className);
+            $hook = sprintf('%s%s.hook.php',$path,$className);
+            if (file_exists($class)) {
+                require_once($class);
                 unset($path);
                 break;
-            } else if (file_exists($path.$className.'.hook.php')) {
-                global $HookManager;
-                include($path.$className.'.hook.php');
-                unset($path);
-                break;
-            } else if (file_exists($path.$className.'.event.php')) {
+            } else if (file_exists($event)) {
                 global $EventManager;
-                include($path.$className.'.event.php');
+                include($event);
                 unset($path);
                 break;
-            }
-            unset($path);
+            } else if (file_exists($hook)) {
+                global $HookManager;
+                include($hook);
+                unset($path);
+                break;
+            } else unset($path);
         }
         unset($allPaths);
     }
