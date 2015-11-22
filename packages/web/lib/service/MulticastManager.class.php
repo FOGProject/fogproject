@@ -6,7 +6,7 @@ class MulticastManager extends FOGService {
     private function isMCTaskNew($KnownTasks, $id) {
         foreach((array)$KnownTasks AS $i => &$Known) $output[] = $Known->getID();
         unset($Known);
-        return !in_array($id,$output);
+        return !in_array($id,(array)$output);
     }
     private function getMCExistingTask($KnownTasks, $id) {
         foreach((array)$KnownTasks AS $i => &$Known) {
@@ -20,7 +20,7 @@ class MulticastManager extends FOGService {
             if ($Known->getID() != $id) $new[] = $Known;
         }
         unset($Known);
-        return array_filter($new);
+        return array_filter((array)$new);
     }
     private function getMCTasksNotInDB($KnownTasks, $AllTasks) {
         $ret = array();
@@ -33,7 +33,7 @@ class MulticastManager extends FOGService {
             if (!in_array($Known->getID(),(array)$allIDs)) $ret[] = $Known;
         }
         unset($Known);
-        return array_filter($ret);
+        return array_filter((array)$ret);
     }
     private function serviceLoop() {
         while(true) {
