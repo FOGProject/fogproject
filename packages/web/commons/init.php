@@ -19,8 +19,8 @@ class Initiator {
             session_cache_limiter('no-cache');
         }
         define('BASEPATH', self::DetermineBasePath());
-        $plugs = sprintf('%s%slib%splugins%s*',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,BASEPATH),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
-        $path = sprintf('%s%slib%s%s%s',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,BASEPATH),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,'%s',DIRECTORY_SEPARATOR);
+        $plugs = sprintf('%s%s%slib%splugins%s*',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,BASEPATH),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
+        $path = sprintf('%s%s%slib%s%s%s',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,BASEPATH),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR,'%s',DIRECTORY_SEPARATOR);
         $this->plugPaths = array_filter(glob($plugs),'is_dir');
         foreach($this->plugPaths AS $plugPath) {
             $plug_class[] = sprintf('%s%s%sclass%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
@@ -31,7 +31,7 @@ class Initiator {
             $plug_event[] = sprintf('%s%s%sevents%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
             $plug_page[] = sprintf('%s%s%spages%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
         }
-        $FOGPaths = array()
+        $FOGPaths = array();
         $FOGPaths = array(sprintf($path,'fog'),sprintf($path,'db'),sprintf($path,'client'),sprintf($path,'reg-task'),sprintf($path,'service'));
         $HookPaths = array(sprintf($path,'hooks'));
         $EventPaths = array(sprintf($path,'events'));
