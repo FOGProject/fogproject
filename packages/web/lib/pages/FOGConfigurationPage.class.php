@@ -296,7 +296,7 @@ class FOGConfigurationPage extends FOGPage {
             array(),
             array(),
             array(),
-            array('class'=>'filter-false disabled'),
+            array('class'=>'filter-false'),
         );
         printf('<div class="hostgroup">%s</div>',_('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.'));
         foreach ((array)$this->getClass('ClientUpdaterManager')->find() AS $i => &$ClientUpdate) {

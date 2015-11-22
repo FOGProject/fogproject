@@ -50,7 +50,6 @@ class TasktypeeditManagementPage extends FOGPage {
         $this->render();
     }
     public function search_post() {
-        $ids = $this->getClass('TaskTypeManager')->search();
         foreach ($this->getClass('TaskTypeManager')->search('',true) AS $i => &$TaskType) {
             if (!$TaskType->isValid()) continue;
             $this->data[] = array(
@@ -66,7 +65,7 @@ class TasktypeeditManagementPage extends FOGPage {
         $this->render();
     }
     public function add() {
-        $this->title = 'New Task Type';
+        $this->title = _('New Task Type');
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -77,8 +76,13 @@ class TasktypeeditManagementPage extends FOGPage {
             '${input}',
         );
         $accessTypes = array('both','host','group');
-        $access_opt = '';
-        foreach ($accessTypes AS $i => &$type) $access_opt .= sprintf('<option value="%s"%s>%s</option>',$type,$_REQUEST['access'] == $type ? ' selected' : '',ucfirst($type));
+        ob_start();
+        foreach ($accessTypes AS $i => &$type) {
+            printf('<option value="%s"%s>%s</option>',$type,$_REQUEST['access'] == $type ? ' selected' : '',ucfirst($type));
+            unset($type);
+        }
+        unset($accessTypes);
+        $access_opt = ob_get_clean();
         $fields = array(
             _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$_REQUEST['name']),
             _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
@@ -88,15 +92,16 @@ class TasktypeeditManagementPage extends FOGPage {
             _('Type') => sprintf('<input type="text" name="type" class="smaller" value="%s"/>',$_REQUEST['type']),
             _('Is Advanced') => sprintf('<input type="checkbox" name="advanced"%s>',(isset($_REQUEST['advanced']) ? ' checked' : '')),
             _('Accessed By') => sprintf('<select name="access">%s</select>',$access_opt),
-            '&nbsp;'=> sprintf('<input class="smaller" type="submit" value="%s"/>',_('Add'))
+            ''=> sprintf('<input class="smaller" type="submit" value="%s"/>',_('Add'))
         );
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
             );
+            unset($input);
         }
-        unset($input);
+        unset($fields);
         $this->HookManager->processEvent('TASKTYPE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
@@ -104,14 +109,14 @@ class TasktypeeditManagementPage extends FOGPage {
     }
     public function add_post() {
         try {
-            $name = trim($_REQUEST['name']);
-            $description = trim($_REQUEST['description']);
-            $icon = trim($_REQUEST['icon']);
-            $kernel = trim($_REQUEST['kernel']);
-            $kernelargs = trim($_REQUEST['kernelargs']);
-            $type = trim($_REQUEST['type']);
+            $name = $_REQUEST['name'];
+            $description = $_REQUEST['description'];
+            $icon = $_REQUEST['icon'];
+            $kernel = $_REQUEST['kernel'];
+            $kernelargs = $_REQUEST['kernelargs'];
+            $type = $_REQUEST['type'];
             $advanced = (int)isset($_REQUEST['advanced']);
-            $access = trim($_REQUEST['access']);
+            $access = $_REQUEST['access'];
             if (!$name) throw new Exception(_('You must enter a name'));
             if ($this->getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
             $TaskType = $this->getClass('TaskType')
@@ -132,7 +137,7 @@ class TasktypeeditManagementPage extends FOGPage {
         }
     }
     public function edit() {
-        $this->title = sprintf('%s: %s', 'Edit', $this->obj->get('name'));
+        $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -143,11 +148,12 @@ class TasktypeeditManagementPage extends FOGPage {
             '${input}',
         );
         $accessTypes = array('both','host','group');
-        $access_opt = '';
         foreach ($accessTypes AS $i => &$type) {
-            $access_opt .= sprintf('<option value="%s"%s>%s</option>',$type,$this->obj->get('access') == $type ? ' selected' : '',ucfirst($type));
+            printf('<option value="%s"%s>%s</option>',$type,$this->obj->get('access') == $type ? ' selected' : '',ucfirst($type));
             unset($type);
         }
+        unset($accessTypes);
+        $access_opt = ob_get_clean();
         $fields = array(
             _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$this->obj->get('name')),
             _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
@@ -155,10 +161,10 @@ class TasktypeeditManagementPage extends FOGPage {
             _('Icon') => $this->getClass('TaskType')->iconlist($this->obj->get('icon')),
             _('Kernel') => sprintf('<input type="text" name="kernel" class="smaller" value="%s"/>',$this->obj->get('kernel')),
             _('Kernel Arguments') => sprintf('<input type="text" name="kernelargs" class="smaller" value="%s"/>',$this->obj->get('kernelArgs')),
-            _('Type') => sprintf('<input type="text" name="type" class="smaller" value="%s"/>',$this->obj->get(type)),
+            _('Type') => sprintf('<input type="text" name="type" class="smaller" value="%s"/>',$this->obj->get('type')),
             _('Is Advanced') => sprintf('<input type="checkbox" name="advanced"%s/>',($this->obj->get('isAdvanced') ? ' checked' : '')),
             _('Accessed By') => sprintf('<select name="access">%s</select>',$access_opt),
-            '&nbsp;' => sprintf('<input class="smaller" type="submit" value="%s"/>',_('Update')),
+            '' => sprintf('<input class="smaller" type="submit" value="%s"/>',_('Update')),
         );
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
@@ -167,6 +173,7 @@ class TasktypeeditManagementPage extends FOGPage {
             );
             unset($input);
         }
+        unset($fields);
         $this->HookManager->processEvent('TASKTYPE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
@@ -175,14 +182,14 @@ class TasktypeeditManagementPage extends FOGPage {
     public function edit_post() {
         $this->HookManager->processEvent('TASKTYPE_EDIT_POST',array('TaskType'=>&$this->obj));
         try {
-            $name = trim($_REQUEST['name']);
-            $description = trim($_REQUEST['description']);
-            $icon = trim($_REQUEST['icon']);
-            $kernel = trim($_REQUEST['kernel']);
-            $kernelargs = trim($_REQUEST['kernelargs']);
-            $type = trim($_REQUEST['type']);
+            $name = $_REQUEST['name'];
+            $description = $_REQUEST['description'];
+            $icon = $_REQUEST['icon'];
+            $kernel = $_REQUEST['kernel'];
+            $kernelargs = $_REQUEST['kernelargs'];
+            $type = $_REQUEST['type'];
             $advanced = (int)isset($_REQUEST['advanced']);
-            $access = trim($_REQUEST['access']);
+            $access = $_REQUEST['access'];
             if (!$name) throw new Exception(_('You must enter a name'));
             if ($this->obj->get('name') != $name && $this->getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
             $this->obj

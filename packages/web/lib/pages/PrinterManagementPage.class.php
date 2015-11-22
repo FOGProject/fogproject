@@ -41,7 +41,7 @@ class PrinterManagementPage extends FOGPage {
             '<a href="?node=printer&sub=edit&id=${id}" title="Edit"><i class="icon fa fa-pencil"></i></a><a href="?node=printer&sub=delete&id=${id}" title="Delete"><i class="icon fa fa-minus-circle"></i></>',
         );
         $this->attributes = array(
-            array('class'=>'c filter-false','width'=>16),
+            array('class'=>'l filter-false','width'=>16),
             array('class'=>'filter-false'),
             array(),
             array(),

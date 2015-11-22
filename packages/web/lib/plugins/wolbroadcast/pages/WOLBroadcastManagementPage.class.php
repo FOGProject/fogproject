@@ -6,8 +6,8 @@ class WOLBroadcastManagementPage extends FOGPage {
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                $this->linkformat => $this->foglang[General],
-                $this->delformat => $this->foglang[Delete],
+                $this->linkformat => $this->foglang['General'],
+                $this->delformat => $this->foglang['Delete'],
             );
             $this->notes = array(
                 _('Broadcast Name') => $this->obj->get('name'),
@@ -25,7 +25,7 @@ class WOLBroadcastManagementPage extends FOGPage {
             '${wol_ip}',
         );
         $this->attributes = array(
-            array('class' => 'c', 'width' => '16'),
+            array('class' => 'l filter-false', 'width' => '16'),
             array('class' => 'l'),
             array('class' => 'r'),
         );
@@ -58,7 +58,7 @@ class WOLBroadcastManagementPage extends FOGPage {
         $this->render();
     }
     public function add() {
-        $this->title = 'New Broadcast Address';
+        $this->title = _('New Broadcast Address');
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -71,32 +71,34 @@ class WOLBroadcastManagementPage extends FOGPage {
         $fields = array(
             _('Broadcast Name') => '<input class="smaller" type="text" name="name" />',
             _('Broadcast IP') => '<input class="smaller" type="text" name="broadcast" />',
-            '&nbsp;' => sprintf('<input class="smaller" type="submit" value="%s" name="add"/>',('Add')),
+            '' => sprintf('<input class="smaller" type="submit" value="%s" name="add"/>',('Add')),
         );
-        printf('<form method="post" action="%s">',$this->formAction);
         foreach ((array)$fields AS $field => $input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
             );
+            unset($input);
         }
+        unset($fields);
         $this->HookManager->processEvent('BROADCAST_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function add_post() {
         try {
-            $name = trim($_REQUEST['name']);
-            $ip = trim($_REQUEST['broadcast']);
-            if ($this->getClass('WolbroadcastManager')->exists(trim($_REQUEST['name']))) throw new Exception('Broacast name already Exists, please try again.');
-            if (!$name) throw new Exception('Please enter a name for this address.');
-            if (empty($ip)) throw new Exception('Please enter the broadcast address.');
-            if (strlen($ip) > 15 || !filter_var($ip,FILTER_VALIDATE_IP)) throw new Exception('Please enter a valid ip');
+            $name = $_REQUEST['name'];
+            $ip = $_REQUEST['broadcast'];
+            if ($this->getClass('WolbroadcastManager')->exists($name)) throw new Exception(_('Broacast name already Exists, please try again.'));
+            if (!$name) throw new Exception(_('Please enter a name for this address.'));
+            if (empty($ip)) throw new Exception(_('Please enter the broadcast address.'));
+            if (strlen($ip) > 15 || !filter_var($ip,FILTER_VALIDATE_IP)) throw new Exception(_('Please enter a valid ip'));
             $WOLBroadcast = $this->getClass('Wolbroadcast')
                 ->set('name',$name)
                 ->set('broadcast',$ip);
             if (!$WOLBroadcast->save()) throw new Exception(_('Failed to create'));
-            $this->setMessage('Broadcast Added, editing!');
+            $this->setMessage(_('Broadcast Added, editing!'));
             $this->redirect(sprintf('?node=wolbroadcast&sub=edit&id=%s',$WOLBroadcast->get('id')));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
@@ -104,7 +106,7 @@ class WOLBroadcastManagementPage extends FOGPage {
         }
     }
     public function edit() {
-        $this->title = sprintf('%s: %s', 'Edit', $this->obj->get('name'));
+        $this->title = sprintf('%s: %s',_('Edit'),$this->obj->get('name'));
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -115,39 +117,37 @@ class WOLBroadcastManagementPage extends FOGPage {
             '${input}',
         );
         $fields = array(
-            _('Broadcast Name') => '<input class="smaller" type="text" name="name" value="${broadcast_name}" />',
-            _('Broadcast Address') => '<input class="smaller" type="text" name="broadcast" value="${broadcast_ip}" />',
+            _('Broadcast Name') => sprintf('<input class="smaller" type="text" name="name" value="%s"/>',$this->obj->get('name')),
+            _('Broadcast Address') => sprintf('<input class="smaller" type="text" name="broadcast" value="%s"/>',$this->obj->get('broadcast')),
             '&nbsp;' => sprintf('<input class="smaller" type="submit" value="%s" name="update"/>',('Update')),
         );
-        printf('<form method="post" action="%s&id=%d">',$this->formAction,$this->obj->get('id'));
         foreach ((array)$fields AS $field => $input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
-                'broadcast_name' => $this->obj->get('name'),
-                'broadcast_ip' => $this->obj->get('broadcast'),
             );
+            unset($input);
         }
+        unset($fields);
         $this->HookManager->processEvent('BROADCAST_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
         $this->HookManager->processEvent('BROADCAST_EDIT_POST', array('Broadcast'=> &$this->obj));
         try {
-            $name = trim($_REQUEST['name']);
-            $ip = trim($_REQUEST['broadcast']);
-            if (!$name) throw new Exception('You need to have a name for the broadcast address.');
-            if (!$ip || !filter_var($ip,FILTER_VALIDATE_IP)) throw new Exception('Please enter a valid IP address');
-            if ($_REQUEST['name'] != $this->obj->get('name') && $this->obj->getManager()->exists($_REQUEST['name'])) throw new Exception('A broadcast with that name already exists.');
-            if ($_REQUEST['update']) {
-                $this->obj
-                    ->set('broadcast',$ip)
-                    ->set('name',$name);
-                if (!$this->obj->save()) throw new Exception(_('Failed to update'));
-                $this->setMessage('Broadcast Updated');
-                $this->redirect(sprintf('?node=wolbroadcast&sub=edit&id=%d',$this->obj->get('id')));
-            }
+            $name = $_REQUEST['name'];
+            $ip = $_REQUEST['broadcast'];
+            if (!$name) throw new Exception(_('You need to have a name for the broadcast address.'));
+            if (!$ip || !filter_var($ip,FILTER_VALIDATE_IP)) throw new Exception(_('Please enter a valid IP address'));
+            if ($_REQUEST['name'] != $this->obj->get('name') && $this->obj->getManager()->exists($_REQUEST['name'])) throw new Exception(_('A broadcast with that name already exists.'));
+            $this->obj
+                ->set('broadcast',$ip)
+                ->set('name',$name);
+            if (!$this->obj->save()) throw new Exception(_('Failed to update'));
+            $this->setMessage(_('Broadcast Updated'));
+            $this->redirect($this->formAction);
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
