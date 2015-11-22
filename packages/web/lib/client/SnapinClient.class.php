@@ -83,9 +83,13 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         } else if (isset($_REQUEST['taskid'])) {
             while (ob_get_level()) ob_end_clean();
             header("X-Sendfile: $SnapinFile");
+            header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header("Content-Length: $size");
             header("Content-Disposition: attachment; filename=$file");
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
             if (false !== ($handle = fopen($SnapinFile,'rb'))) {
                 while (!feof($handle)) echo fread($handle,4*1024*1024);
             }

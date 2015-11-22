@@ -68,7 +68,7 @@ class Schema extends FOGController {
         $backup_name = $backup_name ? $backup_name : 'fog_backup_'.$this->formatTime('','Ymd_His').'.sql';
         header('Content-Type: application/octet-stream');
         header("Content-Transfer-Encoding: Binary");
-        header("Content-disposition: attachment; filename=\"$backup_name\"");
+        header("Content-disposition: attachment; filename=$backup_name");
         echo $content;
         exit;
     }

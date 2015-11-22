@@ -35,8 +35,8 @@ class TaskManagementPage extends FOGPage {
             '<i class="fa fa-${icon_state} fa-1x icon" title="${state}"></i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
         );
         $this->attributes = array(
-            array('width'=>1,'','class'=>'filter-false'),
-            array('width'=>16,'class'=>'c filter-false'),
+            array('width'=>1,'','class'=>'l filter-false'),
+            array('width'=>16,'class'=>'l filter-false'),
             array('width'=>65,'class'=>'l','id'=>'host-${host_id}'),
             array('width'=>120,'class'=>'l'),
             array('width'=>70,'class'=>'r'),
@@ -418,7 +418,7 @@ class TaskManagementPage extends FOGPage {
             '${state}',
         );
         $this->attributes = array(
-            array('class'=>'c filter-false','width'=>16),
+            array('class'=>'l filter-false','width'=>16),
             array('class'=>'l','width'=>50),
             array('class'=>'l','width'=>50),
             array('class'=>'l','width'=>50),
