@@ -35,16 +35,23 @@ class ReportManagementPage extends FOGPage {
     }
     public function upload() {
         $this->title = _('Upload FOG Reports');
-        echo '<div class="hostgroup">'._('This section allows you to upload user defined reports that may not be part of the base FOG package.  The report files should end in .php').'</div><p class="titleBottomLeft">'._('Upload a FOG report').'</p><form method="post" action="'.$this->formAction.'" enctype="multipart/form-data"><input type="file" name="report" /><span class="lightColor">Max Size: '.ini_get('post_max_size').'</span><p><input type="submit" value="'._('Upload File').'" /></p></form>';
+        printf('<div class="hostgroup">%s</div><p class="titleBottomLeft">%s</p><form method="post" action="%s" enctype="multipart/form-data"><input type="file" name="report"/><span class="lightColor">%s: %s</span><p><input type="submit" value="%s"/></p></form>',
+            _('This section allows you to upload user defined reports that may not be part of the base FOG package. The report files should end in .php'),
+            _('Upload a FOG Report'),
+            $this->formAction,
+            _('Max Size'),
+            ini_get('post_max_size'),
+            _('Upload File')
+        );
     }
     public function index() {
         $this->title = _('About FOG Reports');
-        echo '<p>'._('FOG reports exist to give you information about what is going on with your FOG system.  To view a report, select an item from the menu on the left-hand side of this page.').'</p>';
+        printf('<p>%s</p>',_('FOG Reports exist to give you information about what is going on with your FOG System. To view a report, select an item from the menu on the left-hand side of this page.'));
     }
     public function file() {
-        $path = rtrim($this->getSetting('FOG_REPORT_DIR'), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.basename(base64_decode($_REQUEST['f']));
-        if (!file_exists($path)) $this->fatalError('Report file does not exist! Path: %s', array($path));
-        require_once($path);
+        $path = sprintf('%s%s%s%s',DIRECTORY_SEPARATOR,trim($this->getSetting('FOG_REPORT_DIR'),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,basename(base64_decode($_REQUEST['f'])));
+        if (!file_exists($path)) $this->fatalError(sprintf('%s: %s',_('Report file does not exist! Path'),array($path)));
+        require($path);
     }
     public function imaging_log() {
         $this->title = _('FOG Imaging Log - Select Date Range');
@@ -66,17 +73,18 @@ class ReportManagementPage extends FOGPage {
         unset($Date);
         $Dates = array_unique($Dates);
         if ($Dates) {
+            ob_start();
             foreach($Dates AS $i => &$Date) {
-                $dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
-                $dates2 = $dates1;
+                printf('<option value="%s">%s</option>',$Date,$Date);
             }
             unset($Date);
-            $date1 = '<select name="date1" size="1">'.$dates1.'</select>';
-            $date2 = '<select name="date2" size="1">'.$dates2.'</select>';
+            $dates = ob_get_clean();
+            $date1 = sprintf('<select name="%s" size="1">%s</select>','date1',$dates);
+            $date2 = sprintf('<select name="%s" size="1">%s</select>','date2',$dates);
             $fields = array(
                 _('Select Start Date') => $date1,
                 _('Select End Date') => $date2,
-                '&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
+                '' => sprintf('<input type="submit" value="%s"/>',_('Search for Entries')),
             );
             foreach((array)$fields AS $field => &$input) {
                 $this->data[] = array(
@@ -85,14 +93,21 @@ class ReportManagementPage extends FOGPage {
                 );
             }
             unset($input);
-            echo '<form method="post" action="'.$this->formAction.'">';
+            printf('<form method="post" action="%s">',$this->formAction);
             $this->render();
             echo '</form>';
         } else $this->render();
     }
     public function imaging_log_post() {
         $this->title = _('FOG Imaging Log');
-        echo '<h2><a href="export.php?type=csv&filename=ImagingLog" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=ImagingLog" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        printf('<h2><a href="export.php?type=csv&filename=ImagingLog" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=ImagingLog" alt="%s" title="%s" target="_blank">%s</a></h2>',
+            _('Export CSV'),
+            _('Export CSV'),
+            $this->csvfile,
+            _('Export PDF'),
+            _('Export PDF'),
+            $this->pdffile
+        );
         $this->headerData = array(
             _('Engineer'),
             _('Host'),
@@ -101,7 +116,6 @@ class ReportManagementPage extends FOGPage {
             _('Duration'),
             _('Image'),
             _('Type'),
-            _('Clear'),
         );
         $this->templates = array(
             '${createdBy}',
@@ -111,8 +125,8 @@ class ReportManagementPage extends FOGPage {
             '${duration}',
             '${image_name}',
             '${type}',
-            '',
         );
+        array_pop($this->attributes);
         $date1 = $_REQUEST['date1'];
         $date2 = $_REQUEST['date2'];
         if ($date1 > $date2) {
@@ -139,24 +153,19 @@ class ReportManagementPage extends FOGPage {
             'up' => _('Upload'),
             'down' => _('Download'),
         );
-        foreach((array)$csvHead AS $i => &$csvHeader) $this->ReportMaker->addCSVCell($csvHeader);
-        unset($csvHeader);
+        foreach ((array)$csvHead AS $i => &$csvHeader) {
+            $this->ReportMaker->addCSVCell($csvHeader);
+            unset($csvHeader);
+        }
         $this->ReportMaker->endCSVLine();
-        $ImagingLogs = $this->getClass('ImagingLogManager')->find(array('start'=>null,'finish'=>null),'OR','',''," BETWEEN '$date1' AND '$date2'",'','','',false);
-        foreach((array)$ImagingLogs AS $i => &$ImagingLog) {
+        foreach ((array)$this->getClass('ImagingLogManager')->find(array('start'=>null,'finish'=>null),'OR','',''," BETWEEN '$date1' AND '$date2'",'','','',false) AS $i => &$ImagingLog) {
             if (!$ImagingLog->isValid()) continue;
             $start = $this->nice_date($ImagingLog->get('start'));
             $end = $this->nice_date($ImagingLog->get('finish'));
-            if (!$this->validDate($start) || !$this->validDate($end)) {
-                unset($ImagingLog,$start,$end);
-                continue;
-            }
+            if (!$this->validDate($start) || !$this->validDate($end)) continue;
             $diff = $this->diff($start,$end);
             $Host = $this->getClass('Host',$ImagingLog->get('hostID'));
-            if (!$Host->isValid()) {
-                unset($ImagingLog,$Host);
-                continue;
-            }
+            if (!$Host->isValid()) continue;
             $hostName = $Host->get('name');
             $hostId = $Host->get('id');
             $hostMac = $Host->get('mac');
@@ -165,9 +174,14 @@ class ReportManagementPage extends FOGPage {
             $Task = $this->getClass('Task',@max($this->getSubObjectIDs('Task',array('checkInTime'=>$ImagingLog->get('start'),'hostID'=>$ImagingLog->get('hostID')))));
             $createdBy = ($Task->isValid() ? $Task->get('createdBy') : $_SESSION['FOG_USERNAME']);
             unset($Task);
-            $Image= $this->getClass('Image',@max($this->getSubObjectIDs('Image',array('name'=>$ImagingLog->get('image')))));
-            $imgName = $Image->get('name');
-            $imgPath = $Image->get('path');
+            $Image = $this->getClass('Image',@max($this->getSubObjectIDs('Image',array('name'=>$ImagingLog->get('image')))));
+            if ($Image->isValid()) {
+                $imgName = $Image->get('name');
+                $imgPath = $Image->get('path');
+            } else {
+                $imgName = $ImagingLog->get('image');
+                $imgPath = 'N/A';
+            }
             unset($Image);
             $imgType = $imgTypes[$ImagingLog->get('type')];
             if (!$imgType) $imgType = $ImagingLog->get('type');
@@ -205,7 +219,14 @@ class ReportManagementPage extends FOGPage {
     }
     public function host_list() {
         $this->title = _('Host Listing Export');
-        echo '<h2>'.'<a href="export.php?type=csv&filename=HostList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=HostList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        printf('<h2><a href="export.php?type=csv&filename=HostList" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=HostList" alt="%s" title="%s" target="_blank">%s</a></h2>',
+            _('Export CSV'),
+            _('Export CSV'),
+            $this->csvfile,
+            _('Export PDF'),
+            _('Export PDF'),
+            $this->pdffile
+        );
         $csvHead = array(
             _('Host ID') => 'id',
             _('Host Name') => 'name',
@@ -222,7 +243,7 @@ class ReportManagementPage extends FOGPage {
             _('HD Device') => 'kernelDevice',
             _('OS Name') => 'name',
         );
-        foreach((array)$csvHead AS $csvHeader => &$classGet) {
+        foreach ((array)$csvHead AS $csvHeader => &$classGet) {
             $this->ReportMaker->addCSVCell($csvHeader);
             unset($classGet);
         }
@@ -237,7 +258,7 @@ class ReportManagementPage extends FOGPage {
             '${host_mac}',
             '${image_name}',
         );
-        foreach($this->getClass('HostManager')->find() AS $i => &$Host) {
+        foreach ((array)$this->getClass('HostManager')->find() AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $Image = $Host->getImage();
             $imgID = $Image->get('id');
@@ -278,7 +299,14 @@ class ReportManagementPage extends FOGPage {
     }
     public function inventory() {
         $this->title = _('Full Inventory Export');
-        echo '<h2>'.'<a href="export.php?type=csv&filename=InventoryReport" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=InventoryReport" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        printf('<h2><a href="export.php?type=csv&filename=InventoryReport" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=InventoryReport" alt="%s" title="%s" target="_blank">%s</a></h2>',
+            _('Export CSV'),
+            _('Export CSV'),
+            $this->csvfile,
+            _('Export PDF'),
+            _('Export PDF'),
+            $this->pdffile
+        );
         $csvHead = array(
             _('Host ID')=>'id',
             _('Host name')=>'name',
@@ -315,8 +343,10 @@ class ReportManagementPage extends FOGPage {
             _('Chassis Serial')=>'caseser',
             _('Chassis Asset')=>'caseasset',
         );
-        foreach((array)$csvHead AS $csvHeader => &$classGet) $this->ReportMaker->addCSVCell($csvHeader);
-        unset($classGet);
+        foreach ((array)$csvHead AS $csvHeader => &$classGet) {
+            $this->ReportMaker->addCSVCell($csvHeader);
+            unset($classGet);
+        }
         $this->ReportMaker->endCSVLine();
         $this->headerData = array(
             _('Host name'),
@@ -336,8 +366,7 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
         );
-        $Hosts = $this->getClass('HostManager')->find();
-        foreach($Hosts AS $i => &$Host) {
+        foreach ((array)$this->getClass('HostManager')->find() AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             if (!$Host->get('inventory')->isValid()) continue;
             $Image = $Host->getImage();
@@ -348,7 +377,7 @@ class ReportManagementPage extends FOGPage {
                 'sysprod'=>$Host->get('inventory')->get('sysproduct'),
                 'sysser'=>$Host->get('inventory')->get('sysserial'),
             );
-            foreach((array)$csvHead AS $head => &$classGet) {
+            foreach ((array)$csvHead AS $head => &$classGet) {
                 switch ($head) {
                 case _('Host ID'):
                     $this->ReportMaker->addCSVCell($Host->get('id'));
@@ -385,10 +414,15 @@ class ReportManagementPage extends FOGPage {
             $this->redirect('?node=report&sub=pend-mac');
         }
         $this->title = _('Pending MAC Export');
-        echo '<h2><a href="export.php?type=csv&filename=PendingMACsList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=PendingMACsList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a><br />';
-        if ($_SESSION['Pending-MACs']) {
-            echo '<a href="?node=report&sub=pend-mac&aprvall=1">'._('Approve All Pending MACs for all hosts?').'</a>';
-        }
+        printf('<h2><a href="export.php?type=csv&filename=PendingMACsList" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=PendingMACsList" alt="%s" title="%s" target="_blank">%s</a><br/>',
+            _('Export CSV'),
+            _('Export CSV'),
+            $this->csvfile,
+            _('Export PDF'),
+            _('Export PDF'),
+            $this->pdffile
+        );
+        if ($_SESSION['Pending-MACs']) printf('<a href="?node=report&sub=pend-mac&aprvall=1">%s</a>',_('Approve All Pending MACs for all hosts'));
         echo '</h2>';
         $csvHead = array(
             _('Host ID'),
@@ -397,7 +431,7 @@ class ReportManagementPage extends FOGPage {
             _('Host Desc'),
             _('Host Pending MAC'),
         );
-        foreach((array)$csvHead AS $csvHeader => &$classGet) $this->ReportMaker->addCSVCell($csvHeader);
+        foreach ((array)$csvHead AS $csvHeader => &$classGet) $this->ReportMaker->addCSVCell($csvHeader);
         unset($classGet);
         $this->ReportMaker->endCSVLine();
         $this->headerData = array(
@@ -415,7 +449,6 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
         );
-        $PendingMACs = $this->getClass('MACAddressAssociationManager')->find(array('pending'=>1));
         foreach ((array)$this->getSubObjectIDs('MACAddressAssociation',array('pending'=>1),'mac') AS $i => &$PendingMAC) {
             $PendingMAC = $this->getClass('MACAddress',$PendingMAC);
             if (!$PendingMAC->isValid()) continue;
@@ -447,7 +480,18 @@ class ReportManagementPage extends FOGPage {
     }
     public function vir_hist() {
         $this->title = _('FOG Virus Summary');
-        echo '<h2>'.'<a href="export.php?type=csv&filename=VirusHistory" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=VirusHistory" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2><form method="post" action="'.$this->formAction.'" /><h2><a href="#"><input onclick="this.form.submit()" type="checkbox" class="delvid" name="delvall" id="delvid" value="all" /><label for="delvid">('._('clear all history').')</label></a></h2></form>';
+        printf('<h2><a href="export.php?type=csv&filename=VirusHistory" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=VirusHistory" alt="%s" title="%s" target="_blank">%s</a></h2>',
+            _('Export CSV'),
+            _('Export CSV'),
+            $this->csvfile,
+            _('Export PDF'),
+            _('Export PDF'),
+            $this->pdffile
+        );
+        printf('<form method="post" action="%s"><h2><a href="#"><input onclick="this.form.submit()" type="checkbox" class="delvid" name="delvall" id="delvid" value="all"/><label for="delvid">(%s)</label></a></h2></form>',
+            $this->formAction,
+            _('clear all history')
+        );
         $csvHead = array(
             _('Host Name')=>'name',
             _('Virus Name')=>'name',
@@ -469,7 +513,7 @@ class ReportManagementPage extends FOGPage {
             '${vir_file}',
             '${vir_mode}',
             '${vir_date}',
-            '<input type="checkbox" onclick="this.form.submit()" class="delvid" value="${vir_id}" id="vir${vir_id}" name="delvid" /><label for="vir${vir_id}" class="icon icon-hand" title="'._('Delete').' ${vir_name}"><i class="fa fa-minus-circle fa-1x link"></i></label>',
+            sprintf('<input type="checkbox" onclick="this.form.submit()" class="delvid" value="${vir_id}" id="vir${vir_id}" name="delvid"/><label for="for${vir_id}" class="icon icon-hand" title="%s ${vir_name}"><i class="fa fa-minus-circle link"></i></label>',_('Delete')),
         );
         $this->attributes = array(
             array(),
@@ -479,11 +523,12 @@ class ReportManagementPage extends FOGPage {
             array(),
             array('class'=>'filter-false'),
         );
-        foreach((array)$csvHead AS $csvHeader => &$classGet) $this->ReportMaker->addCSVCell($csvHeader);
-        unset($classGet);
+        foreach ((array)$csvHead AS $csvHeader => &$classGet) {
+            $this->ReportMaker->addCSVCell($csvHeader);
+            unset($classGet);
+        }
         $this->ReportMaker->endCSVLine();
-        $Viruses = $this->getClass('VirusManager')->find();
-        foreach($Viruses AS $i => &$Virus) {
+        foreach ((array)$this->getClass('VirusManager')->find() AS $i => &$Virus) {
             if (!$Virus->isValid()) continue;
             $Host = $this->getClass('HostManager')->getHostByMacAddresses($Virus->get('hostMAC'));
             if (!$Host->isValid()) continue;
@@ -501,7 +546,7 @@ class ReportManagementPage extends FOGPage {
                 'vir_mode'=>$virusMode,
                 'vir_date'=>$this->formatTime($virusDate),
             );
-            foreach((array)$csvHead AS $head => &$classGet) {
+            foreach ((array)$csvHead AS $head => &$classGet) {
                 switch ($head) {
                 case _('Host name'):
                     $this->ReportMaker->addCSVCell($hostName);
@@ -513,13 +558,14 @@ class ReportManagementPage extends FOGPage {
                     $this->ReportMaker->addCSVCell($Virus->get($classGet));
                     break;
                 }
+                unset($classGet);
             }
-            unset($classGet,$Virus);
+            unset($Virus);
             $this->ReportMaker->endCSVLine();
         }
         unset($Virus);
         $this->ReportMaker->appendHTML($this->__toString());
-        echo '<form method="post" action="'.$this->formAction.'">';
+        printf('<form method="post" action="%s">',$this->formAction);
         $this->ReportMaker->outputReport(false);
         echo '</form>';
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
@@ -529,8 +575,7 @@ class ReportManagementPage extends FOGPage {
             $this->getClass('VirusManager')->destroy();
             $this->setMessage(_("All Virus' cleared"));
             $this->redirect($this->formAction);
-        }
-        if (is_numeric($_REQUEST['delvid'])) {
+        } else if (is_numeric($_REQUEST['delvid'])) {
             $this->getClass('Virus',$_REQUEST['delvid'])->destroy();
             $this->setMessage(_('Virus cleared'));
             $this->redirect($this->formAction);
@@ -547,38 +592,41 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
         );
-        $fields = array(
-            _('Enter a username to search for') => '${user_sel}',
-            _('Enter a hostname to search for') => '${host_sel}',
-            '&nbsp;' => '<input type="submit" value="'._('Search').'" />',
-        );
         $UserNames = $this->getSubObjectIDs('UserTracking','','username');
         $HostNames = $this->getSubObjectIDs('Host','','name');
         asort($UserNames);
+        $UserNames = array_filter(array_unique((array)$UserNames));
         asort($HostNames);
-        if ($UserNames) {
-            $UserNames = array_unique($UserNames);
-            foreach($UserNames AS $i => &$Username) {
-                if ($Username) $userSel .= '<option value="'.$Username.'">'.$Username.'</option>';
+        $HostNames = array_filter(array_unique((array)$HostNames));
+        if (count($UserNames) > 0) {
+            ob_start();
+            foreach ((array)$UserNames AS $i => &$Username) {
+                if ($Username) printf('<option value="%s">%s</option>',$Username,$Username);
+                unset($Username);
             }
-            unset($Username);
-            $userSelForm = '<select name="usersearch"><option value="">- '._('Please select an option').' -</option>'.$userSel.'</select>';
+            $userSelForm = sprintf('<select name="usersearch"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
         }
-        if ($HostNames) {
-            foreach($HostNames AS $i => &$Hostname) $hostSel .= '<option value="'.$Hostname.'">'.$Hostname.'</option>';
-            unset($Hostname);
-            $hostSelForm = '<select name="hostsearch"><option value="">- '._('Please select an option').' -</option>'.$hostSel.'</option>';
+        if (count($HostNames) > 0) {
+            ob_start();
+            foreach ((array)$HostNames AS $i => &$Hostname) {
+                if ($Hostname) printf('<option value="%s">%s</option>',$Hostname,$Hostname);
+                unset($Hostname);
+            }
+            $hostSelForm = sprintf('<select name="hostsearch"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
         }
+        $fields = array(
+            _('Enter a username to search for') => $userSelForm,
+            _('Enter a hostname to search for') => $hostSelForm,
+            '' => sprintf('<input type="submit" value="%s"/>',_('Search')),
+        );
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
-                'user_sel'=>$userSelForm,
-                'host_sel'=>$hostSelForm,
             );
+            unset($input);
         }
-        unset($input);
-        echo '<form method="post" action="'.$this->formAction.'">';
+        printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
@@ -589,40 +637,34 @@ class ReportManagementPage extends FOGPage {
             _('Username'),
         );
         $this->templates = array(
-            '<a href="?node='.$this->node.'&sub=user-track-disp&hostID=${host_id}&userID=${user_id}">${hostuser_name}</a>',
+            sprintf('<a href="?node=%s&sub=user-track-disp&hostID=${host_id}&userID=${user_id}">${hostuser_name}</a>',$this->node),
             '${user_name}',
         );
         $this->attributes = array(
             array(),
             array(),
         );
-        $hostsearch = str_replace('*','%','%'.trim($_REQUEST['hostsearch']).'%');
-        $usersearch = str_replace('*','%','%'.trim($_REQUEST['usersearch']).'%');
+        $hostsearch = str_replace('*','%',sprintf('%%s%',trim($_REQUEST['hostsearch'])));
+        $usersearch = str_replace('*','%',sprintf('%%s%',trim($_REQUEST['usersearch'])));
         if (trim($_REQUEST['hostsearch']) && !trim($_REQUEST['usersearch'])) {
-            $Hosts = $this->getClass('HostManager')->find(array('name'=>$hostsearch));
-            foreach ((array)$Hosts AS $i => &$Host) {
+            foreach ((array)$this->getClass('HostManager')->find(array('name'=>$hostsearch)) AS $i => &$Host) {
                 if (!$Host->isValid()) continue;
-                $hostName = $Host->get('name');
-                unset($Host);
                 $this->data[] = array(
                     'host_id'=>$id,
-                    'hostuser_name'=>$hostName,
+                    'hostuser_name'=>$Host->get('name'),
                     'user_id'=>base64_encode('%'),
                     'user_name'=>'',
                 );
+                unset($Host);
             }
-            unset($id,$Hosts);
         } else if (!trim($_REQUEST['hostsearch']) && trim($_REQUEST['usersearch'])) {
             $ids = $this->getSubObjectIDs('UserTracking',array('username'=>$usersearch),array('id','hostID'));
             $lastUser = '';
-            $Users = $this->getClass('UserTrackingManager')->find(array('id'=>$ids['id']));
-            $Hosts = $this->getClass('HostManager')->find(array('id'=>$ids['hostID']));
-            foreach ($Hosts AS $i => &$Host) {
+            foreach ((array)$this->getClass('HostManager')->find(array('id'=>$ids['hostID'])) AS $i => &$Host) {
                 if (!$Host->isValid()) $ids['hostID'] = array_diff((array)$Host->get('id'),(array)$ids['hostID']);
                 unset($Host);
             }
-            unset($Hosts);
-            foreach((array)$Users AS $i => &$User) {
+            foreach ((array)$this->getClass('UserTrackingManager')->find(array('id'=>$ids['id'])) AS $i => &$User) {
                 if (!$User->isValid()) continue;
                 if (!count($ids['hostID'])) continue;
                 $Username = trim($User->get('username'));
@@ -638,31 +680,25 @@ class ReportManagementPage extends FOGPage {
                 $lastUser = $Username;
                 unset($Username);
             }
-            unset($Users,$Hosts,$lastUser);
+            unset($lastUser);
         } else if (trim($_REQUEST['hostsearch']) && trim($_REQUEST['usersearch'])) {
             $HostIDs = $this->getSubObjectIDs('Host',array('name'=>$hostsearch));
-            $Users = $this->getClass('UserTrackingManager')->find(array('username'=>$usersearch,'hostID'=>$HostIDs));
-            foreach((array)$Users AS $i => &$User) {
+            foreach ((array)$this->getClass('UserTrackingManager')->find(array('username'=>$usersearch,'hostID'=>$HostIDs)) AS $i => &$User) {
                 if (!$User->isValid()) continue;
                 $Host = $this->getClass('Host',$User->get('hostID'));
-                if (!$Host->isValid()) {
-                    unset($Host);
-                    continue;
-                }
-                $hostID = $Host->get('id');
-                $hostName = $Host->get('name');
+                if (!$Host->isValid()) continue;
                 $userName = $User->get('name');
                 unset($Host,$User);
                 $this->data[] = array(
-                    'host_id'=>$hostID,
-                    'hostuser_name'=>$hostName,
+                    'host_id'=>$Host->get('id'),
+                    'hostuser_name'=>$Host->get('name'),
                     'user_id'=>base64_encode($userName),
                     'user_name'=>$userName,
                 );
-                unset($userName,$hostName,$hostID);
+                unset($userName,$Host,$User);
             }
-            unset($HostIDs,$Users);
-        } else if (!$hostsearch && !$usersearch) $this->redirect('?node='.$this->node.'sub=user-track');
+            unset($HostIDs);
+        } else if (!$hostsearch && !$usersearch) $this->redirect(sprintf('?node=%s&sub=user-track',$this->node));
         $this->render();
     }
     public function user_track_disp() {
@@ -677,7 +713,7 @@ class ReportManagementPage extends FOGPage {
         if ($_REQUEST['userID'] && !$_REQUEST['hostID']) $UserSearchDates = $this->getSubObjectIDs('UserTracking',array('username'=>$_REQUEST['userID']),'datetime');
         else if (!$_REQUEST['userID'] && $_REQUEST['hostID']) $UserSearchDates = $this->getSubObjectIDs('UserTracking',array('hostID'=>$_REQUEST['hostID']),'datetime');
         else if ($_REQUEST['userID'] && $_REQUEST['hostID']) $UserSearchDates = $this->getSubObjectIDs('UserTracking',array('username'=>$_REQUEST['userID'],'hostID'=>$_REQUEST['hostID']),'datetime');
-        foreach((array)$UserSearchDates AS $i => &$DateTime) {
+        foreach ((array)$UserSearchDates AS $i => &$DateTime) {
             if (!$this->validDate($DateTime)) continue;
             $Dates[] = $this->formatTime($DateTime,'Y-m-d');
         }
@@ -685,17 +721,17 @@ class ReportManagementPage extends FOGPage {
         if ($Dates) {
             $Dates = array_unique($Dates);
             rsort($Dates);
-            foreach((array)$Dates AS $i => &$Date) {
-                $dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
-                $dates2 .= '<option value="'.$Date.'">'.$Date.'</option>';
+            ob_start();
+            foreach ((array)$Dates AS $i => &$Date) {
+                printf('<option value="%s">%s</option>',$Date,$Date);
+                unset($Date);
             }
-            unset($Date);
-            $date1 = '<select name="date1" size="1">'.$dates1.'</select>';
-            $date2 = '<select name="date2" size="1">'.$dates2.'</select>';
+            unset($Dates);
+            $dates = ob_get_clean();
             $fields = array(
-                _('Select Start Date') => $date1,
-                _('Select End Date') => $date2,
-                '&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
+                _('Select Start Date') => sprintf('<select name="date1" size="1">%s</select>',$dates),
+                _('Select End Date') => sprintf('<select name="date2" size="1">%s</select>',$dates),
+                '' => sprintf('<input type="submit" value="%s"/>',_('Search for Entries')),
             );
             foreach((array)$fields AS $field => &$input) {
                 $this->data[] = array(
@@ -704,11 +740,10 @@ class ReportManagementPage extends FOGPage {
                 );
             }
             unset($input);
-            echo '<form method="post" action="'.$this->formAction.'">';
+            printf('<form method="post" action="%s">',$this->formAction);
             $this->render();
             echo '</form>';
-        }
-        else $this->render();
+        } else $this->render();
     }
     public function user_track_disp_post() {
         $this->title = _('FOG User Login History Summary');
@@ -741,24 +776,25 @@ class ReportManagementPage extends FOGPage {
         $this->ReportMaker->addCSVCell(_('Time'));
         $this->ReportMaker->addCSVCell(_('Description'));
         $this->ReportMaker->endCSVLine();
-        echo '<h2><a href="export.php?type=csv&filename=UserTrackingList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=UserTrackingList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        printf('<h2><a href="export.php?type=csv&filename=UserTrackingList" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=UserTrackingList" alt="%s" title="%s" target="_blank">%s</a></h2>',
+            _('Export CSV'),
+            _('Export CSV'),
+            $this->csvfile,
+            _('Export PDF'),
+            _('Export PDF'),
+            $this->pdffile
+        );
         $date1 = $_REQUEST['date1'];
         $date2 = $_REQUEST['date2'];
         if ($date1 > $date2) {
             $date1 = $_REQUEST['date2'];
             $date2 = $_REQUEST['date1'];
         }
-        $date2 = date('Y-m-d',strtotime($date2.'+1 day'));
-        $UserToSearch = base64_decode($_REQUEST['userID']);
-        $compare = "BETWEEN '$date1' AND '$date2'";
-        $UserTrackers = $this->getClass('UserTrackingManager')->find(array('datetime' => '','username' => '%'.$UserToSearch.'%','hostID'=>($_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%')),'','','',$compare);
-        foreach((array)$UserTrackers AS $i => &$User) {
+        $date2 = date('Y-m-d',strtotime("$date2 +1 day"));
+        foreach ((array)$this->getClass('UserTrackingManager')->find(array('datetime'=>'','username'=>sprintf('%%s%',base64_decode($_REQUEST['userID'])),'hostID'=>($_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%')),'','','',"BETWEEN '$date1' AND '$date2'",'','','',false) AS $i => &$User) {
             if (!$User->isValid()) continue;
             $Host = $this->getClass('Host',$User->get('hostID'));
-            if (!$Host->isValid()) {
-                unset($Host);
-                continue;
-            }
+            if (!$Host->isValid()) continue;
             $date = $this->nice_date($User->get('datetime'));
             $logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
             $this->data[] = array(
@@ -778,7 +814,6 @@ class ReportManagementPage extends FOGPage {
             $this->ReportMaker->endCSVLine();
             unset($User,$Host,$date,$logintext);
         }
-        unset($UserTrackers);
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
@@ -790,17 +825,13 @@ class ReportManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $SnapinLogs = $this->getClass('SnapinTaskManager')->find();
         $datesold = array();
         $datesnew = array();
-        foreach ($SnapinLogs AS $i => &$SnapinLog) {
+        foreach ((array)$this->getClass('SnapinTaskManager')->find() AS $i => &$SnapinLog) {
             if (!$SnapinLog->isValid()) continue;
             $tmp1 = $SnapinLog->get('checkin');
             $tmp2 = $SnapinLog->get('complete');
-            if (!$this->validDate($tmp1) || !$this->validDate($tmp2)) {
-                unset($SnapinLog,$tmp1,$tmp2);
-                continue;
-            }
+            if (!$this->validDate($tmp1) || !$this->validDate($tmp2)) continue;
             $datesold[] = $this->formatTime($tmp1,'Y-m-d');
             $datesnew[] = $this->formatTime($tmp2,'Y-m-d');
             unset($tmp1,$tmp2,$SnapinLog);
@@ -811,35 +842,40 @@ class ReportManagementPage extends FOGPage {
         if ($Dates) {
             $Dates = array_unique($Dates);
             rsort($Dates);
-            foreach((array)$Dates AS $i => &$Date) {
-                $dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
-                $dates2 .= '<option value="'.$Date.'">'.$Date.'</option>';
+            ob_start();
+            foreach ((array)$Dates AS $i => &$Date) {
+                printf('<option value="%s">%s</option>',$Date,$Date);
+                unset($Date);
             }
-            unset($Date,$Dates);
-            if(($dates1 || $dates2) && ($dates1 && $dates2)) {
-                $date1 = '<select name="date1" size="1">'.$dates1.'</select>';
-                $date2 = '<select name="date2" size="1">'.$dates2.'</select>';
-                $fields = array(
-                    _('Select Start Date') => $date1,
-                    _('Select End Date') => $date2,
-                    '&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
+            unset($Dates);
+            $dates = ob_get_clean();
+            $fields = array(
+                _('Select Start Date') => sprintf('<select name="date1" size="1">%s</select>',$dates),
+                _('Select End Date') => sprintf('<select name="date2" size="1">%s</select>',$dates),
+                '' => sprintf('<input type="submit" value="%s"/>',_('Search for Entries')),
+            );
+            foreach ((array)$fields AS $field => &$input) {
+                $this->data[] = array(
+                    'field'=>$field,
+                    'input'=>$input,
                 );
-                foreach((array)$fields AS $field => &$input) {
-                    $this->data[] = array(
-                        'field'=>$field,
-                        'input'=>$input,
-                    );
-                }
-                unset($input);
-                echo '<form method="post" action="'.$this->formAction.'">';
-                $this->render();
-                echo '</form>';
-            } else $this->render();
+            }
+            unset($input);
+            printf('<form method="post" action="%s">',$this->formAction);
+            $this->render();
+            echo '</form>';
         } else $this->render();
     }
     public function snapin_log_post() {
         $this->title = _('FOG Snapin Log');
-        echo '<h2><a href="export.php?type=csv&filename=SnapinLog" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=SnapinLog" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        printf('<h2><a href="export.php?type=csv&filename=SnapinLog" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=SnapinLog" alt="%s" title="%s" target="_blank">%s</a></h2>',
+            _('Export CSV'),
+            _('Export CSV'),
+            $this->csvfile,
+            _('Export PDF'),
+            _('Export PDF'),
+            $this->pdffile
+        );
         $this->headerData = array(
             _('Snapin Name'),
             _('State'),
@@ -862,7 +898,7 @@ class ReportManagementPage extends FOGPage {
             $date1 = $_REQUEST['date2'];
             $date2 = $_REQUEST['date1'];
         }
-        $date2 = date('Y-m-d',strtotime($date2.'+1 day'));
+        $date2 = date('Y-m-d',strtotime("$date2 +1 day"));
         $csvHead = array(
             _('Host ID'),
             _('Host Name'),
@@ -884,27 +920,19 @@ class ReportManagementPage extends FOGPage {
             _('Task Checkin Date'),
             _('Task Checkin Time'),
         );
-        foreach((array)$csvHead AS $i => &$csvHeader) $this->ReportMaker->addCSVCell($csvHeader);
-        unset($csvHeader);
+        foreach((array)$csvHead AS $i => &$csvHeader) {
+            $this->ReportMaker->addCSVCell($csvHeader);
+            unset($csvHeader);
+        }
         $this->ReportMaker->endCSVLine();
-        $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('checkin'=>'','complete'=>''),'OR','','',"BETWEEN '$date1' AND '$date2'",'','','',false);
-        foreach($SnapinTasks AS $i => &$SnapinTask) {
+        foreach ((array)$this->getClass('SnapinTaskManager')->find(array('checkin'=>'','complete'=>''),'OR','','',"BETWEEN '$date1' AND '$date2'",'','','',false) AS $i => &$SnapinTask) {
             if (!$SnapinTask->isValid()) continue;
             $Snapin = $SnapinTask->getSnapin();
-            if (!$Snapin->isValid()) {
-                unset($Snapin);
-                continue;
-            }
+            if (!$Snapin->isValid()) continue;
             $SnapinJob = $SnapinTask->getSnapinJob();
-            if (!$SnapinJob->isValid()) {
-                unset($Snapin,$SnapinJob);
-                continue;
-            }
+            if (!$SnapinJob->isValid()) continue;
             $Host = $SnapinJob->getHost();
-            if (!$Host->isValid()) {
-                unset($Host,$Snapin,$SnapinJob);
-                continue;
-            }
+            if (!$Host->isValid()) continue;
             $TaskCheckinDate = $this->formatTime($SnapinTask->get('checkin'),'Y-m-d');
             $TaskCheckinTime = $this->nice_date($SnapinTask->get('complete'),'H:i:s');
             $hostID = $Host->get('id');
@@ -955,7 +983,6 @@ class ReportManagementPage extends FOGPage {
             unset($Host,$Snapin,$SnapinJob,$SnapinTask,$hostID,$hostName,$hostMac);
             unset($snapinID,$snapinName,$snapinDesc,$snapinFile,$snapinArgs,$snapinRw,$snapinRwa,$snapinState,$snapinReturn,$snapinDetail,$snapinCreateDate,$snapinCreateTime,$jobCreateDate,$jobCreateTime,$TaskCheckinDate,$TaskCheckinTime);
         }
-        unset($SnapinTasks);
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
@@ -971,68 +998,93 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
         );
-        $fields = array(
-            _('Select User') => '${users}',
-            '&nbsp;' => '<input type="submit" value="'._('Create Report').'" />',
-        );
-        $Inventorys = $this->getClass('InventoryManager')->find();
-        foreach($Inventorys AS $i => &$Inventory) {
+        ob_start();
+        foreach ((array)$this->getClass('InventoryManager')->find() AS $i => &$Inventory) {
+            if (!$Inventory->isValid()) continue;
+            if (!$Inventory->get('primaryUser')) continue;
             if (!($Inventory->isValid() && $Inventory->get('primaryUser'))) continue;
-            $useropt .= '<option value="'.$Inventory->get('id').'">'.$Inventory->get('primaryUser').'</option>';
+            printf('<option value="%s">%s</option>',$Inventory->get('id'),$Inventory->get('primaryUser'));
             unset($Inventory);
         }
-        unset($Inventorys);
-        if ($useropt) {
-            $selForm = '<select name="user" size= "1">'.$useropt.'</select>';
-            foreach((array)$fields AS $field => &$input) {
-                $this->data[] = array(
-                    'field'=>$field,
-                    'input'=>$input,
-                    'users'=>$selForm,
-                );
-            }
-            unset($input);
-            echo '<form method="post" action="'.$this->formAction.'">';
-            $this->render();
-            echo '</form>';
+        $fields = array(
+            _('Select User') => sprintf('<select name="user" size="1"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean()),
+            '' => sprintf('<input type="submit" value="%s"/>',_('Create Report')),
+        );
+        foreach((array)$fields AS $field => &$input) {
+            $this->data[] = array(
+                'field'=>$field,
+                'input'=>$input,
+            );
         }
-        else $this->render();
+        unset($input);
+        printf('<form method="post" action="%s">',$this->formAction);
+        $this->render();
+        echo '</form>';
     }
     public function equip_loan_post() {
         $Inventory = $this->getClass('Inventory',$_REQUEST['user']);
         if (!$Inventory->isValid()) return;
         $this->title = _('FOG Equipment Loan Form');
-        echo '<h2><a href="export.php?type=pdf&filename='.$Inventory->get(primaryuser).'EquipmentLoanForm" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
-        $this->ReportMaker->appendHTML("<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " . $this->nice_date()->format("D M j G:i:s T Y") . "\" -->" );
-        $this->ReportMaker->appendHTML("<center><h2>"._("[YOUR ORGANIZATION HERE]")."</h2></center>" );
-        $this->ReportMaker->appendHTML("<center><h3>"._("[sub-unit here]")."</h3></center>" );
-        $this->ReportMaker->appendHTML("<center><h2><u>"._("PC Check-Out Agreement")."</u></h2></center>" );
-        $this->ReportMaker->appendHTML("<h4><u>"._("Personal Information")."</u></h4>");
-        $this->ReportMaker->appendHTML("<h4><b>"._("Name").": </b><u>".$Inventory->get('primaryUser')."</u></h4>");
-        $this->ReportMaker->appendHTML("<h4><b>"._("Location").": </b><u>"._("Your Location Here")."</u></h4>");
-        $this->ReportMaker->appendHTML("<h4><b>"._("Home Address").": </b>__________________________________________________________________</h4>");
-        $this->ReportMaker->appendHTML("<h4><b>"._("City / State / Zip").": </b>__________________________________________________________________</h4>");
-        $this->ReportMaker->appendHTML("<h4><b>"._("Extension").":</b>_________________ &nbsp;&nbsp;&nbsp;<b>"._("Home Phone").":</b> (__________)_____________________________</h4>" );
-        $this->ReportMaker->appendHTML( "<h4><u>"._("Computer Information")."</u></h4>" );
-        $this->ReportMaker->appendHTML( "<h4><b>"._("Serial Number / Service Tag").": </b><u>" . $Inventory->get('sysserial')." / ".$Inventory->get('caseasset')."_____________________</u></h4>" );
-        $this->ReportMaker->appendHTML( "<h4><b>"._("Barcode Numbers").": </b><u>" . $Inventory->get('other1') . "   " . $Inventory->get('other2') . "</u>________________________</h4>" );
-        $this->ReportMaker->appendHTML( "<h4><b>"._("Date of Checkout").": </b>____________________________________________</h4>" );
-        $this->ReportMaker->appendHTML( "<h4><b>"._("Notes / Miscellaneous / Included Items").": </b></h4>" );
-        $this->ReportMaker->appendHTML( "<h4><b>_____________________________________________________________________________________________</b></h4>" );
-        $this->ReportMaker->appendHTML( "<h4><b>_____________________________________________________________________________________________</b></h4>" );
-        $this->ReportMaker->appendHTML( "<h4><b>_____________________________________________________________________________________________</b></h4>" );
-        $this->ReportMaker->appendHTML( "<hr />" );
-        $this->ReportMaker->appendHTML( "<h4><b>"._("Releasing Staff Initials").": </b>_____________________     "._("(To be released only by XXXXXXXXX)")."</h4>" );
-        $this->ReportMaker->appendHTML( "<h4>"._("I have read, understood, and agree to all the Terms and Condidtions on the following pages of this document.")."</h4>" );
-        $this->ReportMaker->appendHTML( "<br />" );
-        $this->ReportMaker->appendHTML( "<h4><b>"._("Signed").": </b>X _____________________________  "._("Date").": _________/_________/20_______</h4>" );
-        $this->ReportMaker->appendHTML( _("<!-- "._("NEW PAGE")." -->") );
-        $this->ReportMaker->appendHTML( "<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " .$this->nice_date()->format("D M j G:i:s T Y") . "\" -->" );
-        $this->ReportMaker->appendHTML( "<center><h3>"._("Terms and Conditions")."</h3></center>" );
-        $this->ReportMaker->appendHTML( "<hr />" );
-        $this->ReportMaker->appendHTML( "<h4>"._("Your terms and conditions here")."</h4>" );
-        $this->ReportMaker->appendHTML( "<h4><b>"._("Signed").": </b>"._("X")." _____________________________  "._("Date").": _________/_________/20_______</h4>" );
-        echo '<p>'._('Your form is ready.').'</p>';
+        printf('<h2><a href="export.php?type=pdf&filename=%sEquipmentLoanForm" alt="%s" title="%s" target="_blank">%s</a></h2>',
+            $Inventory->get('primaryUser'),
+            _('Export PDF'),
+            _('Export PDF'),
+            $this->pdffile
+        );
+        $this->ReportMaker->appendHTML(sprintf('<!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" --><center><h3>%s</h3></center><hr/><center><h2>%s</h2></center><center><h3>%s</h3></center><center><h2><u>%s</u></h2></center><center><h4><u>%s</u></h4></center><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><center><h4><u>%s</u></h4></center><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><center><h4><b>%s / %s / %s</b></h4></center><center><h4><b>%s</b></h4></center><center><h4><b>%s</b></h4></center><center><h4><b>%s</b></h4></center><br/><hr/><h4><b>%s: </b>%s</h4><center><h4>(%s %s)</h4></center><center><h4>%s</h4></center><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><!-- NEW PAGE --><!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" --><center><h3>%s</h3></center><hr/><h4>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4>',
+            _('of'),
+            _('Printed'),
+            $this->formatTime('','D M j G:i:s T Y'),
+            _('Equipment Loan'),
+            _('[Organization Here]'),
+            _('[sub-unit here]'),
+            _('PC Check-out Agreement'),
+            _('Personal Information'),
+            _('Name'),
+            $Inventory->get('primaryUser'),
+            _('Location'),
+            _('Your Location Here'),
+            str_pad(_('Home Address'),25),
+            str_repeat('_',65),
+            str_pad(_('City/State/Zip'),25),
+            str_repeat('_',65),
+            str_pad(_('Extension'),25),
+            str_repeat('_',65),
+            str_pad(_('Home Phone'),25),
+            str_repeat('_',65),
+            _('Computer Information'),
+            str_pad(sprintf('%s / %s',_('Serial Number'),_('Service Tag')),25),
+            str_pad(sprintf('%s / %s',$Inventory->get('sysserial'),$Inventory->get('caseasset')),65,'_'),
+            str_pad(_('Barcode Numbers'),25),
+            str_pad(sprintf('%s %s',$Inventory->get('other1'),$Inventory->get('other2')),65,'_'),
+            str_pad(_('Date of checkout'),25),
+            str_repeat('_',65),
+            _('Notes'),
+            _('Miscellaneous'),
+            _('Included Items'),
+            str_repeat('_',75),
+            str_repeat('_',75),
+            str_repeat('_',75),
+            str_pad(_('Releasing Staff Initials'),25),
+            str_repeat('_',65),
+            _('To be released only by'),
+            str_repeat('_',20),
+            _('I have read, understood, and agree to all the Terms and Conditions on the following pages of this document.'),
+            str_pad(_('Signed'),25),
+            str_repeat('_',65),
+            str_pad(_('Date'),25),
+            str_repeat('_',65),
+            _('of'),
+            _('Printed'),
+            $this->formatTime('','D M j G:i:s T Y'),
+            _('Terms and Conditions'),
+            _('Your terms and conditions here'),
+            str_pad(_('Signed'),25),
+            str_repeat('_',65),
+            str_pad(_('Date'),25),
+            str_repeat('_',65)
+        ));
+        printf('<p>%s</p>',_('Your form is ready.'));
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }
