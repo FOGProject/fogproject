@@ -40,7 +40,7 @@ class GroupManagementPage extends FOGPage {
             sprintf('<a href="?node=group&sub=edit&%s=${id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=group&sub=delete&%s=${id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'c filter-false'),
+            array('width'=>16,'class'=>'l filter-false'),
             array(),
             array('width'=>30,'class'=>'c'),
             array('width'=>90,'class'=>'c filter-false'),
@@ -221,7 +221,7 @@ class GroupManagementPage extends FOGPage {
             '${snapin_created}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'c filter-false'),
+            array('width'=>16,'class'=>'l filter-false'),
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );
@@ -249,7 +249,7 @@ class GroupManagementPage extends FOGPage {
             '${snapin_created}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'c filter-false'),
+            array('width'=>16,'class'=>'l filter-false'),
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );

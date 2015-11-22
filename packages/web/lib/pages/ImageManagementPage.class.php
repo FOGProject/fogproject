@@ -49,8 +49,8 @@ class ImageManagementPage extends FOGPage {
             sprintf('<a href="?node=%s&sub=edit&id=${id}" title="%s"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="?node=%s&sub=delete&id=${id}" title="%s"><i class="fa fa-minus-circle"></i></a>',$this->node,_('Edit'),$this->node,_('Delete'))
         );
         $this->attributes = array(
-            array('width'=>5,'class'=>'c filter-false'),
-            array('width'=>16,'class'=>'c filter-false'),
+            array('width'=>5,'class'=>'l filter-false'),
+            array('width'=>16,'class'=>'l filter-false'),
             array('width'=>50,'class'=>'l'),
             array('width'=>50,'class'=>'c'),
         );
@@ -247,7 +247,7 @@ class ImageManagementPage extends FOGPage {
             '${storageGroup_name}',
         );
         $this->attributes = array(
-            array('class'=>'c disabled filter-false','width'=>16),
+            array('class'=>'l filter-false','width'=>16),
             array(),
         );
         foreach ((array)$this->getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroupsnotinme'))) AS $i => $Group) {
@@ -385,7 +385,7 @@ class ImageManagementPage extends FOGPage {
             array(),
             array(),
             array(),
-            array('class'=>'r disabled filter-false'),
+            array('class'=>'r filter-false'),
         );
         $this->templates = array(
             '${mc_name}<br/><small>${image_name}:${os}</small>',

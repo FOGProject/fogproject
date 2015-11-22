@@ -25,7 +25,7 @@ class UserManagementPage extends FOGPage {
             sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a>', $this->node, $this->id, _('Edit User'))
         );
         $this->attributes = array(
-            array('class'=>'c filter-false','width'=>16),
+            array('class'=>'l filter-false','width'=>16),
             array(),
             array('class'=>'c filter-false','width'=>55),
         );

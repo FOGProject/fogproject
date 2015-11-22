@@ -67,10 +67,10 @@ class HostManagementPage extends FOGPage {
         );
         unset($up,$down,$mc);
         $this->attributes = array(
-            array('width'=>16,'id'=>'host-${host_name}','class'=>'filter-false'),
-            array('class'=>'filter-false','width'=>16),
+            array('width'=>16,'id'=>'host-${host_name}','class'=>'l filter-false'),
+            array('class'=>'l filter-false','width'=>16),
         );
-        $_SESSION['FOGPingActive'] ? array_push($this->attributes,array('width'=>16,'class'=>'filter-false')) : null;
+        $_SESSION['FOGPingActive'] ? array_push($this->attributes,array('width'=>16,'class'=>'l filter-false')) : null;
         array_push($this->attributes,
             array('width'=>50),
             array('width'=>145),
@@ -451,7 +451,7 @@ class HostManagementPage extends FOGPage {
             _('Snapin Name'),
         );
         $this->attributes = array(
-            array('class'=>'l disabled filter-false','width'=>16),
+            array('class'=>'l filter-false','width'=>16),
             array(),
         );
         $this->templates = array(

@@ -364,7 +364,7 @@ class StorageManagementPage extends FOGPage {
         // Row attributes
         $this->attributes = array(
             array(),
-            array('class'=>'c filter-false',width=>50),
+            array('class'=>'c filter-false','width'=>50),
         );
         unset($this->data);
         $StorageGroups = $this->getClass(StorageGroup)->getManager()->find();

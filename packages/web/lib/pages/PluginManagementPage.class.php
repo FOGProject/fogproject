@@ -29,7 +29,7 @@ class PluginManagementPage extends FOGPage {
         if (in_array($_REQUEST['sub'],array('installed','install'))) {
             array_push($this->headerData,_('Remove'));
             array_push($this->templates,'<a href="?node=plugin&sub=removeplugin&rmid=${pluginid}"><i class="icon fa fa-minus-circle" title="Remove Plugin"></i></a>');
-            array_push($this->attributes,array('class'=>'c filter-false'));
+            array_push($this->attributes,array('class'=>'l filter-false'));
         }
     }
     public function index() {
@@ -218,7 +218,7 @@ class PluginManagementPage extends FOGPage {
                         array(),
                         array(),
                         array(),
-                        array('class'=>'filter-false'),
+                        array('class'=>'l filter-false'),
                     );
                     foreach ((array)$this->getClass('CaponeManager')->find() AS $i => &$Capone) {
                         if (!$Capone->isValid()) continue;
