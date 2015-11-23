@@ -28,12 +28,12 @@ $AESDecryption = function($key,$iv,$data) {
 };
 $RawResponse = function() {echo 'Foobar22!';};
 $units = array('Response','ResponseArray','BadResponse','Download','AESDecryptionResponse1','AESDecryptionResponse2','AESDecryption','RawResponse');
-if (!in_array(htmlentities($_REQUEST['unit'],ENT_QUOTES,'UTF-8'))) exit;
-$unit = htmlentities($_REQUEST['unit'],ENT_QUOTES,'UTF-8');
+if (!in_array(mb_convert_encoding($_REQUEST['unit'],'UTF-8','UTF-8'))) exit;
+$unit = mb_convert_encoding($_REQUEST['unit'],'UTF-8','UTF-8');
 if (strpos($unit,'AESDecryption') !== false) {
     $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128,MCRYPT_MODE_CBC);
     $iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
-    $key = htmlentities($_REQUEST['key'],ENT_QUOTES,'UTF-8');
+    $key = mb_convert_encoding($_REQUEST['key'],'UTF-8','UTF-8');
     $n = strlen($key);
     $i = 0;
     while ($i < $n) {

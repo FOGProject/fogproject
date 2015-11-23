@@ -138,7 +138,7 @@ abstract class FOGBase {
         unset($message);
     }
     protected function redirect($url = '') {
-        if (empty($url)) $url = sprintf('%s?%s',htmlentities($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8'),htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'UTF-8'));
+        if (empty($url)) $url = sprintf('%s?%s',mb_convert_encoding($_SERVER['PHP_SELF'],'UTF-8','UTF-8'),mb_convert_encoding($_SERVER['QUERY_STRING'],'UTF-8','UTF-8'));
         if (!headers_sent() && !$this->service) {
             header('Strict-Transport-Security: "max-age=15768000"');
             header('X-Content-Type-Options: nosniff');
