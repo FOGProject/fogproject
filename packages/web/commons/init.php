@@ -70,27 +70,24 @@ class Initiator {
         foreach($_REQUEST as $key => &$val) {
             if (is_array($val)) {
                 foreach ((array)$val AS $i => &$v) {
-                    $val[$i] = trim(htmlentities(strip_tags($v),ENT_QUOTES,'UTF-8'));
+                    $val[$i] = trim(mb_convert_encoding(strip_tags($v),'UTF-8','UTF-8'));
                     unset($v);
                 }
                 $_REQUEST[$key] = filter_var_array($val,
-                    FILTER_SANITIZE_FULL_SPECIAL_CHARS,
-                    FILTER_FLAG_NO_ENCODE_QUOTES
+                    FILTER_SANITIZE_FULL_SPECIAL_CHARS
                 );
             } else {
-                $val = trim(htmlentities(strip_tags($val),ENT_QUOTES,'UTF-8'));
+                $val = trim(mb_convert_encoding(strip_tags($val),'UTF-8','UTF-8'));
                 $_REQUEST[$key] = trim(filter_var($val,
-                    FILTER_SANITIZE_FULL_SPECIAL_CHARS,
-                    FILTER_FLAG_NO_ENCODE_QUOTES
+                    FILTER_SANITIZE_FULL_SPECIAL_CHARS
                 ));
             }
         }
         foreach(array('node','sub','printertype','id','sub','crit','sort','confirm','tab') AS $x) {
             global $$x;
             if (isset($_REQUEST[$x])) {
-                $$x = trim(filter_var(strip_tags($_REQUEST[$x]),
-                    FILTER_SANITIZE_FULL_SPECIAL_CHARS,
-                    FILTER_FLAG_NO_ENCODE_QUOTES
+                $$x = trim(filter_var(trim(mb_convert_encoding(strip_tags($_REQUEST[$x]),'UTF-8','UTF-8')),
+                    FILTER_SANITIZE_FULL_SPECIAL_CHARS
                 ));
             }
         }

@@ -93,7 +93,7 @@ class FOGConfigurationPage extends FOGPage {
             if (file_exists($_SESSION['tmp-kernel-file'])) @unlink($_SESSION['tmp-kernel-file']);
             printf('<div id="kdlRes"><p id="currentdlstate">%s</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>',_('Starting process...'));
         } else {
-            printf('<form method="post" action="?node=%s&sub=kernel&install=1&file=%s"><p>%s: <input class="smaller" type="text" name="dstName" value="%s"/></p><p><input class="smaller" type="submit" value="%s"/></p></form>',$this->node,basename(htmlentities($_REQUEST['file'],ENT_QUOTES,'UTF-8')),_('Kernel Name'),(htmlentities($_REQUEST['arch'],ENT_QUOTES,'UTF-8') == 64 || !htmlentities($_REQUEST['arch'],ENT_QUOTES,'UTF-8') ? 'bzImage' : 'bzImage32'),_('Next'));
+            printf('<form method="post" action="?node=%s&sub=kernel&install=1&file=%s"><p>%s: <input class="smaller" type="text" name="dstName" value="%s"/></p><p><input class="smaller" type="submit" value="%s"/></p></form>',$this->node,basename(mb_convert_encoding($_REQUEST['file'],'UTF-8','UTF-8')),_('Kernel Name'),(mb_convert_encoding($_REQUEST['arch'],'UTF-8','UTF-8') == 64 || !mb_convert_encoding($_REQUEST['arch'],'UTF-8','UTF-8') ? 'bzImage' : 'bzImage32'),_('Next'));
         }
     }
     public function pxemenu() {
@@ -176,7 +176,7 @@ class FOGConfigurationPage extends FOGPage {
         );
         foreach ((array)$this->getClass('PXEMenuOptionsManager')->find('','','id') AS $i => &$Menu) {
             if (!$Menu->isValid()) continue;
-            $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/\./','_',preg_replace('/:/','_',$Menu->get('name'))));
+            $divTab = preg_replace('#[^\w\:\.\_\-]#','_',$Menu->get('name'));
             printf('<a id="%s" style="text-decoration:none;" href="#%s"><h3>%s</h3></a><div id="%s"><form method="post" action="%s">',$divTab,$divTab,$Menu->get('name'),$divTab,$this->formAction);
             $menuid = in_array($Menu->get('id'),range(1,13));
             $menuDefault = $Menu->get('default') ? ' checked' : '';
@@ -446,7 +446,7 @@ class FOGConfigurationPage extends FOGPage {
         );
         echo '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
         foreach ((array)$this->getClass('ServiceManager')->getSettingCats() AS $i => &$ServiceCAT) {
-            $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',$ServiceCAT));
+            $divTab = preg_replace('#[^\w\:\.\_\-]#','_',$ServiceCAT);
             printf('<a id="%s" class="expand_trigger" style="text-decoration:none;" href="#%s"><h3>%s</h3></a><div id="%s">',$divTab,$divTab,$ServiceCAT,$divTab);
             foreach ((array)$this->getClass('ServiceManager')->find(array('category'=>$ServiceCAT),'AND','id') AS $i => &$Service) {
                 if (!$Service->isValid()) continue;
@@ -567,7 +567,7 @@ class FOGConfigurationPage extends FOGPage {
         echo '</div></form>';
     }
     public function getOSID() {
-        $imageid = is_numeric(trim(htmlentities($_REQUEST['image_id'],ENT_QUOTES,'UTF-8'))) ? trim(htmlentities($_REQUEST['image_id'])) : 0;
+        $imageid = is_numeric($_REQUEST['image_id']) ? $_REQUEST['image_id'] : 0;
         $osname = $this->getClass('Image',$imageid)->getOS()->get('name');
         echo json_encode($osname ? $osname : _('No Image specified'));
         exit;
@@ -726,7 +726,7 @@ class FOGConfigurationPage extends FOGPage {
         try {
             if (!$_FILES['dbFile']) throw new Exception(_('No files uploaded'));
             $original = $Schema->export_db();
-            $result = $this->getClass('Schema')->import_db(htmlentities($_FILES['dbFile']['tmp_name'],ENT_QUOTES,'UTF-8'));
+            $result = $this->getClass('Schema')->import_db(mb_convert_encoding($_FILES['dbFile']['tmp_name'],'UTF-8','UTF-8'));
             if ($result === true) printf('<h2>%s</h2>',_('Database Imported and added successfully'));
             else {
                 printf('<h2>%s</h2>',_('Errors detected on import'));
