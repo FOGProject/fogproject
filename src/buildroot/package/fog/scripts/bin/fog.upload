@@ -201,6 +201,7 @@ if [ -f "/images/.mntcheck" ]; then
                 done
             fi
         elif [ "$imgType" == "mps" ]; then
+            getPartitions $hd
             if [ -d "$imagePath" ]; then
                 savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
                 debugPause
