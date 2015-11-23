@@ -289,7 +289,7 @@ class GroupManagementPage extends FOGPage {
         foreach ((array)$this->getClass('ModuleManager')->find() AS $i => &$Module) {
             if (!$Module->isValid()) continue;
             $this->data[] = array(
-                'input'=>sprintf('<input %stype="checkbox" name="modules[]" value="%s" %s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ' : ''), $Module->get('id'), ($ModOns[$Module->get('id')] ? 'checked ' : ''), !$moduleName[$Module->get('shortName')] ? 'disabled' : ''),
+                'input'=>sprintf('<input %stype="checkbox" name="modules[]" value="%s" %s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ' : ''), $Module->get('id'), ($ModOns[$Module->get('id')] == $HostCount ? 'checked ' : ''), !$moduleName[$Module->get('shortName')] ? 'disabled' : ''),
                 'span'=>sprintf('<span class="icon fa fa-question fa-1x hand" title="%s"></span>',str_replace('"','\"',$Module->get('description'))),
                 'mod_name'=>$Module->get('name'),
             );
