@@ -54,7 +54,7 @@ abstract class FOGPage extends FOGBase {
             'export'=>sprintf($this->foglang[sprintf('Export%s',$this->childClass)]),
             'import'=>sprintf($this->foglang[sprintf('Import%s',$this->childClass)]),
         );
-        $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',htmlentities($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8'),htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'UTF-8'))),FILTER_SANITIZE_URL));
+        $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',mb_convert_encoding($_SERVER['PHP_SELF'],'UTF-8','UTF-8'),mb_convert_encoding($_SERVER['QUERY_STRING'],'UTF-8','UTF-8'))),FILTER_SANITIZE_URL));
         $this->HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
@@ -129,7 +129,7 @@ abstract class FOGPage extends FOGBase {
                     printf('<tr id="%s-%s"%s>%s</tr>',
                         strtolower($this->childClass),
                         $rowData['id'] ? $rowData['id'] : $rowData[$id_field],
-                        ((++$i % 2) ? ' class="alt1"' : ((!htmlentities($_REQUEST['sub'],ENT_QUOTES,'UTF-8') && $defaultScreen == 'list') || (in_array(htmlentities($_REQUEST['sub'],ENT_QUOTES,'UTF-8'),$defaultScreens) && in_array(htmlentities($_REQUEST['node'],ENT_QUOTES,'UTF-8'),$this->searchPages)) ? ' class="alt2"' : '')),
+                        ((++$i % 2) ? ' class="alt1"' : ((!$_REQUEST['sub'] && $defaultScreen == 'list') || (in_array($_REQUEST['sub'],$defaultScreens) && in_array($_REQUEST['node'],$this->searchPages)) ? ' class="alt2"' : '')),
                         $this->buildRow($rowData)
                     );
                 }
@@ -312,14 +312,14 @@ abstract class FOGPage extends FOGBase {
             $this->setMessage($e->getMessage());
             $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && intval($_REQUEST['id']) > 0 ? sprintf('%s=%s',$this->id,intval($_REQUEST['id'])) : '')));
         }
-        $TaskType = $this->getClass('TaskType',htmlentities($_REQUEST['type'],ENT_QUOTES,'UTF-8'));
-        $Snapin = $this->getClass('Snapin',htmlentities($_REQUEST['snapin'],ENT_QUOTES,'UTF-8'));
+        $TaskType = $this->getClass('TaskType',is_numeric($_REQUEST['type']) ? $_REQUEST['type'] : 0);
+        $Snapin = $this->getClass('Snapin',is_numeric($_REQUEST['snapin']) ? $_REQUEST['snapin'] : 0);
         $enableShutdown = $_REQUEST['shutdown'] ? true : false;
         $enableSnapins = $TaskType->get('id') != 17 ? ($Snapin instanceof Snapin && $Snapin->isValid() ? $Snapin->get('id') : -1) : false;
-        $enableDebug = htmlentities($_REQUEST['debug'],ENT_QUOTES,'UTF-8') == 'true' || htmlentities($_REQUEST['isDebugTask'],ENT_QUOTES,'UTF-8') ? true : false;
+        $enableDebug = (bool)((isset($_REQUEST['debug']) && $_REQUEST['debug'] == 'true') || isset($_REQUEST['isDebugTask']));
         $scheduleDeployTime = $this->nice_date($_REQUEST['scheduleSingleTime']);
         $imagingTasks = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
-        $passreset = trim(htmlentities($_REQUEST['account'],ENT_QUOTES,'UTF-8'));
+        $passreset = trim(mb_convert_encoding($_REQUEST['account'],'UTF-8','UTF-8'));
         try {
             if (!$TaskType || !$TaskType->isValid()) throw new Exception(_('Task type is not valid'));
             $taskName = sprintf('%s Task',$TaskType->get('name'));
@@ -395,10 +395,11 @@ abstract class FOGPage extends FOGBase {
             printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>',_('Failed to create deployment tasking for the following hosts'),$e->getMessage());
         }
         if (count($success)) {
+            if ($_REQUEST['scheduleType'] == 'cron') $time = sprintf('%s: %s',_('Cron Schedule'),implode(' ',array($_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW'])));
+            else if ($_REQUEST['scheduleType'] == 'single') $time = sprintf('%s: %s',_('Delayed Start'), $scheduleDeployTime->format('Y-m-d H:i:s'));
             printf('<div class="task-start-ok"><p>%s</p><p>%s%s%s</p></div>',
                 sprintf(_('Successfully created tasks for deployment to the following Hosts')),
-                (htmlentities($_REQUEST['scheduleType'],ENT_QUOTES,'UTF-8') == 'cron' ? sprintf('%s: %s',_('Cron Schedule'),implode(' ',array(htmlentities($_REQUEST['scheduleCronMin'],ENT_QUOTES,'UTF-8'),htmlentities($_REQUEST['scheduleCronHour'],ENT_QUOTES,'UTF-8'),htmlentities($_REQUEST['scheduleCronDOM'],ENT_QUOTES,'UTF-8'),htmlentities($_REQUEST['scheduleCronMonth'],ENT_QUOTES,'UTF-8'),htmlentities($_REQUEST['scheduleCronDOW'],ENT_QUOTES,'UTF-8')))) : ''),
-                (htmlentities($_REQUEST['scheduleType'],ENT_QUOTES,'UTF-8') == 'single' ? sprintf('%s: %s',_('Scheduled to start at'),$scheduleDeployTime->format('Y-m-d H:i:s')) : ''),
+                $time,
                 (count($success) ? sprintf('<ul>%s</ul>',implode('',$success)) : '')
             );
         }
@@ -578,7 +579,7 @@ abstract class FOGPage extends FOGBase {
                 if ($_REQUEST['msg'] == 'dl') {
                     $fp = fopen($_SESSION['tmp-kernel-file'],'wb');
                     if (!$fp) throw new Exception(_('Error: Failed to open temp file'));
-                    $this->FOGURLRequests->process(htmlentities($_SESSION['dl-kernel-file'],ENT_QUOTES,'UTF-8'),'GET',false,false,false,false,$fp);
+                    $this->FOGURLRequests->process(mb_convert_encoding($_SESSION['dl-kernel-file'],'UTF-8','UTF-8'),'GET',false,false,false,false,$fp);
                     if (!file_exists($_SESSION['tmp-kernel-file'])) throw new Exception(_('Error: Failed to download kernel'));
                     if (!filesize($_SESSION['tmp-kernel-file']) >  1048576) throw new Exception(sprintf('%s: %s: %s - %s',_('Error'),_('Download Failed'),_('Failed'),_('filesize'),filesize($_SESSION['tmp-kernel-file'])));
                     $SendME = '##OK##';
