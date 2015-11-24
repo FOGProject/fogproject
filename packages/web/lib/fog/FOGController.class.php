@@ -72,7 +72,7 @@ abstract class FOGController extends FOGBase {
                 $this->data[$key] = $value;
             } else {
                 $this->info(sprintf('%s: %s %s: %s',_('Setting Key'),$key,_('Value'),addslashes($this->DB->sanitize($value))));
-                $this->data[$key] = addslashes($this->DB->sanitize($value));
+                $this->data[$key] = addslashes($value);
             }
         } catch (Exception $e) {
             $this->debug(_('Set Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
@@ -95,7 +95,7 @@ abstract class FOGController extends FOGBase {
                 $this->data[$key][] = $value;
             } else {
                 $this->info(sprintf('%s: %s %s: %s',_('Adding Key'),$key,_('Value'),addslashes($this->DB->sanitize($value))));
-                $this->data[$key][] = addslashes($this->DB->sanitize($value));
+                $this->data[$key][] = addslashes($value);
             }
         } catch (Exception $e) {
             $this->debug(_('Add Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
