@@ -79,7 +79,7 @@ class PrinterManagementPage extends FOGPage {
             $this->config = stripos($Printer->get('config'),'local') !== false ? _('TCP/IP') : $Printer->get('config');
             $this->data[] = array(
                 'id'=>$Printer->get('id'),
-                'name'=>stripslashes($Printer->get('name')),
+                'name'=>$Printer->get('name'),
                 'config'=>$this->config,
                 'model'=>$Printer->get('model'),
                 'port'=>$Printer->get('port'),
@@ -332,6 +332,6 @@ class PrinterManagementPage extends FOGPage {
             $this->HookManager->processEvent('PRINTER_UPDATE_FAIL',array('Printer'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
-        $this->redirect('%s#%s',$this->formAction,$_REQUEST['tab']);
+        $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
     }
 }
