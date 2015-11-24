@@ -27,12 +27,8 @@ class User extends FOGController {
     );
     private function generate_hash($password, $cost = 11) {
         $salt = substr(base64_encode(openssl_random_pseudo_bytes(255)),0,22);
-        $salt = str_replace("+",".",$salt);
-        $param = '$'.implode('$',array(
-            '2a',
-            str_pad($cost,2,'0',STR_PAD_LEFT),
-            $salt
-        ));
+        $salt = str_replace('+','.',$salt);
+        $param = sprintf('$%s',implode('$',array('2a',str_pad($cost,2,'0',STR_PAD_LEFT),$salt)));
         return crypt($password,$param);
     }
     public function validate_pw($password) {

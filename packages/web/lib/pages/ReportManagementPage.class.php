@@ -644,8 +644,8 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
         );
-        $hostsearch = str_replace('*','%',sprintf('%%s%',trim($_REQUEST['hostsearch'])));
-        $usersearch = str_replace('*','%',sprintf('%%s%',trim($_REQUEST['usersearch'])));
+        $hostsearch = str_replace('*','%',sprintf('%%%s%%',trim($_REQUEST['hostsearch'])));
+        $usersearch = str_replace('*','%',sprintf('%%%s%%',trim($_REQUEST['usersearch'])));
         if (trim($_REQUEST['hostsearch']) && !trim($_REQUEST['usersearch'])) {
             foreach ((array)$this->getClass('HostManager')->find(array('name'=>$hostsearch)) AS $i => &$Host) {
                 if (!$Host->isValid()) continue;
@@ -791,7 +791,7 @@ class ReportManagementPage extends FOGPage {
             $date2 = $_REQUEST['date1'];
         }
         $date2 = date('Y-m-d',strtotime("$date2 +1 day"));
-        foreach ((array)$this->getClass('UserTrackingManager')->find(array('datetime'=>'','username'=>sprintf('%%s%',base64_decode($_REQUEST['userID'])),'hostID'=>($_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%')),'','','',"BETWEEN '$date1' AND '$date2'",'','','',false) AS $i => &$User) {
+        foreach ((array)$this->getClass('UserTrackingManager')->find(array('datetime'=>'','username'=>sprintf('%%%s%%',base64_decode($_REQUEST['userID'])),'hostID'=>($_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%')),'','','',"BETWEEN '$date1' AND '$date2'",'','','',false) AS $i => &$User) {
             if (!$User->isValid()) continue;
             $Host = $this->getClass('Host',$User->get('hostID'));
             if (!$Host->isValid()) continue;

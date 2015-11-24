@@ -308,7 +308,7 @@ class Host extends FOGController {
     }
     public function isHostnameSafe($hostname = '') {
         if (empty($hostname)) $hostname = $this->get('name');
-        return (strlen($hostname) > 0 && strlen($hostname) <= 15 && preg_replace('#[0-9a-zA-Z_\-]#', '', $hostname) == '');
+        return (strlen($hostname) > 0 && strlen($hostname) <= 15 && preg_replace('#[\w+\-]#', '', $hostname) == '');
     }
     public function getDefault($printerid) {
         return (bool)count($this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id'),'printerID'=>$printerid,'isDefault'=>1),'printerID'));
