@@ -752,8 +752,11 @@ configureStorage() {
     dots "Setting up storage";
     if [ ! -d "$storage" ]; then
         mkdir "$storage" >/dev/null 2>&1
-        touch "$storage/.mntcheck" >/dev/null 2>&1
         chmod -R 777 "$storage" >/dev/null 2>&1
+    fi
+    if [ ! -f "$storage/.mntcheck" ]; then
+        touch "$storage/.mntcheck" >/dev/null 2>&1
+        chmod 777 "$storage/.mntcheck" >/dev/null 2>&1
     fi
     if [ ! -d "$storage/postdownloadscripts" ]; then
         mkdir "$storage/postdownloadscripts" >/dev/null 2>&1
@@ -768,8 +771,11 @@ configureStorage() {
     fi
     if [ ! -d "$storageupload" ]; then
         mkdir "$storageupload" >/dev/null 2>&1
-        touch "$storageupload/.mntcheck" >/dev/null 2>&1
         chmod -R 777 "$storageupload" >/dev/null 2>&1
+    fi
+    if [ ! -f "$storageupload/.mntcheck" ]; then
+        touch "$storageupload/.mntcheck" >/dev/null 2>&1
+        chmod 777 "$storageload/.mntcheck" >/dev/null 2>&1
     fi
     errorStat $?
 }
