@@ -44,13 +44,13 @@ class HookManager extends EventManager {
         unset($path);
         $ServiceCats = $this->getClass(ServiceManager)->getSettingCats();
         foreach($ServiceCats AS $i => &$CAT) {
-            $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',preg_replace('/\./','_',$CAT)));
+            $divTab = preg_replace('/[\s+\:\.]/','_',$CAT);
             array_push($this->events,'CLIENT_UPDATE_'.$divTab);
         }
         unset($CAT);
         $PXEs = $this->getClass(PXEMenuOptionsManager)->find();
         foreach($PXEs AS $i => &$Menu) {
-            $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',preg_replace('/\./','_',$Menu->get('name'))));
+            $divTab = preg_replace('/[\s+\:\.]/','_',$Menu->get('name'));
             array_push($this->events,'BOOT_ITEMS_'.$divTab);
         }
         unset($Menu);
