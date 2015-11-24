@@ -397,8 +397,8 @@ abstract class FOGPage extends FOGBase {
         if (count($success)) {
             if ($_REQUEST['scheduleType'] == 'cron') $time = sprintf('%s: %s',_('Cron Schedule'),implode(' ',array($_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW'])));
             else if ($_REQUEST['scheduleType'] == 'single') $time = sprintf('%s: %s',_('Delayed Start'), $scheduleDeployTime->format('Y-m-d H:i:s'));
-            printf('<div class="task-start-ok"><p>%s</p><p>%s%s%s</p></div>',
-                sprintf(_('Successfully created tasks for deployment to the following Hosts')),
+            printf('<div class="task-start-ok"><p>%s</p><p>%s%s</p></div>',
+                _('Successfully created tasks for deployment to the following Hosts'),
                 $time,
                 (count($success) ? sprintf('<ul>%s</ul>',implode('',$success)) : '')
             );
