@@ -486,7 +486,7 @@ abstract class FOGBase {
     }
     public function getSetting($key) {
         $value = $this->getSubObjectIDs('Service',array('name'=>$key),'value');
-        return html_entity_decode(str_replace('\r\n',"\n",array_shift($value)));
+        return html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",array_shift($value)),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8');
     }
     public function setSetting($key, $value) {
         $this->getClass('ServiceManager')->update(array('name'=>$key),'',array('value'=>$value));

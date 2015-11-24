@@ -176,7 +176,7 @@ class FOGConfigurationPage extends FOGPage {
         );
         foreach ((array)$this->getClass('PXEMenuOptionsManager')->find('','','id') AS $i => &$Menu) {
             if (!$Menu->isValid()) continue;
-            $divTab = preg_replace('#[^\w\:\.\_\-]#','_',$Menu->get('name'));
+            $divTab = preg_replace('#[^\w\-]#','_',$Menu->get('name'));
             printf('<a id="%s" style="text-decoration:none;" href="#%s"><h3>%s</h3></a><div id="%s"><form method="post" action="%s">',$divTab,$divTab,$Menu->get('name'),$divTab,$this->formAction);
             $menuid = in_array($Menu->get('id'),range(1,13));
             $menuDefault = $Menu->get('default') ? ' checked' : '';
@@ -446,7 +446,7 @@ class FOGConfigurationPage extends FOGPage {
         );
         echo '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
         foreach ((array)$this->getClass('ServiceManager')->getSettingCats() AS $i => &$ServiceCAT) {
-            $divTab = preg_replace('#[^\w\:\.\_\-]#','_',$ServiceCAT);
+            $divTab = preg_replace('#[^\w\-]#','_',$ServiceCAT);
             printf('<a id="%s" class="expand_trigger" style="text-decoration:none;" href="#%s"><h3>%s</h3></a><div id="%s">',$divTab,$divTab,$ServiceCAT,$divTab);
             foreach ((array)$this->getClass('ServiceManager')->find(array('category'=>$ServiceCAT),'AND','id') AS $i => &$Service) {
                 if (!$Service->isValid()) continue;
