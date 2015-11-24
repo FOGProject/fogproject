@@ -64,12 +64,22 @@ class Schema extends FOGController {
             return true;
         } else throw new Exception(_('Error opening db file'));
     }
-    public function send_file($content) {
-        $backup_name = $backup_name ? $backup_name : 'fog_backup_'.$this->formatTime('','Ymd_His').'.sql';
+    public function send_file($content, $backup_name) {
+        $backup_name = $backup_name ? $backup_name : sprintf('fog_backup_%s.sql',$this->formatTime('','Ymd_His'));
+        $filesize = strlen($content);
+        header("X-Sendfile: $backup_name");
+        header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header("Content-Transfer-Encoding: Binary");
+        header("Content-Length: $filesize");
         header("Content-disposition: attachment; filename=$backup_name");
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        ob_start('',1024);
         echo $content;
+        ob_flush();
+        flush();
+        ob_end_flush();
         exit;
     }
 }

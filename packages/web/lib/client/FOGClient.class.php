@@ -10,7 +10,7 @@ abstract class FOGClient extends FOGBase {
             $this->Host = $this->getHostItem($service,$encoded,$hostnotrequired,$returnmacs,$override);
             $this->send();
             if (in_array(strtolower(get_class($this)),array('autologout','displaymanager','printerclient','servicemodule'))) throw new Exception($this->send);
-            $this->sendData(stripslashes(trim($this->send)));
+            $this->sendData(trim($this->send));
         } catch (Exception $e) {
             echo $e->getMessage();
             exit;
