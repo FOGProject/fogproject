@@ -161,13 +161,15 @@ class MySQL extends DatabaseManager {
         return $this->sanitize($data);
     }
     private function clean(&$data) {
-        return $this->link->real_escape_string(htmlentities(mb_convert_encoding(trim($data),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8'));
+        $data = htmlentities(mb_convert_encoding(trim($data),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8');
+        return trim($this->link->real_escape_string(trim($data)));
     }
     public function sanitize($data) {
         if (!is_array($data)) return $this->clean($data);
         foreach ($data AS $key => &$val) {
-            if (is_array($val)) $data[$this->clean($key)] = $this->escape($val);
-            else $data[$this->clean($key)] = $this->clean($val);
+            if (is_array($val)) {
+                foreach ($val AS $i => $v) $data[$this->clean($key)][$i] = $this->clean($v);
+            } else $data[$this->clean($key)] = $this->clean($val);
         }
         return $data;
     }

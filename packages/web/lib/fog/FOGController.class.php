@@ -51,8 +51,8 @@ abstract class FOGController extends FOGBase {
             $this->info(sprintf('%s: %s',_('Returning array within key'),$key));
             return $this->data[$key];
         } else {
-            $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Value'),html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",$this->data[$key]),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8')));
-            return html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",$this->data[$key]),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8');
+            $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Value'),stripslashes(html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",$this->data[$key]),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8'))));
+            return stripslashes(html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",$this->data[$key]),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8'));
         }
     }
     public function set($key, $value) {
@@ -64,8 +64,16 @@ abstract class FOGController extends FOGBase {
                 throw new Exception(_('Invalid key being set'));
             } else if (!$this->isLoaded($key)) $this->loadItem($key);
             if (is_numeric($value) && $value < ($key == 'id' ? 1 : -1)) throw new Exception(_('Invalid numeric entry'));
-            $this->info(sprintf(_('Setting Key: %s, Value: %s'),$key, is_object($value) ? $value->__toString() : $value));
-            $this->data[$key] = $value;
+            if (is_object($value)) {
+                $this->info(sprintf('%s: %s %s: %s',_('Setting Key'),$key,_('Object'),$value->__toString()));
+                $this->data[$key] = $value;
+            } else if (is_array($value)) {
+                $this->info(sprintf('%s: %s %s',_('Setting Key'),$key,_('Array of data')));
+                $this->data[$key] = $value;
+            } else {
+                $this->info(sprintf('%s: %s %s: %s',_('Setting Key'),$key,_('Value'),addslashes($this->DB->sanitize($value))));
+                $this->data[$key] = addslashes($this->DB->sanitize($value));
+            }
         } catch (Exception $e) {
             $this->debug(_('Set Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
         }
@@ -79,8 +87,16 @@ abstract class FOGController extends FOGBase {
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being added'));
             } else if (!$this->isLoaded($key)) $this->loadItem($key);
-            $this->info(sprintf(_('Adding Key: %s, Values: %s'),$key, is_object($value) ? $value->__toString() : $value));
-            $this->data[$key][] = $value;
+            if (is_object($value)) {
+                $this->info(sprintf('%s: %s, %s: %s',_('Adding Key'),$key,_('Object'),$value->__toString()));
+                $this->data[$key][] = $value;
+            } else if (is_array($value)) {
+                $this->info(sprintf('%s: %s %s',_('Adding Key'),$key,_('Array of data')));
+                $this->data[$key][] = $value;
+            } else {
+                $this->info(sprintf('%s: %s %s: %s',_('Adding Key'),$key,_('Value'),addslashes($this->DB->sanitize($value))));
+                $this->data[$key][] = addslashes($this->DB->sanitize($value));
+            }
         } catch (Exception $e) {
             $this->debug(_('Add Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
         }
