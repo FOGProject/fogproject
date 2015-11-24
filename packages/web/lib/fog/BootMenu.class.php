@@ -312,7 +312,7 @@ class BootMenu extends FOGBase {
         $StorageNode = $StorageGroup->getOptimalStorageNode();
         $osid = $Image->get('osID');
         $storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),'');
-        $storageip = $StorageNode->get('ip');
+        $storageip = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
         $img = $Image->get('path');
         $imgFormat = $Image->get('format');
         $imgType = $Image->getImageType()->get('type');
@@ -546,7 +546,7 @@ class BootMenu extends FOGBase {
             if ($this->Host && $this->Host->isValid()) $mac = $this->Host->get('mac');
             else $mac = $_REQUEST['mac'];
             $clamav = in_array($TaskType->get('id'),array(21,22)) ? sprintf('%s:%s',trim($StorageNode->get('ip')),'/opt/fog/clamav') : null;
-            $storageip = in_array($TaskType->get('id'),$imagingTasks) ? $StorageNode->get('ip') : null;
+            $storageip = in_array($TaskType->get('id'),$imagingTasks) ? $this->FOGCore->resolveHostname($StorageNode->get('ip')) : null;
             $img = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('path') : null;
             $imgFormat = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('format') : null;
             $imgType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImageType()->get('type') : null;
