@@ -9,10 +9,10 @@ class MySQL extends DatabaseManager {
     public function __construct() {
         parent::__construct();
         try {
-            if (!class_exists('mysqli')) throw new Exception(sprintf('%s PHP extension not loaded', __CLASS__));
-            if (!$this->connect()) throw new Exception('Failed to connect');
+            if (!class_exists('mysqli')) throw new Exception(sprintf('%s %s',__CLASS__,_('PHP Extentions not loaded')));
+            if (!$this->connect()) throw new Exception(_('Failed to connect'));
         } catch (Exception $e) {
-            $this->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+            $this->error(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
         }
     }
     public function __destruct() {
@@ -36,7 +36,7 @@ class MySQL extends DatabaseManager {
             $this->current_db();
             $this->link->set_charset('utf8');
         } catch (Exception $e) {
-            $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+            $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
         }
         return $this;
     }
@@ -53,16 +53,16 @@ class MySQL extends DatabaseManager {
             $this->query = $sql;
             $this->current_db();
             if (!$this->query) throw new Exception(_('No query sent'));
-            else if (!$queryResult = $this->link->prepare($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
+            else if (!$queryResult = $this->link->prepare($this->query)) throw new Exception(sprintf('%s: %s',_('Error'),$this->sqlerror()));
             else {
-                if (!$queryResult->execute()) throw new Exception(_('Error: ').$this->sqlerror());
+                if (!$queryResult->execute()) throw new Exception(sprintf('%s: %s',_('Error'),$this->sqlerror()));
                 $this->queryResult = $queryResult->get_result();
                 if (!$this->queryResult) $this->queryResult = $queryResult->store_result();
                 if (!$this->db_name) $this->current_db();
             }
             if (!$this->db_name) throw new Exception(_('No database to work off'));
         } catch (Exception $e) {
-            $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+            $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
         }
         return $this;
     }
@@ -108,7 +108,7 @@ class MySQL extends DatabaseManager {
                 }
             }
         } catch (Exception $e) {
-            $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+            $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
         }
         return $this;
     }
@@ -131,7 +131,7 @@ class MySQL extends DatabaseManager {
             }
             if (count($result)) return $result;
         } catch (Exception $e) {
-            $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+            $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
             return false;
         }
         return $this->result;
@@ -143,7 +143,7 @@ class MySQL extends DatabaseManager {
         return $this->queryResult;
     }
     public function sqlerror() {
-        return $this->link->connect_error ? $this->link->connect_error.', Message: '.'Check that database is running' : $this->link->error;
+        return $this->link->connect_error ? sprintf('%s, %s: %s',$this->link->connect_error,_('Message'),_('Check that database is running')) : $this->link->error;
     }
     public function field_count() {
         return $this->link->field_count;
@@ -162,7 +162,7 @@ class MySQL extends DatabaseManager {
     }
     private function clean(&$data) {
         $data = htmlentities(mb_convert_encoding(trim($data),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8');
-        return trim($this->link->real_escape_string(trim($data)));
+        return $this->link->real_escape_string(trim($data));
     }
     public function sanitize($data) {
         if (!is_array($data)) return $this->clean($data);
