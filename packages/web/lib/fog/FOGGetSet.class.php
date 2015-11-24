@@ -22,6 +22,15 @@ class FOGGetSet extends FOGBase {
             unset($this->data[$key]);
             return false;
         }
-        return (is_object($this->data[$key]) || is_array($this->data[$key]) ? $this->data[$key] : html_entity_decode(str_replace('\r\n',"\n",$this->data[$key])));
+        if (is_object($this->data[$key])) {
+            $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Object'),$this->data[$key]->__toString()));
+            return $this->data[$key];
+        } else if (is_array($this->data[$key])) {
+            $this->info(sprintf('%s: %s',_('Returning array within key'),$key));
+            return $this->data[$key];
+        } else {
+            $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Value'),html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",$this->data[$key]),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8')));
+            return html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",$this->data[$key]),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8');
+        }
     }
 }

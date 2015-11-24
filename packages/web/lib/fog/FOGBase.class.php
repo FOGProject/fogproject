@@ -133,7 +133,7 @@ abstract class FOGBase {
         if ($this->HookManager instanceof HookManager) $this->HookManager->processEvent('MessageBox',array('data'=>&$messages));
         foreach ((array)$messages AS $i => &$message) {
             if (!$i) echo '<!-- FOG Messages -->';
-            printf('<div class="fog-message-box">%s</div>',stripslashes($message));
+            printf('<div class="fog-message-box">%s</div>',$message);
         }
         unset($message);
     }
@@ -374,7 +374,7 @@ abstract class FOGBase {
         if (!$key && $data[2]) $key = @pack('H*',$data[2]);
         if (empty($key)) return '';
         $decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
-        return html_entity_decode($decipher);
+        return html_entity_decode($decipher,ENT_QUOTES,'UTF-8');
     }
     protected function certEncrypt($data,$Host) {
         if (!$Host || !$Host->isValid()) throw new Exception('#!ih');
@@ -443,7 +443,7 @@ abstract class FOGBase {
         if ($service) {
             $Host = $this->getHostItem();
             if ($this->nice_date() >= $this->nice_date($Host->get('sec_time'))) $Host->set('pub_key','')->save();
-            if (isset($_REQUEST['newService'])) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
+            if (isset($_REQUEST['newService'])) printf('#!enkey=%s',$this->certEncrypt($datatosend,$Host));
             else echo $datatosend;
             exit;
         }
@@ -457,10 +457,11 @@ abstract class FOGBase {
         return false;
     }
     protected function logHistory($string) {
+        $string = htmlentities(mb_convert_encoding($string,'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8');
         $name = $_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog';
         if ($this->DB) {
             $this->getClass('History')
-                ->set('info',strip_tags($string))
+                ->set('info',$string)
                 ->set('ip',$_SERVER['REMOTE_ADDR'])
                 ->save();
         }

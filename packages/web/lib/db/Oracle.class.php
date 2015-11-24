@@ -122,7 +122,7 @@ class Oracle extends DatabaseManager {
      * @param $data the data to be cleaned
      * @return the sanitized data
      */
-    private function clean($data) {return mysql_real_escape_string(strip_tags($data));}
+    private function clean($data) {return mysql_real_escape_string($data);}
     /** sanitize() escape/clean the data
      * @param $data the data to be cleaned
      * @return the sanitized data
