@@ -160,11 +160,7 @@ class MySQL extends DatabaseManager {
         return $this->sanitize($data);
     }
     private function clean($data) {
-        $data = trim($data);
-        $data = mb_convert_encoding($data,'UTF-8');
-        $data = html_entity_decode($data,ENT_QUOTES,'UTF-8');
-        $data = htmlentities($data,ENT_QUOTES,'UTF-8');
-        return $this->link->real_escape_string($data);
+        return $this->link->real_escape_string(htmlentities(html_entity_decode(mb_convert_encoding(trim($data),'UTF-8'),ENT_QUOTES,'UTF-8'),ENT_QUOTES,'UTF-8'));
     }
     public function sanitize($data) {
         if (!is_array($data)) return $this->clean($data);
