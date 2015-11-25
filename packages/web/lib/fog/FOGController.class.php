@@ -74,7 +74,7 @@ abstract class FOGController extends FOGBase {
             } else {
                 $value = stripslashes($this->DB->sanitize(mb_convert_encoding($value,'UTF-8')));
                 $this->info(sprintf('%s: %s %s: %s',_('Setting Key'),$key,_('Value'),$value));
-                $this->data[$key] = $value;
+                $this->data[$key] = htmlentities(html_entity_decode($value,ENT_QUOTES,'UTF-8'),ENT_QUOTES,'UTF-8');
             }
         } catch (Exception $e) {
             $this->debug(_('Set Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
@@ -98,7 +98,7 @@ abstract class FOGController extends FOGBase {
             } else {
                 $value = stripslashes($this->DB->sanitize(mb_convert_encoding($value,'UTF-8')));
                 $this->info(sprintf('%s: %s %s: %s',_('Adding Key'),$key,_('Value'),$value));
-                $this->data[$key][] = $value;
+                $this->data[$key][] = htmlentities(html_entity_decode($value,ENT_QUOTES,'UTF-8'),ENT_QUOTES,'UTF-8');
             }
         } catch (Exception $e) {
             $this->debug(_('Add Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
