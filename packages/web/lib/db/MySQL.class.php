@@ -15,25 +15,25 @@ class MySQL extends DatabaseManager {
             $this->error(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
         }
     }
+    public function __wakeup() {
+        $this->link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
+    }
     public function __destruct() {
         unset($this->result,$this->queryResult);
         if (!$this->link) return;
         unset($this->link);
         return;
     }
-    public function connect() {
+    private function connect() {
         try {
-            if (!$this->link) {
-                $this->link = mysqli_init();
-                if (!$this->link) die(_('Could not initialize MySQL session'));
-                $this->link->real_connect(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
-                if ($this->link->connect_error) {
-                    unset($this->link);
-                    throw new Exception(_('Could not connect to the MySQL Server'));
-                }
+            if (!$this->link) $this->__wakeup();
+            if ($this->link->connect_error) {
+                unset($this->link);
+                throw new Exception(_('Could not connect to the MySQL Server'));
             } else if ($this->link->connect_error) {
                 sleep(5);
                 unset($this->link);
+                $this->__wakeup();
             }
             $this->link->set_charset('utf8');
             $this->current_db();
@@ -44,9 +44,8 @@ class MySQL extends DatabaseManager {
         return $this;
     }
     public function current_db() {
-        if ($this->link->connect_error || !$this->link) $this->connect();
         if (!isset($this->db_name) || !$this->db_name) $this->db_name = $this->link->select_db(DATABASE_NAME);
-        return;
+        return $this;
     }
     public function query($sql, $data = array()) {
         try {
@@ -164,11 +163,7 @@ class MySQL extends DatabaseManager {
         return $this->sanitize($data);
     }
     private function clean($data) {
-        if ($this->link->connect_error || !$this->link) $this->connect();
         $data = trim($data);
-        $data = filter_var(mb_convert_encoding($data,'UTF-8','UTF-8'),
-            FILTER_SANITIZE_SPECIAL_CHARS
-        );
         return $this->link->real_escape_string($data);
     }
     public function sanitize($data) {
