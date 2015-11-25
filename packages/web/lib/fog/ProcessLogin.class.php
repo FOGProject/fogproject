@@ -134,9 +134,9 @@ class ProcessLogin extends FOGBase {
             $this->redirect('index.php');
         }
         echo '<form method="post" action="?node=login" id="login-form">';
-        if (mb_convert_encoding($_REQUEST['node'],'UTF-8','UTF-8') != 'logout') {
+        if (mb_convert_encoding($_REQUEST['node'],'UTF-8') != 'logout') {
             foreach ($_REQUEST AS $key => &$value) {
-                echo sprintf('<input type="hidden" name="%s" value="%s"/>',mb_convert_encoding($key,'UTF-8','UTF-8'),mb_convert_encoding($value,'UTF-8','UTF-8'));
+                echo sprintf('<input type="hidden" name="%s" value="%s"/>',mb_convert_encoding($key,'UTF-8'),mb_convert_encoding($value,'UTF-8'));
                 unset($value);
             }
         }

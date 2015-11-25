@@ -18,7 +18,7 @@ $vals = function($reverse) {
         $can_read = $block_size;
         if (ftell($fh) < $block_size) $can_read = ftell($fh);
         fseek($fh, -$can_read, SEEK_CUR);
-        $data = mb_convert_encoding(fread($fh,$can_read),'UTF-8','UTF-8');
+        $data = mb_convert_encoding(fread($fh,$can_read),'UTF-8');
         $data .= $leftover;
         fseek($fh, -$can_read, SEEK_CUR);
         $split_data = array_reverse(explode("\n",$data));
@@ -31,7 +31,7 @@ $vals = function($reverse) {
     return implode("\n",($reverse ? array_slice($lines,0,$line_count) : array_reverse(array_slice($lines,0,$line_count))));
 };
 require('../commons/base.inc.php');
-$url = trim($FOGCore->aesdecrypt(mb_convert_encoding($_REQUEST['ip'],'UTF-8','UTF-8')));
+$url = trim($FOGCore->aesdecrypt(mb_convert_encoding($_REQUEST['ip'],'UTF-8')));
 $ip = $FOGCore->resolveHostname($url);
 if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
     echo json_encode(_('IP Passed is incorrect'));
@@ -43,9 +43,9 @@ if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
         $url = sprintf('http://%s/fog/status/logtoview.php',$ip);
         $url = filter_var($url,FILTER_SANITIZE_URL);
         $response = $FOGURLRequests->process($url,'POST',array(
-            'ip'=>mb_convert_encoding($FOGCore->aesencrypt($ip),'UTF-8','UTF-8'),
-            'file'=>mb_convert_encoding($_REQUEST['file'],'UTF-8','UTF-8'),
-            'lines'=>mb_convert_encoding($_REQUEST['lines'],'UTF-8','UTF-8'),
+            'ip'=>mb_convert_encoding($FOGCore->aesencrypt($ip),'UTF-8'),
+            'file'=>mb_convert_encoding($_REQUEST['file'],'UTF-8'),
+            'lines'=>mb_convert_encoding($_REQUEST['lines'],'UTF-8'),
             'reverse'=>intval($_REQUEST['reverse']))
         );
         echo array_shift($response);

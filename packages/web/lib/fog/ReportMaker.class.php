@@ -32,8 +32,8 @@ class ReportMaker extends FOGBase {
         return $this;
     }
     public function outputReport($intType = 0) {
-        if (!isset($_REQUEST['export'])) $this->setFileName(mb_convert_encoding($_REQUEST['filename'],'UTF-8','UTF-8'));
-        $type = trim(mb_convert_encoding($_REQUEST['type'],'UTF-8','UTF-8'));
+        if (!isset($_REQUEST['export'])) $this->setFileName(mb_convert_encoding($_REQUEST['filename'],'UTF-8'));
+        $type = trim(mb_convert_encoding($_REQUEST['type'],'UTF-8'));
         $pattern = sprintf('#^%s$#i',$type);
         if ($intType !== false) $intType = (isset($_REQUEST['export']) ? 3 : $this->types[$type]);
         else $intType = 0;

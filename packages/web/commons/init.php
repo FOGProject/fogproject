@@ -63,6 +63,7 @@ class Initiator {
      */
     public static function startInit() {
         @set_time_limit(0);
+        ini_set('display_errors',1);
         @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
         @set_magic_quotes_runtime(0);
         self::verCheck();
@@ -70,17 +71,17 @@ class Initiator {
         foreach($_REQUEST as $key => &$val) {
             if (is_array($val)) {
                 foreach ((array)$val AS $i => &$v) {
-                    $_REQUEST[$key][$i] = trim(htmlentities(mb_convert_encoding($v,'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8'));
+                    $_REQUEST[$key][$i] = trim(htmlentities(mb_convert_encoding($v,'UTF-8'),ENT_QUOTES,'UTF-8'));
                     unset($v);
                 }
             } else {
-                $_REQUEST[$key] = trim(htmlentities(mb_convert_encoding($val,'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8'));
+                $_REQUEST[$key] = trim(htmlentities(mb_convert_encoding($val,'UTF-8'),ENT_QUOTES,'UTF-8'));
             }
             unset($val);
         }
         foreach(array('node','sub','printertype','id','sub','crit','sort','confirm','tab') AS $x) {
             global $$x;
-            if (isset($_REQUEST[$x])) $_REQUEST[$x] = $$x = trim(htmlentities(mb_convert_encoding($_REQUEST[$x],'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8'));
+            if (isset($_REQUEST[$x])) $_REQUEST[$x] = $$x = trim(htmlentities(mb_convert_encoding($_REQUEST[$x],'UTF-8'),ENT_QUOTES,'UTF-8'));
             unset($x);
         }
         new System();
@@ -180,7 +181,7 @@ $FOGFTP = new FOGFTP();
 /** $FOGCore the FOGCore class */
 $FOGCore = new FOGCore();
 /** $DB set's the DB class from the DatabaseManager */
-$DB = $FOGCore->getClass('DatabaseManager')->connect()->DB;
+$DB = $FOGCore->getClass('DatabaseManager')->establish()->DB;
 /** $EventManager initiates the EventManager class */
 $EventManager = $FOGCore->getClass('EventManager');
 /** $HookManager initiates the HookManager class */

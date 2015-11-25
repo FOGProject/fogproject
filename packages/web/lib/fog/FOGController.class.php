@@ -51,7 +51,7 @@ abstract class FOGController extends FOGBase {
             $this->info(sprintf('%s: %s',_('Returning array within key'),$key));
             return $this->data[$key];
         } else {
-            $this->data[$key] = stripslashes(html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",$this->data[$key]),'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8'));
+            $this->data[$key] = mb_convert_encoding(str_replace('\r\n',"\n",$this->data[$key]),'UTF-8');
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Value'),$this->data[$key]));
             return $this->data[$key];
         }
@@ -72,7 +72,7 @@ abstract class FOGController extends FOGBase {
                 $this->info(sprintf('%s: %s %s',_('Setting Key'),$key,_('Array of data')));
                 $this->data[$key] = $value;
             } else {
-                $value = addslashes($this->DB->sanitize(html_entity_decode(mb_convert_encoding($value,'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8')));
+                $value = stripslashes($this->DB->sanitize(mb_convert_encoding($value,'UTF-8')));
                 $this->info(sprintf('%s: %s %s: %s',_('Setting Key'),$key,_('Value'),$value));
                 $this->data[$key] = $value;
             }
@@ -96,7 +96,7 @@ abstract class FOGController extends FOGBase {
                 $this->info(sprintf('%s: %s %s',_('Adding Key'),$key,_('Array of data')));
                 $this->data[$key][] = $value;
             } else {
-                $value = addslashes($this->DB->sanitize(html_entity_decode(mb_convert_encoding($value,'UTF-8','UTF-8'),ENT_QUOTES,'UTF-8')));
+                $value = stripslashes($this->DB->sanitize(mb_convert_encoding($value,'UTF-8')));
                 $this->info(sprintf('%s: %s %s: %s',_('Adding Key'),$key,_('Value'),$value));
                 $this->data[$key][] = $value;
             }
