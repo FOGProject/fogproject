@@ -51,7 +51,7 @@ abstract class FOGController extends FOGBase {
             $this->info(sprintf('%s: %s',_('Returning array within key'),$key));
             return $this->data[$key];
         } else {
-            $this->data[$key] = mb_convert_encoding(str_replace('\r\n',"\n",$this->data[$key]),'UTF-8');
+            $this->data[$key] = html_entity_decode(htmlentities(mb_convert_encoding(str_replace('\r\n',"\n",$this->data[$key]),'UTF-8'),ENT_QUOTES,'UTF-8'));
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Value'),$this->data[$key]));
             return $this->data[$key];
         }
