@@ -83,6 +83,12 @@ class TaskManagementPage extends FOGPage {
         }
         unset($Tasks,$hostname,$MAC);
         $this->HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_shift($this->headerData);
+        array_shift($this->headerData);
+        array_shift($this->templates);
+        array_shift($this->templates);
+        array_shift($this->attributes);
+        array_shift($this->attributes);
         $this->render();
     }
     public function listhosts() {
@@ -270,8 +276,7 @@ class TaskManagementPage extends FOGPage {
         $this->form = '<center><input type="button" id="taskpause"/></center><br/>';
         $this->title = _('Active Tasks');
         $i = 0;
-        $Tasks = $this->getClass('TaskManager')->find(array('stateID'=>array(1,2,3)));
-        foreach ((array)$this->getClass('TaskManager')->find(array('stateID'=>array(1,2,3,))) AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->find(array('stateID'=>array(-1,0,1,2,3,))) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
             if (!$Host->isValid()) continue;
@@ -385,7 +390,7 @@ class TaskManagementPage extends FOGPage {
             array('class'=>'c'),
             array('width'=>40,'class'=>'c')
         );
-        foreach((array)$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array(1,2,3))) AS $i => &$MS) {
+        foreach((array)$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array(-1,0,1,2,3))) AS $i => &$MS) {
             if (!$MS->isValid()) continue;
             $TS = $this->getClass('TaskState',$MS->get('stateID'));
             $this->data[] = array(
