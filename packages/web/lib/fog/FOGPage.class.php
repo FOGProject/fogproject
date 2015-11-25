@@ -137,7 +137,7 @@ abstract class FOGPage extends FOGBase {
             }
             echo '</tbody></table>';
             if (((!$_REQUEST['sub'] || ($_REQUEST['sub'] && in_array($_REQUEST['sub'],$defaultScreens))) && in_array($_REQUEST['node'],$this->searchPages)) && !$this->isMobile) {
-                if ($_REQUEST['node'] == 'host') {
+                if ($this->node == 'host') {
                     printf('<form method="post" action="%s", id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" value="%s"/></p></form>',
                         sprintf('?node=%s&sub=save_group',$this->node),
                         _('Create new group'),
@@ -146,12 +146,14 @@ abstract class FOGPage extends FOGBase {
                         _('Process Group Changes')
                     );
                 }
-                printf('<form method="post" class="c" id="action-boxdel" action="%s"><p>%s</p><input type="hidden" name="%sIDArray" value="" autocomplete="off"/><input type="submit" value="%s?"/></form>',
-                    sprintf('?node=%s&sub=deletemulti',$this->node),
-                    _('Delete all selected items'),
-                    strtolower($this->childClass),
-                    sprintf(_('Delete all selected %ss'),strtolower($this->childClass))
-                );
+                if ($this->node != 'task') {
+                    printf('<form method="post" class="c" id="action-boxdel" action="%s"><p>%s</p><input type="hidden" name="%sIDArray" value="" autocomplete="off"/><input type="submit" value="%s?"/></form>',
+                        sprintf('?node=%s&sub=deletemulti',$this->node),
+                        _('Delete all selected items'),
+                        strtolower($this->node),
+                        sprintf(_('Delete all selected %ss'),strtolower($this->node))
+                    );
+                }
             }
             $this->HookManager->processEvent('ACTIONBOX',array('actionbox'=>&$actionbox));
             return ob_get_clean();
