@@ -54,7 +54,7 @@ abstract class FOGPage extends FOGBase {
             'export'=>sprintf($this->foglang[sprintf('Export%s',$this->childClass)]),
             'import'=>sprintf($this->foglang[sprintf('Import%s',$this->childClass)]),
         );
-        $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',mb_convert_encoding($_SERVER['PHP_SELF'],'UTF-8','UTF-8'),mb_convert_encoding($_SERVER['QUERY_STRING'],'UTF-8','UTF-8'))),FILTER_SANITIZE_URL));
+        $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',mb_convert_encoding($_SERVER['PHP_SELF'],'UTF-8'),mb_convert_encoding($_SERVER['QUERY_STRING'],'UTF-8'))),FILTER_SANITIZE_URL));
         $this->HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
@@ -319,7 +319,7 @@ abstract class FOGPage extends FOGBase {
         $enableDebug = (bool)((isset($_REQUEST['debug']) && $_REQUEST['debug'] == 'true') || isset($_REQUEST['isDebugTask']));
         $scheduleDeployTime = $this->nice_date($_REQUEST['scheduleSingleTime']);
         $imagingTasks = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
-        $passreset = trim(mb_convert_encoding($_REQUEST['account'],'UTF-8','UTF-8'));
+        $passreset = trim(mb_convert_encoding($_REQUEST['account'],'UTF-8'));
         try {
             if (!$TaskType || !$TaskType->isValid()) throw new Exception(_('Task type is not valid'));
             $taskName = sprintf('%s Task',$TaskType->get('name'));
@@ -579,7 +579,7 @@ abstract class FOGPage extends FOGBase {
                 if ($_REQUEST['msg'] == 'dl') {
                     $fp = fopen($_SESSION['tmp-kernel-file'],'wb');
                     if (!$fp) throw new Exception(_('Error: Failed to open temp file'));
-                    $this->FOGURLRequests->process(mb_convert_encoding($_SESSION['dl-kernel-file'],'UTF-8','UTF-8'),'GET',false,false,false,false,$fp);
+                    $this->FOGURLRequests->process(mb_convert_encoding($_SESSION['dl-kernel-file'],'UTF-8'),'GET',false,false,false,false,$fp);
                     if (!file_exists($_SESSION['tmp-kernel-file'])) throw new Exception(_('Error: Failed to download kernel'));
                     if (!filesize($_SESSION['tmp-kernel-file']) >  1048576) throw new Exception(sprintf('%s: %s: %s - %s',_('Error'),_('Download Failed'),_('Failed'),_('filesize'),filesize($_SESSION['tmp-kernel-file'])));
                     $SendME = '##OK##';

@@ -1,7 +1,7 @@
 <?php
 class DatabaseManager extends FOGCore {
     public $DB;
-    public function connect() {
+    public function establish() {
         try {
             if (!in_array(trim(strtolower(DATABASE_TYPE)),array('mysql','oracle'))) throw new Exception(_('Unkown database Type. Check the DATABASE_TYPE is set correctly in "%s/lib/fog/Config.class.php"'),BASEPATH);
         } catch (Exception $e) {
