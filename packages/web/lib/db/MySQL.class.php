@@ -16,7 +16,12 @@ class MySQL extends DatabaseManager {
         }
     }
     public function __wakeup() {
+        unset($this->link);
         $this->link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
+        if ($this->link->connect_error) {
+            unset($this->link);
+            die(_('Could not connect to the MySQL Server'));
+        }
     }
     public function __destruct() {
         unset($this->result,$this->queryResult);
@@ -27,10 +32,7 @@ class MySQL extends DatabaseManager {
     private function connect() {
         try {
             if (!$this->link) $this->__wakeup();
-            if ($this->link->connect_error) {
-                unset($this->link);
-                throw new Exception(_('Could not connect to the MySQL Server'));
-            } else if ($this->link->connect_error) {
+            else if ($this->link->connect_error) {
                 sleep(5);
                 unset($this->link);
                 $this->__wakeup();
@@ -56,13 +58,8 @@ class MySQL extends DatabaseManager {
             $this->query = $sql;
             $this->current_db();
             if (!$this->query) throw new Exception(_('No query sent'));
-            else if (!$queryResult = $this->link->prepare($this->query)) throw new Exception(sprintf('%s: %s',_('Error'),$this->sqlerror()));
-            else {
-                if (!$queryResult->execute()) throw new Exception(sprintf('%s: %s',_('Error'),$this->sqlerror()));
-                $this->queryResult = $queryResult->get_result();
-                if (!$this->queryResult) $this->queryResult = $queryResult->store_result();
-                if (!$this->db_name) $this->current_db();
-            }
+            else if (!$this->queryResult = $this->link->query($this->query)) throw new Exception(sprintf('%s: %s',_('Error'),$this->sqlerror()));
+            if (!$this->db_name) $this->current_db();
             if (!$this->db_name) throw new Exception(_('No database to work off'));
         } catch (Exception $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
@@ -81,10 +78,10 @@ class MySQL extends DatabaseManager {
                 case 'fetch_all':
                     if (method_exists('mysqli_result','fetch_all')) {
                         $this->result = $this->queryResult->fetch_all($type);
-                        $this->queryResult->close();
+                        $this->queryResult->free_result();
                     } else {
                         for ($this->result=array();$tmp = $this->queryResult->fetch_array($type);) $this->result[] = $tmp;
-                        $this->queryResult->close();
+                        $this->queryResult->free_result();
                     }
                     break;
                 case 'fetch_assoc':
@@ -164,6 +161,9 @@ class MySQL extends DatabaseManager {
     }
     private function clean($data) {
         $data = trim($data);
+        $data = mb_convert_encoding($data,'UTF-8');
+        $data = html_entity_decode($data,ENT_QUOTES,'UTF-8');
+        $data = htmlentities($data,ENT_QUOTES,'UTF-8');
         return $this->link->real_escape_string($data);
     }
     public function sanitize($data) {
