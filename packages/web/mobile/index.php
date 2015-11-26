@@ -15,13 +15,10 @@ if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && !in_array($_
     $Page->endBody();
     $Page->render();
 } else {
-    $content = $FOGPageManager->render();
-    $sectionTitle = $FOGPageManager->getFOGPageName();
-    $pageTitle = $FOGPageManager->getFOGPageTitle();
-    $Page->setTitle($pageTitle);
-    $Page->setSecTitle($sectionTitle);
+    $Page->setTitle($FOGPageManager->getFOGPageTitle());
+    $Page->setSecTitle($FOGPageManager->getFOGPageName());
     $Page->startBody();
-    echo $content;
+    $FOGPageManager->render();
     $Page->endBody();
     $Page->render();
 }

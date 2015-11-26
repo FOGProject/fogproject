@@ -125,8 +125,7 @@ class Page extends FOGBase {
                 array_push($files,'js/fog/fog.dashboard.js');
                 if (preg_match('#MSIE [6|7|8|9|10|11]#',$_SERVER['HTTP_USER_AGENT'])) array_push($files,'js/flot/excanvas.js');
             }
-        }
-        else if (!$this->isMobile) {
+        } else if (!$this->isMobile) {
             $files = array(
                 'js/jquery-latest.js',
                 'js/jquery.progressbar.js',
@@ -135,7 +134,7 @@ class Page extends FOGBase {
                 'js/fog/fog.login.js',
             );
         }
-        $files = array_unique($files);
+        $files = array_unique((array)$files);
         foreach((array)$files AS $i => &$path) {
             if (file_exists(preg_replace('#^h#','',$path))) $this->addJavascript($path);
         }

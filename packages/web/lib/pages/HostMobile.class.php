@@ -25,7 +25,7 @@ class HostMobile extends FOGPage {
             '${host_id}',
             '${host_name}',
             '${host_mac}',
-            printf('<a href="index.php?node=${node}&sub=deploy&id=${host_id}"><i class="fa fa-%s fa-2x"></i></a>',$icon),
+            sprintf('<a href="index.php?node=${node}&sub=deploy&id=${host_id}"><i class="fa fa-%s fa-2x"></i></a>',$icon),
         );
     }
     public function index() {
@@ -52,7 +52,7 @@ class HostMobile extends FOGPage {
             );
         }
         $this->render();
-        $this->redirect('?node=tasks');
+        $this->redirect('?node=task');
     }
     public function search_post() {
         foreach ((array)$this->getClass('HostManager')->search('',true) AS $i => &$Host) {

@@ -27,7 +27,7 @@ abstract class FOGPage extends FOGBase {
         $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
         $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST['id']}";
         $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST['id']}";
-        $PagesWithObjects = array('user','host','image','group','snapin','printer');
+        $PagesWithObjects = array('user','host','image','group','snapin','printer','task');
         $this->HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
         if (in_array($this->node,$PagesWithObjects)) {
             $this->childClass = ucfirst($this->node);
@@ -119,7 +119,7 @@ abstract class FOGPage extends FOGBase {
                 printf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
                     count($this->templates),
                     $contentField,
-                    ($this->data['error'] ? (is_array($this->data['error']) ? sprintf('<p>%s</p>',implode('</p><p>',$this->data['error'])) : $this->data['error']) : ($this->node != 'tasks' ? (!$this->isMobile ? $this->foglang['NoResults'] : '') : ''))
+                    ($this->data['error'] ? (is_array($this->data['error']) ? sprintf('<p>%s</p>',implode('</p><p>',$this->data['error'])) : $this->data['error']) : ($this->node != 'task' ? (!$this->isMobile ? $this->foglang['NoResults'] : '') : $this->foglang['NoResults']))
                 );
             } else {
                 if ((!$_REQUEST['sub'] && $defaultScreen == 'list') || (in_array($_REQUEST['sub'],$defaultScreens) && in_array($_REQUEST['node'],$this->searchPages)))
