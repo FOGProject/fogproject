@@ -78,10 +78,8 @@ class MySQL extends DatabaseManager {
                 case 'fetch_all':
                     if (method_exists('mysqli_result','fetch_all')) {
                         $this->result = $this->queryResult->fetch_all($type);
-                        $this->queryResult->free_result();
                     } else {
                         for ($this->result=array();$tmp = $this->queryResult->fetch_array($type);) $this->result[] = $tmp;
-                        $this->queryResult->free_result();
                     }
                     break;
                 case 'fetch_assoc':

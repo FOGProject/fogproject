@@ -18,10 +18,11 @@ $vals = function($reverse) {
         $can_read = $block_size;
         if (ftell($fh) < $block_size) $can_read = ftell($fh);
         fseek($fh, -$can_read, SEEK_CUR);
-        $data = mb_convert_encoding(fread($fh,$can_read),'UTF-8');
-        $data .= $leftover;
+        ob_start();
+        echo mb_convert_encoding(fread($fh,$can_read),'UTF-8');
+        echo $leftover;
         fseek($fh, -$can_read, SEEK_CUR);
-        $split_data = array_reverse(explode("\n",$data));
+        $split_data = array_reverse(explode("\n",ob_get_clean()));
         $new_lines = array_slice($split_data, 0, -1);
         $lines = array_merge($lines, $new_lines);
         $leftover = $split_data[count($split_data)-1];

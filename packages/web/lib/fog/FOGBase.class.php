@@ -321,11 +321,10 @@ abstract class FOGBase {
         return $input;
     }
     protected function array_change_key(&$array, $old_key, $new_key) {
-        if ($old_key == $new_key) return;
+        $array[$new_key] = trim(html_entity_decode(htmlentities(str_replace(array('\r\n','\n'),"\n",mb_convert_encoding($this->DB->sanitize(trim($array[$old_key])),'UTF-8')),ENT_QUOTES,'UTF-8'),ENT_QUOTES,'UTF-8'));
         $headersList = headers_list();
-        if (preg_grep('#text/plain#',$headersList)) $array[$new_key] = $array[$old_key];
-        else $array[$new_key] = $this->DB->sanitize($array[$old_key]);
-        unset($array[$old_key]);
+        if (!count(preg_grep('#text/plain#',$headersList)) > 0) unset($array[$old_key]);
+        else $array[$new_key] = trim(stripslashes(html_entity_decode($array[$new_key])));
         return;
     }
     protected function byteconvert($kilobytes) {
