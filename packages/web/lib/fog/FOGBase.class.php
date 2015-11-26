@@ -323,8 +323,9 @@ abstract class FOGBase {
     protected function array_change_key(&$array, $old_key, $new_key) {
         $array[$new_key] = html_entity_decode(htmlentities($this->DB->sanitize($array[$old_key]),ENT_QUOTES,'UTF-8'),ENT_QUOTES,'UTF-8');
         $headersList = headers_list();
-        if (!count(preg_grep('#text/plain#',$headersList)) > 0) unset($array[$old_key]);
-        else $array[$new_key] = html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8');
+        if (!count(preg_grep('#text/plain#',$headersList)) > 0) {
+            if ($old_key != $new_key) unset($array[$old_key]);
+        } else $array[$new_key] = html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8');
     }
     protected function byteconvert($kilobytes) {
         return (($kilobytes / 8) * 1024);

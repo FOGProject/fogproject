@@ -217,8 +217,10 @@ abstract class FOGController extends FOGBase {
     }
     public function isValid() {
         try {
-            foreach ((array)$this->databaseFieldsRequired AS $i => &$field) if (!$this->get($field) === 0 && !$this->get($field)) throw new Exception($this->foglang['RequiredDB']);
-            unset($field);
+            foreach ((array)$this->databaseFieldsRequired AS $i => &$field) {
+                if (!$this->get($field) === 0 && !$this->get($field)) throw new Exception($this->foglang['RequiredDB']);
+                unset($field);
+            }
             if (!$this->get('id')) throw new Exception(_('Invalid ID'));
             if (array_key_exists('name',(array)$this->databaseFields) && !$this->get('name')) throw new Exception(_(get_class($this).' no longer exists'));
         } catch (Exception $e) {
