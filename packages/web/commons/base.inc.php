@@ -8,4 +8,5 @@ header('Cache-Control: no-cache');
 require_once('text.php');
 require_once('init.php');
 while (ob_get_level()) ob_end_clean();
+ob_start('ob_gzhandler');
 ob_start(array('Initiator','sanitize_output'));
