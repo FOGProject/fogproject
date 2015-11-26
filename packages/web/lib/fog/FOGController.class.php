@@ -46,15 +46,12 @@ abstract class FOGController extends FOGBase {
         } else if (!$this->isLoaded($key)) $this->loadItem($key);
         if (is_object($this->data[$key])) {
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Object'),$this->data[$key]->__toString()));
-            return $this->data[$key];
         } else if (is_array($this->data[$key])) {
             $this->info(sprintf('%s: %s',_('Returning array within key'),$key));
-            return $this->data[$key];
         } else {
-            $this->data[$key] = html_entity_decode(htmlentities(mb_convert_encoding(str_replace('\r\n',"\n",$this->data[$key]),'UTF-8'),ENT_QUOTES,'UTF-8'));
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Value'),$this->data[$key]));
-            return $this->data[$key];
         }
+        return $this->data[$key];
     }
     public function set($key, $value) {
         try {
@@ -67,15 +64,12 @@ abstract class FOGController extends FOGBase {
             if (is_numeric($value) && $value < ($key == 'id' ? 1 : -1)) throw new Exception(_('Invalid numeric entry'));
             if (is_object($value)) {
                 $this->info(sprintf('%s: %s %s: %s',_('Setting Key'),$key,_('Object'),$value->__toString()));
-                $this->data[$key] = $value;
             } else if (is_array($value)) {
                 $this->info(sprintf('%s: %s %s',_('Setting Key'),$key,_('Array of data')));
-                $this->data[$key] = $value;
             } else {
-                $value = stripslashes($this->DB->sanitize(mb_convert_encoding($value,'UTF-8')));
                 $this->info(sprintf('%s: %s %s: %s',_('Setting Key'),$key,_('Value'),$value));
-                $this->data[$key] = htmlentities(html_entity_decode($value,ENT_QUOTES,'UTF-8'),ENT_QUOTES,'UTF-8');
             }
+            $this->data[$key] = $value;
         } catch (Exception $e) {
             $this->debug(_('Set Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
         }
@@ -96,9 +90,9 @@ abstract class FOGController extends FOGBase {
                 $this->info(sprintf('%s: %s %s',_('Adding Key'),$key,_('Array of data')));
                 $this->data[$key][] = $value;
             } else {
-                $value = stripslashes($this->DB->sanitize(mb_convert_encoding($value,'UTF-8')));
+                $value = mb_convert_encoding($value,'UTF-8');
                 $this->info(sprintf('%s: %s %s: %s',_('Adding Key'),$key,_('Value'),$value));
-                $this->data[$key][] = htmlentities(html_entity_decode($value,ENT_QUOTES,'UTF-8'),ENT_QUOTES,'UTF-8');
+                $this->data[$key][] = $value;
             }
         } catch (Exception $e) {
             $this->debug(_('Add Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
@@ -158,7 +152,7 @@ abstract class FOGController extends FOGBase {
     protected function load($field = 'id') {
         $this->info(sprintf(_('Loading data to field %s'),$field));
         try {
-            if (!trim($this->get($field))) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
+            if (!$this->get($field)) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
             list($join, $where) = $this->buildQuery();
             foreach ((array)$field AS $i => &$key) {
                 $key = $this->key($key);
@@ -223,10 +217,10 @@ abstract class FOGController extends FOGBase {
     }
     public function isValid() {
         try {
-            foreach ((array)$this->databaseFieldsRequired AS $i => &$field) if (!trim($this->get($field)) === 0 && !trim($this->get($field))) throw new Exception($this->foglang['RequiredDB']);
+            foreach ((array)$this->databaseFieldsRequired AS $i => &$field) if (!$this->get($field) === 0 && !$this->get($field)) throw new Exception($this->foglang['RequiredDB']);
             unset($field);
             if (!$this->get('id')) throw new Exception(_('Invalid ID'));
-            if (array_key_exists('name',(array)$this->databaseFields) && !trim($this->get('name'))) throw new Exception(_(get_class($this).' no longer exists'));
+            if (array_key_exists('name',(array)$this->databaseFields) && !$this->get('name')) throw new Exception(_(get_class($this).' no longer exists'));
         } catch (Exception $e) {
             $this->debug('isValid Failed: Error: %s',array($e->getMessage()));
             return false;
