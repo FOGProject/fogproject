@@ -22,8 +22,6 @@ abstract class FOGBase {
         'snapin',
         'printer',
         'task',
-        'hosts',
-        'tasks',
     );
     public $ajax = false;
     public $post = false;
