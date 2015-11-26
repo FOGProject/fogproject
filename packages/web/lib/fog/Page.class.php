@@ -163,6 +163,6 @@ class Page extends FOGBase {
     }
     public function render($path = '') {
         require_once '../management/other/index.php';
-        ob_end_flush();
+        while(ob_get_level()) ob_end_flush();
     }
 }

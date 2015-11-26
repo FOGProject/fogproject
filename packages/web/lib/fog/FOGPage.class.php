@@ -125,7 +125,7 @@ abstract class FOGPage extends FOGBase {
                 if ((!$_REQUEST['sub'] && $defaultScreen == 'list') || (in_array($_REQUEST['sub'],$defaultScreens) && in_array($_REQUEST['node'],$this->searchPages)))
                     if ($this->node != 'home') $this->setMessage(sprintf('%s %s%s found',count($this->data),$this->childClass,(count($this->data) != 1 ? 's' : '')));
                 $id_field = "{$_REQUEST['node']}_id";
-                foreach ($this->data AS $i => &$rowData) {
+                foreach ((array)$this->data AS $i => &$rowData) {
                     printf('<tr id="%s-%s"%s>%s</tr>',
                         strtolower($this->childClass),
                         $rowData['id'] ? $rowData['id'] : $rowData[$id_field],
