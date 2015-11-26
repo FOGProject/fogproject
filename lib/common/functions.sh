@@ -616,6 +616,12 @@ configureMySql() {
     errorStat $?
 }
 configureFOGService() {
+    if [[ ! -d $servicedst ]]; then
+        mkdir -p $servicedst >/dev/null 2>&1
+    fi
+    if [[ ! -d $servicedst/etc ]]; then
+        mkdir -p $servicedst/etc >/dev/null 2>&1
+    fi
 	echo "<?php
 define('WEBROOT','${webdirdest}');" > ${servicedst}/etc/config.php
     startInitScript
@@ -732,7 +738,7 @@ EOF
         errorStat $?
         storageftpuser=$username
         storageftppass=$password
-        echo -e "  * New password set for:\nusername: $username\npassword: $password\n"
+        echo -e " * New password set for:\n\t\tusername: $username\n\t\tpassword: $password\n"
         sleep 10;
     fi
 }
@@ -1137,6 +1143,7 @@ class Config {
         define('STORAGE_DATADIR', '${storageLocation}/');
         define('STORAGE_DATADIR_UPLOAD', '${storageLocation}/dev/');
         define('STORAGE_BANDWIDTHPATH', '/${webroot}status/bandwidth.php');
+        define('STORAGE_INTERFACE','${interface}');
         define('UPLOADRESIZEPCT',5);
         define('WEB_HOST', \"${ipaddress}\");
         define('WOL_HOST', \"${ipaddress}\");
