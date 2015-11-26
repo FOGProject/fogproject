@@ -854,7 +854,7 @@ $this->schema[] = array(
 	// Change `images`.`imageSize` from VARCHAR(200) -> MEDIUMINT(9)
     "ALTER TABLE `" . DATABASE_NAME . "`.`images` CHANGE `imageSize` `imageSize` MEDIUMINT NOT NULL",
 	// Add 'ngmInterface' to Storage Node table
-    "ALTER TABLE `" . DATABASE_NAME . "`.`nfsGroupMembers` ADD `ngmInterface` VARCHAR( 10 ) NOT NULL DEFAULT 'eth0'",
+    "ALTER TABLE `" . DATABASE_NAME . "`.`nfsGroupMembers` ADD `ngmInterface` VARCHAR(25) NOT NULL DEFAULT '".STORAGE_INTERFACE."'",
     "ALTER TABLE `" . DATABASE_NAME . "`.`nfsGroupMembers` ADD `ngmGraphEnabled` ENUM( '0', '1' ) NOT NULL DEFAULT '1'",
     "UPDATE `" . DATABASE_NAME . "`.`schemaVersion` set vValue = '26'",
 );
@@ -1966,7 +1966,7 @@ isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='f
 );
 // 183
 $this->schema[] = array(
-    "ALTER TABLE `" . DATABASE_NAME ."`.`nfsGroupMembers` CHANGE `ngmInterface` `ngmInterface` VARCHAR (25) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'eth0'",
+    "ALTER TABLE `" . DATABASE_NAME ."`.`nfsGroupMembers` CHANGE `ngmInterface` `ngmInterface` VARCHAR (25) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '".STORAGE_INTERFACE."'",
 );
 // 184
 $this->schema[] = array(
