@@ -613,6 +613,7 @@ class FOGConfigurationPage extends FOGPage {
     public function log() {
         foreach ((array)$this->getClass('StorageGroupManager')->find() AS $i => &$StorageGroup) {
             if (!$StorageGroup->isValid()) continue;
+            if (!count($StorageGroup->get('enablednodes'))) continue;
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if (!$StorageNode->isValid()) continue;
             if (!$StorageNode->get('isEnabled')) continue;
