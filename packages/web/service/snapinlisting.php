@@ -1,9 +1,12 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 try {
-    $Snapins = $FOGCore->getClass(SnapinManager)->find();
-    if (!$Snapins) throw new Exception(_('There are no snapins on this server.'));
-    foreach ($Snapins AS $Snapin) printf('\tID# %s\t-\t%s\n',$Snapin->get(id),$Snapin->get(name));
+    if (!$FOGCore->getClass('SnapinManager')->count()) throw new Exception(_('There are no snapins on this server.'));
+    foreach ((array)$FOGCore->getClass('SnapinManager')->find() AS $i => &$Snapin) {
+        if (!$Snapin->isValid()) continue;
+        printf('\tID# %s\t-\t%s\n',$Snapin->get('id'),$Snapin->get('name'));
+        unset($Snapin);
+    }
 } catch (Exception $e) {
     echo $e->getMessage();
 }

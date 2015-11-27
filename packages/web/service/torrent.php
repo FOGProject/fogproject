@@ -1,5 +1,5 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 try {
     $torrentFile = sprintf('%s.torrent',basename(mb_convert_encoding($_REQUEST['torrent'],'UTF-8')));
     $file = sprintf('%s%s%s%s',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,$FOGCore->getSetting('FOG_TORRENTDIR')),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,basename($torrentFile));

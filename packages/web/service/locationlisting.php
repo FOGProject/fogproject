@@ -1,5 +1,5 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 try {
     if (!$FOGCore->getClass('LocationManager')->count()) throw new Exception(_('There are no locations on this server.'));
     foreach ((array)$FOGCore->getClass('LocationManager')->find() AS $i => &$Location) {

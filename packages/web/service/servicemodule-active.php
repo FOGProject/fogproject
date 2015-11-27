@@ -1,3 +1,3 @@
 <?php
-require_once('../commons/base.inc.php');
-$FOGCore->getClass(ServiceModule);
+require('../commons/base.inc.php');
+$FOGCore->getClass('ServiceModule');

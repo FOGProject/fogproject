@@ -1,5 +1,5 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 $plugin = unserialize($_SESSION['fogactiveplugin']);
 if (!$plugin) die(_('Unable to determine plugin details'));
 $FOGCore->title = sprintf('%s: %s',_('Plugin'),$plugin->getName());
