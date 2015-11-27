@@ -1,3 +1,3 @@
 <?php
-require_once('../commons/base.inc.php');
-$FOGCore->getClass(Autologout);
+require('../commons/base.inc.php');
+$FOGCore->getClass('Autologout');

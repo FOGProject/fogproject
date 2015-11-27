@@ -1,20 +1,17 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 try {
     $Host = $FOGCore->getHostItem(false);
-    $Task = $Host->get(task);
-    // Task for Host
-    if (!$Task || !$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get(name),$Host->get(mac)));
-    $TaskType = $FOGCore->getClass(TaskType,$Task->get(typeID));
-    // Set the task to state 4
-    if (!in_array($Task->get(typeID),array(12,13))) $Task->set(stateID,4)->set(pct,100)->set(percent,100);
-    // Log it
-    $Host->set(deployed,$FOGCore->nice_date()->format('Y-m-d H:i:s'))->save();
-    $id = @max($FOGCore->getClass(ImagingLogManager)->find(array('hostID' => $Host->get(id)),'','','','','','','id'));
-    $FOGCore->getClass(ImagingLog,$id)
-        ->set(finish,$FOGCore->nice_date()->format('Y-m-d H:i:s'))
+    $Task = $Host->get('task');
+    if (!$Task || !$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'),$Host->get('mac')->__toString()));
+    $TaskType = $FOGCore->getClass('TaskType',$Task->get('typeID'));
+    if (!in_array($Task->get('typeID'),array(12,13))) $Task->set('stateID',4)->set('pct',100)->set('percent',100);
+    $Host->set('deployed',$FOGCore->nice_date()->format('Y-m-d H:i:s'))->save();
+    $id = @max($FOGCore->getSubObjectIDs('ImagingLog',array('hostID' => $Host->get('id'))));
+    $FOGCore->getClass('ImagingLog',$id)
+        ->set('finish',$FOGCore->nice_date()->format('Y-m-d H:i:s'))
         ->save();
-    $FOGCore->getClass(TaskLog,$Task)
+    $FOGCore->getClass('TaskLog',$Task)
         ->set(taskID,$Task->get(id))
         ->set(taskStateID,$Task->get(stateID))
         ->set(createdTime,$Task->get(createdTime))
