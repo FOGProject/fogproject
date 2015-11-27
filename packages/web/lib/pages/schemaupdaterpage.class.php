@@ -25,7 +25,7 @@ class SchemaUpdaterPage extends FOGPage {
     }
     public function index_post() {
         if (isset($_REQUEST['confirm'])) {
-            require_once(BASEPATH.'/commons/schema.php');
+            require(sprintf('%s%scommons%sschema.php',BASEPATH,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR));
             try {
                 if (count($this->schema) > $this->mySchema) {
                     $items = array_slice($this->schema,$this->mySchema,null,true);

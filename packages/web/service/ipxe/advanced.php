@@ -5,7 +5,7 @@ header('X-XSS-Protection: 1; mode=block');
 header('X-Frame-Options: deny');
 header('Cache-Control: no-cache');
 header("Content-type: text/plain");
-require_once('../../commons/base.inc.php');
+require('../../commons/base.inc.php');
 /**
  * parseMe($Send)
  * @param $Send the data to be sent.
