@@ -322,8 +322,9 @@ abstract class FOGBase {
         $array[$new_key] = html_entity_decode(htmlentities($this->DB->sanitize($array[$old_key]),ENT_QUOTES,'UTF-8'),ENT_QUOTES,'UTF-8');
         $headersList = headers_list();
         if (!count(preg_grep('#text/plain#',$headersList)) > 0) {
-            if ($old_key != $new_key) unset($array[$old_key]);
+            $array[$new_key] = str_replace('\\\\','\\\\\\\\',$array[$old_key]);
         } else $array[$new_key] = html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8');
+        if ($old_key != $new_key) unset($array[$old_key]);
     }
     protected function byteconvert($kilobytes) {
         return (($kilobytes / 8) * 1024);
