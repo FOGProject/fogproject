@@ -27,7 +27,7 @@ abstract class FOGPage extends FOGBase {
         $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
         $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST['id']}";
         $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST['id']}";
-        $PagesWithObjects = array('user','host','image','group','snapin','printer','task');
+        $PagesWithObjects = array('user','host','image','group','snapin','printer');
         $this->HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
         if (in_array($this->node,$PagesWithObjects)) {
             $this->childClass = ucfirst($this->node);
@@ -724,7 +724,7 @@ abstract class FOGPage extends FOGBase {
         }
     }
     public function search() {
-        if (in_array($this->node,array('task','tasks')) && $_REQUEST['sub'] != 'search') $this->redirect(sprintf('?node=%s&sub=active',$this->node));
+        if (in_array($this->node,array('task','tasks')) && (!$_REQUEST['sub'] || $_REQUEST['sub'] != 'search')) $this->redirect(sprintf('?node=%s&sub=active',$this->node));
         $eventClass = $this->childClass;
         if ($this->childClass == 'Task') $eventClass = 'host';
         $this->title = _('Search');
