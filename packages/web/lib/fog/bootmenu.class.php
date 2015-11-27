@@ -104,6 +104,7 @@ class BootMenu extends FOGBase {
                 ->save();
         }
         if ($_REQUEST['username'] && $_REQUEST['password']) $this->verifyCreds();
+        else if ($_REQUEST['qihost']) $this->setTasking($_REQUEST['imageID']);
         else if ($_REQUEST['delconf']) $this->delHost();
         else if ($_REQUEST['key']) $this->keyset();
         else if ($_REQUEST['sessname']) $this->sesscheck();
