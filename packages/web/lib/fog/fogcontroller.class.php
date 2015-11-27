@@ -253,6 +253,8 @@ abstract class FOGController extends FOGBase {
                 unset($obj_key);
             }
         }
+        $classData = array_map('addslashes',$classData);
+        if (count(preg_grep('#text/plain#i',headers_list())) > 0 || $this->service) $classData = array_map('stripslashes',$classData);
         $this->data = array_merge((array)$this->data,(array)$classData);
         foreach ((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
         unset($fields);

@@ -4,6 +4,7 @@ abstract class FOGService extends FOGBase {
     protected $log = '';
     protected $zzz = '';
     protected $ips = array();
+    public $service = true;
     private $transferLog = array();
     public $procRefs = array();
     public $procPipes = array();
