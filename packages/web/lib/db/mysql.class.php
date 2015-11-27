@@ -15,28 +15,20 @@ class MySQL extends DatabaseManager {
             $this->error(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
         }
     }
-    public function __wakeup() {
-        unset($this->link);
-        $this->link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
-        if ($this->link->connect_error) {
-            unset($this->link);
-            die(_('Could not connect to the MySQL Server'));
-        }
-    }
     public function __destruct() {
         unset($this->result,$this->queryResult);
         if (!$this->link) return;
-        unset($this->link);
-        return;
+        $this->link = null;
     }
     private function connect() {
         try {
-            if (!$this->link) $this->__wakeup();
-            else if ($this->link->connect_error) {
-                sleep(5);
-                unset($this->link);
-                $this->__wakeup();
+            if ($this->link) {
+                $this->link->close();
+                $this->link = null;
             }
+            $this->link = mysqli_init();
+            //$this->link->real_connect(preg_replace('#p:#','',DATABASE_HOST),DATABASE_USERNAME,DATABASE_PASSWORD);
+            $this->link->real_connect(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
             $this->link->set_charset('utf8');
             $this->current_db();
         } catch (Exception $e) {
