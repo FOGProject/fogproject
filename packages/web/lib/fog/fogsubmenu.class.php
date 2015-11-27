@@ -21,58 +21,69 @@
  * $FOGSubMenu->addNotes('node', create_function('','return array('banana' => 'chicken');'), 'id variable');
  */
 class FOGSubMenu {
-    // Variables
-    public $DEBUG = 0;
+    public $debug = false;
     public $version = 0.1;
-    // These are used when another $sub is called
-    // Include code needs to be rewritten to fix this correctly
-    // i.e. Host Management -> Printers
-    public $defaultSubs = array('host' => 'edit', 'group' => 'edit');
-    // Constructor
+    public $defaultSubs = array('host'=>'edit','group'=>'edit');
     public function __construct() {
         $this->items = array();
         $this->info = array();
     }
-    // Add menu items
     public function addItems($node, $items, $ifVariable = '', $ifVariableTitle = '') {
-        // TODO: Clean up - use this below to start
-        // No check variable? then Main Menu
-        //$ifVariable = ($ifVariable == '' ? 'Main Menu' : $ifVariable);
-        // No ifVariable to check, this must be a main menu item
-        if (!$ifVariable) is_array($this->items[$node][$this->foglang['MainMenu']]) ? $this->items[$node][$this->foglang['MainMenu']] = array_merge($this->items[$node][$this->foglang['MainMenu']], $items) : $this->items[$node][$this->foglang['MainMenu']] = $items;
-        // ifVariable passed to be checked, if it is set then add to menu
-        else if (isset($GLOBALS[$ifVariable])) {
-            foreach ($items AS $title => &$link) if (!$this->isExternalLink($link)) $items[$title] = "$link&$ifVariable=" . $GLOBALS[$ifVariable];
-            unset($link);
-            is_array($this->items[$node][$ifVariableTitle]) ? $this->items[$node][$ifVariableTitle] = array_merge($this->items[$node][$ifVariableTitle], $items) : $this->items[$node][$ifVariableTitle] = $items;
+        $variableSetter = (!$ifVariable ? $this->foglang['MainMenu'] : $ifVariableTitle);
+        if (isset($_REQUEST[$ifVariable])) {
+            foreach ((array)$items AS $title => &$link) {
+                if (!$this->isExternalLink($link)) $items[$title] = "$link&$ifVariable={$GLOBALS[$ifVariable]}";
+                unset($link);
+            }
         }
+        if (is_array($this->items[$node][$variableSetter])) {
+            $this->items[$node][$variableSetter] = array_merge($this->items[$node][$variableSetter],$items);
+        } else $this->items[$node][$variableSetter] = $items;
     }
-    // Add notes below menu items
     public function addNotes($node, $data, $ifVariable = '') {
+        if ($ifVariable && !$_REQUEST[$ifVariable]) return;
         if (is_callable($data)) $data = $data();
         if (is_array($data)) {
-            foreach ($data AS $title => &$info) $x[] = "<h3>" . $this->fixTitle($title) . "</h3>\n\t<p>$info</p>";
-            unset($info);
-        }
-        if ($ifVariable == '' || $GLOBALS[$ifVariable]) $this->notes[$node][] = implode((array)$x);
-    }
-    // Get menu items & notes for $node
-    public function get($node) {
-        // Menu Items
-        if ($this->items[$node]) {
-            foreach ($this->items[$node] AS $title => &$data) {
-                $output .= '<div class="organic-tabs"><h2>'.$this->fixTitle($title).'</h2><ul>';
-                foreach ($data AS $label => &$link) $output .= '<li><a href="' . (!$this->isExternalLink($link) ? $_SERVER['PHP_SELF'] . "?node=$node" . ($link != '' ? '&sub=' : '') . ($GLOBALS['sub'] && $title != $this->foglang['MainMenu'] ? ($this->defaultSubs[$node] ? $this->defaultSubs[$node] : $GLOBALS['sub']) . "&tab=" : '') . $link : $link) . '">' . $label . '</a></li>';
-                unset($link);
-                $output .= "</ul></div>";
+            ob_start();
+            foreach ($data AS $title => &$info) {
+                printf("<h3>%s</h3>\n\t<p>%s</p>",$this->fixTitle($title),$info);
+                unset($info);
             }
-            unset($data);
         }
-        // Notes
-        if ($this->notes[$node]) $output .= '<div id="sidenotes">'.implode($this->notes[$node]).'</div>';
-        return $output;
+        $this->notes[$node][] = ob_get_clean();
     }
-    // Pretty up section titles
+    public function get($node) {
+        if ($this->items[$node]) {
+            ob_start();
+            foreach ($this->items[$node] AS $title => &$data) {
+                printf('<div class="organic-tabs"><h2>%s</h2><ul>',$this->fixTitle($title));
+                ob_start();
+                foreach ($data AS $label => &$link) {
+                    $string = "<li><a href='%s'>$label</a></li>";
+                    if ($this->isExternalLink($link)) printf($string,$link);
+                    else if (!$link) printf($string,"?node=$node");
+                    else {
+                        $string = sprintf($string,"?node=$node&sub=%s");
+                        if (!$_REQUEST['sub'] || $title == $this->foglang['MainMenu']) printf($string,$link);
+                        else {
+                            if ($this->defaultSubs[$node]) {
+                                printf($string,"{$this->defaultSubs[$node]}&tab=$link");
+                            } else {
+                                printf($string,"{$_REQUEST['sub']}&tab=$link");
+                            }
+                        }
+                    }
+                    unset($link);
+                }
+                printf('%s</ul></div>',ob_get_clean());
+                unset($data);
+            }
+        }
+        if ($this->notes[$node]) {
+            printf('<div id="sidenotes">%s</div>',implode($this->notes[$node]));
+        }
+        return ob_get_clean();
+    }
     public function fixTitle($title) {
         if (preg_match('#[[:space:]]#', $title)) {
             $e = explode(' ', $title);
@@ -86,11 +97,10 @@ class FOGSubMenu {
         }
         return $title;
     }
-    // Test if the link is a node link or an external link
     public function isExternalLink($link) {
-        if (substr($link, 0, 4) == 'http' || $link{0} == '/' ||  $link{0} == '?' || $link{0} == '#') return true;
-        return false;
+        return (bool)(substr($link, 0, 5) == 'https' || substr($link, 0, 4) == 'http' || $link{0} == '/' ||  $link{0} == '?' || $link{0} == '#');
     }
-    // Debug
-    public function debug($txt) {if ($this->DEBUG) echo '[' . $this->nice_date()->format("m/d/y H:i:s") . "] " . htmlspecialchars(is_array($txt) ? print_r($txt, 1) : $txt) . "\n";}
+    public function debug($txt) {
+        if ($this->debug) printf("[%s] %s\n",$this->formatTime('','m/d/y H:i:s'),is_array($txt) ? print_r($txt, 1) : $txt);
+    }
 }
