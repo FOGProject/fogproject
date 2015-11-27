@@ -40,6 +40,8 @@ class Initiator {
         $this->HookPaths = array_merge((array)$HookPaths,(array)$plug_hook);
         $this->EventPaths = array_merge((array)$EventPaths,(array)$plug_event);
         $this->PagePaths = array_merge((array)$PagePaths,(array)$plug_page);
+        set_include_path(sprintf('%s%s%s',implode(PATH_SEPARATOR,array_merge($this->FOGPaths,$this->PagePaths,$this->HookPaths,$this->EventPaths)),PATH_SEPARATOR,get_include_path()));
+        spl_autoload_extensions('.class.php,.event.php,.hook.php');
         spl_autoload_register(array($this,'FOGLoader'));
     }
     /** DetermineBasePath() Gets the base path and sets WEB_ROOT constant
@@ -53,10 +55,7 @@ class Initiator {
      * @return void
      */
     public function __destruct() {
-        foreach (spl_autoload_functions() AS $i => &$function) {
-            spl_autoload_unregister($function);
-            unset($function);
-        }
+        spl_autoload_unregister(array($this,'FOGLaoder'));
     }
     /** startInit() initiates the environment
      * @return void
@@ -130,28 +129,9 @@ class Initiator {
      */
     private function FOGLoader($className) {
         if (in_array($className,get_declared_classes())) return;
-        $allPaths = array_merge($this->FOGPaths,$this->PagePaths,$this->HookPaths,$this->EventPaths);
-        foreach($allPaths AS $i => &$path) {
-            $class = sprintf('%s%s.class.php',$path,$className);
-            $event = sprintf('%s%s.event.php',$path,$className);
-            $hook = sprintf('%s%s.hook.php',$path,$className);
-            if (file_exists($class)) {
-                require_once($class);
-                unset($path);
-                break;
-            } else if (file_exists($event)) {
-                global $EventManager;
-                include($event);
-                unset($path);
-                break;
-            } else if (file_exists($hook)) {
-                global $HookManager;
-                include($hook);
-                unset($path);
-                break;
-            } else unset($path);
-        }
-        unset($allPaths);
+        global $EventManager;
+        global $HookManager;
+        spl_autoload($className);
     }
     /** sanitize_output() Clean the buffer
      * @param $buffer the buffer to clean
