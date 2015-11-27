@@ -1166,7 +1166,7 @@ class Config {
  }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?
     dots "Downloading inits, kernels, and the fog client"
-    clientVer="`awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`"
+    clientVer="`awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]'`"
     clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
     curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >/dev/null 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl >/dev/null 2>&1
     errorStat $?

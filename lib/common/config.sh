@@ -48,7 +48,7 @@ nfsconfig="/etc/exports";
 # what are the potential NFS service names
 nfsservice="nfs nfs-server nfs-kernel-server";
 # what version are we working with?
-version="`awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`";
+version="`awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]'`";
 sqlclientlist="mysql mariadb MariaDB-client"
 sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server MariaDB-Galera-server";
 # what is the schema version
