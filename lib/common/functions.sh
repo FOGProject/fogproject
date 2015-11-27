@@ -715,8 +715,8 @@ EOF
                 chown -R ${username} "/home/${username}" >/dev/null 2>&1;
                 echo "...OK";
             else
-                if [ -f "${webdirdest}/lib/fog/Config.class.php" ]; then
-                    password=`cat ${webdirdest}/lib/fog/Config.class.php | grep TFTP_FTP_PASSWORD | cut -d"," -f2 | cut -d"\"" -f2`;
+                if [ -f "${webdirdest}/lib/fog/config.class.php" ]; then
+                    password=`cat ${webdirdest}/lib/fog/config.class.php | grep TFTP_FTP_PASSWORD | cut -d"," -f2 | cut -d"\"" -f2`;
                 fi
                 echo "...Exists";
                 bluseralreadyexists="1";
@@ -1163,7 +1163,7 @@ class Config {
         define('FOG_UPLOADIGNOREPAGEHIBER',true);
         define('FOG_DONATE_MINING', \"${donate}\");
      }
- }" > "${webdirdest}/lib/fog/Config.class.php"
+ }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?
     dots "Downloading inits, kernels, and the fog client"
     clientVer="`awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`"
