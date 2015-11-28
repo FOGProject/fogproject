@@ -28,6 +28,7 @@ class TaskMobile extends FOGPage {
             '${task_state}',
             '<a href="?node=${node}&sub=killtask&id=${task_id}"><i class="fa fa-minus-circle fa-2x task"></i></a>',
         );
+        if (isset($_REQUEST['id'])) $this->obj = $this->getClass('Task',$_REQUEST['id']);
     }
     public function index() {
         $this->active();

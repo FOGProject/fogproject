@@ -170,7 +170,7 @@ $(function() {
     $('#content-inner').fogTableInfo();
     function format(icon) {
         if (!icon.id) return icon.text;
-        var $icon = $('<i class="fa fa-'+icon.element.value.toLowerCase()+' fa-1x">'+icon.text+'</i>'+icon.text);
+        var $icon = $('<i class="fa fa-'+icon.element.value.toLowerCase()+' fa-1x">'+icon.text+'</i>');
         return $icon;
     }
     $('select')
