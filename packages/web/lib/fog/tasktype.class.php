@@ -22,7 +22,7 @@ class TaskType extends FOGController {
         while (($line = fgets($file)) !== false) {
             if (!preg_match('#^\$fa-var-#',$line)) continue;
             $match = trim(preg_replace('#[$:;"\\\]|fa-var-#','',$line));
-            $arr = explode(' ',$match);
+            $arr = preg_split('#\s#',$match);
             unset($match);
             $icons[trim($arr[0])] = trim($arr[1]);
             unset($arr);
