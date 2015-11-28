@@ -282,7 +282,7 @@ class PrinterManagementPage extends FOGPage {
         }
         unset($input);
         $this->HookManager->processEvent('PRINTER_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        printf('<form method="post" action="%s&tab=printer-type"><center><select class="c" name="printertype" onchange="this.form.submit()">%s</select></center><br/></form><form method="post" action="%s&tab=printer-gen">',$this->formAction,$optionPrinter,$this->formAction);
+        printf('<form method="post" action="%s&tab=printer-type"><p class="c"><select class="c" name="printertype" onchange="this.form.submit()">%s</select></p><br/></form><form method="post" action="%s&tab=printer-gen">',$this->formAction,$optionPrinter,$this->formAction);
         $this->render();
         echo '</form></div></div>';
         unset($this->data);

@@ -273,7 +273,7 @@ class TaskManagementPage extends FOGPage {
     }
     public function active() {
         unset($this->data);
-        $this->form = '<center><input type="button" id="taskpause"/></center><br/>';
+        $this->form = '<p class="c"><input type="button" id="taskpause"/></p><br/>';
         $this->title = _('Active Tasks');
         $i = 0;
         foreach ((array)$this->getClass('TaskManager')->find(array('stateID'=>array(-1,0,1,2,3,))) AS $i => &$Task) {

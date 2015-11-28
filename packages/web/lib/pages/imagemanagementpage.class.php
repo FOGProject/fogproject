@@ -68,10 +68,10 @@ class ImageManagementPage extends FOGPage {
         $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
         foreach ((array)$this->getClass('ImageManager')->find() AS $i => &$Image) {
             if (!$Image->isValid()) continue;
-            $imageSize = $this->formatByteSize((double)$Image->get('size'));
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-            if (!$StorageNode->isValid()) unset($StorageNode,$Image);
-            if ($SizeServer) $servSize = $this->getFTPByteSize($StorageNode,$StorageNode->get('ftppath').'/'.$Image->get('path'));
+            if (!$StorageNode->isValid()) continue;
+            $imageSize = $this->formatByteSize((double)$Image->get('size'));
+            if ($SizeServer) $servSize = $this->getFTPByteSize($StorageNode,sprintf('%s/%s',$StorageNode->get('ftppath'),$Image->get('path')));
             unset($StorageNode);
             $this->data[] = array(
                 'id'=>$Image->get('id'),
@@ -96,13 +96,10 @@ class ImageManagementPage extends FOGPage {
         $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
         foreach ($this->getClass('ImageManager')->search('',true) AS $i => &$Image) {
             if (!$Image->isValid()) continue;
-            $imageSize = $this->formatByteSize((double)$Image->get('size'));
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-            if (!$StorageNode->isValid()) {
-                unset($StorageNode,$Image);
-                continue;
-            }
-            if ($SizeServer) $servSize = $this->getFTPByteSize($StorageNode,$StorageNode->get('ftppath').'/'.$Image->get('path'));
+            if (!$StorageNode->isValid()) continue;
+            $imageSize = $this->formatByteSize((double)$Image->get('size'));
+            if ($SizeServer) $servSize = $this->getFTPByteSize($StorageNode,sprintf('%s/%s',$StorageNode->get('ftppath'),$Image->get('path')));
             $this->data[] = array(
                 'id'=>$Image->get('id'),
                 'name'=>$Image->get('name'),
@@ -141,8 +138,8 @@ class ImageManagementPage extends FOGPage {
         $ImagePartitionTypes = $this->getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'] ? $_REQUEST['imagepartitiontype'] : 1,'','id');
         $compression = is_numeric($_REQUEST['compress']) && $_REQUEST['compress'] > -1 && $_REQUEST['compress'] < 10 ? intval($_REQUEST['compress']) : $this->getSetting('FOG_PIGZ_COMP');
         $fields = array(
-            _('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="'.$_REQUEST['name'].'" />',
-            _('Image Description') => '<textarea name="description" rows="8" cols="40">'.$_REQUEST['description'].'</textarea>',
+            _('Image Name') => sprintf('<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="%s" />',$_REQUEST['name']),
+            _('Image Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
             _('Storage Group') => $StorageGroups,
             _('Operating System') => $OSs,
             _('Image Path') => sprintf('%s/&nbsp;<input type="text" name="file" id="iFile" value="%s"/>',$StorageNode->get('path'),$_REQUEST['file']),
@@ -169,14 +166,14 @@ class ImageManagementPage extends FOGPage {
         try {
             $_REQUEST['file'] = trim($_REQUEST['file']);
             $name = trim($_REQUEST['name']);
-            if (!$name) throw new Exception('An image name is required!');
-            if ($this->getClass('ImageManager')->exists($name)) throw new Exception('An image already exists with this name!');
-            if (empty($_REQUEST['file'])) throw new Exception('An image file name is required!');
-            if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception('Please choose a different name, this one is reserved for FOG.');
-            if (empty($_REQUEST['storagegroup'])) throw new Exception('A Storage Group is required!');
-            if (empty($_REQUEST['os'])) throw new Exception('An Operating System is required!');
-            if (empty($_REQUEST['imagetype']) || !is_numeric($_REQUEST['imagetype'])) throw new Exception('An image type is required!');
-            if (empty($_REQUEST['imagepartitiontype']) || !is_numeric($_REQUEST['imagepartitiontype'])) throw new Exception('An image partition type is required!');
+            if (!$name) throw new Exception(_('An image name is required!'));
+            if ($this->getClass('ImageManager')->exists($name)) throw new Exception(_('An image already exists with this name!'));
+            if (empty($_REQUEST['file'])) throw new Exception(_('An image file name is required!'));
+            if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception(_('Please choose a different name, this one is reserved for FOG.'));
+            if (empty($_REQUEST['storagegroup'])) throw new Exception(_('A Storage Group is required!'));
+            if (empty($_REQUEST['os'])) throw new Exception(_('An Operating System is required!'));
+            if (empty($_REQUEST['imagetype']) || !is_numeric($_REQUEST['imagetype'])) throw new Exception(_('An image type is required!'));
+            if (empty($_REQUEST['imagepartitiontype']) || !is_numeric($_REQUEST['imagepartitiontype'])) throw new Exception(_('An image partition type is required!'));
             $Image = $this->getClass('Image')
                 ->set('name',$_REQUEST['name'])
                 ->set('description',$_REQUEST['description'])
@@ -186,7 +183,7 @@ class ImageManagementPage extends FOGPage {
                 ->set('imagePartitionTypeID',$_REQUEST['imagepartitiontype'])
                 ->set('compress',$_REQUEST['compress'])
                 ->addGroup($_REQUEST['storagegroup']);
-            if (!$Image->save()) throw new Exception('Database update failed');
+            if (!$Image->save()) throw new Exception(_('Database update failed'));
             $this->HookManager->processEvent('IMAGE_ADD_SUCCESS',array('Image'=>&$Image));
             $this->setMessage(_('Image created'));
             $this->redirect(sprintf('?node=%s&sub=edit&id=%s',$_REQUEST['node'],$Image->get('id')));
@@ -224,7 +221,7 @@ class ImageManagementPage extends FOGPage {
             _('Compression') => sprintf('<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="%s"/>',$compression),
             _('Protected') => sprintf('<input type="checkbox" name="protected_image"%s/>',($this->obj->get('protected') ? ' checked' : '')),
             $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? _('Image Manager') : '' => $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? $format : '',
-            '&nbsp;' => sprintf('<input type="submit" name="update" value="%s"/>',_('Update')),
+            '' => sprintf('<input type="submit" name="update" value="%s"/>',_('Update')),
         );
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
@@ -262,13 +259,13 @@ class ImageManagementPage extends FOGPage {
         if (count($this->data) > 0) {
             $GroupDataExists = true;
             $this->HookManager->processEvent('IMAGE_GROUP_ASSOC',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-            printf('<center><label for="groupMeShow">%s&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow"/></label>',_('Check here to see groups not assigned this image'));
+            printf('<p class="c"><label for="groupMeShow">%s&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow"/></label>',_('Check here to see groups not assigned this image'));
             printf('<form method="post" action="%s&tab=image-storage"><div id="groupNotInMe"><h2>%s %s</h2><p>%s %s</p>',$this->formAction,_('Modify group association for'),$this->obj->get('name'),_('Add image to groups'),$this->obj->get('name'));
             $this->render();
             echo '</div>';
         }
         unset($this->data);
-        if ($GroupDataExists) printf('<br/><input type="submit" value="%s"/></form></center>',_('Add Image to Group(s)'));
+        if ($GroupDataExists) printf('<br/><input type="submit" value="%s"/></form></p>',_('Add Image to Group(s)'));
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             '',
@@ -297,7 +294,7 @@ class ImageManagementPage extends FOGPage {
         $this->HookManager->processEvent('IMAGE_EDIT_GROUP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=image-storage">',$this->formAction);
         $this->render();
-        if (count($this->data) > 0) printf('<center><input name="update" type="submit" value="%s"/>&nbsp;<input name="deleteGroup" type="submit" value="%s"/></center>',_('Update Primary Group'),_('Delete Selected Group associations'));
+        if (count($this->data) > 0) printf('<p class="c"><input name="update" type="submit" value="%s"/>&nbsp;<input name="deleteGroup" type="submit" value="%s"/></p>',_('Update Primary Group'),_('Delete Selected Group associations'));
         echo '</form></div></div>';
     }
     public function edit_post() {
@@ -358,7 +355,7 @@ class ImageManagementPage extends FOGPage {
             _('Client Count') => sprintf('<input type="text" name="count" id="iCount" autocomplete="off" value="%s"/>',$_REQUEST['count']),
             sprintf('%s (%s)',_('Timeout'),_('minutes')) => sprintf('<input type="text" name="timeout" id="iTimeout" autocomplete="off" value="%s"/>',$_REQUEST['timeout']),
             _('Select Image') => $this->getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','name'),
-            '&nbsp;' => sprintf('<input name="start" type="submit" value="%s"/>',_('Start')),
+            '' => sprintf('<input name="start" type="submit" value="%s"/>',_('Start')),
         );
         printf('<h2>%s</h2><form method="post" action="%s">',_('Start Multicast Session'),$this->formAction);
         foreach ((array)$fields AS $field => &$input) {

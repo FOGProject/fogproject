@@ -147,10 +147,10 @@ class ProcessLogin extends FOGBase {
     public function mobileLoginForm() {
         if (!$_SESSION['locale']) $this->setLang();
         if (in_array($_REQUEST['node'],array('login','logout'))) $this->redirect('index.php');
-        echo '<center><div class="login"><p class="loginTitle">'.$this->foglang['FOGMobile'].'</p><form method="post" action="?node=login"><div class="loginElement">'.$this->foglang['Username'].':</div><div class="loginElement"><input type="text" class="login" name="uname" /></div><div class="loginElement">'.$this->foglang['Password'].':</div><div class="loginElement"><input type="password" class="login" name="upass" /></div>'."\n";
+        echo '<p class="c"><div class="login"><p class="loginTitle">'.$this->foglang['FOGMobile'].'</p><form method="post" action="?node=login"><div class="loginElement">'.$this->foglang['Username'].':</div><div class="loginElement"><input type="text" class="login" name="uname" /></div><div class="loginElement">'.$this->foglang['Password'].':</div><div class="loginElement"><input type="password" class="login" name="upass" /></div>'."\n";
         $this->getLanguages();
         echo '<div class="loginElement">'.$this->foglang['LanguagePhrase'].':</div><div class="loginElement"><select class="login" name="ulang">';
         echo $this->langMenu;
-        echo '</select></div><p><input type="submit" value="'.$this->foglang['Login'].'" /></p></form></div></center>';
+        echo '</select></div><p><input type="submit" value="'.$this->foglang['Login'].'" /></p></form></div></p>';
     }
 }

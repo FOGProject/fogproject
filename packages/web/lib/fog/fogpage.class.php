@@ -230,17 +230,17 @@ abstract class FOGPage extends FOGBase {
         printf('<form method="post" action="%s" id="deploy-container">',$this->formAction);
         echo '<div class="confirm-message">';
         if ($TaskType->get('id') == 13) {
-            printf('<center><p>%s</p>',_('Please select the snapin you want to deploy'));
+            printf('<p class="c"><p>%s</p>',_('Please select the snapin you want to deploy'));
             if ($this->obj instanceof Host) {
                 foreach((array)$this->obj->get('snapins') AS $i => &$id) {
                     $name = $this->getClass('Snapin',$id)->get('name');
                     $optionSnapin .= sprintf('<option value="%s">%s - (%s)</option>',$id,$name,$id);
                 }
                 unset($id);
-                if ($optionSnapin) printf('<select name="snapin">%s</select></center>',$optionSnapin);
-                else printf('%s</center>',_('No snapins associated'));
+                if ($optionSnapin) printf('<select name="snapin">%s</select></p>',$optionSnapin);
+                else printf('%s</p>',_('No snapins associated'));
             }
-            if ($this->obj instanceof Group) printf('%s</center>',$this->getClass('SnapinManager')->buildSelectBox('','snapin'));
+            if ($this->obj instanceof Group) printf('%s</p>',$this->getClass('SnapinManager')->buildSelectBox('','snapin'));
         }
         printf('<div class="advanced-settings"><h2>%s</h2><p class="hideFromDebug"><input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">%s <u>%s</u> %s</label></p>',_('Advanced Settings'),_('Schedule'),_('Shutdown'),_('after task completion'));
         if (!$TaskType->isDebug() && $TaskType->get('id') != 11) {
@@ -429,7 +429,7 @@ abstract class FOGPage extends FOGBase {
         if (count($this->data)) {
             printf('<div class="confirm-message"><p>%s\'s %s:</p><form method="post" action="%s_conf">',$this->childClass,_('to be removed'),$this->formAction);
             $this->render();
-            printf('<center><input type="submit" value="%s?"/></center></form></div>',_('Are you sure you wish to remove these items'));
+            printf('<p class="c"><input type="submit" value="%s?"/></p></form></div>',_('Are you sure you wish to remove these items'));
         } else {
             $this->setMessage(sprintf('%s<br/>%s',_('No items to delete'),_('None selected or item is protected')));
             $this->redirect(sprintf('?node=%s',$this->node));

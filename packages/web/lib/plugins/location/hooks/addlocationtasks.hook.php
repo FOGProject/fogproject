@@ -16,12 +16,12 @@ class AddLocationTasks extends Hook {
     public function TasksActiveData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if ($_REQUEST['node'] != 'task') return;
+        $arguments['templates'][4] = '${location}';
+        $arguments['attributes'][4] = array('class'=>'r');
         foreach ((array)$arguments['data'] AS $i => &$data) {
-            $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['data'][$i]['host_id']),'locationID');
+            $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['data'][$i]['id']),'locationID');
             $locID = array_shift($locationID);
-            $Location = $this->getClass('Location',$locID);
-            if (!$Location->isValid()) return;
-            $arguments['data'][$i]['details_taskname'] = $Location->get('name');
+            $arguments['data'][$i]['location'] = $this->getClass('Location',$locID)->get('name');
             unset($data);
         }
     }
