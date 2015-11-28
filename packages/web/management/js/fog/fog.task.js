@@ -338,6 +338,6 @@ function ActiveTasksTableCheck() {
         thead.remove();
         tbody.html('<tr><td colspan="7" class="no-active-tasks">' + _L['NO_ACTIVE_TASKS'] + '</td></tr>');
     }
-    if ($('.no-active-tasks').size() == 0) ActiveTasksContainer.after('<p class="c"><div id="canceltasks"><input type="button" name="Cancel" value="Cancel selected tasks?"/></div></p>');
+    if ($('.no-active-tasks').size() == 0) ActiveTasksContainer.after('<div id="canceltasks" class="c"><input type="button" name="Cancel" value="Cancel selected tasks?"/></div>');
     else $('#canceltasks').hide();
 }
