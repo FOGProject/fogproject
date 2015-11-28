@@ -168,8 +168,6 @@ $(function() {
     // Search boxes
     $('.search-input').fogAjaxSearch();
     $('#content-inner').fogTableInfo();
-    // Disable text selection in <label> elements
-    $('label').disableSelection();
     function format(icon) {
         if (!icon.id) return icon.text;
         var $icon = $('<i class="fa fa-'+icon.element.value.toLowerCase()+' fa-1x">'+icon.text+'</i>'+icon.text);

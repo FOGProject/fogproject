@@ -683,7 +683,7 @@ class FOGConfigurationPage extends FOGPage {
             unset($value);
         }
         unset($vals);
-        printf('<select name="n" id="linesToView">%s</select><br/><p class="c">%s : <input type="checkbox" name="reverse"/></p><br/><center><input type="button" id="logpause"/></center></p></form><br/><div id="logsGoHere"></div></p>',ob_get_clean(),_('Reverse the file: (newest on top)'));
+        printf('<select name="n" id="linesToView">%s</select><br/><p class="c"><label for="reverse">%s : <input type="checkbox" name="reverse" id="reverse"/></label></p></label><br/><p class="c"><input type="button" id="logpause"/></p></p></form><br/><div id="logsGoHere"></div></p>',ob_get_clean(),_('Reverse the file: (newest on top)'));
     }
     public function config() {
         $this->HookManager->processEvent('IMPORT');

@@ -22,11 +22,14 @@ class Page extends FOGBase {
         }
         if (!$this->isMobile) {
             $this->addCSS('css/jquery-ui.css');
+            $this->addCSS('css/jquery-ui.theme.css');
+            $this->addCSS('css/jquery-ui.structure.css');
+            $this->addCSS('css/jquery-ui-timepicker-addon.css');
             $this->addCSS('css/jquery.organicTabs.css');
             $this->addCSS('css/jquery.tipsy.css');
             $this->addCSS($dispTheme);
         } else $this->addCSS('../mobile/css/main.css');
-        $this->addCSS('css/font-awesome.css');
+        $this->addCSS('css/font-awesome.min.css');
         $this->addCSS('css/select2.min.css');
         $this->addCSS('css/theme.blue.css');
         if (!$_REQUEST['node']) $_REQUEST['node'] = 'home';
@@ -84,7 +87,6 @@ class Page extends FOGBase {
                 'js/jquery.tmpl.js',
                 'js/jquery.organicTabs.js',
                 'js/jquery.placeholder.js',
-                'js/jquery.disableSelection.js',
                 'js/jquery-ui.min.js',
                 'js/flot/jquery.flot.js',
                 'js/flot/jquery.flot.time.js',
@@ -128,8 +130,8 @@ class Page extends FOGBase {
         } else if (!$this->isMobile) {
             $files = array(
                 'js/jquery-latest.js',
-                'js/jquery.progressbar.js',
                 'js/jquery.tipsy.js',
+                'js/jquery.progressbar.js',
                 'js/fog/fog.js',
                 'js/fog/fog.login.js',
             );
