@@ -33,7 +33,7 @@ class FOGConfigurationPage extends FOGPage {
         foreach ((array)$Nodes AS $i => &$StorageNode) {
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-            $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
+            $URLs[] = filter_var("http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php",FILTER_SANITIZE_URL);
             unset($StorageNode);
         }
         $Responses = $this->FOGURLRequests->process($URLs,'GET');
@@ -60,7 +60,8 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function kernel_update() {
         $this->kernelselForm('pk');
-        $htmlData = $this->FOGURLRequests->process(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),'GET');
+        $url = filter_var(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
+        $htmlData = $this->FOGURLRequests->process($url,'GET');
         echo $htmlData[0];
     }
     public function kernelselForm($type) {
@@ -71,17 +72,20 @@ class FOGConfigurationPage extends FOGPage {
             switch ($_REQUEST['kernelsel']) {
             case 'pk':
                 $this->kernelselForm('pk');
-                $htmlData = $this->FOGURLRequests->process(sprintf("https://fogproject.org/kernels/kernelupdate.php?version=%s",FOG_VERSION),'GET');
+                $url = filter_var(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
+                $htmlData = $this->FOGURLRequests->process($url,'GET');
                 echo $htmlData[0];
                 break;
             case 'ok':
                 $this->kernelselForm('ok');
-                $htmlData = $this->FOGURLRequests->process(sprintf("http://freeghost.sourceforge.net/kernelupdates/index.php?version=%s",FOG_VERSION),'GET');
+                $url = filter_var(sprintf('https://freeghost.sourceforge.net/kernelupdates/index.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
+                $htmlData = $this->FOGURLRequests->process($url,'GET');
                 echo $htmlData[0];
                 break;
             default:
                 $this->kernelselForm('pk');
-                $htmlData = $this->FOGURRequests->process(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),'GET');
+                $url = filter_var(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
+                $htmlData = $this->FOGURLRequests->process($url,'GET');
                 echo $htmlData[0];
                 break;
             }
