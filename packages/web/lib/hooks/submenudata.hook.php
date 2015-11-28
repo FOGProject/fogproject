@@ -6,21 +6,16 @@ class SubMenuData extends Hook {
     public $active = false;
     public $node = 'host';
     public function SubMenu($arguments) {
-        if ($_REQUEST['node'] == $this->node) {
-            $arguments['submenu'][$this->node]['http://www.google.com'] = 'Google';
-            if ($_REQUEST['id']) $arguments['submenu'][$this->node]['id']['http://www.google.com'] = 'Google here';
+        if ($_REQUEST['node'] != $this->node) return;
+        $arguments['menu']['http://www.google.com'] = 'Google';
+        if ($arguments['object']) {
+            $arguments['submenu']['http://www.google.com'] = 'Google here';
+            $arguments['notes'][_('Example Bolded Header')] = $arguments['object']->get('description');
+            $arguments['notes']['Example Add Description'] = $arguments['object']->get('description');
         }
-    }
-    public function SubMenuNotes($arguments) {
-        if ($_REQUEST['node'] == $this->node) {
-            if ($_REQUEST['id']) {
-                $arguments['title']['Example Bolded Header'] = _('Example data to insert');
-                $arguments['title']['Example Add Description'] = $arguments['object']->get('description');
-            }
-        }
+
     }
 }
 $SubMenuData = new SubMenuData();
 // Hook Event
 $HookManager->register('SUB_MENULINK_DATA', array($SubMenuData, 'SubMenu'));
-$HookManager->register('SUB_MENULINK_NOTES', array($SubMenuData, 'SubMenuNotes'));
