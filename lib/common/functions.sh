@@ -1063,6 +1063,20 @@ configureHttpd() {
         dots "Copying back old web folder as is";
         cp -Rf ${backupPath}/fog_web_${version}.BACKUP/* $webdirdest/;
         errorStat $?
+        dots "Ensuring all classes are lowercased";
+        for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php")
+        do
+            mv "$i" "$(echo $i | tr A-Z a-z)" >/dev/null 2>&1
+        done
+        for i in $(find $webdirdest -type f -name "*[A-Z]*\.event\.php")
+        do
+            mv "$i" "$(echo $i | tr A-Z a-z)" >/dev/null 2>&1
+        done
+        for i in $(find $webdirdest -type f -name "*[A-Z]*\.hook\.php")
+        do
+            mv "$i" "$(echo $i | tr A-Z a-z)" >/dev/null 2>&1
+        done
+        errorStat $?
     fi
     dots "Copying new files to web folder";
     cp -Rf $webdirsrc/* $webdirdest/
