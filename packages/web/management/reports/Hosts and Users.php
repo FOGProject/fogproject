@@ -8,7 +8,7 @@ class HostUsers extends ReportManagementPage {
 	}
 	public function index() {
 		$this->title =_('FOG Hosts and Users Login');
-		echo '<center><a href="export.php?type=csv" target="_blank"><i class="fa fa-file-excel-o fa-2x"></i></a><a href="export.php?type=pdf" target="_blank"><i class="fa fa-file-pdf-o fa-2x"></i></a></center><br/>';
+		echo '<p class="c"><a href="export.php?type=csv" target="_blank"><i class="fa fa-file-excel-o fa-2x"></i></a><a href="export.php?type=pdf" target="_blank"><i class="fa fa-file-pdf-o fa-2x"></i></a></p><br/>';
 		$report = $this->getClass('ReportMaker');
 		$report->appendHTML('<table cellpadding="0" cellspacing="0" border="0" width="100%">');
 		$report->appendHTML('<tr bgcolor="#BDBDBD"><td><b>Hostname</b></td><td><b>MAC</b></td><td><b>Registered</b></td></tr>');

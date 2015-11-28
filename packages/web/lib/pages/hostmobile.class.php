@@ -60,7 +60,7 @@ class HostMobile extends FOGPage {
             $this->data[] = array(
                 'host_id' => $Host->get('id'),
                 'host_name' => $Host->get('name'),
-                'host_mac' => $Host->get('mac'),
+                'host_mac' => $Host->get('mac')->__toString(),
                 'node' => $this->node,
             );
             unset($Host);

@@ -53,7 +53,7 @@ class PluginManagementPage extends FOGPage {
         $this->render();
         if (!empty($_REQUEST['activate']) && $_REQUEST['sub'] == 'activate') {
             $this->getClass('Plugin')->activatePlugin($_REQUEST['activate']);
-            $this->setMessage('Successfully added Plugin!');
+            $this->setMessage(_('Successfully added Plugin!'));
             $this->redirect('?node=plugin&sub=activate');
         }
     }
@@ -112,7 +112,7 @@ class PluginManagementPage extends FOGPage {
     public function run() {
         $plugin = unserialize($_SESSION['fogactiveplugin']);
         try {
-            if ($plugin == null) throw new Exception('Unable to determine plugin details.');
+            if ($plugin == null) throw new Exception(_('Unable to determine plugin details.'));
             $this->title = sprintf('%s: %s',_('Plugin'),$plugin->getName());
             printf('<p>%s: %s</p>',_('Plugin Description'),$plugin->getDesc());
             switch ($plugin->isInstalled()) {
@@ -188,7 +188,7 @@ class PluginManagementPage extends FOGPage {
                     $fields = array(
                         sprintf('%s:',_('Image Definition')) => $this->getClass('ImageManager')->buildSelectBox(),
                         sprintf('%s:',_('DMI Result')) => '<input type="text" name="key"/>',
-                        '&nbps;' => sprintf('<input type="submit" style="margin-top: 7px;" name="addass" value="%s"/>',_('Add Association')),
+                        '' => sprintf('<input type="submit" style="margin-top: 7px;" name="addass" value="%s"/>',_('Add Association')),
                     );
                     foreach ((array)$fields AS $field => &$input) {
                         $this->data[] = array(

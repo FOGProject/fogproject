@@ -50,7 +50,7 @@ class DashboardPage extends FOGPage {
             if (!$StorageNode->isValid()) continue;
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-            $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}service/getversion.php";
+            $URLs[] = filter_var("http://{$StorageNode->get(ip)}{$webroot}service/getversion.php",FILTER_SANITIZE_URL);
             unset($StorageNode,$curroot,$webroot);
         }
         $version = $this->FOGURLRequests->process($URLs,'GET');
@@ -79,7 +79,7 @@ class DashboardPage extends FOGPage {
         $Nodes = $this->getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1));
         foreach((array)$Nodes AS $i => &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
-            $URLs[] = sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface'));
+            $URLs[] = filter_var(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface')),FILTER_SANITIZE_URL);
             unset($StorageNode);
         }
         $fetchedData = $this->FOGURLRequests->process($URLs,'GET');
@@ -99,7 +99,7 @@ class DashboardPage extends FOGPage {
         try {
             $curroot = trim(trim($this->obj->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-            $URL = sprintf('http://%s%sstatus/freespace.php?path=%s',$this->obj->get('ip'),$webroot,base64_encode($this->obj->get('path')));
+            $URL = filter_var(sprintf('http://%s%sstatus/freespace.php?path=%s',$this->obj->get('ip'),$webroot,base64_encode($this->obj->get('path'))),FILTER_SANITIZE_URL);
             if ($Response = $this->FOGURLRequests->process($URL,'GET')) {
                 if (preg_match('#(.*)@(.*)#', $Response[0], $match)) $Data = array('free'=>$match[1],'used'=>$match[2]);
                 else {

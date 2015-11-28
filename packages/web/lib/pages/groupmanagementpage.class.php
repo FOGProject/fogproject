@@ -123,7 +123,7 @@ class GroupManagementPage extends FOGPage {
             if (!$Group->save()) throw new Exception(_('Group create failed'));
             $this->HookManager->processEvent('GROUP_ADD_SUCCESS', array('Group' => &$Group));
             $this->setMessage(_('Group added'));
-            $url = sprintf('?node=%s&sub=edit&%s=%s',$_REQUEST['node'],$this->id,$Group->get('id'));
+            $url = sprintf('?node=%s&sub=edit&id=%s',$_REQUEST['node'],$Group->get('id'));
         } catch (Exception $e) {
             $this->HookManager->processEvent('GROUP_ADD_FAIL', array('Group' => &$Group));
             $this->setMessage($e->getMessage());
@@ -177,7 +177,7 @@ class GroupManagementPage extends FOGPage {
             '&nbsp;' => sprintf('<input type="submit" name="updategroup" value="%s"/>',_('Update')),
         );
         $this->HookManager->processEvent('GROUP_FIELDS',array('fields'=>&$fields,'Group'=>&$this->obj));
-        printf('<form method="post" action="%s&tab=group-general"><div id="tab-container"><!-- General --><div id="group-general"><h2>%s: %s</h2><center><div id="resetSecDataBox"></div><input type="button" id="resetSecData" /></center><br/>',$this->formAction,_('Modify Group'),$this->obj->get('name'));
+        printf('<form method="post" action="%s&tab=group-general"><div id="tab-container"><!-- General --><div id="group-general"><h2>%s: %s</h2><p class="c"><div id="resetSecDataBox"></div><input type="button" id="resetSecData"/></p><br/>',$this->formAction,_('Modify Group'),$this->obj->get('name'));
         foreach ((array)$fields AS $field => $input) {
             $this->data[] = array(
                 'field'=>$field,
@@ -440,7 +440,7 @@ class GroupManagementPage extends FOGPage {
             if (count($this->data)) {
                 echo '<h2>'._('Remove printer from all hosts in this group.').'</h2>';
                 $this->HookManager->processEvent('GROUP_REM_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes));
-                $inputupdate = sprintf('<center><input type="submit" value="%s" name="update"/></center>',_('Update'));
+                $inputupdate = sprintf('<p class="c"><input type="submit" value="%s" name="update"/></p>',_('Update'));
 
                 $this->render();
                 unset($this->data);
