@@ -13,7 +13,9 @@ class ChangeHostname extends Hook {
      * @return void
      */
     public function HostData($arguments) {
-        foreach ($arguments['data'] AS $i => $data) $arguments['data'][$i]['host_name'] = 'Chicken-' . $data['host_name'];
+        foreach ($arguments['data'] AS $i => &$data) {
+            $arguments['data'][$i]['host_name'] = sprintf('%s-%s','Chicken',$data['host_name']);
+        }
     }
 }
 $HookManager->register('HOST_DATA', array(new ChangeHostname(), 'HostData'));

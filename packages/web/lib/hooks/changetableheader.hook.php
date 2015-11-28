@@ -1,13 +1,13 @@
 <?php
 class ChangeTableHeader extends Hook {
-	public $name = 'ChangeTableHeader';
-	public $description = 'Remove & add table header columns';
-	public $author = 'Blackout';
-	public $active = false;
-	/** @function HosttableHeader the header to change
-	  * @param $arguments the Hook Events to enact upon
-	  * @return void
-	  */
+    public $name = 'ChangeTableHeader';
+    public $description = 'Remove & add table header columns';
+    public $author = 'Blackout';
+    public $active = false;
+    /** @function HosttableHeader the header to change
+     * @param $arguments the Hook Events to enact upon
+     * @return void
+     */
     public function HostTableHeader($arguments) {
         $arguments['headerData'][3] = 'Chicken Sandwiches';
     }

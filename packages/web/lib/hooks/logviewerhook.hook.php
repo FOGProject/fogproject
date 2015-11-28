@@ -16,16 +16,23 @@ class LogViewerHook extends Hook {
     public $author = 'Tom Elliott/Lee Rowlett';
     public $active = false;
     public function LogViewerAdd($arguments) {
-        foreach($arguments['files'] AS $name => $filearray) {
-            $ftpstart = $arguments['ftpstart'][$name];
-            $logfile = "/var/log/syslog";
-            $shortdesc = "System Log";
-            if (file_exists($ftpstart.$logfile)) $arguments['files'][$name][$shortdesc] = $ftpstart.$logfile;
-            else $logfile = "/var/log/messages";
-            if (file_exists($ftpstart.$logfile)) $arguments['files'][$name][$shortdesc] = $ftpstart.$logfile;
-        }
+        $this->FOGFTP
+            ->set('host',$arguments['StorageNode']->get('ip'))
+            ->set('username',$arguments['StorageNode']->get('user'))
+            ->set('password',$arguments['StorageNode']->get('pass'));
+        if (!$this->FOGFTP->connect()) return;
+        $fogfiles = array();
+        $fogfiles = $this->FOGFTP->nlist('/var/log/');
+        $this->FOGFTP->close();
+        $systemlog = preg_grep('#(syslog$|messages$)#',$fogfiles);
+        $systemlog = @array_shift($systemlog);
+        if ($systemlog) $arguments['files'][$arguments['StorageNode']->get('name')]['System Log'] = $systemlog;
+    }
+    public function LogFolderAdd($arguments) {
+        $arguments['folders'][] = '/var/log/';
     }
 }
 $LogViewerHook = new LogViewerHook();
 // Hook Event
 $HookManager->register('LOG_VIEWER_HOOK', array($LogViewerHook, 'LogViewerAdd'));
+$HookManager->register('LOG_FOLDERS', array($LogViewerHook, 'LogFolderAdd'));

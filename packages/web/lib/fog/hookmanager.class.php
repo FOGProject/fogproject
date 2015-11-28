@@ -63,10 +63,9 @@ class HookManager extends EventManager {
     public function processEvent($event, $arguments = array()) {
         if ($this->data[$event]) {
             foreach ($this->data[$event] AS $i => &$function) {
-                // Is hook active?
                 if ($function[0]->active) {
                     $this->log(sprintf('Running Hook: Event: %s, Class: %s', $event, get_class($function[0]), $function[0]));
-                    call_user_func($function, array_merge(array('event' => $event), (array)$arguments));
+                    call_user_func($function, array_merge(array('event'=>$event), (array)$arguments));
                 } else $this->log(sprintf('Inactive Hook: Event: %s, Class: %s', $event, get_class($function[0]), $function[0]));
             }
         }
@@ -75,10 +74,7 @@ class HookManager extends EventManager {
         global $Init;
         foreach($Init->HookPaths AS $i => &$path) {
             if (!file_exists($path)) continue;
-            if (preg_match('#plugins#i',$path)) {
-                $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
-                if (!in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) continue;
-            }
+            if (preg_match('#plugins#i',$path) && !in_array(basename(substr($path,0,-6)),(array)$_SESSION['PluginsInstalled'])) continue;
             $iterator = $this->getClass('DirectoryIterator',$path);
             foreach ($iterator AS $i => $fileInfo) {
                 $className = null;
@@ -90,8 +86,13 @@ class HookManager extends EventManager {
                     continue;
                 }
                 if (!($handle = fopen($fileInfo->getPathname(),'rb'))) continue;
-                while (($line = fgets($handle,4096)) !== false && !$linefound) $linefound = (strpos($line,'$active') !== false) ? $line : false;
+                while (($line = fgets($handle,8192)) !== false && !$linefound) {
+                    $linefound = preg_match('#(active\s=|active=)#',$line) ? $line : false;
+                    if ($linefound) break;
+                }
+                fclose($handle);
                 if (strpos($linefound,'true')) $this->getClass($className);
+                unset($handle,$line,$linefound);
             }
             unset($iterator);
             unset($path);

@@ -13,15 +13,15 @@ class AddHostSerial extends Hook {
      * @return void
      */
     public function HostData($arguments) {
-        if ($_REQUEST['node'] == 'host') {
-            foreach((array)$arguments['data'] AS $i => $data) {
-                $Host = $this->getClass('Host',@max($this->getSubObjectIDs('Host',array('name'=>$data['host_name']),'id')));
-                if ($Host->isValid() && $Host->get('inventory')->isValid()) {
-                    $arguments['templates'][7] = '${serial}';
-                    $arguments['attributes'][7] = array('width'=>20,'class'=>'c');
-                    $arguments['data'][$i]['serial'] = $Host->get('inventory')->get('sysserial');
-                }
-            }
+        if ($_REQUEST['node'] != 'host') return;
+        foreach((array)$arguments['data'] AS $i => &$data) {
+            $Host = $this->getClass('Host',@max($this->getSubObjectIDs('Host',array('name'=>$data['host_name']),'id')));
+            if (!$Host->isValid()) continue;
+            if (!$Host->get('inventory')->isValid()) continue;
+            $arguments['templates'][7] = '${serial}';
+            $arguments['attributes'][7] = array('width'=>20,'class'=>'c');
+            $arguments['data'][$i]['serial'] = $Host->get('inventory')->get('sysserial');
+            unset($data);
         }
     }
     /** @function HostTableHeader the header data to change
@@ -29,7 +29,8 @@ class AddHostSerial extends Hook {
      * @return void
      */
     public function HostTableHeader($arguments) {
-        if ($_REQUEST['node'] == 'host') $arguments['headerData'][7] = 'Serial';
+        if ($_REQUEST['node'] != 'host') return;
+        $arguments['headerData'][7] = _('Serial');
     }
 }
 $AddHostSerial = new AddHostSerial();
