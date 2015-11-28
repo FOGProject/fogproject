@@ -656,7 +656,7 @@ class FOGConfigurationPage extends FOGPage {
             );
             $files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
             $ip[$StorageNode->get('name')] = $StorageNode->get('ip');
-            $this->HookManager->processEvent(sprintf('LOG_VIEWER_HOOK_%s',$StorageGroup->get('name')),array('files'=>&$files,'ftpstart'=>&$ftpstarter));
+            $this->HookManager->processEvent('LOG_VIEWER_HOOK',array('files'=>&$files,'StorageNode'=>&$StorageNode));
             unset($StorageGroup);
         }
         unset($StorageGroups);

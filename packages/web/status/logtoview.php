@@ -1,9 +1,10 @@
 <?php
-$vals = function($reverse) {
+$vals = function($reverse,$HookManager) {
     ini_set("auto_detect_line_endings", true);
     $folder = sprintf('/%s/',trim(trim(dirname($_REQUEST['file']),'/')));
     $pattern = sprintf('#^%s$#',$folder);
     $folders = array('/var/log/fog/','/opt/fog/log/','/var/log/httpd/','/var/log/apache2/');
+    $HookManager->processEvent('LOG_FOLDERS',array('folders'=>&$folders));
     if (!preg_grep($pattern,$folders)) return _('Invalid Folder');
     $lines = array();
     $line_count = is_numeric(trim($_REQUEST['lines'])) ? trim($_REQUEST['lines']) : 20;
@@ -39,7 +40,7 @@ if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
 } else {
     if ($url != $ip) $ip = $url;
     $pat = sprintf('#%s#',$ip);
-    if (preg_match($pat,$_SERVER['HTTP_HOST'])) echo json_encode($vals(intval($_REQUEST['reverse'])));
+    if (preg_match($pat,$_SERVER['HTTP_HOST'])) echo json_encode($vals(intval($_REQUEST['reverse']),$HookManager));
     else {
         $url = sprintf('http://%s/fog/status/logtoview.php',$ip);
         $url = filter_var($url,FILTER_SANITIZE_URL);

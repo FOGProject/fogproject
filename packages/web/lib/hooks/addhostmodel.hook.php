@@ -13,15 +13,14 @@ class AddHostModel extends Hook {
      * @return void
      */
     public function HostData($arguments) {
-        if ($_REQUEST['node'] == 'host') {
-            foreach((array)$arguments['data'] AS $i => $data) {
-                $Host = $this->getClass('Host',@max($this->getSubObjectIDs('Host',array('name'=>$data['host_name']),'id')));
-                if ($Host->isValid() && $Host->get('inventory')->isValid()) {
-                    $arguments['templates'][5] = '${model}';
-                    $arguments['data'][$i]['model'] = $Host->get('inventory')->get('sysproduct');
-                    $arguments['attributes'][5] = array('width'=>20,'class'=>'c');
-                }
-            }
+        if ($_REQUEST['node'] != 'host') return;
+        foreach((array)$arguments['data'] AS $i => &$data) {
+            $Host = $this->getClass('Host',@max($this->getSubObjectIDs('Host',array('name'=>$data['host_name']),'id')));
+            if (!$Host->isValid()) continue;
+            if (!$Host->get('inventory')->isValid()) continue;
+            $arguments['templates'][5] = '${model}';
+            $arguments['data'][$i]['model'] = $Host->get('inventory')->get('sysproduct');
+            $arguments['attributes'][5] = array('width'=>20,'class'=>'c');
         }
     }
     /** @function HostTableHeader the header data to change
@@ -29,7 +28,8 @@ class AddHostModel extends Hook {
      * @return void
      */
     public function HostTableHeader($arguments) {
-        if ($_REQUEST['node'] == 'host') $arguments['headerData'][5] = 'Model';
+        if ($_REQUEST['node'] != 'host') return;
+        $arguments['headerData'][5] = _('Model');
     }
 }
 $AddHostModel = new AddHostModel();

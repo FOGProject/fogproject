@@ -12,8 +12,7 @@ class BootItem extends Hook {
      * @param $arguments the Hook Events to enact upon
      */
     public function tweaktask($arguments) {
-        if ($arguments['ipxe']['task'])
-            $arguments['ipxe']['task'][1] .= " capone=1";
+        if ($arguments['ipxe']['task']) $arguments['ipxe']['task'][1] .= " capone=1";
     }
     /** @function tweakmenu() tweaks the menu items
      * @param $arguments the Hook Events to enact upon
@@ -54,18 +53,17 @@ class BootItem extends Hook {
         // item-<label-name>  so fog.local has item value of: item-fog.local
         // inside of the item label is an arrayed item of value [0] containing the label
         // so to tweak:
-        foreach($this->getClass('PXEMenuOptionsManager')->find() AS $Menu) {
-            if ($arguments['ipxe']['item-'.$Menu->get('name')] && $Menu->get('name') == 'fog.local')
-                $arguments['ipxe']['item-fog.local'][0] = 'item fog.local THIS BOOTS TO DISK';
+        foreach($this->getClass('PXEMenuOptionsManager')->find() AS $i => &$Menu) {
+            if ($arguments['ipxe']['item-'.$Menu->get('name')] && $Menu->get('name') == 'fog.local') $arguments['ipxe']['item-fog.local'][0] = 'item fog.local THIS BOOTS TO DISK';
             // Similar to the item-<label-name>  The choices follow similar constructs
             if ($arguments['ipxe']['choice-'.$Menu->get('name')] && $Menu->get('name') == 'fog.local') {
                 $arguments['ipxe']['choice-fog.local'][0] = ':fog.local';
                 $arguments['ipxe']['choice-fog.local'][1] = $arguments['bootexittype'] . ' || goto MENU';
             }
+            unset($Menu);
         }
         // Default item is set to: 'ipxe' 'default'
-        if ($arguments['ipxe']['default'])
-            $arguments['ipxe']['default'][0] = $arguments['defaultChoice'];
+        if ($arguments['ipxe']['default']) $arguments['ipxe']['default'][0] = $arguments['defaultChoice'];
     }
 }
 $BootItem = new BootItem();
