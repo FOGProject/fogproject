@@ -21,11 +21,9 @@ class TaskType extends FOGController {
         if (!($file = fopen('../management/scss/_variables.scss','rb'))) return _('Icon File not found');
         while (($line = fgets($file)) !== false) {
             if (!preg_match('#^\$fa-var-#',$line)) continue;
-            $match = trim(preg_replace('#[$:;"\\\]|fa-var-#','',$line));
-            $arr = preg_split('#\s#',$match);
+            $match = preg_split('#[:\s|:^\s]+#',trim(preg_replace('#[\$\"\;\\\]|fa-var-#','',$line)));
+            $icons[trim($match[0])] = trim($match[1]);
             unset($match);
-            $icons[trim($arr[0])] = trim($arr[1]);
-            unset($arr);
         }
         fclose($file);
         if (!count($icons)) return _('No icons found');
