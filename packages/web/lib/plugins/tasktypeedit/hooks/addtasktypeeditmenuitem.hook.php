@@ -1,13 +1,10 @@
 <?php
 class AddTasktypeeditMenuItem extends Hook {
-    public function __construct() {
-        parent::__construct();
-        $this->name = 'AddTasktypeeditMenuItem';
-        $this->description = 'Add menu item for Task Type editing';
-        $this->author = 'Tom Elliott';
-        $this->active = true;
-        $this->node = 'tasktypeedit';
-    }
+    public $name = 'AddTasktypeeditMenuItem';
+    public $description = 'Add menu item for Task Type editing';
+    public $author = 'Tom Elliott';
+    public $active = true;
+    public $node = 'tasktypeedit';
     public function MenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         $arguments['main'] = $this->array_insert_after('task',$arguments['main'],$this->node,array(_('Task Type Management'),'fa fa-th-list fa-2x'));

@@ -1,13 +1,10 @@
 <?php
 class AddLocationTasks extends Hook {
-    public function __construct() {
-        parent::__construct();
-        $this->name = 'AddLocationTasks';
-        $this->description = 'Add Location to Active Tasks';
-        $this->author = 'Rowlett';
-        $this->active = true;
-        $this->node = 'location';
-    }
+    public $name = 'AddLocationTasks';
+    public $description = 'Add Location to Active Tasks';
+    public $author = 'Rowlett';
+    public $active = true;
+    public $node = 'location';
     public function TasksActiveTableHeader($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if ($_REQUEST['node'] != 'task') return;
@@ -27,5 +24,5 @@ class AddLocationTasks extends Hook {
     }
 }
 $AddLocationTasks = new AddLocationTasks();
-$HookManager->register('HOST_DATA', array($AddLocationTasks, 'TasksActiveTableHeader'));
-$HookManager->register('HOST_DATA', array($AddLocationTasks, 'TasksActiveData'));
+$HookManager->register('HOST_DATA',array($AddLocationTasks,'TasksActiveTableHeader'));
+$HookManager->register('HOST_DATA',array($AddLocationTasks,'TasksActiveData'));

@@ -13,6 +13,6 @@ class HostVNCLink extends Hook {
         $arguments['headerData'][8] = 'VNC';
     }
 }
-// Register hooks with HookManager on desired events
-$HookManager->register('HOST_DATA', array(new HostVNCLink(), 'HostData'));
-$HookManager->register('HOST_HEADER_DATA', array(new HostVNCLink(), 'HostTableHeader'));
+$HostVNCLink = new HostVNCLink();
+$HookManager->register('HOST_DATA',array($HostVNCLink,'HostData'));
+$HookManager->register('HOST_HEADER_DATA',array($HostVNCLink,'HostTableHeader'));

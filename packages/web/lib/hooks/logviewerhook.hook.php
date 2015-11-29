@@ -33,6 +33,5 @@ class LogViewerHook extends Hook {
     }
 }
 $LogViewerHook = new LogViewerHook();
-// Hook Event
-$HookManager->register('LOG_VIEWER_HOOK', array($LogViewerHook, 'LogViewerAdd'));
-$HookManager->register('LOG_FOLDERS', array($LogViewerHook, 'LogFolderAdd'));
+$HookManager->register('LOG_VIEWER_HOOK',array($LogViewerHook,'LogViewerAdd'));
+$HookManager->register('LOG_FOLDERS',array($LogViewerHook,'LogFolderAdd'));

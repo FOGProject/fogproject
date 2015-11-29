@@ -1,17 +1,9 @@
 <?php
 class AddHostModel extends Hook {
-    /** @var $name the name of the hook */
     public $name = 'AddHostModel';
-    /** @var $description the description of what the hook does */
     public $description = 'Adds host model to the host lists';
-    /** @var $author the author of the hook */
     public $author = 'Rowlett/TomElliott';
-    /** @var $active whether or not the hook is to be running */
     public $active = false;
-    /** @function HostData the data to change
-     * @param $arguments the Hook Events to enact upon
-     * @return void
-     */
     public function HostData($arguments) {
         if ($_REQUEST['node'] != 'host') return;
         foreach((array)$arguments['data'] AS $i => &$data) {
@@ -23,10 +15,6 @@ class AddHostModel extends Hook {
             $arguments['attributes'][5] = array('width'=>20,'class'=>'c');
         }
     }
-    /** @function HostTableHeader the header data to change
-     * @param $arguments the Hook Events to enact upon
-     * @return void
-     */
     public function HostTableHeader($arguments) {
         if ($_REQUEST['node'] != 'host') return;
         $arguments['headerData'][5] = _('Model');
