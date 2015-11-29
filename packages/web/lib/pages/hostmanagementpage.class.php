@@ -317,7 +317,7 @@ class HostManagementPage extends FOGPage {
         );
         $this->HookManager->processEvent('HOST_FIELDS', array('fields' => &$fields,'Host' => &$this->obj));
         echo '<div id="tab-container"><!-- General --><div id="host-general">';
-        if ($this->obj->get('pub_key') || $this->obj->get('sec_tok')) $this->form = '<p class="c"><div id="resetSecDataBox"></div><input type="button" id="resetSecData" /></p><br/>';
+        if ($this->obj->get('pub_key') || $this->obj->get('sec_tok')) $this->form = '<div class="c" id="resetSecDataBox"><input type="button" id="resetSecData"/></div><br/>';
         foreach ($fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
