@@ -226,7 +226,7 @@ abstract class FOGPage extends FOGBase {
         }
         $TaskType = $this->getClass('TaskType',(is_numeric($_REQUEST['type']) && intval($_REQUEST['type']) ? intval($_REQUEST['type']) : 1));
         $this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get('name'),_('task for'),$this->obj->get('name'));
-        printf('%s%s%s','<p class="c"><b>',_('Are you sure you wish to deploy task to these machines'),'</b></p>');
+        printf('<p class="c"><b>%s</b></p>',_('Are you sure you wish to deploy task to these machines'));
         printf('<form method="post" action="%s" id="deploy-container">',$this->formAction);
         echo '<div class="confirm-message">';
         if ($TaskType->get('id') == 13) {
