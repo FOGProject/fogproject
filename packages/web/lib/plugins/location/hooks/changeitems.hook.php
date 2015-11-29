@@ -10,44 +10,43 @@ class ChangeItems extends Hook {
     public function StorageNodeSetting($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$arguments['Host']->isValid()) return;
-        $LocAssocs = $this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id')));
-        foreach ($LocAssocs AS $i => &$LA) {
-            $arguments['StorageNode'] = $LA->getStorageNode();
-            break;
-            unset($LA);
-        }
+        $LA = $this->getClass('LocationAssociation',@max($this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')))));
+        if (!$LA->isValid()) return;
+        $method = false;
+        if ($arguments['Host']->get('task')->isValid() && ($arguments['Host']->get('task')->isUpload() || $arguments['Host']->get('task')->isMulticast())) $method = 'getMasterStorageNode';
+        $arguments['StorageNode'] = $LA->getStorageNode();
+        if (!$method) return;
+        $arguments['StorageNode'] = $LA->getStorageGroup()->$method();
     }
     public function StorageGroupSetting($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$arguments['Host']->isValid()) return;
-        $LocAssocs = $this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id')));
-        foreach ((array)$this->getClass('LocationAssociationManager')->find(array('hostID'=>$arguments['Host']->get('id'))) AS $i => &$LA) {
-            $arguments['StorageGroup'] = $LA->getStorageGroup();
-            break;
-            unset($LA);
-        }
+        $LA = $this->getClass('LocationAssociation',@max($this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')))));
+        if (!$LA->isValid()) return;
+        if (!$LA->getStorageGroup()->isValid()) return;
+        $arguments['StorageGroup'] = $LA->getStorageGroup();
     }
     public function BootItemSettings($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$arguments['Host']->isValid()) return;
-        foreach ((array)$this->getClass('LocationAssociationManager')->find(array('hostID'=>$arguments['Host']->get('id'))) AS $i => &$LA) {
-            $Location = $LA->getLocation();
-            if (!$Location->isValid()) continue;
-            $StorageNode = $LA->getStorageNode();
-            if (!$StorageNode->isValid()) continue;
-            $ip = $StorageNode->get('ip');
-            $curroot = trim(trim($StorageNode->get('webroot'),'/'));
-            $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-            if (!$LA->isTFTP()) continue;
-            $memtest = $arguments['memtest'];
-            $memdisk = $arguments['memdisk'];
-            $bzImage = $arguments['bzImage'];
-            $initrd = $arguments['initrd'];
-            $arguments['memdisk'] = "http://${ip}${webroot}service/ipxe/$memdisk";
-            $arguments['memtest'] = "http://${ip}${webroot}service/ipxe/$memtest";
-            $arguments['bzImage'] = "http://${ip}${webroot}service/ipxe/$bzImage";
-            $arguments['imagefile'] = "http://${ip}${webroot}service/ipxe/$initrd";
-        }
+        $LA = $this->getClass('LocationAssociation',@max($this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')))));
+        if (!$LA->isValid()) return;
+        $Location = $LA->getLocation();
+        if (!$Location->isValid()) return;
+        $StorageNode = $LA->getStorageNode();
+        if (!$StorageNode->isValid()) return;
+        $ip = $StorageNode->get('ip');
+        $curroot = trim(trim($StorageNode->get('webroot'),'/'));
+        $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
+        if (!$LA->isTFTP()) continue;
+        $memtest = $arguments['memtest'];
+        $memdisk = $arguments['memdisk'];
+        $bzImage = $arguments['bzImage'];
+        $initrd = $arguments['initrd'];
+        $arguments['memdisk'] = "http://${ip}${webroot}service/ipxe/$memdisk";
+        $arguments['memtest'] = "http://${ip}${webroot}service/ipxe/$memtest";
+        $arguments['bzImage'] = "http://${ip}${webroot}service/ipxe/$bzImage";
+        $arguments['imagefile'] = "http://${ip}${webroot}service/ipxe/$initrd";
     }
 }
 $ChangeItems = new ChangeItems();

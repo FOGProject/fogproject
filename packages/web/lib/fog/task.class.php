@@ -95,4 +95,10 @@ class Task extends FOGController {
     public function isForced() {
         return (bool)($this->get('isForced') > 0);
     }
+    public function isUpload() {
+        return (bool)$this->getTaskType()->isUpload();
+    }
+    public function isMulticast() {
+        return (bool)$this->getTaskType()->isMulticast();
+    }
 }
