@@ -2,7 +2,7 @@
 class TaskQueue extends TaskingElement {
     public function checkIn() {
         if ($this->imagingTask) {
-            if ($this->Task->getTaskType()->isMulticast()) {
+            if ($this->Task->isMulticast()) {
                 $this->Task
                     ->set('checkinTime',$this->formatTime('','Y-md H:i:s'))
                     ->set('stateID',2);
