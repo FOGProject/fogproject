@@ -1,12 +1,10 @@
 <?php
 class ChangeItems extends Hook {
-    public function __construct() {
-        $this->name = 'ChangeItems';
-        $this->description = 'Add Location to Active Tasks';
-        $this->author = 'Rowlett';
-        $this->active = true;
-        $this->node = 'location';
-    }
+    public $name = 'ChangeItems';
+    public $description = 'Add Location to Active Tasks';
+    public $author = 'Rowlett';
+    public $active = true;
+    public $node = 'location';
     public function StorageNodeSetting($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$arguments['Host']->isValid()) return;
@@ -50,11 +48,11 @@ class ChangeItems extends Hook {
     }
 }
 $ChangeItems = new ChangeItems();
-$HookManager->register('SNAPIN_NODE', array($ChangeItems, 'StorageNodeSetting'));
-$HookManager->register('SNAPIN_GROUP', array($ChangeItems, 'StorageGroupSetting'));
-$HookManager->register('BOOT_ITEM_NEW_SETTINGS', array($ChangeItems,'BootItemSettings'));
-$HookManager->register('BOOT_TASK_NEW_SETTINGS', array($ChangeItems,'StorageGroupSetting'));
-$HookManager->register('HOST_NEW_SETTINGS', array($ChangeItems,'StorageNodeSetting'));
-$HookManager->register('HOST_NEW_SETTINGS', array($ChangeItems,'StorageGroupSetting'));
-$HookManager->register('BOOT_TASK_NEW_SETTINGS', array($ChangeItems,'StorageNodeSetting'));
-$HookManager->register('HOST_EDIT_AFTER_SAVE', array($ChangeItems,'HostEditAfterSave'));
+$HookManager->register('SNAPIN_NODE',array($ChangeItems,'StorageNodeSetting'));
+$HookManager->register('SNAPIN_GROUP',array($ChangeItems,'StorageGroupSetting'));
+$HookManager->register('BOOT_ITEM_NEW_SETTINGS',array($ChangeItems,'BootItemSettings'));
+$HookManager->register('BOOT_TASK_NEW_SETTINGS',array($ChangeItems,'StorageGroupSetting'));
+$HookManager->register('HOST_NEW_SETTINGS',array($ChangeItems,'StorageNodeSetting'));
+$HookManager->register('HOST_NEW_SETTINGS',array($ChangeItems,'StorageGroupSetting'));
+$HookManager->register('BOOT_TASK_NEW_SETTINGS',array($ChangeItems,'StorageNodeSetting'));
+$HookManager->register('HOST_EDIT_AFTER_SAVE',array($ChangeItems,'HostEditAfterSave'));

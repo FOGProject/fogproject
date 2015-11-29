@@ -8,14 +8,10 @@ class SubMenuData extends Hook {
     public function SubMenu($arguments) {
         if ($_REQUEST['node'] != $this->node) return;
         $arguments['menu']['http://www.google.com'] = 'Google';
-        if ($arguments['object']) {
-            $arguments['submenu']['http://www.google.com'] = 'Google here';
-            $arguments['notes'][_('Example Bolded Header')] = $arguments['object']->get('description');
-            $arguments['notes']['Example Add Description'] = $arguments['object']->get('description');
-        }
-
+        if (!$arguments['object']) return;
+        $arguments['submenu']['http://www.google.com'] = 'Google here';
+        $arguments['notes'][_('Example Bolded Header')] = $arguments['object']->get('description');
+        $arguments['notes']['Example Add Description'] = $arguments['object']->get('description');
     }
 }
-$SubMenuData = new SubMenuData();
-// Hook Event
-$HookManager->register('SUB_MENULINK_DATA', array($SubMenuData, 'SubMenu'));
+$HookManager->register('SUB_MENULINK_DATA',array(new SubMenuData(),'SubMenu'));

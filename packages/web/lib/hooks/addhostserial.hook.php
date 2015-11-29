@@ -1,21 +1,13 @@
 <?php
 class AddHostSerial extends Hook {
-    /** @var $name the name of the hook */
     public $name = 'AddHostSerial';
-    /** @var $description the description of what the hook does */
     public $description = 'Adds host serial to the host lists';
-    /** @var $author the author of the hook */
     public $author = 'Junkhacker with edits from Tom Elliott';
-    /** @var $active whether or not the hook is to be running */
     public $active = false;
-    /** @function HostData the data to change
-     * @param $arguments the Hook Events to enact upon
-     * @return void
-     */
     public function HostData($arguments) {
         if ($_REQUEST['node'] != 'host') return;
         foreach((array)$arguments['data'] AS $i => &$data) {
-            $Host = $this->getClass('Host',@max($this->getSubObjectIDs('Host',array('name'=>$data['host_name']),'id')));
+            $Host = $this->getClass('Host',@max($this->getSubObjectIDs('Host',array('name'=>$data['host_name']))));
             if (!$Host->isValid()) continue;
             if (!$Host->get('inventory')->isValid()) continue;
             $arguments['templates'][7] = '${serial}';
@@ -24,10 +16,6 @@ class AddHostSerial extends Hook {
             unset($data);
         }
     }
-    /** @function HostTableHeader the header data to change
-     * @param $arguments the Hook Events to enact upon
-     * @return void
-     */
     public function HostTableHeader($arguments) {
         if ($_REQUEST['node'] != 'host') return;
         $arguments['headerData'][7] = _('Serial');

@@ -20,7 +20,7 @@ class ServiceConfigurationPage extends FOGPage {
             "$servicelink#usercleanup" => $this->foglang['UserCleanup'],
             "$servicelink#usertracker" => $this->foglang['UserTracker'],
         );
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
+        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'servicelink'=>&$servicelink));
         $this->headerData = array(
             _('Username'),
             _('Edit'),

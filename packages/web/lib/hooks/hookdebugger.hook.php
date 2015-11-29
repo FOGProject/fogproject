@@ -13,5 +13,7 @@ class HookDebugger extends Hook {
 }
 $HookDebugger = new HookDebugger();
 if (!$HookManager->events) $HookManager->getEvents();
-foreach($HookManager->events AS $i => &$event) $HookManager->register($event,array($HookDebugger,'run'));
-unset($event);
+foreach($HookManager->events AS $i => &$event) {
+    $HookManager->register($event,array($HookDebugger,'run'));
+    unset($event);
+}

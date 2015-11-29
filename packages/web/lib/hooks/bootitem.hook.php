@@ -1,22 +1,12 @@
 <?php
 class BootItem extends Hook {
-    /** @var $name the name of the hook */
     public  $name = 'BootItem';
-    /** @var $description the description of what the hook does */
     public $description = 'Example how to tweak boot menu items.';
-    /** @var $author the author of the hook */
     public $author = 'Tom Elliott';
-    /** @var $active whether or not the hook is to be running */
     public $active = false;
-    /** @function tweaktask() tweaks tasks to add elements
-     * @param $arguments the Hook Events to enact upon
-     */
     public function tweaktask($arguments) {
         if ($arguments['ipxe']['task']) $arguments['ipxe']['task'][1] .= " capone=1";
     }
-    /** @function tweakmenu() tweaks the menu items
-     * @param $arguments the Hook Events to enact upon
-     */
     public function tweakmenu($arguments) {
         // This is How the menu get's displayed:
         // 'ipxe' 'head' key's followed by the item.

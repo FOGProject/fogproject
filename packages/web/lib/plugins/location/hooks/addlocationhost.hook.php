@@ -1,13 +1,10 @@
 <?php
 class AddLocationHost extends Hook {
-    public function __construct() {
-        parent::__construct();
-        $this->name = 'AddLocationHost';
-        $this->description = 'Add Location to Hosts';
-        $this->author = 'Rowlett';
-        $this->active = true;
-        $this->node = 'location';
-    }
+    public $name = 'AddLocationHost';
+    public $description = 'Add Location to Hosts';
+    public $author = 'Rowlett';
+    public $active = true;
+    public $node = 'location';
     public function HostTableHeader($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if ($_REQUEST['node'] != 'host') return;

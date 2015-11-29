@@ -1,13 +1,10 @@
 <?php
 class AddMenuNotesItems extends Hook {
-    public function __construct() {
-        parent::__construct();
-        $this->name = 'AddMenuNotesItems';
-        $this->description = 'Add menu items to the management page';
-        $this->author = 'Rowlett';
-        $this->active = true;
-        $this->node = 'accesscontrol';
-    }
+    public $name = 'AddMenuNotesItems';
+    public $description = 'Add menu items to the management page';
+    public $author = 'Rowlett';
+    public $active = true;
+    public $node = 'accesscontrol';
     public function AddMenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         $arguments['main'] = $this->array_insert_after('user',$arguments['main'],$this->node,array(_('Access Control'),'fa fa-user-secret fa-2x'));
@@ -22,6 +19,6 @@ class AddMenuNotesItems extends Hook {
     }
 }
 $AddMenuNotesItems = new AddMenuNotesItems();
-$HookManager->register('MAIN_MENU_DATA', array($AddMenuNotesItems, 'AddMenuData'));
-$HookManager->register('SEARCH_PAGES', array($AddMenuNotesItems, 'AddSearch'));
-$HookManager->register('PAGES_WITH_OBJECTS', array($AddMenuNotesItems, 'addPageWithObject'));
+$HookManager->register('MAIN_MENU_DATA',array($AddMenuNotesItems,'AddMenuData'));
+$HookManager->register('SEARCH_PAGES',array($AddMenuNotesItems,'AddSearch'));
+$HookManager->register('PAGES_WITH_OBJECTS',array($AddMenuNotesItems,'addPageWithObject'));

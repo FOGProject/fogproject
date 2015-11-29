@@ -1,13 +1,10 @@
 <?php
 class AddLDAPMenuItem extends Hook {
-    public function __construct() {
-        parent::__construct();
-        $this->name = 'AddLDAPMenuItem';
-        $this->description = 'Add menu item for LDAP';
-        $this->author = 'Fernando Gietz';
-        $this->active = true;
-        $this->node = 'ldap';
-    }
+    public $name = 'AddLDAPMenuItem';
+    public $description = 'Add menu item for LDAP';
+    public $author = 'Fernando Gietz';
+    public $active = true;
+    public $node = 'ldap';
     public function MenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         $arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('LDAP Management'),'fa fa-key fa-2x'));
@@ -22,6 +19,6 @@ class AddLDAPMenuItem extends Hook {
     }
 }
 $AddLDAPMenuItem = new AddLDAPMenuItem();
-$HookManager->register('MAIN_MENU_DATA', array($AddLDAPMenuItem, 'MenuData'));
+$HookManager->register('MAIN_MENU_DATA',array($AddLDAPMenuItem,'MenuData'));
 $HookManager->register('SEARCH_PAGES',array($AddLDAPMenuItem,'addSearch'));
-$HookManager->register('PAGES_WITH_OBJECTS', array($AddLDAPMenuItem, 'addPageWithObject'));
+$HookManager->register('PAGES_WITH_OBJECTS',array($AddLDAPMenuItem,'addPageWithObject'));

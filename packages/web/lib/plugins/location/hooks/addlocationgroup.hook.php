@@ -1,13 +1,10 @@
 <?php
 class AddLocationGroup extends Hook {
-    public function __construct() {
-        parent::__construct();
-        $this->name = 'AddLocationGroup';
-        $this->description = 'Add menu items to the management page';
-        $this->author = 'Rowlett';
-        $this->active = true;
-        $this->node = 'location';
-    }
+    public $name = 'AddLocationGroup';
+    public $description = 'Add menu items to the management page';
+    public $author = 'Rowlett';
+    public $active = true;
+    public $node = 'location';
     public function GroupFields($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if ($_REQUEST['node'] != 'group') return;
@@ -26,5 +23,5 @@ class AddLocationGroup extends Hook {
     }
 }
 $AddLocationGroup = new AddLocationGroup();
-$HookManager->register('GROUP_FIELDS', array($AddLocationGroup, 'GroupFields'));
-$HookManager->register('GROUP_EDIT_SUCCESS', array($AddLocationGroup, 'GroupAddLocation'));
+$HookManager->register('GROUP_FIELDS',array($AddLocationGroup,'GroupFields'));
+$HookManager->register('GROUP_EDIT_SUCCESS',array($AddLocationGroup,'GroupAddLocation'));

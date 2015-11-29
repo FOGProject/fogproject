@@ -1,13 +1,10 @@
 <?php
 class AddLocationMenuItem extends Hook {
-    public function __construct() {
-        parent::__construct();
-        $this->name = 'AddLocationMenuItem';
-        $this->description = 'Add menu item for location';
-        $this->author = 'Tom Elliott';
-        $this->active = true;
-        $this->node = 'location';
-    }
+    public $name = 'AddLocationMenuItem';
+    public $description = 'Add menu item for location';
+    public $author = 'Tom Elliott';
+    public $active = true;
+    public $node = 'location';
     public function MenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         $arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('Location Management'),'fa fa-globe fa-2x'));
@@ -22,6 +19,6 @@ class AddLocationMenuItem extends Hook {
     }
 }
 $AddLocationMenuItem = new AddLocationMenuItem();
-$HookManager->register('MAIN_MENU_DATA', array($AddLocationMenuItem, 'MenuData'));
-$HookManager->register('SEARCH_PAGES', array($AddLocationMenuItem, 'addSearch'));
-$HookManager->register('PAGES_WITH_OBJECTS', array($AddLocationMenuItem, 'addPageWithObject'));
+$HookManager->register('MAIN_MENU_DATA',array($AddLocationMenuItem,'MenuData'));
+$HookManager->register('SEARCH_PAGES',array($AddLocationMenuItem,'addSearch'));
+$HookManager->register('PAGES_WITH_OBJECTS',array($AddLocationMenuItem,'addPageWithObject'));

@@ -27,7 +27,6 @@ class MySQL extends DatabaseManager {
                 $this->link = null;
             }
             $this->link = mysqli_init();
-            //$this->link->real_connect(preg_replace('#p:#','',DATABASE_HOST),DATABASE_USERNAME,DATABASE_PASSWORD);
             $this->link->real_connect(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
             $this->link->set_charset('utf8');
             $this->current_db();
@@ -138,7 +137,7 @@ class MySQL extends DatabaseManager {
         return $this->link->field_count;
     }
     public function insert_id() {
-		return $this->link->insert_id;
+        return $this->link->insert_id;
     }
     public function affected_rows() {
         return $this->link->affected_rows;

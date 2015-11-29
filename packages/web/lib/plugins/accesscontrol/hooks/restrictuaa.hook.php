@@ -1,20 +1,16 @@
 <?php
 class RestrictUAA extends Hook {
-    private $linkToFilter;
-    public function __construct() {
-        parent::__construct();
-        $this->name = 'RestrictUAA';
-        $this->description = 'Removes All users except the current user and ability to create/modify  users';
-        $this->author = 'Rowlett';
-        $this->active = true;
-        $this->node = 'accesscontrol';
-        $this->linksToFilter = array('users');
-    }
+    private $linkToFilter = array('users');
+    public $name = 'RestrictUAA';
+    public $description = 'Removes All users except the current user and ability to create/modify  users';
+    public $author = 'Rowlett';
+    public $active = true;
+    public $node = 'accesscontrol';
     public function UserData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$this->FOGUser->isValid()) return;
         if (!in_array($this->FOGUser->get('type'),array(2))) return;
-        foreach ($arguments['data'] AS $i => &$data) {
+        foreach ((array)$arguments['data'] AS $i => &$data) {
             if ($data['name'] == $_SESSION['FOG_USERNAME']) continue;
             unset($arguments['data'][$i]);
             unset($data);
@@ -31,14 +27,11 @@ class RestrictUAA extends Hook {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$this->FOGUser->isValid()) return;
         if (!in_array($this->FOGUser->get('type'),array(2))) return;
-        foreach($arguments['submenu'] AS $node => &$link) {
-            if (!in_array($node,(array)$this->linksToFilter)) continue;
-            unset($arguments['submenu'][$node]['add']);
-        }
-        unset($link);
+        if (!in_array($_REQUEST['node'],$this->linksToFilter)) return;
+        unset($arguments['submenu']['add']);
     }
 }
 $RestrictUAA = new RestrictUAA();
-$HookManager->register('USER_DATA', array($RestrictUAA, 'UserData'));
-$HookManager->register('USER_EDIT', array($RestrictUAA, 'RemoveName'));
-$HookManager->register('SUB_MENULINK_DATA', array($RestrictUAA, 'RemoveCreate'));
+$HookManager->register('USER_DATA',array($RestrictUAA,'UserData'));
+$HookManager->register('USER_EDIT',array($RestrictUAA,'RemoveName'));
+$HookManager->register('SUB_MENULINK_DATA',array($RestrictUAA,'RemoveCreate'));
