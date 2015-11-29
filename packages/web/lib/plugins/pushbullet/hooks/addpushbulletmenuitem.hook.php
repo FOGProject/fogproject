@@ -1,13 +1,10 @@
 <?php
 class AddPushbulletMenuItem extends Hook {
-    public function __construct() {
-        parent::__construct();
-        $this->name = 'AddPushbulletMenuItem';
-        $this->description = 'Add menu item for pushbullet';
-        $this->author = 'Joe Schmitt';
-        $this->active = true;
-        $this->node = 'pushbullet';
-    }
+    public $name = 'AddPushbulletMenuItem';
+    public $description = 'Add menu item for pushbullet';
+    public $author = 'Joe Schmitt';
+    public $active = true;
+    public $node = 'pushbullet';
     public function MenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         $arguments['main'] = $this->array_insert_after('task',$arguments['main'],$this->node,array(_('Pushbullet Management'),'fa fa-bell fa-2x'));
@@ -18,5 +15,5 @@ class AddPushbulletMenuItem extends Hook {
     }
 }
 $AddPushbulletMenuItem = new AddPushbulletMenuItem();
-$HookManager->register('MAIN_MENU_DATA', array($AddPushbulletMenuItem, 'MenuData'));
-$HookManager->register('PAGES_WITH_OBJECTS', array($AddPushbulletMenuItem, 'addPageWithObject'));
+$HookManager->register('MAIN_MENU_DATA',array($AddPushbulletMenuItem,'MenuData'));
+$HookManager->register('PAGES_WITH_OBJECTS',array($AddPushbulletMenuItem,'addPageWithObject'));
