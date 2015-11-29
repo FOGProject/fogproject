@@ -16,11 +16,14 @@ abstract class TaskingElement extends FOGBase {
             $this->imagingTask = in_array($this->Task->get('typeID'),array(1,2,8,15,16,17,24));
             $this->StorageGroup = $this->Task->getStorageGroup();
             if ($this->imagingTask) {
+                $this->StorageNode = $this->Task->isUpload() || $this->Task->isMulticast() ? $this->StorageGroup->getMasterStorageNode() : $this->StorageGroup->getOptimalStorageNode();
+                $this->HookManager->processEvent('HOST_NEW_SETTINGS',array('Host'=>&$this->Host,'StorageNode'=>&$this->StorageNode,'StorageGroup'=>&$this->StorageGroup));
                 self::checkStorageGroup($this->StorageGroup);
                 self::checkStorageNodes($this->StorageGroup);
                 $this->Image = $this->Task->getImage();
                 $this->StorageNodes = $this->getClass('StorageNodeManager')->find(array('id'=>$this->StorageGroup->get('enablednodes')));
                 $this->Host->set('sec_tok',null)->set('pub_key',null)->save();
+                if ($this->Task->isUpload() || $this->Task->isMulticast()) $this->StorageNode = $this->Image->getStorageGroup()->getMasterStorageNode();
             }
         } catch (Exception $e) {
             echo $e->getMessage();
