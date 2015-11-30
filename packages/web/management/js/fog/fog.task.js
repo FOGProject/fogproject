@@ -1,11 +1,3 @@
-/****************************************************
- * FOG JavaScript: Active Tasks
- *	Author:		Blackout
- *	Created:	1:48 PM 23/02/2011
- *	Revision:	$Revision: 835 $
- *	Last Update:	$LastChangedDate: 2012-01-12 11:57:46 +1000 (Thu, 12 Jan 2012) $
- ***/
-// TODO: Merge this with $.fn.fogAjaxSearch()
 var ActiveTasksContainer;
 var ActiveTasksLastCount;
 $(function() {
@@ -42,40 +34,40 @@ $(function() {
             $('input[name="Cancel"]').remove();
             break;
     }
-    $('input[name="Cancel"]').click(function() {
-        checkedIDs = getChecked();
-        sub = $_GET['sub'];
-        if (checkedIDs.length > 0) {
-            $('#canceltasks').html('Are you sure you wish to cancel these tasks?');
-            $('#canceltasks').dialog({
-                resizable: false,
-                modal: true,
-                title: 'Cancel tasks',
-                buttons: {
-                    'Yes': function() {
-                        $.post(
-                                URL,
-                                {task: checkedIDs},
-                                function(data) {
-                                    clearTimeout(ActiveTasksUpdateTimer);
-                                    if ($_GET['sub'] == 'active') {
-                                        ActiveTasksUpdate();
-                                        ActiveTasksTableCheck();
-                                        ActiveTasksUpdateTimerStart();
-                                    } else location.reload();
-                                }
-                              );
-                        $(this).dialog('close');
-                    },
-                    'No': function() {
-                        ActiveTasksTableCheck();
-                        $(this).dialog('close');
-                    }
-                }
-            });
-        }
-    });
     if ($_GET['sub'] == 'active' || !$_GET['sub']) {
+        $('input[name="Cancel"]').click(function() {
+            checkedIDs = getChecked();
+            sub = $_GET['sub'];
+            if (checkedIDs.length > 0) {
+                $('#canceltasks').html('Are you sure you wish to cancel these tasks?');
+                $('#canceltasks').dialog({
+                    resizable: false,
+                    modal: true,
+                    title: 'Cancel tasks',
+                    buttons: {
+                        'Yes': function() {
+                            $.post(
+                                    URL,
+                                    {task: checkedIDs},
+                                    function(data) {
+                                        clearTimeout(ActiveTasksUpdateTimer);
+                                        if (sub == 'active') {
+                                            ActiveTasksUpdate();
+                                            ActiveTasksTableCheck();
+                                            ActiveTasksUpdateTimerStart();
+                                        } else location.reload();
+                                    }
+                                  );
+                            $(this).dialog('close');
+                        },
+                        'No': function() {
+                            ActiveTasksTableCheck();
+                            $(this).dialog('close');
+                        }
+                    }
+                });
+            }
+        });
         // Update Tasks
         ActiveTasksUpdate();
         // Hook buttons

@@ -480,31 +480,41 @@ class Host extends FOGController {
     }
     private function createSnapinTasking($snapin = -1) {
         try {
-            $snapinAssocCount = $this->getClass('SnapinAssociationManager')->count(array('hostID'=>$this->get('id')));
-            if (in_array($this->get('task')->get('taskTypeID'),array(12,13)) && !$snapinAssocCount) throw new Exception($this->foglang['SnapNoAssoc']);
             $SnapinJob = $this->getClass('SnapinJob')
                 ->set('hostID',$this->get('id'))
                 ->set('stateID',0)
                 ->set('createdTime',$this->nice_date()->format('Y-m-d H:i:s'));
             if (!$SnapinJob->save()) throw new Exception(_('Failed to create Snapin Job'));
             if ($snapin == -1) {
-                foreach ((array)$this->get('snapins') AS $i => &$Snapin) {
-                    $this->getClass('SnapinTask')
-                        ->set('jobID',$SnapinJob->get('id'))
-                        ->set('stateID',0)
-                        ->set('snapinID',$Snapin)
-                        ->save();
+                if (count($this->get('snapins')) < 1) {
+                    foreach ((array)$this->getClass('SnapinManager')->find() AS $i => &$Snapin) {
+                        if (!$Snapin->isValid()) continue;
+                        $this->getClass('SnapinTask')
+                            ->set('jobID',$SnapinJob->get('id'))
+                            ->set('stateID',0)
+                            ->set('snapinID',$Snapin)
+                            ->save();
+                        unset($Snapin);
+                    }
+                } else {
+                    foreach ((array)$this->get('snapins') AS $i => &$Snapin) {
+                        $this->getClass('SnapinTask')
+                            ->set('jobID',$SnapinJob->get('id'))
+                            ->set('stateID',0)
+                            ->set('snapinID',$Snapin)
+                            ->save();
+                    }
+                    unset($Snapin);
                 }
-                unset($Snapin);
             } else {
                 $Snapin = $this->getClass('Snapin',$snapin);
-                if ($this->getClass('Snapin',$snapin)->isValid()) {
-                    $this->getClass('SnapinTask')
-                        ->set('jobID',$SnapinJob->get('id'))
-                        ->set('stateID',0)
-                        ->set('snapinID',$snapin)
-                        ->save();
-                }
+                if (!$Snapin->isValid()) throw new Exception(_('Snapin is not valid'));
+                $this->getClass('SnapinTask')
+                    ->set('jobID',$SnapinJob->get('id'))
+                    ->set('stateID',0)
+                    ->set('snapinID',$snapin)
+                    ->save();
+                unset($Snapin);
             }
         } catch (Exception $e) {
             echo $e->getMessage();
