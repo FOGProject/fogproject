@@ -68,6 +68,6 @@ class StorageNode extends FOGController {
             $UsedTasks = array_values(array_filter((array)$UsedTasks));
             $countTasks = count(array_unique($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->getSubObjectIDs('Task',array('stateID'=>array(0,1,2),'typeID'=>8))),'msID')));
         }
-        return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>array(0,1,2),'typeID'=>$usedTasks,'NFSMemberID'=>$this->get('id'))));
+        return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>array(0,1,2),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
     }
 }
