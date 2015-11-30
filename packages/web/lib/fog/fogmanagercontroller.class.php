@@ -185,10 +185,10 @@ abstract class FOGManagerController extends FOGBase {
     public function search($keyword = '',$returnObjects = false) {
         if (empty($keyword)) $keyword = trim($this->isMobile ? $_REQUEST['host-search'] : $_REQUEST['crit']);
         $mac_keyword = join(':',str_split(str_replace(array('-',':'),'',$keyword),2));
-        $mac_keyword = preg_replace('#[%+\s+]#','%',sprintf('%%%s%%',$mac_keyword));
+        $mac_keyword = preg_replace('#[%\+\s\+]#','%',sprintf('%%%s%%',$mac_keyword));
         if (empty($keyword)) $keyword = '%';
         if ($keyword === '%') return $this->getClass($this->childClass)->getManager()->find();
-        $keyword = preg_replace('#[%+\s+]#','%',sprintf('%%%s%%',$keyword));
+        $keyword = preg_replace('#[%\+\s\+]#','%',sprintf('%%%s%%',$keyword));
         $_SESSION['caller'] = __FUNCTION__;
         $this->array_remove($this->aliasedFields,$this->databaseFields);
         $findWhere = array_fill_keys(array_keys($this->databaseFields),$keyword);
