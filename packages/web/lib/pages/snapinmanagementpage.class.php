@@ -230,6 +230,7 @@ class SnapinManagementPage extends FOGPage {
             _('Reboot after install') => sprintf('<input type="checkbox" name="reboot"%s/>',($this->obj->get('reboot') ? ' checked' : '')),
             _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
             '' => sprintf('<input name="update" type="submit" value="%s"/>',_('Update')),
+            _('Snapin Enabled') => sprintf('<input type="checkbox" name="isEnabled" value="1"%s/>',$this->obj->get('isEnabled') ? ' checked' : ''),
         );
         echo '<div id="tab-container"><!-- General --><div id="snap-gen">';
         echo '<form method="post" action="'.$this->formAction.'&tab=snap-gen" enctype="multipart/form-data">';
@@ -344,7 +345,8 @@ class SnapinManagementPage extends FOGPage {
                     ->set('reboot',(int)isset($_REQUEST['reboot']))
                     ->set('runWith',$_REQUEST['rw'])
                     ->set('runWithArgs',$_REQUEST['rwa'])
-                    ->set('protected',$_REQUEST['protected_snapin']);
+                    ->set('protected',$_REQUEST['protected_snapin'])
+                    ->set('isEnabled',intval(isset($_REQUEST['isEnabled'])));
                 break;
             case 'snap-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);
