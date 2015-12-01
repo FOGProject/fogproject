@@ -398,6 +398,8 @@ while [ "$blGo" = "" ]; do
             configureUsers;
             configureMinHttpd;
             configureStorage;
+            configureDHCP;
+            configureTFTPandPXE;
             configureFTP;
             configureUDPCast;
             installInitScript;
