@@ -2079,3 +2079,8 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`hosts` MODIFY `hostProductKey` LONGTEXT",
 );
+// 201
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`images` ADD `imageEnabled` ENUM('0','1') NOT NULL DEFAULT '1'",
+    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sEnabled` ENUM('0','1') NOT NULL DEFAULT '1'",
+);

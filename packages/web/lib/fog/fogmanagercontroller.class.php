@@ -161,8 +161,11 @@ abstract class FOGManagerController extends FOGBase {
         if (empty($elementName)) $elementName = strtolower($this->childClass);
         $this->orderBy($orderBy);
         $Objects = $this->find($filter ? array('id'=>$filter) : '', '', $orderBy, '', '', '',($filter ? true : false));
-        foreach ($Objects AS $i => &$Object) $listArray[] = sprintf('<option value="%s"%s>%s</option>',$Object->get('id'),($matchID == $Object->get('id') ? ' selected' : ($template ? ' ${selected_item'.$Object->get('id').'}' : '')),$Object->get('name').' - ('.$Object->get('id').')');
-        unset($Object);
+        foreach ($Objects AS $i => &$Object) {
+            if (array_key_exists('isEnabled',$this->databaseFields) && !$Object->get('isEnabled')) continue;
+            $listArray[] = sprintf('<option value="%s"%s>%s</option>',$Object->get('id'),($matchID == $Object->get('id') ? ' selected' : ($template ? ' ${selected_item'.$Object->get('id').'}' : '')),$Object->get('name').' - ('.$Object->get('id').')');
+            unset($Object);
+        }
         return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',($template ? '${selector_name}' : $elementName),'- '.$this->foglang[PleaseSelect].' -',implode($listArray)) : false);
     }
     public function exists($name, $id = 0, $idField = 'name') {

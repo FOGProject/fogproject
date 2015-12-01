@@ -19,6 +19,7 @@ class Image extends FOGController {
         'magnet' => 'imageMagnetUri',
         'protected' => 'imageProtect',
         'compress' => 'imageCompress',
+        'isEnabled' => 'imageEnabled',
     );
     protected $databaseFieldsRequired = array(
         'name',
