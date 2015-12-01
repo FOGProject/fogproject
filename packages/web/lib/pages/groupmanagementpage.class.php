@@ -133,28 +133,39 @@ class GroupManagementPage extends FOGPage {
         $this->redirect($url);
     }
     public function edit() {
-        $imageID = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'imageID');
-        $imageMatchID = (count($imageID) == 1 ? $imageID[0] : '');
+        $HostCount = $this->obj->getHostCount();
+        $imageID = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'imageID','','','','','array_count_values');
+        $imageMatchID = (count($imageID) == 1 && $imageID[0] == $HostCount ? $this->getClass('Host',current($this->obj->get('hosts')))->get('imageID') : '');
         $groupKey = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'productKey');
-        $aduse = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'useAD');
-        $adDomain = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADDomain');
-        $adOU = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADOU');
-        $adUser = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADUser');
-        $adPass = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPass');
-        $adPassLegacy = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPassLegacy');
-        $useAD = (int)(count($aduse) == 1);
-        $ADOU = (count($adOU) == 1 ? @array_shift($adOU) : '');
-        $ADDomain = (count($adDomain) == 1 ? @array_shift($adDomain) : '');
-        $ADUser = (count($adUser) == 1 ? @array_shift($adUser) : '');
-        $adPass = (count($adPass) == $this->obj->getHostCount() ? @array_shift($adPass) : '');
+        $aduse = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'useAD','','','','','array_count_values');
+        $adDomain = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADDomain','','','','','array_count_values');
+        $adOU = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADOU','','','','','array_count_values');
+        $adUser = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADUser','','','','','array_count_values');
+        $adPass = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPass','','','','','array_count_values');
+        $adPassLegacy = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPassLegacy','','','','','array_count_values');
+        $Host = $this->getClass('Host',current($this->obj->get('hosts')));
+        $useAD = (bool)(count($aduse) == 1 && $aduse[0] == $HostCount);
+        unset($aduse);
+        $ADDomain = (count($adDomain) == 1 && $adDomain[0] == $HostCount ? $Host->get('ADDomain') : '');
+        unset($adDomain);
+        $ADOU = (count($adOU) == 1 && $adOU[0] == $HostCount ? $Host->get('ADOU') : '');
+        unset($adOU);
+        $ADUser = (count($adUser) == 1 && $adUser[0] == $HostCount ? $Host->get('ADUser') : '');
+        unset($adUser);
+        $adPass = ((count($adPass) == 1 && $adPass[0] == $HostCount) || count($adPass) == $HostCount ? $Host->get('ADPass') : '');
         $ADPass = $this->encryptpw($adPass);
-        $ADPassLegacy = (count($adPassLegacy) == 1 ? @array_shift($adPassLegacy) : '');
+        unset($adPass);
+        $ADPassLegacy = (count($adPassLegacy) == 1 && $adPassLegacy[0] == $HostCount ? $Host->get('ADPassLegacy') : '');
+        unset($adPassLegacy);
         $productKey = (count($groupKey) == $this->obj->getHostCount() ? @array_shift($groupKey) : '');
+        unset($groupKey);
+        $productKey = ((count($groupKey) == 1 && $groupKey[0] == $HostCount) || count($groupKey) == $HostCount ? $Host->get('productKey') : '');
         $groupKeyMatch = $this->encryptpw($productKey);
-        $biosExit = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'biosexit');
-        $efiExit = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'efiexit');
-        $exitNorm = Service::buildExitSelector('bootTypeExit',(count($biosExit) == 1 ? @array_shift($biosExit) : $_REQUEST['bootTypeExit']),true);
-        $exitEfi = Service::buildExitSelector('efiBootTypeExit',(count($efiExit) == 1 ? @array_shift($efiExit) : $_REQUEST['efiBootTypeExit']),true);
+        unset($productKey, $groupKey);
+        $biosExit = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'biosexit','','','','','array_count_values');
+        $efiExit = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'efiexit','','','','','array_count_values');
+        $exitNorm = Service::buildExitSelector('bootTypeExit',(count($biosExit) == 1 && $biosExit[0] == $HostCount ? $Host->get('biosexit') : $_REQUEST['bootTypeExit']),true);
+        $exitEfi = Service::buildExitSelector('efiBootTypeExit',(count($efiExit) == 1 && $efiExit[0] == $HostCount ? $Host->get('efiexit') : $_REQUEST['efiBootTypeExit']),true);
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         unset ($this->headerData);
         $this->attributes = array(
@@ -283,16 +294,16 @@ class GroupManagementPage extends FOGPage {
             'span'=>'',
         );
         printf('<div id="group-service"><h2>%s</h2><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',_('Service Configuration'),$this->formAction,_('General'));
-        $ModOns = array_count_values($this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID'));
         $moduleName = $this->getGlobalModuleStatus();
-        $HostCount = $this->obj->getHostCount();
         foreach ((array)$this->getClass('ModuleManager')->find() AS $i => &$Module) {
             if (!$Module->isValid()) continue;
+            $ModuleOn = $this->getSubObjectIDs('ModuleAssociation',array('moduleID'=>$Module->get('id'),'hostID'=>$this->obj->get('hosts')),'moduleID','','','','','array_count_values');
             $this->data[] = array(
-                'input'=>sprintf('<input %stype="checkbox" name="modules[]" value="%s" %s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ' : ''), $Module->get('id'), ($ModOns[$Module->get('id')] == $HostCount ? 'checked ' : ''), !$moduleName[$Module->get('shortName')] ? 'disabled' : ''),
+                'input'=>sprintf('<input %stype="checkbox" name="modules[]" value="%s"%s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ' : ''), $Module->get('id'), (count($ModuleOn) == 1 && $ModuleOn[0] == $HostCount ? ' checked' : ''), !$moduleName[$Module->get('shortName')] ? ' disabled' : ''),
                 'span'=>sprintf('<span class="icon fa fa-question fa-1x hand" title="%s"></span>',str_replace('"','\"',$Module->get('description'))),
                 'mod_name'=>$Module->get('name'),
             );
+            unset($ModuleOn);
             unset($Module);
         }
         unset($ModOns,$Modules);

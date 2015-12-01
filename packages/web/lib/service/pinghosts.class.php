@@ -5,7 +5,7 @@ class PingHosts extends FOGService {
     public $zzz = PINGHOSTSLEEPTIME;
     private function commonOutput() {
         try {
-            if (!$this->getSetting('FOG_HOST_LOOKUP')) throw new Exception(_('Host Ping is not enabled'));
+            if (!$this->getSetting('FOG_HOST_LOOKUP')) throw new Exception(_(' * Host Ping is not enabled'));
             $webServerIP = $this->FOGCore->resolveHostName($this->getSetting('FOG_WEB_HOST'));
             $this->outall(sprintf(' * FOG Web Host IP: %s',$webServerIP));
             $this->getIPAddress();
@@ -18,10 +18,7 @@ class PingHosts extends FOGService {
             $hostCount = $this->getClass('HostManager')->count();
             $this->outall(sprintf(' * %s %s %s%s',_('Attempting to ping'),$this->getClass('HostManager')->count(),_('host'),($hostCount != 1 ? 's' : '')));
             foreach ((array)$this->getClass('HostManager')->find() AS $i => &$Host) {
-                if (!$Host->isValid()) {
-                    unset($Host);
-                    continue;
-                }
+                if (!$Host->isValid()) continue;
                 $Host->setPingStatus();
                 unset($Host);
             }

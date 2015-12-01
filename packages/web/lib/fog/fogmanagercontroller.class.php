@@ -18,7 +18,7 @@ abstract class FOGManagerController extends FOGBase {
         $this->additionalFields = $classVars['additionalFields'];
         unset($classVars);
     }
-    public function find($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false, $idField = false,$onecompare = true) {
+    public function find($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false, $idField = false,$onecompare = true,$filter = 'array_unique') {
         // Fail safe defaults
         if (empty($findWhere)) $findWhere = array();
         if (empty($whereOperator)) $whereOperator = 'AND';
@@ -77,12 +77,12 @@ abstract class FOGManagerController extends FOGBase {
             if (is_array($idField)) {
                 foreach ($idField AS $i => &$idstore) {
                     $idstore = trim($idstore);
-                    $ids[$idstore] = array_map('html_entity_decode',array_values(array_filter(array_unique($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
+                    $ids[$idstore] = array_map('html_entity_decode',array_values((array)array_filter((array)$filter((array)$this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
                 }
                 unset($idstore);
             } else {
                 $idField = trim($idField);
-                $ids = array_map('html_entity_decode',array_values((array)array_filter((array)array_unique((array)$this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
+                $ids = array_map('html_entity_decode',array_values((array)array_filter((array)$filter((array)$this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
             }
             $data = $ids;
         } else {
