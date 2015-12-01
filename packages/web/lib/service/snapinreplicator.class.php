@@ -28,7 +28,7 @@ class SnapinReplicator extends FOGService {
             foreach ((array)$Snapins AS $i => $Snapin) {
                 if (!$Snapin->isValid()) continue;
                 if (!$Snapin->getPrimaryGroup($myStorageGroupID)) {
-                    $this->outall(_(' | Not syncing Snapin: '.$Snapin->get('name')));
+                    $this->outall(_(" | Not syncing Snapin: {$Snapin->get(name)}"));
                     $this->outall(_(' | This is not the primary group'));
                     continue;
                 }

@@ -23,13 +23,12 @@ abstract class FOGService extends FOGBase {
     }
     protected function checkIfNodeMaster() {
 		$this->getIPAddress();
-        $StorageNodes = $this->getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1));
-        foreach ($StorageNodes AS $i => &$StorageNode) {
+        foreach ((array)$this->getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS $i => &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
             if (!in_array($this->FOGCore->resolveHostname($StorageNode->get('ip')),$this->ips)) continue;
             return $StorageNode;
 		}
-        throw new Exception(' | '._('This is not the master node'));
+        throw new Exception(_(' | This is not the master node'));
     }
     public function wait_interface_ready() {
         $this->getIPAddress();
@@ -38,36 +37,37 @@ abstract class FOGService extends FOGBase {
             sleep(10);
             $this->wait_interface_ready();
         }
-        foreach ($this->ips AS $i => &$ip) $this->out("Interface Ready with IP Address: $ip",$this->dev);
+        foreach ($this->ips AS $i => &$ip) $this->out(_("Interface Ready with IP Address: $ip"),$this->dev);
         unset($ip);
     }
     public function wait_db_ready() {
         while ($this->DB->link()->connect_errno) {
-            $this->out('FOGService: '.get_class($this).' - Waiting for mysql to be available',$this->dev);
+            $this->out(sprintf('FOGService: %s - %s',get_class($this),_('Waiting for mysql to be available')),$this->dev);
             sleep(10);
         }
     }
     public function getBanner() {
-        $str = "\n";
-        $str .= "        ___           ___           ___      \n";
-        $str .= "       /\  \         /\  \         /\  \     \n";
-        $str .= "      /::\  \       /::\  \       /::\  \    \n";
-        $str .= "     /:/\:\  \     /:/\:\  \     /:/\:\  \   \n";
-        $str .= "    /::\-\:\  \   /:/  \:\  \   /:/  \:\  \  \n";
-        $str .= "   /:/\:\ \:\__\ /:/__/ \:\__\ /:/__/_\:\__\ \n";
-        $str .= "   \/__\:\ \/__/ \:\  \ /:/  / \:\  /\ \/__/ \n";
-        $str .= "        \:\__\    \:\  /:/  /   \:\ \:\__\   \n";
-        $str .= "         \/__/     \:\/:/  /     \:\/:/  /   \n";
-        $str .= "                    \::/  /       \::/  /    \n";
-        $str .= "                     \/__/         \/__/     \n";
-        $str .= "\n";
-        $str .= "  ###########################################\n";
-        $str .= "  #     Free Computer Imaging Solution      #\n";
-        $str .= "  #     Credits:                            #\n";
-        $str .= "  #     http://fogproject.org/credits       #\n";
-        $str .= "  #     GNU GPL Version 3                   #\n";
-        $str .= "  ###########################################\n";
-        $this->outall($str);
+        ob_start();
+        echo "\n";
+        echo "        ___           ___           ___      \n";
+        echo "       /\  \         /\  \         /\  \     \n";
+        echo "      /::\  \       /::\  \       /::\  \    \n";
+        echo "     /:/\:\  \     /:/\:\  \     /:/\:\  \   \n";
+        echo "    /::\-\:\  \   /:/  \:\  \   /:/  \:\  \  \n";
+        echo "   /:/\:\ \:\__\ /:/__/ \:\__\ /:/__/_\:\__\ \n";
+        echo "   \/__\:\ \/__/ \:\  \ /:/  / \:\  /\ \/__/ \n";
+        echo "        \:\__\    \:\  /:/  /   \:\ \:\__\   \n";
+        echo "         \/__/     \:\/:/  /     \:\/:/  /   \n";
+        echo "                    \::/  /       \::/  /    \n";
+        echo "                     \/__/         \/__/     \n";
+        echo "\n";
+        echo "  ###########################################\n";
+        echo "  #     Free Computer Imaging Solution      #\n";
+        echo "  #     Credits:                            #\n";
+        echo "  #     http://fogproject.org/credits       #\n";
+        echo "  #     GNU GPL Version 3                   #\n";
+        echo "  ###########################################\n";
+        $this->outall(ob_get_clean());
     }
     public function outall($string) {
         $this->out($string."\n",$this->dev);
@@ -75,9 +75,8 @@ abstract class FOGService extends FOGBase {
         return;
     }
     protected function out($string,$device) {
-        $strOut = $string."\n";
         if (!$hdl = fopen($device,'w')) return;
-        if (fwrite($hdl,$strOut) === false) return;
+        if (fwrite($hdl,"$string\n") === false) return;
         fclose($hdl);
     }
     protected function getDateTime() {
@@ -119,7 +118,7 @@ abstract class FOGService extends FOGBase {
         $countTest = ($master ? 1 : 0);
         if ($groupOrNodeCount <= $countTest) {
             $this->outall(_(" * Not syncing $objType between $itemType(s)"));
-            $this->outall(_(" | $objType Name: ".$Obj->get('name')));
+            $this->outall(_(" | $objType Name: {$Obj->get(name)}"));
             $this->outall(_(" | I am the only member"));
             $onlyone = true;
         }

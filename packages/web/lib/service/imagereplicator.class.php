@@ -28,7 +28,7 @@ class ImageReplicator extends FOGService {
             foreach ((array)$Images AS $Image) {
                 if (!$Image->isValid()) continue;
                 if (!$Image->getPrimaryGroup($myStorageGroupID)) {
-                    $this->outall(_(' | Not syncing Image: '.$Image->get('name')));
+                    $this->outall(_(" | Not syncing Image: {$Image->get(name)}"));
                     $this->outall(_(' | This is not the primary group'));
                     continue;
                 }
