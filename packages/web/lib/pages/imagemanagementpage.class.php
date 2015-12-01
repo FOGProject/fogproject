@@ -220,6 +220,7 @@ class ImageManagementPage extends FOGPage {
             _('Partition') => $ImagePartitionTypes,
             _('Compression') => sprintf('<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="%s"/>',$compression),
             _('Protected') => sprintf('<input type="checkbox" name="protected_image"%s/>',($this->obj->get('protected') ? ' checked' : '')),
+            _('Image Enabled') => sprintf('<input type="checkbox" name="isEnabled" value="1"%s/>',$this->obj->get('isEnabled') ? ' checked' : ''),
             $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? _('Image Manager') : '' => $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? $format : '',
             '' => sprintf('<input type="submit" name="update" value="%s"/>',_('Update')),
         );
@@ -319,7 +320,8 @@ class ImageManagementPage extends FOGPage {
                     ->set('imagePartitionTypeID',$_REQUEST['imagepartitiontype'])
                     ->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $this->obj->get('format'))
                     ->set('protected',(int)isset($_REQUEST['protected_image']))
-                    ->set('compress',$_REQUEST['compress']);
+                    ->set('compress',$_REQUEST['compress'])
+                    ->set('isEnabled',intval(isset($_REQUEST['isEnabled'])));
                 break;
             case 'image-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);

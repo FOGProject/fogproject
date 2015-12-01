@@ -15,7 +15,7 @@ class SnapinReplicator extends FOGService {
             $this->outall(sprintf(" | We are group name: %s",$this->getClass('StorageGroup',$myStorageGroupID)->get('name')));
             $this->outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
             $this->outall(sprintf(" | We are node name: %s",$this->getClass('StorageNode',$myStorageNodeID)->get('name')));
-            $SnapinIDs = $this->getSubObjectIDs('Snapin');
+            $SnapinIDs = $this->getSubObjectIDs('Snapin',array('isEnabled'=>1));
             $SnapinAssocs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$SnapinIDs),'snapinID',true);
             if (count($SnapinAssocs)) $this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$SnapinAssocs));
             unset($SnapinAssocs);
