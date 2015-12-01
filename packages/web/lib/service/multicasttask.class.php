@@ -15,12 +15,12 @@ class MulticastTask extends MulticastManager {
             $Image = $this->getClass('Image',$MultiSess->get('image'));
             if (!$Image->isValid()) continue;
             if (in_array($this->FOGCore->resolveHostname($Image->getStorageGroup()->getMasterStorageNode()->get('ip')),$this->getIPAddress())) {
-                $count = $this->getClass('MulticastSessionsAssociationManager')->count(array(msID=>$MultiSess->get('id')));
+                $count = $this->getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MultiSess->get('id')));
                 $Tasks[] = new self(
                     $MultiSess->get('id'),
                     $MultiSess->get('name'),
                     $MultiSess->get('port'),
-                    $root.'/'.$MultiSess->get('logpath'),
+                    sprintf('%s/%s',$root,$MultiSess->get('logpath')),
                     $Image->getStorageGroup()->getMasterStorageNode()->get('interface')? $Image->getStorageGroup()->getMasterStorageNode()->get('interface'):$this->getSetting('FOG_UDPCAST_INTERFACE'),
                     ($count>0?$count:($MultiSess->get('sessclients')>0?$MultiSess->get('sessclients'):$this->getClass('HostManager')->count())),
                     $MultiSess->get('isDD'),
@@ -72,7 +72,7 @@ class MulticastTask extends MulticastManager {
         return $this->intOSID;
     }
     public function getUDPCastLogFile() {
-        return MULTICASTLOGPATH.".udpcast.".$this->getID();
+        return sprintf('%s.udpcast.%s',MULTICASTLOGPATH,$this->getID());
     }
     public function getBitrate() {
         return $this->getClass('Image',$this->getClass('MulticastSessions',$this->getID())->get('image'))->getStorageGroup()->getMasterStorageNode()->get('bitrate');
@@ -171,20 +171,20 @@ class MulticastTask extends MulticastManager {
             break;
         }
         natsort($filelist);
-        $cmd = '';
+        ob_start();
         foreach ($filelist AS $i => &$file) {
-            $cmd .= sprintf('cat %s | %s',rtrim($this->getImagePath(),DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file,implode($buildcmd));
+            printf('cat %s%s%s | %s',rtrim($this->getImagePath(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,$file,implode($buildcmd));
             unset($file);
         }
         unset($filelist);
-        return $cmd;
+        return ob_get_clean();
     }
     public function startTask() {
         @unlink($this->getUDPCastLogFile());
         $this->startTasking($this->getCMD(),$this->getUDPCastLogFile());
         $this->procRef = array_shift($this->procRef);
         $this->getClass('MulticastSessions',$this->intID)
-            ->set(stateID,1)
+            ->set('stateID',1)
             ->save();
         return $this->isRunning($this->procRef);
     }
