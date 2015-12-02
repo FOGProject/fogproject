@@ -10,6 +10,9 @@ class TasktypeeditManagementPage extends FOGPage {
             'add' => sprintf($this->foglang['CreateNew'],_('Task Type')),
         );
         if ($_REQUEST['id']) {
+            $this->subMenu = array(
+                $this->delformat => $this->foglang['Delete'],
+            );
             $this->notes = array(
                 _('Name')=>$this->obj->get('name'),
                 _('Icon')=>sprintf('<i class="fa fa-%s fa-2x"></i>',$this->obj->get('icon')),
@@ -17,16 +20,19 @@ class TasktypeeditManagementPage extends FOGPage {
             );
         }
         $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             _('Name'),
             _('Access'),
             _('Kernel Args'),
         );
         $this->templates = array(
+            '<input type="checkbox" name="tasktypeedit[]" value="${id}" class="toggle-action"/>',
             sprintf('<a href="?node=%s&sub=edit&id=${id}" title="Edit"><i class="fa fa-${icon} fa-1x"> ${name}</i></a>',$this->node),
             '${access}',
             '${args}',
         );
         $this->attributes = array(
+            array('width'=>16,'class'=>'l filter-false'),
             array('class'=>'l'),
             array('class'=>'c'),
             array('class'=>'r'),
