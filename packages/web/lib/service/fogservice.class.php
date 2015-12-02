@@ -131,7 +131,6 @@ abstract class FOGService extends FOGBase {
             $PotentialStorageNodes = array_diff((array)$this->getSubObjectIDs('StorageNode',$findWhere,'id'),(array)$myStorageNodeID);
             $myDir = sprintf('/%s/',trim($StorageNode->get($getPathOfItemField),'/'));
             $myFile = basename($Obj->get($getFileOfItemField));
-            $myAddItem = $myDir;
             $myAddItem = "$myDir$myFile";
             foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
                 if (!$PotentialStorageNode->isValid()) continue;
@@ -163,15 +162,12 @@ abstract class FOGService extends FOGBase {
                 if ($limitsend > 0) $limitset .= "set net:limit-rate 0:$limitsend;";
                 $limit = $limitset;
                 if (is_file("$myAddItem")) {
-                    $remItem = "$removeDir";
-                    $includeFile = sprintf('-i %s',$myFile);
+                    $remItem = "$removeDir../";
+                    $includeFile = sprintf('-R -i %s',$myFile);
                     $myAddItem = dirname($myAddItem);
                 } else if (is_dir("$myAddItem")) {
-                    $remItem = "$removeDir$myFile";
-                    $includeFile = null;
-                } else {
-                    $this->outall(_(' * Item is not a directory or file'));
-                    continue;
+                    $remItem = "$removeDir$removeFile";
+                    $includeFile = '-R';
                 }
                 $date = $this->formatTime('','Ymd_His');
                 $logname = "$this->log.transfer.$nodename.log";
@@ -181,7 +177,9 @@ abstract class FOGService extends FOGBase {
                     $this->outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$itemType][$i])));
                 } else {
                     $this->killTasking($index,$itemType);
-                    $this->startTasking("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c -R --ignore-time $includeFile -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip",$logname,$i,$itemType);
+                    $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
+                    $this->outall(" | CMD:\n\t\t\t$cmd");
+                    $this->startTasking($cmd,$logname,$i,$itemType);
                 }
                 $this->outall(sprintf(' * %s %s %s',_('Started sync for'),$objType,$Obj->get('name')));
                 unset($PotentialStorageNode);
