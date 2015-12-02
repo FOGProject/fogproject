@@ -183,6 +183,7 @@ class ImageManagementPage extends FOGPage {
                 ->set('imageTypeID',$_REQUEST['imagetype'])
                 ->set('imagePartitionTypeID',$_REQUEST['imagepartitiontype'])
                 ->set('compress',$_REQUEST['compress'])
+                ->set('isEnabled',1)
                 ->set('toReplicate',intval(isset($_REQUEST['toReplicate'])))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Image->save()) throw new Exception(_('Database update failed'));
@@ -269,7 +270,7 @@ class ImageManagementPage extends FOGPage {
             echo '</div>';
         }
         unset($this->data);
-        if ($GroupDataExists) printf('<br/><input type="submit" value="%s"/></form></p>',_('Add Image to Group(s)'));
+        if ($GroupDataExists) printf('<br/><p class="c"><input type="submit" value="%s"/></p></form></p>',_('Add Image to Group(s)'));
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             '',
