@@ -15,7 +15,7 @@ class ImageReplicator extends FOGService {
             $this->outall(sprintf(" | We are group name: %s",$this->getClass('StorageGroup',$myStorageGroupID)->get('name')));
             $this->outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
             $this->outall(sprintf(" | We are node name: %s",$this->getClass('StorageNode',$myStorageNodeID)->get('name')));
-            $ImageIDs = $this->getSubObjectIDs('Image',array('isEnabled'=>1));
+            $ImageIDs = $this->getSubObjectIDs('Image',array('isEnabled'=>1,'toReplicate'=>1));
             $ImageAssocs = $this->getSubObjectIDs('ImageAssociation',array('imageID'=>$ImageIDs),'imageID',true);
             if (count($ImageAssocs)) $this->getClass('ImageAssociationManager')->destroy(array('imageID'=>$ImageAssocs));
             unset($ImageAssocs);
