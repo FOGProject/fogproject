@@ -145,6 +145,7 @@ class ImageManagementPage extends FOGPage {
             _('Image Path') => sprintf('%s/&nbsp;<input type="text" name="file" id="iFile" value="%s"/>',$StorageNode->get('path'),$_REQUEST['file']),
             _('Image Type') => $ImageTypes,
             _('Partition') => $ImagePartitionTypes,
+            _('Replicate?') => '<input type="checkbox" name="toReplicate" value="1" checked/>',
             _('Compression') => sprintf('<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="%s"/>',$compression),
             '&nbsp;' => sprintf('<input type="submit" name="add" value="%s"/>',_('Add')),
         );
@@ -182,6 +183,7 @@ class ImageManagementPage extends FOGPage {
                 ->set('imageTypeID',$_REQUEST['imagetype'])
                 ->set('imagePartitionTypeID',$_REQUEST['imagepartitiontype'])
                 ->set('compress',$_REQUEST['compress'])
+                ->set('toReplicate',intval(isset($_REQUEST['toReplicate'])))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Image->save()) throw new Exception(_('Database update failed'));
             $this->HookManager->processEvent('IMAGE_ADD_SUCCESS',array('Image'=>&$Image));
@@ -221,6 +223,7 @@ class ImageManagementPage extends FOGPage {
             _('Compression') => sprintf('<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="%s"/>',$compression),
             _('Protected') => sprintf('<input type="checkbox" name="protected_image"%s/>',($this->obj->get('protected') ? ' checked' : '')),
             _('Image Enabled') => sprintf('<input type="checkbox" name="isEnabled" value="1"%s/>',$this->obj->get('isEnabled') ? ' checked' : ''),
+            _('Replicate?') => sprintf('<input type="checkbox" name="toReplicate" value="1"%s/>',$this->obj->get('toReplicate') ? ' checked' : ''),
             $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? _('Image Manager') : '' => $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? $format : '',
             '' => sprintf('<input type="submit" name="update" value="%s"/>',_('Update')),
         );
@@ -321,7 +324,8 @@ class ImageManagementPage extends FOGPage {
                     ->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $this->obj->get('format'))
                     ->set('protected',(int)isset($_REQUEST['protected_image']))
                     ->set('compress',$_REQUEST['compress'])
-                    ->set('isEnabled',intval(isset($_REQUEST['isEnabled'])));
+                    ->set('isEnabled',intval(isset($_REQUEST['isEnabled'])))
+                    ->set('toReplicate',intval(isset($_REQUEST['toReplicate'])));
                 break;
             case 'image-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);
