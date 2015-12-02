@@ -355,7 +355,7 @@ while [ "$blGo" = "" ]; do
         echo "";
         # Which package list do we use?
         if [ "$installtype" = "S" ]; then
-            packages=$storageNodePackages;
+            packages=`echo $packages|sed 's/[[:space:]].*dhcp.*[[:space]]/ /'`
         fi
         if [ "${ignorehtmldoc}" = "1" ]; then
             newpackagelist="";
@@ -398,7 +398,6 @@ while [ "$blGo" = "" ]; do
             configureUsers;
             configureMinHttpd;
             configureStorage;
-            configureDHCP;
             configureTFTPandPXE;
             configureFTP;
             configureUDPCast;
