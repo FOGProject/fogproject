@@ -116,6 +116,7 @@ class SnapinManagementPage extends FOGPage {
             sprintf('%s <span class="lightColor">%s:%s</span>',_('Snapin File'),_('Max Size'),ini_get('post_max_size')) => sprintf('<input class="cmdlet3" name="snapin" value="%s" type="file"/>',$_FILES['snapin']),
             (count($files) > 0 ? _('Snapin File (exists)') : '') => (count($files) > 0 ? $selectFiles : ''),
             _('Snapin Arguments') => sprintf('<input class="cmdlet4" type="text" name="args" value="%s"/>',$_REQUEST['args']),
+            _('Replicate?') => '<input type="checkbox" name="toReplicate" value="1" checked/>',
             _('Reboot after install') => '<input type="checkbox" name="reboot"/>',
             _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
             '' => sprintf('<input name="add" type="submit" value="%s"/>',_('Add'))
@@ -168,6 +169,7 @@ class SnapinManagementPage extends FOGPage {
                 ->set('reboot',(int)isset($_REQUEST['reboot']))
                 ->set('runWith',$_REQUEST['rw'])
                 ->set('runWithArgs',$_REQUEST['rwa'])
+                ->set('toReplicate',intval(isset($_REQUEST['toReplicate'])))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Snapin->save()) throw new Exception(_('Add snapin failed!'));
             $this->HookManager->processEvent('SNAPIN_ADD_SUCCESS',array('Snapin'=>&$Snapin));
@@ -231,6 +233,7 @@ class SnapinManagementPage extends FOGPage {
             _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
             '' => sprintf('<input name="update" type="submit" value="%s"/>',_('Update')),
             _('Snapin Enabled') => sprintf('<input type="checkbox" name="isEnabled" value="1"%s/>',$this->obj->get('isEnabled') ? ' checked' : ''),
+            _('Replicate?') => sprintf('<input type="checkbox" name="toReplicate" value="1"%s/>',$this->obj->get('toReplicate') ? ' checked' : ''),
         );
         echo '<div id="tab-container"><!-- General --><div id="snap-gen">';
         echo '<form method="post" action="'.$this->formAction.'&tab=snap-gen" enctype="multipart/form-data">';
@@ -346,7 +349,8 @@ class SnapinManagementPage extends FOGPage {
                     ->set('runWith',$_REQUEST['rw'])
                     ->set('runWithArgs',$_REQUEST['rwa'])
                     ->set('protected',$_REQUEST['protected_snapin'])
-                    ->set('isEnabled',intval(isset($_REQUEST['isEnabled'])));
+                    ->set('isEnabled',intval(isset($_REQUEST['isEnabled'])))
+                    ->set('toReplicate',intval(isset($_REQUEST['toReplicate'])));
                 break;
             case 'snap-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);

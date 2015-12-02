@@ -20,6 +20,7 @@ class Image extends FOGController {
         'protected' => 'imageProtect',
         'compress' => 'imageCompress',
         'isEnabled' => 'imageEnabled',
+        'toReplicate' => 'imageReplicate',
     );
     protected $databaseFieldsRequired = array(
         'name',

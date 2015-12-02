@@ -2084,3 +2084,8 @@ $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`images` ADD `imageEnabled` ENUM('0','1') NOT NULL DEFAULT '1'",
     "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sEnabled` ENUM('0','1') NOT NULL DEFAULT '1'",
 );
+// 202
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`images` ADD `imageReplicate` ENUM('0','1') NOT NULL DEFAULT '1'",
+    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sReplicate` ENUM('0','1') NOT NULL DEFAULT '1'",
+);

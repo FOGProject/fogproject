@@ -14,6 +14,7 @@ class Snapin extends FOGController {
         'runWithArgs' => 'sRunWithArgs',
         'protected' => 'snapinProtect',
         'isEnabled' => 'sEnabled',
+        'toReplicate' => 'sReplicate',
         'anon3' => 'sAnon3',
     );
     protected $databaseFieldsRequired = array(
