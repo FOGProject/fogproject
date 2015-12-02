@@ -130,13 +130,13 @@ abstract class FOGService extends FOGBase {
             $getFileOfItemField = $objType == 'Snapin' ? 'file' : 'path';
             $PotentialStorageNodes = array_diff((array)$this->getSubObjectIDs('StorageNode',$findWhere,'id'),(array)$myStorageNodeID);
             $myDir = sprintf('/%s/',trim($StorageNode->get($getPathOfItemField),'/'));
-            $myFile = ($master ? basename($Obj->get($getFileOfItemField)) : '');
+            $myFile = basename($Obj->get($getFileOfItemField));
             $myAddItem = $myDir;
-            if (is_dir("$myDir$myFile")) $myAddItem = "$myDir$myFile";
+            $myAddItem = "$myDir$myFile";
             foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
                 if (!$PotentialStorageNode->isValid()) continue;
                 if ($master && $PotentialStorageNode->get('storageGroupID') == $myStorageGroupID) continue;
-                if (!file_exists("$myDir$myFile")) {
+                if (!file_exists("$myAddItem")) {
                     $this->outall(_(" * Not syncing $objType between $itemType(s)"));
                     $this->outall(_(" | $objType Name: {$Obj->get(name)}"));
                     $this->outall(_(" | File or path cannot be reached"));
@@ -162,15 +162,16 @@ abstract class FOGService extends FOGBase {
                 if ($limitmain > 0) $limitset = "set net:limit-total-rate 0:$limitmain;";
                 if ($limitsend > 0) $limitset .= "set net:limit-rate 0:$limitsend;";
                 $limit = $limitset;
-                if (is_file("$myDir$myFile")) {
+                if (is_file("$myAddItem")) {
                     $remItem = "$removeDir";
                     $includeFile = sprintf('-i %s',$myFile);
-                } else if (is_dir("$myDir$myFile")) {
+                    $myAddItem = dirname($myAddItem);
+                } else if (is_dir("$myAddItem")) {
                     $remItem = "$removeDir$myFile";
                     $includeFile = null;
                 } else {
-                    $remItem = $removeDir;
-                    $includeFile = null;
+                    $this->outall(_(' * Item is not a directory or file'));
+                    continue;
                 }
                 $date = $this->formatTime('','Ymd_His');
                 $logname = "$this->log.transfer.$nodename.log";
@@ -182,6 +183,7 @@ abstract class FOGService extends FOGBase {
                     $this->killTasking($index,$itemType);
                     $this->startTasking("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c -R --ignore-time $includeFile -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip",$logname,$i,$itemType);
                 }
+                $this->outall(sprintf(' * %s %s %s',_('Started sync for'),$objType,$Obj->get('name')));
                 unset($PotentialStorageNode);
             }
         }
