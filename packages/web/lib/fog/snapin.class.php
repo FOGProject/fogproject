@@ -155,8 +155,10 @@ class Snapin extends FOGController {
         }
     }
     protected function loadStorageGroups() {
-        if ($this->get('id')) $this->set('storageGroups',$this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID'));
-        if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min($this->getSubObjectIDs('StorageGroup','','id')));
+        if ($this->get('id')) {
+            $this->set('storageGroups',$this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID'));
+            if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min($this->getSubObjectIDs('StorageGroup','','id')));
+        }
     }
     protected function loadStorageGroupsnotinme() {
         if ($this->get('id')) $this->set('storageGroups',$this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID'));
