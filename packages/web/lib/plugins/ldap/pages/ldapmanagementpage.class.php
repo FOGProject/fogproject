@@ -114,7 +114,7 @@ class LDAPManagementPage extends FOGPage {
                 ->set('name',$name)
                 ->set('description',$_REQUEST['description'])
                 ->set('address',$address)
-                ->set('DN',$REQUEST['DN'])
+                ->set('DN',$_REQUEST['DN'])
                 ->set('port',$_REQUEST['port']);
             if ($LDAP->save()) {
                 $this->setMessage(_('LDAP Server Added, editing!'));
