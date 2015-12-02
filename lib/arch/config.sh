@@ -21,7 +21,6 @@
 # pacman packages to install
 #packages="apache php-apache php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc htmldoc perl perl-crypt-passwdmd5 lftp"
 packages="apache php-fpm php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc perl perl-crypt-passwd md5 lftp curl openssl openssh php-mcrypt"
-storageNodePackages=$packages
 packageinstaller="pacman -Sy --noconfirm"
 packagelist="pacman -Si"
 packageupdater="pacman -Syu --noconfirm"
