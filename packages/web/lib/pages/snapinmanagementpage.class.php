@@ -119,7 +119,7 @@ class SnapinManagementPage extends FOGPage {
             _('Replicate?') => '<input type="checkbox" name="toReplicate" value="1" checked/>',
             _('Reboot after install') => '<input type="checkbox" name="reboot"/>',
             _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
-            '' => sprintf('<input name="add" type="submit" value="%s"/>',_('Add'))
+            '&nbsp;' => sprintf('<input name="add" type="submit" value="%s"/>',_('Add'))
         );
         unset($files,$selectFiles);
         printf('<form method="post" action"%s" enctype="multipart/form-data">',$this->formAction);
@@ -144,23 +144,22 @@ class SnapinManagementPage extends FOGPage {
             if (!$snapinName) throw new Exception(_('Please enter a name to give this Snapin'));
             if ($SnapinManager->exists($snapinName)) throw new Exception(_('Snapin already exists'));
             if (!$_REQUEST['storagegroup']) throw new Exception(_('Please select a storage group for this snapin to reside in'));
-            if ($_REQUEST['snapin'] || $_FILES['snapin']['name']) {
-                if (!$_REQUEST['storagegroup']) throw new Exception(_('Must have snapin associated to a group'));
-                $StorageNode = $this->getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
-                $src = $_FILES['snapin']['tmp_name'];
-                $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$_FILES['snapin']['name']);
-                $this->FOGFTP
-                    ->set('host',$StorageNode->get('ip'))
-                    ->set('username',$StorageNode->get('user'))
-                    ->set('password',$StorageNode->get('pass'));
-                if (!$this->FOGFTP->connect()) throw new Exception(sprintf('%s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP Connection has failed')));
-                if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                    if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
-                }
-                $this->FOGFTP->delete($dest);
-                if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add snapin'));
-                $this->FOGFTP->close();
-            } else if (empty($_REQUEST['snapinfileexist'])) throw new Exception(_('Failed to add snapin, no file was uploaded or selected for use'));
+            if (!$_REQUEST['snapinfileexist'] && !$_FILES['snapin']) throw new Exception(_('Missing snapin file information'));
+            if (!$_REQUEST['storagegroup']) throw new Exception(_('Must have snapin associated to a group'));
+            $StorageNode = $this->getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
+            $src = $_FILES['snapin']['tmp_name'];
+            $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$_FILES['snapin']['name']);
+            $this->FOGFTP
+                ->set('host',$StorageNode->get('ip'))
+                ->set('username',$StorageNode->get('user'))
+                ->set('password',$StorageNode->get('pass'));
+            if (!$this->FOGFTP->connect()) throw new Exception(sprintf('%s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP Connection has failed')));
+            if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+            }
+            $this->FOGFTP->delete($dest);
+            if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add snapin'));
+            $this->FOGFTP->close();
             $Snapin = $this->getClass('Snapin')
                 ->set('name',$snapinName)
                 ->set('description',$_REQUEST['description'])
@@ -169,6 +168,7 @@ class SnapinManagementPage extends FOGPage {
                 ->set('reboot',(int)isset($_REQUEST['reboot']))
                 ->set('runWith',$_REQUEST['rw'])
                 ->set('runWithArgs',$_REQUEST['rwa'])
+                ->set('isEnabled',1)
                 ->set('toReplicate',intval(isset($_REQUEST['toReplicate'])))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Snapin->save()) throw new Exception(_('Add snapin failed!'));
@@ -230,10 +230,10 @@ class SnapinManagementPage extends FOGPage {
             _('Snapin Arguments') => sprintf('<input class="cmdlet4" type="text" name="args" value="%s"/>',$this->obj->get('args')),
             _('Protected') => sprintf('<input type="checkbox" name="protected_snapin" value="1"%s/>',$this->obj->get('protected') ? ' checked' : ''),
             _('Reboot after install') => sprintf('<input type="checkbox" name="reboot"%s/>',($this->obj->get('reboot') ? ' checked' : '')),
-            _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
-            '' => sprintf('<input name="update" type="submit" value="%s"/>',_('Update')),
             _('Snapin Enabled') => sprintf('<input type="checkbox" name="isEnabled" value="1"%s/>',$this->obj->get('isEnabled') ? ' checked' : ''),
             _('Replicate?') => sprintf('<input type="checkbox" name="toReplicate" value="1"%s/>',$this->obj->get('toReplicate') ? ' checked' : ''),
+            _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
+            '' => sprintf('<input name="update" type="submit" value="%s"/>',_('Update')),
         );
         echo '<div id="tab-container"><!-- General --><div id="snap-gen">';
         echo '<form method="post" action="'.$this->formAction.'&tab=snap-gen" enctype="multipart/form-data">';
@@ -312,7 +312,7 @@ class SnapinManagementPage extends FOGPage {
         $this->HookManager->processEvent('SNAPIN_EDIT_GROUP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=snap-storage">',$this->formAction);
         $this->render();
-        if (count($this->data) > 0) printf('<p class="c"><input name="update" type="submit" value="%s"/>&nbsp;<input name="deleteGroup" type="submit" value="%s" name="remstorgroups"/></p>',_('Update Primary Group'),_('Deleted selected group associations'));
+        if (count($this->data) > 0) printf('<p class="c"><input name="update" type="submit" value="%s"/>&nbsp;<input name="deleteGroup" type="submit" value="%s"/></p>',_('Update Primary Group'),_('Deleted selected group associations'));
         echo '</form></div></div>';
     }
     public function edit_post() {
@@ -320,13 +320,13 @@ class SnapinManagementPage extends FOGPage {
         try {
             switch ($_REQUEST['tab']) {
             case 'snap-gen':
-                if (!$_REQUEST['snapinfileexist'] && !$_REQUEST['snapin']) throw new Exception(_('Missing snapin file information'));
+                if (!$_REQUEST['snapinfileexist'] && !$_FILES['snapin']) throw new Exception(_('Missing snapin file information'));
                 if (!$this->obj->getStorageGroup()) throw new Exception(_('Must have snapin associated to a group'));
                 if (!$_REQUEST['name']) throw new Exception(_('Snapin name must not be empty'));
                 if ($_REQUEST['name'] != $this->obj->get('name') && $this->obj->getManager()->exists($_REQUEST['name'], $this->obj->get('id'))) throw new Exception(_('Snapin already exists'));
                 $StorageNode = $this->obj->getStorageGroup()->getMasterStorageNode();
                 $snapinfile = $_REQUEST['snapinfileexist'];
-                if ($_REQUEST['snapin'] && $_FILES['snapin']['name']) {
+                if ($_FILES['snapin']['name']) {
                     $src = $_FILES['snapin']['tmp_name'];
                     $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$_FILES['snapin']['name']);
                     $this->FOGFTP
@@ -355,7 +355,7 @@ class SnapinManagementPage extends FOGPage {
             case 'snap-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);
                 if (isset($_REQUEST['update'])) $this->obj->setPrimaryGroup($_REQUEST['primary']);
-                if (isset($_REQUEST['deleteGroup']) && isset($_REQUEST['remstorgroups'])) {
+                if (isset($_REQUEST['deleteGroup'])) {
                     if (count($this->obj->get('storageGroups')) < 2) throw new Exception(_('Snapin must be assigned to one Storage Group'));
                     $this->obj->removeGroup($_REQUEST['storagegroup-rm']);
                 }
