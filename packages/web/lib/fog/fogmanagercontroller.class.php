@@ -42,12 +42,14 @@ abstract class FOGManagerController extends FOGBase {
             else $groupBy = '';
         } else $orderBy = '';
         list($join, $whereArrayAnd) = $this->getClass($this->childClass)->buildQuery($not, $compare);
+        $isEnabled = false;
+        if (!in_array($this->childClass,array('Image','Snapin')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
         $query = sprintf(
             $this->loadQueryTemplate,
             $this->databaseTable,
             $join,
-            (count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
-            (count($whereArrayAnd) ? (count($whereArray) ? 'AND ' : 'WHERE ').implode(' '.$whereOperator.' ',$whereArrayAnd) : ''),
+            (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : '')),
+            (count($whereArrayAnd) ? (count($whereArray) ? sprintf('AND %s',implode(sprintf(' %s ',$whereOperator)),$whereArrayAnd) : sprintf('WHERE %s',implode(sprintf(' %s ',$whereOperator)),$whereArrayAnd)) : ''),
             $orderBy,
             $sort
         );
@@ -103,12 +105,14 @@ abstract class FOGManagerController extends FOGBase {
             }
             unset($value);
         }
+        $isEnabled = false;
+        if (!in_array($this->childClass,array('Image','Snapin')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
         $query = sprintf(
             $this->countQueryTemplate,
             $this->databaseTable,
-            $this->databaseFields[id],
+            $this->databaseFields['id'],
             $this->databaseTable,
-            (count($whereArray) ? ' WHERE '.implode(' '.$whereOperator.' ',$whereArray) : '')
+            (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : ''))
         );
         return (int)$this->DB->query($query)->fetch()->get('total');
     }
