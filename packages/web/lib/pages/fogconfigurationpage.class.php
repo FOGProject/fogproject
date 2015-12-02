@@ -372,8 +372,11 @@ class FOGConfigurationPage extends FOGPage {
     public function mac_list_post() {
         if ($_REQUEST['update']) {
             $f = '/tmp/oui.txt';
-            exec("rm -rf $f");
-            exec("wget -O $f  http://standards.ieee.org/develop/regauth/oui/oui.txt");
+            $url = 'http://standards.ieee.org/develop/regauth/oui/oui.txt';
+            $fp = fopen($f,'wb');
+            if (!$fp) throw new Exception(_('Error: Failed to open temp file'));
+            $this->FOGURLRequests->process($url,'GET',false,false,false,false,$fp);
+            fclose($fp);
             if (false !== ($handle = fopen($f,'rb'))) {
                 $start = 18;
                 $imported = 0;
@@ -395,6 +398,7 @@ class FOGConfigurationPage extends FOGPage {
                 $this->setMessage(sprintf('%s %s',$imported,_(' mac addresses updated!')));
             } else printf('%s: %s',_('Unable to locate file'),$f);
         } else if ($_REQUEST['clear']) $this->FOGCore->clearMACLookupTable();
+        @unlink($f);
         $this->resetRequest();
         $this->redirect('?node=about&sub=mac-list');
     }
