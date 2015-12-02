@@ -49,7 +49,7 @@ abstract class FOGManagerController extends FOGBase {
             $this->databaseTable,
             $join,
             (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : '')),
-            (count($whereArrayAnd) ? (count($whereArray) ? sprintf('AND %s',implode(sprintf(' %s ',$whereOperator)),$whereArrayAnd) : sprintf('WHERE %s',implode(sprintf(' %s ',$whereOperator)),$whereArrayAnd)) : ''),
+            (count($whereArrayAnd) ? (count($whereArray) ? sprintf('AND %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd)) : sprintf('WHERE %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd))) : ''),
             $orderBy,
             $sort
         );
@@ -60,15 +60,15 @@ abstract class FOGManagerController extends FOGBase {
                     $this->loadQueryTemplate,
                     $this->databaseTable,
                     $join,
-                    (count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
-                    (count($whereArrayAnd) ? (count($whereArray) ? 'AND ' : 'WHERE ').implode(' '.$whereOperator.' ',$whereArrayAnd) : ''),
+                    (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : '')),
+                    (count($whereArrayAnd) ? (count($whereArray) ? sprintf('AND %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd)) : sprintf('WHERE %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd))) : ''),
                     $orderBy,
                     $sort
                 ),
                 $this->databaseTable,
                 $join,
-                (count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
-                (count($whereArrayAnd) ? (count($whereArray) ? 'AND ' : 'WHERE ').implode(' '.$whereOperator.' ',$whereArrayAnd) : ''),
+                (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : '')),
+                (count($whereArrayAnd) ? (count($whereArray) ? sprintf('AND %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd)) : sprintf('WHERE %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd))) : ''),
                 $groupBy,
                 $orderBy,
                 $sort
@@ -79,12 +79,12 @@ abstract class FOGManagerController extends FOGBase {
             if (is_array($idField)) {
                 foreach ($idField AS $i => &$idstore) {
                     $idstore = trim($idstore);
-                    $ids[$idstore] = array_map('html_entity_decode',array_values((array)array_filter((array)$filter((array)$this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
+                    $ids[$idstore] = array_map('html_entity_decode',array_values((array)array_filter(@$filter($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
                 }
                 unset($idstore);
             } else {
                 $idField = trim($idField);
-                $ids = array_map('html_entity_decode',array_values((array)array_filter((array)$filter((array)$this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
+                $ids = array_map('html_entity_decode',array_values((array)array_filter((array)@$filter($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
             }
             $data = $ids;
         } else {
