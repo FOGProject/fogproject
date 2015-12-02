@@ -131,7 +131,11 @@ class Snapin extends FOGController {
     }
     public function getStorageGroup() {
         if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min($this->getSubObjectIDs('StorageGroup','','id')));
-        return $this->getClass('StorageGroup',@min($this->get('storageGroups')));
+        foreach ((array)$this->getClass('StorageGroupManager')->find(array('id'=>$this->get('storageGroups'))) AS $i => &$StorageGroup) {
+            if (!$StorageGroup->isValid()) continue;
+            if ($this->getPrimaryGroup($StorageGroup->get('id'))) return $StorageGroup;
+            unset($StorageGroup);
+        }
     }
     public function getPrimaryGroup($groupID) {
         if (!$this->getClass('SnapinGroupAssociationManager')->count(array('snapinID'=>$this->get('id'),'primary'=>1)) && $groupID == @min($this->getSubObjectIDs('StorageGroup','','id'))) {

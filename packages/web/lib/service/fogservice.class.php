@@ -162,7 +162,7 @@ abstract class FOGService extends FOGBase {
                 if ($limitsend > 0) $limitset .= "set net:limit-rate 0:$limitsend;";
                 $limit = $limitset;
                 if (is_file("$myAddItem")) {
-                    $remItem = "$removeDir../";
+                    $remItem = dirname("$removeDir$removeFile");
                     $includeFile = sprintf('-R -i %s',$myFile);
                     $myAddItem = dirname($myAddItem);
                 } else if (is_dir("$myAddItem")) {
