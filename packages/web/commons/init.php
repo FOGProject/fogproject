@@ -64,7 +64,6 @@ class Initiator {
         @set_time_limit(0);
         ini_set('display_errors',1);
         @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
-        @set_magic_quotes_runtime(0);
         self::verCheck();
         self::extCheck();
         foreach($_REQUEST as $key => &$val) {
