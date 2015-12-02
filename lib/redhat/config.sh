@@ -26,7 +26,7 @@ packmanUpdate="yum check-update"
 if [ "$linuxReleaseName" == "Mageia" ]; then
     # Mageia
     packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process";
-    storageNodePackages="apache apache-mod_php php-cli php-gettext mariadb mariadb-core mariadb-common mariadb-common-core nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process";
+    storageNodePackages=$packages;
     packageinstaller="urpmi --auto"
     packagelist="urpmq"
     packageupdater="$packageinstaller"
@@ -34,7 +34,7 @@ if [ "$linuxReleaseName" == "Mageia" ]; then
 elif [ "$linuxReleaseName" == "Fedora" ]; then
     # Fedora
     packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process";
-    storageNodePackages="httpd php php-cli php-common php-gd php-mysqlnd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp curl php-mcrypt php-mbstring mod_ssl php-fpm php-process";
+    storageNodePackages=$packages;
 	if [ "$linuxReleaseName" -a "$OSVersion" -ge 22 ]; then
 		packageinstaller="dnf -y install"
         packagelist="dnf list"
@@ -44,7 +44,7 @@ elif [ "$linuxReleaseName" == "Fedora" ]; then
 else
     # CentOS or Other  PCLinuxOS uses apt-rpm
     packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process";
-    storageNodePackages="httpd php php-cli php-common php-gd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process";
+    storageNodePackages=$packages;
 fi
 langPackages="iso-codes"
 dhcpname="dhcp"
