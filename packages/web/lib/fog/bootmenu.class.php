@@ -5,8 +5,8 @@ class BootMenu extends FOGBase {
     private $hiddenmenu, $timeout, $KS;
     public function __construct($Host = null) {
         parent::__construct();
-        $this->loglevel = 'loglevel='.$this->getSetting(FOG_KERNEL_LOGLEVEL);
-        $StorageNode = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1,isMaster=>1));
+        $this->loglevel = "loglevel={$this->getSetting(FOG_KERNEL_LOGLEVEL)}";
+        $StorageNode = $this->getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isMaster'=>1));
         $StorageNode = @array_shift($StorageNode);
         $webserver = $this->getSetting('FOG_WEB_HOST');
         $curroot = trim(trim($this->getSetting('FOG_WEB_ROOT'),'/'));
@@ -86,7 +86,7 @@ class BootMenu extends FOGBase {
         $this->initrd = "imgfetch $imagefile";
         $defMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('default'=>1)));
         $this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local').(!$this->hiddenmenu ? " --timeout $timeout" : " --timeout 0").' target && goto ${target}';
-        $iPXE = $this->getClass(iPXEManager)->find(array('product'=>$_REQUEST['product'],'manufacturer'=>$_REQUEST['manufacturer'],'file'=>$_REQUEST['filename']));
+        $iPXE = $this->getClass('iPXEManager')->find(array('product'=>$_REQUEST['product'],'manufacturer'=>$_REQUEST['manufacturer'],'file'=>$_REQUEST['filename']));
         $iPXE = @array_shift($iPXE);
         if ($iPXE instanceof iPXE && $iPXE->isValid()) {
             if ($iPXE->get('failure')) $iPXE->set('failure',0);
@@ -372,7 +372,7 @@ class BootMenu extends FOGBase {
             'menu',
         );
         $defItem = 'choose target && goto ${target}';
-        $Images = $this->getClass('ImageManager')->find();
+        $Images = $this->getClass('ImageManager')->find(array('isEnabled'=>1));
         if (!$Images) {
             $Send['NoImages'] = array(
                 '#!ipxe',
