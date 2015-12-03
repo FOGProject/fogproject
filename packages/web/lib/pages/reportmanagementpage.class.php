@@ -933,55 +933,35 @@ class ReportManagementPage extends FOGPage {
             if (!$SnapinJob->isValid()) continue;
             $Host = $SnapinJob->getHost();
             if (!$Host->isValid()) continue;
-            $TaskCheckinDate = $this->formatTime($SnapinTask->get('checkin'),'Y-m-d');
-            $TaskCheckinTime = $this->nice_date($SnapinTask->get('complete'),'H:i:s');
-            $hostID = $Host->get('id');
-            $hostName = $Host->get('name');
-            $hostMac = $Host->get('mac');
-            $snapinID = $Snapin->get('id');
-            $snapinName = $Snapin->get('name');
-            $snapinDesc = $Snapin->get('description');
-            $snapinFile = $Snapin->get('file');
-            $snapinArgs = $Snapin->get('args');
-            $snapinRw = $Snapin->get('runWith');
-            $snapinRwa = $Snapin->get('runWithArgs');
-            $snapinState = $SnapinTask->get('stateID');
-            $snapinReturn = $SnapinTask->get('return');
-            $snapinDetail = $SnapinTask->get('detail');
-            $snapinCreateDate = $this->formatTime($Snapin->get(createdTime),'Y-m-d');
-            $snapinCreateTime = $this->formatTime($Snapin->get(createdTime),'H:i:s');
-            $jobCreateDate = $this->formatTime($SnapinJob->get(createdTime),'Y-m-d');
-            $jobCreateTime = $this->formatTime($SnapinJob->get(createdTime),'H:i:s');
             $this->data[] = array(
-                'snap_name'=>$snapinName,
-                'snap_state'=>$snapinState,
-                'snap_return'=>$snapinReturn,
-                'snap_detail'=>$snapinDetail,
-                'snap_create'=>$snapinCreateDate,
-                'snap_time'=>$snapinCreateTime,
+                'snap_name'=>$Snapin->get('name'),
+                'snap_state'=>$SnapinTask->get('stateID'),
+                'snap_return'=>$SnapinTask->get('return'),
+                'snap_detail'=>$SnapinTask->get('detail'),
+                'snap_create'=>$this->formatTime($Snapin->get('createdTime'),'Y-m-d'),
+                'snap_time'=>$this->formatTime($Snapin->get('createdTime'),'H:i:s'),
             );
-            $this->ReportMaker->addCSVCell($hostID);
-            $this->ReportMaker->addCSVCell($hostName);
-            $this->ReportMaker->addCSVCell($hostMac);
-            $this->ReportMaker->addCSVCell($snapinID);
-            $this->ReportMaker->addCSVCell($snapinName);
-            $this->ReportMaker->addCSVCell($snapinDesc);
-            $this->ReportMaker->addCSVCell($snapinFile);
-            $this->ReportMaker->addCSVCell($snapinArgs);
-            $this->ReportMaker->addCSVCell($snapinRw);
-            $this->ReportMaker->addCSVCell($snapinRwa);
-            $this->ReportMaker->addCSVCell($snapinState);
-            $this->ReportMaker->addCSVCell($snapinReturn);
-            $this->ReportMaker->addCSVCell($snapinDetail);
-            $this->ReportMaker->addCSVCell($snapinCreateDate);
-            $this->ReportMaker->addCSVCell($snapinCreateTime);
-            $this->ReportMaker->addCSVCell($jobCreateDate);
-            $this->ReportMaker->addCSVCell($jobCreateTime);
-            $this->ReportMaker->addCSVCell($TaskCheckinDate);
-            $this->ReportMaker->addCSVCell($TaskCheckinTime);
+            $this->ReportMaker->addCSVCell($Host->get('id'));
+            $this->ReportMaker->addCSVCell($Host->get('name'));
+            $this->ReportMaker->addCSVCell($Host->get('mac')->__toString());
+            $this->ReportMaker->addCSVCell($Snapin->get('id'));
+            $this->ReportMaker->addCSVCell($Snapin->get('name'));
+            $this->ReportMaker->addCSVCell($Snapin->get('description'));
+            $this->ReportMaker->addCSVCell($Snapin->get('file'));
+            $this->ReportMaker->addCSVCell($Snapin->get('args'));
+            $this->ReportMaker->addCSVCell($Snapin->get('runWith'));
+            $this->ReportMaker->addCSVCell($Snapin->get('runWithArgs'));
+            $this->ReportMaker->addCSVCell($this->getClass('TaskState',$SnapinTask->get('stateID'))->get('name'));
+            $this->ReportMaker->addCSVCell($SnapinTask->get('return'));
+            $this->ReportMaker->addCSVCell($SnapinTask->get('detail'));
+            $this->ReportMaker->addCSVCell($this->formatTime($Snapin->get('createdTime'),'Y-m-d'));
+            $this->ReportMaker->addCSVCell($this->formatTime($Snapin->get('createdTime'),'H:i:s'));
+            $this->ReportMaker->addCSVCell($this->formatTime($SnapinJob->get('createdTime'),'Y-m-d'));
+            $this->ReportMaker->addCSVCell($this->formatTime($SnapinJob->get('createdTime'),'H:i:s'));
+            $this->ReportMaker->addCSVCell($this->formatTime($SnapinTask->get('checkin'),'Y-m-d'));
+            $this->ReportMaker->addCSVCell($this->formatTime($SnapinTask->get('checkin'),'H:i:s'));
             $this->ReportMaker->endCSVLine();
-            unset($Host,$Snapin,$SnapinJob,$SnapinTask,$hostID,$hostName,$hostMac);
-            unset($snapinID,$snapinName,$snapinDesc,$snapinFile,$snapinArgs,$snapinRw,$snapinRwa,$snapinState,$snapinReturn,$snapinDetail,$snapinCreateDate,$snapinCreateTime,$jobCreateDate,$jobCreateTime,$TaskCheckinDate,$TaskCheckinTime);
+            unset($Host,$Snapin,$SnapinJob,$SnapinTask);
         }
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
