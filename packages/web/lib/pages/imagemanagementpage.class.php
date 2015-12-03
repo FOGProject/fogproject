@@ -145,6 +145,7 @@ class ImageManagementPage extends FOGPage {
             _('Image Path') => sprintf('%s/&nbsp;<input type="text" name="file" id="iFile" value="%s"/>',$StorageNode->get('path'),$_REQUEST['file']),
             _('Image Type') => $ImageTypes,
             _('Partition') => $ImagePartitionTypes,
+            _('Image Enabled') => '<input type="checkbox" name="isEnabled" value="1"checked/>',
             _('Replicate?') => '<input type="checkbox" name="toReplicate" value="1" checked/>',
             _('Compression') => sprintf('<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="%s"/>',$compression),
             '&nbsp;' => sprintf('<input type="submit" name="add" value="%s"/>',_('Add')),
@@ -183,7 +184,7 @@ class ImageManagementPage extends FOGPage {
                 ->set('imageTypeID',$_REQUEST['imagetype'])
                 ->set('imagePartitionTypeID',$_REQUEST['imagepartitiontype'])
                 ->set('compress',$_REQUEST['compress'])
-                ->set('isEnabled',1)
+                ->set('isEnabled',intval(isset($_REQUEST['isEnabled'])))
                 ->set('toReplicate',intval(isset($_REQUEST['toReplicate'])))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Image->save()) throw new Exception(_('Database update failed'));
