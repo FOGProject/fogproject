@@ -797,7 +797,7 @@ class HostManagementPage extends FOGPage {
         echo '</div></div>';
     }
     public function edit_ajax() {
-        $this->obj->removeAddMAC($_REQUEST['additionalMACsRM'])->save();
+        //$this->obj->removeAddMAC($_REQUEST['additionalMACsRM'])->save();
         echo _('Success');
         exit;
     }
@@ -827,7 +827,10 @@ class HostManagementPage extends FOGPage {
                     ->set('efiexit',$_REQUEST['efiBootTypeExit'])
                     ->set('productKey',$this->encryptpw($productKey));
                 if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) $this->obj->addPriMAC($mac->__toString());
-                $this->obj->addAddMAC($_REQUEST['additionalMACs']);
+                $_REQUEST['additionalMACs'] = array_map('strtolower',(array)$_REQUEST['additionalMACs']);
+                $removeMACs = array_diff((array)$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->obj->get('id'),'primary'=>0,'pending'=>0),'mac'),(array)$_REQUEST['additionalMACs']);
+                $this->obj->addAddMAC($_REQUEST['additionalMACs'])
+                    ->removeAddMAC($removeMACs);
                 break;
             case 'host-active-directory':
                 $useAD = isset($_REQUEST['domain']);
