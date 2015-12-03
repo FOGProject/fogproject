@@ -199,6 +199,7 @@ function UpdateBandwidth() {
     $.ajax({
         url: '?node=home',
         cache: false,
+        timeout: 700,
         type: 'POST',
         data: {
             sub: 'bandwidth',
@@ -248,6 +249,7 @@ function UpdateClientCount() {
     $.ajax({
         url: '?node=home',
         cache: false,
+        timeout: 700,
         type: 'POST',
         data: {
             sub: 'clientcount',
