@@ -35,16 +35,17 @@ class Task extends FOGController {
     );
     public function getInFrontOfHostCount() {
         $Tasks = $this->getClass('TaskManager')->find(array(
-            'stateID'=>array(1,2),
+            'stateID'=>array(0,1,2),
             'typeID'=>array(1,15,17),
             'NFSGroupID'=>$this->get('NFSGroupID'),
         ));
         $count = 0;
         $curTime = $this->nice_date();
         foreach($Tasks AS $i => &$Task) {
-            if ($this->get('id') > $Task->get('id')) {
+            if (!$Task->isValid()) continue;
+            if ($this->get('id') != $Task->get('id')) {
                 $tasktime = $this->nice_date($Task->get('checkInTime'));
-                if (($curTime->getTimestamp()-$tasktime->getTimestamp()) < $this->getSetting('FOG_CHECKIN_TIMEOUT')) $count++;
+                ($curTime->getTimestamp() - $tasktime->getTimestamp()) < $this->getSetting('FOG_CHECKIN_TIMEOUT') ? $count++ : null;
             }
         }
         unset($Task);
