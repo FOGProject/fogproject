@@ -36,7 +36,7 @@ class ChangeItems extends Hook {
         $ip = $StorageNode->get('ip');
         $curroot = trim(trim($StorageNode->get('webroot'),'/'));
         $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-        if (!$LA->isTFTP()) continue;
+        if (!$LA->isTFTP()) return;
         $memtest = $arguments['memtest'];
         $memdisk = $arguments['memdisk'];
         $bzImage = $arguments['bzImage'];
