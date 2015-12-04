@@ -355,7 +355,7 @@ while [ "$blGo" = "" ]; do
         echo "";
         # Which package list do we use?
         if [ "$installtype" = "S" ]; then
-            packages=`echo "$packages"|sed 's/[[:space:]].*dhcp.*[[:space]]/ /'`
+            packages=`echo "$packages"|sed 's/[[:space:]].*dhcp.*[[:space:]]/ /'`
         fi
         if [ "${ignorehtmldoc}" = "1" ]; then
             newpackagelist="";
