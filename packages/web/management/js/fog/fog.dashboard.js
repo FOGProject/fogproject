@@ -199,7 +199,6 @@ function UpdateBandwidth() {
     $.ajax({
         url: '?node=home',
         cache: false,
-        timeout: 700,
         type: 'POST',
         data: {
             sub: 'bandwidth',
@@ -210,7 +209,7 @@ function UpdateBandwidth() {
             GraphBandwidth.addClass('loaded');
         }
     });
-    UpdateTimeout = setTimeout(UpdateBandwidth,1000);
+    UpdateTimeout = setTimeout(UpdateBandwidth,10000);
 }
 function UpdateBandwidthGraph(data) {
     var d = new Date();
@@ -227,9 +226,9 @@ function UpdateBandwidthGraph(data) {
             GraphBandwidthData[i]['rx'].shift();
         }
         // Set the old values and wait one second.
-        if (GraphBandwidthData[i]['tx_old'] > 0 && data[i]['tx'] !== false) GraphBandwidthData[i]['tx'].push([Now,Math.round(((data[i]['tx'] / 1024) - (GraphBandwidthData[i]['tx_old'] / 1024)) * 8 / 1000)]);
+        if (GraphBandwidthData[i]['tx_old'] > 0 && data[i]['tx'] !== false) GraphBandwidthData[i]['tx'].push([Now,Math.round(((data[i]['tx'] / 1024) - (GraphBandwidthData[i]['tx_old'] / 1024)) * 8 / 10000)]);
         else  GraphBandwidthData[i]['tx'].push([Now,0]);
-        if (GraphBandwidthData[i]['rx_old'] > 0 && data[i]['tx'] !== false) GraphBandwidthData[i]['rx'].push([Now,Math.round(((data[i]['rx'] / 1024) - (GraphBandwidthData[i]['rx_old'] / 1024)) * 8 / 1000)]);
+        if (GraphBandwidthData[i]['rx_old'] > 0 && data[i]['tx'] !== false) GraphBandwidthData[i]['rx'].push([Now,Math.round(((data[i]['rx'] / 1024) - (GraphBandwidthData[i]['rx_old'] / 1024)) * 8 / 10000)]);
         else  GraphBandwidthData[i]['rx'].push([Now,0]);
         // Reset the old and new values for the next iteration.
         if (data[i]['tx'] !== false) GraphBandwidthData[i]['tx_old'] = data[i]['tx'];
@@ -249,7 +248,6 @@ function UpdateClientCount() {
     $.ajax({
         url: '?node=home',
         cache: false,
-        timeout: 700,
         type: 'POST',
         data: {
             sub: 'clientcount',
@@ -261,7 +259,7 @@ function UpdateClientCount() {
             UpdateClientCountPlot(data);
         },
         complete: function() {
-            setTimeout(UpdateClientCount,1000);
+            setTimeout(UpdateClientCount,10000);
         }
     });
 }
