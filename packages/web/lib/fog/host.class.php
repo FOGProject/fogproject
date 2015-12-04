@@ -539,15 +539,15 @@ class Host extends FOGController {
                 if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode();
                 if (!$StorageNode->isValid()) throw new Exception($this->foglang['SGNotValid']);
                 $imageTaskImgID = $this->get('imageID');
-                $hostsWithImgID = $this->getClass('HostManager')->find(array('imageID'=>$imageTaskImgID),'','','','','','','id');
-                if (!in_array($this->get('id'),(array)$hostsWithImgID)) $this->set('imageID',$this->getClass('Host',$this->get('id'))->get('imageID'));
-                $this->save();
+                $hostsWithImgID = $this->getSubObjectIDs('Host',array('imageID'=>$imageTaskImgID));
+                $realImageID = $this->getSubObjectIDs('Host',array('id'=>$this->get('id')),'imageID');
+                if (!in_array($this->get('id'),(array)$hostsWithImgID)) $this->set('imageID',array_shift($realImageID))->save();
                 $this->set('imageID',$imageTaskImgID);
             }
             $isUpload = $TaskType->isUpload();
             $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
             $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
-            $Task->set('imageID',$Image->get('id'));
+            $Task->set('imageID',$this->get('imageID'));
             if (!$Task->save()) throw new Exception($this->foglang['FailedTask']);
             if ($TaskType->isSnapinTask()) {
                 if ($deploySnapins === true) $deploySnapins = -1;
