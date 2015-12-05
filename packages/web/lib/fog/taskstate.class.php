@@ -5,21 +5,13 @@ class TaskState extends FOGController {
         'id' => 'tsID',
         'name' => 'tsName',
         'description' => 'tsDescription',
-        'order' => 'tsOrder'
+        'order' => 'tsOrder',
+        'icon' => 'tsIcon',
     );
     protected $databaseFieldsRequired = array(
         'name',
     );
     public function getIcon() {
-        $icon = array(
-            1=>'bookmark-o',
-            2=>'pause',
-            3=>'spinner fa-pulse fa-fw',
-            4=>'check-circle',
-            5=>'ban',
-        );
-        $this->HookManager->event[] = 'ICON_STATE';
-        $this->HookManager->processEvent('ICON_STATE',array('icon'=>&$icon));
-        return $icon[$this->get('id')];
+        $this->get('icon');
     }
 }

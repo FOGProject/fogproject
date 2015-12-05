@@ -2089,3 +2089,12 @@ $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`images` ADD `imageReplicate` ENUM('0','1') NOT NULL DEFAULT '1'",
     "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sReplicate` ENUM('0','1') NOT NULL DEFAULT '1'",
 );
+// 203
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`taskStates` ADD `tsIcon` varchar(255) NOT NULL",
+    "UPDATE `".DATABASE_NAME."`.`taskStates` SET `tsIcon`='bookmark-o' WHERE `tsID`=1",
+    "UPDATE `".DATABASE_NAME."`.`taskStates` SET `tsIcon`='pause' WHERE `tsID`=2",
+    "UPDATE `".DATABASE_NAME."`.`taskStates` SET `tsIcon`='spinner fa-pulse fa-fw' WHERE `tsID`=3",
+    "UPDATE `".DATABASE_NAME."`.`taskStates` SET `tsIcon`='check-circle' WHERE `tsID`=4",
+    "UPDATE `".DATABASE_NAME."`.`taskStates` SET `tsIcon`='ban' WHERE `tsID`=5",
+);

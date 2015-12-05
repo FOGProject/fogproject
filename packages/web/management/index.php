@@ -6,24 +6,6 @@ if ($currentUser->isValid()) $currentUser->isLoggedIn();
 $FOGPageManager = $FOGCore->getClass('FOGPageManager');
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 $Page = $FOGCore->getClass('Page');
-if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && !in_array($_REQUEST['sub'],array('configure','authorize')) && ($node == 'logout' || !$currentUser->isValid())) {
-    $currentUser->logout();
-    $Page->setTitle($foglang['Login']);
-    $Page->setSecTitle($foglang['ManagementLogin']);
-    $Page->startBody();
-    $FOGCore->getClass('ProcessLogin')->mainLoginForm();
-    $Page->endBody();
-    $Page->render();
-} else {
-    $_SESSION['AllowAJAXTasks'] = true;
-    if ($FOGCore->ajax) {
-        $FOGPageManager->render();
-        exit;
-    }
-    $Page->startBody();
-    $FOGPageManager->render();
-    $Page->setTitle($FOGPageManager->getFOGPageTitle());
-    $Page->setSecTitle($FOGPageManager->getFOGPageName());
-    $Page->endBody();
-    $Page->render();
-}
+if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && !in_array($_REQUEST['sub'],array('configure','authorize')) && ($node == 'logout' || !$currentUser->isValid())) $currentUser->logout();
+else $_SESSION['AllowAJAXTasks'] = true;
+$Page->render();
