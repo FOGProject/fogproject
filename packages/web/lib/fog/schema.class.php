@@ -64,7 +64,7 @@ class Schema extends FOGController {
             return true;
         } else throw new Exception(_('Error opening db file'));
     }
-    public function send_file($content, $backup_name) {
+    public function send_file($content, $backup_name = '') {
         $backup_name = $backup_name ? $backup_name : sprintf('fog_backup_%s.sql',$this->formatTime('','Ymd_His'));
         $filesize = strlen($content);
         header("X-Sendfile: $backup_name");

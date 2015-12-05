@@ -163,6 +163,7 @@ class Page extends FOGBase {
         $this->javascripts[] = $path;
     }
     private function buildHead() {
+        ob_start();
         if (!$this->isMobile) {
             $meta = '<meta http-equiv="X-UA-Compatible" content="IE=Edge"/><meta http-equiv="content-type" content="text/json; charset=utf-8"/>';
             $title = sprintf('<title>%s%sFOG &gt; %s</title>',
@@ -187,11 +188,10 @@ class Page extends FOGBase {
             $title,
             $link
         );
-        ob_flush();
-        flush();
-        ob_end_flush();
+        return ob_get_clean();
     }
     private function buildBody() {
+        ob_start();
         echo '<body>';
         if (!$this->isMobile) {
             printf('<div class="fog-variable" id="FOGPingActive">%s</div>%s<div id="loader-wrapper"><div id="loader"></div><div id="progress"></div></div><div id="wrapper"><header><div id="header"%s><div id="logo"><h1><a href="../management/index.php"><img src="%sfog-logo.png" title="%s"/><sup>%s</sup></a></h1><h2>%s</h2></div>%s</div>%s</header><div id="content"%s>%s<div id="content-inner">%s',
@@ -212,11 +212,10 @@ class Page extends FOGBase {
         } else {
             printf('<div id="header"></div><div id="mainContainer"><div class="mainContent">%s%s<div id="mobile_content">%s</div></div></div>',$this->menu,($this->pageTitle ? "<h2>$this->pageTitle</h2>" : ''),$this->body);
         }
-        ob_flush();
-        flush();
-        ob_end_flush();
+        return ob_get_clean();
     }
     private function buildFooter() {
+        ob_start();
         if (!$this->isMobile) {
             printf('<div id="footer"><a href="http:/fogproject.org/wiki/index.php/Credits">%s</a>&nbsp;&nbsp;<a href="?node=client">%s</a></div><!-- <div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> Memory Usage: %s</div> -->',
                 _('Credits'),
@@ -233,21 +232,16 @@ class Page extends FOGBase {
             }
         }
         echo '</body></html>';
-        ob_flush();
-        flush();
-        ob_end_flush();
+        return ob_get_clean();
     }
     private function getContents() {
         ob_start();
-        if ($_SESSION['FOG_USERNAME']) $this->FOGPageManager->render();
+        if ($_SESSION['FOG_USERNAME'] || $_REQUEST['node'] == 'schemaupdater') $this->FOGPageManager->render();
         else if ($this->isMobile) $this->getClass('ProcessLogin')->mobileLoginForm();
         else if (!$this->isMobile) $this->getClass('ProcessLogin')->mainLoginForm();
         $this->setTitle($this->FOGPageManager->getFOGPageTitle());
         $this->setSecTitle($this->FOGPageManager->getFOGPageName());
         $this->body = ob_get_clean();
-        ob_flush();
-        flush();
-        ob_end_flush();
     }
     public function render($path = '') {
         $this->getContents();
@@ -256,8 +250,12 @@ class Page extends FOGBase {
             echo $this->body;
             exit;
         }
-        $this->buildHead();
-        $this->buildBody();
-        $this->buildFooter();
+        ob_start(array('Initiator','sanitize_output'));
+        echo $this->buildHead();
+        echo $this->buildBody();
+        echo $this->buildFooter();
+        ob_flush();
+        flush();
+        ob_end_flush();
     }
 }
