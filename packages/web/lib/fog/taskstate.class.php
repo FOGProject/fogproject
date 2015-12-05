@@ -12,6 +12,6 @@ class TaskState extends FOGController {
         'name',
     );
     public function getIcon() {
-        $this->get('icon');
+        return $this->get('icon');
     }
 }

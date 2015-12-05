@@ -52,9 +52,6 @@ class TaskManagementPage extends FOGPage {
             if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
             if (!$Host->isValid()) continue;
-            $hostname = $Host->get('name');
-            $MAC = $Host->get('mac')->__toString();
-            unset($Host);
             $this->data[] = array(
                 'startedby'=>$Task->get('createdBy'),
                 'id'=>$Task->get('id'),
@@ -74,14 +71,13 @@ class TaskManagementPage extends FOGPage {
                 'details_taskname'=>($Task->get('name')?sprintf('<div class="task-name">%s</div>',$Task->get('name')):''),
                 'details_taskforce'=>($Task->get('isForced')?sprintf('<i class="icon-forced" title="%s"></i>',_('Task forced to start')):($Task->get('typeID') < 3 && $Task->get('stateID') < 3?sprintf('<a href="?node=task&sub=force-task&id=%s" class="icon-force"><i title="%s"></i></a>',$Task->get('id'),_('Force task to start')):'&nbsp;')),
                 'host_id'=>$Task->get('hostID'),
-                'host_name'=>$hostname,
-                'host_mac'=>$MAC,
+                'host_name'=>$Host->get('name'),
+                'host_mac'=>$Host->get('mac')->__toString(),
                 'icon_state'=>$Task->getTaskState()->getIcon(),
                 'icon_type'=>$Task->getTaskType()->get('icon'),
             );
-            unset($Task);
+            unset($Task,$Host);
         }
-        unset($Tasks,$hostname,$MAC);
         $this->HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         array_shift($this->headerData);
         array_shift($this->headerData);
