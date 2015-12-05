@@ -100,8 +100,7 @@ class ProcessLogin extends FOGBase {
         if (!isset($langs[$this->lang])) die('Invalid language specification');
         $this->specLang();
         $_SESSION['locale'] = $this->lang;
-        putenv(sprintf('LC_ALL=%s',$_SESSION['locale']));
-        setlocale('LC_ALL',$_SESSION['locale']);
+        setlocale(LC_ALL,$_SESSION['locale']);
         bindtextdomain('messages','languages');
         textdomain('messages');
     }
