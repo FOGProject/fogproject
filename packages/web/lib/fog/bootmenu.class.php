@@ -264,7 +264,7 @@ class BootMenu extends FOGBase {
         $this->parseMe($Send);
     }
     public function sesscheck() {
-        $sesscount = current($this->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'],'stateID' => array(0,1,2,3))));
+        $sesscount = current($this->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'],'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))));
         if (!$sesscount || !$sesscount->isValid()) {
             $Send['checksession'] = array(
                 "#!ipxe",

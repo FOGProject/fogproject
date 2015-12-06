@@ -272,7 +272,7 @@ class TaskManagementPage extends FOGPage {
         $this->form = '<p class="c"><input type="button" id="taskpause"/></p><br/>';
         $this->title = _('Active Tasks');
         $i = 0;
-        foreach ((array)$this->getClass('TaskManager')->find(array('stateID'=>array(-1,0,1,2,3,))) AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
             if (!$Host->isValid()) continue;
@@ -386,7 +386,7 @@ class TaskManagementPage extends FOGPage {
             array('class'=>'c'),
             array('width'=>40,'class'=>'c')
         );
-        foreach((array)$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array(-1,0,1,2,3))) AS $i => &$MS) {
+        foreach((array)$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$MS) {
             if (!$MS->isValid()) continue;
             $TS = $this->getClass('TaskState',$MS->get('stateID'));
             $this->data[] = array(
@@ -425,32 +425,20 @@ class TaskManagementPage extends FOGPage {
             array('class'=>'l','width'=>50),
             array('class'=>'r','width'=>40),
         );
-        foreach ((array)$this->getClass('SnapinTaskManager')->find(array('stateID'=>array(-1,0,1,2,3))) AS $i => &$SnapinTask) {
+        foreach ((array)$this->getClass('SnapinTaskManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$SnapinTask) {
             if (!$SnapinTask->isValid()) continue;
             $Host = $this->getClass('SnapinJob',$SnapinTask->get('jobID'))->getHost();
-            if (!$Host->isValid()) {
-                unset($Host,$SnapinTask);
-                continue;
-            }
-            if (!$Host->get('snapinjob')->isValid()) {
-                unset($Host,$SnapinTask);
-                continue;
-            }
+            if (!$Host->isValid() || !$Host->get('snapinjob')->isValid() || !in_array($Host->get('snapinjob')->get('stateID'),array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) continue;
             $Snapin = $this->getClass('Snapin',$SnapinTask->get('snapinID'));
-            if (!$Snapin->isValid()) {
-                unset($Host,$SnapinTask,$Snapin);
-                continue;
-            }
-            if (in_array($Host->get('snapinjob')->get('stateID'),array(-1,0,1,2,3))) {
-                $this->data[] = array(
-                    'id' => $SnapinTask->get('id'),
-                    'name' => $Snapin->get('name'),
-                    'hostID' => $Host->get('id'),
-                    'host_name' => $Host->get('name'),
-                    'startDate' => $this->formatTime($SnapinTask->get('checkin')),
-                    'state' => $this->getClass('TaskState',$SnapinTask->get('stateID'))->get('name'),
-                );
-            }
+            if (!$Snapin->isValid()) continue;
+            $this->data[] = array(
+                'id' => $SnapinTask->get('id'),
+                'name' => $Snapin->get('name'),
+                'hostID' => $Host->get('id'),
+                'host_name' => $Host->get('name'),
+                'startDate' => $this->formatTime($SnapinTask->get('checkin')),
+                'state' => $this->getClass('TaskState',$SnapinTask->get('stateID'))->get('name'),
+            );
             unset($Host,$SnapinTask,$Snapin);
         }
         $this->HookManager->processEvent('TaskActiveSnapinsData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));

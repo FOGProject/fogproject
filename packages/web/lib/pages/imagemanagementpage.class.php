@@ -400,7 +400,7 @@ class ImageManagementPage extends FOGPage {
             '${mc_state}',
             sprintf('<a href="?node=%s&sub=stop&mcid=${mc_id}" title="%s"><i class="fa fa-minus-circle" alt="%s"></i></a>',$this->node,_('Remove'),_('Kill')),
         );
-        foreach ((array)$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array(0,1,2,3))) AS $i => &$MulticastSession) {
+        foreach ((array)$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$MulticastSession) {
             if (!$MulticastSession->isValid()) continue;
             $Image = $MulticastSession->getImage();
             if (!$Image->isValid()) continue;
@@ -428,7 +428,7 @@ class ImageManagementPage extends FOGPage {
             if ($this->getClass('MulticastSessionsManager')->exists($name)) throw new Exception(_('Session with that name already exists'));
             if ($this->getClass('HostManager')->exists($name)) throw new Exception(_('Session name cannot be the same as an existing hostname'));
             if (is_numeric($_REQUEST['timeout']) && $_REQUEST['timeout'] > 0) $this->setSetting('FOG_UDPCAST_MAXWAIT',$_REQUEST['timeout']);
-            $countmc = $this->getClass('MulticastSessionsManager')->count(array('stateID'=>array(0,1,2,3)));
+            $countmc = $this->getClass('MulticastSessionsManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
             $countmctot = $this->getSetting('FOG_MULTICAST_MAX_SESSIONS');
             $Image = $this->getClass('Image',$_REQUEST['image']);
             $StorageGroup = $Image->getStorageGroup();

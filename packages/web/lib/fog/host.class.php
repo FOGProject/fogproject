@@ -399,7 +399,7 @@ class Host extends FOGController {
         if ($this->get('id')) $this->set('users',$this->getSubObjectIDs('UserTracking',array('hostID'=>$this->get('id'))));
     }
     protected function loadSnapinjob() {
-        if ($this->get('id')) $this->set('snapinjob',@max($this->getSubObjectIDs('SnapinJob',array('stateID'=>array(-1,0,1,2,3),'hostID'=>$this->get('id')),'id')));
+        if ($this->get('id')) $this->set('snapinjob',@max($this->getSubObjectIDs('SnapinJob',array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'hostID'=>$this->get('id')),'id')));
     }
     protected function loadInventory() {
         if ($this->get('id')) $this->set('inventory',@max($this->getSubObjectIDs('Inventory',array('hostID'=>$this->get('id')),'id')));
@@ -407,7 +407,7 @@ class Host extends FOGController {
     protected function loadTask() {
         if ($this->get('id')) {
             $find['hostID'] = $this->get('id');
-            $find['stateID'] = array(0,1,2,3);
+            $find['stateID'] = array_merge($this->getQueuedStates(),(array)$this->getProgressState());
             if (in_array($_REQUEST['type'], array('up','down'))) $find['typeID'] = ($_REQUEST['type'] == 'up' ? array(2,16) : array(1,8,15,17,24));
             $this->set('task',@max($this->getSubObjectIDs('Task',$find,'id')));
             unset($find);
@@ -417,7 +417,7 @@ class Host extends FOGController {
         if ($this->get('id')) $this->set('optimalStorageNode', $this->getClass('Image',$this->get('imageID'))->getStorageGroup()->getOptimalStorageNode());
     }
     public function getActiveTaskCount() {
-        return $this->getClass('TaskManager')->count(array('stateID' => array(1, 2, 3),'hostID' => $this->get('id')));
+        return $this->getClass('TaskManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'hostID'=>$this->get('id')));
     }
     public function isValidToImage() {
         return ($this->getImage()->isValid() && $this->getOS()->isValid() && $this->getImage()->getStorageGroup()->isValid() && $this->getImage()->getStorageGroup()->getStorageNode()->isValid());
@@ -463,7 +463,7 @@ class Host extends FOGController {
             ->set('createdBy',$username)
             ->set('hostID',$this->get('id'))
             ->set('isForced',0)
-            ->set('stateID',1)
+            ->set('stateID',$this->getQueuedState())
             ->set('typeID',$taskTypeID)
             ->set('NFSGroupID',$groupID)
             ->set('NFSMemberID',$memID);
@@ -474,15 +474,15 @@ class Host extends FOGController {
         return $Task;
     }
     private function cancelJobsSnapinsForHost() {
-        $SnapinJobs = $this->getSubObjectIDs('SnapinJob',array('hostID'=>$this->get('id'),'stateID'=>array(-1,0,1,2,3)),'id');
-        $this->getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJobs,'stateID'=>array(-1,0,1,2,3)),'',array('return'=>-9999,'details'=>_('Cancelled due to new tasking.')));
-        $this->getClass('SnapinJobManager')->update(array('id'=>$SnapinJobs),'',array('stateID'=>5));
+        $SnapinJobs = $this->getSubObjectIDs('SnapinJob',array('hostID'=>$this->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
+        $this->getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJobs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())),'',array('return'=>-9999,'details'=>_('Cancelled due to new tasking.')));
+        $this->getClass('SnapinJobManager')->update(array('id'=>$SnapinJobs),'',array('stateID'=>$this->getCancelledState()));
     }
     private function createSnapinTasking($snapin = -1) {
         try {
             $SnapinJob = $this->getClass('SnapinJob')
                 ->set('hostID',$this->get('id'))
-                ->set('stateID',0)
+                ->set('stateID',$this->getQueuedState())
                 ->set('createdTime',$this->nice_date()->format('Y-m-d H:i:s'));
             if (!$SnapinJob->save()) throw new Exception(_('Failed to create Snapin Job'));
             if ($snapin == -1) {
@@ -491,7 +491,7 @@ class Host extends FOGController {
                         if (!$Snapin->isValid()) continue;
                         $this->getClass('SnapinTask')
                             ->set('jobID',$SnapinJob->get('id'))
-                            ->set('stateID',0)
+                            ->set('stateID',$this->getQueuedState())
                             ->set('snapinID',$Snapin)
                             ->save();
                         unset($Snapin);
@@ -500,7 +500,7 @@ class Host extends FOGController {
                     foreach ((array)$this->get('snapins') AS $i => &$Snapin) {
                         $this->getClass('SnapinTask')
                             ->set('jobID',$SnapinJob->get('id'))
-                            ->set('stateID',0)
+                            ->set('stateID',$this->getQueuedState())
                             ->set('snapinID',$Snapin)
                             ->save();
                     }
@@ -511,7 +511,7 @@ class Host extends FOGController {
                 if (!$Snapin->isValid()) throw new Exception(_('Snapin is not valid'));
                 $this->getClass('SnapinTask')
                     ->set('jobID',$SnapinJob->get('id'))
-                    ->set('stateID',0)
+                    ->set('stateID',$this->getQueuedState())
                     ->set('snapinID',$snapin)
                     ->save();
                 unset($Snapin);
@@ -557,7 +557,7 @@ class Host extends FOGController {
             }
             if ($TaskType->isMulticast()) {
                 $assoc = false;
-                $MultiSessName = current((array)$this->getClass('MulticastSessionsManager')->find(array('name'=>$taskName,'stateID'=>array(0,1,2,3))));
+                $MultiSessName = current((array)$this->getClass('MulticastSessionsManager')->find(array('name'=>$taskName,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))));
                 $MultiSessAssoc = current((array)$this->getClass('MulticastSessionsManager')->find(array('image'=>$this->getImage()->get('id'),'stateID'=>0)));
                 if ($sessionjoin && $MultiSessName && $MultiSessName->isValid()) {
                     $MulticastSession = $MultiSessName;
