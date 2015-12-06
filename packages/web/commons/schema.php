@@ -2098,3 +2098,7 @@ $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.`taskStates` SET `tsIcon`='check-circle' WHERE `tsID`=4",
     "UPDATE `".DATABASE_NAME."`.`taskStates` SET `tsIcon`='ban' WHERE `tsID`=5",
 );
+// 204
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`taskStates` MODIFY `tsID` INT(11) AUTO_INCREMENT",
+);
