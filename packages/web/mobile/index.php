@@ -6,5 +6,19 @@ if ($currentUser->isValid()) $currentUser->isLoggedIn();
 $FOGPageManager = $FOGCore->getClass('FOGPageManager');
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 $Page = $FOGCore->getClass('Page');
-if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && !in_array($_REQUEST['sub'],array('configure','authorize')) && ($node == 'logout' || !$currentUser->isValid())) $currentUser->logout();
-$Page->render();
+if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && !in_array($_REQUEST['sub'],array('configure','authorize')) && ($node == 'logout' || !$currentUser->isValid())) {
+    $currentUser->logout();
+    $Page->setTitle($foglang['Login']);
+    $Page->setSecTitle($foglang['ManagementLogin']);
+    $Page->startBody();
+    $FOGCore->getClass('ProcessLogin')->mobileLoginForm();
+    $Page->endBody();
+    $Page->render();
+} else {
+    $Page->setTitle($FOGPageManager->getFOGPageTitle());
+    $Page->setSecTitle($FOGPageManager->getFOGPageName());
+    $Page->startBody();
+    $FOGPageManager->render();
+    $Page->endBody();
+    $Page->render();
+}
