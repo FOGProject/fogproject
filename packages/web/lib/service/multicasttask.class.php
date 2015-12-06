@@ -1,17 +1,12 @@
 <?php
 class MulticastTask extends MulticastManager {
-    public function getSession($method = 'find') {
-        if (!in_array($method,array('find','count'))) $method = 'find';
-        return $this->getClass('MulticastSessionsManager')->$method(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
-    }
     public function getAllMulticastTasks($root) {
         $Tasks = array();
-        if (self::getSession('count')) {
+        if ($this->getClass('MulticastSessionsManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) {
             $this->outall(sprintf(' | Sleeping for %s seconds to ensure tasks are properly submitted',$this->zzz));
             sleep($this->zzz);
         }
-        $MulticastSessions = self::getSession('find');
-        foreach($MulticastSessions AS $i => &$MultiSess) {
+        foreach ((array)$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$MultiSess) {
             $Image = $this->getClass('Image',$MultiSess->get('image'));
             if (!$Image->isValid()) continue;
             if (in_array($this->FOGCore->resolveHostname($Image->getStorageGroup()->getMasterStorageNode()->get('ip')),$this->getIPAddress())) {
