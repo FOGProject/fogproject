@@ -7,24 +7,27 @@ class MulticastTask extends MulticastManager {
             sleep($this->zzz);
         }
         foreach ((array)$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$MultiSess) {
+            if (!$MultiSess->isValid()) continue;
+            $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MultiSess->get('id')),'taskID');
+            $stateIDs = $this->getSubObjectIDs('Task',array('id'=>$taskIDs),'stateID');
+            unset($taskIDs);
+            if (in_array($this->getCompleteState(),$stateIDs) || in_array($this->getCancelledState())) continue;
+            unset($stateIDs);
             $Image = $this->getClass('Image',$MultiSess->get('image'));
             if (!$Image->isValid()) continue;
-            if (in_array($this->FOGCore->resolveHostname($Image->getStorageGroup()->getMasterStorageNode()->get('ip')),$this->getIPAddress())) {
-                $count = $this->getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MultiSess->get('id')));
-                $Tasks[] = new self(
-                    $MultiSess->get('id'),
-                    $MultiSess->get('name'),
-                    $MultiSess->get('port'),
-                    sprintf('%s/%s',$root,$MultiSess->get('logpath')),
-                    $Image->getStorageGroup()->getMasterStorageNode()->get('interface')? $Image->getStorageGroup()->getMasterStorageNode()->get('interface'):$this->getSetting('FOG_UDPCAST_INTERFACE'),
-                    ($count>0?$count:($MultiSess->get('sessclients')>0?$MultiSess->get('sessclients'):$this->getClass('HostManager')->count())),
-                    $MultiSess->get('isDD'),
-                    $Image->get('osID')
-                );
-            }
+            $count = $this->getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MultiSess->get('id')));
+            $Tasks[] = new self(
+                $MultiSess->get('id'),
+                $MultiSess->get('name'),
+                $MultiSess->get('port'),
+                sprintf('%s/%s',$root,$MultiSess->get('logpath')),
+                $Image->getStorageGroup()->getMasterStorageNode()->get('interface')? $Image->getStorageGroup()->getMasterStorageNode()->get('interface'):$this->getSetting('FOG_UDPCAST_INTERFACE'),
+                ($count>0?$count:($MultiSess->get('sessclients')>0?$MultiSess->get('sessclients'):$this->getClass('HostManager')->count())),
+                $MultiSess->get('isDD'),
+                $Image->get('osID')
+            );
             unset($MultiSess);
         }
-        unset($MulticastSessions);
         return array_filter($Tasks);
     }
     private $intID, $strName, $intPort, $strImage, $strEth, $intClients;
