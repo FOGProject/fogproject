@@ -33,16 +33,16 @@ abstract class FOGService extends FOGBase {
     public function wait_interface_ready() {
         $this->getIPAddress();
         if (!count($this->ips)) {
-            $this->out('Interface not ready, waiting.',$this->dev);
+            $this->outall('Interface not ready, waiting.',$this->dev);
             sleep(10);
             $this->wait_interface_ready();
         }
-        foreach ($this->ips AS $i => &$ip) $this->out(_("Interface Ready with IP Address: $ip"),$this->dev);
+        foreach ($this->ips AS $i => &$ip) $this->outall(_("Interface Ready with IP Address: $ip"),$this->dev);
         unset($ip);
     }
     public function wait_db_ready() {
         while ($this->DB->link()->connect_errno) {
-            $this->out(sprintf('FOGService: %s - %s',get_class($this),_('Waiting for mysql to be available')),$this->dev);
+            $this->outall(sprintf('FOGService: %s - %s',get_class($this),_('Waiting for mysql to be available')),$this->dev);
             sleep(10);
         }
     }
@@ -70,8 +70,8 @@ abstract class FOGService extends FOGBase {
         $this->outall(ob_get_clean());
     }
     public function outall($string) {
-        $this->out($string."\n",$this->dev);
-        $this->wlog($string."\n",$this->log);
+        $this->out("$string\n",$this->dev);
+        $this->wlog("$string\n",$this->log);
         return;
     }
     protected function out($string,$device) {
