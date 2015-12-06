@@ -34,40 +34,40 @@ $(function() {
             $('input[name="Cancel"]').remove();
             break;
     }
-    if ($_GET['sub'] == 'active' || !$_GET['sub']) {
-        $('input[name="Cancel"]').click(function() {
-            checkedIDs = getChecked();
-            sub = $_GET['sub'];
-            if (checkedIDs.length > 0) {
-                $('#canceltasks').html('Are you sure you wish to cancel these tasks?');
-                $('#canceltasks').dialog({
-                    resizable: false,
-                    modal: true,
-                    title: 'Cancel tasks',
-                    buttons: {
-                        'Yes': function() {
-                            $.post(
-                                    URL,
-                                    {task: checkedIDs},
-                                    function(data) {
-                                        clearTimeout(ActiveTasksUpdateTimer);
-                                        if (sub == 'active') {
-                                            ActiveTasksUpdate();
-                                            ActiveTasksTableCheck();
-                                            ActiveTasksUpdateTimerStart();
-                                        } else location.reload();
-                                    }
-                                  );
-                            $(this).dialog('close');
-                        },
-                        'No': function() {
-                            ActiveTasksTableCheck();
-                            $(this).dialog('close');
-                        }
+    $('input[name="Cancel"]').click(function() {
+        checkedIDs = getChecked();
+        sub = $_GET['sub'];
+        if (checkedIDs.length > 0) {
+            $('#canceltasks').html('Are you sure you wish to cancel these tasks?');
+            $('#canceltasks').dialog({
+                resizable: false,
+                modal: true,
+                title: 'Cancel tasks',
+                buttons: {
+                    'Yes': function() {
+                        $.post(
+                                URL,
+                                {task: checkedIDs},
+                                function(data) {
+                                    clearTimeout(ActiveTasksUpdateTimer);
+                                    if (sub == 'active') {
+                                        ActiveTasksUpdate();
+                                        ActiveTasksTableCheck();
+                                        ActiveTasksUpdateTimerStart();
+                                    } else location.reload();
+                                }
+                              );
+                        $(this).dialog('close');
+                    },
+                    'No': function() {
+                        ActiveTasksTableCheck();
+                        $(this).dialog('close');
                     }
-                });
-            }
-        });
+                }
+            });
+        }
+    });
+    if ($_GET['sub'] == 'active' || !$_GET['sub']) {
         // Update Tasks
         ActiveTasksUpdate();
         // Hook buttons
