@@ -486,4 +486,22 @@ abstract class FOGBase {
         $this->getClass('ServiceManager')->update(array('name'=>$key),'',array('value'=>$value));
         return $this;
     }
+    public function getQueuedStates() {
+        return (array)$this->getClass('TaskState')->getQueuedStates();
+    }
+    public function getQueuedState() {
+        return $this->getClass('TaskState')->getQueuedState();
+    }
+    public function getCheckedInState() {
+        return $this->getClass('TaskState')->getCheckedInState();
+    }
+    public function getProgressState() {
+        return $this->getClass('TaskState')->getProgressState();
+    }
+    public function getCompleteState() {
+        return $this->getClass('TaskState')->getCompleteState();
+    }
+    public function getCancelledState() {
+        return $this->getClass('TaskState')->getCancelledState();
+    }
 }

@@ -2,7 +2,7 @@
 class MulticastTask extends MulticastManager {
     public function getSession($method = 'find') {
         if (!in_array($method,array('find','count'))) $method = 'find';
-        return $this->getClass('MulticastSessionsManager')->$method(array('stateID'=>array(0,1,2,3)));
+        return $this->getClass('MulticastSessionsManager')->$method(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
     }
     public function getAllMulticastTasks($root) {
         $Tasks = array();
@@ -184,22 +184,20 @@ class MulticastTask extends MulticastManager {
         $this->startTasking($this->getCMD(),$this->getUDPCastLogFile());
         $this->procRef = array_shift($this->procRef);
         $this->getClass('MulticastSessions',$this->intID)
-            ->set('stateID',1)
+            ->set('stateID',$this->getQueuedState())
             ->save();
         return $this->isRunning($this->procRef);
     }
     public function killTask() {
         $this->killTasking();
         @unlink($this->getUDPCastLogFile());
-        $Tasks = $this->getClass('TaskManager')->find(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$RMTask->getID()),'taskID')));
-        foreach((array)$Tasks AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->find(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$RMTask->getID()),'taskID'))) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Task
                 ->set('stateID',$running)
                 ->save();
             unset($Task);
         }
-        unset($Tasks);
         $this->getClass('MulticastSessions',$this->intID)
             ->set('name',null)
             ->set('stateID',$running)

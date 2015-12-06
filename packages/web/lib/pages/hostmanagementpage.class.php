@@ -786,7 +786,7 @@ class HostManagementPage extends FOGPage {
             $this->data[] = array(
                 'snapin_name' => $Snapin->get('name'),
                 'snapin_start' => $this->formatTime($SnapinTask->get('checkin')),
-                'snapin_end' => '<span class="icon" title="'.$this->formatTime($SnapinTask->get('complete')).'">'.$this->getClass('TaskState',$SnapinTask->get('stateID')).'</span>',
+                'snapin_end' => sprintf('<span class="icon" title="%s">%s</span>',$this->formatTime($SnapinTask->get('complete')),$this->getClass('TaskState',$SnapinTask->get('stateID'))),
                 'snapin_duration' => $this->diff($SnapinTask->get('checkin'),$SnapinTask->get('complete')),
                 'snapin_return'=> $SnapinTask->get('return'),
             );

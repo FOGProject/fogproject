@@ -24,7 +24,7 @@ try {
     in_array($_REQUEST['osid'],array(1,2)) ? $FOGFTP->delete(sprintf('%s/dev/%s',$StorageNode->get('ftppath'),$macftp)) : null;
     $FOGFTP->close();
     if ($Image->get('format') == 1) $Image->set('format',0)->save();
-    $Task->set('stateID','4')->set('pct','100')->set('percent','100');
+    $Task->set('stateID',$FOGCore->getCompleteState())->set('pct','100')->set('percent','100');
     if (!$Task->save()) throw new Exception(_('Failed to update Task'));
     $EventManager->notify('HOST_IMAGEUP_COMPLETE', array(HostName=>$Host->get('name')));
     $id = @max($FOGCore->getSubObjectIDs('ImagingLog',array('hostID'=>$Host->get('id'))));
