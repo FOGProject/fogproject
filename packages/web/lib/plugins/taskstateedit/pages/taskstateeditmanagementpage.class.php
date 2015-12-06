@@ -36,7 +36,7 @@ class TaskstateeditManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Task States');
-        if ($this->getSetting('FOG_DATA_RETURNED')>0 && $this->getClass('TaskTypeManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if ($this->getSetting('FOG_DATA_RETURNED')>0 && $this->getClass('TaskStateManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         foreach ((array)$this->getClass('TaskStateManager')->find() AS $i => &$TaskState) {
             if (!$TaskState->isValid()) continue;
             $this->data[] = array(
@@ -100,11 +100,11 @@ class TaskstateeditManagementPage extends FOGPage {
             $icon = trim("{$_REQUEST['icon']} {$_REQUEST['additional']}");
             if (!$name) throw new Exception(_('You must enter a name'));
             if ($this->getClass('TaskStateManager')->exists($name)) throw new Exception(_('Task state already exists, please try again.'));
-            $TaskType = $this->getClass('TaskType')
+            $TaskState = $this->getClass('TaskState')
                 ->set('name',$name)
                 ->set('description',$description)
                 ->set('icon',$icon);
-            if (!$TaskType->save()) throw new Exception(_('Failed to create'));
+            if (!$TaskState->save()) throw new Exception(_('Failed to create'));
             $this->setMessage(_('Task State added, editing'));
             $this->redirect(sprintf('?node=%s&sub=edit&id=%s',$this->node,$TaskState->get('id')));
         } catch (Exception $e) {
