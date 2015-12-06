@@ -5,7 +5,7 @@ try {
     $Task = $Host->get('task');
     if (!$Task || !$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'),$Host->get('mac')->__toString()));
     $TaskType = $FOGCore->getClass('TaskType',$Task->get('typeID'));
-    if (!in_array($Task->get('typeID'),array(12,13))) $Task->set('stateID',4)->set('pct',100)->set('percent',100);
+    if (!in_array($Task->get('typeID'),array(12,13))) $Task->set('stateID',$FOGCore->getCompleteState())->set('pct',100)->set('percent',100);
     $Host->set('deployed',$FOGCore->nice_date()->format('Y-m-d H:i:s'))->save();
     $id = @max($FOGCore->getSubObjectIDs('ImagingLog',array('hostID' => $Host->get('id'))));
     $FOGCore->getClass('ImagingLog',$id)
@@ -13,7 +13,7 @@ try {
         ->save();
     $FOGCore->getClass('TaskLog',$Task)
         ->set(taskID,$Task->get(id))
-        ->set(taskStateID,$Task->get(stateID))
+        ->set(taskStateID,$Task->get('stateID'))
         ->set(createdTime,$Task->get(createdTime))
         ->set(createdBy,$Task->get(createdBy))
         ->save();
@@ -28,7 +28,7 @@ try {
         if ($Inventory && $Inventory->isValid()) {
             $SnapinJob = $Host->get(snapinjob); //Get Snapin(s) Used/Queued
             if ($SnapinJob && $SnapinJob->isValid()) {
-                $SnapinTasks = $FOGCore->getClass(SnapinTaskManager)->find(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get(id)));
+                $SnapinTasks = $FOGCore->getClass(SnapinTaskManager)->find(array('stateID' => $FOGCore->getQueuedStates(),'jobID' => $SnapinJob->get(id)));
                 foreach($SnapinTasks AS $SnapinTask) {
                     if ($SnapinTask && $SnapinTask->isValid()) {
                         $Snapin = $FOGCore->getClass(Snapin,$SnapinTask->get(snapinID));

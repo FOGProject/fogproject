@@ -5,7 +5,7 @@ class TaskScheduler extends FOGService {
     public $zzz = SCHEDULERSLEEPTIME;
     private function commonOutput() {
         try {
-            $findWhere = array('stateID'=>1,'typeID'=>array_merge(range(1,11),range(14,24)));
+            $findWhere = array('stateID'=>$this->getQueuedState(),'typeID'=>array_merge(range(1,11),range(14,24)));
             $taskcount = $this->getClass('TaskManager')->count($findWhere);
             if ($taskcount) {
                 $this->outall(sprintf(" * %s active task(s) awaiting check-in.",$taskcount));

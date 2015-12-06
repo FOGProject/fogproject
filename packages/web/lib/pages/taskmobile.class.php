@@ -48,7 +48,7 @@ class TaskMobile extends FOGPage {
         $this->redirect(sprintf('?node=%s',$this->node));
     }
     public function active() {
-        foreach ((array)$this->getClass('TaskManager')->find(array('stateID'=>array(-1,0,1,2,3))) AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
             if (!$Host->isValid()) continue;

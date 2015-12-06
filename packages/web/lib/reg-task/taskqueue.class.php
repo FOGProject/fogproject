@@ -6,7 +6,7 @@ class TaskQueue extends TaskingElement {
                 if ($this->Task->isMulticast()) {
                     $this->Task
                         ->set('checkinTime',$this->formatTime('','Y-md H:i:s'))
-                        ->set('stateID',2);
+                        ->set('stateID',$this->getCheckedInState());
                     if (!$this->Task->save()) throw new Exception(_('Failed to update task'));
                     $MulticastSession = $this->getClass('MulticastSessions',@max($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->Task->get('id')),'msID')));
                     if (!$MulticastSession->isValid()) throw new Exception(_('Invalid Session'));
@@ -16,7 +16,7 @@ class TaskQueue extends TaskingElement {
                     $CheckedInCount = (int)$this->getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MulticastSession->get('id')));
                     $sessionClientCount = (int)$MulticastSession->get('sessclients');
                     $SessionStateID = ($CheckedInCount == $clientCount || ($sessionClientCount > 0 && $clientCount > 0)) ? 3 : 1;
-                    $this->Task->set('stateID',3);
+                    $this->Task->set('stateID',$this->getProgressState());
                     if (!$this->Task->save()) throw new Exception(_('Failed to update task'));
                     $MulticastSession->set('stateID',$SessionStateID);
                     if (!$MulticastSession->save()) throw new Exception(_('Failed to update Session'));
@@ -51,7 +51,7 @@ class TaskQueue extends TaskingElement {
                     ->set('NFSMemberID',$this->StorageNode->get('id'));
                 if (!$this->ImageLog(true)) throw new Exception(_('Failed to update/create image log'));
             }
-            $this->Task->set('stateID',3);
+            $this->Task->set('stateID',$this->getProgressState());
             if (!$this->Task->save()) throw new Exception(_('Failed to update Task'));
             if (!$this->TaskLog()) throw new Exception(_('Failed to update/create task log'));
             $this->EventManager->notify('HOST_CHECKIN',array('Host'=>&$this->Host));

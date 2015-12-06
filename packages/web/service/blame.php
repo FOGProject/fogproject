@@ -18,8 +18,8 @@ try {
                 ->set('hostID',$Host->get('id'))
                 ->set('groupID',$Task->get('NFSGroupID'))
                 ->set('failureTime',$FOGCore->nice_date('+5 minutes')->format('Y-m-d H:i:s'));
-            if ($NodeFailure->save()) $Task->set('stateID',1);
-        } else $Task->set('stateID',1);
+            if ($NodeFailure->save()) $Task->set('stateID',$FOGCore->getQueuedState());
+        } else $Task->set('stateID',$FOGCore->getQueuedState());
     }
     if ($Task->save()) echo '##';
 } catch (Exception $e) {

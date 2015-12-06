@@ -35,7 +35,7 @@ class Task extends FOGController {
     );
     public function getInFrontOfHostCount() {
         $Tasks = $this->getClass('TaskManager')->find(array(
-            'stateID'=>array(0,1,2),
+            'stateID'=>$this->getQueuedStates(),
             'typeID'=>array(1,15,17),
             'NFSGroupID'=>$this->get('NFSGroupID'),
         ));
@@ -54,11 +54,11 @@ class Task extends FOGController {
     public function cancel() {
         $SnapinJob = $this->getHost()->getActiveSnapinJob();
         if ($SnapinJob instanceof SnapinJob && $SnapinJob->isValid()) {
-            $this->getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJob->get('id')),'',array('complete'=>$this->nice_date()->format('Y-m-d H:i:s'),'stateID'=>5));
-            $SnapinJob->set('stateID',5)->save();
+            $this->getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJob->get('id')),'',array('complete'=>$this->nice_date()->format('Y-m-d H:i:s'),'stateID'=>$this->getCancelledState()));
+            $SnapinJob->set('stateID',$this->getCancelledState())->save();
         }
-        if ($this->getTaskType()->isMulticast()) $this->getClass('MulticastSessionsManager')->update(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->get('id')),'jobID')),'',array('clients'=>0,'completetime'=>$this->formatTime('now','Y-m-d H:i:s'),'stateID'=>5));
-        $this->set('stateID',5)->save();
+        if ($this->getTaskType()->isMulticast()) $this->getClass('MulticastSessionsManager')->update(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->get('id')),'jobID')),'',array('clients'=>0,'completetime'=>$this->formatTime('now','Y-m-d H:i:s'),'stateID'=>$this->getCancelledState()));
+        $this->set('stateID',$this->getCancelledState())->save();
         return $this;
     }
     public function set($key, $value) {

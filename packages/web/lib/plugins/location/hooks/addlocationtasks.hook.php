@@ -16,7 +16,7 @@ class AddLocationTasks extends Hook {
         $arguments['templates'][4] = '${location}';
         $arguments['attributes'][4] = array('class'=>'r');
         foreach ((array)$arguments['data'] AS $i => &$data) {
-            $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['data'][$i]['id']),'locationID');
+            $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$data['host_id']),'locationID');
             $locID = array_shift($locationID);
             $arguments['data'][$i]['location'] = $this->getClass('Location',$locID)->get('name');
             unset($data);

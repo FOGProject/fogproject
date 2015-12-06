@@ -5,7 +5,7 @@ try {
     if ($Host && $Host->isValid()) {
         $Task = $Host->get('task');
         if ($Task && $Task->isValid()) {
-            if (!in_array($Task->get('typeID'),array(12,13))) $Task->set('stateID',4);
+            if (!in_array($Task->get('typeID'),array(12,13))) $Task->set('stateID',$FOGCore->getCompleteState());
             if (!$Task->save()) throw new Exception(_('Failed to updated Task'));
             $TaskLog = $FOGCore->getClass('TaskLog',$Task)
                 ->set('taskID',$Task->get('id'))
