@@ -23,16 +23,15 @@ class MulticastManager extends FOGService {
         return array_filter((array)$new);
     }
     private function getMCTasksNotInDB($KnownTasks, $AllTasks) {
-        $ret = array();
-        $allIDs = array();
-        foreach((array)$AllTasks AS $i => &$AllTask) {
+        $ret = $allIDs = array();
+        foreach ((array)$AllTasks AS $i => &$AllTask) {
             if ($AllTask && $AllTask->getID()) $allIDs[] = $AllTask->getID();
+            unset($AllTask);
         }
-        unset($AllTask);
-        foreach((array)$KnownTasks AS $i => &$Known) {
+        foreach ((array)$KnownTasks AS $i => &$Known) {
             if (!in_array($Known->getID(),(array)$allIDs)) $ret[] = $Known;
+            unset($Known);
         }
-        unset($Known);
         return array_filter((array)$ret);
     }
     private function serviceLoop() {

@@ -345,8 +345,8 @@ class TaskManagementPage extends FOGPage {
         }
     }
     public function remove_multicast_post() {
-        $MulticastSessionIDs = $this->getSubObjectIDs('MulticastSessions',array('id'=>$_REQUEST['task']));
-        $TaskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('id'=>$_REQUEST['task']),'taskID');
+        $MulticastSessionIDs = (array)$_REQUEST['task'];
+        $TaskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MulticastSessionIDs),'taskID');
         foreach ((array)$this->getClass('TaskManager')->find(array('id'=>$TaskIDs)) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Task->cancel();
@@ -357,8 +357,6 @@ class TaskManagementPage extends FOGPage {
         unset($TaskIDs);
         $this->getClass('MulticastSessionsManager')->destroy(array('id'=>$MulticastSessionIDs));
         unset($MulticastSessionIDs);
-        $this->setMessage(_('Successfully cancelled selected tasks'));
-        $this->redirect(sprintf('?node=%s&sub=active',$this->node));
     }
     public function active_multicast() {
         $this->title = _('Active Multi-cast Tasks');
