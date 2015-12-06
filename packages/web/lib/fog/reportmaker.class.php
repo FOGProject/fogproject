@@ -19,7 +19,7 @@ class ReportMaker extends FOGBase {
         return $this;
     }
     public function addCSVCell($item) {
-        $this->strCSV[] = $this->DB->sanitize($item);
+        $this->strCSV[] = stripslashes(html_entity_decode(mb_convert_encoding($item,'UTF-8'),ENT_QUOTES,'UTF-8'));
         return $this;
     }
     public function endCSVLine() {
