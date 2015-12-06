@@ -41,7 +41,7 @@ class MulticastManager extends FOGService {
                 $StorageNode = $this->checkIfNodeMaster();
                 $myroot = $StorageNode->get('path');
                 $taskCount = $this->getClass('MulticastSessionsManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
-                if ($taskCount != $oldCount) $allTasks = MulticastTask::getAllMulticastTasks($myroot);
+                if ($taskCount != $oldCount) $allTasks = $this->getClass('MulticastTask')->getAllMulticastTasks($myroot);
                 $RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
                 if (!count($RMTasks) && (!$taskCount || $taskCount < 0)) throw new Exception(' * No tasks found!');
                 $jobcancelled = false;
