@@ -61,38 +61,38 @@ class ReportManagementPage extends FOGPage {
             '${input}',
         );
         $AllDates = array_merge($this->DB->query("SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM `imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'),$this->DB->query("SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM `imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'));
-        foreach($AllDates AS $i => &$Date) {
+        foreach ((array)$AllDates AS $i => &$Date) {
             $tmp = array_shift($Date);
-            if (!$this->validDate($tmp)) {
-                unset($tmp);
-                continue;
-            }
+            if (!$this->validDate($tmp)) continue;
             $Dates[] = $tmp;
-            unset($tmp);
+            unset($Date,$tmp);
         }
-        unset($Date);
+        unset($AllDates);
         $Dates = array_unique($Dates);
-        if ($Dates) {
+        rsort($Dates);
+        if (count($Dates) > 0) {
             ob_start();
-            foreach($Dates AS $i => &$Date) {
+            foreach ((array)$Dates AS $i => &$Date) {
                 printf('<option value="%s">%s</option>',$Date,$Date);
+                unset($Date);
             }
-            unset($Date);
+            unset($Dates);
             $dates = ob_get_clean();
             $date1 = sprintf('<select name="%s" size="1">%s</select>','date1',$dates);
             $date2 = sprintf('<select name="%s" size="1">%s</select>','date2',$dates);
             $fields = array(
                 _('Select Start Date') => $date1,
                 _('Select End Date') => $date2,
-                '' => sprintf('<input type="submit" value="%s"/>',_('Search for Entries')),
+                '&nbsp;' => sprintf('<input type="submit" value="%s"/>',_('Search for Entries')),
             );
-            foreach((array)$fields AS $field => &$input) {
+            foreach ((array)$fields AS $field => &$input) {
                 $this->data[] = array(
                     'field'=>$field,
                     'input'=>$input,
                 );
+                unset($input);
             }
-            unset($input);
+            unset($fields);
             printf('<form method="post" action="%s">',$this->formAction);
             $this->render();
             echo '</form>';
@@ -825,23 +825,17 @@ class ReportManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $datesold = array();
-        $datesnew = array();
-        foreach ((array)$this->getClass('SnapinTaskManager')->find() AS $i => &$SnapinLog) {
-            if (!$SnapinLog->isValid()) continue;
-            $tmp1 = $SnapinLog->get('checkin');
-            $tmp2 = $SnapinLog->get('complete');
-            if (!$this->validDate($tmp1) || !$this->validDate($tmp2)) continue;
-            $datesold[] = $this->formatTime($tmp1,'Y-m-d');
-            $datesnew[] = $this->formatTime($tmp2,'Y-m-d');
-            unset($tmp1,$tmp2,$SnapinLog);
+        $AllDates = array_merge($this->DB->query("SELECT DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') start FROM `snapinTasks` WHERE DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'),$this->DB->query("SELECT DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') finish FROM `snapinTasks` WHERE DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'));
+        foreach ((array)$AllDates AS $i => &$Date) {
+            $tmp = array_shift($Date);
+            if (!$this->validDate($tmp)) continue;
+            $Dates[] = $tmp;
+            unset($Date,$tmp);
         }
-        unset($id,$SnapinLogIDs);
-        $Dates = array_merge($datesold,$datesnew);
-        unset($datesold,$datesnew);
-        if ($Dates) {
-            $Dates = array_unique($Dates);
-            rsort($Dates);
+        unset($AllDates);
+        $Dates = array_unique($Dates);
+        rsort($Dates);
+        if (count($Dates) > 0) {
             ob_start();
             foreach ((array)$Dates AS $i => &$Date) {
                 printf('<option value="%s">%s</option>',$Date,$Date);
@@ -849,18 +843,21 @@ class ReportManagementPage extends FOGPage {
             }
             unset($Dates);
             $dates = ob_get_clean();
+            $date1 = sprintf('<select name="%s" size="1">%s</select>','date1',$dates);
+            $date2 = sprintf('<select name="%s" size="1">%s</select>','date2',$dates);
             $fields = array(
-                _('Select Start Date') => sprintf('<select name="date1" size="1">%s</select>',$dates),
-                _('Select End Date') => sprintf('<select name="date2" size="1">%s</select>',$dates),
-                '' => sprintf('<input type="submit" value="%s"/>',_('Search for Entries')),
+                _('Select Start Date') => $date1,
+                _('Select End Date') => $date2,
+                '&nbsp;' => sprintf('<input type="submit" value="%s"/>',_('Search for Entries')),
             );
             foreach ((array)$fields AS $field => &$input) {
                 $this->data[] = array(
                     'field'=>$field,
                     'input'=>$input,
                 );
+                unset($input);
             }
-            unset($input);
+            unset($fields);
             printf('<form method="post" action="%s">',$this->formAction);
             $this->render();
             echo '</form>';
@@ -868,7 +865,7 @@ class ReportManagementPage extends FOGPage {
     }
     public function snapin_log_post() {
         $this->title = _('FOG Snapin Log');
-        printf('<h2><a href="export.php?type=csv&filename=SnapinLog" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=SnapinLog" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf('<h2><a href="export.php?type=csv&filename=SnapinLog" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=SnapinLog" alt="%s" title="%s" target="_blank">%s</a></h2>',
             _('Export CSV'),
             _('Export CSV'),
             $this->csvfile,
@@ -925,8 +922,11 @@ class ReportManagementPage extends FOGPage {
             unset($csvHeader);
         }
         $this->ReportMaker->endCSVLine();
-        foreach ((array)$this->getClass('SnapinTaskManager')->find(array('checkin'=>'','complete'=>''),'OR','','',"BETWEEN '$date1' AND '$date2'",'','','',false) AS $i => &$SnapinTask) {
+        foreach ((array)$this->getClass('SnapinTaskManager')->find(array('checkin'=>null,'complete'=>null),'OR','','',"BETWEEN '$date1' AND '$date2'",'','','',false) AS $i => &$SnapinTask) {
             if (!$SnapinTask->isValid()) continue;
+            $start = $this->nice_date($SnapinTask->get('checkin'));
+            $end = $this->nice_date($SnapinTask->get('complete'));
+            if (!$this->validDate($start) || !$this->validDate($end)) continue;
             $Snapin = $SnapinTask->getSnapin();
             if (!$Snapin->isValid()) continue;
             $SnapinJob = $SnapinTask->getSnapinJob();
@@ -935,7 +935,7 @@ class ReportManagementPage extends FOGPage {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
                 'snap_name'=>$Snapin->get('name'),
-                'snap_state'=>$SnapinTask->get('stateID'),
+                'snap_state'=>$this->getClass('TaskState',$SnapinTask->get('stateID'))->get('name'),
                 'snap_return'=>$SnapinTask->get('return'),
                 'snap_detail'=>$SnapinTask->get('detail'),
                 'snap_create'=>$this->formatTime($Snapin->get('createdTime'),'Y-m-d'),
