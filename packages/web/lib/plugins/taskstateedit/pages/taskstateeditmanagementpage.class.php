@@ -105,6 +105,7 @@ class TaskstateeditManagementPage extends FOGPage {
                 ->set('description',$description)
                 ->set('icon',$icon);
             if (!$TaskState->save()) throw new Exception(_('Failed to create'));
+            $TaskState->set('order',$TaskState->get('id'))->save();
             $this->setMessage(_('Task State added, editing'));
             $this->redirect(sprintf('?node=%s&sub=edit&id=%s',$this->node,$TaskState->get('id')));
         } catch (Exception $e) {
