@@ -50,11 +50,9 @@ $(function() {
                                 {task: checkedIDs},
                                 function(data) {
                                     clearTimeout(ActiveTasksUpdateTimer);
-                                    if (sub == 'active') {
-                                        ActiveTasksUpdate();
-                                        ActiveTasksTableCheck();
-                                        ActiveTasksUpdateTimerStart();
-                                    } else location.reload();
+                                    ActiveTasksUpdate(window.location.href);
+                                    ActiveTasksTableCheck();
+                                    ActiveTasksUpdateTimerStart();
                                 }
                               );
                         $(this).dialog('close');
@@ -67,9 +65,8 @@ $(function() {
             });
         }
     });
-    if ($_GET['sub'] == 'active' || !$_GET['sub']) {
         // Update Tasks
-        ActiveTasksUpdate();
+        ActiveTasksUpdate(window.location.href);
         // Hook buttons
         ActiveTasksButtonHook();
         // Update timer
@@ -82,7 +79,7 @@ $(function() {
             if (!$(this).hasClass('active')) {
                 $(this).addClass('active').val('Pause auto update');
                 // Update Tasks
-                ActiveTasksUpdate();
+                ActiveTasksUpdate(window.location.href);
                 // Hook buttons
                 ActiveTasksButtonHook();
                 // Update timer
@@ -92,20 +89,19 @@ $(function() {
                 clearTimeout(ActiveTasksUpdateTimer);
             }
         });
-    }
 });
 function ActiveTasksUpdateTimerStart() {
     if (typeof($_GET['sub']) == 'undefined' || $_GET['sub'] == 'active') {
         ActiveTasksUpdateTimer = setTimeout(function() {
-            if (!ActiveTasksRequests.length && $('#taskpause').hasClass('active')) ActiveTasksUpdate();
+            if (!ActiveTasksRequests.length && $('#taskpause').hasClass('active')) ActiveTasksUpdate(window.location.href);
         },ActiveTasksUpdateInterval);
     }
 }
-function ActiveTasksUpdate() {
+function ActiveTasksUpdate(URL) {
     if (ActiveTasksAJAX) return;
     ActiveTasksAJAX = $.ajax({
         type: 'POST',
-        url: '?node=task&sub=active',
+        url: URL,
         cache: false,
         dataType: 'json',
         beforeSend:	function() {
@@ -173,7 +169,7 @@ function ActiveTasksUpdate() {
                     // Replace variable data
                     if (response['data'][i]['percent'] > 0 && response['data'][i]['percent'] < 100) {
                         numRows = $('#active-tasks tr td').length;
-                        row += '<tr id="progress-${host_id}" class="${class}"><td colspan="'+numRows+'" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percentText}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>';
+                        if (sub == 'active') row += '<tr id="progress-${host_id}" class="${class}"><td colspan="'+numRows+'" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percentText}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>';
                     }
                     for (var k in response['data'][i]) {
                         row = row.replace(new RegExp('\\$\\{' + k + '\\}', 'g'), response['data'][i][k]);
@@ -328,7 +324,7 @@ function ActiveTasksTableCheck() {
     } else {
         $('table').removeClass('tablesorter-blue');
         thead.remove();
-        tbody.html('<tr><td colspan="7" class="no-active-tasks">' + _L['NO_ACTIVE_TASKS'] + '</td></tr>');
+        tbody.html('<tr><td colspan="'+tbodyCols.length+'" class="no-active-tasks">' + _L['NO_ACTIVE_TASKS'] + '</td></tr>');
     }
     if ($('.no-active-tasks').size() == 0) ActiveTasksContainer.after('<div id="canceltasks" class="c"><input type="button" name="Cancel" value="Cancel selected tasks?"/></div>');
     else $('#canceltasks').hide();
