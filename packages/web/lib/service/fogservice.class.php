@@ -178,7 +178,7 @@ abstract class FOGService extends FOGBase {
                 } else {
                     $this->killTasking($i,$itemType);
                     $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
-                    $this->outall(" | CMD:\n\t\t\t$cmd");
+                    if ($this->getSetting('FOG_SERVICE_DEBUG')) $this->outall(" | CMD:\n\t\t\t$cmd");
                     $this->startTasking($cmd,$logname,$i,$itemType,$filename);
                 }
                 $this->outall(sprintf(' * %s %s %s',_('Started sync for'),$objType,$Obj->get('name')));
