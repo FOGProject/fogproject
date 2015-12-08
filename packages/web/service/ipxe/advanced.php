@@ -1,10 +1,4 @@
 <?php
-header('X-Content-Type-Options: nosniff');
-header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
-header('X-XSS-Protection: 1; mode=block');
-header('X-Frame-Options: deny');
-header('Cache-Control: no-cache');
-header("Content-type: text/plain");
 require('../../commons/base.inc.php');
 /**
  * parseMe($Send)
@@ -12,8 +6,10 @@ require('../../commons/base.inc.php');
  * @return void
  */
 $parseMe = function($Send) {
-	foreach($Send AS $ipxe => $val)
-		echo implode("\n",$val)."\n";
+	foreach($Send AS $ipxe => &$val) {
+        printf("%s\n",implode("\n",(array)$val));
+        unset($val);
+    }
 };
 if (isset($_REQUEST['login'])) {
 	$Send['loginstuff'] = array(
