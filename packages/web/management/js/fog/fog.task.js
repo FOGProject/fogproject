@@ -169,7 +169,7 @@ function ActiveTasksUpdate(URL) {
                     // Replace variable data
                     if (response['data'][i]['percent'] > 0 && response['data'][i]['percent'] < 100) {
                         numRows = $('#active-tasks tr td').length;
-                        if (sub == 'active') row += '<tr id="progress-${host_id}" class="${class}"><td colspan="'+numRows+'" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percentText}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>';
+                        if (sub == 'active' || !sub || sub == 'undefined') row += '<tr id="progress-${host_id}" class="${class}"><td colspan="'+numRows+'" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percentText}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>';
                     }
                     for (var k in response['data'][i]) {
                         row = row.replace(new RegExp('\\$\\{' + k + '\\}', 'g'), response['data'][i][k]);
