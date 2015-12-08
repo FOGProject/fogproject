@@ -163,15 +163,10 @@ class Page extends FOGBase {
         $this->javascripts[] = $path;
     }
     public function startBody() {
-        ob_flush();
-        flush();
-        ob_end_flush();
         ob_start();
-        ob_implicit_flush(false);
     }
     public function endBody() {
         $this->body = ob_get_clean();
-        ob_start();
     }
     public function render($path = '') {
         require('../management/other/index.php');
