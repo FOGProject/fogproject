@@ -6,7 +6,7 @@ abstract class FOGService extends FOGBase {
     protected $ips = array();
     public $service = true;
     private $transferLog = array();
-    public $procRefs = array();
+    public $procRef = array();
     public $procPipes = array();
     protected function getIPAddress() {
         $output = array();
@@ -174,9 +174,9 @@ abstract class FOGService extends FOGBase {
                 if (!$i) $this->outall(_(' * Starting Sync Actions'));
                 if ($this->isRunning($this->procRef[$itemType][$filename][$i])) {
                     $this->outall(_(' | Replication not complete'));
-                    $this->outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$itemType][$i])));
+                    $this->outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$itemType][$filename][$i])));
                 } else {
-                    $this->killTasking($i,$itemType);
+                    $this->killTasking($i,$itemType,$filename);
                     $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
                     if ($this->getSetting('FOG_SERVICE_DEBUG')) $this->outall(" | CMD:\n\t\t\t$cmd");
                     $this->startTasking($cmd,$logname,$i,$itemType,$filename);
