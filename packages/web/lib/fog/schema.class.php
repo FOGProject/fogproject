@@ -13,7 +13,6 @@ class Schema extends FOGController {
         while ($row = $queryTables->fetch_row()) $target_tables[] = $row[0];
         if ($tables !== false) $target_tables = array_intersect($target_tables,$tables);
         ob_start();
-        ob_implicit_flush(false);
         printf('-- FOG MySQL Dump created %s%s',$this->formatTime('','r'),"\n\n");
         if ($tables === false) {
             printf('DROP DATABASE IF EXISTS `%s`;%s',DATABASE_NAME,"\n\n");
