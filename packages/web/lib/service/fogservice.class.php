@@ -202,15 +202,16 @@ abstract class FOGService extends FOGBase {
         while (list(,$t) = each($output)) {
             if ($t != $pid) $this->killAll($t,$sig);
         }
-        posix_kill($pid,$sig);
+        @posix_kill($pid,$sig);
     }
     public function killTasking($index = 0,$itemType = false,$filename = false) {
         if ($itemType === false) {
-            @fclose($this->procPipe[$index]);
-            unset($this->procPipe[$index]);
-            $running = 4;
+            foreach ((array)$this->procPipes[$index] AS $i => &$close) {
+                @fclose($close);
+                unset($close);
+            }
+            unset($this->procPipes[$index]);
             if ($this->isRunning($this->procRef[$index])) {
-                $running = 5;
                 $pid = $this->getPID($this->procRef[$index]);
                 if ($pid) $this->killAll($pid,SIGTERM);
                 @proc_terminate($this->procRef[$index],SIGTERM);
@@ -219,11 +220,12 @@ abstract class FOGService extends FOGBase {
             unset($this->procRef[$index]);
             return (bool)$this->isRunning($this->procRef[$index]);
         } else {
-            @fclose($this->procPipe[$itemType][$filename][$index]);
-            unset($this->procPipe[$itemType][$filename][$index]);
-            $running = 4;
+            foreach ((array)$this->procPipes[$itemType][$filename][$index] AS $i => &$close) {
+                @fclose($close);
+                unset($close);
+            }
+            unset($this->procPipes[$itemType][$filename][$index]);
             if ($this->isRunning($this->procRef[$itemType][$filename][$index])) {
-                $running = 5;
                 $pid = $this->getPID($this->procRef[$itemType][$filename][$index]);
                 if ($pid) $this->killAll($pid,SIGTERM);
                 @proc_terminate($this->procRef[$itemType][$filename][$index],SIGTERM);
