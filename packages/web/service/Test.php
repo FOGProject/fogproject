@@ -1,6 +1,10 @@
 <?php
-$Response = function() {echo "#!ok\n#Foo=bar\n#Empty=\n#-X=Special";};
-$ResponseArray = function() {echo "#!ok\n#obj0=Foo\n#obj1=bar\n#obj2=22!";};
+$Response = function() {
+    echo "#!ok\n#Foo=bar\n#Empty=\n#-X=Special";
+};
+$ResponseArray = function() {
+    echo "#!ok\n#obj0=Foo\n#obj1=bar\n#obj2=22!";
+};
 $BadResponse = function() {echo "#!er";};
 $Download = function() {
     header('Content-Disposition: attachment; filename=test.txt');
@@ -26,7 +30,9 @@ $AESDecryption = function($key,$iv,$data) {
     $iv = bin2hex($iv);
     echo "$iv|$cipher";
 };
-$RawResponse = function() {echo 'Foobar22!';};
+$RawResponse = function() {
+    echo 'Foobar22!';
+};
 $units = array('Response','ResponseArray','BadResponse','Download','AESDecryptionResponse1','AESDecryptionResponse2','AESDecryption','RawResponse');
 if (!in_array(mb_convert_encoding($_REQUEST['unit'],'UTF-8'))) exit;
 $unit = mb_convert_encoding($_REQUEST['unit'],'UTF-8');
@@ -38,7 +44,7 @@ if (strpos($unit,'AESDecryption') !== false) {
     $i = 0;
     while ($i < $n) {
         $a = substr($key,$i,2);
-        $c = pack("H*",$a);
+        $c = pack('H*',$a);
         if ($i == 0) $key = $c;
         else $key .= $c;
         $i += 2;
