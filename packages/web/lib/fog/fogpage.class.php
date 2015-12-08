@@ -692,7 +692,7 @@ abstract class FOGPage extends FOGBase {
             $Host
                 ->set('sec_time',$this->nice_date('+30 minutes')->format('Y-m-d H:i:s'))
                 ->set('pub_key',$key)
-                ->set('sec_token',$this->createSecToken())
+                ->set('sec_tok',$this->createSecToken())
                 ->save();
             printf('#!en=%s',$this->certEncrypt("#!ok\n#token={$Host->get(sec_tok)}",$Host));
         }

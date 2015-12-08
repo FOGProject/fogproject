@@ -62,7 +62,6 @@ class Initiator {
      */
     public static function startInit() {
         @set_time_limit(0);
-        ini_set('display_errors',1);
         @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
         self::verCheck();
         self::extCheck();
