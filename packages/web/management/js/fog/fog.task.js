@@ -91,7 +91,7 @@ $(function() {
         });
 });
 function ActiveTasksUpdateTimerStart() {
-    if (typeof($_GET['sub']) == 'undefined' || $_GET['sub'] == 'active') {
+    if (typeof($_GET['sub']) == 'undefined' || $_GET['sub'].indexOf('active') != -1) {
         ActiveTasksUpdateTimer = setTimeout(function() {
             if (!ActiveTasksRequests.length && $('#taskpause').hasClass('active')) ActiveTasksUpdate(window.location.href);
         },ActiveTasksUpdateInterval);

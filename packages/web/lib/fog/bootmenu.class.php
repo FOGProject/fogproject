@@ -35,7 +35,7 @@ class BootMenu extends FOGBase {
         } else {
             $exitSetting = $Host instanceof Host && $Host->isValid() && $Host->get('biosexit') ? $Host->get('biosexit') : $this->getSetting('FOG_BOOT_EXIT_TYPE');
         }
-        $this->bootexittype = (in_array($exitSetting,$exitKeys) ? $exitTypes[$exitSetting] : $exitSetting);
+        $this->bootexittype = (in_array($exitSetting,$exitKeys) ? $exitTypes[$exitSetting] : $exitTypes['sanboot']);
         $ramsize = $this->getSetting('FOG_KERNEL_RAMDISK_SIZE');
         $dns = $this->getSetting('FOG_PXE_IMAGE_DNSADDRESS');
         $keymap = $this->getSetting('FOG_KEYMAP');
