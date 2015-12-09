@@ -122,6 +122,10 @@ class Image extends FOGController {
     }
     public function getStorageGroup() {
         if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min($this->getSubObjectIDs('StorageGroup','','id')));
+        foreach ((array)$this->get('storageGroups') AS $i => &$Group) {
+            if ($this->getPrimaryGroup($Group)) return $this->getClass('StorageGroup',$Group);
+            unset($Group);
+        }
         return $this->getClass('StorageGroup',@min($this->get('storageGroups')));
     }
     public function getOS() {
