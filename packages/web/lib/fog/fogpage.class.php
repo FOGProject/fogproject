@@ -202,8 +202,8 @@ abstract class FOGPage extends FOGBase {
     }
     public function buildRow($data) {
         unset($this->atts);
-        $this->setAtts();
         $this->replaceNeeds($data);
+        $this->setAtts();
         ob_start();
         foreach ($this->templates AS $i => &$template) {
             printf(
