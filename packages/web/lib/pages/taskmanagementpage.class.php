@@ -11,7 +11,7 @@ class TaskManagementPage extends FOGPage {
             'listgroups'=>sprintf($this->foglang['ListAll'],$this->foglang['Groups']),
             'active-multicast'=>$this->foglang['ActiveMCTasks'],
             'active-snapins'=>$this->foglang['ActiveSnapins'],
-            'scheduled'=>$this->foglang['ScheduledTasks'],
+            'active-scheduled'=>$this->foglang['ScheduledTasks'],
         );
         $this->subMenu = array();
         $this->notes = array();
@@ -35,7 +35,7 @@ class TaskManagementPage extends FOGPage {
             '<i class="fa fa-${icon_state} fa-1x icon" title="${state}"></i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
         );
         $this->attributes = array(
-            array('width'=>1,'','class'=>'l filter-false'),
+            array('width'=>1,'','class'=>'l filter-false','task-id'=>'${id}'),
             array('width'=>16,'class'=>'l filter-false'),
             array('width'=>65,'class'=>'l','id'=>'host-${host_id}'),
             array('width'=>120,'class'=>'l'),
@@ -377,7 +377,7 @@ class TaskManagementPage extends FOGPage {
             '${percent}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
+            array('width'=>16,'class'=>'l filter-false','task-id'=>'${id}'),
             array('class'=>'c'),
             array('class'=>'c'),
             array('class'=>'c'),
@@ -417,7 +417,7 @@ class TaskManagementPage extends FOGPage {
             '${state}',
         );
         $this->attributes = array(
-            array('class'=>'l filter-false','width'=>16),
+            array('class'=>'l filter-false','width'=>16,'task-id'=>'${id}'),
             array('class'=>'l','width'=>50),
             array('class'=>'l','width'=>50),
             array('class'=>'l','width'=>50),
@@ -450,12 +450,12 @@ class TaskManagementPage extends FOGPage {
         $this->setMessage(_('Successfully cancelled selected tasks'));
         $this->redirect(sprintf('?node=%s&sub=active',$this->node));
     }
-    public function cancelscheduled() {
+    public function active_scheduled_post() {
         $this->getClass('ScheduledTaskManager')->destroy(array('id'=>$_REQUEST['task']));
         $this->setMessage(_('Successfully cancelled selected tasks'));
-        $this->redirect(sprintf('?node=%s&sub=active',$this->node));
+        $this->redirect($this->formAction);
     }
-    public function scheduled() {
+    public function active_scheduled() {
         $this->title = 'Scheduled Tasks';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
@@ -469,14 +469,14 @@ class TaskManagementPage extends FOGPage {
         $this->templates = array(
             '<input type="checkbox" name="task[]" value="${id}" class="toggle-action"/>',
             '<a href="?node=${hostgroup}&sub=edit&id=${host_id}" title="Edit ${hostgroupname}">${hostgroupname}</a>',
-            '${groupbased}<form method="post" action="?node=task&sub=scheduled">',
+            '${groupbased}<form method="post" action="?node=task&sub=active-scheduled">',
             '${details_taskname}',
             '${task_type}',
             '<small>${time}</small>',
             '${active}/${type}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
+            array('width'=>16,'class'=>'l filter-false','task-id'=>'${id}'),
             array('width'=>120,'class'=>'l'),
             array(),
             array('width'=>110,'class'=>'l'),
