@@ -49,7 +49,7 @@ class ReportManagementPage extends FOGPage {
         printf('<p>%s</p>',_('FOG Reports exist to give you information about what is going on with your FOG System. To view a report, select an item from the menu on the left-hand side of this page.'));
     }
     public function file() {
-        $path = sprintf('%s%s%s%s',DIRECTORY_SEPARATOR,trim($this->getSetting('FOG_REPORT_DIR'),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,basename(base64_decode($_REQUEST['f'])));
+        $path = sprintf('%s/%s',trim($this->getSetting('FOG_REPORT_DIR'),'/'),basename(base64_decode($_REQUEST['f'])));
         if (!file_exists($path)) $this->fatalError(sprintf('%s: %s',_('Report file does not exist! Path'),array($path)));
         require($path);
     }
