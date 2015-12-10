@@ -1,11 +1,15 @@
 <?php
 class MulticastTask extends MulticastManager {
-    public function getAllMulticastTasks($root) {
+    public function getAllMulticastTasks($root,$myStorageNodeID) {
         $Tasks = array();
         if ($this->getClass('MulticastSessionsManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) {
             $this->outall(sprintf(' | Sleeping for %s seconds to ensure tasks are properly submitted',$this->zzz));
             sleep($this->zzz);
         }
+        $StorageNode = $this->getClass('StorageNode',$myStorageNodeID);
+        if (!$StorageNode->get('isMaster')) return;
+        $Interface = $StorageNode->get('interface');
+        unset($StorageNode);
         foreach ((array)$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$MultiSess) {
             if (!$MultiSess->isValid()) continue;
             $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MultiSess->get('id')),'taskID');
@@ -21,7 +25,7 @@ class MulticastTask extends MulticastManager {
                 $MultiSess->get('name'),
                 $MultiSess->get('port'),
                 sprintf('%s/%s',$root,$MultiSess->get('logpath')),
-                $Image->getStorageGroup()->getMasterStorageNode()->get('interface')? $Image->getStorageGroup()->getMasterStorageNode()->get('interface'):$this->getSetting('FOG_UDPCAST_INTERFACE'),
+                $Interface ? $Interface : $this->getSetting('FOG_UDPCAST_INTERFACE'),
                 ($count>0?$count:($MultiSess->get('sessclients')>0?$MultiSess->get('sessclients'):$this->getClass('HostManager')->count())),
                 $MultiSess->get('isDD'),
                 $Image->get('osID')
@@ -34,7 +38,7 @@ class MulticastTask extends MulticastManager {
     private $intImageType, $intOSID;
     public $procRef;
     public $procPipes;
-    public function __construct($id,$name,$port,$image,$eth,$clients,$imagetype,$osid) {
+    public function __construct($id = '',$name = '',$port = '',$image = '',$eth = '',$clients = '',$imagetype = '',$osid = '') {
         parent::__construct();
         $this->intID = $id;
         $this->strName = $name;
@@ -174,7 +178,7 @@ class MulticastTask extends MulticastManager {
             printf('cat %s%s%s | %s',rtrim($this->getImagePath(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,$file,implode($buildcmd));
             unset($file);
         }
-        unset($filelist);
+        unset($filelist,$buildcmd);
         return ob_get_clean();
     }
     public function startTask() {
