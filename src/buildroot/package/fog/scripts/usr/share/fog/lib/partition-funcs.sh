@@ -13,72 +13,72 @@
 # $1 is the name of the disk drive
 # $2 is name of file to save to.
 saveSfdiskPartitions() {
-    sfdisk -d "$1" 2>/dev/null > "$2";
-    if [ "$?" != 0 ]; then
-        majorDebugEcho "sfdisk failed in saveSfdiskPartitions";
+    sfdisk -d "$1" 2>/dev/null > "$2"
+    if [[ $? != 0 ]]; then
+        majorDebugEcho "sfdisk failed in saveSfdiskPartitions"
     fi
 }
 
 # $1 is the name of the disk drive
 # $2 is name of file to load from.
 applySfdiskPartitions() {
-    sfdisk "$1" &>/dev/null < "$2";
-    if [ "$?" != 0 ]; then
-        majorDebugEcho "sfdisk failed in applySfdiskPartitions";
+    sfdisk "$1" &>/dev/null < "$2"
+    if [[ $? != 0 ]]; then
+        majorDebugEcho "sfdisk failed in applySfdiskPartitions"
     fi
 }
 
 # $1 is the name of the disk drive
 # $2 is name of file to load from.
 restoreSfdiskPartitions() {
-    applySfdiskPartitions "$1" "$2";
+    applySfdiskPartitions "$1" "$2"
     fdisk "$1" &>/dev/null << EOFRESTOREPART
 w
 EOFRESTOREPART
-    if [ "$?" != 0 ]; then
-        majorDebugEcho "fdisk failed in restoreSfdiskPartitions";
+    if [[ $? != 0 ]]; then
+        majorDebugEcho "fdisk failed in restoreSfdiskPartitions"
     fi
 }
 
 
 # $1 is the name of the disk drive
 hasExtendedPartition() {
-    sfdisk -d "$1" 2>/dev/null | egrep '(Id|type)=\ *[5f]' | wc -l
-    if [ "$?" != 0 ]; then
-        majorDebugEcho "sfdisk failed in hasExtendedPartition";
+    local disk="$1"
+    sfdisk -d "$disk" 2>/dev/null | egrep '(Id|type)=\ *[5f]' | wc -l
+    if [[ $? != 0 ]]; then
+        majorDebugEcho "sfdisk failed in hasExtendedPartition"
     fi
 }
 
 # $1 is the name of the partition device (e.g. /dev/sda3)
 partitionHasEBR() {
     local part="$1"
-    local part_number=`echo $part | sed -r 's/^.*\([0-9].*\)/\1/p'`
-    local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
-    local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}'`;
-    if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
-        echo "1";
+    local partNum=$(getPartitionNumber $part)
+    local disk=$(getDiskFromPartition $part)
+    local part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}')
+    if [[ $part_type == 5 || $part_type == f || $partNum -ge 5 ]]; then
+        echo "1"
     else
-        echo "0";
+        echo "0"
     fi
 }
 
 # $1 is the name of the partition device (e.g. /dev/sda3)
 # $2 is the name of the file to save to (e.g. /net/dev/foo/d1p4.ebr)
 saveEBR() {
-    local part="$1";
-    local dstfilename="$2";
-    local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
-    local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
-    local table_type=`getPartitionTableType "$disk"`;
-    if [ "$table_type" != "MBR" ]; then
+    local part="$1"
+    local dstfilename="$2"
+    local disk=$(getDiskFromPartition $part)
+    local table_type=$(getPartitionTableType $disk)
+    if [[ $table_type != MBR ]]; then
         return
     fi
     # Leaving the grep in place due to forward slashes
-    local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}'`;
-    if [ `partitionHasEBR "${part}"` -gt 0 ]; then
-        dots "Saving EBR for ($part)";
-        dd if="$part" of="$dstfilename" bs=512 count=1 &> /dev/null;
-        echo "Done";
+    local part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}')
+    if [[ $(partitionHasEBR $part) -gt 0 ]]; then
+        dots "Saving EBR for ($part)"
+        dd if="$part" of="$dstfilename" bs=512 count=1 &> /dev/null
+        echo "Done"
     fi
 }
 
@@ -86,38 +86,33 @@ saveEBR() {
 # $2 = DriveNumber  (e.g. 1)
 # $3 = ImagePath  (e.g. /net/foo)
 saveAllEBRs() {
-    local drive="$1";
-    local driveNum="$2";
-    local imagePath="$3";
-    getPartitions $drive
-    local diskLength=`expr length $drive`;
-    local partNum="";
-    for part in $parts; do
-        partNum=`getPartitionNumber $part`;
-        ebrfilename=`EBRFileName "${imagePath}" "${driveNum}" "${partNum}"`;
-        saveEBR "$part" "$ebrfilename";
+    local disk="$1"
+    local driveNum="$2"
+    local imagePath="$3"
+    for part in $(getPartitions $disk); do
+        partNum=$(getPartitionNumber $part)
+        ebrfilename=$(EBRFileName $imagePath $driveNum $partNum)
+        saveEBR "$part" "$ebrfilename"
     done
 }
-
 
 # $1 is the name of the partition device (e.g. /dev/sda3)
 # $2 is the name of the file to restore from (e.g. /net/foo/d1p4.ebr)
 restoreEBR() {
-    local part="$1";
-    local srcfilename="$2";
-    local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
-    local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
-    local table_type=`getPartitionTableType "$disk"`;
-    if [ "$table_type" != "MBR" ]; then
+    local part="$1"
+    local srcfilename="$2"
+    local disk=$(getDiskFromPartition $part)
+    local table_type=$(getPartitionTableType $disk)
+    if [[ $table_type != MBR ]]; then
         return
     fi
     # Leaving the grep in place due to forward slashes
-    local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}'`;
-    if [ `partitionHasEBR "${part}"` -gt 0 ]; then
-        if [ -e "$srcfilename" ]; then
-            dots "Restoring EBR for ($part)";
-            dd of=$part if=$srcfilename bs=512 count=1 &> /dev/null;
-            echo "Done";
+    local part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}')
+    if [[ $(partitionHasEBR $part) -gt 0 ]]; then
+        if [[ -e $srcfilename ]]; then
+            dots "Restoring EBR for ($part)"
+            dd of=$part if=$srcfilename bs=512 count=1 &> /dev/null
+            echo "Done"
         fi
     fi
 }
@@ -127,43 +122,40 @@ restoreEBR() {
 # $3 = ImagePath  (e.g. /net/foo)
 # $4 = ImagePartitionType  (e.g. all, mbr, 1, 2, 3, etc.)
 restoreAllEBRs() {
-    local drive="$1";
-    local driveNum="$2";
-    local imagePath="$3";
-    local imgPartitionType="$4";
-    getPartitions $drive
-    local diskLength=`expr length $drive`;
-    local partNum="";
-    for part in $parts; do
-        partNum=`getPartitionNumber $part`;
-        if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
-            local ebrfilename=`EBRFileName "${imagePath}" "${driveNum}" "${partNum}"`;
-            restoreEBR "$part" "$ebrfilename";
+    local disk="$1"
+    local driveNum="$2"
+    local imagePath="$3"
+    local imgPartitionType="$4"
+    for part in $(getPartitions $disk); do
+        partNum=$(getPartitionNumber $part)
+        if [[ $imgPartitionType == all || $imgPartitionType == $partNum ]]; then
+            local ebrfilename=$(EBRFileName $imagePath $driveNum $partNum)
+            restoreEBR "$part" "$ebrfilename"
         fi
     done
-    runPartprobe "$drive";
+    runPartprobe "$disk"
 }
 
 # $1 is the name of the partition device (e.g. /dev/sda3)
 partitionIsSwap() {
-    local part="$1";
-    local fstype=`fsTypeSetting $part`;
-    if [ "$fstype" == "swap" ]; then
-        echo "1";
+    local part="$1"
+    local fstype=$(fsTypeSetting $part)
+    if [[ $fstype == swap ]]; then
+        echo "1"
     else
-        echo "0";
+        echo "0"
     fi
 }
 
 # $1 is the location of the file to store uuids in
 # $2 is the partition device name
 saveSwapUUID() {
-    local is_swap=`partitionIsSwap $2`;
-    if [ "$is_swap" != 0 ]; then
-        local uuid=`blkid -s UUID $2 | cut -d\" -f2`;
+    local is_swap=$(partitionIsSwap $2)
+    if [[ $is_swap != 0 ]]; then
+        local uuid=$(blkid -s UUID $2 | cut -d\" -f2)
         if [ -n "$uuid" ]; then
-            echo " * Saving UUID ($uuid) for ($2)";
-            echo "$2 $uuid" >> "$1";
+            echo " * Saving UUID ($uuid) for ($2)"
+            echo "$2 $uuid" >> "$1"
         fi
     fi
 }
@@ -217,16 +209,14 @@ saveSwapUUID() {
 # $2 = DriveNumber  (e.g. 1)
 # $3 = ImagePath  (e.g. /net/foo)
 saveAllSwapUUIDs() {
-    local drive="$1";
-    local driveNum="$2";
-    local imagePath="$3";
-    getPartitions $drive
-    local diskLength=`expr length $drive`;
-    local partNum="";
-    local swapfilename=`swapUUIDFileName "$imagePath" "$driveNum"`;
-    for part in $parts; do
-        if [ `partitionIsSwap $part` != '0' ]; then
-            saveSwapUUID "$swapfilename" "$part";
+    local disk="$1"
+    local driveNum="$2"
+    local imagePath="$3"
+    local partNum=""
+    local swapfilename=$(swapUUIDFileName $imagePath $driveNum)
+    for part in $(getPartitions $disk); do
+        if [[ $(partitionIsSwap $part) != 0 ]]; then
+            saveSwapUUID "$swapfilename" "$part"
         fi
     done
 }
@@ -235,34 +225,34 @@ saveAllSwapUUIDs() {
 # $1 is the location of the file uuids are stored in
 # $2 is the partition device name
 makeSwapSystem() {
-    local uuid="";
-    local option="";
-    local disk=`echo $2 | sed -r 's/[0-9]+$//g'`;
-    local part_type="0";
-    local hasgpt=`hasGPT $disk`;
-    if [ "$hasgpt" == "1" ]; then
+    local uuid=""
+    local option=""
+    local disk=$(getDiskFromPartition $2)
+    local part_type="0"
+    local hasgpt=$(hasGPT $disk)
+    if [[ $hasgpt == 1 ]]; then
         # don't have a good way to test, as ubuntu installer
         # doesn't set the GPT partition type correctly.
         # so, only format as swap if uuid exists.
         if [ -e "$1" ]; then
-            uuid=`egrep "^$2" "$1" | awk '{print $2;}'`;
+            uuid=$(egrep "^$2" "$1" | awk '{print $2;}')
         fi
         if [ -n "$uuid" ]; then
-            part_type="82";
+            part_type="82"
         fi
     else
         # Leaving the grep in place due to forward slashes
-        part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6}'`;
+        part_type=$(sfdisk -d "$disk" 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6}')
     fi
-    if [ "$part_type" == "82" ]; then
-        if [ -e "$1" ]; then
-            uuid=`egrep "^$2" "$1" | awk '{print $2;}'`;
+    if [[ $part_type == 82 ]]; then
+        if [[ -e $1 ]]; then
+            uuid=$(egrep "^$2" "$1" | awk '{print $2;}')
         fi
-        if [ -n "$uuid" ]; then
-            option="-U $uuid";
+        if [[ -n $uuid ]]; then
+            option="-U $uuid"
         fi
-        echo " * Restoring swap partition: $2";
-        mkswap $option $2 &> /dev/null;
+        echo " * Restoring swap partition: $2"
+        mkswap $option $2 &> /dev/null
     fi
 }
 
@@ -270,18 +260,18 @@ makeSwapSystem() {
 # $2 is the new desired size in 1024 (1k) blocks
 # $3 is the image path (e.g. /net/dev/foo)
 resizeSfdiskPartition() {
-    local part="$1";
-    local size="$2";
-    local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
-    local imagePath="$3";
-    local tmp_file="/tmp/sfdisk.$$";
-    local tmp_file2="/tmp/sfdisk2.$$";
-    saveSfdiskPartitions $disk $tmp_file;
+    local part="$1"
+    local size="$2"
+    local disk=$(getDiskFromPartition $part)
+    local imagePath="$3"
+    local tmp_file="/tmp/sfdisk.$$"
+    local tmp_file2="/tmp/sfdisk2.$$"
+    saveSfdiskPartitions $disk $tmp_file
     processSfdisk $tmp_file resize $part $size > $tmp_file2;
-    if [ "$?" == "0" ]; then
-        applySfdiskPartitions $disk $tmp_file2;
+    if [[ $? == 0 ]]; then
+        applySfdiskPartitions $disk $tmp_file2
     fi
-    mv $tmp_file2 `sfdiskMinimumPartitionFileName "$imagePath" "1"` &>/dev/null;
+    mv $tmp_file2 $(sfdiskMinimumPartitionFileName $imagePath 1) &>/dev/null
 }
 
 # $1 is the disk device (e.g. /dev/sda)
@@ -290,24 +280,24 @@ resizeSfdiskPartition() {
 #	 swap partitions are automatically added.  Empty string is
 #	 ok.
 fillSfdiskWithPartitions() {
-    local disk_size=`blockdev --getsize64 "$1" | awk '{printf("%d\n",$1/1024);}'`;
-    local tmp_file2="/tmp/sfdisk2.$$";
-    processSfdisk "$2" filldisk "$1" "$disk_size" "$3" > $tmp_file2;
-    if [ "$ismajordebug" -gt 0 ]; then
-        majorDebugEcho "Trying to fill with the disk with these partititions:";
-        cat $tmp_file2;
-        majorDebugPause;
+    local disk="$1"
+    local disk_size=$(blockdev --getsize64 $disk | awk '{printf("%d\n",$1/1024);}');
+    local tmp_file2="/tmp/sfdisk2.$$"
+    processSfdisk "$2" filldisk "$disk" "$disk_size" "$3" > $tmp_file2
+    if [[ $ismajordebug -gt 0 ]]; then
+        majorDebugEcho "Trying to fill with the disk with these partititions:"
+        cat $tmp_file2
+        majorDebugPause
     fi
-    if [ "$?" == "0" ]; then
-        applySfdiskPartitions $1 $tmp_file2;
+    if [[ $? == 0 ]]; then
+        applySfdiskPartitions $1 $tmp_file2
     fi
-    runPartprobe "$1";
-    rm -f $tmp_file2;
-    majorDebugEcho "Applied the preceding table.";
-    majorDebugShowCurrentPartitionTable "$1" "1";
-    majorDebugPause;
+    runPartprobe $1
+    rm -f $tmp_file2
+    majorDebugEcho "Applied the preceding table."
+    majorDebugShowCurrentPartitionTable "$1" "1"
+    majorDebugPause
 }
-
 
 #
 #  processSfdisk() processes the output of sfdisk -d
@@ -352,21 +342,21 @@ fillSfdiskWithPartitions() {
 # /dev/sda6 : start= 58597376, size=  8509440, Id=82
 #
 processSfdisk() {
-    local data="$1";
-    local minstart=`awk -F'[ ,]+' '/start/{if ($4) print $4}' $data | sort -n | head -1`;
-    if [[ "$osid" == +([1-2]) ]]; then
-        local chunksize="512";
-        local minstart="63";
+    local data="$1"
+    local minstart=$(awk -F'[ ,]+' '/start/{if ($4) print $4}' $data | sort -n | head -1)
+    if [[ $osid == +([1-2]) ]]; then
+        local chunksize="512"
+        local minstart="63"
     else
-        if [ "$minstart" == "63" ]; then
-            local chunksize="512";
+        if [[ $minstart == 63 ]]; then
+            local chunksize="512"
         else
-            local chunksize="2048";
+            local chunksize="2048"
         fi
     fi
-    local awkArgs="-v CHUNK_SIZE=$chunksize -v MIN_START=$minstart";
-    awkArgs="${awkArgs} -v action=$2 -v target=$3 -v sizePos=$4";
-    if [ -n "$5" ]; then
+    local awkArgs="-v CHUNK_SIZE=$chunksize -v MIN_START=$minstart"
+    awkArgs="${awkArgs} -v action=$2 -v target=$3 -v sizePos=$4"
+    if [[ -n $5 ]]; then
         awkArgs="${awkArgs} -v fixedList=$5"
     fi
     # process with external awk script
@@ -474,7 +464,6 @@ saveSgdiskPartitions() {
     local disk="$1";
     local filename="$2";
     getPartitions $disk
-    local diskLength=`expr length $disk`;
     local partNum="";
     rm -f $filename;
     sgdisk -p "$disk" | \
@@ -509,8 +498,8 @@ restoreSgdiskPartitions() {
         handleError "Failed to restore partitions (disk guid)";
     fi
 
-    for part in $parts; do
-        local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
+    for part in $(egrep "^${disk}[0-9]+:" $filename | awk -F: '{print $1;}'); do
+        local part_number=$(getPartitionNumber $part);
         local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
         local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
         local partend=`awk -F: '/^'"$escape_part"':/{print $5;}' $filename`;
@@ -549,7 +538,6 @@ fillSgdiskWithPartitions() {
     local fixed_size_partitions="$3";
 
     # get initial information from partition text file
-    local parts=`egrep "^${disk}[0-9]+:" $filename | awk -F: '{print $1;}' | tr '\n' ' '`;
     local part="";
     local escape_disk=`echo "$disk" | sed -r 's%/%\\\\/%g'`;
     local sectorsize=`awk -F: '/^'"$escape_disk"':/{print $2;}' $filename`;
@@ -563,7 +551,7 @@ fillSgdiskWithPartitions() {
     local tmppartfile="/tmp/partitionorder";
     local first_start=$disk_size;
     rm -f $tmppartfile;
-    for part in $parts; do
+    for part in $(getPartitions $disk); do
         local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
         local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
         if [ -n "$partstart" -a "$partstart" -lt "$first_start" ]; then

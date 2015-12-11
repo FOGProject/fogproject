@@ -317,11 +317,9 @@ resetFlag() {
 countNtfs() {
     local count=0;
     local fstype="";
-    local part="";
-    local parts="";
+    local disk="$1";
     if [ -n "$1" ]; then
-        getPartitions $1
-        for part in $parts; do
+        for part in $(getPartitions $disk); do
             fstype=`fsTypeSetting "$part"`;
             if [ "$fstype" == "ntfs" ]; then
                 count=`expr $count '+' 1`;
@@ -334,11 +332,9 @@ countNtfs() {
 countExtfs() {
     local count=0;
     local fstype="";
-    local part="";
-    local parts="";
-    if [ -n "$1" ]; then
-        getPartitions $1
-        for part in $parts; do
+    local disk="$1";
+    if [ -n "$disk" ]; then
+        for part in $(getPartitions $disk); do
             fstype=`fsTypeSetting "$part"`;
             if [ "$fstype" == "extfs" ]; then
                 count=`expr $count '+' 1`;
@@ -378,15 +374,13 @@ writeImage()  {
 # $2 = DriveNumber  (e.g. 1)
 # $3 = ImagePath  (e.g. /net/foo)
 getValidRestorePartitions() {
-    local drive="$1";
+    local disc="$1";
     local driveNum="$2";
     local imagePath="$3";
     local valid_parts="";
     getPartitions $drive
-    local diskLength=`expr length $drive`;
-    local partNum="";
     local imgpart="";
-    for part in $parts; do
+    for part in $(getPartitions $disk); do
         partNum=`getPartitionNumber $part`
         imgpart="$imagePath/d${driveNum}p${partNum}.img*";
         if [ -f $imgpart ]; then
@@ -400,15 +394,12 @@ getValidRestorePartitions() {
 # $3 = ImagePath  (e.g. /net/foo)
 # $4 = ImagePartitionType  (e.g. all, mbr, 1, 2, 3, etc.)
 makeAllSwapSystems() {
-    local drive="$1";
+    local disk="$1";
     local driveNum="$2";
     local imagePath="$3";
     local imgPartitionType="$4";
-    getPartitions $drive
-    local diskLength=`expr length $drive`;
-    local partNum="";
     local swapuuidfilename=`swapUUIDFileName "$imagePath" "${driveNum}"`;
-    for part in $parts; do
+    for part in $(getPartitions $disk); do
         partNum=`getPartitionNumber $part`;
         if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
             makeSwapSystem "$swapuuidfilename" "$part";
@@ -683,7 +674,7 @@ getPartitionCount() {
 # $1 is the partition to grab the disk from
 getDiskFromPartition() {
     local partition="$1"
-    echo $partition | sed -r 's/p\?[0-9]\+$//g'
+    echo $partition | sed 's/p\?[0-9]\+$//g'
 }
 # $1 is the partition to get the partition number for
 getPartitionNumber() {
@@ -692,13 +683,14 @@ getPartitionNumber() {
 }
 # $1 is the partition to search for.
 getPartitions() {
-    if [[ -z $1 ]]; then
-        1=$hd;
+    local disk="$1"
+    if [[ -z $disk ]]; then
+        local disk=$hd;
     fi
     parts=`lsblk -pno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
-    if (($2 == "3" || $2 == "8" || $2 == "9") && ($3 > 0))
+    if (($2 == "3" || $2 == "8" || $2 == "9" || $2 == "259" || $2 == "179") && ($3 > 0))
         print $1
-    }' | grep $1 | sort -V`;
+    }' | grep $disk | sort -V`;
 }
 # Gets the hard drive on the host
 # Note: This function makes a best guess
@@ -709,7 +701,7 @@ getHardDisk() {
     else
         if [[ -z $1 || $1 != true ]]; then
             hd=`lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
-            if ($2 == "3" || $2 == "8" || $2 == "9")
+            if (($2 == "3" || $2 == "8" || $2 == "9" || $2 == "259" || $2 == "179") && ($3 > 0))
                 print $1
             }' | head -n1`
             if [ -z "$hd" ]; then
@@ -719,7 +711,7 @@ getHardDisk() {
             fi
         elif [[ $1 == true ]]; then
             disks=`lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
-            if ($2 == "3" || $2 == "8" || $2 == "9")
+            if (($2 == "3" || $2 == "8" || $2 == "9" || $2 == "259" || $2 == "179") && ($3 > 0))
                 print $1
             }'`
         fi
@@ -1202,9 +1194,8 @@ savePartition() {
     local part="$1";
     local intDisk="$2";
     local imagePath="$3";
-    local diskLength="$4";
-    local cores="$5";
-    local imgPartitionType="$6";
+    local cores="$4";
+    local imgPartitionType="$5";
     local partNum="";
     local fstype="";
     local parttype="";
@@ -1266,11 +1257,6 @@ restorePartition() {
         local imagePath="$3";
     fi
     if [ -z "$4" ]; then
-        local diskLength="`expr length $hd`";
-    else
-        local diskLength="$4";
-    fi
-    if [ -z "$5" ]; then
         local imgPartitionType="$imgPartitionType";
     else
         local imgPartitionType="$5";
