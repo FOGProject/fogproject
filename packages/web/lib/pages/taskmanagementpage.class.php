@@ -269,7 +269,6 @@ class TaskManagementPage extends FOGPage {
     }
     public function active() {
         unset($this->data);
-        $this->form = '<p class="c"><input type="button" id="taskpause"/></p><br/>';
         $this->title = _('Active Tasks');
         $i = 0;
         foreach ((array)$this->getClass('TaskManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$Task) {
@@ -344,7 +343,7 @@ class TaskManagementPage extends FOGPage {
             else $this->redirect(sprintf('?node=%s', $this->node));
         }
     }
-    public function remove_multicast_post() {
+    public function active_multicast_post() {
         $MulticastSessionIDs = (array)$_REQUEST['task'];
         $TaskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MulticastSessionIDs),'taskID');
         foreach ((array)$this->getClass('TaskManager')->find(array('id'=>$TaskIDs)) AS $i => &$Task) {

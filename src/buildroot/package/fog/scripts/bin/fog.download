@@ -220,7 +220,7 @@ elif [ "$imgType" == "mps" ]; then
     parts=`getValidRestorePartitions $hd 1 $imagePath`;
     diskLength=`expr length $hd`;
     for part in $parts; do
-        partNum=${part:$diskLength};
+        partNum=`getPartitionNumber $part`;
         if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
             restorePartition "$part" "1" "$imagePath" "$diskLength" "$imgPartitionType";
         else
@@ -237,7 +237,7 @@ elif [ "$imgType" == "mpa" ]; then
         parts=`getValidRestorePartitions $disk $intDisk $imagePath`;
         diskLength=`expr length $disk`;
         for part in $parts; do
-            partNum=${part:$diskLength};
+            partNum=`getPartitionNumber $part`
             if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
                 echo " * Processing Partition: $part ($partNum)";
                 restorePartition "$part" "$intDisk" "$imagePath" "$diskLength" "$imgPartitionType";
