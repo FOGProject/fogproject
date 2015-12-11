@@ -3,32 +3,23 @@
 . /bin/fog.donate
 clearScreen
 displayBanner
-#setupDNS ${dns}
-hd=""
 getHardDisk
 echo -e "\n"
 acct="$winuser"
-if [ -n "$hd" ]; then
-    if [ -n "$acct" ]; then
-        blCont="0"
-        blStop="0"
-        partNum=1
-        part=""
-        mkdir /ntfs
-        sam=""
+if [ -n "$acct" ]; then
+    blCont="0"
+    blStop="0"
+    mkdir /ntfs
+    sam=""
+    for part in $(getPartitions $hd); do
         while [ "$blCont" == "0" ] && [ "$blStop" == "0" ]; do
-            part="${hd}${partNum}"
             umount /ntfs 2>/dev/null >/dev/null
             mount -o rw $part /ntfs
             getSAMLoc
             if [ -f "$sam" ]; then
                 blCont="1"
             else
-                partNum=$((${partNum}+1))
-                if [ $partNum -gt 10 ]
-                then
-                    blStop="1"
-                fi
+                blStop="1"
             fi
         done
         umount /ntfs 2>/dev/null >/dev/null
@@ -47,11 +38,9 @@ EOF
         else
             echo " Unable to locate SAM file."
         fi
-    else
-        echo " Invalid User Account."
-    fi
+    done
 else
-    echo "hard disk not found!"
+    echo " Invalid User Account."
 fi
 queueinfo=""
 cd /tmp
