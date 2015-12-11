@@ -43,7 +43,7 @@ abstract class FOGManagerController extends FOGBase {
         } else $orderBy = '';
         list($join, $whereArrayAnd) = $this->getClass($this->childClass)->buildQuery($not, $compare);
         $isEnabled = false;
-        if (!in_array($this->childClass,array('Image','Snapin')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
+        if (!in_array($this->childClass,array('Image','Snapin','StorageNode')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
         $query = sprintf(
             $this->loadQueryTemplate,
             $this->databaseTable,
