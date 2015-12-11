@@ -63,7 +63,7 @@ class StorageManagementPage extends FOGPage {
         $this->delete_storage_node_post();
     }
     public function index() {
-        $this->title = $this->foglang[AllSN];
+        $this->title = $this->foglang['AllSN'];
         foreach ((array)$this->getClass('StorageNodeManager')->find() AS $i => &$StorageNode) {
             $StorageGroup = $this->getClass('StorageGroup',$StorageNode->get('storageGroupID'));
             $this->data[] = array_merge((array)$StorageNode->get(),array(
