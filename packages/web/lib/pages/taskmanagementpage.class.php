@@ -452,12 +452,10 @@ class TaskManagementPage extends FOGPage {
         $SnapinJobIDs = $this->getSubObjectIDs('SnapinTask',array('id'=>$_REQUEST['task']),'jobID');
         $this->getClass('SnapinTaskManager')->destroy(array('id'=>$SnapinTaskIDs));
         if (!$this->getClass('SnapinTaskManager')->count(array('jobID'=>$SnapinJobIDs))) $this->getClass('SnapinJobManager')->destroy(array('id'=>$SnapinJobIDs));
-        $this->setMessage(_('Successfully cancelled selected tasks'));
         $this->redirect(sprintf('?node=%s&sub=active',$this->node));
     }
     public function active_scheduled_post() {
         $this->getClass('ScheduledTaskManager')->destroy(array('id'=>$_REQUEST['task']));
-        $this->setMessage(_('Successfully cancelled selected tasks'));
         $this->redirect($this->formAction);
     }
     public function active_scheduled_ajax() {
