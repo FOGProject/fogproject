@@ -374,7 +374,7 @@ writeImage()  {
 # $2 = DriveNumber  (e.g. 1)
 # $3 = ImagePath  (e.g. /net/foo)
 getValidRestorePartitions() {
-    local disc="$1";
+    local disk="$1";
     local driveNum="$2";
     local imagePath="$3";
     local valid_parts="";
@@ -688,7 +688,7 @@ getPartitions() {
         local disk=$hd;
     fi
     parts=`lsblk -pno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
-    if (($2 == "3" || $2 == "8" || $2 == "9" || $2 == "259" || $2 == "179") && ($3 > 0))
+    if (($1 ~ /[0-9]$/) && ($2 == "3" || $2 == "8" || $2 == "9" || $2 == "179" || $2 == "259") && ($3 > 0))
         print $1
     }' | grep $disk | sort -V`;
 }
@@ -699,21 +699,18 @@ getHardDisk() {
         hd="${fdrive}";
         return 0;
     else
+        disks=$(lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
+        if (($1 ~ /[0-9]$/) && ($2 == "3" || $2 == "8" || $2 == "9" || $2 == "179" || $2 == "259"))
+            print $1
+        }')
+        if [[ -z "$disks" ]]; then
+            handleError "Cannot find disk on system";
+        fi
         if [[ -z $1 || $1 != true ]]; then
-            hd=`lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
-            if (($2 == "3" || $2 == "8" || $2 == "9" || $2 == "259" || $2 == "179") && ($3 > 0))
-                print $1
-            }' | head -n1`
-            if [ -z "$hd" ]; then
-                handleError "Cannot find HDD on system";
-            else
-                return 0;
-            fi
+            hd=$(echo $disks|head -n1)
+            return 0
         elif [[ $1 == true ]]; then
-            disks=`lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
-            if (($2 == "3" || $2 == "8" || $2 == "9" || $2 == "259" || $2 == "179") && ($3 > 0))
-                print $1
-            }'`
+            return 0;
         fi
     fi
     return 1;
