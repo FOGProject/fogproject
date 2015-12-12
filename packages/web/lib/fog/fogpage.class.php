@@ -112,7 +112,7 @@ abstract class FOGPage extends FOGBase {
             printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<tbody>',
                 '100%',
                 $contentField,
-                count($this->data) ? $this->buildHeaderRow() : ''
+                $this->buildHeaderRow()
             );
             if (!count($this->data)) {
                 $contentField = 'no-active-tasks';
@@ -174,7 +174,7 @@ abstract class FOGPage extends FOGBase {
         $this->setAtts();
         if ($this->headerData) {
             ob_start();
-            echo '<thead><tr class="header">';
+            printf('<thead%s><tr class="header">',count($this->data) < 1 ? ' class="hidden"' : '');
             foreach ($this->headerData AS $i => &$content) {
                 printf(
                     '<%s%s data-column="%s">%s</%s>',
