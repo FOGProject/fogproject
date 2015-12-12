@@ -199,6 +199,7 @@ function getQueryParams(qs) {
                         }
                         // Do we have search results?
                         if (response['data'].length > 0) {
+                            thead.show();
                             // Status Update
                             Loader
                             .fogStatusUpdate(_L['SEARCH_RESULTS_FOUND']

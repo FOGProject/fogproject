@@ -32,7 +32,7 @@ class TaskManagementPage extends FOGPage {
             '<p><a href="?node=host&sub=edit&id=${host_id}" title="' . _('Edit Host') . '">${host_name}</a></p><small>${host_mac}</small>',
             '${details_taskname}',
             '<small>${time}</small>',
-            '<i class="fa fa-${icon_state} fa-1x icon" title="${state}"></i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
+            '${details_taskforce} <i class="fa fa-${icon_state} fa-1x icon" title="${state}"></i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
         );
         $this->attributes = array(
             array('width'=>1,'','class'=>'l filter-false','task-id'=>'${id}'),
@@ -54,6 +54,7 @@ class TaskManagementPage extends FOGPage {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
                 'startedby'=>$Task->get('createdBy'),
+                'details_taskforce' => ($Task->get('isForced') ? sprintf('<i class="icon-forced" title="%s"></i>',_('Task forced to start')) : ($Task->get('typeID') < 3 && in_array($Task->get('stateID'),$this->getQueuedStates()) ? sprintf('<i title="%s" class="icon-force icon" href="?node=task&sub=force-task&id=${id}"></i>',_('Force task to start')) : '&nbsp;')),
                 'id'=>$Task->get('id'),
                 'name'=>$Task->get('name'),
                 'time'=>$this->formatTime($Task->get('createdTime')),
@@ -69,7 +70,6 @@ class TaskManagementPage extends FOGPage {
                 'total'=>$Task->get('dataTotal'),
                 'bpm'=>$Task->get('bpm'),
                 'details_taskname'=>($Task->get('name')?sprintf('<div class="task-name">%s</div>',$Task->get('name')):''),
-                'details_taskforce'=>($Task->get('isForced')?sprintf('<i class="icon-forced" title="%s"></i>',_('Task forced to start')):($Task->get('typeID') < 3 && $Task->get('stateID') < 3?sprintf('<a href="?node=task&sub=force-task&id=%s" class="icon-force"><i title="%s"></i></a>',$Task->get('id'),_('Force task to start')):'&nbsp;')),
                 'host_id'=>$Task->get('hostID'),
                 'host_name'=>$Host->get('name'),
                 'host_mac'=>$Host->get('mac')->__toString(),
@@ -279,6 +279,7 @@ class TaskManagementPage extends FOGPage {
             $MAC = $Host->get('mac')->__toString();
             $this->data[] = array(
                 'startedby'=>$Task->get('createdBy'),
+                'details_taskforce' => ($Task->get('isForced') ? sprintf('<i class="icon-forced" title="%s"></i>',_('Task forced to start')) : ($Task->get('typeID') < 3 && in_array($Task->get('stateID'),$this->getQueuedStates()) ? sprintf('<i title="%s" class="icon-force icon" href="?node=task&sub=force-task&id=${id}"></i>',_('Force task to start')) : '&nbsp;')),
                 'id'=>$Task->get('id'),
                 'name'=>$Task->get('name'),
                 'time'=>$this->formatTime($Task->get('createdTime')),
@@ -294,7 +295,6 @@ class TaskManagementPage extends FOGPage {
                 'total'=>$Task->get('dataTotal'),
                 'bpm'=>$Task->get('bpm'),
                 'details_taskname'=>($Task->get('name')?sprintf('<div class="task-name">%s</div>',$Task->get('name')):''),
-                'details_taskforce'=>($Task->get('isForced') ? sprintf('<i class="icon-forced" title="%s"></i>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=task&sub=force-task&id=%s" class="icon-force"><i title="%s"></i></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
                 'host_id'=>$Host->get('id'),
                 'host_name'=>$hostname,
                 'host_mac'=>$MAC,
@@ -357,6 +357,9 @@ class TaskManagementPage extends FOGPage {
         $this->getClass('MulticastSessionsManager')->destroy(array('id'=>$MulticastSessionIDs));
         unset($MulticastSessionIDs);
     }
+    public function active_multicast_ajax() {
+        $this->active_multicast();
+    }
     public function active_multicast() {
         $this->title = _('Active Multi-cast Tasks');
         $this->headerData = array(
@@ -398,6 +401,9 @@ class TaskManagementPage extends FOGPage {
         }
         $this->HookManager->processEvent('TaskActiveMulticastData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
+    }
+    public function active_snapins_ajax() {
+        $this->active_snapins();
     }
     public function active_snapins() {
         $this->title = 'Active Snapins';
@@ -453,6 +459,9 @@ class TaskManagementPage extends FOGPage {
         $this->getClass('ScheduledTaskManager')->destroy(array('id'=>$_REQUEST['task']));
         $this->setMessage(_('Successfully cancelled selected tasks'));
         $this->redirect($this->formAction);
+    }
+    public function active_scheduled_ajax() {
+        $this->active_scheduled();
     }
     public function active_scheduled() {
         $this->title = 'Scheduled Tasks';
