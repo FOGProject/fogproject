@@ -707,7 +707,7 @@ getHardDisk() {
         return 0
     else
         disks=$(lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
-        if (($1 ~ /[0-9]$/) && ($2 == "3" || $2 == "8" || $2 == "9" || $2 == "179" || $2 == "259"))
+        if ($2 == "3" || $2 == "8" || $2 == "9" || $2 == "179" || $2 == "259")
             print $1
         }')
         if [[ -z "$disks" ]]; then
