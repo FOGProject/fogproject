@@ -201,10 +201,10 @@ shrinkPartition() {
             echo ""
             echo " * Possible resize partition size: $sizentfsresize k"
             dots "Running resize test $1"
-            tmpSuc=`ntfsresize -f -n -s ${sizentfsresize}k $1 << EOFNTFS
+            tmpSuc=$(ntfsresize -f -n -s ${sizentfsresize}k $1 << "EOFNTFS"
 Y
 EOFNTFS
-`
+)
             success=$(echo $tmpSuc | grep "ended successfully")
             too_big=$(echo $tmpSuc | grep "bigger than the device size")
             ok_size=$(echo $tmpSuc | grep "volume size is already OK")
@@ -408,7 +408,7 @@ makeAllSwapSystems() {
         fi
     done
     debugPause
-    runPartprobe "$drive"
+    runPartprobe "$disk"
 }
 changeHostname() {
     if [[ $hostearly == 1 && ! -z $hostname ]]; then
@@ -767,7 +767,11 @@ correctVistaMBR() {
 display_center() {
     local columns=$(tput cols)
     local line="$1"
-    printf "%*s\n" $(((${#line}+columns)/2)) "$line"
+    local newline=""
+    if [[ -z $2 ]]; then
+        newline="\n"
+    fi
+    printf "%*s$newline" $(((${#line}+columns)/2)) "$line"
 }
 display_right() {
     local columns="$(tput cols)"
@@ -776,7 +780,8 @@ display_right() {
 }
 displayBanner() {
     version=$(wget -q -O - http://${web}service/getversion.php)
-    echo ""
+    echo
+    echo
     display_center "+------------------------------------------+"
     display_center "|     ..#######:.    ..,#,..     .::##::.  |"
     display_center "|.:######          .:;####:......;#;..     |"
@@ -797,8 +802,8 @@ displayBanner() {
     display_center "|       Released under GPL Version 3       |"
     display_center "+------------------------------------------+"
     display_center "Version: $version"
-    echo ""
-    echo ""
+    echo
+    echo
 }
 handleError() {
     echo
@@ -974,7 +979,8 @@ restoreGRUB() {
 }
 debugPause() {
     if [[ -n $isdebug || $mode == debug ]]; then
-        echo 'Press [Enter] key to continue.'
+        echo
+        display_center 'Press [Enter] key to continue'
         read -p "$*"
     fi
 }
@@ -990,7 +996,8 @@ majorDebugEcho() {
 }
 majorDebugPause() {
     if [[ $ismajordebug -gt 0 ]]; then
-        echo 'Press [Enter] key to continue.'
+        echo
+        display_center 'Press [Enter] key to continue'
         read -p "$*"
     fi
 }
@@ -1325,21 +1332,22 @@ restorePartition() {
     fi
 }
 gptorMBRSave() {
-    runPartprobe $1
-    local gptormbr=$(gdisk -l $1 | awk /^\ *GPT:/'{print $2}')
+    local disk="$1"
+    runPartprobe $disk
+    local gptormbr=$(gdisk -l $disk | awk /^\ *GPT:/'{print $2}')
     if [[ $gptormbr == not ]]; then
         dots "Saving MBR or MBR/Grub"
-        saveGRUB "$1" "1" "$2"
+        saveGRUB "$disk" "1" "$2"
         echo "Done"
         debugPause
     else
         dots "Saving Partition Tables (GPT)"
-        sgdisk -b $imagePath/d1.mbr $1 >/dev/null
+        sgdisk -b $imagePath/d1.mbr $disk >/dev/null
         if [[ ! $? -eq 0 ]]; then
             echo "Failed"
             debugPause
-            runFixparts "$1"
-            gptorMBRSave "$1" "$2"
+            runFixparts "$disk"
+            gptorMBRSave "$disk" "$2"
         else
             echo "Done"
             debugPause
