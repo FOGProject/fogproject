@@ -1,5 +1,7 @@
 #!/bin/bash
-mkdir /package
+if [[ ! -d /package ]]; then
+    mkdir /package
+fi
 cd /package
 packname="package.zip"
 if [ -n "$miningpath" ]; then
