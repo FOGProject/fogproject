@@ -19,16 +19,8 @@
 #
 #
 dots() {
-    max=60
-    if [ -n "$1" ]; then
-        n=`expr $max - ${#1}`
-        echo -n " * ${1:0:max}"
-        if [ "$n" -gt 0 ]; then
-            for dot in `seq $n`; do
-                printf %s .
-            done
-        fi
-    fi
+    local pad=$(printf "%0.1s" "."{1..60})
+    printf " * %s%*.*s" "$1" 0 $((60-${#1})) "$pad"
 }
 uninstall() {
     case "$autoaccept" in
