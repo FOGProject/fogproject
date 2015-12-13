@@ -1304,7 +1304,7 @@ restorePartition() {
             fi
         fi
         usleep 2000000
-        if [[ ! -f $imgpart ]]; then
+        if [[ $(ls $imgpart 1> /dev/null 2>&1; echo $?) != 0 ]]; then
             local ebrfilename=$(EBRFileName "${imagePath}" "${intDisk}" "${partNum}")
             if [[ -e $ebrfilename ]]; then
                 # extended partition, the EBR should have been restored with the partition table
