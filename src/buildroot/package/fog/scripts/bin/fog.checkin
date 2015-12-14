@@ -43,7 +43,8 @@ dots "Checking Operating System"
 determineOS "$osid"
 echo $osname
 dots "Checking CPU Cores"
-echo $(nproc)
+cores=$(nproc)
+echo $cores
 echo ""
 dots "Send method"
 echo $method
@@ -77,6 +78,7 @@ if [[ $type == up ]]; then
     debugPause
     dots "Mounting File System"
     mkdir /images 2>/dev/null
+    umount /images 2>/dev/null
     mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images &> /dev/null
     if [[ $? == 0 ]]; then
         echo "Done"
