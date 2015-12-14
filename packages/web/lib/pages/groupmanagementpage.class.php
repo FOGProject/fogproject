@@ -136,7 +136,7 @@ class GroupManagementPage extends FOGPage {
         $HostCount = $this->obj->getHostCount();
         $imageID = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'imageID','','','','','array_count_values');
         $imageMatchID = (count($imageID) == 1 && $imageID[0] == $HostCount ? $this->getClass('Host',current($this->obj->get('hosts')))->get('imageID') : '');
-        $groupKey = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'productKey');
+        $groupKey = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'productKey','','','','','array_count_values');
         $aduse = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'useAD','','','','','array_count_values');
         $adDomain = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADDomain','','','','','array_count_values');
         $adOU = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADOU','','','','','array_count_values');
@@ -157,9 +157,9 @@ class GroupManagementPage extends FOGPage {
         unset($adPass);
         $ADPassLegacy = (count($adPassLegacy) == 1 && $adPassLegacy[0] == $HostCount ? $Host->get('ADPassLegacy') : '');
         unset($adPassLegacy);
-        $productKey = (count($groupKey) == $this->obj->getHostCount() ? @array_shift($groupKey) : '');
+        $productKey = (count($groupKey) && $groupKey[0] == $this->obj->getHostCount() ? $Host->get('productKey') : '');
         unset($groupKey);
-        $productKey = ((count($groupKey) == 1 && $groupKey[0] == $HostCount) || count($groupKey) == $HostCount ? $Host->get('productKey') : '');
+        //$productKey = ((count($groupKey) == 1 && $groupKey[0] == $HostCount) || count($groupKey) == $HostCount ? $Host->get('productKey') : '');
         $groupKeyMatch = $this->encryptpw($productKey);
         unset($productKey, $groupKey);
         $biosExit = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'biosexit','','','','','array_count_values');
@@ -472,7 +472,7 @@ class GroupManagementPage extends FOGPage {
                         ->set('kernel',$_REQUEST['kern'])
                         ->set('kernelArgs',$_REQUEST['args'])
                         ->set('kernelDevice',$_REQUEST['dev']);
-                    $this->getClass('HostManager')->update(array('id'=>$this->obj->get('hosts')),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->encryptpw(trim($_REQUEST['productKey']))));
+                    $this->getClass('HostManager')->update(array('id'=>$this->obj->get('hosts')),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->encryptpw(trim($_REQUEST['key']))));
                 }
                 break;
                 case 'group-image';
