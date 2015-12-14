@@ -886,10 +886,7 @@ debugCommand() {
 # Expects part of the filename in the case of resizable
 #    will append 000 001 002 automatically
 uploadFormat() {
-    if [[ ! -n $1 ]]; then
-        echo "Missing Cores"
-        return
-    elif [[ ! -n $2 ]]; then
+    if [[ ! -n $2 ]]; then
         echo "Missing file in file out"
         return
     elif [[ ! -n $3 ]]; then
@@ -1226,11 +1223,13 @@ savePartition() {
     local fifoname="/tmp/pigz1"
     partNum=$(getPartitionNumber $part)
     if [[ $imgPartitionType == all || $imgPartitionType == $partNum ]]; then
-        mkfifo $fifoname
+        if [[ ! -e $fifoname ]]; then
+            mkfifo $fifoname
+        fi
         echo " * Processing Partition: $part ($partNum)"
-        fstype=$(fsTypeSetting $part)
-        parttype=$(getPartType $part)
-        if [[ $fstype != swap && $parttype != 0x5 && $parttype != 0xf ]]; then
+        fstype="$(fsTypeSetting $part)"
+        parttype="$(getPartType $part)"
+        if [[ $fstype != 'swap' && $parttype != '0x5' && $parttype != '0xf' ]]; then
             # normal filesystem data on partition
             echo " * Using partclone.${fstype}"
             usleep 5000000
