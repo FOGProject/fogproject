@@ -373,6 +373,7 @@ function checkboxToggleSearchListPages() {
     });
 }
 function ProductUpdate() {
+    if (typeof($('#productKey').val()) == 'undefined') return;
     $('#productKey').val($('#productKey').val().replace(/[^\w+]/g,'').replace(/([\w+]{5})/g,'$1-').substring(0,29));
     $('#productKey').on('change keyup',function(e) {
         var start = this.selectionStart,
