@@ -5,10 +5,10 @@ $l = explode("\n",$t);
 unset($t);
 $hdtotal = 0;
 $hdused = 0;
-foreach($l AS $i => &$n) {
+foreach ((array)$l AS $i => &$n) {
     if (!preg_match("/(\d+) +(\d+) +(\d+) +\d+%/",$n,$matches)) continue;
-    $hdtotal += intval($matches[3]);
-    $hdused += intval($matches[2]);
+    $hdtotal += $matches[3];
+    $hdused += $matches[2];
     unset($n);
 }
 unset($l);
