@@ -815,7 +815,8 @@ class HostManagementPage extends FOGPage {
                 $Task = $this->obj->get('task');
                 if (!$mac->isValid()) throw new Exception(_('MAC Address is not valid'));
                 if ((!$_REQUEST['image'] && $Task->isValid()) || ($_REQUEST['image'] && $_REQUEST['image'] != $this->obj->get('imageID') && $Task->isValid())) throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
-                $productKey = strtoupper(trim($_REQUEST['key']));
+                $productKey = preg_replace('/([\w+]{5})/','$1-',strtoupper(trim($_REQUEST['key'])));
+                $productKey = substr($productKey,0,29);
                 $this->obj
                     ->set('name',$hostName)
                     ->set('description',$_REQUEST['description'])
