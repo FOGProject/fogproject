@@ -56,7 +56,7 @@ if [ -f "/images/.mntcheck" ]; then
             #  find fixed size partitions, based on fstype
             getPartitions $hd;
             for part in $parts; do
-                fstype=`fsTypeSetting $part`;
+                fstype=$(fsTypeSetting $part)
                 if [ "$fstype" != "extfs" -a "$fstype" != "ntfs" ]; then
                     fixed_size_partitions="${fixed_size_partitions}:$part";
                 fi

@@ -89,7 +89,8 @@ saveAllEBRs() {
     local disk="$1"
     local driveNum="$2"
     local imagePath="$3"
-    for part in $(getPartitions $disk); do
+    getPartitions $disk
+    for part in $parts; do
         partNum=$(getPartitionNumber $part)
         ebrfilename=$(EBRFileName $imagePath $driveNum $partNum)
         saveEBR "$part" "$ebrfilename"
@@ -126,7 +127,8 @@ restoreAllEBRs() {
     local driveNum="$2"
     local imagePath="$3"
     local imgPartitionType="$4"
-    for part in $(getPartitions $disk); do
+    getPartitions $disk
+    for part in $parts; do
         partNum=$(getPartitionNumber $part)
         if [[ $imgPartitionType == all || $imgPartitionType == $partNum ]]; then
             local ebrfilename=$(EBRFileName $imagePath $driveNum $partNum)
@@ -214,7 +216,8 @@ saveAllSwapUUIDs() {
     local imagePath="$3"
     local partNum=""
     local swapfilename=$(swapUUIDFileName $imagePath $driveNum)
-    for part in $(getPartitions $disk); do
+    getPartitions $disk
+    for part in $parts; do
         if [[ $(partitionIsSwap $part) != 0 ]]; then
             saveSwapUUID "$swapfilename" "$part"
         fi
@@ -551,7 +554,8 @@ fillSgdiskWithPartitions() {
     local tmppartfile="/tmp/partitionorder";
     local first_start=$disk_size;
     rm -f $tmppartfile;
-    for part in $(getPartitions $disk); do
+    getPartitions $disk
+    for part in $parts; do
         local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
         local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
         if [ -n "$partstart" -a "$partstart" -lt "$first_start" ]; then
