@@ -4,7 +4,7 @@ class DashboardPage extends FOGPage {
     public function __construct($name = '') {
         $this->name = 'Dashboard';
         parent::__construct($this->name);
-        if ($_REQUEST['id']) $this->obj = $this->getClass('StorageNode',$_REQUEST['id']);
+        $this->obj = $this->getClass('StorageNode',$_REQUEST['id']);
         $this->menu = array();
         $this->subMenu = array();
         $this->notes = array();
@@ -32,6 +32,7 @@ class DashboardPage extends FOGPage {
             array(),
             array(),
         );
+        // Overview Pane
         printf('<ul id="dashboard-boxes"><li><h4>%s</h4>',_('System Overview'));
         foreach ((array)$fields AS $field => &$fielddata) {
             $this->data[] = array(
@@ -43,26 +44,40 @@ class DashboardPage extends FOGPage {
         unset($fields);
         $this->HookManager->processEvent('DashboardData',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
-        printf('</li><li><h4>%s</h4><div class="graph pie-graph" id="graph-activity"></div></li><li><h4>%s</h4><div id="diskusage-selector">',_('System Activity'),_('Disk Information'));
-        ob_start();
-        foreach ((array)$this->getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>1)) AS $i => &$StorageNode) {
-            if (!$StorageNode->isValid()) continue;
-            $curroot = trim(trim($StorageNode->get('webroot'),'/'));
-            $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-            $URL = filter_var("http://{$StorageNode->get(ip)}{$webroot}service/getversion.php",FILTER_SANITIZE_URL);
-            unset($curroot,$webroot);
-            $version = $this->FOGURLRequests->process($URL,'GET');
-            printf('<option value="%s">%s%s (%s)</option>',$StorageNode->get('id'),$StorageNode->get('name'),($StorageNode->get('isMaster') ? ' *' : ''),array_shift($version));
-            unset($StorageNode,$version);
+        echo '</li>';
+        $StorageEnabledCount = $this->getClass('StorageNodeManager')->count(array('isEnabled'=>1,'isGraphEnabled'=>1));
+        if ($StorageEnabledCount > 0) {
+            // Activity Pane
+            printf('<li><h4>%s</h4><div class="graph pie-graph" id="graph-activity"></div></li>',_('System Activity'));
+            // Disk Usage Pane
+            printf('<li><h4>%s</h4><div id="diskusage-selector">',_('System Activity'),_('Disk Information'));
+            ob_start();
+            foreach ((array)$this->getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>1)) AS $i => &$StorageNode) {
+                if (!$StorageNode->isValid()) continue;
+                $curroot = trim(trim($StorageNode->get('webroot'),'/'));
+                $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
+                $URL = filter_var("http://{$StorageNode->get(ip)}{$webroot}service/getversion.php",FILTER_SANITIZE_URL);
+                unset($curroot,$webroot);
+                $version = $this->FOGURLRequests->process($URL,'GET');
+                printf('<option value="%s">%s%s (%s)</option>',$StorageNode->get('id'),$StorageNode->get('name'),($StorageNode->get('isMaster') ? ' *' : ''),array_shift($version));
+                unset($StorageNode,$version);
+            }
+            printf('<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">%s</select>',ob_get_clean());
+            echo '</div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li>';
         }
-        if (ob_get_contents()) printf('<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">%s</select>',ob_get_clean());
-        printf('</div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li></ul><h3>%s</h3><div id="graph-30day" class="graph"></div><h3 id="graph-bandwidth-title">%s - <span>%s</span><!-- (<span>2 Minutes</span>)--></h3><div id="graph-bandwidth-filters"><div><a href="#" id="graph-bandwidth-filters-transmit" class="l active">%s</a><a href="#" id="graph-bandwidth-filters-receive" class="l">%s</a></div><div class="spacer"></div><div><a href="#" rel="360" class="r">%s</a><a href="#" rel="180" class="r">%s</a><a href="#" rel="60" class="r">%s</a><a href="#" rel="12" class="r active">%s</a></div></div><div id="graph-bandwidth" class="graph"></div>',_('Imaging over the last 30 days'),$this->foglang['Bandwidth'],$this->foglang['Transmit'],$this->foglang['Transmit'],$this->foglang['Receive'],_('1 hour'),_('30 Minutes'),_('10 Minutes'),_('2 Minutes'));
+        echo '</ul>';
+        // 30 Day Usage Graph
+        printf('<h3>%s</h3><div id="graph-30day" class="graph"></div>',_('Imaging Over the last 30 days'));
         ob_start();
         foreach ($this->getClass('DatePeriod',$this->nice_date()->modify('-30 days'),$this->getClass('DateInterval','P1D'),$this->nice_date()->setTime(23,59,59)) AS $i => $date) {
             printf('["%s", %s]%s',(1000* $date->getTimestamp()),$this->getClass('ImagingLogManager')->count(array('start'=>$date->format('Y-m-d%'),'finish'=>$date->format('Y-m-d%')),'OR'),($i < 30 ? ', ' : ''));
             unset($date);
         }
         printf('<div class="fog-variable" id="ActivityActive"></div><div class="fog-variable" id="ActivityQueued"></div><div class="fog-variable" id="ActivitySlots"></div><!-- Variables --><div class="fog-variable" id="Graph30dayData">[%s]</div>',ob_get_clean());
+        if ($StorageEnabledCount > 0) {
+            // Bandwidth Graph
+            printf('<h3 id="graph-bandwidth-title">%s - <span>%s</span><!-- (<span>2 Minutes</span>)--></h3><div id="graph-bandwidth-filters"><div><a href="#" id="graph-bandwidth-filters-transmit" class="l active">%s</a><a href="#" id="graph-bandwidth-filters-receive" class="l">%s</a></div><div class="spacer"></div><div><a href="#" rel="360" class="r">%s</a><a href="#" rel="180" class="r">%s</a><a href="#" rel="60" class="r">%s</a><a href="#" rel="12" class="r active">%s</a></div></div><div id="graph-bandwidth" class="graph"></div>',$this->foglang['Bandwidth'],$this->foglang['Transmit'],$this->foglang['Transmit'],$this->foglang['Receive'],_('1 hour'),_('30 Minutes'),_('10 Minutes'),_('2 Minutes'));
+        }
     }
     public function bandwidth() {
         foreach ((array)$this->getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1,'isEnabled'=>1)) AS $i => &$StorageNode) {
