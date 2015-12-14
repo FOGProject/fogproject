@@ -18,8 +18,8 @@ ismajordebug=0
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
 dots() {
-    local pad=$(printf "%0.1s" "."{1..60})
-    printf " * %s%*.*s" "$1" 0 $((60-${#1})) "$pad"
+    local pad=$(printf "%0.1s" "."{1..45})
+    printf " * %s%*.*s" "$1" 0 $((45-${#1})) "$pad"
 }
 # Get All Active MAC Addresses
 getMACAddresses() {
@@ -327,7 +327,8 @@ countNtfs() {
     local fstype=""
     local disk="$1"
     if [[ -n $1 ]]; then
-        for part in $(getPartitions $disk); do
+        getPartitions $disk
+        for part in $parts; do
             fstype=$(fsTypeSetting $part)
             if [[ $fstype == ntfs ]]; then
                 count=$(expr $count '+' 1)
@@ -342,7 +343,8 @@ countExtfs() {
     local fstype=""
     local disk="$1"
     if [[ -n $disk ]]; then
-        for part in $(getPartitions $disk); do
+        getPartitions $disk
+        for part in $parts; do
             fstype=$(fsTypeSetting $part)
             if [[ $fstype == extfs ]]; then
                 count=$(expr $count '+' 1)
@@ -380,9 +382,9 @@ getValidRestorePartitions() {
     local driveNum="$2"
     local imagePath="$3"
     local valid_parts=""
-    getPartitions $drive
     local imgpart=""
-    for part in $(getPartitions $disk); do
+    getPartitions $disk
+    for part in $parts; do
         partNum=$(getPartitionNumber $part)
         imgpart="$imagePath/d${driveNum}p${partNum}.img*"
         if [[ -f $imgpart ]]; then
@@ -401,7 +403,8 @@ makeAllSwapSystems() {
     local imagePath="$3"
     local imgPartitionType="$4"
     local swapuuidfilename=$(swapUUIDFileName "$imagePath" "${driveNum}")
-    for part in $(getPartitions $disk); do
+    getPartitions $disk
+    for part in $parts; do
         partNum=$(getPartitionNumber $part)
         if [[ $imgPartitionType == all || $imgPartitionType == $partNum ]]; then
             makeSwapSystem "$swapuuidfilename" "$part"
@@ -738,7 +741,8 @@ initHardDisk() {
     dots "Initializing $disk with NTFS partition"
     parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null
     runPartprobe "$disk"
-    for part in $(getPartitions $disk); do
+    getPartitions $disk
+    for part in $parts; do
         mkfs.ntfs -Q -q $part
         if [[ $? == 0 ]]; then
             echo "Done"

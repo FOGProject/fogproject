@@ -4,118 +4,155 @@
 . /bin/fog.checkin
 clearScreen
 displayBanner
-hd=""
-getHardDisk
-echo -e "\n"
-if [ -n "$hd" ]; then
-    part=$hd'1'
-    if [[ "$osid" == +([5-7]|9) ]]; then
-        win7partcnt="0"
-        getPartitions $hd
-        for prt in $parts; do
-            win7partcnt=`expr ${win7partcnt} + 1`
-        done
-        part=${hd}${win7partcnt}
-    fi
-    dots "Updating clamav"
-    freshclam &>/dev/null
-    if [ "$?" == "0" ]; then
-        echo "Done"
-    else
-        echo "Failed"
-    fi
-    dots "Using disk device"
-    echo $hd
+if [[ $avmode != s && $avmode != q ]]; then
+    handleError "Unable to determine scanning mode!"
+fi
+dots "Updating clamav"
+if [[ $? != 0 ]]; then
+    echo "Failed"
     debugPause
-    dots "Scanning partition"
-    echo $part
+    handleError "Unable to update clamav definitions"
+fi
+echo "Done"
+debugPause
+getHardDisk 'true'
+dots "Getting disks to scan"
+if [[ -z $disks ]]; then
+    echo "Failed"
     debugPause
-    dots "Mounting device"
-    mkdir /ntfs
-    mount -o rw $part /ntfs
-    if [ "$?" = "0" ]; then
-        echo "Done"
-        debugPause
-        dots "Creating working directory"
-        mkdir -p /ntfs/fog/{tmp,infected,log}
-        echo -n "" > /ntfs/fog/log/log.txt
-        echo "Done"
-        debugPause
-        action=""
-        modename=""
-        if [ "$avmode" = "s" ]; then
-            action=""
-            modename="Scan and Report"
-        elif [ "$avmode" = "q" ]; then
-            action="--move=/ntfs/fog/infected"
-            modename="Scan and Quarantine"
-        else
-            handleError "Unable to determine scanning mode!"
+    handleError "Unable to find any drives"
+fi
+echo "Done"
+debugPause
+dots "Creating scan partition"
+if [[ ! -d /clamavscan ]]; then
+    mkdir /clamavscan
+fi
+if [[ ! -d /clamavscan ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Unable to create scan folder"
+fi
+if [[ $avmode == s ]]; then
+    action=""
+    modename="Scan and Report"
+fi
+if [[ $avmode == q ]]; then
+    action="--move=/clamavscan/fog/infected"
+    modename="Scan and Quarantine"
+fi
+echo "Done"
+debugPause
+for disk in $disks; do
+    dots "Using disk"
+    echo $disk
+    debugPause
+    getPartitions $disk
+    for part in $parts; do
+        fstype=$(fsTypeSetting $part)
+        if [[ $fstype != ntfs && $fstype != extfs ]]; then
+            dots "Not scanning partition"
+            echo "$part"
+            debugPause
+            continue
         fi
-        debugPause;
+        echo " * Mounting partition $part"
+        if [[ $fstype == ntfs ]]; then
+            ntfs-3g -o force,rw $part /clamavscan &> /tmp/clamavscan-mount-output
+        elif [[ $fstype == extfs ]]; then
+            mount -o rw $part /clamavscan &> /tmp/clamavscan-mount-output
+        fi
+        if [[ $? != 0 ]]; then
+            echo " * Failed to mount $part"
+            debugPause
+            continue
+        fi
+        dots "Creating working directories"
+        mkdir -p /clamavscan/fog/{tmp,infected,log}
+        if [[ $? != 0 ]]; then
+            echo "Failed"
+            debugPause
+            continue
+        fi
+        echo -n > /clamavscan/fog/log/log.txt
+        echo "Done"
+        debugPause
+        echo " * Scanning Partition $part"
+        debugPause
         dots "Clam AV Mode"
-        echo ${modename}
+        echo $modename
         debugPause
         echo
         dots "Starting AV scan"
-        echo -n "    "
-        clamscan -V
+        echo -e -n "\t"
+        clamscan -V >/dev/null 2&>1
+        if [[ $? != 0 ]]; then
+            echo "Failed"
+            debugPause
+            continue
+        fi
+        echo "Done"
         debugPause
-        usleep 4000000
-        cd /ntfs
-        echo
-        start=`date +%s`
-        clamscan -r --tempdir=/ntfs/fog/tmp $action --log=/ntfs/fog/log/log.txt --no-summary --exclude-dir=/ntfs/fog/*
-        ret=$?
-        if [ "$ret" == "2" ]; then
-            cur=`date +%s`
-            diff=$((cur-start))
-            if [ $(( diff <= 60 )) ]; then
-                echo -e "\n   Clam AV Failed..."
-                echo -e   "   This may be due to a problem with the virus database files."
-                echo -e   "   Trying to download virus database files from the web...\n"
-                debugPause
-                umount /opt/fog/clamav
-                clamscan -r --tempdir=/ntfs/fog/tmp $action --log=/ntfs/fog/log/log.txt --no-summary --exclude-dir=/ntfs/fog/*
-            fi
+        cd /clamavscan
+        dots "Scanning"
+        start=$(date +%s)
+        clamscan -r --tempdir=/clamavscan/fog/tmp $action --log=/clamavscan/fog/log/log.txt --no-summary --exclude-dir=/clamavscan/fog/*
+        ret="$?"
+        if [[ $ret == 2 ]]; then
+            echo "Failed"
+            debugPause
+            cur=$(date +%s)
+            diff=$((cur - start))
+            echo
+            display_center "Clam AV failed"
+            display_center "This may be due to a problem with the virus database files"
+            display_center "Trying with the next partition"
+            debugPause
+            continue
         fi
         echo -e "\n   Scan complete, processing log file..."
         debugPause
-        output=`cat /ntfs/fog/log/log.txt | grep FOUND`
+        output=$(cat /clamavscan/fog/log/log.txt | grep 'FOUND')
+        oIFS=$IFS
         IFS="
 "
         cd /tmp
         cnt=0
         for line in $output; do
-            b64=`echo $line | base64`
-            cnt=`expr $cnt + 1`
-            echo -n "   Sending data for file ID: ${cnt} "
+            b64=$(echo $line | base64)
+            cnt=$(($cnt+1))
+            echo " * File id: $cnt"
+            dots "Sending file id"
             wget -q -O /tmp/avstat "http://${web}service/av.php?mac=${mac}&string=${b64}&mode=${avmode}"
+            if [[ $? != 0 ]]; then
+                echo "Failed"
+                debugPause
+                continue
+            fi
+            echo "Done"
+            debugPause
             cat /tmp/avstat
             echo
             cat /dev/null > /tmp/avstat
         done
-        debugPause
-    else
-        handleError "Unable to mount $part"
-    fi
-    echo
-    queueinfo=""
-    cd /tmp
-    touch co.txt
-    wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-    queueinfo=`cat co.txt`
-    while [ "$queueinfo" != "##" ];	do
-        echo "       * $queueinfo"
-        rm co.txt
-        touch co.txt
-        wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-        queueinfo=`cat co.txt`
-        usleep 2000000
+        IFS=$oIFS
     done
-    echo -e "\n * Database updated!\n"
-    echo " Task Complete"
-else
-    echo "hard disk not found!"
-fi
+done
+echo
+queueinfo=""
+cd /tmp
+touch co.txt
+wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+queueinfo=$(cat co.txt)
+while [[ $queueinfo != "##" ]]; do
+    echo " * $queueinfo"
+    rm co.txt
+    touch co.txt
+    wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+    queueinfo=$(cat co.txt)
+    usleep 2000000
+done
+echo
+echo " * Database updated!"
+echo " * Task Complete"
 usleep 2000000
