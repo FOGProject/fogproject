@@ -372,15 +372,25 @@ function checkboxToggleSearchListPages() {
             .prop('checked',$(this).is(':checked'));
     });
 }
-function ProductChange(data) {
-    var content = data;
-    var content1 = content.val().replace(/\-/g,'').toUpperCase();
-    data.val(content1.replace(/(.{5})/g,'$1-'));
-    if (data.val().length > 29) data.val(data.val().substring(0,29));
-}
 function ProductUpdate() {
+    $('#productKey').val($('#productKey').val().replace(/[^\w+]/g,'').replace(/([\w+]{5})/g,'$1-').substring(0,29));
     $('#productKey').on('change keyup',function(e) {
+        var start = this.selectionStart,
+            end = this.selectionEnd;
+        $(this).val($(this).val().replace(/[^\w+]/g,'').toUpperCase());
+        $(this).val($(this).val().substring(0,25));
+        this.setSelectionRange(start,end);
         e.preventDefault();
-        ProductChange($(this));
+    }).focus(function(e) {
+        var start = this.selectionStart,
+            end = this.selectionEnd;
+        $(this).val($(this).val().replace(/[^\w+]/g,'').toUpperCase());
+        $(this).val($(this).val().substring(0,25));
+        this.setSelectionRange(start,end);
+        e.preventDefault();
+    }).blur(function(e) {
+        $(this).val($(this).val().replace(/([\w+]{5})/g,'$1-'));
+        $(this).val($(this).val().substring(0,29));
+        e.preventDefault();
     });
 }

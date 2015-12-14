@@ -8,4 +8,5 @@ $(function() {
         }
         $('input[name="groupIDArray"]').val(groupIDArray.join(','));
     });
+    ProductUpdate();
 });
