@@ -11,7 +11,8 @@ if [ -n "$acct" ]; then
     blStop="0"
     mkdir /ntfs
     sam=""
-    for part in $(getPartitions $hd); do
+    getPartitions $hd
+    for part in $parts; do
         while [ "$blCont" == "0" ] && [ "$blStop" == "0" ]; do
             umount /ntfs 2>/dev/null >/dev/null
             mount -o rw $part /ntfs
