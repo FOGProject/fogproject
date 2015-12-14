@@ -166,6 +166,7 @@ $(function() {
 function GraphDiskUsageUpdate() {
     if (GraphDiskUsageAJAX) GraphDiskUsageAJAX.abort();
     NodeID = GraphDiskUsageNode.val();
+    if (NodeID === null || typeof(NodeID) == 'undefined' || NodeID.length === 0) return;
     GraphDiskUsageAJAX = $.ajax({
         url: '?node=home',
         cache: false,
@@ -185,6 +186,7 @@ function GraphDiskUsageUpdate() {
     });
 }
 function GraphDiskUsagePlots(data) {
+    if (data === null || typeof(data) == 'undefined' || data.length === 0) return;
     if (typeof(data['error']) != 'undefined') {
         GraphDiskUsage.html((data['error'] ? data['error'] : 'No error, but no data was returned')).addClass('loaded');
         return;
@@ -196,6 +198,7 @@ function GraphDiskUsagePlots(data) {
 // Bandwidth Functions
 function UpdateBandwidth() {
     NodeID = GraphDiskUsageNode.val();
+    if (NodeID === null || typeof(NodeID) == 'undefined' || NodeID.length === 0) return;
     $.ajax({
         url: '?node=home',
         cache: false,
@@ -212,6 +215,7 @@ function UpdateBandwidth() {
     UpdateTimeout = setTimeout(UpdateBandwidth,10000);
 }
 function UpdateBandwidthGraph(data) {
+    if (data === null || typeof(data) == 'undefined' || data.length == 0) return;
     var d = new Date();
     Now = new Date().getTime() - (d.getTimezoneOffset() * 60000);
     for (i in data) {
@@ -245,6 +249,7 @@ function UpdateBandwidthGraph(data) {
 // Client Count Functions.
 function UpdateClientCount() {
     NodeID = GraphDiskUsageNode.val();
+    if (NodeID === null || typeof(NodeID) == 'undefined' || NodeID.length === 0) return;
     $.ajax({
         url: '?node=home',
         cache: false,
@@ -255,7 +260,7 @@ function UpdateClientCount() {
         },
         dataType: 'json',
         success: function(data) {
-            if (data.length == 0) return;
+            if (data === null || typeof(data) == 'undefined' || data.length == 0) return;
             UpdateClientCountPlot(data);
         },
         complete: function() {
@@ -264,6 +269,7 @@ function UpdateClientCount() {
     });
 }
 function UpdateClientCountPlot(data) {
+    if (data === null || typeof(data) == 'undefined' || data.length == 0) return;
     UpdateClientCountData = [
     {label:'Active',data:parseInt(data['ActivityActive'])},
     {label:'Queued',data:parseInt(data['ActivityQueued'])},
