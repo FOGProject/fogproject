@@ -60,6 +60,7 @@ abstract class TaskingElement extends FOGBase {
             ->set('start',$this->formatTime('','Y-m-d H:i:s'))
             ->set('image',$this->Image->get('name'))
             ->set('type',$_REQUEST['type'])
+            ->set('createdBy',$this->Task->get('createdBy'))
             ->save();
         return $this->getClass('ImagingLog',@max($this->getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id')))))
             ->set('finish',$this->formatTime('','Y-m-d H:i:s'))

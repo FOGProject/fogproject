@@ -2102,3 +2102,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`taskStates` MODIFY `tsID` INT(11) AUTO_INCREMENT",
 );
+// 205
+$this->schema[] = array(
+    "ALTER TABLE `" . DATABASE_NAME ."`.`imagingLog` ADD `ilCreatedBy` VARCHAR(255) NOT NULL"
+);
