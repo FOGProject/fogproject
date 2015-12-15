@@ -8,6 +8,7 @@ class ImagingLog extends FOGController {
         'finish' => 'ilFinishTime',
         'image' => 'ilImageName',
         'type' => 'ilType',
+        'createdBy' => 'ilCreatedBy',
     );
     protected $databaseFieldsRequired = array(
         'hostID',
