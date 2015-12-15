@@ -37,7 +37,8 @@ class MACAddress extends FOGBase {
         return join(':',str_split($this->MAC,2));
     }
     public function isValid() {
-        return preg_match('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/', $this->MAC) || preg_match('/^([a-fA-F0-9]{2}\-){5}[a-fA-F0-9]{2}$/', $this->MAC) || preg_match('/^[a-fA-F0-9]{12}$/', $this->MAC) || preg_match('/^([a-fA-F0-9]{4}\.){2}[a-fA-F0-9]{4}$/', $this->MAC) ? true : false;
+        $mac = str_replace(array(':','-','.'),'',$this->MAC);
+        return strlen($mac) === 12 && ctype_xdigit($mac) && (preg_match('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/', $this->MAC) || preg_match('/^([a-fA-F0-9]{2}\-){5}[a-fA-F0-9]{2}$/', $this->MAC) || preg_match('/^[a-fA-F0-9]{12}$/', $this->MAC) || preg_match('/^([a-fA-F0-9]{4}\.){2}[a-fA-F0-9]{4}$/', $this->MAC));
     }
     public function isPending() {
         return (bool)count($this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'pending'=>1)));
