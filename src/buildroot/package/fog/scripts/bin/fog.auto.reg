@@ -76,113 +76,7 @@ while [[ -z $res ]]; do
     fi
     usleep 2000000
 done
-doInventory
-echo -e "\n\n\n"
-display_center "+---------------------------+"
-display_center "|     System Information    |"
-display_center "+---------------------------+"
-echo
-dots "System Manufacturer:"
-echo "$sysman"
-dots "System Product Name:"
-echo "$sysproduct";
-dots "System Version:"
-echo "$sysversion"
-dots "System Serial Number:"
-echo "$sysserial"
-dots "Computer Form Factor:"
-echo "$systype"
-usleep 1000000
-echo
-display_center "+---------------------------+"
-display_center "|      BIOS Information     |"
-display_center "+---------------------------+"
-dots "BIOS Version:"
-echo "$biosversion"
-dots "BIOS Vendor:"
-echo "$biosvendor"
-dots "BIOS Date:"
-echo "$biosdate"
-usleep 1000000
-echo
-display_center "+---------------------------+"
-display_center "|  Motherboard Information  |"
-display_center "+---------------------------+"
-echo
-dots "Motherboard Manufacturer:"
-echo "$mbman"
-dots "Motherboard Product Name:"
-echo "$mbproductname";
-dots "Motherboard Product Version:"
-echo "$mbversion";
-dots "Motherboard Serial Number:"
-echo "$mbserial"
-dots "Motherboard Asset Tag:"
-echo "$mbasset"
-usleep 1000000
-echo
-display_center "+---------------------------+"
-display_center "|      CPU Information      |"
-display_center "+---------------------------+"
-echo
-dots "CPU Manufacturer:"
-echo "$cpuman"
-dots "CPU Version:"
-echo "$cpuversion";
-dots "CPU Current Speed:"
-echo "$cpucurrent";
-dots "CPU Max Speed:"
-echoh "$cpumax";
-usleep 1000000
-echo
-display_center "+---------------------------+"
-display_center "|     Memory Information    |"
-display_center "+---------------------------+"
-echo
-dots "Memory:"
-echo "$mem"
-usleep 1000000
-echo
-display_center "+---------------------------+"
-display_center "|   Hard Disk Information   |"
-display_center "+---------------------------+"
-echo
-dots "Hard Disk:"
-echo "$hdinfo"
-usleep 1000000
-echo
-display_center "+---------------------------+"
-display_center "|      Case Information     |"
-display_center "+---------------------------+"
-echo
-dots "Case Manufacturer:"
-echo "$caseman"
-dots "Case Version:"
-echo "$casever"
-dots "Case Serial Number:"
-echo "$caseserial"
-dots "Case Asset Number:"
-echo "$caseasset"
-echo -e "\n\n\n"
-poststring="mac=${mac}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}"
-count=0
-res=""
-while [[ -z $res ]]; do
-    dots "Attempting to send inventory"
-    res=$(wget -O - --post-data="${poststring}" "http://${web}service/inventory.php" 2>/dev/null)
-    if [[ -n $res ]]; then
-        echo "$res"
-        break
-    else
-        if [[ $count == 10 ]]; then
-            echo "Failed"
-            break
-        fi
-        count=$(($count + 1))
-        continue
-    fi
-    usleep 2000000
-done
+. /bin/fog.inventory
 if [[ $deployed == 1 ]]; then
     count=0
     res=""
@@ -205,3 +99,4 @@ if [[ $deployed == 1 ]]; then
         usleep 2000000
     done
 fi
+usleep 2000000

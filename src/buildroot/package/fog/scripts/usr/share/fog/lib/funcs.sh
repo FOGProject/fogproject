@@ -387,7 +387,7 @@ getValidRestorePartitions() {
     for part in $parts; do
         partNum=$(getPartitionNumber $part)
         imgpart="$imagePath/d${driveNum}p${partNum}.img*"
-        if [[ -f $imgpart ]]; then
+        if [[ $(ls $imgpart 1> /dev/null 2>&1; echo $?) != 0 ]]; then
             valid_parts="$valid_parts $part"
         fi
     done
