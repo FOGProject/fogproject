@@ -45,7 +45,7 @@ class FOGPageManager Extends FOGBase {
         }
     }
     public function render() {
-        $toRender = in_array($_REQUEST['node'],array('client','schemaupdater')) || in_array($_REQUEST['sub'],array('configure','authorize','wakeEmUp')) || ($this->FOGUser->isValid());
+        $toRender = in_array($_REQUEST['node'],array('client','schemaupdater')) || in_array($_REQUEST['sub'],array('configure','authorize')) || ($this->FOGUser->isValid());
         if ($toRender) {
             $this->loadPageClasses();
             try {
