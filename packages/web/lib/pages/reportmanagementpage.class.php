@@ -172,7 +172,7 @@ class ReportManagementPage extends FOGPage {
             $hostDesc = $Host->get('description');
             unset($Host);
             $Task = $this->getClass('Task',@max($this->getSubObjectIDs('Task',array('checkInTime'=>$ImagingLog->get('start'),'hostID'=>$ImagingLog->get('hostID')))));
-            $createdBy = ($Task->isValid() ? $Task->get('createdBy') : $_SESSION['FOG_USERNAME']);
+            $createdBy = ($ImagingLog->get('createdBy') ? $ImagingLog->get('createdBy') : $_SESSION['FOG_USERNAME']);
             unset($Task);
             $Image = $this->getClass('Image',@max($this->getSubObjectIDs('Image',array('name'=>$ImagingLog->get('image')))));
             if ($Image->isValid()) {
