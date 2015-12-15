@@ -36,7 +36,7 @@ class Registration extends FOGBase {
     }
     private function fullReg() {
         try {
-            if (base64_decode($_REQUEST['productKey'],true)) $productKey = trim($_REQUEST['productKey']);
+            $productKey = $this->stripAndDecode($_REQUEST['productKey']);
             $username = $this->stripAndDecode($_REQUEST['username']);
             $hostname = $this->stripAndDecode($_REQUEST['host']);
             $hostname = strtoupper(($this->getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple));

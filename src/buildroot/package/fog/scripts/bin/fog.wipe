@@ -6,41 +6,39 @@ displayBanner
 #setupDNS ${dns}
 hd=""
 getHardDisk
-echo -e "\n"
-if [ -n "$hd" ]; then
-    echo " WARNING!  You are about to destroy the contents of the following hard disk:"
-    echo -e "      ${hd}\n"
-    echo -e " You have 60 seconds to turn off this computer to cancel!\n"
-    usleep 60000000
-    if [ "$wipemode" == "full" ]; then
+echo " WARNING!  You are about to destroy the contents of the following hard disk:"
+echo -e "      ${hd}\n"
+echo -e " You have 60 seconds to turn off this computer to cancel!\n"
+usleep 60000000
+case "$wipemode" in
+    full)
         echo -e " Starting disk wipe using shred...\n"
         usleep 10000000
         shred -f -v -z -n 3 ${hd}
         echo -e "\n Wiping complete.\n"
-    elif [ "$wipemode" == "normal" ]; then
+        ;;
+    normal)
         echo " Writing zeros to ${hd}"
         dd if=/dev/zero of=${hd}
         echo -e "\n Wiping complete.\n"
-    elif [ "$wipemode" == "fast" ]; then
+        ;;
+    fast)
         echo " Writing zeros to ${hd}"
         dd if=/dev/zero of=${hd} bs=512 count=100000
         echo -e "\n Wiping complete.\n"
-    fi
-    queueinfo=""
-    cd /tmp
-    wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-    queueinfo=`cat co.txt`
-    while [ "$queueinfo" != "##" ]
-    do
-        echo "       * $queueinfo"
-        rm co.txt
-        wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-        queueinfo=`cat co.txt`
-        usleep 5000000
-    done
-    echo -e "\n * Database updated!\n"
-    echo -e " Task Complete"
-else
-    echo -e "Hard disk not found!\n"
-fi
+        ;;
+esac
+queueinfo=""
+cd /tmp
+wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+queueinfo=$(cat co.txt)
+while [[ $queueinfo != "##" ]]; do
+    echo "       * $queueinfo"
+    rm co.txt
+    wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+    queueinfo=$(cat co.txt)
+    usleep 5000000
+done
+echo -e "\n * Database updated!\n"
+echo -e " * Task Complete!\n"
 usleep 10000000
