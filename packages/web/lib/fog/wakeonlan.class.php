@@ -21,11 +21,13 @@ class WakeOnLan extends FOGBase {
             $magicPacket = sprintf('%s%s',str_repeat(chr(255),6),str_repeat(ob_get_clean(),16));
             foreach ((array)$BroadCast AS $i => &$SendTo) {
                 if (!($sock = socket_create(AF_INET,SOCK_DGRAM,SOL_UDP))) throw new Exception(_('Socket error'));
+                socket_set_nonblock($sock);
                 $options = socket_set_option($sock,SOL_SOCKET,SO_BROADCAST,true);
-                if ($options >= 0 && socket_sendto($sock,$magicPacket,strlen($magicPacket),0,$SendTo,WOL_UDP_PORT)) socket_close($sock);
+                if ($options >= 0 && socket_sendto($sock,$magicPacket,(int)strlen($magicPacket),0,$SendTo,self::WOL_UDP_PORT)) socket_close($sock);
                 unset($SendTo);
             }
             unset($BroadCast,$MAC);
         }
+        exit;
     }
 }
