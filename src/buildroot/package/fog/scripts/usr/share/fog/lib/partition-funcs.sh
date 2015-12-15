@@ -835,7 +835,7 @@ fillDiskWithPartitionsIsOK() {
     local disk="$1";
     local imagePath="$2";
     local intDisk="$3";
-    local table_type=`getDesiredPartitionTableType "$imagePath" "$intDisk"`;
+    local table_type=$(getDesiredPartitionTableType "$imagePath" "$intDisk")
     local result="0";
 
     if [ "$table_type" == "MBR" ]; then
