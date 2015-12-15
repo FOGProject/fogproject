@@ -5,22 +5,68 @@ clearScreen
 displayBanner
 hd=""
 getHardDisk
-echo -e "\n"
+echo
+dots "Creating chntpw partition"
+if [[ ! -d /chntpw ]]; then
+    mkdir /chntpw
+fi
+if [[ ! -d /chntpw ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Unable to create chntpw folder"
+fi
+echo "Done"
+debugPause
+dots "Using disk"
+echo "$hd"
+debugPause
 sam=""
 getSAMLoc
-if [ -n "$hd" ]; then
-    part="${hd}1"
-    dots "Mounting Windows File System"
-    mkdir /ntfs
-    mount -o rw $part /ntfs
-    echo -e "Done\n"
-    if [ -f "$sam" ]; then
-        echo " * Loading..."
-        chntpw ${sam}
-        echo " Task Complete"
-    else
-        echo " Unable to locate SAM file."
+getPartitions $hd
+for part in $parts; do
+    fstype=$(fsTypeSetting $part)
+    if [[ $fstype != ntfs ]]; then
+        dots "Not working with partition"
+        echo "$part"
+        debugPause
+        continue
     fi
-else
-    echo "hard disk not found!"
-fi
+    echo " * Mounting partition $part"
+    ntfs-3g -o force,rw $part /chntpw
+    if [[ $? != 0 ]]; then
+        echo " * Failed to mount $part"
+        debugPause
+        continue
+    fi
+    if [[ ! -f $sam ]]; then
+        echo " * Unable to locate SAM file"
+        debugPause
+        continue
+    fi
+    dots "Removing password"
+    chntpw $sam
+    if [[ $? != 0 ]]; then
+        echo "Failed"
+        debugPause
+        continue
+    fi
+    echo "Done"
+done
+echo
+queueinfo=""
+cd /tmp
+touch co.txt
+wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+queueinfo=$(cat co.txt)
+while [[ $queueinfo != "##" ]]; do
+    echo " * $queueinfo"
+    rm co.txt
+    touch co.txt
+    wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+    queueinfo=$(cat co.txt)
+    usleep 2000000
+done
+echo
+echo " * Database updated!"
+echo " * Task Complete!"
+usleep 2000000

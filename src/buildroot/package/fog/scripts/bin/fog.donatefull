@@ -1,8 +1,7 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
-clearScreen;
-displayBanner;
-#setuDNS $dns;
+clearScreen
+displayBanner
 echo
 echo " Thanks for donating to the FOG Project!"
 echo
@@ -16,14 +15,14 @@ wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
 queueinfo=`cat co.txt`;
 while [ "$queueinfo" != "##" ]; do
     echo
-    echo "       * $queueinfo";
+    echo "       * $queueinfo"
     rm co.txt
     touch co.txt
     wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-    queueinfo=`cat co.txt`;
+    queueinfo=$(cat co.txt)
     usleep 2000000
 done
-echo "done"
+echo "Done"
 echo
 echo " Turning off montior output to conserve power..."
 usleep 2000000
@@ -35,7 +34,7 @@ setterm -foreground black
 setterm -background black
 clear
 /bin/fog.donate.monitor &
-/bin/fog.fork full & >/dev/null 2>&1;
+/bin/fog.fork full & >/dev/null 2>&1
 read -p "Press any key to continue... " -n1 -s test
 reset
 echo "Restarting computer..."

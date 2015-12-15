@@ -1,151 +1,207 @@
 #!/bin/bash
-. /usr/share/fog/lib/funcs.sh;
-. /bin/fog.donate;
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.donate
 clear
 displayBanner
 hd=""
 getHardDisk
-#setupDNS ${dns}
-sysman="";
-sysman64="";
-sysproduct="";
-sysproduct64="";
-sysversion="";
-sysversion64="";
-sysserial="";
-systype="";
-biosversion="";
-biosvendor="";
-biosdate="";
-mbman="";
-mbproductname="";
-mbversion="";
-mbserial="";
-mbasset="";
-cpuman="";
-cpuversion="";
-cpucurrent="";
-cpumax="";
-mem="";
-hdinfo="";
-caseman="";
-casever="";
-caseserial="";
-casesasset="";
-sysserial64="";
-systype64="";
-biosversion64="";
-biosvendor64="";
-biosdate64="";
-mbman64="";
-mbproductname64="";
-mbversion64="";
-mbserial64="";
-mbasset64="";
-cpuman64="";
-cpuversion64="";
-cpucurrent64="";
-cpumax64="";
-mem64="";
-hdinfo64="";
-caseman64="";
-casever64="";
-caseserial64="";
-casesasset64="";
+sysman=""
+sysman64=""
+sysproduct=""
+sysproduct64=""
+sysversion=""
+sysversion64=""
+sysserial=""
+systype=""
+biosversion=""
+biosvendor=""
+biosdate=""
+mbman=""
+mbproductname=""
+mbversion=""
+mbserial=""
+mbasset=""
+cpuman=""
+cpuversion=""
+cpucurrent=""
+cpumax=""
+mem=""
+hdinfo=""
+caseman=""
+casever=""
+caseserial=""
+casesasset=""
+sysserial64=""
+systype64=""
+biosversion64=""
+biosvendor64=""
+biosdate64=""
+mbman64=""
+mbproductname64=""
+mbversion64=""
+mbserial64=""
+mbasset64=""
+cpuman64=""
+cpuversion64=""
+cpucurrent64=""
+cpumax64=""
+mem64=""
+hdinfo64=""
+caseman64=""
+casever64=""
+caseserial64=""
+casesasset64=""
 echo -e "\n"
-if [ -n "$hd" ]; then
-    echo " * Using disk device...........................$hd";
-    echo " * Starting host registration...";
-    mac_deployed="$mac";
-    mac=`getMACAddresses|base64`;
-    echo
-    echo -n " * Attempting to register host.................";
-    res="";
-    while [ "$res" = "" ]; do
-        res=`wget -O - --post-data="mac=$mac" "http://${web}service/auto.register.php" 2>/dev/null`
-        echo "${res}";
-        usleep 2000000
-    done
-    doInventory;
-    echo -e "\n\n\n System Information";
-    echo -e " ------------------\n";
-
-    echo " * System Manufacturer: $sysman";
-    echo " * System Product Name: $sysproduct";
-    echo " * System Version: $sysversion";
-    echo " * System Serial Number: $sysserial";
-    echo " * Computer Form Factor: $systype";
-    usleep 1000000
-
-    echo -e "\n BIOS Information";
-    echo -e " ----------------\n";
-
-    echo " * BIOS Version: $biosversion";
-    echo " * BIOS Vendor: $biosvendor";
-    echo " * BIOS Date: $biosdate";
-    usleep 1000000
-    echo
-    echo -e "\n Motherboard Information";
-    echo -e " -----------------------\n";
-
-    echo " * Motherboard Manufacturer: $mbman";
-    echo " * Motherboard Product Name: $mbproductname";
-    echo " * Motherboard Product Version: $mbversion";
-    echo " * Motherboard Serial Number: $mbserial";
-    echo " * Motherboard Asset Tag: $mbasset";
-    usleep 1000000
-
-    echo -e "\n CPU Information";
-    echo -e " ---------------\n";
-
-    echo " * CPU Manufacturer: $cpuman";
-    echo " * CPU Version: $cpuversion";
-    echo " * CPU Current Speed: $cpucurrent";
-    echo " * CPU Max Speed: $cpumax";
-    usleep 1000000
-
-    echo -e "\n Memory Information";
-    echo -e " ------------------\n";
-
-    echo " * Memory: $mem";
-    usleep 1000000
-
-    echo -e "\n Hard Disk Information";
-    echo -e " ---------------------\n";
-
-    echo " * Hard Disk: $hdinfo";
-    usleep 1000000
-    echo
-    echo -e "\n Case Information";
-    echo -e " ----------------\n";
-
-    echo " * Case Manufacturer: $caseman";
-    echo " * Case Version: $casever";
-    echo " * Case Serial Number: $caseserial";
-    echo -e " * Case Asset Number: $casesasset\n\n\n\n\n";
-
-    poststring="mac=${mac}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}";
-    res="";
-    while [ "$res" = "" ]; do
-        dots "Attempting to send inventory";
-        res=`wget -O - --post-data="${poststring}" "http://${web}service/inventory.php" 2>/dev/null`
-        echo "${res}";
-        usleep 2000000
-    done
-    if [ "$deployed" = "1" ]; then
-        res="";
-        echo -e "\n * Updating Computer Database Status\n"
-        while [ "$res" != "##" ]
-        do
-            res=`wget -O - "http://${web}service/Post_Wipe.php?mac=$mac_deployed" 2>/dev/null`
-            if [ "$res" != "##" ]; then
-                echo " * ${res}";
-            fi
-            usleep 2000000
-        done
+dots " * Using disk device"
+echo "$hd"
+echo " * Starting host registration"
+mac_deployed="$mac"
+mac=$(getMACAddresses | base64)
+echo
+dots " * Attempting to register host"
+count=0
+res=""
+while [[ -z $res ]]; do
+    res=$(wget -O - --post-data="mac=$mac" "http://${web}service/auto.register.php" 2>/dev/null)
+    if [[ -n $res ]]; then
+        echo "$res"
+        break
+    else
+        if [[ $count == 10 ]]; then
+            echo "Failed"
+            handleError "Cannot register host"
+        fi
+        count=$(($count + 1))
+        continue
     fi
     usleep 2000000
-else
-    echo "hard disk not found!"
+done
+doInventory
+echo -e "\n\n\n"
+display_center "+---------------------------+"
+display_center "|     System Information    |"
+display_center "+---------------------------+"
+echo
+dots "System Manufacturer:"
+echo "$sysman"
+dots "System Product Name:"
+echo "$sysproduct";
+dots "System Version:"
+echo "$sysversion"
+dots "System Serial Number:"
+echo "$sysserial"
+dots "Computer Form Factor:"
+echo "$systype"
+usleep 1000000
+echo
+display_center "+---------------------------+"
+display_center "|      BIOS Information     |"
+display_center "+---------------------------+"
+dots "BIOS Version:"
+echo "$biosversion"
+dots "BIOS Vendor:"
+echo "$biosvendor"
+dots "BIOS Date:"
+echo "$biosdate"
+usleep 1000000
+echo
+display_center "+---------------------------+"
+display_center "|  Motherboard Information  |"
+display_center "+---------------------------+"
+echo
+dots "Motherboard Manufacturer:"
+echo "$mbman"
+dots "Motherboard Product Name:"
+echo "$mbproductname";
+dots "Motherboard Product Version:"
+echo "$mbversion";
+dots "Motherboard Serial Number:"
+echo "$mbserial"
+dots "Motherboard Asset Tag:"
+echo "$mbasset"
+usleep 1000000
+echo
+display_center "+---------------------------+"
+display_center "|      CPU Information      |"
+display_center "+---------------------------+"
+echo
+dots "CPU Manufacturer:"
+echo "$cpuman"
+dots "CPU Version:"
+echo "$cpuversion";
+dots "CPU Current Speed:"
+echo "$cpucurrent";
+dots "CPU Max Speed:"
+echoh "$cpumax";
+usleep 1000000
+echo
+display_center "+---------------------------+"
+display_center "|     Memory Information    |"
+display_center "+---------------------------+"
+echo
+dots "Memory:"
+echo "$mem"
+usleep 1000000
+echo
+display_center "+---------------------------+"
+display_center "|   Hard Disk Information   |"
+display_center "+---------------------------+"
+echo
+dots "Hard Disk:"
+echo "$hdinfo"
+usleep 1000000
+echo
+display_center "+---------------------------+"
+display_center "|      Case Information     |"
+display_center "+---------------------------+"
+echo
+dots "Case Manufacturer:"
+echo "$caseman"
+dots "Case Version:"
+echo "$casever"
+dots "Case Serial Number:"
+echo "$caseserial"
+dots "Case Asset Number:"
+echo "$caseasset"
+echo -e "\n\n\n"
+poststring="mac=${mac}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}"
+count=0
+res=""
+while [[ -z $res ]]; do
+    dots "Attempting to send inventory"
+    res=$(wget -O - --post-data="${poststring}" "http://${web}service/inventory.php" 2>/dev/null)
+    if [[ -n $res ]]; then
+        echo "$res"
+        break
+    else
+        if [[ $count == 10 ]]; then
+            echo "Failed"
+            break
+        fi
+        count=$(($count + 1))
+        continue
+    fi
+    usleep 2000000
+done
+if [[ $deployed == 1 ]]; then
+    count=0
+    res=""
+    echo " * Updating Computer Database Status"
+    echo
+    while [[ $res != "##" ]]; do
+        res=$(wget -O - "http://${web}service/Post_Wipe.php?mac=$mac_deployed" 2>/dev/null)
+        if [[ $res == "##" ]]; then
+            echo " * Update Complete"
+            break
+        else
+            if [[ $count == 10 ]]; then
+                dots "Update Failed:"
+                echo "$res"
+                break
+            fi
+            count=$(($count + 1))
+            continue
+        fi
+        usleep 2000000
+    done
 fi
-usleep 3000000

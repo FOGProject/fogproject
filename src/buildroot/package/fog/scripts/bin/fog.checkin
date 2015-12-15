@@ -4,7 +4,7 @@ RUN_CHKDSK=""
 HOSTNAME_EARLY="0"
 OS_ID_WIN7="5"
 OS_ID_WIN8="6"
-for arg in `cat /proc/cmdline`; do
+for arg in $(cat /proc/cmdline); do
     case "$arg" in
         initsh)
             ash -i
@@ -45,7 +45,7 @@ echo $osname
 dots "Checking CPU Cores"
 cores=$(nproc)
 echo $cores
-echo ""
+echo
 dots "Send method"
 echo $method
 blGo="0"
@@ -171,7 +171,7 @@ elif [[ $type == down && $capone != 1 ]]; then
                     while [[ ! $blame != "##" ]]; do
                         blame=$(wget -q -O - "http://${web}service/blame.php?mac=$mac&type=$type" 2>/dev/null)
                         if [[ $blame != "##" ]]; then
-                            echo $blame;
+                            echo $blame
                         fi
                         usleep 5000000
                     done

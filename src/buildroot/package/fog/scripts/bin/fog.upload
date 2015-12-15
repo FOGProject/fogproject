@@ -1,13 +1,13 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.checkin
-echo " * Preparing to send image file to server."
+echo " * Preparing to send image file to server"
 imagePath="/images/$macWinSafe"
 percent=$pct
-if [ $percent -lt 5 ] || [ $percent -ge 100 ]; then
+if [[ $percent -lt 5 || $percent -ge 100 ]]; then
     percent=5
 fi
-if [ $percent -lt 10 ]; then
+if [[ $percent -lt 10 ]]; then
     percent="0$percent"
 fi
 fog.statusreporter "$mac" "$web" & disown
