@@ -10,137 +10,197 @@ fi
 if [[ $percent -lt 10 ]]; then
     percent="0$percent"
 fi
-fog.statusreporter "$mac" "$web" & disown
+fog.statusreporter "$mac" "$web" &
 statusReporter="$!";
 dots "Checking Mounted File System"
-if [ -f "/images/.mntcheck" ]; then
-    echo -e "Done\n";
-    if [ -n "$img" ]; then
-        echo -e " * Using Image: ${img}\n";
-        dots "Preparing backup location";
-        if [ ! -d "$imagePath" ]; then
-            mkdir -p "$imagePath" 2>/dev/null;
-        fi
-        chmod -R 777 $imagePath;
-        rm -Rf "$imagePath/*";
-        echo "Done";
-        dots "Looking for Hard Disks";
+if [[ ! -f "/images/.mntcheck" ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Fatal Error: Failed to mount NFS Volume.\n* If you believe the filesystem is mounted,\n\tmake sure you have a file called .mntcheck\n\tin the directory you are mounting on the server"
+fi
+echo "Done"
+debugPause
+dots "Checking img variable is set"
+if [[ -z $img ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Fatal Error: Invalid image name"
+fi
+echo "Done"
+debugPause
+echo " * Using Image: $img"
+dots "Preparing backup location"
+if [[ ! -d $imagePath ]]; then
+    mkdir -p "$imagePath" 2>/dev/null
+fi
+if [[ ! -d $imagePath ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Failed to create image upload path"
+fi
+echo "Done"
+debugPause
+dots "Setting permission on $imagePath"
+chmod -R 777 $imagePath
+if [[ $? != 0 ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Failed to set permissions"
+fi
+echo "Done"
+debugPause
+dots "Removing any pre-existing files"
+rm -Rf $imagePath/*
+if [[ $? != 0 ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Could not clean files"
+fi
+echo "Done"
+debugPause
+case "$imgType" in
+    [n]|mps|dd)
+        dots "Looking for Hard Disk"
         getHardDisk
-        echo "Done";
-        dots "Re-reading Partition Tables";
-        echo "Done";
-        echo " * Using Hard Disk: $hd";
-        if [ ! -n $hd ]; then
-            handleError "HD is null, no hard disk found!";
+        if [[ -z $hd ]]; then
+            echo "Failed"
+            debugPause
+            handleError "Could not find hard disk"
         fi
+        echo "Done"
         debugPause
-        # resizable image type
-        #  discover windows partitions
-        #  remove pagefile and hibernate file
-        #  validate XP partition location
-        #  save original partition table
-        #  save MBR
-        #  shrink filesystems and partitions
-        #  save GRUB
-        #  save shrunken partition table
-        #  clone filesystems
-        #  restore original MBR and partition table
-        #  expand filesystems
-        if [ "$imgType" == "n" ]; then
-            validResizeOS;
-            part="${hd}1";
-            win7partcnt="0";
-            win7sys="";
-            fixed_size_partitions="";
-            # All:
-            #  find fixed size partitions, based on fstype
-            getPartitions $hd;
-            for part in $parts; do
-                fstype=$(fsTypeSetting $part)
-                if [ "$fstype" != "extfs" -a "$fstype" != "ntfs" ]; then
-                    fixed_size_partitions="${fixed_size_partitions}:$part";
-                fi
-            done
-            # Windows 7, 8, 8.1, Linux:
-            #  find the number of windows partitions
-            #  variables set
-            #    : win7partcnt: number of partitions (1,2,3)
-            #    : win7sys: partition with the system on it
-            #    : part: partition to shrink
-            #    : win7rec: the ntfs partition with boot loader or gpt
-            #    : fixed_size_partitions: list of partitions that should not be resized
-            #  assumes windows partitions are ntfs partitions
-            #  assumes windows partitions are at the front of the disk (1,2,3, etc.)
-            if [[ "$osid" == +([5-7]|9|50) ]];then
-                win7partcnt=`countNtfs $hd`;
-                extfsavail=`countExtfs $hd`;
-                if [ "$win7partcnt" == "0" ] && [ "$extfsavail" == "0" ]; then
-                    handleError "No resizable partitions found.";
-                elif [ "$win7partcnt" == "1" ]; then
-                    part="${hd}1";
-                    win7sys="$part";
-                elif [ "$win7partcnt" == "2" ]; then
-                    tmpCnt="0";
-                    for part in $parts; do
-                        if [ "$tmpCnt" == "0" ]; then
-                            win7rec="$part";
-                            fixed_size_partitions="${fixed_size_partitions}:$win7rec";
-                        elif [ "$tmpCnt" == "1" ]; then
-                            win7sys="$part";
-                            part="$part";
-                        fi
-                        tmpCnt=`expr $tmpCnt '+' 1`;
-                    done
-                elif [ "$win7partcnt" == "3" ] && [ $(parted -m $hd print | grep $hd | cut -d: -f6) == "gpt" ]; then
-                    win7rec="gpt";
-                    win7sys=${hd}3;
-                    part=${hd}3;
-                    fixed_size_partitions="${fixed_size_partitions}:${hd}1:${hd}2";
-                elif [ "$win7partcnt" == "4" ] && [ $(parted -m $hd print | grep $hd | cut -d: -f6) == "gpt" ]; then
-                    win7rec="gpt";
-                    win7sys=${hd}4;
-                    part=${hd}4;
-                    fixed_size_partitions="${fixed_size_partitions}:${hd}1:${hd}2:${hd}3";
-                elif [ "$win7partcnt" -gt 4 ]; then
-                    handleError "More than 4 ntfs partitions found, not valid for this image type.";
-                fi
-                for partClr in $parts; do
-                    clearMountedDevices $partClr;
-                done
+        echo "Using Disk: $hd"
+        dots "Reading Partition Tables"
+        runPartprobe $hd
+        getPartitions $hd
+        if [[ -z $parts ]]; then
+            echo "Failed"
+            debugPause
+            handleError "Could not find partitions"
+        fi
+        echo "Done"
+        debugPause
+        echo " * Using Hard Disk: $hd"
+        echo " * Partitions found: $parts"
+        debugPause
+        ;;
+    mpa)
+        dots "Looking for Hard Disks"
+        getHardDisk "true"
+        if [[ -z $disks ]]; then
+            echo "Failed"
+            debugPause
+            handleError "Could not find any disks"
+        fi
+        echo "Done"
+        debugPause
+        echo "Using Disks: $disks"
+        for disk in "$disks"; do
+            dots "Reading Partition Tables on $disk"
+            getPartitions $disk
+            if [[ -z $parts ]]; then
+                echo "Failed"
+                debugPause
+                echo "No partitions for disk $disk"
+                debugPause
+                continue
             fi
+            echo "Done"
+            debugPause
+            echo "Partitions on disk $disk: $parts"
+            debugPause
+        done
+        ;;
+esac
+echo
+echo " * Now FOG will attempt to upload the image using Partclone"
+echo
+# resizable image type
+#  discover windows partitions
+#  remove pagefile and hibernate file
+#  validate XP partition location
+#  save original partition table
+#  save MBR
+#  shrink filesystems and partitions
+#  save GRUB
+#  save shrunken partition table
+#  clone filesystems
+#  restore original MBR and partition table
+#  expand filesystems
+case "$imgType" in
+    [n])
+        validResizeOS
+        win7partcnt=$(echo "$parts" | wc -l)
+        dots "Checking for fixed partitions"
+        for part in "$parts"; do
+            fstype=$(fsTypeSetting "$part")
+            if [[ $fstype != +(ntfs|extfs) ]]; then
+                fixed_size_partitions="$fixed_size_partitions:$part";
+            fi
+        done
+        echo "Done"
+        debugPause
+        dots "Getting Windows/Linux Partition Count"
+        if [[ $osid == +([5-7]|9|50) ]]; then
+            ntfscnt=$(countNtfs $hd)
+            extfsavail=$(countExtfs $hd)
+            if [[ $ntfscnt == 0 && $extfsavail == 0 ]]; then
+                echo "Failed"
+                debugPause
+                handleError "No resizable partitions found"
+            fi
+            echo "Done"
+            debugPause
+            echo "NTFS Partition count of: $ntfscnt"
+            debugPause
+            echo "EXTFS Partition count of: $extavail"
+            debugPause
+            for partclr in $parts; do
+                clearMountedDevices $partclr
+            done
+            fixedcount=0
+            echo " * Setting up any additional fixed parts"
+            for part in "$parts"; do
+                if [[ $fixedcount == 0 && $win7partcnt == 2 ]]; then
+                    fixed_size_partitions="$fixed_size_partitions:$part"
+                    break
+                elif [[ $fixedcount == +([1-3]) ]] && [[ $win7partcnt == 3 ]]; then
+                    fixed_size_partitions="$fixed_size_partitions:$part"
+                    if [[ $fixedcount == 3 ]]; then
+                        break
+                    fi
+                fi
+                $fixedcount=$(($fixedcount + 1))
+            done
             # All:
             #  save the list of fixed size partitions
-            fixed_size_partitions=`echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://'`;
-            echo $fixed_size_partitions > "${imagePath}/d1.fixed_size_partitions";
-            # Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
-            #  Remove pagefile and hibernate file
-            if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
-                for partPage in $parts; do
-                    removePageFile "$partPage";
+            fixed_size_partitions=`echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://'`
+            echo $fixed_size_partitions > "$imagePath/d1.fixed_size_partitions"
+            if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+                for partpage in "$parts"; do
+                    removePageFile "$partPage"
                 done
             fi
-            # Windows 2000/XP:
-            #  Make sure XP has the partition at the correct location
-            if [ "$osid" == "1" ]; then
-                partitionStart=`fdisk -lu | grep $part | awk '{print $3}'`;
-                if [ "$partitionStart" == "" ]; then
-                    partitionStart="63";
-                fi
-                if [ "$partitionStart" != "63" ]; then
-                    handleError "FOG requires your Windows XP's partition start sector to be 63 but is ${partitionStart}";
+            dots "Getting sector start"
+            if [[ $osid == 1 ]]; then
+                partitionStart=$(fdisk -lu | grep $part | awk '{print $3}')
+                if [[ -z $partitionStart ]]; then
+                    partitionStart=63
                 fi
             fi
+            echo "Done"
+            debugPause
             # Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
             #  Save unmodified partition table for download use
             #  Start filesytem type record
-            if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
-                dots "Saving original partition table";
-                saveOriginalPartitions "${hd}" "${imagePath}" "1";
-                echo -n "" > "${imagePath}/d1.original.fstypes";
-                echo -n "" > `swapUUIDFileName "${imagePath}" "1"`;
-                echo "Done";
+            if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+                dots "Saving original partition table"
+                saveOriginalPartitions "${hd}" "${imagePath}" "1"
+                echo -n "" > "${imagePath}/d1.original.fstypes"
+                echo -n "" > $(swapUUIDFileName "${imagePath}" "1")
+                echo "Done"
                 debugPause
-                savePartitionTablesAndBootLoaders "${hd}" "1" "${imagePath}" "${osid}" "${imgPartitionType}";
+                savePartitionTablesAndBootLoaders "${hd}" "1" "${imagePath}" "${osid}" "${imgPartitionType}"
             fi
             # Windows 2000/XP, Vista, 7, 8, 8.1:
             #  Save MBR
@@ -151,11 +211,11 @@ if [ -f "/images/.mntcheck" ]; then
             #  Save MBR
             #  Attempt to shrink all filesystems and partitions, except swap, extended.
             #  Save partition table with shrunken partitions for use on download
-            if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
-                for part in $parts; do
-                    shrinkPartition "$part" "${imagePath}/d1.original.fstypes";
+            if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+                for part in "$parts"; do
+                    shrinkPartition "$part" "${imagePath}/d1.original.fstypes"
                 done
-                runPartprobe $hd;
+                runPartprobe $hd
                 debugPause
             fi
             # Windows 2000/XP, Vista, 7, 8, 8.1:
@@ -164,29 +224,24 @@ if [ -f "/images/.mntcheck" ]; then
             # Linux:
             #  Actually clone the partitions now
             #  Restore the MBR
-            if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
-                dots "Checking Hard Disks";
-                echo "Done";
-                debugPause;
-                if [ "$osid" != "50" ]; then
-                    resetFlag "$part";
+            if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+                debugPause
+                if [ $osid != 50 ]; then
+                    resetFlag "$part"
                 fi
-                debugPause;
-                echo "";
-                echo " * Now FOG will attempt to upload the image using Partclone.";
-                echo "";
-                for part in $parts; do
-                    savePartition "$part" "1" "$imagePath" "$cores" "$imgPartitionType";
+                debugPause
+                echo " * Processing Hard Disk: $disk"
+                for part in "$parts"; do
+                    savePartition "$part" "1" "$imagePath" "$cores" "$imgPartitionType"
                 done
-
-                dots "Restoring MBR";
-                restoreOriginalPartitions "${hd}" "${imagePath}" "1";
-                echo "Done";
-                debugPause;
-                if [ "$osid" == "2" ]; then
-                    correctVistaMBR $hd;
+                dots "Restoring MBR"
+                restoreOriginalPartitions "${hd}" "${imagePath}" "1"
+                echo "Done"
+                debugPause
+                if [[ $osid == 2 ]]; then
+                    correctVistaMBR $hd
                 fi
-                debugPause;
+                debugPause
             fi
             #
             #  expand the file systems in the restored partitions
@@ -194,74 +249,49 @@ if [ -f "/images/.mntcheck" ]; then
             # Windows 7, 8, 8.1:
             # Windows 2000/XP, Vista:
             # Linux:
-            if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
-                for part in $parts; do
-                    expandPartition "$part";
+            if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+                for part in "$parts"; do
+                    expandPartition "$part"
                 done
             fi
-        elif [ "$imgType" == "mps" ]; then
-            getPartitions $hd
-            if [ -d "$imagePath" ]; then
-                savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
-                debugPause
-                for part in $parts; do
-                    savePartition "$part" "1" "$imagePath" "$cores" "$imgPartitionType";
-                    debugPause;
-                done
-                echo " * Task complete!";
-            else
-                handleError "Unable to create $imagePath";
-            fi
-        elif [ "$imgType" == "mpa" ]; then
-            getHardDisk "true"
-            intDisk=1;
-            for disk in $disks; do
-                echo " * Processing Hard Disk: $disk";
-                if [ -d "$imagePath" ]; then
-                    savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$imgPartitionType"
-                    debugPause
-                    getPartitions $disk
-                    for part in $parts; do
-                        savePartition "$part" "$intDisk" "$imagePath" "$cores" "$imgPartitionType"
-                        debugPause;
-                    done
-                else
-                    handleError "Unable to create $imagePath";
-                fi
-                echo " * Disk $disk complete!";
-                intDisk=`expr $intDisk '+' 1`;
-                debugPause;
-            done
-        else
-            imgpart="$imagePath/$img";
-            mkfifo /tmp/pigz1;
-            uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
-            partclone.imager -c -s $hd -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-            rm /tmp/pigz1;
-            clear;
         fi
-        chmod -R 777 $imagePath;
-        queueinfo="";
-        if [[ "$osid" == +([5-7]|9) ]]; then
-            imgType="mps";
-        fi
-        killStatusReporter
-        post="http://${web}service/Post_Stage2.php?to=$img&mac=$mac&ftp=$ftp&size=$size&imgid=$imgid&imgtype=$imgType&osid=$osid&type=$type"
-        queueinfo=`wget -q -O - "$post" 2>/dev/null`;
-        while [ "$queueinfo" != "##" ]; do
-            echo "		* $queueinfo";
-            queueinfo=`wget -q -O - "$post" 2>/dev/null`;
-            usleep 5000000;
+        ;;
+    mps)
+        echo " * Processing Hard Disk: $hd"
+        savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType"
+        for part in "$parts"; do
+            savePartition "$part" "1" "$imagePath" "$cores" "$imgPartitionType"
         done
-    else
-        handleError "Fatal Error: Invalid image name.";
-    fi
-else
-    handleError "Fatal Error: Failed to mount NFS Volume.";
-fi
-# Local Variables:
-# indent-tabs-mode: t
-# sh-basic-offset: 4
-# sh-indentation: 4
-# tab-width: 4
-# End:
+        ;;
+    mpa)
+        intDisk=1
+        for disk in "$disks"; do
+            savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$imgPartitionType"
+            echo " * Processing Hard Disk: $disk"
+            for part in "$parts"; do
+                savePartition "$part" "$intDisk" "$imagePath" "$cores" "$imgPartitionType"
+            done
+            echo " * Disk $disk complete"
+            intDisk=$(($intDisk+1))
+            debugPause
+        done
+        ;;
+    dd)
+        imgpart="$imagePath/$img"
+        mkfifo /tmp/pigz1
+        uploadFormat "$cores" "/tmp/pigz1" "$imgpart"
+        partclone.imager -c -s $hd -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog
+        rm /tmp/pigz1
+        clear
+        ;;
+esac
+chmod -R 777 $imagePath
+queueinfo=""
+killStatusReporter
+post="http://${web}service/Post_Stage2.php?to=$img&mac=$mac&ftp=$ftp&size=$size&imgid=$imgid&osid=$osid&type=$type"
+queueinfo=$(wget -q -O - "$post" 2>/dev/null)
+while [[ $queueinfo != "##" ]]; do
+    echo "		* $queueinfo"
+    queueinfo=$(wget -q -O - "$post" 2>/dev/null)
+    usleep 5000000
+done
