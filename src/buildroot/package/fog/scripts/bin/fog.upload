@@ -132,7 +132,7 @@ case "$imgType" in
         validResizeOS
         win7partcnt=$(echo "$parts" | wc -l)
         dots "Checking for fixed partitions"
-        for part in "$parts"; do
+        for part in $parts; do
             fstype=$(fsTypeSetting "$part")
             if [[ $fstype != +(ntfs|extfs) ]]; then
                 fixed_size_partitions="$fixed_size_partitions:$part";
@@ -160,7 +160,7 @@ case "$imgType" in
             done
             fixedcount=0
             echo " * Setting up any additional fixed parts"
-            for part in "$parts"; do
+            for part in $parts; do
                 if [[ $fixedcount == 0 && $win7partcnt == 2 ]]; then
                     fixed_size_partitions="$fixed_size_partitions:$part"
                     break
@@ -177,8 +177,8 @@ case "$imgType" in
             fixed_size_partitions=`echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://'`
             echo $fixed_size_partitions > "$imagePath/d1.fixed_size_partitions"
             if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
-                for partpage in "$parts"; do
-                    removePageFile "$partPage"
+                for partpage in $parts; do
+                    removePageFile "$partpage"
                 done
             fi
             dots "Getting sector start"
@@ -212,7 +212,7 @@ case "$imgType" in
             #  Attempt to shrink all filesystems and partitions, except swap, extended.
             #  Save partition table with shrunken partitions for use on download
             if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
-                for part in "$parts"; do
+                for part in $parts; do
                     shrinkPartition "$part" "${imagePath}/d1.original.fstypes"
                 done
                 runPartprobe $hd
@@ -231,7 +231,7 @@ case "$imgType" in
                 fi
                 debugPause
                 echo " * Processing Hard Disk: $disk"
-                for part in "$parts"; do
+                for part in $parts; do
                     savePartition "$part" "1" "$imagePath" "$cores" "$imgPartitionType"
                 done
                 dots "Restoring MBR"
@@ -250,7 +250,7 @@ case "$imgType" in
             # Windows 2000/XP, Vista:
             # Linux:
             if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
-                for part in "$parts"; do
+                for part in $parts; do
                     expandPartition "$part"
                 done
             fi
@@ -259,7 +259,7 @@ case "$imgType" in
     mps)
         echo " * Processing Hard Disk: $hd"
         savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType"
-        for part in "$parts"; do
+        for part in $parts; do
             savePartition "$part" "1" "$imagePath" "$cores" "$imgPartitionType"
         done
         ;;
@@ -268,7 +268,7 @@ case "$imgType" in
         for disk in "$disks"; do
             savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$imgPartitionType"
             echo " * Processing Hard Disk: $disk"
-            for part in "$parts"; do
+            for part in $parts; do
                 savePartition "$part" "$intDisk" "$imagePath" "$cores" "$imgPartitionType"
             done
             echo " * Disk $disk complete"
