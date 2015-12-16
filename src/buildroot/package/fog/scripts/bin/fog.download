@@ -15,7 +15,7 @@ win7imgroot="$imagePath"
 echo "Done"
 debugPause
 echo -e "\n * Starting Image Push"
-if [ -z "$img" ]; then
+if [[ -z $img ]]; then
     handleError "No image specified to download"
 fi
 echo " * Using Image: $img"
