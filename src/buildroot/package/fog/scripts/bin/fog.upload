@@ -10,7 +10,7 @@ fi
 if [[ $percent -lt 10 ]]; then
     percent="0$percent"
 fi
-fog.statusreporter "$mac" "$web" &
+fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!";
 dots "Checking Mounted File System"
 if [[ ! -f "/images/.mntcheck" ]]; then
@@ -170,7 +170,7 @@ case "$imgType" in
                         break
                     fi
                 fi
-                $fixedcount=$(($fixedcount + 1))
+                fixedcount=$(($fixedcount + 1))
             done
             # All:
             #  save the list of fixed size partitions
