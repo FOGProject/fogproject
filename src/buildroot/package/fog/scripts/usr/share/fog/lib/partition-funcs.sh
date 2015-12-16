@@ -270,7 +270,7 @@ resizeSfdiskPartition() {
     local tmp_file="/tmp/sfdisk.$$"
     local tmp_file2="/tmp/sfdisk2.$$"
     saveSfdiskPartitions $disk $tmp_file
-    processSfdisk $tmp_file resize $part $size > $tmp_file2;
+    processSfdisk $tmp_file resize $part $size > $tmp_file2
     if [[ $? == 0 ]]; then
         applySfdiskPartitions $disk $tmp_file2
     fi
@@ -725,9 +725,8 @@ resizePartition() {
     local part="$1";
     local size="$2";
     local imagePath="$3";
-    local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+    local disk=$(getDiskFromPartition $part)
     local table_type=`getPartitionTableType "$disk"`;
-
     if [ "$table_type" == "MBR" ]; then
         resizeSfdiskPartition "$part" "$size" "$imagePath";
     elif [ "$table_type" == "GPT" ]; then

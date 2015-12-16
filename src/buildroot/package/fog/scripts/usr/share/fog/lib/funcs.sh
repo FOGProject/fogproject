@@ -188,10 +188,9 @@ shrinkPartition() {
     fi
     case "$fstype" in
         ntfs)
-            ntfsresizetest="ntfsresize -f -i -P $1"
-            size=$($ntfsresizetest | grep "You might resize" | cut -d" " -f5)
+            size=$(ntfsresize -f -i -P $1 | grep "You might resize" | cut -d" " -f5)
             if [[ ! -n $size ]]; then
-                tmpoutput=$($ntfsresizetest)
+                tmpoutput=$(ntfsresize -f -i -P $1)
                 handleError " * Fatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t$tmpoutput"
             fi
             sizentfsresize=$(expr $size '/' 1000)
