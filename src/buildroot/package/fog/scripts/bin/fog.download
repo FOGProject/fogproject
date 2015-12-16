@@ -112,7 +112,7 @@ if [[ $imgType == n ]]; then
         getPartitions $hd
         dots "Setting up partition variables"
         partCount=0
-        for part in "$parts"; do
+        for part in $parts; do
             partCount=$(($partCount + 1))
             if [[ $win7partcnt == 1 && $partCount == 1 ]]; then
                 win7sys=$part
@@ -154,7 +154,7 @@ if [[ $imgType == n ]]; then
         parted -s $hd mkpart primary ntfs 63s -- $layPartSize &>/dev/null
         parted -s $hd set 1 boot on &>/dev/null
         runPartprobe $hd
-        for part in "$parts"; do
+        for part in $parts; do
             break
         done
         echo "Done"
