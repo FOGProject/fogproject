@@ -167,6 +167,37 @@ validResizeOS() {
         handleError " * Invalid operating system id: $osname ($osid)!"
     fi
 }
+prepareUploadLocation() {
+    dots "Preparing backup location"
+    if [[ ! -d $imagePath ]]; then
+        mkdir -p "$imagePath" 2>/dev/null
+    fi
+    if [[ ! -d $imagePath ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Failed to create image upload path"
+    fi
+    echo "Done"
+    debugPause
+    dots "Setting permission on $imagePath"
+    chmod -R 777 $imagePath
+    if [[ $? != 0 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Failed to set permissions"
+    fi
+    echo "Done"
+    debugPause
+    dots "Removing any pre-existing files"
+    rm -Rf $imagePath/*
+    if [[ $? != 0 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Could not clean files"
+    fi
+    echo "Done"
+    debugPause
+}
 # $1 is the partition
 # $2 is the fstypes file location
 shrinkPartition() {
