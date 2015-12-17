@@ -12,52 +12,10 @@ if [[ $percent -lt 10 ]]; then
 fi
 fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!";
-dots "Checking Mounted File System"
-if [[ ! -f "/images/.mntcheck" ]]; then
-    echo "Failed"
-    debugPause
-    handleError "Fatal Error: Failed to mount NFS Volume.\n* If you believe the filesystem is mounted,\n\tmake sure you have a file called .mntcheck\n\tin the directory you are mounting on the server"
-fi
-echo "Done"
-debugPause
-dots "Checking img variable is set"
-if [[ -z $img ]]; then
-    echo "Failed"
-    debugPause
-    handleError "Fatal Error: Invalid image name"
-fi
-echo "Done"
-debugPause
+. /bin/fog.checkmount
+. /bin/fog.checkimgvar
+prepareUploadLocation
 echo " * Using Image: $img"
-dots "Preparing backup location"
-if [[ ! -d $imagePath ]]; then
-    mkdir -p "$imagePath" 2>/dev/null
-fi
-if [[ ! -d $imagePath ]]; then
-    echo "Failed"
-    debugPause
-    handleError "Failed to create image upload path"
-fi
-echo "Done"
-debugPause
-dots "Setting permission on $imagePath"
-chmod -R 777 $imagePath
-if [[ $? != 0 ]]; then
-    echo "Failed"
-    debugPause
-    handleError "Failed to set permissions"
-fi
-echo "Done"
-debugPause
-dots "Removing any pre-existing files"
-rm -Rf $imagePath/*
-if [[ $? != 0 ]]; then
-    echo "Failed"
-    debugPause
-    handleError "Could not clean files"
-fi
-echo "Done"
-debugPause
 case "$imgType" in
     [n]|mps|dd)
         dots "Looking for Hard Disk"
@@ -144,13 +102,19 @@ case "$imgType" in
         if [[ $osid == +([5-7]|9|50) ]]; then
             ntfscnt=$(countNtfs $hd)
             extfsavail=$(countExtfs $hd)
-            if [[ $ntfscnt == 0 && $extfsavail == 0 ]]; then
+            if [[ $ntfscnt == 0 && $extfsavail == 0 ]] || [[ -z $ntfscnt && -z $extfsavail ]]; then
                 echo "Failed"
                 debugPause
                 handleError "No resizable partitions found"
             fi
             echo "Done"
             debugPause
+            if [[ -z $ntfscnt ]]; then
+                ntfscnt=0;
+            fi
+            if [[ -z $extfsavail ]]; then
+                extfsavail=0;
+            fi
             echo "NTFS Partition count of: $ntfscnt"
             debugPause
             echo "EXTFS Partition count of: $extavail"

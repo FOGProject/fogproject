@@ -7,61 +7,173 @@ imagePath="/images/$img"
 fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!"
 fixed_size_partitions=""
-dots "Checking Mounted File System"
-if [[ ! -f "/images/.mntcheck" ]]; then
-    handleError "Fatal Error: Failed to mount NFS Volume.\n* If you believe the filesystem is mounted,\n\tmake sure you have a file called .mntcheck\n\tin the directory you are mounting on the server"
-fi
 win7imgroot="$imagePath"
-echo "Done"
-debugPause
-echo -e "\n * Starting Image Push"
-if [[ -z $img ]]; then
-    handleError "No image specified to download"
-fi
+. /bin/fog.checkmount
+. /bin/fog.checkimgvar
 echo " * Using Image: $img"
-dots "Looking for Hard Disks"
-getHardDisk
-echo "Done"
-debugPause
-# Generates the partitions.  If singledisk resizeable, it generates
-# based on default normal values.
-# Otherwise it uses MBR/GPT to generate the partition table(s).
-if [[ $imgType == n ]]; then
-    validResizeOS
-    enableWriteCache "$hd"
-    win7partcnt=1;
-    if [ -f "$win7imgroot/sys.img.000" ] || grep -q "sys.img.000" /tmp/filelist.txt &>/dev/null ; then
-        echo "Wiping $hd partition information"
-        initHardDisk $hd
-        if [[ $osid == +([5-7]|9) ]]; then
-            dots "Windows Boot Partition Exists"
-            if [[ -f $win7imgroot/rec.img.000 ]] || grep -q "rec.img.000" /tmp/filelist.txt &>/dev/null ; then
-                echo "Yes"
-                win7partcnt=2
-            elif [[ -f $win7imgroot/gpt.bak ]] || grep -q "gpt.bak" /tmp/filelist.txt &>/dev/null ; then
-                echo "Yes"
-                win7partcnt=3
-            else
-                echo "No"
-            fi
-            downloadPartitionCount=$(($win7partcnt + 1))
+case "$imgType" in
+    [n]|mps|dd)
+        dots "Looking for Hard Disk"
+        getHardDisk
+        if [[ -z $hd ]]; then
+            echo "Failed"
+            debugPause
+            handleError "Count not find hard disk"
         fi
-        debugPause
-        dots "Preparing Hard Disks (Stage 1)"
-        if [[ $nombr == 1 ]]; then
-            echo "Skipped"
-        else
-            dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null
-            parted -s $hd mktable msdos &>/dev/null
-            dd if=$mbrfile of=$hd bs=512 count=1 &>/dev/null
-            runPartprobe "$hd"
-            echo "Done"
-        fi
+        echo "Done"
         debugPause
         diskSize=$(parted -s $hd u kB print | awk -F'[: ]+' /Disk\ \\//'{print $3+0}')
         if [[ $diskSize -gt 2199023256 ]]; then
             layPartSize="2tB"
         fi
+        echo "Using Disk: $hd"
+        validResizeOS
+        enableWriteCache $hd
+        ;;
+    mpa)
+        dots "Looking for Hard Disks"
+        getHardDisk "true"
+        if [[ -z $disks ]]; then
+            echo "Failed"
+            debugPause
+            handleError "Count not find any disks"
+        fi
+        echo "Done"
+        debugPause
+        echo "Using Disks: $disks"
+        ;;
+esac
+echo
+echo " * Preparing Partition layout"
+echo
+case "$imgType" in
+    n)
+        echo "Wiping $hd partition information"
+        initHardDisk $hd
+        dots "Recreating partition layout"
+        if [[ $nombr == 1 ]]; then
+            echo "Skipped"
+        else
+            dd if=/dev/zero of=$hd bs=512 count=20 >/dev/null 2>&1
+            if [[ $? != 0 ]]; then
+                echo "Failed"
+                debugPause
+                handleError "Fatal Error: Could not clear partition table"
+            fi
+            parted -s $hd mktable msdos >/dev/null 2>&1
+            if [[ $? != 0 ]]; then
+                echo "Failed"
+                debugPause
+                handleError "Fatal Error: Could not initialize disk"
+            fi
+            dd if=$mbrfile of=$hd bs=512 count=1 >/dev/null 2>&1
+            if [[ $? != 0 ]]; then
+                echo "Failed"
+                debugPause
+                handleError "Fatal Error: Could not recreate MBR table"
+            fi
+        fi
+        runPartprobe $hd
+        echo "Done"
+        debugPause
+        dots "Removing partitions"
+        case "$osid" in
+            [1-2])
+                if [[ ! -f $imagePath && ! -f $imagePath/$img ]]; then
+                    handleError "Fatal Error: Could not locate image files"
+                fi
+                if [[ -d $imagePath ]]; then
+                    imagePath="$imagePath/$img"
+                fi
+                dots "Preparing Hard Disks (Stage 2)"
+                parted -s $hd rm 1 &>/dev/null
+                echo "Done"
+                debugPause
+                dots "Preparing hard Disks (Stage 3)"
+                parted -s $hd mkpart primary ntfs 63s -- $layPartSize &>/dev/null
+                parted -s $hd set 1 boot on &>/dev/null
+                runPartprobe $hd
+                for part in $parts; do
+                    break
+                done
+                echo "Done"
+                debugPause
+                ;;
+            [5-7]|[9])
+                win7partcnt=1
+                if [[ -f $win7imgroot/sys.img.000 ]]; then
+                    dots "Windows Boot Partition Exists"
+                    if [[ ! -f $win7imgroot/gpt.bak && ! -f $win7imgroot/rec1.img.000 && ! -f $win7imgroot/rec.img.000 ]]; then
+                        echo "No"
+                    else
+                        echo "Yes"
+                        if [[ -f $win7imgroot/rec.img.000 ]]; then
+                            win7partcnt=2
+                        elif [[ -f $win7imgroot/gpt.bak ]]; then
+                            win7partcnt=3
+                        fi
+                    fi
+                    debugPause
+                    if [[ $win7partcnt == 1 ]]; then
+                        parted -s $hd rm 1 >/dev/null 2>&1
+                        if [[ $? != 0 ]]; then
+                            echo "Failed"
+                            debugPause
+                            handleError "Fatal Error: Could not remove old partition"
+                        fi
+                        echo "Done"
+                        debugPause
+                        dots "Attempting to expand/fill partitions"
+                        do_fill=$(fillDiskWithPartitionsIsOK "$hd" "$imagePath" "1")
+                        if [[ $do_fill != 0 ]]; then
+                            fillDiskWithPartitions "$hd" "$imagePath" "1"
+                            echo "Done"
+                        else
+                            if [[ $imgFormat == 1 || $imgLegacy == 1 ]]; then
+                                startsector="63s";
+                            else
+                                startsector="2048s";
+                            fi
+                            parted -s $hd mkpart primary ntfs $startsector -- $layPartSize >/dev/null 2>&1
+                            if [[ $? != 0 ]]; then
+                                echo "Failed"
+                                debugPause
+                                handleError "Fatal Error: Could not recreate first partition"
+                            fi
+                            echo "Done"
+                        fi
+                        debugPause
+                        dots "Setting boot partition"
+                        parted -s $hd set 1 boot on >/dev/null 2>&1
+                        if [[ $? != 0 ]]; then
+                            echo "Failed"
+                            debugPause
+                            handleError "Fatal Error: Could not make partition bootable"
+                        fi
+                        echo "Done"
+                        debugPause
+                    fi
+                fi
+                ;;
+        esac
+        ;;
+    mps)
+        ;;
+    mpa)
+        ;;
+    dd)
+        ;;
+esac
+echo
+echo " * Now FOG will attempt to download the image using Partclone"
+echo
+
+
+# Generates the partitions.  If singledisk resizeable, it generates
+# based on default normal values.
+# Otherwise it uses MBR/GPT to generate the partition table(s).
+if [[ $imgType == n ]]; then
+        debugPause
         if [[ $win7partcnt == 1 ]]; then
             dots "Preparing Hard Disks (Stage 2)"
             parted -s $hd rm 1 &>/dev/null
@@ -71,12 +183,6 @@ if [[ $imgType == n ]]; then
             do_fill=$(fillDiskWithPartitionsIsOK "${hd}" "${imagePath}" "1")
             if [[ $do_fill != 0 ]]; then
                 fillDiskWithPartitions "${hd}" "${imagePath}" "1"
-            elif [[ $imgFormat == 1 || $imgLegacy == 1 ]]; then
-                parted -s $hd mkpart primary ntfs 63s -- $layPartSize &>/dev/null
-            else
-                parted -s $hd -a opt mkpart primary ntfs 2048s -- $layPartSize &>/dev/null
-            fi
-            parted -s $hd set 1 boot on &>/dev/null
         elif [[ $win7partcnt == 2 ]]; then
             dots "Preparing Hard Disks (Stage 2)"
             parted -s $hd rm 2 &>/dev/null
@@ -141,24 +247,6 @@ if [[ $imgType == n ]]; then
         partCount=0
         echo "Done"
     elif [[ -f $imagePath || -f $imagePath/$img ]] && [[ $osid == +([1-2]) ]]; then
-        echo "Wiping $hd partition information"
-        initHardDisk $hd
-        if [ -d "$imagePath" ]; then
-            imagePath="$imagePath/$img"
-        fi
-        dots "Preparing Hard Disks (Stage 2)"
-        parted -s $hd rm 1 &>/dev/null
-        echo "Done"
-        debugPause
-        dots "Preparing hard Disks (Stage 3)"
-        parted -s $hd mkpart primary ntfs 63s -- $layPartSize &>/dev/null
-        parted -s $hd set 1 boot on &>/dev/null
-        runPartprobe $hd
-        for part in $parts; do
-            break
-        done
-        echo "Done"
-        debugPause
         # Linux:
         #  restore MBR/GRUB
         #  resize original partition table to current disk, and apply it

@@ -1,0 +1,9 @@
+#!/bin/bash
+dots "Checking Mounted File System"
+if [[ ! -f /images/.mntcheck ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Fatal Error: Failed to mount NFS Volume"
+fi
+echo "Done"
+debugPause
