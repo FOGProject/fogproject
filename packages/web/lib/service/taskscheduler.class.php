@@ -7,8 +7,8 @@ class TaskScheduler extends FOGService {
         try {
             $findWhere = array('stateID'=>$this->getQueuedState(),'typeID'=>array_merge(range(1,11),range(14,24)));
             $taskcount = $this->getClass('TaskManager')->count($findWhere);
+            $this->outall(sprintf(" * %s active task%s awaiting check-in.",$taskcount,($taskcount != 1 ? 's' : '')));
             if ($taskcount) {
-                $this->outall(sprintf(" * %s active task(s) awaiting check-in.",$taskcount));
                 $this->outall(' | Sending WOL Packet(s)');
                 foreach ((array)$this->getClass('HostManager')->find(array('id'=>$this->getSubObjectIDs('Task',$findWhere,'hostID'))) AS $i => &$Host) {
                     if (!$Host->isValid()) continue;
@@ -18,10 +18,10 @@ class TaskScheduler extends FOGService {
                     unset($Host);
                 }
                 unset($Hosts,$taskcount,$findWhere);
-            } else $this->outall(" * 0 active task(s) awaiting check-in.");
+            }
             $findWhere = array('isActive'=>1);
             $taskCount = $this->getClass('ScheduledTaskManager')->count($findWhere);
-            if (!$taskCount < 1) throw new Exception(' * No tasks found!');
+            if ($taskCount < 1) throw new Exception(' * No tasks found!');
             $this->outall(sprintf(" * %s task%s found.",$taskCount,($taskCount != 1 ? 's' : '')));
             unset($taskCount);
             foreach ((array)$this->getClass('ScheduledTaskManager')->find($findWhere) AS $i => &$Task) {
