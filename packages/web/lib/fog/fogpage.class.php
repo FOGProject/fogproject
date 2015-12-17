@@ -219,13 +219,14 @@ abstract class FOGPage extends FOGBase {
     }
     public function deploy() {
         try {
+            $TaskType = $this->getClass('TaskType',(is_numeric($_REQUEST['type']) && intval($_REQUEST['type']) ? intval($_REQUEST['type']) : 1));
+            $imagingTypes = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
             if (($this->obj instanceof Group && !(count($this->obj->get('hosts')))) || ($this->obj instanceof Host && ($this->obj->get('pending') || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
-            if ($this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
+            if ($imagingTypes && $this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
             $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && intval($_REQUEST['id']) > 0 ? sprintf('%s=%s',$this->id,intval($_REQUEST['id'])) : '')));
         }
-        $TaskType = $this->getClass('TaskType',(is_numeric($_REQUEST['type']) && intval($_REQUEST['type']) ? intval($_REQUEST['type']) : 1));
         $this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get('name'),_('task for'),$this->obj->get('name'));
         printf('<p class="c"><b>%s</b></p>',_('Are you sure you wish to deploy task to these machines'));
         printf('<form method="post" action="%s" id="deploy-container">',$this->formAction);
@@ -310,13 +311,14 @@ abstract class FOGPage extends FOGBase {
     }
     public function deploy_post() {
         try {
+            $TaskType = $this->getClass('TaskType',(is_numeric($_REQUEST['type']) && intval($_REQUEST['type']) ? intval($_REQUEST['type']) : 1));
+            $imagingTypes = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
             if (($this->obj instanceof Group && !(count($this->obj->get('hosts')))) || ($this->obj instanceof Host && ($this->obj->get('pending') || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
-            if ($this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
+            if ($imagingTypes && $this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
             $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && intval($_REQUEST['id']) > 0 ? sprintf('%s=%s',$this->id,intval($_REQUEST['id'])) : '')));
         }
-        $TaskType = $this->getClass('TaskType',is_numeric($_REQUEST['type']) ? $_REQUEST['type'] : 0);
         $Snapin = $this->getClass('Snapin',is_numeric($_REQUEST['snapin']) ? $_REQUEST['snapin'] : 0);
         $enableShutdown = $_REQUEST['shutdown'] ? true : false;
         $enableSnapins = $TaskType->get('id') != 17 ? ($Snapin instanceof Snapin && $Snapin->isValid() ? $Snapin->get('id') : -1) : false;
@@ -382,7 +384,7 @@ abstract class FOGPage extends FOGBase {
                             if ($this->obj instanceof Group) {
                                 $Hosts = $this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts')));
                                 foreach($Hosts AS $i => &$Host) {
-                                    if ($Host->isValid() && !$Host->get('pending')) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
+                                    if ($imagingTypes && $Host->isValid() && !$Host->get('pending') && $Host->getImage()->get('isEnabled')) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
                                 }
                                 unset($Host);
                             } else if ($this->obj instanceof Host) {
