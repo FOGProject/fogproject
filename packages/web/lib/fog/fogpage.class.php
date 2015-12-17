@@ -384,7 +384,10 @@ abstract class FOGPage extends FOGBase {
                             if ($this->obj instanceof Group) {
                                 $Hosts = $this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts')));
                                 foreach($Hosts AS $i => &$Host) {
-                                    if ($imagingTypes && $Host->isValid() && !$Host->get('pending') && $Host->getImage()->get('isEnabled')) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
+                                    if ($Host->isValid() && !$Host->get('pending')) {
+                                        if (!$imagingTasks) $success[] = sprintf('<li>%s</li>',$Host->get('name'));
+                                        else if ($imagingTasks && $Host->getImage()->get('isEnabled')) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
+                                    }
                                 }
                                 unset($Host);
                             } else if ($this->obj instanceof Host) {

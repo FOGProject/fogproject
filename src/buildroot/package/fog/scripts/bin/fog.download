@@ -100,8 +100,9 @@ case "$imgType" in
                 debugPause
                 ;;
             [5-7]|[9])
-                win7partcnt=1
                 if [[ -f $win7imgroot/sys.img.000 ]]; then
+                    echo " * Using legacy style partition setup"
+                    win7partcnt=1
                     dots "Windows Boot Partition Exists"
                     if [[ ! -f $win7imgroot/gpt.bak && ! -f $win7imgroot/rec1.img.000 && ! -f $win7imgroot/rec.img.000 ]]; then
                         echo "No"
@@ -114,47 +115,97 @@ case "$imgType" in
                         fi
                     fi
                     debugPause
-                    if [[ $win7partcnt == 1 ]]; then
-                        parted -s $hd rm 1 >/dev/null 2>&1
-                        if [[ $? != 0 ]]; then
-                            echo "Failed"
-                            debugPause
-                            handleError "Fatal Error: Could not remove old partition"
-                        fi
-                        echo "Done"
-                        debugPause
-                        dots "Attempting to expand/fill partitions"
-                        do_fill=$(fillDiskWithPartitionsIsOK "$hd" "$imagePath" "1")
-                        if [[ $do_fill != 0 ]]; then
-                            fillDiskWithPartitions "$hd" "$imagePath" "1"
-                            echo "Done"
-                        else
-                            if [[ $imgFormat == 1 || $imgLegacy == 1 ]]; then
-                                startsector="63s";
-                            else
-                                startsector="2048s";
-                            fi
-                            parted -s $hd mkpart primary ntfs $startsector -- $layPartSize >/dev/null 2>&1
+                    case "$win7partcnt" in
+                        1)
+                            dets "Removing partition"
+                            parted -s $hd rm 1 >/dev/null 2>&1
                             if [[ $? != 0 ]]; then
                                 echo "Failed"
                                 debugPause
-                                handleError "Fatal Error: Could not recreate first partition"
+                                handleError "Fatal Error: Could not remove old partition"
                             fi
                             echo "Done"
-                        fi
-                        debugPause
-                        dots "Setting boot partition"
-                        parted -s $hd set 1 boot on >/dev/null 2>&1
-                        if [[ $? != 0 ]]; then
-                            echo "Failed"
                             debugPause
-                            handleError "Fatal Error: Could not make partition bootable"
-                        fi
-                        echo "Done"
-                        debugPause
-                    fi
+                            dots "Attempting to expand/fill partitions"
+                            do_fill=$(fillDiskWithPartitionsIsOK "$hd" "$imagePath" "1")
+                            if [[ $do_fill != 0 ]]; then
+                                fillDiskWithPartitions "$hd" "$imagePath" "1"
+                                echo "Done"
+                            else
+                                startsector="2048s"
+                                if [[ $imgFormat == 1 || $imgLegacy == 1 ]]; then
+                                    startsector="63s"
+                                fi
+                                parted -s $hd mkpart primary ntfs $startsector -- $layPartSize >/dev/null 2>&1
+                                if [[ $? != 0 ]]; then
+                                    echo "Failed"
+                                    debugPause
+                                    handleError "Fatal Error: Could not recreate first partition"
+                                fi
+                                echo "Done"
+                            fi
+                            debugPause
+                            dots "Setting boot partition"
+                            parted -s $hd set 1 boot on >/dev/null 2>&1
+                            if [[ $? != 0 ]]; then
+                                echo "Failed"
+                                debugPause
+                                handleError "Fatal Error: Could not make partition bootable"
+                            fi
+                            echo "Done"
+                            debugPause
+                            ;;
+                        2)
+                            dots "Removing main partition"
+                            parted -s $hd rm 2 >/dev/null 2>&1
+                            if [[ $? != 0 ]]; then
+                                echo "Failed"
+                                debugPause
+                                handleError "Fatal Error: Could not remove old partition"
+                            fi
+                            echo "Done"
+                            debugPause
+                            dots "Attempting to expand/fill partitions"
+                            do_fill=$(fillDiskWithPartitionsIsOK "$hd" "$imagePath" "1")
+                            if [[ $do_fill != 0 ]]; then
+                                fillDiskWithPartitions "$hd" "$imagePath" "1"
+                                echo "Done"
+                            else
+                                startsector=$defaultpart2start
+                                parted -s $hd mkpart primary ntfs $startsector -- $layPartSize >/dev/null 2>&1
+                                if [[ $? != 0 ]]; then
+                                    echo "Failed"
+                                    debugPause
+                                    handleError "Fatal Error: Could not recreate main partition"
+                                fi
+                                echo "Done"
+                            fi
+                            debugPause
+                            ;;
+                        3)
+                            dots "Ensuring $hd is clean"
+                            sgdisk --zap-all $hd >/dev/null 2>&1
+                            if [[ $? != 0 ]]; then
+                                echo "Failed"
+                                debugPause
+                                handleError "Fatal Error: Could not clean disk"
+                            fi
+                            echo "Done"
+                            debugPause
+                            dots "Setting partitions"
+                            sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd >/dev/null 2>&1
+                            if [[ $? != 0 ]]; then
+                                echo "Failed"
+                                debugPause
+                                handleError "Fatal Error: Could not place partitions"
+                            fi
+                            echo "Done"
+                            debugPause
+                            dots "Preparing Hard Disks (Stage 3)"
+                            sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null
+                            ;;
+                    esac
                 fi
-                ;;
         esac
         ;;
     mps)
@@ -184,25 +235,7 @@ if [[ $imgType == n ]]; then
             if [[ $do_fill != 0 ]]; then
                 fillDiskWithPartitions "${hd}" "${imagePath}" "1"
         elif [[ $win7partcnt == 2 ]]; then
-            dots "Preparing Hard Disks (Stage 2)"
-            parted -s $hd rm 2 &>/dev/null
-            echo "Done"
-            debugPause
-            dots "Preparing Hard Disks (Stage 3)"
-            do_fill=$(fillDiskWithPartitionsIsOK "${hd}" "${imagePath}" "1")
-            if [[ $do_fill != 0 ]]; then
-                fillDiskWithPartitions "${hd}" "${imagePath}" "1"
-            else
-                parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null
-            fi
         elif [[ $win7partcnt == 3 ]]; then
-            dots "Preparing Hard Disks (Stage 2)"
-            sgdisk --zap-all $hd >/dev/null 2>&1
-            sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null
-            echo "Done"
-            debugPause
-            dots "Preparing Hard Disks (Stage 3)"
-            sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null
         elif [[ $win7partcnt == 4 ]]; then
             dots "Preparing Hard Disks (Stage 2)"
             sgdisk --zap-all $hd >/dev/null 2>&1
