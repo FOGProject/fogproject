@@ -505,7 +505,7 @@ class TaskManagementPage extends FOGPage {
             $this->data[] = array(
                 'id'=>$ScheduledTask->get('id'),
                 'hostgroup'=>$ScheduledTask->isGroupBased() ? 'group' : 'host',
-                'hostgroupname'=>$hostGroupName,
+                'hostgroupname'=>$hostGroupName->get('name'),
                 'host_id'=>$hostGroupName->get('id'),
                 'groupbased'=>$ScheduledTask->isGroupBased() ? _('Yes') : _('No'),
                 'details_taskname'=>$ScheduledTask->get('name'),
@@ -513,7 +513,7 @@ class TaskManagementPage extends FOGPage {
                 'active'=>$ScheduledTask->get('isActive') ? 'Yes' : 'No',
                 'type'=>$ScheduledTask->get('type') == 'C' ? 'Cron' : 'Delayed',
                 'schedtaskid'=>$ScheduledTask->get('id'),
-                'task_type'=>$taskType,
+                'task_type'=>$taskType->get('name'),
             );
             unset($ScheduledTask,$Host,$taskType,$taskTime,$hostGroupName);
         }
