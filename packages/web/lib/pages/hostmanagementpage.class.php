@@ -224,7 +224,8 @@ class HostManagementPage extends FOGPage {
             $user = trim($_REQUEST['domainuser']);
             $pass = $password;
             $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-            $productKey = strtoupper(trim($_REQUEST['key']));
+            $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
+            $productKey = substr($productKey,0,29);
             $Host = $this->getClass('Host')
                 ->set('name',$hostName)
                 ->set('description',$_REQUEST['description'])
@@ -815,7 +816,7 @@ class HostManagementPage extends FOGPage {
                 $Task = $this->obj->get('task');
                 if (!$mac->isValid()) throw new Exception(_('MAC Address is not valid'));
                 if ((!$_REQUEST['image'] && $Task->isValid()) || ($_REQUEST['image'] && $_REQUEST['image'] != $this->obj->get('imageID') && $Task->isValid())) throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
-                $productKey = preg_replace('/([\w+]{5})/','$1-',strtoupper(trim($_REQUEST['key'])));
+                $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
                 $productKey = substr($productKey,0,29);
                 $this->obj
                     ->set('name',$hostName)

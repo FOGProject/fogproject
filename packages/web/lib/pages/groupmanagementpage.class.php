@@ -472,7 +472,7 @@ class GroupManagementPage extends FOGPage {
                         ->set('kernel',$_REQUEST['kern'])
                         ->set('kernelArgs',$_REQUEST['args'])
                         ->set('kernelDevice',$_REQUEST['dev']);
-                    $productKey = preg_replace('/([\w+]{5})/','$1-',strtoupper(trim($_REQUEST['key'])));
+                    $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
                     $productKey = substr($productKey,0,29);
                     $this->getClass('HostManager')->update(array('id'=>$this->obj->get('hosts')),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->encryptpw(trim($_REQUEST['key']))));
                 }
