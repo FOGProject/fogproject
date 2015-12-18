@@ -3,44 +3,45 @@
 . /bin/fog.donate
 clearScreen
 displayBanner
-#setupDNS ${dns}
-hd=""
-getHardDisk
-echo -e "\n"
-if [ -n "$hd" ]; then
-    cd /tmp
-    queuinfo=""
-    wget -q -O /tmp/co.txt "http://${web}service/Pre_Stage1.php?mac=$mac" &>/dev/null
-    queueinfo=`cat co.txt`
-    while [ "$queueinfo" != "##@GO" ]
-    do
-        echo "		* $queueinfo"
-        rm co.txt
-        wget -q -O co.txt "http://${web}service/Pre_Stage1.php?mac=$mac" &>/dev/null
-        queuinfo=`cat co.txt`
-        usleep 5000000
-    done
-    rm co.txt
-    echo " Starting Disk Surface Test on "
-    echo -e "      ${hd}\n"
-    usleep 2000000
-    badblocks -sv ${hd}
-    echo
-    queueinfo=""
-    cd /tmp
-    wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-    queueinfo=`cat co.txt`
-    while [ "$queueinfo" != "##" ]
-    do
-        echo "       * $queueinfo"
-        rm co.txt
-        wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-        queueinfo=`cat co.txt`
-        usleep 5000000
-    done
-    echo -e "\n * Database updated!\n"
-    echo " Task Complete"
-else
-    echo "hard disk not found!"
+getHardDisk "true"
+if [[ -z $disks ]]; then
+    handleError "No hard disks found!"
 fi
-usleep 3000000
+echo
+cd /tmp
+queuinfo=""
+wget -q -O /tmp/co.txt "http://${web}service/Pre_Stage1.php?mac=$mac" &>/dev/null
+queueinfo=$(cat co.txt)
+while [[ $queueinfo != "##@GO" ]]; do
+    echo "		* $queueinfo"
+    rm co.txt
+    wget -q -O co.txt "http://${web}service/Pre_Stage1.php?mac=$mac" &>/dev/null
+    queuinfo=$(cat co.txt)
+    usleep 5000000
+done
+rm co.txt
+for disk in $disks; do
+    dots " * Disk Surface test for $disk"
+    echo
+    usleep 2000000
+    badblocks -sv $disk
+    if [[ $? != 0 ]]; then
+        echo "Failed"
+    else
+        echo "Done"
+    fi
+done
+echo
+queueinfo=""
+cd /tmp
+wget -q -O /tmp/co.txt "htt://${web}service/Post_Wipe.php?mac=$mac" >/dev/null 2>&1
+queueinfo=$(cat co.txt)
+while [[ $queueinfo != "##" ]]; do
+    echo "        * $queueinfo"
+    rm co.txt
+    wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" >/dev/null 2>&1
+    queueinfo=$(cat co.txt)
+    usleep 5000000
+done
+echo " * Database updated!"
+echo " * Task Complete!"
