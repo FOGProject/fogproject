@@ -41,6 +41,7 @@ case "$imgType" in
         echo " * Using Hard Disk: $hd"
         echo " * Partitions found: $parts"
         debugPause
+        break
         ;;
     mpa)
         dots "Looking for Hard Disks"
@@ -110,10 +111,10 @@ case "$imgType" in
             echo "Done"
             debugPause
             if [[ -z $ntfscnt ]]; then
-                ntfscnt=0;
+                ntfscnt=0
             fi
             if [[ -z $extfsavail ]]; then
-                extfsavail=0;
+                extfsavail=0
             fi
             echo "NTFS Partition count of: $ntfscnt"
             debugPause
