@@ -340,6 +340,7 @@ case "$imgType" in
                         usleep 2000000
                         restorePartition "$recpart"
                         restoreEBR "$recpart" "$tmpebrfilename"
+                        expandPartition "$recpart"
                     done
                     makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType"
                 else
@@ -358,6 +359,9 @@ case "$imgType" in
                             done
                             ;;
                     esac
+                    for recpart in $(getValidRestorePartitions "$hd" "1" "$imagePath"); do
+                        expandPartition "$recpart"
+                    done
                 fi
                 ;;
             50)
@@ -372,8 +376,10 @@ case "$imgType" in
                     usleep 2000000
                     restorePartition "$recpart"
                     restoreEBR "$recpart" "$tmpebrfilename"
+                    expandPartition "$recpart"
                 done
                 makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType"
+
                 ;;
         esac
         ;;
