@@ -417,7 +417,7 @@ getValidRestorePartitions() {
     for part in $parts; do
         partNum=$(getPartitionNumber $part)
         imgpart="$imagePath/d${driveNum}p${partNum}.img*"
-        if [[ $(ls $imgpart 1> /dev/null 2>&1; echo $?) != 0 ]]; then
+        if [[ $(ls $imgpart 1> /dev/null 2>&1; echo $?) == 0 ]]; then
             valid_parts="$valid_parts $part"
         fi
     done
@@ -742,12 +742,12 @@ getHardDisk() {
         disks=$(lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
         if ($2 == "3" || $2 == "8" || $2 == "9" || $2 == "179" || $2 == "259")
             print $1
-        }')
+        }' | sort -V)
         if [[ -z "$disks" ]]; then
             handleError "Cannot find disk on system"
         fi
         if [[ -z $1 || $1 != true ]]; then
-            hd=$(echo $disks|head -n1)
+            hd=$(echo $disks | head -n1)
             return 0
         elif [[ $1 == true ]]; then
             return 0
@@ -1318,33 +1318,52 @@ restorePartition() {
     partNum=$(getPartitionNumber $part)
     echo " * Processing Partition: $part ($partNum)"
     if [[ $imgPartitionType == all || $imgPartitionType == $partNum ]]; then
-        if [[ $imgType == dd ]]; then
-            imgpart="$imagePath/$img"
-        else
-            if [[ -f $imagePath ]]; then
-                imgpart="$imagePath"
-            elif [[ $win7partcnt == 1 && -f $imagePath/sys.img.000 ]]; then
-                imgpart="$imagePath/sys.img.*"
-            elif [[ $win7partcnt == 2 && -f $imagePath/sys.img.000 && -f $imagePath/rec.img.000 ]]; then
-                if [[ $partNum == 1 ]]; then
-                    imgpart="$imagePath/rec.img.000"
-                elif [[ $partNum == 2 ]]; then
-                    imgpart="$imagePath/sys.img.*"
-                fi
-            elif [[ $win7partcnt == 3 ]]; then
-                if [[ $partNum == 1 ]]; then
-                    imgpart="$imagePath/rec.img.000"
-                elif [[ $partNum == 2 ]]; then
-                    imgpart="$imagePath/rec.img.001"
-                elif [[ $partNum == 3 ]]; then
-                    imgpart="$imagePath/sys.img.*"
-                fi
-            else
-                imgpart="${imagePath}/d${intDisk}p${partNum}.img*"
-            fi
-        fi
-        usleep 2000000
-        if [[ $(ls $imgpart 1> /dev/null 2>&1; echo $?) != 0 ]]; then
+        case "$imgType" in
+            dd)
+                imgpart="$imagePath/$img*"
+                ;;
+            n|mps|mpa)
+                case "$osid" in
+                    [1-2])
+                        imgpart="$imagePath*"
+                        ;;
+                    50)
+                        imgpart="$imagePath/d${intDisk}p${partNum}.img*"
+                        ;;
+                    [5-7]|9)
+                        if [[ ! -f $imagePath/sys.img.000 ]]; then
+                            imgpart="$imagePath/d${intDisk}p${partNum}.img*"
+                        else
+                            case "$win7partcnt" in
+                                1)
+                                    imgpart="$imagePath/sys.img.*"
+                                    ;;
+                                2)
+                                    if [[ $partNum == 1 ]]; then
+                                        imgpart="$imagePath/rec.img.000"
+                                    elif [[ $partNum == 2 ]]; then
+                                        imgpart="$imagePath/sys.img.*"
+                                    fi
+                                    ;;
+                                3)
+                                    if [[ $partNum == 1 ]]; then
+                                        imgpart="$imagePath/rec.img.000"
+                                    elif [[ $partNum == 2 ]]; then
+                                        imgpart="$imagePath/rec.img.001"
+                                    elif [[ $partNum == 3 ]]; then
+                                        imgpart="$imagePath/sys.img.*"
+                                    fi
+                                    ;;
+                            esac
+                        fi
+                        ;;
+                esac
+                ;;
+            *)
+                handleError "Invalid Image Type $imgType"
+                ;;
+        esac
+        if [[ $(ls $imgpart >/dev/null 2>&1; echo $?) != 0 ]]; then
             local ebrfilename=$(EBRFileName "${imagePath}" "${intDisk}" "${partNum}")
             if [[ -e $ebrfilename ]]; then
                 # extended partition, the EBR should have been restored with the partition table
@@ -1408,4 +1427,18 @@ killStatusReporter() {
     dots "Stopping FOG Status Reporter"
     $(kill -9 $statusReporter) >/dev/null 2>&1
     echo "Done"
+}
+prepareResizeDownloadPartitions() {
+    restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType"
+    majorDebugEcho "Filling disk = $do_fill"
+    dots "Attempting to expand/fill partitions"
+    if [[ $do_fill == 0 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Fatal Error: Could not resize partitions"
+    fi
+    fillDiskWithPartitions "$hd" "$imagePath" "1"
+    runPartprobe $hd
+    echo "Done"
+    debugPause
 }
