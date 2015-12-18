@@ -727,16 +727,23 @@ getPartitions() {
     if [[ -z $disk ]]; then
         local disk=$hd
     fi
-    parts=$(lsblk -pno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
+    allparts=$(lsblk -pno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
     if (($1 ~ /[0-9]$/) && ($2 == "3" || $2 == "8" || $2 == "9" || $2 == "179" || $2 == "259") && ($3 > 0))
         print $1
     }' | grep $disk | sort -V)
+    for checkpart in $allparts; do
+        if [[ $checkpart =~ boot[0-9]+ ]]; then
+            continue
+        fi
+        valid_parts="$valid_parts $checkpart"
+    done
+    parts=$valid_parts
 }
 # Gets the hard drive on the host
 # Note: This function makes a best guess
 getHardDisk() {
-    echo 0 > /sys/block/mmcblk0boot0/force_ro >/dev/null 2>&1
-    echo 0 > /sys/block/mmcblk0boot0/force_ro >/dev/null 2>&1
+    echo 0 >| /sys/block/mmcblk0boot0/force_ro >/dev/null 2>&1
+    echo 0 >| /sys/block/mmcblk0boot1/force_ro >/dev/null 2>&1
     if [[ -n $fdrive ]]; then
         hd="$fdrive"
         return 0
