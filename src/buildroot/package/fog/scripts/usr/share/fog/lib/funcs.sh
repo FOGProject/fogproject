@@ -735,6 +735,8 @@ getPartitions() {
 # Gets the hard drive on the host
 # Note: This function makes a best guess
 getHardDisk() {
+    echo 0 > /sys/block/mmcblk0boot0/force_ro >/dev/null 2>&1
+    echo 0 > /sys/block/mmcblk0boot0/force_ro >/dev/null 2>&1
     if [[ -n $fdrive ]]; then
         hd="$fdrive"
         return 0
