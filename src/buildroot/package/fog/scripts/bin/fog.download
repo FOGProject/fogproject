@@ -282,7 +282,7 @@ case "$imgType" in
         fi
         display_center "Wiping $hd partition information"
         initHardDisk $hd
-        restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid"
+        restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath"
         runPartprobe $hd
         gptcheck="$global_gptcheck"
         ;;
@@ -295,7 +295,7 @@ case "$imgType" in
         for disk in $disks; do
             display_center "Wiping $disk partition information"
             initHardDisk $disk
-            restorePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid"
+            restorePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath"
             runPartprobe $disk
             gptcheck="$global_gptcheck"
             intDisk=$(($intDisk + 1))

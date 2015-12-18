@@ -742,8 +742,8 @@ getPartitions() {
 # Gets the hard drive on the host
 # Note: This function makes a best guess
 getHardDisk() {
-    echo 0 >| /sys/block/mmcblk0boot0/force_ro >/dev/null 2>&1
-    echo 0 >| /sys/block/mmcblk0boot1/force_ro >/dev/null 2>&1
+    #echo 0 >| /sys/block/mmcblk0boot0/force_ro
+    #echo 0 >| /sys/block/mmcblk0boot1/force_ro
     if [[ -n $fdrive ]]; then
         hd="$fdrive"
         return 0
@@ -1121,7 +1121,6 @@ savePartitionTablesAndBootLoaders() {
     local intDisk="$2"                 # e.g. 1
     local imagePath="$3"               # e.g. /net/dev/foo
     local osid="$4"                    # e.g. 50
-    local imgPartitionType="$5"        # e.g. all, mbr, 1, 2, ...
     local hasgpt=$(hasGPT "${disk}")   # e.g. 0 or 1
     local have_extended_partition="0"  # e.g. 0 or 1-n (extended partition count)
     if [[ $hasgpt == 0 ]]; then
@@ -1180,8 +1179,6 @@ restorePartitionTablesAndBootLoaders() {
     local disk="$1"
     local intDisk="$2"
     local imagePath="$3"
-    local osid="$4"
-    local imgPartitionType="$5"
     local tmpMBR=""
     local has_GRUB=""
     local mbrsize=""
@@ -1254,7 +1251,6 @@ savePartition() {
     local intDisk="$2"
     local imagePath="$3"
     local cores="$4"
-    local imgPartitionType="$5"
     local partNum=""
     local fstype=""
     local parttype=""
@@ -1316,11 +1312,6 @@ restorePartition() {
         local imagePath=$imagePath
     else
         local imagePath="$3"
-    fi
-    if [[ -z "$4" ]]; then
-        local imgPartitionType="$imgPartitionType"
-    else
-        local imgPartitionType="$5"
     fi
     local partNum=""
     local imgpart=""
