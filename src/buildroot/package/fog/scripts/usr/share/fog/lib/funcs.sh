@@ -18,8 +18,8 @@ ismajordebug=0
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
 dots() {
-    local pad=$(printf "%0.1s" "."{1..45})
-    printf " * %s%*.*s" "$1" 0 $((45-${#1})) "$pad"
+    local pad=$(printf "%0.1s" "."{1..50})
+    printf " * %s%*.*s" "$1" 0 $((50-${#1})) "$pad"
 }
 # Get All Active MAC Addresses
 getMACAddresses() {
@@ -724,6 +724,7 @@ getPartitionNumber() {
 # $1 is the partition to search for.
 getPartitions() {
     local disk="$1"
+    local valid_parts=""
     if [[ -z $disk ]]; then
         local disk=$hd
     fi
