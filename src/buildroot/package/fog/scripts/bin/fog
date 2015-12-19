@@ -1,9 +1,16 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
-if [[ $type == down ]]; then
-    fog.download
-elif [[ $type == up ]]; then
-    fog.upload
-else
-    handleError "Fatal Error: Unknown request type :: Null"
-fi
+case "$type" in
+    down)
+        fog.download
+        ;;
+    up)
+        fog.upload
+        ;;
+    *)
+        if [[ -z $type ]]; then
+            type="Null"
+        fi
+        handleError "Fatal Error: Unknown request type :: $type"
+        ;;
+esac
