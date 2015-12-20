@@ -41,7 +41,6 @@ case "$imgType" in
         echo " * Using Hard Disk: $hd"
         echo " * Partitions found: $parts"
         debugPause
-        break
         ;;
     mpa)
         dots "Looking for Hard Disks"

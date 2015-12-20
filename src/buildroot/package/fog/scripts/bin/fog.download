@@ -29,7 +29,6 @@ case "$imgType" in
         display_center "Using Disk: $hd"
         validResizeOS
         enableWriteCache $hd
-        break
         ;;
     mpa)
         dots "Looking for Hard Disks"
@@ -130,7 +129,6 @@ case "$imgType" in
                 for part in $parts; do
                     break
                 done
-                break
                 ;;
             [5-7]|9)
                 if [[ ! -d $imagePath && ! -f $win7imgroot/sys.img.000 ]]; then
@@ -275,7 +273,6 @@ case "$imgType" in
                     echo "Done"
                     debugPause
                 fi
-                break
                 ;;
         esac
         ;;
@@ -327,7 +324,6 @@ case "$imgType" in
                     handleError "Fatal Error: Could not locate file"
                 fi
                 restorePartition "$part"
-                break
                 ;;
             [5-7]|9)
                 if [[ ! -d $imagePath && ! -f $win7imgroot/sys.img.000 ]]; then
@@ -367,7 +363,6 @@ case "$imgType" in
                         expandPartition "$recpart"
                     done
                 fi
-                break
                 ;;
             50)
                 # saveEBR/restoreEBR are to support the resized partitions,
