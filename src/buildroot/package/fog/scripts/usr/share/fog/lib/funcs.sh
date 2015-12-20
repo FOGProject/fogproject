@@ -17,6 +17,12 @@ REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
 ismajordebug=0
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
+trim() {
+    local var="$*"
+    var="${var#"${var%%[![:space:]]*}"}"
+    var="${var%"${var##*[![:space:]]}"}"
+    echo -n "$var"
+}
 dots() {
     local pad=$(printf "%0.1s" "."{1..50})
     printf " * %s%*.*s" "$1" 0 $((50-${#1})) "$pad"
@@ -421,7 +427,7 @@ getValidRestorePartitions() {
             valid_parts="$valid_parts $part"
         fi
     done
-    echo $valid_parts
+    echo $(trim $valid_parts)
 }
 # $1 = DriveName  (e.g. /dev/sdb)
 # $2 = DriveNumber  (e.g. 1)
@@ -738,7 +744,7 @@ getPartitions() {
         fi
         valid_parts="$valid_parts $checkpart"
     done
-    parts=$valid_parts
+    parts=$(trim $valid_parts)
 }
 # Gets the hard drive on the host
 # Note: This function makes a best guess
@@ -746,18 +752,19 @@ getHardDisk() {
     #echo 0 >| /sys/block/mmcblk0boot0/force_ro
     #echo 0 >| /sys/block/mmcblk0boot1/force_ro
     if [[ -n $fdrive ]]; then
-        hd="$fdrive"
+        hd=$(trim $(echo $fdrive))
         return 0
     else
         disks=$(lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
         if ($2 == "3" || $2 == "8" || $2 == "9" || $2 == "179" || $2 == "259")
             print $1
         }' | sort -V)
+        disks=$(trim $disks)
         if [[ -z "$disks" ]]; then
             handleError "Cannot find disk on system"
         fi
         if [[ -z $1 || $1 != true ]]; then
-            hd=$(echo $disks | head -n1)
+            hd=$(trim $(echo $disks | head -n1))
             return 0
         elif [[ $1 == true ]]; then
             return 0
