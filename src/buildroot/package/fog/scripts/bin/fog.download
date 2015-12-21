@@ -22,8 +22,8 @@ case "$imgType" in
         fi
         echo "Done"
         debugPause
-        diskSize=$(parted -s $hd u kB print | awk -F'[: ]+' /Disk\ \\//'{print $3+0}')
-        if [[ $diskSize -gt 2199023256 ]]; then
+        diskSize=$(trim $(lsblk --bytes -dplno SIZE -I 3,8,9,179,259 $hd))
+        if [[ $diskSize -gt 2199023255552 ]]; then
             layPartSize="2tB"
         fi
         display_center "Using Disk: $hd"
