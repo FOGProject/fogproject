@@ -25,7 +25,8 @@ trim() {
 }
 dots() {
     local pad=$(printf "%0.1s" "."{1..50})
-    printf " * %s%*.*s" "$1" 0 $((50-${#1})) "$pad"
+    local str=$1
+    printf " * %s%*.*s" "$str" 0 $((50-${#str})) "$pad"
 }
 # Get All Active MAC Addresses
 getMACAddresses() {
@@ -47,24 +48,21 @@ verifyNetworkConnection() {
 }
 # $1 is the drive
 enableWriteCache()  {
-    if [[ -n $1 ]]; then
-        dots "Checking write caching status on HDD"
-        wcache=$(hdparm -i $1 >/dev/null 2>&1|awk -F= /write-caching.*=/'{print $2}' | tr -d "[[:space:]]")
-        if [[ $wcache != nonsupported ]]; then
-            hdparm -W1 $1 >/dev/null 2>&1
-            echo "Enabled"
-        else
-            echo "Not Supported"
-        fi
+    [[ -z $1 ]] && return
+    dots "Checking write caching status on HDD"
+    wcache=$(hdparm -i $1 >/dev/null 2>&1|awk -F= /write-caching.*=/'{print $2}' | tr -d "[[:space:]]")
+    if [[ $wcache == nonsupported ]]; then
+        echo "Not Supported"
         debugPause
+        return 0
     fi
+    hdparm -W1 $1 >/dev/null 2>&1
+    echo "Enabled"
+    debugPause
 }
 # $1 is the partition
 expandPartition() {
-    if [[ ! -n $1 ]]; then
-        echo " * No partition"
-        return
-    fi
+    [[ -z $1 ]] && return
     if [[ -n $fixed_size_partitions ]]; then
         local partNum=$(getPartitionNumber $1)
         is_fixed=$(echo $fixed_size_partitions | egrep "(${partNum}|^${partNum}|${partNum}$)" | wc -l)
@@ -75,15 +73,14 @@ expandPartition() {
             return
         fi
     fi
-    do_reset_flag="0"
     fstype=$(fsTypeSetting $1)
-    case "$fstype" in
+    case $fstype in
         ntfs)
             dots "Resizing ntfs volume ($1)"
             ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
 Y
 EOFNTFSRESTORE
-            do_reset_flag="1"
+            resetFlag "$1"
             ;;
         extfs)
             dots "Resizing $fstype volume ($1)"
@@ -92,22 +89,19 @@ EOFNTFSRESTORE
             e2fsck -fp $1 &>/dev/null
             ;;
         *)
-            dots "Not expanding ($1 $fstype)"
+            dots "Not expanding ($1 -- $fstype)"
             ;;
     esac
     runPartprobe "$hd"
     echo "Done"
     debugPause
-    if [ "$do_reset_flag" == "1" ]; then
-        resetFlag "$1"
-    fi
 }
 # $1 is the partition
 fsTypeSetting() {
-    fstype=`blkid -po udev $1 | awk -F= /FS_TYPE=/'{print $2}'`;
-    is_ext=`echo "$fstype" | egrep '^ext[234]$' | wc -l`;
+    fstype=$(blkid -po udev $1 | awk -F= /FS_TYPE=/'{print $2}')
+    is_ext=$(echo "$fstype" | egrep '^ext[234]$' | wc -l)
     if [ "x${is_ext}" == "x1" ]; then
-        echo "extfs";
+        echo "extfs"
     fi
     case "$fstype" in
         ntfs)
@@ -145,11 +139,7 @@ partitionIsDosExtended() {
     if [[ $scheme == dos ]]; then
         parttype=$(getPartType $1)
         debugEcho "parttype = $parttype" 1>&2
-        if [[ $parttype == +(0x5|0xf) ]]; then
-            echo "yes"
-        else
-            echo "no"
-        fi
+        [[ $parttype == +(0x5|0xf) ]] && echo "yes" || echo "no"
     else
         echo "no"
     fi
@@ -157,31 +147,29 @@ partitionIsDosExtended() {
 # $1 is the partition
 # Returns the size in bytes.
 getPartSize() {
-    block_part_tot=$(blockdev --getsz $1);
-    part_block_size=$(blockdev --getpbsz $1);
-    echo $(awk "BEGIN{print $block_part_tot * $part_block_size}")
+    block_part_tot=$(blockdev --getsz $1)
+    part_block_size=$(blockdev --getpbsz $1)
+    echo $(($block_part_tot * $part_block_size))
 }
 # Returns the size in bytes.
 getDiskSize() {
-    block_disk_tot=$(blockdev --getsz $hd);
-    disk_block_size=$(blockdev --getpbsz $hd);
-    echo $(awk "BEGIN{print $block_disk_tot * $disk_block_size}")
+    block_disk_tot=$(blockdev --getsz $hd)
+    disk_block_size=$(blockdev --getpbsz $hd)
+    echo $(($block_disk_tot * $disk_block_size))
 }
 validResizeOS() {
-    #Valid OSID's are 1 XP, 2 Vista, 5 Win 7, 6 Win 8, 7 Win 8.1, and 50 Linux
-    if [[ $osid != +([1-2]|[5-7]|9|50) ]]; then
-        handleError " * Invalid operating system id: $osname ($osid)!"
-    fi
+    [[ $osid == +([1-2]|[5-7]|9|50) ]] && return
+    handleError " * Invalid operating system id: $osname ($osid)!"
 }
 prepareUploadLocation() {
     dots "Preparing backup location"
     if [[ ! -d $imagePath ]]; then
         mkdir -p "$imagePath" 2>/dev/null
-    fi
-    if [[ ! -d $imagePath ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Failed to create image upload path"
+        if [[ $? != 0 ]]; then
+            echo "Failed"
+            debugPause
+            handleError "Failed to create image upload path"
+        fi
     fi
     echo "Done"
     debugPause
@@ -213,7 +201,7 @@ shrinkPartition() {
     fi
     fstype=$(fsTypeSetting $1)
     echo "$1 $fstype" >> "$2"
-    if [ -n "$fixed_size_partitions" ]; then
+    if [[ -n $fixed_size_partitions ]]; then
         local partNum=$(getPartitionNumber $1)
         is_fixed=$(echo "$fixed_size_partitions" | egrep ':'${partNum}':|^'${partNum}':|:'${partNum}'$' | wc -l);
         if [[ $is_fixed == 1 ]]; then
@@ -734,12 +722,9 @@ getPartitions() {
     if [[ -z $disk ]]; then
         local disk=$hd
     fi
-    allparts=$(lsblk -pno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
-    if (($1 ~ /[0-9]$/) && ($2 == "3" || $2 == "8" || $2 == "9" || $2 == "179" || $2 == "259") && ($3 > 0))
-        print $1
-    }' | grep $disk | sort -V)
+    allparts=$(lsblk -pno KNAME -I 3,8,9,179,259 | awk -F'[ :]+' '{if ($1 ~ /[0-9]+$/) print $1}' | grep $disk | sort -V)
     for checkpart in $allparts; do
-        if [[ $checkpart =~ boot[0-9]+ ]]; then
+        if [[ $checkpart =~ mmcblk[0-9]+boot[0-9]+ ]]; then
             continue
         fi
         valid_parts="$valid_parts $checkpart"
@@ -755,12 +740,8 @@ getHardDisk() {
         hd=$(trim $(echo $fdrive))
         return 0
     else
-        disks=$(lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
-        if ($2 == "3" || $2 == "8" || $2 == "9" || $2 == "179" || $2 == "259")
-            print $1
-        }' | sort -V)
-        disks=$(trim $disks)
-        if [[ -z "$disks" ]]; then
+        disks=$(trim $(lsblk -dpno KNAME -I 3,8,9,179,259 | sort -V))
+        if [[ -z $disks ]]; then
             handleError "Cannot find disk on system"
         fi
         if [[ -z $1 || $1 != true ]]; then
