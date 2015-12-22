@@ -5,7 +5,7 @@
 #############################################################
 FOG_VERSION = 1
 FOG_SOURCE = fog_$(FOG_VERSION).tar.gz
-FOG_SITE = https://www.fogproject.org/
+FOG_SITE = https://www.fogproject.org
 FOG_DEPENDENCIES = parted
 
 define FOG_BUILD_CMDS
