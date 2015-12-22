@@ -6,7 +6,7 @@
 
 EFIBOOTMGR_VERSION = 0.6.0
 EFIBOOTMGR_SOURCE = efibootmgr-$(EFIBOOTMGR_VERSION).tar.gz
-EFIBOOTMGR_SITE = http://linux.dell.com/efibootmgr/efibootmgr-0.6.0/
+EFIBOOTMGR_SITE = http://linux.dell.com/efibootmgr/efibootmgr-0.6.0
 EFIBOOTMGR_INSTALL_STAGING = YES
 
 
