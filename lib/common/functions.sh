@@ -783,7 +783,7 @@ clearScreen() {
 writeUpdateFile() {
     tmpDte=$(date +%c)
     if [[ -f $fogprogramdir/.fogsettings ]]; then
-        if [[ $(grep -q "^[#]{2} Start of FOG Settings") || $(grep -q "^[#]{2} Version[:]") ]]; then
+        if [[ $(grep -q "^[#]{2} Start of FOG Settings" $fogprogramdir/.fogsettings) || $(grep -q "^[#]{2} Version[:]" $fogprogramdir/.fogsettings) ]]; then
             grep -q "[#]{2} Version[:] " $fogprogramdir/.fogsettings && sed -i "s/[#]{2} Version[:].*$/Version: $version/g" $fogprogramdir/.fogsettings
             grep -q "ipaddress=" $fogprogramdir/.fogsettings && sed -i "s/ipaddress=\?['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\?['\"]$/ipaddress='$ipaddress/g'" $fogprogramdir/.fogsettings
             grep -q "interface=" $fogprogramdir/.fogsettings && sed -i "s/interface='\?['\"].*\?['\"]$/interface='$interface'/g" $fogprogramdir/.fogsettings
@@ -893,43 +893,6 @@ packages='$packages'
 ## End of FOG Settings
 " > "$fogprogramdir/.fogsettings"
     fi
-    grep -q "^## Version: [0-9]\+$" && sed -i "s/^## Version : $version"
-" > "$fogprogramdir/.fogsettings";
-    echo "## Created by the FOG Installer
-## Version: $version
-## Install time: $tmpDte
-
-ipaddress=\"$ipaddress\";
-interface=\"$interface\";
-submask=\"$submask\";
-routeraddress=\"$routeraddress\";
-plainrouter=\"$plainrouter\";
-dnsaddress=\"$dnsaddress\";
-dnsbootimage=\"$dnsbootimage\";
-password='$password';
-osid=\"$osid\";
-osname=\"$osname\";
-dodhcp=\"$dodhcp\";
-bldhcp=\"$bldhcp\";
-blexports=\"$blexports\";
-installtype=\"$installtype\";
-snmysqluser=\"$snmysqluser\"
-snmysqlpass='$snmysqlpass';
-snmysqlhost=\"$snmysqlhost\";
-installlang=\"$installlang\";
-donate=\"$donate\";
-storageLocation=\"$storageLocation\";
-fogupdateloaded=\"1\";
-storageftpuser=\"$storageftpuser\";
-storageftppass='$storageftppass';
-docroot=\"$docroot\";
-webroot=\"$webroot\";
-caCreated=\"$caCreated\";
-startrange=\"$startrange\";
-endrange=\"$endrange\";
-bootfilename=\"$bootfilename\";
-packages=\"$packages\";
-" > "$fogprogramdir/.fogsettings";
 }
 displayBanner() {
     echo
