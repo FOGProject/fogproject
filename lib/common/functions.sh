@@ -781,7 +781,120 @@ clearScreen() {
     clear
 }
 writeUpdateFile() {
-    tmpDte=`date +%c`;
+    tmpDte=$(date +%c)
+    if [[ -f $fogprogramdir/.fogsettings ]]; then
+        if [[ $(grep -q "^[#]{2} Start of FOG Settings") || $(grep -q "^[#]{2} Version[:]") ]]; then
+            grep -q "[#]{2} Version[:] " && sed -i "s/[#]{2} Version[:][\w]+$/Version: $version/g" $fogprogramdir/.fogsettings
+            grep -q "ipaddress=" && sed -i "s/ipaddress=\?['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\?['\"]$/ipaddress='$ipaddress/g'" $fogprogramdir/.fogsettings
+            grep -q "interface=" && sed -i "s/interface='\?['\"][\w]+\?['\"]$/interface='$interface'/g" $fogprogramdir/.fogsettings
+            grep -q "submask=" && sed -i "s/submask=['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}['\"]$/submask='$submask'/g" $fogprogramdir/.fogsettings
+            grep -q "routeraddress=" && sed -i "s/routeraddress=['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}['\"]$/routeraddress='$routeraddress'/g" $fogprogramdir/.fogsettings
+            grep -q "plainrouter=" && sed -i "s/plainrouter=['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}['\"]$/plainrouter='$plainrouter'/g" $fogprogramdir/.fogsettings
+            grep -q "dnsaddress=" && sed -i "s/dnsaddress=['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}['\"]$/dnsaddress='$dnsaddress'/g" $fogprogramdir/.fogsettings
+            grep -q "dnsbootimage=" && sed -i "s/dnsbootimage=\?['\"][\w]+\?['\"]$/dnsbootimage='$dnsbootimage'/g" $fogprogramdir/.fogsettings
+            grep -q "password=" && sed -i "s/password=\?['\"][\w]+\?['\"]$/password='$password'/g" $fogprogramdir/.fogsettings
+            grep -q "osid=" && sed -i "s/osid=\?['\"][\w]+\?['\"]$/osid='$osid'/g" $fogprogramdir/.fogsettings
+            grep -q "osname=" && sed -i "s/osname=\?['\"][\w]+\?['\"]$/osname='$osname'/g" $fogprogramdir/.fogsettings
+            grep -q "dodhcp=" && sed -i "s/dodhcp=\?['\"][\w]+\?['\"]$/dodhcp='$dodhcp'/g" $fogprogramdir/.fogsettings
+            grep -q "bldhcp=" && sed -i "s/bldhcp=\?['\"][\w]+\?['\"]$/bldhcp='$bldhcp'/g" $fogprogramdir/.fogsettings
+            grep -q "blexports=" && sed -i "s/blexports=\?['\"][\w]+\?['\"]$/blexports='$blexports'/g" $fogprogramdir/.fogsettings
+            grep -q "installtype=" && sed -i "s/installtype=\?['\"].*\?['\"]$/installtype='$installtype'/g" $fogprogramdir/.fogsettings
+            grep -q "snmysqluser=" && sed -i "s/snmysqluser=\?['\"].*\?['\"]$/snmysqluser='$snmysqluser'/g" $fogprogramdir/.fogsettings
+            grep -q "snmysqlpass=" && sed -i "s/snmysqlpass=\?['\"].*\?['\"]$/snmysqlpass='$snmysqlpass'/g" $fogprogramdir/.fogsettings
+            grep -q "snmysqlhost=" && sed -i "s/snmysqlhost=\?['\"].*\?['\"]$/snmysqlhost='$snmysqlhost'/g" $fogprogramdir/.fogsettings
+            grep -q "installlang=" && sed -i "s/installlang=\?['\"].*\?['\"]$/installlang='$installlang'/g" $fogprogramdir/.fogsettings
+            grep -q "donate=" && sed -i "s/donate=\?['\"].*\?['\"]$/donate='$donate'/g" $fogprogramdir/.fogsettings
+            grep -q "storageLocation=" && sed -i "s/storageLocation=\?['\"].*\?['\"]$/storageLocation='$storageLocation'/g" $fogprogramdir/.fogsettings
+            grep -q "fogupdateloaded=" && sed -i "s/fogupdateloaded=\?['\"].*\?['\"]$/fogupdateloaded=$fogupdateloaded/g" $fogprogramdir/.fogsettings
+            grep -q "storageftpuser=" && sed -i "s/storageftpuser=\?['\"].*\?['\"]$/storageftpuser='$storageftpuser'/g" $fogprogramdir/.fogsettings
+            grep -q "storageftppass=" && sed -i "s/storageftppass=\?['\"].*\?['\"]$/storageftppass='$storageftppass'/g" $fogprogramdir/.fogsettings
+            grep -q "docroot=" && sed -i "s/docroot=\?['\"].*\?['\"]$/docroot='$docroot'/g" $fogprogramdir/.fogsettings
+            grep -q "webroot=" && sed -i "s/webroot=\?['\"].*\?['\"]$/webroot='$webroot'/g" $fogprogramdir/.fogsettings
+            grep -q "caCreated=" && sed -i "s/caCreated=\?['\"].*\?['\"]$/caCreated='$caCreated'/g" $fogprogramdir/.fogsettings
+            grep -q "startrange=" && sed -i "s/startrange=\?['\"].*\?['\"]$/startrange='$startrange'/g" $fogprogramdir/.fogsettings
+            grep -q "endrange=" && sed -i "s/endrange=\?['\"].*\?['\"]$/endrange='$endrange'/g" $fogprogramdir/.fogsettings
+            grep -q "bootfilename=" && sed -i "s/bootfilename=\?['\"].*\?['\"]$/bootfilename='$bootfilename'/g" $fogprogramdir/.fogsettings
+            grep -q "packages=" && sed -i "s/packages=\?['\"].*\?['\"]$/packages='$packages'/g" $fogprogramdir/.fogsettings
+        else
+            echo "## Start of FOG Settings
+## Created by the FOG Installer
+## Version: $version
+## Install time: $tmpDte
+
+ipaddress='$ipaddress'
+interface='$interface'
+submask='$submask'
+routeraddress='$routeraddress'
+plainrouter='$plainrouter'
+dnsaddress='$dnsaddress'
+dnsbootimage='$dnsbootimage'
+password='$password'
+osid='$osid'
+osname='$osname'
+dodhcp='$dodhcp'
+bldhcp='$bldhcp'
+blexports='$blexports'
+installtype='$installtype'
+snmysqluser='$snmysqluser'
+snmysqlpass='$snmysqlpass'
+snmysqlhost='$snmysqlhost'
+installlang='$installlang'
+donate='$donate'
+storageLocation='$storageLocation'
+fogupdateloaded=1
+storageftpuser='$storageftpuser'
+storageftppass='$storageftppass'
+docroot='$docroot'
+webroot='$webroot'
+caCreated='$caCreated'
+startrange='$startrange'
+endrange='$endrange'
+bootfilename='$bootfilename'
+packages='$packages'
+## End of FOG Settings
+" >> "$fogprogramdir/.fogsettings"
+        fi
+    else
+        echo "## Start of FOG Settings
+## Created by the FOG Installer
+## Version: $version
+## Install time: $tmpDte
+
+ipaddress='$ipaddress'
+interface='$interface'
+submask='$submask'
+routeraddress='$routeraddress'
+plainrouter='$plainrouter'
+dnsaddress='$dnsaddress'
+dnsbootimage='$dnsbootimage'
+password='$password'
+osid='$osid'
+osname='$osname'
+dodhcp='$dodhcp'
+bldhcp='$bldhcp'
+blexports='$blexports'
+installtype='$installtype'
+snmysqluser='$snmysqluser'
+snmysqlpass='$snmysqlpass'
+snmysqlhost='$snmysqlhost'
+installlang='$installlang'
+donate='$donate'
+storageLocation='$storageLocation'
+fogupdateloaded=1
+storageftpuser='$storageftpuser'
+storageftppass='$storageftppass'
+docroot='$docroot'
+webroot='$webroot'
+caCreated='$caCreated'
+startrange='$startrange'
+endrange='$endrange'
+bootfilename='$bootfilename'
+packages='$packages'
+## End of FOG Settings
+" > "$fogprogramdir/.fogsettings"
+    fi
+    grep -q "^## Version: [0-9]\+$" && sed -i "s/^## Version : $version"
+" > "$fogprogramdir/.fogsettings";
     echo "## Created by the FOG Installer
 ## Version: $version
 ## Install time: $tmpDte
