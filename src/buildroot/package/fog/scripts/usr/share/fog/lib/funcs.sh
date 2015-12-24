@@ -1,18 +1,5 @@
 #!/bin/bash
 . /usr/share/fog/lib/partition-funcs.sh
-REG_LOCAL_MACHINE_XP="/ntfs/WINDOWS/system32/config/system"
-REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
-REG_HOSTNAME_KEY1_XP="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
-REG_HOSTNAME_KEY2_XP="\ControlSet001\Services\Tcpip\Parameters\Hostname"
-REG_HOSTNAME_KEY3_XP="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
-REG_HOSTNAME_KEY4_XP="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
-REG_HOSTNAME_KEY5_XP="\ControlSet001\services\Tcpip\Parameters\Hostname"
-REG_HOSTNAME_KEY1_7="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
-REG_HOSTNAME_KEY2_7="\ControlSet001\Services\Tcpip\Parameters\Hostname"
-REG_HOSTNAME_KEY3_7="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
-REG_HOSTNAME_KEY4_7="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
-REG_HOSTNAME_KEY5_7="\ControlSet001\services\Tcpip\Parameters\Hostname"
-REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
 # 1 to turn on massive debugging of partition table restoration
 ismajordebug=0
 #If a sub shell gets involked and we lose kernel vars this will reimport them
@@ -80,20 +67,22 @@ expandPartition() {
             ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
 Y
 EOFNTFSRESTORE
+            [[ $? != 0 ]] && echo "Failed" || echo "Done"
             resetFlag "$1"
             ;;
         extfs)
             dots "Resizing $fstype volume ($1)"
+            e2fsck -fp $1 &>/dev/null && \
+            resize2fs $1 &>/dev/null && \
             e2fsck -fp $1 &>/dev/null
-            resize2fs $1 &>/dev/null
-            e2fsck -fp $1 &>/dev/null
+            [[ $? != 0 ]] && echo "Failed" || echo "Done"
             ;;
         *)
             dots "Not expanding ($1 -- $fstype)"
+            echo "Done"
             ;;
     esac
     runPartprobe "$hd"
-    echo "Done"
     debugPause
 }
 # $1 is the partition
@@ -438,6 +427,19 @@ makeAllSwapSystems() {
     runPartprobe "$disk"
 }
 changeHostname() {
+    REG_LOCAL_MACHINE_XP="/ntfs/WINDOWS/system32/config/system"
+    REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
+    REG_HOSTNAME_KEY1_XP="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY2_XP="\ControlSet001\Services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY3_XP="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
+    REG_HOSTNAME_KEY4_XP="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY5_XP="\ControlSet001\services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY1_7="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY2_7="\ControlSet001\Services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY3_7="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
+    REG_HOSTNAME_KEY4_7="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY5_7="\ControlSet001\services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
     if [[ $hostearly == 1 && ! -z $hostname ]]; then
         dots "Changing hostname"
         mkdir /ntfs &>/dev/null
@@ -722,7 +724,7 @@ getPartitions() {
     if [[ -z $disk ]]; then
         local disk=$hd
     fi
-    allparts=$(lsblk -pno KNAME -I 3,8,9,179,259 | awk -F'[ :]+' '{if ($1 ~ /[0-9]+$/) print $1}' | grep $disk | sort -V)
+    allparts=$(lsblk -pno KNAME -I 3,8,9,179,259 | awk -F'[ :]+' '{if ($1 ~ /[0-9]+$/) print $1}' | grep $disk | sort -V | uniq)
     for checkpart in $allparts; do
         if [[ $checkpart =~ mmcblk[0-9]+boot[0-9]+ ]]; then
             continue
@@ -740,7 +742,7 @@ getHardDisk() {
         hd=$(trim $(echo $fdrive))
         return 0
     else
-        disks=$(trim $(lsblk -dpno KNAME -I 3,8,9,179,259 | sort -V))
+        disks=$(trim $(lsblk -dpno KNAME -I 3,8,9,179,259 | sort -V | uniq))
         if [[ -z $disks ]]; then
             handleError "Cannot find disk on system"
         fi
