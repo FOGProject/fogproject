@@ -23,6 +23,7 @@ packageinstaller="yum -y --enablerepo=remi,remi-php56,epel install"
 packagelist="yum --enablerepo=remi,remi-php56,epel list"
 packageupdater="yum -y --enablerepo=remi,remi-php56,epel update"
 packmanUpdate="yum check-update"
+packageQuery="rpm -q \$x"
 if [ "$linuxReleaseName" == "Mageia" ]; then
     # Mageia
     packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process";

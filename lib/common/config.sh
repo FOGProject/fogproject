@@ -1,4 +1,3 @@
-#
 #  FOG is a computer imaging solution.
 #  Copyright (C) 2007  Chuck Syperski & Jian Zhang
 #
@@ -14,54 +13,39 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#
-#
-# Linux Account that is used for FTP transactions
-username="fog";
-# This is used for storage nodes
+username="fog"
 dbuser="root"
 dbpass=""
-dbhost="p:127.0.0.1"
-# where are the php files from the download package?
-webdirsrc="../packages/web";
-# where are the tftp files from the download package?
-tftpdirsrc="../packages/tftp";
-# where are the udpcast files from the download package?
-udpcastsrc="../packages/udpcast-20120424.tar.gz";
-udpcasttmp="/tmp/udpcast.tar.gz";
-udpcastout="udpcast-20120424";
-# where are the service files from the download package?
-servicesrc="../packages/service";
-# where do the service files go?
+dbhost="p:localhost"
+webdirsrc="../packages/web"
+tftpdirsrc="../packages/tftp"
+udpcastsrc="../packages/udpcast-20120424.tar.gz"
+udpcasttmp="/tmp/udpcast.tar.gz"
+udpcastout="udpcast-20120424"
+servicesrc="../packages/service"
 servicedst="/opt/fog/service"
-# where do the service log files go?
 servicelogs="/opt/fog/log"
-# where do the fog program files go?
 fogprogramdir="/opt/fog"
-# where do generic fog utils go?
-fogutilsdir="${fogprogramdir}/utils";
-# where do generic fog utils come from?
-fogutilsdirsrc="../packages/utils";
-# where is the nfs exports file?
-nfsconfig="/etc/exports";
-# what are the potential NFS service names
-nfsservice="nfs nfs-server nfs-kernel-server";
-# what version are we working with?
-version="`awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]'`";
+fogutilsdir="$fogprogramdir/utils"
+fogutilsdirsrc="../packages/utils"
+nfsconfig="/etc/exports"
+nfsservice="nfs nfs-server nfs-kernel-server"
+version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
 sqlclientlist="mysql mariadb MariaDB-client"
-sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server MariaDB-Galera-server";
-# what is the schema version
-schemaversion="181";
-if [ "$systemctl" == "yes" ]; then
-    initdsrc="../packages/systemd";
-    initdMCfullname="FOGMulticastManager.service";
-    initdIRfullname="FOGImageReplicator.service";
-    initdSDfullname="FOGScheduler.service";
-    initdSRfullname="FOGSnapinReplicator.service";
-    if [[ "$linuxReleaseName" == +(*'Ubuntu'*|*'Debian'*) ]]; then
-        initdpath="/lib/systemd/system";
-    else
-        initdpath="/usr/lib/systemd/system";
-    fi
+sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server MariaDB-Galera-server"
+schemaversion="181"
+if [[ $systemctl == yes ]]; then
+    initdsrc="../packages/systemd"
+    initdMCfullname="FOGMulticastManager.service"
+    initdIRfullname="FOGImageReplicator.service"
+    initdSDfullname="FOGScheduler.service"
+    initdSRfullname="FOGSnapinReplicator.service"
+    case $linuxReleaseName in
+        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Dd][Ee][Bb][Ii][Aa][Nn]*)
+            initdpath="/lib/systemd/system"
+            ;;
+        *)
+            initdpath="/usr/lib/systemd/system"
+            ;;
+    esac
 fi
