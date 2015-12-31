@@ -447,7 +447,7 @@ installPackages() {
                 ;;
         esac
         newPackList="$newPackList $x"
-        eval $packageQuery
+        eval $packageQuery >/dev/null 2>&1
         if [[ $? -eq 0 ]]; then
             dots "Skipping package: $x"
             echo "(Already Installed)"
@@ -469,7 +469,7 @@ confirmPackageInstallation() {
             mysql)
                 for sqlclient in $sqlclientlist; do
                     x=$sqlclient
-                    eval $packageQuery
+                    eval $packageQuery >/dev/null 2>&1
                     if [[ $? -eq 0 ]]; then
                         break
                     fi
@@ -478,7 +478,7 @@ confirmPackageInstallation() {
             mysql-server)
                 for sqlserver in $sqlserverlist; do
                     x=$sqlserver
-                    eval $packageQuery
+                    eval $packageQuery >/dev/null 2>&1
                     if [[ $? -eq 0 ]]; then
                         break
                     fi
@@ -487,14 +487,14 @@ confirmPackageInstallation() {
             php5-json)
                 for json in $jsontest; do
                     x=$json
-                    eval $packageQuery
+                    eval $packageQuery >/dev/null 2>&1
                     if [[ $? -eq 0 ]]; then
                         break
                     fi
                 done
                 ;;
         esac
-        eval $packageQuery
+        eval $packageQuery >/dev/null 2>&1
         errorStat $?
     done
 }
