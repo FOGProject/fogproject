@@ -25,6 +25,7 @@ packageinstaller="pacman -Sy --noconfirm"
 packagelist="pacman -Si"
 packageupdater="pacman -Syu --noconfirm"
 packmanUpdate="$packageinstaller"
+packageQuery="pacman -Q \$x"
 langPackages="iso-codes"
 dhcpname="dhcp"
 # where do the php files go?
