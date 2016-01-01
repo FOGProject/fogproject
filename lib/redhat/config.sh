@@ -16,40 +16,39 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
-#
-# Yum packages to install
-packageinstaller="yum -y --enablerepo=remi,remi-php56,epel install"
-packagelist="yum --enablerepo=remi,remi-php56,epel list"
-packageupdater="yum -y --enablerepo=remi,remi-php56,epel update"
-packmanUpdate="yum check-update"
 packageQuery="rpm -q \$x"
-if [ "$linuxReleaseName" == "Mageia" ]; then
-    # Mageia
-    packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process";
-    packageinstaller="urpmi --auto"
-    packagelist="urpmq"
-    packageupdater="$packageinstaller"
-    packmanUpdate="urpmi.update -a"
-elif [ "$linuxReleaseName" == "Fedora" ]; then
-    # Fedora
-    packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process";
-	if [ "$linuxReleaseName" -a "$OSVersion" -ge 22 ]; then
-		packageinstaller="dnf -y install"
-        packagelist="dnf list"
-        packageupdater="dnf -y update"
-        packmanUpdate="dnf check-update"
-	fi
-else
-    # CentOS or Other  PCLinuxOS uses apt-rpm
-    packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process";
-fi
+case $linuxReleaseName in
+    *[Mm][Aa][Gg][Ee][Ii][Aa]*)
+        packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process"
+        packageinstaller="urpmi --auto"
+        packagelist="urpmq"
+        packageupdater="$packageinstaller"
+        packmanUpdate="urpmi.update -a"
+        dhcpname="dhcp-server"
+        tftpdirdst="/var/lib/tftpboot"
+        nfsexportsopts="no_subtree_check"
+        ;;
+    *)
+        packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process"
+        command -v dnf >/dev/null 2>&1
+        if [[ $? -eq 0 ]]; then
+            packageinstaller="dnf -y install"
+            packagelist="dnf list"
+            packageupdater="dnf -y update"
+            packmanUpdate="dnf check-update"
+        else
+            packageinstaller="yum -y --enablerepo=remi,remi-php56,epel install"
+            packagelist="yum --enablerepo=remi,remi-php56,epel list"
+            packageupdater="yum -y --enablerepo=remi,remi-php56,epel update"
+            packmanUpdate="yum check-update"
+        fi
+        dhcpname="dhcp"
+        ;;
+esac
 langPackages="iso-codes"
-dhcpname="dhcp"
-# where do the init scripts go?
-if [ "$OSVersion" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$OSVersion" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
-	initdpath="/usr/lib/systemd/system";
-	initdsrc="../packages/systemd";
+if [[ $systemctl == yes ]]; then
+    initdpath="/usr/lib/systemd/system"
+    initdsrc="../packages/systemd"
     if [[ -e /usr/lib/systemd/system/mariadb.service ]]; then
         ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysql.service >/dev/null 2>&1
         ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysqld.service >/dev/null 2>&1
@@ -59,67 +58,41 @@ if [ "$OSVersion" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$OSVersion" 
         ln -s /usr/lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysql.service >/dev/null 2>&1
         ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service >/dev/null 2>&1
     fi
-	initdMCfullname="FOGMulticastManager.service";
-	initdIRfullname="FOGImageReplicator.service";
-	initdSDfullname="FOGScheduler.service";
-	initdSRfullname="FOGSnapinReplicator.service";
-	initdPHfullname="FOGPingHosts.service";
+    initdMCfullname="FOGMulticastManager.service"
+    initdIRfullname="FOGImageReplicator.service"
+    initdSDfullname="FOGScheduler.service"
+    initdSRfullname="FOGSnapinReplicator.service"
+    initdPHfullname="FOGPingHosts.service"
 else
-	initdpath="/etc/rc.d/init.d";
-	initdsrc="../packages/init.d/redhat";
-	initdMCfullname="FOGMulticastManager";
-	initdIRfullname="FOGImageReplicator";
-	initdSDfullname="FOGScheduler";
-	initdSRfullname="FOGSnapinReplicator";
-	initdPHfullname="FOGPingHosts";
+    initdpath="/etc/rc.d/init.d"
+    initdsrc="../packages/init.d/redhat"
+    initdMCfullname="FOGMulticastManager"
+    initdIRfullname="FOGImageReplicator"
+    initdSDfullname="FOGScheduler"
+    initdSRfullname="FOGSnapinReplicator"
+    initdPHfullname="FOGPingHosts"
 fi
-
-# where do the php files go?
-if [ -z "$docroot" ]; then
+if [[ -z $docroot ]]; then
     docroot="/var/www/html/"
     webdirdest="${docroot}fog/"
-elif [[ "$docroot" != *'fog'* ]]; then
+elif [[ $docroot != *'fog'* ]]; then
     webdirdest="${docroot}fog/"
 else
     webdirdest="${docroot}/"
 fi
-webredirect="${webdirdest}/index.php";
-apacheuser="apache";
+webredirect="${webdirdest}/index.php"
+apacheuser="apache"
 apachelogdir="/var/log/httpd"
 apacheerrlog="$apachelogdir/error_log"
 apacheacclog="$apachelogdir/access_log"
-etcconf="/etc/httpd/conf.d/fog.conf";
+etcconf="/etc/httpd/conf.d/fog.conf"
 phpini="/etc/php.ini"
-
-# where do we store the image files?
-storage="/images";
-storageupload="/images/dev";
-
-# DHCP config file location
-dhcpconfig="/etc/dhcpd.conf";
-dhcpconfigother="/etc/dhcp/dhcpd.conf";
-
-# where do the tftp files go?
+storage="/images"
+storageupload="/images/dev"
+dhcpconfig="/etc/dhcpd.conf"
+dhcpconfigother="/etc/dhcp/dhcpd.conf"
 tftpdirdst="/tftpboot"
-
-# where is the tftpd config file?
-tftpconfig="/etc/xinetd.d/tftp";
-
-# where is the ftp server config file?
+tftpconfig="/etc/xinetd.d/tftp"
 ftpconfig="/etc/vsftpd/vsftpd.conf"
-
-# where do snapins go?
-snapindir="/opt/fog/snapins";
-
-# Distribution specific changes
-if [ "$linuxReleaseName" == "Mageia" ];
-then
-    #dhcpd package name
-    dhcpname="dhcp-server";
-    # where do the tftp files go?
-    tftpdirdst="/var/lib/tftpboot";
-    # NFS service name
-    # NFS Subtree Check needed
-    nfsexportsopts="no_subtree_check";
-fi
 dhcpd="dhcpd"
+snapindir="/opt/fog/snapins"

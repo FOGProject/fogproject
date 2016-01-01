@@ -13,13 +13,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
-#
-
-# Arch Config Settings
-
-# pacman packages to install
-#packages="apache php-apache php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc htmldoc perl perl-crypt-passwdmd5 lftp"
 packages="apache php-fpm php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc perl perl-crypt-passwd md5 lftp curl openssl openssh php-mcrypt"
 packageinstaller="pacman -Sy --noconfirm"
 packagelist="pacman -Si"
@@ -28,7 +21,6 @@ packmanUpdate="$packageinstaller"
 packageQuery="pacman -Q \$x"
 langPackages="iso-codes"
 dhcpname="dhcp"
-# where do the php files go?
 if [ -z "$docroot" ]; then
     docroot="/srv/http/"
     webdirdest="${docroot}fog/"
@@ -44,8 +36,8 @@ apacheerrlog="$apachelogdir/error_log"
 apacheacclog="$apachelogdir/access_log"
 etcconf="/etc/httpd/conf/extra/fog.conf"
 phpini="/etc/php/php.ini"
-initdpath="/usr/lib/systemd/system";
-initdsrc="../packages/systemd";
+initdpath="/usr/lib/systemd/system"
+initdsrc="../packages/systemd"
 if [[ -e /usr/lib/systemd/system/mariadb.service ]]; then
     ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysql.service >/dev/null 2>&1
     ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysqld.service >/dev/null 2>&1
@@ -55,29 +47,18 @@ elif [[ -e /usr/lib/systemd/system/mysqld.service ]]; then
     ln -s /usr/lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysql.service >/dev/null 2>&1
     ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service >/dev/null 2>&1
 fi
-initdMCfullname="FOGMulticastManager.service";
-initdIRfullname="FOGImageReplicator.service";
-initdSDfullname="FOGScheduler.service";
-initdSRfullname="FOGSnapinReplicator.service";
-initdPHfullname="FOGPingHosts.service";
-
-# where do we store the image files?
+initdMCfullname="FOGMulticastManager.service"
+initdIRfullname="FOGImageReplicator.service"
+initdSDfullname="FOGScheduler.service"
+initdSRfullname="FOGSnapinReplicator.service"
+initdPHfullname="FOGPingHosts.service"
 storage="/images"
 storageupload="/images/dev"
-
-# DHCP config file location
 dhcpconfig="/etc/dhcpd.conf"
 dhcpconfigother="/etc/dhcp/dhcpd.conf"
-
-# where do the tftp files go?
 tftpdirdst="/srv/tftp"
-
-# where is the tftpd config file?
 tftpconfig="/etc/xinetd.d/tftpd"
-
-# where is the ftp server config file?
 ftpxinetd="/etc/xinetd.d/vsftpd"
 ftpconfig="/etc/vsftpd.conf"
 dhcpd="dhcpd"
-# where do snapins go?
 snapindir="/opt/fog/snapins"
