@@ -349,25 +349,25 @@ display_center "################################################################
 display_center "#             https://wiki.fogproject.org/wiki/index.php             #"
 display_center "######################################################################"
 echo
-display_right "Here are the settings FOG will use:"
-display_right "Base Linux: $osname"
-display_right "Detected Linux Distribution: $linuxReleaseName"
-display_right "Server IP Address: $ipaddress"
-display_right "Interface: $interface"
+display_center "Here are the settings FOG will use:"
+display_center "Base Linux: $osname"
+display_center "Detected Linux Distribution: $linuxReleaseName"
+display_center "Server IP Address: $ipaddress"
+display_center "Interface: $interface"
 case $installtype in
     N)
-        display_right "Installation Type: Normal Server"
-        display_right "Donate: $donate"
-        display_right "Internationalization: $installlang"
-        display_right "Image Storage Location: $storageLocation"
+        display_center "Installation Type: Normal Server"
+        display_center "Donate: $donate"
+        display_center "Internationalization: $installlang"
+        display_center "Image Storage Location: $storageLocation"
         case $bldhcp in
             1)
-                display_right "Using FOG DHCP: Yes"
-                display_right "DHCP router Address: $plainrouter"
-                display_right "DHCP DNS Address: $dnsbootimage"
+                display_center "Using FOG DHCP: Yes"
+                display_center "DHCP router Address: $plainrouter"
+                display_center "DHCP DNS Address: $dnsbootimage"
                 ;;
             *)
-                display_right "Using FOG DHCP: No"
+                display_center "Using FOG DHCP: No"
                 display_center "DHCP will NOT be setup but you must setup your"
                 display_center "current DHCP server to use FOG for PXE services."
                 echo
@@ -440,7 +440,7 @@ while [[ -z $blGo ]]; do
                 if [[ -z $storageLocation ]]; then
                     storageLocation="/images"
                 fi
-            elif [[ ! -n $storageLocation && $autoaccept == "yes" ]]; then
+            elif [[ ! -n $storageLocation && $autoaccept == yes ]]; then
                 storageLocation="/images"
             fi
             if [[ $installtype == S ]]; then
