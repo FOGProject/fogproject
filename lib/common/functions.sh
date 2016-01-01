@@ -1169,23 +1169,23 @@ configureHttpd() {
                     ;;
                 *)
                     dummy=""
-                    echo "  Invalid input, please try again!"
+                    echo " * Invalid input, please try again!"
                     ;;
             esac
         done
     fi
-    if [ "$installtype" == "S" -o "$fogupdateloaded" = "1" ]; then
-        if [ ! -z "$snmysqlhost" -a "$snmysqlhost" != "$dbhost" ]; then
+    if [[ $installtype == S || $fogupdateloaded -eq 1 ]]; then
+        if [[ ! -z $snmysqlhost && $snmysqlhost != $dbhost ]]; then
             dbhost=$snmysqlhost
-        elif [ ! -z "$snmysqlhost" ]; then
-            dbhost="p:127.0.0.1"
+        elif [[ ! -z $snmysqlhost ]]; then
+            dbhost="p:localhost"
         fi
     fi
-    if [ ! -z "$snmysqluser" -a "$snmysqluser" != "$dbuser" ]; then
+    if [[ ! -z $snmysqluser && $snmysqluser != $dbuser ]]; then
         dbuser=$snmysqluser
     fi
     dots "Setting up Apache and PHP files"
-    if [ "$osid" -eq 3 ]; then
+    if [[ $osid -eq 3 ]]; then
         echo -e "<FilesMatch \.php$>\n\tSetHandler \"proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/\"\n</FilesMatch>\n<IfModule dir_module>\n\tDirectoryIndex index.php index.html\n</IfModule>" >> /etc/httpd/conf/httpd.conf
         sed -i 's@#LoadModule ssl_module modules/mod_ssl.so@LoadModule ssl_module modules/mod_ssl.so@g' /etc/httpd/conf/httpd.conf >/dev/null 2>&1
         sed -i 's@#LoadModule socache_shmcb_module modules/mod_socache_shmcb.so@LoadModule socache_shmcb_module modules/mod_socache_shmcb.so@g' /etc/httpd/conf/httpd.conf >/dev/null 2>&1
@@ -1202,265 +1202,265 @@ configureHttpd() {
     sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' $phpini >/dev/null 2>&1
     errorStat $?
     dots "Testing and removing symbolic links if found"
-    if [ -h "/var/www/fog" ]; then
-        rm -f "/var/www/fog" >/dev/null 2>&1
-    else
-        true
+    if [[ -h /var/www/fog ]]; then
+        rm -f /var/www/fog >/dev/null 2>&1
     fi
-    if [ -h "/var/www/html/fog" ]; then
-        rm -f "/var/www/html/fog" >/dev/null 2>&1
-    else
-        true
+    if [[ -h /var/www/html/fog ]]; then
+        rm -f /var/www/html/fog >/dev/null 2>&1
     fi
     errorStat $?
     dots "Backing up old data"
-    if [ -d "$backupPath/fog_web_${version}.BACKUP" ]; then
-        rm -rf "$backupPath/fog_web_${version}.BACKUP" >/dev/null 2>&1
+    if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
+        rm -rf $backupPath/fog_web_${version}.BACKUP >/dev/null 2>&1
     fi
-    if [ -d "$webdirdest" ]; then
+    if [[ -d $webdirdest ]]; then
         cp -RT "$webdirdest" "${backupPath}/fog_web_${version}.BACKUP" >/dev/null 2>&1
         rm -rf "$webdirdest" >/dev/null 2>&1
     fi
-    if [ "$osid" == 2 ]; then
-        if [ -d "/var/www/fog" ]; then
+    if [[ $osid -eq 2 ]]; then
+        if [[ -d /var/www/fog ]]; then
             rm -rf /var/www/fog >/dev/null 2>&1
         fi
     fi
     mkdir -p "$webdirdest" >/dev/null 2>&1
-    if [ -d "/var/www" ] && [ ! -h "/var/www/fog" -o ! -d "/var/www/fog" ]; then
+    if [[ -d /var/www && ! -h /var/www/fog ]] || [[ ! -d /var/www/fog ]]; then
         ln -s $webdirdest  /var/www/fog >/dev/null 2>&1
     fi
     errorStat $?
-    if [ -d "${backupPath}/fog_web_${version}.BACKUP" ]; then
+    if [[ -d ${backupPath}/fog_web_${version}.BACKUP ]]; then
         dots "Copying back old web folder as is";
-        cp -Rf ${backupPath}/fog_web_${version}.BACKUP/* $webdirdest/;
+        cp -Rf ${backupPath}/fog_web_${version}.BACKUP/* $webdirdest/
         errorStat $?
-        dots "Ensuring all classes are lowercased";
-        for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php")
-        do
+        dots "Ensuring all classes are lowercased"
+        for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php"); do
             mv "$i" "$(echo $i | tr A-Z a-z)" >/dev/null 2>&1
         done
-        for i in $(find $webdirdest -type f -name "*[A-Z]*\.event\.php")
-        do
+        for i in $(find $webdirdest -type f -name "*[A-Z]*\.event\.php"); do
             mv "$i" "$(echo $i | tr A-Z a-z)" >/dev/null 2>&1
         done
-        for i in $(find $webdirdest -type f -name "*[A-Z]*\.hook\.php")
-        do
+        for i in $(find $webdirdest -type f -name "*[A-Z]*\.hook\.php"); do
             mv "$i" "$(echo $i | tr A-Z a-z)" >/dev/null 2>&1
         done
         errorStat $?
     fi
-    dots "Copying new files to web folder";
+    dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
     dots "Creating config file"
     echo "<?php
-    class Config {
+class Config {
     /** @function __construct() Calls the required functions to define items
-    * @return void
-    */
+     * @return void
+     */
     public function __construct() {
-    self::db_settings();
-    self::svc_setting();
-    if (\$_REQUEST['node'] == 'schemaupdater') self::init_setting();
+        self::db_settings();
+        self::svc_setting();
+        if (\$_REQUEST['node'] == 'schemaupdater') self::init_setting();
     }
     /** @function db_settings() Defines the database settings for FOG
-    * @return void
-    */
+     * @return void
+     */
     private static function db_settings() {
-    define('DATABASE_TYPE','mysql'); // mysql or oracle
-    define('DATABASE_HOST','$dbhost');
-    define('DATABASE_NAME','fog');
-    define('DATABASE_USERNAME','$dbuser');
-    define('DATABASE_PASSWORD','$snmysqlpass');
-}
-/** @function svc_setting() Defines the service settings
-* (e.g. FOGMulticastManager)
-* @return void
-*/
-private static function svc_setting() {
-define('UDPSENDERPATH','/usr/local/sbin/udp-sender');
-define('MULTICASTLOGPATH','/opt/fog/log/multicast.log');
-define('MULTICASTDEVICEOUTPUT','/dev/tty2');
-define('MULTICASTSLEEPTIME',10);
-define('MULTICASTINTERFACE','${interface}');
-define('UDPSENDER_MAXWAIT',null);
-define('LOGMAXSIZE',1000000);
-define('REPLICATORLOGPATH','/opt/fog/log/fogreplicator.log');
-define('REPLICATORDEVICEOUTPUT','/dev/tty3');
-define('REPLICATORSLEEPTIME', 600);
-define('REPLICATORIFCONFIG','/sbin/ifconfig');
-define('SCHEDULERLOGPATH','/opt/fog/log/fogscheduler.log');
-define('SCHEDULERDEVICEOUTPUT','/dev/tty4');
-define('SCHEDULERSLEEPTIME',60);
-define('SNAPINREPLOGPATH','/opt/fog/log/fogsnapinrep.log');
-define('SNAPINREPDEVICEOUTPUT','/dev/tty5');
-define('SNAPINREPSLEEPTIME',600);
-define('SERVICELOGPATH','/opt/fog/log/servicemaster.log');
-define('SERVICESLEEPTIME',3);
-define('PINGHOSTLOGPATH','/opt/fog/log/pinghosts.log');
-define('PINGHOSTDEVICEOUTPUT','/dev/tty5');
-define('PINGHOSTSLEEPTIME',300);
+        define('DATABASE_TYPE','mysql'); // mysql or oracle
+        define('DATABASE_HOST','$dbhost');
+        define('DATABASE_NAME','fog');
+        define('DATABASE_USERNAME','$dbuser');
+        define('DATABASE_PASSWORD','$snmysqlpass');
+    }
+    /** @function svc_setting() Defines the service settings
+     * (e.g. FOGMulticastManager)
+     * @return void
+     */
+    private static function svc_setting() {
+        define('UDPSENDERPATH','/usr/local/sbin/udp-sender');
+        define('MULTICASTLOGPATH','/opt/fog/log/multicast.log');
+        define('MULTICASTDEVICEOUTPUT','/dev/tty2');
+        define('MULTICASTSLEEPTIME',10);
+        define('MULTICASTINTERFACE','${interface}');
+        define('UDPSENDER_MAXWAIT',null);
+        define('LOGMAXSIZE',1000000);
+        define('REPLICATORLOGPATH','/opt/fog/log/fogreplicator.log');
+        define('REPLICATORDEVICEOUTPUT','/dev/tty3');
+        define('REPLICATORSLEEPTIME', 600);
+        define('REPLICATORIFCONFIG','/sbin/ifconfig');
+        define('SCHEDULERLOGPATH','/opt/fog/log/fogscheduler.log');
+        define('SCHEDULERDEVICEOUTPUT','/dev/tty4');
+        define('SCHEDULERSLEEPTIME',60);
+        define('SNAPINREPLOGPATH','/opt/fog/log/fogsnapinrep.log');
+        define('SNAPINREPDEVICEOUTPUT','/dev/tty5');
+        define('SNAPINREPSLEEPTIME',600);
+        define('SERVICELOGPATH','/opt/fog/log/servicemaster.log');
+        define('SERVICESLEEPTIME',3);
+        define('PINGHOSTLOGPATH','/opt/fog/log/pinghosts.log');
+        define('PINGHOSTDEVICEOUTPUT','/dev/tty5');
+        define('PINGHOSTSLEEPTIME',300);
     }
     /** @function init_setting() Initial values if fresh install are set here
-    * NOTE: These values are only used on initial
-    * installation to set the database values.
-    * If this is an upgrade, they do not change
-    * the values within the Database.
-    * Please use FOG Configuration->FOG Settings
-    * to change these values after everything is
-    * setup.
-    * @return void
-    */
+     * NOTE: These values are only used on initial
+     * installation to set the database values.
+     * If this is an upgrade, they do not change
+     * the values within the Database.
+     * Please use FOG Configuration->FOG Settings
+     * to change these values after everything is
+     * setup.
+     * @return void
+     */
     private static function init_setting() {
-    define('TFTP_HOST', \"${ipaddress}\");
-    define('TFTP_FTP_USERNAME', \"${username}\");
-    define('TFTP_FTP_PASSWORD', \"${password}\");
-    define('TFTP_PXE_KERNEL_DIR', \"${webdirdest}/service/ipxe/\");
-    define('PXE_KERNEL', 'bzImage');
-    define('PXE_KERNEL_RAMDISK',127000);
-    define('USE_SLOPPY_NAME_LOOKUPS',true);
-    define('MEMTEST_KERNEL', 'memtest.bin');
-    define('PXE_IMAGE', 'init.xz');
-    define('PXE_IMAGE_DNSADDRESS', \"${dnsbootimage}\");
-    define('STORAGE_HOST', \"${ipaddress}\");
-    define('STORAGE_FTP_USERNAME', \"${username}\");
-    define('STORAGE_FTP_PASSWORD', \"${password}\");
-    define('STORAGE_DATADIR', '${storageLocation}/');
-    define('STORAGE_DATADIR_UPLOAD', '${storageLocation}/dev/');
-    define('STORAGE_BANDWIDTHPATH', '/${webroot}status/bandwidth.php');
-    define('STORAGE_INTERFACE','${interface}');
-    define('UPLOADRESIZEPCT',5);
-    define('WEB_HOST', \"${ipaddress}\");
-    define('WOL_HOST', \"${ipaddress}\");
-    define('WOL_PATH', '/${webroot}wol/wol.php');
-    define('WOL_INTERFACE', \"${interface}\");
-    define('SNAPINDIR', \"${snapindir}/\");
-    define('QUEUESIZE', '10');
-    define('CHECKIN_TIMEOUT',600);
-    define('USER_MINPASSLENGTH',4);
-    define('USER_VALIDPASSCHARS','1234567890ABCDEFGHIJKLMNOPQRSTUVWZXYabcdefghijklmnopqrstuvwxyz_()^!#-');
-    define('NFS_ETH_MONITOR', \"${interface}\");
-    define('UDPCAST_INTERFACE', \"${interface}\");
-    define('UDPCAST_STARTINGPORT', 63100 ); // Must be an even number! recommended between 49152 to 65535
-    define('FOG_MULTICAST_MAX_SESSIONS',64);
-    define('FOG_JPGRAPH_VERSION', '2.3');
-    define('FOG_REPORT_DIR', './reports/');
-    define('FOG_UPLOADIGNOREPAGEHIBER',true);
-    define('FOG_DONATE_MINING', \"${donate}\");
-}
- }" > "${webdirdest}/lib/fog/config.class.php"
- errorStat $?
- dots "Downloading inits, kernels, and the fog client"
- clientVer="`awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]'`"
- clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
- curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >/dev/null 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl >/dev/null 2>&1
- errorStat $?
- if [ "$osid" -eq 2 ]; then
-     php -m | grep mysqlnd >/dev/null 2>&1
-     if [ "$?" != 0 ]; then
-         php5enmod mysqlnd >/dev/null 2>&1
-         if [ "$?" != 0 ]; then
-             if [ -e "/etc/php5/conf.d/mysqlnd.ini" ]; then
-                 cp -f "/etc/php5/conf.d/mysqlnd.ini" "/etc/php5/mods-available/php5-mysqlnd.ini" >/dev/null 2>&1
-                 php5enmod mysqlnd >/dev/null 2>&1
-             fi
-         fi
-     fi
-     php -m | grep mcrypt >/dev/null 2>&1
-     if [ "$?" != 0 ]; then
-         php5enmod mcrypt >/dev/null 2>&1
-         if [ "$?" != 0 ]; then
-             if [ -e "/etc/php5/conf.d/mcrypt.ini" ]; then
-                 cp -f "/etc/php5/conf.d/mcrypt.ini" "/etc/php5/mods-available/php5-mcrypt.ini" >/dev/null 2>&1
-                 php5enmod mcrypt >/dev/null 2>&1
-             fi
-         fi
-     fi
-     cp /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/ >/dev/null 2>&1
- fi
- dots "Enabling apache and fpm services on boot"
- if [ "$osid" -eq 2 ]; then
-     if [ "$systemctl" == "yes" ]; then
-         systemctl enable apache2 >/dev/null 2>&1
-         systemctl enable php5-fpm >/dev/null 2>&1
-     else
-         sysv-rc-conf apache2 on >/dev/null 2>&1
-         sysv-rc-conf php5-fpm on >/dev/null 2>&1
-     fi
- elif [ "$systemctl" == "yes" ]; then
-     systemctl enable httpd php-fpm >/dev/null 2>&1
- else
-     chkconfig php-fpm on >/dev/null 2>&1
-     chkconfig httpd on >/dev/null 2>&1
- fi
- errorStat $?
- createSSLCA
- dots "Changing permissions on apache log files"
- chmod +rx $apachelogdir
- chmod +rx $apacheerrlog
- chmod +rx $apacheacclog
- chown -R ${apacheuser}:${apacheuser} $webdirdest
- errorStat $?
- rm -f "$webdirdest/mobile/css/font-awesome.css" $webdirdest/mobile/{fonts,less,scss} &>/dev/null 2>&1;
- ln -s "$webdirdest/management/css/font-awesome.css" "$webdirdest/mobile/css/font-awesome.css";
- ln -s "$webdirdest/management/fonts" "$webdirdest/mobile/";
- ln -s "$webdirdest/management/less" "$webdirdest/mobile/";
- ln -s "$webdirdest/management/scss" "$webdirdest/mobile/";
- chown -R ${apacheuser}:${apacheuser} "$webdirdest"
+        define('TFTP_HOST', \"${ipaddress}\");
+        define('TFTP_FTP_USERNAME', \"${username}\");
+        define('TFTP_FTP_PASSWORD', \"${password}\");
+        define('TFTP_PXE_KERNEL_DIR', \"${webdirdest}/service/ipxe/\");
+        define('PXE_KERNEL', 'bzImage');
+        define('PXE_KERNEL_RAMDISK',127000);
+        define('USE_SLOPPY_NAME_LOOKUPS',true);
+        define('MEMTEST_KERNEL', 'memtest.bin');
+        define('PXE_IMAGE', 'init.xz');
+        define('PXE_IMAGE_DNSADDRESS', \"${dnsbootimage}\");
+        define('STORAGE_HOST', \"${ipaddress}\");
+        define('STORAGE_FTP_USERNAME', \"${username}\");
+        define('STORAGE_FTP_PASSWORD', \"${password}\");
+        define('STORAGE_DATADIR', '${storageLocation}/');
+        define('STORAGE_DATADIR_UPLOAD', '${storageLocation}/dev/');
+        define('STORAGE_BANDWIDTHPATH', '/${webroot}status/bandwidth.php');
+        define('STORAGE_INTERFACE','${interface}');
+        define('UPLOADRESIZEPCT',5);
+        define('WEB_HOST', \"${ipaddress}\");
+        define('WOL_HOST', \"${ipaddress}\");
+        define('WOL_PATH', '/${webroot}wol/wol.php');
+        define('WOL_INTERFACE', \"${interface}\");
+        define('SNAPINDIR', \"${snapindir}/\");
+        define('QUEUESIZE', '10');
+        define('CHECKIN_TIMEOUT',600);
+        define('USER_MINPASSLENGTH',4);
+        define('USER_VALIDPASSCHARS','1234567890ABCDEFGHIJKLMNOPQRSTUVWZXYabcdefghijklmnopqrstuvwxyz_()^!#-');
+        define('NFS_ETH_MONITOR', \"${interface}\");
+        define('UDPCAST_INTERFACE', \"${interface}\");
+        define('UDPCAST_STARTINGPORT', 63100 ); // Must be an even number! recommended between 49152 to 65535
+        define('FOG_MULTICAST_MAX_SESSIONS',64);
+        define('FOG_JPGRAPH_VERSION', '2.3');
+        define('FOG_REPORT_DIR', './reports/');
+        define('FOG_UPLOADIGNOREPAGEHIBER',true);
+        define('FOG_DONATE_MINING', \"${donate}\");
+    }
+}" > "${webdirdest}/lib/fog/config.class.php"
+    errorStat $?
+    dots "Downloading inits, kernels, and the fog client"
+    clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+
+    clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
+    curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >/dev/null 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl >/dev/null 2>&1
+    errorStat $?
+    if [[ $osid -eq 2 ]]; then
+        php -m | grep mysqlnd >/dev/null 2>&1
+        if [[ ! $? -eq 0 ]]; then
+            php5enmod mysqlnd >/dev/null 2>&1
+            if [[ ! $? -eq 0 ]]; then
+                if [[ -e /etc/php5/conf.d/mysqlnd.ini ]]; then
+                    cp -f "/etc/php5/conf.d/mysqlnd.ini" "/etc/php5/mods-available/php5-mysqlnd.ini" >/dev/null 2>&1
+                    php5enmod mysqlnd >/dev/null 2>&1
+                fi
+            fi
+        fi
+        php -m | grep mcrypt >/dev/null 2>&1
+        if [[ ! $? -eq 0 ]]; then
+            php5enmod mcrypt >/dev/null 2>&1
+            if [[ ! $? -eq 0 ]]; then
+                if [[ -e /etc/php5/conf.d/mcrypt.ini ]]; then
+                    cp -f "/etc/php5/conf.d/mcrypt.ini" "/etc/php5/mods-available/php5-mcrypt.ini" >/dev/null 2>&1
+                    php5enmod mcrypt >/dev/null 2>&1
+                fi
+            fi
+        fi
+        cp /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/ >/dev/null 2>&1
+    fi
+    dots "Enabling apache and fpm services on boot"
+    if [[ $osid -eq 2 ]]; then
+        if [[ $systemctl == yes ]]; then
+            systemctl enable apache2 >/dev/null 2>&1
+            systemctl enable php5-fpm >/dev/null 2>&1
+        else
+            sysv-rc-conf apache2 on >/dev/null 2>&1
+            sysv-rc-conf php5-fpm on >/dev/null 2>&1
+        fi
+    elif [[ $systemctl == yes ]]; then
+        systemctl enable httpd php-fpm >/dev/null 2>&1
+    else
+        chkconfig php-fpm on >/dev/null 2>&1
+        chkconfig httpd on >/dev/null 2>&1
+    fi
+    errorStat $?
+    createSSLCA
+    dots "Changing permissions on apache log files"
+    chmod +rx $apachelogdir
+    chmod +rx $apacheerrlog
+    chmod +rx $apacheacclog
+    chown -R ${apacheuser}:${apacheuser} $webdirdest
+    errorStat $?
+    rm -f "$webdirdest/mobile/css/font-awesome.css" $webdirdest/mobile/{fonts,less,scss} &>/dev/null 2>&1
+    ln -s "$webdirdest/management/css/font-awesome.css" "$webdirdest/mobile/css/font-awesome.css"
+    ln -s "$webdirdest/management/fonts" "$webdirdest/mobile/"
+    ln -s "$webdirdest/management/less" "$webdirdest/mobile/"
+    ln -s "$webdirdest/management/scss" "$webdirdest/mobile/"
+    chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 }
 configureDHCP() {
     dots "Setting up and starting DHCP Server"
-    if [ -f "$dhcpconfig" ]; then
-        mv "$dhcpconfig" "${dhcpconfig}.fogbackup"
-    fi
-    serverip=`/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}'`
-    if [ -z "$serverip" ]; then
-        serverip=`/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1`
-    fi
-    network=`mask2network $serverip $submask`
-    networkbase=`echo "$serverip" | cut -d. -f1-3`
-    if [ -z "$startrange" ]; then
-        startrange="${networkbase}.10"
-    fi
-    if [ -z "$endrange" ]; then
-        endrange="${networkbase}.254"
-    fi
-    dhcptouse="$dhcpconfig"
-    if [ -f "${dhcpconfigother}" ]; then
-        dhcptouse="$dhcpconfigother"
-    fi
-    if [ -z "$bootfilename" ]; then
-        bootfilename="undionly.kpxe";
-    fi
-    if [ "$bldhcp" -eq 1 ]; then
-        echo -e "# DHCP Server Configuration file\n#see /usr/share/doc/dhcp*/dhcpd.conf.sample\n# This file was created by FOG\n\n#Definition of PXE-specific options\n# Code 1: Multicast IP Address of bootfile\n# Code 2: UDP Port that client should monitor for MTFTP Responses\n# Code 3: UDP Port that MTFTP servers are using to listen for MTFTP requests\n# Code 4: Number of seconds a client must listen for activity before trying\n#         to start a new MTFTP transfer\n# Code 5: Number of seconds a client must listen before trying to restart\n#         a MTFTP transfer\n\n" > "$dhcptouse"
-        echo -e "option space PXE;\noption PXE.mtftp-ip code 1 = ip-address;\noption PXE.mtftp-cport code 2 = unsigned integer 16;\noption PXE.mtftp-sport code 3 = unsigned integer 16;\noption PXE.mtftp-tmout code 4 = unsigned integer 8;\noption PXE.mtftp-delay code 5 = unsigned integer 8;\noption arch code 93 = unsigned integer 16; # RFC4578\n\n" >> "$dhcptouse"
-        echo -e "use-host-decl-names on;\nddns-update-style interim;\nignore client-updates;\nnext-server $ipaddress;\n\n" >> "$dhcptouse"
-        echo -e "# Specify subnet of ether device you do NOT want service. for systems with\n# two or more ethernet devices.\n# subnet 136.165.0.0 netmask 255.255.0.0 {}\n\n" >> "$dhcptouse"
-        echo -e "subnet $network netmask $submask {\n\toption subnet-mask $submask;\n\trange dynamic-bootp $startrange $endrange;\n\tdefault-lease-time 21600;\n\tmax-lease-time 43200;\n\t$dnsaddress\n\t$routeraddress\n\tfilename \"$bootfilename\";\n}" >> "$dhcptouse";
-        if [ "$systemctl" == "yes" ]; then
-            systemctl enable $dhcpd >/dev/null 2>&1
-            systemctl restart $dhcpd >/dev/null 2>&1
-            sleep 2
-            systemctl status $dhcpd >/dev/null 2>&1
-            if [ "$?" != 0 -a "$osid" -eq 2 ]; then
-                sysv-rc-conf ${dhcpd} on >/dev/null 2>&1
-                /etc/init.d/${dhcpd} stop >/dev/null 2>&1
-                /etc/init.d/${dhcpd} start >/dev/null 2>&1
+    case $bldhcp in
+        1)
+            if [[ -f $dhcpconfig ]]; then
+                mv $dhcpconfig ${dhcpconfig}.fogbackup
             fi
-        elif [ "$osid" -eq 1 ]; then
-            chkconfig $dhcpd on >/dev/null 2>&1
-            service $dhcpd restart >/dev/null 2>&1
-            sleep 2
-            systemctl status $dhcpd >/dev/null 2>&1
-        elif [ "$osid" -eq 2 ]; then
-            sysv-rc-conf ${dhcpd} on >/dev/null 2>&1
-            /etc/init.d/${dhcpd} stop >/dev/null 2>&1
-            /etc/init.d/${dhcpd} start >/dev/null 2>&1
-        fi
-        errorStat $?
-    else
-        echo "Skipped"
-    fi
+            serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
+            if [[ -z $serverip ]]; then
+                serverip=$(/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
+            fi
+            network=$(mask2network $serverip $submask)
+            networkbase=$(echo $serverip | cut -d. -f1-3)
+            if [[ -z $startrange ]]; then
+                startrange="${networkbase}.10"
+            fi
+            if [[ -z $endrange ]]; then
+                endrange="${networkbase}.254"
+            fi
+            dhcptouse=$dhcpconfig
+            if [[ -f $dhcpconfigother ]]; then
+                dhcptouse=$dhcpconfigother
+            fi
+            if [[ -z $bootfilename ]]; then
+                bootfilename="undionly.kpxe"
+            fi
+            echo -e "# DHCP Server Configuration file\n#see /usr/share/doc/dhcp*/dhcpd.conf.sample\n# This file was created by FOG\n\n#Definition of PXE-specific options\n# Code 1: Multicast IP Address of bootfile\n# Code 2: UDP Port that client should monitor for MTFTP Responses\n# Code 3: UDP Port that MTFTP servers are using to listen for MTFTP requests\n# Code 4: Number of seconds a client must listen for activity before trying\n#         to start a new MTFTP transfer\n# Code 5: Number of seconds a client must listen before trying to restart\n#         a MTFTP transfer\n\n" > "$dhcptouse"
+            echo -e "option space PXE;\noption PXE.mtftp-ip code 1 = ip-address;\noption PXE.mtftp-cport code 2 = unsigned integer 16;\noption PXE.mtftp-sport code 3 = unsigned integer 16;\noption PXE.mtftp-tmout code 4 = unsigned integer 8;\noption PXE.mtftp-delay code 5 = unsigned integer 8;\noption arch code 93 = unsigned integer 16; # RFC4578\n\n" >> "$dhcptouse"
+            echo -e "use-host-decl-names on;\nddns-update-style interim;\nignore client-updates;\nnext-server $ipaddress;\n\n" >> "$dhcptouse"
+            echo -e "# Specify subnet of ether device you do NOT want service. for systems with\n# two or more ethernet devices.\n# subnet 136.165.0.0 netmask 255.255.0.0 {}\n\n" >> "$dhcptouse"
+            echo -e "subnet $network netmask $submask {\n\toption subnet-mask $submask;\n\trange dynamic-bootp $startrange $endrange;\n\tdefault-lease-time 21600;\n\tmax-lease-time 43200;\n\t$dnsaddress\n\t$routeraddress\n\tfilename \"$bootfilename\";\n}" >> "$dhcptouse"
+            case $systemctl in
+                yes)
+                    systemctl enable $dhcpd >/dev/null 2>&1
+                    systemctl restart $dhcpd >/dev/null 2>&1
+                    sleep 2
+                    systemctl status $dhcpd >/dev/null 2>&1
+                    ;;
+                *)
+                    case $osid in
+                        1)
+                            chkconfig $dhcpd on >/dev/null 2>&1
+                            service $dhcpd restart >/dev/null 2>&1
+                            sleep 2
+                            service status $dhcpd >/dev/null 2>&1
+                            ;;
+                        2)
+                            sysv-rc-conf $dhcpd on >/dev/null 2>&1
+                            /etc/init.d/$dhcpd stop >/dev/null 2>&1
+                            /etc/init.d/$dhcpd start >/dev/null 2>&1
+                            ;;
+                    esac
+                    ;;
+            esac
+            errorStat $?
+            ;;
+        *)
+            echo "Skipped"
+            ;;
+    esac
 }
