@@ -224,17 +224,17 @@ configureUDPCast() {
     cp -Rf "$udpcastsrc" "$udpcasttmp"
     cur=$(pwd)
     cd /tmp
-    tar xvzf "$udpcasttmp"  2>>/var/log/fog_error_${version}.log 2>&1
+    tar xvzf "$udpcasttmp"  2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     cd $udpcastout
     errorStat $?
     dots "Configuring UDPCast"
-    ./configure 2>>/var/log/fog_error_${version}.log 2>&1
+    ./configure 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     errorStat $?
     dots "Building UDPCast"
-    make 2>>/var/log/fog_error_${version}.log 2>&1
+    make 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     errorStat $?
     dots "Installing UDPCast"
-    make install 2>>/var/log/fog_error_${version}.log 2>&1
+    make install 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     errorStat $?
     cd $cur
 }
@@ -262,26 +262,26 @@ configureFTP() {
         yes)
             case $osid in
                 2)
-                    sysv-rc-conf vsftpd on 2>>/var/log/fog_error_${version}.log 2>&1
-                    service vsftpd stop 2>>/var/log/fog_error_${version}.log 2>&1
-                    service vsftpd start 2>>/var/log/fog_error_${version}.log 2>&1
+                    sysv-rc-conf vsftpd on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    service vsftpd stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    service vsftpd start 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     sleep 2
-                    service vsftpd status 2>>/var/log/fog_error_${version}.log 2>&1
+                    service vsftpd status 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
                 *)
-                    systemctl enable vsftpd 2>>/var/log/fog_error_${version}.log 2>&1
-                    systemctl restart vsftpd 2>>/var/log/fog_error_${version}.log 2>&1
+                    systemctl enable vsftpd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    systemctl restart vsftpd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     sleep 2
-                    systemctl status vsftpd 2>>/var/log/fog_error_${version}.log 2>&1
+                    systemctl status vsftpd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
             esac
             ;;
         *)
-            chkconfig vsftpd on 2>>/var/log/fog_error_${version}.log 2>&1
-            service vsftpd stop 2>>/var/log/fog_error_${version}.log 2>&1
-            service vsftpd start 2>>/var/log/fog_error_${version}.log 2>&1
+            chkconfig vsftpd on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+            service vsftpd stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+            service vsftpd start 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             sleep 2
-            service vsftpd status 2>>/var/log/fog_error_${version}.log 2>&1
+            service vsftpd status 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             ;;
     esac
     errorStat $?
@@ -293,59 +293,59 @@ configureDefaultiPXEfile() {
 configureTFTPandPXE() {
     dots "Setting up and starting TFTP and PXE Servers"
     if [[ -d ${tftpdirdst}.prev ]]; then
-        rm -rf ${tftpdirdst}.prev 2>>/var/log/fog_error_${version}.log 2>&1
+        rm -rf ${tftpdirdst}.prev 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     if [[ -d $tftpdirdst ]]; then
-        rm -rf ${tftpdirdst}.fogbackup 2>>/var/log/fog_error_${version}.log 2>&1
-        mv $tftpdirdst ${tftpdirdst}.prev 2>>/var/log/fog_error_${version}.log 2>&1
+        rm -rf ${tftpdirdst}.fogbackup 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        mv $tftpdirdst ${tftpdirdst}.prev 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
-    mkdir -p $tftpdirdst 2>>/var/log/fog_error_${version}.log 2>&1
-    cp -Rf $tftpdirsrc/* $tftpdirdst/ 2>>/var/log/fog_error_${version}.log 2>&1
-    chown -R $username $tftpdirdst 2>>/var/log/fog_error_${version}.log 2>&1
-    chown -R $username $webdirdest/service/ipxe 2>>/var/log/fog_error_${version}.log 2>&1
+    mkdir -p $tftpdirdst 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+    cp -Rf $tftpdirsrc/* $tftpdirdst/ 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+    chown -R $username $tftpdirdst 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+    chown -R $username $webdirdest/service/ipxe 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     find $tftpdirdst -type d -exec chmod 755 {} \;
     find $webdirdest -type d -exec chmod 755 {} \;
     find $tftpdirdst ! -type d -exec chmod 644 {} \;
     configureDefaultiPXEfile
     if [[ -f $tftpconfig ]]; then
-        mv $tftpconfig ${tftpconfig}.fogbackup 2>>/var/log/fog_error_${version}.log 2>&1
+        mv $tftpconfig ${tftpconfig}.fogbackup 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#	protocol.  The tftp protocol is often used to boot diskless \n#	workstations, download configuration files to network-aware printers, \n#	and to start the installation process for some operating systems.\nservice tftp\n{\n	socket_type		= dgram\n	protocol		= udp\n	wait			= yes\n	user			= root\n	server			= /usr/sbin/in.tftpd\n	server_args		= -s ${tftpdirdst}\n	disable			= no\n	per_source		= 11\n	cps			= 100 2\n	flags			= IPv4\n}" > "$tftpconfig"
     case $systemctl in
         yes)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
                 echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"-s\"" > "$tftpconfigupstartdefaults"
-                systemctl disable xinetd 2>>/var/log/fog_error_${version}.log 2>&1
-                systemctl stop xinetd 2>>/var/log/fog_error_${version}.log 2>&1
-                systemctl enable tftpd-hpa 2>>/var/log/fog_error_${version}.log 2>&1
-                systemctl restart tftpd-hpa 2>>/var/log/fog_error_${version}.log 2>&1
+                systemctl disable xinetd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                systemctl stop xinetd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                systemctl enable tftpd-hpa 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                systemctl restart tftpd-hpa 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 sleep 2
-                systemctl status tftpd-hpa 2>>/var/log/fog_error_${version}.log 2>&1
+                systemctl status tftpd-hpa 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             else
-                systemctl enable xinetd 2>>/var/log/fog_error_${version}.log 2>&1
-                systemctl restart xinetd 2>>/var/log/fog_error_${version}.log 2>&1
+                systemctl enable xinetd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                systemctl restart xinetd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 sleep 2
-                systemctl status xinetd 2>>/var/log/fog_error_${version}.log 2>&1
+                systemctl status xinetd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             fi
             ;;
         *)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
                 echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"-s\"" > "$tftpconfigupstartdefaults"
-                sysv-rc-conf xinetd off 2>>/var/log/fog_error_${version}.log 2>&1
-                service xinetd stop 2>>/var/log/fog_error_${version}.log 2>&1
-                sysv-rc-conf tftpd-hpa on 2>>/var/log/fog_error_${version}.log 2>&1
-                service tftpd-hpa stop 2>>/var/log/fog_error_${version}.log 2>&1
+                sysv-rc-conf xinetd off 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                service xinetd stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                sysv-rc-conf tftpd-hpa on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                service tftpd-hpa stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 sleep 2
-                service tftpd-hpa start 2>>/var/log/fog_error_${version}.log 2>&1
+                service tftpd-hpa start 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             elif [[ $osid -eq 2 ]]; then
-                sysv-rc-conf xinetd on 2>>/var/log/fog_error_${version}.log 2>&1
-                $initdpath/xinetd stop 2>>/var/log/fog_error_${version}.log 2>&1
-                $initdpath/xinetd start 2>>/var/log/fog_error_${version}.log 2>&1
+                sysv-rc-conf xinetd on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                $initdpath/xinetd stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                $initdpath/xinetd start 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             else
-                chkconfig xinetd on 2>>/var/log/fog_error_${version}.log 2>&1
-                service xinetd restart 2>>/var/log/fog_error_${version}.log 2>&1
+                chkconfig xinetd on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                service xinetd restart 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 sleep 2
-                service xinetd status 2>>/var/log/fog_error_${version}.log 2>&1
+                service xinetd status 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             fi
             ;;
     esac
@@ -359,7 +359,7 @@ installPackages() {
     dots "Adding needed repository"
     case $osid in
         1)
-            $packageinstaller epel-release 2>>/var/log/fog_error_${version}.log 2>&1
+            $packageinstaller epel-release 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             case $linuxReleaseName in
                 *[Ff][Ee][Dd][Oo][Rr][Aa]*)
                     repo="fedora"
@@ -369,8 +369,8 @@ installPackages() {
                     ;;
             esac
             if [[ -d /etc/yum.repos.d/ && ! -f /etc/yum.repos.d/remi.repo ]]; then
-                rpm -Uvh http://rpms.famillecollet.com/$repo/remi-release-${OSVersion}.rpm 2>>/var/log/fog_error_${version}.log 2>&1
-                rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi 2>>/var/log/fog_error_${version}.log 2>&1
+                rpm -Uvh http://rpms.famillecollet.com/$repo/remi-release-${OSVersion}.rpm 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             fi
             ;;
         2)
@@ -378,22 +378,22 @@ installPackages() {
                 *[Dd][Ee][Bb][Ii][Aa][Nn]*)
                     if [[ $OSVersion -eq 7 ]]; then
                         debcode="wheezy"
-                        grep -l "deb http://packages.dotdeb.org $debcode-php56 all" "/etc/apt/sources.list" 2>>/var/log/fog_error_${version}.log 2>&1
+                        grep -l "deb http://packages.dotdeb.org $debcode-php56 all" "/etc/apt/sources.list" 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                         if [[ $? != 0 ]]; then
                             echo -e "deb http://packages.dotdeb.org $debcode-php56 all\ndeb-src http://packages.dotdeb.org $debcode-php56 all\n" >> "/etc/apt/sources.list"
                         fi
                     fi
                     ;;
                 *)
-                    DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common 2>>/var/log/fog_error_${version}.log 2>&1
-                    ntpdate pool.ntp.org 2>>/var/log/fog_error_${version}.log 2>&1
-                    add-apt-repository -y ppa:ondrej/php5-5.6 2>>/var/log/fog_error_${version}.log 2>&1
+                    DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    ntpdate pool.ntp.org 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    add-apt-repository -y ppa:ondrej/php5-5.6 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     if [[ $? != 0 ]]; then
-                        apt-get update 2>>/var/log/fog_error_${version}.log 2>&1
-                        apt-get -yq install python-software-properties ntpdate 2>>/var/log/fog_error_${version}.log 2>&1
-                        ntpdate pool.ntp.org 2>>/var/log/fog_error_${version}.log 2>&1
-                        locale-gen 'en_US.UTF-8' 2>>/var/log/fog_error_${version}.log 2>&1
-                        LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/php5-5.6 2>>/var/log/fog_error_${version}.log 2>&1
+                        apt-get update 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                        apt-get -yq install python-software-properties ntpdate 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                        ntpdate pool.ntp.org 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                        locale-gen 'en_US.UTF-8' 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                        LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/php5-5.6 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     fi
                     ;;
             esac
@@ -401,15 +401,15 @@ installPackages() {
     esac
     errorStat $?
     dots "Preparing Package Manager"
-    $packmanUpdate 2>>/var/log/fog_error_${version}.log 2>&1
+    $packmanUpdate 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     if [[ $osid -eq 2 ]]; then
         if [[ $? != 0 ]] && [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
             cp /etc/apt/sources.list /etc/apt/sources.list.original_fog_$(date +%s)
             sed -i -e 's/\/\/*archive.ubuntu.com\|\/\/*security.ubuntu.com/\/\/old-releases.ubuntu.com/g' /etc/apt/sources.list
-            $packmanUpdate 2>>/var/log/fog_error_${version}.log 2>&1
+            $packmanUpdate 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             if [[ $? != 0 ]]; then
-                cp -f /etc/apt/sources.list.original_fog /etc/apt/sources.list 2>>/var/log/fog_error_${version}.log 2>&1
-                rm -f /etc/apt/sources.list.original_fog 2>>/var/log/fog_error_${version}.log 2>&1
+                cp -f /etc/apt/sources.list.original_fog /etc/apt/sources.list 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                rm -f /etc/apt/sources.list.original_fog 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 false
             fi
         fi
@@ -422,7 +422,7 @@ installPackages() {
         case $x in
             mysql)
                 for sqlclient in $sqlclientlist; do
-                    eval $packagelist $sqlclient 2>>/var/log/fog_error_${version}.log 2>&1
+                    eval $packagelist $sqlclient 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$sqlclient
                         break
@@ -431,7 +431,7 @@ installPackages() {
                 ;;
             mysql-server)
                 for sqlserver in $sqlserverlist; do
-                    eval $packagelist $sqlserver 2>>/var/log/fog_error_${version}.log 2>&1
+                    eval $packagelist $sqlserver 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$sqlserver
                         break
@@ -440,7 +440,7 @@ installPackages() {
                 ;;
             php5-json)
                 for json in $jsontest; do
-                    eval $packagelist $json 2>>/var/log/fog_error_${version}.log 2>&1
+                    eval $packagelist $json 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$json
                         break
@@ -449,19 +449,19 @@ installPackages() {
                 ;;
         esac
         newPackList="$newPackList $x"
-        eval $packageQuery 2>>/var/log/fog_error_${version}.log 2>&1
+        eval $packageQuery 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         if [[ $? -eq 0 ]]; then
             dots "Skipping package: $x"
             echo "(Already Installed)"
             continue
         fi
         dots "Installing package: $x"
-        eval "DEBIAN_FRONTEND=noninteractive $packageinstaller $x 2>>/var/log/fog_error_${version}.log 2>&1"
+        eval "DEBIAN_FRONTEND=noninteractive $packageinstaller $x 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1"
         errorStat $?
     done
     packages=$(trim $newPackList)
     dots "Updating packages as needed"
-    eval "DEBIAN_FRONTEND=noninteractive $packageupdater $packages 2>>/var/log/fog_error_${version}.log 2>&1"
+    eval "DEBIAN_FRONTEND=noninteractive $packageupdater $packages 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1"
     echo "OK"
 }
 confirmPackageInstallation() {
@@ -471,7 +471,7 @@ confirmPackageInstallation() {
             mysql)
                 for sqlclient in $sqlclientlist; do
                     x=$sqlclient
-                    eval $packageQuery 2>>/var/log/fog_error_${version}.log 2>&1
+                    eval $packageQuery 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     if [[ $? -eq 0 ]]; then
                         break
                     fi
@@ -480,7 +480,7 @@ confirmPackageInstallation() {
             mysql-server)
                 for sqlserver in $sqlserverlist; do
                     x=$sqlserver
-                    eval $packageQuery 2>>/var/log/fog_error_${version}.log 2>&1
+                    eval $packageQuery 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     if [[ $? -eq 0 ]]; then
                         break
                     fi
@@ -489,14 +489,14 @@ confirmPackageInstallation() {
             php5-json)
                 for json in $jsontest; do
                     x=$json
-                    eval $packageQuery 2>>/var/log/fog_error_${version}.log 2>&1
+                    eval $packageQuery 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     if [[ $? -eq 0 ]]; then
                         break
                     fi
                 done
                 ;;
         esac
-        eval $packageQuery 2>>/var/log/fog_error_${version}.log 2>&1
+        eval $packageQuery 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         errorStat $?
     done
 }
@@ -583,9 +583,9 @@ stopInitScript() {
     for serviceItem in $serviceList; do
         dots "Stopping $serviceItem Service"
         if [ "$systemctl" == "yes" ]; then
-            systemctl stop $serviceItem 2>>/var/log/fog_error_${version}.log 2>&1
+            systemctl stop $serviceItem 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         else
-            $initdpath/$serviceItem stop 2>>/var/log/fog_error_${version}.log 2>&1
+            $initdpath/$serviceItem stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         fi
         echo "OK"
     done
@@ -595,9 +595,9 @@ startInitScript() {
     for serviceItem in $serviceList; do
         dots "Starting $serviceItem Service"
         if [[ $systemctl == yes ]]; then
-            systemctl start $serviceItem 2>>/var/log/fog_error_${version}.log 2>&1
+            systemctl start $serviceItem 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         else
-            $initdpath/$serviceItem start 2>>/var/log/fog_error_${version}.log 2>&1
+            $initdpath/$serviceItem start 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         fi
         errorStat $?
     done
@@ -606,26 +606,26 @@ enableInitScript() {
     serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname"
     for serviceItem in $serviceList; do
         dots "Setting $serviceItem script executable"
-        chmod 755 $initdpath/$serviceItem 2>>/var/log/fog_error_${version}.log 2>&1
+        chmod 755 $initdpath/$serviceItem 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         errorStat $?
         dots "Enabling $serviceItem Service"
         case $systemctl in
             yes)
-                systemctl enable $serviceItem 2>>/var/log/fog_error_${version}.log 2>&1
+                systemctl enable $serviceItem 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 ;;
             *)
                 case $osid in
                     1)
-                        chkconfig $serviceItem on 2>>/var/log/fog_error_${version}.log 2>&1
+                        chkconfig $serviceItem on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                         ;;
                     2)
-                        sysv-rc-conf $serviceItem on 2>>/var/log/fog_error_${version}.log 2>&1
+                        sysv-rc-conf $serviceItem on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                         case $linuxReleaseName in
                             *[Bb][Uu][Nn][Tt][Uu]*)
-                                /usr/lib/insserv/insserv -d $initdpath/$serviceItem 2>>/var/log/fog_error_${version}.log 2>&1
+                                /usr/lib/insserv/insserv -d $initdpath/$serviceItem 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                                 ;;
                             *)
-                                insserv -d $initdpath/$serviceItem 2>>/var/log/fog_error_${version}.log 2>&1
+                                insserv -d $initdpath/$serviceItem 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                                 ;;
                         esac
                         ;;
@@ -637,7 +637,7 @@ enableInitScript() {
 }
 installInitScript() {
     dots "Installing FOG System Scripts"
-    cp -f $initdsrc/* $initdpath/ 2>>/var/log/fog_error_${version}.log 2>&1
+    cp -f $initdsrc/* $initdpath/ 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     errorStat $?
     echo
     echo
@@ -652,38 +652,38 @@ configureMySql() {
     if [[ $systemctl == yes ]]; then
         if [[ $osid -eq 3 ]]; then
             if [[ ! -d /var/lib/mysql ]]; then
-                mkdir /var/lib/mysql 2>>/var/log/fog_error_${version}.log 2>&1
+                mkdir /var/lib/mysql 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             fi
-            chown -R mysql:mysql /var/lib/mysql 2>>/var/log/fog_error_${version}.log 2>&1
-            mysql_install_db --user=mysql --ldata=/var/lib/mysql/ 2>>/var/log/fog_error_${version}.log 2>&1
+            chown -R mysql:mysql /var/lib/mysql 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+            mysql_install_db --user=mysql --ldata=/var/lib/mysql/ 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         fi
-        systemctl enable mysql.service 2>>/var/log/fog_error_${version}.log 2>&1
-        systemctl restart mysql.service 2>>/var/log/fog_error_${version}.log 2>&1
+        systemctl enable mysql.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        systemctl restart mysql.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         sleep 2
-        systemctl status mysql.service 2>>/var/log/fog_error_${version}.log 2>&1
+        systemctl status mysql.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         if [[ ! $? -eq 0 ]]; then
-            systemctl enable mysqld.service 2>>/var/log/fog_error_${version}.log 2>&1
-            systemctl restart mysqld.service 2>>/var/log/fog_error_${version}.log 2>&1
+            systemctl enable mysqld.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+            systemctl restart mysqld.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             sleep 2
-            systemctl status mysqld.service 2>>/var/log/fog_error_${version}.log 2>&1
+            systemctl status mysqld.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         fi
         if [[ ! $? -eq 0 ]]; then
-            systemctl enable mariadb.service 2>>/var/log/fog_error_${version}.log 2>&1
-            systemctl restart mariadb.service 2>>/var/log/fog_error_${version}.log 2>&1
+            systemctl enable mariadb.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+            systemctl restart mariadb.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             sleep 2
-            systemctl status mariadb.service 2>>/var/log/fog_error_${version}.log 2>&1
+            systemctl status mariadb.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         fi
     else
         case $osid in
             1)
-                chkconfig mysqld on 2>>/var/log/fog_error_${version}.log 2>&1
-                service mysqld restart 2>>/var/log/fog_error_${version}.log 2>&1
-                service mysqld status 2>>/var/log/fog_error_${version}.log 2>&1
+                chkconfig mysqld on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                service mysqld restart 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                service mysqld status 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 ;;
             2)
-                sysv-rc-conf mysql on 2>>/var/log/fog_error_${version}.log 2>&1
-                service mysql stop 2>>/var/log/fog_error_${version}.log 2>&1
-                service mysql start 2>>/var/log/fog_error_${version}.log 2>&1
+                sysv-rc-conf mysql on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                service mysql stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                service mysql start 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 ;;
         esac
     fi
@@ -691,10 +691,10 @@ configureMySql() {
 }
 configureFOGService() {
     if [[ ! -d $servicedst ]]; then
-        mkdir -p $servicedst 2>>/var/log/fog_error_${version}.log 2>&1
+        mkdir -p $servicedst 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     if [[ ! -d $servicedst/etc ]]; then
-        mkdir -p $servicedst/etc 2>>/var/log/fog_error_${version}.log 2>&1
+        mkdir -p $servicedst/etc 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     echo "<?php define('WEBROOT','${webdirdest}');" > $servicedst/etc/config.php
     startInitScript
@@ -708,16 +708,16 @@ configureNFS() {
         errorStat $?
         dots "Setting up and starting RPCBind"
         if [[ $systemctl == yes ]]; then
-            systemctl enable rpcbind.service 2>>/var/log/fog_error_${version}.log 2>&1
-            systemctl restart rpcbind.service 2>>/var/log/fog_error_${version}.log 2>&1
-            systemctl status rpcbind.service 2>>/var/log/fog_error_${version}.log 2>&1
+            systemctl enable rpcbind.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+            systemctl restart rpcbind.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+            systemctl status rpcbind.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         else
             case $osid in
                 1)
-                    chkconfig rpcbind on 2>>/var/log/fog_error_${version}.log 2>&1
-                    $initdpath/rpcbind restart 2>>/var/log/fog_error_${version}.log 2>&1
+                    chkconfig rpcbind on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    $initdpath/rpcbind restart 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     sleep 2
-                    $initdpath/rpcbind status 2>>/var/log/fog_error_${version}.log 2>&1
+                    $initdpath/rpcbind status 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
             esac
         fi
@@ -725,22 +725,22 @@ configureNFS() {
         dots "Setting up and starting NFS Server..."
         for nfsItem in $nfsservice; do
             if [[ $systemctl == yes ]]; then
-                systemctl enable $nfsItem 2>>/var/log/fog_error_${version}.log 2>&1
-                systemctl restart $nfsItem 2>>/var/log/fog_error_${version}.log 2>&1
+                systemctl enable $nfsItem 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                systemctl restart $nfsItem 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 sleep 2
-                systemctl status $nfsItem 2>>/var/log/fog_error_${version}.log 2>&1
+                systemctl status $nfsItem 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             else
                 case $osid in
                     1)
-                        chkconfig $nfsItem on 2>>/var/log/fog_error_${version}.log 2>&1
-                        $initdpath/$nfsItem restart 2>>/var/log/fog_error_${version}.log 2>&1
+                        chkconfig $nfsItem on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                        $initdpath/$nfsItem restart 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                         sleep 2
-                        $initdpath/$nfsItem status 2>>/var/log/fog_error_${version}.log 2>&1
+                        $initdpath/$nfsItem status 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                         ;;
                     2)
-                        sysv-rc-conf $nfsItem on 2>>/var/log/fog_error_${version}.log 2>&1
-                        $initdpath/nfs-kernel-server stop 2>>/var/log/fog_error_${version}.log 2>&1
-                        $initdpath/nfs-kernel-server start 2>>/var/log/fog_error_${version}.log 2>&1
+                        sysv-rc-conf $nfsItem on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                        $initdpath/nfs-kernel-server stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                        $initdpath/nfs-kernel-server start 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                         ;;
                 esac
             fi
@@ -753,7 +753,7 @@ configureNFS() {
 }
 configureSnapins() {
     dots "Setting up FOG Snapins"
-    mkdir -p $snapindir 2>>/var/log/fog_error_${version}.log 2>&1
+    mkdir -p $snapindir 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     if [[ -d $snapindir ]]; then
         chmod 775 $snapindir
         chown -R fog:$apacheuser $snapindir
@@ -779,14 +779,14 @@ configureUsers() {
             fi
         fi
         if [[ -n $password ]]; then
-            useradd -s "/bin/bash" -d "/home/${username}" $username 2>>/var/log/fog_error_${version}.log 2>&1
+            useradd -s "/bin/bash" -d "/home/${username}" $username 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             if [[ $? -eq 0 ]]; then
-                passwd $username 2>>/var/log/fog_error_${version}.log 2>&1 << EOF
+                passwd $username 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1 << EOF
 $password
 $password
 EOF
-                mkdir /home/$username 2>>/var/log/fog_error_${version}.log 2>&1
-                chown -R $username /home/$username 2>>/var/log/fog_error_${version}.log 2>&1
+                mkdir /home/$username 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                chown -R $username /home/$username 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 echo "OK"
             else
                 if [[ -f $webdirdest/lib/fog/config.class.php ]]; then
@@ -803,7 +803,7 @@ EOF
     if [[ -z $password && -z $storageftppass ]]; then
         dots "Setting password for FOG User"
         password=$(dd if=/dev/urandom bs=1 count=9 22>>/var/log/fog_error_${version}.log | base64)
-        passwd $username 2>>/var/log/fog_error_${version}.log 2>&1 << EOF
+        passwd $username 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1 << EOF
 $password
 $password
 EOF
@@ -817,39 +817,39 @@ EOF
 linkOptFogDir() {
     if [[ ! -h /var/log/fog ]]; then
         dots "Linking FOG Logs to Linux Logs"
-        ln -s /opt/fog/log /var/log/fog 2>>/var/log/fog_error_${version}.log 2>&1
+        ln -s /opt/fog/log /var/log/fog 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         errorStat $?
     fi
     if [[ ! -h /etc/fog ]]; then
         dots "Linking FOG Service config /etc"
-        ln -s /opt/fog/service/etc /etc/fog 2>>/var/log/fog_error_${version}.log 2>&1
+        ln -s /opt/fog/service/etc /etc/fog 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         errorStat $?
     fi
 }
 configureStorage() {
     dots "Setting up storage"
     if [[ ! -d $storage ]]; then
-        mkdir $storage 2>>/var/log/fog_error_${version}.log 2>&1
-        chmod -R 777 $storage 2>>/var/log/fog_error_${version}.log 2>&1
+        mkdir $storage 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        chmod -R 777 $storage 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     if [[ ! -f $storage/.mntcheck ]]; then
-        touch $storage/.mntcheck 2>>/var/log/fog_error_${version}.log 2>&1
-        chmod 777 $storage/.mntcheck 2>>/var/log/fog_error_${version}.log 2>&1
+        touch $storage/.mntcheck 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        chmod 777 $storage/.mntcheck 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     if [[ ! -d $storage/postdownloadscripts ]]; then
-        mkdir $storage/postdownloadscripts 2>>/var/log/fog_error_${version}.log 2>&1
+        mkdir $storage/postdownloadscripts 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         if [[ ! -f $storage/postdownloadscripts/fog.postdownload ]]; then
             echo -e "#!/bin/sh\n## This file serves as a starting point to call your custom postimaging scripts.\n## <SCRIPTNAME> should be changed to the script you're planning to use.\n## Syntax of post download scripts are\n#. \${postdownpath}<SCRIPTNAME>" > "$storage/postdownloadscripts/fog.postdownload"
         fi
-        chmod -R 777 $storage 2>>/var/log/fog_error_${version}.log 2>&1
+        chmod -R 777 $storage 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     if [[ ! -d $storageupload ]]; then
-        mkdir $storageupload 2>>/var/log/fog_error_${version}.log 2>&1
-        chmod -R 777 $storageupload 2>>/var/log/fog_error_${version}.log 2>&1
+        mkdir $storageupload 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        chmod -R 777 $storageupload 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     if [[ ! -f $storageupload/.mntcheck ]]; then
-        touch $storageupload/.mntcheck 2>>/var/log/fog_error_${version}.log 2>&1
-        chmod 777 $storageload/.mntcheck 2>>/var/log/fog_error_${version}.log 2>&1
+        touch $storageupload/.mntcheck 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        chmod 777 $storageload/.mntcheck 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     errorStat $?
 }
@@ -998,10 +998,10 @@ displayBanner() {
 }
 createSSLCA() {
     if [[ $recreateCA == yes || $caCreated != yes || ! -e /opt/fog/snapins/CA || ! -e /opt/fog/snapins/CA/.fogCA.key ]]; then
-        mkdir -p /opt/fog/snapins/CA 2>>/var/log/fog_error_${version}.log 2>&1
+        mkdir -p /opt/fog/snapins/CA 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         dots "Creating SSL CA"
-        openssl genrsa -out /opt/fog/snapins/CA/.fogCA.key 4096 2>>/var/log/fog_error_${version}.log 2>&1
-        openssl req -x509 -new -nodes -key /opt/fog/snapins/CA/.fogCA.key -days 3650 -out /opt/fog/snapins/CA/.fogCA.pem 2>>/var/log/fog_error_${version}.log 2>&1 << EOF
+        openssl genrsa -out /opt/fog/snapins/CA/.fogCA.key 4096 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        openssl req -x509 -new -nodes -key /opt/fog/snapins/CA/.fogCA.key -days 3650 -out /opt/fog/snapins/CA/.fogCA.pem 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1 << EOF
 .
 .
 .
@@ -1015,8 +1015,8 @@ EOF
     if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e /opt/fog/snapins/ssl || ! -e /opt/fog/snapins/ssl/.srvprivate.key ]]; then
         dots "Creating SSL Private Key"
         mkdir -p /opt/fog/snapins/ssl &2>>/var/log/fog_error_${version}.log
-        openssl genrsa -out /opt/fog/snapins/ssl/.srvprivate.key 4096 2>>/var/log/fog_error_${version}.log 2>&1
-        openssl req -new -key /opt/fog/snapins/ssl/.srvprivate.key -out /opt/fog/snapins/ssl/fog.csr 2>>/var/log/fog_error_${version}.log 2>&1 << EOF
+        openssl genrsa -out /opt/fog/snapins/ssl/.srvprivate.key 4096 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        openssl req -new -key /opt/fog/snapins/ssl/.srvprivate.key -out /opt/fog/snapins/ssl/fog.csr 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1 << EOF
 .
 .
 .
@@ -1030,15 +1030,15 @@ EOF
         errorStat $?
     fi
     dots "Creating SSL Certificate"
-    mkdir -p $webdirdest/management/other/ssl 2>>/var/log/fog_error_${version}.log 2>&1
-    openssl x509 -req -in /opt/fog/snapins/ssl/fog.csr -CA /opt/fog/snapins/CA/.fogCA.pem -CAkey /opt/fog/snapins/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 2>>/var/log/fog_error_${version}.log 2>&1
+    mkdir -p $webdirdest/management/other/ssl 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+    openssl x509 -req -in /opt/fog/snapins/ssl/fog.csr -CA /opt/fog/snapins/CA/.fogCA.pem -CAkey /opt/fog/snapins/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     errorStat $?
     dots "Creating auth pub key and cert"
-    cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem 2>>/var/log/fog_error_${version}.log 2>&1
-    openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der 2>>/var/log/fog_error_${version}.log 2>&1
+    cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+    openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     errorStat $?
     dots "Resetting SSL Permissions"
-    chown -R $apacheuser:$apacheuser $webdirdest/management/other 2>>/var/log/fog_error_${version}.log 2>&1
+    chown -R $apacheuser:$apacheuser $webdirdest/management/other 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     errorStat $?
     dots "Setting up SSL FOG Server"
     echo "<VirtualHost *:80>
@@ -1060,41 +1060,41 @@ EOF
 </VirtualHost>" > "$etcconf"
     errorStat $?
     dots "Restarting Apache2 for fog vhost"
-    ln -s $webdirdest $webdirdest 2>>/var/log/fog_error_${version}.log 2>&1
+    ln -s $webdirdest $webdirdest 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     if [[ $osid -eq 2 ]]; then
-        a2enmod php5 2>>/var/log/fog_error_${version}.log 2>&1
-        a2enmod rewrite 2>>/var/log/fog_error_${version}.log 2>&1
-        a2enmod ssl 2>>/var/log/fog_error_${version}.log 2>&1
-        a2ensite "001-fog" 2>>/var/log/fog_error_${version}.log 2>&1
+        a2enmod php5 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        a2enmod rewrite 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        a2enmod ssl 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        a2ensite "001-fog" 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     case $systemctl in
         yes)
             case $osid in
                 2)
-                    systemctl restart apache2 php5-fpm 2>>/var/log/fog_error_${version}.log 2>&1
+                    systemctl restart apache2 php5-fpm 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     sleep 2
-                    systemctl status apache2 php5-fpm 2>>/var/log/fog_error_${version}.log 2>&1
+                    systemctl status apache2 php5-fpm 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
                 *)
-                    systemctl restart httpd php-fpm 2>>/var/log/fog_error_${version}.log 2>&1
+                    systemctl restart httpd php-fpm 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     sleep 2
-                    systemctl status httpd php-fpm 2>>/var/log/fog_error_${version}.log 2>&1
+                    systemctl status httpd php-fpm 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
             esac
             ;;
         *)
             case $osid in
                 2)
-                    service apache2 restart 2>>/var/log/fog_error_${version}.log 2>&1
+                    service apache2 restart 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     sleep 2
-                    service apache2 status 2>>/var/log/fog_error_${version}.log 2>&1
+                    service apache2 status 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
                 *)
-                    service httpd restart 2>>/var/log/fog_error_${version}.log 2>&1
-                    service php-fpm restart 2>>/var/log/fog_error_${version}.log 2>&1
+                    service httpd restart 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    service php-fpm restart 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     sleep 2
-                    service httpd status 2>>/var/log/fog_error_${version}.log 2>&1
-                    service php-fpm status 2>>/var/log/fog_error_${version}.log 2>&1
+                    service httpd status 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    service php-fpm status 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
             esac
             ;;
@@ -1108,22 +1108,22 @@ configureHttpd() {
         yes)
             case $osid in
                 1)
-                    systemctl stop httpd php-fpm 2>>/var/log/fog_error_${version}.log 2>&1
+                    systemctl stop httpd php-fpm 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
                 2)
-                    systemctl stop apache2 php5-fpm 2>>/var/log/fog_error_${version}.log 2>&1
+                    systemctl stop apache2 php5-fpm 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
             esac
             ;;
         *)
             case $osid in
                 1)
-                    service httpd stop 2>>/var/log/fog_error_${version}.log 2>&1
-                    service php-fpm stop 2>>/var/log/fog_error_${version}.log 2>&1
+                    service httpd stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    service php-fpm stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
                 2)
-                    service apache2 stop 2>>/var/log/fog_error_${version}.log 2>&1
-                    service php5-fpm stop 2>>/var/log/fog_error_${version}.log 2>&1
+                    service apache2 stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    service php5-fpm stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
             esac
             ;;
@@ -1132,9 +1132,9 @@ configureHttpd() {
     if [[ -f $etcconf ]]; then
         dots "Removing vhost file"
         if [[ $osid -eq 2 ]]; then
-            a2dissite 001-fog 2>>/var/log/fog_error_${version}.log 2>&1
+            a2dissite 001-fog 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         fi
-        rm $etcconf 2>>/var/log/fog_error_${version}.log 2>&1
+        rm $etcconf 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         errorStat $?
     fi
     if [[ $installtype == N && ! $fogupdateloaded -eq 1 && -z $autoaccept ]]; then
@@ -1193,44 +1193,44 @@ configureHttpd() {
     dots "Setting up Apache and PHP files"
     if [[ $osid -eq 3 ]]; then
         echo -e "<FilesMatch \.php$>\n\tSetHandler \"proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/\"\n</FilesMatch>\n<IfModule dir_module>\n\tDirectoryIndex index.php index.html\n</IfModule>" >> /etc/httpd/conf/httpd.conf
-        sed -i 's@#LoadModule ssl_module modules/mod_ssl.so@LoadModule ssl_module modules/mod_ssl.so@g' /etc/httpd/conf/httpd.conf 2>>/var/log/fog_error_${version}.log 2>&1
-        sed -i 's@#LoadModule socache_shmcb_module modules/mod_socache_shmcb.so@LoadModule socache_shmcb_module modules/mod_socache_shmcb.so@g' /etc/httpd/conf/httpd.conf 2>>/var/log/fog_error_${version}.log 2>&1
-        echo -e "# FOG Virtual Host\nInclude conf/extra/fog.conf" >> /etc/httpd/conf/httpd.conf 2>>/var/log/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=mysqli.so/extension=mysqli.so/g' $phpini 2>>/var/log/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=openssl.so/extension=openssl.so/g' $phpini 2>>/var/log/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=mcrypt.so/extension=mcrypt.so/g' $phpini 2>>/var/log/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=posix.so/extension=posix.so/g' $phpini 2>>/var/log/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=sockets.so/extension=sockets.so/g' $phpini 2>>/var/log/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=ftp.so/extension=ftp.so/g' $phpini 2>>/var/log/fog_error_${version}.log 2>&1
-        sed -i 's/open_basedir\ =/;open_basedir\ ="/g' $phpini 2>>/var/log/fog_error_${version}.log 2>&1
+        sed -i 's@#LoadModule ssl_module modules/mod_ssl.so@LoadModule ssl_module modules/mod_ssl.so@g' /etc/httpd/conf/httpd.conf 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        sed -i 's@#LoadModule socache_shmcb_module modules/mod_socache_shmcb.so@LoadModule socache_shmcb_module modules/mod_socache_shmcb.so@g' /etc/httpd/conf/httpd.conf 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        echo -e "# FOG Virtual Host\nInclude conf/extra/fog.conf" >> /etc/httpd/conf/httpd.conf 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        sed -i 's/;extension=mysqli.so/extension=mysqli.so/g' $phpini 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        sed -i 's/;extension=openssl.so/extension=openssl.so/g' $phpini 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        sed -i 's/;extension=mcrypt.so/extension=mcrypt.so/g' $phpini 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        sed -i 's/;extension=posix.so/extension=posix.so/g' $phpini 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        sed -i 's/;extension=sockets.so/extension=sockets.so/g' $phpini 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        sed -i 's/;extension=ftp.so/extension=ftp.so/g' $phpini 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        sed -i 's/open_basedir\ =/;open_basedir\ ="/g' $phpini 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
-    sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' $phpini 2>>/var/log/fog_error_${version}.log 2>&1
-    sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' $phpini 2>>/var/log/fog_error_${version}.log 2>&1
+    sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' $phpini 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+    sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' $phpini 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     errorStat $?
     dots "Testing and removing symbolic links if found"
     if [[ -h /var/www/fog ]]; then
-        rm -f /var/www/fog 2>>/var/log/fog_error_${version}.log 2>&1
+        rm -f /var/www/fog 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     if [[ -h /var/www/html/fog ]]; then
-        rm -f /var/www/html/fog 2>>/var/log/fog_error_${version}.log 2>&1
+        rm -f /var/www/html/fog 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     errorStat $?
     dots "Backing up old data"
     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
-        rm -rf $backupPath/fog_web_${version}.BACKUP 2>>/var/log/fog_error_${version}.log 2>&1
+        rm -rf $backupPath/fog_web_${version}.BACKUP 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     if [[ -d $webdirdest ]]; then
-        cp -RT "$webdirdest" "${backupPath}/fog_web_${version}.BACKUP" 2>>/var/log/fog_error_${version}.log 2>&1
-        rm -rf "$webdirdest" 2>>/var/log/fog_error_${version}.log 2>&1
+        cp -RT "$webdirdest" "${backupPath}/fog_web_${version}.BACKUP" 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        rm -rf "$webdirdest" 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     if [[ $osid -eq 2 ]]; then
         if [[ -d /var/www/fog ]]; then
-            rm -rf /var/www/fog 2>>/var/log/fog_error_${version}.log 2>&1
+            rm -rf /var/www/fog 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         fi
     fi
-    mkdir -p "$webdirdest" 2>>/var/log/fog_error_${version}.log 2>&1
+    mkdir -p "$webdirdest" 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     if [[ -d /var/www && ! -h /var/www/fog ]] || [[ ! -d /var/www/fog ]]; then
-        ln -s $webdirdest  /var/www/fog 2>>/var/log/fog_error_${version}.log 2>&1
+        ln -s $webdirdest  /var/www/fog 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     errorStat $?
     if [[ -d ${backupPath}/fog_web_${version}.BACKUP ]]; then
@@ -1239,13 +1239,13 @@ configureHttpd() {
         errorStat $?
         dots "Ensuring all classes are lowercased"
         for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php"); do
-            mv "$i" "$(echo $i | tr A-Z a-z)" 2>>/var/log/fog_error_${version}.log 2>&1
+            mv "$i" "$(echo $i | tr A-Z a-z)" 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         done
         for i in $(find $webdirdest -type f -name "*[A-Z]*\.event\.php"); do
-            mv "$i" "$(echo $i | tr A-Z a-z)" 2>>/var/log/fog_error_${version}.log 2>&1
+            mv "$i" "$(echo $i | tr A-Z a-z)" 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         done
         for i in $(find $webdirdest -type f -name "*[A-Z]*\.hook\.php"); do
-            mv "$i" "$(echo $i | tr A-Z a-z)" 2>>/var/log/fog_error_${version}.log 2>&1
+            mv "$i" "$(echo $i | tr A-Z a-z)" 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         done
         errorStat $?
     fi
@@ -1354,45 +1354,45 @@ class Config {
     clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
 
     clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
-    curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 2>>/var/log/fog_error_${version}.log 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl 2>>/var/log/fog_error_${version}.log 2>&1
+    curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     errorStat $?
     if [[ $osid -eq 2 ]]; then
-        php -m | grep mysqlnd 2>>/var/log/fog_error_${version}.log 2>&1
+        php -m | grep mysqlnd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         if [[ ! $? -eq 0 ]]; then
-            php5enmod mysqlnd 2>>/var/log/fog_error_${version}.log 2>&1
+            php5enmod mysqlnd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 if [[ -e /etc/php5/conf.d/mysqlnd.ini ]]; then
-                    cp -f "/etc/php5/conf.d/mysqlnd.ini" "/etc/php5/mods-available/php5-mysqlnd.ini" 2>>/var/log/fog_error_${version}.log 2>&1
-                    php5enmod mysqlnd 2>>/var/log/fog_error_${version}.log 2>&1
+                    cp -f "/etc/php5/conf.d/mysqlnd.ini" "/etc/php5/mods-available/php5-mysqlnd.ini" 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    php5enmod mysqlnd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 fi
             fi
         fi
-        php -m | grep mcrypt 2>>/var/log/fog_error_${version}.log 2>&1
+        php -m | grep mcrypt 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         if [[ ! $? -eq 0 ]]; then
-            php5enmod mcrypt 2>>/var/log/fog_error_${version}.log 2>&1
+            php5enmod mcrypt 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 if [[ -e /etc/php5/conf.d/mcrypt.ini ]]; then
-                    cp -f "/etc/php5/conf.d/mcrypt.ini" "/etc/php5/mods-available/php5-mcrypt.ini" 2>>/var/log/fog_error_${version}.log 2>&1
-                    php5enmod mcrypt 2>>/var/log/fog_error_${version}.log 2>&1
+                    cp -f "/etc/php5/conf.d/mcrypt.ini" "/etc/php5/mods-available/php5-mcrypt.ini" 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    php5enmod mcrypt 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                 fi
             fi
         fi
-        cp /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/ 2>>/var/log/fog_error_${version}.log 2>&1
+        cp /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/ 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     dots "Enabling apache and fpm services on boot"
     if [[ $osid -eq 2 ]]; then
         if [[ $systemctl == yes ]]; then
-            systemctl enable apache2 2>>/var/log/fog_error_${version}.log 2>&1
-            systemctl enable php5-fpm 2>>/var/log/fog_error_${version}.log 2>&1
+            systemctl enable apache2 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+            systemctl enable php5-fpm 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         else
-            sysv-rc-conf apache2 on 2>>/var/log/fog_error_${version}.log 2>&1
-            sysv-rc-conf php5-fpm on 2>>/var/log/fog_error_${version}.log 2>&1
+            sysv-rc-conf apache2 on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+            sysv-rc-conf php5-fpm on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
         fi
     elif [[ $systemctl == yes ]]; then
-        systemctl enable httpd php-fpm 2>>/var/log/fog_error_${version}.log 2>&1
+        systemctl enable httpd php-fpm 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     else
-        chkconfig php-fpm on 2>>/var/log/fog_error_${version}.log 2>&1
-        chkconfig httpd on 2>>/var/log/fog_error_${version}.log 2>&1
+        chkconfig php-fpm on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        chkconfig httpd on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     fi
     errorStat $?
     createSSLCA
@@ -1402,7 +1402,7 @@ class Config {
     chmod +rx $apacheacclog
     chown -R ${apacheuser}:${apacheuser} $webdirdest
     errorStat $?
-    rm -f "$webdirdest/mobile/css/font-awesome.css" $webdirdest/mobile/{fonts,less,scss} &2>>/var/log/fog_error_${version}.log 2>&1
+    rm -f "$webdirdest/mobile/css/font-awesome.css" $webdirdest/mobile/{fonts,less,scss} &2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
     ln -s "$webdirdest/management/css/font-awesome.css" "$webdirdest/mobile/css/font-awesome.css"
     ln -s "$webdirdest/management/fonts" "$webdirdest/mobile/"
     ln -s "$webdirdest/management/less" "$webdirdest/mobile/"
@@ -1442,23 +1442,23 @@ configureDHCP() {
             echo -e "subnet $network netmask $submask {\n\toption subnet-mask $submask;\n\trange dynamic-bootp $startrange $endrange;\n\tdefault-lease-time 21600;\n\tmax-lease-time 43200;\n\t$dnsaddress\n\t$routeraddress\n\tfilename \"$bootfilename\";\n}" >> "$dhcptouse"
             case $systemctl in
                 yes)
-                    systemctl enable $dhcpd 2>>/var/log/fog_error_${version}.log 2>&1
-                    systemctl restart $dhcpd 2>>/var/log/fog_error_${version}.log 2>&1
+                    systemctl enable $dhcpd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                    systemctl restart $dhcpd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     sleep 2
-                    systemctl status $dhcpd 2>>/var/log/fog_error_${version}.log 2>&1
+                    systemctl status $dhcpd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                     ;;
                 *)
                     case $osid in
                         1)
-                            chkconfig $dhcpd on 2>>/var/log/fog_error_${version}.log 2>&1
-                            service $dhcpd restart 2>>/var/log/fog_error_${version}.log 2>&1
+                            chkconfig $dhcpd on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                            service $dhcpd restart 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                             sleep 2
-                            service status $dhcpd 2>>/var/log/fog_error_${version}.log 2>&1
+                            service status $dhcpd 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                             ;;
                         2)
-                            sysv-rc-conf $dhcpd on 2>>/var/log/fog_error_${version}.log 2>&1
-                            /etc/init.d/$dhcpd stop 2>>/var/log/fog_error_${version}.log 2>&1
-                            /etc/init.d/$dhcpd start 2>>/var/log/fog_error_${version}.log 2>&1
+                            sysv-rc-conf $dhcpd on 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                            /etc/init.d/$dhcpd stop 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+                            /etc/init.d/$dhcpd start 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
                             ;;
                     esac
                     ;;
