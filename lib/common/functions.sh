@@ -315,10 +315,12 @@ configureTFTPandPXE() {
         yes)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
                 echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"-s\"" > "$tftpconfigupstartdefaults"
-                systemctl enable xinetd tftpd-hpa >/dev/null 2>&1
-                systemctl restart xinetd tftpd-hpa >/dev/null 2>&1
+                systemctl disable xinetd >/dev/null 2>&1
+                systemctl stop xinetd >/dev/null 2>&1
+                systemctl enable tftpd-hpa >/dev/null 2>&1
+                systemctl restart tftpd-hpa >/dev/null 2>&1
                 sleep 2
-                systemctl status xinetd tftpd-hpa >/dev/null 2>&1
+                systemctl status tftpd-hpa >/dev/null 2>&1
             else
                 systemctl enable xinetd >/dev/null 2>&1
                 systemctl restart xinetd >/dev/null 2>&1
