@@ -326,17 +326,16 @@ backupPath="/$backupPath/"
 . ../lib/common/input.sh
 echo
 display_center "######################################################################"
-echo
-display_center "#  FOG now has everything it needs for this setup, but please  #"
+display_center "#     FOG now has everything it needs for this setup, but please     #"
 display_center "#   understand that this script will overwrite any setting you may   #"
 display_center "#   have setup for services like DHCP, apache, pxe, tftp, and NFS.   #"
-echo
+display_center "######################################################################"
 display_center "# It is not recommended that you install this on a production system #"
 display_center "#        as this script modifies many of your system settings.       #"
-echo
+display_center "######################################################################"
 display_center "#             This script should be run by the root user.            #"
 display_center "#      It will prepend the running with sudo if root is not set      #"
-echo
+display_center "######################################################################"
 display_center "#           ** Notice ** FOG is difficult to setup securely          #"
 display_center "#        SELinux and IPTables are usually asked to be disabled       #"
 display_center "#           There have been strides in adding capabilities           #"
@@ -344,7 +343,7 @@ display_center "#          The recommendations would now be more appropriate    
 display_center "#    to set SELinux to permissive and to disable firewall for now.   #"
 display_center "#  You can find some methods to enable SELinux and maintain firewall #"
 display_center "#   settings and ports. If you feel comfortable doing so please do   #"
-echo
+display_center "######################################################################"
 display_center "#            Please see our wiki for more information at:            #"
 display_center "######################################################################"
 display_center "#             https://wiki.fogproject.org/wiki/index.php             #"

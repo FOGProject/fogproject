@@ -810,7 +810,7 @@ display_center() {
 display_right() {
     local columns="$(tput cols)"
     local line="$1"
-    printf "%*s\n" 0 $columns "$line"
+    printf "%*s\n" $columns "$line"
 }
 displayBanner() {
     version=$(wget -q -O - http://${web}service/getversion.php)
