@@ -637,7 +637,11 @@ installInitScript() {
     dots "Installing FOG System Scripts"
     cp -f $initdsrc/* $initdpath/ >/dev/null 2>&1
     errorStat $?
-    echo -e "\n\n  * Configuring FOG System Services\n\n"
+    echo
+    echo
+    display_center "Configuring FOG System Services"
+    echo
+    echo
     enableInitScript
 }
 configureMySql() {
