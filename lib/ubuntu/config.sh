@@ -33,13 +33,13 @@ if [[ $systemctl == yes ]]; then
 	initdpath="/lib/systemd/system"
 	initdsrc="../packages/systemd"
     if [[ -e /lib/systemd/system/mariadb.service ]]; then
-        ln -s /lib/systemd/system/mariadb.service /lib/systemd/system/mysql.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
-        ln -s /lib/systemd/system/mariadb.service /lib/systemd/system/mysqld.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
-        ln -s /lib/systemd/system/mariadb.service /etc/systemd/system/mysql.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
-        ln -s /lib/systemd/system/mariadb.service /etc/systemd/system/mysqld.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        ln -s /lib/systemd/system/mariadb.service /lib/systemd/system/mysql.service >/var/log/fog_error_${version}.log 2>&1
+        ln -s /lib/systemd/system/mariadb.service /lib/systemd/system/mysqld.service >/var/log/fog_error_${version}.log 2>&1
+        ln -s /lib/systemd/system/mariadb.service /etc/systemd/system/mysql.service >/var/log/fog_error_${version}.log 2>&1
+        ln -s /lib/systemd/system/mariadb.service /etc/systemd/system/mysqld.service >/var/log/fog_error_${version}.log 2>&1
     elif [[ -e /usr/lib/systemd/system/mysqld.service ]]; then
-        ln -s /usr/lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysql.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
-        ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service 2>>/var/log/fog_error_${version}.log 1>/dev/null 2>&1
+        ln -s /usr/lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysql.service >/var/log/fog_error_${version}.log 2>&1
+        ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service >/var/log/fog_error_${version}.log 2>&1
     fi
 	initdMCfullname="FOGMulticastManager.service"
 	initdIRfullname="FOGImageReplicator.service"
