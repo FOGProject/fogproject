@@ -1,0 +1,35 @@
+#!/bin/bash
+. /usr/share/fog/lib/funcs.sh
+echo
+echo
+echo " * Task Complete"
+echo
+echo
+case $type in
+    [Dd][Oo][Ww][Nn])
+        php_post="Post_Stage3.php"
+        poststring="mac=$mac&type=$type"
+        ;;
+    [Uu][Pp])
+        poststring="mac=$mac&type=$type&to=$img&ftp=$ftp&size=$size&imgid=$imgid&osid=$osid"
+        php_post="Post_Stage2.php"
+        ;;
+    *)
+        handleError "Wrong type for this completetion script"
+        ;;
+esac
+count=0
+res=""
+dots " * Updating Database"
+while [[ $res != "##" ]]; do
+    res=$(wget --post-data="$poststring" -qO http://${web}service/$php_post >/dev/null 2>&1)
+    if [[ $count -ge 10 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Could not complete tasking"
+    fi
+    count=$(($count+1))
+    usleep 5000000
+done
+echo "Done"
+debugPause

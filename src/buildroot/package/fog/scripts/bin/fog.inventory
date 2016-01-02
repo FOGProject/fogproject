@@ -92,17 +92,12 @@ count=0
 res=""
 while [[ -z $res ]]; do
     dots "Attempting to send inventory"
-    res=$(wget -O - --post-data="${poststring}" "http://${web}service/inventory.php" 2>/dev/null)
-    if [[ -n $res ]]; then
-        echo "$res"
+    res=$(wget --post-data="$poststring" -qO - http://${web}service/inventory.php >/dev/null 2>&1)
+    if [[ $count -ge 10 ]]; then
+        echo "Failed"
+        debugPause
         break
-    else
-        if [[ $count == 10 ]]; then
-            echo "Failed"
-            break
-        fi
-        count=$(($count + 1))
-        continue
     fi
+    count=$(($count + 1))
     usleep 2000000
 done

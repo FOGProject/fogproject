@@ -5,28 +5,28 @@ clearScreen
 displayBanner
 getHardDisk
 echo
-acct="$winuser"
-if [[ -z "$acct" ]]; then
+acct=$winuser
+if [[ -z $acct ]]; then
     handleError "Invalid User Account"
 fi
-blCont="0"
-blStop="0"
+blCont=0
+blStop=0
 mkdir /ntfs
 sam=""
 getPartitions $hd
 for part in $parts; do
-    while [[ $blCont == 0 && $blStop == 0 ]]; do
+    while [[ $blCont -eq 0 && $blStop -eq 0 ]]; do
         umount /ntfs 2>/dev/null >/dev/null
         mount -o rw $part /ntfs
         getSAMLoc
         if [[ -f $sam ]]; then
-            blCont="1"
+            blCont=1
         else
-            blStop="1"
+            blStop=1
         fi
     done
-    umount /ntfs 2>/dev/null >/dev/null
-    if [[ $blCont != 1 ]]; then
+    umount /ntfs >/dev/null 2>&1
+    if [[ ! $blCont -eq 1 ]]; then
         echo " * Unable to locate SAM File"
         continue
     fi
@@ -34,25 +34,17 @@ for part in $parts; do
     mount -o rw $part /ntfs
     echo "Done"
     dots "Attempting to change password"
-    chntpw -u ${acct} ${sam}  &>/dev/null << EOF
+    chntpw -u $acct $sam  >/dev/null 2>&1 << EOF
 1
 q
 y
 EOF
+    if [[ ! $? -eq 0 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Failed to perform password change task"
+    fi
     echo "Done"
-    echo " * Task Complete"
+    debugPause
 done
-queueinfo=""
-cd /tmp
-wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-queueinfo=$(cat co.txt)
-while [[ $queueinfo != "##" ]]; do
-    echo "       * $queueinfo"
-    rm co.txt
-    wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-    queueinfo=$(cat co.txt)
-    usleep 5000000
-done
-echo
-echo -e " * Database updated!"
-usleep 3000000
+. /bin/fog.nonimgcomplete

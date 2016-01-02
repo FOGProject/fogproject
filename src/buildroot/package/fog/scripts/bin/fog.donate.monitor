@@ -1,13 +1,13 @@
 #!/bin/bash
-isok=$(wget -q -O - "http://${web}service/donate.php" 2>/dev/null)
-while [[ $isok == "#!OK" ]]; do
+res=""
+while [[ $res == "#!OK" ]]; do
+    res=$(wget -qO - http://${web}service/donate.php >/dev/null 2>&1)
     usleep 60000000
-    isok=$(wget -q -O - "http://${web}service/donate.php" 2>/dev/null)
 done
 reset
 clear
 echo
-echo $isok
+echo $res
 echo
 usleep 10000000
 $afterActionTerm

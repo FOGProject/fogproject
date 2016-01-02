@@ -4,7 +4,6 @@
 clear
 displayBanner
 hd=""
-getHardDisk
 sysman=""
 sysman64=""
 sysproduct=""
@@ -51,52 +50,29 @@ caseman64=""
 casever64=""
 caseserial64=""
 casesasset64=""
-echo -e "\n"
+echo
 dots " * Using disk device"
+getHardDisk
 echo "$hd"
 echo " * Starting host registration"
-mac_deployed="$mac"
+mac_deployed=$mac
 mac=$(getMACAddresses | base64)
 echo
 dots " * Attempting to register host"
 count=0
 res=""
 while [[ -z $res ]]; do
-    res=$(wget -O - --post-data="mac=$mac" "http://${web}service/auto.register.php" 2>/dev/null)
-    if [[ -n $res ]]; then
-        echo "$res"
-        break
-    else
-        if [[ $count == 10 ]]; then
-            echo "Failed"
-            handleError "Cannot register host"
-        fi
-        count=$(($count + 1))
-        continue
+    res=$(wget --post-data="mac=$mac" -qO - http://${web}service/auto.register.php >/dev/null 2>&1)
+    if [[ $count == 10 ]]; then
+        echo "Failed"
+        handleError "Cannot register host"
     fi
+    count=$(($count + 1))
     usleep 2000000
 done
+echo "$res"
 . /bin/fog.inventory
+count=0
 if [[ $deployed == 1 ]]; then
-    count=0
-    res=""
-    echo " * Updating Computer Database Status"
-    echo
-    while [[ $res != "##" ]]; do
-        res=$(wget -O - "http://${web}service/Post_Wipe.php?mac=$mac_deployed" 2>/dev/null)
-        if [[ $res == "##" ]]; then
-            echo " * Update Complete"
-            break
-        else
-            if [[ $count == 10 ]]; then
-                dots "Update Failed:"
-                echo "$res"
-                break
-            fi
-            count=$(($count + 1))
-            continue
-        fi
-        usleep 2000000
-    done
+    . /bin/fog.nonimgcomplete $mac_deployed
 fi
-usleep 2000000
