@@ -514,7 +514,6 @@ while [[ -z $blGo ]]; do
                 configureUDPCast
                 installInitScript
                 installFOGServices
-                installUtils
                 configureFOGService
                 configureNFS
                 writeUpdateFile
