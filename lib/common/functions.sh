@@ -69,14 +69,6 @@ uninstall() {
             ;;
     esac
 }
-installUtils() {
-    dots "Setting up FOG Utils"
-    mkdir -p $fogutilsdir
-    cp -Rf $fogutilsdirsrc/* $fogutilsdir
-    chown -R $apacheuser $fogutilsdir
-    chmod -R 700 $fogutilsdir
-    errorStat $?
-}
 help() {
     echo -e "Usage: $0 [-h?dEUuHSCKYX] [-f <filename>] [-D </directory/to/document/root/>]"
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
