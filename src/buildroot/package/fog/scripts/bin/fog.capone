@@ -10,7 +10,7 @@ for arg in $(cat /proc/cmdline); do
             ;;
     esac
 done
-export capone="1"
+export capone=1
 clear
 displayBanner
 echo
@@ -19,21 +19,18 @@ dots "Looking up DMI field"
 count=0
 dmi=""
 while [[ -z $dmi ]]; do
-    dmi=$(wget -O - "http://${web}service/capone.php?action=dmi" 2>/dev/null)
-    if [[ -n $dmi ]]; then
-        echo "Done"
-        break
-    else
-        if [[ $count == 10 ]]; then
-            echo "Failed"
-            handleError "Could not find DMI Value"
-        fi
-        count=$(($count +1))
-        continue
+    dmi=$(wget --post-data="action=dmi" -qO - http://${web}service/capone.php >/dev/null 2>&1)
+    if [[ $count == 10 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Could not find DMI Value"
     fi
+    count=$(($count +1))
     usleep 2000000
 done
-dmivalue=$(dmidecode -s "$dmi")
+echo "Done"
+debugPause
+dmivalue=$(dmidecode -s $dmi)
 echo
 dots "Using Key Value:"
 echo "$dmivalue"
@@ -45,19 +42,16 @@ count=0
 img=""
 while [[ -z "$img" ]]; do
     img=$(wget -O - "http://${web}service/capone.php?action=imagelookup&key=${dmi64}" 2>/dev/null)
-    if [[ -n $img ]]; then
-        echo "Done"
-        break
-    else
-        if [[ $count == 10 ]]; then
-            echo "Failed"
-            handleError "Count not find an Image definition"
-        fi
-        count=$(($count +1))
-        continue
+    if [[ $count == 10 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Count not find an Image definition"
     fi
+    count=$(($count +1))
     usleep 2000000
 done
+echo "Done"
+debugPause
 oIFS=$IFS
 IFS="
 "
@@ -65,8 +59,8 @@ cnt=0
 linedecode=""
 echo
 for line in $img; do
-    linedecode=$(echo "$line" | base64 -d)
-    if [[ $linedecode == null ]]; then
+    linedecode=$(echo $line | base64 -d)
+    if [[ -z $linedecode ]]; then
         handleError "No image definition was found for $dmivalue"
     fi
     cnt=$(($cnt + 1))
@@ -79,7 +73,7 @@ for line in $img; do
     echo $(echo $linedecode | awk -F"|" '{print $4}')
     echo -n " Format : "
     imgFormat=$(echo $linedecode | awk -F"|" '{print $5}')
-    case "$imgFormat" in
+    case $imgFormat in
         1)
             echo "Partimage"
             ;;
@@ -93,7 +87,7 @@ for line in $img; do
     usleep 1000000
 done
 echo
-case "$cnt" in
+case $cnt in
     0)
         handleError "No image definition was found for $dmivalue"
         ;;
@@ -103,7 +97,7 @@ case "$cnt" in
         imgType=$(echo $linedecode | awk -F"|" '{print $3}')
         imgPartitionType=$(echo $linedecode | awk -F"|" '{print $4}')
         imgFormat=$(echo $linedecode | awk -F"|" '{print $5}')
-        determineOS "$osid"
+        determineOS $osid
         ;;
     ^[0-9]*$)
         imgchoice=""
@@ -113,7 +107,7 @@ case "$cnt" in
         done
         cnt=0
         for line in $img; do
-            linedecode=$(echo "$line" | base64 -d)
+            linedecode=$(echo $line | base64 -d)
             cnt=$(($cnt + 1))
             if [[ $cnt == $imgchoice ]]; then
                 img=$(echo $linedecode | awk -F"|" '{print $1}')
@@ -121,7 +115,7 @@ case "$cnt" in
                 imgType=$(echo $linedecode | awk -F"|" '{print $3}')
                 imgPartitionType=$(echo $linedecode | awk -F"|" '{print $4}')
                 imgFormat=$(echo $linedecode | awk -F"|" '{print $5}')
-                determineOS "$osid"
+                determineOS $osid
                 break
             fi
         done

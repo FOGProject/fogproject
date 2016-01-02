@@ -433,26 +433,7 @@ if [[ $capone != 1 ]]; then
             done
         done
     fi
-    echo
-    echo " * Updating Computer Database Status"
-    echo
-    cd /tmp
-    queueinfo=""
-    wget -q -O /tmp/co.txt "http://${web}service/Post_Stage3.php?mac=$mac&type=$type" &>/dev/null
-    queueinfo=$(cat co.txt)
-    while [[ $queueinfo != "##" ]]; do
-        echo "		* $queueinfo"
-        rm co.txt
-        wget -q -O /tmp/co.txt "http://${web}service/Post_Stage3.php?mac=$mac&type=$type" &>/dev/null
-        queueinfo=$(cat co.txt)
-        usleep 5000000
-    done
-    echo
-    echo " * Database Updated!"
-    echo
-    debugPause
+    . /bin/fog/imgcomplete
 fi
-echo
-echo " * Task is completed, computer will now restart."
-echo
+echo " * Rebooting system as task is complete"
 debugPause

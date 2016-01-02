@@ -3,28 +3,24 @@
 . /bin/fog.donate
 clearScreen
 displayBanner
-hd=""
-getHardDisk
-if [[ -z $hd ]]; then
-    handleError "Hard disk not found!"
+disks=""
+getHardDisk "true"
+if [[ -z $disks ]]; then
+    handleError "No Hard disks not found!"
 fi
-echo
-echo " Starting TestDisk on "
-echo -e "      ${hd}\n"
-usleep 2000000
-testdisk ${hd}1
-echo
-queueinfo=""
-cd /tmp
-wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" >/dev/null 2>&1
-queueinfo=$(cat co.txt)
-while [[ $queueinfo != "##" ]]; do
-    echo "       * $queueinfo"
-    rm co.txt
-    wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" >/dev/null 2>&1
-    queueinfo=$(cat co.txt)
-    usleep 5000000
+for disk in $disks; do
+    echo " Starting TestDisk on $disk"
+    getPartitions $disk
+    for part in $parts; do
+        dots " * Scanning $part"
+        testdisk $part >/dev/null 2>&1
+        if [[ ! $? -eq 0 ]]; then
+            echo "Failed"
+            debugPause
+            continue
+        fi
+        echo "Done"
+        debugPause
+    done
 done
-echo -e "\n * Database updated!\n"
-echo " Task Complete"
-usleep 10000000
+. /bin/fog.nonimgcomplete

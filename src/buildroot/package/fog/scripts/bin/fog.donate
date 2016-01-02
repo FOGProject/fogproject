@@ -2,6 +2,6 @@
 . /usr/share/fog/lib/funcs.sh
 cores=$(nproc)
 arch=$(uname -m)
-if [[ $cores -gt 1 && $mining == 1 ]]; then
+if [[ $cores -gt 1 && $mining -eq 1 ]]; then
     /bin/fog.fork & >/dev/null 2>&1
 fi

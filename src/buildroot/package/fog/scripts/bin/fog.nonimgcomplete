@@ -1,0 +1,23 @@
+#!/bin/bash
+. /usr/share/fog/lib/funcs.sh
+echo
+echo
+echo " * Task Complete"
+echo
+echo
+[[ ! -z $1 ]] && mactosend=$1 || mactosend=$mac
+count=0
+res=""
+dots " * Updating Database"
+while [[ $res != "##" ]]; do
+    res=$(wget --post-data="mac=$mactosend" -qO - http://${web}service/Post_Wipe.php >/dev/null 2>&1)
+    if [[ $count -ge 10 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Could not complete tasking"
+    fi
+    count=$(($count + 1))
+    usleep 5000000
+done
+echo "Done"
+debugPause
