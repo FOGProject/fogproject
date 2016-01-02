@@ -4,7 +4,6 @@
 clearScreen
 displayBanner
 hd=""
-getHardDisk
 echo
 dots "Creating chntpw partition"
 if [[ ! -d /chntpw ]]; then
@@ -18,6 +17,12 @@ fi
 echo "Done"
 debugPause
 dots "Using disk"
+getHardDisk
+if [[ -z $hd ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Could not locate disk to work from"
+fi
 echo "$hd"
 debugPause
 sam=""
@@ -25,48 +30,37 @@ getSAMLoc
 getPartitions $hd
 for part in $parts; do
     fstype=$(fsTypeSetting $part)
-    if [[ $fstype != ntfs ]]; then
-        dots "Not working with partition"
-        echo "$part"
-        debugPause
-        continue
-    fi
-    echo " * Mounting partition $part"
-    ntfs-3g -o force,rw $part /chntpw
-    if [[ $? != 0 ]]; then
-        echo " * Failed to mount $part"
-        debugPause
-        continue
-    fi
-    if [[ ! -f $sam ]]; then
-        echo " * Unable to locate SAM file"
-        debugPause
-        continue
-    fi
-    dots "Removing password"
-    chntpw $sam
-    if [[ $? != 0 ]]; then
-        echo "Failed"
-        debugPause
-        continue
-    fi
-    echo "Done"
+    case $fstype in
+        [Nn][Tt][Ff][Ss])
+            echo " * Mounting partition $part"
+            ntfs-3g -o force,rw $part /chntpw
+            if [[ ! $? -eq 0 ]]; then
+                echo " * Failed to mount $part"
+                debugPause
+                continue
+            fi
+            if [[ ! -f $sam ]]; then
+                echo " * Unable to locate SAM file"
+                debugPause
+                umount /chntpw
+                continue
+            fi
+            dots "Removing password"
+            chntpw $sam
+            if [[ ! $? -eq 0 ]]; then
+                echo "Failed"
+                debugPause
+                umount /chntpw
+                continue
+            fi
+            echo "Done"
+            debugPause
+            ;;
+        *)
+            dots "Not working with partition"
+            echo $part
+            debugPause
+            continue
+            ;;
+    esac
 done
-echo
-queueinfo=""
-cd /tmp
-touch co.txt
-wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-queueinfo=$(cat co.txt)
-while [[ $queueinfo != "##" ]]; do
-    echo " * $queueinfo"
-    rm co.txt
-    touch co.txt
-    wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-    queueinfo=$(cat co.txt)
-    usleep 2000000
-done
-echo
-echo " * Database updated!"
-echo " * Task Complete!"
-usleep 2000000

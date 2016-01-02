@@ -9,20 +9,20 @@ echo " To abort this task at any time, press the enter key"
 echo
 usleep 5000000
 dots "Checking in with server"
-cd /tmp
-touch co.txt
-wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-queueinfo=`cat co.txt`;
-while [ "$queueinfo" != "##" ]; do
-    echo
-    echo "       * $queueinfo"
-    rm co.txt
-    touch co.txt
-    wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-    queueinfo=$(cat co.txt)
-    usleep 2000000
+count=0
+res=""
+while [[ $res != "##" ]]; do
+    res=$(wget --post-data="mac=$mac" -qO - http://${web}service/Post_Wipe.php >/dev/null 2>&1)
+    if [[ $count -ge 10 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Could not check in"
+    fi
+    count=$(($count + 1))
+    usleep 5000000
 done
 echo "Done"
+debugPause
 echo
 echo " Turning off montior output to conserve power..."
 usleep 2000000

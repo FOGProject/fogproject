@@ -4,10 +4,8 @@
 . /bin/fog.checkin
 clearScreen
 displayBanner
-if [[ $avmode != s && $avmode != q ]]; then
-    handleError "Unable to determine scanning mode!"
-fi
 dots "Updating clamav"
+freshclam >/dev/null 2>&1
 if [[ $? != 0 ]]; then
     echo "Failed"
     debugPause
@@ -15,34 +13,39 @@ if [[ $? != 0 ]]; then
 fi
 echo "Done"
 debugPause
-getHardDisk 'true'
 dots "Getting disks to scan"
+getHardDisk 'true'
 if [[ -z $disks ]]; then
     echo "Failed"
     debugPause
-    handleError "Unable to find any drives"
+    handleError "Unable to find any disks"
 fi
 echo "Done"
 debugPause
 dots "Creating scan partition"
 if [[ ! -d /clamavscan ]]; then
-    mkdir /clamavscan
+    mkdir -p /clamavscan
 fi
 if [[ ! -d /clamavscan ]]; then
     echo "Failed"
     debugPause
     handleError "Unable to create scan folder"
 fi
-if [[ $avmode == s ]]; then
-    action=""
-    modename="Scan and Report"
-fi
-if [[ $avmode == q ]]; then
-    action="--move=/clamavscan/fog/infected"
-    modename="Scan and Quarantine"
-fi
 echo "Done"
 debugPause
+action=""
+case $avmode in
+    [Ss])
+        modename="Scan and Report"
+        ;;
+    [Qq])
+        action="--move=/clamavscan/fog/infected"
+        modename="Scan and Quarantine"
+        ;;
+    *)
+        handleError "Unable to determine scanning mode!"
+        ;;
+esac
 for disk in $disks; do
     dots "Using disk"
     echo $disk
@@ -50,28 +53,34 @@ for disk in $disks; do
     getPartitions $disk
     for part in $parts; do
         fstype=$(fsTypeSetting $part)
-        if [[ $fstype != ntfs && $fstype != extfs ]]; then
-            dots "Not scanning partition"
-            echo "$part"
-            debugPause
-            continue
-        fi
-        echo " * Mounting partition $part"
-        if [[ $fstype == ntfs ]]; then
-            ntfs-3g -o force,rw $part /clamavscan &> /tmp/clamavscan-mount-output
-        elif [[ $fstype == extfs ]]; then
-            mount -o rw $part /clamavscan &> /tmp/clamavscan-mount-output
-        fi
-        if [[ $? != 0 ]]; then
+        case $fstype in
+            [Nn][Tt][Ff][Ss])
+                echo " * Mounting partition $part"
+                ntfs-3g -o force,rw $part /clamavscan &> /tmp/clamavscan-mount-output
+                ;;
+            [Ee][Xx][Tt][Ff][Ss])
+                echo " * Mounting partition $part"
+                mount -o rw $part /clamavscan &> /tmp/clamavscan-mount-output
+                ;;
+            *)
+                dots "Not scanning partition"
+                echo "$part"
+                debugPause
+                continue
+                ;;
+        esac
+        if [[ ! $? -eq 0 ]]; then
             echo " * Failed to mount $part"
             debugPause
             continue
         fi
+        debugPause
         dots "Creating working directories"
         mkdir -p /clamavscan/fog/{tmp,infected,log}
-        if [[ $? != 0 ]]; then
+        if [[ ! $? -eq 0 ]]; then
             echo "Failed"
             debugPause
+            umount /clamavscan >/dev/null 2>&1
             continue
         fi
         echo -n > /clamavscan/fog/log/log.txt
@@ -86,9 +95,10 @@ for disk in $disks; do
         dots "Starting AV scan"
         echo -e -n "\t"
         clamscan -V >/dev/null 2&>1
-        if [[ $? != 0 ]]; then
+        if [[ ! $? -eq 0 ]]; then
             echo "Failed"
             debugPause
+            umount /clamavscan >/dev/null 2>&1
             continue
         fi
         echo "Done"
@@ -97,10 +107,10 @@ for disk in $disks; do
         dots "Scanning"
         start=$(date +%s)
         clamscan -r --tempdir=/clamavscan/fog/tmp $action --log=/clamavscan/fog/log/log.txt --no-summary --exclude-dir=/clamavscan/fog/*
-        ret="$?"
-        if [[ $ret == 2 ]]; then
+        if [[ ! $? -eq 0 ]]; then
             echo "Failed"
             debugPause
+            umount /clamavscan
             cur=$(date +%s)
             diff=$((cur - start))
             echo
@@ -110,7 +120,8 @@ for disk in $disks; do
             debugPause
             continue
         fi
-        echo -e "\n   Scan complete, processing log file..."
+        echo
+        echo " * Scan complete, processing log file"
         debugPause
         output=$(cat /clamavscan/fog/log/log.txt | grep 'FOUND')
         oIFS=$IFS
@@ -124,7 +135,7 @@ for disk in $disks; do
             echo " * File id: $cnt"
             dots "Sending file id"
             wget -q -O /tmp/avstat "http://${web}service/av.php?mac=${mac}&string=${b64}&mode=${avmode}"
-            if [[ $? != 0 ]]; then
+            if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
                 continue
@@ -136,23 +147,7 @@ for disk in $disks; do
             cat /dev/null > /tmp/avstat
         done
         IFS=$oIFS
+        umount /clamavscan >/dev/null 2>&1
     done
 done
-echo
-queueinfo=""
-cd /tmp
-touch co.txt
-wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-queueinfo=$(cat co.txt)
-while [[ $queueinfo != "##" ]]; do
-    echo " * $queueinfo"
-    rm co.txt
-    touch co.txt
-    wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-    queueinfo=$(cat co.txt)
-    usleep 2000000
-done
-echo
-echo " * Database updated!"
-echo " * Task Complete"
-usleep 2000000
+. /bin/fog.nonimgcomplete

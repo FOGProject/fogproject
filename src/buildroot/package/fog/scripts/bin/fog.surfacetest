@@ -31,17 +31,4 @@ for disk in $disks; do
         echo "Done"
     fi
 done
-echo
-queueinfo=""
-cd /tmp
-wget -q -O /tmp/co.txt "htt://${web}service/Post_Wipe.php?mac=$mac" >/dev/null 2>&1
-queueinfo=$(cat co.txt)
-while [[ $queueinfo != "##" ]]; do
-    echo "        * $queueinfo"
-    rm co.txt
-    wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" >/dev/null 2>&1
-    queueinfo=$(cat co.txt)
-    usleep 5000000
-done
-echo " * Database updated!"
-echo " * Task Complete!"
+. /bin/fog.nonimgcomplete

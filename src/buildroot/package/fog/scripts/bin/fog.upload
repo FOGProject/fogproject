@@ -252,10 +252,4 @@ esac
 chmod -R 777 $imagePath
 queueinfo=""
 killStatusReporter
-post="http://${web}service/Post_Stage2.php?to=$img&mac=$mac&ftp=$ftp&size=$size&imgid=$imgid&osid=$osid&type=$type"
-queueinfo=$(wget -q -O - "$post" 2>/dev/null)
-while [[ $queueinfo != "##" ]]; do
-    echo "		* $queueinfo"
-    queueinfo=$(wget -q -O - "$post" 2>/dev/null)
-    usleep 5000000
-done
+. /bin/fog.imgcomplete

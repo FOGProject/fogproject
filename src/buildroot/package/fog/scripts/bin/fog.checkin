@@ -1,11 +1,11 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
 RUN_CHKDSK=""
-HOSTNAME_EARLY="0"
-OS_ID_WIN7="5"
-OS_ID_WIN8="6"
+HOSTNAME_EARLY=0
+OS_ID_WIN7=5
+OS_ID_WIN8=6
 for arg in $(cat /proc/cmdline); do
-    case "$arg" in
+    case $arg in
         initsh)
             ash -i
             ;;
@@ -23,11 +23,11 @@ mbrfile=""
 macWinSafe=$(echo $mac|sed 's/://g')
 sockets=$(grep "physical id" /proc/cpuinfo|sort -u|wc -l)
 arch=$(uname -m)
-if [[ $chkdsk  == 1 ]]; then
+if [[ $chkdsk  -eq 1 ]]; then
     RUN_CHKDSK="-x"
 fi
-if [[ $hostearly == 1 ]]; then
-    HOSTNAME_EARLY="1"
+if [[ $hostearly -eq 1 ]]; then
+    HOSTNAME_EARLY=1
 fi
 if [[ $mc == yes ]]; then
     method="UDPCAST"
@@ -37,10 +37,10 @@ else
     method="NFS"
 fi
 debugPause
-echo ""
+echo
 verifyNetworkConnection
 dots "Checking Operating System"
-determineOS "$osid"
+determineOS $osid
 echo $osname
 dots "Checking CPU Cores"
 cores=$(nproc)
@@ -48,23 +48,23 @@ echo $cores
 echo
 dots "Send method"
 echo $method
-blGo="0"
+blGo=0
 nfsServerName=""
 if [[ $mode == clamav ]]; then
     dots "Checking In"
-    queueinfo=$(wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&avmode=$avmode" 2>/dev/null)
+    queueinfo=$(wget --post-data="mac=$mac&avmode=$avmode" -qO - http://${web}service/Pre_Stage1.php >/dev/null 2>&1)
     echo "Done"
     debugPause
     dots "Mounting Clamav"
-    if [[ ! -d "/opt/fog/clamav" ]]; then
-        mkdir -p /opt/fog/clamav 2>/dev/null
+    if [[ ! -d /opt/fog/clamav ]]; then
+        mkdir -p /opt/fog/clamav
     fi
     mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $clamav /opt/fog/clamav
     echo "Done"
     debugPause
     dots "Adding clamav to path"
     if [[ -d /opt/fog/clamav/bin && -d /opt/fog/clamav/sbin ]]; then
-        export PATH=$PATH:/opt/fog/clamav/bin:/opt/fog/clamav/sbin 2>/dev/null
+        export PATH=$PATH:/opt/fog/clamav/bin:/opt/fog/clamav/sbin
     else
         handleError "Cannot find clamav binaries to run task."
     fi
@@ -73,103 +73,95 @@ if [[ $mode == clamav ]]; then
 fi
 if [[ $type == up ]]; then
     dots "Checking In"
-    queueinfo=$(wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null)
+    queueinfo=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/Pre_Stage1.php >/dev/null 2>&1)
     echo "Done"
     debugPause
     dots "Mounting File System"
-    mkdir /images 2>/dev/null
-    umount /images 2>/dev/null
-    mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images &> /dev/null
-    if [[ $? == 0 ]]; then
-        echo "Done"
-    else
+    mkdir -p /images
+    umount /images
+    mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images >/dev/null 2>&1
+    if [[ ! $? -eq 0 ]]; then
         echo "Failed"
+        debugPause
         handleError "Unable to mount NFS"
     fi
+    echo "Done"
     debugPause
-elif [[ $type == down && $capone != 1 ]]; then
+elif [[ $type == down && ! $capone -eq 1 ]]; then
     mac64=$(getMACAddresses | base64)
     dots "Attempting to send inventory"
-    doInventory 2>/dev/null
+    doInventory >/dev/null 2>&1
     poststring="mac=${mac64}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}"
     invres=""
     while [[ -z $invres ]]; do
-        invres=$(wget -O - --post-data="$poststring" "http://${web}service/inventory.php" 2>/dev/null)
+        invres=$(wget --post-data="$poststring" -qO - http://${web}service/inventory.php >/dev/null 2>&1)
         echo $invres
     done
     debugPause
     dots "Checking In"
-    while [[ $blGo == 0 ]]; do
-        if [[ $capone != 1 ]]; then
-            if [[ $mc != yes && $mc != bt ]]; then
-                queueinfo=$(wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null)
-                blPass=$(echo $queueinfo|grep "##")
-                waittime=0
-                while [[ -z $blPass ]]; do
-                    echo -n "		* $queueinfo ("
-                    sec2String "$waittime"
-                    echo ")"
-                    queueinfo=$(wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null)
-                    blPass=$(echo $queueinfo | grep "##")
-                    usleep 5000000
-                    waittime=$(($waittime + 5))
-                done
-                echo "Done"
-                debugPause
-                directive="${queueinfo:3}"
-                if [[ $directive != GO ]]; then
-                    tmpStorageIp=$(echo $queueinfo|cut -d'@' -f2 2>/dev/null)
-                    tmpStorage=$(echo $queueinfo|cut -d'@' -f3 2>/dev/null)
-                    tmpName=$(echo $queueinfo|cut -d'@' -f4 2>/dev/null)
-                    if [[ -z $tmpStorage && -z $tmpStorageIp ]]; then
-                        storage=$tmpStorage
-                        storageip=$tmpStorageIp
-                        nfsServerName=$tmpName
-                    else
-                        handleError "Error determining storage server!"
-                        exit 1
+    while [[ $blGo -eq 0 ]]; do
+        if [[ ! $capone -eq 1 ]]; then
+            case $mc in
+                [Yy][Ee][Ss])
+                    queueinfo=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/mc_checkin.php >/dev/null 2>&1)
+                    blPass=$(echo $queueinfo|grep "##")
+                    echo "Done"
+                    waittime=0
+                    while [[ -z $blPass ]]; do
+                        echo -n "		* $queueinfo ("
+                        sec2String "$waittime"
+                        echo ")"
+                        queueinfo=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/mc_checkin.php >/dev/null 2>&1)
+                        blPass=$(echo $queueinfo | grep "##")
+                        usleep 5000000
+                        waittime=$(($waittime + 5))
+                    done
+                    ;;
+                *)
+                    queueinfo=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/Pre_Stage1.php >/dev/null 2>&1)
+                    blPass=$(echo $queueinfo|grep "##")
+                    waittime=0
+                    while [[ -z $blPass ]]; do
+                        echo -n "		* $queueinfo ("
+                        sec2String "$waittime"
+                        echo ")"
+                        queueinfo=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/Pre_Stage1.php >/dev/null 2>&1)
+                        blPass=$(echo $queueinfo | grep "##")
+                        usleep 5000000
+                        waittime=$(($waittime + 5))
+                    done
+                    echo "Done"
+                    debugPause
+                    directive="${queueinfo:3}"
+                    if [[ $directive != GO ]]; then
+                        tmpStorageIp=$(echo $queueinfo|cut -d'@' -f2 2>/dev/null)
+                        tmpStorage=$(echo $queueinfo|cut -d'@' -f3 2>/dev/null)
+                        tmpName=$(echo $queueinfo|cut -d'@' -f4 2>/dev/null)
+                        if [[ -z $tmpStorage && -z $tmpStorageIp ]]; then
+                            storage=$tmpStorage
+                            storageip=$tmpStorageIp
+                            nfsServerName=$tmpName
+                        else
+                            handleError "Error determining storage server!"
+                            exit 1
+                        fi
+                        dots "Using Storage Node"
+                        echo "$nfsServerName"
+                        debugPause
                     fi
-                    dots "Using Storage Node"
-                    echo "$nfsServerName"
-                    debugPause
-                fi
-            else
-                queueinfo=$(wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null)
-                blPass=$(echo $queueinfo|grep "##")
-                echo "Done"
-                waittime=0
-                while [[ -z $blPass ]]; do
-                    echo -n "		* $queueinfo ("
-                    sec2String "$waittime"
-                    echo ")"
-                    queueinfo=$(wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null)
-                    blPass=$(echo $queueinfo | grep "##")
-                    usleep 5000000
-                    waittime=$(($waittime + 5))
-                done
-                if [[ $mc == bt ]]; then
-                    dots "Using image"
-                    wget -q -O /tmp/$img.torrent http://${web}/service/torrent.php?torrent=$img
-                    ctorrent /tmp/$img.torrent -x > /tmp/filelist.txt
-                    torrentDownloadSize=$(cat /tmp/filelist.txt|grep "Total:*"|awk '{print $2}')
-                    echo "$img"
-                    dots "Size of image to download"
-                    echo "$torrentDownloadSize MB"
-                    debugPause
-                fi
-            fi
+                    ;;
+            esac
             dots "Mounting File System"
             mkdir /images $debugstring 2>/dev/null
             mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail
-            mntRet="$?"
-            if [[ $mntRet != 0 && ! -f /images/.mntcheck ]]; then
-                blame=$(wget -q -O - "http://${web}service/blame.php?mac=$mac&type=$type" 2>/dev/null)
+            if [[ ! $? -eq 0 && ! -f /images/.mntcheck ]]; then
+                blame=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/blame.php >/dev/null 2>&1)
                 if [[ $blame != "##" ]]; then
                     echo "Failed"
                     echo
                     echo "Error during failure notification: $blame"
                     while [[ ! $blame != "##" ]]; do
-                        blame=$(wget -q -O - "http://${web}service/blame.php?mac=$mac&type=$type" 2>/dev/null)
+                        blame=$(wget --post-data="mac&$mac&type=$type" -qO - http://${web}service/blame.php >/dev/null 2>&1)
                         if [[ $blame != "##" ]]; then
                             echo $blame
                         fi
@@ -184,7 +176,7 @@ elif [[ $type == down && $capone != 1 ]]; then
                 usleep 5000000
             else
                 echo "Done"
-                blGo="1"
+                blGo=1
             fi
             debugPause
         fi
