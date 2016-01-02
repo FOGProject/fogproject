@@ -1006,7 +1006,7 @@ EOF
     fi
     if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e /opt/fog/snapins/ssl || ! -e /opt/fog/snapins/ssl/.srvprivate.key ]]; then
         dots "Creating SSL Private Key"
-        mkdir -p /opt/fog/snapins/ssl &2>>>/var/log/fog_error_${version}.log
+        mkdir -p /opt/fog/snapins/ssl >>/var/log/fog_error_${version}.log 2>&1
         openssl genrsa -out /opt/fog/snapins/ssl/.srvprivate.key 4096 >>/var/log/fog_error_${version}.log 2>&1
         openssl req -new -key /opt/fog/snapins/ssl/.srvprivate.key -out /opt/fog/snapins/ssl/fog.csr >>/var/log/fog_error_${version}.log 2>&1 << EOF
 .
