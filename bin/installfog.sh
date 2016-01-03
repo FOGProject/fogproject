@@ -43,19 +43,22 @@ else
         OSVersion=$(cat /etc/debian_version)
     fi
 fi
-case $linuxReleaseName in
-    *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
-        apt-get -yq install lsb_release >/var/log/fog_error_${version}.log 2>&1
-        ;;
-    *[Cc][Ee][Nn][Tt][Oo][Ss]*|*[Rr][Ee][Dd]*[Hh][Aa][Tt]*|*[Ff][Ee][Dd][Oo][Rr][Aa]*)
-        command -v dnf >>/var/log/fog_error_${version}.log 2>&1
-        if [[ $? -eq 0 ]]; then
-            dnf -y install redhat-lsb-core >/var/log/fog_error_${version}.log 2>&1
-        else
-            yum -y install redhat-lsb-core >/var/log/fog_error_${version}.log 2>&1
-        fi
-        ;;
-esac
+command -v lsb_release >/var/log/fog_error_${version}.log 2>&1
+if [[ ! $? -eq 0 ]]; then
+    case $linuxReleaseName in
+        *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
+            apt-get -yq install lsb_release >>/var/log/fog_error_${version}.log 2>&1
+            ;;
+        *[Cc][Ee][Nn][Tt][Oo][Ss]*|*[Rr][Ee][Dd]*[Hh][Aa][Tt]*|*[Ff][Ee][Dd][Oo][Rr][Aa]*)
+            command -v dnf >>/var/log/fog_error_${version}.log 2>&1
+            if [[ $? -eq 0 ]]; then
+                dnf -y install redhat-lsb-core >>/var/log/fog_error_${version}.log 2>&1
+            else
+                yum -y install redhat-lsb-core >>/var/log/fog_error_${version}.log 2>&1
+            fi
+            ;;
+    esac
+fi
 if [[ -z $OSVersion ]]; then
     OSVersion=$(lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $2}')
 fi
