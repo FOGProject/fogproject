@@ -297,6 +297,9 @@ function buildRow(data,templates,attributes) {
         row = '';
     }
     tbody.append(rows);
+    $('.toggle-action').change(function() {
+        checkedIDs = getChecked();
+    });
     setChecked(checkedIDs);
     HookTooltips();
     if (node == 'task' && (typeof(sub) == 'undefined' || sub == 'active')) {
