@@ -196,34 +196,47 @@ mask2network() {
     printf "%d.%d.%d.%d\n"  "$((i1 & m1))" "$((i2 & m2))" "$((i3 & m3))" "$((i4 & m4))"
 }
 interface2broadcast() {
-        #Expects interface name to be passed.
-        broadcast=$(ip addr show |grep -w inet | grep $1 | awk '{ print $4}')
-        printf $broadcast
+    local interface=$1
+    if [[ -z $interface ]]; then
+        echo "No interface passed"
+        return 1
+    fi
+    echo $(ip addr show | grep -w inet | grep $interface | awk '{print $4}')
 }
 subtract1fromAddress() {
-        #Expects an IP address to be passed.
-        #Subtracts 1 from passed IP.
-        #Intended to find last valid IP Address on a subnet given a valid broadcast address.
-        IFS=. read ip1 ip2 ip3 ip4 <<< "$1"
-        if [[ $ip4 -gt 0 ]]; then
-                let ip4-=1
-        elif [[ $ip3 -gt 0 ]]; then
-                let ip3-=1
-                ip4=255
-        elif [[ $ip2 -gt 0 ]]; then
-                let ip2-=1
-                ip3=255
-                ip4=255
-        elif [[ $ip1 -gt 0 ]]; then
-                let ip1-=1
-                ip2=255
-                ip3=255
-                ip4=255
-        else
-                #Not a valid IP or all 0s were passed.
-                exit 2
-        fi
-                printf $ip1.$ip2.$ip3.$ip4
+    local ip=$1
+    if [[ -z $ip ]]; then
+        echo "No IP Passed"
+        return 1
+    fi
+    if [[ ! $(validip $ip) -eq 0 ]]; then
+        echo "Invalid IP Passed"
+        return 1
+    fi
+    oIFS=$IFS
+    IFS='.'
+    read ip1 ip2 ip3 ip4 <<< "$ip"
+    IFS=$oIFS
+    if [[ $ip4 -gt 0 ]]; then
+        let ip4-=1
+    elif [[ $ip3 -gt 0 ]]; then
+        let ip3-=1
+        ip4=255
+    elif [[ $ip2 -gt 0 ]]; then
+        let ip2-=1
+        ip3=255
+        ip4=255
+    elif [[ $ip1 -gt 0 ]]; then
+        let ip1-=1
+        ip2=255
+        ip3=255
+        ip4=255
+    else
+        echo "Invalid IP ranges were passed"
+        echo ${ip1}.${ip2}.${ip3}.${ip4}
+        return 2
+    fi
+    echo ${ip1}.${ip2}.${ip3}.${ip4}
 }
 restoreReports() {
     dots "Restoring user reports"
@@ -232,7 +245,7 @@ restoreReports() {
             cp -a ../rpttmp/* $webdirdest/management/reports/
         fi
     fi
-   errorStat $? $exitFail
+    errorStat $?
 }
 installFOGServices() {
     dots "Setting up FOG Services"
