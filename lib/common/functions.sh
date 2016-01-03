@@ -799,7 +799,7 @@ configureUsers() {
     getent passwd $username > /dev/null
     if [[ $? != 0 ]] || [[ ! $doupdate -eq 1 ]]; then
         dots "Setting up fog user"
-        password=$(dd if=/dev/urandom bs=1 count=9 >>/var/log/fog_error_${version}.log  2>&1 | base64)
+        password=$(openssl rand -base64 32)
         if [[ $installtype == S ]]; then
             storageftpuser=$username
             storageftppass=$password
@@ -837,7 +837,7 @@ EOF
     fi
     if [[ -z $password && -z $storageftppass ]]; then
         dots "Setting password for FOG User"
-        password=$(dd if=/dev/urandom bs=1 count=9 >>/var/log/fog_error_${version}.log 2>&1 | base64)
+        password=$(openssl rand -base64 32)
         passwd $username >>/var/log/fog_error_${version}.log 2>&1 << EOF
 $password
 $password
