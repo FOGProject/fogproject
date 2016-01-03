@@ -1243,11 +1243,11 @@ configureHttpd() {
     sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' $phpini >>/var/log/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Testing and removing symbolic links if found"
-    if [[ -h /var/www/fog ]]; then
-        rm -f /var/www/fog >>/var/log/fog_error_${version}.log 2>&1
+    if [[ -h ${docroot}fog ]]; then
+        rm -f ${docroot}fog >>/var/log/fog_error_${version}.log 2>&1
     fi
-    if [[ -h /var/www/html/fog ]]; then
-        rm -f /var/www/html/fog >>/var/log/fog_error_${version}.log 2>&1
+    if [[ -h ${docroot}${webroot} ]]; then
+        rm -f ${docroot}${webroot} >>/var/log/fog_error_${version}.log 2>&1
     fi
     errorStat $?
     dots "Backing up old data"
@@ -1259,13 +1259,13 @@ configureHttpd() {
         rm -rf "$webdirdest" >>/var/log/fog_error_${version}.log 2>&1
     fi
     if [[ $osid -eq 2 ]]; then
-        if [[ -d /var/www/fog ]]; then
-            rm -rf /var/www/fog >>/var/log/fog_error_${version}.log 2>&1
+        if [[ -d ${docroot}fog ]]; then
+            rm -rf ${docroot} >>/var/log/fog_error_${version}.log 2>&1
         fi
     fi
     mkdir -p "$webdirdest" >>/var/log/fog_error_${version}.log 2>&1
-    if [[ -d /var/www && ! -h /var/www/fog ]] || [[ ! -d /var/www/fog ]]; then
-        ln -s $webdirdest  /var/www/fog >>/var/log/fog_error_${version}.log 2>&1
+    if [[ -d $docroot && ! -h ${docroot}fog ]] || [[ ! -d ${docroot}fog ]]; then
+        ln -s ${docroot}$webdirdest  ${docroot}fog >>/var/log/fog_error_${version}.log 2>&1
     fi
     errorStat $?
     if [[ -d ${backupPath}/fog_web_${version}.BACKUP ]]; then
