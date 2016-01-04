@@ -51,28 +51,28 @@ casever64=""
 caseserial64=""
 casesasset64=""
 echo
-dots " * Using disk device"
+dots "Using disk device"
 getHardDisk
 echo "$hd"
-echo " * Starting host registration"
+echo "Starting host registration"
 mac_deployed=$mac
 mac=$(getMACAddresses | base64)
 echo
-dots " * Attempting to register host"
+dots "Attempting to register host"
 count=0
 res=""
 while [[ -z $res ]]; do
-    res=$(wget --post-data="mac=$mac" -qO - http://${web}service/auto.register.php >/dev/null 2>&1)
-    if [[ $count == 10 ]]; then
+    res=$(wget --post-data="mac=$mac" -qO - http://${web}service/auto.register.php 2>/dev/null)
+    if [[ $count -ge 10 ]]; then
         echo "Failed"
         handleError "Cannot register host"
     fi
-    count=$(($count + 1))
-    usleep 2000000
+    let count+=1
+    usleep 5000000
 done
 echo "$res"
 . /bin/fog.inventory
 count=0
-if [[ $deployed == 1 ]]; then
+if [[ $deployed -eq 1 ]]; then
     . /bin/fog.nonimgcomplete $mac_deployed
 fi

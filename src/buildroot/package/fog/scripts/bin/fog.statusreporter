@@ -1,7 +1,6 @@
 #!/bin/bash
 oIFS=$IFS
-IFS='
-'
+IFS=$'\n'
 mac=$1
 web=$2
 usleep 3000000
@@ -11,7 +10,8 @@ while :; do
     cat /dev/null > $fle 2>/dev/null
     if [[ -n $mac ]]; then
         status=$(echo $status | base64)
-        res=$(wget -T 3 -O - --post-data="mac=$mac&status=$status" http://${web}service/progress.php >/dev/null 2>&1)
+        res=$(wget -T 3 -O - --post-data="mac=$mac&status=$status" http://${web}service/progress.php 2>/dev/null)
         usleep 3000000
     fi
 done
+IFS=$oIFS

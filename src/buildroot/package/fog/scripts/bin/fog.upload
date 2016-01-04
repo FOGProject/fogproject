@@ -1,6 +1,21 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.checkin
+dots "Mounting File System"
+mkdir -p /images
+umount /images
+mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images >/dev/null 2>&1
+if [[ ! $? -eq 0 ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Unable to mount NFS"
+fi
+echo "Done"
+debugPause
+dots "Mounting File System"
+mkdir /images $debugstring 2>/dev/null
+mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail
+echo "Done"
 echo " * Preparing to send image file to server"
 imagePath="/images/$macWinSafe"
 percent=$pct
@@ -16,8 +31,8 @@ statusReporter="$!";
 . /bin/fog.checkimgvar
 prepareUploadLocation
 echo " * Using Image: $img"
-case "$imgType" in
-    [n]|mps|dd)
+case $imgType in
+    [Nn]|mps|dd)
         dots "Looking for Hard Disk"
         getHardDisk
         if [[ -z $hd ]]; then
