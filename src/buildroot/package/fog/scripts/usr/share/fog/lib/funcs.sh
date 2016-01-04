@@ -589,7 +589,7 @@ doInventory() {
     cpucurrent=$(dmidecode -t 4 | grep 'Current Speed:' | head -n1)
     cpumax=$(dmidecode -t 4 | grep 'Max Speed:' | head -n1)
     mem=$(cat /proc/meminfo | grep MemTotal)
-    hdinfo=$(hdparm -i $hd | grep Model=)
+    hdinfo=$(hdparm -i $hd >/dev/null 2>&1 | grep Model=)
     caseman=$(dmidecode -s chassis-manufacturer)
     casever=$(dmidecode -s chassis-version)
     caseserial=$(dmidecode -s chassis-serial-number)
@@ -813,7 +813,7 @@ display_right() {
     printf "%*s\n" $columns "$line"
 }
 displayBanner() {
-    version=$(wget -q -O - http://${web}service/getversion.php)
+    version=$(wget -qO - http://${web}service/getversion.php 2>/dev/null)
     echo
     echo
     display_center "+------------------------------------------+"

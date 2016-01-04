@@ -4,6 +4,23 @@
 . /bin/fog.checkin
 clearScreen
 displayBanner
+dots "Mounting Clamav"
+if [[ ! -d /opt/fog/clamav ]]; then
+    mkdir -p /opt/fog/clamav
+fi
+mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $clamav /opt/fog/clamav
+echo "Done"
+debugPause
+dots "Adding clamav to path"
+if [[ -d /opt/fog/clamav/bin && -d /opt/fog/clamav/sbin ]]; then
+    export PATH=$PATH:/opt/fog/clamav/bin:/opt/fog/clamav/sbin
+else
+    echo "Failed"
+    debugPause
+    handleError "Cannot find clamav binaries to run task."
+fi
+echo "Done"
+debugPause
 dots "Updating clamav"
 freshclam >/dev/null 2>&1
 if [[ $? != 0 ]]; then
@@ -134,7 +151,7 @@ for disk in $disks; do
             cnt=$(($cnt+1))
             echo " * File id: $cnt"
             dots "Sending file id"
-            wget -q -O /tmp/avstat "http://${web}service/av.php?mac=${mac}&string=${b64}&mode=${avmode}"
+            wget --post-data="mac=$mac&string=$b64&mode=$avmode" -qO /tmp/avstat http://${web}service/av.php >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause

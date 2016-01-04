@@ -12,13 +12,13 @@ dots "Checking in with server"
 count=0
 res=""
 while [[ $res != "##" ]]; do
-    res=$(wget --post-data="mac=$mac" -qO - http://${web}service/Post_Wipe.php >/dev/null 2>&1)
+    res=$(wget --post-data="mac=$mac" -qO - http://${web}service/Post_Wipe.php 2>/dev/null)
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
         handleError "Could not check in"
     fi
-    count=$(($count + 1))
+    let count+=1
     usleep 5000000
 done
 echo "Done"

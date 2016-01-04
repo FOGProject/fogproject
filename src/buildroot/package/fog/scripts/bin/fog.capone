@@ -19,20 +19,20 @@ dots "Looking up DMI field"
 count=0
 dmi=""
 while [[ -z $dmi ]]; do
-    dmi=$(wget --post-data="action=dmi" -qO - http://${web}service/capone.php >/dev/null 2>&1)
-    if [[ $count == 10 ]]; then
+    dmi=$(wget --post-data="action=dmi" -qO - http://${web}service/capone.php 2>/dev/null)
+    if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
         handleError "Could not find DMI Value"
     fi
-    count=$(($count +1))
-    usleep 2000000
+    let count+=1
+    usleep 5000000
 done
 echo "Done"
 debugPause
-dmivalue=$(dmidecode -s $dmi)
 echo
 dots "Using Key Value:"
+dmivalue=$(dmidecode -s $dmi)
 echo "$dmivalue"
 echo
 usleep 1000000
@@ -40,21 +40,20 @@ dmi64=$(echo $dmivalue | base64)
 dots "Looking for images"
 count=0
 img=""
-while [[ -z "$img" ]]; do
-    img=$(wget -O - "http://${web}service/capone.php?action=imagelookup&key=${dmi64}" 2>/dev/null)
-    if [[ $count == 10 ]]; then
+while [[ -z $img ]]; do
+    img=$(wget --post-data="action=imagelookup&key=${dmi64}" -qO - http://${web}service/capone.php 2>/dev/null)
+    if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
         handleError "Count not find an Image definition"
     fi
-    count=$(($count +1))
-    usleep 2000000
+    let count+=1
+    usleep 5000000
 done
 echo "Done"
 debugPause
 oIFS=$IFS
-IFS="
-"
+IFS=$'\n'
 cnt=0
 linedecode=""
 echo
@@ -63,7 +62,7 @@ for line in $img; do
     if [[ -z $linedecode ]]; then
         handleError "No image definition was found for $dmivalue"
     fi
-    cnt=$(($cnt + 1))
+    let cnt+=1
     determineOS $(echo $linedecode | awk -F"|" '{print $2}')
     echo -n " ID $cnt) "
     echo -n " OS: $osname"
@@ -108,7 +107,7 @@ case $cnt in
         cnt=0
         for line in $img; do
             linedecode=$(echo $line | base64 -d)
-            cnt=$(($cnt + 1))
+            let cnt+=1
             if [[ $cnt == $imgchoice ]]; then
                 img=$(echo $linedecode | awk -F"|" '{print $1}')
                 osid=$(echo $linedecode | awk -F"|" '{print $2}')

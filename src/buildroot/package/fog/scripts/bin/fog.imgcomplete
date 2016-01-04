@@ -22,13 +22,13 @@ count=0
 res=""
 dots " * Updating Database"
 while [[ $res != "##" ]]; do
-    res=$(wget --post-data="$poststring" -qO http://${web}service/$php_post >/dev/null 2>&1)
+    res=$(wget --post-data="$poststring" -qO http://${web}service/$php_post 2>/dev/null)
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
         handleError "Could not complete tasking"
     fi
-    count=$(($count+1))
+    let count+=1
     usleep 5000000
 done
 echo "Done"

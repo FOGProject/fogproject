@@ -50,141 +50,62 @@ dots "Send method"
 echo $method
 blGo=0
 nfsServerName=""
-if [[ $mode == clamav ]]; then
-    dots "Checking In"
-    queueinfo=$(wget --post-data="mac=$mac&avmode=$avmode" -qO - http://${web}service/Pre_Stage1.php >/dev/null 2>&1)
-    echo "Done"
-    debugPause
-    dots "Mounting Clamav"
-    if [[ ! -d /opt/fog/clamav ]]; then
-        mkdir -p /opt/fog/clamav
-    fi
-    mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $clamav /opt/fog/clamav
-    echo "Done"
-    debugPause
-    dots "Adding clamav to path"
-    if [[ -d /opt/fog/clamav/bin && -d /opt/fog/clamav/sbin ]]; then
-        export PATH=$PATH:/opt/fog/clamav/bin:/opt/fog/clamav/sbin
-    else
-        handleError "Cannot find clamav binaries to run task."
-    fi
-    echo "Done"
-    debugPause
-fi
-if [[ $type == up ]]; then
-    dots "Checking In"
-    queueinfo=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/Pre_Stage1.php >/dev/null 2>&1)
-    echo "Done"
-    debugPause
-    dots "Mounting File System"
-    mkdir -p /images
-    umount /images
-    mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Unable to mount NFS"
-    fi
-    echo "Done"
-    debugPause
-elif [[ $type == down && ! $capone -eq 1 ]]; then
-    mac64=$(getMACAddresses | base64)
-    dots "Attempting to send inventory"
-    doInventory >/dev/null 2>&1
-    poststring="mac=${mac64}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}"
-    invres=""
-    while [[ -z $invres ]]; do
-        invres=$(wget --post-data="$poststring" -qO - http://${web}service/inventory.php >/dev/null 2>&1)
-        echo $invres
-    done
-    debugPause
-    dots "Checking In"
-    while [[ $blGo -eq 0 ]]; do
-        if [[ ! $capone -eq 1 ]]; then
-            case $mc in
-                [Yy][Ee][Ss])
-                    queueinfo=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/mc_checkin.php >/dev/null 2>&1)
-                    blPass=$(echo $queueinfo|grep "##")
-                    echo "Done"
-                    waittime=0
-                    while [[ -z $blPass ]]; do
-                        echo -n "		* $queueinfo ("
-                        sec2String "$waittime"
-                        echo ")"
-                        queueinfo=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/mc_checkin.php >/dev/null 2>&1)
-                        blPass=$(echo $queueinfo | grep "##")
-                        usleep 5000000
-                        waittime=$(($waittime + 5))
-                    done
-                    ;;
-                *)
-                    queueinfo=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/Pre_Stage1.php >/dev/null 2>&1)
-                    blPass=$(echo $queueinfo|grep "##")
-                    waittime=0
-                    while [[ -z $blPass ]]; do
-                        echo -n "		* $queueinfo ("
-                        sec2String "$waittime"
-                        echo ")"
-                        queueinfo=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/Pre_Stage1.php >/dev/null 2>&1)
-                        blPass=$(echo $queueinfo | grep "##")
-                        usleep 5000000
-                        waittime=$(($waittime + 5))
-                    done
-                    echo "Done"
-                    debugPause
-                    directive="${queueinfo:3}"
-                    if [[ $directive != GO ]]; then
-                        tmpStorageIp=$(echo $queueinfo|cut -d'@' -f2 2>/dev/null)
-                        tmpStorage=$(echo $queueinfo|cut -d'@' -f3 2>/dev/null)
-                        tmpName=$(echo $queueinfo|cut -d'@' -f4 2>/dev/null)
-                        if [[ -z $tmpStorage && -z $tmpStorageIp ]]; then
-                            storage=$tmpStorage
-                            storageip=$tmpStorageIp
-                            nfsServerName=$tmpName
-                        else
-                            handleError "Error determining storage server!"
-                            exit 1
-                        fi
-                        dots "Using Storage Node"
-                        echo "$nfsServerName"
-                        debugPause
-                    fi
-                    ;;
-            esac
-            dots "Mounting File System"
-            mkdir /images $debugstring 2>/dev/null
-            mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail
-            if [[ ! $? -eq 0 && ! -f /images/.mntcheck ]]; then
-                blame=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/blame.php >/dev/null 2>&1)
-                if [[ $blame != "##" ]]; then
-                    echo "Failed"
-                    echo
-                    echo "Error during failure notification: $blame"
-                    while [[ ! $blame != "##" ]]; do
-                        blame=$(wget --post-data="mac&$mac&type=$type" -qO - http://${web}service/blame.php >/dev/null 2>&1)
-                        if [[ $blame != "##" ]]; then
-                            echo $blame
-                        fi
-                        usleep 5000000
-                    done
-                else
-                    echo "Failed"
-                    echo
-                    cat /tmp/mntfail
-                    echo
-                fi
-                usleep 5000000
-            else
-                echo "Done"
-                blGo=1
-            fi
+checkin() {
+    local poststring=$1
+    local php_post=$2
+    dots "Attempting to check in"
+    local count=0
+    local res=""
+    local waittime=0
+    while [[ $res != "##@GO" ]]; do
+        res=$(wget --post-data="$poststring" -qO - http://${web}service/$php_post 2>/dev/null)
+        if [[ $res != "##@GO" ]]; then
+            echo "Failed"
             debugPause
+            echo -n " * $res ("
+            sec2string $waittime
+            echo ")"
+            let waittime+=5
+            usleep 5000000
+            dots "Attempting to check in"
         fi
     done
-else
     echo "Done"
-    dots "Mounting File System"
-    mkdir /images $debugstring 2>/dev/null
-    mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail
-    echo "Done"
+    debugPause
+    directive="${res:3}"
+    if [[ $directive != GO ]]; then
+        tmpStorageIp=$(echo $queueinfo|cut -d'@' -f2 2>/dev/null)
+        tmpStorage=$(echo $queueinfo|cut -d'@' -f3 2>/dev/null)
+        tmpName=$(echo $queueinfo|cut -d'@' -f4 2>/dev/null)
+        if [[ -z $tmpStorage && -z $tmpStorageIp ]]; then
+            storage=$tmpStorage
+            storageip=$tmpStorageIp
+            nfsServerName=$tmpName
+        else
+            handleError "Error determining storage server!"
+            exit 1
+        fi
+        dots "Using Storage Node"
+        echo "$nfsServerName"
+        debugPause
+    fi
+}
+case $mc in
+    [Yy][Ee][Ss])
+        php_post="mc_checkin.php"
+        ;;
+    *)
+        php_post="Pre_Stage1.php"
+        ;;
+esac
+case $mode in
+    clamav)
+        poststring="mac=$mac&avmode=$avmode"
+        ;;
+    "")
+        poststring="mac=$mac&type=$type"
+        ;;
+esac
+if [[ ! $capone -eq 1 ]]; then
+    checkin $poststring $php_post
 fi
