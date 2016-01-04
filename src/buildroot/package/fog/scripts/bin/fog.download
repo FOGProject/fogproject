@@ -5,29 +5,25 @@
 dots "Mounting File System"
 mkdir /images $debugstring 2>/dev/null
 mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail
+blame=""
+count=0
 if [[ ! $? -eq 0 && ! -f /images/.mntcheck ]]; then
-    blame=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/blame.php 2>/dev/null)
-    if [[ $blame != "##" ]]; then
-        echo "Failed"
-        echo
-        echo "Error during failure notification: $blame"
-        while [[ ! $blame != "##" ]]; do
-            blame=$(wget --post-data="mac&$mac&type=$type" -qO - http://${web}service/blame.php 2>/dev/null)
-            if [[ $blame != "##" ]]; then
-                echo $blame
-            fi
-            usleep 5000000
-        done
-    else
-        echo "Failed"
-        echo
-        cat /tmp/mntfail
-        echo
-    fi
-    usleep 5000000
-else
-    echo "Done"
+    while [[ $blame != '##' ]]; do
+        blame=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/blame.php 2>/dev/null)
+        if [[ $count -ge 10 ]]; then
+            echo "Failed"
+            debugPause
+            handleError "Error during failure notification: $blame"
+        fi
+        let count+=1
+        usleep 5000000
+    done
+    echo "Failed"
+    debugPause
+    handleError "Error mounting NFS or .mntcheck file missing"
 fi
+echo "Done"
+debugPause
 origmac=$mac
 mac=$(getMACAddresses | base64)
 . /bin/fog.inventory "true"
@@ -330,7 +326,7 @@ case "$imgType" in
             restorePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath"
             runPartprobe $disk
             gptcheck="$global_gptcheck"
-            intDisk=$(($intDisk + 1))
+            let intDisk+=1
         done
         ;;
 esac
@@ -434,7 +430,7 @@ case "$imgType" in
                 fi
             done
             makeAllSwapSystems "$disk" "1" "$imagePath" "$imgPartitionType"
-            intDisk=$(($intDisk + 1))
+            let intDisk+=1
         done
         ;;
     dd)
