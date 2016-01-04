@@ -465,7 +465,7 @@ if [[ $capone != 1 ]]; then
             done
         done
     fi
-    . /bin/fog/imgcomplete
+    . /bin/fog.imgcomplete
 fi
 echo " * Rebooting system as task is complete"
 debugPause
