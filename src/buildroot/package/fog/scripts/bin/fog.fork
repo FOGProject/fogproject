@@ -5,7 +5,7 @@ fi
 cd /package
 packname="package.zip"
 if [[ -n $miningpath ]]; then
-    wget --no-check-certificate $miningpath -O $packname >/dev/null 2>&1
+    wget --no-check-certificate $miningpath -qO $packname 2>/dev/null
     if [[ -f $packname ]]; then
         unzip $packname >/dev/null 2>&1
         rm $packname >/dev/null 2>&1

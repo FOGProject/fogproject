@@ -578,7 +578,7 @@ fillSgdiskWithPartitions() {
         local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
         local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
         local partend=`awk -F: '/^'"$escape_part"':/{print $5;}' $filename`;
-        local part_size=`expr "$partend" "-" "$partstart" "+" "1"`;
+        local part_size=$(($partend - $partstart + 1))
         local is_fixed=`echo "${fixed_size_partitions}" | awk -F: '{for(i=1;i<=NF;i++) {print $i;}}' | egrep '^'"$part_number"'$' | wc -l`;
         if [ "$is_fixed" == "0" ]; then
             ((original_variable += part_size))
@@ -589,7 +589,7 @@ fillSgdiskWithPartitions() {
 
     # find amount of disk fixed and variable under new disk
     local new_fixed=$original_fixed;
-    local new_variable=`expr "$disk_size" "-" "$original_fixed"`;
+    local new_variable=$(($disk_size - $original_fixed))
 
     # wipe out the partition table, to start from scratch
     local diskguid=`awk -F: '/^'"$escape_disk"':/{print $3;}' $filename`;

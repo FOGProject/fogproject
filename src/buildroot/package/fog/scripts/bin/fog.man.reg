@@ -57,7 +57,7 @@ dots "Using disk device"
 echo $hd
 echo " * Starting host registration"
 mac=$(getMACAddresses | base64)
-exists=$(wget -O - --post-data="mac=${mac}" http://${web}service/man.hostexists.php 2>/dev/null)
+exists=$(wget --post-data="mac=${mac}" -qO - http://${web}service/man.hostexists.php 2>/dev/null)
 if [[ $exists = "#!ok" ]]; then
     host=""
     ip=""
@@ -92,7 +92,7 @@ if [[ $exists = "#!ok" ]]; then
         read imageid
         if [[ $imageid == "?" ]]; then
             clearScreen
-            res=$(wget -q -O- "http://${web}service/imagelisting.php" 2>/dev/null)
+            res=$(wget -qO - http://${web}service/imagelisting.php 2>/dev/null)
             i=0
             res=$(echo -e $res)
             oIFS=$IFS
@@ -293,7 +293,7 @@ if [[ $exists = "#!ok" ]]; then
                 echo
                 user64=$(echo -e $username | tr -d '\012' | base64)
                 pass64=$(echo -e $password | tr -d '\012' | base64)
-                tmp=$(wget -O - --post-data="mac=${mac}&username=$user64&password=$pass64" http://${web}service/checkcredentials.php 2>/dev/null)
+                tmp=$(wget --post-data="mac=${mac}&username=$user64&password=$pass64" -qO - http://${web}service/checkcredentials.php 2>/dev/null)
                 if [[ $tmp == "#!ok" ]]; then
                     echo
                     echo "    This host will reboot and imaging will start!"
@@ -314,7 +314,7 @@ if [[ $exists = "#!ok" ]]; then
     dots "Attempting to register host"
     res=""
     while [[ -z $res ]]; do
-        res=$(wget -O - --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64&snapinid=$snapin64&productKey=$productKey" "http://${web}service/auto.register.php" 2>/dev/null)
+        res=$(wget --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64&snapinid=$snapin64&productKey=$productKey" -qO - http://${web}service/auto.register.php 2>/dev/null)
         echo "$res"
         usleep 2000000
     done
