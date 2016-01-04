@@ -3,32 +3,41 @@
 . /bin/fog.donate
 clearScreen
 displayBanner
+dots "Location disks"
 getHardDisk "true"
 if [[ -z $disks ]]; then
+    echo "Failed"
+    debugPause
     handleError "No hard disks found!"
 fi
-echo
-cd /tmp
-queuinfo=""
-wget -q -O /tmp/co.txt "http://${web}service/Pre_Stage1.php?mac=$mac" &>/dev/null
-queueinfo=$(cat co.txt)
-while [[ $queueinfo != "##@GO" ]]; do
-    echo "		* $queueinfo"
-    rm co.txt
-    wget -q -O co.txt "http://${web}service/Pre_Stage1.php?mac=$mac" &>/dev/null
-    queuinfo=$(cat co.txt)
+echo "Done"
+debugPause
+dots "Attempting to checkin"
+res=""
+count=0
+while [[ $res != "##@GO" ]]; do
+    res=$(wget --post-data="mac=$mac" -qO - http://${web}service/Pre_Stage1.php 2>/dev/null)
+    if [[ $count -ge 10 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Could not checkin"
+    fi
+    let count+=1
     usleep 5000000
 done
-rm co.txt
+echo "Done"
+debugPause
 for disk in $disks; do
     dots " * Disk Surface test for $disk"
     echo
     usleep 2000000
     badblocks -sv $disk
-    if [[ $? != 0 ]]; then
+    if [[ ! $? -eq 0 ]]; then
         echo "Failed"
-    else
-        echo "Done"
+        debugPause
+        handleError "Could not perform surface scan on $disk"
     fi
+    echo "Done"
+    debugPause
 done
 . /bin/fog.nonimgcomplete

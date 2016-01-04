@@ -2,6 +2,37 @@
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
 . /bin/fog.checkin
+dots "Mounting File System"
+mkdir /images $debugstring 2>/dev/null
+mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail
+if [[ ! $? -eq 0 && ! -f /images/.mntcheck ]]; then
+    blame=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/blame.php 2>/dev/null)
+    if [[ $blame != "##" ]]; then
+        echo "Failed"
+        echo
+        echo "Error during failure notification: $blame"
+        while [[ ! $blame != "##" ]]; do
+            blame=$(wget --post-data="mac&$mac&type=$type" -qO - http://${web}service/blame.php 2>/dev/null)
+            if [[ $blame != "##" ]]; then
+                echo $blame
+            fi
+            usleep 5000000
+        done
+    else
+        echo "Failed"
+        echo
+        cat /tmp/mntfail
+        echo
+    fi
+    usleep 5000000
+else
+    echo "Done"
+fi
+origmac=$mac
+mac=$(getMACAddresses | base64)
+. /bin/fog.inventory "true"
+mac=$origmac
+origmac=""
 layPartSize="-1s"
 imagePath="/images/$img"
 fog.statusreporter "$mac" "$web" & disown
@@ -18,7 +49,7 @@ case "$imgType" in
         if [[ -z $hd ]]; then
             echo "Failed"
             debugPause
-            handleError "Count not find hard disk"
+            handleError "Could not find hard disk"
         fi
         echo "Done"
         debugPause
@@ -27,6 +58,7 @@ case "$imgType" in
             layPartSize="2tB"
         fi
         display_center "Using Disk: $hd"
+        echo
         validResizeOS
         enableWriteCache $hd
         ;;
