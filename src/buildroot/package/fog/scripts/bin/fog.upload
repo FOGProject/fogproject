@@ -149,7 +149,7 @@ case "$imgType" in
                         break
                     fi
                 fi
-                fixedcount=$(($fixedcount + 1))
+                let fixedcount+=1
             done
             # All:
             #  save the list of fixed size partitions
@@ -251,7 +251,7 @@ case "$imgType" in
                 savePartition "$part" "$intDisk" "$imagePath" "$cores" "$imgPartitionType"
             done
             echo " * Disk $disk complete"
-            intDisk=$(($intDisk+1))
+            let intDisk+=1
             debugPause
         done
         ;;

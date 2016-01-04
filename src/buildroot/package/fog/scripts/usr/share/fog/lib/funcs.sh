@@ -207,10 +207,10 @@ shrinkPartition() {
                 tmpoutput=$(ntfsresize -f -i -P $1)
                 handleError " * Fatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t$tmpoutput"
             fi
-            sizentfsresize=$(expr $size '/' 1000)
-            sizentfsresize=$(expr $sizentfsresize '+' 300000)
-            sizentfsresize=$(expr $sizentfsresize '*' 1$percent '/' 100)
-            sizefd=$(expr $sizentfsresize '*' 103 '/' 100)
+            sizentfsresize=$(($size / 1000))
+            sizentfsresize=$(($sizentfsresize + 300000))
+            sizentfsresize=$((($sizentfsresize * 1$percent) / 100))
+            sizefd=$((($sizentfsresize * 103) / 100))
             echo ""
             echo " * Possible resize partition size: $sizentfsresize k"
             dots "Running resize test $1"
@@ -264,7 +264,7 @@ FORCEY
                         debugPause
                         handleError "Unable to determine disk start location."
                     fi
-                    adjustedfdsize=$(expr $sizefd '+' $win7part1start)
+                    adjustedfdsize=$(($sizefd + $win7part1start))
                     resizePartition "$1" "$adjustedfdsize" "$imagePath"
                 elif [[ $win7partcnt == 2 ]]; then
                     win7part2start=$(parted -s $hd u kB print | sed -e '/^.2/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//')
@@ -273,10 +273,10 @@ FORCEY
                         debugPause
                         handleError "Unable to determine disk start location."
                     fi
-                    adjustedfdsize=$(expr $sizefd '+' $win7part2start)
+                    adjustedfdsize=$(($sizefd + $win7part2start))
                     resizePartition "$1" "$adjustedfdsize" "$imagePath"
                 else
-                    adjustedfdsize=$(expr $sizefd '+' 1048576)
+                    adjustedfdsize=$(($sizefd + 1048576))
                     resizePartition "$1" "$adjustedfdsize" "$imagePath"
                 fi
                 echo "Done"
@@ -294,8 +294,8 @@ FORCEY
             debugPause
             extminsizenum=$(resize2fs -P $1 2>/dev/null | awk -F': ' '{print $2}')
             block_size=$(dumpe2fs -h $1 2>/dev/null | awk /^Block\ size:/'{print $3}')
-            size=$(expr $extminsizenum '*' $block_size)
-            sizeextresize=$(expr $size '*' 103 '/' 100 '/' 1024)
+            size=$(($extminsizenum * $block_size))
+            sizeextresize=$(((($size * 103) / 100) / 1024))
             echo ""
             echo " * Possible resize partition size: $sizeextresize k"
             if [[ -z $sizeextresize ]]; then
@@ -344,7 +344,7 @@ countNtfs() {
         for part in $parts; do
             fstype=$(fsTypeSetting $part)
             if [[ $fstype == ntfs ]]; then
-                count=$(expr $count '+' 1)
+                let count+=1
             fi
         done
     fi
@@ -360,7 +360,7 @@ countExtfs() {
         for part in $parts; do
             fstype=$(fsTypeSetting $part)
             if [[ $fstype == extfs ]]; then
-                count=$(expr $count '+' 1)
+                let count+=1
             fi
         done
     fi

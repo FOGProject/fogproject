@@ -122,7 +122,7 @@ while [[ $blreboot == 0 ]]; do
                 str="DMI String: $t\n"
                 v=$(dmidecode --string $t)
                 echo -e "$str   $v\n\n"
-                i=$((i+1))
+                let i+=1
                 if [[ $i == 5 ]]; then
                     echo -n "Press Enter to Proceed..."
                     read tmp
