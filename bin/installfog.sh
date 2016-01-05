@@ -408,10 +408,7 @@ while [[ -z $blGo ]]; do
             display_center "Installing required packages, if this fails"
             display_center "make sure you have an active internet connection."
             echo
-            if [[ $installtype == S ]]; then
-                packages=$(echo "$packages"|sed 's/[[:space:]].*dhcp.*[[:space:]]/ /')
-            fi
-            if [[ $ignorehtmldoc == 1 ]]; then
+            if [[ $ignorehtmldoc -eq 1 ]]; then
                 newpackagelist=""
                 for z in $packages; do
                     if [[ $z != htmldoc ]]; then
@@ -437,106 +434,124 @@ while [[ -z $blGo ]]; do
             echo
             display_center "Configuring services."
             echo
-            if [[ ! -n $storageLocation && -z $autoaccept ]]; then
-                echo
-                echo -n " * What is the storage location for your images directory? (/images) "
-                read storageLocation
-                if [[ -z $storageLocation ]]; then
-                    storageLocation="/images"
-                fi
-            elif [[ ! -n $storageLocation && $autoaccept == yes ]]; then
-                storageLocation="/images"
+            if [[ -z $storageLocation ]]; then
+                case $autoaccept in
+                    [Yy]|[Yy][Ee][Ss])
+                        storageLocation="/images"
+                        ;;
+                    *)
+                        echo
+                        echo -n " * What is the storage location for your images directory? (/images) "
+                        read storageLocation
+                        if [[ -z $storageLocation ]]; then
+                            storageLocation="/images"
+                        fi
+                        while [[ ! -d $storageLocation && $storageLocation != "/images" ]]; do
+                            echo -n " * Please enter a valid directory for your storage location (/images) "
+                            read storageLocation
+                            if [[ -z $storageLocation ]]; then
+                                storageLocation="/images"
+                            fi
+                        done
+                        ;;
+                esac
             fi
-            if [[ $installtype == S ]]; then
-                configureUsers
-                configureMinHttpd
-                configureStorage
-                configureTFTPandPXE
-                configureFTP
-                configureUDPCast
-                installInitScript
-                installFOGServices
-                configureFOGService
-                configureNFS
-                writeUpdateFile
-                if [[ $bluseralreadyexists == 1 ]]; then
-                    echo
-                    display_center "Upgrade complete!"
-                    echo
-                else
+            case $installtype in
+                [Ss])
+                    packages=$(echo "$packages"|sed 's/[[:space:]].*dhcp.*[[:space:]]/ /')
+                    configureUsers
+                    configureMinHttpd
+                    configureStorage
+                    configureTFTPandPXE
+                    configureFTP
+                    configureUDPCast
+                    installInitScript
+                    installFOGServices
+                    configureFOGService
+                    configureNFS
+                    writeUpdateFile
+                    if [[ $bluseralreadyexists == 1 ]]; then
+                        echo
+                        display_center "Upgrade complete!"
+                        echo
+                    else
+                        echo
+                        display_center "Setup complete!"
+                        echo
+                        echo
+                        display_center "You still need to setup this node in the fog management "
+                        display_center "portal.  You will need the username and password listed"
+                        display_center "below."
+                        echo
+                        display_center "Management Server URL:"
+                        display_center "http://${snmysqlhost}/fog"
+                        echo
+                        display_center "You will need this, write this down!"
+                        display_center "Username: $storageftpuser"
+                        display_center "Password: $storageftppass"
+                        echo
+                        echo
+                    fi
+                    ;;
+                [Nn])
+                    configureUsers
+                    configureMySql
+                    backupReports
+                    configureHttpd
+                    dots "Backing up database"
+                    if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
+                        if [[ ! -d $backupPath/fogDBbackups ]]; then
+                            mkdir -p $backupPath/fogDBbackups >>/var/log/fog_error_${version}.log 2>&1
+                        fi
+                        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php?type=sqldump" >>/var/log/fog_error_${version}.log 2>&1
+                    fi
+                    errorStat $?
+                    case $dbupdate in
+                        [Yy]|[Yy][Ee][Ss])
+                            dots "Updating Database"
+                            wget -qO - --post-data="confirm=1" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schemaupdater 2>>/var/log/fog_error_${version}.log || wget -O - --post-data="confirm=1" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schemaupdater 2>>/var/log/fog_error_${version}.log
+                            errorStat $?
+                            ;;
+                        *)
+                            echo
+                            display_center "You still need to install/update your database schema."
+                            display_center "This can be done by opening a web browser and going to:"
+                            echo
+                            display_center "http://${ipaddress}/fog/management"
+                            echo
+                            read -p " * Press [Enter] key when database is updated/installed."
+                            echo
+                            ;;
+                    esac
+                    configureStorage
+                    configureDHCP
+                    configureTFTPandPXE
+                    configureFTP
+                    configureSnapins
+                    configureUDPCast
+                    installInitScript
+                    installFOGServices
+                    configureFOGService
+                    configureNFS
+                    writeUpdateFile
+                    linkOptFogDir
                     echo
                     display_center "Setup complete!"
                     echo
+                    display_center "You can now login to the FOG Management Portal using"
+                    display_center "the information listed below.  The login information"
+                    display_center "is only if this is the first install."
                     echo
-                    display_center "You still need to setup this node in the fog management "
-                    display_center "portal.  You will need the username and password listed"
-                    display_center "below."
-                    echo
-                    display_center "Management Server URL:"
-                    display_center "http://${snmysqlhost}/fog"
-                    echo
-                    display_center "You will need this, write this down!"
-                    display_center "Username: $storageftpuser"
-                    display_center "Password: $storageftppass"
-                    echo
-                    echo
-                fi
-            else
-                configureUsers
-                configureMySql
-                backupReports
-                configureHttpd
-                dots "Backing up database"
-                if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
-                    if [[ ! -d $backupPath/fogDBbackups ]]; then
-                        mkdir -p $backupPath/fogDBbackups >>/var/log/fog_error_${version}.log 2>&1
-                    fi
-                    wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php?type=sqldump" >>/var/log/fog_error_${version}.log 2>&1
-                fi
-                errorStat $?
-                if [[ $installtype == N && -z $dbupdate ]]; then
-                    echo
-                    display_center "You still need to install/update your database schema."
                     display_center "This can be done by opening a web browser and going to:"
                     echo
-                    display_center "http://${ipaddress}/fog/management"
+                    display_center "http://${ipaddress}/${webroot}management"
                     echo
-                    read -p " * Press [Enter] key when database is updated/installed."
+                    display_center "Default User Information"
+                    display_center "Username: fog"
+                    display_center "Password: password"
                     echo
-                elif [[ $installtype == N && $dbupdate == yes ]]; then
-                    dots "Updating Database"
-                    wget -O - --post-data="confirm=1" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schemaupdater >>/var/log/fog_error_${version}.log 2>&1 ||
-                        wget -O - --post-data="confirm=1" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schemaupdater >>/var/log/fog_error_${version}.log 2>&1
-                    errorStat $?
-                fi
-                configureStorage
-                configureDHCP
-                configureTFTPandPXE
-                configureFTP
-                configureSnapins
-                configureUDPCast
-                installInitScript
-                installFOGServices
-                configureFOGService
-                configureNFS
-                writeUpdateFile
-                linkOptFogDir
-                echo
-                display_center "Setup complete!"
-                echo
-                display_center "You can now login to the FOG Management Portal using"
-                display_center "the information listed below.  The login information"
-                display_center "is only if this is the first install."
-                echo
-                display_center "This can be done by opening a web browser and going to:"
-                echo
-                display_center "http://${ipaddress}/fog/management"
-                echo
-                display_center "Default User:"
-                display_center "Username: fog"
-                display_center "Password: password"
-                echo
-            fi
+                    ;;
+            esac
             ;;
         [Nn]|[Nn][Oo])
             echo "FOG installer exited by user request"
