@@ -113,7 +113,6 @@ class UserManagementPage extends FOGPage {
             _('User Name') => sprintf('<input type="text" name="name" value="%s"/>',$this->obj->get('name')),
             _('New Password') => '<input type="password" name="password" value=""/>',
             _('New Password (confirm)') => '<input type="password" name="password_confirm" value=""/>',
-            _('Mobile/Quick Image Access Only?').'&nbsp;'.'<span class="icon icon-help hand" title=<"'._('Warning - if you tick this box, this user     will not be able to log into this FOG Management Console in the future.').'"></span>' => '<input type="checkbox" name="isGuest" '.($this->obj->get('type') == 1 ? 'checked' : '').' />',
             sprintf('%s&nbsp;<i class="icon icon-help hand fa fa-question" title="%s"></i>',_('Mobile/Quick Image Access Only?'),_('Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future.')) => sprintf('<input type="checkbox" name="isGuest" autocomplete="off"%s/>',($this->obj->get('type') == 1 ? ' checked' : '')),
             '&nbsp;' => sprintf('<input name="update" type="submit" value="%s"/>',_('Update')),
         );
