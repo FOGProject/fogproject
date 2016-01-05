@@ -724,7 +724,7 @@ getPartitions() {
     if [[ -z $disk ]]; then
         local disk=$hd
     fi
-    allparts=$(lsblk -pno KNAME -I 3,8,9,179,259 | awk -F'[ :]+' '{if ($1 ~ /[0-9]+$/) print $1}' | grep $disk | sort -V | uniq)
+    allparts=$(fdisk -l $disk | awk '{if ($1 ~ "'$disk'") print $1}' | sort -V | uniq)
     for checkpart in $allparts; do
         if [[ $checkpart =~ mmcblk[0-9]+boot[0-9]+ ]]; then
             continue
