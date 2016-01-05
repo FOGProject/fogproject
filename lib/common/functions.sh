@@ -863,28 +863,28 @@ linkOptFogDir() {
 }
 configureStorage() {
     dots "Setting up storage"
-    if [[ ! -d $storage ]]; then
-        mkdir $storage >>/var/log/fog_error_${version}.log 2>&1
-        chmod -R 777 $storage >>/var/log/fog_error_${version}.log 2>&1
+    if [[ ! -d $storageLocation ]]; then
+        mkdir $storageLocation >>/var/log/fog_error_${version}.log 2>&1
+        chmod -R 777 $storageLocation >>/var/log/fog_error_${version}.log 2>&1
     fi
-    if [[ ! -f $storage/.mntcheck ]]; then
-        touch $storage/.mntcheck >>/var/log/fog_error_${version}.log 2>&1
-        chmod 777 $storage/.mntcheck >>/var/log/fog_error_${version}.log 2>&1
+    if [[ ! -f $storageLocation/.mntcheck ]]; then
+        touch $storageLocation/.mntcheck >>/var/log/fog_error_${version}.log 2>&1
+        chmod 777 $storageLocation/.mntcheck >>/var/log/fog_error_${version}.log 2>&1
     fi
-    if [[ ! -d $storage/postdownloadscripts ]]; then
-        mkdir $storage/postdownloadscripts >>/var/log/fog_error_${version}.log 2>&1
-        if [[ ! -f $storage/postdownloadscripts/fog.postdownload ]]; then
-            echo -e "#!/bin/sh\n## This file serves as a starting point to call your custom postimaging scripts.\n## <SCRIPTNAME> should be changed to the script you're planning to use.\n## Syntax of post download scripts are\n#. \${postdownpath}<SCRIPTNAME>" > "$storage/postdownloadscripts/fog.postdownload"
+    if [[ ! -d $storageLocation/postdownloadscripts ]]; then
+        mkdir $storageLocation/postdownloadscripts >>/var/log/fog_error_${version}.log 2>&1
+        if [[ ! -f $storageLocation/postdownloadscripts/fog.postdownload ]]; then
+            echo -e "#!/bin/sh\n## This file serves as a starting point to call your custom postimaging scripts.\n## <SCRIPTNAME> should be changed to the script you're planning to use.\n## Syntax of post download scripts are\n#. \${postdownpath}<SCRIPTNAME>" > "$storageLocation/postdownloadscripts/fog.postdownload"
         fi
-        chmod -R 777 $storage >>/var/log/fog_error_${version}.log 2>&1
+        chmod -R 777 $storageLocation >>/var/log/fog_error_${version}.log 2>&1
     fi
-    if [[ ! -d $storageupload ]]; then
-        mkdir $storageupload >>/var/log/fog_error_${version}.log 2>&1
-        chmod -R 777 $storageupload >>/var/log/fog_error_${version}.log 2>&1
+    if [[ ! -d $storageLocationUpload ]]; then
+        mkdir $storageLocationUpload >>/var/log/fog_error_${version}.log 2>&1
+        chmod -R 777 $storageLocationUpload >>/var/log/fog_error_${version}.log 2>&1
     fi
-    if [[ ! -f $storageupload/.mntcheck ]]; then
-        touch $storageupload/.mntcheck >>/var/log/fog_error_${version}.log 2>&1
-        chmod 777 $storageload/.mntcheck >>/var/log/fog_error_${version}.log 2>&1
+    if [[ ! -f $storageLocationUpload/.mntcheck ]]; then
+        touch $storageLocationUpload/.mntcheck >>/var/log/fog_error_${version}.log 2>&1
+        chmod 777 $storageLocationUpload/.mntcheck >>/var/log/fog_error_${version}.log 2>&1
     fi
     errorStat $?
 }
