@@ -1361,7 +1361,7 @@ class Config {
         define('STORAGE_FTP_USERNAME', \"${username}\");
         define('STORAGE_FTP_PASSWORD', \"${password}\");
         define('STORAGE_DATADIR', '${storageLocation}/');
-        define('STORAGE_DATADIR_UPLOAD', '${storageLocation}/dev/');
+        define('STORAGE_DATADIR_UPLOAD', '${storageLocationUpload}');
         define('STORAGE_BANDWIDTHPATH', '/${webroot}status/bandwidth.php');
         define('STORAGE_INTERFACE','${interface}');
         define('UPLOADRESIZEPCT',5);
@@ -1461,7 +1461,7 @@ configureDHCP() {
                 startrange="${networkbase}.10"
             fi
             if [[ -z $endrange ]]; then
-                endrange="${subtract1fromAddress ${interface2broadcast $interface}}"
+                endrange=$(subtract1fromAddress $(interface2broadcast $interface))
             fi
             dhcptouse=$dhcpconfig
             if [[ -f $dhcpconfigother ]]; then
