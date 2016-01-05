@@ -509,7 +509,7 @@ while [[ -z $blGo ]]; do
                     case $dbupdate in
                         [Yy]|[Yy][Ee][Ss])
                             dots "Updating Database"
-                            wget -qO - --post-data="confirm=1" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schemaupdater 2>>/var/log/fog_error_${version}.log || wget -qO - --post-data="confirm=1" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schemaupdater 2>>/var/log/fog_error_${version}.log
+                            wget -qO - --post-data="confirm=1" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schemaupdater >>/var/log/fog_error_${version}.log 2>&1 || wget -qO - --post-data="confirm=1" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schemaupdater >>/var/log/fog_error_${version}.log 2>&1
                             errorStat $?
                             ;;
                         *)
