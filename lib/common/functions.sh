@@ -1486,7 +1486,7 @@ configureDHCP() {
             fi
             network=$(mask2network $serverip $submask)
             if [[ -z $startrange ]]; then
-                startrange="${$addToAddress $networkbase}"
+                startrange="${$addToAddress $network}"
             fi
             if [[ -z $endrange ]]; then
                 endrange=$(subtract1fromAddress $(interface2broadcast $interface))
