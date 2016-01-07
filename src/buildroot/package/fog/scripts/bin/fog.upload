@@ -101,43 +101,43 @@ echo
 #  restore original MBR and partition table
 #  expand filesystems
 case "$imgType" in
-    [n])
+    [Nn])
         validResizeOS
         win7partcnt=$(echo "$parts" | wc -l)
         dots "Checking for fixed partitions"
         for part in $parts; do
             fstype=$(fsTypeSetting "$part")
             if [[ $fstype != +(ntfs|extfs) ]]; then
-                fixed_size_partitions="$fixed_size_partitions:$part";
+                fixed_size_partitions="$fixed_size_partitions:$part"
             fi
         done
         echo "Done"
         debugPause
         dots "Getting Windows/Linux Partition Count"
+        ntfscnt=$(countNtfs $hd)
+        extfsavail=$(countExtfs $hd)
+        if [[ $ntfscnt == 0 && $extfsavail == 0 ]] || [[ -z $ntfscnt && -z $extfsavail ]]; then
+            echo "Failed"
+            debugPause
+            handleError "No resizable partitions found"
+        fi
+        echo "Done"
+        debugPause
+        if [[ -z $ntfscnt ]]; then
+            ntfscnt=0
+        fi
+        if [[ -z $extfsavail ]]; then
+            extfsavail=0
+        fi
+        echo "NTFS Partition count of: $ntfscnt"
+        debugPause
+        echo "EXTFS Partition count of: $extavail"
+        debugPause
+        for partclr in $parts; do
+            clearMountedDevices $partclr
+        done
+        fixedcount=0
         if [[ $osid == +([5-7]|9|50) ]]; then
-            ntfscnt=$(countNtfs $hd)
-            extfsavail=$(countExtfs $hd)
-            if [[ $ntfscnt == 0 && $extfsavail == 0 ]] || [[ -z $ntfscnt && -z $extfsavail ]]; then
-                echo "Failed"
-                debugPause
-                handleError "No resizable partitions found"
-            fi
-            echo "Done"
-            debugPause
-            if [[ -z $ntfscnt ]]; then
-                ntfscnt=0
-            fi
-            if [[ -z $extfsavail ]]; then
-                extfsavail=0
-            fi
-            echo "NTFS Partition count of: $ntfscnt"
-            debugPause
-            echo "EXTFS Partition count of: $extavail"
-            debugPause
-            for partclr in $parts; do
-                clearMountedDevices $partclr
-            done
-            fixedcount=0
             echo " * Setting up any additional fixed parts"
             for part in $parts; do
                 if [[ $fixedcount == 0 && $win7partcnt == 2 ]]; then
@@ -151,88 +151,88 @@ case "$imgType" in
                 fi
                 let fixedcount+=1
             done
-            # All:
-            #  save the list of fixed size partitions
-            fixed_size_partitions=`echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://'`
-            echo $fixed_size_partitions > "$imagePath/d1.fixed_size_partitions"
-            if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
-                for partpage in $parts; do
-                    removePageFile "$partpage"
-                done
+        fi
+        # All:
+        #  save the list of fixed size partitions
+        fixed_size_partitions=$(echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://')
+        echo $fixed_size_partitions > "$imagePath/d1.fixed_size_partitions"
+        if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+            for partpage in $parts; do
+                removePageFile "$partpage"
+            done
+        fi
+        dots "Getting sector start"
+        if [[ $osid == 1 ]]; then
+            partitionStart=$(fdisk -lu | grep $part | awk '{print $3}')
+            if [[ -z $partitionStart ]]; then
+                partitionStart=63
             fi
-            dots "Getting sector start"
-            if [[ $osid == 1 ]]; then
-                partitionStart=$(fdisk -lu | grep $part | awk '{print $3}')
-                if [[ -z $partitionStart ]]; then
-                    partitionStart=63
-                fi
-            fi
+        fi
+        echo "Done"
+        debugPause
+        # Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
+        #  Save unmodified partition table for download use
+        #  Start filesytem type record
+        if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+            dots "Saving original partition table"
+            saveOriginalPartitions "${hd}" "${imagePath}" "1"
+            echo -n "" > "${imagePath}/d1.original.fstypes"
+            echo -n "" > $(swapUUIDFileName "${imagePath}" "1")
             echo "Done"
             debugPause
-            # Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
-            #  Save unmodified partition table for download use
-            #  Start filesytem type record
-            if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
-                dots "Saving original partition table"
-                saveOriginalPartitions "${hd}" "${imagePath}" "1"
-                echo -n "" > "${imagePath}/d1.original.fstypes"
-                echo -n "" > $(swapUUIDFileName "${imagePath}" "1")
-                echo "Done"
-                debugPause
-                savePartitionTablesAndBootLoaders "${hd}" "1" "${imagePath}" "${osid}" "${imgPartitionType}"
+            savePartitionTablesAndBootLoaders "${hd}" "1" "${imagePath}" "${osid}" "${imgPartitionType}"
+        fi
+        # Windows 2000/XP, Vista, 7, 8, 8.1:
+        #  Save MBR
+        #  Shrink filesystem and partition with system on it.
+        #  Save partition table with shrunken partitions for use on download
+        # Linux:
+        #  Detect partition table type
+        #  Save MBR
+        #  Attempt to shrink all filesystems and partitions, except swap, extended.
+        #  Save partition table with shrunken partitions for use on download
+        if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+            for part in $parts; do
+                shrinkPartition "$part" "${imagePath}/d1.original.fstypes"
+            done
+            runPartprobe $hd
+            debugPause
+        fi
+        # Windows 2000/XP, Vista, 7, 8, 8.1:
+        #  Actually clone the partitions now
+        #  Restore the MBR
+        # Linux:
+        #  Actually clone the partitions now
+        #  Restore the MBR
+        if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+            debugPause
+            if [ $osid != 50 ]; then
+                resetFlag "$part"
             fi
-            # Windows 2000/XP, Vista, 7, 8, 8.1:
-            #  Save MBR
-            #  Shrink filesystem and partition with system on it.
-            #  Save partition table with shrunken partitions for use on download
-            # Linux:
-            #  Detect partition table type
-            #  Save MBR
-            #  Attempt to shrink all filesystems and partitions, except swap, extended.
-            #  Save partition table with shrunken partitions for use on download
-            if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
-                for part in $parts; do
-                    shrinkPartition "$part" "${imagePath}/d1.original.fstypes"
-                done
-                runPartprobe $hd
-                debugPause
+            debugPause
+            echo " * Processing Hard Disk: $disk"
+            for part in $parts; do
+                savePartition "$part" "1" "$imagePath" "$cores" "$imgPartitionType"
+            done
+            dots "Restoring MBR"
+            restoreOriginalPartitions "${hd}" "${imagePath}" "1"
+            echo "Done"
+            debugPause
+            if [[ $osid == 2 ]]; then
+                correctVistaMBR $hd
             fi
-            # Windows 2000/XP, Vista, 7, 8, 8.1:
-            #  Actually clone the partitions now
-            #  Restore the MBR
-            # Linux:
-            #  Actually clone the partitions now
-            #  Restore the MBR
-            if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
-                debugPause
-                if [ $osid != 50 ]; then
-                    resetFlag "$part"
-                fi
-                debugPause
-                echo " * Processing Hard Disk: $disk"
-                for part in $parts; do
-                    savePartition "$part" "1" "$imagePath" "$cores" "$imgPartitionType"
-                done
-                dots "Restoring MBR"
-                restoreOriginalPartitions "${hd}" "${imagePath}" "1"
-                echo "Done"
-                debugPause
-                if [[ $osid == 2 ]]; then
-                    correctVistaMBR $hd
-                fi
-                debugPause
-            fi
-            #
-            #  expand the file systems in the restored partitions
-            #
-            # Windows 7, 8, 8.1:
-            # Windows 2000/XP, Vista:
-            # Linux:
-            if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
-                for part in $parts; do
-                    expandPartition "$part"
-                done
-            fi
+            debugPause
+        fi
+        #
+        #  expand the file systems in the restored partitions
+        #
+        # Windows 7, 8, 8.1:
+        # Windows 2000/XP, Vista:
+        # Linux:
+        if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+            for part in $parts; do
+                expandPartition "$part"
+            done
         fi
         ;;
     mps)
