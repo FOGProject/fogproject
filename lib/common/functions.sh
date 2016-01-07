@@ -1184,6 +1184,9 @@ configureHttpd() {
             echo -n " * Is the MySQL password blank? (Y/n) "
             read dummy
             case $dummy in
+                [Yy]|[Yy][Ee][Ss]|"")
+                    dummy='Y'
+                    ;;
                 [Nn]|[Nn][Oo])
                     echo -n " * Enter the MySQL password: "
                     read -s PASSWORD1
@@ -1210,12 +1213,6 @@ configureHttpd() {
                     if [[ $snmysqlpass != $dbpass ]]; then
                         snmysqlpass=$dbpass
                     fi
-                    ;;
-                "")
-                    dummy='Y'
-                    ;;
-                [Yy]|[Yy][Ee][Ss])
-                    dummy="Y"
                     ;;
                 *)
                     dummy=""
