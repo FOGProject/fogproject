@@ -244,10 +244,10 @@ addToAddress() {
         thisNumber=10
         previousIFS=$IFS
         IFS=. read ip1 ip2 ip3 ip4 <<< "$1"
-        IFS=$PreviousIFS
+        IFS=$previousIFS
         if [[ $(($ip4 + $thisNumber)) -le 255 ]]; then
                 let ip4+=$thisNumber
-        elif [[ $((ip3 + 1)) -le 255 ]]; then
+        elif [[ $(($ip3 + 1)) -le 255 ]]; then
                 let ip3+=1
                 let ip4=$(( $(($thisNumber - 1)) - $((255 - $ip4)) ))
         elif [[ $(($ip2 + 1)) -le 255 ]]; then
@@ -259,13 +259,12 @@ addToAddress() {
                 let ip1+=1
                 ip2=0
                 ip3=0
-                let ip4=$(( $(($thisNumber - 1)) - $((255 - $ip4)) ))
+                let ip4=$(($(($thisNumber - 1)) - $((255 - $ip4))))
         else
                 #error, either invalid IP or 255.255.255.255 was passed.
                 return 2
         fi
-        addToAddressAnswer=$ip1.$ip2.$ip3.$ip4
-        printf $addToAddressAnswer
+        printf '%d.%d.%d.%d' $ip1 $ip2 $ip3 $ip4
 }
 restoreReports() {
     dots "Restoring user reports"
@@ -1506,7 +1505,7 @@ configureDHCP() {
             fi
             network=$(mask2network $serverip $submask)
             if [[ -z $startrange ]]; then
-                startrange="${$addToAddress $network}"
+                startrange=$(addToAddress $network)
             fi
             if [[ -z $endrange ]]; then
                 endrange=$(subtract1fromAddress $(interface2broadcast $interface))
