@@ -41,6 +41,10 @@ case $linuxReleaseName in
             packagelist="yum --enablerepo=remi,remi-php56,epel list"
             packageupdater="yum -y --enablerepo=remi,remi-php56,epel update"
             packmanUpdate="yum check-update"
+            command -v yum-config-manager >/dev/null 2>&1
+            if [[ ! $? -eq 0 ]]; then
+                $packageinstaller yum-utils >/dev/null 2>&1
+            fi
             repoenable="yum-config-manager --enable"
         fi
         dhcpname="dhcp"
