@@ -87,6 +87,7 @@ bluseralreadyexists=0
 storageftpuser=""
 storageftppass=""
 guessdefaults=1
+doupdate=1
 ignorehtmldoc=0
 forcehttps="#"
 clearScreen
@@ -326,7 +327,7 @@ fi
 backupPath="${backupPath%'/'}"
 backupPath="${backupPath#'/'}"
 backupPath="/$backupPath/"
-if [[ ! $fogupdateloaded -eq 1 ]]; then
+if [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]]; then
     . ../lib/common/input.sh
 fi
 echo
