@@ -1311,12 +1311,12 @@ restorePartition() {
     if [[ $imgPartitionType == all || $imgPartitionType == $partNum ]]; then
         case "$imgType" in
             dd)
-                imgpart="$imagePath/$img*"
+                imgpart="$imagePath/$img"
                 ;;
             n|mps|mpa)
                 case "$osid" in
                     [1-2])
-                        imgpart="$imagePath*"
+                        imgpart="$imagePath"
                         ;;
                     50)
                         imgpart="$imagePath/d${intDisk}p${partNum}.img*"
