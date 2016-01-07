@@ -87,7 +87,6 @@ bluseralreadyexists=0
 storageftpuser=""
 storageftppass=""
 guessdefaults=1
-doupdate=1
 ignorehtmldoc=0
 forcehttps="#"
 clearScreen
@@ -329,6 +328,7 @@ backupPath="${backupPath#'/'}"
 backupPath="/$backupPath/"
 if [[ ! $doupdate -eq 1 ]]; then
     . ../lib/common/input.sh
+    doupdate=1
 fi
 echo
 display_center "######################################################################"
