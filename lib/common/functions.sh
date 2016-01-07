@@ -831,7 +831,7 @@ configureSnapins() {
 }
 configureUsers() {
     getent passwd $username > /dev/null
-    if [[ $? != 0 ]] || [[ ! $doupdate -eq 1 ]]; then
+    if [[ $? != 0 || ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]]; then
         dots "Setting up fog user"
         password=$(openssl rand -base64 32)
         if [[ $installtype == S ]]; then
