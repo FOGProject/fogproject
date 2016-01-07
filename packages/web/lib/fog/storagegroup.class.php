@@ -26,7 +26,7 @@ class StorageGroup extends FOGController {
         $masternode = $this->getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes'),'isMaster'=>1,'isEnabled'=>1),'id');
         $masternode = array_shift($masternode);
         if (!$masternode > 0) $masternode = @min($this->get('enablednodes'));
-        if (!$masternode > 0) throw New Exception(_('No Storage nodes enabled for this group'));
+        //if (!$masternode > 0) throw New Exception(_('No Storage nodes enabled for this group'));
         return $this->getClass('StorageNode',$masternode);
     }
     public function getOptimalStorageNode() {
