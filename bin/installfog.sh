@@ -327,7 +327,9 @@ fi
 backupPath="${backupPath%'/'}"
 backupPath="${backupPath#'/'}"
 backupPath="/$backupPath/"
-. ../lib/common/input.sh
+if [[ ! $doupdate -eq 1 ]]; then
+    . ../lib/common/input.sh
+fi
 echo
 display_center "######################################################################"
 display_center "#     FOG now has everything it needs for this setup, but please     #"
