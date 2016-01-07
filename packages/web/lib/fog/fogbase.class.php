@@ -241,7 +241,10 @@ abstract class FOGBase {
     }
     public function formatTime($time, $format = false, $utc = false) {
         if (!$time instanceof DateTime) $time = $this->nice_date($time,$utc);
-        if ($format) return $time->format($format);
+        if ($format) {
+            if (!$this->validDate($time)) return;
+            return $time->format($format);
+        }
         $now = $this->nice_date('now',$utc);
         // Get difference of the current to supplied.
         $diff = $now->format('U') - $time->format('U');
