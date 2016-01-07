@@ -241,7 +241,7 @@ class GroupManagementPage extends FOGPage {
             $this->data[] = array(
                 'snapin_id'=>$Snapin->get('id'),
                 'snapin_name'=>$Snapin->get('name'),
-                'snapin_created'=>$this->formatTime($Snapin->get('createdTime')),
+                'snapin_created'=>$this->formatTime($Snapin->get('createdTime'),'Y-m-d H:i:s'),
             );
             unset($Snapin);
         }
@@ -547,7 +547,7 @@ class GroupManagementPage extends FOGPage {
             $this->data[] = array(
                 'host_name' => $Host->get('name'),
                 'host_mac' => $Host->get('mac'),
-                'host_deployed' => $this->formatTime($Host->get('deployed')),
+                'host_deployed' => $this->formatTime($Host->get('deployed'),'Y-m-d H:i:s'),
             );
             unset($Host);
         }

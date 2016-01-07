@@ -87,7 +87,7 @@ class HostManagementPage extends FOGPage {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
                 'host_id'=>$Host->get('id'),
-                'deployed'=>$this->formatTime($Host->get('deployed')),
+                'deployed'=>$this->formatTime($Host->get('deployed'),'Y-m-d H:i:s'),
                 'host_name'=>$Host->get('name'),
                 'host_mac'=>$Host->get('mac')->__toString(),
                 'host_desc'=>$Host->get('description'),
@@ -105,7 +105,7 @@ class HostManagementPage extends FOGPage {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
                 'host_id'=>$Host->get('id'),
-                'deployed'=>$this->formatTime($Host->get('deployed')),
+                'deployed'=>$this->formatTime($Host->get('deployed'),'Y-m-d H:i:s'),
                 'host_name'=>$Host->get('name'),
                 'host_mac'=>$Host->get('mac')->__toString(),
                 'host_desc'=>$Host->get('description'),
@@ -755,7 +755,7 @@ class HostManagementPage extends FOGPage {
             $Start = $ImageLog->get('start');
             $End = $ImageLog->get('finish');
             $this->data[] = array(
-                'completed'=>$this->formatTime($End),
+                'completed'=>$this->formatTime($End,'Y-m-d H:i:s'),
                 'duration'=>$this->diff($Start,$End),
                 'image_name'=>$ImageLog->get('image'),
                 'image_type'=>$ImageLog->get('type'),
@@ -786,8 +786,8 @@ class HostManagementPage extends FOGPage {
             if (!$Snapin->isValid()) continue;
             $this->data[] = array(
                 'snapin_name' => $Snapin->get('name'),
-                'snapin_start' => $this->formatTime($SnapinTask->get('checkin')),
-                'snapin_end' => sprintf('<span class="icon" title="%s">%s</span>',$this->formatTime($SnapinTask->get('complete')),$this->getClass('TaskState',$SnapinTask->get('stateID'))),
+                'snapin_start' => $this->formatTime($SnapinTask->get('checkin'),'Y-m-d H:i:s'),
+                'snapin_end' => sprintf('<span class="icon" title="%s">%s</span>',$this->formatTime($SnapinTask->get('complete'),'Y-m-d H:i:s'),$this->getClass('TaskState',$SnapinTask->get('stateID'))),
                 'snapin_duration' => $this->diff($SnapinTask->get('checkin'),$SnapinTask->get('complete')),
                 'snapin_return'=> $SnapinTask->get('return'),
             );

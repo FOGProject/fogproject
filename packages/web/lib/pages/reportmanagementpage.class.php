@@ -544,7 +544,7 @@ class ReportManagementPage extends FOGPage {
                 'vir_name'=>$virusName,
                 'vir_file'=>$virusFile,
                 'vir_mode'=>$virusMode,
-                'vir_date'=>$this->formatTime($virusDate),
+                'vir_date'=>$this->formatTime($virusDate,'Y-m-d H:i:s'),
             );
             foreach ((array)$csvHead AS $head => &$classGet) {
                 switch ($head) {
@@ -801,7 +801,7 @@ class ReportManagementPage extends FOGPage {
                 'action'=>$logintext,
                 'username'=>$User->get('username'),
                 'hostname'=>$Host->get('name'),
-                'time'=>$this->formatTime($User->get('datetime')),
+                'time'=>$this->formatTime($User->get('datetime'),'Y-m-d H:i:s'),
                 'desc'=>$User->get('description'),
             );
             $this->ReportMaker->addCSVCell($logintext);
@@ -809,7 +809,7 @@ class ReportManagementPage extends FOGPage {
             $this->ReportMaker->addCSVCell($Host->get('name'));
             $this->ReportMaker->addCSVCell($Host->get('mac'));
             $this->ReportMaker->addCSVCell($Host->get('description'));
-            $this->ReportMaker->addCSVCell($this->formatTime($User->get('datetime')));
+            $this->ReportMaker->addCSVCell($this->formatTime($User->get('datetime'),'Y-m-d H:i:s'));
             $this->ReportMaker->addCSVCell($User->get('description'));
             $this->ReportMaker->endCSVLine();
             unset($User,$Host,$date,$logintext);
