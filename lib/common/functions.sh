@@ -403,9 +403,11 @@ installPackages() {
                     repo="enterprise"
                     ;;
             esac
-            if [[ -d /etc/yum.repos.d/ && ! -f /etc/yum.repos.d/remi.repo ]]; then
-                rpm -Uvh http://rpms.famillecollet.com/$repo/remi-release-${OSVersion}.rpm >>/var/log/fog_error_${version}.log 2>&1
-                rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi >>/var/log/fog_error_${version}.log 2>&1
+            x="http://rpms.remirepo.net/$repo/remi-release-${OSVersion}.rpm"
+            eval $packageQuery >>/var/log/fog_error_${version}.log 2>&1
+            if [[ ! $? -eq 0 ]]; then
+                eval $packageinstaller $x >>/var/log/fog_error_${version}.log 2>&1
+                yum-config-manager --enable remi-php56
             fi
             ;;
         2)
@@ -554,9 +556,10 @@ displayOSChoices() {
                 case $osid in
                     "")
                         osid=$strSuggestedOS
+                        break
                         ;;
                     1|2|3)
-                        doOSSpecificIncludes
+                        break
                         ;;
                     *)
                         echo "  Invalid input, please try again."
@@ -566,6 +569,7 @@ displayOSChoices() {
             fi
         fi
     done
+    doOSSpecificIncludes
 }
 doOSSpecificIncludes() {
     echo
@@ -1205,7 +1209,10 @@ configureHttpd() {
                         snmysqlpass=$dbpass
                     fi
                     ;;
-                [Yy]|[Yy][Ee][Ss]|"")
+                "")
+                    dummy='Y'
+                    ;;
+                [Yy]|[Yy][Ee][Ss])
                     dummy="Y"
                     ;;
                 *)
@@ -1226,7 +1233,21 @@ configureHttpd() {
         dbuser=$snmysqluser
     fi
     dots "Setting up Apache and PHP files"
+    if [[ ! -f $phpini ]]; then
+        echo "Failed"
+        display_center "###########################################"
+        display_center "#                                         #"
+        display_center "#      PHP Failed to install properly     #"
+        display_center "#                                         #"
+        display_center "###########################################"
+        echo " !!!!! Could not find $phpini !!!!!"
+        exit 1
+    fi
     if [[ $osid -eq 3 ]]; then
+        if [[ ! -f /etc/httpd/conf/httpd.conf ]]; then
+            echo " !!!!! Apache configs not found !!!!!"
+            exit 1
+        fi
         echo -e "<FilesMatch \.php$>\n\tSetHandler \"proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/\"\n</FilesMatch>\n<IfModule dir_module>\n\tDirectoryIndex index.php index.html\n</IfModule>" >> /etc/httpd/conf/httpd.conf
         sed -i 's@#LoadModule ssl_module modules/mod_ssl.so@LoadModule ssl_module modules/mod_ssl.so@g' /etc/httpd/conf/httpd.conf >>/var/log/fog_error_${version}.log 2>&1
         sed -i 's@#LoadModule socache_shmcb_module modules/mod_socache_shmcb.so@LoadModule socache_shmcb_module modules/mod_socache_shmcb.so@g' /etc/httpd/conf/httpd.conf >>/var/log/fog_error_${version}.log 2>&1
