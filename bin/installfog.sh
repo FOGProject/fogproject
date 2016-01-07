@@ -326,9 +326,8 @@ fi
 backupPath="${backupPath%'/'}"
 backupPath="${backupPath#'/'}"
 backupPath="/$backupPath/"
-if [[ ! $doupdate -eq 1 ]]; then
+if [[ ! $fogupdateloaded -eq 1 ]]; then
     . ../lib/common/input.sh
-    doupdate=1
 fi
 echo
 display_center "######################################################################"
