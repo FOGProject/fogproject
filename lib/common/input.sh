@@ -95,15 +95,15 @@ while [[ -z $ipaddress ]]; do
         echo
         echo -n "  What is the IP address to be used by this FOG Server? [$strSuggestedIPAddress]"
         read ipaddress
-        case $ipaddress in
-            "")
-                ipaddress=$(echo $strSuggestedIPAddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                ;;
-            *)
-                ipaddress=$(echo $ipaddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                ;;
-        esac
     fi
+    case $ipaddress in
+        "")
+            ipaddress=$(echo $strSuggestedIPAddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+            ;;
+        *)
+            ipaddress=$(echo $ipaddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+            ;;
+    esac
     test=$(validip $ipaddress)
     if [[ $(validip $ipaddress) != 0 ]]; then
         ipaddress=""
@@ -152,22 +152,22 @@ case $installtype in
                         echo "  What is the IP address to be used for the router on"
                         echo -n "      the DHCP server? [$strSuggestedRoute]"
                         read routeraddress
-                        case $routeraddress in
-                            "")
-                                routeraddress=$(echo $strSuggestedRoute | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                                ;;
-                            *)
-                                routeraddress=$(echo $routeraddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                                ;;
-                        esac
-                        if [[ $(validip $routeraddress) != 0 ]]; then
-                            routeraddress=""
-                            echo "  Invalid router IP Address!"
-                            continue
-                        fi
-                        plainrouter=$routeraddress
-                        routeraddress="		option routers      $routeraddress;"
                     fi
+                    case $routeraddress in
+                        "")
+                            routeraddress=$(echo $strSuggestedRoute | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                            ;;
+                        *)
+                            routeraddress=$(echo $routeraddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                            ;;
+                    esac
+                    if [[ $(validip $routeraddress) != 0 ]]; then
+                        routeraddress=""
+                        echo "  Invalid router IP Address!"
+                        continue
+                    fi
+                    plainrouter=$routeraddress
+                    routeraddress="		option routers      $routeraddress;"
                     ;;
                 [Nn]|[Nn][Oo])
                     routeraddress="#	option routers      x.x.x.x;"
@@ -191,22 +191,22 @@ case $installtype in
                         echo "  What is the IP address to be used for DNS on"
                         echo -n "      the DHCP server and client boot image? [$strSuggestedDNS] "
                         read dnsaddress
-                        case $dnsaddress in
-                            "")
-                                dnsaddress=$(echo $strSuggestedDNS | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                                ;;
-                            *)
-                                dnsaddress=$(echo $dnsaddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                                ;;
-                        esac
-                        if [[ $(validip $dnsaddress) != 0 ]]; then
-                            dnsaddress=""
-                            echo "  Invalid DNS IP address!"
-                            continue
-                        fi
-                        dnsbootimage=$dnsaddress
-                        dnsaddress="	option domain-name-servers      $dnsaddress;"
                     fi
+                    case $dnsaddress in
+                        "")
+                            dnsaddress=$(echo $strSuggestedDNS | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                            ;;
+                        *)
+                            dnsaddress=$(echo $dnsaddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                            ;;
+                    esac
+                    if [[ $(validip $dnsaddress) != 0 ]]; then
+                        dnsaddress=""
+                        echo "  Invalid DNS IP address!"
+                        continue
+                    fi
+                    dnsbootimage=$dnsaddress
+                    dnsaddress="	option domain-name-servers      $dnsaddress;"
                     ;;
                 [Nn]|[Nn][Oo])
                     dnsaddress="#	option domain-name-servers      x.x.x.x;"
