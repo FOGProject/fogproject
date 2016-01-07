@@ -120,12 +120,12 @@ while [[ -z $interface ]]; do
         read blInt
     fi
     case $blInt in
+        [Nn]|[Nn][Oo]|"")
+            interface=$strSuggestedInterface
+            ;;
         [Yy]|[Yy][Ee][Ss])
             echo -n "  What network interface would you like to use? "
             read interface
-            ;;
-        [Nn]|[Nn][Oo]|"")
-            interface=$strSuggestedInterface
             ;;
         *)
             echo "  Invalid input, please try again."
@@ -223,12 +223,12 @@ case $installtype in
                 read dodhcp
             fi
             case $dodhcp in
-                [Yy]|[Yy][Ee][Ss])
-                    bldhcp=1
-                    ;;
                 [Nn]|[Nn][Oo]|"")
                     bldhcp=0
                     dodhcp="N"
+                    ;;
+                [Yy]|[Yy][Ee][Ss])
+                    bldhcp=1
                     ;;
                 *)
                     echo "  Invalid input, please try again."
@@ -243,11 +243,11 @@ case $installtype in
                 read installlang
             fi
             case $installlang in
-                [Yy]|[Yy][Ee][Ss])
-                    installlang=1
-                    ;;
                 [Nn]|[Nn][Oo]|"")
                     installlang=0
+                    ;;
+                [Yy]|[Yy][Ee][Ss])
+                    installlang=1
                     ;;
                 *)
                     echo "  Invalid input, please try again."
@@ -270,11 +270,11 @@ case $installtype in
                 read donate
             fi
             case $donate in
-                [Yy]|[Yy][Ee][Ss])
-                    donate=1
-                    ;;
                 [Nn]|[Nn][Oo]|"")
                     donate=0
+                    ;;
+                [Yy]|[Yy][Ee][Ss])
+                    donate=1
                     ;;
                 *)
                     echo "  Invalid input, please try again."

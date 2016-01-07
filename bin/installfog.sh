@@ -385,10 +385,10 @@ case $installtype in
         esac
         ;;
     S)
-        display_right "Installation Type: Storage Node"
-        display_right "Node IP Address: $ipaddress"
-        display_right "MySQL Database Host: $snmysqlhost"
-        display_right "MySQL Database User: $snmysqluser"
+        display_center "Installation Type: Storage Node"
+        display_center "Node IP Address: $ipaddress"
+        display_center "MySQL Database Host: $snmysqlhost"
+        display_center "MySQL Database User: $snmysqluser"
         ;;
 esac
 echo
