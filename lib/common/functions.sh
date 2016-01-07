@@ -407,7 +407,9 @@ installPackages() {
             eval $packageQuery >>/var/log/fog_error_${version}.log 2>&1
             if [[ ! $? -eq 0 ]]; then
                 eval $packageinstaller $x >>/var/log/fog_error_${version}.log 2>&1
-                yum-config-manager --enable remi-php56
+                if [[ -n $repoenable ]]; then
+                    eval $repoenable remi-php56 >>/var/log/fog_error_${version}.log 2>&1
+                fi
             fi
             ;;
         2)
