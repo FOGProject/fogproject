@@ -83,24 +83,7 @@ case "$imgType" in
         if [[ $nombr == 1 ]]; then
             echo "Skipped"
         else
-            dd if=/dev/zero of=$hd bs=512 count=20 >/dev/null 2>&1
-            if [[ $? != 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "Fatal Error: Could not clear partition table"
-            fi
-            parted -s $hd mktable msdos >/dev/null 2>&1
-            if [[ $? != 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "Fatal Error: Could not initialize disk"
-            fi
-            dd if=$mbrfile of=$hd bs=512 count=1 >/dev/null 2>&1
-            if [[ $? != 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "Fatal Error: Could not recreate MBR table"
-            fi
+            restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath"
         fi
         runPartprobe $hd
         echo "Done"
