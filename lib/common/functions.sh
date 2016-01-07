@@ -238,6 +238,34 @@ subtract1fromAddress() {
     fi
     echo ${ip1}.${ip2}.${ip3}.${ip4}
 }
+addToAddress() {
+        #expects an IP address to be passed.
+        #Adds below number to the passed IP.
+        thisNumber=10
+        previousIFS=$IFS
+        IFS=. read ip1 ip2 ip3 ip4 <<< "$1"
+        IFS=$previousIFS
+        if [[ $(($ip4 + $thisNumber)) -le 255 ]]; then
+                let ip4+=$thisNumber
+        elif [[ $(($ip3 + 1)) -le 255 ]]; then
+                let ip3+=1
+                let ip4=$(( $(($thisNumber - 1)) - $((255 - $ip4)) ))
+        elif [[ $(($ip2 + 1)) -le 255 ]]; then
+                let ip2+=1
+                ip3=0
+                let ip4=$(( $(($thisNumber - 1)) - $((255 - $ip4)) ))
+        elif [[ $(($ip1 + 1)) -le 255 ]]; then
+
+                let ip1+=1
+                ip2=0
+                ip3=0
+                let ip4=$(($(($thisNumber - 1)) - $((255 - $ip4))))
+        else
+                #error, either invalid IP or 255.255.255.255 was passed.
+                return 2
+        fi
+        printf '%d.%d.%d.%d' $ip1 $ip2 $ip3 $ip4
+}
 restoreReports() {
     dots "Restoring user reports"
     if [[ -d $webdirdest/management/reports ]]; then
@@ -1476,9 +1504,8 @@ configureDHCP() {
                 serverip=$(/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
             fi
             network=$(mask2network $serverip $submask)
-            networkbase=$(echo $serverip | cut -d. -f1-3)
             if [[ -z $startrange ]]; then
-                startrange="${networkbase}.10"
+                startrange=$(addToAddress $network)
             fi
             if [[ -z $endrange ]]; then
                 endrange=$(subtract1fromAddress $(interface2broadcast $interface))
