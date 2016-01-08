@@ -1,20 +1,20 @@
 $(function() {
     $("#currentdlstate").html('Downloading file...');
     $.post(
-        '?sub=kernelfetch',
-        {msg: "dl"},
-        dlComplete, "text"
-    );
+            '?sub=kernelfetch',
+            {msg: "dl"},
+            dlComplete, "text"
+          );
 });
 function dlComplete(data, textStatus) {
     if (textStatus == "success") {
         if (data == "##OK##") {
             $("#currentdlstate").html('Download Completed! Moving file to TFTP server...');
             $.post(
-                '?sub=kernelfetch',
-                {msg: "tftp"},
-                mvComplete, "text"
-            );
+                    '?sub=kernelfetch',
+                    {msg: "tftp"},
+                    mvComplete, "text"
+                  );
         } else {
             $("#currentdlstate").html('<div class="task-start-failed">'+data+'</div>');
             $("#img").fadeOut('slow');
