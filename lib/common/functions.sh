@@ -439,6 +439,7 @@ installPackages() {
                     eval $repoenable remi-php56 >>/var/log/fog_error_${version}.log 2>&1
                 fi
             fi
+            unset x
             ;;
         2)
             case $linuxReleaseName in
