@@ -1082,7 +1082,11 @@ hasGrubFileName() {
 MBRFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local intDisk="$2"    # e.g. 1
-    local filename="${imagePath}/d${intDisk}.mbr"
+    if [[ $osid == +([1-2]) || -f $win7imgroot/sys.img.000 ]]; then
+        echo $mbrfile
+    else
+        echo "${imagePath}/d${intDisk}.mbr"
+    fi
     echo "$filename"
 }
 EBRFileName() {
@@ -1181,56 +1185,55 @@ restorePartitionTablesAndBootLoaders() {
         tmpMBR=$(MBRFileName "$imagePath" "${intDisk}")
         has_GRUB=$(hasGRUB "${disk}" "${intDisk}" "${imagePath}")
         mbrsize=$(ls -l $tmpMBR | awk '{print $5}')
-        if [[ -f $tmpMBR ]]; then
-            local table_type=$(getDesiredPartitionTableType "${imagePath}" "${intDisk}")
-            majorDebugEcho "Trying to restore to $table_type partition table."
-            if [[ $table_type == GPT || $mbrsize != +(1048576|512|32256) ]]; then
-                dots "Restoring Partition Tables (GPT)"
-                sgdisk -gel $tmpMBR $disk >/dev/null 2>&1
-                if [[ $? -ne 0 ]]; then
-                    handleError "Error trying to restore GPT partition tables."
-                fi
-                global_gptcheck="yes"
-                echo "Done"
-            else
-                if [[ $osid == 50 ]]; then
-                    dots "Restoring Partition Tables and GRUB (MBR)"
-                else
-                    dots "Restoring Partition Tables (MBR)"
-                fi
-                restoreGRUB "${disk}" "${intDisk}" "${imagePath}"
-                echo "Done"
-                majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
-                majorDebugPause
-                if [[ $(ls -1 ${imagePath}/*.ebr 2>/dev/null | wc -l) -gt 0 ]]; then
-                    restoreAllEBRs "${disk}" "${intDisk}" "${imagePath}" "${imgPartitionType}"
-                fi
-                local sfpartitionfilename=$(sfdiskPartitionFileName "$imagePath" "$intDisk")
-                local sflegacypartitionfilename=$(sfdiskLegacyOriginalPartitionFileName "$imagePath" "$intDisk")
-                if [[ -e $sfpartitionfilename ]]; then
-                    debugPause
-                    dots "Extended partitions"
-                    sfdisk $disk < "${sfpartitionfilename}" &>/dev/null
-                    echo "Done"
-                elif [[ -e $sflegacypartitionfilename ]]; then
-                    debugPause
-                    dots "Extended partitions (legacy)"
-                    sfdisk $disk < "${sflegacypartitionfilename}" &>/dev/null
-                    echo "Done"
-                else
-                    debugPause
-                    dots "No extended partitions"
-                    echo "Done"
-                fi
-            fi
-            runPartprobe "$disk"
-            majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
-            majorDebugPause
-            debugPause
-            usleep 3000000
-        else
+        if [[ ! -f $tmpMBR ]]; then
             handleError "Image Store Corrupt: Unable to locate MBR."
         fi
+        local table_type=$(getDesiredPartitionTableType "${imagePath}" "${intDisk}")
+        majorDebugEcho "Trying to restore to $table_type partition table."
+        if [[ $table_type == GPT || $mbrsize != +(1048576|512|32256) ]]; then
+            dots "Restoring Partition Tables (GPT)"
+            sgdisk -gel $tmpMBR $disk >/dev/null 2>&1
+            if [[ $? -ne 0 ]]; then
+                handleError "Error trying to restore GPT partition tables."
+            fi
+            global_gptcheck="yes"
+            echo "Done"
+        else
+            if [[ $osid == 50 ]]; then
+                dots "Restoring Partition Tables and GRUB (MBR)"
+            else
+                dots "Restoring Partition Tables (MBR)"
+            fi
+            restoreGRUB "${disk}" "${intDisk}" "${imagePath}"
+            echo "Done"
+            majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
+            majorDebugPause
+            if [[ $(ls -1 ${imagePath}/*.ebr 2>/dev/null | wc -l) -gt 0 ]]; then
+                restoreAllEBRs "${disk}" "${intDisk}" "${imagePath}" "${imgPartitionType}"
+            fi
+            local sfpartitionfilename=$(sfdiskPartitionFileName "$imagePath" "$intDisk")
+            local sflegacypartitionfilename=$(sfdiskLegacyOriginalPartitionFileName "$imagePath" "$intDisk")
+            if [[ -e $sfpartitionfilename ]]; then
+                debugPause
+                dots "Extended partitions"
+                sfdisk $disk < "${sfpartitionfilename}" &>/dev/null
+                echo "Done"
+            elif [[ -e $sflegacypartitionfilename ]]; then
+                debugPause
+                dots "Extended partitions (legacy)"
+                sfdisk $disk < "${sflegacypartitionfilename}" &>/dev/null
+                echo "Done"
+            else
+                debugPause
+                dots "No extended partitions"
+                echo "Done"
+            fi
+        fi
+        runPartprobe "$disk"
+        majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
+        majorDebugPause
+        debugPause
+        usleep 3000000
     else
         dots "Skipping partition tables and MBR"
         echo "Done"
