@@ -10,13 +10,13 @@ $(function() {
     });
     $('.toggle-checkbox1').click(function() {
         $('input.toggle-host1:checkbox')
-        .not(':hidden')
-        .prop('checked',$(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked',$(this).is(':checked'));
     });
     $('.toggle-checkbox2').click(function() {
         $('input.toggle-host2:checkbox')
-        .not(':hidden')
-        .prop('checked',$(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked',$(this).is(':checked'));
     });
     $('#groupNotInMe').hide();
     $('#groupNoImage').hide();
@@ -28,12 +28,12 @@ $(function() {
     });
     $('.toggle-checkbox1').click(function() {
         $('input.toggle-group1:checkbox')
-        .not(':hidden')
-        .prop('checked',$(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked',$(this).is(':checked'));
     });
     $('.toggle-checkbox2').click(function() {
         $('input.toggle-group2:checkbox')
-        .not(':hidden')
-        .prop('checked',$(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked',$(this).is(':checked'));
     });
 });

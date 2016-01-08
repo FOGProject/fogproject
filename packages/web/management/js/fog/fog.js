@@ -48,7 +48,7 @@ function setChecked(ids) {
 function getQueryParams(qs) {
     qs = qs.split("+").join(" ");
     var params = {},
-        tokens,
+    tokens,
         re = /[?&]?([^=]+)=([^&]*)/g
             while (tokens = re.exec(qs)) {
                 params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
@@ -186,8 +186,8 @@ function getQueryParams(qs) {
             var messageBox = $(this);
             Messages[Messages.length] = messageBox.html();
         });
-    if (Messages.length > 0) Loader.fogStatusUpdate(Messages.join('</p><p>')).hide().fadeIn();
-    return this;
+        if (Messages.length > 0) Loader.fogStatusUpdate(Messages.join('</p><p>')).hide().fadeIn();
+        return this;
     }
     $.fn.fogStatusUpdate = function(txt, opts) {
         var Defaults = {
@@ -292,21 +292,21 @@ function buildRow(data,templates,attributes) {
         for (var k in data[h]) {
             row = row.replace(new RegExp('\\$\\{'+k+'\\}','g'),(k == 'percent' ? parseInt(data[h][k]) : data[h][k]));
         }
-        row = row.replace(new RegExp('\\${\\{\w+\\}','g'),'');
+        row = row.replace(new RegExp('\\$\\{\w+\\}','g'),'');
         rows += row+'</tr>';
         row = '';
+        tbody.append(rows);
+        $('.toggle-action').change(function() {
+            checkedIDs = getChecked();
+        });
+        setChecked(checkedIDs);
+        HookTooltips();
+        if (node == 'task' && (typeof(sub) == 'undefined' || sub == 'active')) {
+            showForceButton();
+            showProgressBar();
+        }
+        $('table').trigger('update');
     }
-    tbody.append(rows);
-    $('.toggle-action').change(function() {
-        checkedIDs = getChecked();
-    });
-    setChecked(checkedIDs);
-    HookTooltips();
-    if (node == 'task' && (typeof(sub) == 'undefined' || sub == 'active')) {
-        showForceButton();
-        showProgressBar();
-    }
-    $('table').trigger('update');
 }
 function TableCheck() {
     if (LastCount > 0) {
