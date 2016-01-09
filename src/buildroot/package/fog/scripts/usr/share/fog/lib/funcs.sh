@@ -33,7 +33,6 @@ verifyNetworkConnection() {
     fi
     echo "Done"
     debugPause
-    echo "Done"
 }
 # $1 is the drive
 enableWriteCache()  {
@@ -71,10 +70,10 @@ expandPartition() {
     case $fstype in
         ntfs)
             dots "Resizing ntfs volume ($part)"
-            ntfsresize $part -f -b -P &>/dev/null < /usr/share/fog/lib/EOFNTFSRESTORE
+            ntfsresize $part -f -b -P </usr/share/fog/lib/EOFNTFSRESTORE >/dev/null 2>&1
             [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
             debugPause
-            resetFlag "$part"
+            resetFlag $part
             ;;
         extfs)
             dots "Resizing $fstype volume ($part)"
@@ -135,15 +134,18 @@ partitionIsDosExtended() {
     local part="$1"
     local scheme=$(getPartitionEntryScheme $part)
     debugEcho "scheme = $scheme" 1>&2
-    if [[ $scheme != dos ]]; then
-        echo "no"
-        debugPause
-        return 0
-    fi
-    local parttype=$(getPartType $part)
-    debugEcho "parttype = $parttype" 1>&2
-    [[ $parttype == +(0x5|0xf) ]] && echo "Yes" || echo "No"
-    debugPause
+    case $scheme in
+        dos)
+            echo "no"
+            debugPause
+            ;;
+        *)
+            local parttype=$(getPartType $part)
+            debugEcho "parttype = $parttype" 1>&2
+            [[ $parttype == +(0x5|0xf) ]] && echo "yes" || echo "no"
+            debugPause
+            ;;
+    esac
 }
 # $1 is the partition
 # Returns the size in bytes.
@@ -155,11 +157,8 @@ getPartSize() {
 }
 # Returns the size in bytes.
 getDiskSize() {
-    if [[ -z $1 ]]; then
-        local disk="$hd"
-    else
-        local disk="$1"
-    fi
+    local disk="$1"
+    [[ -z $disk ]] && disk="$hd"
     local block_disk_tot=$(blockdev --getsz $disk)
     local disk_block_size=$(blockdev --getpbsz $disk)
     echo "$(($block_disk_tot * $disk_block_size))"
@@ -261,7 +260,7 @@ shrinkPartition() {
             echo ""
             echo " * Possible resize partition size: $sizentfsresize k"
             dots "Running resize test $part"
-            tmpSuc=$(ntfsresize -f -n -s ${sizentfsresize}k $part < /usr/share/fog/lib/EOFNTFSRESTORE)
+            tmpSuc=$(ntfsresize -f -n -s ${sizentfsresize}k $part </usr/share/fog/lib/EOFNTFSRESTORE)
             success=$(echo $tmpSuc | grep "ended successfully")
             too_big=$(echo $tmpSuc | grep "bigger than the device size")
             ok_size=$(echo $tmpSuc | grep "volume size is already OK")
@@ -282,7 +281,12 @@ shrinkPartition() {
             debugPause
             if [[ $do_resizefs -eq 1 ]]; then
                 dots "Resizing filesystem"
-                ntfsresize -f -s ${sizentfsresize}k $part &>/dev/null < /usr/share/fog/lib/EOFNTFS
+                ntfsresize -f -s ${sizentfsresize}k $part </usr/share/fog/lib/EOFNTFS >/dev/null 2>&1
+                if [[ ! $? -eq 0 ]]; then
+                    echo "Failed"
+                    debugPause
+                    handleError "Could not resize disk"
+                fi
                 echo "Done"
                 debugPause
                 resetFlag $part
@@ -333,9 +337,7 @@ shrinkPartition() {
             block_size=$(dumpe2fs -h $part 2>/dev/null | awk /^Block\ size:/'{print $3}')
             size=$(($extminsizenum * $block_size))
             sizeextresize=$(($size * 103 / 100 / 1024))
-            if [[ -z $sizeextresize || $sizeextresize -lt 1 ]]; then
-                handleError "Error calculating the new size of extfs ($part)"
-            fi
+            [[ -z $sizeextresize || $sizeextresize -lt 1 ]] && handleError "Error calculating the new size of extfs ($part)"
             echo
             usleep 3000000
             dots "Shrinking $fstype volume ($part)"
@@ -433,9 +435,7 @@ countExtfs() {
 writeImage()  {
     local file="$1"
     local target="$2"
-    if [[ -z $target ]]; then
-        handleError "No target to place image to"
-    fi
+    [[ -z $target ]] && handleError "No target to place image to"
     mkfifo /tmp/pigz1
     case $mc in
         yes)
@@ -453,15 +453,13 @@ writeImage()  {
     if [[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]]; then
         echo " * Imaging using Partimage"
         usleep 2000000
-        pigz -d -c < /tmp/pigz1 | partimage restore $target stdin -f3 -b 2>/tmp/status.fog
+        pigz -d -c </tmp/pigz1 | partimage restore $target stdin -f3 -b 2>/tmp/status.fog
     else
         echo " * Imaging using Partclone"
         usleep 2000000
-        pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $target -N -f 1 2>/tmp/status.fog
+        pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O $target -N -f 1 2>/tmp/status.fog
     fi
-    if [[ ! $? -eq 0 ]]; then
-        handleError "Image failed to restore and exited with exit code $?"
-    fi
+    [[ ! $? -eq 0 ]] && handleError "Image failed to restore and exited with exit code $?"
     rm -rf /tmp/pigz1
 }
 # $1 = DriveName  (e.g. /dev/sdb)
@@ -571,7 +569,7 @@ changeHostname() {
         echo "y" >> /usr/share/fog/lib/EOFREG
     fi
     dots "Changing hostname"
-    reged -e $regfile < /usr/share/fog/lib/EOFREG >/dev/null 2>&1
+    reged -e $regfile </usr/share/fog/lib/EOFREG >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
@@ -587,9 +585,7 @@ changeHostname() {
 }
 fixWin7boot() {
     local part="$1"
-    if [[ -z $part ]]; then
-        handleError "Partition not passed"
-    fi
+    [[ -z $part ]] && handleError "Partition not passed"
     case $osid in
         [5-7]|[9])
             local fstype=$(fsTypeSetting $part)
@@ -662,14 +658,10 @@ fixWin7boot() {
 }
 clearMountedDevices() {
     local $part="$1"
-    if [[ -z $part ]]; then
-        handleError "No partition passed"
-    fi
+    [[ -z $part ]] && handleError "No partition passed"
     if [[ ! -d /ntfs ]]; then
         mkdir -p /ntfs >/dev/null
-        if [[ ! $? -eq 0 ]]; then
-            handleError "Could not create mount point /ntfs"
-        fi
+        [[ ! $? -eq 0 ]] && handleError "Could not create mount point /ntfs"
     fi
     case $osid in
         [5-7]|9)
@@ -726,9 +718,7 @@ clearMountedDevices() {
 # $1 is the device name of the windows system partition
 removePageFile() {
     local part="$1"
-    if [[ -z $part ]]; then
-        handleError "No partition passed"
-    fi
+    [[ -z $part ]] && handleError "No partition passed"
     local fstype=$(fsTypeSetting $part)
     if [[ ! $ignorepg -eq 1 ]]; then
         return 0
@@ -858,9 +848,7 @@ doInventory() {
 }
 determineOS() {
     local osid="$1"
-    if [[ -z $osid ]]; then
-        handleError " * Unable to determine operating system type!"
-    fi
+    [[ -z $osid ]] && handleError " * Unable to determine operating system type!"
     case $osid in
         1)
             osname="Windows XP"
@@ -1084,7 +1072,11 @@ display_center() {
 display_right() {
     local columns="$(tput cols)"
     local line="$1"
-    printf "%*s\n" $columns "$line"
+    local newline=""
+    if [[ -z $2 ]]; then
+        newline="\n"
+    fi
+    printf "%*s$newline" $columns "$line"
 }
 displayBanner() {
     version=$(wget -qO - http://${web}service/getversion.php 2>/dev/null)
@@ -1114,6 +1106,7 @@ displayBanner() {
     echo
 }
 handleError() {
+    local str="$1"
     echo
     echo
     echo "##############################################################################"
@@ -1123,20 +1116,22 @@ handleError() {
     echo "##############################################################################"
     echo
     echo
-    display_center "$1"
+    display_center "$str"
     #
     # expand the file systems in the restored partitions
     #
     # Windows 7, 8, 8.1:
     # Windows 2000/XP, Vista:
     # Linux:
-    if [[ $2 == yes ]]; then
-        if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
-            getPartitions $hd
-            for part in $parts; do
-                expandPartition "$part"
-            done
-        fi
+    if [[ -n $2 ]]; then
+        case $osid in
+            [1-2]|[5-7]|9|50)
+                getPartitions $hd
+                for part in $parts; do
+                    expandPartition $part
+                done
+                ;;
+        esac
     fi
     echo
     echo
@@ -1145,11 +1140,12 @@ handleError() {
     echo "#                      Computer will reboot in 1 minute                      #";
     echo "#                                                                            #"
     echo "##############################################################################"
-    usleep 60000000
+    usleep 50000000
     debugPause
     exit 0
 }
 handleWarning() {
+    local str="$1"
     echo
     echo "##############################################################################"
     echo "#                                                                            #"
@@ -1158,7 +1154,7 @@ handleWarning() {
     echo "##############################################################################"
     echo
     echo
-    display_center "$1"
+    display_center "$str"
     echo
     echo
     echo "##############################################################################"
@@ -1171,16 +1167,13 @@ handleWarning() {
 }
 # $1 is the drive
 runPartprobe() {
+    local disk="$1"
     udevadm settle
-    blockdev --rereadpt $1 >/dev/null 2>&1
-    if [[ $? != 0 ]]; then
-        handleError "Failed to read back partitions"
-    fi
+    blockdev --rereadpt $disk >/dev/null 2>&1
+    [[ ! $? -eq 0 ]] && handleError "Failed to read back partitions"
 }
 debugCommand() {
-    if [[ $mode == debug ]]; then
-        echo $1 >> /tmp/cmdlist
-    fi
+    [[ $mode == debug || -n $isdebug ]] && echo $1 >> /tmp/cmdlist
 }
 # uploadFormat
 # Description:
@@ -1190,22 +1183,25 @@ debugCommand() {
 # Expects part of the filename in the case of resizable
 #    will append 000 001 002 automatically
 uploadFormat() {
-    if [[ ! -n $2 ]]; then
-        echo "Missing file in file out"
-        return
-    elif [[ ! -n $3 ]]; then
-        echo "Missing file name to store"
-        return
-    fi
-    if [[ $imgFormat == 2 ]]; then
-        pigz $PIGZ_COMP < $2 | split -a 3 -d -b 200m - ${3}. &
-    else
-        if [[ $imgType == n ]]; then
-            pigz $PIGZ_COMP < $2 > ${3}.000 &
-        else
-            pigz $PIGZ_COMP < $2 > $3 &
-        fi
-    fi
+    [[ -z $2 ]] && handleError "Missing file in file out"
+    [[ -z $3 ]] && handleError "Missing file name to store"
+    local fifo="$2"
+    local file="$3"
+    case $imgFormat in
+        1)
+            case $imgType in
+                [Nn])
+                    pigz $PIGZ_COMP <$fifo >${file}.000 &
+                    ;;
+                *)
+                    pigz $PIGZ_COMP <$fifo >$file &
+                    ;;
+            esac
+            ;;
+        2)
+            pigz $PIGZ_COMP <$fifo | split -a 3 -d -b 200m - ${file}. &
+            ;;
+    esac
 }
 # Thank you, fractal13 Code Base
 #
@@ -1235,15 +1231,13 @@ saveGRUB() {
         awk /start=\ *[1-9]/'{print $4+0}' | sort -n | head -n1)
     local has_grub=$(dd if=$1 bs=512 count=1 2>&1 | grep GRUB)
     if [[ ! -z $has_grub ]]; then
-        local hasgrubfilename=$(hasGrubFileName "${imagePath}" "${disk_number}")
+        local hasgrubfilename=$(hasGrubFileName $imagePath $disk_number)
         touch "$hasgrubfilename"
     fi
     # Ensure that no more than 1MiB of data is copied (already have this size used elsewhere)
-    if [[ $count -gt 2048 ]]; then
-        count=2048
-    fi
-    local mbrfilename=$(MBRFileName "${imagePath}" "${disk_number}")
-    dd if="$disk" of="$mbrfilename" count="${count}" bs=512 &>/dev/null
+    [[ $count -gt 2048 ]] && count=2048
+    local mbrfilename=$(MBRFileName $imagePath $disk_number)
+    dd if=$disk of=$mbrfilename count=$count bs=512 >/dev/null 2>&1
 }
 # Checks for the existence of the grub embedding area in the image directory.
 # Echos 1 for true, and 0 for false.
@@ -1256,12 +1250,8 @@ hasGRUB() {
     local disk="$1"
     local disk_number="$2"
     local imagePath="$3"
-    local hasgrubfilename=$(hasGrubFileName "${imagePath}" "${disk_number}")
-    if [[ -e $hasgrubfilename ]]; then
-        echo "1"
-    else
-        echo "0"
-    fi
+    local hasgrubfilename=$(hasGrubFileName $imagePath $disk_number)
+    [[ -e $hasgrubfilename ]] && echo 1 || echo 0
 }
 # Restore the grub boot record and all of the embedding area data
 # necessary for grub2.
@@ -1274,13 +1264,11 @@ restoreGRUB() {
     local disk="$1"
     local disk_number="$2"
     local imagePath="$3"
-    local tmpMBR=$(MBRFileName "${imagePath}" "${disk_number}")
-    local count=$(du -B 512 "${tmpMBR}" | awk '{print $1;}')
-    if [[ $count == 8 ]]; then
-        count=1
-    fi
-    dd if="${tmpMBR}" of="${disk}" bs=512 count="${count}" &>/dev/null
-    runPartprobe "$disk"
+    local tmpMBR=$(MBRFileName $imagePath $disk_number)
+    local count=$(du -B 512 $tmpMBR | awk '{print $1}')
+    [[ $count -eq 8 ]] && count=1
+    dd if=$tmpMBR of=$disk bs=512 count=$count >/dev/null 2>&1
+    runPartprobe $disk
 }
 debugPause() {
     if [[ -n $isdebug || $mode == debug ]]; then
@@ -1290,14 +1278,10 @@ debugPause() {
     fi
 }
 debugEcho() {
-    if [[ -n $isdebug || $mode == debug ]]; then
-        echo "$*"
-    fi
+    [[ -n $isdebug || $mode == debug ]] && echo "$*"
 }
 majorDebugEcho() {
-    if [[ $ismajordebug -gt 1 ]]; then
-        echo "$*"
-    fi
+    [[ $ismajordebug -gt 1 ]] && echo "$*"
 }
 majorDebugPause() {
     if [[ $ismajordebug -gt 0 ]]; then
@@ -1309,7 +1293,7 @@ majorDebugPause() {
 swapUUIDFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local intDisk="$2"    # e.g. 1
-    local filename="${imagePath}/d${intDisk}.original.swapuuids"
+    local filename="$imagePath/d${intDisk}.original.swapuuids"
     echo "$filename"
 }
 sfdiskPartitionFileName() {
@@ -1356,19 +1340,20 @@ hasGrubFileName() {
 MBRFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local intDisk="$2"    # e.g. 1
-    if [[ $osid == +([1-2]) || -f $win7imgroot/sys.img.000 ]]; then
-        echo $mbrfile
-    else
-        echo "${imagePath}/d${intDisk}.mbr"
-    fi
-    echo "$filename"
+    case $osid in
+        [1-2])
+            echo $mbrfile
+            ;;
+        [5-7]|9)
+            [[ -f $win7imgroot/sys.img.000 ]] && echo $mbrfile || echo "$imagePath/d${intDisk}.mbr"
+            ;;
+    esac
 }
 EBRFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local intDisk="$2"    # e.g. 1
     local intPart="$3"    # e.g. 5
-    local filename="${imagePath}/d${intDisk}p${intPart}.ebr"
-    echo "$filename"
+    echo "$imagePath/d${intDisk}p${intPart}.ebr"
 }
 tmpEBRFileName() {
     EBRFileName "/tmp" "$1" "$2"
@@ -1390,59 +1375,67 @@ savePartitionTablesAndBootLoaders() {
     local intDisk="$2"                 # e.g. 1
     local imagePath="$3"               # e.g. /net/dev/foo
     local osid="$4"                    # e.g. 50
-    local hasgpt=$(hasGPT "${disk}")   # e.g. 0 or 1
-    local have_extended_partition="0"  # e.g. 0 or 1-n (extended partition count)
-    if [[ $hasgpt == 0 ]]; then
-        have_extended_partition=$(sfdisk -l "$disk" 2>/dev/null | egrep "^${disk}.* (Extended|W95 Ext'd \(LBA\))$" | wc -l)
-    else
-        have_extended_partition="0"
+    local hasgpt=$(hasGPT $disk)   # e.g. 0 or 1
+    local have_extended_partition=0  # e.g. 0 or 1-n (extended partition count)
+    [[ $hasgpt -eq 0 ]] && have_extended_partition=$(sfdisk -l "$disk" 2>/dev/null | egrep "^${disk}.* (Extended|W95 Ext'd \(LBA\))$" | wc -l)
+    runPartprobe $disk
+    if [[ $imgPartitionType != all && $imgPartitionType != mbr ]]; then
+        echo " * Skipping partition tables and MBR"
+        debugPause
+        runPartprobe $disk
+        return 0
     fi
-    runPartprobe "$disk"
-    if [[ $imgPartitionType == all || $imgPartitionType == mbr ]]; then
-        if [[ $hasgpt == 0 ]]; then
-            if [[ $osid == 50 && $intDisk == 1 ]]; then
-                dots "Saving Partition Tables and GRUB (MBR)"
-            else
-                dots "Saving Partition Tables (MBR)"
-            fi
-            saveGRUB "${disk}" "${intDisk}" "${imagePath}"
+    case $hasgpt in
+        0)
+            case $osid in
+                50)
+                    [[ $intDisk -eq 1 ]] && dots "Saving Partition Tables and GRUB (MBR)" || dots "Saving Partition Tables (MBR)"
+                    ;;
+                *)
+                    dots "Saving Partition Tables (MBR)"
+                    ;;
+            esac
+            saveGRUB $disk $intDisk $imagePath
             echo "Done"
             if [[ $have_extended_partition -ge 1 ]]; then
-                local sfpartitionfilename=$(sfdiskPartitionFileName "$imagePath" "$intDisk")
-                sfdisk -d $disk 2>/dev/null > "${sfpartitionfilename}"
-                saveAllEBRs "$disk" "$intDisk" "$imagePath"
+                local sfpartitionfilename=$(sfdiskPartitionFileName $imagePath $intDisk)
+                sfdisk -d $disk 2>/dev/null > $sfpartitionfilename
+                saveAllEBRs $disk $intDisk $imagePath
             fi
-        else
+            ;;
+        1)
             dots "Saving Partition Tables (GPT)"
             sgdisk -b $imagePath/d${intDisk}.mbr $disk >/dev/null 2>&1
-            if [[ $? -ne 0 ]]; then
-                handleError "Error trying to save GPT partition tables."
-            fi
-            rm -f "${sfpartitionfilename}"
+            [[ ! $? -eq 0 ]] && handleError "Error trying to save GPT partition tables."
+            rm -f $sfpartitionfilename
             echo "Done"
-        fi
-    else
-        dots "Skipping partition tables and MBR"
-        echo "Done"
-    fi
-    runPartprobe "$disk"
+            ;;
+    esac
+    runPartprobe $disk
     debugPause
 }
 clearPartitionTables() {
-    local disk=$1
+    local disk="$1"
     dots "Erasing current MBR/GPT Tables"
-    sgdisk -Z $disk >/dev/null
-    local status="$?"
-    if [[ $status -eq 0 ]]; then
-        echo "Done"
-    elif [[ $status -eq 2 ]]; then
-        # An output message from sgdisk probably brought us down to the next line.
-        echo "Corrupted partition table was erased.  Everything should be fine now."
-    else
-        handleError "Error trying to erase partition tables."
-    fi
-    runPartprobe "$disk"
-    debugPause
+    sgdisk -Z $disk >/dev/null 2>&1
+    case $? in
+        0)
+            echo "Done"
+            debugPause
+            ;;
+        2)
+            echo "Done, but cleared partition."
+            debugPause
+            echo " * Corrupted partition table was erased."
+            usleep 5000000
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Error trying to erase partition tables."
+            ;;
+    esac
+    runPartprobe $disk
 }
 restorePartitionTablesAndBootLoaders() {
     local disk="$1"
@@ -1451,68 +1444,77 @@ restorePartitionTablesAndBootLoaders() {
     local tmpMBR=""
     local has_GRUB=""
     local mbrsize=""
-    if [[ $imgPartitionType == all || $imgPartitionType == mbr ]]; then
-        clearPartitionTables $disk
-        majorDebugEcho "Partition table should be empty now."
-        majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
-        majorDebugPause
-        tmpMBR=$(MBRFileName "$imagePath" "${intDisk}")
-        has_GRUB=$(hasGRUB "${disk}" "${intDisk}" "${imagePath}")
-        mbrsize=$(ls -l $tmpMBR | awk '{print $5}')
-        if [[ ! -f $tmpMBR ]]; then
-            handleError "Image Store Corrupt: Unable to locate MBR."
-        fi
-        local table_type=$(getDesiredPartitionTableType "${imagePath}" "${intDisk}")
-        majorDebugEcho "Trying to restore to $table_type partition table."
-        if [[ $table_type == GPT || $mbrsize != +(1048576|512|32256) ]]; then
-            dots "Restoring Partition Tables (GPT)"
-            sgdisk -gel $tmpMBR $disk >/dev/null 2>&1
-            if [[ $? -ne 0 ]]; then
-                handleError "Error trying to restore GPT partition tables."
-            fi
-            global_gptcheck="yes"
-            echo "Done"
-        else
-            if [[ $osid == 50 ]]; then
-                dots "Restoring Partition Tables and GRUB (MBR)"
-            else
-                dots "Restoring Partition Tables (MBR)"
-            fi
-            restoreGRUB "${disk}" "${intDisk}" "${imagePath}"
-            echo "Done"
-            majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
-            majorDebugPause
-            if [[ $(ls -1 ${imagePath}/*.ebr 2>/dev/null | wc -l) -gt 0 ]]; then
-                restoreAllEBRs "${disk}" "${intDisk}" "${imagePath}" "${imgPartitionType}"
-            fi
-            local sfpartitionfilename=$(sfdiskPartitionFileName "$imagePath" "$intDisk")
-            local sflegacypartitionfilename=$(sfdiskLegacyOriginalPartitionFileName "$imagePath" "$intDisk")
-            if [[ -e $sfpartitionfilename ]]; then
-                debugPause
-                dots "Extended partitions"
-                sfdisk $disk < "${sfpartitionfilename}" &>/dev/null
-                echo "Done"
-            elif [[ -e $sflegacypartitionfilename ]]; then
-                debugPause
-                dots "Extended partitions (legacy)"
-                sfdisk $disk < "${sflegacypartitionfilename}" &>/dev/null
-                echo "Done"
-            else
-                debugPause
-                dots "No extended partitions"
-                echo "Done"
-            fi
-        fi
-        runPartprobe "$disk"
-        majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
-        majorDebugPause
-        debugPause
-        usleep 3000000
-    else
+    local strdots=""
+    if [[ $imgPartitionType != all && $imgPartitionType != mbr ]]; then
         dots "Skipping partition tables and MBR"
         echo "Done"
         debugPause
+        return 0
     fi
+    clearPartitionTables $disk
+    majorDebugEcho "Partition table should be empty now."
+    majorDebugShowCurrentPartitionTable $disk $intDisk
+    majorDebugPause
+    tmpMBR=$(MBRFileName $imagePath $intDisk)
+    has_GRUB=$(hasGRUB $disk $intDisk $imagePath)
+    mbrsize=$(ls -l $tmpMBR | awk '{print $5}')
+    [[ ! -f $tmpMBR ]] && handleError "Image Store Corrupt: Unable to locate MBR."
+    local table_type=$(getDesiredPartitionTableType $imagePath $intDisk)
+    majorDebugEcho "Trying to restore to $table_type partition table."
+    if [[ $table_type == GPT || $mbrsize != +(1048576|512|32256) ]]; then
+        dots "Restoring Partition Tables (GPT)"
+        sgdisk -gel $tmpMBR $disk >/dev/null 2>&1
+        [[ ! $? -eq 0 ]] && handleError "Error trying to restore GPT partition tables."
+        global_gptcheck="yes"
+        echo "Done"
+        debugPause
+    else
+        case $osid in
+            50)
+                strdots="Restoring PartitionTables and GRUB (MBR)"
+                ;;
+            *)
+                strdots="Restoring Partition Tables (MBR)"
+                ;;
+        esac
+        restoreGRUB $disk $intDisk $imagePath
+        echo "Done"
+        debugPause
+        majorDebugShowCurrentPartitionTable $disk $intDisk
+        majorDebugPause
+        [[ $(ls -1 ${imagePath}/*.ebr 2>/dev/null | wc -l) -gt 0 ]] && restoreAllEBRs $disk $intDisk $imagePath $imgPartitionType
+        local sfpartitionfilename=$(sfdiskPartitionFileName $imagePath $intDisk)
+        local sflegacypartitionfilename=$(sfdiskLegacyOriginalPartitionFileName $imagePath $intDisk)
+        if [[ -e $sfpartitionfilename ]]; then
+            debugPause
+            dots "Inserting Extended partitions"
+            sfdisk $disk <$sfpartitionfilename >/dev/null 2>&1
+            if [[ ! $? -eq 0 ]]; then
+                echo "Failed"
+                debugPause
+            fi
+            echo "Done"
+            debugPause
+        elif [[ -e $sflegacypartitionfilename ]]; then
+            debugPause
+            dots "Extended partitions (legacy)"
+            sfdisk $disk <$sflegacypartitionfilename >/dev/null 2>&1
+            if [[ ! $? -eq 0 ]]; then
+                echo "Failed"
+                debugPause
+            fi
+            echo "Done"
+            debugPause
+        else
+            dots "No extended partitions"
+            echo "Done"
+            debugPause
+        fi
+    fi
+    runPartprobe $disk
+    majorDebugShowCurrentPartitionTable $disk $intDisk
+    majorDebugPause
+    usleep 5000000
 }
 savePartition() {
     local part="$1"
@@ -1525,187 +1527,196 @@ savePartition() {
     local imgpart=""
     local fifoname="/tmp/pigz1"
     partNum=$(getPartitionNumber $part)
-    if [[ $imgPartitionType == all || $imgPartitionType == $partNum ]]; then
-        if [[ ! -e $fifoname ]]; then
-            mkfifo $fifoname
-        fi
-        echo " * Processing Partition: $part ($partNum)"
-        fstype="$(fsTypeSetting $part)"
-        parttype="$(getPartType $part)"
-        if [[ $fstype != 'swap' && $parttype != '0x5' && $parttype != '0xf' ]]; then
-            # normal filesystem data on partition
-            echo " * Using partclone.${fstype}"
-            usleep 5000000
-            imgpart="$imagePath/d${intDisk}p${partNum}.img"
-            uploadFormat "$cores" "$fifoname" "$imgpart"
-            partclone.$fstype -fsck-src-part-y -c -s $part -O $fifoname -N -f 1 2>/tmp/status.fog
-            mv $imgpart.000 $imgpart 2>/dev/null
-            debugPause
-            clear
-            echo " * Image uploaded"
-        else
-            if [[ $parttype == 0x5 || $parttype == 0xf ]]; then
-                # extended partition, the EBR should have been saved with the partition table
-                echo " * Not uploading content of extended partition"
-                # leave an empty file to make restorePartition happy
-                local ebrfilename=$(EBRFileName "${imagePath}" "${intDisk}" "${partNum}")
-                touch "$ebrfilename"
-            elif [[ $fstype == swap ]]; then
-                echo " * Saving swap parition UUID"
-                local swapuuidfilename=$(swapUUIDFileName "${imagePath}" "${intDisk}")
-                saveSwapUUID "$swapuuidfilename" "$part"
-            else
-                handleError "Unexpected condition in savePartition."
-            fi
-        fi
-        rm $fifoname
-    else
+    if [[ $imgPartitionType != all && $imgPartitionType != $partNum ]]; then
         dots "Skipping partition $partNum"
         echo "Done"
         debugPause
     fi
+    if [[ ! -e $fifoname ]]; then
+        mkfifo $fifoname
+    fi
+    echo " * Processing Partition: $part ($partNum)"
+    fstype="$(fsTypeSetting $part)"
+    parttype="$(getPartType $part)"
+    if [[ $fstype != 'swap' && $parttype != '0x5' && $parttype != '0xf' ]]; then
+        # normal filesystem data on partition
+        echo " * Using partclone.$fstype"
+        usleep 5000000
+        imgpart="$imagePath/d${intDisk}p${partNum}.img"
+        uploadFormat $cores $fifoname $imgpart
+        partclone.$fstype -fsck-src-part-y -c -s $part -O $fifoname -N -f 1 2>/tmp/status.fog
+        mv ${imgpart}.000 $imgpart 2>/dev/null
+        debugPause
+        clear
+        echo " * Image uploaded"
+    else
+        if [[ $parttype == 0x5 || $parttype == 0xf ]]; then
+            # extended partition, the EBR should have been saved with the partition table
+            echo " * Not uploading content of extended partition"
+            # leave an empty file to make restorePartition happy
+            local ebrfilename=$(EBRFileName $imagePath $intDisk $partNum)
+            touch $ebrfilename
+        elif [[ $fstype == swap ]]; then
+            echo " * Saving swap parition UUID"
+            local swapuuidfilename=$(swapUUIDFileName $imagePath $intDisk)
+            saveSwapUUID $swapuuidfilename $part
+        else
+            handleError "Unexpected condition in savePartition."
+        fi
+    fi
+    rm $fifoname
 }
 restorePartition() {
-    if [[ -z $1 ]]; then
-        handleError "No partition sent to process"
-    else
-        local part="$1"
-    fi
-    if [[ -z $2 ]]; then
-        local intDisk="1"
-    else
-        local intDisk="$2"
-    fi
-    if [[ -z $3 ]]; then
-        local imagePath=$imagePath
-    else
-        local imagePath="$3"
-    fi
-    local partNum=""
+    local part="$1"
+    local intDisk="$2"
+    local imagePath=$imagePath
+    [[ -z $part ]] && handleError "No partition sent to process"
+    [[ -z $2 ]] && intDisk=1
+    [[ -n $3 ]] && imagePath="$3"
+    local partNum=$(getPartitionNumber $part)
     local imgpart=""
-    partNum=$(getPartitionNumber $part)
     echo " * Processing Partition: $part ($partNum)"
-    if [[ $imgPartitionType == all || $imgPartitionType == $partNum ]]; then
-        case "$imgType" in
-            dd)
-                imgpart="$imagePath/$img"
-                ;;
-            n|mps|mpa)
-                case "$osid" in
-                    [1-2])
-                        imgpart="$imagePath"
-                        ;;
-                    50)
-                        imgpart="$imagePath/d${intDisk}p${partNum}.img*"
-                        ;;
-                    [5-7]|9)
-                        if [[ ! -f $imagePath/sys.img.000 ]]; then
-                            imgpart="$imagePath/d${intDisk}p${partNum}.img*"
-                        else
-                            case "$win7partcnt" in
-                                1)
-                                    imgpart="$imagePath/sys.img.*"
-                                    ;;
-                                2)
-                                    if [[ $partNum == 1 ]]; then
-                                        imgpart="$imagePath/rec.img.000"
-                                    elif [[ $partNum == 2 ]]; then
-                                        imgpart="$imagePath/sys.img.*"
-                                    fi
-                                    ;;
-                                3)
-                                    if [[ $partNum == 1 ]]; then
-                                        imgpart="$imagePath/rec.img.000"
-                                    elif [[ $partNum == 2 ]]; then
-                                        imgpart="$imagePath/rec.img.001"
-                                    elif [[ $partNum == 3 ]]; then
-                                        imgpart="$imagePath/sys.img.*"
-                                    fi
-                                    ;;
-                            esac
-                        fi
-                        ;;
-                esac
-                ;;
-            *)
-                handleError "Invalid Image Type $imgType"
-                ;;
-        esac
-        if [[ $(ls $imgpart >/dev/null 2>&1; echo $?) != 0 ]]; then
-            local ebrfilename=$(EBRFileName "${imagePath}" "${intDisk}" "${partNum}")
-            if [[ -e $ebrfilename ]]; then
-                # extended partition, the EBR should have been restored with the partition table
-                echo " * Not downloading content of extended partition"
-            else
-                echo " * Partition File Missing: $imgpart"
-            fi
-        else
-            writeImage "$imgpart" "$part"
-            debugPause
-        fi
-        runPartprobe "$hd"
-        resetFlag "$part"
-    else
+    if [[ $imgPartitionType != all && $imgPartitionType != $partNum ]]; then
         dots "Skipping partition $partNum"
         echo "Done"
         debugPause
+        return 0
     fi
+    case $imgType in
+        dd)
+            imgpart="$imagePath/$img"
+            ;;
+        n|mps|mpa)
+            case $osid in
+                [1-2])
+                    imgpart="$imagePath"
+                    ;;
+                50)
+                    imgpart="$imagePath/d${intDisk}p${partNum}.img*"
+                    ;;
+                [5-7]|9)
+                    if [[ ! -f $imagePath/sys.img.000 ]]; then
+                        imgpart="$imagePath/d${intDisk}p${partNum}.img*"
+                    else
+                        case "$win7partcnt" in
+                            1)
+                                imgpart="$imagePath/sys.img.*"
+                                ;;
+                            2)
+                                case $partNum in
+                                    1)
+                                        imgpart="$imagePath/rec.img.000"
+                                        ;;
+                                    2)
+                                        imgpart="$imagePath/sys.img.*"
+                                        ;;
+                                esac
+                                ;;
+                            3)
+                                case $partNum in
+                                    1)
+                                        imgpart="$imagePath/rec.img.000"
+                                        ;;
+                                    2)
+                                        imgpart="$imagePath/rec.img.001"
+                                        ;;
+                                    3)
+                                        imgpart="$imagePath/sys.img.*"
+                                        ;;
+                                esac
+                                ;;
+                        esac
+                    fi
+                    ;;
+            esac
+            ;;
+        *)
+            handleError "Invalid Image Type $imgType"
+            ;;
+    esac
+    ls $imgpart >/dev/null 2>&1
+    if [[ ! $? -eq 0 ]]; then
+        local ebrfilename=$(EBRFileName $imagePath $intDisk $partNum)
+        [[ -e $ebrfilename ]] && echo " * Not downloading content of extended partition" || echo " * Partition File Missing: $imgpart"
+        runPartprobe $hd
+        resetFlag $part
+        return 0
+    fi
+    writeImage $imgpart $part
+    debugPause
+    runPartprobe $hd
+    resetFlag $part
 }
 gptorMBRSave() {
     local disk="$1"
+    local strdots=""
     runPartprobe $disk
     local gptormbr=$(gdisk -l $disk | awk /^\ *GPT:/'{print $2}')
-    if [[ $gptormbr == not ]]; then
-        dots "Saving MBR or MBR/Grub"
-        saveGRUB "$disk" "1" "$2"
-        echo "Done"
-        debugPause
-    else
-        dots "Saving Partition Tables (GPT)"
-        sgdisk -b $imagePath/d1.mbr $disk >/dev/null
-        if [[ ! $? -eq 0 ]]; then
-            echo "Failed"
-            debugPause
-            runFixparts "$disk"
-            gptorMBRSave "$disk" "$2"
-        else
+    case $gptormbr in
+        not)
+            case $osid in
+                50)
+                    strdots="Saving MBR/Grub"
+                    ;;
+                *)
+                    strdots="Saving MBR"
+                    ;;
+            esac
+            dots $strdots
+            saveGRUB $disk 1 $2
             echo "Done"
             debugPause
-        fi
-    fi
+            ;;
+        *)
+            dots "Saving Partition Tables (GPT)"
+            sgdisk -b $imagePath/d1.mbr $disk >/dev/null
+            if [[ ! $? -eq 0 ]]; then
+                echo "Failed"
+                debugPause
+                runFixparts $disk
+                gptorMBRSave $disk $2
+                return 0
+            fi
+            echo "Done"
+            debugPause
+            ;;
+    esac
 }
 runFixparts() {
+    local disk="$1"
+    [[ -z $disk ]] && handleError "No disk passed"
     dots "Attempting fixparts"
-    fixparts $1 << EOF
-y
-w
-y
-EOF
-    if [[ $? != 0 ]]; then
+    fixparts $1 </usr/share/fog/lib/EOFFIXPARTS >/dev/null 2>&1
+    if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
         handleError "Could not fix partition layout" "yes"
-    else
-        runPartprobe "$1"
-        echo "Done"
-        debugPause
     fi
+    runPartprobe $disk
+    echo "Done"
+    debugPause
 }
 killStatusReporter() {
     dots "Stopping FOG Status Reporter"
-    $(kill -9 $statusReporter) >/dev/null 2>&1
+    kill -9 $statusReporter >/dev/null 2>&1
+    if [[ ! $? -eq 0 ]]; then
+        echo "Failed"
+        debugPause
+        return 0
+    fi
     echo "Done"
+    debugPause
 }
 prepareResizeDownloadPartitions() {
-    restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType"
+    restorePartitionTablesAndBootLoaders $hd 1 $imagePath $osid $imgPartitionType
     majorDebugEcho "Filling disk = $do_fill"
     dots "Attempting to expand/fill partitions"
-    if [[ $do_fill == 0 ]]; then
+    if [[ $do_fill -eq 0 ]]; then
         echo "Failed"
         debugPause
         handleError "Fatal Error: Could not resize partitions"
     fi
-    fillDiskWithPartitions "$hd" "$imagePath" "1"
+    fillDiskWithPartitions $hd $imagePath 1
     runPartprobe $hd
     echo "Done"
     debugPause
