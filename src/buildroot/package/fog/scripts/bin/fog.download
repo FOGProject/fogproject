@@ -381,7 +381,6 @@ case $imgType in
         ;;
 esac
 killStatusReporter
-debugPause
 if [[ -f /images/postdownloadscripts/fog.postdownload ]]; then
     postdownpath="/images/postdownloadscripts/"
     . ${postdownpath}fog.postdownload

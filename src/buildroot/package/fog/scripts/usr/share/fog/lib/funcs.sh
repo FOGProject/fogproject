@@ -72,7 +72,7 @@ expandPartition() {
     local fstype=$(fsTypeSetting "$part")
     case $fstype in
         ntfs)
-            dots "Resizing ntfs volume ($part)"
+            dots "Resizing $fstype volume ($part)"
             ntfsresize "$part" -f -b -P </usr/share/fog/lib/EOFNTFSRESTORE >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
@@ -308,7 +308,7 @@ shrinkPartition() {
                 fi
                 echo "Done"
                 debugPause
-                resetFlag $part
+                resetFlag "$part"
             fi
             if [[ $do_resizepart -eq 1 ]]; then
                 dots "Resizing partition $part"
@@ -340,6 +340,7 @@ shrinkPartition() {
                 esac
                 echo "Done"
                 debugPause
+                resetFlag "$part"
             fi
             ;;
         extfs)
@@ -1273,11 +1274,10 @@ restoreGRUB() {
     runPartprobe "$disk"
 }
 debugPause() {
-    if [[ -n $isdebug || $mode == debug ]]; then
-        echo
-        display_center 'Press [Enter] key to continue'
-        read -p "$*"
-    fi
+    [[ -z $isdebug && $mode != debug ]] && return 0
+    echo
+    display_center "Press [Enter] key to continue"
+    read -p "$*"
 }
 debugEcho() {
     [[ -n $isdebug || $mode == debug ]] && echo "$*"
@@ -1286,11 +1286,10 @@ majorDebugEcho() {
     [[ $ismajordebug -gt 1 ]] && echo "$*"
 }
 majorDebugPause() {
-    if [[ $ismajordebug -gt 0 ]]; then
-        echo
-        display_center 'Press [Enter] key to continue'
-        read -p "$*"
-    fi
+    [[ ! $ismajordebug -gt 0 ]] && return 0
+    echo
+    display_center "Press [Enter] key to continue"
+    read -p "$*"
 }
 swapUUIDFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
