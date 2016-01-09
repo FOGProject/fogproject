@@ -34,11 +34,7 @@ for part in $parts; do
     mount -o rw $part /ntfs
     echo "Done"
     dots "Attempting to change password"
-    chntpw -u $acct $sam  >/dev/null 2>&1 << EOF
-1
-q
-y
-EOF
+    chntpw -u $acct $sam  >/dev/null 2>&1 </usr/share/fog/lib/EOFCHNTPW
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
