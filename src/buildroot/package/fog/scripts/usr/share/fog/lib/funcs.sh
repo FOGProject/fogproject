@@ -1137,13 +1137,17 @@ handleError() {
     fi
     echo
     echo
-    echo "##############################################################################"
-    echo "#                                                                            #"
-    echo "#                      Computer will reboot in 1 minute                      #";
-    echo "#                                                                            #"
-    echo "##############################################################################"
-    debugPause
-    exit 0
+    if [[ -z $isdebug || $mode != debug ]]; then
+        echo "##############################################################################"
+        echo "#                                                                            #"
+        echo "#                      Computer will reboot in 1 minute                      #";
+        echo "#                                                                            #"
+        echo "##############################################################################"
+        usleep 60000000
+    else
+        debugPause
+    fi
+    exit 1
 }
 handleWarning() {
     local str="$1"
