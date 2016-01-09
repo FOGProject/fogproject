@@ -4,32 +4,36 @@
 . /bin/fog.checkin
 dots "Mounting File System"
 if [[ ! -d /images ]]; then
-    mkdir -p /images $debugstring >/dev/null 2>&1
+    mkdir -p /images "$debugstring" >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
-        handleError "Failed to create location to mount nfs share"
+        handleError "Failed to create location to mount nfs share ($0)"
     fi
+else
+    umount /images >/dev/null 2>&1
 fi
-mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail
+mount -o nolock,proto=tcp,rsize=32768,intr,noatime "$storage" /images 2>/tmp/mntfail
 if [[ ! $? -eq 0 ]]; then
     echo "Failed"
     debugPause
-    handleError "Could not mount images folder"
+    handleError "Could not mount images folder ($0)"
 fi
+echo "Done"
+debugPause
 . /bin/fog.checkmount
 . /bin/fog.checkimgvar
 imagePath="/images/$img"
 origmac=$mac
 mac=$(getMACAddresses | base64)
 . /bin/fog.inventory "true"
-mac=$origmac
+mac="$origmac"
 origmac=""
 layPartSize="-1s"
-fog.statusreporter $mac $web & disown
+fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!"
 fixed_size_partitions=""
-win7imgroot=$imagePath
+win7imgroot="$imagePath"
 echo " * Using Image: $img"
 case $imgType in
     [n]|mps|dd)
@@ -38,16 +42,16 @@ case $imgType in
         if [[ -z $hd ]]; then
             echo "Failed"
             debugPause
-            handleError "Could not find hard disk"
+            handleError "Could not find hard disk ($0)"
         fi
         echo "Done"
         debugPause
-        diskSize=$(trim $(lsblk --bytes -dplno SIZE -I 3,8,9,179,259 $hd))
+        diskSize="$(trim $(lsblk --bytes -dplno SIZE -I 3,8,9,179,259 $hd))"
         [[ $diskSize -gt 2199023255552 ]] && layPartSize="2tB"
         display_center "Using Disk: $hd"
         echo
         validResizeOS
-        enableWriteCache $hd
+        enableWriteCache "$hd"
         ;;
     mpa)
         dots "Looking for Hard Disks"
@@ -55,7 +59,7 @@ case $imgType in
         if [[ -z $disks ]]; then
             echo "Failed"
             debugPause
-            handleError "Count not find any disks"
+            handleError "Count not find any disks ($0)"
         fi
         echo "Done"
         debugPause
@@ -68,66 +72,64 @@ echo
 case $imgType in
     n)
         display_center "Wiping $hd partition information"
-        initHardDisk $hd
-        dots "Recreating partition layout"
-        [[ $nombr -eq 1 ]] && echo "Skipped" || restorePartitionTablesAndBootLoaders $hd 1 $imagePath
-        runPartprobe $hd
-        echo "Done"
-        debugPause
-        do_fill=$(fillDiskWithPartitionsIsOK $hd $imagePath 1)
+        echo
+        initHardDisk "$hd"
+        [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath"
+        runPartprobe "$hd"
+        do_fill="$(fillDiskWithPartitionsIsOK $hd $imagePath 1)"
         case $osid in
             50)
-                [[ ! -d $imagePath ]] && handleError "Unable to locate image store"
+                [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
                 prepareResizeDownloadPartitions
                 ;;
             [1-2])
-                [[ ! -f $imagePath && ! -f $imagePath/$img && ! -f $imagePath/d1p1.img ]] && handleError "Unable to locate image store"
+                [[ ! -f $imagePath && ! -f $imagePath/$img && ! -f $imagePath/d1p1.img ]] && handleError "Unable to locate image store ($0)"
                 [[ -d $imagePath && -f $imagePath/$img ]] && imagePath="$imagePath/$img"
                 [[ -d $imagePath && -f $imagePath/d1p1.img ]] && imagePath="$imagePath/d1p1.img"
                 dots "Removing partition"
-                parted -s $hd rm 1 >/dev/null 2>&1
-                if [[ $? != 0 ]]; then
+                parted -s "$hd" "rm" "1" >/dev/null 2>&1
+                if [[ ! $? -eq 0 ]]; then
                     echo "Failed"
                     debugPause
-                    handleError "Fatal Error: Could not remove old partition"
+                    handleError "Fatal Error: Could not remove old partition ($0)"
                 fi
                 echo "Done"
                 debugPause
                 dots "Attempting to expand/fill partitions"
                 case $do_fill in
                     0)
-                        parted -s $hd mkpart primary ntfs 63s -- $layPartSize >/dev/null 2>&1
+                        parted -s "$hd" mkpart primary ntfs 63s -- "$layPartSize" >/dev/null 2>&1
                         if [[ ! $? -eq 0 ]]; then
                             echo "Failed"
                             debugPause
-                            handleError "Fatal Error: Could not recreate first partition"
+                            handleError "Fatal Error: Could not recreate first partition ($0)"
                         fi
                         echo "Done"
                         debugPause
                         ;;
                     *)
-                        fillDiskWithPartitions $hd $imagePath 1
+                        fillDiskWithPartitions "$hd" "$imagePath" "1"
                         echo "Done"
                         debugPause
                         ;;
                 esac
                 dots "Setting boot partition"
-                parted -s $hd set 1 boot on >/dev/null 2>&1
+                parted -s "$hd" "set" "1" "boot" "on" >/dev/null 2>&1
                 if [[ ! $? -eq 0 ]]; then
                     echo "Failed"
                     debugPause
-                    handleError "Fatal Error: Could not make partition bootable"
+                    handleError "Fatal Error: Could not make partition bootable ($0)"
                 fi
-                runPartprobe $hd
+                runPartprobe "$hd"
                 echo "Done"
                 debugPause
-                getPartitions $hd
+                getPartitions "$hd"
                 for part in $parts; do
-                    break
+                    [[ -e $part ]] && break
                 done
                 ;;
             [5-7]|9)
-                [[ ! -d $imagePath && ! -f $win7imgroot/sys.img.000 ]] && handleError "Unable to locate image store"
+                [[ ! -d $imagePath && ! -f $win7imgroot/sys.img.000 ]] && handleError "Unable to locate image store ($0)"
                 [[ ! -f $win7imgroot/sys.img.000 ]] && prepareResizeDownloadPartitions
                 if [[ -f $win7imgroot/sys.img.000 ]]; then
                     echo " * Using legacy style partition setup"
@@ -144,11 +146,11 @@ case $imgType in
                     case $win7partcnt in
                         1)
                             dots "Removing partition"
-                            parted -s $hd rm 1 >/dev/null 2>&1
+                            parted -s "$hd" "rm" "1" >/dev/null 2>&1
                             if [[ $? != 0 ]]; then
                                 echo "Failed"
                                 debugPause
-                                handleError "Fatal Error: Could not remove old partition"
+                                handleError "Fatal Error: Could not remove old partition ($0)"
                             fi
                             echo "Done"
                             debugPause
@@ -157,57 +159,56 @@ case $imgType in
                                 0)
                                     startsector="2048s"
                                     [[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]] && startsector="63s"
-                                    parted -s $hd mkpart primary ntfs $startsector -- $layPartSize >/dev/null 2>&1
+                                    parted -s "$hd" mkpart primary ntfs "$startsector" -- "$layPartSize" >/dev/null 2>&1
                                     if [[ ! $? -eq 0 ]]; then
                                         echo "Failed"
                                         debugPause
-                                        handleError "Fatal Error: Could not recreate first partition."
+                                        handleError "Fatal Error: Could not recreate first partition ($0)"
                                     fi
                                     echo "Done"
                                     debugPause
                                     ;;
                                 *)
-                                    fillDiskWithPartition $hd $imagePath 1
+                                    fillDiskWithPartition "$hd" "$imagePath" "1"
                                     echo "Done"
                                     debugPause
                                     ;;
                             esac
-                            debugPause
                             dots "Setting boot partition"
-                            parted -s $hd set 1 boot on >/dev/null 2>&1
+                            parted -s "$hd" "set" "1" "boot" "on" >/dev/null 2>&1
                             if [[ ! $? -eq 0 ]]; then
                                 echo "Failed"
                                 debugPause
-                                handleError "Fatal Error: Could not make partition bootable."
+                                handleError "Fatal Error: Could not make partition bootable ($0)"
                             fi
                             echo "Done"
                             debugPause
                             ;;
                         2)
                             dots "Removing main partition"
-                            parted -s $hd rm 2 >/dev/null 2>&1
+                            parted -s "$hd" "rm" "2" >/dev/null 2>&1
                             if [[ ! $? -eq 0 ]]; then
                                 echo "Failed"
                                 debugPause
-                                handleError "Fatal Error: Could not remove old partition"
+                                handleError "Fatal Error: Could not remove old partition ($0)"
                             fi
                             echo "Done"
                             debugPause
                             dots "Attempting to expand/fill partitions"
                             case $do_fill in
                                 0)
-                                    startsector=$defaultpart2start
-                                    parted -s $hd mkpart primary ntfs $startsector -- $layPartSize >/dev/null 2>&1
+                                    startsector="$defaultpart2start"
+                                    parted -s "$hd" mkpart primary ntfs "$startsector" -- "$layPartSize" >/dev/null 2>&1
                                     if [[ ! $? -eq 0 ]]; then
                                         echo "Failed"
                                         debugPause
-                                        handleError "Fatal Error: Could not recreate main partition"
+                                        handleError "Fatal Error: Could not recreate main partition ($0)"
                                     fi
                                     echo "Done"
                                     debugPause
                                     ;;
                                 *)
-                                    fillDiskWithPartitions $hd $imagePath 1
+                                    fillDiskWithPartitions "$hd" "$imagePath" "1"
                                     echo "Done"
                                     debugPause
                                     ;;
@@ -215,61 +216,61 @@ case $imgType in
                             ;;
                         3)
                             dots "Ensuring $hd is clean"
-                            sgdisk --zap-all $hd >/dev/null 2>&1
+                            sgdisk --zap-all "$hd" >/dev/null 2>&1
                             if [[ ! $? -eq 0 ]]; then
                                 echo "Failed"
                                 debugPause
-                                handleError "Fatal Error: Could not clean disk"
+                                handleError "Fatal Error: Could not clean disk ($0)"
                             fi
                             echo "Done"
                             debugPause
                             dots "Attempting to expand/fill partitions"
                             case $do_fill in
                                 0)
-                                    sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd >/dev/null 2>&1
+                                    sgdisk --mbrtogpt --load-backup="$win7imgroot/gpt.bak" --move-second-header "$hd" >/dev/null 2>&1
                                     if [[ ! $? -eq 0 ]]; then
                                         echo "Failed"
                                         debugPause
-                                        handleError "Fatal Error: Could not place partitions"
+                                        handleError "Fatal Error: Could not place partitions ($0)"
                                     fi
-                                    sgdisk -x 3:$(sgdisk -E $hd) $hd >/dev/null 2>&1
+                                    sgdisk -x 3:$(sgdisk -E $hd) "$hd" >/dev/null 2>&1
                                     if [[ ! $? -eq 0 ]]; then
                                         echo "Failed"
                                         debugPause
-                                        handleError "Fatal Error: Could not resize main partition"
+                                        handleError "Fatal Error: Could not resize main partition ($0)"
                                     fi
                                     echo "Done"
                                     debugPause
                                     ;;
                                 *)
-                                    fillDiskWithPartitions $hd $imagePath 1
+                                    fillDiskWithPartitions "$hd" "$imagePath" "1"
                                     echo "Done"
                                     debugPause
                                     ;;
                             esac
                             ;;
                     esac
-                    runPartprobe $hd
+                    runPartprobe "$hd"
                     dots "Setting up partition variables"
-                    getPartitions $hd
+                    getPartitions "$hd"
                     for part in $parts; do
                         case $osid in
                             [1-2])
-                                break
+                                [[ -e $part ]] && break
                                 ;;
                             [5-7]|9)
                                 case $win7partcnt in
                                     1)
-                                        [[ $(getPartitionNumber $part) -eq 1 ]] && win7sys=$part
+                                        [[ $(getPartitionNumber $part) -eq 1 ]] && win7sys="$part"
                                         ;;
                                     2)
-                                        [[ $(getPartitionNumber $part) -eq 1 ]] && win7rec=$part
-                                        [[ $(getPartitionNumber $part) -eq 2 ]] && win7sys=$part
+                                        [[ $(getPartitionNumber $part) -eq 1 ]] && win7rec="$part"
+                                        [[ $(getPartitionNumber $part) -eq 2 ]] && win7sys="$part"
                                         ;;
                                     3)
-                                        [[ $(getPartitionNumber $part) -eq 1 ]] && win7rec1=$part
-                                        [[ $(getPartitionNumber $part) -eq 2 ]] && win7rec2=$part
-                                        [[ $(getPartitionNumber $part) -eq 3 ]] && win7sys=$part
+                                        [[ $(getPartitionNumber $part) -eq 1 ]] && win7rec1="$part"
+                                        [[ $(getPartitionNumber $part) -eq 2 ]] && win7rec2="$part"
+                                        [[ $(getPartitionNumber $part) -eq 3 ]] && win7sys="$part"
                                         ;;
                                 esac
                                 ;;
@@ -282,23 +283,23 @@ case $imgType in
         esac
         ;;
     mps)
-        [[ ! -d $imagePath ]] && handleError "Unable to locate image store"
+        [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
         display_center "Wiping $hd partition information"
-        initHardDisk $hd
-        restorePartitionTablesAndBootLoaders $hd 1 $imagePath
-        runPartprobe $hd
-        gptcheck=$global_gptcheck
+        initHardDisk "$hd"
+        restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath"
+        runPartprobe "$hd"
+        gptcheck="$global_gptcheck"
         ;;
     mpa)
-        [[ ! -d $imagePath ]] && handleError "Unable to locate image store"
+        [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
         getHardDisk "true"
         intDisk=1
         for disk in $disks; do
             display_center "Wiping $disk partition information"
-            initHardDisk $disk
-            restorePartitionTablesAndBootLoaders $disk $intDisk $imagePath
-            runPartprobe $disk
-            gptcheck=$global_gptcheck
+            initHardDisk "$disk"
+            restorePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath"
+            runPartprobe "$disk"
+            gptcheck="$global_gptcheck"
             let intDisk+=1
         done
         ;;
@@ -312,50 +313,50 @@ display_center "+--------------------------------+"
 [[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]] && display_center "|         Using Partimage        |" || display_center "|         Using Partclone        |"
 display_center "+--------------------------------+"
 echo
-usleep 5000000
 case $imgType in
-    n)
+    [Nn])
         case $osid in
             [1-2])
-                [[ ! -f $imagePath ]] && handleError "Fatal Error: Could not locate file"
-                restorePartition $part
+                [[ ! -f $imagePath ]] && handleError "Fatal Error: Could not locate file ($0)"
+                restorePartition "$part"
                 ;;
             [5-7]|9)
-                [[ ! -d $imagePath && ! -f $win7imgroot/sys.img.000 ]] && handleError "Fatal Error: Could not locate file"
+                [[ ! -d $imagePath && ! -f $win7imgroot/sys.img.000 ]] && handleError "Fatal Error: Could not locate file ($0)"
                 if [[ ! -f $win7imgroot/sys.img.000 ]]; then
                     # saveEBR/restoreEBR are to support the resized partitions,
                     # on MBR tables since the partition image will contain the
                     # old, and potentially incorrect, EBR Data
                     # If the partition does not make sense to save/restore the
                     # EBR, then the functions skip it.
-                    for recpart in $(getValidRestorePartitions $hd 1 $imagePath); do
-                        tmpebrfilename=$(tmpEBRFileName 1 $(getPartitionNumber $recpart))
-                        saveEBR $recpart $tmpebrfilename
-                        usleep 2000000
-                        restorePartition $recpart
-                        restoreEBR $recpart $tmpebrfilename
-                        expandPartition $recpart
+                    recparts="$(getValidRestorePartitions $hd 1 $imagePath)"
+                    for recpart in $recparts; do
+                        tmpebrfilename="$(tmpEBRFileName 1 $(getPartitionNumber $recpart))"
+                        saveEBR "$recpart" "$tmpebrfilename"
+                        restorePartition "$recpart"
+                        restoreEBR "$recpart" "$tmpebrfilename"
+                        expandPartition "$recpart"
                     done
-                    makeAllSwapSystems $hd 1 $imagePath $imgPartitionType
+                    makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType"
                 else
                     case $win7partcnt in
                         1)
-                            restorePartition $win7sys
+                            winparts="$(trim $(echo $win7sys))"
                             ;;
                         2)
-                            for winpart in "$win7rec $win7sys"; do
-                                restorePartition $winpart
-                            done
+                            winparts="$(trim $(echo "$win7rec $win7sys"))"
                             ;;
                         3)
-                            for winpart in "$win7rec1 $win7rec2 $win7sys"; do
-                                restorePartition $winpart
-                            done
+                            winparts="$(trim $(echo "$win7rec1 $win7rec2 $win7sys"))"
                             ;;
                     esac
-                    for recpart in $(getValidRestorePartitions $hd 1 $imagePath); do
-                        expandPartition $recpart
+                    for winpart in $winparts; do
+                        restorePartition "$winpart"
                     done
+                    recparts="$(getValidRestorePartitions $hd 1 $imagePath)"
+                    for recpart in $recparts; do
+                        expandPartition "$recpart"
+                    done
+                    makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType"
                 fi
                 ;;
             50)
@@ -364,35 +365,37 @@ case $imgType in
                 # old, and potentially incorrect, EBR Data
                 # If the partition does not make sense to save/restore the
                 # EBR, then the functions skip it.
-                for recpart in $(getValidRestorePartitions $hd 1 $imagePath); do
-                    tmpebrfilename=$(tmpEBRFileName 1 $(getPartitionNumber $recpart))
-                    saveEBR $recpart $tmpebrfilename
-                    usleep 2000000
-                    restorePartition $recpart
-                    restoreEBR $recpart $tmpebrfilename
-                    expandPartition $recpart
+                recparts="$(getValidRestorePartitions $hd 1 $imagePath)"
+                for recpart in $recparts; do
+                    tmpebrfilename="$(tmpEBRFileName 1 $(getPartitionNumber $recpart))"
+                    saveEBR "$recpart" "$tmpebrfilename"
+                    restorePartition "$recpart"
+                    restoreEBR "$recpart" "$tmpebrfilename"
+                    expandPartition "$recpart"
                 done
-                makeAllSwapSystems $hd 1 $imagePath $imgPartitionType
+                makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType"
                 ;;
         esac
         ;;
     mps)
-        for recpart in $(getValidRestorePartitions $hd 1 $imagePath); do
-            [[ $imgPartitionType == all || $imgPartitionType == $(getPartitionNumber $recpart) ]] && restorePartition $recpart 1 $imagePath $imgPartitionType || echo " * Skipping partition $recpart"
+        recparts="$(getValidRestorePartitions $hd 1 $imagePath)"
+        for recpart in $recparts; do
+            [[ $imgPartitionType == all || $imgPartitionType == $(getPartitionNumber $recpart) ]] && restorePartition "$recpart" "1" "$imagePath" "$imgPartitionType" || echo " * Skipping partition $recpart"
         done
-        makeAllSwapSystems $hd 1 $imagePath $imgPartitionType
+        makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType"
         ;;
     mpa)
         for disk in $disks; do
-            for recpart in $(getValidRestorePartitions $disk 1 $imagePath); do
-                [[ $imgPartitionType == all || $imgPartitionType == $(getPartitionNumber $recpart) ]] && restorePartition $recpart $intDisk $imagePath $imgPartitionType || echo " * Skipping partition $recpart"
+            recparts="$(getValidRestorePartitions $disk 1 $imagePath)"
+            for recpart in $recparts; do
+                [[ $imgPartitionType == all || $imgPartitionType == $(getPartitionNumber $recpart) ]] && restorePartition "$recpart" "$intDisk" "$imagePath" "$imgPartitionType" || echo " * Skipping partition $recpart"
             done
-            makeAllSwapSystems $disk 1 $imagePath $imgPartitionType
+            makeAllSwapSystems "$disk" "1" "$imagePath" "$imgPartitionType"
             let intDisk+=1
         done
         ;;
     dd)
-        restorePartition $hd
+        restorePartition "$hd"
         ;;
 esac
 killStatusReporter
@@ -405,7 +408,7 @@ if [[ ! $capone -eq 1 ]]; then
     if [[ $osid == +([1-2]|[5-7]|9) ]]; then
         getHardDisk "true"
         for disk in $disks; do
-            getPartitions $disk
+            getPartitions "$disk"
             for part in $parts; do
                 [[ $(fsTypeSetting $part) == ntfs ]] && changeHostname
             done
@@ -413,5 +416,4 @@ if [[ ! $capone -eq 1 ]]; then
     fi
     . /bin/fog.imgcomplete
 fi
-echo " * Rebooting system as task is complete"
-debugPause
+[[ ! $mode == debug && -z $isdebug ]] && echo " * Rebooting system as task is complete" || debugPause
