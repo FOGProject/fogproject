@@ -675,20 +675,25 @@ startInitScript() {
 enableInitScript() {
     serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname"
     for serviceItem in $serviceList; do
-        dots "Setting $serviceItem script executable"
-        chmod 755 $initdpath/$serviceItem >>/var/log/fog_error_${version}.log 2>&1
-        errorStat $?
-        dots "Enabling $serviceItem Service"
         case $systemctl in
             yes)
+                dots "Setting permissions on $serviceItem script"
+                chmod 644 $initdpath/$serviceItem >>/var/log/fog_error_${version}.log 2>&1
+                errorStat $?
+                dots "Enabling $serviceItem Service"
                 systemctl enable $serviceItem >>/var/log/fog_error_${version}.log 2>&1
                 ;;
             *)
+                dots "Setting $serviceItem script executable"
+                chmod 755 $initdpath/$serviceItem >>/var/log/fog_error_${version}.log 2>&1
+                errorStat $?
                 case $osid in
                     1)
+                        dots "Enabling $serviceItem Service"
                         chkconfig $serviceItem on >>/var/log/fog_error_${version}.log 2>&1
                         ;;
                     2)
+                        dots "Enabling $serviceItem Service"
                         sysv-rc-conf $serviceItem on >>/var/log/fog_error_${version}.log 2>&1
                         case $linuxReleaseName in
                             *[Bb][Uu][Nn][Tt][Uu]*)

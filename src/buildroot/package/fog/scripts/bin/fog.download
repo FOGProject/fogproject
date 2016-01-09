@@ -2,25 +2,7 @@
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
 . /bin/fog.checkin
-dots "Mounting File System"
-if [[ ! -d /images ]]; then
-    mkdir -p /images "$debugstring" >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Failed to create location to mount nfs share ($0)"
-    fi
-else
-    umount /images >/dev/null 2>&1
-fi
-mount -o nolock,proto=tcp,rsize=32768,intr,noatime "$storage" /images 2>/tmp/mntfail
-if [[ ! $? -eq 0 ]]; then
-    echo "Failed"
-    debugPause
-    handleError "Could not mount images folder ($0)"
-fi
-echo "Done"
-debugPause
+. /bin/fog.mount
 . /bin/fog.checkmount
 . /bin/fog.checkimgvar
 imagePath="/images/$img"
@@ -36,7 +18,7 @@ fixed_size_partitions=""
 win7imgroot="$imagePath"
 echo " * Using Image: $img"
 case $imgType in
-    [n]|mps|dd)
+    [Nn]|mps|dd)
         dots "Looking for Hard Disk"
         getHardDisk
         if [[ -z $hd ]]; then
@@ -70,22 +52,22 @@ echo
 echo " * Preparing Partition layout"
 echo
 case $imgType in
-    n)
+    [Nn])
         display_center "Wiping $hd partition information"
         echo
         initHardDisk "$hd"
-        [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath"
         runPartprobe "$hd"
         do_fill="$(fillDiskWithPartitionsIsOK $hd $imagePath 1)"
         case $osid in
             50)
                 [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
-                prepareResizeDownloadPartitions
+                [[ $nombr -eq 1 ]] || prepareResizeDownloadPartitions
                 ;;
             [1-2])
                 [[ ! -f $imagePath && ! -f $imagePath/$img && ! -f $imagePath/d1p1.img ]] && handleError "Unable to locate image store ($0)"
                 [[ -d $imagePath && -f $imagePath/$img ]] && imagePath="$imagePath/$img"
                 [[ -d $imagePath && -f $imagePath/d1p1.img ]] && imagePath="$imagePath/d1p1.img"
+                [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath"
                 dots "Removing partition"
                 parted -s "$hd" "rm" "1" >/dev/null 2>&1
                 if [[ ! $? -eq 0 ]]; then
@@ -130,8 +112,8 @@ case $imgType in
                 ;;
             [5-7]|9)
                 [[ ! -d $imagePath && ! -f $win7imgroot/sys.img.000 ]] && handleError "Unable to locate image store ($0)"
-                [[ ! -f $win7imgroot/sys.img.000 ]] && prepareResizeDownloadPartitions
-                if [[ -f $win7imgroot/sys.img.000 ]]; then
+                [[ ! -f $win7imgroot/sys.img.000 && ! $nombr -eq 1 ]] && prepareResizeDownloadPartitions
+                if [[ -f $win7imgroot/sys.img.000 && ! $nombr -eq 1 ]]; then
                     echo " * Using legacy style partition setup"
                     win7partcnt=1
                     dots "Windows Boot Partition Exists"
@@ -286,7 +268,7 @@ case $imgType in
         [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
         display_center "Wiping $hd partition information"
         initHardDisk "$hd"
-        restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath"
+        [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath"
         runPartprobe "$hd"
         gptcheck="$global_gptcheck"
         ;;
@@ -297,7 +279,7 @@ case $imgType in
         for disk in $disks; do
             display_center "Wiping $disk partition information"
             initHardDisk "$disk"
-            restorePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath"
+            [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath"
             runPartprobe "$disk"
             gptcheck="$global_gptcheck"
             let intDisk+=1

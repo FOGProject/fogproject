@@ -1160,7 +1160,7 @@ runPartprobe() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     udevadm settle
-    blockdev --rereadpt "$disk" >/dev/null 2>&1
+    blockdev --rereadpt $disk >/dev/null 2>&1
     [[ ! $? -eq 0 ]] && handleError "Failed to read back partitions (${FUNCNAME[0]})"
 }
 debugCommand() {
