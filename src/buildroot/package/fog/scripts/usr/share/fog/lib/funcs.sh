@@ -536,6 +536,8 @@ changeHostname() {
             echo " * Could not create mount location"
             return 0
         fi
+    else
+        umount /ntfs >/dev/null 2>&1
     fi
     ntfs-3g -o force,fw $part /ntfs >/tmp/ntfs-mount-output 2>&1
     if [[ ! $? -eq 0 ]]; then
@@ -580,8 +582,15 @@ changeHostname() {
         echo >> /usr/share/fog/lib/EOFREG
     fi
     dots "Changing hostname"
+    if [[ ! -e $regfile ]]; then
+        echo "Failed"
+        debugPause
+        umount /ntfs >/dev/null 2>&1
+        echo " * File does not exist"
+        return 0
+    fi
     reged -e $regfile </usr/share/fog/lib/EOFREG >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
+    if [[ ! $? -eq 0 && $? -gt 2 ]]; then
         echo "Failed"
         debugPause
         umount /ntfs >/dev/null
