@@ -1,0 +1,27 @@
+#!/bin/bash
+dots "Mounting File System"
+if [[ ! -d /images ]]; then
+    mkdir -p /images "$debugstring" >/dev/null 2>&1
+    if [[ ! $? -eq 0 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Failed to create location to mount nfs share ($0)"
+    fi
+else
+    umount /images >/dev/null 2>&1
+fi
+case $type in
+    up)
+        mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images 2>/tmp/mntfail
+        ;;
+    down)
+        mount -o nolock,proto=tcp,rsize=32768,intr,noatime "$storage" /images 2>/tmp/mntfail
+        ;;
+esac
+if [[ ! $? -eq 0 ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Could not mount images folder ($0)"
+fi
+echo "Done"
+debugPause

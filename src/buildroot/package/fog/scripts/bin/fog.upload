@@ -1,34 +1,16 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.checkin
-dots "Mounting File System"
-mkdir -p /images
-umount /images
-mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images >/dev/null 2>&1
-if [[ ! $? -eq 0 ]]; then
-    echo "Failed"
-    debugPause
-    handleError "Unable to mount NFS"
-fi
-echo "Done"
-debugPause
-dots "Mounting File System"
-mkdir /images $debugstring 2>/dev/null
-mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail
-echo "Done"
-echo " * Preparing to send image file to server"
-imagePath="/images/$macWinSafe"
-percent=$pct
-if [[ $percent -lt 5 || $percent -ge 100 ]]; then
-    percent=5
-fi
-if [[ $percent -lt 10 ]]; then
-    percent="0$percent"
-fi
-fog.statusreporter "$mac" "$web" & disown
-statusReporter="$!";
+. /bin/fog.mount
 . /bin/fog.checkmount
-. /bin/fog.checkimgvar
+. /bin/fog.chkimgvar
+imagePath="/images/$macWinSafe"
+echo " * Preparing to send image file to server"
+percent=$pct
+[[ $percent -lt 5 || $percent -ge 100 ]] && percent=5
+[[ $percent -lt 10 ]] && percent="0$percent"
+fog.statusreporter "$mac" "$web" & disown
+statusReporter="$!"
 prepareUploadLocation
 echo " * Using Image: $img"
 case $imgType in
@@ -38,18 +20,18 @@ case $imgType in
         if [[ -z $hd ]]; then
             echo "Failed"
             debugPause
-            handleError "Could not find hard disk"
+            handleError "Could not find hard disk ($0)"
         fi
         echo "Done"
         debugPause
         echo "Using Disk: $hd"
         dots "Reading Partition Tables"
-        runPartprobe $hd
-        getPartitions $hd
+        runPartprobe "$hd"
+        getPartitions "$hd"
         if [[ -z $parts ]]; then
             echo "Failed"
             debugPause
-            handleError "Could not find partitions"
+            handleError "Could not find partitions ($0)"
         fi
         echo "Done"
         debugPause
@@ -63,14 +45,14 @@ case $imgType in
         if [[ -z $disks ]]; then
             echo "Failed"
             debugPause
-            handleError "Could not find any disks"
+            handleError "Could not find any disks ($0)"
         fi
         echo "Done"
         debugPause
         echo "Using Disks: $disks"
-        for disk in "$disks"; do
+        for disk in $disks; do
             dots "Reading Partition Tables on $disk"
-            getPartitions $disk
+            getPartitions "$disk"
             if [[ -z $parts ]]; then
                 echo "Failed"
                 debugPause
@@ -100,16 +82,18 @@ echo
 #  clone filesystems
 #  restore original MBR and partition table
 #  expand filesystems
-case "$imgType" in
+case $imgType in
     [Nn])
         validResizeOS
-        win7partcnt=$(echo "$parts" | wc -l)
+        win7partcnt=$(echo $parts | wc -l)
         dots "Checking for fixed partitions"
         for part in $parts; do
-            fstype=$(fsTypeSetting "$part")
-            if [[ $fstype != +(ntfs|extfs) ]]; then
-                fixed_size_partitions="$fixed_size_partitions:$part"
-            fi
+            fstype=$(fsTypeSetting $part)
+            case $fstype in
+                ntfs|extfs)
+                    fixed_size_partitions="$fixed_size_partitions:$part"
+                    ;;
+            esac
         done
         echo "Done"
         debugPause
@@ -119,39 +103,36 @@ case "$imgType" in
         if [[ $ntfscnt == 0 && $extfsavail == 0 ]] || [[ -z $ntfscnt && -z $extfsavail ]]; then
             echo "Failed"
             debugPause
-            handleError "No resizable partitions found"
+            handleError "No resizable partitions found ($0)"
         fi
         echo "Done"
         debugPause
-        if [[ -z $ntfscnt ]]; then
-            ntfscnt=0
-        fi
-        if [[ -z $extfsavail ]]; then
-            extfsavail=0
-        fi
-        echo "NTFS Partition count of: $ntfscnt"
+        [[ -z $ntfscnt ]] && ntfscnt=0
+        [[ -z $extfsavail ]] && extfsavail=0
+        echo " * NTFS Partition count of: $ntfscnt"
         debugPause
-        echo "EXTFS Partition count of: $extavail"
+        echo " * EXTFS Partition count of: $extavail"
         debugPause
         for partclr in $parts; do
-            clearMountedDevices $partclr
+            clearMountedDevices "$partclr"
         done
         fixedcount=0
-        if [[ $osid == +([5-7]|9|50) ]]; then
-            echo " * Setting up any additional fixed parts"
-            for part in $parts; do
-                if [[ $fixedcount == 0 && $win7partcnt == 2 ]]; then
-                    fixed_size_partitions="$fixed_size_partitions:$part"
-                    break
-                elif [[ $fixedcount == +([1-3]) ]] && [[ $win7partcnt == 3 ]]; then
-                    fixed_size_partitions="$fixed_size_partitions:$part"
-                    if [[ $fixedcount == 3 ]]; then
-                        break
+        case $osid in
+            [5-7]|9|50)
+                echo " * Setting up any additional fixed parts"
+                for part in $parts; do
+                    if [[ $fixedcount -eq 0 && $win7partcnt -eq 2 ]]; then
+                        fixed_size_partitions="$fixed_size_partitions:$part:"
+                    elif [[ $fixedcount == +([1-3]) ]] && [[ $win7partcnt -eq 3 ]]; then
+                        fixed_size_partitions="$fixed_size_partitions:$part:"
+                        [[ $fixedcount -eq 3 ]] && break
                     fi
-                fi
+                done
                 let fixedcount+=1
-            done
-        fi
+                ;;
+        esac
+        fixed_size_partitions="${fixed_size_partitions#"${fixed_size_partitions%%[![:]]*}"}"
+        fixed_size_partitions="${fixed_size_partitions%"${fixed_size_partitions##*[![:]]}"}"
         # All:
         #  save the list of fixed size partitions
         fixed_size_partitions=$(echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://')
@@ -162,12 +143,12 @@ case "$imgType" in
             done
         fi
         dots "Getting sector start"
-        if [[ $osid == 1 ]]; then
-            partitionStart=$(fdisk -lu | grep $part | awk '{print $3}')
-            if [[ -z $partitionStart ]]; then
-                partitionStart=63
-            fi
-        fi
+        case $osid in
+            [1-2])
+                partitionStart=$(fdisk -lu | grep $part | awk '{print $3}')
+                [[ -z $partitionStart ]] && partitionStart=63
+                ;;
+        esac
         echo "Done"
         debugPause
         # Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
@@ -175,61 +156,27 @@ case "$imgType" in
         #  Start filesytem type record
         if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
             dots "Saving original partition table"
-            saveOriginalPartitions "${hd}" "${imagePath}" "1"
-            echo -n "" > "${imagePath}/d1.original.fstypes"
-            echo -n "" > $(swapUUIDFileName "${imagePath}" "1")
+            saveOriginalPartitions "$hd" "$imagePath" "1"
+            echo -n "" > "$imagePath/d1.original.fstypes"
+            echo -n "" > $(swapUUIDFileName $imagePath 1)
             echo "Done"
             debugPause
-            savePartitionTablesAndBootLoaders "${hd}" "1" "${imagePath}" "${osid}" "${imgPartitionType}"
-        fi
-        # Windows 2000/XP, Vista, 7, 8, 8.1:
-        #  Save MBR
-        #  Shrink filesystem and partition with system on it.
-        #  Save partition table with shrunken partitions for use on download
-        # Linux:
-        #  Detect partition table type
-        #  Save MBR
-        #  Attempt to shrink all filesystems and partitions, except swap, extended.
-        #  Save partition table with shrunken partitions for use on download
-        if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+            savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType"
             for part in $parts; do
-                shrinkPartition "$part" "${imagePath}/d1.original.fstypes"
+                shrinkPartition "$part" "$imagePath/d1.original.fstypes"
             done
-            runPartprobe $hd
+            runPartprobe "$hd"
             debugPause
-        fi
-        # Windows 2000/XP, Vista, 7, 8, 8.1:
-        #  Actually clone the partitions now
-        #  Restore the MBR
-        # Linux:
-        #  Actually clone the partitions now
-        #  Restore the MBR
-        if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
-            debugPause
-            if [ $osid != 50 ]; then
-                resetFlag "$part"
-            fi
-            debugPause
+            [[ ! $osid -eq 50 ]] && resetFlag "$part"
             echo " * Processing Hard Disk: $disk"
             for part in $parts; do
                 savePartition "$part" "1" "$imagePath" "$cores" "$imgPartitionType"
             done
             dots "Restoring MBR"
-            restoreOriginalPartitions "${hd}" "${imagePath}" "1"
+            restoreOriginalPartitions "$hd" "$imagePath" "1"
             echo "Done"
             debugPause
-            if [[ $osid == 2 ]]; then
-                correctVistaMBR $hd
-            fi
-            debugPause
-        fi
-        #
-        #  expand the file systems in the restored partitions
-        #
-        # Windows 7, 8, 8.1:
-        # Windows 2000/XP, Vista:
-        # Linux:
-        if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
+            [[ $osid -eq 2 ]] && correctVistaMBR "$hd"
             for part in $parts; do
                 expandPartition "$part"
             done
@@ -259,7 +206,7 @@ case "$imgType" in
         imgpart="$imagePath/$img"
         mkfifo /tmp/pigz1
         uploadFormat "$cores" "/tmp/pigz1" "$imgpart"
-        partclone.imager -c -s $hd -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog
+        partclone.imager -c -s "$hd" -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog
         rm /tmp/pigz1
         clear
         ;;
