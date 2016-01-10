@@ -190,7 +190,7 @@ case $imgType in
             [[ ! $osid -eq 50 ]] && resetFlag $part
             echo " * Processing Hard Disk: $disk"
             for part in $parts; do
-                savePartition $part 1 $imagePath $cores $imgPartitionType
+                savePartition $part 1 $imagePath $imgPartitionType
                 debugPause
             done
             dots "Restoring MBR"
@@ -207,7 +207,7 @@ case $imgType in
         echo " * Processing Hard Disk: $hd"
         savePartitionTablesAndBootLoaders $hd 1 $imagePath $osid $imgPartitionType
         for part in $parts; do
-            savePartition $part 1 $imagePath $cores $imgPartitionType
+            savePartition $part 1 $imagePath $imgPartitionType
             debugPause
         done
         ;;
@@ -217,7 +217,7 @@ case $imgType in
             savePartitionTablesAndBootLoaders $disk $intDisk $imagePath $osid $imgPartitionType
             echo " * Processing Hard Disk: $disk"
             for part in $parts; do
-                savePartition $part $intDisk $imagePath $cores $imgPartitionType
+                savePartition $part $intDisk $imagePath $imgPartitionType
                 debugPause
             done
             echo " * Disk $disk complete"
@@ -228,7 +228,7 @@ case $imgType in
     dd)
         imgpart="$imagePath/$img"
         mkfifo /tmp/pigz1 >/dev/null 2>&1
-        uploadFormat $cores "/tmp/pigz1" $imgpart
+        uploadFormat "/tmp/pigz1" $imgpart
         partclone.imager -c -s $hd -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog
         rm /tmp/pigz1 >/dev/null 2>&1
         clear

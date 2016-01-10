@@ -1229,29 +1229,21 @@ debugCommand() {
 # uploadFormat
 # Description:
 # Tells the system what format to upload in, whether split or not.
-# Expects first arguments to be the number of Cores.
-# Expects second argument to be the fifo to send to.
+# Expects first argument to be the fifo to send to.
 # Expects part of the filename in the case of resizable
 #    will append 000 001 002 automatically
 uploadFormat() {
-    local cores="$1"
-    local fifo="$2"
-    local file="$3"
+    local fifo="$1"
+    local file="$2"
     [[ -z $fifo ]] && handleError "Missing file in file out (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "Missing file name to store (${FUNCNAME[0]})"
+    [[ ! -e $fifo ]] && mkfifo $fifo >/dev/null 2>&1
     case $imgFormat in
-        0|1)
-            case $imgType in
-                [Nn])
-                    pigz $PIGZ_COMP <$fifo >${file}.000 &
-                    ;;
-                *)
-                    pigz $PIGZ_COMP <$fifo >$file &
-                    ;;
-            esac
-            ;;
         2)
-            pigz $PIGZ_COMP <$fifo | split -a 3 -d -b 200m - ${file}. &
+            pigz $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
+            ;;
+        *)
+            pigz $PIGZ_COMP < $fifo > ${file}.000 &
             ;;
     esac
 }
@@ -1602,11 +1594,9 @@ savePartition() {
     local part="$1"
     local intDisk="$2"
     local imagePath="$3"
-    local cores="$4"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     [[ -z $intDisk ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    #[[ -z $cores ]] && handleERror "No cores passed (${FUNCNAME[0]})"
     local partNum=""
     local fstype=""
     local parttype=""
@@ -1618,16 +1608,22 @@ savePartition() {
         echo "Done"
         debugPause
     fi
-    [[ ! -e $fifoname ]] && mkfifo $fifoname >/dev/null 2>&1
+    echo
     echo " * Processing Partition: $part ($partNum)"
+    echo
+    debugPause
     fstype=$(fsTypeSetting $part)
     parttype=$(getPartType $part)
     if [[ $fstype != 'swap' && $parttype != '0x5' && $parttype != '0xf' ]]; then
         # normal filesystem data on partition
+        echo
         echo " * Using partclone.$fstype"
+        echo
+        debugPause
         imgpart="$imagePath/d${intDisk}p${partNum}.img"
-        uploadFormat $cores $fifoname $imgpart
+        uploadFormat $fifoname $imgpart
         partclone.$fstype -fsck-src-part-y -c -s $part -O $fifoname -N -f 1 2>/tmp/status.fog
+        [[ ! $? -eq 0 ]] && handleError "Failed to complete upload (${FUNCNAME[0]})"
         mv ${imgpart}.000 $imgpart >/dev/null 2>&1
         echo " * Image uploaded"
     else
