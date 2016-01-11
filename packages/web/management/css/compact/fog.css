@@ -378,9 +378,6 @@ header {
     color: #666;
 }
 /* Search */
-#refinesearch {
-    display: none;
-}
 #search h2 {
     margin-bottom: 20px;
 }

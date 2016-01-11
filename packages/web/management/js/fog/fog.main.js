@@ -1,10 +1,4 @@
 $(function() {
-    $('input,select,textarea').not('[type="checkbox"],[name="storagesel"],[name="ulang"]').click(function() {
-        field = $(this);
-        if (!field.is(':focus')) field.next('i').hide();
-        if (field.is(':focus')) field.append('<i class="fa fa-pencil fa-1x fa-fw"></i>');
-    });
-    $('#refinesearch').remove();
     // Advanced Tasks stuff
     $('.advanced-tasks-link').click(function() {
         $(this).parents('tr').toggle('fast', function() {
@@ -167,7 +161,8 @@ $(function() {
     HookTooltips();
     // Search boxes
     $('.search-input').fogAjaxSearch();
-    $('#content-inner').fogTableInfo();
+    $('#content-inner').fogTableInfo().trigger('update');
+    $(Container).fogTableInfo();
     function format(icon) {
         if (!icon.id) return icon.text;
         var $icon = $('<i class="fa fa-'+icon.element.value.toLowerCase()+' fa-1x">'+icon.text+'</i>');
@@ -237,14 +232,15 @@ function duplicateImageName() {
     }
 }
 function DeployStuff() {
-    $('#isDebugTask').click(function() {
+    $('#isDebugTask').change(function(e) {
         if ($(this).is(':checked')) {
-            $('#scheduleInstant').checked = true;
+            $('#scheduleInstant').prop('checked',true)
             $('.hideFromDebug').slideUp('fast');
-        } else {
+        } else if ($(this).not(':checked')) {
             $('.hideFromDebug').slideDown('fast');
             $('.hidden').hide();
         }
+        e.preventDefault();
     });
     // Bind radio buttons for 'Single' and 'Cron' scheduled task
     $('input[name="scheduleType"]').click(function() {
@@ -365,11 +361,12 @@ function checkDOWField(DOW) {
     return checkField(DOW,0,6);
 }
 function checkboxToggleSearchListPages() {
-    // Checkbox toggle
-    $('.toggle-checkboxAction').click(function() {
-        $('input.toggle-action[type="checkbox"]')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
+    $('.toggle-checkboxAction').change(function(e) {
+        e.preventDefault();
+        allchecked = $(this).prop('checked');
+        var obj = $('.toggle-action[type="checkbox"]').not(':hidden');
+        if (allchecked) obj = $('input.toggle-action[type="checkbox"]').not(':hidden').not(':checked');
+        obj.each(function() {$(this).prop('checked',allchecked);});
     });
 }
 function ProductUpdate() {
