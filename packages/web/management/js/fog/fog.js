@@ -145,7 +145,6 @@ function getQueryParams(qs) {
                     success: function(response) {
                         dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
                         SubmitButton.removeClass('searching').find('i').removeClass('fa-spinner fa-pulse fa-fw').addClass('fa-play');
-                        table = $('table',Container);
                         thead = $('thead',Container);
                         tbody = $('tbody',Container);
                         LastCount = dataLength;
@@ -273,11 +272,13 @@ function showProgressBar() {
     });
 }
 function buildRow(data,templates,attributes) {
+    var colspan = templates.length;
+    var rows = [];
     checkedIDs = getChecked();
     tbody.empty();
-    var rows = '';
     for (var h in data) {
-        var row = '<tr id="task-'+data[h].id+'"'+(node == 'task' && (typeof(sub) == 'undefined' || sub == 'active') && data[h].percent > 0 ? ' class="with-progress"' : '')+'>';
+        console.log(h);
+        var row = '<tr id="'+node+'-'+data[h].id+'">';
         for (var i in templates) {
             var attributes = [];
             for (var j in attributes) {
@@ -285,34 +286,34 @@ function buildRow(data,templates,attributes) {
             }
             row += '<'+wrapper+(attributes.length ? ' '+attributes.join(' ') : '')+'>'+templates[i]+'</'+wrapper+'>';
         }
-        if (node == 'task' && (typeof(sub) == 'undefined' || sub == 'active') && data[h].percent > 0 && data[h].percent < 100) {
-            colspan = templates.length;
-            row += '<tr id="progress-${host_id}" class="with-progress"><td colspan="'+colspan+'" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percent}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>';
-        }
         for (var k in data[h]) {
-            row = row.replace(new RegExp('\\$\\{'+k+'\\}','g'),(k == 'percent' ? parseInt(data[h][k]) : data[h][k]));
+            row = row.replace(new RegExp('\\$\\{'+k+'\\}','g'),data[h][k]);
         }
-        row = row.replace(new RegExp('\\$\\{\w+\\}','g'),'');
-        rows += row+'</tr>';
-        row = '';
-        tbody.append(rows);
-        $('.toggle-action').change(function() {
-            checkedIDs = getChecked();
-        });
-        setChecked(checkedIDs);
-        HookTooltips();
-        if (node == 'task' && (typeof(sub) == 'undefined' || sub == 'active')) {
-            showForceButton();
-            showProgressBar();
-        }
-        $('table').trigger('update');
+        rows[rows.length] = row+'</tr>';
     }
+    tbody.append(rows.join());
+    rows = [];
+    if (node == 'task' && (typeof(sub) == 'undefined' || sub == 'active')) {
+        for (var h in data) {
+            var percentRow = '';
+            if (data[h].percent > 0 && data[h].percent < 100) {
+                percentRow = '<tr id="progress-'+data[h].host_id+'" class="with-progress"><td colspan="'+colspan+'" class="task-progress-td min"><div class="task-progress-fill min" style="width: '+data[h].width+'px"></div><div class="task-progress min"><ul><li>'+data[h].elapsed+'/'+data[h].remains+'</li><li>'+parseInt(data[h].percent)+'%</li><li>'+data[h].copied+' of '+data[h].total+' ('+data[h].bpm+'/min)</li></ul></div></td></tr>';
+                $('#'+node+'-'+data[h].id).addClass('with-progress').after(percentRow);
+            }
+        }
+        showForceButton();
+        showProgressBar();
+    }
+    $('.toggle-action').change(function() {
+        checkedIDs = getChecked();
+    });
+    setChecked(checkedIDs);
+    HookTooltips();
 }
 function TableCheck() {
     if (LastCount > 0) {
         if ($('.not-found').length > 0) $('.not-found').remove();
         $('#content-inner').fogTableInfo();
-        $('table:has(thead)').trigger('update');
         Container.show();
         ActionBox.show();
         ActionBoxDel.show();
@@ -325,7 +326,6 @@ function TableCheck() {
     } else {
         if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
         $('#content-inner').fogTableInfo();
-        $('table:has(thead)').trigger('update');
         Container.hide();
         ActionBox.hide();
         ActionBoxDel.hide();
@@ -336,4 +336,5 @@ function TableCheck() {
         }
         HookTooltips();
     }
+    Container.trigger('update');
 }

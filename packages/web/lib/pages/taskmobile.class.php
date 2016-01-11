@@ -26,7 +26,7 @@ class TaskMobile extends FOGPage {
             '${host_name}',
             '${task_type}',
             '${task_state}',
-            '<a href="?node=${node}&sub=killtask&id=${task_id}"><i class="fa fa-minus-circle fa-2x task"></i></a>',
+            '<a href="?node=${node}&sub=killtask&id=${id}"><i class="fa fa-minus-circle fa-2x task"></i></a>',
         );
         if (isset($_REQUEST['id'])) $this->obj = $this->getClass('Task',$_REQUEST['id']);
     }
@@ -55,12 +55,12 @@ class TaskMobile extends FOGPage {
             $name = sprintf('%s %s',$Task->isForced() ? '*' : '',$Host->get('name'));
             unset($Host);
             $this->data[] = array(
-                'task_id'=>$Task->get('id'),
+                'id'=>$Task->get('id'),
                 'task_name'=>$Task->get('name'),
                 'host_name'=>$name,
                 'task_type'=> $Task->getTaskTypeText(),
                 'task_state'=> $Task->getTaskStateText(),
-                'task_force'=>(!$Task->isForced() ? '<a href="?node=${node}&sub=force&id=${task_id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
+                'task_force'=>(!$Task->isForced() ? '<a href="?node=${node}&sub=force&id=${id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
             );
             unset($Task);
         }
