@@ -6,11 +6,6 @@ var Container = $('#active-tasks'),
     cancelButton,
     cancelTasks;
 $(function() {
-    $('.toggle-checkboxAction').click(function() {
-        $('input.toggle-action[type="checkbox"]').
-            not(':hidden').
-            prop('checked',$(this).is(':checked'));
-    });
     $('#action-box,#action-boxdel').submit(function() {
         taskIDArray = new Array();
         $('input.toggle-action:checked').each(function() {
