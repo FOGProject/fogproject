@@ -52,17 +52,17 @@ class HostManagementPage extends FOGPage {
         );
         $this->templates = array(
             '<span class="icon fa fa-question hand" title="${host_desc}"></span>',
-            '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-action"/>',
+            '<input type="checkbox" name="host[]" value="${id}" class="toggle-action"/>',
         );
         $_SESSION['FOGPingActive'] ? array_push($this->templates,'${pingstatus}') : null;
         $up = $this->getClass('TaskType',2);
         $down = $this->getClass('TaskType',1);
         $mc = $this->getClass('TaskType',8);
         array_push($this->templates,
-            '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name}" id="host-${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
+            '<a href="?node=host&sub=edit&id=${id}" title="Edit: ${host_name}" id="host-${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
             '<small>${deployed}</small>',
-            sprintf('<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=edit&id=${host_id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Goto Task List"></i></a>',$down->get('icon'),$down->get('name'),$up->get('icon'),$up->get('name'),$mc->get('icon'),$mc->get('name')),
-            '<a href="?node=host&sub=edit&id=${host_id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${host_id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
+            sprintf('<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&type=8&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=edit&id=${id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Goto Task List"></i></a>',$down->get('icon'),$down->get('name'),$up->get('icon'),$up->get('name'),$mc->get('icon'),$mc->get('name')),
+            '<a href="?node=host&sub=edit&id=${id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
             '${image_name}'
         );
         unset($up,$down,$mc);
@@ -86,7 +86,7 @@ class HostManagementPage extends FOGPage {
         foreach ((array)$this->getClass('HostManager')->find(array('pending'=>array(0,null))) AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
-                'host_id'=>$Host->get('id'),
+                'id'=>$Host->get('id'),
                 'deployed'=>$this->formatTime($Host->get('deployed'),'Y-m-d H:i:s'),
                 'host_name'=>$Host->get('name'),
                 'host_mac'=>$Host->get('mac')->__toString(),
@@ -104,7 +104,7 @@ class HostManagementPage extends FOGPage {
         foreach ((array)$this->getClass('HostManager')->search('',true) AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
-                'host_id'=>$Host->get('id'),
+                'id'=>$Host->get('id'),
                 'deployed'=>$this->formatTime($Host->get('deployed'),'Y-m-d H:i:s'),
                 'host_name'=>$Host->get('name'),
                 'host_mac'=>$Host->get('mac')->__toString(),
@@ -130,10 +130,10 @@ class HostManagementPage extends FOGPage {
         );
         $this->templates = array(
             '<i class="icon fa fa-question hand" title="${host_desc}"></i>',
-            '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host" />',
+            '<input type="checkbox" name="host[]" value="${id}" class="toggle-host" />',
             ($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
-            '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
-            '<a href="?node=host&sub=edit&id=${host_id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${host_id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
+            '<a href="?node=host&sub=edit&id=${id}" title="Edit: ${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
+            '<a href="?node=host&sub=edit&id=${id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
         );
         $this->attributes = array(
             array('width'=>22,'id'=>'host-${host_name}','class'=>'l filter-false'),
@@ -146,7 +146,7 @@ class HostManagementPage extends FOGPage {
         foreach ((array)$this->getClass('HostManager')->find(array('pending'=>1)) AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
-                'host_id'=>$Host->get('id'),
+                'id'=>$Host->get('id'),
                 'host_name'=>$Host->get('name'),
                 'host_mac'=>$Host->get('mac')->__toString(),
                 'host_desc'=>$Host->get('description'),

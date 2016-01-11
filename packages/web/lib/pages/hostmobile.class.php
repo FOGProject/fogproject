@@ -22,10 +22,10 @@ class HostMobile extends FOGPage {
         );
         $icon = $this->getClass('TaskType',1)->get('icon');
         $this->templates = array(
-            '${host_id}',
+            '${id}',
             '${host_name}',
             '${host_mac}',
-            sprintf('<a href="index.php?node=${node}&sub=deploy&id=${host_id}"><i class="fa fa-%s fa-2x"></i></a>',$icon),
+            sprintf('<a href="index.php?node=${node}&sub=deploy&id=${id}"><i class="fa fa-%s fa-2x"></i></a>',$icon),
         );
     }
     public function index() {
@@ -58,7 +58,7 @@ class HostMobile extends FOGPage {
         foreach ((array)$this->getClass('HostManager')->search('',true) AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
-                'host_id' => $Host->get('id'),
+                'id' => $Host->get('id'),
                 'host_name' => $Host->get('name'),
                 'host_mac' => $Host->get('mac')->__toString(),
                 'node' => $this->node,
