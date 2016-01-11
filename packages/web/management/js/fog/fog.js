@@ -35,14 +35,24 @@ _L['ACTIVE_TASKS_FOUND'] = '%1 active task%2 found';
 _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
 function getChecked() {
     var val = [];
-    $('.toggle-action:checked').each(function(i) {
+    $('.toggle-action[type="checkbox"]:checked').not(':hidden').each(function(i) {
         val[i] = $(this).val();
     });
     return val;
 }
+function setTipsyStuff() {
+    $('.icon,.icon-ping-up,.icon-ping-down,#logo > h1 > a > img').tipsy({gravity: $.fn.tipsy.autoNS});
+}
+function setEditFocus() {
+    $('input,select,textarea').not('[type="checkbox"],[name="storagesel"],[name="ulang"]').change(function(e) {
+        e.preventDefault();
+        field = $(this);
+        field.not(':focus') ? field.next('i').hide() : field.append('<i class="fa fa-pencil fa-fw"></i>');
+    });
+}
 function setChecked(ids) {
-    $('.toggle-action').each(function(i) {
-        if ($.inArray($(this).val(),ids) != -1 && $(this).not(':checked')) $(this).prop('checked',true);
+    $('.toggle-action[type="checkbox"]').not(':hidden').not(':checked').each(function(i) {
+        $(this).is(':checked') || $.inArray($(this).val(),ids) < 0 ? null : $(this).prop('checked',true);
     });
 }
 function getQueryParams(qs) {
@@ -50,36 +60,29 @@ function getQueryParams(qs) {
     var params = {},
     tokens,
         re = /[?&]?([^=]+)=([^&]*)/g
-            while (tokens = re.exec(qs)) {
-                params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
-            }
+            while (tokens = re.exec(qs)) params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
     return params;
 }
 (function($) {
-    $('.icon,.icon-ping-up,.icon-ping-down').tipsy({gravity: $.fn.tipsy.autoNS});
-    $('#logo > h1 > a > img').tipsy({gravity: $.fn.tipsy.autoNS});
+    setTipsyStuff();
+    setEditFocus();
     Content = $('#content');
     Loader = $('#loader');
-    Loader.append('&nbsp;<i class="fa fa-1x"></i>&nbsp;');
+    Loader.append('&nbsp;<i></i>&nbsp;');
     i = Loader.find('i');
     ActionBox = $('#action-box');
     ActionBoxDel = $('#action-boxdel');
-    ActionBox.hide();
-    ActionBoxDel.hide();
-    if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search']) > -1) && $('.no-active-tasks').length < 1) {
-        ActionBox.show();
-        ActionBoxDel.show();
-    }
+    var callme = 'hide';
+    if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
+    ActionBox[callme]();
+    ActionBoxDel[callme]();
     $.fn.fogAjaxSearch = function(opts) {
         if (this.length == 0) return this;
         var Defaults = {
             URL: $('#search-wrapper').prop('action'),
-            Container: '#search-content',
+            Container: '#search-content,#active-tasks',
             SearchDelay: 300,
             SearchMinLength: 1,
-            Template: function(data,i) {
-                return '<tr><td>'+data['host_name']+'</td></tr>';
-            },
         };
         var SearchAJAX = null;
         var SearchTimer;
@@ -87,18 +90,14 @@ function getQueryParams(qs) {
         var Options = $.extend({},Defaults,opts || {});
         Container = $(Options.Container);
         if (!Container.length) {
-            alert('No Container element found: ' + Options.Container);
+            alert('No Container element found: '+Options.Container);
             return this;
         }
-        if ($('tbody > tr', Container).filter('.no-active-tasks').length > 0) {
-            Container.show();
-            ActionBox.show();
-            ActionBoxDel.show();
-        } else {
-            Container.hide();
-            ActionBox.hide();
-            ActionBoxDel.hide();
-        }
+        callme = 'hide';
+        if ($('tbody > tr',Container).filter('.no-active-tasks').length > 0) callme = 'show';
+        Container[callme]().fogTableInfo().trigger('update');
+        ActionBox[callme]();
+        ActionBoxDel[callme]();
         return this.each(function() {
             var searchElement = $(this);
             var SubmitButton = $('#'+searchElement.prop('id')+'-submit');
@@ -120,7 +119,7 @@ function getQueryParams(qs) {
                 }
             }).each(function() {
                 var searchElement = $(this);
-                if (searchElement.val() != searchElement.prop('placeholder')) iterateElement.val('');
+                if (searchElement.val() != searchElement.prop('placeholder')) searchElement.val('');
             }).parents('form').submit(function(e) {
                 e.preventDefault();
             });
@@ -128,27 +127,31 @@ function getQueryParams(qs) {
                 var Query = searchElement.val();
                 if (Query == this.SearchLastQuery) return;
                 this.SearchLastQuery = Query;
-                if (Query.length < Options.SearchMinLength) return;
+                if (Query.length < Options.SearchMinLength) {
+                    Container.hide();
+                    ActionBox.hide();
+                    ActionBoxDel.hide();
+                    Loader.hide();
+                    return this;
+                }
                 if (this.SearchAJAX) this.SearchAJAX.abort();
                 this.SearchAJAX = $.ajax({
                     type: $('#search-wrapper').prop('method'),
                     cache: false,
                     url: $('#search-wrapper').prop('action'),
                     dataType: 'json',
-                    data: {
-                        crit: Query
-                    },
+                    data: {crit: Query},
                     beforeSend: function() {
                         Loader.fogStatusUpdate();
-                        SubmitButton.find('i').removeClass('fa-play').addClass('fa-spinner fa-pulse fa-fw');
+                        SubmitButton.addClass('searching').find('i').removeClass().addClass('fa fa-spinner fa-pulse fa-fw');
                     },
                     success: function(response) {
                         dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
-                        SubmitButton.removeClass('searching').find('i').removeClass('fa-spinner fa-pulse fa-fw').addClass('fa-play');
+                        SubmitButton.removeClass('searching').find('i').removeClass().addClass('fa fa-play');
                         thead = $('thead',Container);
                         tbody = $('tbody',Container);
                         LastCount = dataLength;
-                        Loader.removeClass('loading').fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass('fa-refresh fa-spin fa-fw').addClass('fa-exclamation-circle');
+                        Loader.removeClass('loading').fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle');
                         if (dataLength > 0) buildRow(response.data,response.templates,response.attributes);
                         TableCheck();
                         this.SearchAJAX = null;
@@ -164,7 +167,10 @@ function getQueryParams(qs) {
         });
     }
     $.fn.fogTableInfo = function() {
-        $('table:has(thead)').tablesorter({
+        table = $('table',this)
+        if (table.length == 0 || !table.has('thead')) return this;
+        table.find('thead > tr').addClass('hand');
+        table.tablesorter({
             theme: 'blue',
             widgets: ["zebra","filter"],
             widgetOptions: {
@@ -172,11 +178,11 @@ function getQueryParams(qs) {
                 filter_hideFilters: false,
                 filter_hideEmpty: true,
                 filter_liveSearch: true,
-                filter_placeholder: { search: 'Search...'},
+                filter_placeholder: {search: 'Search...'},
                 filter_reset: 'button.reset',
             },
         });
-        $('table:has(thead) > thead > tr > td').addClass('hand');
+        return this;
     }
     $.fn.fogMessageBox = function() {
         if (this.length == 0) return this;
@@ -203,7 +209,7 @@ function getQueryParams(qs) {
         else ProgressBar.hide().progressBar(0);
         if (!txt) p.remove().end().hide();
         else {
-            i.addClass('fa-exclamation-circle');
+            i.addClass('fa fa-exclamation-circle fw');
             p.remove().end().append((Options.Raw ? txt : '<p>'+txt+'</p>')).show();
         }
         Loader.removeClass();
@@ -214,9 +220,7 @@ function getQueryParams(qs) {
     }
     $.fn.fogVariable = function(opts) {
         if (this.length == 0) return this;
-        var Defaults = {
-            Debug: false
-        };
+        var Defaults = {Debug: false};
         var Options = $.extend({}, Defaults, opts || {});
         var Variables = {};
         return this.each(function() {
@@ -226,31 +230,21 @@ function getQueryParams(qs) {
             variableElement.remove();
         });
     }
-    jQuery.fn.exists = function() {
-        return this.length > 0;
-    }
-    jQuery.fn.isIE8 = function() {
-        return $.browser.msie && parseInt($.browser.version, 10) <= 8;
-    }
+    jQuery.fn.exists = function() {return this.length > 0;}
+    jQuery.fn.isIE8 = function() {return $.browser.msie && parseInt($.browser.version, 10) <= 8;}
 })(jQuery);
 function forceClick(e) {
-    $(this).unbind('click').click(function(evt) {
-        evt.preventDefault();
-    });
+    $(this).unbind('click').click(function(evt) {evt.preventDefault();});
     if (AJAXTaskForceRequest) AJAXTaskForceRequest.abort();
     AJAXTaskForceRequest = $.ajax({
         type: 'POST',
         url: $(this).attr('href'),
-        beforeSend: function() {
-            $(this).removeClass().addClass('fa fa-refresh fa-spin fa-fw icon');
-        },
+        beforeSend: function() {$(this).removeClass().addClass('fa fa-refresh fa-spin fa-fw icon');},
         success: function(data) {
             if (typeof(data) == 'undefined' || data === null) return;
             $(this).removeClass().addClass('fa fa-angle-double-right fa-fw icon');
         },
-        error: function() {
-            $(this).removeClass().addClass('fa fa-bolt fa-fw icon');
-        }
+        error: function() {$(this).removeClass().addClass('fa fa-bolt fa-fw icon');}
     });
     e.preventDefault();
 }
@@ -277,18 +271,13 @@ function buildRow(data,templates,attributes) {
     checkedIDs = getChecked();
     tbody.empty();
     for (var h in data) {
-        console.log(h);
         var row = '<tr id="'+node+'-'+data[h].id+'">';
         for (var i in templates) {
             var attributes = [];
-            for (var j in attributes) {
-                attributes[attributes.length] = j+'="'+attributes[i][j]+'"';
-            }
+            for (var j in attributes) attributes[attributes.length] = j+'="'+attributes[i][j]+'"';
             row += '<'+wrapper+(attributes.length ? ' '+attributes.join(' ') : '')+'>'+templates[i]+'</'+wrapper+'>';
         }
-        for (var k in data[h]) {
-            row = row.replace(new RegExp('\\$\\{'+k+'\\}','g'),data[h][k]);
-        }
+        for (var k in data[h]) row = row.replace(new RegExp('\\$\\{'+k+'\\}','g'),data[h][k]);
         rows[rows.length] = row+'</tr>';
     }
     tbody.append(rows.join());
@@ -304,37 +293,24 @@ function buildRow(data,templates,attributes) {
         showForceButton();
         showProgressBar();
     }
-    $('.toggle-action').change(function() {
-        checkedIDs = getChecked();
-    });
+    $('.toggle-action').change(function() {checkedIDs = getChecked();});
     setChecked(checkedIDs);
     HookTooltips();
 }
 function TableCheck() {
+    var callme = 'hide';
+    if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
     if (LastCount > 0) {
         if ($('.not-found').length > 0) $('.not-found').remove();
-        $('#content-inner').fogTableInfo();
-        Container.show();
-        ActionBox.show();
-        ActionBoxDel.show();
-        thead.show();
-        if (node == 'task') {
-            pauseUpdate.show();
-            cancelTasks.show();
-        }
-        HookTooltips();
-    } else {
-        if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
-        $('#content-inner').fogTableInfo();
-        Container.hide();
-        ActionBox.hide();
-        ActionBoxDel.hide();
-        thead.hide();
-        if (node == 'task') {
-            pauseUpdate.hide();
-            cancelTasks.hide();
-        }
-        HookTooltips();
+        callme = 'show';
     }
-    Container.trigger('update');
+    Container[callme]().fogTableInfo().trigger('update');
+    ActionBox[callme]();
+    ActionBoxDel[callme]();
+    thead[callme]();
+    if (node == 'task') {
+        pauseUpate[callme]();
+        cancelTasks[callme]();
+    }
+    HookTooltips();
 }

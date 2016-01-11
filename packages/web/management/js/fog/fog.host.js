@@ -3,18 +3,14 @@ var MACLookupTimeout = 1000;
 var length = 1;
 $(function() {
     checkboxToggleSearchListPages();
-    $('.toggle-checkboxgroup')
-        .click(function() {
-            $('input.toggle-group[type="checkbox"]')
-                .not(':hidden')
-                .prop('checked',$(this).is(':checked'));
+    $('.toggle-checkboxgroup').click(function(e) {
+        e.preventDefault();
+        allchecked = $(this).prop('checked');
+        $('input.toggle-group[type="checkbox"]').not(':hidden').not(':checked').each(function(evt) {
+            evt.preventDefault();
+            $(this).prop('checked',allchecked);
         });
-    $('.toggle-checkboxAction')
-        .click(function() {
-            $('input.toggle-host[type="checkbox"]')
-                .not(':hidden')
-                .prop('checked',$(this).is(':checked'));
-        });
+    });
     $('#action-box,#action-boxdel').submit(function() {
         var checked = $('input.toggle-action:checked');
         var hostIDArray = new Array();
