@@ -6,11 +6,10 @@ $(function() {
     LinesToView = $('#linesToView').val();
     $('#logpause').val('Pause');
     LogGetData();
-    $('input[name=reverse]').click(function(e) {
+    $("input[name='reverse']").click(function(e) {
         LogGetData();
     });
     $('#logpause').click(function(e) {
-        e.preventDefault();
         if ($(this).hasClass('active')) {
             $(this).removeClass('active').val('Pause');
             LogGetData;
@@ -18,6 +17,7 @@ $(function() {
             $(this).addClass('active').val('Continue');
             clearTimeout(LogTimer);
         }
+        e.preventDefault();
     });
     $('#logToView, #linesToView').change(function(e) {
         e.preventDefault();
@@ -33,10 +33,9 @@ function LogGetData() {
         splitUs = LogToView.split('||');
         ip = splitUs[0];
         file = splitUs[1];
-        reverse = $('input[name=reverse]').is(':checked') ? 1 : 0;
+        reverse = $("input[name='reverse']").is(':checked') ? 1 : 0;
         $.ajax({
             url: '../status/logtoview.php',
-            cache: false,
             type: 'POST',
             data: {
                 ip: ip,

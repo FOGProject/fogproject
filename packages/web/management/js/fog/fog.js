@@ -36,12 +36,14 @@ _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
 function getChecked() {
     var val = [];
     $('.toggle-action[type="checkbox"]:checked').not(':hidden').each(function(i) {
-        val[i] = $(this).val();
+        val[i] = this.value;
     });
     return val;
 }
 function setTipsyStuff() {
-    $('.icon,.icon-ping-up,.icon-ping-down,#logo > h1 > a > img').tipsy({gravity: $.fn.tipsy.autoNS});
+    $('.icon,.icon-ping-up,.icon-ping-down,#logo > h1 > a > img').tipsy({
+        gravity: $.fn.tipsy.autoNS
+    });
 }
 function setEditFocus() {
     $('input,select,textarea').not('[type="checkbox"],[name="storagesel"],[name="ulang"]').change(function(e) {
@@ -52,15 +54,14 @@ function setEditFocus() {
 }
 function setChecked(ids) {
     $('.toggle-action[type="checkbox"]').not(':hidden').not(':checked').each(function(i) {
-        $(this).is(':checked') || $.inArray($(this).val(),ids) < 0 ? null : $(this).prop('checked',true);
+        if ($.inArray(this.value,ids) < 0) return;
+        this.checked = true;
     });
 }
 function getQueryParams(qs) {
     qs = qs.split("+").join(" ");
-    var params = {},
-    tokens,
-        re = /[?&]?([^=]+)=([^&]*)/g
-            while (tokens = re.exec(qs)) params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+    var params = {},tokens,re = /[?&]?([^=]+)=([^&]*)/g;
+    while (tokens = re.exec(qs)) params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
     return params;
 }
 (function($) {
@@ -238,7 +239,7 @@ function forceClick(e) {
     if (AJAXTaskForceRequest) AJAXTaskForceRequest.abort();
     AJAXTaskForceRequest = $.ajax({
         type: 'POST',
-        url: $(this).attr('href'),
+        url: this.href,
         beforeSend: function() {$(this).removeClass().addClass('fa fa-refresh fa-spin fa-fw icon');},
         success: function(data) {
             if (typeof(data) == 'undefined' || data === null) return;
@@ -255,12 +256,12 @@ function showForceButton() {
 }
 function showProgressBar() {
     $('.with-progress').hover(function() {
-        var id = $(this).prop('id').replace(/^progress[-_]/,'');
+        var id = this.id.replace(/^progress[-_]/,'');
         var progress = $('#progress-'+id);
         progress.show();
         progress.find('.min').removeClass('min').addClass('no-min').end().find('ul').show();
     }, function() {
-        var id = $(this).prop('id').replace(/^progress[-_]/,'');
+        var id = this.id.replace(/^progress[-_]/,'');
         var progress = $('#progress-'+id);
         progress.find('.no-min').removeClass('no-min').addClass('min').end().find('ul').hide();
     });
@@ -309,7 +310,7 @@ function TableCheck() {
     ActionBoxDel[callme]();
     thead[callme]();
     if (node == 'task') {
-        pauseUpate[callme]();
+        pauseUpdate[callme]();
         cancelTasks[callme]();
     }
     HookTooltips();

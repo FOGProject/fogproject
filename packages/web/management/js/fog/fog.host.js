@@ -4,19 +4,11 @@ var length = 1;
 $(function() {
     checkboxToggleSearchListPages();
     $('.toggle-checkboxgroup').click(function(e) {
-        e.preventDefault();
-        allchecked = $(this).prop('checked');
-        $('input.toggle-group[type="checkbox"]').not(':hidden').not(':checked').each(function(evt) {
-            evt.preventDefault();
-            $(this).prop('checked',allchecked);
+        allchecked = this.checked;
+        $('input.toggle-group[type="checkbox"]').not(':hidden').not(':checked').each(function() {
+            this.checked = allchecked;
         });
-    });
-    $('#action-box,#action-boxdel').submit(function() {
-        var checked = $('input.toggle-action:checked');
-        var hostIDArray = new Array();
-        for (var i = 0,len = checked.size();i < len;i++) hostIDArray[hostIDArray.length] = checked.eq(i).prop('value');
-        $('input[name="hostIDArray"]')
-            .val(hostIDArray.join(','));
+        e.preventDefault();
     });
     MACUpdate();
     ProductUpdate();
@@ -26,13 +18,9 @@ function removeMACField() {
         e.preventDefault();
         remove = $(this);
         val = remove.prev().val();
+        if (!val.length) return;
         url = remove.parents('form').prop('action');
-        if (val.length > 0) {
-            $.post(
-                    url,
-                    {additionalMACsRM: val}
-                  );
-        }
+        $.post(url,{additionalMACsRM: val});
         remove.parent('div').remove();
         HookTooltips();
     });
