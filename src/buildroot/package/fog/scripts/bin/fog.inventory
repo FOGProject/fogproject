@@ -9,7 +9,7 @@ if [[ -z $1 ]]; then
     dots "System Manufacturer:"
     echo "$sysman"
     dots "System Product Name:"
-    echo "$sysproduct";
+    echo "$sysproduct"
     dots "System Version:"
     echo "$sysversion"
     dots "System Serial Number:"
@@ -36,9 +36,9 @@ if [[ -z $1 ]]; then
     dots "Motherboard Manufacturer:"
     echo "$mbman"
     dots "Motherboard Product Name:"
-    echo "$mbproductname";
+    echo "$mbproductname"
     dots "Motherboard Product Version:"
-    echo "$mbversion";
+    echo "$mbversion"
     dots "Motherboard Serial Number:"
     echo "$mbserial"
     dots "Motherboard Asset Tag:"
@@ -52,11 +52,11 @@ if [[ -z $1 ]]; then
     dots "CPU Manufacturer:"
     echo "$cpuman"
     dots "CPU Version:"
-    echo "$cpuversion";
+    echo "$cpuversion"
     dots "CPU Current Speed:"
-    echo "$cpucurrent";
+    echo "$cpucurrent"
     dots "CPU Max Speed:"
-    echoh "$cpumax";
+    echo "$cpumax"
     usleep 1000000
     echo
     display_center "+---------------------------+"
@@ -94,7 +94,7 @@ count=0
 res=""
 while [[ -z $res ]]; do
     dots "Attempting to send inventory"
-    res=$(wget --post-data="${poststring}" -qO - http://${web}service/inventory.php 2>/dev/null)
+    res=$(wget --post-data="$poststring" -qO - http://${web}service/inventory.php 2>/dev/null)
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
