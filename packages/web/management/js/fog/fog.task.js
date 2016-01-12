@@ -6,23 +6,13 @@ var Container = $('#active-tasks'),
     cancelButton,
     cancelTasks;
 $(function() {
-    $('#action-box,#action-boxdel').submit(function() {
-        taskIDArray = new Array();
-        $('input.toggle-action:checked').each(function() {
-            taskIDArray[taskIDArray.length] = this.value;
-        });
-        $('input[name="taskIDArray"]').val(taskIDArray.join(','));
-    });
     var Options = {
         URL: window.location.href,
         Container: '#active-tasks',
         CancelURL: (typeof(sub) == 'undefined' || sub == 'active' ? '?node='+node+'&sub=canceltasks' : (sub.indexOf('active') != -1 ? '?node='+node+'&sub='+sub+'-post' : '')),
     };
     Container = $(Options.Container);
-    if (!Container.length) {
-        alert('No Container element found: '+Options.Container);
-        return this;
-    }
+    if (!Container.length) alert('No Container element found: '+Options.Container);
     URL = Options.URL;
     CANCELURL = Options.CancelURL;
     if (typeof(sub) == 'undefined' || sub.indexOf('active') != -1) {
@@ -51,48 +41,39 @@ function pauseButtonPressed(e) {
     }
 }
 function buttonPress() {
-    if (checkedIDs.length > 0) {
-        $('#canceltasks').html('Are you sure you wish to cancel these tasks?');
-        $('#canceltasks').dialog({
-            resizable: false,
-            modal: true,
-            title: 'Cancel tasks',
-            buttons: {
-                'Yes': function() {
-                    $.post(
-                            CANCELURL,
-                            {task: checkedIDs},
-                            function(data) {
-                                ActiveTasksUpdate();
-                            }
-                          );
-                    $(this).dialog('close');
-                },
-                'No': function() {
-                    ActiveTasksUpdate();
-                    $(this).dialog('close');
-                }
+    if (checkedIDs.length < 1) return;
+    $('#canceltasks').html('Are you sure you wish to cancel these tasks?');
+    $('#canceltasks').dialog({
+        resizable: false,
+        modal: true,
+        title: 'Cancel tasks',
+        buttons: {
+            'Yes': function() {
+                $.post(CANCELURL,{task: checkedIDs},function(data) {ActiveTasksUpdate();});
+                $(this).dialog('close');
+            },
+            'No': function() {
+                ActiveTasksUpdate();
+                $(this).dialog('close');
             }
-        });
-    }
+        }
+    });
 }
 function ActiveTasksUpdate() {
     if (AJAXTaskRunning) AJAXTaskRunning.abort();
     AJAXTaskRunning = $.ajax({
         type: 'POST',
         url: URL,
-        cache: false,
         dataType: 'json',
         beforeSend: function() {
-            Loader.addClass('loading').fogStatusUpdate(_L['ACTIVE_TASKS_LOADING']).find('i').removeClass('fa-exclamation-circle').addClass('fa-refresh fa-spin fa-fw');
+            Loader.addClass('loading').fogStatusUpdate(_L['ACTIVE_TASKS_LOADING']).find('i').removeClass().addClass('fa fa-refresh fa-spin fa-fw');
         },
         success: function(response) {
             dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
-            table = $('table',Container);
             thead = $('thead',Container);
             tbody = $('tbody',Container);
             LastCount = dataLength;
-            Loader.removeClass('loading').fogStatusUpdate(_L['ACTIVE_TASKS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass('fa-refresh fa-spin fa-fw').addClass('fa-exclamation-circle');
+            Loader.removeClass('loading').fogStatusUpdate(_L['ACTIVE_TASKS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle fa-fw');
             if (dataLength > 0) buildRow(response.data,response.templates,response.attributes);
             TableCheck();
             AJAXTaskRunning = null;

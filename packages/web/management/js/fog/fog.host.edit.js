@@ -10,10 +10,8 @@ function UpdateLoginGraph() {
     $.ajax({
         url: location.href.replace('edit','hostlogins'),
         cache: false,
-        type: 'GET',
-        data: {
-            dte: LoginHistoryDate.val()
-        },
+        type: 'POST',
+        data: {dte: LoginHistoryDate.val()},
         dataType: 'json',
         success: UpdateLoginGraphPlot
     });
@@ -99,15 +97,16 @@ $(function() {
     });
     UpdateLoginGraph();
     $('input:not(:hidden):checkbox[name="default"]').click(function() {
-        var ischecked = $(this).prop('checked');
+        $(this).each(function(e) {
+            if (this.checked) this.checked = false;
+            e.preventDefault();
+        });
         $('input:checkbox').prop('checked',false);
-        $(this).prop('checked',ischecked);
     });
     $('.mac-manufactor').each(function() {
-        var $this = $(this);
-        var input = $this.parent().find('input');
-        var mac = (input.size() ? input.val() : $this.parent().find('.mac').html());
-        $this.load('../management/index.php?sub=getmacman&prefix=' + mac);
+        input = $(this).parent().find('input');
+        var mac = (input.size() ? input.val() : $(this).parent().find('.mac').html());
+        $(this).load('../management/index.php?sub=getmacman&prefix='+mac);
     });
     removeMACField();
     MACUpdate();

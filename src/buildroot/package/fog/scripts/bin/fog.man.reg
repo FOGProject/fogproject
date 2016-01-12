@@ -57,272 +57,262 @@ dots "Using disk device"
 echo $hd
 echo " * Starting host registration"
 mac=$(getMACAddresses | base64)
-exists=$(wget --post-data="mac=${mac}" -qO - http://${web}service/man.hostexists.php 2>/dev/null)
-if [[ $exists = "#!ok" ]]; then
-    host=""
-    ip=""
-    productKey=""
-    imageid=""
-    primaryuser=""
-    other1=""
-    other2=""
-    blImage=""
-    blDoAddGroup=""
-    blDoAddSnapin=""
-    keyEnter=""
-    blDoAD=""
-    echo
-    res=""
-    while [[ $res != "#!ok" ]]; do
-        echo -n " * Enter hostname for this computer:"
-        read host
-        if [[ ${#host} -gt 15 ]]; then
-            host=${host:0:15}
-            echo " | Truncated to 15 characters: $host"
-            usleep 2000000
-        fi
-        host=$(echo $host | base64)
-        res=$(wget --post-data="host=$host" -qO - http://${web}service/hostnameloop.php 2>/dev/null)
-        echo "$res"
-    done
-    echo
-    while [[ -z $imageid ]]; do
+exists=$(wget --post-data="mac=$mac" -qO - http://${web}service/man.hostexists.php 2>/dev/null)
+checkAndSet() {
+    local testvar="$1"
+    local onlynum="$2"
+    [[ -z $testvar ]] && echo
+    [[ $onlynum =~ [Tt][Rr][Uu][Ee] && $testvar =~ ^[0-9]+$ ]] || echo $(echo $testvar | base64) && [[ $testvar =~ ^[0-9]+$ ]] && echo $(echo $testvar | base64)
+}
+setIDs() {
+    local varVar="$1"
+    local str="$2"
+    local csvstyle="$3"
+    local dummy="$4"
+    local max="$5"
+    local res=""
+    local url=""
+    local oIFS=$IFS
+    local line=""
+    while [[ -z ${!varVar} ]]; do
         echo
-        echo -n " | Enter the image ID for this computer (? for listing): "
-        read imageid
-        if [[ $imageid == "?" ]]; then
-            clearScreen
-            res=$(wget -qO - http://${web}service/imagelisting.php 2>/dev/null)
-            i=0
-            res=$(echo -e $res)
-            oIFS=$IFS
-            IFS=$'\n'
-            for line in $res; do
-                let i+=1
-                echo $line
-                if [[ $i == 20 ]]; then
-                    display_center "Press [Enter] to Proceed"
-                    read dummy
-                    clearScreen
-                    i=0
-                fi
-            done
-            IFS=$oIFS
-            echo
-            imageid=""
-        else
-            imageid=$(echo $imageid | base64)
-        fi
-    done
-    res=$(wget -qO - http://${web}service/locationcheck.php 2>/dev/null)
-    if [[ $res == "##" ]]; then
-        while [[ -z $locationid ]]; do
-            echo
-            echo -n " | Enter the location ID for this system (? for listing): "
-            read locationid
-            if [[ $locationid == ? ]]; then
+        [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && echo -n "    Enter the $str IDs separated with , to associate with computer (? for listing): " || echo -n "    Enter the $str ID to associate with computer (? for listing): "
+        read dummy
+        case $dummy in
+            [?])
+                url="http://${web}service/${str}listing.php"
                 clear
-                res=$(wget -qO - http://${web}service/locationlisting.php 2>/dev/null)
-                res=$(echo -e $res)
+                res=$(echo -e $(wget -qO - $url 2>/dev/null))
                 i=0
-                oIFS=$IFS
                 IFS=$'\n'
                 for line in $res; do
                     let i+=1
                     echo $line
-                    if [[ $i == 20 ]]; then
-                        display_center "Press [Enter] to Proceed"
+                    if [[ $i -eq $max ]]; then
+                        [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && echo -n "    Press [Enter] to proceed or enter the $str IDs separated with , to associate with computer: "
+                        echo -n "    Press [Enter] to proceed or enter the $str ID to associate with computer: "
                         read dummy
-                        clearScreen
+                        [[ -n $dummy ]] && [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && printf -v "$varVar" $(checkAndSet $dummy) || printf -v "$varVar" $(checkAndSet $dummy "true")
                         i=0
-                    fi
-                done
-                IFS=$oIFS
-                echo
-                locationid=""
-            fi
-        done
-        locationid=$(echo $locationid | base64)
-    fi
-    if [[ -z $blDoAddGroup ]]; then
-        echo
-        echo "    Would you like to add this host to a group or groups"
-        echo -n "         (comma separated e.g. 1,2,3) (using default settings)? (y/N) "
-        read askme
-        blDoAddGroup=0
-        case $askme in
-            [Yy]|[Yy][Ee][Ss])
-                while [[ -z $groupid ]]; do
-                    echo
-                    echo -n "    Enter the group ID for this system (? for listing): "
-                    read groupid
-                    if [[ $groupid == "?" ]]; then
                         clear
-                        res=$(wget -qO - http://${web}service/grouplisting.php 2>/dev/null)
-                        res=$(echo -e $res)
-                        i=0
-                        oIFS=$IFS
-                        IFS=$'\n'
-                        for line in $res; do
-                            let i+=1
-                            echo $line
-                            if [[ $i == 20 ]]; then
-                                display_center "Press [Enter] to Proceed"
-                                read dummy
-                                clearScreen
-                                i=0
-                            fi
-                        done
-                        IFS=$oIFS
-                        echo
-                        groupid=""
+                        continue
                     fi
                 done
-                group64=$(echo $groupid | base64)
-                blDoAddGroup=1
+                ;;
+            ""|^[0-9,]+$)
+                setIDs "$varVar" "$str" "$csvstyle" "$dummy" "$max"
                 ;;
             *)
+                [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && printf -v "$varVar" $(checkAndSet $dummy) || printf -v "$varVar" $(checkAndSet $dummy "true")
                 ;;
         esac
-    fi
-    if [[ -z $blDoAddSnapin ]]; then
-        echo
-        echo "    Would you like to add snapin or snapins to this host"
-        echo -n "         (comma separated e.g. 1,2,3) (using default settings)? (y/N) "
-        read askme
-        blDoAddSnapin=0
-        case $askme in
-            [Yy]|[Yy][Ee][Ss])
-                while [[ -z $snapinid ]]; do
-                    echo
-                    echo -n "    Enter the snapin ID for this system (? for listing): "
-                    read snapinid
-                    if [[ $snapinid == "?" ]]; then
-                        clear
-                        res=$(wget -qO - http://${web}service/snapinlisting.php 2>/dev/null)
-                        res=$(echo -e $res)
-                        i=0
-                        oIFS=$IFS
-                        IFS=$'\n'
-                        for line in $res; do
-                            let i+=1
-                            echo $line
-                            if [[ $i == 20 ]]; then
-                                display_center "Press [Enter] to Proceed"
-                                read dummy
-                                clear
-                                i=0
-                            fi
-                        done
-                        IFS=$oIFS
-                        echo
-                        snapinid=""
-                    fi
-                done
-                snapin64=$(echo $snapinid | base64)
-                blDoAddSnapin=1
-                ;;
-            *)
-                ;;
-        esac
-    fi
-    if [[ -z $keyEnter ]]; then
-        echo
-        echo -n " * Would you like to enter a product key to activate this host with? (y/N) "
-        read keyask
-        keyEnter=0
-        case $keyask in
-            [Yy]|[Yy][Ee][Ss])
-                while [[ -z $productKey ]]; do
-                    echo
-                    echo -n " * Enter the product key for this computer: "
-                    read productKey
-                    echo
-                done
-                productKey=$(echo $productKey | base64)
-                ;;
-            *)
-                ;;
-        esac
-    fi
-    if [[ -z $blDoAD ]]; then
-        echo
-        echo -n " * Would you like to add this host to AD (using default settings)? (y/N) "
-        read tmpAd
-        blDoAD=0
-        case $tmpAd in
-            [Yy]|[Yy][Ee][Ss])
-                blDoAD=1
-                ;;
-            *)
-                ;;
-        esac
-    fi
-    echo
-    echo -n " * Enter the primary user for this computer: "
-    read primaryuser
-    primaryuser=$(echo $primaryuser | base64)
-    echo
-    echo -n " * Enter the other tag #1 for this computer: "
-    read other1
-    other1=$(echo $other1 | base64)
-    echo
-    echo -n " * Enter the other tag #2 for this computer: "
-    read other2
-    other2=$(echo $other2 | base64)
-    echo
-    echo " * You entered all required information, "
-    echo -n " * Would you like to image this computer now? (y/N) "
-    read blImage
-    realdoimage=0
-    case "$blImage" in
-        [Yy]*)
-            tmp=""
-            echo
-            ret=""
-            retry=3
-            while [[ -z $ret && $retry != 0 ]]; do
-                echo
-                echo " * Enter a valid FOG Username and Password (GUI)"
-                echo
-                echo -n "        Username: "
-                read username
-                echo
-                echo -n "        Password: "
-                read -s password
-                echo
-                user64=$(echo -e $username | tr -d '\012' | base64)
-                pass64=$(echo -e $password | tr -d '\012' | base64)
-                tmp=$(wget --post-data="mac=${mac}&username=$user64&password=$pass64" -qO - http://${web}service/checkcredentials.php 2>/dev/null)
-                if [[ $tmp == "#!ok" ]]; then
-                    echo
-                    echo "    This host will reboot and imaging will start!"
-                    echo
-                    ret=1
-                    realdoimage=1
-                elif [[ $tmp == "#!il" ]]; then
-                    ret=""
-                    echo " * Error: Invalid Login! ($retry remaining)"
-                fi
-                retry=$(($retry - 1))
-            done
-            ;;
-        *)
-            ;;
-    esac
-    echo
-    dots "Attempting to register host"
-    res=""
-    while [[ -z $res ]]; do
-        res=$(wget --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64&snapinid=$snapin64&productKey=$productKey" -qO - http://${web}service/auto.register.php 2>/dev/null)
-        echo "$res"
-        usleep 2000000
     done
-else
+    IFS=$oIFS
+}
+if [[ $exists != "#!ok" ]]; then
     echo
     handleError "Unable to register host: $exists"
     echo
     usleep 10000000
+    return 0
 fi
+host=""
+ip=""
+productKey=""
+imageid=""
+primaryuser=""
+other1=""
+other2=""
+blImage=""
+blDoAddGroup=""
+blDoAddSnapin=""
+keyEnter=""
+blDoAD=""
+echo
+res=""
+while [[ $res != "#!ok" ]]; do
+    echo -n " * Enter hostname for this computer: "
+    read host
+    if [[ ${#host} -gt 15 ]]; then
+        host=${host:0:15}
+        echo " | Truncated to 15 characters: $host"
+        usleep 2000000
+    fi
+    host=$(echo $host | base64)
+    res=$(wget --post-data="host=$host" -qO - http://${web}service/hostnameloop.php 2>/dev/null)
+    [[ $res != "#!ok" ]] && echo "$res"
+done
+echo
+imageid=""
+setIDs "imageid" "image" "" "" 20
+if [[ $(wget -qO - http://${web}service/locationcheck.php 2>/dev/null) == "##" ]]; then
+    while [[ -z $askme ]]; do
+        echo
+        echo "    Would you like to assign a location for this host? (y/N) "
+        read askme
+        case $askme in
+            [Nn]|[Nn][Oo]|"")
+                askme="N"
+                ;;
+            [Yy]|[Yy][Ee][Ss])
+                setIDs "locationid" "location" "" "" 20
+                ;;
+            *)
+                askme=""
+                echo " * Invalid input, please try again"
+                ;;
+        esac
+    done
+fi
+askme=""
+while [[ -z $askme ]]; do
+    echo
+    echo -n "    Would you like to associate this host with groups? (y/N) "
+    read askme
+    case $askme in
+        [Nn]|[Nn][Oo]|"")
+            askme="N"
+            ;;
+        [Yy]|[Yy][Ee][Ss])
+            setIDs "groupid" "group" "true" "" 20
+            group64=$groupid
+            ;;
+        *)
+            askme=""
+            echo " * Invalid input, please try again"
+            ;;
+    esac
+done
+askme=""
+while [[ -z $askme ]]; do
+    echo
+    echo -n "    Would you like to associate this host with snapins? (y/N) "
+    read askme
+    case $askme in
+        [Nn]|[Nn][Oo]|"")
+            askme="N"
+            ;;
+        [Yy]|[Yy][Ee][Ss])
+            setIDs "snapinid" "snapin" "true" "" 20
+            snapin64=$snapinid
+            ;;
+        *)
+            askme=""
+            echo " * Invalid input, please try again"
+            ;;
+    esac
+done
+askme=""
+while [[ -z $askme ]]; do
+    echo
+    echo -n "    Would you like to associate a product key to this host? (y/N) "
+    read askme
+    case $askme in
+        [Nn]|[Nn][Oo]|"")
+            askme="N"
+            ;;
+        [Yy]|[Yy][Ee][Ss])
+            echo -n " * Enter the product key for this computer: "
+            read productKey
+            productKey=$(echo $productKey | base64)
+            ;;
+        *)
+            askme=""
+            echo " * Invalid input, please try again"
+            ;;
+    esac
+done
+askme=""
+while [[ -z $askme ]]; do
+    echo
+    echo -n "    Would you like this host to join a domain, (using default settings)? (y/N) "
+    read askme
+    case $askme in
+        [Nn]|[Nn][Oo]|"")
+            askme="N"
+            ;;
+        [Yy]|[Yy][Ee][Ss])
+            blDoAD=1
+            askme="Y"
+            ;;
+        *)
+            askme=""
+            echo " * Invalid input, please try again"
+            ;;
+    esac
+done
+echo
+echo -n " * Enter the primary user for this computer: "
+read primaryuser
+primaryuser=$(echo $primaryuser | base64)
+echo
+echo -n " * Enter the other tag #1 for this computer: "
+read other1
+other1=$(echo $other1 | base64)
+echo
+echo -n " * Enter the other tag #2 for this computer: "
+read other2
+other2=$(echo $other2 | base64)
+echo
+echo " * You entered all required information, "
+askme=""
+while [[ -z $askme ]]; do
+    echo
+    echo -n "    Would you like to image this computer now? (y/N) "
+    read askme
+    case $askme in
+        [Nn]|[Nn][Oo]|"")
+            askme="N"
+            ;;
+        [Yy]|[Yy][Ee][Ss])
+            tmp=""
+            echo
+            ret=""
+            retry=3
+            while [[ $ret != "#!ok" && ! $retry -eq 0 ]]; do
+                echo
+                echo " * Enter FOG GUI Username and Password"
+                echo
+                echo -n "    Username: "
+                read username
+                echo
+                echo -n "    Password: "
+                read -s password
+                echo
+                user64=$(echo $username | tr -d '\012' | base64)
+                pass64=$(echo $password | tr -d '\012' | base64)
+                ret=$(wget --post-data="mac=$mac&username=$user64&password=$pass64" -qO - http://${web}service/checkcredentials.php 2>/dev/null)
+                case $ret in
+                    '#!ok')
+                        echo
+                        echo " * This host will reboot and imaging will start!"
+                        echo
+                        ret=$tmp
+                        realdoimage=1
+                        break
+                        ;;
+                    '#!il')
+                        echo
+                        echo " * Error: Invalid Login! ($retry remaining)"
+                        let retry-=1
+                        ;;
+                esac
+            done
+            askme="Y"
+            ;;
+        *)
+            askme=""
+            echo " * Invalid input, please try again"
+            ;;
+    esac
+done
+echo
+dots "Attempting to register host"
+res=""
+while [[ -z $res ]]; do
+    res=$(wget --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64&snapinid=$snapin64&productKey=$productKey" -qO - http://${web}service/auto.register.php 2>/dev/null)
+    echo "$res"
+    usleep 2000000
+done
 . /bin/fog.inventory
 usleep 2000000
