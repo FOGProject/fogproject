@@ -125,17 +125,17 @@ case $imgType in
                         [[ -f $win7imgroot/rec.img.001 || -f $win7imgroot/gpt.bak ]] && win7partcnt=3
                     fi
                     debugPause
+                    dots "Removing partition"
+                    parted -s $hd rm 1 >/dev/null 2>&1
+                    if [[ $? != 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Fatal Error: Could not remove old partition ($0)"
+                    fi
+                    echo "Done"
+                    debugPause
                     case $win7partcnt in
                         1)
-                            dots "Removing partition"
-                            parted -s $hd rm 1 >/dev/null 2>&1
-                            if [[ $? != 0 ]]; then
-                                echo "Failed"
-                                debugPause
-                                handleError "Fatal Error: Could not remove old partition ($0)"
-                            fi
-                            echo "Done"
-                            debugPause
                             dots "Attempting to expand/fill partitions"
                             case $do_fill in
                                 0)
@@ -167,18 +167,12 @@ case $imgType in
                             debugPause
                             ;;
                         2)
-                            dots "Removing main partition"
-                            parted -s $hd rm 2 >/dev/null 2>&1
-                            if [[ ! $? -eq 0 ]]; then
-                                echo "Failed"
-                                debugPause
-                                handleError "Fatal Error: Could not remove old partition ($0)"
-                            fi
-                            echo "Done"
-                            debugPause
                             dots "Attempting to expand/fill partitions"
                             case $do_fill in
                                 0)
+                                    startsector="2048s"
+                                    [[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]] && startsector="63s"
+                                    parted -s $hd mkpart primary ntfs $startsector 206847s >/dev/null 2>&1
                                     startsector="$defaultpart2start"
                                     parted -s $hd mkpart primary ntfs $startsector -- $layPartSize >/dev/null 2>&1
                                     if [[ ! $? -eq 0 ]]; then
@@ -188,6 +182,24 @@ case $imgType in
                                     fi
                                     echo "Done"
                                     debugPause
+                                    dots "Setting boot partition"
+                                    parted -s $hd set 1 boot on >/dev/null 2>&1
+                                    if [[ ! $? -eq 0 ]]; then
+                                        echo "Failed"
+                                        debugPause
+                                        handleError "Fatal Error: Could not make partition bootable ($0)"
+                                    fi
+                                    echo "Done"
+                                    debugPause
+                            dots "Setting boot partition"
+                            parted -s $hd set 1 boot on >/dev/null 2>&1
+                            if [[ ! $? -eq 0 ]]; then
+                                echo "Failed"
+                                debugPause
+                                handleError "Fatal Error: Could not make partition bootable ($0)"
+                            fi
+                            echo "Done"
+                            debugPause
                                     ;;
                                 *)
                                     fillDiskWithPartitions $hd $imagePath 1
