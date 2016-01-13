@@ -43,6 +43,7 @@ else
         OSVersion=$(cat /etc/debian_version)
     fi
 fi
+[[ -d /opt/fog/log/ ]] && touch /opt/fog/log/fog_error_${version}.log;ln -s /opt/fog/log/fog_error_${version}.log /var/log/
 command -v lsb_release >/var/log/fog_error_${version}.log 2>&1
 if [[ ! $? -eq 0 ]]; then
     case $linuxReleaseName in

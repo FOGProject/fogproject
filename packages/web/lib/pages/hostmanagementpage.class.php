@@ -48,7 +48,7 @@ class HostManagementPage extends FOGPage {
             _('Imaged'),
             _('Task'),
             '',
-            _('Image')
+            _('Assigned Image')
         );
         $this->templates = array(
             '<span class="icon fa fa-question hand" title="${host_desc}"></span>',
