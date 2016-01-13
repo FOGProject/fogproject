@@ -29,13 +29,17 @@ fi
 if [[ $hostearly -eq 1 ]]; then
     HOSTNAME_EARLY=1
 fi
-if [[ $mc == yes ]]; then
-    method="UDPCAST"
-elif [[ $mc == bt ]]; then
-    method="Torrent-Casting"
-else
-    method="NFS"
-fi
+case $mc in
+    yes)
+        method="UDPCAST"
+        ;;
+    bt)
+        method="Torrent-CAST"
+        ;;
+    *)
+        method="NFS"
+        ;;
+esac
 debugPause
 echo
 verifyNetworkConnection
