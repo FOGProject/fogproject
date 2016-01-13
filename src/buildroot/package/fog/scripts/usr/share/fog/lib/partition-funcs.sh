@@ -64,10 +64,10 @@ saveEBR() {
     [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})"
     local disk=$(getDiskFromPartition $part)
     local table_type=$(getPartitionTableType $disk)
-    [[ $table_type != MBR ]] && return 0
+    [[ $table_type != MBR ]] && return
     # Leaving the grep in place due to forward slashes
     local part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}')
-    [[ ! $(partitionHasEBR $part) -gt 0 ]] && return 0
+    [[ ! $(partitionHasEBR $part) -gt 0 ]] && return
     dots "Saving EBR for ($part)"
     dd if=$part of=$file bs=512 count=1 >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
@@ -104,11 +104,11 @@ restoreEBR() {
     local table_type=$(getPartitionTableType $disk)
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "No file to restore from passed (${FUNCNAME[0]})"
-    [[ $table_type != MBR ]] && return 0
+    [[ $table_type != MBR ]] && return
     # Leaving the grep in place due to forward slashes
     local part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}')
-    [[ ! $(partitionHasEBR $part) -gt 0 ]] && return 0
-    [[ ! -e $file ]] && return 0
+    [[ ! $(partitionHasEBR $part) -gt 0 ]] && return
+    [[ ! -e $file ]] && return
     dots "Restoring EBR for ($part)"
     dd of=$part if=$file bs=512 count=1 >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
@@ -157,9 +157,9 @@ saveSwapUUID() {
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})"
     local is_swap=$(partitionIsSwap $part)
-    [[ $is_swap -eq 0 ]] && return 0
+    [[ $is_swap -eq 0 ]] && return
     local uuid=$(blkid -s UUID $2 | cut -d\" -f2)
-    [[ -z $uuid ]] && return 0
+    [[ -z $uuid ]] && return
     echo " * Saving UUID ($uuid) for ($part)"
     echo "$part $uuid" >> "$file"
 }
@@ -247,7 +247,7 @@ makeSwapSystem() {
             part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6}')
             ;;
     esac
-    [[ ! $part_type -eq 82 ]] && return 0
+    [[ ! $part_type -eq 82 ]] && return
     uuid=$(egrep "^$2" "$1" | awk '{print $2;}')
     [[ -z $uuid ]] && handleError "Failed to get uuid (${FUNCNAME[0]})"
     option="-U $uuid"
@@ -428,7 +428,7 @@ getDesiredPartitionTableType() {
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     local type="unknown"
     local mbrfile=$(MBRFileName $imagePath $intDisk)
-    [[ ! -r $mbrfile ]] && return 0
+    [[ ! -r $mbrfile ]] && return
     local tmpfile="/tmp/gptsig"
     dd skip=512 bs=1 if=$mbrfile of=$tmpfile count=8 >/dev/null 2>&1
     touch $tmpfile
@@ -596,7 +596,7 @@ fillSgdiskWithPartitions() {
         remainder=$(($g_start % $boundary))
         [[ $remainder -gt 0 ]] && let g_start+=$(($boundary - $remainder))
     done
-    return 0
+    return
 }
 # $1 is the partition device (e.g. /dev/sda1)
 # $2 is the new desired size in 1024 (1k) blocks
@@ -803,7 +803,7 @@ fillDiskWithPartitionsIsOK() {
 # $1 : the disk device (e.g. /dev/sda)
 # $2 : disk number (e.g. 1)
 majorDebugShowCurrentPartitionTable() {
-    [[ $ismajordebug -le 0 ]] && return 0
+    [[ $ismajordebug -le 0 ]] && return
     local disk="$1"
     local intDisk="$2"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
