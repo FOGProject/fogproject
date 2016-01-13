@@ -1189,21 +1189,23 @@ configureHttpd() {
                     systemctl stop apache2 php5-fpm >>/var/log/fog_error_${version}.log 2>&1
                     ;;
             esac
+            errorStat $?
             ;;
         *)
             case $osid in
                 1)
                     service httpd stop >>/var/log/fog_error_${version}.log 2>&1
                     service php-fpm stop >>/var/log/fog_error_${version}.log 2>&1
+                    errorStat $?
                     ;;
                 2)
                     service apache2 stop >>/var/log/fog_error_${version}.log 2>&1
+                    errorStat $?
                     service php5-fpm stop >>/var/log/fog_error_${version}.log 2>&1
                     ;;
             esac
             ;;
     esac
-    errorStat $?
     if [[ -f $etcconf ]]; then
         dots "Removing vhost file"
         if [[ $osid -eq 2 ]]; then
