@@ -28,7 +28,7 @@ case $imgType in
         fi
         echo "Done"
         debugPause
-        diskSize="$(trim $(lsblk --bytes -dplno SIZE -I 3,8,9,179,259 $hd))"
+        diskSize=$(trim $(echo $(lsblk --bytes -dplno SIZE -I 3,8,9,179,259 $hd)))
         [[ $diskSize -gt 2199023255552 ]] && layPartSize="2tB"
         display_center "Using Disk: $hd"
         echo
