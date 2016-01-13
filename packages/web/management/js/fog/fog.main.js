@@ -326,14 +326,17 @@ function checkMonthField(month) {
 function checkDOWField(DOW) {
     return checkField(DOW,0,6);
 }
-function checkboxToggleSearchListPages() {
-    $('.toggle-checkboxAction').change(function(e) {
+function checkboxAssociations(selector,checkselectors) {
+    $(selector).change(function(e) {
+        allchecked = this.checked;
+        $(checkselectors).not(':hidden').each(function() {
+            if (this.checked !== allchecked) this.checked = allchecked;
+        });
         e.preventDefault();
-        allchecked = $(this).prop('checked');
-        var obj = $('.toggle-action[type="checkbox"]').not(':hidden');
-        if (allchecked) obj = $('input.toggle-action[type="checkbox"]').not(':hidden').not(':checked');
-        obj.each(function() {$(this).prop('checked',allchecked);});
     });
+}
+function checkboxToggleSearchListPages() {
+    checkboxAssociations('.toggle-checkboxAction:checkbox','.toggle-action:checkbox');
 }
 function ProductUpdate() {
     if (typeof($('#productKey').val()) == 'undefined') return;

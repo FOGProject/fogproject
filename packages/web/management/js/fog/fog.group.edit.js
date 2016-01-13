@@ -8,15 +8,7 @@ $(function() {
             title: 'Clear Encryption',
             buttons: {
                 'Yes': function() {
-                    $.ajax({
-                        url: '../management/index.php',
-                        type: 'POST',
-                        timeout: 1000,
-                        data: {
-                            sub: 'clearAES',
-                            groupid: $_GET['id'],
-                        },
-                    });
+                    $.post('../management/index.php',{sub: 'clearAES',groupid: $_GET.id});
                     $(this).dialog('close');
                 },
                 'No': function() {
@@ -25,46 +17,20 @@ $(function() {
             }
         });
     });
-    // Just hide the group info
-    $('#hostNoGroup').hide();
     // Checkbox toggles
-    $('.toggle-checkbox1').click(function() {
-        $('input.toggle-host1:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
-    $('.toggle-checkbox2').click(function() {
-        $('input.toggle-host2:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
-    $('.toggle-checkboxprint').click(function() {
-        $('input.toggle-print:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
-    $('.toggle-checkboxprintrm').click(function() {
-        $('input.toggle-printrm:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
-    $('.toggle-checkboxsnapin').click(function() {
-        $('input.toggle-snapin:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
-    $('.toggle-checkboxsnapinrm').click(function() {
-        $('input.toggle-snapinrm:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
+    checkboxAssociations('.toggle-checkbox1:checkbox','.toggle-host1:checkbox');
+    checkboxAssociations('.toggle-checkbox2:checkbox','.toggle-host2:checkbox');
+    checkboxAssociations('.toggle-checkboxprint:checkbox','.toggle-print:checkbox');
+    checkboxAssociations('.toggle-checkboxprintrm:checkbox','.toggle-printrm:checkbox');
+    checkboxAssociations('.toggle-checkboxsnapin:checkbox','.toggle-snapin:checkbox');
+    checkboxAssociations('.toggle-checkboxsnapinrm:checkbox','.toggle-snapinrm:checkbox');
     // Show hide based on checked state.
     $('#hostNotInMe').hide();
     $('#hostNoGroup').hide();
-    $('#hostMeShow').click(function() {
+    $('#hostMeShow').change(function() {
         $('#hostNotInMe').toggle();
     });
-    $('#hostNoShow').click(function() {
+    $('#hostNoShow').change(function() {
         $('#hostNoGroup').toggle();
     });
 });
