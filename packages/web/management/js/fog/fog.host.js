@@ -3,13 +3,7 @@ var MACLookupTimeout = 1000;
 var length = 1;
 $(function() {
     checkboxToggleSearchListPages();
-    $('.toggle-checkboxgroup').click(function(e) {
-        allchecked = this.checked;
-        $('input.toggle-group[type="checkbox"]').not(':hidden').not(':checked').each(function() {
-            this.checked = allchecked;
-        });
-        e.preventDefault();
-    });
+    checkboxAssociations('.toggle-checkboxgroup:checkbox','.toggle-group:checkbox');
     MACUpdate();
     ProductUpdate();
 });
