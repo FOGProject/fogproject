@@ -23,7 +23,6 @@ $(function() {
         cancelButton = $('#taskcancel');
         cancelTasks = cancelButton.parent('p');
         ActiveTasksUpdate();
-        AJAXTaskUpdate = setInterval(ActiveTasksUpdate,ActiveTasksUpdateInterval);
         pauseButton.click(pauseButtonPressed);
         cancelButton.click(buttonPress);
     }
@@ -33,7 +32,6 @@ function pauseButtonPressed(e) {
     if (!$(this).hasClass('active')) {
         $(this).addClass('active').val('Pause auto update');
         ActiveTasksUpdate();
-        AJAXTaskUpdate = setInterval(ActiveTasksUpdate,ActiveTasksUpdateInterval);
     } else {
         if (AJAXTaskRunning) AJAXTaskRunning.abort();
         clearInterval(AJAXTaskUpdate);
@@ -60,6 +58,7 @@ function buttonPress() {
     });
 }
 function ActiveTasksUpdate() {
+    clearInterval(AJAXTaskUpdate);
     if (AJAXTaskRunning) AJAXTaskRunning.abort();
     AJAXTaskRunning = $.ajax({
         type: 'POST',
@@ -77,10 +76,11 @@ function ActiveTasksUpdate() {
             if (dataLength > 0) buildRow(response.data,response.templates,response.attributes);
             TableCheck();
             AJAXTaskRunning = null;
+            AJAXTaskUpdate = setInterval(ActiveTasksUpdate,ActiveTasksUpdateInterval);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             Loader.fogStatusUpdate(_L['ERROR_SEARCHING']+(errorThrown != '' ? errorThrown : '')).addClass('error').find('i').css({color:'red'});
             AJAXTaskRunning = null;
-        }
+        },
     });
 }

@@ -6,9 +6,7 @@ $(function() {
     LinesToView = $('#linesToView').val();
     $('#logpause').val('Pause');
     LogGetData();
-    $("input[name='reverse']").click(function(e) {
-        LogGetData();
-    });
+    $("input[name='reverse']").click(LogGetData);
     $('#logpause').click(function(e) {
         if ($(this).hasClass('active')) {
             $(this).removeClass('active').val('Pause');
@@ -48,7 +46,7 @@ function LogGetData() {
             complete: function() {
                 LogTimer = setTimeout(LogGetData,10000);
             }
-        })
+        });
     }
 }
 function displayLog(data) {
