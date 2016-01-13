@@ -373,7 +373,7 @@ configureTFTPandPXE() {
     if [[ -f $tftpconfig ]]; then
         mv $tftpconfig ${tftpconfig}.fogbackup >>/var/log/fog_error_${version}.log 2>&1
     fi
-    echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#	protocol.  The tftp protocol is often used to boot diskless \n#	workstations, download configuration files to network-aware printers, \n#	and to start the installation process for some operating systems.\nservice tftp\n{\n	socket_type		= dgram\n	protocol		= udp\n	wait			= yes\n	user			= root\n	server			= /usr/sbin/in.tftpd\n	server_args		= -s ${tftpdirdst}\n	disable			= no\n	per_source		= 11\n	cps			= 100 2\n	flags			= IPv4\n}" > "$tftpconfig"
+    echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#    protocol.  The tftp protocol is often used to boot diskless \n# workstations, download configuration files to network-aware printers, \n#   and to start the installation process for some operating systems.\nservice tftp\n{\n    socket_type     = dgram\n   protocol        = udp\n wait            = yes\n user            = root\n    server          = /usr/sbin/in.tftpd\n  server_args     = -s ${tftpdirdst}\n    disable         = no\n  per_source      = 11\n  cps         = 100 2\n   flags           = IPv4\n}" > "$tftpconfig"
     case $systemctl in
         yes)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
@@ -418,6 +418,28 @@ configureMinHttpd() {
     configureHttpd
     echo "<?php die('This is a storage node, please do not access the web ui here!');" > "$webdirdest/management/index.php"
 }
+ubuntuPHPfix() {
+    dots echo
+    display_center "Fixing ubuntu php apt-get problem..." 
+    echo 
+    display_center "running autoremove to clean up apt..."
+    sudo apt-get autoremove --purge -y
+    echo 
+    display_center "removing php files..."
+    sudo rm -rf /etc/php5
+    echo 
+    display_center "removing ondrej sources from apt..."
+    sudo rm -rf /etc/apt-get/sources.d/*ondrej*
+    echo 
+    display_center "uninstalling php5..."
+    sudo apt-get purge php5* -y
+    echo 
+    display_center "cleaning up apt..."
+    sudo apt-get autoremove --purge -y
+    echo
+    display_center "Done uninstalling php for ubuntu, ready to install packages..."
+    dots
+}
 installPackages() {
     dots "Adding needed repository"
     case $osid in
@@ -453,6 +475,7 @@ installPackages() {
                     fi
                     ;;
                 *)
+                    ubuntuPHPfix
                     DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >>/var/log/fog_error_${version}.log 2>&1
                     ntpdate pool.ntp.org >>/var/log/fog_error_${version}.log 2>&1
                     add-apt-repository -y ppa:ondrej/php5-5.6 >>/var/log/fog_error_${version}.log 2>&1
