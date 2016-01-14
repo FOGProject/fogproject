@@ -44,7 +44,7 @@ debugPause
 echo
 verifyNetworkConnection
 dots "Checking Operating System"
-determineOS $osid
+determineOS "$osid"
 echo $osname
 dots "Checking CPU Cores"
 cores=$(nproc)
@@ -67,7 +67,7 @@ checkin() {
             echo "Failed"
             debugPause
             echo -n " * $res ("
-            sec2string $waittime
+            sec2string "$waittime"
             echo ")"
             let waittime+=5
             usleep 5000000
