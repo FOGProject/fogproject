@@ -1,8 +1,14 @@
 <?php
 class SnapinReplicator extends FOGService {
-    public $dev = SNAPINREPDEVICEOUTPUT;
-    public $log = SNAPINREPLOGPATH;
-    public $zzz = SNAPINREPSLEEPTIME;
+    public $dev = '';
+    public $log = '';
+    public $zzz = '';
+    public function __construct() {
+        parent::__construct();
+        $this->log = sprintf('%s%s',$this->logpath,$this->getSetting('SNAPINREPLICATORLOGFILENAME'));
+        $this->dev = $this->getSetting('SNAPINREPLICATORDEVICEOUTPUT');
+        $this->zzz = $this->getSetting('SNAPINREPLEEPTIME');
+    }
     private function commonOutput() {
         try {
             $StorageNode = $this->checkIfNodeMaster();
@@ -25,7 +31,7 @@ class SnapinReplicator extends FOGService {
             unset($SnapinAssocCount,$SnapinCount);
             $Snapins = $this->getClass('SnapinManager')->find(array('id'=>$this->getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$myStorageGroupID,'snapinID'=>$SnapinIDs),'snapinID')));
             unset($SnapinIDs);
-            foreach ((array)$Snapins AS $i => $Snapin) {
+            foreach ((array)$Snapins AS $i => &$Snapin) {
                 if (!$Snapin->isValid()) continue;
                 if (!$Snapin->getPrimaryGroup($myStorageGroupID)) {
                     $this->outall(_(" | Not syncing Snapin: {$Snapin->get(name)}"));
@@ -33,6 +39,7 @@ class SnapinReplicator extends FOGService {
                     continue;
                 }
                 $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Snapin,true);
+                unset($Snapin);
             }
             foreach ($Snapins AS $i => &$Snapin) {
                 $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Snapin,false);

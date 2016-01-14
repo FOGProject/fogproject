@@ -1,8 +1,14 @@
 <?php
 class PingHosts extends FOGService {
-    public $dev = PINGHOSTDEVICEOUTPUT;
-    public $log = PINGHOSTLOGPATH;
-    public $zzz = PINGHOSTSLEEPTIME;
+    public $dev = '';
+    public $log = '';
+    public $zzz = '';
+    public function __construct() {
+        parent::__construct();
+        $this->log = sprintf('%s%s',$this->logpath,$this->getSetting('PINGHOSTLOGFILENAME'));
+        $this->dev = $this->getSetting('PINGHOSTDEVICEOUTPUT');
+        $this->zzz = $this->getSetting('PINGHOSTSLEEPTIME');
+    }
     private function commonOutput() {
         try {
             if (!$this->getSetting('FOG_HOST_LOOKUP')) throw new Exception(_(' * Host Ping is not enabled'));

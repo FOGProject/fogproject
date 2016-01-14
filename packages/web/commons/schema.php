@@ -2106,3 +2106,28 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `" . DATABASE_NAME ."`.`imagingLog` ADD `ilCreatedBy` VARCHAR(255) NOT NULL"
 );
+// 206
+$this->schema[] = array(
+    "INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values
+    ('SERVICE_LOG_PATH','The path of which to write logs for the linux side fog services. (Default /opt/fog/log/)','/opt/fog/log/','FOG Linux Service Logs'),
+('SERVICE_LOG_SIZE','The maximum size for logs before starting new in bytes (Default 1000000)','1000000','FOG Linux Service Logs'),
+('MULTICASTLOGFILENAME','Filename to store the multicast log file to (Default multicast.log)','multicast.log','FOG Linux Service Logs'),
+('IMAGEREPLICATORLOGFILENAME','Filename to store the image replicator log file to (Default fogreplicator.log)','fogreplicator.log','FOG Linux Service Logs'),
+('SNAPINREPLICATORLOGFILENAME','Filename to store the snapin replicator log file to (Default fogsnapinrep.log)','fogsnapinrep.log','FOG Linux Service Logs'),
+('SCHEDULERLOGFILENAME','Filename to store the scheduled tasks log file to (Default fogscheduled.log)','fogscheduler.log','FOG Linux Service Logs'),
+('SERVICEMASTERLOGFILENAME','Filename to store the service master log file to (Default servicemaster.log)','servicemaster.log','FOG Linux Service Logs'),
+('PINGHOSTLOGFILENAME','Filename to store the ping host log file to (Default pinghost.log)','pinghost.log','FOG Linux Service Logs')",
+    "INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values
+    ('PINGHOSTSLEEPTIME','The amount of time between ping host service runs.  Value is in seconds. (Default 300)','300','FOG Linux Service Sleep Times'),
+('SERVICESLEEPTIME','The amount of time between service master service runs.  Value is in seconds. This is what restarts failed services. (Default 300)','300','FOG Linux Service Sleep Times'),
+('SNAPINREPSLEEPTIME','The amount of time between snapin replicator service runs.  Value is in seconds. (Default 600)','600','FOG Linux Service Sleep Times'),
+('SCHEDULERSLEEPTIME','The amount of time between task scheduler service runs.  Value is in seconds. (Default 60)','60','FOG Linux Service Sleep Times'),
+('IMAGEREPSLEEPTIME','The amount of time between image replicator service runs.  Value is in seconds. (Default 600)','600','FOG Linux Service Sleep Times'),
+('MULTICASTSLEEPTIME','The amount of time between multicast service runs.  Value is in seconds. (Default 10)','10','FOG Linux Service Sleep Times')",
+    "INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values
+    ('MULTICASTDEVICEOUTPUT','The tty to output to for multicast.  (Default /dev/tty2)','/dev/tty2','FOG Linux Service TTY Output'),
+('IMAGEREPLICATORDEVICEOUTPUT','The tty to output to for image replicator. (Default /dev/tty3)','/dev/tty3','FOG Linux Service TTY Output'),
+('SCHEDULERDEVICEOUTPUT','The tty to output to for task scheduler. (Default /dev/tty4)','/dev/tty4','FOG Linux Service TTY Output'),
+('SNAPINREPLICATORDEVICEOUTPUT','The tty to output to for snapin replicator. (Default /dev/tty5)','/dev/tty5','FOG Linux Service TTY Output'),
+('PINGHOSTDEVICEOUTPUT','The tty to output to for ping hosts. (Default /dev/tty6)','/dev/tty6','FOG Linux Service TTY Output')",
+);
