@@ -419,26 +419,22 @@ configureMinHttpd() {
     echo "<?php die('This is a storage node, please do not access the web ui here!');" > "$webdirdest/management/index.php"
 }
 ubuntuPHPfix() {
-    dots echo
-    display_center "Fixing ubuntu php apt-get problem..." 
-    echo 
-    display_center "running autoremove to clean up apt..."
-    sudo apt-get autoremove --purge -y
-    echo 
-    display_center "removing php files..."
-    sudo rm -rf /etc/php5
-    echo 
-    display_center "removing ondrej sources from apt..."
-    sudo rm -rf /etc/apt-get/sources.d/*ondrej*
-    echo 
-    display_center "uninstalling php5..."
-    sudo apt-get purge php5* -y
-    echo 
-    display_center "cleaning up apt..."
-    sudo apt-get autoremove --purge -y
     echo
-    display_center "Done uninstalling php for ubuntu, ready to install packages..."
-    dots
+    display_center "Attempting to fix Ubuntu php/apache issues"
+    echo
+    dots "Running autoremove to clean up apt"
+    apt-get autoremove --purge -yq >/dev/null 2>&1
+    errorStat $?
+    dots "Removing php files"
+    rm -rf /etc/php5 >/dev/null 2>&1
+    errorStat $?
+    dots "Removing ondrej sources from apt"
+    rm -rf /etc/apt-get/sources.d/*ondrej* >/dev/null 2>&1
+    dots "Uninstalling php5 files"
+    apt-get purge php5* -yq >/dev/null 2>&1
+    dots "Cleaning up apt"
+    apt-get autoremove --purge -yq >/dev/null 2>&1
+    errorStat $?
 }
 installPackages() {
     dots "Adding needed repository"
