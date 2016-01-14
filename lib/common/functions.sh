@@ -424,36 +424,6 @@ addUbuntuRepo() {
     add-apt-repository -y ppa:ondrej/php5-5.6 >>/var/log/fog_error_${version}.log 2>&1
     return $?
 }
-ubuntuPHPfix() {
-    echo "Waiting"
-    echo
-    display_center "Attempting to fix Ubuntu php/apache issues"
-    echo
-    dots "Running autoremove to clean up apt"
-    apt-get autoremove --purge -yq >/dev/null 2>&1
-    errorStat $?
-    dots "Removing php files"
-    rm -rf /etc/php5 >/dev/null 2>&1
-    errorStat $?
-    dots "Removing ondrej sources from apt"
-    rm -rf /etc/apt-get/sources.d/*ondrej* >/dev/null 2>&1
-    errorStat $?
-    dots "Uninstalling libapache2-mod-php5"
-    apt-get purge libapache2-mod-php5 -yq >/dev/null 2>&1
-    errorStat $?
-    dots "Cleaning up apt"
-    apt-get autoremove --purge -yq >/dev/null 2>&1
-    errorStat $?
-    dots "Uninstalling php5 files"
-    apt-get remove --purge php5* -yq >/dev/null 2>&1
-    errorStat $?
-    dots "Cleaning up apt"
-    apt-get autoremove --purge -yq >/dev/null 2>&1
-    errorStat $?
-    dots "Adding needed repository"
-    addUbuntuRepo
-    return $?
-}
 installPackages() {
     dots "Adding needed repository"
     case $osid in
@@ -489,7 +459,7 @@ installPackages() {
                     fi
                     ;;
                 *)
-                    ubuntuPHPfix
+                    addUbuntuRepo
                     if [[ $? != 0 ]]; then
                         apt-get update >>/var/log/fog_error_${version}.log 2>&1
                         apt-get -yq install python-software-properties ntpdate >>/var/log/fog_error_${version}.log 2>&1
