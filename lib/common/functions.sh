@@ -441,8 +441,11 @@ ubuntuPHPfix() {
     dots "Uninstalling libapache2-mod-php5"
     apt-get purge libapache2-mod-php5 -yq >/dev/null 2>&1
     errorStat $?
+    dots "Cleaning up apt"
+    apt-get autoremove --purge -yq >/dev/null 2>&1
+    errorStat $?
     dots "Uninstalling php5 files"
-    apt-get purge php5* -yq >/dev/null 2>&1
+    apt-get remove --purge php5* -yq >/dev/null 2>&1
     errorStat $?
     dots "Cleaning up apt"
     apt-get autoremove --purge -yq >/dev/null 2>&1
