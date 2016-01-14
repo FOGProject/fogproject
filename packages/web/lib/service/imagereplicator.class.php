@@ -1,8 +1,14 @@
 <?php
 class ImageReplicator extends FOGService {
-    public $dev = REPLICATORDEVICEOUTPUT;
-    public $log = REPLICATORLOGPATH;
-    public $zzz = REPLICATORSLEEPTIME;
+    public $dev = '';
+    public $log = '';
+    public $zzz = '';
+    public function __construct() {
+        parent::__construct();
+        $this->log = sprintf('%s%s',$this->logpath,$this->getSetting('IMAGEREPLICATORLOGFILENAME'));
+        $this->dev = $this->getSetting('IMAGEREPLICATORDEVICEOUTPUT');
+        $this->zzz = $this->getSetting('IMAGEREPSLEEPTIME');
+    }
     private function commonOutput() {
         try {
             $StorageNode = $this->checkIfNodeMaster();
