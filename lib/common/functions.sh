@@ -446,7 +446,7 @@ ubuntuPHPfix() {
     errorStat $?
     dots "Adding needed repository"
     addUbuntuRepo
-    errorStat $?
+    return $?
 }
 installPackages() {
     dots "Adding needed repository"
