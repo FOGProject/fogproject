@@ -120,7 +120,7 @@ class MulticastManager extends FOGService {
                 $this->outall($e->getMessage());
             }
             $this->out(' +---------------------------------------------------------',$this->dev);
-            sleep(MULTICASTSLEEPTIME);
+            sleep($this->zzz);
             $oldCount = $taskCount;
         }
     }
