@@ -418,7 +418,14 @@ configureMinHttpd() {
     configureHttpd
     echo "<?php die('This is a storage node, please do not access the web ui here!');" > "$webdirdest/management/index.php"
 }
+addUbuntuRepo() {
+    DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >>/var/log/fog_error_${version}.log 2>&1
+    ntpdate pool.ntp.org >>/var/log/fog_error_${version}.log 2>&1
+    add-apt-repository -y ppa:ondrej/php5-5.6 >>/var/log/fog_error_${version}.log 2>&1
+    return $?
+}
 ubuntuPHPfix() {
+    echo "Waiting"
     echo
     display_center "Attempting to fix Ubuntu php/apache issues"
     echo
@@ -430,10 +437,15 @@ ubuntuPHPfix() {
     errorStat $?
     dots "Removing ondrej sources from apt"
     rm -rf /etc/apt-get/sources.d/*ondrej* >/dev/null 2>&1
+    errorStat $?
     dots "Uninstalling php5 files"
     apt-get purge php5* -yq >/dev/null 2>&1
+    errorStat $?
     dots "Cleaning up apt"
     apt-get autoremove --purge -yq >/dev/null 2>&1
+    errorStat $?
+    dots "Adding needed repository"
+    addUbuntuRepo
     errorStat $?
 }
 installPackages() {
@@ -472,9 +484,6 @@ installPackages() {
                     ;;
                 *)
                     ubuntuPHPfix
-                    DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >>/var/log/fog_error_${version}.log 2>&1
-                    ntpdate pool.ntp.org >>/var/log/fog_error_${version}.log 2>&1
-                    add-apt-repository -y ppa:ondrej/php5-5.6 >>/var/log/fog_error_${version}.log 2>&1
                     if [[ $? != 0 ]]; then
                         apt-get update >>/var/log/fog_error_${version}.log 2>&1
                         apt-get -yq install python-software-properties ntpdate >>/var/log/fog_error_${version}.log 2>&1

@@ -1004,9 +1004,10 @@ getPartitions() {
 # Gets the hard drive on the host
 # Note: This function makes a best guess
 getHardDisk() {
-    [[ -n $fdrive ]] && hd="$(trim $fdrive)"
+    [[ -n $fdrive ]] && hd=$(trim $fdrive)
     [[ -n $hd ]] && return
-    disks=$(trim "$(lsblk -dpno KNAME -I 3,8,9,179,259 | sort -V | uniq)")
+    local devs=$(lsblk -dpno KNAME -I 3,8,9,179,259 | sort -V | uniq)
+    disks=$(trim $devs)
     [[ -z $disks ]] && handleError "Cannot find disk on system (${FUNCNAME[0]})"
     [[ $1 == true ]] && return
     hd=$(trim $disks | head -n1)

@@ -410,4 +410,4 @@ if [[ ! $capone -eq 1 ]]; then
     fi
     . /bin/fog.imgcomplete
 fi
-[[ ! $mode == debug && -z $isdebug ]] && echo " * Rebooting system as task is complete" || debugPause
+[[ ! $mode == debug && -z $isdebug ]] && echo " * Rebooting system as task is complete"
