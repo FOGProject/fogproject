@@ -438,6 +438,9 @@ ubuntuPHPfix() {
     dots "Removing ondrej sources from apt"
     rm -rf /etc/apt-get/sources.d/*ondrej* >/dev/null 2>&1
     errorStat $?
+    dots "Uninstalling libapache2-mod-php5"
+    apt-get purge libapache2-mod-php5 -yq >/dev/null 2>&1
+    errorStat $?
     dots "Uninstalling php5 files"
     apt-get purge php5* -yq >/dev/null 2>&1
     errorStat $?
