@@ -88,7 +88,7 @@ abstract class FOGService extends FOGBase {
         return $this->nice_date()->format('m-d-y g:i:s a');
     }
     protected function wlog($string, $path) {
-        if (file_exists($path) && filesize($path) >= LOGMAXSIZE) unlink($path);
+        if (file_exists($path) && filesize($path) >= $this->getSetting('SERVICE_LOG_SIZE')) unlink($path);
         if (!$hdl = fopen($path,'a')) $this->out("\n * Error: Unable to open file: $path\n",$this->dev);
         if (fwrite($hdl,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n",$this->dev);
     }
