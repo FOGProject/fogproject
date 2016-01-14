@@ -1,8 +1,14 @@
 <?php
 class TaskScheduler extends FOGService {
-    public $dev = SCHEDULERDEVICEOUTPUT;
-    public $log = SCHEDULERLOGPATH;
-    public $zzz = SCHEDULERSLEEPTIME;
+    public $dev = '';
+    public $log = '';
+    public $zzz = '';
+    public function __construct() {
+        parent::__construct();
+        $this->log = sprintf('%s%s',$this->logpath,$this->getSetting('SCHEDULERLOGFILENAME'));
+        $this->dev = $this->getSetting('SCHEDULERDEVICEOUTPUT');
+        $this->zzz = $this->getSetting('SCHEDULERSLEEPTIME');
+    }
     private function commonOutput() {
         try {
             $findWhere = array('stateID'=>$this->getQueuedState(),'typeID'=>array_merge(range(1,11),range(14,24)));

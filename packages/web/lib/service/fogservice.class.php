@@ -1,6 +1,7 @@
 <?php
 abstract class FOGService extends FOGBase {
     protected $dev = '';
+    protected $logpath = '';
     protected $log = '';
     protected $zzz = '';
     protected $ips = array();
@@ -8,6 +9,10 @@ abstract class FOGService extends FOGBase {
     private $transferLog = array();
     public $procRef = array();
     public $procPipes = array();
+    public function __construct() {
+        parent::__construct();
+        $this->logpath = sprintf('/%s/',trim($this->getSetting('SERVICE_LOG_PATH'),'/'));
+    }
     protected function getIPAddress() {
         $output = array();
         exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);

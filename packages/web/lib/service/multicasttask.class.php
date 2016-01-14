@@ -74,7 +74,7 @@ class MulticastTask extends MulticastManager {
         return $this->intOSID;
     }
     public function getUDPCastLogFile() {
-        return sprintf('%s.udpcast.%s',MULTICASTLOGPATH,$this->getID());
+        return sprintf('/%s/%s.udpcast.%s',trim($this->getSetting('SERVICE_LOG_PATH'),'/'),$this->getSetting('MULTICASTLOGFILENAME'),$this->getID());
     }
     public function getBitrate() {
         return $this->getClass('Image',$this->getClass('MulticastSessions',$this->getID())->get('image'))->getStorageGroup()->getMasterStorageNode()->get('bitrate');

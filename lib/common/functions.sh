@@ -1374,27 +1374,8 @@ class Config {
      */
     private static function svc_setting() {
         define('UDPSENDERPATH','/usr/local/sbin/udp-sender');
-        define('MULTICASTLOGPATH','/opt/fog/log/multicast.log');
-        define('MULTICASTDEVICEOUTPUT','/dev/tty2');
-        define('MULTICASTSLEEPTIME',10);
         define('MULTICASTINTERFACE','${interface}');
         define('UDPSENDER_MAXWAIT',null);
-        define('LOGMAXSIZE',1000000);
-        define('REPLICATORLOGPATH','/opt/fog/log/fogreplicator.log');
-        define('REPLICATORDEVICEOUTPUT','/dev/tty3');
-        define('REPLICATORSLEEPTIME', 600);
-        define('REPLICATORIFCONFIG','/sbin/ifconfig');
-        define('SCHEDULERLOGPATH','/opt/fog/log/fogscheduler.log');
-        define('SCHEDULERDEVICEOUTPUT','/dev/tty4');
-        define('SCHEDULERSLEEPTIME',60);
-        define('SNAPINREPLOGPATH','/opt/fog/log/fogsnapinrep.log');
-        define('SNAPINREPDEVICEOUTPUT','/dev/tty5');
-        define('SNAPINREPSLEEPTIME',600);
-        define('SERVICELOGPATH','/opt/fog/log/servicemaster.log');
-        define('SERVICESLEEPTIME',3);
-        define('PINGHOSTLOGPATH','/opt/fog/log/pinghosts.log');
-        define('PINGHOSTDEVICEOUTPUT','/dev/tty5');
-        define('PINGHOSTSLEEPTIME',300);
     }
     /** @function init_setting() Initial values if fresh install are set here
      * NOTE: These values are only used on initial

@@ -1,8 +1,14 @@
 <?php
 class MulticastManager extends FOGService {
-    public $dev = MULTICASTDEVICEOUTPUT;
-    public $log = MULTICASTLOGPATH;
-    public $zzz = MULTICASTSLEEPTIME;
+    public $dev = '';
+    public $log = '';
+    public $zzz = '';
+    public function __construct() {
+        parent::__construct();
+        $this->log = sprintf('%s%s',$this->logpath,$this->getSetting('MULTICASTLOGFILENAME'));
+        $this->dev = $this->getSetting('MULTICASTDEVICEOUTPUT');
+        $this->zzz = $this->getSetting('MULTICASTSLEEPTIME');
+    }
     private function isMCTaskNew($KnownTasks, $id) {
         foreach((array)$KnownTasks AS $i => &$Known) $output[] = $Known->getID();
         unset($Known);
