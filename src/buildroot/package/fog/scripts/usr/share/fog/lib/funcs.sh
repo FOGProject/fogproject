@@ -6,7 +6,6 @@ REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
 ismajordebug=0
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export "$var" | grep =; done)
-}
 dots() {
     local str="$*"
     [[ -z $str ]] && handleError "No string passed (${FUNCNAME[0]})"
