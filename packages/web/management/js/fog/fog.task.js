@@ -15,6 +15,7 @@ $(function() {
     if (!Container.length) alert('No Container element found: '+Options.Container);
     URL = Options.URL;
     CANCELURL = Options.CancelURL;
+    checkboxToggleSearchListPages();
     if (typeof(sub) == 'undefined' || sub.indexOf('active') != -1) {
         Container.before('<p class="c"><input type="button" id="taskpause" value="Pause auto update" class="active"/></p>');
         Container.after('<p class="c"><input type="button" name="Cancel" id="taskcancel" value="Cancel selected tasks?"/><div id="canceltasks"></div></p>');
@@ -28,7 +29,6 @@ $(function() {
     }
 });
 function pauseButtonPressed(e) {
-    e.preventDefault();
     if (!$(this).hasClass('active')) {
         $(this).addClass('active').val('Pause auto update');
         ActiveTasksUpdate();
@@ -37,6 +37,7 @@ function pauseButtonPressed(e) {
         clearInterval(AJAXTaskUpdate);
         $(this).removeClass().val('Continue auto update');
     }
+    e.preventDefault();
 }
 function buttonPress() {
     if (checkedIDs.length < 1) return;
