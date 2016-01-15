@@ -6,7 +6,7 @@ $(function() {
     LinesToView = $('#linesToView').val();
     $('#logpause').val('Pause');
     LogGetData();
-    $("input[name='reverse']").click(LogGetData);
+    $("input[name='reverse']:checkbox").change(LogGetData);
     $('#logpause').click(function(e) {
         if ($(this).hasClass('active')) {
             $(this).removeClass('active').val('Pause');
@@ -18,35 +18,21 @@ $(function() {
         e.preventDefault();
     });
     $('#logToView, #linesToView').change(function(e) {
-        e.preventDefault();
         LogToView = $('#logToView').val();
         LinesToView = $('#linesToView').val();
         $('#logpause').val('Pause');
         if ($('#logpause').hasClass('active')) $('#logpause').removeClass('active');
         LogGetData();
+        e.preventDefault();
     });
 })
 function LogGetData() {
-    if (! $('#logpause').hasClass('active')) {
+    if (!$('#logpause').hasClass('active')) {
         splitUs = LogToView.split('||');
         ip = splitUs[0];
         file = splitUs[1];
         reverse = $("input[name='reverse']").is(':checked') ? 1 : 0;
-        $.ajax({
-            url: '../status/logtoview.php',
-            type: 'POST',
-            data: {
-                ip: ip,
-                file: file,
-                lines: LinesToView,
-                reverse: reverse,
-            },
-            dataType: 'json',
-            success: displayLog,
-            complete: function() {
-                LogTimer = setTimeout(LogGetData,10000);
-            }
-        });
+        $.post('../status/logtoview.php',{ip: ip,file: file,lines: LinesToView,reverse: reverse},displayLog,'json').done(function() {LogTimer = setTimeout(LogGetData,10000)});
     }
 }
 function displayLog(data) {
