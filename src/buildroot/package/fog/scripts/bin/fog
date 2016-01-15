@@ -1,16 +1,58 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
-case "$type" in
-    down)
-        fog.download
-        ;;
-    up)
-        fog.upload
-        ;;
-    *)
-        if [[ -z $type ]]; then
-            type="Null"
-        fi
-        handleError "Fatal Error: Unknown request type :: $type"
-        ;;
-esac
+if [[ -n $mode ]]; then
+    case $mode in
+        wipe)
+            fog.wipe
+            ;;
+        checkdisk)
+            fog.testdisk
+            ;;
+        photorec)
+            fog.photorec
+            ;;
+        badblocks)
+            fog.surfacetest
+            ;;
+        clamav)
+            fog.av
+            ;;
+        autoreg)
+            fog.auto.reg
+            ;;
+        manreg)
+            fog.man.reg
+            ;;
+        capone)
+            fog.capone
+            ;;
+        winpassreset)
+            fog.chntpw
+            ;;
+        quickimage)
+            fog.quickimage
+            ;;
+        sysinfo)
+            fog.sysinfo
+            ;;
+        "donate.full")
+            fog.donatefull
+            ;;
+        *)
+            handleError "Fatal Error: Unknown mode :: $mode"
+            ;;
+    esac
+else
+    case $type in
+        down)
+            fog.download
+            ;;
+        up)
+            fog.upload
+            ;;
+        *)
+            [[ -z $type ]] && type="Null"
+            handleError "Fatal Error: Unknown request type :: $type"
+            ;;
+    esac
+fi
