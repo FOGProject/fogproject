@@ -28,7 +28,7 @@ case $imgType in
         fi
         echo "Done"
         debugPause
-        diskSize=$(lsblk --bytes -dplno SIZE -I 3,8,9,179,259 $hd | trim)
+        diskSize=$(lsblk --bytes -dplno SIZE -I 3,8,9,179,259 $hd)
         [[ $diskSize -gt 2199023255552 ]] && layPartSize="2tB"
         display_center "Using Disk: $hd"
         echo
@@ -335,13 +335,13 @@ case $imgType in
                 else
                     case $win7partcnt in
                         1)
-                            winparts=$(trim $win7sys)
+                            winparts=$(echo $win7sys)
                             ;;
                         2)
-                            winparts=$(trim "$win7rec $win7sys")
+                            winparts=$(echo "$win7rec $win7sys")
                             ;;
                         3)
-                            winparts=$(trim "$win7rec1 $win7rec2 $win7sys")
+                            winparts=$(echo "$win7rec1 $win7rec2 $win7sys")
                             ;;
                     esac
                     for winpart in $winparts; do
