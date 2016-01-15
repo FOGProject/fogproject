@@ -6,19 +6,6 @@ REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
 ismajordebug=0
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export "$var" | grep =; done)
-trim() {
-    if [[ -n $* ]]; then
-        var="$*"
-        var="${var#"${var%%[![:space:]]*}"}"
-        var="${var%"${var##*[![:space:]]}"}"
-        echo -n "$var"
-    else
-        while read var; do
-            var="${var#"${var%%[![:space:]]*}"}"
-            var="${var%"${var##*[![:space:]]}"}"
-            echo "$var"
-        done
-    fi
 }
 dots() {
     local str="$*"
@@ -29,7 +16,7 @@ dots() {
 # Get All Active MAC Addresses
 getMACAddresses() {
     local lomac="00:00:00:00:00:00"
-    cat /sys/class/net/*/address | grep -v $lomac | tr '\n' '|' | sed s/.$//g | trim
+    cat /sys/class/net/*/address | grep -v $lomac | tr '\n' '|' | sed s/.$//g
 }
 # verify that there is a network interface
 verifyNetworkConnection() {
@@ -157,13 +144,13 @@ fsTypeSetting() {
 getPartType() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    blkid -po udev $part | awk -F= /PART_ENTRY_TYPE/'{print $2}' | trim
+    blkid -po udev $part | awk -F= /PART_ENTRY_TYPE/'{print $2}'
 }
 # $1 is the partition
 getPartitionEntryScheme() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    blkid -po udev $part | awk -F= /PART_ENTRY_SCHEME/'{print $2}' | trim
+    blkid -po udev $part | awk -F= /PART_ENTRY_SCHEME/'{print $2}'
 }
 # $1 is the partition
 partitionIsDosExtended() {
@@ -190,7 +177,7 @@ getPartSize() {
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     local block_part_tot=$(blockdev --getsz $part)
     local part_block_size=$(blockdev --getpbsz $part)
-    trim $((block_part_tot * part_block_size))
+    echo $((block_part_tot * part_block_size))
 }
 # Returns the size in bytes.
 getDiskSize() {
@@ -199,7 +186,7 @@ getDiskSize() {
     [[ -z $disk ]] && handleError "No disk found (${FUNCNAME[0]})"
     local block_disk_tot=$(blockdev --getsz $disk)
     local disk_block_size=$(blockdev --getpbsz $disk)
-    trim $((block_disk_tot * disk_block_size))
+    echo $((block_disk_tot * disk_block_size))
 }
 validResizeOS() {
     [[ $osid != +([1-2]|[5-7]|9|50) ]] && handleError " * Invalid operating system id: $osname ($osid) (${FUNCNAME[0]})"
@@ -449,19 +436,19 @@ countPartTypes() {
                 ;;
         esac
     done
-    trim "$count"
+    echo "$count"
 }
 # $1 is the disk
 countNtfs() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    countPartTypes $disk "ntfs" | trim
+    countPartTypes $disk "ntfs"
 }
 # $1 is the disk
 countExtfs() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    countPartTypes $disk "extfs" | trim
+    countPartTypes $disk "extfs"
 }
 # $1 = Source File
 # $2 = Target
@@ -508,7 +495,7 @@ getValidRestorePartitions() {
         ls $imgpart >/dev/null 2>&1
         [[ $? -eq 0 ]] && valid_parts="$valid_parts $part"
     done
-    trim "$valid_parts"
+    echo "$valid_parts"
 }
 # $1 = DriveName  (e.g. /dev/sdb)
 # $2 = DriveNumber  (e.g. 1)
@@ -975,7 +962,7 @@ getSAMLoc() {
     local paths="/ntfs/WINDOWS/system32/config/SAM /ntfs/Windows/System32/config/SAM"
     for path in $paths; do
         [[ ! -f $path ]] && continue
-        sam=$(trim $path)
+        sam=$(echo $path)
         [[ -n $sam ]] && break
     done
 }
@@ -983,38 +970,38 @@ getSAMLoc() {
 getPartitionCount() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    lsblk -pno KNAME $part | wc -l | trim
+    lsblk -pno KNAME $part | wc -l
 }
 # $1 is the partition to grab the disk from
 getDiskFromPartition() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    echo $part | sed 's/p\?[0-9]\+$//g' | trim
+    echo $part | sed 's/p\?[0-9]\+$//g'
 }
 # $1 is the partition to get the partition number for
 getPartitionNumber() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    echo $part | grep -o '[0-9]*$' | trim
+    echo "$part" | grep -o '[0-9]*$'
 }
 # $1 is the partition to search for.
 getPartitions() {
     local disk="$1"
     [[ -z $disk ]] && disk="$hd"
     [[ -z $disk ]] && handleError "No disk found (${FUNCNAME[0]})"
-    parts=$(lsblk -I 3,8,9,179,259 -lpno KNAME,TYPE $disk | awk '{if ($2 ~ /part/) print $1}' | sort -V | uniq | trim)
+    parts=$(lsblk -I 3,8,9,179,259 -lpno KNAME,TYPE $disk | awk '{if ($2 ~ /part/) print $1}' | sort -V | uniq)
 }
 # Gets the hard drive on the host
 # Note: This function makes a best guess
 getHardDisk() {
-    [[ -n $fdrive ]] && hd=$(trim $fdrive)
+    [[ -n $fdrive ]] && hd=$(echo $fdrive)
     [[ -n $hd ]] && return
     local devs=$(lsblk -dpno KNAME -I 3,8,9,179,259 | sort -V | uniq)
-    disks=$(trim $devs)
+    disks=$(echo $devs)
     [[ -z $disks ]] && handleError "Cannot find disk on system (${FUNCNAME[0]})"
     [[ $1 == true ]] && return
-    hd=$(trim $disks | head -n1)
-    hd=$(trim $hd)
+    hd=$(echo $disks | head -n1)
+    hd=$(echo $hd)
 }
 # Initialize hard drive by formatting it
 # Note: This probably should not be used
