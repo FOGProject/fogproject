@@ -90,12 +90,9 @@ case $imgType in
                         debugPause
                         ;;
                     *)
-                        if [[ -z $nombr || $nombr -eq 0 ]]; then
-                            prepareResizeDownloadPartitions
-                            fillDiskWithPartitions "$hd" "$imagePath" 1
-                            echo "Done"
-                            debugPause
-                        fi
+                        fillDiskWithPartitions "$hd" "$imagePath" 1
+                        echo "Done"
+                        debugPause
                         ;;
                 esac
                 dots "Setting boot partition"
@@ -115,7 +112,7 @@ case $imgType in
                 ;;
             [5-7]|9)
                 [[ ! -d $imagePath && ! -f $win7imgroot/sys.img.000 ]] && handleError "Unable to locate image store ($0)"
-                [[ ! -f $win7imgroot/sys.img.000 && ! $nombr -eq 1 ]] && prepareResizeDownloadPartitions
+                [[ ! -f $win7imgroot/sys.img.000 && ! $nombr -eq 1 ]] && restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath"
                 if [[ -f $win7imgroot/sys.img.000 && ! $nombr -eq 1 ]]; then
                     echo " * Using legacy style partition setup"
                     win7partcnt=1
