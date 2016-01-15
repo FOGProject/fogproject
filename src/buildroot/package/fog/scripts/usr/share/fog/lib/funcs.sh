@@ -7,10 +7,18 @@ ismajordebug=0
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export "$var" | grep =; done)
 trim() {
-    local var="$*"
-    var="${var#"${var%%[![:space:]]*}"}"
-    var="${var%"${var##*[![:space:]]}"}"
-    echo -n "$var"
+    if [[ -n $* ]]; then
+        var="$*"
+        var="${var#"${var%%[![:space:]]*}"}"
+        var="${var%"${var##*[![:space:]]}"}"
+        echo -n "$var"
+    else
+        while read var; do
+            var="${var#"${var%%[![:space:]]*}"}"
+            var="${var%"${var##*[![:space:]]}"}"
+            echo "$var"
+        done
+    fi
 }
 dots() {
     local str="$*"
@@ -21,12 +29,12 @@ dots() {
 # Get All Active MAC Addresses
 getMACAddresses() {
     local lomac="00:00:00:00:00:00"
-    trim "$(cat /sys/class/net/*/address | grep -v $lomac | tr '\n' '|' | sed s/.$//g)"
+    cat /sys/class/net/*/address | grep -v $lomac | tr '\n' '|' | sed s/.$//g | trim
 }
 # verify that there is a network interface
 verifyNetworkConnection() {
     dots "Verifying network interface configuration"
-    local count="$(/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}' | wc -l)"
+    local count=$(/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}' | wc -l)
     if [[ -z $count || $count -lt 1 ]]; then
         echo "Failed"
         debugPause
@@ -44,8 +52,9 @@ enableWriteCache()  {
     if [[ $wcache == nonsupported ]]; then
         echo "Not Supported"
         debugPause
+        return
     fi
-    hdparm -W1 $disk >/dev/null 2>&1
+    hdparm -W1 "$disk" >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
@@ -73,7 +82,7 @@ expandPartition() {
     case $fstype in
         ntfs)
             dots "Resizing $fstype volume ($part)"
-            ntfsresize $part -f -b -P </usr/share/fog/lib/EOFNTFSRESTORE >/dev/null 2>&1
+            ntfsresize "$part" -f -b -P </usr/share/fog/lib/EOFNTFSRESTORE >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
@@ -81,23 +90,23 @@ expandPartition() {
             fi
             echo "Done"
             debugPause
-            resetFlag $part
+            resetFlag "$part"
             ;;
         extfs)
             dots "Resizing $fstype volume ($part)"
-            e2fsck -fp $part >/dev/null 2>&1
+            e2fsck -fp "$part" >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
                 handleError "Could not check before resize (${FUNCNAME[0]})"
             fi
-            resize2fs $part >/dev/null 2>&1
+            resize2fs "$part" >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
                 handleError "Could not resize $part (${FUNCNAME[0]})"
             fi
-            e2fsck -fp $part >/dev/null 2>&1
+            e2fsck -fp "$part" >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
@@ -113,7 +122,7 @@ expandPartition() {
             debugPause
             ;;
     esac
-    runPartprobe $hd
+    runPartprobe "$hd"
 }
 # $1 is the partition
 fsTypeSetting() {
@@ -148,13 +157,13 @@ fsTypeSetting() {
 getPartType() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    trim $(blkid -po udev $part | awk -F= /PART_ENTRY_TYPE/'{print $2}')
+    blkid -po udev $part | awk -F= /PART_ENTRY_TYPE/'{print $2}' | trim
 }
 # $1 is the partition
 getPartitionEntryScheme() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    trim $(blkid -po udev $part | awk -F= /PART_ENTRY_SCHEME/'{print $2}')
+    blkid -po udev $part | awk -F= /PART_ENTRY_SCHEME/'{print $2}' | trim
 }
 # $1 is the partition
 partitionIsDosExtended() {
@@ -181,7 +190,7 @@ getPartSize() {
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     local block_part_tot=$(blockdev --getsz $part)
     local part_block_size=$(blockdev --getpbsz $part)
-    trim "$((block_part_tot * part_block_size))"
+    trim $((block_part_tot * part_block_size))
 }
 # Returns the size in bytes.
 getDiskSize() {
@@ -190,7 +199,7 @@ getDiskSize() {
     [[ -z $disk ]] && handleError "No disk found (${FUNCNAME[0]})"
     local block_disk_tot=$(blockdev --getsz $disk)
     local disk_block_size=$(blockdev --getpbsz $disk)
-    trim "$((block_disk_tot * disk_block_size))"
+    trim $((block_disk_tot * disk_block_size))
 }
 validResizeOS() {
     [[ $osid != +([1-2]|[5-7]|9|50) ]] && handleError " * Invalid operating system id: $osname ($osid) (${FUNCNAME[0]})"
@@ -198,7 +207,7 @@ validResizeOS() {
 prepareUploadLocation() {
     dots "Preparing backup location"
     if [[ ! -d $imagePath ]]; then
-        mkdir -p $imagePath >/dev/null 2>&1
+        mkdir -p "$imagePath" >/dev/null 2>&1
         if [[ ! $? -eq 0 ]]; then
             echo "Failed"
             debugPause
@@ -208,7 +217,7 @@ prepareUploadLocation() {
     echo "Done"
     debugPause
     dots "Setting permission on $imagePath"
-    chmod -R 777 $imagePath >/dev/null 2>&1
+    chmod -R 777 "$imagePath" >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
@@ -217,7 +226,7 @@ prepareUploadLocation() {
     echo "Done"
     debugPause
     dots "Removing any pre-existing files"
-    rm -Rf $imagePath/* >/dev/null 2>&1
+    rm -Rf "$imagePath/*" >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
@@ -272,10 +281,10 @@ shrinkPartition() {
                 tmpoutput=$(ntfsresize -f -i -P $part)
                 handleError " * (${FUNCNAME[0]}) Fatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t$tmpoutput"
             fi
-            sizentfsresize=$(($size / 1000))
-            sizentfsresize=$(($sizentfsresize + 300000))
-            sizentfsresize=$((($sizentfsresize * 1$percent) / 100))
-            sizefd=$((($sizentfsresize * 103) / 100))
+            sizentfsresize=$((size / 1000))
+            sizentfsresize=$((sizentfsresize + 300000))
+            sizentfsresize=$((sizentfsresize * "1$percent" / 100))
+            sizefd=$((sizentfsresize * 103 / 100))
             echo
             echo " * Possible resize partition size: $sizentfsresize k"
             echo
@@ -307,7 +316,7 @@ shrinkPartition() {
             debugPause
             if [[ $do_resizefs -eq 1 ]]; then
                 dots "Resizing filesystem"
-                ntfsresize -f -s ${sizentfsresize}k $part </usr/share/fog/lib/EOFNTFS >/dev/null 2>&1
+                ntfsresize -f -s "${sizentfsresize}k" "$part" < /usr/share/fog/lib/EOFNTFS >/dev/null 2>&1
                 if [[ ! $? -eq 0 ]]; then
                     echo "Failed"
                     debugPause
@@ -315,14 +324,14 @@ shrinkPartition() {
                 fi
                 echo "Done"
                 debugPause
-                resetFlag $part
+                resetFlag "$part"
             fi
             if [[ $do_resizepart -eq 1 ]]; then
                 dots "Resizing partition $part"
                 case $osid in
                     [1-2])
-                        resizePartition $part $sizentfsresize $imagePath
-                        [[ $osid -eq 2 ]] && correctVistaMBR $disk
+                        resizePartition "$part" "$sizentfsresize" "$imagePath"
+                        [[ $osid -eq 2 ]] && correctVistaMBR "$disk"
                         ;;
                     [5-7]|9)
                         case $win7partcnt in
@@ -341,18 +350,18 @@ shrinkPartition() {
                             debugPause
                             handleError "Unable to determine disk start location (${FUNCNAME[0]})"
                         fi
-                        adjustedfdsize=$(($sizefd + $partStart))
-                        resizePartition $part $adjustedfdsize $imagePath
+                        adjustedfdsize=$((sizefd + partStart))
+                        resizePartition "$part" "$adjustedfdsize" "$imagePath"
                         ;;
                 esac
                 echo "Done"
                 debugPause
-                resetFlag $part
+                resetFlag "$part"
             fi
             ;;
         extfs)
             dots "Checking $fstype volume ($part)"
-            e2fsck -fp $part >/dev/null 2>&1
+            e2fsck -fp "$part" >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
@@ -362,12 +371,12 @@ shrinkPartition() {
             debugPause
             extminsizenum=$(resize2fs -P $part 2>/dev/null | awk -F': ' '{print $2}')
             block_size=$(dumpe2fs -h $part 2>/dev/null | awk /^Block\ size:/'{print $3}')
-            size=$(($extminsizenum * $block_size))
-            sizeextresize=$(($size * 103 / 100 / 1024))
+            size=$((extminsizenum * block_size))
+            sizeextresize=$((size * 103 / 100 / 1024))
             [[ -z $sizeextresize || $sizeextresize -lt 1 ]] && handleError "Error calculating the new size of extfs ($part) (${FUNCNAME[0]})"
             echo
             dots "Shrinking $fstype volume ($part)"
-            resize2fs $part -M >/dev/null 2>&1
+            resize2fs "$part" -M >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
@@ -376,17 +385,17 @@ shrinkPartition() {
             echo "Done"
             debugPause
             dots "Shrinking $part partition"
-            resizePartition $part $sizeextresize $imagePath
+            resizePartition "$part" "$sizeextresize" "$imagePath"
             echo "Done"
             debugPause
             dots "Resizing $fstype volume ($part)"
-            resize2fs $part >/dev/null 2>&1
+            resize2fs "$part" >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
                 handleError "Could resize $fstype volume ($part) (${FUNCNAME[0]})"
             fi
-            e2fsck -fp $part >/dev/null 2>&1
+            e2fsck -fp "$part" >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
@@ -411,7 +420,7 @@ resetFlag() {
     case $fstype in
         ntfs)
             dots "Clearing ntfs flag"
-            ntfsfix -b -d $part >/dev/null 2>&1
+            ntfsfix -b -d "$part" >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
@@ -431,7 +440,7 @@ countPartTypes() {
     [[ -z $partType ]] && handleError "No partition type passed (${FUNCNAME[0]})"
     local count=0
     local fstype=""
-    getPartitions $disk
+    getPartitions "$disk"
     for part in $parts; do
         fstype=$(fsTypeSetting $part)
         case $fstype in
@@ -446,13 +455,13 @@ countPartTypes() {
 countNtfs() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    trim $(countPartTypes $disk "ntfs")
+    countPartTypes $disk "ntfs" | trim
 }
 # $1 is the disk
 countExtfs() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    trim $(countPartTypes $disk "extfs")
+    countPartTypes $disk "extfs" | trim
 }
 # $1 = Source File
 # $2 = Target
@@ -463,19 +472,19 @@ writeImage()  {
     mkfifo /tmp/pigz1
     case $mc in
         yes)
-            udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null >/tmp/pigz1 &
+            udp-receiver --nokbd --portbase "$port" --ttl 32 --mcast-rdv-address "$storageip" 2>/dev/null >/tmp/pigz1 &
             ;;
         *)
             [[ -z $file ]] && handleError "No source file passed (${FUNCNAME[0]})"
-            cat $file >/tmp/pigz1 &
+            cat "$file" >/tmp/pigz1 &
             ;;
     esac
     if [[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]]; then
         echo " * Imaging using Partimage"
-        pigz -d -c </tmp/pigz1 | partimage restore $target stdin -f3 -b 2>/tmp/status.fog
+        pigz -d -c </tmp/pigz1 | partimage restore "$target" stdin -f3 -b 2>/tmp/status.fog
     else
         echo " * Imaging using Partclone"
-        pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O $target -N -f 1 2>/tmp/status.fog
+        pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O "$target" -N -f 1 2>/tmp/status.fog
     fi
     [[ ! $? -eq 0 ]] && handleError "Image failed to restore and exited with exit code $? (${FUNCNAME[0]})"
     rm -rf /tmp/pigz1 >/dev/null 2>&1
@@ -492,14 +501,14 @@ getValidRestorePartitions() {
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     local valid_parts=""
     local imgpart=""
-    getPartitions $disk
+    getPartitions "$disk"
     for part in $parts; do
         partNum=$(getPartitionNumber $part)
         imgpart="$imagePath/d${driveNum}p${partNum}.img*"
         ls $imgpart >/dev/null 2>&1
         [[ $? -eq 0 ]] && valid_parts="$valid_parts $part"
     done
-    trim $valid_parts
+    trim "$valid_parts"
 }
 # $1 = DriveName  (e.g. /dev/sdb)
 # $2 = DriveNumber  (e.g. 1)
@@ -515,12 +524,12 @@ makeAllSwapSystems() {
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $imgPartitionType ]] && handleError "No image partition type passed (${FUNCNAME[0]})"
     local swapuuidfilename=$(swapUUIDFileName $imagePath $driveNum)
-    getPartitions $disk
+    getPartitions "$disk"
     for part in $parts; do
         partNum=$(getPartitionNumber $part)
-        [[ $imgPartitionType == all || $imgPartitionType -eq $partNum ]] && makeSwapSystem $swapuuidfilename $part
+        [[ $imgPartitionType == all || $imgPartitionType -eq $partNum ]] && makeSwapSystem "$swapuuidfilename" "$part"
     done
-    runPartprobe $disk
+    runPartprobe "$disk"
 }
 changeHostname() {
     [[ -z $hostname || $hostearly -eq 0 ]] && return
@@ -549,7 +558,7 @@ changeHostname() {
     else
         umount /ntfs >/dev/null 2>&1
     fi
-    ntfs-3g -o force,fw $part /ntfs >/tmp/ntfs-mount-output 2>&1
+    ntfs-3g -o force,fw "$part" /ntfs >/tmp/ntfs-mount-output 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
@@ -563,20 +572,20 @@ changeHostname() {
     if [[ ! -f /usr/share/fog/lib/EOFREG ]]; then
         case $osid in
             1)
-                regfile=$REG_LOCAL_MACHINE_XP
-                key1=$REG_HOSTNAME_KEY1_XP
-                key2=$REG_HOSTNAME_KEY2_XP
-                key3=$REG_HOSTNAME_KEY3_XP
-                key4=$REG_HOSTNAME_KEY4_XP
-                key5=$REG_HOSTNAME_KEY5_XP
+                regfile="$REG_LOCAL_MACHINE_XP"
+                key1="$REG_HOSTNAME_KEY1_XP"
+                key2="$REG_HOSTNAME_KEY2_XP"
+                key3="$REG_HOSTNAME_KEY3_XP"
+                key4="$REG_HOSTNAME_KEY4_XP"
+                key5="$REG_HOSTNAME_KEY5_XP"
                 ;;
             [2]|[5-7]|9)
-                regfile=$REG_LOCAL_MACHINE_7
-                key1=$REG_HOSTNAME_KEY1_7
-                key2=$REG_HOSTNAME_KEY2_7
-                key3=$REG_HOSTNAME_KEY3_7
-                key4=$REG_HOSTNAME_KEY4_7
-                key5=$REG_HOSTNAME_KEY5_7
+                regfile="$REG_LOCAL_MACHINE_7"
+                key1="$REG_HOSTNAME_KEY1_7"
+                key2="$REG_HOSTNAME_KEY2_7"
+                key3="$REG_HOSTNAME_KEY3_7"
+                key4="$REG_HOSTNAME_KEY4_7"
+                key5="$REG_HOSTNAME_KEY5_7"
                 ;;
         esac
         echo "ed $key1" >/usr/share/fog/lib/EOFREG
@@ -601,7 +610,7 @@ changeHostname() {
         echo " * File does not exist"
         return
     fi
-    reged -e $regfile </usr/share/fog/lib/EOFREG >/dev/null 2>&1
+    reged -e "$regfile" </usr/share/fog/lib/EOFREG >/dev/null 2>&1
     if [[ ! $? -eq 0 && $? -gt 2 ]]; then
         echo "Failed"
         debugPause
@@ -633,7 +642,7 @@ fixWin7boot() {
                             echo
                             return
                         fi
-                        ntfs-3g -o force,fw $part /bcdstore >/tmp/ntfs-mount-output 2>&1
+                        ntfs-3g -o force,fw "$part" /bcdstore >/tmp/ntfs-mount-output 2>&1
                         if [[ ! $? -eq 0 ]]; then
                             echo "Failed"
                             debugPause
@@ -711,7 +720,7 @@ clearMountedDevices() {
             dots "Clearing part ($part)"
             case $fstype in
                 ntfs)
-                    ntfs-3g -o force,rw $part /ntfs >/dev/null 2>&1
+                    ntfs-3g -o force,rw "$part" /ntfs >/dev/null 2>&1
                     if [[ ! $? -eq 0 ]]; then
                         echo "Failed"
                         debugPause
@@ -778,7 +787,7 @@ removePageFile() {
                     else
                         umount /ntfs >/dev/null 2>&1
                     fi
-                    ntfs-3g -o force,rw $part /ntfs >/dev/null 2>&1
+                    ntfs-3g -o force,rw "$part" /ntfs >/dev/null 2>&1
                     if [[ ! $? -eq 0 ]]; then
                         echo "Failed"
                         debugPause
@@ -966,7 +975,7 @@ getSAMLoc() {
     local paths="/ntfs/WINDOWS/system32/config/SAM /ntfs/Windows/System32/config/SAM"
     for path in $paths; do
         [[ ! -f $path ]] && continue
-        sam="$(trim $path)"
+        sam=$(trim $path)
         [[ -n $sam ]] && break
     done
 }
@@ -974,32 +983,26 @@ getSAMLoc() {
 getPartitionCount() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    trim $(lsblk -pno KNAME $part | wc -l)
+    lsblk -pno KNAME $part | wc -l | trim
 }
 # $1 is the partition to grab the disk from
 getDiskFromPartition() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    trim $(echo $part | sed 's/p\?[0-9]\+$//g')
+    echo $part | sed 's/p\?[0-9]\+$//g' | trim
 }
 # $1 is the partition to get the partition number for
 getPartitionNumber() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    trim $(echo $part | grep -o '[0-9]*$')
+    echo $part | grep -o '[0-9]*$' | trim
 }
 # $1 is the partition to search for.
 getPartitions() {
     local disk="$1"
     [[ -z $disk ]] && disk="$hd"
     [[ -z $disk ]] && handleError "No disk found (${FUNCNAME[0]})"
-    local valid_parts=""
-    allparts="$(fdisk -l $disk | awk '{if ($1 ~ "'$disk'" && $1 ~ /[0-9]+$/) print $1}' | sort -V | uniq)"
-    for checkpart in $allparts; do
-        [[ $checkpart =~ mmcblk[0-9]+boot[0-9]+ ]] && continue
-        valid_parts="$valid_parts $checkpart"
-    done
-    parts=$(trim $valid_parts)
+    parts=$(lsblk -I 3,8,9,179,259 -lpno KNAME,TYPE $disk | awk '{if ($2 ~ /part/) print $1}' | sort -V | uniq | trim)
 }
 # Gets the hard drive on the host
 # Note: This function makes a best guess

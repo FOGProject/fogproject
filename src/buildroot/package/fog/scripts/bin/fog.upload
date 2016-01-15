@@ -8,10 +8,10 @@ imagePath="/images/$macWinSafe"
 echo
 echo " * Preparing to send image file to server"
 echo
-percent=$pct
-[[ $percent -lt 5 || $percent -ge 100 ]] && percent=5
-[[ $percent -lt 10 ]] && percent="0$percent"
-fog.statusreporter $mac $web & disown
+percent="$pct"
+[[ $pct -lt 5 || $pct -ge 100 ]] && percent=5
+[[ $pct -lt 10 ]] && percent="0$pct"
+fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!"
 prepareUploadLocation
 echo
@@ -63,7 +63,7 @@ case $imgType in
         debugPause
         for disk in $disks; do
             dots "Reading Partition Tables on $disk"
-            getPartitions $disk
+            getPartitions "$disk"
             if [[ -z $parts ]]; then
                 echo "Failed"
                 debugPause
@@ -116,7 +116,7 @@ case $imgType in
         dots "Getting Windows/Linux Partition Count"
         ntfscnt=$(countNtfs $hd)
         extfsavail=$(countExtfs $hd)
-        if [[ $ntfscnt == 0 && $extfsavail == 0 ]] || [[ -z $ntfscnt && -z $extfsavail ]]; then
+        if [[ $ntfscnt -eq 0 && $extfsavail -eq 0 ]] || [[ -z $ntfscnt && -z $extfsavail ]]; then
             echo "Failed"
             debugPause
             handleError "No resizable partitions found ($0)"
@@ -134,7 +134,7 @@ case $imgType in
         echo
         debugPause
         for partclr in $parts; do
-            clearMountedDevices $partclr
+            clearMountedDevices "$partclr"
         done
         fixedcount=0
         case $osid in
@@ -156,7 +156,7 @@ case $imgType in
         # All:
         #  save the list of fixed size partitions
         fixed_size_partitions=$(echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://')
-        echo "$fixed_size_partitions" >$imagePath/d1.fixed_size_partitions
+        echo "$fixed_size_partitions" > "$imagePath/d1.fixed_size_partitions"
         if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
             for partpage in $parts; do
                 removePageFile "$partpage"
@@ -174,50 +174,48 @@ case $imgType in
         # Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
         #  Save unmodified partition table for download use
         #  Start filesytem type record
-        if [[ $osid == +([1-2]|[5-7]|9|50) ]]; then
-            dots "Saving original partition table"
-            saveOriginalPartitions $hd $imagePath 1
-            echo -n "" > $imagePath/d1.original.fstypes
-            echo -n "" > $(swapUUIDFileName $imagePath 1)
-            echo "Done"
+        dots "Saving original partition table"
+        saveOriginalPartitions "$hd" "$imagePath" 1
+        echo -n "" > "$imagePath/d1.original.fstypes"
+        echo -n "" > $(swapUUIDFileName $imagePath 1)
+        echo "Done"
+        debugPause
+        savePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
+        for part in $parts; do
+            shrinkPartition "$part" "$imagePath/d1.original.fstypes"
+        done
+        runPartprobe "$hd"
+        debugPause
+        [[ ! $osid -eq 50 ]] && resetFlag "$part"
+        echo " * Processing Hard Disk: $disk"
+        for part in $parts; do
+            savePartition "$part" 1 "$imagePath" "$imgPartitionType"
             debugPause
-            savePartitionTablesAndBootLoaders $hd 1 $imagePath $osid $imgPartitionType
-            for part in $parts; do
-                shrinkPartition $part "$imagePath/d1.original.fstypes"
-            done
-            runPartprobe $hd
-            debugPause
-            [[ ! $osid -eq 50 ]] && resetFlag $part
-            echo " * Processing Hard Disk: $disk"
-            for part in $parts; do
-                savePartition $part 1 $imagePath $imgPartitionType
-                debugPause
-            done
-            dots "Restoring MBR"
-            restoreOriginalPartitions $hd $imagePath 1
-            echo "Done"
-            debugPause
-            [[ $osid -eq 2 ]] && correctVistaMBR $hd
-            for part in $parts; do
-                expandPartition $part
-            done
-        fi
+        done
+        dots "Restoring MBR"
+        restoreOriginalPartitions "$hd" "$imagePath" 1
+        echo "Done"
+        debugPause
+        [[ $osid -eq 2 ]] && correctVistaMBR "$hd"
+        for part in $parts; do
+            expandPartition "$part"
+        done
         ;;
     mps)
         echo " * Processing Hard Disk: $hd"
-        savePartitionTablesAndBootLoaders $hd 1 $imagePath $osid $imgPartitionType
+        savePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
         for part in $parts; do
-            savePartition $part 1 $imagePath $imgPartitionType
+            savePartition "$part" 1 "$imagePath" "$imgPartitionType"
             debugPause
         done
         ;;
     mpa)
         intDisk=1
         for disk in $disks; do
-            savePartitionTablesAndBootLoaders $disk $intDisk $imagePath $osid $imgPartitionType
+            savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$imgPartitionType"
             echo " * Processing Hard Disk: $disk"
             for part in $parts; do
-                savePartition $part $intDisk $imagePath $imgPartitionType
+                savePartition "$part" "$intDisk" "$imagePath" "$imgPartitionType"
                 debugPause
             done
             echo " * Disk $disk complete"
@@ -228,13 +226,13 @@ case $imgType in
     dd)
         imgpart="$imagePath/$img"
         mkfifo /tmp/pigz1 >/dev/null 2>&1
-        uploadFormat "/tmp/pigz1" $imgpart
-        partclone.imager -c -s $hd -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog
+        uploadFormat "/tmp/pigz1" "$imgpart"
+        partclone.imager -c -s "$hd" -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog
         rm /tmp/pigz1 >/dev/null 2>&1
         clear
         ;;
 esac
-chmod -R 777 $imagePath >/dev/null 2>&1
+chmod -R 777 "$imagePath" >/dev/null 2>&1
 killStatusReporter
 . /bin/fog.imgcomplete
 [[ ! $mode == debug && -z $isdebug ]] && echo " * Rebooting system as task is complete"
