@@ -35,7 +35,7 @@ _L['ACTIVE_TASKS_FOUND'] = '%1 active task%2 found';
 _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
 function getChecked() {
     var val = [];
-    $('.toggle-action[type="checkbox"]:checked').not(':hidden').each(function(i) {
+    $('.toggle-action:checkbox:checked').not(':hidden').each(function(i) {
         val[i] = this.value;
     });
     return val;
@@ -53,7 +53,7 @@ function setEditFocus() {
     });
 }
 function setChecked(ids) {
-    $('.toggle-action[type="checkbox"]').not(':hidden').not(':checked').each(function(i) {
+    $('.toggle-action:checkbox').not(':hidden').not(':checked').each(function(i) {
         if ($.inArray(this.value,ids) < 0) return;
         this.checked = true;
     });
@@ -294,7 +294,7 @@ function buildRow(data,templates,attributes) {
         showForceButton();
         showProgressBar();
     }
-    $('.toggle-action').change(function() {checkedIDs = getChecked();});
+    $('.toggle-action:checkbox,.toggle-checkboxAction:checkbox').change(function() {checkedIDs = getChecked();});
     setChecked(checkedIDs);
     HookTooltips();
 }
