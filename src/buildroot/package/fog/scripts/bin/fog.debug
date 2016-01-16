@@ -32,9 +32,7 @@ echo -e "\n\nBelow is a variable dump from FOG"
 osname=""
 mbrfile=""
 hd=""
-if [[ -n $osid ]]; then
-    determineOS "$osid"
-fi
+[[ -n $osid ]] && determineOS "$osid"
 echo "osid=${osid}"
 echo "osname=${osname}"
 echo "mbrfile=${mbrfile}"
@@ -46,7 +44,7 @@ echo "imgFormat=${imgFormat}"
 echo "imgPartitionType=${imgPartitionType}"
 getHardDisk
 echo "hd=${hd}"
-getPartitions $hd
+getPartitions "$hd"
 for part in $parts; do
     break
 done

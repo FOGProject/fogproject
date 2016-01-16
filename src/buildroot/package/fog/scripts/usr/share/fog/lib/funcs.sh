@@ -1643,6 +1643,7 @@ restorePartition() {
         debugPause
         return
     fi
+    imgpart=""
     case $imgType in
         dd)
             imgpart="$imagePath/$img"
@@ -1656,7 +1657,8 @@ restorePartition() {
                     imgpart="$imagePath/d${intDisk}p${partNum}.img*"
                     ;;
                 [5-7]|9)
-                    [[ ! -f $imagePath/sys.img.000 ]] && imgpart="$imagePath/d${intDisk}p${partNum}.img*" || \
+                    [[ ! -f $imagePath/sys.img.000 ]] && imgpart="$imagePath/d${intDisk}p${partNum}.img*"
+                    if [[ -z $imgpart ]] ;then
                         case $win7partcnt in
                             1)
                                 imgpart="$imagePath/sys.img.*"
@@ -1685,6 +1687,7 @@ restorePartition() {
                                 esac
                                 ;;
                         esac
+                    fi
                     ;;
             esac
             ;;

@@ -248,6 +248,7 @@ case $imgType in
                     dots "Setting up partition variables"
                     getPartitions "$hd"
                     for part in $parts; do
+                        curpartnum=$(getPartitionNumber $part)
                         case $osid in
                             [1-2])
                                 [[ -e $part ]] && break
@@ -255,16 +256,16 @@ case $imgType in
                             [5-7]|9)
                                 case $win7partcnt in
                                     1)
-                                        [[ $(getPartitionNumber $part) -eq 1 ]] && win7sys="$part"
+                                        [[ $curpartnum -eq 1 ]] && win7sys="$part"
                                         ;;
                                     2)
-                                        [[ $(getPartitionNumber $part) -eq 1 ]] && win7rec="$part"
-                                        [[ $(getPartitionNumber $part) -eq 2 ]] && win7sys="$part"
+                                        [[ $curpartnum -eq 1 ]] && win7rec="$part"
+                                        [[ $curpartnum -eq 2 ]] && win7sys="$part"
                                         ;;
                                     3)
-                                        [[ $(getPartitionNumber $part) -eq 1 ]] && win7rec1="$part"
-                                        [[ $(getPartitionNumber $part) -eq 2 ]] && win7rec2="$part"
-                                        [[ $(getPartitionNumber $part) -eq 3 ]] && win7sys="$part"
+                                        [[ $curpartnum -eq 1 ]] && win7rec1="$part"
+                                        [[ $curpartnum -eq 2 ]] && win7rec2="$part"
+                                        [[ $curpartnum -eq 3 ]] && win7sys="$part"
                                         ;;
                                 esac
                                 ;;

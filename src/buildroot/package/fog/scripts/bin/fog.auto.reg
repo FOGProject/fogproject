@@ -55,7 +55,7 @@ dots "Using disk device"
 getHardDisk
 echo "$hd"
 echo "Starting host registration"
-mac_deployed=$mac
+mac_deployed="$mac"
 mac=$(getMACAddresses | base64)
 echo
 dots "Attempting to register host"
@@ -73,6 +73,4 @@ done
 echo "$res"
 . /bin/fog.inventory
 count=0
-if [[ $deployed -eq 1 ]]; then
-    . /bin/fog.nonimgcomplete $mac_deployed
-fi
+[[ $deployed -eq 1 ]] && . /bin/fog.nonimgcomplete $mac_deployed
