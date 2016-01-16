@@ -657,7 +657,7 @@ class BootMenu extends FOGBase {
                 ),
                 array(
                     'value' => 'winuser='.$Task->get('passreset'),
-                    'active' => $TaskType->get('id') == '11' ? true : false,
+                    'active' => $TaskType->get('id') == '11',
                 ),
                 array(
                     'value' => 'miningpath=' . $this->getSetting('FOG_MINING_PACKAGE_PATH'),
@@ -670,6 +670,10 @@ class BootMenu extends FOGBase {
                 array(
                     'value' => 'debug',
                     'active' => $this->getSetting('FOG_KERNEL_DEBUG'),
+                ),
+                array(
+                    'value' => 'seconds='.$this->getSetting('FOG_WIPE_TIMEOUT'),
+                    'active' => in_array($TaskType->get('id'),range(18,20)),
                 ),
                 $TaskType->get('kernelArgs'),
                 $this->getSetting('FOG_KERNEL_ARGS'),
