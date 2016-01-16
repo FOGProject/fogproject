@@ -280,6 +280,7 @@ case $imgType in
     mps)
         [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
         display_center "Wiping $hd partition information"
+        echo
         initHardDisk "$hd"
         [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath"
         runPartprobe "$hd"
@@ -291,6 +292,7 @@ case $imgType in
         intDisk=1
         for disk in $disks; do
             display_center "Wiping $disk partition information"
+            echo
             initHardDisk "$disk"
             [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath"
             runPartprobe "$disk"
