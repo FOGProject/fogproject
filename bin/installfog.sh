@@ -43,19 +43,19 @@ else
         OSVersion=$(cat /etc/debian_version)
     fi
 fi
-[[ -d /opt/fog/log/ ]] && touch /opt/fog/log/fog_error_${version}.log;ln -s /opt/fog/log/fog_error_${version}.log /var/log/
-command -v lsb_release >/var/log/fog_error_${version}.log 2>&1
+[[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
+command -v lsb_release >./error_logs/fog_install_error_${version}.log 2>&1
 if [[ ! $? -eq 0 ]]; then
     case $linuxReleaseName in
         *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
-            apt-get -yq install lsb_release >>/var/log/fog_error_${version}.log 2>&1
+            apt-get -yq install lsb_release >>./error_logs/fog_error_${version}.log 2>&1
             ;;
         *[Cc][Ee][Nn][Tt][Oo][Ss]*|*[Rr][Ee][Dd]*[Hh][Aa][Tt]*|*[Ff][Ee][Dd][Oo][Rr][Aa]*)
-            command -v dnf >>/var/log/fog_error_${version}.log 2>&1
+            command -v dnf >>./error_logs/fog_error_${version}.log 2>&1
             if [[ $? -eq 0 ]]; then
-                dnf -y install redhat-lsb-core >>/var/log/fog_error_${version}.log 2>&1
+                dnf -y install redhat-lsb-core >>./error_logs/fog_error_${version}.log 2>&1
             else
-                yum -y install redhat-lsb-core >>/var/log/fog_error_${version}.log 2>&1
+                yum -y install redhat-lsb-core >>./error_logs/fog_error_${version}.log 2>&1
             fi
             ;;
     esac
@@ -63,7 +63,7 @@ fi
 if [[ -z $OSVersion ]]; then
     OSVersion=$(lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $2}')
 fi
-command -v systemctl >>/var/log/fog_error_${version}.log 2>&1
+command -v systemctl >>./error_logs/fog_error_${version}.log 2>&1
 if [[ $? == 0 ]]; then
     systemctl="yes"
 fi
@@ -314,7 +314,7 @@ while getopts "$optspec" o; do
             ;;
     esac
 done
-grep -l webroot /opt/fog/.fogsettings >>/var/log/fog_error_${version}.log 2>&1
+grep -l webroot /opt/fog/.fogsettings >>./error_logs/fog_error_${version}.log 2>&1
 if [[ $? -eq 0 || ! -z $webroot ]]; then
     webroot=${webroot#'/'}
     webroot=${webroot%'/'}
@@ -504,15 +504,15 @@ while [[ -z $blGo ]]; do
                     dots "Backing up database"
                     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
                         if [[ ! -d $backupPath/fogDBbackups ]]; then
-                            mkdir -p $backupPath/fogDBbackups >>/var/log/fog_error_${version}.log 2>&1
+                            mkdir -p $backupPath/fogDBbackups >>./error_logs/fog_error_${version}.log 2>&1
                         fi
-                        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php?type=sqldump" >>/var/log/fog_error_${version}.log 2>&1
+                        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php?type=sqldump" >>./error_logs/fog_error_${version}.log 2>&1
                     fi
                     errorStat $?
                     case $dbupdate in
                         [Yy]|[Yy][Ee][Ss])
                             dots "Updating Database"
-                            wget -qO - --post-data="confirm=1" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schemaupdater >>/var/log/fog_error_${version}.log 2>&1 || wget -qO - --post-data="confirm=1" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schemaupdater >>/var/log/fog_error_${version}.log 2>&1
+                            wget -qO - --post-data="confirm=1" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schemaupdater >>./error_logs/fog_error_${version}.log 2>&1 || wget -qO - --post-data="confirm=1" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schemaupdater >>/var/log/fog_error_${version}.log 2>&1
                             errorStat $?
                             ;;
                         *)
