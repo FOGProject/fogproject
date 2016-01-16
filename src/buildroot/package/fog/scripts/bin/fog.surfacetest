@@ -31,13 +31,17 @@ for disk in $disks; do
     dots " * Disk Surface test for $disk"
     echo
     usleep 2000000
-    badblocks -sv "$disk"
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Could not perform surface scan on $disk"
-    fi
-    echo "Done"
+    badblocks -sv $disk >/dev/null 2>&1
+    case $? in
+        0)
+            echo "Done"
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Could not perform surface scan on $disk"
+            ;;
+    esac
     debugPause
 done
 . /bin/fog.nonimgcomplete

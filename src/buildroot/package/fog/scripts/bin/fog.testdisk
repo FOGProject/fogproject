@@ -15,7 +15,6 @@ for disk in $disks; do
         case $? in
             0)
                 echo "Done"
-                debugPause
                 ;;
             *)
                 echo "Failed"
@@ -23,6 +22,7 @@ for disk in $disks; do
                 continue
                 ;;
         esac
+        debugPause
     done
 done
 . /bin/fog.nonimgcomplete

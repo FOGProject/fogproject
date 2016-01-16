@@ -15,11 +15,10 @@ fi
 echo "Done"
 debugPause
 dots "Mounting File System"
-mount -o nolock "$storage" /images
+mount -o nolock $storage /images
 case $? in
     0)
         echo "Done"
-        debugPause
         ;;
     *)
         echo "Failed"
@@ -27,13 +26,14 @@ case $? in
         handleError "Failed to Mount filesystem"
         ;;
 esac
+debugPause
 for disk in $disks; do
-    echo " * Starting PhotoRec on $disk";
+    echo " * Starting PhotoRec on $disk"
     usleep 2000000
     getPartitions "$disk"
     for part in $parts; do
         echo "Performing photorec on $part"
-        photorec "$part"
+        photorec $part
     done
     usleep 5000000
 done
