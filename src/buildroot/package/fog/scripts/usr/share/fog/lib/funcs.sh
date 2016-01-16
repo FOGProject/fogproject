@@ -143,13 +143,13 @@ fsTypeSetting() {
 getPartType() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    blkid -po udev $part | awk -F= /PART_ENTRY_TYPE/'{print $2}'
+    blkid -po udev "$part" | awk -F= /PART_ENTRY_TYPE/'{print $2}'
 }
 # $1 is the partition
 getPartitionEntryScheme() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    blkid -po udev $part | awk -F= /PART_ENTRY_SCHEME/'{print $2}'
+    blkid -po udev "$part" | awk -F= /PART_ENTRY_SCHEME/'{print $2}'
 }
 # $1 is the partition
 partitionIsDosExtended() {
@@ -269,36 +269,35 @@ shrinkPartition() {
             fi
             sizentfsresize=$((size / 1000))
             sizentfsresize=$((sizentfsresize + 300000))
-            sizentfsresize=$((sizentfsresize * "1$percent" / 100))
+            sizentfsresize=$((sizentfsresize * 1${percent} / 100))
             sizefd=$((sizentfsresize * 103 / 100))
             echo
             echo " * Possible resize partition size: $sizentfsresize k"
             echo
             dots "Running resize test $part"
             tmpSuc=$(ntfsresize -f -n -s ${sizentfsresize}k $part </usr/share/fog/lib/EOFNTFSRESTORE)
-            success=$(echo $tmpSuc | grep "ended successfully")
-            too_big=$(echo $tmpSuc | grep "bigger than the device size")
-            ok_size=$(echo $tmpSuc | grep "volume size is already OK")
+            test_string=$(echo $tmpSuc | egrep -o "(ended successfully|bigger than the device size|volume size is already OK)")
             echo "Done"
             debugPause
-            if [[ -n $too_big ]]; then
-                echo
-                echo " * Not resizing filesystem $part (part too small)"
-                echo
-            elif [[ -n $ok_size ]]; then
-                echo
-                echo " * Not resizing filesystem $part (already OK)"
-                echo
-                do_resizepart=1
-            elif [[ ! -n $success ]]; then
-                handleWarning "Resize test failed!\n $tmpSuc (${FUNCNAME[0]})"
-            else
-                echo
-                echo " * Resize test was successful"
-                echo
-                do_resizefs=1
-                do_resizepart=1
-            fi
+            echo
+            case $test_string in
+                "ended successfully")
+                    echo " * Resize test was successful"
+                    do_resizefs=1
+                    do_resizepart=1
+                    ;;
+                "bigger than the device size")
+                    echo " * Not resizing filesystem $part (part too small)"
+                    ;;
+                "volume size is already OK")
+                    echo " * Not resizing filesystem $part (already OK)"
+                    do_resizepart=1
+                    ;;
+                *)
+                    echo "Resize test failed!\n $tmpSuc (${FUNCNAME[0]})"
+                    ;;
+            esac
+            echo
             debugPause
             if [[ $do_resizefs -eq 1 ]]; then
                 dots "Resizing filesystem"
@@ -441,13 +440,13 @@ countPartTypes() {
 countNtfs() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    countPartTypes $disk "ntfs"
+    countPartTypes "$disk" "ntfs"
 }
 # $1 is the disk
 countExtfs() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    countPartTypes $disk "extfs"
+    countPartTypes "$disk" "extfs"
 }
 # $1 = Source File
 # $2 = Target
@@ -491,7 +490,7 @@ getValidRestorePartitions() {
     for part in $parts; do
         partNum=$(getPartitionNumber $part)
         imgpart="$imagePath/d${driveNum}p${partNum}.img*"
-        ls $imgpart >/dev/null 2>&1
+        ls "$imgpart" >/dev/null 2>&1
         [[ $? -eq 0 ]] && valid_parts="$valid_parts $part"
     done
     echo "$valid_parts"
@@ -969,13 +968,13 @@ getSAMLoc() {
 getPartitionCount() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    lsblk -pno KNAME $part | wc -l
+    lsblk -pno KNAME "$part" | wc -l
 }
 # $1 is the partition to grab the disk from
 getDiskFromPartition() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    echo $part | sed 's/p\?[0-9]\+$//g'
+    echo "$part" | sed 's/p\?[0-9]\+$//g'
 }
 # $1 is the partition to get the partition number for
 getPartitionNumber() {
@@ -1008,9 +1007,9 @@ getHardDisk() {
 initHardDisk() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    clearPartitionTables $disk
+    clearPartitionTables "$disk"
     dots "Creating disk with new label"
-    parted -s $disk mklabel msdos >/dev/null 2>&1
+    parted -s "$disk" mklabel msdos >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
@@ -1019,7 +1018,7 @@ initHardDisk() {
     echo "Done"
     debugPause
     dots "Initializing $disk with NTFS partition"
-    parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s >/dev/null 2>&1
+    parted -s "$disk" -a opt mkpart primary ntfs 2048s -- -1s >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
@@ -1027,11 +1026,11 @@ initHardDisk() {
     fi
     echo "Done"
     debugPause
-    runPartprobe $disk
+    runPartprobe "$disk"
     dots "Formatting initialized partition"
-    getPartitions $disk
+    getPartitions "$disk"
     for part in $parts; do
-        mkfs.ntfs -Q -q $part >/dev/null 2>&1
+        mkfs.ntfs -Q -q "$part" >/dev/null 2>&1
         if [[ ! $? -eq 0 ]]; then
             echo "Failed"
             debugPause
@@ -1045,7 +1044,7 @@ correctVistaMBR() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     dots "Correcting Vista MBR"
-    dd if=$disk of=/tmp.mbr count=1 bs=512 >/dev/null 2>&1
+    dd if="$disk" of=/tmp.mbr count=1 bs=512 >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
@@ -1158,9 +1157,9 @@ handleError() {
     if [[ -n $2 ]]; then
         case $osid in
             [1-2]|[5-7]|9|50)
-                getPartitions $hd
+                getPartitions "$hd"
                 for part in $parts; do
-                    expandPartition $part
+                    expandPartition "$part"
                 done
                 ;;
         esac
@@ -1657,9 +1656,7 @@ restorePartition() {
                     imgpart="$imagePath/d${intDisk}p${partNum}.img*"
                     ;;
                 [5-7]|9)
-                    if [[ ! -f $imagePath/sys.img.000 ]]; then
-                        imgpart="$imagePath/d${intDisk}p${partNum}.img*"
-                    else
+                    [[ ! -f $imagePath/sys.img.000 ]] && imgpart="$imagePath/d${intDisk}p${partNum}.img*" || \
                         case $win7partcnt in
                             1)
                                 imgpart="$imagePath/sys.img.*"
@@ -1688,7 +1685,6 @@ restorePartition() {
                                 esac
                                 ;;
                         esac
-                    fi
                     ;;
             esac
             ;;
@@ -1696,23 +1692,23 @@ restorePartition() {
             handleError "Invalid Image Type $imgType (${FUNCNAME[0]})"
             ;;
     esac
-    ls $imgpart >/dev/null 2>&1
+    ls "$imgpart" >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         local ebrfilename=$(EBRFileName $imagePath $intDisk $partNum)
         [[ -e $ebrfilename ]] && echo " * Not downloading content of extended partition" || echo " * Partition File Missing: $imgpart"
-        runPartprobe $hd
-        resetFlag $part
+        runPartprobe "$hd"
+        resetFlag "$part"
         return
     fi
-    writeImage $imgpart $part
-    runPartprobe $hd
-    resetFlag $part
+    writeImage "$imgpart" "$part"
+    runPartprobe "$hd"
+    resetFlag "$part"
 }
 gptorMBRSave() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     local strdots=""
-    runPartprobe $disk
+    runPartprobe "$disk"
     local gptormbr=$(gdisk -l $disk | awk /^\ *GPT:/'{print $2}')
     case $gptormbr in
         not)
@@ -1725,18 +1721,18 @@ gptorMBRSave() {
                     ;;
             esac
             dots "$strdots"
-            saveGRUB $disk 1 $2
+            saveGRUB "$disk" 1 "$2"
             echo "Done"
             debugPause
             ;;
         *)
             dots "Saving Partition Tables (GPT)"
-            sgdisk -b $imagePath/d1.mbr $disk >/dev/null 2>&1
+            sgdisk -b "$imagePath/d1.mbr" "$disk" >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
-                runFixparts $disk
-                gptorMBRSave $disk $2
+                runFixparts "$disk"
+                gptorMBRSave "$disk" "$2"
                 return
             fi
             echo "Done"
@@ -1748,7 +1744,7 @@ runFixparts() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     dots "Attempting fixparts"
-    fixparts $1 </usr/share/fog/lib/EOFFIXPARTS >/dev/null 2>&1
+    fixparts "$disk" </usr/share/fog/lib/EOFFIXPARTS >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
@@ -1756,11 +1752,11 @@ runFixparts() {
     fi
     echo "Done"
     debugPause
-    runPartprobe $disk
+    runPartprobe "$disk"
 }
 killStatusReporter() {
     dots "Stopping FOG Status Reporter"
-    kill -9 $statusReporter >/dev/null 2>&1
+    kill -9 "$statusReporter" >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
@@ -1770,7 +1766,7 @@ killStatusReporter() {
     debugPause
 }
 prepareResizeDownloadPartitions() {
-    restorePartitionTablesAndBootLoaders $hd 1 $imagePath $osid $imgPartitionType
+    restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
     majorDebugEcho "Filling disk = $do_fill"
     dots "Attempting to expand/fill partitions"
     if [[ $do_fill -eq 0 ]]; then
@@ -1778,8 +1774,8 @@ prepareResizeDownloadPartitions() {
         debugPause
         handleError "Fatal Error: Could not resize partitions (${FUNCNAME[0]})"
     fi
-    fillDiskWithPartitions $hd $imagePath 1
+    fillDiskWithPartitions "$hd" "$imagePath" 1
     echo "Done"
     debugPause
-    runPartprobe $hd
+    runPartprobe "$hd"
 }
