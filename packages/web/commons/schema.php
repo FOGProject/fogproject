@@ -2131,3 +2131,7 @@ $this->schema[] = array(
 ('SNAPINREPLICATORDEVICEOUTPUT','The tty to output to for snapin replicator. (Default /dev/tty5)','/dev/tty5','FOG Linux Service TTY Output'),
 ('PINGHOSTDEVICEOUTPUT','The tty to output to for ping hosts. (Default /dev/tty6)','/dev/tty6','FOG Linux Service TTY Output')",
 );
+// 207
+$this->schema[] = array(
+    "INSERT INTO `" . DATABASE_NAME . "`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values ('FOG_WIPE_TIMEOUT', '"._("This setting defines the number of seconds to wait for wiping disks. (Default 60)")."', '60', 'FOG Boot Settings')",
+);

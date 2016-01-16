@@ -5,22 +5,24 @@ clearScreen
 displayBanner
 disks=""
 getHardDisk "true"
-if [[ -z $disks ]]; then
-    handleError "No Hard disks not found!"
-fi
+[[ -z $disks ]] && handleError "No Hard disks not found!"
 for disk in $disks; do
     echo " Starting TestDisk on $disk"
-    getPartitions $disk
+    getPartitions "$disk"
     for part in $parts; do
         dots " * Scanning $part"
-        testdisk $part >/dev/null 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            echo "Failed"
-            debugPause
-            continue
-        fi
-        echo "Done"
-        debugPause
+        testdisk "$part" >/dev/null 2>&1
+        case $? in
+            0)
+                echo "Done"
+                debugPause
+                ;;
+            *)
+                echo "Failed"
+                debugPause
+                continue
+                ;;
+        esac
     done
 done
 . /bin/fog.nonimgcomplete
