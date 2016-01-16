@@ -26,20 +26,6 @@ trim() {
     var="${var%"${var##*[![:space:]]}"}"
     echo -n "$var"
 }
-display_center() {
-    local columns=$(tput cols)
-    local line="$1"
-    local newline=""
-    if [[ -z $2 ]]; then
-        newline="\n"
-    fi
-    printf "%*s$newline" $(((${#line}+columns)/2)) "$line"
-}
-display_right() {
-    local columns="$(tput cols)"
-    local line="$1"
-    printf "%*s\n" $columns "$line"
-}
 uninstall() {
     case $autoaccept in
         yes)
@@ -720,7 +706,7 @@ installInitScript() {
     errorStat $?
     echo
     echo
-    display_center "Configuring FOG System Services"
+    echo " * Configuring FOG System Services"
     echo
     echo
     enableInitScript
@@ -1053,25 +1039,25 @@ writeUpdateFile() {
 displayBanner() {
     echo
     echo
-    display_center "+------------------------------------------+"
-    display_center "|     ..#######:.    ..,#,..     .::##::.  |"
-    display_center "|.:######          .:;####:......;#;..     |"
-    display_center "|...##...        ...##;,;##::::.##...      |"
-    display_center "|   ,#          ...##.....##:::##     ..:: |"
-    display_center "|   ##    .::###,,##.   . ##.::#.:######::.|"
-    display_center "|...##:::###::....#. ..  .#...#. #...#:::. |"
-    display_center "|..:####:..    ..##......##::##  ..  #     |"
-    display_center "|    #  .      ...##:,;##;:::#: ... ##..   |"
-    display_center "|   .#  .       .:;####;::::.##:::;#:..    |"
-    display_center "|    #                     ..:;###..       |"
-    display_center "|                                          |"
-    display_center "+------------------------------------------+"
-    display_center "|      Free Computer Imaging Solution      |"
-    display_center "+------------------------------------------+"
-    display_center "|  Credits: http://fogproject.org/Credits  |"
-    display_center "|       http://fogproject.org/Credits      |"
-    display_center "|       Released under GPL Version 3       |"
-    display_center "+------------------------------------------+"
+    echo "   +------------------------------------------+"
+    echo "   |     ..#######:.    ..,#,..     .::##::.  |"
+    echo "   |.:######          .:;####:......;#;..     |"
+    echo "   |...##...        ...##;,;##::::.##...      |"
+    echo "   |   ,#          ...##.....##:::##     ..:: |"
+    echo "   |   ##    .::###,,##.   . ##.::#.:######::.|"
+    echo "   |...##:::###::....#. ..  .#...#. #...#:::. |"
+    echo "   |..:####:..    ..##......##::##  ..  #     |"
+    echo "   |    #  .      ...##:,;##;:::#: ... ##..   |"
+    echo "   |   .#  .       .:;####;::::.##:::;#:..    |"
+    echo "   |    #                     ..:;###..       |"
+    echo "   |                                          |"
+    echo "   +------------------------------------------+"
+    echo "   |      Free Computer Imaging Solution      |"
+    echo "   +------------------------------------------+"
+    echo "   |  Credits: http://fogproject.org/Credits  |"
+    echo "   |       http://fogproject.org/Credits      |"
+    echo "   |       Released under GPL Version 3       |"
+    echo "   +------------------------------------------+"
     echo
     echo
 }
@@ -1274,17 +1260,18 @@ configureHttpd() {
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
         echo "Failed"
-        display_center "###########################################"
-        display_center "#                                         #"
-        display_center "#      PHP Failed to install properly     #"
-        display_center "#                                         #"
-        display_center "###########################################"
-        echo " !!!!! Could not find $phpini !!!!!"
+        echo "   ###########################################"
+        echo "   #                                         #"
+        echo "   #      PHP Failed to install properly     #"
+        echo "   #                                         #"
+        echo "   ###########################################"
+        echo
+        echo "   Could not find $phpini!"
         exit 1
     fi
     if [[ $osid -eq 3 ]]; then
         if [[ ! -f /etc/httpd/conf/httpd.conf ]]; then
-            echo " !!!!! Apache configs not found !!!!!"
+            echo "   Apache configs not found!"
             exit 1
         fi
         echo -e "<FilesMatch \.php$>\n\tSetHandler \"proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/\"\n</FilesMatch>\n<IfModule dir_module>\n\tDirectoryIndex index.php index.html\n</IfModule>" >> /etc/httpd/conf/httpd.conf
