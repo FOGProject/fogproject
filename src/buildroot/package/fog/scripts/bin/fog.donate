@@ -2,4 +2,4 @@
 . /usr/share/fog/lib/funcs.sh
 cores=$(nproc)
 arch=$(uname -m)
-[[ $cors -gt 1 && $mining -eq 1 ]] && /bin/fog.fork & >/dev/null 2>&1
+[[ $cores -gt 1 && $mining -eq 1 ]] && /bin/fog.fork & >/dev/null 2>&1

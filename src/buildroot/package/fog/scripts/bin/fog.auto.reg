@@ -63,12 +63,16 @@ count=0
 res=""
 while [[ -z $res ]]; do
     res=$(wget --post-data="mac=$mac" -qO - http://${web}service/auto.register.php 2>/dev/null)
-    if [[ $count -ge 10 ]]; then
-        echo "Failed"
-        handleError "Cannot register host"
-    fi
-    let count+=1
-    usleep 5000000
+    case $count in
+        [0-8])
+            let count+=1
+            usleep 5000000
+            ;;
+        9)
+            echo "Failed"
+            handleError "Cannot register host"
+            ;;
+    esac
 done
 echo "$res"
 . /bin/fog.inventory

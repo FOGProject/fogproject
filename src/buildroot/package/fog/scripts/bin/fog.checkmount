@@ -1,17 +1,20 @@
 #!/bin/bash
 dots "Checking Mounted File System"
 if [[ ! -f /images/.mntcheck ]]; then
-    $blame != '##'
     count=0
     while [[ $blame != '##' ]]; do
         blame=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/blame.php 2>/dev/null)
-        if [[ $count -ge 10 ]]; then
-            echo "Failed"
-            debugPause
-            handleError "Error during failure notification: $blame"
-        fi
-        let count+=1
-        usleep 5000000
+        case $count in
+            [0-8])
+                let count+=1
+                usleep 5000000
+                ;;
+            9)
+                echo "Failed"
+                debugPause
+                handleError "Error during failure notification: $blame"
+                ;;
+        esac
     done
     echo "Failed"
     debugPause
