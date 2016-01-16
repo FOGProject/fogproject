@@ -30,7 +30,7 @@ case $linuxReleaseName in
         ;;
     *)
         packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process"
-        command -v dnf >>./error_logs/fog_error_${version}.log 2>&1
+        command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ $? -eq 0 ]]; then
             packageinstaller="dnf -y --enablerepo=remi install"
             packagelist="dnf list --enablerepo=remi"
@@ -55,13 +55,13 @@ if [[ $systemctl == yes ]]; then
     initdpath="/usr/lib/systemd/system"
     initdsrc="../packages/systemd"
     if [[ -e /usr/lib/systemd/system/mariadb.service ]]; then
-        ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysql.service >>./error_logs/fog_error_${version}.log 2>&1
-        ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysqld.service >>./error_logs/fog_error_${version}.log 2>&1
-        ln -s /usr/lib/systemd/system/mariadb.service /etc/systemd/system/mysql.service >>./error_logs/fog_error_${version}.log 2>&1
-        ln -s /usr/lib/systemd/system/mariadb.service /etc/systemd/system/mysqld.service >>./error_logs/fog_error_${version}.log 2>&1
+        ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        ln -s /usr/lib/systemd/system/mariadb.service /etc/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        ln -s /usr/lib/systemd/system/mariadb.service /etc/systemd/system/mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     elif [[ -e /usr/lib/systemd/system/mysqld.service ]]; then
-        ln -s /usr/lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysql.service >>./error_logs/fog_error_${version}.log 2>&1
-        ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service >>./error_logs/fog_error_${version}.log 2>&1
+        ln -s /usr/lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     initdMCfullname="FOGMulticastManager.service"
     initdIRfullname="FOGImageReplicator.service"

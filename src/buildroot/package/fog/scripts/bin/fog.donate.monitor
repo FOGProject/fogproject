@@ -7,7 +7,7 @@ done
 reset
 clear
 echo
-echo $res
+echo "$res"
 echo
 usleep 10000000
-$afterActionTerm
+[[ $shutdown -eq 1 ]] && poweroff || reboot -f

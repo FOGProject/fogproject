@@ -23,12 +23,8 @@ mbrfile=""
 macWinSafe=$(echo $mac|sed 's/://g')
 sockets=$(grep "physical id" /proc/cpuinfo|sort -u|wc -l)
 arch=$(uname -m)
-if [[ $chkdsk  -eq 1 ]]; then
-    RUN_CHKDSK="-x"
-fi
-if [[ $hostearly -eq 1 ]]; then
-    HOSTNAME_EARLY=1
-fi
+[[ $chkdsk -eq 1 ]] && RUN_CHKDSK="-x"
+[[ $hostearly -eq 1 ]] && HOSTNAME_EARLY=1
 case $mc in
     yes)
         method="UDPCAST"
@@ -45,18 +41,18 @@ echo
 verifyNetworkConnection
 dots "Checking Operating System"
 determineOS "$osid"
-echo $osname
+echo "$osname"
 dots "Checking CPU Cores"
 cores=$(nproc)
-echo $cores
+echo "$cores"
 echo
 dots "Send method"
-echo $method
+echo "$method"
 blGo=0
 nfsServerName=""
 checkin() {
-    local poststring=$1
-    local php_post=$2
+    local poststring="$1"
+    local php_post="$2"
     dots "Attempting to check in"
     local count=0
     local res=""
@@ -81,14 +77,10 @@ checkin() {
         tmpStorageIp=$(echo $queueinfo|cut -d'@' -f2 2>/dev/null)
         tmpStorage=$(echo $queueinfo|cut -d'@' -f3 2>/dev/null)
         tmpName=$(echo $queueinfo|cut -d'@' -f4 2>/dev/null)
-        if [[ -z $tmpStorage && -z $tmpStorageIp ]]; then
-            storage=$tmpStorage
-            storageip=$tmpStorageIp
-            nfsServerName=$tmpName
-        else
-            handleError "Error determining storage server!"
-            exit 1
-        fi
+        [[ -z $tmpStorage || -z $tmpStorageIp ]] && handleError "Error determining storage server!"
+        storage="$tmpStorage"
+        storageip="$tmpStorageIp"
+        nfsServerName="$tmpName"
         dots "Using Storage Node"
         echo "$nfsServerName"
         debugPause
@@ -110,6 +102,4 @@ case $mode in
         poststring="mac=$mac&type=$type"
         ;;
 esac
-if [[ ! $capone -eq 1 ]]; then
-    checkin $poststring $php_post
-fi
+[[ ! $capone -eq 1 ]] && checkin "$poststring" "$php_post"

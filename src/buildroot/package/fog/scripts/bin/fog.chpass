@@ -6,9 +6,7 @@ displayBanner
 hd=""
 echo
 dots "Creating chntpw partition"
-if [[ ! -d /chntpw ]]; then
-    mkdir /chntpw
-fi
+[[ ! -d /chntpw ]] && mkdir -p /chntpw >/dev/null 2>&1
 if [[ ! -d /chntpw ]]; then
     echo "Failed"
     debugPause
@@ -27,13 +25,13 @@ echo "$hd"
 debugPause
 sam=""
 getSAMLoc
-getPartitions $hd
+getPartitions "$hd"
 for part in $parts; do
     fstype=$(fsTypeSetting $part)
     case $fstype in
         [Nn][Tt][Ff][Ss])
             echo " * Mounting partition $part"
-            ntfs-3g -o force,rw $part /chntpw
+            ntfs-3g -o force,rw "$part" /chntpw >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo " * Failed to mount $part"
                 debugPause
@@ -46,7 +44,7 @@ for part in $parts; do
                 continue
             fi
             dots "Removing password"
-            chntpw $sam
+            chntpw "$sam"
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
                 debugPause
@@ -58,7 +56,7 @@ for part in $parts; do
             ;;
         *)
             dots "Not working with partition"
-            echo $part
+            echo "$part"
             debugPause
             continue
             ;;

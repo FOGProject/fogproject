@@ -31,7 +31,7 @@ for disk in $disks; do
     dots " * Disk Surface test for $disk"
     echo
     usleep 2000000
-    badblocks -sv $disk
+    badblocks -sv "$disk"
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
