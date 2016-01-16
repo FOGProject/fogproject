@@ -4,7 +4,7 @@ umount /images >/dev/null 2>&1
 umount /bcdstore >/dev/null 2>&1
 dots "Mounting File System"
 if [[ ! -d /images ]]; then
-    mkdir -p /images $debugstring >/dev/null 2>&1
+    mkdir -p /images "$debugstring" >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
@@ -15,7 +15,7 @@ else
 fi
 case $type in
     up)
-        mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images 2>/tmp/mntfail
+        mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime "$storage" /images 2>/tmp/mntfail
         ;;
     down)
         mount -o nolock,proto=tcp,rsize=32768,intr,noatime "$storage" /images 2>/tmp/mntfail

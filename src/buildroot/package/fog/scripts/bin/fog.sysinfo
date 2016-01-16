@@ -2,138 +2,146 @@
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
 for arg in $(cat /proc/cmdline); do
-    case "$arg" in
+    case $arg in
         initsh)
             ash -i
-            ;;
-        *)
             ;;
     esac
 done
 clearScreen
 displayBanner
 mac=$(getMACAddresses)
-echo -e "\n\n   System MAC Address(es): $mac\n"
-blreboot="0"
-while [[ $blreboot == 0 ]]; do
-    echo "    1) Reboot"
-    echo "    2) Network Information"
-    echo "    3) Partition Information"
-    echo "    4) Check FOG Compatibility"
-    echo "    5) Ping a Host"
-    echo "    6) Display MAC Address"
-    echo "    7) Show DMI Information"
-    echo
-    echo -n "    Please enter your choice: "
-    read choice
-    case "$choice" in
-        1)
-            blreboot=1
-            break
-            ;;
-        2)
-            clearScreen
-            echo -e "\n   ======================="
-            echo -e   "   = Network Information ="
-            echo -e   "   =======================\n"
-            echo -e   "   ip addr"
-            echo -e   "   ======="
-            ip addr
-            echo -e "\n   /etc/resolv.conf"
-            echo -e   "   ================"
-            cat /etc/resolv.conf
-            echo -e "\n   Press enter to continue."
-            read tmp
-            ;;
-        3)
-            clearScreen
-            echo -e "\n   ========================="
-            echo -e   "   = Partition Information ="
-            echo -e   "   =========================\n"
-            parted --list 2>/dev/null
-            echo -e "\n   Press enter to continue."
-            read tmp
-            ;;
-        4)
-            clearScreen
-            echo -e "\n   =========================="
-            echo -e   "   = FOG Compatibility Test ="
-            echo -e   "   ==========================\n"
-            blDiskOk="Fail"
-            blNicOk="Fail"
-            tmpDisk=$(parted --list | grep "Disk")
-            if [[ -n $tmpDisk ]]; then
-                blDiskOk="Pass"
-            fi
-            tmpNic=$(ip addr | grep "link/ether")
-            if [[ -n $tmpNic ]]; then
-                blNicOk="Pass"
-            fi
-            if [[ $blNicOk == Pass && $blDiskOk == Pass ]]; then
-                echo -e "\n\n   This computer appears to be compatible with FOG!\n"
-            else
-                echo -e "\n\n   This computer is NOT compatible with FOG!\n"
-            fi
-            echo -e "   Results"
-            echo -e "   =======\n"
-            echo -e "      Network........................[ $blNicOk ]"
-            echo -e "      Disk...........................[ $blDiskOk ]\n"
-            if [[ $blNicOk == Fail || $blDiskOk == Fail ]]; then
-                echo -e "   Try using a newer kernel that may be compatible"
-                echo -e "   with this device.\n"
-                echo -e "   New kernels can be downloaded with the \"Kernel Updater\""
-                echo -e "   in the FOG management interface.\n"
-            fi
-            echo -e "\n\n   Press enter to continue."
-            read tmp
-            ;;
-        5)
-            clearScreen
-            echo -e "\n   ==============="
-            echo -e   "   = Ping a Host ="
-            echo -e   "   ===============\n"
-            while [[ -z $phost ]]; do
-                echo -n "   Enter a host to ping: [ $dns ] "
-                read phost
-                if [[ -z $phost && -n $dns ]]; then
-                    phost=$dns
+oPS3=$PS3
+PS3="Please enter your choice: "
+choices="Network Information\nPartition Information\nCheck FOG Compatibility\nPing a Host\nDisplay MAC Address\nShow DMI Information"
+[[ -n $isdebug || $mode == +(*debug*) ]] && choices="Quit\n$choices" || choices="Reboot\n$choices"
+oIFS=$IFS
+IFS=$'\n'
+choices=$(echo -e $choices)
+wait_enter() {
+    echo -e "\n\n\n"
+    display_center "Press [Enter] to continue"
+    read -s tmp
+    echo -e "\n\n\n"
+}
+while :; do
+    echo -e "\n\n\n"
+    select choice in $choices; do
+        case $REPLY in
+            1)
+                [[ -n $isdebug || $mode == +(*debug*) ]] && exit 0 || reboot -f
+                ;;
+            2)
+                clearScreen
+                display_center "==================================================="
+                display_center "=                Network Information              ="
+                display_center "==================================================="
+                echo
+                ip addr 2>/dev/null
+                echo
+                display_center "==================================================="
+                display_center "=                  DNS Information                ="
+                display_center "==================================================="
+                echo
+                cat /etc/resolv.conf 2>/dev/null
+                wait_enter
+                ;;
+            3)
+                clearScreen
+                display_center "==================================================="
+                display_center "=             Partition Information               ="
+                display_center "==================================================="
+                echo
+                parted --list 2>/dev/null
+                wait_enter
+                ;;
+            4)
+                clearScreen
+                display_center "==================================================="
+                display_center "=              FOG Compatibility Test             ="
+                display_center "==================================================="
+                echo
+                tmpDisk=$(parted --list 2>/dev/null | grep "Disk")
+                tmpNic=$(ip addr | grep "link/ether")
+                [[ -n $tmpDisk ]] && blHddOk="Pass" || blHddOk="Fail"
+                [[ -n $tmpNic ]] && blNicOk="Pass" || blNicOk="Fail"
+                [[ $blNicOk == Pass && $blHddOk == Pass ]] && tmpstr="Computer appears to be compatible with FOG!" || tmpstr="Computer is NOT compatibile with FOG!"
+                display_center "$tmpstr"
+                display_center "==================================================="
+                display_center "=                      Results                    ="
+                display_center "==================================================="
+                display_center "= Network..................................[$blNicOk] ="
+                display_center "= Disk.....................................[$blHddOk] ="
+                display_center "==================================================="
+                echo
+                if [[ $blNicOk == Fail || $blHddOk == Fail ]]; then
+                    display_center "###################################################"
+                    display_center "# Try using a newer kernel that may be compatible #"
+                    display_center "# with this device.                               #"
+                    display_center "#                                                 #"
+                    display_center "# New kernels can be downloaded from the GUI.     #"
+                    display_center "# From the menu select:                           #"
+                    display_center "# FOG Configuration->                             #"
+                    display_center "#     Kernel Update                               #"
+                    display_center "###################################################"
                 fi
-            done
-            echo
-            ping -c 4 $phost
-            unset phost
-            echo -e "\n   Press enter to continue."
-            read tmp
-            ;;
-        6)
-            clearScreen
-            echo -e "\n   ==================="
-            echo -e   "   = MAC Address(es) ="
-            echo -e   "   ===================\n"
-            echo -e "   ${mac}\n"
-            echo "   Press enter to continue."
-            read tmp
-            ;;
-        7)
-            clearScreen
-            test="bios-vendor bios-version bios-release-date system-manufacturer system-product-name system-version system-serial-number system-uuid baseboard-manufacturer baseboard-product-name baseboard-version baseboard-serial-number baseboard-asset-tag chassis-manufacturer chassis-type chassis-version chassis-serial-number chassis-asset-tag processor-family processor-manufacturer processor-version processor-frequency"
-            i=0
-            for t in $test; do
-                str="DMI String: $t\n"
-                v=$(dmidecode --string $t)
-                echo -e "$str   $v\n\n"
-                let i+=1
-                if [[ $i == 5 ]]; then
-                    echo -n "Press Enter to Proceed..."
-                    read tmp
-                    i=0
-                fi
-            done
-            echo -e "\n   Press enter to continue."
-            read tmp
-            ;;
-        *)
-            blreboot=1
-            ;;
-    esac
+                wait_enter
+                ;;
+            5)
+                clearScreen
+                display_center "==================================================="
+                display_center "=                   Ping a Host                   ="
+                display_center "==================================================="
+                regex='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
+                while [[ -z $phost ]]; do
+                    echo -n " Enter host to ping: "
+                    read phost
+                    phost=$(echo $phost)
+                    if [[ -z $phost || $phost =~ $regex ]]; then
+                        phost=""
+                        echo "Invalid Entry, try again"
+                    fi
+                done
+                echo
+                ping -c 4 $phost
+                unset phost
+                wait_enter
+                ;;
+            6)
+                clearScreen
+                display_center "==================================================="
+                display_center "=               System MAC Address'               ="
+                display_center "==================================================="
+                echo
+                display_center $mac
+                echo
+                wait_enter
+                ;;
+            7)
+                clearScreen
+                test="bios-vendor bios-version bios-release-date system-manufacturer system-product-name system-version system-serial-number system-uuid baseboard-manufacturer baseboard-product-name baseboard-version baseboard-serial-number baseboard-asset-tag chassis-manufacturer chassis-type chassis-version chassis-serial-number chassis-asset-tag processor-family processor-manufacturer processor-version processor-frequency"
+                i=0
+                IFS=$oIFS
+                for t in $test; do
+                    str="DMI String: $t\n"
+                    v=$(dmidecode --string $t)
+                    echo -e "$str   $v\n\n"
+                    let i+=1
+                    if [[ $i == 5 ]]; then
+                        display_center " * Press [Enter] to Proceed"
+                        read tmp
+                        i=0
+                    fi
+                done
+                IFS=$'\n'
+                wait_enter
+                ;;
+            *)
+                echo "Invalid entry, try again"
+                wait_enter
+                ;;
+        esac
+        break
+    done
 done
+IFS=$oIFS

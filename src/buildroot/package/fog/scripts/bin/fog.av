@@ -5,15 +5,13 @@
 clearScreen
 displayBanner
 dots "Mounting Clamav"
-if [[ ! -d /opt/fog/clamav ]]; then
-    mkdir -p /opt/fog/clamav
-fi
-mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $clamav /opt/fog/clamav
+[[ ! -d /opt/fog/clamav ]] && mkdir -p /opt/fog/clamav >/dev/null 2>&1
+mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime "$clamav" /opt/fog/clamav
 echo "Done"
 debugPause
 dots "Adding clamav to path"
 if [[ -d /opt/fog/clamav/bin && -d /opt/fog/clamav/sbin ]]; then
-    export PATH=$PATH:/opt/fog/clamav/bin:/opt/fog/clamav/sbin
+    export PATH="$PATH:/opt/fog/clamav/bin:/opt/fog/clamav/sbin"
 else
     echo "Failed"
     debugPause
@@ -40,9 +38,7 @@ fi
 echo "Done"
 debugPause
 dots "Creating scan partition"
-if [[ ! -d /clamavscan ]]; then
-    mkdir -p /clamavscan
-fi
+[[ ! -d /clamavscan ]] && mkdir -p /clamavscan >/dev/null 2>&1
 if [[ ! -d /clamavscan ]]; then
     echo "Failed"
     debugPause
@@ -65,19 +61,19 @@ case $avmode in
 esac
 for disk in $disks; do
     dots "Using disk"
-    echo $disk
+    echo "$disk"
     debugPause
-    getPartitions $disk
+    getPartitions "$disk"
     for part in $parts; do
         fstype=$(fsTypeSetting $part)
         case $fstype in
             [Nn][Tt][Ff][Ss])
                 echo " * Mounting partition $part"
-                ntfs-3g -o force,rw $part /clamavscan &> /tmp/clamavscan-mount-output
+                ntfs-3g -o force,rw "$part" /clamavscan &> /tmp/clamavscan-mount-output
                 ;;
             [Ee][Xx][Tt][Ff][Ss])
                 echo " * Mounting partition $part"
-                mount -o rw $part /clamavscan &> /tmp/clamavscan-mount-output
+                mount -o rw "$part" /clamavscan &> /tmp/clamavscan-mount-output
                 ;;
             *)
                 dots "Not scanning partition"
@@ -93,7 +89,7 @@ for disk in $disks; do
         fi
         debugPause
         dots "Creating working directories"
-        mkdir -p /clamavscan/fog/{tmp,infected,log}
+        mkdir -p /clamavscan/fog/{tmp,infected,log} >/dev/null 2>&1
         if [[ ! $? -eq 0 ]]; then
             echo "Failed"
             debugPause
@@ -106,7 +102,7 @@ for disk in $disks; do
         echo " * Scanning Partition $part"
         debugPause
         dots "Clam AV Mode"
-        echo $modename
+        echo "$modename"
         debugPause
         echo
         dots "Starting AV scan"
@@ -123,7 +119,7 @@ for disk in $disks; do
         cd /clamavscan
         dots "Scanning"
         start=$(date +%s)
-        clamscan -r --tempdir=/clamavscan/fog/tmp $action --log=/clamavscan/fog/log/log.txt --no-summary --exclude-dir=/clamavscan/fog/*
+        clamscan -r --tempdir=/clamavscan/fog/tmp "$action" --log=/clamavscan/fog/log/log.txt --no-summary --exclude-dir=/clamavscan/fog/*
         if [[ ! $? -eq 0 ]]; then
             echo "Failed"
             debugPause

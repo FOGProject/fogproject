@@ -7,7 +7,7 @@ class SnapinReplicator extends FOGService {
         parent::__construct();
         $this->log = sprintf('%s%s',$this->logpath,$this->getSetting('SNAPINREPLICATORLOGFILENAME'));
         $this->dev = $this->getSetting('SNAPINREPLICATORDEVICEOUTPUT');
-        $this->zzz = $this->getSetting('SNAPINREPLEEPTIME');
+        $this->zzz = $this->getSetting('SNAPINREPSLEEPTIME');
     }
     private function commonOutput() {
         try {

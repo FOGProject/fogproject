@@ -43,7 +43,7 @@ restoreSfdiskPartitions() {
 hasExtendedPartition() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    sfdisk -d $disk 2>/dev/null | egrep '(Id|type)=\ *[5f]' | wc -l
+    sfdisk -d "$disk" 2>/dev/null | egrep '(Id|type)=\ *[5f]' | wc -l
     [[ ! $? -eq 0 ]] && majorDebugEcho "sfdisk failed in (${FUNCNAME[0]})"
 }
 # $1 is the name of the partition device (e.g. /dev/sda3)
@@ -53,7 +53,7 @@ partitionHasEBR() {
     local partNum=$(getPartitionNumber $part)
     local disk=$(getDiskFromPartition $part)
     local part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}')
-    [[ $part_type -eq 5 || $part_type == f || $partNum -ge 5 ]] && echo "1" || echo "0"
+    [[ $part_type -eq 5 || $part_type == f || $partNum -ge 5 ]] && echo 1 || echo 0
 }
 # $1 is the name of the partition device (e.g. /dev/sda3)
 # $2 is the name of the file to save to (e.g. /net/dev/foo/d1p4.ebr)
