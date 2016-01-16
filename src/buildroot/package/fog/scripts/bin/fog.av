@@ -6,7 +6,7 @@ clearScreen
 displayBanner
 dots "Mounting Clamav"
 [[ ! -d /opt/fog/clamav ]] && mkdir -p /opt/fog/clamav >/dev/null 2>&1
-mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime "$clamav" /opt/fog/clamav
+mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $clamav /opt/fog/clamav
 echo "Done"
 debugPause
 dots "Adding clamav to path"
@@ -21,11 +21,17 @@ echo "Done"
 debugPause
 dots "Updating clamav"
 freshclam >/dev/null 2>&1
-if [[ $? != 0 ]]; then
-    echo "Failed"
-    debugPause
-    handleError "Unable to update clamav definitions"
-fi
+case $? in
+    0)
+        echo "Done"
+        ;;
+    *)
+        echo "Failed"
+        debugPause
+        handleError "Unable to update clamav definitions"
+        ;;
+esac
+debugPause
 echo "Done"
 debugPause
 dots "Getting disks to scan"
@@ -69,11 +75,11 @@ for disk in $disks; do
         case $fstype in
             [Nn][Tt][Ff][Ss])
                 echo " * Mounting partition $part"
-                ntfs-3g -o force,rw "$part" /clamavscan &> /tmp/clamavscan-mount-output
+                ntfs-3g -o force,rw $part /clamavscan &> /tmp/clamavscan-mount-output
                 ;;
             [Ee][Xx][Tt][Ff][Ss])
                 echo " * Mounting partition $part"
-                mount -o rw "$part" /clamavscan &> /tmp/clamavscan-mount-output
+                mount -o rw $part /clamavscan &> /tmp/clamavscan-mount-output
                 ;;
             *)
                 dots "Not scanning partition"
@@ -82,23 +88,31 @@ for disk in $disks; do
                 continue
                 ;;
         esac
-        if [[ ! $? -eq 0 ]]; then
-            echo " * Failed to mount $part"
-            debugPause
-            continue
-        fi
+        case $? in
+            0)
+                ;;
+            *)
+                echo " * Failed to mount $part"
+                debugPause
+                continue
+                ;;
+        esac
         debugPause
         dots "Creating working directories"
         mkdir -p /clamavscan/fog/{tmp,infected,log} >/dev/null 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            echo "Failed"
-            debugPause
-            umount /clamavscan >/dev/null 2>&1
-            continue
-        fi
-        echo -n > /clamavscan/fog/log/log.txt
-        echo "Done"
+        case $? in
+            0)
+                echo "Done"
+                ;;
+            *)
+                echo "Failed"
+                debugPause
+                umount /clamavscan >/dev/null 2>&1
+                continue
+                ;;
+        esac
         debugPause
+        echo -n > /clamavscan/fog/log/log.txt
         echo " * Scanning Partition $part"
         debugPause
         dots "Clam AV Mode"
@@ -108,33 +122,41 @@ for disk in $disks; do
         dots "Starting AV scan"
         echo -e -n "\t"
         clamscan -V >/dev/null 2&>1
-        if [[ ! $? -eq 0 ]]; then
-            echo "Failed"
-            debugPause
-            umount /clamavscan >/dev/null 2>&1
-            continue
-        fi
-        echo "Done"
+        case $? in
+            0)
+                echo "Done"
+                ;;
+            *)
+                echo "Failed"
+                debugPause
+                umount /clamavscan >/dev/null 2>&1
+                continue
+                ;;
+        esac
         debugPause
         cd /clamavscan
         dots "Scanning"
         start=$(date +%s)
-        clamscan -r --tempdir=/clamavscan/fog/tmp "$action" --log=/clamavscan/fog/log/log.txt --no-summary --exclude-dir=/clamavscan/fog/*
-        if [[ ! $? -eq 0 ]]; then
-            echo "Failed"
-            debugPause
-            umount /clamavscan
-            cur=$(date +%s)
-            diff=$((cur - start))
-            echo
-            display_center "Clam AV failed"
-            display_center "This may be due to a problem with the virus database files"
-            display_center "Trying with the next partition"
-            debugPause
-            continue
-        fi
-        echo
-        echo " * Scan complete, processing log file"
+        clamscan -r --tempdir=/clamavscan/fog/tmp $action --log=/clamavscan/fog/log/log.txt --no-summary --exclude-dir=/clamavscan/fog/*
+        case $? in
+            0)
+                echo
+                echo " * Scan complete, processing log file"
+                ;;
+            *)
+                echo "Failed"
+                debugPause
+                umount /clamavscan
+                cur=$(date +%s)
+                diff=$((cur - start))
+                echo
+                display_center "Clam AV failed"
+                display_center "This may be due to a problem with the virus database files"
+                display_center "Trying with the next partition"
+                debugPause
+                continue
+                ;;
+        esac
         debugPause
         output=$(cat /clamavscan/fog/log/log.txt | grep 'FOUND')
         oIFS=$IFS
@@ -146,12 +168,16 @@ for disk in $disks; do
             echo " * File id: $cnt"
             dots "Sending file id"
             wget --post-data="mac=$mac&string=$b64&mode=$avmode" -qO - http://${web}service/av.php 2>/dev/null
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-                continue
-            fi
-            echo "Done"
+            case $? in
+                0)
+                    echo "Done"
+                    ;;
+                *)
+                    echo "Failed"
+                    debugPause
+                    continue
+                    ;;
+            esac
             debugPause
             cat /tmp/avstat
             echo

@@ -41,12 +41,16 @@ enableWriteCache()  {
         return
     fi
     hdparm -W1 "$disk" >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Could not set caching status (${FUNCNAME[0]})"
-    fi
-    echo "Enabled"
+    case $? in
+        0)
+            echo "Enabled"
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Could not set caching status (${FUNCNAME[0]})"
+            ;;
+    esac
     debugPause
 }
 # $1 is the partition
@@ -69,37 +73,52 @@ expandPartition() {
         ntfs)
             dots "Resizing $fstype volume ($part)"
             ntfsresize "$part" -f -b -P </usr/share/fog/lib/EOFNTFSRESTORE >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "Could not resize $part (${FUNCNAME[0]})"
-            fi
-            echo "Done"
+            case $? in
+                0)
+                    echo "Done"
+                    ;;
+                *)
+                    echo "Failed"
+                    debugPause
+                    handleError "Could not resize $part (${FUNCNAME[0]})"
+                    ;;
+            esac
             debugPause
             resetFlag "$part"
             ;;
         extfs)
             dots "Resizing $fstype volume ($part)"
             e2fsck -fp "$part" >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "Could not check before resize (${FUNCNAME[0]})"
-            fi
+            case $? in
+                0)
+                    ;;
+                *)
+                    echo "Failed"
+                    debugPause
+                    handleError "Could not check before resize (${FUNCNAME[0]})"
+                    ;;
+            esac
             resize2fs "$part" >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "Could not resize $part (${FUNCNAME[0]})"
-            fi
+            case $? in
+                0)
+                    ;;
+                *)
+                    echo "Failed"
+                    debugPause
+                    handleError "Could not resize $part (${FUNCNAME[0]})"
+                    ;;
+            esac
             e2fsck -fp "$part" >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "Could not check after resize (${FUNCNAME[0]})"
-            fi
-            echo "Done"
-            debugPause
+            case $? in
+                0)
+                    echo "Done"
+                    ;;
+                *)
+                    echo "Failed"
+                    debugPause
+                    handleError "Could not check after resize (${FUNCNAME[0]})"
+                    ;;
+            esac
             ;;
         *)
             echo
@@ -108,6 +127,7 @@ expandPartition() {
             debugPause
             ;;
     esac
+    debugPause
     runPartprobe "$hd"
 }
 # $1 is the partition
@@ -143,13 +163,13 @@ fsTypeSetting() {
 getPartType() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    blkid -po udev "$part" | awk -F= /PART_ENTRY_TYPE/'{print $2}'
+    blkid -po udev $part | awk -F= /PART_ENTRY_TYPE/'{print $2}'
 }
 # $1 is the partition
 getPartitionEntryScheme() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    blkid -po udev "$part" | awk -F= /PART_ENTRY_SCHEME/'{print $2}'
+    blkid -po udev $part | awk -F= /PART_ENTRY_SCHEME/'{print $2}'
 }
 # $1 is the partition
 partitionIsDosExtended() {
@@ -193,32 +213,44 @@ validResizeOS() {
 prepareUploadLocation() {
     dots "Preparing backup location"
     if [[ ! -d $imagePath ]]; then
-        mkdir -p "$imagePath" >/dev/null 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            echo "Failed"
-            debugPause
-            handleError "Failed to create image upload path (${FUNCNAME[0]})"
-        fi
+        mkdir -p $imagePath >/dev/null 2>&1
+        case $? in
+            0)
+                ;;
+            *)
+                echo "Failed"
+                debugPause
+                handleError "Failed to create image upload path (${FUNCNAME[0]})"
+                ;;
+        esac
     fi
     echo "Done"
     debugPause
     dots "Setting permission on $imagePath"
-    chmod -R 777 "$imagePath" >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Failed to set permissions (${FUNCNAME[0]})"
-    fi
-    echo "Done"
-    debugPause
+    chmod -R 777 $imagePath >/dev/null 2>&1
+    case $? in
+        0)
+            echo "Done"
+            debugPause
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Failed to set permissions (${FUNCNAME[0]})"
+            ;;
+    esac
     dots "Removing any pre-existing files"
-    rm -Rf "$imagePath/*" >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Could not clean files (${FUNCNAME[0]})"
-    fi
-    echo "Done"
+    rm -Rf $imagePath/* >/dev/null 2>&1
+    case $? in
+        0)
+            echo "Done"
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Could not clean files (${FUNCNAME[0]})"
+            ;;
+    esac
     debugPause
 }
 # $1 is the partition
@@ -250,7 +282,7 @@ shrinkPartition() {
     local extminsizenum=""
     local block_size=""
     fstype=$(fsTypeSetting $part)
-    echo "$part $fstype" >> "$fstypefile"
+    echo "$part $fstype" >> $fstypefile
     if [[ -n $fixed_size_partitions ]]; then
         partNum=$(getPartitionNumber $part)
         is_fixed=$(echo $fixed_size_partitions | egrep ":$partNum:|^$partNum:|:$partNum$" | wc -l)
@@ -301,13 +333,17 @@ shrinkPartition() {
             debugPause
             if [[ $do_resizefs -eq 1 ]]; then
                 dots "Resizing filesystem"
-                ntfsresize -f -s "${sizentfsresize}k" "$part" < /usr/share/fog/lib/EOFNTFS >/dev/null 2>&1
-                if [[ ! $? -eq 0 ]]; then
-                    echo "Failed"
-                    debugPause
-                    handleError "Could not resize disk (${FUNCNAME[0]})"
-                fi
-                echo "Done"
+                ntfsresize -f -s ${sizentfsresize}k $part < /usr/share/fog/lib/EOFNTFS >/dev/null 2>&1
+                case $? in
+                    0)
+                        echo "Done"
+                        ;;
+                    *)
+                        echo "Failed"
+                        debugPause
+                        handleError "Could not resize disk (${FUNCNAME[0]})"
+                        ;;
+                esac
                 debugPause
                 resetFlag "$part"
             fi
@@ -346,13 +382,17 @@ shrinkPartition() {
             ;;
         extfs)
             dots "Checking $fstype volume ($part)"
-            e2fsck -fp "$part" >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "e2fsck failed to check $part (${FUNCNAME[0]})"
-            fi
-            echo "Done"
+            e2fsck -fp $part >/dev/null 2>&1
+            case $? in
+                0)
+                    echo "Done"
+                    ;;
+                *)
+                    echo "Failed"
+                    debugPause
+                    handleError "e2fsck failed to check $part (${FUNCNAME[0]})"
+                    ;;
+            esac
             debugPause
             extminsizenum=$(resize2fs -P $part 2>/dev/null | awk -F': ' '{print $2}')
             block_size=$(dumpe2fs -h $part 2>/dev/null | awk /^Block\ size:/'{print $3}')
@@ -361,41 +401,52 @@ shrinkPartition() {
             [[ -z $sizeextresize || $sizeextresize -lt 1 ]] && handleError "Error calculating the new size of extfs ($part) (${FUNCNAME[0]})"
             echo
             dots "Shrinking $fstype volume ($part)"
-            resize2fs "$part" -M >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "Could not shrink $fstype volume ($part) (${FUNCNAME[0]})"
-            fi
-            echo "Done"
+            resize2fs $part -M >/dev/null 2>&1
+            case $? in
+                0)
+                    echo "Done"
+                    ;;
+                *)
+                    echo "Failed"
+                    debugPause
+                    handleError "Could not shrink $fstype volume ($part) (${FUNCNAME[0]})"
+                    ;;
+            esac
             debugPause
             dots "Shrinking $part partition"
             resizePartition "$part" "$sizeextresize" "$imagePath"
             echo "Done"
             debugPause
             dots "Resizing $fstype volume ($part)"
-            resize2fs "$part" >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "Could resize $fstype volume ($part) (${FUNCNAME[0]})"
-            fi
-            e2fsck -fp "$part" >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "Could not check expanded volume ($part) (${FUNCNAME[0]})"
-            fi
-            echo "Done"
-            debugPause
+            resize2fs $part >/dev/null 2>&1
+            case $? in
+                0)
+                    ;;
+                *)
+                    echo "Failed"
+                    debugPause
+                    handleError "Could resize $fstype volume ($part) (${FUNCNAME[0]})"
+                    ;;
+            esac
+            e2fsck -fp $part >/dev/null 2>&1
+            case $? in
+                0)
+                    echo "Done"
+                    ;;
+                *)
+                    echo "Failed"
+                    debugPause
+                    handleError "Could not check expanded volume ($part) (${FUNCNAME[0]})"
+                    ;;
+            esac
             ;;
         *)
             echo
             echo " * Not shrinking ($part $fstype)"
             echo
-            debugPause
             ;;
     esac
+    debugPause
 }
 # $1 is the part
 resetFlag() {
@@ -405,16 +456,20 @@ resetFlag() {
     case $fstype in
         ntfs)
             dots "Clearing ntfs flag"
-            ntfsfix -b -d "$part" >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-                handleError "Failed to clear ntfs flag (${FUNCNAME[0]})"
-            fi
-            echo "Done"
-            debugPause
+            ntfsfix -b -d $part >/dev/null 2>&1
+            case $? in
+                0)
+                    echo "Done"
+                    ;;
+                *)
+                    echo "Failed"
+                    debugPause
+                    handleError "Failed to clear ntfs flag (${FUNCNAME[0]})"
+                    ;;
+            esac
             ;;
     esac
+    debugPause
 }
 # $1 is the disk
 # $2 is the part type to look for
@@ -457,19 +512,19 @@ writeImage()  {
     mkfifo /tmp/pigz1
     case $mc in
         yes)
-            udp-receiver --nokbd --portbase "$port" --ttl 32 --mcast-rdv-address "$storageip" 2>/dev/null >/tmp/pigz1 &
+            udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null >/tmp/pigz1 &
             ;;
         *)
             [[ -z $file ]] && handleError "No source file passed (${FUNCNAME[0]})"
-            cat "$file" >/tmp/pigz1 &
+            cat $file >/tmp/pigz1 &
             ;;
     esac
     if [[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]]; then
         echo " * Imaging using Partimage"
-        pigz -d -c </tmp/pigz1 | partimage restore "$target" stdin -f3 -b 2>/tmp/status.fog
+        pigz -d -c </tmp/pigz1 | partimage restore $target stdin -f3 -b 2>/tmp/status.fog
     else
         echo " * Imaging using Partclone"
-        pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O "$target" -N -f 1 2>/tmp/status.fog
+        pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O $target -N -f 1 2>/tmp/status.fog
     fi
     [[ ! $? -eq 0 ]] && handleError "Image failed to restore and exited with exit code $? (${FUNCNAME[0]})"
     rm -rf /tmp/pigz1 >/dev/null 2>&1
@@ -490,7 +545,7 @@ getValidRestorePartitions() {
     for part in $parts; do
         partNum=$(getPartitionNumber $part)
         imgpart="$imagePath/d${driveNum}p${partNum}.img*"
-        ls "$imgpart" >/dev/null 2>&1
+        ls $imgpart >/dev/null 2>&1
         [[ $? -eq 0 ]] && valid_parts="$valid_parts $part"
     done
     echo "$valid_parts"
@@ -543,16 +598,20 @@ changeHostname() {
     else
         umount /ntfs >/dev/null 2>&1
     fi
-    ntfs-3g -o force,fw "$part" /ntfs >/tmp/ntfs-mount-output 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        echo
-        echo " * Could not mount $part to /ntfs"
-        echo
-        return
-    fi
-    echo "Done"
+    ntfs-3g -o force,fw $part /ntfs >/tmp/ntfs-mount-output 2>&1
+    case $? in
+        0)
+            echo "Done"
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            echo
+            echo " * Could not mount $part to /ntfs"
+            echo
+            return
+            ;;
+    esac
     debugPause
     if [[ ! -f /usr/share/fog/lib/EOFREG ]]; then
         case $osid in
@@ -595,18 +654,22 @@ changeHostname() {
         echo " * File does not exist"
         return
     fi
-    reged -e "$regfile" </usr/share/fog/lib/EOFREG >/dev/null 2>&1
-    if [[ ! $? -eq 0 && $? -gt 2 ]]; then
-        echo "Failed"
-        debugPause
-        umount /ntfs >/dev/null 2>&1
-        echo " * Failed to change hostname"
-        return
-    fi
-    echo "Done"
-    debugPause
+    reged -e $regfile </usr/share/fog/lib/EOFREG >/dev/null 2>&1
+    case $? in
+        [0-2])
+            echo "Done"
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            umount /ntfs >/dev/null 2>&1
+            echo " * Failed to change hostname"
+            return
+            ;;
+    esac
     rm -rf /usr/share/fog/lib/EOFREG
     umount /ntfs >/dev/null 2>&1
+    debugPause
 }
 fixWin7boot() {
     local part="$1"
@@ -619,24 +682,32 @@ fixWin7boot() {
                     dots "Mounting partition"
                     if [[ ! -d /bcdstore ]]; then
                         mkdir -p /bcdstore >/dev/null 2>&1
-                        if [[ ! $? -eq 0 ]]; then
-                            echo "Failed"
-                            debugPause
-                            echo
-                            echo " * Could not create mount location"
-                            echo
-                            return
-                        fi
-                        ntfs-3g -o force,fw "$part" /bcdstore >/tmp/ntfs-mount-output 2>&1
-                        if [[ ! $? -eq 0 ]]; then
-                            echo "Failed"
-                            debugPause
-                            echo
-                            echo " * Could not mount $part to /bcdstore"
-                            echo
-                            return
-                        fi
-                        echo "Done"
+                        case $? in
+                            0)
+                                ;;
+                            *)
+                                echo "Failed"
+                                debugPause
+                                echo
+                                echo " * Could not create mount location"
+                                echo
+                                return
+                                ;;
+                        esac
+                        ntfs-3g -o force,fw $part /bcdstore >/tmp/ntfs-mount-output 2>&1
+                        case $? in
+                            0)
+                                echo "Done"
+                                ;;
+                            *)
+                                echo "Failed"
+                                debugPause
+                                echo
+                                echo " * Could not mount $part to /bcdstore"
+                                echo
+                                return
+                                ;;
+                        esac
                         debugPause
                     fi
                     dots "Backing up and replacing BCD"
@@ -647,23 +718,30 @@ fixWin7boot() {
                         return
                     fi
                     mv /bcdstore/Boot/BCD{,.bak} >/dev/null 2>&1
-                    if [[ ! $? -eq 0 ]]; then
-                        echo "Failed"
-                        debugPause
-                        umount /bcdstore >/dev/null 2>&1
-                        echo " * Could not create backup"
-                        return
-                    fi
+                    case $? in
+                        0)
+                            ;;
+                        *)
+                            echo "Failed"
+                            debugPause
+                            umount /bcdstore >/dev/null 2>&1
+                            echo " * Could not create backup"
+                            return
+                            ;;
+                    esac
                     cp /usr/share/fog/BCD /bcdstore/Boot/BCD >/dev/null 2>&1
-                    if [[ ! $? -eq 0 ]]; then
-                        echo "Failed"
-                        debugPause
-                        umount /bcdstore >/dev/null 2>&1
-                        echo " * Could not copy our bcd file"
-                        return
-                    fi
-                    echo "Done"
-                    debugPause
+                    case $? in
+                        0)
+                            echo "Done"
+                            ;;
+                        *)
+                            echo "Failed"
+                            debugPause
+                            umount /bcdstore >/dev/null 2>&1
+                            echo " * Could not copy our bcd file"
+                            return
+                            ;;
+                    esac
                     ;;
                 *)
                     echo
@@ -682,15 +760,21 @@ fixWin7boot() {
             return
             ;;
     esac
+    debugPause
 }
 clearMountedDevices() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     if [[ ! -d /ntfs ]]; then
         mkdir -p /ntfs >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Could not create mount point /ntfs (${FUNCNAME[0]})"
-    else
-        umount /ntfs >/dev/null 2>&1
+        case $? in
+            0)
+                umount /ntfs >/dev/null 2>&1
+                ;;
+            *)
+                handleError "Could not create mount point /ntfs (${FUNCNAME[0]})"
+                ;;
+        esac
     fi
     case $osid in
         [5-7]|9)
@@ -705,15 +789,19 @@ clearMountedDevices() {
             dots "Clearing part ($part)"
             case $fstype in
                 ntfs)
-                    ntfs-3g -o force,rw "$part" /ntfs >/dev/null 2>&1
-                    if [[ ! $? -eq 0 ]]; then
-                        echo "Failed"
-                        debugPause
-                        echo
-                        echo " * Failed to mount partition to clear"
-                        echo
-                        return
-                    fi
+                    ntfs-3g -o force,rw $part /ntfs >/dev/null 2>&1
+                    case $? in
+                        0)
+                            ;;
+                        *)
+                            echo "Failed"
+                            debugPause
+                            echo
+                            echo " * Failed to mount partition to clear"
+                            echo
+                            return
+                            ;;
+                    esac
                     if [[ ! -f $REG_LOCAL_MACHINE_7 ]]; then
                         echo "Reg file not found"
                         debugPause
@@ -721,22 +809,24 @@ clearMountedDevices() {
                         return
                     fi
                     reged -e </usr/share/fog/lib/EOFMOUNT >/dev/null 2>&1
-                    if [[ ! $? -eq 0 && $? -gt 2 ]]; then
-                        echo "Failed"
-                        debugPause
-                        /umount /ntfs >/dev/null 2>&1
-                        echo
-                        echo " * Could not clear partition $part"
-                        echo
-                        return
-                    fi
-                    echo "Done"
-                    debugPause
+                    case $? in
+                        [0-2])
+                            echo "Done"
+                            ;;
+                        *)
+                            echo "Failed"
+                            debugPause
+                            /umount /ntfs >/dev/null 2>&1
+                            echo
+                            echo " * Could not clear partition $part"
+                            echo
+                            return
+                            ;;
+                    esac
                     umount /ntfs >/dev/null 2>&1
                     ;;
                 *)
                     echo "Not NTFS partition"
-                    debugPause
                     ;;
             esac
             ;;
@@ -744,9 +834,9 @@ clearMountedDevices() {
             echo
             echo " * Not proper OS type"
             echo
-            debugPause
             ;;
     esac
+    debugPause
 }
 # $1 is the device name of the windows system partition
 removePageFile() {
@@ -761,27 +851,34 @@ removePageFile() {
                     dots "Mounting partition ($part)"
                     if [[ ! -d /ntfs ]]; then
                         mkdir -p /ntfs >/dev/null 2>&1
-                        if [[ ! $? -eq 0 ]]; then
+                        case $? in
+                            0)
+                                ;;
+                            *)
+                                echo "Failed"
+                                debugPause
+                                echo
+                                echo " * Could not create mount location"
+                                echo
+                                return
+                                ;;
+                        esac
+                    fi
+                    umount /ntfs >/dev/null 2>&1
+                    ntfs-3g -o force,rw $part /ntfs >/dev/null 2>&1
+                    case $? in
+                        0)
+                            echo "Done"
+                            ;;
+                        *)
                             echo "Failed"
                             debugPause
                             echo
-                            echo " * Could not create mount location"
+                            echo " * Could not mount to location"
                             echo
                             return
-                        fi
-                    else
-                        umount /ntfs >/dev/null 2>&1
-                    fi
-                    ntfs-3g -o force,rw "$part" /ntfs >/dev/null 2>&1
-                    if [[ ! $? -eq 0 ]]; then
-                        echo "Failed"
-                        debugPause
-                        echo
-                        echo " * Could not mount to location"
-                        echo
-                        return
-                    fi
-                    echo "Done"
+                            ;;
+                    esac
                     debugPause
                     dots "Removing page file"
                     if [[ ! -f /ntfs/pagefile.sys ]]; then
@@ -789,16 +886,19 @@ removePageFile() {
                         debugPause
                     else
                         rm -rf /ntfs/pagefile.sys >/dev/null 2>&1
-                        if [[ ! $? -eq 0 ]]; then
-                            echo "Failed"
-                            debugPause
-                            echo
-                            echo " * Could not delete the page file"
-                            echo
-                        else
-                            echo "Done"
-                            debugPause
-                        fi
+                        case $? in
+                            0)
+                                echo "Done"
+                                ;;
+                            *)
+                                echo "Failed"
+                                debugPause
+                                echo
+                                echo " * Could not delete the page file"
+                                echo
+                                ;;
+                        esac
+                        debugPause
                     fi
                     dots "Removing hibernate file"
                     if [[ ! -f /ntfs/hiberfil.sys ]]; then
@@ -806,17 +906,19 @@ removePageFile() {
                         debugPause
                     else
                         rm -rf /ntfs/hiberfil.sys >/dev/null 2>&1
-                        if [[ ! $? -eq 0 ]]; then
-                            echo "Failed"
-                            debugPause
-                            umount /ntfs >/dev/null 2>&1
-                            echo
-                            echo " * Could not delete the hibernate file"
-                            echo
-                        else
-                            echo "Done"
-                            debugPause
-                        fi
+                        case $? in
+                            0)
+                                echo "Done"
+                                ;;
+                            *)
+                                echo "Failed"
+                                debugPause
+                                umount /ntfs >/dev/null 2>&1
+                                echo
+                                echo " * Could not delete the hibernate file"
+                                echo
+                                ;;
+                        esac
                     fi
                     umount /ntfs >/dev/null 2>&1
                     ;;
@@ -824,7 +926,6 @@ removePageFile() {
                     echo
                     echo " * Not an NTFS file system"
                     echo
-                    debugPause
                     ;;
             esac
             ;;
@@ -832,9 +933,9 @@ removePageFile() {
             echo
             echo " * Not necessary for this OSID $osid"
             echo
-            debugPause
             ;;
     esac
+    debugPause
 }
 doInventory() {
     sysman=$(dmidecode -s system-manufacturer)
@@ -968,7 +1069,7 @@ getSAMLoc() {
 getPartitionCount() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    lsblk -pno KNAME "$part" | wc -l
+    lsblk -pno KNAME $part | wc -l
 }
 # $1 is the partition to grab the disk from
 getDiskFromPartition() {
@@ -1009,33 +1110,45 @@ initHardDisk() {
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     clearPartitionTables "$disk"
     dots "Creating disk with new label"
-    parted -s "$disk" mklabel msdos >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Failed to set label of $disk (${FUNCNAME[0]})"
-    fi
-    echo "Done"
+    parted -s $disk mklabel msdos >/dev/null 2>&1
+    case $? in
+        0)
+            echo "Done"
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Failed to set label of $disk (${FUNCNAME[0]})"
+            ;;
+    esac
     debugPause
     dots "Initializing $disk with NTFS partition"
-    parted -s "$disk" -a opt mkpart primary ntfs 2048s -- -1s >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Failed to create partition (${FUNCNAME[0]})"
-    fi
-    echo "Done"
+    parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s >/dev/null 2>&1
+    case $? in
+        0)
+            echo "Done"
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Failed to create partition (${FUNCNAME[0]})"
+            ;;
+    esac
     debugPause
     runPartprobe "$disk"
     dots "Formatting initialized partition"
     getPartitions "$disk"
     for part in $parts; do
-        mkfs.ntfs -Q -q "$part" >/dev/null 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            echo "Failed"
-            debugPause
-            handleError "Failed to initialize (${FUNCNAME[0]})"
-        fi
+        mkfs.ntfs -Q -q $part >/dev/null 2>&1
+        case $? in
+            0)
+                ;;
+            *)
+                echo "Failed"
+                debugPause
+                handleError "Failed to initialize (${FUNCNAME[0]})"
+                ;;
+        esac
     done
     echo "Done"
     debugPause
@@ -1044,55 +1157,87 @@ correctVistaMBR() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     dots "Correcting Vista MBR"
-    dd if="$disk" of=/tmp.mbr count=1 bs=512 >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Could not create backup (${FUNCNAME[0]})"
-    fi
+    dd if=$disk of=/tmp.mbr count=1 bs=512 >/dev/null 2>&1
+    case $? in
+        0)
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Could not create backup (${FUNCNAME[0]})"
+            ;;
+    esac
     xxd /tmp.mbr /tmp.mbr.txt >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "xxd command failed (${FUNCNAME[0]})"
-    fi
+    case $? in
+        0)
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "xxd command failed (${FUNCNAME[0]})"
+            ;;
+    esac
     rm /tmp.mbr >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Couldn't remove /tmp.mbr file (${FUNCNAME[0]})"
-    fi
+    case $? in
+        0)
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Couldn't remove /tmp.mbr file (${FUNCNAME[0]})"
+            ;;
+    esac
     fogmbrfix /tmp.mbr.txt /tmp.mbr.fix.txt >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "fogmbrfix failed to operate (${FUNCNAME[0]})"
-    fi
+    case $? in
+        0)
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "fogmbrfix failed to operate (${FUNCNAME[0]})"
+            ;;
+    esac
     rm /tmp.mbr.txt >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Could not remove the text file (${FUNCNAME[0]})"
-    fi
+    case $? in
+        0)
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Could not remove the text file (${FUNCNAME[0]})"
+            ;;
+    esac
     xxd -r /tmp.mbr.fix.txt /mbr.mbr >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Could not run second xxd command (${FUNCNAME[0]})"
-    fi
+    case $? in
+        0)
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Could not run second xxd command (${FUNCNAME[0]})"
+            ;;
+    esac
     rm /tmp.mbr.fix.txt >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Could not remove the fix file (${FUNCNAME[0]})"
-    fi
+    case $? in
+        0)
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Could not remove the fix file (${FUNCNAME[0]})"
+            ;;
+    esac
     dd if=/mbr.mbr of="$disk" count=1 bs=512 >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Could not apply fixed MBR (${FUNCNAME[0]})"
-    fi
-    echo "Done"
+    case $? in
+        0)
+            echo "Done"
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Could not apply fixed MBR (${FUNCNAME[0]})"
+            ;;
+    esac
     debugPause
 }
 display_center() {
@@ -1166,7 +1311,7 @@ handleError() {
     fi
     echo
     echo
-    if [[ -z $isdebug || $mode != debug ]]; then
+    if [[ -z $isdebug && $mode != +(*debug*) ]]; then
         echo "##############################################################################"
         echo "#                                                                            #"
         echo "#                      Computer will reboot in 1 minute                      #";
@@ -1264,7 +1409,7 @@ saveGRUB() {
     local hasgrubfilename=""
     if [[ -n $has_grub ]]; then
         hasgrubfilename=$(hasGrubFileName $imagePath $disk_number)
-        touch "$hasgrubfilename"
+        touch $hasgrubfilename
     fi
     # Ensure that no more than 1MiB of data is copied (already have this size used elsewhere)
     [[ $count -gt 2048 ]] && count=2048
@@ -1306,7 +1451,7 @@ restoreGRUB() {
     local count=$(du -B 512 $tmpMBR | awk '{print $1}')
     [[ $count -eq 8 ]] && count=1
     dd if=$tmpMBR of=$disk bs=512 count=$count >/dev/null 2>&1
-    runPartprobe $disk
+    runPartprobe "$disk"
 }
 debugPause() {
     [[ -z $isdebug && $mode != debug ]] && return
@@ -1359,7 +1504,7 @@ sfdiskOriginalPartitionFileName() {
     local intDisk="$2"    # e.g. 1
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $intDisk ]] && handleError "No drive number passed (${FUNCNAME[0]})"
-    sfdiskPartitionFileName $imagePath $intDisk
+    sfdiskPartitionFileName "$imagePath" "$intDisk"
 }
 sgdiskOriginalPartitionFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
@@ -1410,7 +1555,7 @@ tmpEBRFileName() {
     local intPart="$2"
     [[ -z $intDisk ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $intPart ]] && handleError "No partition number passed (${FUNCNAME[0]})"
-    EBRFileName "/tmp" $intDisk $intPart
+    EBRFileName "/tmp" "$intDisk" "$intPart"
 }
 #
 # Works for MBR/DOS or GPT style partition tables
@@ -1437,11 +1582,11 @@ savePartitionTablesAndBootLoaders() {
     local have_extended_partition=0  # e.g. 0 or 1-n (extended partition count)
     local strdots=""
     [[ $hasgpt -eq 0 ]] && have_extended_partition=$(sfdisk -l $disk 2>/dev/null | egrep "^${disk}.* (Extended|W95 Ext'd \(LBA\))$" | wc -l)
-    runPartprobe $disk
+    runPartprobe "$disk"
     if [[ $imgPartitionType != all && $imgPartitionType != mbr ]]; then
         echo " * Skipping partition tables and MBR"
         debugPause
-        runPartprobe $disk
+        runPartprobe "$disk"
         return
     fi
     case $hasgpt in
@@ -1453,12 +1598,12 @@ savePartitionTablesAndBootLoaders() {
                     ;;
             esac
             dots "$strdots"
-            saveGRUB $disk $intDisk $imagePath
+            saveGRUB "$disk" "$intDisk" "$imagePath"
             echo "Done"
             if [[ $have_extended_partition -ge 1 ]]; then
                 local sfpartitionfilename=$(sfdiskPartitionFileName $imagePath $intDisk)
                 sfdisk -d $disk 2>/dev/null > $sfpartitionfilename
-                saveAllEBRs $disk $intDisk $imagePath
+                saveAllEBRs "$disk" "$intDisk" "$imagePath"
             fi
             ;;
         1)
@@ -1469,7 +1614,7 @@ savePartitionTablesAndBootLoaders() {
             echo "Done"
             ;;
     esac
-    runPartprobe $disk
+    runPartprobe "$disk"
     debugPause
 }
 clearPartitionTables() {
@@ -1480,11 +1625,9 @@ clearPartitionTables() {
     case $? in
         0)
             echo "Done"
-            debugPause
             ;;
         2)
             echo "Done, but cleared corrupted partition."
-            debugPause
             ;;
         *)
             echo "Failed"
@@ -1492,7 +1635,8 @@ clearPartitionTables() {
             handleError "Error trying to erase partition tables (${FUNCNAME[0]})"
             ;;
     esac
-    runPartprobe $disk
+    runPartprobe "$disk"
+    debugPause
 }
 restorePartitionTablesAndBootLoaders() {
     local disk="$1"
@@ -1511,9 +1655,9 @@ restorePartitionTablesAndBootLoaders() {
         debugPause
         return
     fi
-    clearPartitionTables $disk
+    clearPartitionTables "$disk"
     majorDebugEcho "Partition table should be empty now."
-    majorDebugShowCurrentPartitionTable $disk $intDisk
+    majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
     majorDebugPause
     tmpMBR=$(MBRFileName $imagePath $intDisk)
     has_GRUB=$(hasGRUB $disk $intDisk $imagePath)
@@ -1538,40 +1682,46 @@ restorePartitionTablesAndBootLoaders() {
                 ;;
         esac
         dots "$strdots"
-        restoreGRUB $disk $intDisk $imagePath
+        restoreGRUB "$disk" "$intDisk" "$imagePath"
         echo "Done"
         debugPause
-        majorDebugShowCurrentPartitionTable $disk $intDisk
+        majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
         majorDebugPause
         ebrcount=$(ls -1 $imagePath/*.ebr 2>/dev/null | wc -l)
-        [[ $ebrcount -gt 0 ]] && restoreAllEBRs $disk $intDisk $imagePath $imgPartitionType
+        [[ $ebrcount -gt 0 ]] && restoreAllEBRs "$disk" "$intDisk" "$imagePath" "$imgPartitionType"
         local sfpartitionfilename=$(sfdiskPartitionFileName $imagePath $intDisk)
         local sflegacypartitionfilename=$(sfdiskLegacyOriginalPartitionFileName $imagePath $intDisk)
         if [[ -e $sfpartitionfilename ]]; then
             dots "Inserting Extended partitions"
             sfdisk $disk <$sfpartitionfilename >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-            fi
-            echo "Done"
+            case $? in
+                0)
+                    echo "Done"
+                    ;;
+                *)
+                    echo "Failed"
+                    ;;
+            esac
             debugPause
         elif [[ -e $sflegacypartitionfilename ]]; then
             dots "Extended partitions (legacy)"
             sfdisk $disk <$sflegacypartitionfilename >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-            fi
-            echo "Done"
+            case $? in
+                0)
+                    echo "Done"
+                    ;;
+                *)
+                    echo "Failed"
+                    ;;
+            esac
             debugPause
         else
             echo " * No extended partitions"
             debugPause
         fi
     fi
-    runPartprobe $disk
-    majorDebugShowCurrentPartitionTable $disk $intDisk
+    runPartprobe "$disk"
+    majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
     majorDebugPause
 }
 savePartition() {
@@ -1606,7 +1756,7 @@ savePartition() {
         debugPause
         imgpart="$imagePath/d${intDisk}p${partNum}.img"
         uploadFormat $fifoname $imgpart
-        partclone.$fstype -fsck-src-part-y -c -s $part -O $fifoname -N -f 1 2>/tmp/status.fog
+        partclone.$fstype -fsck-src-part-y -c -s "$part" -O "$fifoname" -N -f 1 2>/tmp/status.fog
         [[ ! $? -eq 0 ]] && handleError "Failed to complete upload (${FUNCNAME[0]})"
         mv ${imgpart}.000 $imgpart >/dev/null 2>&1
         echo " * Image uploaded"
@@ -1620,7 +1770,7 @@ savePartition() {
         elif [[ $fstype == swap ]]; then
             echo " * Saving swap parition UUID"
             local swapuuidfilename=$(swapUUIDFileName $imagePath $intDisk)
-            saveSwapUUID $swapuuidfilename $part
+            saveSwapUUID "$swapuuidfilename" "$part"
         else
             handleError "Unexpected condition in savePartition."
         fi
@@ -1695,7 +1845,7 @@ restorePartition() {
             handleError "Invalid Image Type $imgType (${FUNCNAME[0]})"
             ;;
     esac
-    ls "$imgpart" >/dev/null 2>&1
+    ls $imgpart >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         local ebrfilename=$(EBRFileName $imagePath $intDisk $partNum)
         [[ -e $ebrfilename ]] && echo " * Not downloading content of extended partition" || echo " * Partition File Missing: $imgpart"
@@ -1726,7 +1876,6 @@ gptorMBRSave() {
             dots "$strdots"
             saveGRUB "$disk" 1 "$2"
             echo "Done"
-            debugPause
             ;;
         *)
             dots "Saving Partition Tables (GPT)"
@@ -1739,33 +1888,39 @@ gptorMBRSave() {
                 return
             fi
             echo "Done"
-            debugPause
             ;;
     esac
+    debugPause
 }
 runFixparts() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     dots "Attempting fixparts"
-    fixparts "$disk" </usr/share/fog/lib/EOFFIXPARTS >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Could not fix partition layout (${FUNCNAME[0]})" "yes"
-    fi
-    echo "Done"
+    fixparts $disk </usr/share/fog/lib/EOFFIXPARTS >/dev/null 2>&1
+    case $? in
+        0)
+            echo "Done"
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Could not fix partition layout (${FUNCNAME[0]})" "yes"
+            ;;
+    esac
     debugPause
     runPartprobe "$disk"
 }
 killStatusReporter() {
     dots "Stopping FOG Status Reporter"
-    kill -9 "$statusReporter" >/dev/null 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        echo "Failed"
-        debugPause
-        return
-    fi
-    echo "Done"
+    kill -9 $statusReporter >/dev/null 2>&1
+    case $? in
+        0)
+            echo "Done"
+            ;;
+        *)
+            echo "Failed"
+            ;;
+    esac
     debugPause
 }
 prepareResizeDownloadPartitions() {
