@@ -395,9 +395,11 @@ esac
 echo
 while [[ -z $blGo ]]; do
     echo
-    [[ -n $autoaccept ]] && blGo="y" continue
-    echo -n " * Are you sure you wish to continue (Y/N) "
-    read blGo
+    [[ -n $autoaccept ]] && blGo="y"
+    if [[ -z $autoaccept ]]; then
+        echo -n " * Are you sure you wish to continue (Y/N) "
+        read blGo
+    fi
     echo
     case $blGo in
         [Yy]|[Yy][Ee][Ss])
