@@ -13,7 +13,6 @@ done
 export capone=1
 clear
 displayBanner
-echo
 echo " * Starting Capone"
 dots "Looking up DMI field"
 count=0
@@ -30,11 +29,9 @@ while [[ -z $dmi ]]; do
 done
 echo "Done"
 debugPause
-echo
 dots "Using Key Value:"
 dmivalue=$(dmidecode -s $dmi)
 echo "$dmivalue"
-echo
 usleep 1000000
 dmi64=$(echo $dmivalue | base64)
 dots "Looking for images"
@@ -56,7 +53,6 @@ oIFS=$IFS
 IFS=$'\n'
 cnt=0
 linedecode=""
-echo
 for line in $img; do
     linedecode=$(echo $line | base64 -d)
     [[ -z $linedecode ]] && handleError "No image definition was found for $dmivalue"
@@ -83,7 +79,6 @@ for line in $img; do
     esac
     usleep 1000000
 done
-echo
 case $cnt in
     0)
         handleError "No image definition was found for $dmivalue"
@@ -119,7 +114,6 @@ case $cnt in
         ;;
 esac
 IFS=$oIFS
-echo
 dots "Setting up environment to deploy image"
 export type="down"
 export mac="00:00:00:00:00:00"

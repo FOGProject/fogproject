@@ -822,7 +822,6 @@ majorDebugShowCurrentPartitionTable() {
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $intDisk ]] && handleError "No disk number passed (${FUNCNAME[0]})"
     local table_type=$(getDesiredPartitionTableType $imagePath $intDisk)
-    echo
     echo "Current partition table:"
     case $table_type in
         MBR)
@@ -832,5 +831,4 @@ majorDebugShowCurrentPartitionTable() {
             sgdisk -p $disk
             ;;
     esac
-    echo
 }

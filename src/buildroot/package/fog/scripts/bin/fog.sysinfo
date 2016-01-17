@@ -20,7 +20,7 @@ IFS=$'\n'
 choices=$(echo -e $choices)
 wait_enter() {
     echo -e "\n\n\n"
-    display_center "Press [Enter] to continue"
+    echo " * Press [Enter] to continue"
     read -s tmp
     echo -e "\n\n\n"
 }
@@ -33,88 +33,79 @@ while :; do
                 ;;
             2)
                 clearScreen
-                display_center "==================================================="
-                display_center "=                Network Information              ="
-                display_center "==================================================="
-                echo
+                echo "   ==================================================="
+                echo "   =                Network Information              ="
+                echo "   ==================================================="
                 ip addr 2>/dev/null
-                echo
-                display_center "==================================================="
-                display_center "=                  DNS Information                ="
-                display_center "==================================================="
-                echo
+                echo "   ==================================================="
+                echo "   =                  DNS Information                ="
+                echo "   ==================================================="
                 cat /etc/resolv.conf 2>/dev/null
                 wait_enter
                 ;;
             3)
                 clearScreen
-                display_center "==================================================="
-                display_center "=             Partition Information               ="
-                display_center "==================================================="
-                echo
+                echo "   ==================================================="
+                echo "   =             Partition Information               ="
+                echo "   ==================================================="
                 parted --list 2>/dev/null
                 wait_enter
                 ;;
             4)
                 clearScreen
-                display_center "==================================================="
-                display_center "=              FOG Compatibility Test             ="
-                display_center "==================================================="
-                echo
+                echo "   ==================================================="
+                echo "   =              FOG Compatibility Test             ="
+                echo "   ==================================================="
                 tmpDisk=$(parted --list 2>/dev/null | grep "Disk")
                 tmpNic=$(ip addr | grep "link/ether")
                 [[ -n $tmpDisk ]] && blHddOk="Pass" || blHddOk="Fail"
                 [[ -n $tmpNic ]] && blNicOk="Pass" || blNicOk="Fail"
                 [[ $blNicOk == Pass && $blHddOk == Pass ]] && tmpstr="Computer appears to be compatible with FOG!" || tmpstr="Computer is NOT compatibile with FOG!"
-                display_center "$tmpstr"
-                display_center "==================================================="
-                display_center "=                      Results                    ="
-                display_center "==================================================="
-                display_center "= Network..................................[$blNicOk] ="
-                display_center "= Disk.....................................[$blHddOk] ="
-                display_center "==================================================="
-                echo
+                echo "$tmpstr"
+                echo "   ==================================================="
+                echo "   =                      Results                    ="
+                echo "   ==================================================="
+                echo "   = Network..................................[$blNicOk] ="
+                echo "   = Disk.....................................[$blHddOk] ="
+                echo "   ==================================================="
                 if [[ $blNicOk == Fail || $blHddOk == Fail ]]; then
-                    display_center "###################################################"
-                    display_center "# Try using a newer kernel that may be compatible #"
-                    display_center "# with this device.                               #"
-                    display_center "#                                                 #"
-                    display_center "# New kernels can be downloaded from the GUI.     #"
-                    display_center "# From the menu select:                           #"
-                    display_center "# FOG Configuration->                             #"
-                    display_center "#     Kernel Update                               #"
-                    display_center "###################################################"
+                    echo "   ###################################################"
+                    echo "   # Try using a newer kernel that may be compatible #"
+                    echo "   # with this device.                               #"
+                    echo "   #                                                 #"
+                    echo "   # New kernels can be downloaded from the GUI.     #"
+                    echo "   # From the menu select:                           #"
+                    echo "   # FOG Configuration->                             #"
+                    echo "   #     Kernel Update                               #"
+                    echo "   ###################################################"
                 fi
                 wait_enter
                 ;;
             5)
                 clearScreen
-                display_center "==================================================="
-                display_center "=                   Ping a Host                   ="
-                display_center "==================================================="
+                echo "   ==================================================="
+                echo "   =                   Ping a Host                   ="
+                echo "   ==================================================="
                 regex='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
                 while [[ -z $phost ]]; do
-                    echo -n " Enter host to ping: "
+                    echo -n " * Enter host to ping: "
                     read phost
                     phost=$(echo $phost)
                     if [[ -z $phost || $phost =~ $regex ]]; then
                         phost=""
-                        echo "Invalid Entry, try again"
+                        echo " * Invalid Entry, try again!"
                     fi
                 done
-                echo
                 ping -c 4 $phost
                 unset phost
                 wait_enter
                 ;;
             6)
                 clearScreen
-                display_center "==================================================="
-                display_center "=               System MAC Address'               ="
-                display_center "==================================================="
-                echo
-                display_center $mac
-                echo
+                echo "   ==================================================="
+                echo "   =               System MAC Address'               ="
+                echo "   ==================================================="
+                echo $mac
                 wait_enter
                 ;;
             7)
@@ -128,7 +119,7 @@ while :; do
                     echo -e "$str   $v\n\n"
                     let i+=1
                     if [[ $i == 5 ]]; then
-                        display_center " * Press [Enter] to Proceed"
+                        echo " * Press [Enter] to Proceed"
                         read tmp
                         i=0
                     fi

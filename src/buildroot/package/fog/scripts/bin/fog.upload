@@ -5,18 +5,14 @@
 . /bin/fog.checkmount
 . /bin/fog.checkimgvar
 imagePath="/images/$macWinSafe"
-echo
 echo " * Preparing to send image file to server"
-echo
 percent="$pct"
 [[ $pct -lt 5 || $pct -ge 100 ]] && percent=5
 [[ $pct -lt 10 ]] && percent="0$pct"
 fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!"
 prepareUploadLocation
-echo
 echo " * Using Image: $img"
-echo
 case $imgType in
     [Nn]|mps|dd)
         dots "Looking for Hard Disk"
@@ -38,14 +34,7 @@ case $imgType in
         fi
         echo "Done"
         debugPause
-        echo
         echo " * Using Hard Disk: $hd"
-        echo
-        debugPause
-        echo
-        echo " * Partitions found: $parts"
-        echo
-        debugPause
         ;;
     mpa)
         dots "Looking for Hard Disks"
@@ -57,34 +46,22 @@ case $imgType in
         fi
         echo "Done"
         debugPause
-        echo
-        echo " * Using Disks: $disks"
-        echo
-        debugPause
         for disk in $disks; do
             dots "Reading Partition Tables on $disk"
             getPartitions "$disk"
             if [[ -z $parts ]]; then
                 echo "Failed"
                 debugPause
-                echo
                 echo " * No partitions for disk $disk"
-                echo
                 debugPause
                 continue
             fi
             echo "Done"
-            debugPause
-            echo
-            echo " * Partitions on disk $disk: $parts"
-            echo
-            debugPause
         done
         ;;
 esac
-echo
+debugPause
 echo " * Now FOG will attempt to upload the image using Partclone"
-echo
 debugPause
 # resizable image type
 #  discover windows partitions
@@ -131,13 +108,9 @@ case $imgType in
         debugPause
         [[ -z $ntfscnt ]] && ntfscnt=0
         [[ -z $extfsavail ]] && extfsavail=0
-        echo
         echo " * NTFS Partition count of: $ntfscnt"
-        echo
         debugPause
-        echo
         echo " * EXTFS Partition count of: $extfsavail"
-        echo
         debugPause
         for partclr in $parts; do
             clearMountedDevices "$partclr"
@@ -194,13 +167,11 @@ case $imgType in
             shrinkPartition "$part" "$imagePath/d1.original.fstypes"
         done
         runPartprobe "$hd"
-        debugPause
         [[ ! $osid -eq 50 ]] && resetFlag "$part"
         echo " * Processing Hard Disk: $hd"
         getPartitions "$hd"
         for part in $parts; do
             savePartition "$part" 1 "$imagePath" "$imgPartitionType"
-            debugPause
         done
         dots "Restoring MBR"
         restoreOriginalPartitions "$hd" "$imagePath" 1
@@ -219,23 +190,21 @@ case $imgType in
         getPartitions "$hd"
         for part in $parts; do
             savePartition "$part" 1 "$imagePath" "$imgPartitionType"
-            debugPause
         done
         ;;
     mpa)
         intDisk=1
         for disk in $disks; do
+            debugPause
             echo " * Processing Hard Disk: $disk"
             savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$imgPartitionType"
             runPartprobe "$disk"
             getPartitions "$disk"
             for part in $parts; do
                 savePartition "$part" "$intDisk" "$imagePath" "$imgPartitionType"
-                debugPause
             done
             echo " * Disk $disk complete"
             let intDisk+=1
-            debugPause
         done
         ;;
     dd)
@@ -247,6 +216,7 @@ case $imgType in
         clear
         ;;
 esac
+debugPause
 chmod -R 777 "$imagePath" >/dev/null 2>&1
 killStatusReporter
 . /bin/fog.imgcomplete

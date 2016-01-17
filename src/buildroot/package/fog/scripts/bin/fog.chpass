@@ -4,7 +4,6 @@
 clearScreen
 displayBanner
 hd=""
-echo
 dots "Creating chntpw partition"
 [[ ! -d /chntpw ]] && mkdir -p /chntpw >/dev/null 2>&1
 if [[ ! -d /chntpw ]]; then

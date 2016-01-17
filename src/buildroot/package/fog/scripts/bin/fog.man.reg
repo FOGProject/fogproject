@@ -51,8 +51,6 @@ caseman64=""
 casever64=""
 caseserial64=""
 casesasset64=""
-echo
-echo
 dots "Using disk device"
 echo $hd
 echo " * Starting host registration"
@@ -61,8 +59,8 @@ exists=$(wget --post-data="mac=$mac" -qO - http://${web}service/man.hostexists.p
 checkAndSet() {
     local testvar="$1"
     local onlynum="$2"
-    [[ -z $testvar ]] && echo
-    [[ $onlynum =~ [Tt][Rr][Uu][Ee] && $testvar =~ ^[0-9]+$ ]] || echo $(echo $testvar | base64) && [[ $testvar =~ ^[0-9]+$ ]] && echo $(echo $testvar | base64)
+    [[ -z $testvar ]] && return
+    [[ $onlynum =~ [Tt][Rr][Uu][Ee] && $testvar =~ ^[0-9]+$ ]] || echo $testvar | base64 && [[ $testvar =~ ^[0-9]+$ ]] && echo $testvar | base64
 }
 setIDs() {
     local varVar="$1"
@@ -75,7 +73,6 @@ setIDs() {
     local oIFS=$IFS
     local line=""
     while [[ -z ${!varVar} ]]; do
-        echo
         [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && echo -n "    Enter the $str IDs separated with , to associate with computer (? for listing): " || echo -n "    Enter the $str ID to associate with computer (? for listing): "
         read dummy
         case $dummy in
@@ -122,7 +119,6 @@ blDoAddGroup=""
 blDoAddSnapin=""
 keyEnter=""
 blDoAD=""
-echo
 res=""
 while [[ $res != "#!ok" ]]; do
     echo -n " * Enter hostname for this computer: "
@@ -136,12 +132,10 @@ while [[ $res != "#!ok" ]]; do
     res=$(wget --post-data="host=$host" -qO - http://${web}service/hostnameloop.php 2>/dev/null)
     [[ $res != "#!ok" ]] && echo "$res"
 done
-echo
 imageid=""
 setIDs "imageid" "image" "" "" 20
 if [[ $(wget -qO - http://${web}service/locationcheck.php 2>/dev/null) == "##" ]]; then
     while [[ -z $askme ]]; do
-        echo
         echo "    Would you like to assign a location for this host? (y/N) "
         read askme
         case $askme in
@@ -160,7 +154,6 @@ if [[ $(wget -qO - http://${web}service/locationcheck.php 2>/dev/null) == "##" ]
 fi
 askme=""
 while [[ -z $askme ]]; do
-    echo
     echo -n "    Would you like to associate this host with groups? (y/N) "
     read askme
     case $askme in
@@ -179,7 +172,6 @@ while [[ -z $askme ]]; do
 done
 askme=""
 while [[ -z $askme ]]; do
-    echo
     echo -n "    Would you like to associate this host with snapins? (y/N) "
     read askme
     case $askme in
@@ -198,7 +190,6 @@ while [[ -z $askme ]]; do
 done
 askme=""
 while [[ -z $askme ]]; do
-    echo
     echo -n "    Would you like to associate a product key to this host? (y/N) "
     read askme
     case $askme in
@@ -218,7 +209,6 @@ while [[ -z $askme ]]; do
 done
 askme=""
 while [[ -z $askme ]]; do
-    echo
     echo -n "    Would you like this host to join a domain, (using default settings)? (y/N) "
     read askme
     case $askme in
@@ -235,23 +225,18 @@ while [[ -z $askme ]]; do
             ;;
     esac
 done
-echo
 echo -n " * Enter the primary user for this computer: "
 read primaryuser
 primaryuser=$(echo $primaryuser | base64)
-echo
 echo -n " * Enter the other tag #1 for this computer: "
 read other1
 other1=$(echo $other1 | base64)
-echo
 echo -n " * Enter the other tag #2 for this computer: "
 read other2
 other2=$(echo $other2 | base64)
-echo
 echo " * You entered all required information, "
 askme=""
 while [[ -z $askme ]]; do
-    echo
     echo -n "    Would you like to image this computer now? (y/N) "
     read askme
     case $askme in
@@ -260,33 +245,25 @@ while [[ -z $askme ]]; do
             ;;
         [Yy]|[Yy][Ee][Ss])
             tmp=""
-            echo
             ret=""
             retry=3
             while [[ $ret != "#!ok" && ! $retry -eq 0 ]]; do
-                echo
                 echo " * Enter FOG GUI Username and Password"
-                echo
                 echo -n "    Username: "
                 read username
-                echo
                 echo -n "    Password: "
                 read -s password
-                echo
                 user64=$(echo $username | tr -d '\012' | base64)
                 pass64=$(echo $password | tr -d '\012' | base64)
                 ret=$(wget --post-data="mac=$mac&username=$user64&password=$pass64" -qO - http://${web}service/checkcredentials.php 2>/dev/null)
                 case $ret in
                     '#!ok')
-                        echo
                         echo " * This host will reboot and imaging will start!"
-                        echo
                         ret=$tmp
                         realdoimage=1
                         break
                         ;;
                     '#!il')
-                        echo
                         echo " * Error: Invalid Login! ($retry remaining)"
                         let retry-=1
                         ;;
@@ -300,7 +277,6 @@ while [[ -z $askme ]]; do
             ;;
     esac
 done
-echo
 dots "Attempting to register host"
 res=""
 while [[ -z $res ]]; do

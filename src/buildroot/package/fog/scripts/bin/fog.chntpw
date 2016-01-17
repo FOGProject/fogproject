@@ -4,7 +4,6 @@
 clearScreen
 displayBanner
 getHardDisk
-echo
 [[ -z $winuser ]] && handleError "Invalid User Account"
 blCont=0
 blStop=0
