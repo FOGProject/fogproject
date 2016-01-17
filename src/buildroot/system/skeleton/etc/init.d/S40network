@@ -1,36 +1,34 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Start the network....
 #
-if [ -n "$has_usb_nic" ]; then
-    echo "Please unplug your device and replug it into the usb port";
-    echo -n "Please press enter key to connect [Enter]";
-    read;
-    echo "Sleeping for 5 seconds to allow USB to sync back with system";
+if [[ -n $has_usb_nic ]]; then
+    echo "Please unplug your device and replug it into the usb port"
+    echo -n "Please press enter key to connect [Enter]"
+    read -p "$*"
+    echo "Sleeping for 5 seconds to allow USB to sync back with system"
     /bin/usleep 5000000
 fi
 # Enable all interfaces
 echo "auto lo" > /etc/network/interfaces
 echo "iface lo inet loopback" >> /etc/network/interfaces
-ifaces=`ls -1 /sys/class/net | tr -d '@'`
+ifaces=$(ls -1 /sys/class/net | tr -d '@')
 timeout=10
 for iface in $ifaces; do
     # Check if each interface is up and if not wait up to 10 seconds
-    if [ "x$iface" == "xlo" ]; then
+    if [[ x$iface == xlo ]]; then
         /sbin/ip addr add 127.0.0.1 dev lo
         /sbin/ip link set lo up
         continue
     fi
     echo "Starting $iface interface"
     /sbin/ip link set $iface up
-    for delay in `seq 10`; do
-        linkstate=`/bin/cat /sys/class/net/$iface/carrier`
-        if [ "x$linkstate" == "x1" ]; then
+    for delay in $(seq 10); do
+        linkstate=$(/bin/cat /sys/class/net/$iface/carrier)
+        if [[ x$linkstate == x1 ]]; then
             /sbin/udhcpc -i $iface -t 2 -T $timeout
-            if [ "$?" == 0 ]; then
-                break;
-            fi
-            timeout=`expr $timeout '+' 5`
+            [[ $? -eq 0 ]] && break
+            timeout=$((timeout + 5))
         fi
         /bin/usleep 1000000
     done
