@@ -94,12 +94,12 @@ $(function() {
     removeMACField();
     MACUpdate();
     $('.add-mac').click(function(e) {
-        e.preventDefault();
         $('#additionalMACsRow').show();
         $('#additionalMACsCell').append('<div><input class="additionalMAC" type="text" name="additionalMACs[]" />&nbsp;&nbsp;<i class="icon fa fa-minus-circle remove-mac hand" title="Remove MAC"></i><br/><span class="mac-manufactor"></span></div>');
         removeMACField();
         MACUpdate();
         HookTooltips();
+        e.preventDefault();
     });
     if ($('.additionalMAC').size()) $('#additionalMACsRow').show();
     checkboxAssociations('.toggle-checkbox1:checkbox','.toggle-group1:checkbox');

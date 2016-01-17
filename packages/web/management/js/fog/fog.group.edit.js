@@ -25,12 +25,13 @@ $(function() {
     checkboxAssociations('.toggle-checkboxsnapin:checkbox','.toggle-snapin:checkbox');
     checkboxAssociations('.toggle-checkboxsnapinrm:checkbox','.toggle-snapinrm:checkbox');
     // Show hide based on checked state.
-    $('#hostNotInMe').hide();
-    $('#hostNoGroup').hide();
-    $('#hostMeShow').change(function() {
+    $('#hostNotInMe,#hostNoGroup').hide();
+    $('#hostMeShow:checkbox').change(function(e) {
         $('#hostNotInMe').toggle();
+        e.preventDefault();
     });
-    $('#hostNoShow').change(function() {
+    $('#hostNoShow:checkbox').change(function(e) {
         $('#hostNoGroup').toggle();
+        e.preventDefault();
     });
 });

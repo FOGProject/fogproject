@@ -31,7 +31,7 @@ function MACChange(data) {
 }
 function MACUpdate() {
     $('#mac,.additionalMAC').on('change keyup',function(e) {
-        e.preventDefault();
         MACChange($(this));
+        e.preventDefault();
     });
 }
