@@ -7,6 +7,7 @@ $(function() {
     var ResultContainers = $('#login-form-info b');
     $.ajax({
         url: '../management/index.php',
+        type: 'POST',
         data: {
             node: 'client',
             sub: 'loginInfo'
@@ -15,8 +16,7 @@ $(function() {
         success: function (data) {
             for (i in ReturnIndexes) {
                 var Container = ResultContainers.eq(i);
-                if (data['error-' + ReturnIndexes[i]]) Container.html(data['error-' + ReturnIndexes[i]]);
-                else Container.html(data[ReturnIndexes[i]]);
+                data['error-'+ReturnIndexes[i]] ? Container.html(data['error-'+ReturnIndexes[i]]) : Container.html(data[ReturnIndexes[i]]);
             }
         },
         error: function() {
@@ -24,4 +24,4 @@ $(function() {
         }
     });
     $('#username').select().focus();
-});
+})

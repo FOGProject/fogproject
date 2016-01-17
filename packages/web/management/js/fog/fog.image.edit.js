@@ -1,39 +1,22 @@
 $(function() {
     // Show hide based on checked state.
-    $('#hostNotInMe').hide();
-    $('#hostNoImage').hide();
-    $('#hostMeShow').click(function() {
+    $('#hostNotInMe,#hostNoImage,#groupNotInMe,#groupNoImage').hide();
+    $('#hostMeShow:checkbox').change(function(e) {
         $('#hostNotInMe').toggle();
+        e.preventDefault();
     });
-    $('#hostNoShow').click(function() {
+    $('#hostNoShow:checkbox').change(function(e) {
         $('#hostNoImage').toggle();
+        e.preventDefault();
     });
-    $('.toggle-checkbox1').click(function() {
-        $('input.toggle-host1:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
-    $('.toggle-checkbox2').click(function() {
-        $('input.toggle-host2:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
-    $('#groupNotInMe').hide();
-    $('#groupNoImage').hide();
-    $('#groupMeShow').click(function() {
+    $('#groupMeShow:checkbox').change(function(e) {
         $('#groupNotInMe').toggle();
+        e.preventDefault();
     });
-    $('#groupNoShow').click(function() {
+    $('#groupNoShow:checkbox').change(function(e) {
         $('#groupNoImage').toggle();
+        e.preventDefault();
     });
-    $('.toggle-checkbox1').click(function() {
-        $('input.toggle-group1:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
-    $('.toggle-checkbox2').click(function() {
-        $('input.toggle-group2:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
+    checkboxAssociations('.toggle-checkbox1:checkbox','.toggle-host1:checkbox');
+    checkboxAssociations('.toggle-checkbox2:checkbox','.toggle-host2:checkbox');
 });
