@@ -1,7 +1,7 @@
 <?php
 require('../commons/base.inc.php');
 try {
-    $torrentFile = sprintf('%s.torrent',basename(mb_convert_encoding($_REQUEST['torrent'],'UTF-8')));
+    $torrentFile = sprintf('%s.torrent',basename(htmlentities($_REQUEST['torrent'],ENT_QUOTE,'utf-8')));
     $file = sprintf('%s%s%s%s',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,$FOGCore->getSetting('FOG_TORRENTDIR')),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,basename($torrentFile));
     if (file_exists($file) && is_readable($file)) {
         $filesize = filesize($file);

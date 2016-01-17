@@ -32,7 +32,7 @@ class UserManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Users');
-        if ($_SESSION['DataReturn'] > 0 && $_SESSION['UserCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
+        if ($_SESSION['DataReturn'] > 0 && $_SESSION['UserCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('%s?node=%s&sub=search', $this->urlself, $this->node));
         foreach ((array)$this->getClass('UserManager')->find() AS $i => &$User) {
             if (!$User->isValid()) continue;
             $this->data[] = array(

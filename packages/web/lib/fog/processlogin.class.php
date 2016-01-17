@@ -110,24 +110,16 @@ class ProcessLogin extends FOGBase {
         if (!$this->isMobile) $this->HookManager->processEvent('LoginSuccess',array('user'=>&$this->currentUser,'username'=>$this->username, 'password'=>&$this->password));
     }
     private function setRedirMode() {
-        $redirect = $_REQUEST;
+        foreach ($_REQUEST AS $key => &$value) $redirect[$key] = htmlentities($value,ENT_QUOTES,'utf-8');
         unset($redirect['upass'],$redirect['uname'],$redirect['ulang']);
         if (in_array($redirect['node'],array('login','logout'))) unset($redirect['node']);
-        ob_start();
-        $first = true;
-        foreach ((array)$redirect AS $key => &$value) {
-            if ($first) {
-                printf('?%s=%s',$key,$value);
-                $first = false;
-                continue;
-            }
+        foreach ((array)$redirect AS $key => $value) {
             if (!$value) continue;
-            printf('&%s=%s',$key,$value);
+            $http_query[$key] = $value;
             unset($value);
         }
-        if (ob_get_contents()) $this->redirect(ob_get_clean());
-        ob_end_clean();
-        $this->redirect('index.php');
+        if (count($http_query) < 1) $this->redirect('index.php');
+        $this->redirect(sprintf('%s?%s','index.php',http_build_query($http_query)));
     }
     public function processMainLogin() {
         if (!$_SESSION['locale']) $this->setLang();
@@ -142,6 +134,7 @@ class ProcessLogin extends FOGBase {
             $this->redirect('index.php?node=logout');
         }
         $this->setCurUser($tmpUser);
+        if (!$this->currentUser->isValid()) $this->setRedirMode();
     }
     public function mainLoginForm() {
         if (!$_SESSION['locale']) $this->setLang();
@@ -149,20 +142,20 @@ class ProcessLogin extends FOGBase {
             $this->setMessage($_SESSION['FOG_MESSAGES']);
             $this->redirect('index.php');
         }
-        echo '<form method="post" action="?node=login" id="login-form">';
-        if (mb_convert_encoding($_REQUEST['node'],'UTF-8') != 'logout') {
+        echo '<form method="post" action="" id="login-form">';
+        if (htmlentities($_REQUEST['node'],ENT_QUOTES,'utf-8') != 'logout') {
             foreach ($_REQUEST AS $key => &$value) {
-                printf('<input type="hidden" name="%s" value="%s"/>',mb_convert_encoding($key,'UTF-8'),mb_convert_encoding($value,'UTF-8'));
+                printf('<input type="hidden" name="%s" value="%s"/>',htmlentities($key,ENT_QUOTES,'utf-8'),htmlentities($value,ENT_QUOTES,'utf-8'));
                 unset($value);
             }
         }
         $this->getLanguages();
-        printf('<form method="post" action="?node=login" id="login-form"><label for="username">%s</label><input type="text" class="input" name="uname" id="username"/><label for="password">%s</label><input type="password" class="input" name="upass" id="password"/><label for="language">%s</label><select name="ulang" id="language">%s</select><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form><div id="login-form-info"><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p></div>',$this->foglang['Username'],$this->foglang['Password'],$this->foglang['LanguagePhrase'],$this->langMenu,$this->foglang['Login'],$this->foglang['FOGSites'],$this->foglang['LatestVer']);
+        printf('<form method="post" action="" id="login-form"><label for="username">%s</label><input type="text" class="input" name="uname" id="username"/><label for="password">%s</label><input type="password" class="input" name="upass" id="password"/><label for="language">%s</label><select name="ulang" id="language">%s</select><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form><div id="login-form-info"><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p></div>',$this->foglang['Username'],$this->foglang['Password'],$this->foglang['LanguagePhrase'],$this->langMenu,$this->foglang['Login'],$this->foglang['FOGSites'],$this->foglang['LatestVer']);
     }
     public function mobileLoginForm() {
         if (!$_SESSION['locale']) $this->setLang();
         if (in_array($_REQUEST['node'],array('login','logout'))) $this->redirect('index.php');
         $this->getLanguages();
-        printf('<div class="c"><p>%s</p><form method="post" action="?node=login"><br/><br/><label for="username">%s: </label><input type="text" name="uname" id="username"/><br/><br/><label for="password">%s: </label><input type="password" name="upass" id="password"/><br/><br/><label for="language">%s: </label><select name="ulang" id="language">%s</select><br/><br/><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form></div>',$this->foglang['FOGMobile'],$this->foglang['Username'],$this->foglang['Password'],$this->foglang['LanguagePhrase'],$this->langMenu,$this->foglang['Login']);
+        printf('<div class="c"><p>%s</p><form method="post" action=""><br/><br/><label for="username">%s: </label><input type="text" name="uname" id="username"/><br/><br/><label for="password">%s: </label><input type="password" name="upass" id="password"/><br/><br/><label for="language">%s: </label><select name="ulang" id="language">%s</select><br/><br/><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form></div>',$this->foglang['FOGMobile'],$this->foglang['Username'],$this->foglang['Password'],$this->foglang['LanguagePhrase'],$this->langMenu,$this->foglang['Login']);
     }
 }

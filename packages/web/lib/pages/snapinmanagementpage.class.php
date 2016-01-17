@@ -101,7 +101,7 @@ class SnapinManagementPage extends FOGPage {
         foreach ((array)$files AS $i => &$file) {
             printf('<option value="%s"%s>%s</option>',
                 basename($file),
-                (basename($_REQUEST['snapinfileexist']) == basename($file) ? ' selected' : ''),
+                (basename(htmlentities($_REQUEST['snapinfileexist'],ENT_QUOTES,'utf-8')) == basename($file) ? ' selected' : ''),
                 basename($file)
             );
             unset($file);
