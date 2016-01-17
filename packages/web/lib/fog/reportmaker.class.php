@@ -19,7 +19,7 @@ class ReportMaker extends FOGBase {
         return $this;
     }
     public function addCSVCell($item) {
-        $this->strCSV[] = stripslashes(html_entity_decode(mb_convert_encoding($item,'UTF-8'),ENT_QUOTES,'UTF-8'));
+        $this->strCSV[] = stripslashes(html_entity_decode(htmlentities($item,ENT_QUOTES,'utf-8'),ENT_QUOTES,'utf-8'));
         return $this;
     }
     public function endCSVLine() {
@@ -32,12 +32,12 @@ class ReportMaker extends FOGBase {
         return $this;
     }
     public function outputReport($intType = 0) {
-        if (!isset($_REQUEST['export'])) $this->setFileName(mb_convert_encoding($_REQUEST['filename'],'UTF-8'));
-        $type = trim(mb_convert_encoding($_REQUEST['type'],'UTF-8'));
-        $pattern = sprintf('#^%s$#i',$type);
-        if ($intType !== false) $intType = (isset($_REQUEST['export']) ? 3 : $this->types[$type]);
-        else $intType = 0;
-        if (isset($_REQUEST['type']) && !preg_grep($pattern, array_keys($this->types))) die(_('Invalid type passed'));
+        $type = trim(htmlentities($_REQUEST['type'],ENT_QUOTES,'utf-8'));
+        $keys = array_keys($this->types);
+        if (!in_array($type,array_keys($this->types))) die(_('Invalid type'));
+        $file = basename(trim(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')));
+        if (!isset($_REQUEST['export'])) $this->setFileName($file);
+        $intType = ($intType !== false ? (isset($_REQUEST['export']) ? 3 : $this->types[$type]) : 0);
         switch (intval($intType)) {
         case 0:
             echo implode("\n",(array)$this->strHTML);
