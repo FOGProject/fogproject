@@ -15,7 +15,7 @@ class DatabaseManager extends FOGCore {
             $this->DB = new Oracle();
             break;
         }
-        if ($this->getVersion() < FOG_SCHEMA && !preg_match('#schemaupdater#i',$_SERVER['PHP_SELF']) && !preg_match('#schemaupdater#i',$_SERVER['QUERY_STRING'])) $this->redirect('?node=schemaupdater');
+        if ($this->getVersion() < FOG_SCHEMA && !preg_match('#schemaupdater#i',htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schemaupdater');
         return $this;
     }
     public function getVersion() {

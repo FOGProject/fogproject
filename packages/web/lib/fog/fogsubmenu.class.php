@@ -64,14 +64,8 @@ class FOGSubMenu {
                     else if (!$link) printf($string,"?node=$node");
                     else {
                         $string = sprintf($string,"?node=$node&sub=%s");
-                        if (!$_REQUEST['sub'] || $title == $this->foglang['MainMenu']) printf($string,$link);
-                        else {
-                            if ($this->defaultSubs[$node]) {
-                                printf($string,"{$this->defaultSubs[$node]}&tab=$link");
-                            } else {
-                                printf($string,"{$_REQUEST['sub']}&tab=$link");
-                            }
-                        }
+                        $sub = htmlentities($_REQUEST['sub'],ENT_QUOTES,'utf-8');
+                        (!$sub || $title == $this->foglang['MainMenu'] ? printf($string,$link) : ($this->defaultSubs[$node] ? printf($string,"{$this->defaultSubs[$node]}&tab=$link") : printf($string,"$sub&tab=$link")));
                     }
                     unset($link);
                 }

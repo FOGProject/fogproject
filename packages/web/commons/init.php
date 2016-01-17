@@ -48,7 +48,8 @@ class Initiator {
      * @return null
      */
     private static function DetermineBasePath() {
-        define('WEB_ROOT',sprintf('/%s',(preg_match('#/fog/#',$_SERVER['PHP_SELF'])?'fog/':'')));
+        $script_name = htmlentities($_SERVER['SCRIPT_NAME'],ENT_QUOTES,'utf-8');
+        define('WEB_ROOT',sprintf('/%s',(preg_match('#/fog/#',$script_name)?'fog/':'')));
         return (file_exists('/srv/http/fog') ? '/srv/http/fog' : (file_exists('/var/www/html/fog') ? '/var/www/html/fog' : (file_exists('/var/www/fog') ? '/var/www/fog' : '/'.trim($_SERVER['DOCUMENT_ROOT'],'/').'/'.WEB_ROOT)));
     }
     /** __destruct() Cleanup after no longer needed
@@ -65,17 +66,6 @@ class Initiator {
         @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
         self::verCheck();
         self::extCheck();
-        foreach($_REQUEST as $key => &$val) {
-            if (is_array($val)) {
-                foreach ((array)$val AS $i => &$v) {
-                    $_REQUEST[$key][$i] = trim(htmlentities(mb_convert_encoding($v,'UTF-8'),ENT_QUOTES,'UTF-8'));
-                    unset($v);
-                }
-            } else {
-                $_REQUEST[$key] = trim(htmlentities(mb_convert_encoding($val,'UTF-8'),ENT_QUOTES,'UTF-8'));
-            }
-            unset($val);
-        }
         foreach(array('node','sub','printertype','id','sub','crit','sort','confirm','tab') AS $x) {
             global $$x;
             if (isset($_REQUEST[$x])) $_REQUEST[$x] = $$x = trim(htmlentities(mb_convert_encoding($_REQUEST[$x],'UTF-8'),ENT_QUOTES,'UTF-8'));
@@ -83,6 +73,32 @@ class Initiator {
         }
         new System();
         new Config();
+    }
+    public function sanitize_items($value = '') {
+        if (!$value) {
+            foreach ($_REQUEST AS $key => &$val) {
+                if (is_string($val)) $_REQUEST[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
+                else if (is_array($val)) $_REQUEST[$key] = $this->sanitize_items($val);
+                unset($val);
+            }
+            foreach ($_GET AS $key => &$val) {
+                if (is_string($val)) $_GET[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
+                else if (is_array($val)) $_GET[$key] = $this->sanitize_items($val);
+                unset($val);
+            }
+            foreach ($_POST AS $key => &$val) {
+                if (is_string($val)) $_POST[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
+                else if (is_array($val)) $_POST[$key] = $this->sanitize_items($val);
+                unset($val);
+            }
+        } else {
+            foreach ($value AS $key => &$val) {
+                if (is_string($val)) $value[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
+                else if (is_array($val)) $value[$key] = $this->sanitize_items($val);
+                unset($val);
+            }
+            return $value;
+        }
     }
     /** verCheck() Checks the php version is good with current system
      * @return void
@@ -152,6 +168,8 @@ class Initiator {
 }
 /** $Init the initiator class */
 $Init = new Initiator();
+/** Sanitize user input */
+$Init->sanitize_items();
 /** Starts the init itself */
 $Init::startInit();
 /** $FOGFTP the FOGFTP class */
