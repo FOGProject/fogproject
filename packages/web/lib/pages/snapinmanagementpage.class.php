@@ -169,8 +169,8 @@ class SnapinManagementPage extends FOGPage {
                 ->set('reboot',(int)isset($_REQUEST['reboot']))
                 ->set('runWith',$_REQUEST['rw'])
                 ->set('runWithArgs',$_REQUEST['rwa'])
-                ->set('isEnabled',intval(isset($_REQUEST['isEnabled'])))
-                ->set('toReplicate',intval(isset($_REQUEST['toReplicate'])))
+                ->set('isEnabled',(int) isset($_REQUEST['isEnabled']))
+                ->set('toReplicate',(int) isset($_REQUEST['toReplicate']))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Snapin->save()) throw new Exception(_('Add snapin failed!'));
             $this->HookManager->processEvent('SNAPIN_ADD_SUCCESS',array('Snapin'=>&$Snapin));
@@ -350,8 +350,8 @@ class SnapinManagementPage extends FOGPage {
                     ->set('runWith',$_REQUEST['rw'])
                     ->set('runWithArgs',$_REQUEST['rwa'])
                     ->set('protected',$_REQUEST['protected_snapin'])
-                    ->set('isEnabled',intval(isset($_REQUEST['isEnabled'])))
-                    ->set('toReplicate',intval(isset($_REQUEST['toReplicate'])));
+                    ->set('isEnabled',(int) isset($_REQUEST['isEnabled']))
+                    ->set('toReplicate',(int) isset($_REQUEST['toReplicate']));
                 break;
             case 'snap-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);

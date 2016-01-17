@@ -3,7 +3,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
     public function send() {
         if ($this->Host->get('task')->isValid() && !in_array($this->Host->get('task')->get('typeID'),array(12,13))) throw new Exception('#!it');
         if (isset($_REQUEST['taskid'])) {
-            $SnapinTask = $this->getClass('SnapinTask',intval($_REQUEST['taskid']));
+            $SnapinTask = $this->getClass('SnapinTask',(int) $_REQUEST['taskid']);
             if (!$SnapinTask->isValid() || in_array($SnapinTask->get('stateID'),array_merge((array)$this->getCompleteState(),(array)$this->getCancelledState()))) throw new Exception(_('Invalid snapin tasking passed'));
         } else {
             if (!$this->Host->get('snapinjob')->isValid()) throw new Exception('#!ns');

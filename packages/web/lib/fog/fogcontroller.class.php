@@ -21,7 +21,7 @@ abstract class FOGController extends FOGBase {
         try {
             if (!isset($this->databaseTable)) throw new Exception(_('No database table defined for this class'));
             if (!count($this->databaseFields)) throw new Exception(_('No database fields defined for this class'));
-            if (is_numeric($data) && intval($data) < 1) throw new Exception(_('Improper data passed'));
+            if (is_numeric($data) && (int) $data < 1) throw new Exception(_('Improper data passed'));
             $this->databaseFieldsFlipped = array_flip($this->databaseFields);
             if (is_numeric($data)) $this->set('id',$data)->load();
             else if (is_array($data)) $this->setQuery($data);

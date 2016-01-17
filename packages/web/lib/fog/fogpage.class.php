@@ -33,7 +33,7 @@ abstract class FOGPage extends FOGBase {
             $this->childClass = ucfirst($this->node);
             if (isset($_REQUEST['id'])) {
                 $this->obj = $this->getClass($this->childClass,$_REQUEST['id']);
-                if (intval($_REQUEST['id']) === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
+                if ((int) $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
                     unset($this->obj);
                     $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
                     $this->redirect(sprintf('?node=%s',$this->node));
@@ -220,13 +220,13 @@ abstract class FOGPage extends FOGBase {
     }
     public function deploy() {
         try {
-            $TaskType = $this->getClass('TaskType',(is_numeric($_REQUEST['type']) && intval($_REQUEST['type']) ? intval($_REQUEST['type']) : 1));
+            $TaskType = $this->getClass('TaskType',(is_numeric($_REQUEST['type']) && (int) $_REQUEST['type'] ? (int) $_REQUEST['type'] : 1));
             $imagingTypes = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
             if (($this->obj instanceof Group && !(count($this->obj->get('hosts')))) || ($this->obj instanceof Host && ($this->obj->get('pending') || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
             if ($imagingTypes && $this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
-            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && intval($_REQUEST['id']) > 0 ? sprintf('%s=%s',$this->id,intval($_REQUEST['id'])) : '')));
+            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && (int) $_REQUEST['id'] > 0 ? sprintf('%s=%s',$this->id,(int) $_REQUEST['id']) : '')));
         }
         $this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get('name'),_('task for'),$this->obj->get('name'));
         printf('<p class="c"><b>%s</b></p>',_('Are you sure you wish to deploy task to these machines'));
@@ -312,15 +312,15 @@ abstract class FOGPage extends FOGBase {
     }
     public function deploy_post() {
         try {
-            $TaskType = $this->getClass('TaskType',(is_numeric($_REQUEST['type']) && intval($_REQUEST['type']) ? intval($_REQUEST['type']) : 1));
+            $TaskType = $this->getClass('TaskType',((int) $_REQUEST['type'] ? (int) $_REQUEST['type'] : 1));
             $imagingTypes = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
             if (($this->obj instanceof Group && !(count($this->obj->get('hosts')))) || ($this->obj instanceof Host && ($this->obj->get('pending') || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
             if ($imagingTypes && $this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
-            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && intval($_REQUEST['id']) > 0 ? sprintf('%s=%s',$this->id,intval($_REQUEST['id'])) : '')));
+            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && (int) $_REQUEST['id'] > 0 ? sprintf('%s=%s',$this->id,(int) $_REQUEST['id']) : '')));
         }
-        $Snapin = $this->getClass('Snapin',intval($_REQUEST['snapin']));
+        $Snapin = $this->getClass('Snapin',(int) $_REQUEST['snapin']);
         $enableShutdown = $_REQUEST['shutdown'] ? true : false;
         $enableSnapins = $TaskType->get('id') != 17 ? ($Snapin instanceof Snapin && $Snapin->isValid() ? $Snapin->get('id') : -1) : false;
         $enableDebug = (bool)((isset($_REQUEST['debug']) && $_REQUEST['debug'] == 'true') || isset($_REQUEST['isDebugTask']));
@@ -678,7 +678,7 @@ abstract class FOGPage extends FOGBase {
     }
     public function configure() {
         $randTime = mt_rand(0,90);
-        $setTime = intval($this->getSetting('FOG_SERVICE_CHECKIN_TIME'));
+        $setTime = (int) $this->getSetting('FOG_SERVICE_CHECKIN_TIME');
         $randTime += $setTime;
         unset($setTime);
         echo "#!ok\n#sleep=$randTime\n#force={$this->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={$this->getSetting(FOG_GRACE_TIMEOUT)}";
