@@ -38,7 +38,7 @@ class ReportMaker extends FOGBase {
         $file = basename(trim(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')));
         if (!isset($_REQUEST['export'])) $this->setFileName($file);
         $intType = ($intType !== false ? (isset($_REQUEST['export']) ? 3 : $this->types[$type]) : 0);
-        switch (intval($intType)) {
+        switch ((int) $intType) {
         case 0:
             echo implode("\n",(array)$this->strHTML);
             break;

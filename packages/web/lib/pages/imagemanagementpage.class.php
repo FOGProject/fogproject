@@ -136,7 +136,7 @@ class ImageManagementPage extends FOGPage {
         $OSs = $this->getClass('OSManager')->buildSelectBox($_REQUEST['os']);
         $ImageTypes = $this->getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'] ? $_REQUEST['imagetype'] : 1,'','id');
         $ImagePartitionTypes = $this->getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'] ? $_REQUEST['imagepartitiontype'] : 1,'','id');
-        $compression = is_numeric($_REQUEST['compress']) && $_REQUEST['compress'] > -1 && $_REQUEST['compress'] < 10 ? intval($_REQUEST['compress']) : $this->getSetting('FOG_PIGZ_COMP');
+        $compression = is_numeric($_REQUEST['compress']) && $_REQUEST['compress'] > -1 && $_REQUEST['compress'] < 10 ? (int)$_REQUEST['compress'] : $this->getSetting('FOG_PIGZ_COMP');
         $fields = array(
             _('Image Name') => sprintf('<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="%s" />',$_REQUEST['name']),
             _('Image Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
@@ -184,8 +184,8 @@ class ImageManagementPage extends FOGPage {
                 ->set('imageTypeID',$_REQUEST['imagetype'])
                 ->set('imagePartitionTypeID',$_REQUEST['imagepartitiontype'])
                 ->set('compress',$_REQUEST['compress'])
-                ->set('isEnabled',intval(isset($_REQUEST['isEnabled'])))
-                ->set('toReplicate',intval(isset($_REQUEST['toReplicate'])))
+                ->set('isEnabled',(int) isset($_REQUEST['isEnabled']))
+                ->set('toReplicate',(int) isset($_REQUEST['toReplicate']))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Image->save()) throw new Exception(_('Database update failed'));
             $this->HookManager->processEvent('IMAGE_ADD_SUCCESS',array('Image'=>&$Image));
@@ -213,7 +213,7 @@ class ImageManagementPage extends FOGPage {
         $OSs = $this->getClass('OSManager')->buildSelectBox(isset($_REQUEST['os']) && $_REQUEST['os'] != $this->obj->get('osID') ? $_REQUEST['os'] : $this->obj->get('osID'));
         $ImageTypes = $this->getClass('ImageTypeManager')->buildSelectBox(isset($_REQUEST['imagetype']) && $_REQUEST['imagetype'] != $this->obj->get('imageTypeID') ? $_REQUEST['imagetype'] : $this->obj->get('imageTypeID'),'','id');
         $ImagePartitionTypes = $this->getClass('ImagePartitionTypeManager')->buildSelectBox(isset($_REQUEST['imagepartitiontype']) && $_REQUEST['imagepartitiontype'] != $this->obj->get('imagePartitionTypeID') ? $_REQUEST['imagepartitiontype'] : $this->obj->get('imagePartitionTypeID'),'','id');
-        $compression = isset($_REQUEST['compress']) && $_REQUEST['compress'] != $this->obj->get('compress') ? intval($_REQUEST['compress']) : is_numeric($this->obj->get('compress')) && $this->obj->get('compress') > -1 ? $this->obj->get('compress') : $this->getSetting('FOG_PIGZ_COMP');
+        $compression = isset($_REQUEST['compress']) && $_REQUEST['compress'] != $this->obj->get('compress') ? (int) $_REQUEST['compress'] : is_numeric($this->obj->get('compress')) && $this->obj->get('compress') > -1 ? $this->obj->get('compress') : $this->getSetting('FOG_PIGZ_COMP');
         if ($_SESSION['FOG_FORMAT_FLAG_IN_GUI']) $format = sprintf('<select name="imagemanage"><option value="1"%s>%s</option><option value="0"%s>%s</option></select>',$this->obj->get('format') ? ' selected' : '',_('Partimage'),!$this->obj->get('format') ? ' selected' : '',_('Partclone'));
         $fields = array(
             _('Image Name') => sprintf('<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="%s"/>',isset($_REQUEST['name']) && $_REQUEST['name'] != $this->obj->get('name') ? $_REQUEST['name'] : $this->obj->get('name')),
@@ -326,8 +326,8 @@ class ImageManagementPage extends FOGPage {
                     ->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $this->obj->get('format'))
                     ->set('protected',(int)isset($_REQUEST['protected_image']))
                     ->set('compress',$_REQUEST['compress'])
-                    ->set('isEnabled',intval(isset($_REQUEST['isEnabled'])))
-                    ->set('toReplicate',intval(isset($_REQUEST['toReplicate'])));
+                    ->set('isEnabled',(int) isset($_REQUEST['isEnabled']))
+                    ->set('toReplicate',(int) isset($_REQUEST['toReplicate']));
                 break;
             case 'image-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);

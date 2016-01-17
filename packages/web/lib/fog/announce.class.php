@@ -19,9 +19,9 @@ class Announce extends FOGBase {
         $this->FOGCore->valdata('info_hash',true);
         // Make sure data is setup:
         !$_REQUEST['key'] ? $_REQUEST['key'] : '';
-        $this->downloaded = !$_REQUEST['downloaded'] ? 0 : intval($_REQUEST['downloaded']);
-        $this->uploaded = !$_REQUEST['uploaded'] ? 0 : intval($_REQUEST['uploaded']);
-        $this->left = !$_REQUEST['left'] ? 0 : intval($_REQUEST['left']);
+        $this->downloaded = !$_REQUEST['downloaded'] ? 0 : (int) $_REQUEST['downloaded'];
+        $this->uploaded = !$_REQUEST['uploaded'] ? 0 : (int) $_REQUEST['uploaded'];
+        $this->left = !$_REQUEST['left'] ? 0 : (int) $_REQUEST['left'];
         $this->FOGCore->valdata('key');
         $this->checkPort();
         $this->peer = $this->PeerGen();
@@ -30,7 +30,7 @@ class Announce extends FOGBase {
         // User Agent is required.
         !$_SERVER['HTTP_USER_AGENT'] ? $_SERVER['HTTP_USER_AGENT'] = 'N/A' : null;
         if ($_REQUEST['event'] && $_REQUEST['event'] === 'stopped') $this->stopTorrent();
-        if ($_REQUEST['numwant'] && ctype_digit($_REQUEST['numwant']) && $_REQUEST['numwant'] <= $this->getSetting('FOG_TORRENT_PPR') && $_REQUEST['numwant'] >= 0) $this->numwant = intval($_REQUEST['numwant']);
+        if ($_REQUEST['numwant'] && ctype_digit($_REQUEST['numwant']) && $_REQUEST['numwant'] <= $this->getSetting('FOG_TORRENT_PPR') && $_REQUEST['numwant'] >= 0) $this->numwant = (int) $_REQUEST['numwant'];
         $this->doTheWork();
     }
     /** @function checkPort() Checks the port setting.  If in valid returns as invalid.
@@ -56,13 +56,13 @@ class Announce extends FOGBase {
                 'agent' => substr($_SERVER['HTTP_USER_AGENT'],0,80),
                 'ip' => ip2long($_SERVER['REMOTE_ADDR']),
                 'key' => sha1($_REQUEST['key']),
-                'port' => intval($_REQUEST['port']),
+                'port' => (int) $_REQUEST['port'],
             ));
         } else {
             $Peer->set('hash',bin2hex($_REQUEST['peer_id']))
                 ->set('agent',substr($_SERVER['HTTP_USER_AGENT'],0,80))
                 ->set('ip',ip2long($_SERVER['REMOTE_ADDR']))
-                ->set('port',intval($_REQUEST['port']));
+                ->set('port',(int) $_REQUEST['port']);
         }
         $Peer->save();
         return $Peer;

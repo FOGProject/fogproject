@@ -90,8 +90,8 @@ class FOGCore extends FOGBase {
         $l = explode("\n",$t);
         foreach ($l AS $i => &$n) {
             if (!preg_match("/(\d+) +(\d+) +(\d+) +\d+%/",$n,$matches)) continue;
-            $hdtotal += intval($matches[1])*1024;
-            $hdused += intval($matches[2])*1024;
+            $hdtotal += (int) $matches[1]*1024;
+            $hdused += (int) $matches[2]*1024;
             unset($n);
         }
         unset($l);
@@ -156,7 +156,7 @@ class FOGCore extends FOGBase {
         $_SESSION['FOGPingActive'] = $this->getSetting('FOG_HOST_LOOKUP');
         $_SESSION['memory'] = $this->getSetting('FOG_MEMORY_LIMIT');
         $memorySet = preg_replace('#M#','',ini_get('memory_limit'));
-        if (intval($memorySet) < $_SESSION['memory']) ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
+        if ((int) $memorySet < $_SESSION['memory']) ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
         $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $this->getSetting('FOG_FORMAT_FLAG_IN_GUI');
         $_SESSION['FOG_SNAPINDIR'] = $this->getSetting('FOG_SNAPINDIR');
         $_SESSION['FOG_REPORT_DIR'] = $this->getSetting('FOG_REPORT_DIR');

@@ -150,11 +150,11 @@ class FOGConfigurationPage extends FOGPage {
     public function pxemenu_post() {
         try {
             $timeout = trim($_REQUEST['timeout']);
-            $timeout = (is_numeric($timeout) || intval($timeout) >= 0 ? true : false);
+            $timeout = (is_numeric($timeout) || (int) $timeout >= 0 ? true : false);
             if (!$timeout) throw new Exception(_('Invalid Timeout Value'));
             else $timeout = trim($_REQUEST['timeout']);
             $hidetimeout = trim($_REQUEST['hidetimeout']);
-            $hidetimeout = (is_numeric($hidetimeout) || intval($hidetimeout) >= 0 ? true : false);
+            $hidetimeout = (is_numeric($hidetimeout) || (int) $hidetimeout >= 0 ? true : false);
             if (!$hidetimeout) throw new Exception(_('Invalid Timeout Value'));
             else $hidetimeout = trim($_REQUEST['hidetimeout']);
             if (!$this
@@ -577,7 +577,7 @@ class FOGConfigurationPage extends FOGPage {
         echo '</div></form>';
     }
     public function getOSID() {
-        $imageid = intval($_REQUEST['image_id']);
+        $imageid = (int) $_REQUEST['image_id'];
         $osname = $this->getClass('Image',$imageid)->getOS()->get('name');
         echo json_encode($osname ? $osname : _('No Image specified'));
         exit;
