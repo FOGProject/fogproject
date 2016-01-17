@@ -1,7 +1,7 @@
-#!/bin/sh
-ifaces=`ls -1 /sys/class/net | tr -d '@'`
+#!/bin/bash
+ifaces=$(ls -1 /sys/class/net | tr -d '@')
 for iface in $ifaces; do
-    if [ "x$iface" == "xlo" ]; then
+    if [[ x$iface == xlo ]]; then
         /sbin/ip link set lo down
         continue
     fi
@@ -9,5 +9,4 @@ for iface in $ifaces; do
     /sbin/udhcpc -i $iface -R
     /sbin/ip link set $iface down
 done
-
 exit $?
