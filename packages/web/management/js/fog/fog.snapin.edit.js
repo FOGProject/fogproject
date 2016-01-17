@@ -1,38 +1,22 @@
 $(function() {
     // Show hide based on checked state.
     $('#hostNotInMe,#hostNoSnapin').hide();
-    $('#hostMeShow').click(function() {
+    $('#hostMeShow').change(function(e) {
         $('#hostNotInMe').toggle();
+        e.preventDefault();
     });
-    $('#hostNoShow').click(function() {
+    $('#hostNoShow').change(function(e) {
         $('#hostNoSnapin').toggle();
+        e.preventDefault();
     });
-    $('.toggle-checkbox1').click(function() {
-        $('input.toggle-host1:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
-    $('.toggle-checkbox2').click(function() {
-        $('input.toggle-host2:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
-    $('#groupNotInMe').hide();
-    $('#groupNoSnapin').hide();
-    $('#groupMeShow').click(function() {
+    $('#groupMeShow').change(function(e) {
         $('#groupNotInMe').toggle();
+        e.preventDefault();
     });
-    $('#groupNoShow').click(function() {
+    $('#groupNoShow').change(function(e) {
         $('#groupNoSnapin').toggle();
+        e.preventDefault();
     });
-    $('.toggle-checkbox1').click(function() {
-        $('input.toggle-snapin1:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
-    $('.toggle-checkbox2').click(function() {
-        $('input.toggle-snapin2:checkbox')
-            .not(':hidden')
-            .prop('checked',$(this).is(':checked'));
-    });
+    checkboxAssociations('.toggle-checkbox1:checkbox','.toggle-host1:checkbox,.toggle-snapin1:checkbox');
+    checkboxAssociations('.toggle-checkbox2:checkbox','.toggle-host2:checkbox,.toggle-snapin2:checkbox');
 });
