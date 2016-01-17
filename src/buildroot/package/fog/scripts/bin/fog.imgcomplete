@@ -1,10 +1,6 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
-echo
-echo
 echo " * Task Complete"
-echo
-echo
 case $type in
     [Dd][Oo][Ww][Nn])
         php_post="Post_Stage3.php"

@@ -118,7 +118,6 @@ for disk in $disks; do
         dots "Clam AV Mode"
         echo "$modename"
         debugPause
-        echo
         dots "Starting AV scan"
         echo -e -n "\t"
         clamscan -V >/dev/null 2&>1
@@ -140,7 +139,6 @@ for disk in $disks; do
         clamscan -r --tempdir=/clamavscan/fog/tmp $action --log=/clamavscan/fog/log/log.txt --no-summary --exclude-dir=/clamavscan/fog/*
         case $? in
             0)
-                echo
                 echo " * Scan complete, processing log file"
                 ;;
             *)
@@ -149,10 +147,9 @@ for disk in $disks; do
                 umount /clamavscan
                 cur=$(date +%s)
                 diff=$((cur - start))
-                echo
-                display_center "Clam AV failed"
-                display_center "This may be due to a problem with the virus database files"
-                display_center "Trying with the next partition"
+                echo " * Clam AV failed"
+                echo " * This may be due to a problem with the virus database files"
+                echo " * Trying with the next partition"
                 debugPause
                 continue
                 ;;
@@ -180,7 +177,6 @@ for disk in $disks; do
             esac
             debugPause
             cat /tmp/avstat
-            echo
             cat /dev/null > /tmp/avstat
         done
         IFS=$oIFS

@@ -30,8 +30,7 @@ case $imgType in
         debugPause
         diskSize=$(lsblk --bytes -dplno SIZE -I 3,8,9,179,259 $hd)
         [[ $diskSize -gt 2199023255552 ]] && layPartSize="2tB"
-        display_center "Using Disk: $hd"
-        echo
+        echo " * Using Disk: $hd"
         validResizeOS
         enableWriteCache "$hd"
         ;;
@@ -45,16 +44,13 @@ case $imgType in
         fi
         echo "Done"
         debugPause
-        display_center "Using Disks: $disks"
+        echo " * Using Disks: $disks"
         ;;
 esac
-echo
 echo " * Preparing Partition layout"
-echo
 case $imgType in
     [Nn])
-        display_center "Wiping $hd partition information"
-        echo
+        echo " * Wiping $hd partition information"
         initHardDisk "$hd"
         runPartprobe "$hd"
         do_fill=$(fillDiskWithPartitionsIsOK $hd $imagePath 1)
@@ -279,8 +275,7 @@ case $imgType in
         ;;
     mps)
         [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
-        display_center "Wiping $hd partition information"
-        echo
+        echo " * Wiping $hd partition information"
         initHardDisk "$hd"
         [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath"
         runPartprobe "$hd"
@@ -291,8 +286,7 @@ case $imgType in
         getHardDisk "true"
         intDisk=1
         for disk in $disks; do
-            display_center "Wiping $disk partition information"
-            echo
+            echo " * Wiping $disk partition information"
             initHardDisk "$disk"
             [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath"
             runPartprobe "$disk"
@@ -301,15 +295,11 @@ case $imgType in
         done
         ;;
 esac
-echo
-display_center "+--------------------------------+"
-display_center "|  Attempting to download image  |"
-display_center "+--------------------------------+"
-echo
-display_center "+--------------------------------+"
-[[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]] && display_center "|         Using Partimage        |" || display_center "|         Using Partclone        |"
-display_center "+--------------------------------+"
-echo
+echo "   +--------------------------------+"
+echo "   |  Attempting to download image  |"
+echo "   +--------------------------------+"
+[[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]] && echo "   |         Using Partimage        |" || echo "   |         Using Partclone        |"
+echo "   +--------------------------------+"
 [[ $mc == yes ]] && usleep 10000000 || usleep 3000000
 case $imgType in
     [Nn])

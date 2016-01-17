@@ -61,9 +61,7 @@ expandPartition() {
         local partNum=$(getPartitionNumber $part)
         local is_fixed=$(echo $fixed_size_partitions | egrep "(${partNum}|^${partNum}|${partNum}$)" | wc -l)
         if [[ $is_fixed -gt 0 ]]; then
-            echo
             echo " * Not expanding ($part) fixed size"
-            echo
             debugPause
             return
         fi
@@ -121,9 +119,7 @@ expandPartition() {
             esac
             ;;
         *)
-            echo
             echo " * Not expanding ($part -- $fstype)"
-            echo
             debugPause
             ;;
     esac
@@ -303,15 +299,12 @@ shrinkPartition() {
             sizentfsresize=$((sizentfsresize + 300000))
             sizentfsresize=$((sizentfsresize * 1${percent} / 100))
             sizefd=$((sizentfsresize * 103 / 100))
-            echo
             echo " * Possible resize partition size: $sizentfsresize k"
-            echo
             dots "Running resize test $part"
             tmpSuc=$(ntfsresize -f -n -s ${sizentfsresize}k $part </usr/share/fog/lib/EOFNTFSRESTORE)
             test_string=$(echo $tmpSuc | egrep -o "(ended successfully|bigger than the device size|volume size is already OK)")
             echo "Done"
             debugPause
-            echo
             case $test_string in
                 "ended successfully")
                     echo " * Resize test was successful"
@@ -329,9 +322,8 @@ shrinkPartition() {
                     echo "Resize test failed!\n $tmpSuc (${FUNCNAME[0]})"
                     ;;
             esac
-            echo
-            debugPause
             if [[ $do_resizefs -eq 1 ]]; then
+                debugPause
                 dots "Resizing filesystem"
                 ntfsresize -f -s ${sizentfsresize}k $part < /usr/share/fog/lib/EOFNTFS >/dev/null 2>&1
                 case $? in
@@ -344,10 +336,10 @@ shrinkPartition() {
                         handleError "Could not resize disk (${FUNCNAME[0]})"
                         ;;
                 esac
-                debugPause
                 resetFlag "$part"
             fi
             if [[ $do_resizepart -eq 1 ]]; then
+                debugPause
                 dots "Resizing partition $part"
                 case $osid in
                     [1-2])
@@ -376,7 +368,6 @@ shrinkPartition() {
                         ;;
                 esac
                 echo "Done"
-                debugPause
                 resetFlag "$part"
             fi
             ;;
@@ -399,7 +390,6 @@ shrinkPartition() {
             size=$((extminsizenum * block_size))
             sizeextresize=$((size * 103 / 100 / 1024))
             [[ -z $sizeextresize || $sizeextresize -lt 1 ]] && handleError "Error calculating the new size of extfs ($part) (${FUNCNAME[0]})"
-            echo
             dots "Shrinking $fstype volume ($part)"
             resize2fs $part -M >/dev/null 2>&1
             case $? in
@@ -441,9 +431,7 @@ shrinkPartition() {
             esac
             ;;
         *)
-            echo
             echo " * Not shrinking ($part $fstype)"
-            echo
             ;;
     esac
     debugPause
@@ -469,7 +457,6 @@ resetFlag() {
             esac
             ;;
     esac
-    debugPause
 }
 # $1 is the disk
 # $2 is the part type to look for
@@ -590,9 +577,7 @@ changeHostname() {
         if [[ ! $? -eq 0 ]]; then
             echo "Failed"
             debugPause
-            echo
             echo " * Could not create mount location"
-            echo
             return
         fi
     else
@@ -606,9 +591,7 @@ changeHostname() {
         *)
             echo "Failed"
             debugPause
-            echo
             echo " * Could not mount $part to /ntfs"
-            echo
             return
             ;;
     esac
@@ -688,9 +671,7 @@ fixWin7boot() {
                             *)
                                 echo "Failed"
                                 debugPause
-                                echo
                                 echo " * Could not create mount location"
-                                echo
                                 return
                                 ;;
                         esac
@@ -702,9 +683,7 @@ fixWin7boot() {
                             *)
                                 echo "Failed"
                                 debugPause
-                                echo
                                 echo " * Could not mount $part to /bcdstore"
-                                echo
                                 return
                                 ;;
                         esac
@@ -744,18 +723,14 @@ fixWin7boot() {
                     esac
                     ;;
                 *)
-                    echo
                     echo " * Not NTFS Partition"
-                    echo
                     debugPause
                     return
                     ;;
             esac
             ;;
         *)
-            echo
             echo " * Not a valid bcd necessary OS"
-            echo
             debugPause
             return
             ;;
@@ -796,9 +771,7 @@ clearMountedDevices() {
                         *)
                             echo "Failed"
                             debugPause
-                            echo
                             echo " * Failed to mount partition to clear"
-                            echo
                             return
                             ;;
                     esac
@@ -817,9 +790,7 @@ clearMountedDevices() {
                             echo "Failed"
                             debugPause
                             /umount /ntfs >/dev/null 2>&1
-                            echo
                             echo " * Could not clear partition $part"
-                            echo
                             return
                             ;;
                     esac
@@ -831,9 +802,7 @@ clearMountedDevices() {
             esac
             ;;
         *)
-            echo
             echo " * Not proper OS type"
-            echo
             ;;
     esac
     debugPause
@@ -857,9 +826,7 @@ removePageFile() {
                             *)
                                 echo "Failed"
                                 debugPause
-                                echo
                                 echo " * Could not create mount location"
-                                echo
                                 return
                                 ;;
                         esac
@@ -873,9 +840,7 @@ removePageFile() {
                         *)
                             echo "Failed"
                             debugPause
-                            echo
                             echo " * Could not mount to location"
-                            echo
                             return
                             ;;
                     esac
@@ -893,9 +858,7 @@ removePageFile() {
                             *)
                                 echo "Failed"
                                 debugPause
-                                echo
                                 echo " * Could not delete the page file"
-                                echo
                                 ;;
                         esac
                         debugPause
@@ -903,7 +866,6 @@ removePageFile() {
                     dots "Removing hibernate file"
                     if [[ ! -f /ntfs/hiberfil.sys ]]; then
                         echo "Doesn't exist"
-                        debugPause
                     else
                         rm -rf /ntfs/hiberfil.sys >/dev/null 2>&1
                         case $? in
@@ -914,25 +876,19 @@ removePageFile() {
                                 echo "Failed"
                                 debugPause
                                 umount /ntfs >/dev/null 2>&1
-                                echo
                                 echo " * Could not delete the hibernate file"
-                                echo
                                 ;;
                         esac
                     fi
                     umount /ntfs >/dev/null 2>&1
                     ;;
                 *)
-                    echo
                     echo " * Not an NTFS file system"
-                    echo
                     ;;
             esac
             ;;
         *)
-            echo
             echo " * Not necessary for this OSID $osid"
-            echo
             ;;
     esac
     debugPause
@@ -1240,59 +1196,37 @@ correctVistaMBR() {
     esac
     debugPause
 }
-display_center() {
-    local columns=$(tput cols)
-    local line="$1"
-    local newline=""
-    [[ -z $2 ]] && newline="\n"
-    printf "%*s$newline" $(((${#line}+columns)/2)) "$line"
-}
-display_right() {
-    local columns="$(tput cols)"
-    local line="$1"
-    local newline=""
-    [[ -z $2 ]] && newline="\n"
-    printf "%*s$newline" $columns "$line"
-}
 displayBanner() {
     version=$(wget -qO - http://${web}service/getversion.php 2>/dev/null)
-    echo
-    echo
-    display_center "+------------------------------------------+"
-    display_center "|     ..#######:.    ..,#,..     .::##::.  |"
-    display_center "|.:######          .:;####:......;#;..     |"
-    display_center "|...##...        ...##;,;##::::.##...      |"
-    display_center "|   ,#          ...##.....##:::##     ..:: |"
-    display_center "|   ##    .::###,,##.   . ##.::#.:######::.|"
-    display_center "|...##:::###::....#. ..  .#...#. #...#:::. |"
-    display_center "|..:####:..    ..##......##::##  ..  #     |"
-    display_center "|    #  .      ...##:,;##;:::#: ... ##..   |"
-    display_center "|   .#  .       .:;####;::::.##:::;#:..    |"
-    display_center "|    #                     ..:;###..       |"
-    display_center "|                                          |"
-    display_center "+------------------------------------------+"
-    display_center "|      Free Computer Imaging Solution      |"
-    display_center "+------------------------------------------+"
-    display_center "|  Credits: http://fogproject.org/Credits  |"
-    display_center "|       http://fogproject.org/Credits      |"
-    display_center "|       Released under GPL Version 3       |"
-    display_center "+------------------------------------------+"
-    display_center "Version: $version"
-    echo
-    echo
+    echo "   +------------------------------------------+"
+    echo "   |     ..#######:.    ..,#,..     .::##::.  |"
+    echo "   |.:######          .:;####:......;#;..     |"
+    echo "   |...##...        ...##;,;##::::.##...      |"
+    echo "   |   ,#          ...##.....##:::##     ..:: |"
+    echo "   |   ##    .::###,,##.   . ##.::#.:######::.|"
+    echo "   |...##:::###::....#. ..  .#...#. #...#:::. |"
+    echo "   |..:####:..    ..##......##::##  ..  #     |"
+    echo "   |    #  .      ...##:,;##;:::#: ... ##..   |"
+    echo "   |   .#  .       .:;####;::::.##:::;#:..    |"
+    echo "   |    #                     ..:;###..       |"
+    echo "   |                                          |"
+    echo "   +------------------------------------------+"
+    echo "   |      Free Computer Imaging Solution      |"
+    echo "   +------------------------------------------+"
+    echo "   |  Credits: http://fogproject.org/Credits  |"
+    echo "   |       http://fogproject.org/Credits      |"
+    echo "   |       Released under GPL Version 3       |"
+    echo "   +------------------------------------------+"
+    echo "   Version: $version"
 }
 handleError() {
     local str="$1"
-    echo
-    echo
     echo "##############################################################################"
     echo "#                                                                            #"
     echo "#                         An error has been detected!                        #"
     echo "#                                                                            #"
     echo "##############################################################################"
-    echo
-    echo
-    display_center "$str"
+    echo "$str"
     #
     # expand the file systems in the restored partitions
     #
@@ -1309,8 +1243,6 @@ handleError() {
                 ;;
         esac
     fi
-    echo
-    echo
     if [[ -z $isdebug && $mode != +(*debug*) ]]; then
         echo "##############################################################################"
         echo "#                                                                            #"
@@ -1325,17 +1257,12 @@ handleError() {
 }
 handleWarning() {
     local str="$1"
-    echo
     echo "##############################################################################"
     echo "#                                                                            #"
     echo "#                        A warning has been detected!                        #"
     echo "#                                                                            #"
     echo "##############################################################################"
-    echo
-    echo
-    display_center "$str"
-    echo
-    echo
+    echo "$str"
     echo "##############################################################################"
     echo "#                                                                            #"
     echo "#                          Will continue in 1 minute                         #"
@@ -1455,8 +1382,7 @@ restoreGRUB() {
 }
 debugPause() {
     [[ -z $isdebug && $mode != debug ]] && return
-    echo
-    display_center "Press [Enter] key to continue"
+    echo " * Press [Enter] key to continue"
     read -p "$*"
 }
 debugEcho() {
@@ -1467,8 +1393,7 @@ majorDebugEcho() {
 }
 majorDebugPause() {
     [[ ! $ismajordebug -gt 0 ]] && return
-    echo
-    display_center "Press [Enter] key to continue"
+    echo " * Press [Enter] key to continue"
     read -p "$*"
 }
 swapUUIDFileName() {
@@ -1742,40 +1667,45 @@ savePartition() {
         echo "Done"
         debugPause
     fi
-    echo
     echo " * Processing Partition: $part ($partNum)"
-    echo
     debugPause
     fstype=$(fsTypeSetting $part)
     parttype=$(getPartType $part)
-    if [[ $fstype != 'swap' && $parttype != '0x5' && $parttype != '0xf' ]]; then
-        # normal filesystem data on partition
-        echo
-        echo " * Using partclone.$fstype"
-        echo
-        debugPause
-        imgpart="$imagePath/d${intDisk}p${partNum}.img"
-        uploadFormat $fifoname $imgpart
-        partclone.$fstype -fsck-src-part-y -c -s "$part" -O "$fifoname" -N -f 1 2>/tmp/status.fog
-        [[ ! $? -eq 0 ]] && handleError "Failed to complete upload (${FUNCNAME[0]})"
-        mv ${imgpart}.000 $imgpart >/dev/null 2>&1
-        echo " * Image uploaded"
-    else
-        if [[ $parttype == 0x5 || $parttype == 0xf ]]; then
-            # extended partition, the EBR should have been saved with the partition table
-            echo " * Not uploading content of extended partition"
-            # leave an empty file to make restorePartition happy
-            local ebrfilename=$(EBRFileName $imagePath $intDisk $partNum)
-            touch $ebrfilename
-        elif [[ $fstype == swap ]]; then
-            echo " * Saving swap parition UUID"
-            local swapuuidfilename=$(swapUUIDFileName $imagePath $intDisk)
+    case $fstype in
+        swap)
+            echo " * Saving swap partition UUID"
+            swapuuidfilename=$(swapUUIDFileName $imagePath $intDisk)
             saveSwapUUID "$swapuuidfilename" "$part"
-        else
-            handleError "Unexpected condition in savePartition."
-        fi
-    fi
+            ;;
+        *)
+            case $parttype in
+                0x5|0xf)
+                    echo " * Not uploading content of extended partition"
+                    debugPause
+                    ebrfilename=$(EBRFileName $imagePath $intDisk $partNum)
+                    touch $ebrfilename
+                    ;;
+                *)
+                    echo " * Using partclone.$fstype"
+                    debugPause
+                    imgpart="$imagePath/d${intDisk}p${partNum}.img"
+                    uploadFormat "$fifoname" "$imgpart"
+                    partclone.$fstype -fsck-src-part-y -c -s $part -O $fifoname -N -f 1 2>/tmp/status.fog
+                    case $? in
+                        0)
+                            mv ${imgpart}.000 $imgpart >/dev/null 2>&1
+                            echo " * Image Uploaded"
+                            ;;
+                        *)
+                            handleError "Failed to complete upload (${FUNCNAME[0]})"
+                            ;;
+                    esac
+                    ;;
+            esac
+            ;;
+    esac
     rm -rf $fifoname >/dev/null 2>&1
+    debugPause
 }
 restorePartition() {
     local part="$1"

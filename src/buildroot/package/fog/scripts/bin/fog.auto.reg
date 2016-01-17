@@ -50,14 +50,12 @@ caseman64=""
 casever64=""
 caseserial64=""
 casesasset64=""
-echo
 dots "Using disk device"
 getHardDisk
 echo "$hd"
 echo "Starting host registration"
 mac_deployed="$mac"
 mac=$(getMACAddresses | base64)
-echo
 dots "Attempting to register host"
 count=0
 res=""

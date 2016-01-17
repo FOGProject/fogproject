@@ -2,11 +2,8 @@
 . /usr/share/fog/lib/funcs.sh
 clearScreen
 displayBanner
-echo
 echo " Thanks for donating to the FOG Project!"
-echo
 echo " To abort this task at any time, press the enter key"
-echo
 usleep 5000000
 dots "Checking in with server"
 count=0
@@ -23,7 +20,6 @@ while [[ $res != "##" ]]; do
 done
 echo "Done"
 debugPause
-echo
 echo " Turning off montior output to conserve power..."
 usleep 2000000
 clear
