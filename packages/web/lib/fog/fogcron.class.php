@@ -13,11 +13,11 @@ class FOGCron extends FOGBase {
             'dow' => self::_parseCronNumbers($Cron[4],0,6),
         );
         for ($i = 0; $i <= (60*60*24*366); $i += 60) {
-            $minutes = in_array(intval($FOGCore->nice_date()->setTimestamp($Start+$i)->format('i')),$date['minutes']);
-            $hours = in_array(intval($FOGCore->nice_date()->setTimestamp($Start+$i)->format('H')),$date['hours']);
-            $dom = in_array(intval($FOGCore->nice_date()->setTimestamp($Start+$i)->format('j')),$date['dom']);
-            $month = in_array(intval($FOGCore->nice_date()->setTimestamp($Start+$i)->format('n')),$date['month']);
-            $dow = in_array(intval($FOGCore->nice_date()->setTimestamp($Start+$i)->format('N')),$date['dow']);
+            $minutes = in_array((int) $FOGCore->nice_date()->setTimestamp($Start+$i)->format('i'),$date['minutes']);
+            $hours = in_array((int) $FOGCore->nice_date()->setTimestamp($Start+$i)->format('H'),$date['hours']);
+            $dom = in_array((int) $FOGCore->nice_date()->setTimestamp($Start+$i)->format('j'),$date['dom']);
+            $month = in_array((int) $FOGCore->nice_date()->setTimestamp($Start+$i)->format('n'),$date['month']);
+            $dow = in_array((int) $FOGCore->nice_date()->setTimestamp($Start+$i)->format('N'),$date['dow']);
             if ($dom && $month && $dow && $hours && $minutes) return $Start+$i;
         }
         return false;
@@ -31,7 +31,7 @@ class FOGCron extends FOGBase {
             $vvvv = explode('-',$vvv[0]);
             $_min = count($vvvv) == 2 ? $vvvv[0] : ($vvv[0] == '*' ? $min : $vvv[0]);
             $_max = count($vvvv) == 2 ? $vvvv[1] : ($vvv[0] == '*' ? $max : $vvv[0]);
-            for ($i = $_min; $i <= $_max; $i += $step) $result[] = intval($i);
+            for ($i = $_min; $i <= $_max; $i += $step) $result[] = (int) $i;
         }
         unset($vv);
         ksort($result);

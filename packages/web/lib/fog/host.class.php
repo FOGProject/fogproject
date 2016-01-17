@@ -797,7 +797,7 @@ class Host extends FOGController {
         return $this;
     }
     public function getPingCodeStr() {
-        $val = intval($this->get('pingstatus'));
+        $val = (int) $this->get('pingstatus');
         $socketstr = socket_strerror($val);
         $strtoupdate = "<i class=\"icon-ping-%s fa fa-exclamation-circle fa-1x\" style=\"color: %s\" title=\"$socketstr\"></i>";
         ob_start();

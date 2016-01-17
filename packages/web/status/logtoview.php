@@ -7,10 +7,10 @@ $vals = function($reverse,$HookManager) {
     $HookManager->processEvent('LOG_FOLDERS',array('folders'=>&$folders));
     if (!preg_grep($pattern,$folders)) return _('Invalid Folder');
     $lines = array();
-    $line_count = is_numeric(trim($_REQUEST['lines'])) ? trim($_REQUEST['lines']) : 20;
+    $line_count = (int) $_REQUEST['lines'];
     $block_size = 8192;
     $leftover = "";
-    $file = trim(basename($_REQUEST['file']));
+    $file = trim(basename(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')));
     $path = sprintf('%s%s',$folder,$file);
     $fh = fopen($path,'rb');
     if ($fh === false) return _('No data to read');
@@ -20,7 +20,7 @@ $vals = function($reverse,$HookManager) {
         if (ftell($fh) < $block_size) $can_read = ftell($fh);
         fseek($fh, -$can_read, SEEK_CUR);
         ob_start();
-        echo mb_convert_encoding(fread($fh,$can_read),'UTF-8');
+        echo htmlentities(fread($fh,$can_read),ENT_QUOTES,'utf-8');
         echo $leftover;
         fseek($fh, -$can_read, SEEK_CUR);
         $split_data = array_reverse(explode("\n",ob_get_clean()));
@@ -48,7 +48,7 @@ if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
             'ip'=>htmlentities($FOGCore->aesencrypt($ip),ENT_QUOTES,'utf-8'),
             'file'=>htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8'),
             'lines'=>htmlentities($_REQUEST['lines'],ENT_QUOTES,'utf-8'),
-            'reverse'=>intval($_REQUEST['reverse']))
+            'reverse'=>(int) $_REQUEST['reverse'])
         );
         echo array_shift($response);
     }
