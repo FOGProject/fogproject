@@ -216,7 +216,6 @@ case $imgType in
         clear
         ;;
 esac
-debugPause
 chmod -R 777 "$imagePath" >/dev/null 2>&1
 killStatusReporter
 . /bin/fog.imgcomplete
