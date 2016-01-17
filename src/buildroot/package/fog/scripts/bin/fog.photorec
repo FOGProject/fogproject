@@ -4,7 +4,6 @@
 clearScreen
 displayBanner
 getHardDisk "true"
-echo
 dots "Creating File System Mount point"
 [[ ! -d /images ]] && mkdir -p /images >/dev/null 2>&1
 if [[ ! -d /images ]]; then

@@ -37,7 +37,6 @@ case $mc in
         ;;
 esac
 debugPause
-echo
 verifyNetworkConnection
 dots "Checking Operating System"
 determineOS "$osid"
@@ -45,7 +44,6 @@ echo "$osname"
 dots "Checking CPU Cores"
 cores=$(nproc)
 echo "$cores"
-echo
 dots "Send method"
 echo "$method"
 blGo=0

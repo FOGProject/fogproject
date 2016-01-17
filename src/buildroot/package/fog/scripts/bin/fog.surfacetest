@@ -29,7 +29,6 @@ echo "Done"
 debugPause
 for disk in $disks; do
     dots " * Disk Surface test for $disk"
-    echo
     usleep 2000000
     badblocks -sv $disk >/dev/null 2>&1
     case $? in
