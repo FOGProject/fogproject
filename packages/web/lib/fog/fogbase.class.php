@@ -138,7 +138,6 @@ abstract class FOGBase {
         unset($message);
     }
     protected function redirect($url = '') {
-        if (empty($url)) $url = sprintf('%s?%s',$this->urlself,htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'));
         if (!headers_sent() && !$this->service) {
             header('Strict-Transport-Security: "max-age=15768000"');
             header('X-Content-Type-Options: nosniff');

@@ -34,8 +34,8 @@ $RawResponse = function() {
     echo 'Foobar22!';
 };
 $units = array('Response','ResponseArray','BadResponse','Download','AESDecryptionResponse1','AESDecryptionResponse2','AESDecryption','RawResponse');
-$unit = htmlentities(preg_quote($_REQUEST['unit'],'/'),ENT_QUOTES,'utf-8');
-if (!in_array($unit,$units)) exit;
+if (!in_array(htmlentities($_REQUEST['unit'],ENT_QUOTES,'utf-8'),$units)) die(_('Invalid unit passed'));
+$unit = htmlentities($_REQUEST['unit'],ENT_QUOTES,'utf-8');
 if (strpos($unit,'AESDecryption') !== false) {
     $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128,MCRYPT_MODE_CBC);
     $iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);

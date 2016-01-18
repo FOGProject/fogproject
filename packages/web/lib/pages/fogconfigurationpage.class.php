@@ -91,7 +91,7 @@ class FOGConfigurationPage extends FOGPage {
             }
         } else if ($_REQUEST['install']) {
             $_SESSION['allow_ajax_kdl'] = true;
-            $_SESSION['dest-kernel-file'] = trim($_REQUEST['dstName']);
+            $_SESSION['dest-kernel-file'] = trim(basename($_REQUEST['dstName']));
             $_SESSION['tmp-kernel-file'] = sprintf('%s%s%s%s',DIRECTORY_SEPARATOR,trim(sys_get_temp_dir(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,basename($_SESSION['dest-kernel-file']));
             $_SESSION['dl-kernel-file'] = base64_decode($_REQUEST['file']);
             if (file_exists($_SESSION['tmp-kernel-file'])) @unlink($_SESSION['tmp-kernel-file']);

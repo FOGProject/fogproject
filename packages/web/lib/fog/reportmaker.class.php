@@ -32,9 +32,8 @@ class ReportMaker extends FOGBase {
         return $this;
     }
     public function outputReport($intType = 0) {
-        $type = trim(htmlentities($_REQUEST['type'],ENT_QUOTES,'utf-8'));
         $keys = array_keys($this->types);
-        if (!in_array($type,array_keys($this->types))) die(_('Invalid type'));
+        if (!in_array(trim(htmlentities($_REQUEST['type'],ENT_QUOTES,'utf-8')),$keys)) die(_('Invalid type'));
         $file = basename(trim(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')));
         if (!isset($_REQUEST['export'])) $this->setFileName($file);
         $intType = ($intType !== false ? (isset($_REQUEST['export']) ? 3 : $this->types[$type]) : 0);
@@ -86,7 +85,10 @@ class ReportMaker extends FOGBase {
                 header("Content-Length: $filesize");
                 header("Content-Disposition: attachment; filename=$filename");
                 if (false !== ($handle = fopen($filepath,'rb'))) {
-                    while (!feof($handle)) echo fread($handle,8*1024*1024);
+                    while (!feof($handle)) {
+                        $line = htmlentities(fread($handle,8*1024*1024),ENT_QUOTES,'utf-8');
+                        echo $line;
+                    }
                 }
                 exec ("rm -rf '$filepath'");
             }
