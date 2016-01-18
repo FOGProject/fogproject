@@ -225,32 +225,48 @@ subtract1fromAddress() {
     echo ${ip1}.${ip2}.${ip3}.${ip4}
 }
 addToAddress() {
-        #expects an IP address to be passed.
-        #Adds below number to the passed IP.
-        thisNumber=10
-        previousIFS=$IFS
-        IFS=. read ip1 ip2 ip3 ip4 <<< "$1"
-        IFS=$previousIFS
-        if [[ $(($ip4 + $thisNumber)) -le 255 ]]; then
-                let ip4+=$thisNumber
-        elif [[ $(($ip3 + 1)) -le 255 ]]; then
-                let ip3+=1
-                let ip4=$(( $(($thisNumber - 1)) - $((255 - $ip4)) ))
-        elif [[ $(($ip2 + 1)) -le 255 ]]; then
-                let ip2+=1
-                ip3=0
-                let ip4=$(( $(($thisNumber - 1)) - $((255 - $ip4)) ))
-        elif [[ $(($ip1 + 1)) -le 255 ]]; then
-
-                let ip1+=1
-                ip2=0
-                ip3=0
-                let ip4=$(($(($thisNumber - 1)) - $((255 - $ip4))))
-        else
-                #error, either invalid IP or 255.255.255.255 was passed.
-                return 2
-        fi
-        printf '%d.%d.%d.%d' $ip1 $ip2 $ip3 $ip4
+    local ipaddress="$1"
+    local increaseby=$2
+    local maxOctetValue=256
+    local octet1=""
+    local octet2=""
+    local octet3=""
+    local octet4=""
+    oIFS=$IFS
+    IFS='.' read octet1 octet2 octet3 octet4 <<< "$ipaddress"
+    IFS=$oIFS
+    let octet4+=$increaseby
+    if [[ $octet4 -lt $maxOctetValue && $octet4 -ge 0 ]]; then
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4
+        return 0
+    fi
+    numRollOver=$((octet4 / maxOctetValue))
+    let octet4-=$((numRollOver * maxOctetValue))
+    let octet3+=$numRollOver
+    if [[ $octet3 -lt $maxOctetValue && $octet3 -ge 0 ]]; then
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4
+        return 0
+    fi
+    numRollOver=$((octet3 / maxOctetValue))
+    let octet3-=$((numRollOver * maxOctetValue))
+    let octet2+=$numRollOver
+    if [[ $octet2 -lt $maxOctetValue && $octet2 -ge 0 ]]; then
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4
+        return 0
+    fi
+    numRollOver=$((octet2 / maxOctetValue))
+    let octet2=$((numRollOver * maxOctetValue))
+    let octet1+=$numRollOver
+    if [[ $octet1 -lt $maxOctetValue && $octet1 -ge 0 ]]; then
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4
+        return 0
+    fi
+    return 1
+}
+join() {
+    local IFS="$1"
+    shift
+    echo "$*"
 }
 restoreReports() {
     dots "Restoring user reports"
