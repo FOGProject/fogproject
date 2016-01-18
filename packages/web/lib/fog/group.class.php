@@ -59,6 +59,10 @@ class Group extends FOGController {
         return $this;
     }
     public function getHostCount() {
+        $GroupHostIDs = $this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
+        $ValidHostIDs = $this->getSubObjectIDs('Host','','id');
+        $notValid = array_diff((array)$GroupHostIDs,(array)$ValidHostIDs);
+        if (count($notValid)) $this->getClass('GroupAssociationManager')->destroy(array('hostID'=>$notValid));
         return $this->getClass('GroupAssociationManager')->count(array('groupID'=>$this->get('id')));
     }
     public function addPrinter($printerAdd, $printerDel, $level = 0) {
@@ -135,8 +139,8 @@ class Group extends FOGController {
         return $this;
     }
     public function doMembersHaveUniformImages() {
-        $images = array_unique($this->getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'imageID'));
-        return (count($images) == 1);
+        $images = array_sum($this->getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'imageID'));
+        return (count($images) == 1 && $images[0] == $this->getHostCount());
     }
     public function updateDefault($printerid) {
         foreach ((array)$this->getClass('HostManager')->find(array('id'=>$this->get('hosts'))) AS $i => &$Host) {
