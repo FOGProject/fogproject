@@ -1,4 +1,5 @@
 var JSONParseFunction = (typeof(JSON) != 'undefined' ? JSON.parse : eval)
+var bandwidthtime = $('#bandwidthtime').val();
 // Disk Usage Graph Stuff
 var GraphDiskUsage = $('#graph-diskusage','#content-inner');
 var GraphDiskUsageAJAX;
@@ -33,7 +34,7 @@ var GraphBandwidthFilterTransmit = $('#graph-bandwidth-filters-transmit','#graph
 var GraphBandwidthFilterTransmitActive = GraphBandwidthFilterTransmit.hasClass('active');
 var GraphBandwidthData = new Array();
 var GraphBandwidthdata = [];
-var GraphBandwidthMaxDataPoints = 120;
+var GraphBandwidthMaxDataPoints;
 var UpdateTimeout;
 var GraphBandwidthOpts = {
     colors: ['#7386AD','#91a73c'],
@@ -127,6 +128,7 @@ $(function() {
         // Prevent default action
         e.preventDefault();
     });
+    GraphBandwidthMaxDataPoints = $('#graph-bandwidth-filters div:eq(2) a.active').prop('rel');
     // Bandwidth Graph - Time Filter
     $('#graph-bandwidth-filters div:eq(2) a').click(function(e) {
         // Blur -> add active class -> remove active class from old active item
@@ -184,11 +186,15 @@ function UpdateBandwidth() {
         success: UpdateBandwidthGraph,
         complete: function() {GraphBandwidth.addClass('loaded');}
     });
-    UpdateTimeout = setTimeout(UpdateBandwidth,10000);
+    UpdateTimeout = setTimeout(UpdateBandwidth,bandwidthtime);
 }
 function UpdateBandwidthGraph(data) {
     if (data === null || typeof(data) == 'undefined' || data.length == 0) return;
     var d = new Date();
+    var tx = new Array();
+    var rx = new Array();
+    var tx_old = new Array();
+    var rx_old = new Array();
     Now = new Date().getTime() - (d.getTimezoneOffset() * 60000);
     for (i in data) {
         // Setup all the values we may need.
@@ -197,14 +203,12 @@ function UpdateBandwidthGraph(data) {
             GraphBandwidthData[i].tx = new Array();
             GraphBandwidthData[i].rx = new Array();
         }
-        while (GraphBandwidthData[i].tx.length >= GraphBandwidthMaxDataPoints) {
-            GraphBandwidthData[i].tx.shift();
-            GraphBandwidthData[i].rx.shift();
-        }
+        while (GraphBandwidthData[i].tx.length >= GraphBandwidthMaxDataPoints) GraphBandwidthData[i].tx.shift();
+        while (GraphBandwidthData[i].rx.length >= GraphBandwidthMaxDataPoints) GraphBandwidthData[i].rx.shift();
         // Set the old values and wait one second.
-        if (GraphBandwidthData[i].tx_old > 0 && data[i].tx !== false) GraphBandwidthData[i].tx.push([Now,Math.round(((data[i].tx / 1024) - (GraphBandwidthData[i].tx_old / 1024)) * 8 / 10000)]);
+        if (GraphBandwidthData[i].tx_old > 0 && data[i].tx !== false) GraphBandwidthData[i].tx.push([Now,Math.round(((data[i].tx / 1024) - (GraphBandwidthData[i].tx_old / 1024)) * 8 / bandwidthtime)]);
         else  GraphBandwidthData[i].tx.push([Now,0]);
-        if (GraphBandwidthData[i].rx_old > 0 && data[i].tx !== false) GraphBandwidthData[i].rx.push([Now,Math.round(((data[i].rx / 1024) - (GraphBandwidthData[i].rx_old / 1024)) * 8 / 10000)]);
+        if (GraphBandwidthData[i].rx_old > 0 && data[i].tx !== false) GraphBandwidthData[i].rx.push([Now,Math.round(((data[i].rx / 1024) - (GraphBandwidthData[i].rx_old / 1024)) * 8 / bandwidthtime)]);
         else  GraphBandwidthData[i].rx.push([Now,0]);
         // Reset the old and new values for the next iteration.
         if (data[i].tx !== false) GraphBandwidthData[i].tx_old = data[i].tx;
