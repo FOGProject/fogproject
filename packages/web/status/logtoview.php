@@ -1,7 +1,7 @@
 <?php
 $vals = function($reverse,$HookManager) {
     ini_set("auto_detect_line_endings", true);
-    $folder = sprintf('/%s/',trim(trim(dirname($_REQUEST['file']),'/')));
+    $folder = sprintf('/%s/',trim(trim(dirname(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')),'/')));
     $pattern = sprintf('#^%s$#',$folder);
     $folders = array('/var/log/fog/','/opt/fog/log/','/var/log/httpd/','/var/log/apache2/');
     $HookManager->processEvent('LOG_FOLDERS',array('folders'=>&$folders));
@@ -20,7 +20,8 @@ $vals = function($reverse,$HookManager) {
         if (ftell($fh) < $block_size) $can_read = ftell($fh);
         fseek($fh, -$can_read, SEEK_CUR);
         ob_start();
-        echo htmlentities(fread($fh,$can_read),ENT_QUOTES,'utf-8');
+        $line = htmlentities(fread($fh,$can_read),ENT_QUOTES,'utf-8');
+        echo $line;
         echo $leftover;
         fseek($fh, -$can_read, SEEK_CUR);
         $split_data = array_reverse(explode("\n",ob_get_clean()));
