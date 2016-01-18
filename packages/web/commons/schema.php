@@ -2135,3 +2135,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "INSERT INTO `" . DATABASE_NAME . "`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values ('FOG_WIPE_TIMEOUT', '"._("This setting defines the number of seconds to wait for wiping disks. (Default 60)")."', '60', 'FOG Boot Settings')",
 );
+// 208
+$this->schema[] = array(
+    "INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_BANDWIDTH_TIME', '"._("This setting defines how often to refresh the bandwidth chart.  Values are in seconds")."','1','General Settings')",
+);
