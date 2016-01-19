@@ -49,19 +49,18 @@ class Schema extends FOGController {
     }
     public function import_db($file) {
         $mysqli = $this->DB->link();
-        if ($handle = fopen($file,'rb')) {
-            while (($line = fgets($handle)) !== false) {
-                if (substr($line,0,2) == '--' || $line == '') continue;
-                $tmpline .= $line;
-                if (substr(trim($line),-1,1) == ';') {
-                    if (false === $mysqli->query($tmpline)) $error .= _('Error performing query').'\'<strong>'.$line.'\': '.$mysqli->error.'</strong><br/><br/>';
-                    $tmpline = '';
-                }
+        if (false === ($handle = fopen($file,'rb'))) throw new Exception(_('Error Opening DB File'));
+        while (($line = fgets($handle)) !== false) {
+            if (substr($line,0,2) == '--' || $line == '') continue;
+            $tmpline .= $line;
+            if (substr(trim($line),-1,1) == ';') {
+                if (false === $mysqli->query($tmpline)) $error .= _('Error performing query').'\'<strong>'.$line.'\': '.$mysqli->error.'</strong><br/><br/>';
+                $tmpline = '';
             }
-            fclose($handle);
-            if ($error) return $error;
-            return true;
-        } else throw new Exception(_('Error opening db file'));
+        }
+        fclose($handle);
+        if ($error) return $error;
+        return true;
     }
     public function send_file($content, $backup_name = '') {
         $backup_name = $backup_name ? $backup_name : sprintf('fog_backup_%s.sql',$this->formatTime('','Ymd_His'));
