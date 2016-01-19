@@ -59,8 +59,8 @@ expandPartition() {
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     if [[ -n $fixed_size_partitions ]]; then
         local partNum=$(getPartitionNumber $part)
-        local is_fixed=$(echo $fixed_size_partitions | egrep "(${partNum}|^${partNum}|${partNum}$)" | wc -l)
-        if [[ $is_fixed -gt 0 ]]; then
+        local is_fixed=$(echo $fixed_size_partitions | awk "/(^$partNum[:]|[:]$partNum[:]|[:]$partNum$)/ {print 1}")
+        if [[ $is_fixed -eq 1 ]]; then
             echo " * Not expanding ($part) fixed size"
             debugPause
             return
@@ -281,8 +281,8 @@ shrinkPartition() {
     echo "$part $fstype" >> $fstypefile
     if [[ -n $fixed_size_partitions ]]; then
         partNum=$(getPartitionNumber $part)
-        is_fixed=$(echo $fixed_size_partitions | egrep ":$partNum:|^$partNum:|:$partNum$" | wc -l)
-        if [[ $is_fixed -gt 0 ]]; then
+        is_fixed=$(echo $fixed_size_partitions | awk "/(^$partNum[:]|[:]$partNum[:]|[:]$partNum$)/ {print 1}")
+        if [[ $is_fixed -eq 1 ]]; then
             echo " * Not shrinking ($part) fixed size"
             debugPause
             return
