@@ -309,7 +309,7 @@ function TableCheck() {
     ActionBox[callme]();
     ActionBoxDel[callme]();
     thead[callme]();
-    if (node == 'task') {
+    if (node == 'task' && sub != 'search') {
         pauseUpdate[callme]();
         cancelTasks[callme]();
     }
