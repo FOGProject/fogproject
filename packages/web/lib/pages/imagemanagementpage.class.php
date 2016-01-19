@@ -138,7 +138,7 @@ class ImageManagementPage extends FOGPage {
         $ImagePartitionTypes = $this->getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'] ? $_REQUEST['imagepartitiontype'] : 1,'','id');
         $compression = is_numeric($_REQUEST['compress']) && $_REQUEST['compress'] > -1 && $_REQUEST['compress'] < 10 ? (int)$_REQUEST['compress'] : $this->getSetting('FOG_PIGZ_COMP');
         $fields = array(
-            _('Image Name') => sprintf('<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="%s" />',$_REQUEST['name']),
+            _('Image Name') => sprintf('<input type="text" name="name" id="iName" value="%s"/>',$_REQUEST['name']),
             _('Image Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
             _('Storage Group') => $StorageGroups,
             _('Operating System') => $OSs,
@@ -216,7 +216,7 @@ class ImageManagementPage extends FOGPage {
         $compression = isset($_REQUEST['compress']) && $_REQUEST['compress'] != $this->obj->get('compress') ? (int) $_REQUEST['compress'] : is_numeric($this->obj->get('compress')) && $this->obj->get('compress') > -1 ? $this->obj->get('compress') : $this->getSetting('FOG_PIGZ_COMP');
         if ($_SESSION['FOG_FORMAT_FLAG_IN_GUI']) $format = sprintf('<select name="imagemanage"><option value="1"%s>%s</option><option value="0"%s>%s</option></select>',$this->obj->get('format') ? ' selected' : '',_('Partimage'),!$this->obj->get('format') ? ' selected' : '',_('Partclone'));
         $fields = array(
-            _('Image Name') => sprintf('<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="%s"/>',isset($_REQUEST['name']) && $_REQUEST['name'] != $this->obj->get('name') ? $_REQUEST['name'] : $this->obj->get('name')),
+            _('Image Name') => sprintf('<input type="text" name="name" id="iName" value="%s"/>',isset($_REQUEST['name']) && $_REQUEST['name'] != $this->obj->get('name') ? $_REQUEST['name'] : $this->obj->get('name')),
             _('Image Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',(isset($_REQUEST['description']) && $_REQUEST['description'] != $this->obj->get('description') ? $_REQUEST['description'] : $this->obj->get('description'))),
             _('Operating System') => $OSs,
             _('Image Path') => sprintf('%s/&nbsp;<input type="text" name="file" id="iFile" value="%s"/>',$StorageNode->get('path'),(isset($_REQUEST['file']) && $_REQUEST['file'] != $this->obj->get('path') ? $_REQUEST['file'] : $this->obj->get('path'))),
