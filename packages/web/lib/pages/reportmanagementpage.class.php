@@ -219,7 +219,7 @@ class ReportManagementPage extends FOGPage {
     }
     public function host_list() {
         $this->title = _('Host Listing Export');
-        printf('<h2><a href="export.php?type=csv&filename=HostList" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=HostList" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf('<h2><a href="export.php?type=csv&filename=HostList" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=HostList" alt="%s" title="%s" target="_blank">%s</a></h2>',
             _('Export CSV'),
             _('Export CSV'),
             $this->csvfile,
@@ -299,7 +299,7 @@ class ReportManagementPage extends FOGPage {
     }
     public function inventory() {
         $this->title = _('Full Inventory Export');
-        printf('<h2><a href="export.php?type=csv&filename=InventoryReport" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=InventoryReport" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf('<h2><a href="export.php?type=csv&filename=InventoryReport" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=InventoryReport" alt="%s" title="%s" target="_blank">%s</a></h2>',
             _('Export CSV'),
             _('Export CSV'),
             $this->csvfile,
@@ -414,7 +414,7 @@ class ReportManagementPage extends FOGPage {
             $this->redirect('?node=report&sub=pend-mac');
         }
         $this->title = _('Pending MAC Export');
-        printf('<h2><a href="export.php?type=csv&filename=PendingMACsList" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=PendingMACsList" alt="%s" title="%s" target="_blank">%s</a><br/>',
+        printf('<h2><a href="export.php?type=csv&filename=PendingMACsList" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=PendingMACsList" alt="%s" title="%s" target="_blank">%s</a><br/>',
             _('Export CSV'),
             _('Export CSV'),
             $this->csvfile,
@@ -480,7 +480,7 @@ class ReportManagementPage extends FOGPage {
     }
     public function vir_hist() {
         $this->title = _('FOG Virus Summary');
-        printf('<h2><a href="export.php?type=csv&filename=VirusHistory" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=VirusHistory" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf('<h2><a href="export.php?type=csv&filename=VirusHistory" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=VirusHistory" alt="%s" title="%s" target="_blank">%s</a></h2>',
             _('Export CSV'),
             _('Export CSV'),
             $this->csvfile,
@@ -776,7 +776,7 @@ class ReportManagementPage extends FOGPage {
         $this->ReportMaker->addCSVCell(_('Time'));
         $this->ReportMaker->addCSVCell(_('Description'));
         $this->ReportMaker->endCSVLine();
-        printf('<h2><a href="export.php?type=csv&filename=UserTrackingList" alt="%s" title="%s" target="_blank">%s</a> <a href="export?type="pdf?filename=UserTrackingList" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf('<h2><a href="export.php?type=csv&filename=UserTrackingList" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=UserTrackingList" alt="%s" title="%s" target="_blank">%s</a></h2>',
             _('Export CSV'),
             _('Export CSV'),
             $this->csvfile,
