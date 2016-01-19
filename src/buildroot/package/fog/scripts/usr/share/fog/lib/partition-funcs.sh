@@ -563,8 +563,8 @@ fillSgdiskWithPartitions() {
         local partstart=$(awk -F: '/^'"$escape_part"':/{print $4}' $file)
         local partend=$(awk -F: '/^'"$escape_part"':/{print $5}' $file)
         local part_size=$(($partend - $partstart + 1))
-        local is_fixed=$(echo $fixed_size_partitions | awk -F: '{for(i=1;i<=NF;i++) {print $i}}' | egrep '^'"$part_number"'$' | wc -l)
-        [[ $is_fixed -eq 0 ]] && let original_variable+="$part_size" || let original_fixed+="$part_size"
+        local is_fixed=$(echo $fixed_size_partitions | awk "/(^$partNum[:]|[:]$partNum[:]|[:]$partNum$)/ {print 1}")
+        [[ ! $is_fixed -eq 1 ]] && let original_variable+="$part_size" || let original_fixed+="$part_size"
     done
     # find amount of disk fixed and variable under new disk
     local new_fixed="$original_fixed"
@@ -586,10 +586,10 @@ fillSgdiskWithPartitions() {
         local partcode=$(awk -F: '/^'"$escape_part"':/{print $3}' $file)
         local partname=$(awk -F: '/^'"$escape_part"':/{print $6}' $file)
         local part_size=$(($partend - $partstart + 1))
-        local is_fixed=$(echo $fixed_size_partitions | awk -F: '{for(i=1;i<=NF;i++) {print $i}}' | egrep '^'"$part_number"'$' | wc -l)
+        local is_fixed=$(echo $fixed_size_partitions | awk "/(^$partNum[:]|[:]$partNum[:]|[:]$partNum$)/ {print 1}")
         local new_size="$part_size"
         local remainder=0
-        if [[ $is_fixed -eq 0 ]]; then
+        if [[ ! $is_fixed -eq 1 ]]; then
             new_size=$((part_size * new_variable / original_variable))
             remainder=$((new_size % boundary))
             [[ $remainder -gt 0 ]] && let new_size-="$remainder"

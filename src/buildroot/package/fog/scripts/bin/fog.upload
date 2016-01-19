@@ -78,7 +78,7 @@ debugPause
 case $imgType in
     [Nn])
         validResizeOS
-        win7partcnt=$(echo $parts | wc -l)
+        win7partcnt=$(echo $parts | wc -w)
         dots "Checking for fixed partitions"
         runPartprobe "$hd"
         getPartitions "$hd"
