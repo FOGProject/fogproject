@@ -139,7 +139,7 @@ restoreAllEBRs() {
     local ebffilename=""
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $driveNum ]] && handleError "No drive number passed (${FUNCNAME[0]})"
-    [[ -z $imagePaht ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $imgPartitionType ]] && handleError "No partition type passed (${FUNCNAME[0]})"
     getPartitions "$disk"
     for part in $parts; do

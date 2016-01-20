@@ -10,7 +10,7 @@ echo Received DHCP answer on interface net1 && goto proxycheck
 prompt --key s --timeout 10000 DHCP failed, hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
 
 :proxycheck
-isset ${proxydhcp/next-server} && isset ${next-server} && echo Duplicate option 66 (next server) from DHCP proxy and DHCP server && echo Using IP sent by DHCP proxy ${proxydhcp/next-server} && prompt --timeout 5000 || goto nextservercheck
+isset ${proxydhcp/next-server} && isset ${net0/next-server} && echo Duplicate option 66 (next server) from DHCP proxy and DHCP server && echo Using IP sent by DHCP proxy ${proxydhcp/next-server} && prompt --timeout 5000 || goto nextservercheck
 
 :nextservercheck
 isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server} ||
