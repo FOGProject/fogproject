@@ -6,9 +6,9 @@ var CANCELURL,
     cancelTasks;
 $(function() {
     var Options = {
-        URL: window.location.href,
+        URL: location.href,
         Container: '#search-content,#active-tasks',
-        CancelURL: (typeof(sub) == 'undefined' || sub == 'active' ? '?node='+node+'&sub=canceltasks' : (sub.indexOf('active') != -1 ? '?node='+node+'&sub='+sub+'-post' : '')),
+        CancelURL: (sub.indexOf('action') != -1 ? location.href : ''),
     };
     Container = $(Options.Container);
     if (!Container.length) alert('No Container element found: '+Options.Container);
@@ -47,7 +47,7 @@ function buttonPress() {
         title: 'Cancel tasks',
         buttons: {
             'Yes': function() {
-                $.post(CANCELURL,{task: checkedIDs},function(data) {ActiveTasksUpdate();});
+                $.post(CANCELURL,{task: checkedIDs},function(data) {console.log(data);ActiveTasksUpdate();});
                 $(this).dialog('close');
             },
             'No': function() {

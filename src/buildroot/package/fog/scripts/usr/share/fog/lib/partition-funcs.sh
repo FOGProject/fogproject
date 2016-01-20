@@ -248,17 +248,15 @@ makeSwapSystem() {
     case $hasgpt in
         1)
             uuid=$(egrep "^$part" $file | awk '{print $2}')
-            [[ -z $uuid ]] && handleError "Failed to get uuid (${FUNCNAME[0]})"
-            part_type=82
+            [[ -n $uuid ]] && part_type=82
             ;;
         *)
             part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6}')
             ;;
     esac
     [[ ! $part_type -eq 82 ]] && return
-    uuid=$(egrep "^$2" "$1" | awk '{print $2;}')
-    [[ -z $uuid ]] && handleError "Failed to get uuid (${FUNCNAME[0]})"
-    option="-U $uuid"
+    uuid=$(egrep "^$part" $file | awk '{print $2}')
+    [[ -n $uuid ]] && option="-U $uuid"
     dots "Restoring swap partition"
     mkswap $option $part >/dev/null 2>&1
     case $? in
