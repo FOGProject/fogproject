@@ -738,7 +738,7 @@ class FOGConfigurationPage extends FOGPage {
             if (!$_FILES['dbFile']) throw new Exception(_('No files uploaded'));
             $original = $Schema->export_db();
             $tmp_name = htmlentities($_FILES['dbFile']['tmp_name'],ENT_QUOTES,'utf-8');
-            $filename = sprintf('%s%s%s',dirname($tmp_name),DIRECTORY_SEPARATOR,basename($tmpname));
+            $filename = sprintf('%s%s%s',dirname($tmp_name),DIRECTORY_SEPARATOR,basename($tmp_name));
             $result = $this->getClass('Schema')->import_db($filename);
             if ($result === true) printf('<h2>%s</h2>',_('Database Imported and added successfully'));
             else {
