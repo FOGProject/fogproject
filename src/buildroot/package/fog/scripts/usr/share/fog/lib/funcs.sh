@@ -70,7 +70,7 @@ expandPartition() {
     case $fstype in
         ntfs)
             dots "Resizing $fstype volume ($part)"
-            ntfsresize "$part" -f -b -P </usr/share/fog/lib/EOFNTFSRESTORE >/dev/null 2>&1
+            ntfsresize $part -f -b -P </usr/share/fog/lib/EOFNTFSRESTORE >/dev/null 2>&1
             case $? in
                 0)
                     echo "Done"
@@ -86,7 +86,7 @@ expandPartition() {
             ;;
         extfs)
             dots "Resizing $fstype volume ($part)"
-            e2fsck -fp "$part" >/dev/null 2>&1
+            e2fsck -fp $part >/dev/null 2>&1
             case $? in
                 0)
                     ;;
@@ -96,7 +96,7 @@ expandPartition() {
                     handleError "Could not check before resize (${FUNCNAME[0]})"
                     ;;
             esac
-            resize2fs "$part" >/dev/null 2>&1
+            resize2fs $part >/dev/null 2>&1
             case $? in
                 0)
                     ;;
@@ -106,7 +106,7 @@ expandPartition() {
                     handleError "Could not resize $part (${FUNCNAME[0]})"
                     ;;
             esac
-            e2fsck -fp "$part" >/dev/null 2>&1
+            e2fsck -fp $part >/dev/null 2>&1
             case $? in
                 0)
                     echo "Done"
@@ -451,8 +451,6 @@ resetFlag() {
                     ;;
                 *)
                     echo "Failed"
-                    debugPause
-                    handleError "Failed to clear ntfs flag (${FUNCNAME[0]})"
                     ;;
             esac
             ;;
