@@ -226,7 +226,7 @@ abstract class FOGPage extends FOGBase {
             if ($imagingTypes && $this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
-            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && (int) $_REQUEST['id'] > 0 ? sprintf('%s=%s',$this->id,(int) $_REQUEST['id']) : '')));
+            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && (int) $_REQUEST['id'] > 0 ? sprintf('&%s=%s',$this->id,(int) $_REQUEST['id']) : '')));
         }
         $this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get('name'),_('task for'),$this->obj->get('name'));
         printf('<p class="c"><b>%s</b></p>',_('Are you sure you wish to deploy task to these machines'));
@@ -318,7 +318,7 @@ abstract class FOGPage extends FOGBase {
             if ($imagingTypes && $this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
-            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && (int) $_REQUEST['id'] > 0 ? sprintf('%s=%s',$this->id,(int) $_REQUEST['id']) : '')));
+            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && (int) $_REQUEST['id'] > 0 ? sprintf('&%s=%s',$this->id,(int) $_REQUEST['id']) : '')));
         }
         $Snapin = $this->getClass('Snapin',(int) $_REQUEST['snapin']);
         $enableShutdown = $_REQUEST['shutdown'] ? true : false;
