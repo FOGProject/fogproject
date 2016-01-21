@@ -1884,3 +1884,21 @@ performResizeRestore() {
     done
     makeAllSwapSystems "$disk" 1 "$imagePath" "$imgPartitionType"
 }
+performNonResizeRestore() {
+    local disks="$1"
+    local disk=""
+    local imagePath="$2"
+    local imgPartitionType="$3"
+    [[ -z $disks ]] && handleError "No disk passed (${FUNCNAME[0]})"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $imgPartitionType ]] && handleError "No partition type passed (${FUNCNAME[0]})"
+    local driveNum=1
+    for disk in $disks; do
+        restoreparts=$(getValidRestorePartitions $disk $driveNum $imagePath)
+        for restorepart in $restoreparts; do
+            [[ $imgPartitionType == all || $imgPartitionType == $(getPartitionNumber $restorepart) ]] && restorePartition "$restorepart" "$driveNum"
+        done
+        makeAllSwapSystems "$disk" "$driveNum" "$imagePath" "$imgPartitionType"
+        let driveNum+=1
+    done
+}
