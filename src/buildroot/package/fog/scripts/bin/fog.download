@@ -253,31 +253,18 @@ case $imgType in
                 ;;
             [5-7]|9)
                 [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Fatal Error: Could not locate file ($0)"
-                [[ ! -f $imagePath/sys.img.000 ]] && restoreparts=$(getValidRestorePartitions $disk 1 $imagePath)
+                [[ -z $restoreparts ]] && restoreparts=$(getValidRestorePartitions $hd 1 $imagePath)
                 performResizeRestore "$hd" "$imagePath" 1 "$imgPartitionType" "$restoreparts"
                 ;;
             50)
-                restoreparts=$(getValidRestorePartitions $disk $driveNum $imagePath)
+                restoreparts=$(getValidRestorePartitions $hd 1 $imagePath)
                 performResizeRestore "$hd" "$imagePath" 1 "$imgPartitionType" "$restoreparts"
                 ;;
         esac
         ;;
-    mps)
-        recparts=$(getValidRestorePartitions $hd 1 $imagePath)
-        for recpart in $recparts; do
-            [[ $imgPartitionType == all || $imgPartitionType == $(getPartitionNumber $recpart) ]] && restorePartition "$recpart" 1 "$imagePath" "$imgPartitionType" || echo " * Skipping partition $recpart"
-        done
-        makeAllSwapSystems "$hd" 1 "$imagePath" "$imgPartitionType"
-        ;;
-    mpa)
-        for disk in $disks; do
-            recparts=$(getValidRestorePartitions $disk 1 $imagePath)
-            for recpart in $recparts; do
-                [[ $imgPartitionType == all || $imgPartitionType == $(getPartitionNumber $recpart) ]] && restorePartition "$recpart" "$intDisk" "$imagePath" "$imgPartitionType" || echo " * Skipping partition $recpart"
-            done
-            makeAllSwapSystems "$disk" 1 "$imagePath" "$imgPartitionType"
-            let intDisk+=1
-        done
+    mps|mpa)
+        [[ $imgType == mps ]] && disks="$hd"
+        performNonResizeRestore "$disks" "$imagePath" "$imagePartitionType"
         ;;
     dd)
         restorePartition "$hd"
