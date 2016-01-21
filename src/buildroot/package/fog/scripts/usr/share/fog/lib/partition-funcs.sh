@@ -369,7 +369,6 @@ processSfdisk() {
     [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})"
     local minstart=$(awk -F'[ ,]+' '/start/{if ($4) print $4}' $data | sort -n | head -1)
     local chunksize=""
-    local minstart=""
     case $osid in
         [1-2])
             chunksize=512
