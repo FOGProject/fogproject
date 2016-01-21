@@ -73,9 +73,10 @@ setIDs() {
     local oIFS=$IFS
     local line=""
     while [[ -z ${!varVar} ]]; do
-        [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && echo -n "    Enter the $str IDs separated with , to associate with computer (? for listing): " || echo -n "    Enter the $str ID to associate with computer (? for listing, Blank or 0 for 0): "
-        read dummy2
-        case $dummy2 in
+        [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && echo -n "    Enter the $str IDs separated with , to associate with computer (? for listing): " || echo -n "    Enter the $str ID to associate with computer (? for listing): "
+        read dummy
+        dummy=$(echo $dummy | sed 's/^[,]\(.*\)[,]$/\1/')
+        case $dummy in
             [?])
                 url="http://${web}service/${str}listing.php"
                 clear
@@ -89,6 +90,7 @@ setIDs() {
                         [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && echo -n "    Press [Enter] to proceed or enter the $str IDs separated with , to associate with computer: "
                         echo -n "    Press [Enter] to proceed or enter the $str ID to associate with computer: "
                         read dummy
+                        dummy=$(echo $dummy | sed 's/^[,]\(.*\)[,]$/\1/')
                         [[ -n $dummy ]] && [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && printf -v "$varVar" $(checkAndSet $dummy) || printf -v "$varVar" $(checkAndSet $dummy "true")
                         i=0
                         clear
@@ -99,11 +101,16 @@ setIDs() {
             ""|0)
                 printf -v "$varVar" 0
                 ;;
-            ^[0-9,]+$)
-                setIDs "$varVar" "$str" "$csvstyle" "$dummy" "$max"
-                ;;
             *)
-                [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && printf -v "$varVar" $(checkAndSet $dummy) || printf -v "$varVar" $(checkAndSet $dummy "true")
+                dummy=$(echo $dummy | sed 's/^[,]\(.*\)[,]$|$/\1/')
+                case $csvstyle in
+                    [Tt][Rr][Uu][Ee])
+                        [[ $dummy =~ ^[0-9,]+$ ]] && printf -v "$varVar" $(checkAndSet $dummy) || setIDs "$varVar" "$str" "$csvstyle" "$dummy" "$max"
+                        ;;
+                    *)
+                        [[ $dummy =~ ^[0-9]+$ ]] && printf -v "$varVar" $(checkAndSet $dummy "true") || setIDs "$varVar" "$str" "$csvstyle" "$dummy" "$max"
+                        ;;
+                esac
                 ;;
         esac
     done
