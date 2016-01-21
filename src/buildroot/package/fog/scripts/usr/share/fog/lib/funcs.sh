@@ -1869,11 +1869,12 @@ performResizeRestore() {
     local imagePath="$2"
     local driveNum="$3"
     local imgPartitionType="$4"
+    local restoreparts="$5"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $driveNum ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imgPartitionType ]] && handleError "No partition type passed (${FUNCNAME[0]})"
-    local restoreparts=$(getValidRestorePartitions $disk $driveNum $imagePath)
+    [[ -z $restoreparts ]] && handleError "No partitions to restore passed"
     for restorepart in $restoreparts; do
         tmpebrfilename=$(tmpEBRFileName 1 $(getPartitionNumber $restorepart))
         saveEBR "$restorepart" "$tmpebrfilename"
