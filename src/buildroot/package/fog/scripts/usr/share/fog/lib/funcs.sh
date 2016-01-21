@@ -1865,3 +1865,22 @@ prepareResizeDownloadPartitions() {
     debugPause
     runPartprobe "$hd"
 }
+performResizeRestore() {
+    local disk="$1"
+    local imagePath="$2"
+    local driveNum="$3"
+    local imgPartitionType="$4"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $driveNum ]] && handleError "No drive number passed (${FUNCNAME[0]})"
+    [[ -z $imgPartitionType ]] && handleError "No partition type passed (${FUNCNAME[0]})"
+    local restoreparts=$(getValidRestorePartitions $disk $driveNum $imagePath)
+    for restorepart in $restoreparts; do
+        tmpebrfilename=$(tmpEBRFileName 1 $(getPartitionNumber $restorepart))
+        saveEBR "$restorepart" "$tmpebrfilename"
+        restorePartition "$restorepart"
+        restoreEBR "$recpart" "$tmpebrfilename"
+        expandPartition "$recpart"
+    done
+    makeAllSwapSystems "$disk" 1 "$imagePath" "$imgPartitionType"
+}
