@@ -998,7 +998,7 @@ determineOS() {
 clearScreen() {
     [[ $mode != debug && -n $isdebug ]] && clear
 }
-sec2String() {
+sec2string() {
     local T="$1"
     [[ -z $T ]] && handleError "No string passed (${FUNCNAME[0]})"
     local d=$((T/60/60/24))
@@ -1625,7 +1625,6 @@ restorePartitionTablesAndBootLoaders() {
                     echo "Failed"
                     ;;
             esac
-            debugPause
         elif [[ -e $sflegacypartitionfilename ]]; then
             dots "Extended partitions (legacy)"
             sfdisk $disk <$sflegacypartitionfilename >/dev/null 2>&1
@@ -1637,12 +1636,11 @@ restorePartitionTablesAndBootLoaders() {
                     echo "Failed"
                     ;;
             esac
-            debugPause
         else
             echo " * No extended partitions"
-            debugPause
         fi
     fi
+    debugPause
     runPartprobe "$disk"
     majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
     majorDebugPause
@@ -1853,6 +1851,7 @@ killStatusReporter() {
 }
 prepareResizeDownloadPartitions() {
     restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
+    do_fill=$(fillDiskWithPartitionsIsOK $hd $imagePath 1)
     majorDebugEcho "Filling disk = $do_fill"
     dots "Attempting to expand/fill partitions"
     if [[ $do_fill -eq 0 ]]; then
@@ -1879,8 +1878,8 @@ performResizeRestore() {
         tmpebrfilename=$(tmpEBRFileName 1 $(getPartitionNumber $restorepart))
         saveEBR "$restorepart" "$tmpebrfilename"
         restorePartition "$restorepart"
-        restoreEBR "$recpart" "$tmpebrfilename"
-        expandPartition "$recpart"
+        restoreEBR "$restorepart" "$tmpebrfilename"
+        expandPartition "$restorepart"
     done
     makeAllSwapSystems "$disk" 1 "$imagePath" "$imgPartitionType"
 }
