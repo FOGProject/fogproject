@@ -796,7 +796,7 @@ fillDiskWithPartitionsIsOK() {
     case $table_type in
         MBR)
             filename=$(sfdiskOriginalPartitionFileName $imagePath $intDisk)
-            legacyfilename=$(sfdiskLegacyOriginalPartitionFileName $imagePath)
+            legacyfilename=$(sfdiskLegacyOriginalPartitionFileName $imagePath $intDisk)
             [[ -r $filename || -r $legacyfilename ]] && echo 1 || echo 0
             ;;
         GPT)
