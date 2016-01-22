@@ -278,7 +278,7 @@ function buildRow(data,templates,attributes) {
             for (var j in attributes) attributes[attributes.length] = j+'="'+attributes[i][j]+'"';
             row += '<'+wrapper+(attributes.length ? ' '+attributes.join(' ') : '')+'>'+templates[i]+'</'+wrapper+'>';
         }
-        for (var k in data[h]) row = row.replace(new RegExp('\\$\\{'+k+'\\}','g'),data[h][k]);
+        for (var k in data[h]) row = row.replace(new RegExp('\\$\\{'+k+'\\}','g'),$.trim(data[h][k]));
         rows[rows.length] = row+'</tr>';
     }
     tbody.append(rows.join());
