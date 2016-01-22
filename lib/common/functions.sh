@@ -224,6 +224,52 @@ subtract1fromAddress() {
     fi
     echo ${ip1}.${ip2}.${ip3}.${ip4}
 }
+subtractFromAddress() {
+    local ipaddress="$1"
+    local decreaseby=$2
+    local maxOctetValue=256
+    local octet1=""
+    local octet2=""
+    local octet3=""
+    local octet4=""
+    oIFS=$IFS
+    IFS='.' read octet1 octet2 octet3 octet4 <<< "$ipaddress"
+    IFS=$oIFS
+    let octet4-=$decreaseby
+    if [[ $octet4 -lt $maxOctetValue && $octet4 -ge 0 ]]; then
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/[-]//g'
+        return 0
+    fi
+    echo $octet4
+    echo $maxOctetValue
+    octet4=$(echo $octet4 | sed 's/-//g')
+    numRollOver=$((octet4 / maxOctetValue))
+    echo $numRollOver
+    let octet4-=$((numRollOver * maxOctetValue))
+    echo $((numRollOver - octet3))
+    let octet3-=$numRollOver
+    echo $octet3
+    if [[ $octet3 -lt $maxOctetValue && $octet3 -ge 0 ]]; then
+        echo 'here'
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/[-]//g'
+        return 0
+    fi
+    numRollOver=$((octet3 / maxOctetValue))
+    let octet3-=$((numRollOver * maxOctetValue))
+    let octet2-=$numRollOver
+    if [[ $octet2 -lt $maxOctetValue && $octet2 -ge 0 ]]; then
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/[-]//g'
+        return 0
+    fi
+    numRollOver=$((octet2 / maxOctetValue))
+    let octet2-=$((numRollOver * maxOctetValue))
+    let octet1-=$numRollOver
+    if [[ $octet1 -lt $maxOctetValue && $octet1 -ge 0 ]]; then
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/[-]//g'
+        return 0
+    fi
+    return 1
+}
 addToAddress() {
     local ipaddress="$1"
     local increaseby=$2
@@ -255,7 +301,7 @@ addToAddress() {
         return 0
     fi
     numRollOver=$((octet2 / maxOctetValue))
-    let octet2=$((numRollOver * maxOctetValue))
+    let octet2-=$((numRollOver * maxOctetValue))
     let octet1+=$numRollOver
     if [[ $octet1 -lt $maxOctetValue && $octet1 -ge 0 ]]; then
         printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4
@@ -1498,7 +1544,7 @@ configureDHCP() {
             serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
             network=$(mask2network $serverip $submask)
-            [[ -z $startrange ]] && startrange=$(addToAddress $network)
+            [[ -z $startrange ]] && startrange=$(addToAddress $network 253)
             [[ -z $endrange ]] && endrange=$(subtract1fromAddress $(echo $(interface2broadcast $interface)))
             [[ -f $dhcpconfig ]] && dhcptouse=$dhcpconfig
             [[ -f $dhcpconfigother ]] && dhcptouse=$dhcpconfigother
