@@ -581,7 +581,7 @@ changeHostname() {
     else
         umount /ntfs >/dev/null 2>&1
     fi
-    ntfs-3g -o force,fw $part /ntfs >/tmp/ntfs-mount-output 2>&1
+    ntfs-3g -o force,rw $part /ntfs >/tmp/ntfs-mount-output 2>&1
     case $? in
         0)
             echo "Done"
@@ -673,7 +673,7 @@ fixWin7boot() {
                                 return
                                 ;;
                         esac
-                        ntfs-3g -o force,fw $part /bcdstore >/tmp/ntfs-mount-output 2>&1
+                        ntfs-3g -o force,rw $part /bcdstore >/tmp/ntfs-mount-output 2>&1
                         case $? in
                             0)
                                 echo "Done"
