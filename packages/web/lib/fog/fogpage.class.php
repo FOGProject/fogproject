@@ -194,14 +194,19 @@ abstract class FOGPage extends FOGBase {
     private function replaceNeeds($data) {
         unset($this->dataFind,$this->dataReplace);
         $urlvars = array('node'=>$GLOBALS['node'],'sub'=>$GLOBALS['sub'],'tab'=>$GLOBALS['tab']);
-        $arrayReplace = array_merge($urlvars,(array)$data);
         preg_match_all('#\$\{(.+?)\}#',implode($this->templates),$foundchanges);
+        $arrayReplace = array_merge($urlvars,(array)$data);
         $foundchanges = $foundchanges[1];
         foreach ($foundchanges AS &$name) {
-            $arrayReplace[$name];
             $this->dataFind[] = sprintf('#\$\{%s\}#',$name);
             $this->dataReplace[] = in_array($name,array_keys($arrayReplace)) ? $arrayReplace[$name] : '';
             unset($name);
+        }
+        unset($foundchanges);
+        foreach ($arrayReplace AS $name => &$val) {
+            $this->dataFind[] = sprintf('#\$\{%s\}#',$name);
+            $this->dataReplace[] = $val;
+            unset($val);
         }
     }
     public function buildRow($data) {
