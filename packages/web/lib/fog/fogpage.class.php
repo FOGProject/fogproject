@@ -195,11 +195,14 @@ abstract class FOGPage extends FOGBase {
         unset($this->dataFind,$this->dataReplace);
         $urlvars = array('node'=>$GLOBALS['node'],'sub'=>$GLOBALS['sub'],'tab'=>$GLOBALS['tab']);
         $arrayReplace = array_merge($urlvars,(array)$data);
-        foreach ($arrayReplace AS $name => &$val) {
+        preg_match_all('#\$\{(.+?)\}#',implode($this->templates),$foundchanges);
+        $foundchanges = $foundchanges[1];
+        foreach ($foundchanges AS &$name) {
+            $arrayReplace[$name];
             $this->dataFind[] = sprintf('#\$\{%s\}#',$name);
-            $this->dataReplace[] = $val;
+            $this->dataReplace[] = in_array($name,array_keys($arrayReplace)) ? $arrayReplace[$name] : '';
+            unset($name);
         }
-        unset($val);
     }
     public function buildRow($data) {
         unset($this->atts);
