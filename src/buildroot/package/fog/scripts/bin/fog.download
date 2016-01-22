@@ -264,7 +264,7 @@ case $imgType in
         ;;
     mps|mpa)
         [[ $imgType == mps ]] && disks="$hd"
-        performNonResizeRestore "$disks" "$imagePath" "$imagePartitionType"
+        performNonResizeRestore "$disks" "$imagePath" "$imgPartitionType"
         ;;
     dd)
         restorePartition "$hd"
