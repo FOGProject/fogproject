@@ -1881,6 +1881,11 @@ performResizeRestore() {
         restorePartition "$restorepart"
         restoreEBR "$restorepart" "$tmpebrfilename"
         expandPartition "$restorepart"
+        case $osid in
+            [1-2]|[5-7]|9)
+                fixWin7boot "$restorepart"
+                ;;
+        esac
     done
     makeAllSwapSystems "$disk" 1 "$imagePath" "$imgPartitionType"
 }
