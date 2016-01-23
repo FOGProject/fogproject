@@ -1,5 +1,5 @@
 #!/bin/bash
-isrunning=$(ps -ef | grep fogdonate | grep -v grep | awk '{print $1}')
+isrunning=$(ps -ef | awk '/fogdonate/{print $1}')
 if [[ -z $isrunning ]]; then
     [[ ! -d /package ]] && mkdir -p /package >/dev/null 2>&1
     packname="/package/package.zip"

@@ -146,7 +146,7 @@ case $imgType in
         dots "Getting sector start"
         case $osid in
             [1-2])
-                partitionStart=$(fdisk -lu | grep $part | awk '{print $3}')
+                partitionStart=$(fdisk -lu | awk "/$(escapeItem $part)/{print \$3}")
                 [[ -z $partitionStart ]] && partitionStart=63
                 ;;
         esac
