@@ -694,9 +694,7 @@ errorStat() {
     local status=$1
     if [[ $status != 0 ]]; then
         echo "Failed!"
-        if [[ -z $exitFail ]]; then
-            exit 1
-        fi
+        [[ -z $exitFaile ]] && exit 1
     fi
     echo "OK"
 }
@@ -1475,12 +1473,74 @@ class Config {
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?
-    dots "Downloading inits, kernels, and the fog client"
     clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
 
     clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
+    [[ ! -d $workingdir/checksum_init ]] && mkdir -p $workingdir/checksum_init >/dev/null 2>&1
+    [[ ! -d $workingdir/checksum_kernel ]] && mkdir -p $workingdir/checksum_kernel >/dev/null 2>&1
+    dots "Getting checksum files for kernels and inits"
+    curl --silent -ko "${workingdir}/checksum_init/checksums" https://fogproject.org/inits/index.php -ko "${workingdir}/checksum_kernel/checksums" https://fogproject.org/kernels/index.php >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    errorStat $?
+    dots "Downloading inits, kernels, and the fog client"
     curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl >>/var/log/fog_error_${version}.log 2>&1
     errorStat $?
+    dots "Comparing checksums of kernels and inits"
+    localinitsum=$(sha512sum $webdirdest/service/ipxe/init.xz | awk '{print $1}')
+    localinit_32sum=$(sha512sum $webdirdest/service/ipxe/init_32.xz | awk '{print $1}')
+    localbzImagesum=$(sha512sum $webdirdest/service/ipxe/bzImage | awk '{print $1}')
+    localbzImage32sum=$(sha512sum $webdirdest/service/ipxe/bzImage32 | awk '{print $1}')
+    remoteinitsum=$(awk '/init\.xz$/{print $1}' $workingdir/checksum_init/checksums)
+    remoteinit_32sum=$(awk '/init_32\.xz$/{print $1}' $workingdir/checksum_init/checksums)
+    remotebzImagesum=$(awk '/bzImage$/{print $1}' $workingdir/checksum_kernel/checksums)
+    remotebzImage32sum=$(awk '/bzImage32$/{print $1}' $workingdir/checksum_kernel/checksums)
+    cnt=0
+    while [[ $localinitsum != $remoteinitsum && $cnt -lt 10 ]]; do
+        [[ $cnt -eq 0 ]] && echo "Failed init.xz"
+        dots "Attempting to redownload init.xz"
+        curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/init.xz >/dev/null 2>&1
+        errorStat $?
+        localinitsum=$(sha512sum $webdirdest/service/ipxe/init.xz | awk '{print $1}')
+    done
+    if [[ $localinitsum != $remoteinitsum ]]; then
+        echo " * Could not download init.xz properly"
+        [[ -z $exitFail ]] && exit 1
+    fi
+    cnt=0
+    while [[ $localinit_32sum != $remoteinit_32sum && $cnt -lt 10 ]]; do
+        [[ $cnt -eq 0 ]] && echo "Failed init_32.xz"
+        dots "Attempting to redownload init_32.xz"
+        curl --silent -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/init_32.xz >/dev/null 2>&1
+        errorStat $?
+        localinit_32sum=$(sha512sum $webdirdest/service/ipxe/init_32.xz | awk '{print $1}')
+    done
+    if [[ $localinit_32sum != $remoteinit_32sum ]]; then
+        echo " * Could not download init_32.xz properly"
+        [[ -z $exitFail ]] && exit 1
+    fi
+    cnt=0
+    while [[ $localbzImagesum != $remotebzImagesum && $cnt -lt 10 ]]; do
+        [[ $cnt -eq 0 ]] && echo "Failed bzImage"
+        dots "Attempting to redownload bzImage"
+        curl --silent -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/bzImage >/dev/null 2>&1
+        errorStat $?
+        localbzImagesum=$(sha512sum $webdirdest/service/ipxe/bzImage | awk '{print $1}')
+    done
+    if [[ $localbzImagesum != $remotebzImagesum ]]; then
+        echo " * Could not download bzImage properly"
+        [[ -z $exitFail ]] && exit 1
+    fi
+    cnt=0
+    while [[ $localbzImage32sum != $remotebzImage32sum && $cnt -lt 10 ]]; do
+        [[ $cnt -eq 0 ]] && echo "Failed bzImage32"
+        dots "Attempting to redownload bzImage32"
+        curl --silent -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/bzImage >/dev/null 2>&1
+        errorStat $?
+        localbzImage32sum=$(sha512sum $webdirdest/service/ipxe/bzImage32 | awk '{print $1}')
+    done
+    if [[ $localbzImage32sum != $remotebzImage32sum ]]; then
+        echo " * Could not download bzImage32 properly"
+        [[ -z $exitFail ]] && exit 1
+    fi
     if [[ $osid -eq 2 ]]; then
         php -m | grep mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
