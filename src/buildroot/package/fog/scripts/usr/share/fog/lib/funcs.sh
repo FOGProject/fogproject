@@ -1280,6 +1280,10 @@ runPartprobe() {
 debugCommand() {
     [[ $mode == debug || -n $isdebug ]] && echo "$1" >> /tmp/cmdlist
 }
+escapeItem() {
+    local $item="$1"
+    echo $item | sed -r 's%/%\\/%g'
+}
 # uploadFormat
 # Description:
 # Tells the system what format to upload in, whether split or not.
