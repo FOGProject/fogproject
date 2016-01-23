@@ -1541,6 +1541,7 @@ class Config {
         echo " * Could not download bzImage32 properly"
         [[ -z $exitFail ]] && exit 1
     fi
+    echo "Done"
     if [[ $osid -eq 2 ]]; then
         php -m | grep mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
@@ -1598,9 +1599,7 @@ configureDHCP() {
     dots "Setting up and starting DHCP Server"
     case $bldhcp in
         1)
-            if [[ -f $dhcpconfig ]]; then
-                mv $dhcpconfig ${dhcpconfig}.fogbackup
-            fi
+            [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
             serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
             network=$(mask2network $serverip $submask)
