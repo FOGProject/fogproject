@@ -1548,7 +1548,11 @@ configureDHCP() {
             [[ -z $endrange ]] && endrange=$(subtract1fromAddress $(echo $(interface2broadcast $interface)))
             [[ -f $dhcpconfig ]] && dhcptouse=$dhcpconfig
             [[ -f $dhcpconfigother ]] && dhcptouse=$dhcpconfigother
-            [[ -z $dhcptouse || ! -f $dhcptouse ]] && echo "Failed";echo "Could not find dhcp config file"; exit 1
+            if [[ -z $dhcptouse || ! -f $dhcptouse ]]; then
+                echo "Failed"
+                echo "Could not find dhcp config file"
+                exit 1
+            fi
             [[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
             echo -e "# DHCP Server Configuration file\n#see /usr/share/doc/dhcp*/dhcpd.conf.sample\n# This file was created by FOG\n\n#Definition of PXE-specific options\n# Code 1: Multicast IP Address of bootfile\n# Code 2: UDP Port that client should monitor for MTFTP Responses\n# Code 3: UDP Port that MTFTP servers are using to listen for MTFTP requests\n# Code 4: Number of seconds a client must listen for activity before trying\n#         to start a new MTFTP transfer\n# Code 5: Number of seconds a client must listen before trying to restart\n#         a MTFTP transfer\n\n" > "$dhcptouse"
             echo -e "option space PXE;\noption PXE.mtftp-ip code 1 = ip-address;\noption PXE.mtftp-cport code 2 = unsigned integer 16;\noption PXE.mtftp-sport code 3 = unsigned integer 16;\noption PXE.mtftp-tmout code 4 = unsigned integer 8;\noption PXE.mtftp-delay code 5 = unsigned integer 8;\noption arch code 93 = unsigned integer 16; # RFC4578\n\n" >> "$dhcptouse"
