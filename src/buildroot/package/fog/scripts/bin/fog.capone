@@ -91,7 +91,7 @@ case $cnt in
         imgFormat=$(echo $linedecode | awk -F"|" '{print $5}')
         determineOS "$osid"
         ;;
-    ^[0-9]*$)
+    *)
         imgchoice=""
         while [[ -z $imgchoice ]]; do
             echo -n " Multiple images found, please select an image #: "
