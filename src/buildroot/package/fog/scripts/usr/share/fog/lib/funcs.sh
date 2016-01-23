@@ -940,8 +940,8 @@ doInventory() {
     casesasset64=$(echo $casesasset | base64)
 }
 determineOS() {
-    local osid="$1"
-    [[ -z $osid ]] && handleError " * Unable to determine operating system type (${FUNCNAME[0]})"
+    local osid=$osid
+    [[ -n $1 ]] && osid="$1"
     case $osid in
         1)
             osname="Windows XP"
