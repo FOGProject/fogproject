@@ -19,6 +19,27 @@ saveSfdiskPartitions() {
     [[ ! $? -eq 0 ]] && majorDebugEcho "sfdisk failed in (${FUNCNAME[0]})"
 }
 # $1 is the name of the disk drive
+# $2 is name of file to save to.
+saveSgdiskPartitions() {
+    local disk="$1"
+    local file="$2"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
+    [[ -z $file ]] && handleError "No file to save to passed (${FUNCNAME[0]})"
+    getPartitions "$disk"
+    local part_number=""
+    rm -f $file
+    sgdisk -p $disk | \
+    awk '/^Logical sector size:/{sectorsize=$4;} /Disk identifier \(GUID\):/{diskcode=$4;}  /^First usable sector is/{split($5, a, ",", seps); first=a[1]; last=$10;}  /^Partitions will be aligned on/{split($6, a, "-", seps); boundary=a[1];}  /^ *[0-9]+ +/{partnum=$1; start=$2; end=$3; code=$6; print "part:" partnum ":" start ":" end ":" code;}  END{print "'$disk':" sectorsize ":" diskcode ":" first ":" last ":" boundary}' \
+    >> $file
+    for part in $parts; do
+        part_number=$(getPartitionNumber $part)
+        sgdisk -i $part_number $disk | \
+        awk '/^Partition GUID code:/{typecode=$4;} /Partition unique GUID:/{partcode=$4;} /^Partition name:/{name=$3; for(i=4;i<=NF;i++) {name = name " " $i}} /^First sector:/{first=$3;} /^Last sector:/{last=$3;} END{print "'$part':" typecode ":" partcode ":" first ":" last ":" name;}' \
+        | sed -r "s/'//g" \
+        >> $file
+    done
+}
+# $1 is the name of the disk drive
 # $2 is name of file to load from.
 applySfdiskPartitions() {
     local disk="$1"
@@ -35,7 +56,7 @@ applySgdiskPartitions() {
     local file="$2"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})"
-    local escape_disk=$(echo $disk | sed -r 's%/%\\/%g')
+    local escape_disk=$(escapeItem $disk)
     local diskguid=$(awk -F: "/^$escape_disk:/{print \$3}" $file)
     sgdisk --zap-all $disk >/dev/null 2>&1
     [[ ! $? -eq 0 ]] && handleError "Failed to restore partitions (zap) (${FUNCNAME[0]})"
@@ -53,7 +74,7 @@ applySgdiskPartitions() {
     local awk_part_vars=""
     getPartitions "$disk"
     for part in $parts; do
-        escape_part=$(echo $part | sed -r 's%/%\\/%g')
+        escape_part=$(escapeItem $part)
         part_number=$(getPartitionNumber $part)
         awk_part_vars=$(awk -F: "/^$escape_part:/{printf(\"%d %d %d %d\",\$3,\$4,\$5,\$6)}" $file)
         read partcode partstart partend partname <<< $awk_part_vars
@@ -510,27 +531,6 @@ hasGPT() {
     [[ $gpt == not ]] && present=0
     echo $present
 }
-# $1 is the name of the disk drive
-# $2 is name of file to save to.
-saveSgdiskPartitions() {
-    local disk="$1"
-    local file="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to save to passed (${FUNCNAME[0]})"
-    getPartitions "$disk"
-    local part_number=""
-    rm -f $file
-    sgdisk -p $disk | \
-    awk '/^Logical sector size:/{sectorsize=$4;} /Disk identifier \(GUID\):/{diskcode=$4;}  /^First usable sector is/{split($5, a, ",", seps); first=a[1]; last=$10;}  /^Partitions will be aligned on/{split($6, a, "-", seps); boundary=a[1];}  /^ *[0-9]+ +/{partnum=$1; start=$2; end=$3; code=$6; print "part:" partnum ":" start ":" end ":" code;}  END{print "'$disk':" sectorsize ":" diskcode ":" first ":" last ":" boundary}' \
-    >> $file
-    for part in $parts; do
-        part_number=$(getPartitionNumber $part)
-        sgdisk -i $part_number $disk | \
-        awk '/^Partition GUID code:/{typecode=$4;} /Partition unique GUID:/{partcode=$4;} /^Partition name:/{name=$3; for(i=4;i<=NF;i++) {name = name " " $i}} /^First sector:/{first=$3;} /^Last sector:/{last=$3;} END{print "'$part':" typecode ":" partcode ":" first ":" last ":" name;}' \
-        | sed -r "s/'//g" \
-        >> $file
-    done
-}
 #
 #
 # $1 is the name of the disk drive
@@ -546,7 +546,7 @@ fillSgdiskWithPartitions() {
     # get initial information from partition text file
     local parts=""
     local part=""
-    local escape_disk=$(echo $disk | sed -r 's%/%\\/%g')
+    local escape_disk=$(escapeItem $disk)
     local awk_disk_vars=$(awk -F: "/^$escape_disk:/{printf(\"%d %d\",\$2,\$6)}" $file)
     read sectorsize boundary <<< $awk_disk_vars
     local awk_part_vars=""
@@ -567,7 +567,7 @@ fillSgdiskWithPartitions() {
     rm -f $tmppartfile
     getPartitions "$disk"
     for part in $parts; do
-        local escape_part=$(echo $part | sed -r 's%/%\\/%g')
+        local escape_part=$(escapeItem $part)
         local partstart=$(awk -F: "/^$escape_part:/{print \$4}" $file)
         [[ -n $partstart && $partstart -lt $first_start ]] && first_start=$partstart
         echo "$partstart $part" >> $tmppartfile
@@ -581,7 +581,7 @@ fillSgdiskWithPartitions() {
     local original_fixed=$first_start  # pre-first partition is fixed
     for part in $parts; do
         part_number=$(getPartitionNumber $part)
-        escape_part=$(echo $part | sed -r 's%/%\\/%g')
+        escape_part=$(escapeItem $part)
         awk_part_vars=$(awk -F: "/^$escape_part:/{printf(\"%d %d\",\$4,\$5)}" $file)
         read partstart partend <<< $awk_part_vars
         part_size=$((partend - partstart + 1))
@@ -605,7 +605,7 @@ fillSgdiskWithPartitions() {
     local g_start=$first_start
     for part in $parts; do
         part_number=$(getPartitionNumber $part)
-        escape_part=$(echo $part | sed -r 's%/%\\/%g')
+        escape_part=$(escapeItem $part)
         awk_part_vars=$(awk -F: "/^$escape_part:/{printf(\"%d %d %d %d\",\$3,\$4,\$5,\$6)}" $file)
         read partcode partstart partend partname <<< $awk_part_vars
         parttype=$(awk -F: "/^part:$part_number:/{print \$5}" $file)
@@ -646,8 +646,8 @@ resizeSgdiskPartition() {
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     local disk=$(getDiskFromPartition $part)
     local part_number=$(getPartitionNumber $part)
-    local escape_disk=$(echo $disk | sed -r 's%/%\\/%g')
-    local escape_part=$(echo $part | sed -r 's%/%\\/%g')
+    local escape_disk=$(escapeItem $disk)
+    local escape_part=$(escapeItem $part)
     local filename="/tmp/sgdisk.partitions"
     local sectorsize=""
     local boundary=""
