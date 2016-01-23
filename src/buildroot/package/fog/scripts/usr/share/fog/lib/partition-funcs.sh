@@ -29,6 +29,46 @@ applySfdiskPartitions() {
     [[ ! $? -eq 0 ]] && majorDebugEcho "sfdisk failed in (${FUNCNAME[0]})"
 }
 # $1 is the name of the disk drive
+# $2 is the name of file to load from.
+applySgdiskPartitions() {
+    local disk="$1"
+    local file="$2"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
+    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})"
+    local escape_disk=$(echo $disk | sed -r 's%/%\\/%g')
+    local diskguid=$(awk -F: "/^$escape_disk:/{print \$3}" $file)
+    sgdisk --zap-all $disk >/dev/null 2>&1
+    [[ ! $? -eq 0 ]] && handleError "Failed to restore partitions (zap) (${FUNCNAME[0]})"
+    sgdisk --disk-guid $diskguid $disk >/dev/null 2>&1
+    [[ ! $? -eq 0 ]] && handleError "Failed to restore partitions (disk-guid) (${FUNCNAME[0]})"
+    local parts=""
+    local part=""
+    local part_number=""
+    local escape_part=""
+    local partstart=""
+    local partend=""
+    local parttype=""
+    local partcode=""
+    local partname=""
+    local awk_part_vars=""
+    getPartitions "$disk"
+    for part in $parts; do
+        escape_part=$(echo $part | sed -r 's%/%\\/%g')
+        part_number=$(getPartitionNumber $part)
+        awk_part_vars=$(awk -F: "/^$escape_part:/{printf(\"%d %d %d %d\",\$3,\$4,\$5,\$6)}" $file)
+        read partcode partstart partend partname <<< $awk_part_vars
+        parttype=$(awk -F: "/^part:$part_number:/{print \$5}" $file)
+        sgdisk --new $part_number:$partstart:$partend $disk >/dev/null 2>&1
+        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk --new) (${FUNCNAME[0]})"
+        sgdisk --change-name $part_number:$partname $disk >/dev/null 2>&1
+        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk --change-name) (${FUNCNAME[0]})"
+        sgdisk --typecode $part_number:$parttype $disk >/dev/null 2>&1
+        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk --typecode) (${FUNCNAME[0]})"
+        sgdisk --partition-guid $part_number:$partcode $disk >/dev/null 2>&1
+        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk --partition-guid) (${FUNCNAME[0]})"
+    done
+}
+# $1 is the name of the disk drive
 # $2 is name of file to load from.
 restoreSfdiskPartitions() {
     local disk="$1"
@@ -38,6 +78,15 @@ restoreSfdiskPartitions() {
     applySfdiskPartitions "$disk" "$file"
     fdisk $disk < /usr/share/fog/lib/EOFRESTOREPART >/dev/null 2>&1
     [[ ! $? -eq 0 ]] && majorDebugEcho "fdisk failed in (${FUNCNAME[0]})"
+}
+# $1 is the name of the disk drive
+# $2 is name of file to restore from.
+restoreSgdiskPartitions() {
+    local disk="$1"
+    local file="$2"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
+    [[ -z $file ]] && handleError "No file to restore from (${FUNCNAME[0]})"
+    applySgdiskPartitions "$disk" "$file"
 }
 # $1 is the name of the disk drive
 hasExtendedPartition() {
@@ -469,51 +518,17 @@ saveSgdiskPartitions() {
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "No file to save to passed (${FUNCNAME[0]})"
     getPartitions "$disk"
-    local partNum=""
+    local part_number=""
     rm -f $file
     sgdisk -p $disk | \
     awk '/^Logical sector size:/{sectorsize=$4;} /Disk identifier \(GUID\):/{diskcode=$4;}  /^First usable sector is/{split($5, a, ",", seps); first=a[1]; last=$10;}  /^Partitions will be aligned on/{split($6, a, "-", seps); boundary=a[1];}  /^ *[0-9]+ +/{partnum=$1; start=$2; end=$3; code=$6; print "part:" partnum ":" start ":" end ":" code;}  END{print "'$disk':" sectorsize ":" diskcode ":" first ":" last ":" boundary}' \
     >> $file
     for part in $parts; do
-        partNum=$(getPartitionNumber $part)
-        sgdisk -i $partNum $disk | \
+        part_number=$(getPartitionNumber $part)
+        sgdisk -i $part_number $disk | \
         awk '/^Partition GUID code:/{typecode=$4;} /Partition unique GUID:/{partcode=$4;} /^Partition name:/{name=$3; for(i=4;i<=NF;i++) {name = name " " $i}} /^First sector:/{first=$3;} /^Last sector:/{last=$3;} END{print "'$part':" typecode ":" partcode ":" first ":" last ":" name;}' \
         | sed -r "s/'//g" \
         >> $file
-    done
-}
-# $1 is the name of the disk drive
-# $2 is name of file to restore from.
-restoreSgdiskPartitions() {
-    local disk="$1"
-    local file="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to restore from (${FUNCNAME[0]})"
-    local parts=$(egrep "^${disk}[0-9]+:" $file | awk -F: '{print $1}')
-    local part=""
-    local escape_disk=$(echo $disk | sed -r 's%/%\\\\/%g')
-    local diskguid=$(awk -F: '/^'"$escape_disk"':/{print $3}' $file)
-    # wipe out the partition table, then restore
-    sgdisk --zap-all $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to restore partitions (zap) (${FUNCNAME[0]})"
-    sgdisk --disk-guid $diskguid $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to restore partitions (disk guid) (${FUNCNAME[0]})"
-    for part in $(egrep "^${disk}[0-9]+:" $file | awk -F: '{print $1}'); do
-        local part_number=$(getPartitionNumber $part)
-        local escape_part=$(echo $part | sed -r 's%/%\\\\/%g')
-        local partstart=$(awk -F: '/^'"$escape_part"':/{print $4}' $file)
-        local partend=$(awk -F: '/^'"$escape_part"':/{print $5}' $file)
-        local parttype=$(awk -F: '/^'"$escape_part"':/{print $2}' $file)
-        local partcode=$(awk -F: '/^'"$escape_part"':/{print $3}' $file)
-        local partname=$(awk -F: '/^'"$escape_part"':/{print $6}' $file)
-        sgdisk --new $part_number:$partstart:$partend $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (add) (${FUNCNAME[0]})"
-        sgdisk --change-name $part_number:$partname $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (name) (${FUNCNAME[0]})"
-        sgdisk --typecode $part_number:$parttype $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (type) (${FUNCNAME[0]})"
-        sgdisk --partition-guid $part_number:$partcode $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (GUID) ${FUNCNAME[0]})"
     done
 }
 #
@@ -525,85 +540,96 @@ restoreSgdiskPartitions() {
 fillSgdiskWithPartitions() {
     local disk="$1"
     local file="$2"
-    local fixed_size_partitions="$3"
+    local fixed="$3"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "No file passed (${FUNCNAME[0]})"
     # get initial information from partition text file
+    local parts=""
     local part=""
-    local escape_disk=$(echo $disk | sed -r 's%/%\\\\/%g')
-    local sectorsize=$(awk -F: '/^'"$escape_disk"':/{print $2}' $file)
-    local boundary=$(awk -F: '/^'"$escape_disk"':/{print $6}' $file)
+    local escape_disk=$(echo $disk | sed -r 's%/%\\/%g')
+    local awk_disk_vars=$(awk -F: "/^$escape_disk:/{printf(\"%d %d\",\$2,\$6)}" $file)
+    read sectorsize boundary <<< $awk_disk_vars
+    local awk_part_vars=""
     # get disk size, but give margin for backup GPT (32 sectors)
-    local disk_size=$(blockdev --getsize64 $disk | awk '{printf("%d\n",$1/'"$sectorsize"')}')
+    local disk_size=$(blockdev --getsize64 $disk | awk '{printf("%d\n",$1/'$sectorsize')}')
     let disk_size-=32
     # find first partition, and leave its starting position as is
     local tmppartfile="/tmp/partitionorder"
-    local first_start="$disk_size"
+    local first_start=$disk_size
+    local escape_part=""
+    local partstart=""
+    local part_number=""
+    local partstart=""
+    local partend=""
+    local part_size=""
+    local part_type=""
+    local is_fixed=""
     rm -f $tmppartfile
     getPartitions "$disk"
     for part in $parts; do
-        local escape_part=$(echo $part | sed -r 's%/%\\\\/%g')
-        local partstart=$(awk -F: '/^'"$escape_part"':/{print $4}' $file)
-        [[ -n $partstart && $partstart -lt $first_start ]] && first_start="$partstart"
+        local escape_part=$(echo $part | sed -r 's%/%\\/%g')
+        local partstart=$(awk -F: "/^$escape_part:/{print \$4}" $file)
+        [[ -n $partstart && $partstart -lt $first_start ]] && first_start=$partstart
         echo "$partstart $part" >> $tmppartfile
     done
     # find ordering of partitions on the disk
     # this is important for final processing so the partitions are stored in the right order
-    parts=$(sort -n $tmppartfile | awk '{print $2}' | tr '\n' ' ')
+    parts=$(sort -V $tmppartfile | awk '{print $2}' | tr '\n' ' ')
     rm -f $tmppartfile
     # find number of sectors that were fixed and variable under old disk
     local original_variable=0
-    local original_fixed="$first_start"  # pre-first partition is fixed
+    local original_fixed=$first_start  # pre-first partition is fixed
     for part in $parts; do
-        local part_number=$(echo $part | sed -r 's/^[^0-9]+//g')
-        local escape_part=$(echo $part | sed -r 's%/%\\\\/%g')
-        local partstart=$(awk -F: '/^'"$escape_part"':/{print $4}' $file)
-        local partend=$(awk -F: '/^'"$escape_part"':/{print $5}' $file)
-        local part_size=$(($partend - $partstart + 1))
-        local is_fixed=$(echo $fixed_size_partitions | awk "/(^$partNum[:]|[:]$partNum[:]|[:]$partNum$)/ {print 1}")
-        [[ ! $is_fixed -eq 1 ]] && let original_variable+="$part_size" || let original_fixed+="$part_size"
+        part_number=$(getPartitionNumber $part)
+        escape_part=$(echo $part | sed -r 's%/%\\/%g')
+        awk_part_vars=$(awk -F: "/^$escape_part:/{printf(\"%d %d\",\$4,\$5)}" $file)
+        read partstart partend <<< $awk_part_vars
+        part_size=$((partend - partstart + 1))
+        is_fixed=$(echo $fixed_size_partitions | awk "/(^$part_number:|:$part_number:|:$part_number$)/{print 1}")
+        [[ ! $is_fixed -eq 1 ]] && let original_variable+=$part_size || let original_fixed+=$part_size
     done
     # find amount of disk fixed and variable under new disk
-    local new_fixed="$original_fixed"
+    local new_fixed=$original_fixed
     local new_variable=$((disk_size - original_fixed))
+    local new_size=""
+    local new_start=""
+    local new_end=0
+    local remainder=""
     # wipe out the partition table, to start from scratch
-    local diskguid=$(awk -F: '/^'"$escape_disk"':/{print $3}' $filename)
+    local diskguid=$(awk -F: "/^$escape_disk:/{print \$3}" $filename)
     sgdisk --zap-all $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to fill partitions (zap) (${FUNCNAME[0]})"
+    [[ ! $? -eq 0 ]] && handleError "Failed to fill partitions (sgdisk --zap-all) (${FUNCNAME[0]})"
     sgdisk --disk-guid $diskguid $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to fill partitions (disk guid) (${FUNCNAME[0]})"
+    [[ ! $? -eq 0 ]] && handleError "Failed to fill partitions (sgdisk --disk-guid) (${FUNCNAME[0]})"
     # find new start, size, end for all partitions, and create them
-    local g_start="$first_start"
+    local g_start=$first_start
     for part in $parts; do
-        local part_number=$(echo $part | sed -r 's/^[^0-9]+//g')
-        local escape_part=$(echo $part | sed -r 's%/%\\\\/%g')
-        local partstart=$(awk -F: '/^'"$escape_part"':/{print $4}' $file)
-        local partend=$(awk -F: '/^'"$escape_part"':/{print $5}' $file)
-        local parttype=$(awk -F: '/^'"$escape_part"':/{print $2}' $file)
-        local partcode=$(awk -F: '/^'"$escape_part"':/{print $3}' $file)
-        local partname=$(awk -F: '/^'"$escape_part"':/{print $6}' $file)
-        local part_size=$(($partend - $partstart + 1))
-        local is_fixed=$(echo $fixed_size_partitions | awk "/(^$partNum[:]|[:]$partNum[:]|[:]$partNum$)/ {print 1}")
-        local new_size="$part_size"
-        local remainder=0
+        part_number=$(getPartitionNumber $part)
+        escape_part=$(echo $part | sed -r 's%/%\\/%g')
+        awk_part_vars=$(awk -F: "/^$escape_part:/{printf(\"%d %d %d %d\",\$3,\$4,\$5,\$6)}" $file)
+        read partcode partstart partend partname <<< $awk_part_vars
+        parttype=$(awk -F: "/^part:$part_number:/{print \$5}" $file)
+        part_size=$((partend - partstart + 1))
+        is_fixed=$(echo $fixed_size_partitions | awk "/(^$part_number:|:$part_number:|:$part_number$)/{print 1}")
+        new_size=$part_size
+        remainder=0
         if [[ ! $is_fixed -eq 1 ]]; then
             new_size=$((part_size * new_variable / original_variable))
             remainder=$((new_size % boundary))
-            [[ $remainder -gt 0 ]] && let new_size-="$remainder"
+            [[ $remainder -gt 0 ]] && let new_size-=$remainder
         fi
-        local new_start="$g_start"
-        local new_end=0
+        new_start=$g_start
         new_end=$((new_start + new_size - 1))
-        [[ $new_end -gt $disk_size ]] && new_end="$disk_size"
+        [[ $new_end -gt $disk_size ]] && new_end=$disk_size
         sgdisk --new $part_number:$new_start:$new_end $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to fill partition (add) (${FUNCNAME[0]})"
+        [[ ! $? -eq 0 ]] && handleError "Failed to fill partition (sgdisk --new) (${FUNCNAME[0]})"
         sgdisk --change-name $part_number:$partname $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to fill partition (name) (${FUNCNAME[0]})"
+        [[ ! $? -eq 0 ]] && handleError "Failed to fill partition (sgdisk --change-name) (${FUNCNAME[0]})"
         sgdisk --typecode $part_number:$parttype $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to fill partition (type) (${FUNCNAME[0]})"
+        [[ ! $? -eq 0 ]] && handleError "Failed to fill partition (sgdisk --typecode) (${FUNCNAME[0]})"
         sgdisk --partition-guid $part_number:$partcode $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to fill partition (GUID) (${FUNCNAME[0]})"
-        let g_start+="$new_size"
+        [[ ! $? -eq 0 ]] && handleError "Failed to fill partition (sgdisk --partition-guid) (${FUNCNAME[0]})"
+        let g_start+=$new_size
         remainder=$((g_start % boundary))
         [[ $remainder -gt 0 ]] && let g_start+=$((boundary - remainder))
     done
@@ -618,32 +644,37 @@ resizeSgdiskPartition() {
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    local disk=$(echo $part | sed -r 's/[0-9]+$//g')
-    local part_number=$(echo $part | sed -r 's/^[^0-9]+//g')
-    local escape_disk=$(echo $disk | sed -r 's%/%\\\\/%g')
-    local escape_part=$(echo $part | sed -r 's%/%\\\\/%g')
+    local disk=$(getDiskFromPartition $part)
+    local part_number=$(getPartitionNumber $part)
+    local escape_disk=$(echo $disk | sed -r 's%/%\\/%g')
+    local escape_part=$(echo $part | sed -r 's%/%\\/%g')
     local filename="/tmp/sgdisk.partitions"
+    local sectorsize=""
+    local boundary=""
+    local partcode=""
+    local partstart=""
+    local partname=""
     saveSgdiskPartitions "$disk" "$filename"
-    local sectorsize=$(awk -F: '/^'"$escape_disk"':/{print $2}' $filename)
-    local boundary=$(awk -F: '/^'"$escape_disk"':/{print $6}' $filename)
-    local partstart=$(awk -F: '/^'"$escape_part"':/{print $4}' $filename)
-    local parttype=$(awk -F: '/^'"$escape_part"':/{print $2}' $filename)
-    local partcode=$(awk -F: '/^'"$escape_part"':/{print $3}' $filename)
-    local partname=$(awk -F: '/^'"$escape_part"':/{print $6}' $filename)
+    local awk_disk_vars=$(awk -F: "/^$escape_disk:/{printf(\"%d %d\",\$2,\$6)}" $filename)
+    read sectorsize boundary <<< $awk_disk_vars
+    [[ -z $sectorsize || $sectorsize -lt 512 ]] && sectorsize=512
+    local awk_part_vars=$(awk -F: "/^$escape_part:/{printf(\"%d %d %d\",\$3,\$4,\$6)}" $filename)
+    read partcode partstart partname <<< $awk_part_vars
+    local parttype=$(awk -F: "/^part:$part_number:/{print \$5}" $filename)
     local newsize=$((size * 1024 / sectorsize))
     local remainder=$((newsize % boundary))
     [[ $remainder -gt 0 ]] && newsize=$((newsize - $(($((newsize + boundary)) % boundary))))
     local partend=$((partstart + newsize))
     sgdisk --delete $part_number $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to resize partition (delete) (${FUNCNAME[0]})"
+    [[ ! $? -eq 0 ]] && handleError "Failed to resize partition (sgdisk --delete) (${FUNCNAME[0]})"
     sgdisk --new $part_number:$partstart:$partend $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to resize partition (add) (${FUNCNAME[0]})"
+    [[ ! $? -eq 0 ]] && handleError "Failed to resize partition (sgdisk --new) (${FUNCNAME[0]})"
     sgdisk --change-name $part_number:$partname $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to resize partition (name) (${FUNCNAME[0]})"
+    [[ ! $? -eq 0 ]] && handleError "Failed to resize partition (sgdisk --change-name) (${FUNCNAME[0]})"
     sgdisk --typecode $part_number:$parttype $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to resize partition (type) (${FUNCNAME[0]})"
+    [[ ! $? -eq 0 ]] && handleError "Failed to resize partition (sgdisk --typecode) (${FUNCNAME[0]})"
     sgdisk --partition-guid $part_number:$partcode $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to resize partition (GUID) (${FUNCNAME[0]})"
+    [[ ! $? -eq 0 ]] && handleError "Failed to resize partition (sgdisk --partition-guid) (${FUNCNAME[0]})"
     rm -f $filename
 }
 #
@@ -762,7 +793,7 @@ fillDiskWithPartitions() {
         MBR)
             filename=$(sfdiskOriginalPartitionFileName $imagePath $intDisk)
             legacyfilename=$(sfdiskLegacyOriginalPartitionFileName $imagePath $intDisk)
-            [[ ! -r $filename ]] && filename="$legacyfilename"
+            [[ ! -r $filename ]] && filename=$legacyfilename
             fillSfdiskWithPartitions "$disk" "$filename" "$fixed_size_partitions"
             ;;
         GPT)

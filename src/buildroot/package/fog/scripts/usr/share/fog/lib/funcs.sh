@@ -59,7 +59,7 @@ expandPartition() {
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     if [[ -n $fixed_size_partitions ]]; then
         local partNum=$(getPartitionNumber $part)
-        local is_fixed=$(echo $fixed_size_partitions | awk "/(^$partNum[:]|[:]$partNum[:]|[:]$partNum$)/ {print 1}")
+        local is_fixed=$(echo $fixed_size_partitions | awk "/(^$partNum:|:$partNum:|:$partNum$)/ {print 1}")
         if [[ $is_fixed -eq 1 ]]; then
             echo " * Not expanding ($part) fixed size"
             debugPause
@@ -132,7 +132,7 @@ fsTypeSetting() {
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     local fstype=$(blkid -po udev $part | awk -F= /FS_TYPE=/'{print $2}')
     case $fstype in
-        ^ext[234]$)
+        ext[2-4])
             echo "extfs"
             ;;
         ntfs)
@@ -281,7 +281,7 @@ shrinkPartition() {
     echo "$part $fstype" >> $fstypefile
     if [[ -n $fixed_size_partitions ]]; then
         partNum=$(getPartitionNumber $part)
-        is_fixed=$(echo $fixed_size_partitions | awk "/(^$partNum[:]|[:]$partNum[:]|[:]$partNum$)/ {print 1}")
+        is_fixed=$(echo $fixed_size_partitions | awk "/(^$partNum:|:$partNum:|:$partNum$)/ {print 1}")
         if [[ $is_fixed -eq 1 ]]; then
             echo " * Not shrinking ($part) fixed size"
             debugPause
@@ -1453,14 +1453,15 @@ hasGrubFileName() {
 MBRFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local intDisk="$2"    # e.g. 1
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $intDisk ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     case $osid in
         [1-2])
             echo $mbrfile
             ;;
         [5-7]|9)
-            [[ -f $win7imgroot/sys.img.000 ]] && echo $mbrfile || echo "$imagePath/d${intDisk}.mbr"
+            [[ -f $imagePath/sys.img.000 ]] && echo $mbrfile || echo "$imagePath/d${intDisk}.mbr"
+            ;;
+        *)
+            echo "$imagePath/d${intDisk}.mbr"
             ;;
     esac
 }
@@ -1594,7 +1595,6 @@ restorePartitionTablesAndBootLoaders() {
         [[ ! $? -eq 0 ]] && handleError "Error trying to restore GPT partition tables (${FUNCNAME[0]})"
         global_gptcheck="yes"
         echo "Done"
-        debugPause
     else
         case $osid in
             50)
@@ -1874,7 +1874,7 @@ performResizeRestore() {
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $driveNum ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imgPartitionType ]] && handleError "No partition type passed (${FUNCNAME[0]})"
-    [[ -z $restoreparts ]] && handleError "No partitions to restore passed"
+    [[ -z $restoreparts ]] && handleError "No partitions to restore passed (${FUNCNAME[0]})"
     for restorepart in $restoreparts; do
         tmpebrfilename=$(tmpEBRFileName 1 $(getPartitionNumber $restorepart))
         saveEBR "$restorepart" "$tmpebrfilename"
