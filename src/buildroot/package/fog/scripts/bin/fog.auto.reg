@@ -1,8 +1,10 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
-clear
+clearScreen
 displayBanner
+disks=""
+disk=""
 hd=""
 sysman=""
 sysman64=""

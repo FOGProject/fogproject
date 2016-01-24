@@ -3,6 +3,11 @@
 . /bin/fog.donate
 clearScreen
 displayBanner
+disks=""
+disk=""
+hd=""
+parts=""
+part=""
 getHardDisk "true"
 dots "Creating File System Mount point"
 [[ ! -d /images ]] && mkdir -p /images >/dev/null 2>&1

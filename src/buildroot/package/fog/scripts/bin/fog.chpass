@@ -3,7 +3,11 @@
 . /bin/fog.donate
 clearScreen
 displayBanner
+disks=""
+disk=""
 hd=""
+parts=""
+part=""
 dots "Creating chntpw partition"
 [[ ! -d /chntpw ]] && mkdir -p /chntpw >/dev/null 2>&1
 if [[ ! -d /chntpw ]]; then
@@ -26,7 +30,7 @@ sam=""
 getSAMLoc
 getPartitions "$hd"
 for part in $parts; do
-    fstype=$(fsTypeSetting $part)
+    fsTypeSetting "$part"
     case $fstype in
         [Nn][Tt][Ff][Ss])
             echo " * Mounting partition $part"

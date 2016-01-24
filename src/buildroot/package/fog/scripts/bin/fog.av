@@ -4,6 +4,11 @@
 . /bin/fog.checkin
 clearScreen
 displayBanner
+disks=""
+disk=""
+hd=""
+parts=""
+part=""
 dots "Mounting Clamav"
 [[ ! -d /opt/fog/clamav ]] && mkdir -p /opt/fog/clamav >/dev/null 2>&1
 mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $clamav /opt/fog/clamav
@@ -71,7 +76,7 @@ for disk in $disks; do
     debugPause
     getPartitions "$disk"
     for part in $parts; do
-        fstype=$(fsTypeSetting $part)
+        fsTypeSetting "$part"
         case $fstype in
             [Nn][Tt][Ff][Ss])
                 echo " * Mounting partition $part"

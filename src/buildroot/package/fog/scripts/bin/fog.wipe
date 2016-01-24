@@ -3,6 +3,8 @@
 . /bin/fog.donate
 clearScreen
 displayBanner
+disks=""
+disk=""
 hd=""
 [[ -z $seconds ]] && seconds=60
 getHardDisk

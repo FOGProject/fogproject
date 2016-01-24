@@ -3,12 +3,17 @@
 . /bin/fog.donate
 clearScreen
 displayBanner
+disks=""
+disk=""
+hd=""
 getHardDisk
 [[ -z $winuser ]] && handleError "Invalid User Account"
 blCont=0
 blStop=0
 [[ ! -d /ntfs ]] && mkdir -p /ntfs >/dev/null 2>&1
 sam=""
+parts=""
+part=""
 getPartitions "$hd"
 for part in $parts; do
     while [[ $blCont -eq 0 && $blStop -eq 0 ]]; do

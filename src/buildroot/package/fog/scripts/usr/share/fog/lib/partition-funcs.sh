@@ -25,14 +25,16 @@ saveSgdiskPartitions() {
     local file="$2"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "No file to save to passed (${FUNCNAME[0]})"
+    local parts=""
+    local part=""
+    local part_number=0
     getPartitions "$disk"
-    local part_number=""
     rm -f $file
     sgdisk -p $disk | \
     awk '/^Logical sector size:/{sectorsize=$4;} /Disk identifier \(GUID\):/{diskcode=$4;}  /^First usable sector is/{split($5, a, ",", seps); first=a[1]; last=$10;}  /^Partitions will be aligned on/{split($6, a, "-", seps); boundary=a[1];}  /^ *[0-9]+ +/{partnum=$1; start=$2; end=$3; code=$6; print "part:" partnum ":" start ":" end ":" code;}  END{print "'$disk':" sectorsize ":" diskcode ":" first ":" last ":" boundary}' \
     >> $file
     for part in $parts; do
-        part_number=$(getPartitionNumber $part)
+        getPartitionNumber "$part"
         sgdisk -i $part_number $disk | \
         awk '/^Partition GUID code:/{typecode=$4;} /Partition unique GUID:/{partcode=$4;} /^Partition name:/{name=$3; for(i=4;i<=NF;i++) {name = name " " $i}} /^First sector:/{first=$3;} /^Last sector:/{last=$3;} END{print "'$part':" typecode ":" partcode ":" first ":" last ":" name;}' \
         | sed -r "s/'//g" \
@@ -75,7 +77,7 @@ applySgdiskPartitions() {
     getPartitions "$disk"
     for part in $parts; do
         escape_part=$(escapeItem $part)
-        part_number=$(getPartitionNumber $part)
+        getParititionNumber "$part"
         awk_part_vars=$(awk -F: "/^$escape_part:/{printf(\"%d %d %d %d\",\$3,\$4,\$5,\$6)}" $file)
         read partcode partstart partend partname <<< $awk_part_vars
         parttype=$(awk -F: "/^part:$part_number:/{print \$5}" $file)
@@ -120,10 +122,15 @@ hasExtendedPartition() {
 partitionHasEBR() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    local partNum=$(getPartitionNumber $part)
-    local disk=$(getDiskFromPartition $part)
-    local part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}')
-    [[ $part_type -eq 5 || $part_type == f || $partNum -ge 5 ]] && echo 1 || echo 0
+    local part_number=0
+    local disk=""
+    local parttype=""
+    getDiskFromPartition "$part"
+    getPartitionNumber "$part"
+    getPartType "$part"
+    hasEBR=0
+    [[ $part_number -ge 5 ]] && hasEBR=1
+    [[ $parttype == +(0x5|0xf) ]] && hasEBR=1
 }
 # $1 is the name of the partition device (e.g. /dev/sda3)
 # $2 is the name of the file to save to (e.g. /net/dev/foo/d1p4.ebr)
@@ -132,12 +139,14 @@ saveEBR() {
     local file="$2"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})"
-    local disk=$(getDiskFromPartition $part)
-    local table_type=$(getPartitionTableType $disk)
+    local disk=""
+    getDiskFromPartition "$part"
+    local table_type=""
+    getPartitionTableType "$disk"
     [[ $table_type != MBR ]] && return
-    # Leaving the grep in place due to forward slashes
-    local part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}')
-    [[ ! $(partitionHasEBR $part) -gt 0 ]] && return
+    local hasEBR=0
+    partitionHasEBR "$part"
+    [[ ! $hasEBR -gt 0 ]] && return
     dots "Saving EBR for ($part)"
     dd if=$part of=$file bs=512 count=1 >/dev/null 2>&1
     case $? in
@@ -157,15 +166,19 @@ saveEBR() {
 # $3 = ImagePath  (e.g. /net/foo)
 saveAllEBRs() {
     local disk="$1"
-    local driveNum="$2"
+    local disk_number="$2"
     local imagePath="$3"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $driveNum ]] && handleError "No drive number passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    local parts=""
+    local part=""
+    local part_number=0
+    local ebrfilename=""
     getPartitions "$disk"
     for part in $parts; do
-        partNum=$(getPartitionNumber $part)
-        ebrfilename=$(EBRFileName $imagePath $driveNum $partNum)
+        getPartitionNumber "$part"
+        EBRFileName "$imagePath" "$disk_number" "$part_number"
         saveEBR "$part" "$ebrfilename"
     done
 }
@@ -174,14 +187,16 @@ saveAllEBRs() {
 restoreEBR() {
     local part="$1"
     local file="$2"
-    local disk=$(getDiskFromPartition $part)
-    local table_type=$(getPartitionTableType $disk)
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
+    [[ -z $part ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "No file to restore from passed (${FUNCNAME[0]})"
+    local disk=""
+    local table_type=""
+    getDiskFromPartition "$part"
+    getPartitionTableType "$disk"
     [[ $table_type != MBR ]] && return
-    # Leaving the grep in place due to forward slashes
-    local part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}')
-    [[ ! $(partitionHasEBR $part) -gt 0 ]] && return
+    local hasEBR=0
+    partitionHasEBR "$part"
+    [[ ! $hasEBR -gt 0 ]] && return
     [[ ! -e $file ]] && return
     dots "Restoring EBR for ($part)"
     dd of=$part if=$file bs=512 count=1 >/dev/null 2>&1
@@ -203,7 +218,7 @@ restoreEBR() {
 # $4 = ImagePartitionType  (e.g. all, mbr, 1, 2, 3, etc.)
 restoreAllEBRs() {
     local disk="$1"
-    local driveNum="$2"
+    local disk_number="$2"
     local imagePath="$3"
     local imgPartitionType="$4"
     local ebffilename=""
@@ -211,11 +226,15 @@ restoreAllEBRs() {
     [[ -z $driveNum ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $imgPartitionType ]] && handleError "No partition type passed (${FUNCNAME[0]})"
+    local parts=""
+    local part=""
+    local part_number=0
+    local ebrfilename=""
     getPartitions "$disk"
     for part in $parts; do
-        partNum=$(getPartitionNumber $part)
-        [[ $imgPartitionType != all && $imgPartitionType != $partNum ]] && continue
-        ebrfilename=$(EBRFileName $imagePath $driveNum $partNum)
+        getPartitionNumber "$part"
+        [[ $imgPartitionType != all && $imgPartitionType != $part_number ]] && continue
+        EBRFileName "$imagePath" "$disk_number" "$part_number"
         restoreEBR "$part" "$ebrfilename"
     done
     runPartprobe "$disk"
@@ -224,8 +243,10 @@ restoreAllEBRs() {
 partitionIsSwap() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    local fstype=$(fsTypeSetting $part)
-    [[ $fstype == swap ]] && echo 1 || echo 0
+    local fstype=""
+    fsTypeSetting "$part"
+    is_swap=0
+    [[ $fstype == swap ]] && is_swap=1
 }
 # $1 is the location of the file to store uuids in
 # $2 is the partition device name
@@ -234,7 +255,8 @@ saveSwapUUID() {
     local part="$2"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})"
-    local is_swap=$(partitionIsSwap $part)
+    local is_swap=0
+    partitionIsSwap "$part"
     [[ $is_swap -eq 0 ]] && return
     local uuid=$(blkid -s UUID $2 | cut -d\" -f2)
     [[ -z $uuid ]] && return
@@ -290,17 +312,21 @@ saveSwapUUID() {
 # $3 = ImagePath  (e.g. /net/foo)
 saveAllSwapUUIDs() {
     local disk="$1"
-    local driveNum="$2"
+    local disk_number="$2"
     local imagePath="$3"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $driveNum ]] && handleError "No drive number passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    local partNum=""
-    local swapfilename=$(swapUUIDFileName $imagePath $driveNum)
+    local swapuuidfilename=""
+    swapUUIDFileName "$imagePath" "$disk_number"
+    local parts=""
+    local part=""
+    local is_swap=0
     getPartitions "$disk"
     for part in $parts; do
-        [[ $(partitionIsSwap $part) -eq 0 ]] && continue
-        saveSwapUUID "$swapfilename" "$part"
+        partitionIsSwap "$part"
+        [[ $is_swap -eq 0 ]] && continue
+        saveSwapUUID "$swapuuidfilename" "$part"
     done
 }
 # $1 is the location of the file uuids are stored in
@@ -312,27 +338,28 @@ makeSwapSystem() {
     [[ -z $file ]] && handleError "No file passed (${FUNCNAME[0]})"
     local uuid=""
     local option=""
-    local disk=$(getDiskFromPartition $part)
-    local part_type=0
-    local hasgpt=$(hasGPT $disk)
+    local disk=""
+    getDiskFromPartition "$part"
+    local parttype=0
+    local hasgpt=""
+    local escape_part=$(escapeItem $part)
+    hasGPT "$disk"
     case $hasgpt in
         1)
-            uuid=$(egrep "^$part" $file | awk '{print $2}')
-            [[ -n $uuid ]] && part_type=82
+            uuid=$(awk "/^$escape_part/{print \$2}" $file)
+            [[ -n $uuid ]] && parttype=82
             ;;
-        *)
-            part_type=$(sfdisk -d $disk 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6}')
+        0)
+            parttype=$(sfdisk -d $disk 2>/dev/null | awk -F[,=] "/^$escape_part/{print \$6}")
             ;;
     esac
-    [[ ! $part_type -eq 82 ]] && return
-    uuid=$(egrep "^$part" $file | awk '{print $2}')
+    [[ ! $parttype -eq 82 ]] && return
     [[ -n $uuid ]] && option="-U $uuid"
     dots "Restoring swap partition"
     mkswap $option $part >/dev/null 2>&1
     case $? in
         0)
             echo "Done"
-            debugPause
             ;;
         *)
             echo "Failed"
@@ -340,6 +367,7 @@ makeSwapSystem() {
             handleError "Could not create swap on $part (${FUNCNAME[0]})"
             ;;
     esac
+    debugPause
 }
 # $1 is the partition device (e.g. /dev/sda1)
 # $2 is the new desired size in 1024 (1k) blocks
@@ -351,13 +379,16 @@ resizeSfdiskPartition() {
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    local disk=$(getDiskFromPartition $part)
+    local disk=""
+    getDiskFromPartition "$part"
     local tmp_file="/tmp/sfdisk.$$"
     local tmp_file2="/tmp/sfdisk2.$$"
     saveSfdiskPartitions "$disk" "$tmp_file"
     processSfdisk "$tmp_file" resize "$part" "$size" > "$tmp_file2"
     [[ $? -eq 0 ]] && applySfdiskPartitions "$disk" "$tmp_file2"
-    mv $tmp_file2 $(sfdiskMinimumPartitionFileName $imagePath 1) >/dev/null 2>&1
+    local sfdiskminimumpartitionfilename=""
+    sfdiskMinimumPartitionFileName "$imagePath" 1
+    mv $tmp_file2 $sfdiskminimumpartitionfilename >/dev/null 2>&1
 }
 # $1 is the disk device (e.g. /dev/sda)
 # $2 is the name of the original sfdisk -d output file used as a template
@@ -486,9 +517,9 @@ getPartitionTableType() {
             ;;
     esac
     [[ -z $gpttype && -z $mbrtype ]] && handleError "Cannot determine partition type (${FUNCNAME[0]})"
-    [[ -n $gpttype && -n $mbrtype ]] && echo "$gpttype-$mbrtype"
-    [[ -n $gpttype && -z $mbrtype ]] && echo "$gpttype"
-    [[ -z $gpttype && -n $mbrtype ]] && echo "$mbrtype"
+    [[ -n $gpttype && -n $mbrtype ]] && table_type="$gpttype-$mbrtype"
+    [[ -n $gpttype && -z $mbrtype ]] && table_type="$gpttype"
+    [[ -z $gpttype && -n $mbrtype ]] && table_type="$mbrtype"
 }
 #
 # Detect the desired partition table type,
@@ -512,7 +543,7 @@ getDesiredPartitionTableType() {
     dd skip=512 bs=1 if=$mbrfile of=$tmpfile count=8 >/dev/null 2>&1
     touch $tmpfile
     local gptsig=$(cat $tmpfile)
-    [[ $gptsig == "EFI PART" ]] && echo "GPT" || echo "MBR"
+    [[ $gptsig == "EFI PART" ]] && table_type="GPT" || table_type="MBR"
 }
 # $1 : device name of drive
 hasHybridMBR() {
@@ -525,11 +556,9 @@ hasHybridMBR() {
 hasGPT() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    local present=0
     local gpt=$(gdisk -l $disk | awk '/^\ *GPT:/{print $2}')
-    [[ $gpt == present ]] &&  present=1
-    [[ $gpt == not ]] && present=0
-    echo $present
+    [[ $gpt == present ]] &&  hasgpt=1
+    [[ $gpt == not ]] && hasgpt=0
 }
 #
 #
@@ -557,13 +586,13 @@ fillSgdiskWithPartitions() {
     local tmppartfile="/tmp/partitionorder"
     local first_start=$disk_size
     local escape_part=""
-    local partstart=""
-    local part_number=""
-    local partstart=""
-    local partend=""
-    local part_size=""
-    local part_type=""
-    local is_fixed=""
+    local partstart=0
+    local part_number=0
+    local partstart=0
+    local partend=0
+    local part_size=0
+    local part_type=0
+    local is_fixed=0
     rm -f $tmppartfile
     getPartitions "$disk"
     for part in $parts; do
@@ -580,7 +609,7 @@ fillSgdiskWithPartitions() {
     local original_variable=0
     local original_fixed=$first_start  # pre-first partition is fixed
     for part in $parts; do
-        part_number=$(getPartitionNumber $part)
+        getPartitionNumber "$part"
         escape_part=$(escapeItem $part)
         awk_part_vars=$(awk -F: "/^$escape_part:/{printf(\"%d %d\",\$4,\$5)}" $file)
         read partstart partend <<< $awk_part_vars
@@ -603,8 +632,9 @@ fillSgdiskWithPartitions() {
     [[ ! $? -eq 0 ]] && handleError "Failed to fill partitions (sgdisk --disk-guid) (${FUNCNAME[0]})"
     # find new start, size, end for all partitions, and create them
     local g_start=$first_start
+    part_number=0
     for part in $parts; do
-        part_number=$(getPartitionNumber $part)
+        getPartitionNumber "$part"
         escape_part=$(escapeItem $part)
         awk_part_vars=$(awk -F: "/^$escape_part:/{printf(\"%d %d %d %d\",\$3,\$4,\$5,\$6)}" $file)
         read partcode partstart partend partname <<< $awk_part_vars
@@ -644,15 +674,17 @@ resizeSgdiskPartition() {
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    local disk=$(getDiskFromPartition $part)
-    local part_number=$(getPartitionNumber $part)
+    local disk=""
+    local part_number=0
+    getDiskFromPartition "$part"
+    getPartitionNumber "$part"
     local escape_disk=$(escapeItem $disk)
     local escape_part=$(escapeItem $part)
     local filename="/tmp/sgdisk.partitions"
-    local sectorsize=""
-    local boundary=""
+    local sectorsize=0
+    local boundary=0
     local partcode=""
-    local partstart=""
+    local partstart=0
     local partname=""
     saveSgdiskPartitions "$disk" "$filename"
     local awk_disk_vars=$(awk -F: "/^$escape_disk:/{printf(\"%d %d\",\$2,\$6)}" $filename)
@@ -663,7 +695,7 @@ resizeSgdiskPartition() {
     local parttype=$(awk -F: "/^part:$part_number:/{print \$5}" $filename)
     local newsize=$((size * 1024 / sectorsize))
     local remainder=$((newsize % boundary))
-    [[ $remainder -gt 0 ]] && newsize=$((newsize - $(($((newsize + boundary)) % boundary))))
+    [[ $remainder -gt 0 ]] && let newsize-=$(($((newsize + boundary)) % boundary))
     local partend=$((partstart + newsize))
     sgdisk --delete $part_number $disk >/dev/null 2>&1
     [[ ! $? -eq 0 ]] && handleError "Failed to resize partition (sgdisk --delete) (${FUNCNAME[0]})"
@@ -691,8 +723,10 @@ resizePartition() {
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     [[ -z $size ]] && handleError "No size passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    local disk=$(getDiskFromPartition $part)
-    local table_type=$(getPartitionTableType $disk)
+    local disk=""
+    local table_type=""
+    getDiskFromPartition "$part"
+    getPartitionTableType "$disk"
     case $table_type in
         MBR)
             resizeSfdiskPartition "$part" "$size" "$imagePath"
@@ -721,7 +755,8 @@ saveOriginalPartitions() {
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $intDisk ]] && handleError "No disk number passed (${FUNCNAME[0]})"
-    local table_type=$(getPartitionTableType $disk)
+    local table_type=""
+    getPartitionTableType "$disk"
     local filename=""
     case $table_type in
         MBR)
@@ -752,7 +787,8 @@ restoreOriginalPartitions() {
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $intDisk ]] && handleError "No disk number passed (${FUNCNAME[0]})"
-    local table_type=$(getPartitionTableType $disk)
+    local table_type=""
+    getPartitionTableType "$disk"
     case $table_type in
         MBR)
             filename=$(sfdiskOriginalPartitionFileName $imagePath $intDisk)
@@ -779,25 +815,29 @@ restoreOriginalPartitions() {
 fillDiskWithPartitions() {
     local disk="$1"
     local imagePath="$2"
-    local intDisk="$3"
+    local disk_number="$3"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $intDisk ]] && handleError "No disk number passed (${FUNCNAME[0]})"
-    local fixed_size_partitions=""
-    local fsfilename=$(fixedSizePartitionsFileName $imagePath $intDisk)
-    [[ -r $fsfilename ]] && fixed_size_partitions=$(cat $fsfilename)
-    local table_type=$(getDesiredPartitionTableType $imagePath $intDisk)
-    local filename=""
-    local legacyfilename=""
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    local fixed_size_file=""
+    fixedSizePartitionsFileName "$imagePath" "$disk_number"
+    [[ -r $fixed_size_file ]] && fixed_size_partitions=$(cat $fixed_size_file)
+    local table_type=""
+    getDesiredPartitionTableType "$imagePath" "$disk_number"
+    local sfdiskoriginalpartitionfilename=""
+    local sfdisklegacyoriginalpartitionfilename=""
     case $table_type in
         MBR)
-            filename=$(sfdiskOriginalPartitionFileName $imagePath $intDisk)
-            legacyfilename=$(sfdiskLegacyOriginalPartitionFileName $imagePath $intDisk)
-            [[ ! -r $filename ]] && filename=$legacyfilename
+            sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
+            sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
+            filename="$sfdiskoriginalpartitionfilename"
+            [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
             fillSfdiskWithPartitions "$disk" "$filename" "$fixed_size_partitions"
             ;;
         GPT)
-            filename=$(sgdiskOriginalPartitionFileName $imagePath $intDisk)
+            local sgdiskoriginalpartitionfilename=""
+            sgdiskOriginalPartitionFileName "$imagePath" "$disk_number"
+            filename="$sgdiskoriginalpartitionfilename"
             fillSgdiskWithPartitions "$disk" "$filename" "$fixed_size_partitions"
             ;;
         *)
@@ -816,25 +856,32 @@ fillDiskWithPartitions() {
 fillDiskWithPartitionsIsOK() {
     local disk="$1"
     local imagePath="$2"
-    local intDisk="$3"
+    local disk_number="$3"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $intDisk ]] && handleError "No disk number passed (${FUNCNAME[0]})"
-    local table_type=$(getDesiredPartitionTableType $imagePath $intDisk)
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    local table_type=""
+    getDesiredPartitionTableType "$imagePath" "$disk_number"
     local filename=""
-    local legacyfilename=""
+    local sfdiskoriginalpartitionfilename=""
+    local sgdiskoriginalpartitionfilename=""
+    local sfdisklegacyoriginalpartitionfilename=""
+    do_fill=0
     case $table_type in
         MBR)
-            filename=$(sfdiskOriginalPartitionFileName $imagePath $intDisk)
-            legacyfilename=$(sfdiskLegacyOriginalPartitionFileName $imagePath $intDisk)
-            [[ -r $filename || -r $legacyfilename ]] && echo 1 || echo 0
+            sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
+            sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
+            filename="$sfdiskoriginalpartitionfilename"
+            do_fill=1
+            [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
+            [[ ! -r $filename ]] && do_fill=0
             ;;
         GPT)
-            filename=$(sgdiskOriginalPartitionFileName $imagePath $intDisk)
-            [[ -r $filename ]] && echo 1 || echo 0
-            ;;
-        *)
-            echo 0
+            local sgdiskoriginalpartitionfilename=""
+            sgdiskOriginalPartitionFileName "$imagePath" "$disk_number"
+            filename="$sgdiskoriginalpartitionfilename"
+            do_fill=1
+            [[ ! -r $filename ]] && do_fill=0
             ;;
     esac
 }
