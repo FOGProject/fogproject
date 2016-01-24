@@ -5,13 +5,18 @@
 . /bin/fog.checkmount
 . /bin/fog.checkimgvar
 imagePath="/images/$macWinSafe"
+parts=""
+part=""
+disks=""
+disk=""
+hd=""
 echo " * Preparing to send image file to server"
 percent="$pct"
 [[ $pct -lt 5 || $pct -ge 100 ]] && percent=5
 [[ $pct -lt 10 ]] && percent="0$pct"
 fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!"
-prepareUploadLocation
+prepareUploadLocation "$imagePath"
 echo " * Using Image: $img"
 case $imgType in
     [Nn]|mps|dd)
@@ -82,50 +87,47 @@ case $imgType in
         dots "Checking for fixed partitions"
         runPartprobe "$hd"
         getPartitions "$hd"
+        part_number=""
         for part in $parts; do
-            fstype=$(fsTypeSetting $part)
-            curpartnum=$(getPartitionNumber $part)
+            fsTypeSetting "$part"
+            getPartitionNumber "$part"
             case $fstype in
                 ntfs|extfs)
                     continue
                     ;;
                 *)
-                    fixed_size_partitions="$fixed_size_partitions:$curpartnum:"
+                    fixed_size_partitions="$fixed_size_partitions:$part_number:"
                     ;;
             esac
         done
         echo "Done"
         debugPause
         dots "Getting Windows/Linux Partition Count"
-        ntfscnt=$(countNtfs $hd)
-        extfsavail=$(countExtfs $hd)
-        if [[ $ntfscnt -eq 0 && $extfsavail -eq 0 ]] || [[ -z $ntfscnt && -z $extfsavail ]]; then
+        countPartTypes "$hd" "ntfs" "ntfscnt"
+        countPartTypes "$hd" "extfs" "extfscnt"
+        if [[ $ntfscnt -eq 0 && $extfscnt -eq 0 ]]; then
             echo "Failed"
             debugPause
             handleError "No resizable partitions found ($0)"
         fi
         echo "Done"
         debugPause
-        [[ -z $ntfscnt ]] && ntfscnt=0
-        [[ -z $extfsavail ]] && extfsavail=0
         echo " * NTFS Partition count of: $ntfscnt"
         debugPause
         echo " * EXTFS Partition count of: $extfsavail"
         debugPause
-        for partclr in $parts; do
-            clearMountedDevices "$partclr"
-        done
         case $osid in
             [5-7]|9|50)
                 echo " * Setting up any additional fixed parts"
+                part_number=0
                 for part in $parts; do
-                    curpartnum=$(getPartitionNumber $part)
+                    getPartitionNumber "$part"
                     case $win7partcnt in
                         2)
-                            [[ $curpartnum -eq 1 ]] && fixed_size_partitions="$fixed_size_partitions:$curpartnum:"
+                            [[ $part_number -eq 1 ]] && fixed_size_partitions="$fixed_size_partitions:$part:"
                             ;;
                         3)
-                            [[ $curpartnum == +(1|2) ]] && fixed_size_partitions="$fixed_size_partitions:$curpartnum:"
+                            [[ $part_number == +(1|2) ]] && fixed_size_partitions="$fixed_size_partitions:$part:"
                             ;;
                         *)
                             continue
@@ -134,15 +136,10 @@ case $imgType in
                 done
                 ;;
         esac
-        fixed_size_partitions="${fixed_size_partitions#"${fixed_size_partitions%%[![:]]*}"}"
-        fixed_size_partitions="${fixed_size_partitions%"${fixed_size_partitions##*[![:]]}"}"
         # All:
         #  save the list of fixed size partitions
         fixed_size_partitions=$(echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://')
         echo "$fixed_size_partitions" > "$imagePath/d1.fixed_size_partitions"
-        for partpage in $parts; do
-            removePageFile "$partpage"
-        done
         dots "Getting sector start"
         case $osid in
             [1-2])
@@ -162,15 +159,13 @@ case $imgType in
         echo "Done"
         debugPause
         savePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
-        getPartitions "$hd"
-        for part in $parts; do
-            shrinkPartition "$part" "$imagePath/d1.original.fstypes"
-        done
-        runPartprobe "$hd"
-        [[ ! $osid -eq 50 ]] && resetFlag "$part"
         echo " * Processing Hard Disk: $hd"
         getPartitions "$hd"
         for part in $parts; do
+            clearMountedDevices "$part"
+            removePageFile "$part"
+            shrinkPartition "$part" "$imagePath/d1.original.fstypes" "$fixed_size_partitions"
+            runPartprobe "$hd"
             savePartition "$part" 1 "$imagePath" "$imgPartitionType"
         done
         dots "Restoring MBR"
@@ -181,7 +176,7 @@ case $imgType in
         [[ $osid -eq 2 ]] && correctVistaMBR "$hd"
         getPartitions "$hd"
         for part in $parts; do
-            expandPartition "$part"
+            expandPartition "$part" "$fixed_size_partitions"
         done
         ;;
     mps)
@@ -213,7 +208,7 @@ case $imgType in
         uploadFormat "/tmp/pigz1" "$imgpart"
         partclone.imager -c -s "$hd" -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog
         rm /tmp/pigz1 >/dev/null 2>&1
-        clear
+        clearScreen
         ;;
 esac
 chmod -R 777 "$imagePath" >/dev/null 2>&1

@@ -1,0 +1,17 @@
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+if [ $(id -u) -eq 0 ]; then
+    export PS1='\[\e[1;34m\][\d \u@\h \w]\$\[\e[m\] '
+else
+    export PS1='\[\e[1;32m\][\d \u@\h \w]\$\[\e[m\] '
+fi
+export PAGER='/bin/more '
+export EDITOR='/bin/vim'
+alias vi='vim'
+alias ls='ls --color=auto'
+# Source configuration files from /etc/profile.d
+for i in /etc/profile.d/*.sh ; do
+	if [ -r "$i" ]; then
+		. $i
+	fi
+	unset i
+done

@@ -4,6 +4,9 @@
 clearScreen
 displayBanner
 dots "Location disks"
+disks=""
+disk=""
+hd=""
 getHardDisk "true"
 if [[ -z $disks ]]; then
     echo "Failed"

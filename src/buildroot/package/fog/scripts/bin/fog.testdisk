@@ -4,6 +4,10 @@
 clearScreen
 displayBanner
 disks=""
+disk=""
+hd=""
+parts=""
+part=""
 getHardDisk "true"
 [[ -z $disks ]] && handleError "No Hard disks not found!"
 for disk in $disks; do

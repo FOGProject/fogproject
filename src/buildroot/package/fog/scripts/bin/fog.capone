@@ -11,7 +11,7 @@ for arg in $(cat /proc/cmdline); do
     esac
 done
 export capone=1
-clear
+clearScreen
 displayBanner
 echo " * Starting Capone"
 dots "Looking up DMI field"
@@ -53,6 +53,9 @@ oIFS=$IFS
 IFS=$'\n'
 cnt=0
 linedecode=""
+osname=""
+mbrfile=""
+defaultpart2start=""
 for line in $img; do
     linedecode=$(echo $line | base64 -d)
     [[ -z $linedecode ]] && handleError "No image definition was found for $dmivalue"
@@ -97,7 +100,7 @@ case $cnt in
             linedecode=$(echo $line | base64 -d)
             let cnt+=1
             if [[ $cnt -eq $imgchoice ]]; then
-                awk_returned_vars=$(echo $linedecode | awk -F"|" "{printf(\"%s\n%s\n%s\n%s\n%s\",\$1,\$2,\$3,\$4,\$5)}")
+                awk_returned_vars=$(echo $linedecode | awk -F'|' '{printf("%s\n%s\n%s\n%s\n%s",$1,$2,$3,$4,$5)}')
                 read img osid imgType imgPartitionType imgFormat <<< $awk_returned_vars
                 determineOS "$osid"
                 break
@@ -115,5 +118,5 @@ export imgType
 export imgPartitionType
 export imgFormat
 usleep 2000000
-clear
+clearScreen
 fog

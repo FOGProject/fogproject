@@ -1,5 +1,4 @@
 #!/bin/bash
-. /usr/share/fog/lib/funcs.sh
 echo " * Task Complete"
 [[ ! -z $1 ]] && mactosend="$1" || mactosend="$mac"
 count=0

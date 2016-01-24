@@ -22,13 +22,13 @@ echo "Done"
 debugPause
 echo " Turning off montior output to conserve power..."
 usleep 2000000
-clear
+clearScreen
 setterm -blank 1
 setterm -powerdown 1
 setterm -powersave on
 setterm -foreground black
 setterm -background black
-clear
+clearScreen
 /bin/fog.donate.monitor &
 /bin/fog.fork full & >/dev/null 2>&1
 read -p "Press any key to continue... " -n1 -s test
