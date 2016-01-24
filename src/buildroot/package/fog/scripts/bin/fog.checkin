@@ -13,6 +13,7 @@ for arg in $(cat /proc/cmdline); do
             nombr=1
             ;;
         *)
+            [[ $imgPartitionType != all && $imgPartitionType != mbr ]] && nombr=1
             ;;
     esac
 done

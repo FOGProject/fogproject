@@ -102,7 +102,7 @@ case $imgType in
             [5-7]|9)
                 [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Unable to locate image store ($0)"
                 [[ ! -f $imagePath/sys.img.000 ]] && prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
-                if [[ -f $imagePath/sys.img.000 && ! $nombr -eq 1 ]]; then
+                if [[ -f $imagePath/sys.img.000 ]]; then
                     echo " * Using legacy style partition setup"
                     win7partcnt=1
                     dots "Windows Boot Partition Exists"
@@ -124,7 +124,8 @@ case $imgType in
                     echo "Done"
                     debugPause
                     dots "Attempting to expand/fill partitions"
-                    do_fill=$(fillDiskWithPartitionsIsOK $hd $imagePath 1)
+                    do_fill=0
+                    fillDiskWithPartitionsIsOK "$hd" "$imagePath" 1
                     case $do_fill in
                         1)
                             fillDiskWithPartitions "$hd" "$imagePath" 1
@@ -234,15 +235,15 @@ case $imgType in
     mpa)
         [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
         getHardDisk "true"
-        intDisk=1
+        disk_number=1
         for disk in $disks; do
             echo " * Wiping $disk partition information"
             initHardDisk "$disk"
             runPartprobe "$disk"
-            [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath"
+            [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$disk" "$disk_number" "$imagePath"
             runPartprobe "$disk"
             gptcheck="$global_gptcheck"
-            let intDisk+=1
+            let disk_number+=1
         done
         ;;
 esac
