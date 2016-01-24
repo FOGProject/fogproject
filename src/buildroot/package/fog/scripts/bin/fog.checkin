@@ -16,7 +16,7 @@ for arg in $(cat /proc/cmdline); do
             ;;
     esac
 done
-clear
+clearScreen
 displayBanner
 osname=""
 mbrfile=""

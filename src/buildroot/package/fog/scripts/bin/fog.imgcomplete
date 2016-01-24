@@ -1,5 +1,4 @@
 #!/bin/bash
-. /usr/share/fog/lib/funcs.sh
 echo " * Task Complete"
 case $type in
     [Dd][Oo][Ww][Nn])

@@ -16,6 +16,11 @@ fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!"
 fixed_size_partitions=""
 echo " * Using Image: $img"
+disks=""
+disk=""
+hd=""
+parts=""
+part=""
 case $imgType in
     [Nn]|mps|dd)
         dots "Looking for Hard Disk"
@@ -55,7 +60,7 @@ case $imgType in
         case $osid in
             50)
                 [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
-                prepareResizeDownloadPartitions
+                prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
                 ;;
             [1-2])
                 [[ ! -f $imagePath && ! -f $imagePath/$img && ! -f $imagePath/d1p1.img ]] && handleError "Unable to locate image store ($0)"
@@ -96,7 +101,7 @@ case $imgType in
                 ;;
             [5-7]|9)
                 [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Unable to locate image store ($0)"
-                [[ ! -f $imagePath/sys.img.000 ]] && prepareResizeDownloadPartitions
+                [[ ! -f $imagePath/sys.img.000 ]] && prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
                 if [[ -f $imagePath/sys.img.000 && ! $nombr -eq 1 ]]; then
                     echo " * Using legacy style partition setup"
                     win7partcnt=1
@@ -188,9 +193,10 @@ case $imgType in
                     runPartprobe "$hd"
                     dots "Setting up partition variables"
                     getPartitions "$hd"
-                    restoerparts=""
+                    restoreparts=""
+                    part_number=0
                     for part in $parts; do
-                        curpartnum=$(getPartitionNumber $part)
+                        getPartitionNumber "$part"
                         case $osid in
                             [1-2])
                                 [[ -e $part ]] && break
@@ -198,13 +204,13 @@ case $imgType in
                             [5-7]|9)
                                 case $win7partcnt in
                                     1)
-                                        [[ $curpartnum -eq 1 ]] && restoreparts="$part"
+                                        [[ $part_number -eq 1 ]] && restoreparts="$part"
                                         ;;
                                     2)
-                                        [[ $curpartnum =~ [1-2] ]] && restoreparts="$restoreparts $part"
+                                        [[ $part_number =~ [1-2] ]] && restoreparts="$restoreparts $part"
                                         ;;
                                     3)
-                                        [[ $curpartnum =~ [1-3] ]] && restoreparts="$restoreparts $part"
+                                        [[ $part_number =~ [1-3] ]] && restoreparts="$restoreparts $part"
                                         ;;
                                 esac
                                 ;;
@@ -220,8 +226,9 @@ case $imgType in
         [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
         echo " * Wiping $hd partition information"
         initHardDisk "$hd"
-        [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath"
         runPartprobe "$hd"
+        [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath"
+        runPartprobe "$disk"
         gptcheck="$global_gptcheck"
         ;;
     mpa)
@@ -231,6 +238,7 @@ case $imgType in
         for disk in $disks; do
             echo " * Wiping $disk partition information"
             initHardDisk "$disk"
+            runPartprobe "$disk"
             [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath"
             runPartprobe "$disk"
             gptcheck="$global_gptcheck"
@@ -245,29 +253,23 @@ echo "   +--------------------------------+"
 echo "   +--------------------------------+"
 [[ $mc == yes ]] && usleep 10000000 || usleep 3000000
 case $imgType in
-    [Nn])
+    dd)
+        restorePartition "$hd"
+        ;;
+    n|mps|mpa)
+        [[ $imgType =~ +(n|mps) ]] && disks="$hd"
         case $osid in
             [1-2])
                 [[ ! -f $imagePath ]] && handleError "Fatal Error: Could not locate file ($0)"
-                [[ -f $imagePath ]] && restorePartition "$part" || performResizeRestore "$hd" "$imagePath" 1 "$imgPartitionType" "$part"
                 ;;
             [5-7]|9)
                 [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Fatal Error: Could not locate file ($0)"
-                [[ -z $restoreparts ]] && restoreparts=$(getValidRestorePartitions $hd 1 $imagePath)
-                performResizeRestore "$hd" "$imagePath" 1 "$imgPartitionType" "$restoreparts"
                 ;;
             50)
-                restoreparts=$(getValidRestorePartitions $hd 1 $imagePath)
-                performResizeRestore "$hd" "$imagePath" 1 "$imgPartitionType" "$restoreparts"
+                [[ ! -d $imagePath ]] && handleError "Fatal Error: could not locate file ($0)"
                 ;;
         esac
-        ;;
-    mps|mpa)
-        [[ $imgType == mps ]] && disks="$hd"
-        performNonResizeRestore "$disks" "$imagePath" "$imgPartitionType"
-        ;;
-    dd)
-        restorePartition "$hd"
+        performRestore "$disks" "$imagePath" "$imgPartitionType"
         ;;
 esac
 killStatusReporter
@@ -277,22 +279,13 @@ if [[ -f /images/postdownloadscripts/fog.postdownload ]]; then
 fi
 if [[ ! $capone -eq 1 ]]; then
     if [[ $osid == +([1-2]|[5-7]|9) ]]; then
-        case $imgType in
-            mpa)
-                for disk in $disks; do
-                    getPartitions "$disk"
-                    for part in $parts; do
-                        [[ $(fsTypeSetting $part) == ntfs ]] && changeHostname
-                    done
-                done
-                ;;
-            *)
-                getPartitions "$hd"
-                for part in $parts; do
-                    [[ $(fsTypeSetting $part) == ntfs ]] && changeHostname
-                done
-                ;;
-        esac
+        for disk in $disks; do
+            getPartitions "$disk"
+            for part in $parts; do
+                fsTypeSetting "$part"
+                [[ $fstype == ntfs ]] && changeHostname "$part"
+            done
+        done
     fi
     . /bin/fog.imgcomplete
 fi

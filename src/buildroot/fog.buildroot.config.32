@@ -37,36 +37,6 @@ BR2_GCC_TARGET_ARCH="i486"
 BR2_ARCH_HAS_ATOMICS=y
 BR2_BINFMT_SUPPORTS_SHARED=y
 BR2_BINFMT_ELF=y
-# BR2_BINFMT_FDPIC is not set
-# BR2_BINFMT_FLAT is not set
-# BR2_bf606 is not set
-# BR2_bf607 is not set
-# BR2_bf608 is not set
-# BR2_bf609 is not set
-# BR2_bf512 is not set
-# BR2_bf514 is not set
-# BR2_bf516 is not set
-# BR2_bf518 is not set
-# BR2_bf522 is not set
-# BR2_bf523 is not set
-# BR2_bf524 is not set
-# BR2_bf525 is not set
-# BR2_bf526 is not set
-# BR2_bf527 is not set
-# BR2_bf531 is not set
-# BR2_bf532 is not set
-# BR2_bf533 is not set
-# BR2_bf534 is not set
-# BR2_bf536 is not set
-# BR2_bf537 is not set
-# BR2_bf538 is not set
-# BR2_bf539 is not set
-# BR2_bf542 is not set
-# BR2_bf544 is not set
-# BR2_bf547 is not set
-# BR2_bf548 is not set
-# BR2_bf549 is not set
-# BR2_bf561 is not set
 # BR2_x86_i386 is not set
 BR2_x86_i486=y
 # BR2_x86_i586 is not set
@@ -1767,7 +1737,8 @@ BR2_PACKAGE_UTIL_LINUX_BINARIES=y
 # BR2_PACKAGE_MC is not set
 # BR2_PACKAGE_NANO is not set
 # BR2_PACKAGE_UEMACS is not set
-# BR2_PACKAGE_VIM is not set
+BR2_PACKAGE_VIM=y
+BR2_PACKAGE_VIM_RUNTIME=y
 
 #
 # Filesystem images
