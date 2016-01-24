@@ -470,17 +470,18 @@ processSfdisk() {
     [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})"
     local minstart=$(awk -F'[ ,]+' '/start/{if ($4) print $4}' $data | sort -n | head -1)
     local chunksize=""
+    getPartBlockSize "$disk" "chunksize"
     case $osid in
         [1-2])
             chunksize=512
             minstart=63
             ;;
         *)
-            [[ $minstart -eq 63 ]] && chunksize=512 || chunksize=2048
+            [[ $minstart -eq 63 ]] && chunksize=512
             ;;
     esac
     local awkArgs="-v CHUNK_SIZE=$chunksize -v MIN_START=$minstart"
-    awkArgs="${awkArgs} -v action=$action -v target=$target -v sizePos=$size"
+    awkArgs="$awkArgs -v action=$action -v target=$target -v sizePos=$size"
     [[ -n $fixed ]] && awkArgs="$awkArgs -v fixedList=$fixed"
     # process with external awk script
     /usr/share/fog/lib/procsfdisk.awk $awkArgs $data
@@ -533,11 +534,12 @@ getPartitionTableType() {
 # $2 : disk number (e.g. 1)
 getDesiredPartitionTableType() {
     local imagePath="$1"
-    local intDisk="$2"
-    [[ -z $intDisk ]] && handleError "No drive number passed (${FUNCNAME[0]})"
+    local disk_number="$2"
+    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     local type="unknown"
-    local mbrfile=$(MBRFileName $imagePath $intDisk)
+    local mbrfile=""
+    MBRFileName "$imagePath" "$disk_number" "mbrfile"
     [[ ! -r $mbrfile ]] && return
     local tmpfile="/tmp/gptsig"
     dd skip=512 bs=1 if=$mbrfile of=$tmpfile count=8 >/dev/null 2>&1
@@ -751,21 +753,22 @@ resizePartition() {
 saveOriginalPartitions() {
     local disk="$1"
     local imagePath="$2"
-    local intDisk="$3"
+    local disk_number="$3"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $intDisk ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
     local table_type=""
     getPartitionTableType "$disk"
-    local filename=""
     case $table_type in
         MBR)
-            filename=$(sfdiskOriginalPartitionFileName $imagePath $intDisk)
-            saveSfdiskPartitions "$disk" "$filename"
+            local sfdiskoriginalpartitionfilename=""
+            sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
+            saveSfdiskPartitions "$disk" "$sfdiskoriginalpartitionfilename"
             ;;
         GPT)
-            filename=$(sgdiskOriginalPartitionFileName $imagePath $intDisk)
-            saveSgdiskPartitions "$disk" "$filename"
+            local sgdiskoriginalpartitionfilename=""
+            sgdiskOriginalPartitionFileName "$imagePath" "$disk_number"
+            saveSgdiskPartitions "$disk" "$sgdiskoriginalpartitionfileName"
             ;;
         *)
             handleError "Unexpected partition table type: $table_type (${FUNCNAME[0]})"
@@ -783,20 +786,22 @@ saveOriginalPartitions() {
 restoreOriginalPartitions() {
     local disk="$1"
     local imagePath="$2"
-    local intDisk="$3"
+    local disk_number="$3"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $intDisk ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
     local table_type=""
     getPartitionTableType "$disk"
     case $table_type in
         MBR)
-            filename=$(sfdiskOriginalPartitionFileName $imagePath $intDisk)
-            restoreSfdiskPartitions "$disk" "$filename"
+            local sfdiskoriginalpartitionfilename=""
+            sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
+            restoreSfdiskPartitions "$disk" "$sfdiskoriginalpartitionfilename"
             ;;
         GPT)
-            filename=$(sgdiskOriginalPartitionFileName $imagePath $intDisk)
-            restoreSgdiskPartitions "$disk" "$filename"
+            local sgdiskoriginalpartitionfilename=""
+            sgdiskOriginalPartitionFileName "$imagePath" "$disk_number"
+            restoreSgdiskPartitions "$disk" "$sgdiskoriginalpartitionfilename"
             ;;
         *)
             handleError "Unexpected partition table type: $table_type (${FUNCNAME[0]})"
@@ -893,10 +898,11 @@ fillDiskWithPartitionsIsOK() {
 majorDebugShowCurrentPartitionTable() {
     [[ $ismajordebug -le 0 ]] && return
     local disk="$1"
-    local intDisk="$2"
+    local disk_number="$2"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $intDisk ]] && handleError "No disk number passed (${FUNCNAME[0]})"
-    local table_type=$(getDesiredPartitionTableType $imagePath $intDisk)
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    local table_type=""
+    getDesiredPartitionTableType "$imagePath" "$disk_number"
     echo "Current partition table:"
     case $table_type in
         MBR)

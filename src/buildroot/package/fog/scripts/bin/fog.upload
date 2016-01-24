@@ -188,18 +188,18 @@ case $imgType in
         done
         ;;
     mpa)
-        intDisk=1
+        disk_number=1
         for disk in $disks; do
             debugPause
             echo " * Processing Hard Disk: $disk"
-            savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$imgPartitionType"
+            savePartitionTablesAndBootLoaders "$disk" "$disk_number" "$imagePath" "$osid" "$imgPartitionType"
             runPartprobe "$disk"
             getPartitions "$disk"
             for part in $parts; do
-                savePartition "$part" "$intDisk" "$imagePath" "$imgPartitionType"
+                savePartition "$part" "$disk_number" "$imagePath" "$imgPartitionType"
             done
             echo " * Disk $disk complete"
-            let intDisk+=1
+            let disk_number+=1
         done
         ;;
     dd)

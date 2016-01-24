@@ -1409,12 +1409,13 @@ saveGRUB() {
     local has_grub=$(dd if=$disk bs=512 count=1 2>&1 | grep GRUB)
     local hasgrubfilename=""
     if [[ -n $has_grub ]]; then
-        hasgrubfilename=$(hasGrubFileName $imagePath $disk_number)
+        hasGrubFileName "$imagePath" "$disk_number"
         touch $hasgrubfilename
     fi
     # Ensure that no more than 1MiB of data is copied (already have this size used elsewhere)
     [[ $count -gt 2048 ]] && count=2048
-    local mbrfilename=$(MBRFileName $imagePath $disk_number)
+    local mbrfilename=""
+    MBRFileName "$imagePath" "$disk_number" "mbrfilename"
     dd if=$disk of=$mbrfilename count=$count bs=512 >/dev/null 2>&1
 }
 # Checks for the existence of the grub embedding area in the image directory.
@@ -1431,8 +1432,10 @@ hasGRUB() {
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    local hasgrubfilename=$(hasGrubFileName $imagePath $disk_number)
-    [[ -e $hasgrubfilename ]] && echo 1 || echo 0
+    local hasgrubfilename=""
+    hasGrubFileName "$imagePath" "$disk_number"
+    hasGRUB=0
+    [[ -e $hasgrubfilename ]] && hasGRUB=1
 }
 # Restore the grub boot record and all of the embedding area data
 # necessary for grub2.
@@ -1448,7 +1451,8 @@ restoreGRUB() {
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    local tmpMBR=$(MBRFileName $imagePath $disk_number)
+    local tmpMBR=""
+    MBRFileName "$imagePath" "$disk_number" "tmpMBR"
     local count=$(du -B 512 $tmpMBR | awk '{print $1}')
     [[ $count -eq 8 ]] && count=1
     dd if=$tmpMBR of=$disk bs=512 count=$count >/dev/null 2>&1
@@ -1502,14 +1506,14 @@ sfdiskOriginalPartitionFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local disk_number="$2"    # e.g. 1
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
     sfdiskPartitionFileName "$imagePath" "$disk_number"
 }
 sgdiskOriginalPartitionFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local disk_number="$2"    # e.g. 1
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
     sgdiskoriginalpartitionfilename="$imagePath/d${disk_number}.sgdisk.original.partitions"
 }
 fixedSizePartitionsFileName() {
@@ -1521,20 +1525,24 @@ fixedSizePartitionsFileName() {
 }
 hasGrubFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
-    local intDisk="$2"    # e.g. 1
+    local disk_number="$2"    # e.g. 1
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $intDisk ]] && handleError "No drive number passed (${FUNCNAME[0]})"
-    echo "$imagePath/d${intDisk}.has_grub"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    hasgrubfilename="$imagePath/d${disk_number}.has_grub"
 }
 MBRFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local disk_number="$2"    # e.g. 1
+    local varVar="$3"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    [[ -z $varVar ]] && handleError "No variable to set passed (${FUNCNAME[0]})"
     case $osid in
         [1-2])
-            echo "$mbrfile"
+            printf -v "$varVar" "$mbrfile"
             ;;
         [5-7]|9)
-            [[ -f $imagePath/sys.img.000 ]] && echo "$mbrfile" || echo "$imagePath/d${disk_number}.mbr"
+            [[ -f $imagePath/sys.img.000 ]] && printf -v "$varVar" "$mbrfile" || printf -v "$varVar" "$imagePath/d${disk_number}.mbr"
             ;;
         *)
             echo "$imagePath/d${disk_number}.mbr"
@@ -1573,14 +1581,15 @@ tmpEBRFileName() {
 #
 savePartitionTablesAndBootLoaders() {
     local disk="$1"                    # e.g. /dev/sda
-    local intDisk="$2"                 # e.g. 1
+    local disk_number="$2"                 # e.g. 1
     local imagePath="$3"               # e.g. /net/dev/foo
     local osid="$4"                    # e.g. 50
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $intDisk ]] && handleError "No drive number passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $osid ]] && handleError "No osid passed (${FUNCNAME[0]})"
-    local hasgpt=$(hasGPT $disk)   # e.g. 0 or 1
+    local hasgpt=0
+    hasGPT "$disk"
     local have_extended_partition=0  # e.g. 0 or 1-n (extended partition count)
     local strdots=""
     [[ $hasgpt -eq 0 ]] && have_extended_partition=$(sfdisk -l $disk 2>/dev/null | egrep "^${disk}.* (Extended|W95 Ext'd \(LBA\))$" | wc -l)
@@ -1596,23 +1605,27 @@ savePartitionTablesAndBootLoaders() {
             strdots="Saving Partition Tables (MBR)"
             case $osid in
                 50)
-                    [[ $intDisk -eq 1 ]] && strdots="Saving Partition Tables and GRUB (MBR)"
+                    [[ $disk_number -eq 1 ]] && strdots="Saving Partition Tables and GRUB (MBR)"
                     ;;
             esac
             dots "$strdots"
-            saveGRUB "$disk" "$intDisk" "$imagePath"
+            saveGRUB "$disk" "$disk_number" "$imagePath"
             echo "Done"
             if [[ $have_extended_partition -ge 1 ]]; then
-                local sfpartitionfilename=$(sfdiskPartitionFileName $imagePath $intDisk)
-                sfdisk -d $disk 2>/dev/null > $sfpartitionfilename
-                saveAllEBRs "$disk" "$intDisk" "$imagePath"
+                local sfdiskoriginalpartitionfilename=""
+                sfdiskPartitionFileName "$imagePath" "$disk_number"
+                sfdisk -d $disk 2>/dev/null > $sfdiskoriginalpartitionfilename
+                saveAllEBRs "$disk" "$disk_number" "$imagePath"
             fi
             ;;
         1)
             dots "Saving Partition Tables (GPT)"
-            sgdisk -b "$imagePath/d${intDisk}.mbr" $disk >/dev/null 2>&1
-            [[ ! $? -eq 0 ]] && handleError "Error trying to save GPT partition tables (${FUNCNAME[0]})"
-            rm -f $sfpartitionfilename >/dev/null 2>&1
+            sgdisk -b "$imagePath/d${disk_number}.mbr" $disk >/dev/null 2>&1
+            if [[ ! $? -eq 0 ]]; then
+                echo "Failed"
+                debugPause
+                handleError "Error trying to save GPT partition tables (${FUNCNAME[0]})"
+            fi
             echo "Done"
             ;;
     esac
@@ -1642,30 +1655,30 @@ clearPartitionTables() {
 }
 restorePartitionTablesAndBootLoaders() {
     local disk="$1"
-    local intDisk="$2"
+    local disk_number="$2"
     local imagePath="$3"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $intDisk ]] && handleError "No drive number passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     local tmpMBR=""
-    local has_GRUB=""
+    local hasGRUB=0
     local mbrsize=""
     local strdots=""
-    if [[ $imgPartitionType != all && $imgPartitionType != mbr ]]; then
-        dots "Skipping partition tables and MBR"
-        echo "Done"
+    if [[ $nombr -eq 1 ]]; then
+        echo " * Skipping partition tables and MBR"
         debugPause
         return
     fi
     clearPartitionTables "$disk"
     majorDebugEcho "Partition table should be empty now."
-    majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
+    majorDebugShowCurrentPartitionTable "$disk" "$disk_number"
     majorDebugPause
-    tmpMBR=$(MBRFileName $imagePath $intDisk)
-    has_GRUB=$(hasGRUB $disk $intDisk $imagePath)
+    MBRFileName "$imagePath" "$disk_number" "tmpMBR"
+    hasGRUB "$disk" "$disk_number" "$imagePath"
     mbrsize=$(ls -l $tmpMBR 2>/dev/null | awk '{print $5}')
     [[ ! -f $tmpMBR ]] && handleError "Image Store Corrupt: Unable to locate MBR (${FUNCNAME[0]})"
-    local table_type=$(getDesiredPartitionTableType $imagePath $intDisk)
+    local table_type=""
+    getDesiredPartitionTableType "$imagePath" "$disk_number"
     majorDebugEcho "Trying to restore to $table_type partition table."
     if [[ $table_type == GPT || $mbrsize != +(1048576|512|32256) ]]; then
         dots "Restoring Partition Tables (GPT)"
@@ -1683,18 +1696,20 @@ restorePartitionTablesAndBootLoaders() {
                 ;;
         esac
         dots "$strdots"
-        restoreGRUB "$disk" "$intDisk" "$imagePath"
+        restoreGRUB "$disk" "$disk_number" "$imagePath"
         echo "Done"
         debugPause
-        majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
+        majorDebugShowCurrentPartitionTable "$disk" "$disk_number"
         majorDebugPause
         ebrcount=$(ls -1 $imagePath/*.ebr 2>/dev/null | wc -l)
-        [[ $ebrcount -gt 0 ]] && restoreAllEBRs "$disk" "$intDisk" "$imagePath" "$imgPartitionType"
-        local sfpartitionfilename=$(sfdiskPartitionFileName $imagePath $intDisk)
-        local sflegacypartitionfilename=$(sfdiskLegacyOriginalPartitionFileName $imagePath $intDisk)
-        if [[ -e $sfpartitionfilename ]]; then
+        [[ $ebrcount -gt 0 ]] && restoreAllEBRs "$disk" "$disk_number" "$imagePath" "$imgPartitionType"
+        local sfdiskoriginalpartitionfilename=""
+        local sfdisklegacyoriginalpartitionfilename=""
+        sfdiskPartitionFileName "$imagePath" "$disk_number"
+        sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
+        if [[ -r $sfdiskoriginalpartitionfilename ]]; then
             dots "Inserting Extended partitions"
-            sfdisk $disk <$sfpartitionfilename >/dev/null 2>&1
+            sfdisk $disk < $sfdiskoriginalpartitionfilename >/dev/null 2>&1
             case $? in
                 0)
                     echo "Done"
@@ -1703,9 +1718,9 @@ restorePartitionTablesAndBootLoaders() {
                     echo "Failed"
                     ;;
             esac
-        elif [[ -e $sflegacypartitionfilename ]]; then
+        elif [[ -e $sfdisklegacyoriginalpartitionfilename ]]; then
             dots "Extended partitions (legacy)"
-            sfdisk $disk <$sflegacypartitionfilename >/dev/null 2>&1
+            sfdisk $disk < $sfdisklegacyoriginalpartitionfilename >/dev/null 2>&1
             case $? in
                 0)
                     echo "Done"
@@ -1720,7 +1735,7 @@ restorePartitionTablesAndBootLoaders() {
     fi
     debugPause
     runPartprobe "$disk"
-    majorDebugShowCurrentPartitionTable "$disk" "$intDisk"
+    majorDebugShowCurrentPartitionTable "$disk" "$disk_number"
     majorDebugPause
 }
 savePartition() {
