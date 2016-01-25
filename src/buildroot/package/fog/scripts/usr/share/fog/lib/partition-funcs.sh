@@ -765,12 +765,14 @@ saveOriginalPartitions() {
             sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
             saveSfdiskPartitions "$disk" "$sfdiskoriginalpartitionfilename"
             ;;
-        GPT)
+        GPT|GPT-MBR)
             local sgdiskoriginalpartitionfilename=""
             sgdiskOriginalPartitionFileName "$imagePath" "$disk_number"
-            saveSgdiskPartitions "$disk" "$sgdiskoriginalpartitionfileName"
+            saveSgdiskPartitions "$disk" "$sgdiskoriginalpartitionfilename"
             ;;
         *)
+            echo "Failed"
+            debugPause
             handleError "Unexpected partition table type: $table_type (${FUNCNAME[0]})"
             ;;
     esac

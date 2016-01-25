@@ -114,7 +114,7 @@ case $imgType in
         debugPause
         echo " * NTFS Partition count of: $ntfscnt"
         debugPause
-        echo " * EXTFS Partition count of: $extfsavail"
+        echo " * EXTFS Partition count of: $extfscnt"
         debugPause
         case $osid in
             [5-7]|9|50)
@@ -154,8 +154,10 @@ case $imgType in
         #  Start filesytem type record
         dots "Saving original partition table"
         saveOriginalPartitions "$hd" "$imagePath" 1
+        swapuuidfilename=""
+        swapUUIDFileName "$imagePath" 1
         echo -n "" > "$imagePath/d1.original.fstypes"
-        echo -n "" > $(swapUUIDFileName $imagePath 1)
+        echo -n "" > $swapuuidfilename
         echo "Done"
         debugPause
         savePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
