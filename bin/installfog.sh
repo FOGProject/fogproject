@@ -208,6 +208,9 @@ while getopts "$optspec" o; do
                 no-tftpbuild)
                     noTftpBuild="true"
                     ;;
+                no-pxedefault)
+                    notpxedefaultfile="true"
+                    ;;
                 *)
                     if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
                         echo "Unknown option: --${OPTARG}"
@@ -302,6 +305,9 @@ while getopts "$optspec" o; do
             ;;
         T)
             noTftpBuild="true"
+            ;;
+        P)
+            notpxedefaultfile="true"
             ;;
         :)
             echo "Option -$OPTARG requires a value"

@@ -81,7 +81,8 @@ help() {
     echo -e "\t-b    --bootfile\t\tDHCP Boot file"
     echo -e "\t-E    --no-exportbuild\t\tSkip building nfs file"
     echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
-    echo -e "\t-T    --no-tftpbuild\tDo not rebuild the tftpd config file"
+    echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
+    echo -e "\t-P    --no-pxedefault\t\tDo not overwrite pxe default file"
     exit 0
 }
 backupReports() {
@@ -410,9 +411,14 @@ configureTFTPandPXE() {
     [[ -d $tftpdirdst && ! -d ${tftpdirdst}.prev ]] && mkdir -p ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -d ${tftpdirdst}.prev ]] && cp -Rf $tftpdirdst/* ${tftpdirdst}.prev/ >>$workingdir/error_logs/fog_error${version}.log 2>&1
     cd $tftpdirsrc
-    find -typef -exec cp -Rfv {} $tftpdirdst/{} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    tftpdirs=$(find ! -path . ! -path .. -type d | awk -F[./] '{print $3}')
+    for tftpdir in $tftpdirs; do
+        [[ ! -d $tftpdir ]] && mkdir -p $tftpdirdst/$tftpdir >>$workingdir/error_logs/fog_error${version}.log 2>&1
+    done
+    local findoptions=""
+    [[ $notpxedefaultfile == true ]] && findoptions="! -name default"
+    find -type f $findoptions -exec cp -Rfv {} $tftpdirdst/{} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     cd $workingdir
-    mkdir -p $tftpdirdst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     cp -Rf $tftpdirsrc/* $tftpdirdst/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     chown -R $username $tftpdirdst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     chown -R $username $webdirdest/service/ipxe >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1086,6 +1092,9 @@ writeUpdateFile() {
             grep -q "noTftpBuild=" $fogprogramdir/.fogsettings && \
                 sed -i "s/noTftpBuild=?['\"].*?['\"]/noTftpBuild='$noTftpBuild'/g" $fogprogramdir/.fogsettings || \
                 echo "noTftpBuild='$noTftpBuild'" >> $fogprogramdir/.fogsettings
+            grep -q "notpxedefaultfile=" $fogprogramdir/.fogsettings && \
+                sed -i "s/notpxedefaultfile=?['\"].*?['\"]/notpxedefaultfile='$notpxedefaultfile'/g" $fogprogramdir/.fogsettings || \
+                echo "notpxedefaultfile='$notpxedefaultfile'" >> $fogprogramdir/.fogsettings
         else
             echo "## Start of FOG Settings
             ## Created by the FOG Installer
@@ -1123,6 +1132,7 @@ writeUpdateFile() {
             bootfilename='$bootfilename'
             packages='$packages'
             noTftpBuild='$noTftpBuild'
+            notpxedefaultfile='$notpxedefaultfile'
             ## End of FOG Settings
             " > "$fogprogramdir/.fogsettings"
         fi
@@ -1163,6 +1173,7 @@ writeUpdateFile() {
         bootfilename='$bootfilename'
         packages='$packages'
         noTftpBuild='$noTftpBuild'
+        notpxedefaultfile='$notpxedefaultfile'
         ## End of FOG Settings
         " > "$fogprogramdir/.fogsettings"
     fi
