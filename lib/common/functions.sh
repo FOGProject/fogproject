@@ -56,7 +56,7 @@ uninstall() {
     esac
 }
 help() {
-    echo -e "Usage: $0 [-h?dEUuHSCKYX] [-f <filename>] [-D </directory/to/document/root/>]"
+    echo -e "Usage: $0 [-h?dEUuHSCKYXT] [-f <filename>] [-D </directory/to/document/root/>]"
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
     echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
@@ -81,6 +81,7 @@ help() {
     echo -e "\t-b    --bootfile\t\tDHCP Boot file"
     echo -e "\t-E    --no-exportbuild\t\tSkip building nfs file"
     echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
+    echo -e "\t-T    --no-tftpbuild\tDo not rebuild the tftpd config file"
     exit 0
 }
 backupReports() {
@@ -403,13 +404,14 @@ configureDefaultiPXEfile() {
 }
 configureTFTPandPXE() {
     dots "Setting up and starting TFTP and PXE Servers"
-    if [[ -d ${tftpdirdst}.prev ]]; then
-        rm -rf ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
-    if [[ -d $tftpdirdst ]]; then
-        rm -rf ${tftpdirdst}.fogbackup >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        mv $tftpdirdst ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
+    [[ -d ${tftpdirdst}.prev ]] && rm -rf ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ ! -d ${tftpdirdst} ]] && mkdir -p $tftpdirdst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ -e ${tftpdirdst}.fogbackup ]] && rm -rf ${tftpdirdst}.fogbackup >>$workingdir/error_logs/fog_error${version}.log 2>&1
+    [[ -d $tftpdirdst && ! -d ${tftpdirdst}.prev ]] && mkdir -p ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ -d ${tftpdirdst}.prev ]] && cp -Rf $tftpdirdst/* ${tftpdirdst}.prev/ >>$workingdir/error_logs/fog_error${version}.log 2>&1
+    cd $tftpdirsrc
+    find -typef -exec cp -Rfv {} $tftpdirdst/{} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    cd $workingdir
     mkdir -p $tftpdirdst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     cp -Rf $tftpdirsrc/* $tftpdirdst/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     chown -R $username $tftpdirdst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -419,9 +421,11 @@ configureTFTPandPXE() {
     find $tftpdirdst ! -type d -exec chmod 644 {} \;
     configureDefaultiPXEfile
     if [[ -f $tftpconfig ]]; then
-        mv $tftpconfig ${tftpconfig}.fogbackup >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        cp -Rf $tftpconfig ${tftpconfig}.fogbackup >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
-    echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#    protocol.  The tftp protocol is often used to boot diskless \n# workstations, download configuration files to network-aware printers, \n#   and to start the installation process for some operating systems.\nservice tftp\n{\n    socket_type     = dgram\n   protocol        = udp\n wait            = yes\n user            = root\n    server          = /usr/sbin/in.tftpd\n  server_args     = -s ${tftpdirdst}\n    disable         = no\n  per_source      = 11\n  cps         = 100 2\n   flags           = IPv4\n}" > "$tftpconfig"
+    if [[ $noTftpBuild != "true" ]]; then
+        echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#    protocol.  The tftp protocol is often used to boot diskless \n# workstations, download configuration files to network-aware printers, \n#   and to start the installation process for some operating systems.\nservice tftp\n{\n    socket_type     = dgram\n   protocol        = udp\n wait            = yes\n user            = root\n    server          = /usr/sbin/in.tftpd\n  server_args     = -s ${tftpdirdst}\n    disable         = no\n  per_source      = 11\n  cps         = 100 2\n   flags           = IPv4\n}" > "$tftpconfig"
+    fi
     case $systemctl in
         yes)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
@@ -986,37 +990,102 @@ writeUpdateFile() {
     if [[ -f $fogprogramdir/.fogsettings ]]; then
         grep -q "^## Start of FOG Settings" $fogprogramdir/.fogsettings || grep -q "^## Version:.*" $fogprogramdir/.fogsettings
         if [[ $? == 0 ]]; then
-            grep -q "^## Version:.*$" $fogprogramdir/.fogsettings && sed -i "s/^## Version:.*/## Version: $version/g" $fogprogramdir/.fogsettings
-            grep -q "ipaddress=" $fogprogramdir/.fogsettings && sed -i "s/ipaddress=?['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}?['\"]/ipaddress='$ipaddress'/g" $fogprogramdir/.fogsettings
-            grep -q "interface=" $fogprogramdir/.fogsettings && sed -i "s/interface='?['\"].*?['\"]/interface='$interface'/g" $fogprogramdir/.fogsettings
-            grep -q "submask=" $fogprogramdir/.fogsettings && sed -i "s/submask=?['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}?['\"]/submask='$submask'/g" $fogprogramdir/.fogsettings
-            grep -q "routeraddress=" $fogprogramdir/.fogsettings && sed -i "s/routeraddress=?['\"].*?['\"]/routeraddress='$routeraddress'/g" $fogprogramdir/.fogsettings
-            grep -q "plainrouter=" $fogprogramdir/.fogsettings && sed -i "s/plainrouter=?['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}?['\"]/plainrouter='$plainrouter'/g" $fogprogramdir/.fogsettings
-            grep -q "dnsaddress=" $fogprogramdir/.fogsettings && sed -i "s/dnsaddress=?['\"].*?['\"]/dnsaddress='$dnsaddress'/g" $fogprogramdir/.fogsettings
-            grep -q "dnsbootimage=" $fogprogramdir/.fogsettings && sed -i "s/dnsbootimage=?['\"].*?['\"]/dnsbootimage='$dnsbootimage'/g" $fogprogramdir/.fogsettings
-            grep -q "password=" $fogprogramdir/.fogsettings && sed -i "s/password=?['\"].*?['\"]/password='$password'/g" $fogprogramdir/.fogsettings
-            grep -q "osid=" $fogprogramdir/.fogsettings && sed -i "s/osid=?['\"].*?['\"]/osid='$osid'/g" $fogprogramdir/.fogsettings
-            grep -q "osname=" $fogprogramdir/.fogsettings && sed -i "s/osname=?['\"].*?['\"]/osname='$osname'/g" $fogprogramdir/.fogsettings
-            grep -q "dodhcp=" $fogprogramdir/.fogsettings && sed -i "s/dodhcp=?['\"].*?['\"]/dodhcp='$dodhcp'/g" $fogprogramdir/.fogsettings
-            grep -q "bldhcp=" $fogprogramdir/.fogsettings && sed -i "s/bldhcp=?['\"].*?['\"]/bldhcp='$bldhcp'/g" $fogprogramdir/.fogsettings
-            grep -q "blexports=" $fogprogramdir/.fogsettings && sed -i "s/blexports=?['\"].*?['\"]/blexports='$blexports'/g" $fogprogramdir/.fogsettings
-            grep -q "installtype=" $fogprogramdir/.fogsettings && sed -i "s/installtype=?['\"].*?['\"]/installtype='$installtype'/g" $fogprogramdir/.fogsettings
-            grep -q "snmysqluser=" $fogprogramdir/.fogsettings && sed -i "s/snmysqluser=?['\"].*?['\"]/snmysqluser='$snmysqluser'/g" $fogprogramdir/.fogsettings
-            grep -q "snmysqlpass=" $fogprogramdir/.fogsettings && sed -i "s/snmysqlpass=?['\"].*?['\"]/snmysqlpass='$snmysqlpass'/g" $fogprogramdir/.fogsettings
-            grep -q "snmysqlhost=" $fogprogramdir/.fogsettings && sed -i "s/snmysqlhost=?['\"].*?['\"]/snmysqlhost='$snmysqlhost'/g" $fogprogramdir/.fogsettings
-            grep -q "installlang=" $fogprogramdir/.fogsettings && sed -i "s/installlang=?['\"].*?['\"]/installlang='$installlang'/g" $fogprogramdir/.fogsettings
-            grep -q "donate=" $fogprogramdir/.fogsettings && sed -i "s/donate=?['\"].*?['\"]/donate='$donate'/g" $fogprogramdir/.fogsettings
-            grep -q "storageLocation=" $fogprogramdir/.fogsettings && sed -i "s#storageLocation=?['\"].*?['\"]#storageLocation='$storageLocation'#g" $fogprogramdir/.fogsettings
-            grep -q "fogupdateloaded=" $fogprogramdir/.fogsettings && sed -i "s/fogupdateloaded=?['\"].*?['\"]/fogupdateloaded=$fogupdateloaded/g" $fogprogramdir/.fogsettings
-            grep -q "storageftpuser=" $fogprogramdir/.fogsettings && sed -i "s/storageftpuser=?['\"].*?['\"]/storageftpuser='$storageftpuser'/g" $fogprogramdir/.fogsettings
-            grep -q "storageftppass=" $fogprogramdir/.fogsettings && sed -i "s/storageftppass=?['\"].*?['\"]/storageftppass='$storageftppass'/g" $fogprogramdir/.fogsettings
-            grep -q "docroot=" $fogprogramdir/.fogsettings && sed -i "s#docroot=?['\"].*?['\"]#docroot='$docroot'#g" $fogprogramdir/.fogsettings
-            grep -q "webroot=" $fogprogramdir/.fogsettings && sed -i "s#webroot=?['\"].*?['\"]#webroot='$webroot'#g" $fogprogramdir/.fogsettings
-            grep -q "caCreated=" $fogprogramdir/.fogsettings && sed -i "s/caCreated=?['\"].*?['\"]/caCreated='$caCreated'/g" $fogprogramdir/.fogsettings
-            grep -q "startrange=" $fogprogramdir/.fogsettings && sed -i "s/startrange=?['\"].*?['\"]/startrange='$startrange'/g" $fogprogramdir/.fogsettings
-            grep -q "endrange=" $fogprogramdir/.fogsettings && sed -i "s/endrange=?['\"].*?['\"]/endrange='$endrange'/g" $fogprogramdir/.fogsettings
-            grep -q "bootfilename=" $fogprogramdir/.fogsettings && sed -i "s/bootfilename=?['\"].*?['\"]/bootfilename='$bootfilename'/g" $fogprogramdir/.fogsettings
-            grep -q "packages=" $fogprogramdir/.fogsettings && sed -i "s/packages=?['\"].*?['\"]/packages='$packages'/g" $fogprogramdir/.fogsettings
+            grep -q "^## Version:.*$" $fogprogramdir/.fogsettings && \
+                sed -i "s/^## Version:.*/## Version: $version/g" $fogprogramdir/.fogsettings || \
+                echo "## Version: $version" >> $fogprogramdir/.fogsettings
+            grep -q "ipaddress=" $fogprogramdir/.fogsettings && \
+                sed -i "s/ipaddress=?['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}?['\"]/ipaddress='$ipaddress'/g" $fogprogramdir/.fogsettings || \
+                echo "ipaddress='$ipaddress'" >> $fogprogramdir/.fogsettings
+            grep -q "interface=" $fogprogramdir/.fogsettings && \
+                sed -i "s/interface='?['\"].*?['\"]/interface='$interface'/g" $fogprogramdir/.fogsettings || \
+                echo "interface='$interface'" >> $fogprogramdir/.fogsettings
+            grep -q "submask=" $fogprogramdir/.fogsettings && \
+                sed -i "s/submask=?['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}?['\"]/submask='$submask'/g" $fogprogramdir/.fogsettings || \
+                echo "submask='$submask'" >> $fogprogramdir/.fogsettings
+            grep -q "routeraddress=" $fogprogramdir/.fogsettings && \
+                sed -i "s/routeraddress=?['\"].*?['\"]/routeraddress='$routeraddress'/g" $fogprogramdir/.fogsettings || \
+                echo "routeraddress='$routeraddress'" >> $fogprogramdir/.fogsettings
+            grep -q "plainrouter=" $fogprogramdir/.fogsettings && \
+                sed -i "s/plainrouter=?['\"][0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}?['\"]/plainrouter='$plainrouter'/g" $fogprogramdir/.fogsettings || \
+                echo "plainrouter='$plainrouter'" >> $fogprogramdir/.fogsettings
+            grep -q "dnsaddress=" $fogprogramdir/.fogsettings && \
+                sed -i "s/dnsaddress=?['\"].*?['\"]/dnsaddress='$dnsaddress'/g" $fogprogramdir/.fogsettings || \
+                echo "dnsaddress='$dnsaddress'" >> $fogprogramdir/.fogsettings
+            grep -q "dnsbootimage=" $fogprogramdir/.fogsettings && \
+                sed -i "s/dnsbootimage=?['\"].*?['\"]/dnsbootimage='$dnsbootimage'/g" $fogprogramdir/.fogsettings || \
+                echo "dnsbootimage='$dnsbootimage'" >> $fogprogramdir/.fogsettings
+            grep -q "password=" $fogprogramdir/.fogsettings && \
+                sed -i "s/password=?['\"].*?['\"]/password='$password'/g" $fogprogramdir/.fogsettings || \
+                echo "password='$password'" >> $fogprogramdir/.fogsettings
+            grep -q "osid=" $fogprogramdir/.fogsettings && \
+                sed -i "s/osid=?['\"].*?['\"]/osid='$osid'/g" $fogprogramdir/.fogsettings || \
+                echo "osid='$osid'" >> $fogprogramdir/.fogsettings
+            grep -q "osname=" $fogprogramdir/.fogsettings && \
+                sed -i "s/osname=?['\"].*?['\"]/osname='$osname'/g" $fogprogramdir/.fogsettings || \
+                echo "osname='$osname'" >> $fogprogramdir/.fogsettings
+            grep -q "dodhcp=" $fogprogramdir/.fogsettings && \
+                sed -i "s/dodhcp=?['\"].*?['\"]/dodhcp='$dodhcp'/g" $fogprogramdir/.fogsettings || \
+                echo "dodhcp='$dodhcp'" >> $fogprogramdir/.fogsettings
+            grep -q "bldhcp=" $fogprogramdir/.fogsettings && \
+                sed -i "s/bldhcp=?['\"].*?['\"]/bldhcp='$bldhcp'/g" $fogprogramdir/.fogsettings || \
+                echo "bldhcp='$bldhcp'" >> $fogprogramdir/.fogsettings
+            grep -q "blexports=" $fogprogramdir/.fogsettings && \
+                sed -i "s/blexports=?['\"].*?['\"]/blexports='$blexports'/g" $fogprogramdir/.fogsettings || \
+                echo "blexports='$blexports'" >> $fogprogramdir/.fogsettings
+            grep -q "installtype=" $fogprogramdir/.fogsettings && \
+                sed -i "s/installtype=?['\"].*?['\"]/installtype='$installtype'/g" $fogprogramdir/.fogsettings || \
+                echo "installtype='$installtype'" >> $fogprogramdir/.fogsettings
+            grep -q "snmysqluser=" $fogprogramdir/.fogsettings && \
+                sed -i "s/snmysqluser=?['\"].*?['\"]/snmysqluser='$snmysqluser'/g" $fogprogramdir/.fogsettings || \
+                echo "snmysqluser='$snmysqluser'" >> $fogprogramdir/.fogsettings
+            grep -q "snmysqlpass=" $fogprogramdir/.fogsettings && \
+                sed -i "s/snmysqlpass=?['\"].*?['\"]/snmysqlpass='$snmysqlpass'/g" $fogprogramdir/.fogsettings || \
+                echo "snmysqlpass='$snmysqlpass'" >> $fogprogramdir/.fogsettings
+            grep -q "snmysqlhost=" $fogprogramdir/.fogsettings && \
+                sed -i "s/snmysqlhost=?['\"].*?['\"]/snmysqlhost='$snmysqlhost'/g" $fogprogramdir/.fogsettings || \
+                echo "snmysqlhost='$snmysqlhost'" >> $fogprogramdir/.fogsettings
+            grep -q "installlang=" $fogprogramdir/.fogsettings && \
+                sed -i "s/installlang=?['\"].*?['\"]/installlang='$installlang'/g" $fogprogramdir/.fogsettings || \
+                echo "installlang='$installlang'" >> $fogprogramdir/.fogsettings
+            grep -q "donate=" $fogprogramdir/.fogsettings && \
+                sed -i "s/donate=?['\"].*?['\"]/donate='$donate'/g" $fogprogramdir/.fogsettings || \
+                echo "donate='$donate'" >> $fogprogramdir/.fogsettings
+            grep -q "storageLocation=" $fogprogramdir/.fogsettings && \
+                sed -i "s#storageLocation=?['\"].*?['\"]#storageLocation='$storageLocation'#g" $fogprogramdir/.fogsettings || \
+                echo "storageLocation='$storageLocation'" >> $fogprogramdir/.fogsettings
+            grep -q "fogupdateloaded=" $fogprogramdir/.fogsettings && \
+                sed -i "s/fogupdateloaded=?['\"].*?['\"]/fogupdateloaded=$fogupdateloaded/g" $fogprogramdir/.fogsettings || \
+                echo "fogupdateloaded=$fogupdateloaded" >> $fogprogramdir/.fogsettings
+            grep -q "storageftpuser=" $fogprogramdir/.fogsettings && \
+                sed -i "s/storageftpuser=?['\"].*?['\"]/storageftpuser='$storageftpuser'/g" $fogprogramdir/.fogsettings || \
+                echo "storageftpuser='$storageftpuser'" >> $fogprogramdir/.fogsettings
+            grep -q "storageftppass=" $fogprogramdir/.fogsettings && \
+                sed -i "s/storageftppass=?['\"].*?['\"]/storageftppass='$storageftppass'/g" $fogprogramdir/.fogsettings || \
+                echo "storageftppass='$storageftppass'" >> $fogprogramdir/.fogsettings
+            grep -q "docroot=" $fogprogramdir/.fogsettings && \
+                sed -i "s#docroot=?['\"].*?['\"]#docroot='$docroot'#g" $fogprogramdir/.fogsettings || \
+                echo "docroot='$docroot'" >> $fogprogramdir/.fogsettings
+            grep -q "webroot=" $fogprogramdir/.fogsettings && \
+                sed -i "s#webroot=?['\"].*?['\"]#webroot='$webroot'#g" $fogprogramdir/.fogsettings || \
+                echo "webroot='$webroot'" >> $fogprogramdir/.fogsettings
+            grep -q "caCreated=" $fogprogramdir/.fogsettings && \
+                sed -i "s/caCreated=?['\"].*?['\"]/caCreated='$caCreated'/g" $fogprogramdir/.fogsettings || \
+                echo "caCreated='$caCreaded'" >> $fogprogramdir/.fogsettings
+            grep -q "startrange=" $fogprogramdir/.fogsettings && \
+                sed -i "s/startrange=?['\"].*?['\"]/startrange='$startrange'/g" $fogprogramdir/.fogsettings || \
+                echo "startrange='$startrange'" >> $fogprogramdir/.fogsettings
+            grep -q "endrange=" $fogprogramdir/.fogsettings && \
+                sed -i "s/endrange=?['\"].*?['\"]/endrange='$endrange'/g" $fogprogramdir/.fogsettings || \
+                echo "endrange='$endrange'" >> $fogprogramdir/.fogsettings
+            grep -q "bootfilename=" $fogprogramdir/.fogsettings && \
+                sed -i "s/bootfilename=?['\"].*?['\"]/bootfilename='$bootfilename'/g" $fogprogramdir/.fogsettings || \
+                echo "bootfilename='$bootfilename'" >> $fogprogramdir/.fogsettings
+            grep -q "packages=" $fogprogramdir/.fogsettings && \
+                sed -i "s/packages=?['\"].*?['\"]/packages='$packages'/g" $fogprogramdir/.fogsettings || \
+                echo "packages='$packages'" >> $fogprogramdir/.fogsettings
+            grep -q "noTftpBuild=" $fogprogramdir/.fogsettings && \
+                sed -i "s/noTftpBuild=?['\"].*?['\"]/noTftpBuild='$noTftpBuild'/g" $fogprogramdir/.fogsettings || \
+                echo "noTftpBuild='$noTftpBuild'" >> $fogprogramdir/.fogsettings
         else
             echo "## Start of FOG Settings
             ## Created by the FOG Installer
@@ -1053,8 +1122,9 @@ writeUpdateFile() {
             endrange='$endrange'
             bootfilename='$bootfilename'
             packages='$packages'
+            noTftpBuild='$noTftpBuild'
             ## End of FOG Settings
-            " >> "$fogprogramdir/.fogsettings"
+            " > "$fogprogramdir/.fogsettings"
         fi
     else
         echo "## Start of FOG Settings
@@ -1092,6 +1162,7 @@ writeUpdateFile() {
         endrange='$endrange'
         bootfilename='$bootfilename'
         packages='$packages'
+        noTftpBuild='$noTftpBuild'
         ## End of FOG Settings
         " > "$fogprogramdir/.fogsettings"
     fi

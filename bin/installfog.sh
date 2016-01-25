@@ -117,7 +117,7 @@ else
     echo "   previous version of FOG."
     echo
 fi
-optspec="h?dEUHSCKYyXxf:-:W:D:B:s:e:b:"
+optspec="h?dEUHSCKYyXxTf:-:W:D:B:s:e:b:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -204,6 +204,9 @@ while getopts "$optspec" o; do
                     ;;
                 exitFail)
                     exitFail=1
+                    ;;
+                no-tftpbuild)
+                    noTftpBuild="true"
                     ;;
                 *)
                     if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
@@ -296,6 +299,9 @@ while getopts "$optspec" o; do
             ;;
         X)
             exitFail=1
+            ;;
+        T)
+            noTftpBuild="true"
             ;;
         :)
             echo "Option -$OPTARG requires a value"
