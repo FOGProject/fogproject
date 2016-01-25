@@ -644,7 +644,7 @@ getValidRestorePartitions() {
                 [[ ! -f $imagePath ]] && imgpart="$imagePath/d${disk_number}p${part_number}.img*" || imgpart="$imagePath"
                 ;;
             [5-7]|9)
-                [[ ! -f $imagePath/sys.img.* ]] && imgpart="$imagePath/d${disk_number}p${part_number}.img*"
+                [[ ! -f $imagePath/sys.img.000 ]] && imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                 if [[ -z $imgpart ]]; then
                     case $win7partcnt in
                         1)
