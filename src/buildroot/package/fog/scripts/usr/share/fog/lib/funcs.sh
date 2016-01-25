@@ -639,7 +639,33 @@ getValidRestorePartitions() {
     getPartitions "$disk"
     for part in $parts; do
         getPartitionNumber "$part"
-        [[ ! -f $imagePath ]] && imgpart="$imagePath/d${disk_number}p${part_number}.img*" || imgpart="$imagePath"
+        case $osid in
+            [1-2])
+                [[ ! -f $imagePath ]] && imgpart="$imagePath/d${disk_number}p${part_number}.img*" || imgpart="$imagePath"
+                ;;
+            [5-7]|9)
+                [[ ! -f $imagePath/sys.img.* ]] && imgpart="$imagePath/d${disk_number}p${part_number}.img*"
+                if [[ -z $imgpart ]]; then
+                    case $win7partcnt in
+                        1)
+                            [[ $part_number -eq 1 ]] && imgpart="$imagePath/sys.img.*"
+                            ;;
+                        2)
+                            [[ $part_number -eq 1 ]] && imgpart="$imagePath/rec.img.000"
+                            [[ $part_number -eq 2 ]] && imgpart="$imagePath/sys.img.*"
+                            ;;
+                        3)
+                            [[ $part_number -eq 1 ]] && imgpart="$imagePath/rec.img.000"
+                            [[ $part_number -eq 2 ]] && imgpart="$imagePath/rec.img.001"
+                            [[ $part_number -eq 3 ]] && imgpart="$imagePath/sys.img.*"
+                            ;;
+                    esac
+                fi
+                ;;
+            *)
+                imgpart="$imagePath/d${disk_number}p${part_number}.img*"
+                ;;
+        esac
         ls $imgpart >/dev/null 2>&1
         [[ $? -eq 0 ]] && valid_parts="$valid_parts $part"
     done
@@ -752,7 +778,7 @@ changeHostname() {
         echo " * File does not exist"
         return
     fi
-    reged -e $regfile </usr/share/fog/lib/EOFREG >/dev/null 2>&1
+    reged -e $regfile < /usr/share/fog/lib/EOFREG >/dev/null 2>&1
     case $? in
         [0-2])
             echo "Done"
