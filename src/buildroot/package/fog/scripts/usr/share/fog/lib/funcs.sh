@@ -324,7 +324,6 @@ prepareUploadLocation() {
         mkdir -p $imagePath >/dev/null 2>&1
         case $? in
             0)
-                echo "Done"
                 ;;
             *)
                 echo "Failed"
@@ -333,6 +332,7 @@ prepareUploadLocation() {
                 ;;
         esac
     fi
+    echo "Done"
     debugPause
     dots "Setting permission on $imagePath"
     chmod -R 777 $imagePath >/dev/null 2>&1
