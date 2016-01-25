@@ -47,7 +47,7 @@ function buttonPress() {
         title: 'Cancel tasks',
         buttons: {
             'Yes': function() {
-                $.post(CANCELURL,{task: checkedIDs},function(data) {console.log(data);ActiveTasksUpdate();});
+                $.post(CANCELURL,{task: checkedIDs},function(data) {ActiveTasksUpdate();});
                 $(this).dialog('close');
             },
             'No': function() {
