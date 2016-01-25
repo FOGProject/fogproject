@@ -311,7 +311,7 @@ getPartBlockSize() {
     local varVar="$2"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     [[ -z $varVar ]] && handleError "No variable to set passed (${FUNCNAME[0]})"
-    printf -v "$varVar" $((blockdev --getpbsz $part))
+    printf -v "$varVar" $(blockdev --getpbsz $part)
 }
 # Prepares location info for uploads
 #
