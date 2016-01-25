@@ -1545,7 +1545,7 @@ MBRFileName() {
             [[ -f $imagePath/sys.img.000 ]] && printf -v "$varVar" "$mbrfile" || printf -v "$varVar" "$imagePath/d${disk_number}.mbr"
             ;;
         *)
-            echo "$imagePath/d${disk_number}.mbr"
+            printf -v "$varVar" "$imagePath/d${disk_number}.mbr"
             ;;
     esac
 }
