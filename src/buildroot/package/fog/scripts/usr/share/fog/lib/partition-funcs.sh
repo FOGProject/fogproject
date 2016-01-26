@@ -855,7 +855,8 @@ fillDiskWithPartitions() {
             local filename="$sfdiskoriginalpartitionfilename"
             local cmdtorun='fillSfdiskWithPartitions'
             [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
-            [[ ! -r $filename ]] && filename="$sgdiskoriginalpartitionfilename" && cmdtorun='fillSgdiskWithPartitions'
+            [[ ! -r $filename ]] && filename="$sgdiskoriginalpartitionfilename"
+            [[ $filename == $sgdiskoriginalpartitionfilename ]] && cmdtorun='fillSgdiskWithPartitions'
             [[ ! -r $filename ]] && handleError "Failed to find a restore file (${FUNCNAME[0]})"
             $cmdtorun "$disk" "$filename" "$fixed_size_partitions"
             ;;
