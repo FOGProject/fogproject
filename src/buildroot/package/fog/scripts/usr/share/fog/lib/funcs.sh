@@ -1140,12 +1140,13 @@ getPartitions() {
 getHardDisk() {
     [[ -n $fdrive ]] && hd=$(echo $fdrive)
     [[ -n $hd ]] && return
-    local devs=$(lsblk -dpno KNAME -I 3,8,9,179,259 | sort -V | uniq)
+    local devs=$(lsblk -dpno KNAME -I 3,8,9,179,259 | uniq | sort -V)
     disks=$(echo $devs)
     [[ -z $disks ]] && handleError "Cannot find disk on system (${FUNCNAME[0]})"
     [[ $1 == true ]] && return
-    hd=$(echo $disks | head -n1)
-    hd=$(echo $hd)
+    for hd in $disks; do
+        break
+    done
 }
 # Initialize hard drive by formatting it
 # Note: This probably should not be used
