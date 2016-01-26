@@ -172,8 +172,8 @@ case $imgType in
                                     echo "Done"
                                     ;;
                                 3)
-                                    sgdisk --zap-all $hd >/dev/null 2>&1
-                                    sgdisk --mbrtogpt --load-backup=$imagePath/gpt.bak --move-second-header $hd >/dev/null 2>&1
+                                    sgdisk -Z $hd >/dev/null 2>&1
+                                    sgdisk -gel $imagePath/gpt.bak $hd >/dev/null 2>&1
                                     if [[ ! $? -eq 0 ]]; then
                                         echo "Failed"
                                         debugPause
