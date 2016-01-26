@@ -1535,13 +1535,6 @@ sfdiskOriginalPartitionFileName() {
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
     sfdiskPartitionFileName "$imagePath" "$disk_number"
 }
-sgdiskOriginalPartitionFileName() {
-    local imagePath="$1"  # e.g. /net/dev/foo
-    local disk_number="$2"    # e.g. 1
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
-    sgdiskoriginalpartitionfilename="$imagePath/d${disk_number}.sgdisk.original.partitions"
-}
 fixedSizePartitionsFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local disk_number="$2"    # e.g. 1
@@ -1652,6 +1645,9 @@ savePartitionTablesAndBootLoaders() {
                 debugPause
                 handleError "Error trying to save GPT partition tables (${FUNCNAME[0]})"
             fi
+            local sfdiskoriginalpartitionfilename=""
+            sfdiskPartitionFileName "/tmp/" "$disk_number"
+            sfdisk -d $disk 2>/dev/null > $sfdiskoriginalpartitionfilename
             echo "Done"
             ;;
     esac
@@ -1907,43 +1903,6 @@ restorePartition() {
     runPartprobe "$disk"
     resetFlag "$part"
 }
-gptorMBRSave() {
-    local disk="$1"
-    local disk_number="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No disk number  passed (${FUNCNAME[0]})"
-    local strdots=""
-    runPartprobe "$disk"
-    local gptormbr=$(gdisk -l $disk | awk /^\ *GPT:/'{print $2}')
-    case $gptormbr in
-        not)
-            case $osid in
-                50)
-                    strdots="Saving MBR/Grub"
-                    ;;
-                *)
-                    strdots="Saving MBR"
-                    ;;
-            esac
-            dots "$strdots"
-            saveGRUB "$disk" 1 "$2"
-            echo "Done"
-            ;;
-        *)
-            dots "Saving Partition Tables (GPT)"
-            sgdisk -b "$imagePath/d1.mbr" "$disk" >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                echo "Failed"
-                debugPause
-                runFixparts "$disk"
-                gptorMBRSave "$disk" "$2"
-                return
-            fi
-            echo "Done"
-            ;;
-    esac
-    debugPause
-}
 runFixparts() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
@@ -1988,6 +1947,7 @@ prepareResizeDownloadPartitions() {
     [[ -z $imgPartitionType ]] && handleError "No image partition type  passed (${FUNCNAME[0]})"
     restorePartitionTablesAndBootLoaders "$disk" "$disk_number" "$imagePath" "$osid" "$imgPartitionType"
     local do_fill=0
+    local filepath=""
     fillDiskWithPartitionsIsOK "$disk" "$imagePath" "$disk_number"
     majorDebugEcho "Filling disk = $do_fill"
     dots "Attempting to expand/fill partitions"
@@ -1996,7 +1956,7 @@ prepareResizeDownloadPartitions() {
         debugPause
         handleError "Fatal Error: Could not resize partitions (${FUNCNAME[0]})"
     fi
-    fillDiskWithPartitions "$disk" "$imagePath" "$disk_number"
+    fillDiskWithPartitions "$disk" "$filepath" "$disk_number"
     echo "Done"
     debugPause
     runPartprobe "$disk"
