@@ -847,12 +847,12 @@ fillDiskWithPartitions() {
     local sfdiskoriginalpartitionfilename=""
     local sfdisklegacyoriginalpartitionfilename=""
     local sgdiskoriginalpartitionfilename=""
-    local filename="$sfdiskoriginalpartitionfilename"
     case $table_type in
         MBR|GPT)
             sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
             sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
             sgdiskOriginalPartitionFileName "$imagePath" "$disk_number"
+            local filename="$sfdiskoriginalpartitionfilename"
             local cmdtorun='fillSfdiskWithPartitions'
             [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
             [[ ! -r $filename ]] && filename="$sgdiskoriginalpartitionfilename" && cmdtorun='fillSgdiskWithPartitions'
