@@ -1535,6 +1535,13 @@ sfdiskOriginalPartitionFileName() {
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
     sfdiskPartitionFileName "$imagePath" "$disk_number"
 }
+sgdiskOriginalPartitionFileName() {
+    local imagePath="$1"  # e.g. /net/dev/foo
+    local disk_number="$2"    # e.g. 1
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    sgdiskoriginalpartitionfilename="$imagePath/d${disk_number}.sgdisk.original.partitions"
+}
 fixedSizePartitionsFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local disk_number="$2"    # e.g. 1
@@ -1603,10 +1610,17 @@ savePartitionTablesAndBootLoaders() {
     local disk_number="$2"                 # e.g. 1
     local imagePath="$3"               # e.g. /net/dev/foo
     local osid="$4"                    # e.g. 50
+    local imgPartitionType="$5"
+    local sfdiskfilename="$6"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $osid ]] && handleError "No osid passed (${FUNCNAME[0]})"
+    [[ -z $imgPartitionType ]] && handleError "No img part type passed (${FUNCNAME[0]})"
+    if [[ -z $sfdiskfilename ]]; then
+        sfdiskPartitionFileName "$imagePath" "$disk_number"
+        sfdiskfilename="$sfdiskoriginalpartitionfilename"
+    fi
     local hasgpt=0
     hasGPT "$disk"
     local have_extended_partition=0  # e.g. 0 or 1-n (extended partition count)
@@ -1616,7 +1630,6 @@ savePartitionTablesAndBootLoaders() {
     if [[ $imgPartitionType != all && $imgPartitionType != mbr ]]; then
         echo " * Skipping partition tables and MBR"
         debugPause
-        runPartprobe "$disk"
         return
     fi
     case $hasgpt in
@@ -1629,13 +1642,9 @@ savePartitionTablesAndBootLoaders() {
             esac
             dots "$strdots"
             saveGRUB "$disk" "$disk_number" "$imagePath"
+            sfdisk -d $disk 2>/dev/null > $sfdiskfilename
+            [[ $have_extended_partition -ge 1 ]] && saveAllEBRs "$disk" "$disk_number" "$imagePath"
             echo "Done"
-            if [[ $have_extended_partition -ge 1 ]]; then
-                local sfdiskoriginalpartitionfilename=""
-                sfdiskPartitionFileName "$imagePath" "$disk_number"
-                sfdisk -d $disk 2>/dev/null > $sfdiskoriginalpartitionfilename
-                saveAllEBRs "$disk" "$disk_number" "$imagePath"
-            fi
             ;;
         1)
             dots "Saving Partition Tables (GPT)"
@@ -1645,9 +1654,7 @@ savePartitionTablesAndBootLoaders() {
                 debugPause
                 handleError "Error trying to save GPT partition tables (${FUNCNAME[0]})"
             fi
-            local sfdiskoriginalpartitionfilename=""
-            sfdiskPartitionFileName "/tmp/" "$disk_number"
-            sfdisk -d $disk 2>/dev/null > $sfdiskoriginalpartitionfilename
+            sfdisk -d $disk 2>/dev/null > $sfdiskfilename
             echo "Done"
             ;;
     esac
@@ -1947,7 +1954,6 @@ prepareResizeDownloadPartitions() {
     [[ -z $imgPartitionType ]] && handleError "No image partition type  passed (${FUNCNAME[0]})"
     restorePartitionTablesAndBootLoaders "$disk" "$disk_number" "$imagePath" "$osid" "$imgPartitionType"
     local do_fill=0
-    local filepath=""
     fillDiskWithPartitionsIsOK "$disk" "$imagePath" "$disk_number"
     majorDebugEcho "Filling disk = $do_fill"
     dots "Attempting to expand/fill partitions"
@@ -1956,7 +1962,7 @@ prepareResizeDownloadPartitions() {
         debugPause
         handleError "Fatal Error: Could not resize partitions (${FUNCNAME[0]})"
     fi
-    fillDiskWithPartitions "$disk" "$filepath" "$disk_number"
+    fillDiskWithPartitions "$disk" "$imagePath" "$disk_number"
     echo "Done"
     debugPause
     runPartprobe "$disk"
