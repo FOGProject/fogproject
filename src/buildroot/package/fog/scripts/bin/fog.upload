@@ -140,15 +140,15 @@ case $imgType in
         #  save the list of fixed size partitions
         fixed_size_partitions=$(echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://')
         echo "$fixed_size_partitions" > "$imagePath/d1.fixed_size_partitions"
-        dots "Getting sector start"
         case $osid in
             [1-2])
+                dots "Getting sector start"
                 partitionStart=$(fdisk -lu | awk "/$(escapeItem $part)/{print \$3}")
                 [[ -z $partitionStart ]] && partitionStart=63
+                echo "Done"
+                debugPause
                 ;;
         esac
-        echo "Done"
-        debugPause
         # Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
         #  Save unmodified partition table for download use
         #  Start filesytem type record
@@ -160,17 +160,23 @@ case $imgType in
         echo -n "" > $swapuuidfilename
         echo "Done"
         debugPause
-        savePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
-        echo " * Processing Hard Disk: $hd"
-        getPartitions "$hd"
+        echo " * Shrinking Partitions on disk"
+        debugPause
         for part in $parts; do
             clearMountedDevices "$part"
             removePageFile "$part"
             shrinkPartition "$part" "$imagePath/d1.original.fstypes" "$fixed_size_partitions"
-            runPartprobe "$hd"
+        done
+        echo " * Saving shrunken partition table"
+        debugPause
+        sfdiskminimumpartitionfilename=""
+        sfdiskMinimumPartitionFileName "$imagePath" 1
+        savePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType" "$sfdiskminimumpartitionfilename"
+        echo " * Processing Hard Disk: $hd"
+        for part in $parts; do
             savePartition "$part" 1 "$imagePath" "$imgPartitionType"
         done
-        dots "Restoring MBR"
+        dots "Restoring Original Partition Layout"
         restoreOriginalPartitions "$hd" "$imagePath" 1
         runPartprobe "$hd"
         echo "Done"
