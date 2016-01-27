@@ -1443,7 +1443,7 @@ saveGRUB() {
     # Ensure that no more than 1MiB of data is copied (already have this size used elsewhere)
     [[ $count -gt 2048 ]] && count=2048
     local mbrfilename=""
-    MBRFileName "$imagePath" "$disk_number" "mbrfilename"
+    MBRFileName "$imagePath" "$disk_number" "mbrfilename" "$sgdisk"
     dd if=$disk of=$mbrfilename count=$count bs=512 >/dev/null 2>&1
 }
 # Checks for the existence of the grub embedding area in the image directory.
@@ -1570,18 +1570,19 @@ MBRFileName() {
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
     [[ -z $varVar ]] && handleError "No variable to set passed (${FUNCNAME[0]})"
-    local mbrfilename=""
+    local mbr=""
     case $osid in
         [1-2])
             printf -v "$varVar" "$mbrfile"
             ;;
         [5-7]|9)
-            [[ -n $sgdisk ]] && mbrfilename="$imagePath/d${disk_number}.grub.mbr" || mbrfilename="$imagePath/d${disk_number}.mbr"
-            [[ -f $imagePath/sys.img.000 ]] && printf -v "$varVar" "$mbrfile" || printf -v "$varVar" "$mbrfilename"
+            [[ -n $sgdisk ]] && mbr="$imagePath/d${disk_number}.grub.mbr" || mbr="$imagePath/d${disk_number}.mbr"
+            [[ -f $imagePath/sys.img.000 ]] && mbr="$mbrfile"
+            printf -v "$varVar" "$mbr"
             ;;
         *)
-            [[ -n $sgdisk ]] && mbrfilename="$imagePath/d${disk_number}.grub.mbr" || mbrfilename="$imagePath/d${disk_number}.mbr"
-            printf -v "$varVar" "$mbrfilename"
+            [[ -n $sgdisk ]] && mbr="$imagePath/d${disk_number}.grub.mbr" || mbr="$imagePath/d${disk_number}.mbr"
+            printf -v "$varVar" "$mbr"
             ;;
     esac
 }
