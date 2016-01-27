@@ -1426,6 +1426,7 @@ saveGRUB() {
     local disk="$1"
     local disk_number="$2"
     local imagePath="$3"
+    local sgdisk="$4"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
@@ -1436,7 +1437,7 @@ saveGRUB() {
     local has_grub=$(dd if=$disk bs=512 count=1 2>&1 | grep GRUB)
     local hasgrubfilename=""
     if [[ -n $has_grub ]]; then
-        hasGrubFileName "$imagePath" "$disk_number"
+        hasGrubFileName "$imagePath" "$disk_number" "$sgdisk"
         touch $hasgrubfilename
     fi
     # Ensure that no more than 1MiB of data is copied (already have this size used elsewhere)
@@ -1456,11 +1457,12 @@ hasGRUB() {
     local disk="$1"
     local disk_number="$2"
     local imagePath="$3"
+    local sgdisk="$4"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     local hasgrubfilename=""
-    hasGrubFileName "$imagePath" "$disk_number"
+    hasGrubFileName "$imagePath" "$disk_number" "$sgdisk"
     hasGRUB=0
     [[ -e $hasgrubfilename ]] && hasGRUB=1
 }
@@ -1475,11 +1477,12 @@ restoreGRUB() {
     local disk="$1"
     local disk_number="$2"
     local imagePath="$3"
+    local sgdisk="$4"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     local tmpMBR=""
-    MBRFileName "$imagePath" "$disk_number" "tmpMBR"
+    MBRFileName "$imagePath" "$disk_number" "tmpMBR" "$sgdisk"
     local count=$(du -B 512 $tmpMBR | awk '{print $1}')
     [[ $count -eq 8 ]] && count=1
     dd if=$tmpMBR of=$disk bs=512 count=$count >/dev/null 2>&1
@@ -1553,26 +1556,32 @@ fixedSizePartitionsFileName() {
 hasGrubFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local disk_number="$2"    # e.g. 1
+    local sgdisk="$3"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
     hasgrubfilename="$imagePath/d${disk_number}.has_grub"
+    [[ -n $sgdisk ]] && hasgrubfilename="$imagePath/d${disk_number}.grub.mbr"
 }
 MBRFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
     local disk_number="$2"    # e.g. 1
     local varVar="$3"
+    local sgdisk="$4"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
     [[ -z $varVar ]] && handleError "No variable to set passed (${FUNCNAME[0]})"
+    local mbrfilename=""
     case $osid in
         [1-2])
             printf -v "$varVar" "$mbrfile"
             ;;
         [5-7]|9)
-            [[ -f $imagePath/sys.img.000 ]] && printf -v "$varVar" "$mbrfile" || printf -v "$varVar" "$imagePath/d${disk_number}.mbr"
+            [[ -n $sgdisk ]] && mbrfilename="$imagePath/d${disk_number}.grub.mbr" || mbrfilename="$imagePath/d${disk_number}.mbr"
+            [[ -f $imagePath/sys.img.000 ]] && printf -v "$varVar" "$mbrfile" || printf -v "$varVar" "$mbrfilename"
             ;;
         *)
-            printf -v "$varVar" "$imagePath/d${disk_number}.mbr"
+            [[ -n $sgdisk ]] && mbrfilename="$imagePath/d${disk_number}.grub.mbr" || mbrfilename="$imagePath/d${disk_number}.mbr"
+            printf -v "$varVar" "$mbrfilename"
             ;;
     esac
 }
@@ -1649,6 +1658,7 @@ savePartitionTablesAndBootLoaders() {
             ;;
         1)
             dots "Saving Partition Tables (GPT)"
+            saveGRUB "$disk" "$disk_number" "$imagePath" "true"
             sgdisk -b "$imagePath/d${disk_number}.mbr" $disk >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo "Failed"
@@ -1712,6 +1722,7 @@ restorePartitionTablesAndBootLoaders() {
     majorDebugEcho "Trying to restore to $table_type partition table."
     if [[ $table_type == GPT || $mbrsize != +(1048576|512|32256) ]]; then
         dots "Restoring Partition Tables (GPT)"
+        restoreGRUB "$disk" "$disk_number" "$imagePath" "true"
         sgdisk -gel $tmpMBR $disk >/dev/null 2>&1
         [[ ! $? -eq 0 ]] && handleError "Error trying to restore GPT partition tables (${FUNCNAME[0]})"
         global_gptcheck="yes"
