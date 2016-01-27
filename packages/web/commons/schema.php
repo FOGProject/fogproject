@@ -2139,3 +2139,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_BANDWIDTH_TIME', '"._("This setting defines how often to refresh the bandwidth chart.  Values are in seconds")."','1','General Settings')",
 );
+// 209
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`printers` ADD `pConfigFile` VARCHAR(255) NOT NULL AFTER `pConfig`",
+);

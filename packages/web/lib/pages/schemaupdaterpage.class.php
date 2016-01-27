@@ -21,7 +21,7 @@ class SchemaUpdaterPage extends FOGPage {
             _('Alternatively, you can use the button below to obtain a copy of your current fog database.'),
             _('Export-Backup DB'),
         );
-        vprintf('<p>%s</p><p>%s</p><br/><form method="post" action="%s"><p class="c"><input type="submit" name="confirm" value="%s"/></p></form><p>%s</p><div id="sidenotes">cd ~;mysqldump --allowkeywords -x -v fog > fogbackup.sql</div><br/><p>%s</p><form method="post" action="export.php?type=sql"><p class="c"><input type="submit" name="export" value="%s"/></p></form>',$vals);
+        vprintf('<p>%s</p><p>%s</p><br/><form method="post" action="%s"><p class="c"><input type="submit" name="confirm" value="%s"/></p></form><p>%s</p><div id="sidenotes">cd ~;mysqldump --allowkeywords -x -v fog > fogbackup.sql</div><br/><p>%s</p><form method="post" action="../management/export.php"><input type="hidden" name="type" value="sql"/><p class="c"><input type="submit" name="export" value="%s"/></p></form>',$vals);
     }
     public function index_post() {
         if (isset($_REQUEST['confirm'])) {
