@@ -229,7 +229,7 @@ case $imgType in
         initHardDisk "$hd"
         runPartprobe "$hd"
         [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath"
-        runPartprobe "$disk"
+        runPartprobe "$hd"
         gptcheck="$global_gptcheck"
         ;;
     mpa)
