@@ -67,7 +67,7 @@ class Schema extends FOGController {
         $filesize = strlen($content);
         header("X-Sendfile: $backup_name");
         header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
+        header('Content-Type: text/plain');
         header("Content-Length: $filesize");
         header("Content-disposition: attachment; filename=$backup_name");
         header('Expires: 0');
