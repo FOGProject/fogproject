@@ -1075,7 +1075,7 @@ writeUpdateFile() {
                 echo "webroot='$webroot'" >> $fogprogramdir/.fogsettings
             grep -q "caCreated=" $fogprogramdir/.fogsettings && \
                 sed -i "s/caCreated=?['\"].*?['\"]/caCreated='$caCreated'/g" $fogprogramdir/.fogsettings || \
-                echo "caCreated='$caCreaded'" >> $fogprogramdir/.fogsettings
+                echo "caCreated='$caCreated'" >> $fogprogramdir/.fogsettings
             grep -q "startrange=" $fogprogramdir/.fogsettings && \
                 sed -i "s/startrange=?['\"].*?['\"]/startrange='$startrange'/g" $fogprogramdir/.fogsettings || \
                 echo "startrange='$startrange'" >> $fogprogramdir/.fogsettings
