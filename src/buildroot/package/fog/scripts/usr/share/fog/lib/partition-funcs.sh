@@ -56,6 +56,7 @@ restoreUUIDInformation() {
     local file="$2"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "No file to load from passed (${FUNCNAME[0]})"
+    [[ ! -r $file ]] && return
     local diskuuid=""
     local partuuid=""
     local escape_disk=$(escapeItem $disk)
