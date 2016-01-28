@@ -17,7 +17,7 @@ class AddLocationHost extends Hook {
         if ($_REQUEST['sub'] == 'pending') return;
         $arguments['templates'][4] = '${location}<br/><small>${deployed}</small>';
         foreach((array)$arguments['data'] AS $index => &$vals) {
-            $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['data'][$index]['host_id']),'locationID');
+            $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['data'][$index]['id']),'locationID');
             $locID = array_shift($locationID);
             $arguments['data'][$index]['location'] = $this->getClass('Location',$locID)->get('name');
             unset($vals);
