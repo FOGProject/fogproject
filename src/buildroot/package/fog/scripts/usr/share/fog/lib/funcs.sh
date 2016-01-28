@@ -830,73 +830,67 @@ changeHostname() {
 fixWin7boot() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    case $osid in
-        [5-7]|[9])
-            local fstype=""
-            fsTypeSetting "$part"
-            case $fstype in
-                ntfs)
-                    dots "Mounting partition"
-                    if [[ ! -d /bcdstore ]]; then
-                        mkdir -p /bcdstore >/dev/null 2>&1
-                        case $? in
-                            0)
-                                ;;
-                            *)
-                                echo "Failed"
-                                debugPause
-                                echo " * Could not create mount location"
-                                return
-                                ;;
-                        esac
-                    fi
-                    ntfs-3g -o force,rw $part /bcdstore >/tmp/ntfs-mount-output 2>&1
-                    case $? in
-                        0)
-                            echo "Done"
-                            debugPause
-                            ;;
-                        *)
-                            echo "Failed"
-                            debugPause
-                            echo " * Could not mount $part to /bcdstore"
-                            return
-                            ;;
-                    esac
-                    if [[ ! -f /bcdstore/Boot/BCD ]]; then
-                        umount /bcdstore >/dev/null 2>&1
-                        return
-                    fi
-                    dots "Backing up and replacing BCD"
-                    mv /bcdstore/Boot/BCD{,.bak} >/dev/null 2>&1
-                    case $? in
-                        0)
-                            ;;
-                        *)
-                            echo "Failed"
-                            debugPause
-                            umount /bcdstore >/dev/null 2>&1
-                            echo " * Could not create backup"
-                            return
-                            ;;
-                    esac
-                    cp /usr/share/fog/BCD /bcdstore/Boot/BCD >/dev/null 2>&1
-                    case $? in
-                        0)
-                            echo "Done"
-                            debugPause
-                            umount /bcdstore >/dev/null 2>&1
-                            ;;
-                        *)
-                            echo "Failed"
-                            debugPause
-                            umount /bcdstore >/dev/null 2>&1
-                            echo " * Could not copy our bcd file"
-                            return
-                            ;;
-                    esac
-                    ;;
-            esac
+    [[ $osid != [5-7] ]] && return
+    local fstype=""
+    fsTypeSetting "$part"
+    [[ $fstype != ntfs ]] && return
+    dots "Mounting partition"
+    if [[ ! -d /bcdstore ]]; then
+        mkdir -p /bcdstore >/dev/null 2>&1
+        case $? in
+            0)
+                ;;
+            *)
+                echo "Failed"
+                debugPause
+                echo " * Could not create mount location"
+                return
+                ;;
+        esac
+    fi
+    ntfs-3g -o force,rw $part /bcdstore >/tmp/ntfs-mount-output 2>&1
+    case $? in
+        0)
+            echo "Done"
+            debugPause
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            echo " * Could not mount $part to /bcdstore"
+            return
+            ;;
+    esac
+    if [[ ! -f /bcdstore/Boot/BCD ]]; then
+        umount /bcdstore >/dev/null 2>&1
+        return
+    fi
+    dots "Backing up and replacing BCD"
+    mv /bcdstore/Boot/BCD{,.bak} >/dev/null 2>&1
+    case $? in
+        0)
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            umount /bcdstore >/dev/null 2>&1
+            echo " * Could not create backup"
+            return
+            ;;
+    esac
+    cp /usr/share/fog/BCD /bcdstore/Boot/BCD >/dev/null 2>&1
+    case $? in
+        0)
+            echo "Done"
+            debugPause
+            umount /bcdstore >/dev/null 2>&1
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            umount /bcdstore >/dev/null 2>&1
+            echo " * Could not copy our bcd file"
+            return
             ;;
     esac
     umount /bcdstore >/dev/null 2>&1
@@ -2017,11 +2011,7 @@ performRestore() {
             restorePartition "$restorepart" "$disk_number" "$imagePath"
             [[ $imgType =~ [Nn] ]] && restoreEBR "$restorepart" "$tmpebrfilename"
             [[ $imgType =~ [Nn] ]] && expandPartition "$restorepart" "$fixed_size_partitions"
-            case $osid in
-                [1-2]|[5-7]|9)
-                    [[ $imgType =~ [Nn] ]] && fixWin7boot "$restorepart"
-                    ;;
-            esac
+            [[ $osid == +([5-7]) && $imgType =~ [Nn] ]] && fixWin7boot "$restorepart"
         done
         echo " * Resetting UUIDs for $disk"
         debugPause
