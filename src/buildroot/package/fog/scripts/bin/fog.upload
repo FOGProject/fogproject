@@ -156,10 +156,16 @@ case $imgType in
         saveOriginalPartitions "$hd" "$imagePath" 1
         swapuuidfilename=""
         swapUUIDFileName "$imagePath" 1
+        mainuuidfilename=""
+        mainUUIDFileName "$imagePath" 1
         echo -n "" > "$imagePath/d1.original.fstypes"
         echo -n "" > $swapuuidfilename
+        echo -n "" > $mainuuidfilename
         echo "Done"
         debugPause
+        echo " * Saving original disk/parts UUIDs"
+        debugPause
+        saveUUIDInformation "$hd" "$mainuuidfilename"
         echo " * Shrinking Partitions on disk"
         debugPause
         for part in $parts; do

@@ -264,13 +264,45 @@ fsTypeSetting() {
             ;;
     esac
 }
-# Gets the partition type
+# Gets the disk part table UUID
+#
+# $1 is the disk
+getDiskUUID() {
+    local disk="$1"
+    [[ -z $disk ]] && handleERror "No disk passed (${FUNCNAME[0]})"
+    diskuuid=$(blkid -po udev $disk | awk -F= '/PART_TABLE_UUID=/{print $2}')
+}
+# Gets the partition entry name
+#
+# $1 is the partition
+getPartName() {
+    local part="$1"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
+    partname=$(blkid -po udev $part | awk -F= '/PART_ENTRY_NAME=/{print $2}')
+}
+# Gets the partition entry type
 #
 # $1 is the partition
 getPartType() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
     parttype=$(blkid -po udev $part | awk -F= '/PART_ENTRY_TYPE=/{print $2}')
+}
+# Gets the partition fs UUID
+#
+# $1 is the partition
+getPartFSUUID() {
+    local part="$1"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
+    partfsuuid=$(blkid -po udev $part | awk -F= '/FS_UUID=/{print $2}')
+}
+# Gets the partition entry UUID
+#
+# $1 is the partition
+getPartUUID() {
+    local part="$1"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
+    partuuid=$(blkid -po udev $part | awk -F= '/PART_ENTRY_UUID=/{print $2}')
 }
 # Gets the entry schemed (dos, gpt, etc...)
 #
@@ -728,6 +760,7 @@ changeHostname() {
     case $? in
         0)
             echo "Done"
+            debugPause
             ;;
         *)
             echo "Failed"
@@ -736,7 +769,6 @@ changeHostname() {
             return
             ;;
     esac
-    debugPause
     if [[ ! -f /usr/share/fog/lib/EOFREG ]]; then
         case $osid in
             1)
@@ -782,6 +814,7 @@ changeHostname() {
     case $? in
         [0-2])
             echo "Done"
+            debugPause
             ;;
         *)
             echo "Failed"
@@ -793,7 +826,6 @@ changeHostname() {
     esac
     rm -rf /usr/share/fog/lib/EOFREG
     umount /ntfs >/dev/null 2>&1
-    debugPause
 }
 fixWin7boot() {
     local part="$1"
@@ -822,6 +854,7 @@ fixWin7boot() {
                     case $? in
                         0)
                             echo "Done"
+                            debugPause
                             ;;
                         *)
                             echo "Failed"
@@ -830,14 +863,11 @@ fixWin7boot() {
                             return
                             ;;
                     esac
-                    debugPause
-                    dots "Backing up and replacing BCD"
                     if [[ ! -f /bcdstore/Boot/BCD ]]; then
-                        echo "Does not exist"
-                        debugPause
                         umount /bcdstore >/dev/null 2>&1
                         return
                     fi
+                    dots "Backing up and replacing BCD"
                     mv /bcdstore/Boot/BCD{,.bak} >/dev/null 2>&1
                     case $? in
                         0)
@@ -854,6 +884,7 @@ fixWin7boot() {
                     case $? in
                         0)
                             echo "Done"
+                            debugPause
                             umount /bcdstore >/dev/null 2>&1
                             ;;
                         *)
@@ -865,21 +896,10 @@ fixWin7boot() {
                             ;;
                     esac
                     ;;
-                *)
-                    echo " * Not NTFS Partition"
-                    debugPause
-                    return
-                    ;;
             esac
-            ;;
-        *)
-            echo " * Not a valid bcd necessary OS"
-            debugPause
-            return
             ;;
     esac
     umount /bcdstore >/dev/null 2>&1
-    debugPause
 }
 clearMountedDevices() {
     local part="$1"
@@ -906,9 +926,9 @@ clearMountedDevices() {
                 echo "y" >>/usr/share/fog/lib/EOFMOUNT
                 echo >> /usr/share/fog/lib/EOFMOUNT
             fi
-            dots "Clearing part ($part)"
             case $fstype in
                 ntfs)
+                    dots "Clearing part ($part)"
                     ntfs-3g -o force,rw $part /ntfs >/dev/null 2>&1
                     case $? in
                         0)
@@ -930,6 +950,7 @@ clearMountedDevices() {
                     case $? in
                         [0-2])
                             echo "Done"
+                            debugPause
                             umount /ntfs >/dev/null 2>&1
                             ;;
                         *)
@@ -941,16 +962,9 @@ clearMountedDevices() {
                             ;;
                     esac
                     ;;
-                *)
-                    echo "Not NTFS partition"
-                    ;;
             esac
             ;;
-        *)
-            echo " * Not proper OS type"
-            ;;
     esac
-    debugPause
 }
 # $1 is the device name of the windows system partition
 removePageFile() {
@@ -982,6 +996,7 @@ removePageFile() {
                     case $? in
                         0)
                             echo "Done"
+                            debugPause
                             ;;
                         *)
                             echo "Failed"
@@ -990,16 +1005,13 @@ removePageFile() {
                             return
                             ;;
                     esac
-                    debugPause
-                    dots "Removing page file"
-                    if [[ ! -f /ntfs/pagefile.sys ]]; then
-                        echo "Doesn't exist"
-                        debugPause
-                    else
+                    if [[ -f /ntfs/pagefile.sys ]]; then
+                        dots "Removing page file"
                         rm -rf /ntfs/pagefile.sys >/dev/null 2>&1
                         case $? in
                             0)
                                 echo "Done"
+                                debugPause
                                 ;;
                             *)
                                 echo "Failed"
@@ -1007,16 +1019,14 @@ removePageFile() {
                                 echo " * Could not delete the page file"
                                 ;;
                         esac
-                        debugPause
                     fi
-                    dots "Removing hibernate file"
-                    if [[ ! -f /ntfs/hiberfil.sys ]]; then
-                        echo "Doesn't exist"
-                    else
+                    if [[ -f /ntfs/hiberfil.sys ]]; then
+                        dots "Removing hibernate file"
                         rm -rf /ntfs/hiberfil.sys >/dev/null 2>&1
                         case $? in
                             0)
                                 echo "Done"
+                                debugPause
                                 ;;
                             *)
                                 echo "Failed"
@@ -1028,16 +1038,9 @@ removePageFile() {
                     fi
                     umount /ntfs >/dev/null 2>&1
                     ;;
-                *)
-                    echo " * Not an NTFS file system"
-                    ;;
             esac
             ;;
-        *)
-            echo " * Not necessary for this OSID $osid"
-            ;;
     esac
-    debugPause
 }
 # Sets OS mbr, as needed, and returns the Name
 #    based on the OS id passed.
@@ -1510,6 +1513,13 @@ swapUUIDFileName() {
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     swapuuidfilename="$imagePath/d${disk_number}.original.swapuuids"
+}
+mainUUIDFileName() {
+    local imagePath="$1"
+    local disk_number="$2"    # e.g. 1
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
+    mainuuidfilename="$imagePath/d${disk_number}.original.uuids"
 }
 sfdiskPartitionFileName() {
     local imagePath="$1"  # e.g. /net/dev/foo
@@ -1994,8 +2004,11 @@ performRestore() {
     local disk_number=1
     local part_number=0
     local restoreparts=""
+    local mainuuidfilename=""
     [[ $imgType =~ [Nn] ]] && local tmpebrfilename=""
     for disk in $disks; do
+        mainuuidfilename=""
+        mainUUIDFileName "$imagePath" "$disk_number"
         getValidRestorePartitions "$disk" "$disk_number" "$imagePath"
         for restorepart in $restoreparts; do
             getPartitionNumber "$restorepart"
@@ -2010,6 +2023,11 @@ performRestore() {
                     ;;
             esac
         done
+        echo " * Resetting UUIDs for $disk"
+        debugPause
+        restoreUUIDInformation "$disk" "$mainuuidfilename"
+        echo " * Resettings swap systems"
+        debugPause
         makeAllSwapSystems "$disk" "$disk_number" "$imagePath" "$imgPartitionType"
         let disk_number+=1
     done
