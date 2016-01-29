@@ -25,6 +25,9 @@ saveUUIDInformation() {
     local file="$2"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $file ]] && handleError "No file to save to passed (${FUNCNAME[0]})"
+    local hasgpt=0
+    hasGPT "$disk"
+    [[ $hasgpt -eq 0 ]] && return
     rm -f $file
     local diskuuid=""
     local partuuid=""
