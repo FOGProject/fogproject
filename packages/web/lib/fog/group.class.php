@@ -139,8 +139,8 @@ class Group extends FOGController {
         return $this;
     }
     public function doMembersHaveUniformImages() {
-        $images = array_count_values($this->getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'imageID'));
-        return (count($images) == 1 && $images[0] == $this->getHostCount());
+        $imageID = $this->getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'imageID','','','','','array_count_values');
+        return ($imageID == $this->getHostCount());
     }
     public function updateDefault($printerid) {
         foreach ((array)$this->getClass('HostManager')->find(array('id'=>$this->get('hosts'))) AS $i => &$Host) {
