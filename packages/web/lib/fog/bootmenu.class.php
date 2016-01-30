@@ -32,8 +32,10 @@ class BootMenu extends FOGBase {
         $exitKeys = array_keys($exitTypes);
         if (isset($_REQUEST['platform']) && $_REQUEST['platform'] == 'efi') {
             $exitSetting = $Host instanceof Host && $Host->isValid() && $Host->get('efiexit') ? $Host->get('efiexit') : $this->getSetting('FOG_EFI_BOOT_EXIT_TYPE');
+            $initloader = ' ';
         } else {
             $exitSetting = $Host instanceof Host && $Host->isValid() && $Host->get('biosexit') ? $Host->get('biosexit') : $this->getSetting('FOG_BOOT_EXIT_TYPE');
+            $initloader = ' init=/sbin/init ';
         }
         $this->bootexittype = (in_array($exitSetting,$exitKeys) ? $exitTypes[$exitSetting] : $exitTypes['sanboot']);
         $ramsize = $this->getSetting('FOG_KERNEL_RAMDISK_SIZE');
@@ -82,7 +84,7 @@ class BootMenu extends FOGBase {
         }
         $this->memdisk = "kernel $memdisk";
         $this->memtest = "initrd $memtest";
-        $this->kernel = "kernel $bzImage $this->loglevel init=/sbin/init initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0".($this->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '');
+        $this->kernel = "kernel $bzImage $this->loglevel${initloader}initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0".($this->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '');
         $this->initrd = "imgfetch $imagefile";
         $defMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('default'=>1)));
         $this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local').(!$this->hiddenmenu ? " --timeout $timeout" : " --timeout 0").' target && goto ${target}';
