@@ -3,11 +3,12 @@ class TaskScheduler extends FOGService {
     public $dev = '';
     public $log = '';
     public $zzz = '';
+    public $sleeptime = 'SCHEDULERSLEEPTIME';
     public function __construct() {
         parent::__construct();
         $this->log = sprintf('%s%s',$this->logpath,$this->getSetting('SCHEDULERLOGFILENAME'));
         $this->dev = $this->getSetting('SCHEDULERDEVICEOUTPUT');
-        $this->zzz = $this->getSetting('SCHEDULERSLEEPTIME');
+        $this->zzz = (int)$this->getSetting($this->sleeptime);
     }
     private function commonOutput() {
         try {

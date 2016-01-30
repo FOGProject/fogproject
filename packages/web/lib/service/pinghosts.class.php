@@ -3,11 +3,12 @@ class PingHosts extends FOGService {
     public $dev = '';
     public $log = '';
     public $zzz = '';
+    public $sleeptime = 'PINGHOSTSLEEPTIME';
     public function __construct() {
         parent::__construct();
         $this->log = sprintf('%s%s',$this->logpath,$this->getSetting('PINGHOSTLOGFILENAME'));
         $this->dev = $this->getSetting('PINGHOSTDEVICEOUTPUT');
-        $this->zzz = $this->getSetting('PINGHOSTSLEEPTIME');
+        $this->zzz = (int)$this->getSetting($this->sleeptime);
     }
     private function commonOutput() {
         try {

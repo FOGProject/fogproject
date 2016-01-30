@@ -99,6 +99,11 @@ abstract class FOGService extends FOGBase {
         return;
     }
     public function serviceRun() {
+        $tmpTime = (int)$this->getSetting($this->sleeptime);
+        if ($this->zzz != $tmpTime) {
+            $this->zzz = $tmpTime;
+            $this->outall(sprintf(" | Sleep time has changed to %s seconds",$this->zzz));
+        }
         $this->out('',$this->dev);
         $this->out('+---------------------------------------------------------',$this->dev);
     }

@@ -3,11 +3,12 @@ class MulticastManager extends FOGService {
     public $dev = '';
     public $log = '';
     public $zzz = '';
+    public $sleeptime = 'MULTICASTSLEEPTIME';
     public function __construct() {
         parent::__construct();
         $this->log = sprintf('%s%s',$this->logpath,$this->getSetting('MULTICASTLOGFILENAME'));
         $this->dev = $this->getSetting('MULTICASTDEVICEOUTPUT');
-        $this->zzz = $this->getSetting('MULTICASTSLEEPTIME');
+        $this->zzz = (int)$this->getSetting($this->sleeptime);
     }
     private function isMCTaskNew($KnownTasks, $id) {
         foreach((array)$KnownTasks AS $i => &$Known) $output[] = $Known->getID();
@@ -120,6 +121,11 @@ class MulticastManager extends FOGService {
                 $this->outall($e->getMessage());
             }
             $this->out(' +---------------------------------------------------------',$this->dev);
+            $tmpTime = (int)$this->getSetting($this->sleeptime);
+            if ($this->zzz != $tmpTime) {
+                $this->zzz = $tmpTime;
+                $this->outall(sprintf(" | Sleep time has changed to %s seconds",$this->zzz));
+            }
             sleep($this->zzz);
             $oldCount = $taskCount;
         }
