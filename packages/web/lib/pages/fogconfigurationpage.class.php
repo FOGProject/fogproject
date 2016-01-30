@@ -583,40 +583,147 @@ class FOGConfigurationPage extends FOGPage {
         exit;
     }
     public function settings_post() {
+        $checkbox = array(0,1);
+        $regenrange = range(0,24,.25);
+        array_shift($regenrange);
+        $needstobenumeric = array(
+            // Donations
+            'FOG_MINING_ENABLE' => $checkbox,
+            'FOG_MINING_MAX_CORES' => true,
+            'FOG_MINING_FULL_RESTART_HOUR' => range(0,23),
+            'FOG_MINING_FULL_RUN_ON_WEEKEND' => $checkbox,
+            // FOG Boot Settings
+            'FOG_PXE_MENU_TIMEOUT' => true,
+            'FOG_PXE_MENU_HIDDEN' => $checkbox,
+            'FOG_PIGZ_COMP' => range(0,9),
+            'FOG_KEY_SEQUENCE' => range(1,31),
+            'FOG_NO_MENU' => $checkbox,
+            'FOG_ADVANCED_MENU_LOGIN' => $checkbox,
+            'FOG_KERNEL_DEBUG' => $checkbox,
+            'FOG_PXE_HIDDENMENU_TIMEOUT' => true,
+            'FOG_REGISTRATION_ENABLED' => $checkbox,
+            'FOG_KERNEL_LOGLEVEL' => range(0,7),
+            'FOG_WIPE_TIMEOUT' => true,
+            // FOG Email Settings
+            'FOG_EMAIL_ACTION' => $checkbox,
+            // FOG Linux Service Logs
+            'SERVICE_LOG_SIZE' => true,
+            // FOG Linux Service Sleep Times
+            'PINGHOSTSLEEPTIME' => true,
+            'SERVICESLEEPTIME' => true,
+            'SNAPINREPSLEEPTIME' => true,
+            'SCHEDULERSLEEPTIME' => true,
+            'IMAGEREPSLEEPTIME' => true,
+            'MULTICASESLEEPTIME' => true,
+            // FOG Quick Registration
+            'FOG_QUICKREG_AUTOPOP' => $checkbox,
+            'FOG_QUICKREG_IMG_ID' => array_merge((array)0,$this->getSubObjectIDs('Image')),
+            'FOG_QUICKREG_SYS_NUMBER' => true,
+            'FOG_QUICKREG_GROUP_ASSOC' => array_merge((array)0,$this->getSubObjectIDs('Group')),
+            // FOG Service
+            'FOG_SERVICE_CHECKIN_TIME' => true,
+            'FOG_CLIENT_MAXSIZE' => true,
+            'FOG_GRACE_TIMEOUT' => true,
+            // FOG Service - Auto Log Off
+            'FOG_SERVICE_AUTOLOGOFF_ENABLED' => $checkbox,
+            'FOG_SERVICE_AUTOLOGOFF_MIN' => true,
+            // FOG Service - Client Updater
+            'FOG_SERVICE_CLIENTUPDATER_ENABLED' => $checkbox,
+            // FOG Service - Directory Cleaner
+            'FOG_SERVICE_DIRECTORYCLEANER_ENABLED' => $checkbox,
+            // FOG Service - Display manager
+            'FOG_SERVICE_DISPLAYMANAGER_ENABLED' => $checkbox,
+            'FOG_SERVICE_DISPLAYMANAGER_X' => true,
+            'FOG_SERVICE_DISPLAYMANAGER_Y' => true,
+            'FOG_SERVICE_DISPLAYMANAGER_R' => true,
+            // FOG Service - Green Fog
+            'FOG_SERVICE_GREENFOG_ENABLED' => $checkbox,
+            // FOG Service - Host Register
+            'FOG_SERVICE_HOSTREGISTER_ENABLED' => $checkbox,
+            'FOG_QUICKREG_MAX_PENDING_MACS' => true,
+            // FOG Service - Hostname Changer
+            'FOG_SERVICE_HOSTNAMECHANGER_ENABLED' => $checkbox,
+            // FOG Service - Printer Manager
+            'FOG_SERVICE_PRINTERMANAGER_ENABLED' => $checkbox,
+            // FOG Service - Snapins
+            'FOG_SERVICE_SNAPIN_ENABLED' => $checkbox,
+            // FOG Service - Task Reboot
+            'FOG_SERVICE_TASKREBOOT_ENABLED' => $checkbox,
+            'FOG_TASK_FORCE_ENABLED' => $checkbox,
+            // FOG Service - User Cleanup
+            'FOG_SERVICE_USERCLEANUP_ENABLED' => $checkbox,
+            // FOG Service - User Tracker
+            'FOG_SERVICE_USERTRACKER_ENABLED' => $checkbox,
+            // FOG Torrent
+            'FOG_TORRENT_INTERVAL' => true,
+            'FOG_TORRENT_TIMEOUT' => true,
+            'FOG_TORRENT_INTERVAL_MIN' => true,
+            'FOG_TORRENT_PPR' => true,
+            // FOG View Settings
+            'FOG_DATA_RETURNED' => true,
+            // General Settings
+            'FOG_USE_SLOPPY_NAME_LOOKUPS' => $checkbox,
+            'FOG_UPLOADRESIZEPCT' => true,
+            'FOG_QUEUESIZE' => true,
+            'FOG_CHECKIN_TIMEOUT' => true,
+            'FOG_UPLOADIGNOREPAGEHIBER' => $checkbox,
+            'FOG_USE_ANIMATION_EFFECTS' => $checkbox,
+            'FOG_USE_LEGACY_TASKLIST' => $checkbox,
+            'FOG_HOST_LOOKUP' => $checkbox,
+            'FOG_ADVANCED_STATISTICS' => $checkbox,
+            'FOG_DISABLE_CHKDSK' => $checkbox,
+            'FOG_CHANGE_HOSTNAME_EARLY' => $checkbox,
+            'FOG_FORMAT_FLAG_IN_GUI' => $checkbox,
+            'FOG_MEMORY_LIMIT' => true,
+            'FOG_SNAPIN_LIMIT' => true,
+            'FOG_FTP_IMAGE_SIZE' => $checkbox,
+            'FOG_FTP_PORT' => range(1,65535),
+            'FOG_FTP_TIMEOUT' => true,
+            'FOG_BANDWIDTH_TIME' => true,
+            // Login Settings
+            'FOG_ALWAYS_LOGGED_IN' => $checkbox,
+            'FOG_INACTIVITY_TIMEOUT' => range(1,24),
+            'FOG_REGENERATE_TIMEOUT' => $regenrange,
+            // Multicast Settings
+            'FOG_UDPCAST_STARTINGPORT' => range(1,65535),
+            'FOG_MULTICASE_MAX_SESSIONS' => true,
+            'FOG_UDPCAST_MAXWAIT' => true,
+            'FOG_MULTICAST_PORT_OVERRIDE' => range(0,65535),
+            // Plugin System
+            'FOG_PLUGINSYS_ENABLED' => $checkbox,
+            // Proxy Settings
+            'FOG_PROXY_PORT' => range(0,65535),
+            // User Management
+            'FOG_USER_MINPASSLENGTH' => true,
+        );
+        $needstobeip = array(
+            // Multicast Settings
+            'FOG_MULTICAST_ADDRESS' => true,
+            // Proxy Settings
+            'FOG_PROXY_IP' => true,
+        );
+        unset($findWhere,$setWhere);
         foreach ((array)$this->getClass('ServiceManager')->find() AS $i => &$Service) {
             $key = $Service->get('id');
             $_REQUEST[$key] = trim($_REQUEST[$key]);
-            $Service->set('value',$_REQUEST[$key]);
+            if (isset($needstobenumeric[$Service->get('name')])) {
+                if (!is_numeric($_REQUEST[$key])) continue;
+                $_REQUEST[$key] = (int)$_REQUEST[$key];
+                if ($needstobenumeric[$Service->get('name')] !== true && $this->binary_search($_REQUEST[$key],$needstobenumeric[$Service->get('name')]) === -1) continue;
+            }
+            if (isset($needstobeip[$Service->get('name')]) && !filter_var($_REQUEST[$key],FILTER_VALIDATE_IP)) $_REQUEST[$key] = 0;
             switch ($Service->get('name')) {
             case 'FOG_MEMORY_LIMIT':
-                if ($_REQUEST[$key] < 128 || !is_numeric($_REQUEST[$key])) $Service->set('value',128);
-                break;
-            case 'FOG_QUICKREG_IMG_ID':
-                if (empty($_REQUEST[$key])) $Service->set('value',-1);
-                break;
-            case 'FOG_USER_VALIDPASSCHARS':
-                $Service->set('value',$_REQUEST[$key]);
+                if ($_REQUEST[$key] < 128) $_REQUEST[$key] = 128;
                 break;
             case 'FOG_AD_DEFAULT_PASSWORD':
-                $Service->set('value',$this->encryptpw($_REQUEST[$key]));
-                break;
-            case 'FOG_MULTICAST_PORT_OVERRIDE':
-                if (!is_numeric($_REQUEST[$key]) || $_REQUEST[$key] < 0 || $_REQUEST[$key] > 65536) $Service->set('value',0);
-                break;
-            case 'FOG_MULTICAST_ADDRESS':
-                if (!filter_var($_REQUEST[$key],FILTER_VALIDATE_IP)) $Service->set('value',0);
-                break;
-            case 'FOG_INACTIVITY_TIMEOUT':
-                if (!is_numeric($_REQUEST[$key]) || $_REQUEST[$key] < 1 || $_REQUEST[$key] > 24) $Service->set('value',1);
-                break;
-            case 'FOG_REGENERATE_TIMEOUT':
-                if (!is_numeric($_REQUEST[$key])) $Service->set('value',0);
+                $_REQUEST[$key] = $this->encryptpw($_REQUEST[$key]);
                 break;
             }
-            $Service->save();
+            $Service->set('value',$_REQUEST[$key])->save();
             unset($Service);
         }
-        unset($ServiceMan);
+        $this->getClass('ServiceManager')->update($findWhere,'',$setWhere);
         $this->setMessage('Settings Successfully stored!');
         $this->redirect($this->formAction);
     }
