@@ -3,11 +3,12 @@ class SnapinReplicator extends FOGService {
     public $dev = '';
     public $log = '';
     public $zzz = '';
+    public $sleeptime = 'SNAPINREPSLEEPTIME';
     public function __construct() {
         parent::__construct();
         $this->log = sprintf('%s%s',$this->logpath,$this->getSetting('SNAPINREPLICATORLOGFILENAME'));
         $this->dev = $this->getSetting('SNAPINREPLICATORDEVICEOUTPUT');
-        $this->zzz = $this->getSetting('SNAPINREPSLEEPTIME');
+        $this->zzz = (int)$this->getSetting($this->sleeptime);
     }
     private function commonOutput() {
         try {

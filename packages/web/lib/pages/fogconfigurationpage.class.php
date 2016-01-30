@@ -539,7 +539,7 @@ class FOGConfigurationPage extends FOGPage {
                     $type = ob_get_clean();
                     break;
                 case (preg_match('#pass#i',$Service->get('name')) && !preg_match('#(valid|min)#i',$Service->get('name'))):
-                    $type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off"/>';
+                    $Service->get('name') == 'FOG_STORAGENODE_MYSQLPASS' ? $type = '<input type="text" name="${service_id}" value="${service_value}" autocomplete="off"/>' : $type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off"/>';
                     break;
                 case (in_array($Service->get('name'),$ServiceNames)):
                     $type = sprintf('<input type="checkbox" name="${service_id}" value="1"%s/>',($Service->get('value') ? ' checked' : ''));
