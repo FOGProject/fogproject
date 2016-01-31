@@ -51,7 +51,7 @@ class Page extends FOGBase {
                     'about'=>array($this->foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
                     'logout'=>array($this->foglang['Logout'],'fa fa-sign-out fa-2x'),
                 );
-                if ($this->getSetting('FOG_PLUGINSYS_ENABLED')) $this->main = $this->array_insert_after('about',$this->main,'plugin',array($this->foglang['Plugin Management'],'fa fa-cog fa-2x'));
+                if ($this->getSetting('FOG_PLUGINSYS_ENABLED')) $this->array_insert_after('about',$this->main,'plugin',array($this->foglang['Plugin Management'],'fa fa-cog fa-2x'));
             } else {
                 $this->main = array(
                     'home'=>array($this->foglang['Home'],'fa fa-home fa-2x'),

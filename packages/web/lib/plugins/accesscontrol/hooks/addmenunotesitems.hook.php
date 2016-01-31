@@ -7,7 +7,7 @@ class AddMenuNotesItems extends Hook {
     public $node = 'accesscontrol';
     public function AddMenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $arguments['main'] = $this->array_insert_after('user',$arguments['main'],$this->node,array(_('Access Control'),'fa fa-user-secret fa-2x'));
+        $this->array_insert_after('user',$arguments['main'],$this->node,array(_('Access Control'),'fa fa-user-secret fa-2x'));
     }
     public function addSearch($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
