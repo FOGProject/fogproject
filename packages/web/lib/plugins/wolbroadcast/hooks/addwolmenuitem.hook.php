@@ -7,7 +7,7 @@ class AddWOLMenuItem extends Hook {
     public $node = 'wolbroadcast';
     public function MenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('WOL Broadcast Management'),'fa fa-plug fa-2x'));
+        $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('WOL Broadcast Management'),'fa fa-plug fa-2x'));
     }
     public function addSearch($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;

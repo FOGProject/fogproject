@@ -707,9 +707,9 @@ class FOGConfigurationPage extends FOGPage {
             $key = $Service->get('id');
             $_REQUEST[$key] = trim($_REQUEST[$key]);
             if (isset($needstobenumeric[$Service->get('name')])) {
-                if (!is_numeric($_REQUEST[$key])) continue;
-                $_REQUEST[$key] = (int)$_REQUEST[$key];
-                if ($needstobenumeric[$Service->get('name')] !== true && $this->binary_search($_REQUEST[$key],$needstobenumeric[$Service->get('name')]) === -1) continue;
+                if (isset($_REQUEST[$key]) && !is_numeric($_REQUEST[$key])) continue;
+                $_REQUEST[$key] = $_REQUEST[$key] ? $_REQUEST[$key] : $Service->get('value');
+                if ($needstobenumeric[$Service->get('name')] !== true && !in_array($_REQUEST[$key],$needstobenumeric[$Service->get('name')])) continue;
             }
             if (isset($needstobeip[$Service->get('name')]) && !filter_var($_REQUEST[$key],FILTER_VALIDATE_IP)) $_REQUEST[$key] = 0;
             switch ($Service->get('name')) {
@@ -723,7 +723,6 @@ class FOGConfigurationPage extends FOGPage {
             $Service->set('value',$_REQUEST[$key])->save();
             unset($Service);
         }
-        $this->getClass('ServiceManager')->update($findWhere,'',$setWhere);
         $this->setMessage('Settings Successfully stored!');
         $this->redirect($this->formAction);
     }

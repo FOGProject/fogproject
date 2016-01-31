@@ -150,28 +150,26 @@ abstract class FOGBase {
         }
     }
     protected function array_insert_before($key, array &$array, $new_key, $new_value) {
-        if ($this->binary_search($key, $array) > -1) {
+        if (!in_array($key,(array)$array)) {
             $new = array();
             foreach ($array as $k => &$value) {
                 if ($k === $key) $new[$new_key] = $new_value;
                 $new[$k] = $value;
+                unset($value);
             }
-            unset($value);
-            return $new;
+            $array = $new;
         }
-        return false;
     }
     protected function array_insert_after($key, array &$array, $new_key, $new_value) {
-        if ($this->binary_search($key, $array) > -1) {
+        if (!in_array($key,(array)$array)) {
             $new = array();
             foreach ($array as $k => &$value) {
                 $new[$k] = $value;
                 if ($k === $key) $new[$new_key] = $new_value;
+                unset($value);
             }
-            unset($value);
-            return $new;
+            $array = $new;
         }
-        return false;
     }
     protected function array_remove($key, array &$array) {
         if (is_array($key)) {
@@ -184,20 +182,6 @@ abstract class FOGBase {
             }
             unset($value);
         }
-    }
-    protected function binary_search($needle, $haystack) {
-        $left = 0;
-        $right = sizeof($haystack) - 1;
-        $values = array_values($haystack);
-        $keys = array_keys($haystack);
-        while ($left <= $right) {
-            $mid = $left + $right >> 1;
-            if ($mid == $needle) return $mid;
-            elseif ($values[$mid] == $needle) return $keys[$mid];
-            elseif ($mid > $needle || $values[$mid] > $needle) $right = $mid - 1;
-            elseif ($mid < $needle || $values[$mid] < $needle) $left = $mid + 1;
-        }
-        return -1;
     }
     protected function isLoaded($key) {
         $this->isLoaded[$key] = (isset($this->isLoaded[$key]) ? true : false);

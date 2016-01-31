@@ -108,9 +108,8 @@ abstract class FOGController extends FOGBase {
                 throw new Exception(_('Invalid key being removed'));
             } else if (!$this->isLoaded($key)) $this->loadItem($key);
             if (!is_array($this->data[$key])) $this->data[$key] = array($this->data[$key]);
-            asort($this->data[$key]);
             $this->data[$key] = array_unique($this->data[$key]);
-            $index = $this->binary_search($value,$this->data[$key]);
+            $index = array_search($value,$this->data[$key]);
             $this->info(sprintf(_('Removing Key: %s, Value: %s'),$key, $value));
             unset($this->data[$key][$index]);
             $this->data[$key] = array_values(array_filter($this->data[$key]));
