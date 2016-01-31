@@ -7,7 +7,7 @@ class AddLocationMenuItem extends Hook {
     public $node = 'location';
     public function MenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('Location Management'),'fa fa-globe fa-2x'));
+        $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('Location Management'),'fa fa-globe fa-2x'));
     }
     public function addSearch($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
