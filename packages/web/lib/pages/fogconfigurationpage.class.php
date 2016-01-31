@@ -706,21 +706,19 @@ class FOGConfigurationPage extends FOGPage {
         foreach ((array)$this->getClass('ServiceManager')->find() AS $i => &$Service) {
             $key = $Service->get('id');
             $_REQUEST[$key] = trim($_REQUEST[$key]);
+            if ($_REQUEST[$key] == trim($Service->get('value'))) continue;
             if (isset($needstobenumeric[$Service->get('name')])) {
-                if (isset($_REQUEST[$key]) && !is_numeric($_REQUEST[$key])) continue;
-                $_REQUEST[$key] = $_REQUEST[$key] ? $_REQUEST[$key] : $Service->get('value');
-                if ($needstobenumeric[$Service->get('name')] !== true && !in_array($_REQUEST[$key],$needstobenumeric[$Service->get('name')])) continue;
+                if ($needstobenumeric[$Service->get('name')] === true && !is_numeric($_REQUEST[$key])) $_REQUEST[$key] = 0;
+                if ($needstobenumeric[$Service->get('name')] !== true && !in_array($_REQUEST[$key],$needstobenumeric[$Service->get('name')])) $_REQUEST[$key] = 0;
             }
             if (isset($needstobeip[$Service->get('name')]) && !filter_var($_REQUEST[$key],FILTER_VALIDATE_IP)) $_REQUEST[$key] = 0;
             switch ($Service->get('name')) {
             case 'FOG_MEMORY_LIMIT':
                 if ($_REQUEST[$key] < 128) $_REQUEST[$key] = 128;
-                break;
             case 'FOG_AD_DEFAULT_PASSWORD':
                 $_REQUEST[$key] = $this->encryptpw($_REQUEST[$key]);
-                break;
             }
-            $Service->set('value',$_REQUEST[$key])->save();
+            $Service->getManager()->update(array('name'=>$Service->get('name')),'',array('value'=>$_REQUEST[$key]));
             unset($Service);
         }
         $this->setMessage('Settings Successfully stored!');
