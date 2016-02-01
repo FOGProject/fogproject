@@ -15,7 +15,7 @@ class MulticastTask extends MulticastManager {
             $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MultiSess->get('id')),'taskID');
             $stateIDs = $this->getSubObjectIDs('Task',array('id'=>$taskIDs),'stateID');
             unset($taskIDs);
-            if (in_array($this->getCompleteState(),$stateIDs) || in_array($this->getCancelledState())) continue;
+            if (in_array($this->getCompleteState(),$stateIDs) || in_array($this->getCancelledState(),$stateIDs)) continue;
             unset($stateIDs);
             $Image = $this->getClass('Image',$MultiSess->get('image'));
             if (!$Image->isValid()) continue;
@@ -193,16 +193,16 @@ class MulticastTask extends MulticastManager {
     public function killTask() {
         $this->killTasking();
         @unlink($this->getUDPCastLogFile());
-        foreach ((array)$this->getClass('TaskManager')->find(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$RMTask->getID()),'taskID'))) AS $i => &$Task) {
+        foreach ((array)$this->getClass('TaskManager')->find(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->getID()),'taskID'))) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Task
-                ->set('stateID',$running)
+                ->set('stateID',$this->getCancelledState())
                 ->save();
             unset($Task);
         }
         $this->getClass('MulticastSessions',$this->intID)
             ->set('name',null)
-            ->set('stateID',$running)
+            ->set('stateID',$this->getCancelledState())
             ->save();
         return true;
     }
