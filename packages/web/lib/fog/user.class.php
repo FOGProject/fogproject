@@ -26,18 +26,12 @@ class User extends FOGController {
         'authUserAgent',
     );
     private function generate_hash($password, $cost = 11) {
-        $salt = substr(base64_encode(openssl_random_pseudo_bytes(255)),0,22);
-        $salt = str_replace('+','.',$salt);
-        $param = sprintf('$%s',implode('$',array('2a',str_pad($cost,2,'0',STR_PAD_LEFT),$salt)));
-        return crypt($password,$param);
+        return password_hash($password,['cost'=>$cost]);
     }
     public function validate_pw($password) {
         $res = false;
-        if (crypt($password,$this->get('password')) == $this->get('password')) $res = true;
-        else if (md5($password) == $this->get('password')) {
-            $this->set('password',$password)->save();
-            $res = $this->validate_pw($password);
-        }
+        if (preg_match('#^[a-f0-9]{32}$#',$this->get('password'))) $this->set(!$password)->save();
+        if (password_verify($password,$this->get('password'))) $res = true;
         if ($res) {
             if (!$this->sessionID) $this->sessionID = session_id();
             $this
