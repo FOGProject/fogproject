@@ -135,9 +135,8 @@ class Image extends FOGController {
         return $this->getClass('ImageType',$this->get('imageTypeID'));
     }
     public function getImagePartitionType() {
-        if ($this->get('imagePartitionTypeID')) $IPT = $this->getClass('ImagePartitionType',$this->get('imagePartitionTypeID'));
-        else $IPT = $this->getClass('ImagePartitionType',1);
-        return $IPT;
+        if ((int)$this->get('imagePartitionTypeID') < 1) $this->set('imagePartitionTypeID',1)->save();
+        return $this->getClass('ImagePartitionType',(int)$this->get('imagePartitionTypeID'));
     }
     public function getPrimaryGroup($groupID) {
         if (!$this->getClass('ImageAssociationManager')->count(array('imageID'=>$this->get('id'),'primary'=>1)) && $groupID == @min($this->getSubObjectIDs('StorageGroup','','id'))) {
@@ -172,5 +171,8 @@ class Image extends FOGController {
             $this->set('storageGroupsnotinme',$this->getSubObjectIDs('StorageGroup',$find,'',true));
             unset($find);
         }
+    }
+    public function getPartitionType() {
+        return $this->getImagePartitionType()->get('type');
     }
 }
