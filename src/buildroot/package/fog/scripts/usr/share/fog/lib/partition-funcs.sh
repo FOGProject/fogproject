@@ -29,6 +29,7 @@ saveUUIDInformation() {
     hasGPT "$disk"
     [[ $hasgpt -eq 0 ]] && return
     rm -f $file
+    touch $file
     local diskuuid=""
     local partuuid=""
     local partfsuuid=""
