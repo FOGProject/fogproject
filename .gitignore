@@ -10,3 +10,9 @@
 # Make an exception for grub.exe
 
 !packages/web/service/ipxe/grub.exe
+
+# Don't get our customized folders
+bin/error_logs/
+bin/checksum_init/
+bing/checksum_kernel/
+rpttmp/
