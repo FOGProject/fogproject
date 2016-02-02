@@ -167,10 +167,9 @@ case $installtype in
                         continue
                     fi
                     plainrouter=$routeraddress
-                    routeraddress="		option routers      $routeraddress;"
                     ;;
                 [Nn]|[Nn][Oo])
-                    routeraddress="#	option routers      x.x.x.x;"
+                    routeraddress="#   No router address added"
                     ;;
                 *)
                     echo "  Invalid input, please try again."
@@ -206,10 +205,9 @@ case $installtype in
                         continue
                     fi
                     dnsbootimage=$dnsaddress
-                    dnsaddress="	option domain-name-servers      $dnsaddress;"
                     ;;
                 [Nn]|[Nn][Oo])
-                    dnsaddress="#	option domain-name-servers      x.x.x.x;"
+                    dnsaddress="#   No dns added"
                     ;;
                 *)
                     echo "  Invalid input, please try again."
