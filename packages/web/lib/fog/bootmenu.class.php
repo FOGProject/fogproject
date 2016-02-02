@@ -319,7 +319,7 @@ class BootMenu extends FOGBase {
         $img = $Image->get('path');
         $imgFormat = $Image->get('format');
         $imgType = $Image->getImageType()->get('type');
-        $imgPartitionType = $Image->getImagePartitionType()->get('type');
+        $imgPartitionType = $Image->getPartitionType();
         $imgid = $Image->get('id');
         $chkdsk = $this->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
         $ftp = $StorageNode->get('ip');
