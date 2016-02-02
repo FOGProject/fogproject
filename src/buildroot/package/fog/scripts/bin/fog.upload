@@ -160,7 +160,6 @@ case $imgType in
         mainUUIDFileName "$imagePath" 1
         echo -n "" > "$imagePath/d1.original.fstypes"
         echo -n "" > $swapuuidfilename
-        echo -n "" > $mainuuidfilename
         echo "Done"
         debugPause
         echo " * Saving original disk/parts UUIDs"
