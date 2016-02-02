@@ -10,7 +10,7 @@ class AddLocationGroup extends Hook {
         if ($_REQUEST['node'] != 'group') return;
         $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Group']->get('hosts')),'locationID');
         $locID = array_shift($locationID);
-        $arguments['fields'] = $this->array_insert_after(_('Group Product Key'),$arguments['fields'],_('Group Location'),$this->getClass('LocationManager')->buildSelectBox($locID));
+        $this->array_insert_after(_('Group Product Key'),$arguments['fields'],_('Group Location'),$this->getClass('LocationManager')->buildSelectBox($locID));
     }
     public function GroupAddLocation($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
