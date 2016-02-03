@@ -253,26 +253,8 @@ class TaskManagementPage extends FOGPage {
     }
     public function active_post() {
         if (!$this->ajax) $this->nonajax();
-        foreach ($this->getClass('TaskManager')->find(array('id'=>(array)$_REQUEST['task'])) AS &$Task) {
-            if (!$Task->isValid()) continue;
-            $Task->cancel();
-            unset($Task);
-        }
-    }
-    public function cancel_task() {
-        try {
-            $Task = $this->getClass('Task',(int)$_REQUEST['id']);
-            if (!$Task->isValid()) throw new Exception(_('Invalid task'));
-            $Task->cancel();
-            $result['success'] = true;
-        } catch (Exception $e) {
-            $result['error'] = $e->getMessage();
-        }
-        if ($this->ajax) {
-            echo json_encode($result);
-            exit;
-        }
-        $result['error'] ? $this->fatalError($result['error']) : $this->redirect(sprintf('?node=%s',$this->node));
+        $this->getClass('TaskManager')->cancel($_REQUEST['task']);
+        exit;
     }
     public function force_task() {
         try {
@@ -337,14 +319,7 @@ class TaskManagementPage extends FOGPage {
         if (!$this->ajax) $this->nonajax();
         $MulticastSessionIDs = (array)$_REQUEST['task'];
         $TaskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MulticastSessionIDs),'taskID');
-        foreach ($this->getClass('TaskManager')->find(array('id'=>$TaskIDs)) AS &$Task) {
-            if (!$Task->isValid()) continue;
-            $Task->cancel();
-            unset($Task);
-        }
-        $this->getClass('MulticastSessionsAssociationManager')->destroy(array('taskID'=>$TaskIDs));
-        unset($TaskIDs);
-        $this->getClass('MulticastSessionsManager')->cancel($MulticastSessionIDs);
+        $this->getClass('TaskManager')->cancel($TaskIDs);
         unset($MulticastSessionIDs);
         exit;
     }
