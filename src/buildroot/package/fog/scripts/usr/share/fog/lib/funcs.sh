@@ -624,6 +624,7 @@ countPartTypes() {
 #
 # $1 = Source File
 # $2 = Target
+# $3 = mc task or not (not required)
 writeImage()  {
     local file="$1"
     local target="$2"
@@ -1867,7 +1868,7 @@ restorePartition() {
     debugPause
     case $imgType in
         dd)
-            imgpart="$imagePath/$img"
+            imgpart="$imagePath"
             ;;
         n|mps|mpa)
             case $osid in
@@ -1987,11 +1988,13 @@ prepareResizeDownloadPartitions() {
 # $1 is the disks
 # $2 is the image path
 # $3 is the image partition type (either all or partition number)
+# $4 is the flag to say whether this is multicast or not
 performRestore() {
     local disks="$1"
     local disk=""
     local imagePath="$2"
     local imgPartitionType="$3"
+    local mc="$4"
     [[ -z $disks ]] && handleError "No disks passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $imgPartitionType ]] && handleError "No partition type passed (${FUNCNAME[0]})"
@@ -2008,7 +2011,7 @@ performRestore() {
             getPartitionNumber "$restorepart"
             [[ $imgPartitionType != all && $imgPartitionType != $part_number ]] && continue
             [[ $imgType =~ [Nn] ]] && tmpEBRFileName "$disk_number" "$part_number"
-            restorePartition "$restorepart" "$disk_number" "$imagePath"
+            restorePartition "$restorepart" "$disk_number" "$imagePath" "$mc"
             [[ $imgType =~ [Nn] ]] && restoreEBR "$restorepart" "$tmpebrfilename"
             [[ $imgType =~ [Nn] ]] && expandPartition "$restorepart" "$fixed_size_partitions"
             [[ $osid == +([5-7]) && $imgType =~ [Nn] ]] && fixWin7boot "$restorepart"

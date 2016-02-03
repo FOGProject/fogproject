@@ -255,7 +255,7 @@ echo "   +--------------------------------+"
 [[ $mc == yes ]] && usleep 10000000 || usleep 3000000
 case $imgType in
     dd)
-        restorePartition "$hd"
+        restorePartition "$hd" 1 "$imagePath/$img" "$mc"
         ;;
     n|mps|mpa)
         [[ $imgType =~ +(n|mps) ]] && disks="$hd"
@@ -270,7 +270,7 @@ case $imgType in
                 [[ ! -d $imagePath ]] && handleError "Fatal Error: could not locate file ($0)"
                 ;;
         esac
-        performRestore "$disks" "$imagePath" "$imgPartitionType"
+        performRestore "$disks" "$imagePath" "$imgPartitionType" "$mc"
         ;;
 esac
 killStatusReporter
