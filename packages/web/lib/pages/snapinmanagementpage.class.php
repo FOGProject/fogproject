@@ -160,8 +160,8 @@ class SnapinManagementPage extends FOGPage {
             }
             if ( $_FILES['snapin']['name'] != "" ) {
                 $this->FOGFTP->delete($dest);
+                if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add snapin'));
             }
-            if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add snapin'));
             $this->FOGFTP->close();
             $Snapin = $this->getClass('Snapin')
                 ->set('name',$snapinName)
