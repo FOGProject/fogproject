@@ -266,7 +266,7 @@ restoreAllEBRs() {
     local imgPartitionType="$4"
     local ebffilename=""
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $driveNum ]] && handleError "No drive number passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
     [[ -z $imgPartitionType ]] && handleError "No partition type passed (${FUNCNAME[0]})"
     local parts=""
