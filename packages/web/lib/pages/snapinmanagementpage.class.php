@@ -150,6 +150,7 @@ class SnapinManagementPage extends FOGPage {
             $StorageNode = $this->getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
             $src = $_FILES['snapin']['tmp_name'];
             $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$_FILES['snapin']['name']);
+            echo $dest;
             $this->FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
@@ -158,7 +159,9 @@ class SnapinManagementPage extends FOGPage {
             if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
                 if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
             }
-            $this->FOGFTP->delete($dest);
+            if ( $_FILES['snapin']['name'] != "" ) {
+                $this->FOGFTP->delete($dest);
+            }
             if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add snapin'));
             $this->FOGFTP->close();
             $Snapin = $this->getClass('Snapin')
