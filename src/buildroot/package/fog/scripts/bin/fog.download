@@ -63,41 +63,44 @@ case $imgType in
                 prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
                 ;;
             [1-2])
-                [[ ! -f $imagePath && ! -f $imagePath/$img && ! -f $imagePath/d1p1.img ]] && handleError "Unable to locate image store ($0)"
+                [[ ! -f $imagePath && ! -f $imagePath/$img && ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
                 [[ -d $imagePath && -f $imagePath/$img ]] && imagePath="$imagePath/$img"
-                [[ -d $imagePath && -f $imagePath/d1p1.img ]] && imagePath="$imagePath/d1p1.img"
-                dots "Removing partition"
-                parted -s $hd rm 1 >/dev/null 2>&1
-                if [[ ! $? -eq 0 ]]; then
-                    echo "Failed"
+                if [[ -d $imagePath ]]; then
+                    prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
+                else
+                    dots "Removing partition"
+                    parted -s $hd rm 1 >/dev/null 2>&1
+                    if [[ ! $? -eq 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Fatal Error: Could not remove old partition ($0)"
+                    fi
+                    echo "Done"
                     debugPause
-                    handleError "Fatal Error: Could not remove old partition ($0)"
-                fi
-                echo "Done"
-                debugPause
-                dots "Attempting to expand/fill partitions"
-                parted -s $hd mkpart primary ntfs 63s -- $layPartSize >/dev/null 2>&1
-                if [[ ! $? -eq 0 ]]; then
-                    echo "Failed"
+                    dots "Attempting to expand/fill partitions"
+                    parted -s $hd mkpart primary ntfs 63s -- $layPartSize >/dev/null 2>&1
+                    if [[ ! $? -eq 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Could not create partition to fill disk"
+                    fi
+                    echo "Done"
                     debugPause
-                    handleError "Could not create partition to fill disk"
-                fi
-                echo "Done"
-                debugPause
-                dots "Setting boot partition"
-                parted -s "$hd" set 1 boot on >/dev/null 2>&1
-                if [[ ! $? -eq 0 ]]; then
-                    echo "Failed"
+                    dots "Setting boot partition"
+                    parted -s "$hd" set 1 boot on >/dev/null 2>&1
+                    if [[ ! $? -eq 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Fatal Error: Could not make partition bootable ($0)"
+                    fi
+                    runPartprobe "$hd"
+                    echo "Done"
                     debugPause
-                    handleError "Fatal Error: Could not make partition bootable ($0)"
+                    getPartitions "$hd"
+                    for part in $parts; do
+                        [[ -e $part ]] && break
+                    done
                 fi
-                runPartprobe "$hd"
-                echo "Done"
-                debugPause
-                getPartitions "$hd"
-                for part in $parts; do
-                    [[ -e $part ]] && break
-                done
                 ;;
             [5-7]|9)
                 [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Unable to locate image store ($0)"
@@ -198,24 +201,7 @@ case $imgType in
                     part_number=0
                     for part in $parts; do
                         getPartitionNumber "$part"
-                        case $osid in
-                            [1-2])
-                                [[ -e $part ]] && break
-                                ;;
-                            [5-7]|9)
-                                case $win7partcnt in
-                                    1)
-                                        [[ $part_number -eq 1 ]] && restoreparts="$part"
-                                        ;;
-                                    2)
-                                        [[ $part_number =~ [1-2] ]] && restoreparts="$restoreparts $part"
-                                        ;;
-                                    3)
-                                        [[ $part_number =~ [1-3] ]] && restoreparts="$restoreparts $part"
-                                        ;;
-                                esac
-                                ;;
-                        esac
+                        [[ $part_number -le $win7partcnt ]] && restoreparts="$restoreparts $part"
                     done
                     echo "Done"
                     debugPause
@@ -261,7 +247,7 @@ case $imgType in
         [[ $imgType =~ +(n|mps) ]] && disks="$hd"
         case $osid in
             [1-2])
-                [[ ! -f $imagePath ]] && handleError "Fatal Error: Could not locate file ($0)"
+                [[ ! -f $imagePath && ! -d $imagePath ]] && handleError "Fatal Error: Could not locate file ($0)"
                 ;;
             [5-7]|9)
                 [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Fatal Error: Could not locate file ($0)"

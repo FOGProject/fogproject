@@ -704,6 +704,8 @@ getValidRestorePartitions() {
     done
     [[ -z $restoreparts ]] && restoreparts=$(echo $valid_parts | uniq | sort -V)
 }
+# Makes all swap partitions and sets uuid's in linux setups
+#
 # $1 = Disk  (e.g. /dev/sdb)
 # $2 = Disk number  (e.g. 1)
 # $3 = ImagePath  (e.g. /net/foo)
@@ -729,6 +731,8 @@ makeAllSwapSystems() {
     done
     runPartprobe "$disk"
 }
+# Changes the hostname on windows systems
+#
 # $1 = Partition
 changeHostname() {
     local part="$1"
@@ -828,6 +832,11 @@ changeHostname() {
     rm -rf /usr/share/fog/lib/EOFREG
     umount /ntfs >/dev/null 2>&1
 }
+# Fixes windows 7/8 boot, though may need
+#    to be updated to only impact windows 7
+#    in which case we need a more dynamic method
+#
+# $1 is the partition
 fixWin7boot() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
@@ -896,6 +905,9 @@ fixWin7boot() {
     esac
     umount /bcdstore >/dev/null 2>&1
 }
+# Clears out windows hiber and page files
+#
+# $1 is the partition
 clearMountedDevices() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
@@ -961,6 +973,8 @@ clearMountedDevices() {
             ;;
     esac
 }
+# Only removes the page file
+#
 # $1 is the device name of the windows system partition
 removePageFile() {
     local part="$1"
@@ -1039,6 +1053,8 @@ removePageFile() {
 }
 # Sets OS mbr, as needed, and returns the Name
 #    based on the OS id passed.
+#
+# $1 the osid to determine the os and mbr
 determineOS() {
     local osid="$1"
     [[ -z $osid ]] && handleError "No os id passed (${FUNCNAME[0]})"
@@ -1420,6 +1436,7 @@ uploadFormat() {
 # $1 is the disk
 # $2 is the disk number
 # $3 is the image path to save the file to.
+# $4 is the determinator of sgdisk use or not
 saveGRUB() {
     local disk="$1"
     local disk_number="$2"
@@ -1451,6 +1468,10 @@ saveGRUB() {
 # the device name (e.g. /dev/sda) as the first parameter,
 # the disk number (e.g. 1) as the second parameter
 # the directory images stored in (e.g. /image/xyz) as the third parameter
+# $1 is the disk
+# $2 is the disk number
+# $3 is the image path
+# $4 is the sgdisk determinator
 hasGRUB() {
     local disk="$1"
     local disk_number="$2"
@@ -1471,6 +1492,10 @@ hasGRUB() {
 # the device name (e.g. /dev/sda) as the first parameter,
 # the disk number (e.g. 1) as the second parameter
 # the directory images stored in (e.g. /image/xyz) as the third parameter
+# $1 is the disk
+# $2 is the disk number
+# $3 is the image path
+# $4 is the sgdisk determinator
 restoreGRUB() {
     local disk="$1"
     local disk_number="$2"
@@ -1486,6 +1511,7 @@ restoreGRUB() {
     dd if=$tmpMBR of=$disk bs=512 count=$count >/dev/null 2>&1
     runPartprobe "$disk"
 }
+# Waits for enter if system is debug type
 debugPause() {
     [[ -z $isdebug && $mode != debug ]] && return
     echo " * Press [Enter] key to continue"
@@ -1699,13 +1725,24 @@ clearPartitionTables() {
     runPartprobe "$disk"
     debugPause
 }
+# Restores the partition tables and boot loaders
+#
+# $1 is the disk
+# $2 is the disk number
+# $3 is the image path
+# $4 is the osid
+# $5 is the image partition type
 restorePartitionTablesAndBootLoaders() {
     local disk="$1"
     local disk_number="$2"
     local imagePath="$3"
+    local osid="$4"
+    local imgPartitionType="$5"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $osid ]] && handleError "No osid passed (${FUNCNAME[0]})"
+    [[ -z $imgPartitionType ]] && handleError "No image part type passed (${FUNCNAME[0]})"
     local tmpMBR=""
     local hasGRUB=0
     local mbrsize=""
