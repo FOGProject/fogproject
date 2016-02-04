@@ -140,43 +140,48 @@ class SnapinManagementPage extends FOGPage {
     public function add_post() {
         $this->HookManager->processEvent('SNAPIN_ADD_POST');
         try {
-            $SnapinManager = $this->getClass('SnapinManager');
-            $snapinName = $_REQUEST['name'];
+            $snapinName = trim($_REQUEST['name']);
             if (!$snapinName) throw new Exception(_('Please enter a name to give this Snapin'));
-            if ($SnapinManager->exists($snapinName)) throw new Exception(_('Snapin already exists'));
+            if ($this->getClass('SnapinManager')->exists($snapinName)) throw new Exception(_('Snapin with that name already exists'));
             if (!$_REQUEST['storagegroup']) throw new Exception(_('Please select a storage group for this snapin to reside in'));
-            if (!$_REQUEST['snapinfileexist'] && !$_FILES['snapin']) throw new Exception(_('Missing snapin file information'));
+            $snapinfile = trim(basename($_REQUEST['snapinfileexists']));
+            $uploadfile = trim(basename($_FILES['snapin']['name']));
+            if ($uploadfile) $snapinfile = $uploadfile;
+            if (!$snapinfile) throw new Exception(_('A file to use for the snapin must be either uploaded or chosen from the already present list'));
             if (!$_REQUEST['storagegroup']) throw new Exception(_('Must have snapin associated to a group'));
             $StorageNode = $this->getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
-            $src = $_FILES['snapin']['tmp_name'];
-            $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$_FILES['snapin']['name']);
-            $this->FOGFTP
-                ->set('host',$StorageNode->get('ip'))
-                ->set('username',$StorageNode->get('user'))
-                ->set('password',$StorageNode->get('pass'));
-            if (!$this->FOGFTP->connect()) throw new Exception(sprintf('%s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP Connection has failed')));
-            if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+            if ($_FILES['snapin']['name']) {
+                $src = sprintf('%s/%s',dirname($_FILES['snapin']['tmp_name']),basename($_FILES['snapin']['tmp_name']));
+                $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$snapinfile);
+                $this->FOGFTP
+                    ->set('host',$StorageNode->get('ip'))
+                    ->set('username',$StorageNode->get('user'))
+                    ->set('password',$StorageNode->get('pass'));
+                if (!$this->FOGFTP->connect()) throw new Exception(sprintf('%s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP Connection has failed')));
+                if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                    if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+                }
+                if (is_file($dest)) $this->FOGFTP->delete($dest);
+                if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
+                $this->FOGFTP->close();
             }
-            $this->FOGFTP->delete($dest);
-            if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add snapin'));
-            $this->FOGFTP->close();
             $Snapin = $this->getClass('Snapin')
                 ->set('name',$snapinName)
                 ->set('description',$_REQUEST['description'])
-                ->set('file',$_REQUEST['snapinfileexist'] ? $_REQUEST['snapinfileexist'] : $_FILES['snapin']['name'])
+                ->set('file',$snapinfile)
                 ->set('args',$_REQUEST['args'])
                 ->set('reboot',(int)isset($_REQUEST['reboot']))
                 ->set('runWith',$_REQUEST['rw'])
                 ->set('runWithArgs',$_REQUEST['rwa'])
-                ->set('isEnabled',(int) isset($_REQUEST['isEnabled']))
-                ->set('toReplicate',(int) isset($_REQUEST['toReplicate']))
+                ->set('isEnabled',(int)isset($_REQUEST['isEnabled']))
+                ->set('toReplicate',(int)isset($_REQUEST['toReplicate']))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Snapin->save()) throw new Exception(_('Add snapin failed!'));
             $this->HookManager->processEvent('SNAPIN_ADD_SUCCESS',array('Snapin'=>&$Snapin));
             $this->setMessage(_('Snapin added, Editing now!'));
             $this->redirect(sprintf('?node=%s&sub=edit&%s=%s', $_REQUEST['node'],$this->id,$Snapin->get('id')));
         } catch (Exception $e) {
+            $this->FOGFTP->close();
             $this->HookManager->processEvent('SNAPIN_ADD_FAIL',array('Snapin'=>&$Snapin));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
@@ -321,37 +326,40 @@ class SnapinManagementPage extends FOGPage {
         try {
             switch ($_REQUEST['tab']) {
             case 'snap-gen':
-                if (!$_REQUEST['snapinfileexist'] && !$_FILES['snapin']) throw new Exception(_('Missing snapin file information'));
-                if (!$this->obj->getStorageGroup()) throw new Exception(_('Must have snapin associated to a group'));
-                if (!$_REQUEST['name']) throw new Exception(_('Snapin name must not be empty'));
-                if ($_REQUEST['name'] != $this->obj->get('name') && $this->obj->getManager()->exists($_REQUEST['name'], $this->obj->get('id'))) throw new Exception(_('Snapin already exists'));
+                $snapinName = trim($_REQUEST['name']);
+                if (!$snapinName) throw new Exception(_('Please enter a name to give this Snapin'));
+                if ($snapinName != $this->obj->get('name') && $this->obj->getManager()->exists($snapinName)) throw new Exception(_('Snapin with that name already exists'));
+                $snapinfile = trim(basename($_REQUEST['snapinfileexists']));
+                $uploadfile = trim(basename($_FILES['snapin']['name']));
+                if ($uploadfile) $snapinfile = $uploadfile;
+                if (!$snapinfile) throw new Exception(_('A file to use for the snapine must be either uploaded or chosen from the already present list'));
                 $StorageNode = $this->obj->getStorageGroup()->getMasterStorageNode();
-                $snapinfile = $_REQUEST['snapinfileexist'];
                 if ($_FILES['snapin']['name']) {
-                    $src = $_FILES['snapin']['tmp_name'];
-                    $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$_FILES['snapin']['name']);
+                    $src = sprintf('%s/%s',dirname($_FILES['snapin']['tmp_name']),basename($_FILES['snapin']['tmp_name']));
+                    $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$snapinfile);
                     $this->FOGFTP
                         ->set('host',$StorageNode->get('ip'))
                         ->set('username',$StorageNode->get('user'))
                         ->set('password',$StorageNode->get('pass'));
-                    if (!$this->FOGFTP->connect()) throw new Exception(sprintf('%s: %s: %s %s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP connection has failed!')));
-                    if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
-                    $this->FOGFTP->delete($dest);
-                    if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add snapin'));
+                    if (!$this->FOGFTP->connect()) throw new Exception(sprintf('%s: %s: %s %s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP connection has failed')));
+                    if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                        if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+                    }
+                    if (is_file($dest)) $this->FOGFTP->delete($dest);
+                    if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
                     $this->FOGFTP->close();
-                    $snapinfile = $_FILES['snapin']['name'];
                 }
                 $this->obj
-                    ->set('name',$_REQUEST['name'])
+                    ->set('name',$snapinName)
                     ->set('description',$_REQUEST['description'])
-                    ->set('file',$snapinfile ? $snapinfile : $this->obj->get('file'))
+                    ->set('file',$snapinfile)
                     ->set('args',$_REQUEST['args'])
                     ->set('reboot',(int)isset($_REQUEST['reboot']))
                     ->set('runWith',$_REQUEST['rw'])
                     ->set('runWithArgs',$_REQUEST['rwa'])
-                    ->set('protected',$_REQUEST['protected_snapin'])
-                    ->set('isEnabled',(int) isset($_REQUEST['isEnabled']))
-                    ->set('toReplicate',(int) isset($_REQUEST['toReplicate']));
+                    ->set('protected',(int)isset($_REQUEST['protected_snapin']))
+                    ->set('isEnabled',(int)isset($_REQUEST['isEnabled']))
+                    ->set('toReplicate',(int)isset($_REQUEST['toReplicate']));
                 break;
             case 'snap-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);
@@ -367,6 +375,7 @@ class SnapinManagementPage extends FOGPage {
             $this->setMessage(_('Snapin updated'));
             $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s',$this->node, $this->id, $this->obj->get('id'),$_REQUEST['tab']));
         } catch (Exception $e) {
+            $this->FOGFTP->close();
             $this->HookManager->processEvent('SNAPIN_UPDATE_FAIL',array('Snapin'=>&$this->obj));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
