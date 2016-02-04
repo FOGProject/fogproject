@@ -150,7 +150,6 @@ class SnapinManagementPage extends FOGPage {
             $StorageNode = $this->getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
             $src = $_FILES['snapin']['tmp_name'];
             $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$_FILES['snapin']['name']);
-            echo $dest;
             $this->FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
