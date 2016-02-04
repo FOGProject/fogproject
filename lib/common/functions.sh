@@ -158,6 +158,12 @@ mask2cidr() {
     IFS=$OIFS
     echo "$nbits"
 }
+getCidr() {
+        #Expects an interface name to be passed.
+        local cidr
+        cidr=$(ip -f inet -o addr | grep $1 | awk -F'[ /]+' '/global/ {print $5}' | head -n2 | tail -n1)
+        echo $cidr
+}
 cidr2mask() {
     local i=""
     local mask=""
@@ -1683,6 +1689,8 @@ configureDHCP() {
             [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
             serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
+            [[ -z $serverip ]] && serverip=$(/sbin/ip addr show | grep $interface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | $grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
+            [[ -z $submask ]] && $( cidr2mask $(getCidr $interface))
             network=$(mask2network $serverip $submask)
             [[ -z $startrange ]] && startrange=$(addToAddress $network 253)
             [[ -z $endrange ]] && endrange=$(subtract1fromAddress $(echo $(interface2broadcast $interface)))
