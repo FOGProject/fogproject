@@ -494,7 +494,7 @@ installPackages() {
             case $linuxReleaseName in
                 *[Ff][Ee][Dd][Oo][Rr][Aa]*)
                     repo="fedora"
-                    [[ -z $OSVersion ]] && "OS Version not detected"
+                    [[ -z $OSVersion ]] && echo "OS Version not detected"
                     ! [[ $OSVersion =~ ^[0-9]+$ ]] && echo "OS Version not detected properly."
                     if [[ $OSVersion -ge 22 ]]; then
                         packages="${packages// mysql / mariadb }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
