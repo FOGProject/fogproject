@@ -108,6 +108,11 @@ validip() {
     fi
     echo $stat
 }
+getCidr() {
+    local cidr
+    cidr=$(ip -f inet -o addr | grep $1 | awk -F'[ /]+' '/global/ {print $5}' | head -n2 | tail -n1)
+    echo $cidr
+}
 mask2cidr() {
     local submask=$1
     nbits=0
@@ -489,6 +494,19 @@ installPackages() {
             case $linuxReleaseName in
                 *[Ff][Ee][Dd][Oo][Rr][Aa]*)
                     repo="fedora"
+                    if [[ ! -z $OSVersion ]]; then
+                        if [ "$OSVersion" -eq "$OSVersion" ] >>$workingdir/error_logs/fog_error_${version}.log 2>&1; then
+                            if [[ $OSVersion -ge 22 ]]; then
+                                packages="${packages// mysql / mariadb }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                                packages="${packages// mysql-server / mariadb-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                                packages="${packages// dhcp / dhcp-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            fi
+                        else 
+                            echo "OS Version not detected properly."
+                        fi
+                    else
+                        echo "OSVersion not detected."
+                    fi
                     ;;
                 *)
                     repo="enterprise"
@@ -1683,6 +1701,8 @@ configureDHCP() {
             [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
             serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
+            [[ -z $serverip ]] && serverip=$(/sbin/ip addr show | grep $interface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | $grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
+            [[ -z $submask ]] && $( cidr2mask $(getCidr $interface))
             network=$(mask2network $serverip $submask)
             [[ -z $startrange ]] && startrange=$(addToAddress $network 253)
             [[ -z $endrange ]] && endrange=$(subtract1fromAddress $(echo $(interface2broadcast $interface)))
