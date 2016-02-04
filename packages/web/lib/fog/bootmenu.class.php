@@ -618,7 +618,7 @@ class BootMenu extends FOGBase {
                     'active' => $this->Host->get('useAD'),
                 ),
                 array(
-                    'value' => 'adou='.$this->Host->get('ADOU'),
+                    'value' => "adou=\"{$this->Host->get(ADOU)}\"",
                     'active' => $this->Host->get('useAD'),
                 ),
                 array(
