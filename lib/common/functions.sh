@@ -494,18 +494,12 @@ installPackages() {
             case $linuxReleaseName in
                 *[Ff][Ee][Dd][Oo][Rr][Aa]*)
                     repo="fedora"
-                    if [[ ! -z $OSVersion ]]; then
-                        if [ "$OSVersion" -eq "$OSVersion" ] >>$workingdir/error_logs/fog_error_${version}.log 2>&1; then
-                            if [[ $OSVersion -ge 22 ]]; then
-                                packages="${packages// mysql / mariadb }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                                packages="${packages// mysql-server / mariadb-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                                packages="${packages// dhcp / dhcp-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            fi
-                        else 
-                            echo "OS Version not detected properly."
-                        fi
-                    else
-                        echo "OSVersion not detected."
+                    [[ -z $OSVersion ]] && "OS Version not detected"
+                    ! [[ $OSVersion =~ ^[0-9]+$ ]] && echo "OS Version not detected properly."
+                    if [[ $OSVersion -ge 22 ]]; then
+                        packages="${packages// mysql / mariadb }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        packages="${packages// mysql-server / mariadb-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        packages="${packages// dhcp / dhcp-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
                     ;;
                 *)
