@@ -214,7 +214,7 @@ case $imgType in
         echo " * Wiping $hd partition information"
         initHardDisk "$hd"
         runPartprobe "$hd"
-        [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath"
+        [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
         runPartprobe "$hd"
         gptcheck="$global_gptcheck"
         ;;
@@ -226,7 +226,7 @@ case $imgType in
             echo " * Wiping $disk partition information"
             initHardDisk "$disk"
             runPartprobe "$disk"
-            [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$disk" "$disk_number" "$imagePath"
+            [[ $nombr -eq 1 ]] || restorePartitionTablesAndBootLoaders "$disk" "$disk_number" "$imagePath" "$osid" "$imgPartitionType"
             runPartprobe "$disk"
             gptcheck="$global_gptcheck"
             let disk_number+=1
@@ -244,7 +244,7 @@ case $imgType in
         restorePartition "$hd" 1 "$imagePath/$img" "$mc"
         ;;
     n|mps|mpa)
-        [[ $imgType =~ +(n|mps) ]] && disks="$hd"
+        [[ $imgType == +(n|mps) ]] && disks="$hd"
         case $osid in
             [1-2])
                 [[ ! -f $imagePath && ! -d $imagePath ]] && handleError "Fatal Error: Could not locate file ($0)"
