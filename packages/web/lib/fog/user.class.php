@@ -31,7 +31,7 @@ class User extends FOGController {
     public function validate_pw($password) {
         $res = false;
         if (preg_match('#^[a-f0-9]{32}$#',$this->get('password'))) $this->set('password',$password)->save();
-        if (password_verify($password,$this->get('password'))) $res = true;
+        $res = (bool)password_verify($password,$this->get('password'));
         if ($res) {
             if (!$this->sessionID) $this->sessionID = session_id();
             $this
@@ -42,7 +42,7 @@ class User extends FOGController {
                 ->set('authID',$this->sessionID);
             $_SESSION['FOG_USER'] = serialize($this);
             $_SESSION['FOG_USERNAME'] = $this->get('name');
-            return $this;
+            return $res;
         } else {
             $this->EventManager->notify('LoginFail',array('Failure'=>$this->get('name')));
             $this->HookManager->processEvent('LoginFail',array('username'=>$this->get('name'),'password'=>&$password));
