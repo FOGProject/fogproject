@@ -134,7 +134,7 @@ enableWriteCache()  {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
     wcache=$(hdparm -W $disk 2>/dev/null | tr -d '[[:space:]]' | awk -F= '/.*write-caching=/{print $2}')
-    if [[ $wcache == notsupported ]]; then
+    if [[ -z $wcache || $wcache == notsupported ]]; then
         echo " * Write caching not supported"
         debugPause
         return
