@@ -42,13 +42,14 @@ class User extends FOGController {
                 ->set('authID',$this->sessionID);
             $_SESSION['FOG_USER'] = serialize($this);
             $_SESSION['FOG_USERNAME'] = $this->get('name');
-            return $this;
+            $res = $this;
         } else {
             $this->EventManager->notify('LoginFail',array('Failure'=>$this->get('name')));
             $this->HookManager->processEvent('LoginFail',array('username'=>$this->get('name'),'password'=>&$password));
             $this->setMessage($this->foglang['InvalidLogin']);
             if (!isset($_SESSION['OBSOLETE'])) $_SESSION['OBSOLETE'] = true;
         }
+        return $res;
     }
     public function set($key, $value, $override = false) {
         if ($this->key($key) == 'password' && !$override) $value = $this->generate_hash($value);
