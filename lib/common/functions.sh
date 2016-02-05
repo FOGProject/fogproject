@@ -244,7 +244,7 @@ subtractFromAddress() {
     IFS=$oIFS
     let octet4-=$decreaseby
     if [[ $octet4 -lt $maxOctetValue && $octet4 -ge 0 ]]; then
-        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/[-]//g'
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/-//g'
         return 0
     fi
     echo $octet4
@@ -258,21 +258,21 @@ subtractFromAddress() {
     echo $octet3
     if [[ $octet3 -lt $maxOctetValue && $octet3 -ge 0 ]]; then
         echo 'here'
-        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/[-]//g'
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/-//g'
         return 0
     fi
     numRollOver=$((octet3 / maxOctetValue))
     let octet3-=$((numRollOver * maxOctetValue))
     let octet2-=$numRollOver
     if [[ $octet2 -lt $maxOctetValue && $octet2 -ge 0 ]]; then
-        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/[-]//g'
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/-//g'
         return 0
     fi
     numRollOver=$((octet2 / maxOctetValue))
     let octet2-=$((numRollOver * maxOctetValue))
     let octet1-=$numRollOver
     if [[ $octet1 -lt $maxOctetValue && $octet1 -ge 0 ]]; then
-        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/[-]//g'
+        printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/-//g'
         return 0
     fi
     return 1
