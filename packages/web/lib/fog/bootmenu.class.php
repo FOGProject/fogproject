@@ -5,7 +5,8 @@ class BootMenu extends FOGBase {
     private $hiddenmenu, $timeout, $KS;
     public function __construct($Host = null) {
         parent::__construct();
-        $this->loglevel = "loglevel={$this->getSetting(FOG_KERNEL_LOGLEVEL)}";
+        $loglevel = (int)$this->getSetting('FOG_KERNEL_LOGLEVEL');
+        $this->loglevel = "loglevel=$loglevel";
         $StorageNode = $this->getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isMaster'=>1));
         $StorageNode = @array_shift($StorageNode);
         $webserver = $this->getSetting('FOG_WEB_HOST');
@@ -614,7 +615,7 @@ class BootMenu extends FOGBase {
                     'active' => $this->Host->get('useAD'),
                 ),
                 array(
-                    'value' => 'addomain='.$this->Host->get('ADDomain'),
+                    'value' => "addomain=\"{$this->Host->get('ADDomain')}\"",
                     'active' => $this->Host->get('useAD'),
                 ),
                 array(
