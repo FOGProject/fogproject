@@ -2,8 +2,6 @@
 . /usr/share/fog/lib/funcs.sh
 if [[ -n $mode ]]; then
     case $mode in
-        *debug*)
-            ;;
         wipe)
             fog.wipe
             ;;

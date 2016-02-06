@@ -11,7 +11,11 @@ $(for var in $(cat /proc/cmdline); do echo export "$var" | grep =; done)
 #
 # Clears thes creen unless its a debug task
 clearScreen() {
-    [[ $mode != +(*debug*) && -n $isdebug ]] && clear
+    case $isdebug in
+        [Yy][Ee][Ss]|[Yy])
+            clear
+            ;;
+    esac
 }
 # Displays the nice banner along with the running version
 displayBanner() {
@@ -1318,7 +1322,7 @@ handleError() {
     echo "#                         An error has been detected!                        #"
     echo "#                                                                            #"
     echo "##############################################################################"
-    echo "$str"
+    echo -e "$str"
     #
     # expand the file systems in the restored partitions
     #
@@ -1337,10 +1341,10 @@ handleError() {
                 ;;
         esac
     fi
-    if [[ -z $isdebug && $mode != +(*debug*) ]]; then
+    if [[ -z $isdebug ]]; then
         echo "##############################################################################"
         echo "#                                                                            #"
-        echo "#                      Computer will reboot in 1 minute                      #";
+        echo "#                      Computer will reboot in 1 minute                      #"
         echo "#                                                                            #"
         echo "##############################################################################"
         usleep 60000000
@@ -1359,7 +1363,7 @@ handleWarning() {
     echo "#                        A warning has been detected!                        #"
     echo "#                                                                            #"
     echo "##############################################################################"
-    echo "$str"
+    echo -e "$str"
     echo "##############################################################################"
     echo "#                                                                            #"
     echo "#                          Will continue in 1 minute                         #"
@@ -1383,7 +1387,12 @@ runPartprobe() {
 #
 # $1 The string of the command needed to run.
 debugCommand() {
-    [[ $mode =~ +(*debug*) || -n $isdebug ]] && echo "$1" >> /tmp/cmdlist
+    local str="$1"
+    case $isdebug in
+        [Yy][Ee][Ss]|[Yy])
+            echo -e "$str" >> /tmp/cmdlist
+            ;;
+    esac
 }
 # Escapes the passed item where needed
 #
@@ -1513,12 +1522,26 @@ restoreGRUB() {
 }
 # Waits for enter if system is debug type
 debugPause() {
-    [[ -z $isdebug && $mode != debug ]] && return
-    echo " * Press [Enter] key to continue"
-    read -p "$*"
+    case $isdebug in
+        [Yy][Ee][Ss]|[Yy])
+            echo " * Press [Enter] key to continue"
+            read  -p "$*"
+            ;;
+        *)
+            return
+            ;;
+    esac
 }
 debugEcho() {
-    [[ -n $isdebug || $mode == debug ]] && echo "$*"
+    local str="$*"
+    case $isdebug in
+        [Yy][Ee][Ss]|[Yy])
+            echo "$str"
+            ;;
+        *)
+            return
+            ;;
+    esac
 }
 majorDebugEcho() {
     [[ $ismajordebug -gt 1 ]] && echo "$*"
