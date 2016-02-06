@@ -14,7 +14,14 @@ mac=$(getMACAddresses)
 oPS3=$PS3
 PS3="Please enter your choice: "
 choices="Network Information\nPartition Information\nCheck FOG Compatibility\nPing a Host\nDisplay MAC Address\nShow DMI Information"
-[[ -n $isdebug || $mode == +(*debug*) ]] && choices="Quit\n$choices" || choices="Reboot\n$choices"
+case $isdebug in
+    [Yy][Ee][Ss]|[Yy])
+        choices="Quit\n$choices"
+        ;;
+    *)
+        choices="Reboot\n$choices"
+        ;;
+esac
 oIFS=$IFS
 IFS=$'\n'
 choices=$(echo -e $choices)
@@ -29,7 +36,14 @@ while :; do
     select choice in $choices; do
         case $REPLY in
             1)
-                [[ -n $isdebug || $mode == +(*debug*) ]] && exit 0 || reboot -f
+                case $isdebug in
+                    [Yy][Ee][Ss]|[Yy])
+                        exit 0
+                        ;;
+                    *)
+                        reboot -f
+                        ;;
+                esac
                 ;;
             2)
                 clearScreen

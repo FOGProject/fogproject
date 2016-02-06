@@ -201,10 +201,18 @@ class BootMenu extends FOGBase {
         $this->chainBoot();
     }
     private function printTasking($kernelArgsArray) {
-        foreach($kernelArgsArray AS $i => &$arg) {
-            if (!is_array($arg) && !empty($arg) || (is_array($arg) && $arg['active'] && !empty($arg))) $kernelArgs[] = (is_array($arg) ? $arg['value'] : $arg);
+        $kernelArgs = '';
+        foreach($kernelArgsArray AS &$arg) {
+            if (empty($arg)) continue;
+            if (is_array($arg)) {
+                if (!$arg['active']) continue;
+                if (!$arg['value']) continue;
+                $kernelArgs[] = preg_replace('#mode=debug#i','isdebug=yes',$arg['value']);
+            } else {
+                $kernelArgs[] = preg_replace('#mode=debug#i','isdebug=yes',$arg);
+            }
+            unset($arg);
         }
-        unset($arg);
         $kernelArgs = array_unique($kernelArgs);
         $Send['task'] = array(
             "#!ipxe",
@@ -464,7 +472,7 @@ class BootMenu extends FOGBase {
     private function debugAccess() {
         $Send['debugaccess'] = array(
             "#!ipxe",
-            "$this->kernel mode=onlydebug",
+            "$this->kernel isdebug=yes",
             "$this->initrd",
             "boot",
         );

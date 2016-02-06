@@ -15,9 +15,13 @@ if [[ $mdraid == true ]]; then
     mdadm --incremental --run --scan
 fi
 [[ -n $keymap ]] && loadkeys $keymap
-if [[ -z $isdebug && $mode != +(*debug*) ]]; then
-    fog
-    [[ $shutdown -eq 1 ]] && poweroff || reboot -f
-    exit 0
-fi
-fog.debug
+case $isdebug in
+    [Yy][Ee][Ss]|[Yy])
+        fog.debug
+        ;;
+    *)
+        fog
+        echo " * Rebooting system as task is complete"
+        [[ $shutdown -eq 1 ]] && poweroff || reboot -f
+        ;;
+esac
