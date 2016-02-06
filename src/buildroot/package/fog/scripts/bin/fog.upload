@@ -227,4 +227,3 @@ esac
 chmod -R 777 "$imagePath" >/dev/null 2>&1
 killStatusReporter
 . /bin/fog.imgcomplete
-[[ ! $mode == debug && -z $isdebug ]] && echo " * Rebooting system as task is complete"
