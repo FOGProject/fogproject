@@ -130,7 +130,7 @@ class HostManagementPage extends FOGPage {
         );
         $this->templates = array(
             '<i class="icon fa fa-question hand" title="${host_desc}"></i>',
-            '<input type="checkbox" name="host[]" value="${id}" class="toggle-host" />',
+            '<input type="checkbox" name="host[]" value="${id}" class="toggle-action" />',
             ($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
             '<a href="?node=host&sub=edit&id=${id}" title="Edit: ${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
             '<a href="?node=host&sub=edit&id=${id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
