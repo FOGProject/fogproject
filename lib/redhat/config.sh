@@ -37,9 +37,9 @@ case $linuxReleaseName in
             packageupdater="dnf -y --enablerepo=remi update"
             packmanUpdate="dnf --enablerepo=remi check-update"
         else
-            packageinstaller="yum -y --enablerepo=remi,remi-php56,epel install"
-            packagelist="yum --enablerepo=remi,remi-php56,epel list"
-            packageupdater="yum -y --enablerepo=remi,remi-php56,epel update"
+            packageinstaller="yum -y --enablerepo=remi,epel install"
+            packagelist="yum --enablerepo=remi,epel list"
+            packageupdater="yum -y --enablerepo=remi,epel update"
             packmanUpdate="yum check-update"
             command -v yum-config-manager >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
