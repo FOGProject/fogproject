@@ -16,10 +16,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+php_ver=5
+php_verAdds="-5.6"
+repo="php${php_ver}${php_verAdds}"
 packageQuery="dpkg -l \$x | grep '^ii'"
 case $linuxReleaseName in
     *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
-        packages="apache2 php5 php5-json php5-gd php5-cli php5-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php-gettext php5-mcrypt php5-mysqlnd curl libc6 libcurl3 zlib1g php5-fpm libapache2-mod-php5"
+        packages="apache2 php${php_ver} php${php_ver}-json php${php_ver}-gd php${php_ver}-cli php${php_ver}-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php-gettext php${php_ver}-mcrypt php${php_ver}-mysqlnd curl libc6 libcurl3 zlib1g php${php_ver}-fpm libapache2-mod-php${php_ver}"
         packageinstaller="apt-get -yq install -o Dpkg::='--force-confdef' -o Dpkg::Options::='--force-confold'"
         packagelist="apt-cache pkgnames | grep"
         packageupdater="apt-get -yq upgrade -o Dpkg::='--force-confdef' -o Dpkg::Options::='--force-confold'"
@@ -73,7 +76,7 @@ apachelogdir="/var/log/apache2"
 apacheerrlog="$apachelogdir/error.log"
 apacheacclog="$apachelogdir/access.log"
 etcconf="/etc/apache2/sites-available/001-fog.conf"
-phpini="/etc/php5/apache2/php.ini"
+phpini="/etc/php${php_ver}/apache2/php.ini"
 storageLocation="/images"
 storageLocationUpload="${storageLocation}/dev"
 dhcpconfig="/etc/dhcp3/dhcpd.conf"
@@ -84,7 +87,7 @@ tftpconfigupstartconf="/etc/init/tftpd-hpa.conf"
 tftpconfigupstartdefaults="/etc/default/tftpd-hpa"
 ftpconfig="/etc/vsftpd.conf"
 snapindir="/opt/fog/snapins"
-jsontest="php5-json php5-common"
+jsontest="php${php_ver}-json php${php_ver}-common"
 if [[ -e /etc/init.d/$dhcpname ]]; then
     dhcpd=$dhcpname
 elif [[ -e /etc/init.d/$olddhcpname ]]; then
