@@ -483,7 +483,7 @@ configureMinHttpd() {
 addUbuntuRepo() {
     DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    add-apt-repository -y ppa:ondrej/php5-5.6 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    add-apt-repository -y ppa:ondrej/php${php_ver}${php_verAdds} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     return $?
 }
 installPackages() {
@@ -511,7 +511,7 @@ installPackages() {
             if [[ ! $? -eq 0 ]]; then
                 eval $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 if [[ -n $repoenable ]]; then
-                    eval $repoenable remi-php56 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
             fi
             unset x
@@ -534,7 +534,7 @@ installPackages() {
                         apt-get -yq install python-software-properties ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/php5-5.6 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
                     ;;
             esac
@@ -579,7 +579,7 @@ installPackages() {
                     fi
                 done
                 ;;
-            php5-json)
+            php${php_ver}-json)
                 for json in $jsontest; do
                     eval $packagelist $json >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
@@ -627,7 +627,7 @@ confirmPackageInstallation() {
                     fi
                 done
                 ;;
-            php5-json)
+            php${php_ver}-json)
                 for json in $jsontest; do
                     x=$json
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1280,7 +1280,7 @@ EOF
     dots "Restarting Apache2 for fog vhost"
     ln -s $webdirdest $webdirdest >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ $osid -eq 2 ]]; then
-        a2enmod php5 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        a2enmod php${php_ver} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1289,9 +1289,9 @@ EOF
         yes)
             case $osid in
                 2)
-                    systemctl restart apache2 php5-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl restart apache2 php${php_ver}-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sleep 2
-                    systemctl status apache2 php5-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl status apache2 php${php_ver}-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
                     systemctl restart httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1329,7 +1329,7 @@ configureHttpd() {
                     systemctl stop httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 2)
-                    systemctl stop apache2 php5-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl stop apache2 php${php_ver}-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
             errorStat $?
@@ -1344,7 +1344,7 @@ configureHttpd() {
                 2)
                     service apache2 stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     errorStat $?
-                    service php5-fpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    service php${php_ver}-fpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
             ;;
@@ -1638,34 +1638,34 @@ class Config {
     if [[ $osid -eq 2 ]]; then
         php -m | grep mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
-            php5enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            php${php_ver}enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             if [[ ! $? -eq 0 ]]; then
-                if [[ -e /etc/php5/conf.d/mysqlnd.ini ]]; then
-                    cp -f "/etc/php5/conf.d/mysqlnd.ini" "/etc/php5/mods-available/php5-mysqlnd.ini" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    php5enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                if [[ -e /etc/php${php_ver}/conf.d/mysqlnd.ini ]]; then
+                    cp -f "/etc/php${php_ver}/conf.d/mysqlnd.ini" "/etc/php${php_ver}/mods-available/php${php_ver}-mysqlnd.ini" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    php${php_ver}enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
             fi
         fi
         php -m | grep mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
-            php5enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            php${php_ver}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             if [[ ! $? -eq 0 ]]; then
-                if [[ -e /etc/php5/conf.d/mcrypt.ini ]]; then
-                    cp -f "/etc/php5/conf.d/mcrypt.ini" "/etc/php5/mods-available/php5-mcrypt.ini" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    php5enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                if [[ -e /etc/php${php_ver}/conf.d/mcrypt.ini ]]; then
+                    cp -f "/etc/php${php_ver}/conf.d/mcrypt.ini" "/etc/php${php_ver}/mods-available/php${php_ver}-mcrypt.ini" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    php${php_ver}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
             fi
         fi
-        cp /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        cp /etc/apache2/mods-available/php${php_ver}* /etc/apache2/mods-enabled/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     dots "Enabling apache and fpm services on boot"
     if [[ $osid -eq 2 ]]; then
         if [[ $systemctl == yes ]]; then
             systemctl enable apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            systemctl enable php5-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            systemctl enable php${php_ver}-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         else
             sysv-rc-conf apache2 on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sysv-rc-conf php5-fpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            sysv-rc-conf php${php_ver}-fpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
     elif [[ $systemctl == yes ]]; then
         systemctl enable httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
