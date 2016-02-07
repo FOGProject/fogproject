@@ -19,6 +19,8 @@
 php_ver=5
 php_verAdds="-5.6"
 repo="php${php_ver}${php_verAdds}"
+[[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
+[[ $php_ver != 5 ]] && phpfpm="php-fpm${php_ver}" || phpfpm="php5-fpm"
 packageQuery="dpkg -l \$x | grep '^ii'"
 case $linuxReleaseName in
     *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
@@ -76,7 +78,7 @@ apachelogdir="/var/log/apache2"
 apacheerrlog="$apachelogdir/error.log"
 apacheacclog="$apachelogdir/access.log"
 etcconf="/etc/apache2/sites-available/001-fog.conf"
-phpini="/etc/php${php_ver}/apache2/php.ini"
+phpini="/etc/${phpcmd}/apache2/php.ini"
 storageLocation="/images"
 storageLocationUpload="${storageLocation}/dev"
 dhcpconfig="/etc/dhcp3/dhcpd.conf"
