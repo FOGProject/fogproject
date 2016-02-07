@@ -1280,7 +1280,7 @@ EOF
     dots "Restarting Apache2 for fog vhost"
     ln -s $webdirdest $webdirdest >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ $osid -eq 2 ]]; then
-        a2enmod php${php_ver} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1289,9 +1289,9 @@ EOF
         yes)
             case $osid in
                 2)
-                    systemctl restart apache2 php${php_ver}-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl restart apache2 $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sleep 2
-                    systemctl status apache2 php${php_ver}-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl status apache2 $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
                     systemctl restart httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
