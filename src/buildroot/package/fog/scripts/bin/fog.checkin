@@ -4,19 +4,6 @@ RUN_CHKDSK=""
 HOSTNAME_EARLY=0
 OS_ID_WIN7=5
 OS_ID_WIN8=6
-for arg in $(cat /proc/cmdline); do
-    case $arg in
-        initsh)
-            ash -i
-            ;;
-        nombr)
-            nombr=1
-            ;;
-        *)
-            [[ $imgPartitionType != all && $imgPartitionType != mbr ]] && nombr=1
-            ;;
-    esac
-done
 clearScreen
 displayBanner
 osname=""
