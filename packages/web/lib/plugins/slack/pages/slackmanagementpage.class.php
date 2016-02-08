@@ -92,9 +92,13 @@ class SlackManagementPage extends FOGPage {
                 ->set('name',$usersend);
             if (!$Slack->verifyToken()) throw new Exception(_('Invalid token passed'));
             if (array_search($user,array_merge((array)$Slack->getChannels(),(array)$Slack->getUsers())) === false) throw new Exception(_('Invalid user and/or channel passed'));
-            if ($this->getClass('SlackManager')->exists($usersend)) throw new Exception(_('Account already linked'));
+            if ($this->getClass('SlackManager')->exists($token,'','token') && $this->getClass('SlackManager')->exists($usersend)) throw new Exception(_('Account already linked'));
             if (!$Slack->save()) throw new Exception(_('Failed to create'));
-            $Slack->call('chat.postMessage',array('channel'=>$Slack->get('name'),'text'=>'Account linked to fog.'));
+            $args = array(
+                'channel' => $Slack->get('name'),
+                'text' => _('Account linked'),
+            );
+            $Slack->call('chat.postMessage',$args);
             $this->setMessage(_('Account Added!'));
             $this->redirect('?node=slack&sub=list');
         } catch (Exception $e) {

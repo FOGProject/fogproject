@@ -40,6 +40,14 @@ class Slack extends FOGController {
         return (bool)$testAuth['ok'];
     }
     public function call($method, $args = array()) {
+        if ($method === 'chat.postMessage') {
+            $tmpName = preg_replace('/^[#]|^[@]/','',$this->get('name'));
+            if (in_array($tmpName,(array)$this->getChannels())) {
+                $username = $this->call('auth.test');
+                $args['username'] = $username['user'];
+                $args['as_user'] = true;
+            }
+        }
         return $this->getClass('SlackHandler',$this->get('token'))->call($method,$args);
     }
 }
