@@ -474,6 +474,7 @@ while [[ -z $blGo ]]; do
                     configureFOGService
                     configureNFS
                     writeUpdateFile
+                    linkOptFogDir
                     if [[ $bluseralreadyexists == 1 ]]; then
                         echo
                         echo " * Upgrade complete"
