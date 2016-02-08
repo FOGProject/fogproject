@@ -17,7 +17,7 @@ class PluginManagementPage extends FOGPage {
             _('Location'),
         );
         $this->templates = array(
-            '<a href="?node=plugin&sub=${type}&run=${encname}&${type}=${encname}" class="icon" title="Plugin: ${name}"><img alt="${name}" src="${icon}"/><br/><small>${name}</small></a>',
+            '<a href="?node=plugin&sub=${type}&run=${encname}&${type}=${encname}" class="icon" title="Plugin: ${name}"><img width="66" height="66" alt="${name}" src="${icon}"/><br/><small>${name}</small></a>',
             '${desc}',
             '${location}',
         );
@@ -33,7 +33,7 @@ class PluginManagementPage extends FOGPage {
         }
     }
     public function index() {
-        $this->title = $this->name;
+        $this->activate();
     }
     public function activate() {
         $this->title = _('Activate Plugins');

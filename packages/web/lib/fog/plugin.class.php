@@ -49,6 +49,7 @@ class Plugin extends FOGController {
             if(file_exists(sprintf('%s%s/config/plugin.config.php',$dir,$file))) $files[] = sprintf('%s%s/',$dir,$file);
         }
         closedir($handle);
+        asort($files);
         return $files;
     }
     public function getPlugins() {
