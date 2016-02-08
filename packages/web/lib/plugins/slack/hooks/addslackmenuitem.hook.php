@@ -13,7 +13,12 @@ class AddSlackMenuItem extends Hook {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         array_push($arguments['PagesWithObjects'],$this->node);
     }
+    public function addSearch($arguments) {
+        if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
+        array_push($arguments['searchPages'],$this->node);
+    }
 }
 $AddSlackMenuItem = new AddSlackMenuItem();
 $HookManager->register('MAIN_MENU_DATA',array($AddSlackMenuItem,'MenuData'));
+$HookManager->register('SEARCH_PAGES',array($AddSlackMenuItem,'addSearch'));
 $HookManager->register('PAGES_WITH_OBJECTS',array($AddSlackMenuItem,'addPageWithObject'));

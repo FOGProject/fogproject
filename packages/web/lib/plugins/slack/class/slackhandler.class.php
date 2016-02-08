@@ -121,7 +121,7 @@ class SlackHandler {
     public function call($method,$args = array()) {
         if (array_search($method,self::$_methods,true) === false) throw new SlackException(_('Invalid method called'));
         $args['token'] = $this->_apiToken;
-        return $this->_curlRequest(str_replace('<method>',$method,self::$_apiEndpoint),'POST',$args);
+        return json_decode(json_encode($this->_curlRequest(str_replace('<method>',$method,self::$_apiEndpoint),'POST',$args)),true);
     }
     /**
      * Send a request to a remote server using cURL.

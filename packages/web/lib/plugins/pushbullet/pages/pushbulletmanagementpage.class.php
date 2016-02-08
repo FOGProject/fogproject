@@ -12,13 +12,13 @@ class PushbulletManagementPage extends FOGPage {
             unset($this->subMenu);
         }
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             _('Name'),
             _('Email'),
             _('Delete'),
         );
         $this->templates = array(
-            '<input type="checkbox" name="pushbullet[]" value="${id}" class="toggle-action" checked/>',
+            '<input type="checkbox" name="pushbullet[]" value="${id}" class="toggle-action"/>',
             '${name}',
             '${email}',
             sprintf('<a href="?node=%s&sub=delete&id=${id}" title="%s"><i class="fa fa-minus-circle fa-1x icon hand"></i></a>',$this->node,_('Delete')),
@@ -29,6 +29,9 @@ class PushbulletManagementPage extends FOGPage {
             array('class' => 'l'),
             array('class' => 'r'),
         );
+    }
+    public function search() {
+        $this->index();
     }
     public function index() {
         $this->title = _('Accounts');
