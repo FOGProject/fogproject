@@ -452,6 +452,7 @@ abstract class FOGPage extends FOGBase {
         }
     }
     public function deletemulti_conf() {
+        $this->HookManager->processEvent('MULTI_REMOVE',array('removing'=>&$_REQUEST['remitems']));
         $this->getClass($this->childClass)->getManager()->destroy(array('id'=>$_REQUEST['remitems']));
         $this->setMessage(_('All selected items have been deleted'));
         $this->redirect(sprintf('?node=%s',$this->node));

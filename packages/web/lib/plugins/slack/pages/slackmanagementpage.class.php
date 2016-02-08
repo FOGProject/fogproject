@@ -96,7 +96,7 @@ class SlackManagementPage extends FOGPage {
             if (!$Slack->save()) throw new Exception(_('Failed to create'));
             $args = array(
                 'channel' => $Slack->get('name'),
-                'text' => _('Account linked'),
+                'text' => sprintf('%s %s: %s',$user,_('Account linked to FOG GUI at'),$this->getSetting('FOG_WEB_HOST')),
             );
             $Slack->call('chat.postMessage',$args);
             $this->setMessage(_('Account Added!'));
