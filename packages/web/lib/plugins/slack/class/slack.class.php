@@ -42,8 +42,8 @@ class Slack extends FOGController {
     public function call($method, $args = array()) {
         if ($method === 'chat.postMessage') {
             $tmpName = preg_replace('/^[#]|^[@]/','',$this->get('name'));
-            if (in_array($tmpName,(array)$this->getChannels())) {
-                $username = $this->call('auth.test');
+            $username = $this->call('auth.test');
+            if ($tmpName != $username['user'] || in_array($tmpName,(array)$this->getChannels())) {
                 $args['username'] = $username['user'];
                 $args['as_user'] = true;
             }
