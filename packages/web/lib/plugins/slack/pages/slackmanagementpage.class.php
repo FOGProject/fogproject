@@ -71,6 +71,16 @@ class SlackManagementPage extends FOGPage {
             $token = trim($_REQUEST['apiToken']);
             $user = trim($_REQUEST['user']);
             if (!$token) throw new Exception(_('Please enter an access token'));
+            $testAuth = json_decode(json_encode($this->getClass('SlackHandler',$token)->call('auth.test')),true);
+            if ($testAuth['ok'] === false) throw new Exception(_('Invalid token passed'));
+            $usernames = json_decode(json_encode($this->getClass('SlackHandler',$token)->call('users.list')),true);
+            foreach ($usernames['members'] AS &$names) {
+                if ($names['name'] == 'slackbot') continue;
+                $users[] = $names['name'];
+                unset($names);
+            }
+            unset($usernames);
+            if (array_search($user,$users) === false) throw new Exception(_('Invalid user passed'));
             if ($this->getClass('SlackManager')->exists($user)) throw new Exception(_('Account already linked'));
             $Slack = $this->getClass('Slack')
                 ->set('token',$token)
