@@ -386,7 +386,3 @@ class PushbulletHandler {
         return @json_decode($data[0]);
     }
 }
-/**
- * Class PushbulletException
- */
-class PushbulletException extends Exception {}

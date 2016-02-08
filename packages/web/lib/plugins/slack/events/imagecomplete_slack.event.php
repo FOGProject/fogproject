@@ -7,7 +7,10 @@ class ImageComplete_Slack extends Event {
     var $active = true;
     public function onEvent($event, $data) {
         foreach ((array)$this->getClass('SlackManager')->find() AS &$Token) {
-            $this->getClass('SlackHandler',$Token->get('token'))->call('chat.postMessage',array('channel'=>"@{$Token->get(name)}",'text'=>$data['HostName'].' Completed imaging'));
+            if (!$Token->isValid()) continue;
+            $channel_user = preg_match('/^#/',$Token->get('name')) ? $Token->get('name') : "@{$Token->get(name)}";
+            $this->getClass('SlackHandler',$Token->get('token'))->call('chat.postMessage',array('channel'=>$channel_user,'text'=>$data['HostName'].' Completed imaging'));
+            unset($Token);
         }
     }
 }
