@@ -836,12 +836,8 @@ configureMySql() {
     errorStat $?
 }
 configureFOGService() {
-    if [[ ! -d $servicedst ]]; then
-        mkdir -p $servicedst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
-    if [[ ! -d $servicedst/etc ]]; then
-        mkdir -p $servicedst/etc >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
+    [[ ! -d $servicedst ]] && mkdir -p $servicedst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ ! -d $servicedst/etc ]] && mkdir -p $servicedst/etc >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     echo "<?php define('WEBROOT','${webdirdest}');" > $servicedst/etc/config.php
     startInitScript
 }
