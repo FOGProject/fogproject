@@ -10,27 +10,39 @@ class SlackManagementPage extends FOGPage {
         );
         if ($_REQUEST['id']) unset($this->subMenu);
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-            _('User Name'),
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
+            _('Team'),
+            _('Created By'),
+            _('User/Channel Name'),
             _('Delete'),
         );
         $this->templates = array(
-            '<input type="checkbox" name="slack[]" value="${id}" class="toggle-action" checked/>',
+            '<input type="checkbox" name="slack[]" value="${id}" class="toggle-action"/>',
+            '${team}',
+            '${createdBy}',
             '${name}',
             sprintf('<a href="?node=%s&sub=delete&id=${id}" title="%s"><i class="fa fa-minus-circle fa-1x icon hand"></i></a>',$this->node,_('Delete')),
         );
         $this->attributes = array(
             array('class' => 'l filter-false','width' => 16),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'r'),
+            array('class' => 'l','width'=> 50),
+            array('class' => 'l','width'=> 80),
+            array('class' => 'l','width'=> 80),
+            array('class' => 'r filter-false','width' => 16),
         );
+    }
+    public function search() {
+        $this->index();
     }
     public function index() {
         $this->title = _('Accounts');
         foreach ((array)$this->getClass('SlackManager')->find() AS &$Token) {
+            if (!$Token->isValid()) continue;
+            $team_name = $Token->call('auth.test');
             $this->data[] = array(
                 'id'      => $Token->get('id'),
+                'team' => $team_name['team'],
+                'createdBy' => $team_name['user'],
                 'name'    => $Token->get('name'),
             );
             unset($Token);
@@ -50,9 +62,9 @@ class SlackManagementPage extends FOGPage {
             '${input}',
         );
         $fields = array(
-            _('Access Token') => '<input class="smaller" type="text" name="apiToken" />',
-            _('User to post to') => '<input class="smaller" type="text" name="user" />',
-            '' => sprintf('<input name="add" class="smaller" type="submit" value="%s"/>',_('Add')),
+            _('Access Token') => sprintf('<input class="smaller" type="text" name="apiToken" value="%s"/>',$_REQUEST['apiToken']),
+            _('User/Channel to post to') => sprintf('<input class="smaller" type="text" name="user" value="%s"/>',$_REQUEST['user']),
+            '&nbsp;' => sprintf('<input name="add" class="smaller" type="submit" value="%s"/>',_('Add')),
         );
         foreach((array)$fields AS $field => $input) {
             $this->data[] = array(
@@ -69,24 +81,20 @@ class SlackManagementPage extends FOGPage {
     public function add_post() {
         try {
             $token = trim($_REQUEST['apiToken']);
-            $user = trim($_REQUEST['user']);
+            $usertype = preg_match('/^[@]/',trim($_REQUEST['user']));
+            $channeltype = preg_match('/^[#]/',trim($_REQUEST['user']));
+            $usersend = trim($_REQUEST['user']);
+            if (!$usertype && !$channeltype) throw new Exception(_('Must use an @ or # to signify if this is a user or channel to send message to!'));
+            $user = preg_replace('/^[#]|^[@]/','',trim($_REQUEST['user']));
             if (!$token) throw new Exception(_('Please enter an access token'));
-            $testAuth = json_decode(json_encode($this->getClass('SlackHandler',$token)->call('auth.test')),true);
-            if ($testAuth['ok'] === false) throw new Exception(_('Invalid token passed'));
-            $usernames = json_decode(json_encode($this->getClass('SlackHandler',$token)->call('users.list')),true);
-            foreach ($usernames['members'] AS &$names) {
-                if ($names['name'] == 'slackbot') continue;
-                $users[] = $names['name'];
-                unset($names);
-            }
-            unset($usernames);
-            if (array_search($user,$users) === false) throw new Exception(_('Invalid user passed'));
-            if ($this->getClass('SlackManager')->exists($user)) throw new Exception(_('Account already linked'));
             $Slack = $this->getClass('Slack')
                 ->set('token',$token)
-                ->set('name',$user);
+                ->set('name',$usersend);
+            if (!$Slack->verifyToken()) throw new Exception(_('Invalid token passed'));
+            if (array_search($user,array_merge((array)$Slack->getChannels(),(array)$Slack->getUsers())) === false) throw new Exception(_('Invalid user and/or channel passed'));
+            if ($this->getClass('SlackManager')->exists($usersend)) throw new Exception(_('Account already linked'));
             if (!$Slack->save()) throw new Exception(_('Failed to create'));
-            $this->getClass('SlackHandler',$Slack->get('token'))->call('chat.postMessage',array('channel'=>"@{$Slack->get(name)}",'text'=>'Account linked for fog.'));
+            $Slack->call('chat.postMessage',array('channel'=>$Slack->get('name'),'text'=>'Account linked to fog.'));
             $this->setMessage(_('Account Added!'));
             $this->redirect('?node=slack&sub=list');
         } catch (Exception $e) {
