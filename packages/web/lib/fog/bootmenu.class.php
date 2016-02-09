@@ -579,7 +579,7 @@ class BootMenu extends FOGBase {
                 "consoleblank=0",
                 "irqpoll",
                 array(
-                    'value' => 'hostname='.$this->Host->get(name),
+                    'value' => "hostname={$this->Host->get(name)}",
                     'active' => count($clientMacs),
                 ),
                 array(
@@ -631,11 +631,11 @@ class BootMenu extends FOGBase {
                     'active' => $this->Host->get('useAD'),
                 ),
                 array(
-                    'value' => 'aduser='.$this->Host->get('ADUser'),
+                    'value' => "aduser=\"{$this->Host->get(ADUser)}\"",
                     'active' => $this->Host->get('useAD'),
                 ),
                 array(
-                    'value' => 'adpass='.$this->Host->get('ADPass'),
+                    'value' => "adpass=\"{$this->Host->get(ADPass)}\"",
                     'active' => $this->Host->get('useAD'),
                 ),
                 array(
