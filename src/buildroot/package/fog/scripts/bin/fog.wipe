@@ -24,7 +24,7 @@ case $wipemode in
         dd if=/dev/zero of="$hd" >/dev/null 2>&1
         echo -e "\n Wiping complete.\n"
         ;;
-    fast)
+    fast|fastwipe)
         echo " Writing zeros to $hd"
         dd if=/dev/zero of="$hd" bs=512 count=100000
         echo -e "\n Wiping complete.\n"
