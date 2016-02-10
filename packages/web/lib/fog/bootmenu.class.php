@@ -569,6 +569,13 @@ class BootMenu extends FOGBase {
             $PIGZ_COMP = in_array($TaskType->get(id),$imagingTasks) ? ($Image->get(compress) > -1 && is_numeric($Image->get(compress)) ? $Image->get(compress) : $this->getSetting(FOG_PIGZ_COMP)) : $this->getSetting(FOG_PIGZ_COMP);
             $MACs = $this->Host->getMyMacs();
             $clientMacs = array_filter((array)$this->parseMacList(implode('|',(array)$MACs),false,true));
+            if ($this->Host->get('useAD')) {
+                $addomain = preg_replace('#\ #','+_+',$this->Host->get('ADDomain'));
+                $adou = preg_replace('#\ #','+_+',$this->Host->get('ADOU'));
+                $aduser = preg_replace('#\ #','+_+',$this->Host->get('ADUser'));
+                $adpass = preg_replace('#\ #','+_+',$this->Host->get('ADPass'));
+            }
+            $fdrive = $this->Host->get('kernelDevice');
             $kernelArgsArray = array(
                 "mac=$mac",
                 "ftp=$ftp",
@@ -619,27 +626,11 @@ class BootMenu extends FOGBase {
                     'active' => $Task->get('shutdown'),
                 ),
                 array(
-                    'value' => 'adon=1',
+                    'value' => "adon=1 addomain=\"$addomain\" adou=\"$adou\" aduser=\"$aduser\" adpass=\"$adpass\"",
                     'active' => $this->Host->get('useAD'),
                 ),
                 array(
-                    'value' => "addomain=\"{$this->Host->get('ADDomain')}\"",
-                    'active' => $this->Host->get('useAD'),
-                ),
-                array(
-                    'value' => "adou=\"{$this->Host->get(ADOU)}\"",
-                    'active' => $this->Host->get('useAD'),
-                ),
-                array(
-                    'value' => "aduser=\"{$this->Host->get(ADUser)}\"",
-                    'active' => $this->Host->get('useAD'),
-                ),
-                array(
-                    'value' => "adpass=\"{$this->Host->get(ADPass)}\"",
-                    'active' => $this->Host->get('useAD'),
-                ),
-                array(
-                    'value' => 'fdrive='.$this->Host->get('kernelDevice'),
+                    'value' => "fdrive=$fdrive",
                     'active' => $this->Host->get('kernelDevice'),
                 ),
                 array(
