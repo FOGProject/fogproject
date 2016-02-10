@@ -756,11 +756,21 @@ changeHostname() {
     REG_HOSTNAME_KEY3_XP="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
     REG_HOSTNAME_KEY4_XP="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
     REG_HOSTNAME_KEY5_XP="\ControlSet001\services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY6_XP="\CurrentControlSet\Services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY7_XP="\CurrentControlSet\Services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY8_XP="\CurrentControlSet\Control\ComputerName\ComputerName\ComputerName"
+    REG_HOSTNAME_KEY9_XP="\CurrentControlSet\services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY10_XP="\CurrentControlSet\services\Tcpip\Parameters\Hostname"
     REG_HOSTNAME_KEY1_7="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
     REG_HOSTNAME_KEY2_7="\ControlSet001\Services\Tcpip\Parameters\Hostname"
     REG_HOSTNAME_KEY3_7="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
     REG_HOSTNAME_KEY4_7="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
     REG_HOSTNAME_KEY5_7="\ControlSet001\services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY6_7="\CurrentControlSet\Services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY7_7="\CurrentControlSet\Services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY8_7="\CurrentControlSet\Control\ComputerName\ComputerName\ComputerName"
+    REG_HOSTNAME_KEY9_7="\CurrentControlSet\services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY10_7="\CurrentControlSet\services\Tcpip\Parameters\Hostname"
     REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
     dots "Mounting directory"
     if [[ ! -d /ntfs ]]; then
@@ -771,9 +781,8 @@ changeHostname() {
             echo " * Could not create mount location"
             return
         fi
-    else
-        umount /ntfs >/dev/null 2>&1
     fi
+    umount /ntfs >/dev/null 2>&1
     ntfs-3g -o force,rw $part /ntfs >/tmp/ntfs-mount-output 2>&1
     case $? in
         0)
@@ -796,14 +805,24 @@ changeHostname() {
                 key3="$REG_HOSTNAME_KEY3_XP"
                 key4="$REG_HOSTNAME_KEY4_XP"
                 key5="$REG_HOSTNAME_KEY5_XP"
+                key6="$REG_HOSTNAME_KEY6_XP"
+                key7="$REG_HOSTNAME_KEY7_XP"
+                key8="$REG_HOSTNAME_KEY8_XP"
+                key9="$REG_HOSTNAME_KEY9_XP"
+                key10="$REG_HOSTNAME_KEY10_XP"
                 ;;
-            [2]|[5-7]|9)
+            2|[5-7]|9)
                 regfile="$REG_LOCAL_MACHINE_7"
                 key1="$REG_HOSTNAME_KEY1_7"
                 key2="$REG_HOSTNAME_KEY2_7"
                 key3="$REG_HOSTNAME_KEY3_7"
                 key4="$REG_HOSTNAME_KEY4_7"
                 key5="$REG_HOSTNAME_KEY5_7"
+                key6="$REG_HOSTNAME_KEY6_7"
+                key7="$REG_HOSTNAME_KEY7_7"
+                key8="$REG_HOSTNAME_KEY8_7"
+                key9="$REG_HOSTNAME_KEY9_7"
+                key10="$REG_HOSTNAME_KEY10_7"
                 ;;
         esac
         echo "ed $key1" >/usr/share/fog/lib/EOFREG
@@ -816,32 +835,37 @@ changeHostname() {
         echo "$hostname" >>/usr/share/fog/lib/EOFREG
         echo "ed $key5" >>/usr/share/fog/lib/EOFREG
         echo "$hostname" >>/usr/share/fog/lib/EOFREG
+        echo "ed $key6" >>/usr/share/fog/lib/EOFREG
+        echo "$hostname" >>/usr/share/fog/lib/EOFREG
+        echo "ed $key7" >>/usr/share/fog/lib/EOFREG
+        echo "$hostname" >>/usr/share/fog/lib/EOFREG
+        echo "ed $key8" >>/usr/share/fog/lib/EOFREG
+        echo "$hostname" >>/usr/share/fog/lib/EOFREG
+        echo "ed $key9" >>/usr/share/fog/lib/EOFREG
+        echo "$hostname" >>/usr/share/fog/lib/EOFREG
+        echo "ed $key10" >>/usr/share/fog/lib/EOFREG
+        echo "$hostname" >>/usr/share/fog/lib/EOFREG
         echo "q" >> /usr/share/fog/lib/EOFREG
         echo "y" >> /usr/share/fog/lib/EOFREG
         echo >> /usr/share/fog/lib/EOFREG
     fi
-    dots "Changing hostname"
-    if [[ ! -e $regfile ]]; then
-        echo "Failed"
-        debugPause
-        umount /ntfs >/dev/null 2>&1
-        echo " * File does not exist"
-        return
+    if [[ -e $regfile ]]; then
+        dots "Changing hostname"
+        reged -e $regfile < /usr/share/fog/lib/EOFREG >/dev/null 2>&1
+        case $? in
+            [0-2])
+                echo "Done"
+                debugPause
+                ;;
+            *)
+                echo "Failed"
+                debugPause
+                umount /ntfs >/dev/null 2>&1
+                echo " * Failed to change hostname"
+                return
+                ;;
+        esac
     fi
-    reged -e $regfile < /usr/share/fog/lib/EOFREG >/dev/null 2>&1
-    case $? in
-        [0-2])
-            echo "Done"
-            debugPause
-            ;;
-        *)
-            echo "Failed"
-            debugPause
-            umount /ntfs >/dev/null 2>&1
-            echo " * Failed to change hostname"
-            return
-            ;;
-    esac
     rm -rf /usr/share/fog/lib/EOFREG
     umount /ntfs >/dev/null 2>&1
 }
