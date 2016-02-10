@@ -4,6 +4,17 @@ REG_LOCAL_MACHINE_XP="/ntfs/WINDOWS/system32/config/system"
 REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
 # 1 to turn on massive debugging of partition table restoration
 ismajordebug=0
+#If a sub shell gets invoked and we lose kernel vars this will reimport them
+oIFS=$IFS
+for var in $(cat /proc/cmdline); do
+    IFS=$oIFS
+    read name value <<< $(echo "$var" | grep =.* | awk -F= '{name=$1;$1="";gsub(/[ \t]+$/,"",$0);gsub(/^[ \t]+/,"",$0); gsub(/[+][_][+]/," ",$0); value=$0; print name; print value;}')
+    IFS=$'\n'
+    [[ -z $value ]] && continue
+    value=$(echo $value | sed 's/\"//g')
+    printf -v "$name" -- "$value"
+done
+IFS=$oIFS
 # Below Are non parameterized functions
 # These functions will run without any arguments
 #
