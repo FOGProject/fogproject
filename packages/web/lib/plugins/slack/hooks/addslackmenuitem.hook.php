@@ -7,7 +7,7 @@ class AddSlackMenuItem extends Hook {
     public $node = 'slack';
     public function MenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $this->array_insert_after('task',$arguments['main'],$this->node,array(_('Pushbullet Management'),'fa fa-slack fa-2x'));
+        $this->array_insert_after('task',$arguments['main'],$this->node,array(_('Slack Management'),'fa fa-slack fa-2x'));
     }
     public function addPageWithObject($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
