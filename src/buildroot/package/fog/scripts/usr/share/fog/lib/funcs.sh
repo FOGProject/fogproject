@@ -1921,7 +1921,7 @@ savePartition() {
                     debugPause
                     imgpart="$imagePath/d${disk_number}p${part_number}.img"
                     uploadFormat "$fifoname" "$imgpart"
-                    partclone.$fstype -fsck-src-part-y -c -s $part -O $fifoname -N -f 1 2>/tmp/status.fog
+                    partclone.$fstype -fsck-src-part -c -s $part -O $fifoname -N -f 1 2>/tmp/status.fog
                     case $? in
                         0)
                             mv ${imgpart}.000 $imgpart >/dev/null 2>&1
