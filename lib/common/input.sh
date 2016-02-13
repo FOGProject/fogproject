@@ -24,6 +24,9 @@ if [[ $guessdefaults == 1 ]]; then
         *[Aa][Rr][Cc][Hh]*)
             strSuggestedOS=3
             ;;
+        *)
+            strSuggestedOS=1
+            ;;
     esac
     strSuggestedIPAddress=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $4}' | head -n2 | tail -n1)
     if [[ -z $strSuggestedIPAddress ]]; then

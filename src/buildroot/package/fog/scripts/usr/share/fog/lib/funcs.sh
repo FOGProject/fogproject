@@ -1819,7 +1819,7 @@ restorePartitionTablesAndBootLoaders() {
     local table_type=""
     getDesiredPartitionTableType "$imagePath" "$disk_number"
     majorDebugEcho "Trying to restore to $table_type partition table."
-    if [[ $table_type == GPT || $mbrsize != +(1048576|512|32256) ]]; then
+    if [[ $table_type == GPT || $mbrsize != +(1048576|512|32256|4096) ]]; then
         dots "Restoring Partition Tables (GPT)"
         restoreGRUB "$disk" "$disk_number" "$imagePath" "true"
         sgdisk -gel $tmpMBR $disk >/dev/null 2>&1
