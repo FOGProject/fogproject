@@ -525,7 +525,7 @@ processSfdisk() {
             minstart=63
             ;;
         *)
-            [[ $minstart -eq 63 || $minstart -eq 8 ]] && chunksize=512
+            [[ $minstart -eq 63 ]] && chunksize=512
             ;;
     esac
     local awkArgs="-v CHUNK_SIZE=$chunksize -v MIN_START=$minstart"
