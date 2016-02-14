@@ -1801,7 +1801,6 @@ restorePartitionTablesAndBootLoaders() {
     [[ -z $imgPartitionType ]] && handleError "No image part type passed (${FUNCNAME[0]})"
     local tmpMBR=""
     local hasGRUB=0
-    local mbrsize=""
     local strdots=""
     if [[ $nombr -eq 1 ]]; then
         echo " * Skipping partition tables and MBR"
@@ -1814,12 +1813,12 @@ restorePartitionTablesAndBootLoaders() {
     majorDebugPause
     MBRFileName "$imagePath" "$disk_number" "tmpMBR"
     hasGRUB "$disk" "$disk_number" "$imagePath"
-    mbrsize=$(ls -l $tmpMBR 2>/dev/null | awk '{print $5}')
     [[ ! -f $tmpMBR ]] && handleError "Image Store Corrupt: Unable to locate MBR (${FUNCNAME[0]})"
     local table_type=""
     getDesiredPartitionTableType "$imagePath" "$disk_number"
     majorDebugEcho "Trying to restore to $table_type partition table."
-    if [[ $table_type == GPT || $mbrsize != +(1048576|512|32256|4096) ]]; then
+    local is_mbr=$(strings $tmpMBR 2>/dev/null | grep "Invalid partition" | wc -l);
+    if [[ $table_type == GPT || $is_mbr -lt 1 ]]; then
         dots "Restoring Partition Tables (GPT)"
         restoreGRUB "$disk" "$disk_number" "$imagePath" "true"
         sgdisk -gel $tmpMBR $disk >/dev/null 2>&1
