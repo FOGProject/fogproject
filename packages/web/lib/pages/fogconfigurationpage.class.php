@@ -732,7 +732,7 @@ class FOGConfigurationPage extends FOGPage {
             if (!$StorageNode->isValid()) continue;
             if (!$StorageNode->get('isEnabled')) continue;
             $user = $StorageNode->get('user');
-            $pass = $StorageNode->get('pass');
+            $pass = urlencode($StorageNode->get('pass'));
             $host = $StorageNode->get('ip');
             $this->FOGFTP
                 ->set('host',$host)

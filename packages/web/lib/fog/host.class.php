@@ -438,7 +438,7 @@ class Host extends FOGController {
         if (in_array($TaskType->get('id'),array(1,8,15,17))) {
             $this->FOGFTP
                 ->set('username',$StorageNode->get('user'))
-                ->set('password',$StorageNode->get('pass'))
+                ->set('password',urlencode($StorageNode->get('pass')))
                 ->set('host',$StorageNode->get('ip'));
             if (!$this->FOGFTP->connect() || !$this->FOGFTP->exists('/'.trim($StorageNode->get('ftppath'),'/').'/'.$Image->get('path'))) $res = false;
             $this->FOGFTP->close();

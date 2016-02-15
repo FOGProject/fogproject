@@ -84,7 +84,7 @@ class SnapinManagementPage extends FOGPage {
             $this->FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
-                ->set('password',$StorageNode->get('pass'));
+                ->set('password',urlencode($StorageNode->get('pass')));
             if (!$this->FOGFTP->connect()) continue;
             $filelist = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
             foreach ((array)$filelist AS $i => &$file) {
@@ -156,7 +156,7 @@ class SnapinManagementPage extends FOGPage {
                 $this->FOGFTP
                     ->set('host',$StorageNode->get('ip'))
                     ->set('username',$StorageNode->get('user'))
-                    ->set('password',$StorageNode->get('pass'));
+                    ->set('password',urlencode($StorageNode->get('pass')));
                 if (!$this->FOGFTP->connect()) throw new Exception(sprintf('%s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP Connection has failed')));
                 if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
                     if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
@@ -203,7 +203,7 @@ class SnapinManagementPage extends FOGPage {
             $this->FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
-                ->set('password',$StorageNode->get('pass'));
+                ->set('password',urlencode($StorageNode->get('pass')));
             if (!$this->FOGFTP->connect()) continue;
             $filelist = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
             foreach ((array)$filelist AS $i => &$file) {
@@ -340,7 +340,7 @@ class SnapinManagementPage extends FOGPage {
                     $this->FOGFTP
                         ->set('host',$StorageNode->get('ip'))
                         ->set('username',$StorageNode->get('user'))
-                        ->set('password',$StorageNode->get('pass'));
+                        ->set('password',urlencode($StorageNode->get('pass')));
                     if (!$this->FOGFTP->connect()) throw new Exception(sprintf('%s: %s: %s %s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP connection has failed')));
                     if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
                         if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));

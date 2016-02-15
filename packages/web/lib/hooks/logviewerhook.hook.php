@@ -19,7 +19,7 @@ class LogViewerHook extends Hook {
         $this->FOGFTP
             ->set('host',$arguments['StorageNode']->get('ip'))
             ->set('username',$arguments['StorageNode']->get('user'))
-            ->set('password',$arguments['StorageNode']->get('pass'));
+            ->set('password',urlencode($arguments['StorageNode']->get('pass')));
         if (!$this->FOGFTP->connect()) return;
         $fogfiles = array();
         $fogfiles = $this->FOGFTP->nlist('/var/log/');
