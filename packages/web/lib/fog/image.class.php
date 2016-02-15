@@ -92,7 +92,7 @@ class Image extends FOGController {
             $this->FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
-                ->set('password',$StorageNode->get('pass'));
+                ->set('password',urlencode($StorageNode->get('pass')));
             if (!$this->FOGFTP->connect()) {
                 $this->FOGFTP->close();
                 continue;

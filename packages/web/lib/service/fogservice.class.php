@@ -152,7 +152,7 @@ abstract class FOGService extends FOGBase {
                 }
                 $this->FOGFTP
                     ->set('username',$PotentialStorageNode->get('user'))
-                    ->set('password',$PotentialStorageNode->get('pass'))
+                    ->set('password',urlencode($PotentialStorageNode->get('pass')))
                     ->set('host',$PotentialStorageNode->get('ip'));
                 if (!$this->FOGFTP->connect()) {
                     $this->outall(_(" * Cannot connect to {$StorageNodeToSend->get(name)}"));

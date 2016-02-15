@@ -30,7 +30,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             $this->FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
-                ->set('password',$StorageNode->get('pass'));
+                ->set('password',urlencode($StorageNode->get('pass')));
             if (!$this->FOGFTP->connect()) throw new Exception(_('Failed to connect to download'));
             $this->FOGFTP->close();
             $path = rtrim($StorageNode->get('snapinpath'),'/');
