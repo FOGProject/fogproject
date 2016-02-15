@@ -1,17 +1,36 @@
 <?php
 class BootMenu extends FOGBase {
-    private $Host,$kernel,$initrd,$booturl,$memdisk,$memtest,$web,$defaultChoice,$bootexittype,$loglevel;
-    private $storage, $shutdown, $path;
-    private $hiddenmenu, $timeout, $KS;
+    private $Host;
+    private $kernel;
+    private $initrd;
+    private $booturl;
+    private $memdisk;
+    private $memtest;
+    private $web;
+    private $defaultChoice;
+    private $bootexittype;
+    private $loglevel;
+    private $storage;
+    private $shutdown;
+    private $path;
+    private $hiddenmenu;
+    private $timeout;
+    private $KS;
+    private static $exitTypes = array(
+        'sanboot' => 'sanboot --no-describe --drive 0x80',
+        'grub' => 'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
+        'grub_first_hdd' => 'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
+        'grub_first_cdrom' => 'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="cdrom --init;map --hook;root (cd0);chainloader (cd0)"',
+        'grub_first_found_windows' => 'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="find --set-root /BOOTMGR;chainloader /BOOTMGR"',
+        'refind_efi' => "imgfetch \${boot-url}/service/ipxe/refind.conf\nchain -ar \${boot-url}/service/ipxe/refind.efi",
+        'exit' => 'exit',
+    );
     public function __construct($Host = null) {
         parent::__construct();
-        $loglevel = (int)$this->getSetting('FOG_KERNEL_LOGLEVEL');
-        $this->loglevel = "loglevel=$loglevel";
-        $StorageNode = $this->getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isMaster'=>1));
-        $StorageNode = @array_shift($StorageNode);
         $webserver = $this->getSetting('FOG_WEB_HOST');
-        $curroot = trim(trim($this->getSetting('FOG_WEB_ROOT'),'/'));
+        $curroot = trim($this->getSetting('FOG_WEB_ROOT'),'/');
         $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
+        $this->web = sprintf('%s%s',$webserver,$webroot);
         $Send['booturl'] = array(
             '#!ipxe',
             "set fog-ip $webserver",
@@ -19,138 +38,175 @@ class BootMenu extends FOGBase {
             'set boot-url http://${fog-ip}/${fog-webroot}',
         );
         $this->parseMe($Send);
-        $this->web = "${webserver}${webroot}";
-        $exitTypes = array(
-            'sanboot'=>'sanboot --no-describe --drive 0x80',
-            'grub'=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
-            'grub_first_hdd'=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
-            'grub_first_cdrom'=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="cdrom --init;map --hook;root (cd0);chainloader (cd0)"',
-            'grub_first_found_windows'=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="find --set-root /BOOTMGR;chainloader /BOOTMGR"',
-            'refind_efi'=>"imgfetch \${boot-url}/service/ipxe/refind.conf\nchain -ar \${boot-url}/service/ipxe/refind.efi",
-            'exit'=>'exit',
-        );
-        $exitSetting = false;
-        $exitKeys = array_keys($exitTypes);
-        if (isset($_REQUEST['platform']) && $_REQUEST['platform'] == 'efi') {
-            $exitSetting = $Host instanceof Host && $Host->isValid() && $Host->get('efiexit') ? $Host->get('efiexit') : $this->getSetting('FOG_EFI_BOOT_EXIT_TYPE');
-            $initloader = ' ';
-        } else {
-            $exitSetting = $Host instanceof Host && $Host->isValid() && $Host->get('biosexit') ? $Host->get('biosexit') : $this->getSetting('FOG_BOOT_EXIT_TYPE');
-            $initloader = ' init=/sbin/init ';
+        $this->Host = $Host;
+        $host_field_test = 'biosexit';
+        $global_field_test = 'FOG_BOOT_EXIT_TYPE';
+        if ($_REQUEST['platform'] == 'efi') {
+            $host_field_test = 'efiexit';
+            $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
-        $this->bootexittype = (in_array($exitSetting,$exitKeys) ? $exitTypes[$exitSetting] : $exitTypes['sanboot']);
+        $StorageNode = $this->getClass('StorageNode',@min($this->getSubObjectIDs('StorageNode',array('isEnabled'=>1,'isMaster'=>1))));
+        $loglevel = (int)$this->getSetting('FOG_KERNEL_LOGLEVEL');
+        $memdisk = 'memdisk';
         $ramsize = $this->getSetting('FOG_KERNEL_RAMDISK_SIZE');
         $dns = $this->getSetting('FOG_PXE_IMAGE_DNSADDRESS');
         $keymap = $this->getSetting('FOG_KEYMAP');
-        $memdisk = 'memdisk';
         $memtest = $this->getSetting('FOG_MEMTEST_KERNEL');
-        $bzImage = ($_REQUEST['arch'] == 'x86_64' ? $this->getSetting('FOG_TFTP_PXE_KERNEL') : $this->getSetting('FOG_TFTP_PXE_KERNEL_32'));
+        $bzImage = $this->getSetting('FOG_FTP_PXE_KERNEL_32');
+        $imagefile = $this->getSetting('FOG_PXE_BOOT_IMAGE_32');
+        $timeout = $this->getSetting('FOG_PXE_MENU_TIMEOUT') * 1000;
+        if (!$_REQUEST['menuAccess']) $hiddenmenu = (int)$this->getSetting('FOG_PXE_MENU_HIDDEN');
+        if ($hiddenmenu) {
+            $keySequence = $this->getSetting('FOG_KEY_SEQUENCE');
+            $timeout = $this->getSetting('FOG_PXE_HIDDENMENU_TIMEOUT') * 1000;
+        }
+        if ($_REQUEST['arch'] == 'x86_64') {
+            $bzImage = $this->getSetting('FOG_TFTP_PXE_KERNEL');
+            $imagefile = $this->getSetting('FOG_PXE_BOOT_IMAGE');
+        }
+        if ($this->Host->get('kernel')) $bzImage = trim($this->Host->get('kernel'));
+        $StorageGroup = $StorageNode->getStorageGroup();
+
+        if ($this->Host->isValid()) {
+            $exit = trim($this->Host->get($host_field_test) ? $this->Host->get($host_field_test) : $this->getSetting($global_field_test));
+            if (!$exit || !in_array($exit,array_keys(self::$exitTypes))) $exit = 'sanboot';
+            $this->HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS',array(
+                'Host' => &$this->Host,
+                'StorageGroup' => &$StorageGroup,
+                'StorageNode' => &$StorageNode,
+                'webroot' => &$webroot,
+                'memtest' => &$memtest,
+                'memdisk' => &$memdisk,
+                'bzImage' => &$bzImage,
+                'imagefile' => &$imagefile,
+                'loglevel' => &$loglevel,
+                'ramsize' => &$ramsize,
+                'keymap' => &$keymap,
+                'timeout' => &$timeout,
+                'keySequence' => &$keySequence,
+            ));
+        }
         $kernel = $bzImage;
-        $imagefile = ($_REQUEST['arch'] == 'x86_64' ? $this->getSetting('FOG_PXE_BOOT_IMAGE') : $this->getSetting('FOG_PXE_BOOT_IMAGE_32'));
         $initrd = $imagefile;
-        if ($Host && $Host->isValid()) {
-            ($Host->get('kernel') ? $bzImage = $Host->get('kernel') : null);
-            $kernel = $bzImage;
-            $this->HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS',array('Host'=>&$Host,'StorageGroup'=>&$StorageGroup,'StorageNode'=>&$StorageNode,'memtest'=>&$memtest,'memdisk'=>&$memdisk,'bzImage'=>&$bzImage,'initrd'=>&$initrd,'webroot'=>&$webroot,'imagefile'=>&$imagefile,'init'=>&$initrd));
-        }
-        $keySequence = $this->getSetting('FOG_KEY_SEQUENCE');
-        if ($keySequence) $this->KS = $this->getClass('KeySequence',$keySequence);
-        if (!$_REQUEST['menuAccess']) $this->hiddenmenu = $this->getSetting('FOG_PXE_MENU_HIDDEN');
-        $timeout = ($this->hiddenmenu ? $this->getSetting('FOG_PXE_HIDDENMENU_TIMEOUT') : $this->getSetting('FOG_PXE_MENU_TIMEOUT'))* 1000;
         $this->timeout = $timeout;
-        $this->booturl = "http://${webserver}${webroot}service";
-        $this->Host = $Host;
-        $CaponePlugInst = in_array('capone',(array)$_SESSION['PluginsInstalled']);
-        $DMISet = $CaponePlugInst ? $this->getSetting('FOG_PLUGIN_CAPONE_DMI') : false;
-        if ($CaponePlugInst) {
-            $this->storage = $StorageNode->get('ip');
-            $this->path = $StorageNode->get('path');
-            $this->shutdown = $this->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN');
-        }
-        if ($CaponePlugInst && $DMISet) {
-            $PXEMenuItem = $this->getClass('PXEMenuOptionsManager')->find(array('name'=>'fog.capone'));
-            $PXEMenuItme = @array_shift($PxeMenuItem);
-            if ($PXEMenuItem instanceof PXEMenuOptions && $PXEMenuItem->isValid()) $PXEMenuItem->set(args,"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path")->save();
-            else {
-                $this->getClass('PXEMenuOptions')
-                    ->set('name','fog.capone')
-                    ->set('description','Capone Deploy')
-                    ->set('args',"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path")
-                    ->set('params',null)
-                    ->set('default',0)
-                    ->set('regMenu',2)
-                    ->save();
-            }
-            $PXEMenuItem->save();
-        }
+        $this->hiddenmenu = $hiddenmenu;
+        $this->bootexittype = self::$exitTypes[$exit];
+        $this->loglevel = "loglevel=$loglevel";
+        $this->KS = $this->getClass('KeySequence',$keySequence);
+        $this->booturl = "http://{$webserver}{$webroot}service";
         $this->memdisk = "kernel $memdisk";
         $this->memtest = "initrd $memtest";
-        $this->kernel = "kernel $bzImage $this->loglevel${initloader}initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0".($this->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '');
+        $this->kernel = sprintf('kernel %s %s initrd=%s root=/dev/ram0 rw ramdisk_size=%s keymap=%s web=%s conosoleblank=0%s',
+            $bzImage,
+            $this->loglevel,
+            $initrd,
+            $ramsize,
+            $keymap,
+            $this->web,
+            $this->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : ''
+        );
         $this->initrd = "imgfetch $imagefile";
-        $defMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('default'=>1)));
-        $this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local').(!$this->hiddenmenu ? " --timeout $timeout" : " --timeout 0").' target && goto ${target}';
-        $iPXE = $this->getClass('iPXEManager')->find(array('product'=>$_REQUEST['product'],'manufacturer'=>$_REQUEST['manufacturer'],'file'=>$_REQUEST['filename']));
-        $iPXE = @array_shift($iPXE);
-        if ($iPXE instanceof iPXE && $iPXE->isValid()) {
-            if ($iPXE->get('failure')) $iPXE->set('failure',0);
-            if (!$iPXE->get('success')) $iPXE->set('success',1);
-            if (!$iPXE->get('version')) $iPXE->set('version',$_REQUEST['ipxever']);
-            $iPXE->save();
-        } else {
-            $this->getClass('iPXE')
-                ->set('product',$_REQUEST['product'])
-                ->set('manufacturer',$_REQUEST['manufacturer'])
-                ->set('mac',$Host instanceof Host && $Host->isValid() ? $Host->get('mac') : 'no mac')
-                ->set('success',1)
-                ->set('file',$_REQUEST['filename'])
-                ->set('version',$_REQUEST['ipxever'])
-                ->save();
-        }
+        self::caponeMenu(
+            $this->storage,
+            $this->path,
+            $this->shutdown,
+            $this->getSetting('FOG_PLUGIN_CAPONE_DMI'),
+            $this->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN'),
+            $StorageNode,
+            $this->FOGCore
+        );
+        $defaultMenu = $this->getClass('PXEMenuOptions',$this->getSubObjectIDs('PXEMenuOptions',array('default'=>1)));
+        $menuname = $defaultMenu->isValid() ? trim($defaultMenu->get('name')) : 'fog.local';
+        unset($defaultMenu);
+        self::getDefaultMenu($this->timeout,$menuname,$this->defaultChoice);
+        $this->ipxeLog();
+        if (trim($_REQUEST['extraargs']) && $_SESSION['extraargs'] != trim($_REQUEST['extraargs'])) $_SESSION['extraargs'] = trim($_REQUEST['extraargs']);
         if (isset($_REQUEST['username'])) $this->verifyCreds();
         else if ($_REQUEST['qihost']) $this->setTasking($_REQUEST['imageID']);
         else if ($_REQUEST['delconf']) $this->delHost();
         else if ($_REQUEST['key']) $this->keyset();
         else if ($_REQUEST['sessname']) $this->sesscheck();
         else if ($_REQUEST['aprvconf']) $this->approveHost();
-        else if (!$Host || !$Host->isValid()) $this->printDefault();
+        else if (!$this->Host->isValid()) $this->printDefault();
         else $this->getTasking();
     }
+    private static function caponeMenu(&$storage, &$path, &$shutdown,&$DMISet,&$Shutdown,&$StorageNode,&$FOGCore) {
+        if (!in_array('capone',(array)$_SESSION['PluginsInstalled'])) return;
+        if (!$DMISet) return;
+        $storage = $StorageNode->get('ip');
+        $path = $StorageNode->get('path');
+        $shutdown = $Shutdown;
+        $args = trim("mode=capone shutdown=$shutdown storage=$storage:$path");
+        $CaponeMenu = $FOGCore->getClass('PXEMenuOptions',$FOGCore->getSubObjectIDs('PXEMenuOptions',array('name'=>'fog.capone')));
+        if (!$CaponeMenu->isValid()) {
+            $CaponeMenu->set('name','fog.capone')
+                ->set('description',_('Capone Deploy'))
+                ->set('args',$args)
+                ->set('params',null)
+                ->set('default',0)
+                ->set('regMenu',2);
+        } else if (trim($CaponeMenu->get('args')) !== $args) $CaponeMenu->set('args',$args);
+        $CaponeMenu->save();
+    }
+    private static function getDefaultMenu($timeout,$name,&$default) {
+        $default = "choose --default $name --timeout $timeout target && goto \${target}";
+    }
+    private function ipxeLog() {
+        $findWhere = array(
+            'file' => trim(basename($_REQUEST['filename'])),
+            'product' => trim($_REQUEST['product']),
+            'manufacturer' => trim($_REQUEST['manufacturer']),
+            'mac' => $this->Host->isValid() ? $this->Host->get('mac')->__toString() : '',
+        );
+        $this->getClass('iPXE',@max($this->getSubObjectIDs('iPXE',$findWhere)))
+            ->set('product',$findWhere['product'])
+            ->set('manufacturer',$findWhere['manufacturer'])
+            ->set('mac', $findWhere['mac'])
+            ->set('success',1)
+            ->set('failure',0)
+            ->set('file',$findWhere['file'])
+            ->set('version',trim($_REQUEST['ipxever']))
+            ->save();
+    }
     private function chainBoot($debug=false, $shortCircuit=false) {
+        $debug = (int)$debug;
         if (!$this->hiddenmenu || $shortCircuit) {
             $Send['chainnohide'] = array(
-                "#!ipxe",
-                "cpuid --ext 29 && set arch x86_64 || set arch i386",
-                "params",
+                '#!ipxe',
+                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
                 'param platform ${platform}',
-                "param menuAccess 1",
-                "param debug ".($debug ? 1 : 0),
+                'param menuAccess 1',
+                "param debug $debug",
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-                ":bootme",
+                ':bootme',
                 "chain -ar $this->booturl/ipxe/boot.php##params",
             );
         } else {
+            $KSKey = $this->KS->isValid() ? trim($this->KS->get('ascii')) : '0x1b';
+            $KSName = $this->KS->isValid() ? trim($this->KS->get('name')) : 'Escape';
             $Send['chainhide'] = array(
-                "#!ipxe",
-                "cpuid --ext 29 && set arch x86_64 || set arch i386",
-                'iseq ${platform} efi && set key 0x1b || set key '.($this->KS && $this->KS->isValid() ? $this->KS->get('ascii') : '0x1b'),
-                'iseq ${platform} efi && set keyName ESC || set keyName '.($this->KS && $this->KS->isValid() ? $this->KS->get('name') : 'Escape'),
-                'prompt --key ${key} --timeout '.$this->timeout.' Booting... (Press ${keyName} to access the menu) && goto menuAccess || '.$this->bootexittype,
-                ":menuAccess",
-                "login",
-                "params",
+                '#!ipxe',
+                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                "iseq \${platform} efi && set key 0x1b || set key $KSKey",
+                "iseq \${platform} efi && set keyName ESC || set keyName $KSName",
+                "prompt --key \${key} --timeout $this->timeout Booting... (Press \${keyName} to access the menu) && goto menuAccess || $this->bootexittype",
+                ':menuAccess',
+                'login',
+                'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
                 'param platform ${platform}',
                 'param username ${username}',
                 'param password ${password}',
-                "param menuaccess 1",
-                "param debug ".($debug ? 1 : 0),
+                'param menuaccess 1',
+                "param debug $debug",
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-                ":bootme",
+                ':bootme',
                 "chain -ar $this->booturl/ipxe/boot.php##params",
             );
         }
@@ -159,15 +215,15 @@ class BootMenu extends FOGBase {
     private function delHost() {
         if($this->Host->destroy()) {
             $Send['delsuccess'] = array(
-                "#!ipxe",
-                "echo Host deleted successfully",
-                "sleep 3"
+                '#!ipxe',
+                'echo Host deleted successfully',
+                'sleep 3'
             );
         } else {
             $Send['delfail'] = array(
-                "#!ipxe",
-                "echo Failed to destroy Host!",
-                "sleep 3",
+                '#!ipxe',
+                'echo Failed to destroy Host!',
+                'sleep 3',
             );
         }
         $this->parseMe($Send);
@@ -175,9 +231,9 @@ class BootMenu extends FOGBase {
     }
     private function printImageIgnored() {
         $Send['ignored'] = array(
-            "#!ipxe",
-            "echo The MAC Address is set to be ignored for imaging tasks",
-            "sleep 15",
+            '#!ipxe',
+            'echo The MAC Address is set to be ignored for imaging tasks',
+            'sleep 15',
         );
         $this->parseMe($Send);
         $this->noMenu();
@@ -185,16 +241,18 @@ class BootMenu extends FOGBase {
     private function approveHost() {
         if ($this->Host->set('pending',null)->save()) {
             $Send['approvesuccess'] = array(
-                "#!ipxe",
-                "echo Host approved successfully",
-                "sleep 3"
+                '#!ipxe',
+                'echo Host approved successfully',
+                'sleep 3'
             );
-            $this->Host->createImagePackage(10,'Inventory',false,false,false,false,$_REQUEST['username']);
+            $shutdown = stripos('shutdown=1',$_SESSION['extraargs']);
+            $isdebug = preg_match('#isdebug=yes|mode=.*debug.* #i',$_SESSION['extraargs']);
+            $this->Host->createImagePackage(10,'Inventory',$shutdown,$isdebug,false,false,$_REQUEST['username']);
         } else {
             $Send['approvefail'] = array(
-                "#!ipxe",
-                "echo Host approval failed",
-                "sleep 3"
+                '#!ipxe',
+                'echo Host approval failed',
+                'sleep 3'
             );
         }
         $this->parseMe($Send);
@@ -208,108 +266,113 @@ class BootMenu extends FOGBase {
                 if (!$arg['active']) continue;
                 if (!$arg['value']) continue;
                 $kernelArgs[] = preg_replace('#mode=debug#i','isdebug=yes',$arg['value']);
-            } else {
-                $kernelArgs[] = preg_replace('#mode=debug#i','isdebug=yes',$arg);
-            }
+            } else $kernelArgs[] = preg_replace('#mode=debug#i','isdebug=yes',$arg);
             unset($arg);
         }
         $kernelArgs = array_unique($kernelArgs);
+        $kernelArgs = implode(' ',(array)$kernelArgs);
         $Send['task'] = array(
-            "#!ipxe",
-            "$this->kernel ".implode(' ',(array)$kernelArgs),
-            "$this->initrd",
-            "boot",
+            '#!ipxe',
+            "$this->kernel $kernelArgs",
+            $this->initrd,
+            'boot',
         );
         $this->parseMe($Send);
     }
     public function delConf() {
         $Send['delconfirm'] = array(
-            "#!ipxe",
-            "cpuid --ext 29 && set arch x86_64 || set arch i386",
-            "prompt --key y Would you like to delete this host? (y/N): &&",
-            "params",
+            '#!ipxe',
+            'cpuid --ext 29 && set arch x86_64 || set arch i386',
+            'prompt --key y Would you like to delete this host? (y/N): &&',
+            'params',
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
             'param platform ${platform}',
-            "param delconf 1",
+            'param delconf 1',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-            ":bootme",
+            ':bootme',
             "chain -ar $this->booturl/ipxe/boot.php##params",
         );
         $this->parseMe($Send);
     }
     public function aprvConf() {
         $Send['aprvconfirm'] = array(
-            "#!ipxe",
-            "cpuid --ext 29 && set arch x86_64 || set arch i386",
-            "prompt --key y Would you like to approve this host? (y/N): &&",
-            "params",
+            '#!ipxe',
+            'cpuid --ext 29 && set arch x86_64 || set arch i386',
+            'prompt --key y Would you like to approve this host? (y/N): &&',
+            'params',
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
             'param platform ${platform}',
-            "param aprvconf 1",
+            'param aprvconf 1',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-            ":bootme",
+            ':bootme',
             "chain -ar $this->booturl/ipxe/boot.php##params",
         );
         $this->parseMe($Send);
     }
     public function keyreg() {
         $Send['keyreg'] = array(
-            "#!ipxe",
-            "cpuid --ext 29 && set arch x86_64 || set arch i386",
-            "echo -n Please enter the product key>",
-            "read key",
-            "params",
+            '#!ipxe',
+            'cpuid --ext 29 && set arch x86_64 || set arch i386',
+            'echo -n Please enter the product key :',
+            'read key',
+            'params',
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
             'param platform ${platform}',
             'param key ${key}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-            ":bootme",
+            ':bootme',
             "chain -ar $this->booturl/ipxe/boot.php##params",
         );
         $this->parseMe($Send);
     }
     public function sesscheck() {
-        $sesscount = current($this->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'],'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))));
-        if (!$sesscount || !$sesscount->isValid()) {
+        $findWhere = array(
+            'name' => trim($_REQUEST['sessname']),
+            'stateID' => array_merge($this->getQueuedStates(),(array)$this->getProgressState()),
+        );
+        $MulticastSession = $this->getClass('MulticastSessions',$this->getSubObjectIDs('MulticastSessions',$findWhere));
+        if (!$MulticastSession->isValid()) {
             $Send['checksession'] = array(
-                "#!ipxe",
-                "echo No session found with that name.",
-                "clear sessname",
-                "sleep 3",
-                "cpuid --ext 29 && set arch x86_64 || set arch i386",
-                "params",
+                '#!ipxe',
+                'echo No session found with that name.',
+                'clear sessname',
+                'sleep 3',
+                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
                 'param platform ${platform}',
-                "param sessionJoin 1",
+                'param sessionJoin 1',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-                ":bootme",
+                ':bootme',
                 "chain -ar $this->booturl/ipxe/boot.php##params",
             );
             $this->parseMe($Send);
-        } else $this->multijoin($sesscount->get('id'));
+            return;
+        }
+        $this->multijoin($MulticastSession->get('id'));
     }
     public function sessjoin() {
         $Send['joinsession'] = array(
-            "#!ipxe",
-            "cpuid --ext 29 && set arch x86_64 || set arch i386",
-            "echo -n Please enter the session name to join> ",
-            "read sessname",
-            "params",
+            '#!ipxe',
+            'cpuid --ext 29 && set arch x86_64 || set arch i386',
+            'echo -n Please enter the session name to join >',
+            'read sessname',
+            'params',
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
             'param platform ${platform}',
             'param sessname ${sessname}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-            ":bootme",
+            ':bootme',
             "chain -ar $this->booturl/ipxe/boot.php##params",
         );
         $this->parseMe($Send);
@@ -438,10 +501,12 @@ class BootMenu extends FOGBase {
     }
     public function multijoin($msid) {
         $MultiSess = new MulticastSessions($msid);
-        if ($MultiSess && $MultiSess->isValid()) {
-            if ($this->Host && $this->Host->isValid()) {
-                $this->Host->set(imageID,$MultiSess->get(image));
-                if($this->Host->createImagePackage(8,$MultiSess->get(name),false,false,-1,false,$_REQUEST['username'],'',true)) $this->chainBoot(false,true);
+        $shutdown = stripos('shutdown=1',$_SESSION['extraargs']);
+        $isdebug = preg_match('#isdebug=yes|mode=.*debug.* #i',$_SESSION['extraargs']);
+        if ($MultiSess->isValid()) {
+            if ($this->Host->isValid()) {
+                $this->Host->set('imageID',$MultiSess->get('image'));
+                if ($this->Host->createImagePackage(8,$MultiSess->get('name'),$shutdown,$isdebug,-1,false,$_REQUEST['username'],'',true)) $this->chainBoot(false,true);
             } else $this->falseTasking($MultiSess);
         }
     }
@@ -505,23 +570,26 @@ class BootMenu extends FOGBase {
         }
     }
     public function setTasking($imgID = '') {
+        $shutdown = stripos('shutdown=1',$_SESSION['extraargs']);
+        $isdebug = preg_match('#isdebug=yes|mode=.*debug.* #i',$_SESSION['extraargs']);
         if (!$imgID) $this->printImageList();
         if ($imgID) {
-            if ($this->Host && $this->Host->isValid()) {
-                if ($this->Host->getImage()->get(id) != $imgID) $this->Host->set(imageID,$imgID);
+            if ($this->Host->isValid()) {
+                if ($this->Host->getImage()->get('id') != $imgID) $this->Host->set('imageID',$imgID);
                 if ($this->Host->getImage()->isValid()) {
                     try {
-                        if($this->Host->createImagePackage(1,'AutoRegTask',false,false,-1,false,$_REQUEST['username'])) $this->chainBoot(false, true);
+                        $this->Host->createImagePackage(1,'AutoRegTask',$shutdown,$isdebug,-1,false,$_REQUEST['username']);
+                        $this->chainBoot(false, true);
                     } catch (Exception $e) {
                         $Send['fail'] = array(
                             '#!ipxe',
-                            'echo '.$e->getMessage(),
+                            sprintf('echo %s',$e->getMessage()),
                             'sleep 3',
                         );
                         $this->parseMe($Send);
                     }
                 }
-            } else $this->falseTasking('',$this->getClass(Image,$imgID));
+            } else $this->falseTasking('',$this->getClass('Image',$imgID));
             $this->chainBoot(false,true);
         }
     }
@@ -693,94 +761,93 @@ class BootMenu extends FOGBase {
             } else $this->printTasking($kernelArgsArray);
         }
     }
-    private function menuItem($option, $desc) {return array("item ".$option->get('name')." ".$option->get('description'));}
-        private function menuOpt($option,$type) {
-            if ($option->get('id') == 1) {
-                $Send = array(
-                    ":".$option->get('name'),
-                    "$this->bootexittype || goto MENU",
-                );
-            } else if ($option->get('id') == 2) {
-                $Send = array(
-                    ":".$option->get('name'),
-                    "$this->memdisk iso raw",
-                    "$this->memtest",
-                    "boot || goto MENU",
-                );
-            } else if ($option->get('id') == 11) {
-                $Send = array(
-                    ":".$option->get('name'),
-                    "chain -ar $this->booturl/ipxe/advanced.php || goto MENU",
-                );
-            } else if ($option->get('params')) {
-                $Send = array(
-                    ':'.$option->get('name'),
-                    $option->get('params'),
-                );
-            } else {
-                $Send = array(
-                    ":$option",
-                    "$this->kernel $this->loglevel $type",
-                    "$this->initrd",
-                    "boot || goto MENU",
-                );
+    private function menuItem($option, $desc) {
+        return array("item {$option->get(name)} $desc");
+    }
+    private function menuOpt($option,$type) {
+        $name = trim(":{$option->get(name)}");
+        $type = trim($type);
+        $Send = array($name);
+        if (trim($option->get('params'))) {
+            $params = explode("\n",$option->get('params'));
+            $params = array_map('trim',$params);
+            if ($type) {
+                $index = array_search('params',$params);
+                if ($index != false && is_numeric($index)) $this->array_insert_after($index,$params,'extra',"param extraargs \"$type\"");
             }
-            return $Send;
+            $Send = array_merge($Send,array(implode("\n",$params)));
         }
+        switch ((int)$option->get('id')) {
+        case 1:
+            $Send = array_merge($Send,array("$this->bootexittype || goto MENU"));
+            break;
+        case 2:
+            $Send = array_merge($Send,array("$this->memdisk iso raw",$this->memtest,'boot || goto MENU'));
+            break;
+        case 11:
+            $Send = array_merge($Send,array("chain -ar $this->booturl/ipxe/advanced.php || goto MENU"));
+            break;
+        }
+        if (!$params && $args) $Send = array_merge($Send,array("$this->kernel $this->loglevel $type",$this->initrd,'boot || goto MENU'));
+        return $Send;
+    }
     public function printDefault() {
+        if ($this->hiddenmenu) {
+            $this->chainBoot(true);
+            return;
+        }
         $Menus = $this->getClass('PXEMenuOptionsManager')->find('','','id');
         $Send['head'] = array(
-            "#!ipxe",
-            "cpuid --ext 29 && set arch x86_64 || set arch i386",
-            "goto get_console",
-            ":console_set",
-            "colour --rgb 0x00567a 1 && colour --rgb 0x00567a 2 && colour --rgb 0x00567a 4 ||",
-            "cpair --foreground 7 --background 2 2 ||",
-            "goto MENU",
-            ":alt_console",
-            "cpair --background 0 1 && cpair --background 1 2 ||",
-            "goto MENU",
-            ":get_console",
+            'cpuid --ext 29 && set arch x86_64 || set arch i386',
+            'goto get_console',
+            ':console_set',
+            'colour --rgb 0x00567a 1 ||',
+            'colour --rgb 0x00567a 2 ||',
+            'colour --rgb 0x00567a 4 ||',
+            'cpair --foreground 7 --background 2 2 ||',
+            'goto MENU',
+            ':alt_console',
+            'cpair --background 0 1 ||',
+            'cpair --background 1 2 ||',
+            'goto MENU',
+            ':get_console',
             "console --picture $this->booturl/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console",
         );
-        if (!$this->hiddenmenu) {
-            $showDebug = $_REQUEST["debug"] === "1";
-            $hostRegColor = $this->Host && $this->Host->isValid() ? '0x00567a' : '0xff0000';
-            $Send['menustart'] = array(
-                ":MENU",
-                "menu",
-                "colour --rgb $hostRegColor 0 ||",
-                "cpair --foreground 1 1 ||",
-                "cpair --foreground 0 3 ||",
-                "cpair --foreground 4 4 ||",
-                "item --gap Host is ".($this->Host && $this->Host->isValid() ? ($this->Host->get('pending') ? 'pending ' : '')."registered as ".$this->Host->get('name') : "NOT registered!"),
-                "item --gap -- -------------------------------------",
-            );
-            $Advanced = $this->getSetting('FOG_PXE_ADVANCED');
-            $AdvLogin = $this->getSetting('FOG_ADVANCED_MENU_LOGIN');
-            $ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? ($this->Host->get('pending') ? 6 : 1) : 0),2);
-            if ($showDebug) array_push($ArrayOfStuff,3);
-            if ($Advanced) array_push($ArrayOfStuff,($AdvLogin ? 5 : 4));
-            foreach($Menus AS $i => &$Menu) {
-                if (!in_array($Menu->get('name'),array('fog.reg','fog.reginput')) || (in_array($Menu->get('name'),array('fog.reg','fog.reginput')) && $this->getSetting('FOG_REGISTRATION_ENABLED'))) {
-                    if (in_array($Menu->get('regMenu'),$ArrayOfStuff)) $Send['item-'.$Menu->get('name')] = $this->menuItem($Menu, $desc);
-                }
-            }
+        $showDebug = $_REQUEST['debug'] === 1;
+        $hostRegColor = $this->Host->isValid() ? '0x00567a' : '0xff0000';
+        $reg_string = 'NOT registered!';
+        if ($this->Host->isValid()) $reg_string = $this->Host->get('pending') ? 'pending approval!' : "registered as {$this->Host->get(name)}!";
+        $Send['menustart'] = array(
+            ':MENU',
+            'menu',
+            "colour --rgb $hostRegColor 0 ||",
+            'cpair --foreground 1 1 ||',
+            'cpair --foreground 0 3 ||',
+            'cpair --foreground 4 4 ||',
+            "item --gap Host is $reg_string",
+            'item --gap -- -------------------------------------',
+        );
+        $Advanced = $this->getSetting('FOG_PXE_ADVANCED');
+        $AdvLogin = $this->getSetting('FOG_ADVANCED_MENU_LOGIN');
+        $RegArrayOfStuff = array(($this->Host->isValid() ? ($this->Host->get('pending') ? 6 : 1) : 0),2);
+        if (!$this->getSetting('FOG_REGISTRATION_ENABLED')) $RegArrayOfStuff = array_diff($RegArrayOfStuff,array(0));
+        if ($showDebug) array_push($RegArrayOfStuff,3);
+        if ($Advanced) array_push($RegArrayOfStuff,($AdvLogin ? 5 : 4));
+        foreach ($this->getClass('PXEMenuOptionsManager')->find(array('regMenu'=>$RegArrayOfStuff),'','id') AS &$Menu) {
+            $Send["item-{$Menu->get(name)}"] = $this->menuItem($Menu,trim($Menu->get('description')));
             unset($Menu);
-            $Send['default'] = array(
-                "$this->defaultChoice",
-            );
-            foreach($Menus AS $i => &$Menu) {
-                if (in_array($Menu->get('regMenu'),$ArrayOfStuff)) $Send['choice-'.$Menu->get('name')] = $Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
-            }
+        }
+        $Send['default'] = array($this->defaultChoice);
+        foreach ($this->getClass('PXEMenuOptionsManager')->find(array('regMenu'=>$RegArrayOfStuff),'','id') AS &$Menu) {
+            $Send["choice-{$Menu->get(name)}"] = $this->menuOpt($Menu,trim($Menu->get('args')));
             unset($Menu);
-            $Send['bootme'] = array(
-                ":bootme",
-                "chain -ar $this->booturl/ipxe/boot.php##params ||",
-                "goto MENU",
-                "autoboot",
-            );
-            $this->parseMe($Send);
-        } else $this->chainBoot(true);
+        }
+        $Send['bootme'] = array(
+            ':bootme',
+            "chain -ar $this->booturl/ipxe/boot.php##params ||",
+            'goto MENU',
+            'autoboot',
+        );
+        $this->parseMe($Send);
     }
 }
