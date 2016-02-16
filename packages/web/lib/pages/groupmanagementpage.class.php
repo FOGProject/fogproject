@@ -315,7 +315,7 @@ class GroupManagementPage extends FOGPage {
         $this->HookManager->processEvent('GROUP_MODULES',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
-        printf('</fieldset></form><form method="post" action="%s&tab=group->service"><fieldset><legend>%s</legend>',$this->formAction,_('Group Screen Resolution'));
+        printf('</fieldset></form><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',$this->formAction,_('Group Screen Resolution'));
         $this->attributes = array(
             array('class'=>'l','style'=>'padding-right: 25px'),
             array('class'=>'c'),
