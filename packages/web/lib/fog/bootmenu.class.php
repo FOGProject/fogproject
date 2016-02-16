@@ -66,10 +66,9 @@ class BootMenu extends FOGBase {
         }
         if ($this->Host->get('kernel')) $bzImage = trim($this->Host->get('kernel'));
         $StorageGroup = $StorageNode->getStorageGroup();
-
+        $exit = trim($this->Host->get($host_field_test) ? $this->Host->get($host_field_test) : $this->getSetting($global_field_test));
+        if (!$exit || !in_array($exit,array_keys(self::$exitTypes))) $exit = 'sanboot';
         if ($this->Host->isValid()) {
-            $exit = trim($this->Host->get($host_field_test) ? $this->Host->get($host_field_test) : $this->getSetting($global_field_test));
-            if (!$exit || !in_array($exit,array_keys(self::$exitTypes))) $exit = 'sanboot';
             $this->HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS',array(
                 'Host' => &$this->Host,
                 'StorageGroup' => &$StorageGroup,
