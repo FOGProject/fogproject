@@ -52,7 +52,7 @@ class BootMenu extends FOGBase {
         $dns = $this->getSetting('FOG_PXE_IMAGE_DNSADDRESS');
         $keymap = $this->getSetting('FOG_KEYMAP');
         $memtest = $this->getSetting('FOG_MEMTEST_KERNEL');
-        $bzImage = $this->getSetting('FOG_FTP_PXE_KERNEL_32');
+        $bzImage = $this->getSetting('FOG_TFTP_PXE_KERNEL_32');
         $imagefile = $this->getSetting('FOG_PXE_BOOT_IMAGE_32');
         $timeout = $this->getSetting('FOG_PXE_MENU_TIMEOUT') * 1000;
         if (!$_REQUEST['menuAccess']) $hiddenmenu = (int)$this->getSetting('FOG_PXE_MENU_HIDDEN');
@@ -64,10 +64,12 @@ class BootMenu extends FOGBase {
             $bzImage = $this->getSetting('FOG_TFTP_PXE_KERNEL');
             $imagefile = $this->getSetting('FOG_PXE_BOOT_IMAGE');
         }
+        $kernel = $bzImage;
         if ($this->Host->get('kernel')) $bzImage = trim($this->Host->get('kernel'));
         $StorageGroup = $StorageNode->getStorageGroup();
         $exit = trim($this->Host->get($host_field_test) ? $this->Host->get($host_field_test) : $this->getSetting($global_field_test));
         if (!$exit || !in_array($exit,array_keys(self::$exitTypes))) $exit = 'sanboot';
+        $initrd = $imagefile;
         if ($this->Host->isValid()) {
             $this->HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS',array(
                 'Host' => &$this->Host,
@@ -78,6 +80,7 @@ class BootMenu extends FOGBase {
                 'memdisk' => &$memdisk,
                 'bzImage' => &$bzImage,
                 'imagefile' => &$imagefile,
+                'initrd' => &$initrd,
                 'loglevel' => &$loglevel,
                 'ramsize' => &$ramsize,
                 'keymap' => &$keymap,
@@ -98,7 +101,7 @@ class BootMenu extends FOGBase {
         $this->kernel = sprintf('kernel %s %s initrd=%s root=/dev/ram0 rw ramdisk_size=%s keymap=%s web=%s conosoleblank=0%s',
             $bzImage,
             $this->loglevel,
-            $initrd,
+            basename($initrd),
             $ramsize,
             $keymap,
             $this->web,
