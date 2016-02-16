@@ -17,7 +17,7 @@ try {
     $dest = sprintf('%s/%s',$StorageNode->get('ftppath'),$_REQUEST['to']);
     $FOGFTP->set('host',$StorageNode->get('ip'))
         ->set('username',$StorageNode->get('user'))
-        ->set('password',urlencode($StorageNode->get('pass')));
+        ->set('password',$StorageNode->get('pass'));
     if (!$FOGFTP->connect()) throw new Exception(sprintf('%s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP Connection has failed!')));
     $FOGFTP->delete($dest);
     if (!$FOGFTP->rename($dest,$src) && !$FOGFTP->put($dest,$src)) throw new Exception(_('Move/rename failed'));
