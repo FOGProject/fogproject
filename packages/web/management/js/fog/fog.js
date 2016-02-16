@@ -77,6 +77,8 @@ function getQueryParams(qs) {
     if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
     ActionBox[callme]();
     ActionBoxDel[callme]();
+    setupParserInfo();
+    setupFogTableInfoFunction();
     $.fn.fogAjaxSearch = function(opts) {
         if (this.length == 0) return this;
         var Defaults = {
@@ -166,24 +168,6 @@ function getQueryParams(qs) {
                 });
             }
         });
-    }
-    $.fn.fogTableInfo = function() {
-        table = $('table',this)
-        if (table.length == 0 || !table.has('thead')) return this;
-        table.find('thead > tr').addClass('hand');
-        table.tablesorter({
-            theme: 'blue',
-            widgets: ["zebra","filter"],
-            widgetOptions: {
-                filter_ignoreCase: true,
-                filter_hideFilters: false,
-                filter_hideEmpty: true,
-                filter_liveSearch: true,
-                filter_placeholder: {search: 'Search...'},
-                filter_reset: 'button.reset',
-            },
-        });
-        return this;
     }
     $.fn.fogMessageBox = function() {
         if (this.length == 0) return this;
@@ -314,4 +298,84 @@ function TableCheck() {
         cancelTasks[callme]();
     }
     HookTooltips();
+}
+function setupParserInfo() {
+    $.tablesorter.addParser({
+        id: 'checkboxParser',
+        is: function(s) {
+            return false;
+        },
+        format: function (s, table, cell, cellIndex) {
+            checkbox = $(cell).find('input:checkbox');
+            if (checkbox.length > -1) return checkbox.prop('value');
+        },
+        type: 'text'
+    });
+    $.tablesorter.addParser({
+        id: 'questionParser',
+        is: function(s) {
+            return false;
+        },
+        format: function(s, table, cell, cellIndex) {
+            span = $(cell).find('span');
+            if (span.length > -1) return span.prop('original-title');
+        },
+        type: 'text'
+    });
+    $.tablesorter.addParser({
+        id: 'iParser',
+        is: function(s) {
+            return false;
+        },
+        format: function(s, table, cell, cellIndex) {
+            i = $(cell).find('i');
+            if (i.length > -1) return i.prop('original-title');
+        },
+        type: 'text'
+    });
+}
+function setupFogTableInfoFunction() {
+    node = $_GET['node'];
+    sub = $_GET['sub'];
+    $.fn.fogTableInfo = function() {
+        var parser = '';
+        switch (node) {
+            case 'task':
+            case 'user':
+            case 'group':
+            case 'snapin':
+            default:
+                headParser = {0: {sorter: 'checkboxParser'}};
+                break;
+            case 'host':
+                headParser = {0: {sorter: 'questionParser'},1: {sorter: 'checkboxParser'},2: {sorter: 'iParser'}};
+                break;
+            case 'printer':
+                headParser = {0: {sorter: 'questionParser'},1: {sorter: 'checkboxParser'}};
+                break;
+            case 'image':
+                headParser = {0: {sorter: 'iParser'},1: {sorter: 'checkboxParser'}};
+                break;
+            case 'storage':
+                headParser = {};
+                break;
+        }
+        table = $('table',this)
+        if (table.length == 0 || !table.has('thead')) return this;
+        table.find('thead > tr').addClass('hand');
+        table.tablesorter({
+            headers: headParser,
+            theme: 'blue',
+            widgets: ["zebra","filter"],
+            widgetOptions: {
+                filter_ignoreCase: true,
+                filter_hideFilters: false,
+                filter_hideEmpty: true,
+                filter_liveSearch: true,
+                filter_placeholder: {search: 'Search...'},
+                filter_reset: 'button.reset',
+            },
+        });
+        return this;
+    }
 }

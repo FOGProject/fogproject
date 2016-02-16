@@ -15,7 +15,6 @@ class TaskManagementPage extends FOGPage {
         );
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
         $this->headerData = array(
-            '',
             '<input type="checkbox" class="toggle-checkboxAction"/>',
             _('Started By:'),
             sprintf('%s<br/><small>%s</small>',_('Hostname'),_('MAC')),
@@ -24,7 +23,6 @@ class TaskManagementPage extends FOGPage {
             _('Status'),
         );
         $this->templates = array(
-            '',
             '<input type="checkbox" class="toggle-action" name="task[]" value="${id}"/>',
             '${startedby}',
             sprintf('<p><a href="?node=host&sub=edit&id=${host_id}" title="%s">${host_name}</a></p><small>${host_mac}</small>',_('Edit Host')),
@@ -33,8 +31,7 @@ class TaskManagementPage extends FOGPage {
             '${details_taskforce} <i class="fa fa-${icon_state} fa-1x icon" title="${state}"></i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
         );
         $this->attributes = array(
-            array('width'=>1,'class'=>'l filter-false','task-id'=>'${id}'),
-            array('width'=>16,'class'=>'l filter-false'),
+            array('width'=>16,'class'=>'l filter-false','task-id'=>'${id}'),
             array('width'=>65,'class'=>'l','id'=>'host-${host_id}'),
             array('width'=>120,'class'=>'l'),
             array('width'=>70,'class'=>'r'),

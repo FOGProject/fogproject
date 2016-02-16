@@ -266,11 +266,32 @@ abstract class FOGBase {
         if (!$format) $format = 'm/d/Y';
         return DateTime::createFromFormat($format,$Date->format($format),$this->getClass(DateTimeZone,$this->TimeZone));
     }
-    protected function diff($start, $end) {
+    protected function pluralize($count,$text,$space = false) {
+        return sprintf("%d %s%s%s",(int)$count,$text,(int)$count != 1 ? 's' : '',$space === true ? ' ' : '');
+    }
+    protected function diff($start, $end, $ago = false) {
         if (!$start instanceof DateTime) $start = $this->nice_date($start);
         if (!$end instanceof DateTime) $end = $this->nice_date($end);
         $Duration = $start->diff($end);
-        return $Duration->format('%H:%I:%S');
+        $str = '';
+        $suffix = '';
+        if ($ago === true) {
+            if ($Duration->invert) $suffix = 'ago';
+            if ($v = $Duration->y > 0) return sprintf('%s %s',$this->pluralize($v,'year'),$suffix);
+            if ($v = $Duration->m > 0) return sprintf('%s %s',$this->pluralize($v,'month'),$suffix);
+            if ($v = $Duration->d > 0) return sprintf('%s %s',$this->pluralize($v,'day'),$suffix);
+            if ($v = $Duration->h > 0) return sprintf('%s %s',$this->pluralize($v,'hour'),$suffix);
+            if ($v = $Duration->i > 0) return sprintf('%s %s',$this->pluralize($v,'minute'),$suffix);
+            return sprintf('%s %s',$this->pluralize($Duration->s,'second'),$suffix);
+        } else if ($ago === false) {
+            if ($v = $Duration->y > 0) $str .= $this->pluralize($v,'year',true);
+            if ($v = $Duration->m > 0) $str .= $this->pluralize($v,'month',true);
+            if ($v = $Duration->d > 0) $str .= $this->pluralize($v,'day',true);
+            if ($v = $Duration->h > 0) $str .= $this->pluralize($v,'hour',true);
+            if ($v = $Duration->i > 0) $str .= $this->pluralize($v,'minute',true);
+            if ($v = $Duration->s > 0) $str .= $this->pluralize($v,'second');
+            return $str;
+        }
     }
     protected function humanify($diff, $unit) {
         $before = _($diff < 0 ? 'In ' : '');
