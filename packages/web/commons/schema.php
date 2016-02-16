@@ -2143,3 +2143,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`printers` ADD `pConfigFile` VARCHAR(255) NOT NULL AFTER `pConfig`",
 );
+// 210
+$this->schema[] = array(
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` SET `ttDescription`='"._('Fast wipe will boot the client computer and wipe the first few sectors of data on the hard disk.  Data will not be overwritten but the boot up of the disk and partition layout will no longer exist.')."' WHERE `ttID`=18",
+);
