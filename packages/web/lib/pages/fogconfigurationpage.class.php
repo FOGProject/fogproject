@@ -216,12 +216,15 @@ class FOGConfigurationPage extends FOGPage {
             $this->getClass('PXEMenuOptionsManager')->update(array('id'=>$_REQUEST['menu_id']),'',array('name'=>$_REQUEST['menu_item'],'description'=>$_REQUEST['menu_description'],'params'=>$_REQUEST['menu_params'],'regMenu'=>$_REQUEST['menu_regmenu'],'args'=>$_REQUEST['menu_options'],'default'=>$_REQUEST['menu_default']));
             if ($_REQUEST['menu_default']) {
                 $MenuIDs = $this->getSubObjectIDs('PXEMenuOptions');
+                sort($MenuIDs);
                 $MenuIDs = array_unique(array_diff($MenuIDs,(array)$_REQUEST['menu_id']));
                 sort($MenuIDs);
-                $this->getClass('PXEMenuOptionsManager')->update(array('id'=>$MenuIDs),'',array('default'=>0));
+                $this->getClass('PXEMenuOptionsManager')->update(array('id'=>$MenuIDs),'',array('default'=>'0'));
             }
-            $DefMenuIds = $this->getSubObjectIDs('PXEMenuOptions',array('default'=>1));
+            unset($MenuIDs);
+            $DefMenuIDs = $this->getSubObjectIDs('PXEMenuOptions',array('default'=>1));
             if (!count($DefMenuIDs)) $this->getClass('PXEMenuOptions',1)->set('default',1)->save();
+            unset($DefMenuIDs);
             $this->setMessage(sprintf('%s %s!',$_REQUEST['menu_item'],_('successfully updated')));
         }
         if (isset($_REQUEST['delform']) && $_REQUEST['rmid']) {
