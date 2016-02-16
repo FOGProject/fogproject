@@ -213,15 +213,16 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function customize_edit_post() {
         if (isset($_REQUEST['saveform']) && $_REQUEST['menu_id']) {
-            $this->getClass('PXEMenuOptionsManager')->update('','',array('default'=>0));
-            $Menu = $this->getClass('PXEMenuOptions',$_REQUEST['menu_id'])
-                ->set('name',$_REQUEST['menu_item'])
-                ->set('description',$_REQUEST['menu_description'])
-                ->set('params',$_REQUEST['menu_params'])
-                ->set('regMenu',$_REQUEST['menu_regmenu'])
-                ->set('args',$_REQUEST['menu_options'])
-                ->set('default',$_REQUEST['menu_default']);
-            if ($Menu->save()) $this->setMessage(sprintf('%s %s!',$Menu->get('name'),_('successfully updated')));
+            $this->getClass('PXEMenuOptionsManager')->update(array('id'=>$_REQUEST['menu_id']),'',array('name'=>$_REQUEST['menu_item'],'description'=>$_REQUEST['menu_description'],'params'=>$_REQUEST['menu_params'],'regMenu'=>$_REQUEST['menu_regmenu'],'args'=>$_REQUEST['menu_options'],'default'=>$_REQUEST['menu_default']));
+            if ($_REQUEST['menu_default']) {
+                $MenuIDs = $this->getSubObjectIDs('PXEMenuOptions');
+                $MenuIDs = array_unique(array_diff($MenuIDs,(array)$_REQUEST['menu_id']));
+                sort($MenuIDs);
+                $this->getClass('PXEMenuOptionsManager')->update(array('id'=>$MenuIDs),'',array('default'=>0));
+            }
+            $DefMenuIds = $this->getSubObjectIDs('PXEMenuOptions',array('default'=>1));
+            if (!count($DefMenuIDs)) $this->getClass('PXEMenuOptions',1)->set('default',1)->save();
+            $this->setMessage(sprintf('%s %s!',$_REQUEST['menu_item'],_('successfully updated')));
         }
         if (isset($_REQUEST['delform']) && $_REQUEST['rmid']) {
             $menuname = $this->getClass('PXEMenuOptions',$_REQUEST['rmid'])->get('name');
