@@ -34,8 +34,9 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             if (!$this->FOGFTP->connect()) throw new Exception(_('Failed to connect to download'));
             $this->FOGFTP->close();
             $path = rtrim($StorageNode->get('snapinpath'),'/');
+            $pass = urlencode($StorageNode->get('pass'));
             $file = basename($Snapin->get('file'));
-            $SnapinFile = "ftp://{$StorageNode->get(user)}:{$StorageNode->get(pass)}@{$StorageNode->get(ip)}$path/$file";
+            $SnapinFile = "ftp://{$StorageNode->get(user)}:$pass@{$StorageNode->get(ip)}$path/$file";
             if (!file_exists($SnapinFile) || !is_readable($SnapinFile)) {
                 $SnapinTask->set('stateID',$this->getCancelledState())->set('complete',$this->nice_date()->format('Y-m-d H:i:s'))->save();
                 throw new Exception(_('Failed to find snapin file'));

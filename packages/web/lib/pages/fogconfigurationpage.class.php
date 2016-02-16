@@ -732,12 +732,12 @@ class FOGConfigurationPage extends FOGPage {
             if (!$StorageNode->isValid()) continue;
             if (!$StorageNode->get('isEnabled')) continue;
             $user = $StorageNode->get('user');
-            $pass = urlencode($StorageNode->get('pass'));
+            $pass = $StorageNode->get('pass');
             $host = $StorageNode->get('ip');
             $this->FOGFTP
-                ->set('host',$host)
-                ->set('username',$user)
-                ->set('password',$pass);
+                ->set('host',$StorageNode->get('ip'))
+                ->set('username',$StorageNode->get('user'))
+                ->set('password',$StorageNode->get('pass'));
             if (!$this->FOGFTP->connect()) continue;
             $fogfiles = array();
             $fogfiles = array_merge($this->FOGFTP->nlist('/var/log/httpd/'),$this->FOGFTP->nlist('/var/log/apache2/'),$this->FOGFTP->nlist('/var/log/fog'));
