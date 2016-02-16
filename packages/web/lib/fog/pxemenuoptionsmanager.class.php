@@ -14,6 +14,7 @@ class PXEMenuOptionsManager extends FOGManagerController {
         );
     }
     public function regSelect($request = '') {
+        $request = (int)$request;
         ob_start();
         foreach (self::regText($this->foglang) AS $num => &$val) {
             printf('<option value="%s"%s>%s</option>',$num,($request === $num ? ' selected' : ''),$val);
