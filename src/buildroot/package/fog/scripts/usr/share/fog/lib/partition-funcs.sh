@@ -532,7 +532,7 @@ processSfdisk() {
     awkArgs="$awkArgs -v action=$action -v target=$target -v sizePos=$size"
     [[ -n $fixed ]] && awkArgs="$awkArgs -v fixedList=$fixed"
     # process with external awk script
-    /usr/share/fog/lib/procsfdisk.awk "$awkArgs" "$data"
+    /usr/share/fog/lib/procsfdisk.awk $awkArgs $data
 }
 #
 # GPT Functions below
