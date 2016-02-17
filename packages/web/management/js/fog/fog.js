@@ -300,6 +300,7 @@ function TableCheck() {
     HookTooltips();
 }
 function setupParserInfo() {
+    if (typeof $.tablesorter == 'undefined') return;
     $.tablesorter.addParser({
         id: 'checkboxParser',
         is: function(s) {
@@ -335,6 +336,7 @@ function setupParserInfo() {
     });
 }
 function setupFogTableInfoFunction() {
+    if (typeof $.tablesorter == 'undefined') return;
     node = $_GET['node'];
     sub = $_GET['sub'];
     $.fn.fogTableInfo = function() {

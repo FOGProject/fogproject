@@ -85,7 +85,7 @@ setIDs() {
         read dummy
         dummy=$(echo $dummy | sed 's/^[,]\(.*\)[,]$/\1/')
         case $dummy in
-            [?])
+            ?)
                 url="http://${web}service/${str}listing.php"
                 clearScreen
                 res=$(echo -e $(wget -qO - $url 2>/dev/null))
@@ -99,10 +99,12 @@ setIDs() {
                         echo -n "    Press [Enter] to proceed or enter the $str ID to associate with computer: "
                         read dummy
                         dummy=$(echo $dummy | sed 's/^[,]\(.*\)[,]$/\1/')
-                        [[ -n $dummy ]] && [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && printf -v "$varVar" $(checkAndSet $dummy) || printf -v "$varVar" $(checkAndSet $dummy "true")
+                        if [[ -n $dummy ]]; then
+                            [[ $csvstyle =~ [Tt][Rr][Uu][Ee] ]] && printf -v "$varVar" $(checkAndSet $dummy) || printf -v "$varVar" $(checkAndSet $dummy "true")
+                            break
+                        fi
                         i=0
                         clearScreen
-                        continue
                     fi
                 done
                 ;;
@@ -110,7 +112,7 @@ setIDs() {
                 printf -v "$varVar" 0
                 ;;
             *)
-                dummy=$(echo $dummy | sed 's/^[,]\(.*\)[,]$|$/\1/')
+                dummy=$(echo $dummy | sed -e 's/^,|,$//' -e 's/^[,]\(.*\)[,]$|$/\1/')
                 case $csvstyle in
                     [Tt][Rr][Uu][Ee])
                         [[ $dummy =~ ^[0-9,]+$ ]] && printf -v "$varVar" $(checkAndSet $dummy) || setIDs "$varVar" "$str" "$csvstyle" "$dummy" "$max"
