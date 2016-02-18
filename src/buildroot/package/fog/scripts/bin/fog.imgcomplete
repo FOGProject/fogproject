@@ -10,7 +10,7 @@ case $type in
         poststring="mac=$mac&type=$type&to=$img&ftp=$ftp&size=$size&imgid=$imgid&osid=$osid"
         ;;
     *)
-        handleError "Wrong type for this completetion script ($0)"
+        handleError "Wrong type for this completetion script ($0)\n   Args Passed: $*"
         ;;
 esac
 count=0
@@ -21,7 +21,7 @@ while [[ $res != "##" ]]; do
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
-        handleError "Could not complete tasking ($0)"
+        handleError "Could not complete tasking ($0)\n   Args Passed: $*"
     fi
     let count+=1
 done

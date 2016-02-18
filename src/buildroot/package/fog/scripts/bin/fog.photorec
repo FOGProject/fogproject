@@ -14,7 +14,7 @@ dots "Creating File System Mount point"
 if [[ ! -d /images ]]; then
     echo "Failed"
     debugPause
-    handleError "Count not create image directory"
+    handleError "Count not create image directory ($0)\n   Args Passed: $*"
 fi
 echo "Done"
 debugPause
@@ -27,7 +27,7 @@ case $? in
     *)
         echo "Failed"
         debugPause
-        handleError "Failed to Mount filesystem"
+        handleError "Failed to Mount filesystem ($0)\n   Args Passed: $*"
         ;;
 esac
 debugPause

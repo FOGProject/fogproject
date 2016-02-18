@@ -7,7 +7,7 @@ disks=""
 disk=""
 hd=""
 getHardDisk
-[[ -z $winuser ]] && handleError "Invalid User Account"
+[[ -z $winuser ]] && handleError "Invalid User Account ($0)\n   Args Passed: $*"
 blCont=0
 blStop=0
 [[ ! -d /ntfs ]] && mkdir -p /ntfs >/dev/null 2>&1
@@ -35,7 +35,7 @@ for part in $parts; do
     if [[ ! $? -eq 0 ]]; then
         echo "Failed"
         debugPause
-        handleError "Failed to perform password change task"
+        handleError "Failed to perform password change task ($0)\n   Args Passed: $*"
     fi
     echo "Done"
     debugPause

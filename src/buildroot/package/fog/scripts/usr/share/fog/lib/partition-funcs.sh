@@ -13,8 +13,8 @@
 saveSfdiskPartitions() {
     local disk="$1"
     local file="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to save to (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file to save to (${FUNCNAME[0]})\n   Args Passed: $*"
     sfdisk -d $disk 2>/dev/null > $file
     [[ ! $? -eq 0 ]] && majorDebugEcho "sfdisk failed in (${FUNCNAME[0]})"
 }
@@ -23,8 +23,8 @@ saveSfdiskPartitions() {
 saveUUIDInformation() {
     local disk="$1"
     local file="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to save to passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file to save to passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local hasgpt=0
     hasGPT "$disk"
     [[ $hasgpt -eq 0 ]] && return
@@ -58,8 +58,8 @@ saveUUIDInformation() {
 restoreUUIDInformation() {
     local disk="$1"
     local file="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to load from passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file to load from passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ ! -r $file ]] && return
     local diskuuid=""
     local partuuid=""
@@ -68,7 +68,7 @@ restoreUUIDInformation() {
     local is_swap=0
     diskuuid=$(awk "/^$escape_disk\ /{print \$2}" $file)
     [[ -n $diskuuid ]] && sgdisk -U $diskuuid $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to set disk guid (sgdisk -U) (${FUNCNAME[0]})"
+    [[ ! $? -eq 0 ]] && handleError "Failed to set disk guid (sgdisk -U) (${FUNCNAME[0]})\n   Args Passed: $*"
     getPartitions "$disk"
     for part in $parts; do
         partitionIsSwap "$part"
@@ -79,9 +79,9 @@ restoreUUIDInformation() {
         read partuuid parttype <<< $(awk "/^$escape_part\ /{printf(\"%s\n%s\",\$2,\$3)}" $file)
         IFS=$oIFS
         [[ -n $parttype ]] && sgdisk -t $parttype $disk >/dev/null 2>&1 || true
-        [[ ! $? -eq 0 ]] && handleError " Failed to set partition type (sgdisk -t) (${FUNCNAME[0]})"
+        [[ ! $? -eq 0 ]] && handleError " Failed to set partition type (sgdisk -t) (${FUNCNAME[0]})\n   Args Passed: $*"
         [[ -n $partuuid ]] && sgdisk -u $partuuid $disk >/dev/null 2>&1 || true
-        [[ ! $? -eq 0 ]] && handleError "Failed to set partition guid (sgdisk -u) (${FUNCNAME[0]})"
+        [[ ! $? -eq 0 ]] && handleError "Failed to set partition guid (sgdisk -u) (${FUNCNAME[0]})\n   Args Passed: $*"
     done
 }
 # $1 is the name of the disk drive
@@ -89,8 +89,8 @@ restoreUUIDInformation() {
 applySfdiskPartitions() {
     local disk="$1"
     local file="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})\n   Args Passed: $*"
     sfdisk $disk < $file >/dev/null 2>&1
     [[ ! $? -eq 0 ]] && majorDebugEcho "sfdisk failed in (${FUNCNAME[0]})"
 }
@@ -99,14 +99,14 @@ applySfdiskPartitions() {
 applySgdiskPartitions() {
     local disk="$1"
     local file="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local escape_disk=$(escapeItem $disk)
     local diskguid=$(awk -F: "/^$escape_disk:/{print \$3}" $file)
     sgdisk -Z $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to restore partitions (sgdisk -Z) (${FUNCNAME[0]})"
+    [[ ! $? -eq 0 ]] && handleError "Failed to restore partitions (sgdisk -Z) (${FUNCNAME[0]})\n   Args Passed: $*"
     sgdisk -U $diskguid $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to restore partitions (sgdisk -U) (${FUNCNAME[0]})"
+    [[ ! $? -eq 0 ]] && handleError "Failed to restore partitions (sgdisk -U) (${FUNCNAME[0]})\n   Args Passed: $*"
     local parts=""
     local part=""
     local part_number=""
@@ -125,13 +125,13 @@ applySgdiskPartitions() {
         read partcode partstart partend partname <<< $awk_part_vars
         parttype=$(awk -F: "/^part:$part_number:/{print \$5}" $file)
         sgdisk -n $part_number:$partstart:$partend $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -n) (${FUNCNAME[0]})"
+        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -n) (${FUNCNAME[0]})\n   Args Passed: $*"
         sgdisk -c $part_number:$partname $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -c) (${FUNCNAME[0]})"
+        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -c) (${FUNCNAME[0]})\n   Args Passed: $*"
         sgdisk -t $part_number:$parttype $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -t) (${FUNCNAME[0]})"
+        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -t) (${FUNCNAME[0]})\n   Args Passed: $*"
         sgdisk -u $part_number:$partcode $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -u) (${FUNCNAME[0]})"
+        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -u) (${FUNCNAME[0]})\n   Args Passed: $*"
     done
 }
 # $1 is the name of the disk drive
@@ -139,8 +139,8 @@ applySgdiskPartitions() {
 restoreSfdiskPartitions() {
     local disk="$1"
     local file="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})\n   Args Passed: $*"
     applySfdiskPartitions "$disk" "$file"
     fdisk $disk < /usr/share/fog/lib/EOFRESTOREPART >/dev/null 2>&1
     [[ ! $? -eq 0 ]] && majorDebugEcho "fdisk failed in (${FUNCNAME[0]})"
@@ -150,21 +150,21 @@ restoreSfdiskPartitions() {
 restoreSgdiskPartitions() {
     local disk="$1"
     local file="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to restore from (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file to restore from (${FUNCNAME[0]})\n   Args Passed: $*"
     applySgdiskPartitions "$disk" "$file"
 }
 # $1 is the name of the disk drive
 hasExtendedPartition() {
     local disk="$1"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     sfdisk -d $disk 2>/dev/null | egrep '(Id|type)=\ *[5f]' | wc -l
     [[ ! $? -eq 0 ]] && majorDebugEcho "sfdisk failed in (${FUNCNAME[0]})"
 }
 # $1 is the name of the partition device (e.g. /dev/sda3)
 partitionHasEBR() {
     local part="$1"
-    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local part_number=0
     local disk=""
     local parttype=""
@@ -180,8 +180,8 @@ partitionHasEBR() {
 saveEBR() {
     local part="$1"
     local file="$2"
-    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local disk=""
     getDiskFromPartition "$part"
     local table_type=""
@@ -200,7 +200,7 @@ saveEBR() {
         *)
             echo "Failed"
             debugPause
-            handleError "Could not backup EBR (${FUNCNAME[0]})"
+            handleError "Could not backup EBR (${FUNCNAME[0]})\n   Args Passed: $*"
             ;;
     esac
 }
@@ -211,9 +211,9 @@ saveAllEBRs() {
     local disk="$1"
     local disk_number="$2"
     local imagePath="$3"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local parts=""
     local part=""
     local part_number=0
@@ -230,8 +230,8 @@ saveAllEBRs() {
 restoreEBR() {
     local part="$1"
     local file="$2"
-    [[ -z $part ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to restore from passed (${FUNCNAME[0]})"
+    [[ -z $part ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file to restore from passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local disk=""
     local table_type=""
     getDiskFromPartition "$part"
@@ -251,7 +251,7 @@ restoreEBR() {
         *)
             echo "Failed"
             debugPause
-            handleError "Could not reload EBR data (${FUNCNAME[0]}"
+            handleError "Could not reload EBR data (${FUNCNAME[0]})\n   Args Passed: $*"
             ;;
     esac
 }
@@ -265,10 +265,10 @@ restoreAllEBRs() {
     local imagePath="$3"
     local imgPartitionType="$4"
     local ebffilename=""
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $imgPartitionType ]] && handleError "No partition type passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imgPartitionType ]] && handleError "No partition type passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local parts=""
     local part=""
     local part_number=0
@@ -285,7 +285,7 @@ restoreAllEBRs() {
 # $1 is the name of the partition device (e.g. /dev/sda3)
 partitionIsSwap() {
     local part="$1"
-    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local fstype=""
     fsTypeSetting "$part"
     is_swap=0
@@ -296,8 +296,8 @@ partitionIsSwap() {
 saveSwapUUID() {
     local file="$1"
     local part="$2"
-    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local is_swap=0
     partitionIsSwap "$part"
     [[ $is_swap -eq 0 ]] && return
@@ -357,9 +357,9 @@ saveAllSwapUUIDs() {
     local disk="$1"
     local disk_number="$2"
     local imagePath="$3"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local swapuuidfilename=""
     swapUUIDFileName "$imagePath" "$disk_number"
     local parts=""
@@ -377,8 +377,8 @@ saveAllSwapUUIDs() {
 makeSwapSystem() {
     local file="$1"
     local part="$2"
-    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file passed (${FUNCNAME[0]})"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local uuid=""
     local option=""
     local disk=""
@@ -407,7 +407,7 @@ makeSwapSystem() {
         *)
             echo "Failed"
             debugPause
-            handleError "Could not create swap on $part (${FUNCNAME[0]})"
+            handleError "Could not create swap on $part (${FUNCNAME[0]})\n   Args Passed: $*"
             ;;
     esac
     debugPause
@@ -419,9 +419,9 @@ resizeSfdiskPartition() {
     local part="$1"
     local size="$2"
     local imagePath="$3"
-    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})"
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local disk=""
     getDiskFromPartition "$part"
     local tmp_file="/tmp/sfdisk.$$"
@@ -447,8 +447,8 @@ fillSfdiskWithPartitions() {
     local disk="$1"
     local file="$2"
     local fixed="$3"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $file ]] && handleError "No file to use passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $file ]] && handleError "No file to use passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local disk_size=$(blockdev --getsize64 $disk | awk '{printf("%d\n",$1/1024);}')
     local tmp_file2="/tmp/sfdisk2.$$"
     processSfdisk "$file" filldisk "$disk" "$disk_size" "$fixed" > "$tmp_file2"
@@ -512,10 +512,10 @@ processSfdisk() {
     local target="$3"
     local size="$4"
     local fixed="$5"
-    [[ -z $data ]] && handleError "No data passed (${FUNCNAME[0]})"
-    [[ -z $action ]] && handleError "No action passed (${FUNCNAME[0]})"
-    [[ -z $target ]] && handleError "Device (disk or partition) not passed (${FUNCNAME[0]})"
-    [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})"
+    [[ -z $data ]] && handleError "No data passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $action ]] && handleError "No action passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $target ]] && handleError "Device (disk or partition) not passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local minstart=$(awk -F'[ ,]+' '/start/{if ($4) print $4}' $data | sort -n | head -1)
     local chunksize=""
     getPartBlockSize "$disk" "chunksize"
@@ -540,7 +540,7 @@ processSfdisk() {
 # $1 : device name of drive
 getPartitionTableType() {
     local disk="$1"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local mbr=$(gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
     local gpt=$(gdisk -l $disk | awk '/^\ *GPT:/{print $2}')
     local type=""
@@ -565,7 +565,7 @@ getPartitionTableType() {
             gpttype=""
             ;;
     esac
-    [[ -z $gpttype && -z $mbrtype ]] && handleError "Cannot determine partition type (${FUNCNAME[0]})"
+    [[ -z $gpttype && -z $mbrtype ]] && handleError "Cannot determine partition type (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -n $gpttype && -n $mbrtype ]] && table_type="$gpttype-$mbrtype"
     [[ -n $gpttype && -z $mbrtype ]] && table_type="$gpttype"
     [[ -z $gpttype && -n $mbrtype ]] && table_type="$mbrtype"
@@ -583,8 +583,8 @@ getPartitionTableType() {
 getDesiredPartitionTableType() {
     local imagePath="$1"
     local disk_number="$2"
-    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})"
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
     table_type="MBR"
     local mbrfile=""
     MBRFileName "$imagePath" "$disk_number" "mbrfile"
@@ -598,14 +598,14 @@ getDesiredPartitionTableType() {
 # $1 : device name of drive
 hasHybridMBR() {
     local disk="$1"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local mbr=$(gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
     [[ $mbr == hybrid ]] && echo 1 || echo 0
 }
 # $1 : device name of drive
 hasGPT() {
     local disk="$1"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local gpt=$(gdisk -l $disk | awk '/^\ *GPT:/{print $2}')
     [[ $gpt == present ]] &&  hasgpt=1
     [[ $gpt == not ]] && hasgpt=0
@@ -621,9 +621,9 @@ resizePartition() {
     local part="$1"
     local size="$2"
     local imagePath="$3"
-    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})"
-    [[ -z $size ]] && handleError "No size passed (${FUNCNAME[0]})"
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $size ]] && handleError "No size passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local disk=""
     local table_type=""
     getDiskFromPartition "$part"
@@ -635,7 +635,7 @@ resizePartition() {
             resizeSfdiskPartition "$part" "$size" "$imagePath"
             ;;
         *)
-            handleError "Unexpected partition table type: $table_type (${FUNCNAME[0]})"
+            handleError "Unexpected partition table type: $table_type (${FUNCNAME[0]})\n   Args Passed: $*"
             ;;
     esac
     # make sure kernel knows about the changes
@@ -652,9 +652,9 @@ saveOriginalPartitions() {
     local disk="$1"
     local imagePath="$2"
     local disk_number="$3"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local table_type=""
     getPartitionTableType "$disk"
     case $table_type in
@@ -673,7 +673,7 @@ saveOriginalPartitions() {
         *)
             echo "Failed"
             debugPause
-            handleError "Unexpected partition table type: $table_type (${FUNCNAME[0]})"
+            handleError "Unexpected partition table type: $table_type (${FUNCNAME[0]})\n   Args Passed: $*"
             ;;
     esac
     runPartprobe "$disk"
@@ -689,9 +689,9 @@ restoreOriginalPartitions() {
     local disk="$1"
     local imagePath="$2"
     local disk_number="$3"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local table_type=""
     getPartitionTableType "$disk"
     case $table_type in
@@ -706,11 +706,11 @@ restoreOriginalPartitions() {
             local filename="$sfdiskoriginalpartitionfilename"
             [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
             [[ ! -r $filename ]] && filename="$sgdiskoriginalpartitionfilename" && cmdtorun='restoreSgdiskPartitions'
-            [[ ! -r $filename ]] && handleError "Failed to find a restore file (${FUNCNAME[0]})"
+            [[ ! -r $filename ]] && handleError "Failed to find a restore file (${FUNCNAME[0]})\n   Args Passed: $*"
             $cmdtorun "$disk" "$filename"
             ;;
         *)
-            handleError "Unexpected partition table type: $table_type (${FUNCNAME[0]})"
+            handleError "Unexpected partition table type: $table_type (${FUNCNAME[0]})\n   Args Passed: $*"
             ;;
     esac
     # make sure kernel knows about the changes
@@ -727,9 +727,9 @@ fillDiskWithPartitions() {
     local disk="$1"
     local imagePath="$2"
     local disk_number="$3"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local fixed_size_file=""
     fixedSizePartitionsFileName "$imagePath" "$disk_number"
     [[ -r $fixed_size_file ]] && fixed_size_partitions=$(cat $fixed_size_file)
@@ -748,13 +748,13 @@ fillDiskWithPartitions() {
             [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
             [[ ! -r $filename ]] && filename="$sgdiskoriginalpartitionfilename"
             [[ $filename == $sgdiskoriginalpartitionfilename ]] && cmdtorun='fillSgdiskWithPartitions'
-            [[ ! -r $filename ]] && handleError "Failed to find a restore file (${FUNCNAME[0]})"
+            [[ ! -r $filename ]] && handleError "Failed to find a restore file (${FUNCNAME[0]})\n   Args Passed: $*"
             $cmdtorun "$disk" "$filename" "$fixed_size_partitions"
             ;;
         *)
             echo "Failed"
             debugPause
-            handleError "Unexpected partition table type: $table_type (${FUNCNAME[0]})"
+            handleError "Unexpected partition table type: $table_type (${FUNCNAME[0]})\n   Args Passed: $*"
             ;;
     esac
     # make sure kernel knows about the changes
@@ -770,9 +770,9 @@ fillDiskWithPartitionsIsOK() {
     local disk="$1"
     local imagePath="$2"
     local disk_number="$3"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local table_type=""
     getDesiredPartitionTableType "$imagePath" "$disk_number"
     local filename=""
@@ -801,8 +801,8 @@ majorDebugShowCurrentPartitionTable() {
     [[ $ismajordebug -le 0 ]] && return
     local disk="$1"
     local disk_number="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})"
-    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})"
+    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local table_type=""
     getDesiredPartitionTableType "$imagePath" "$disk_number"
     echo "Current partition table:"

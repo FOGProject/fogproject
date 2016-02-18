@@ -20,7 +20,7 @@ if [[ -d /opt/fog/clamav/bin && -d /opt/fog/clamav/sbin ]]; then
 else
     echo "Failed"
     debugPause
-    handleError "Cannot find clamav binaries to run task."
+    handleError "Cannot find clamav binaries to run task. ($0)\n   Args Passed: $*"
 fi
 echo "Done"
 debugPause
@@ -33,7 +33,7 @@ case $? in
     *)
         echo "Failed"
         debugPause
-        handleError "Unable to update clamav definitions"
+        handleError "Unable to update clamav definitions. ($0)\n   Args Passed: $*"
         ;;
 esac
 debugPause
@@ -44,7 +44,7 @@ getHardDisk 'true'
 if [[ -z $disks ]]; then
     echo "Failed"
     debugPause
-    handleError "Unable to find any disks"
+    handleError "Unable to find any disks. ($0)\n   Args Passed: $*"
 fi
 echo "Done"
 debugPause
@@ -53,7 +53,7 @@ dots "Creating scan partition"
 if [[ ! -d /clamavscan ]]; then
     echo "Failed"
     debugPause
-    handleError "Unable to create scan folder"
+    handleError "Unable to create scan folder. ($0)\n   Args Passed: $*"
 fi
 echo "Done"
 debugPause
@@ -67,7 +67,7 @@ case $avmode in
         modename="Scan and Quarantine"
         ;;
     *)
-        handleError "Unable to determine scanning mode!"
+        handleError "Unable to determine scanning mode! ($0)\n   Args Passed: $*"
         ;;
 esac
 for disk in $disks; do

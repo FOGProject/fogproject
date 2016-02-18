@@ -76,7 +76,7 @@ checkin() {
         tmpStorageIp=$(echo $queueinfo|cut -d'@' -f2 2>/dev/null)
         tmpStorage=$(echo $queueinfo|cut -d'@' -f3 2>/dev/null)
         tmpName=$(echo $queueinfo|cut -d'@' -f4 2>/dev/null)
-        [[ -z $tmpStorage || -z $tmpStorageIp ]] && handleError "Error determining storage server!"
+        [[ -z $tmpStorage || -z $tmpStorageIp ]] && handleError "Error determining storage server! ($0)\n   Args Passed: $*"
         storage="$tmpStorage"
         storageip="$tmpStorageIp"
         nfsServerName="$tmpName"
