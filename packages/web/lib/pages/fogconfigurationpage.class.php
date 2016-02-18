@@ -763,6 +763,8 @@ class FOGConfigurationPage extends FOGPage {
                 $pinghostlog = @array_shift($pinghostlog);
                 $svcmasterlog = preg_grep('#(servicemaster.log$)#i',$fogfiles);
                 $svcmasterlog = @array_shift($svcmasterlog);
+                $imgtransferlogs = preg_grep('#(fogreplicator.log.transfer)#i',$fogfiles);
+                $snptransferlogs = preg_grep('#(fogsnapinrep.log.transfer)#i',$fogfiles);
                 $files[$StorageNode->get('name')] = array(
                     $svcmasterlog ? _('Service Master') : null => $svcmasterlog ? $svcmasterlog : null,
                     $multicastlog ? _('Multicast') : null => $multicastlog ? $multicastlog : null,
@@ -773,6 +775,14 @@ class FOGConfigurationPage extends FOGPage {
                     $apacheerrlog ? _('Apache Error Log') : null  => $apacheerrlog ? $apacheerrlog : null,
                     $apacheacclog ? _('Apache Access Log') : null  => $apacheacclog ? $apacheacclog : null,
                 );
+                foreach ((array)$imgtransferlogs AS &$file) {
+                    $files[$StorageNode->get('name')][sprintf('%s %s',$this->string_between($file,'transfer.','.log'),_('Image Transfer Log'))] = $file;
+                    unset($file);
+                }
+                foreach ((array)$snptransferlogs AS &$file) {
+                    $files[$StorageNode->get('name')][sprintf('%s %s',$this->string_between($file,'transfer.','.log'),_('Snapin Transfer Log'))] = $file;
+                    unset($file);
+                }
                 $files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
             } catch (Exception $e) {
                 $files[$StorageNode->get('name')] = array(
