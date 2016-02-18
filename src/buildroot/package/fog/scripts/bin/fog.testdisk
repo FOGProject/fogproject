@@ -9,7 +9,7 @@ hd=""
 parts=""
 part=""
 getHardDisk "true"
-[[ -z $disks ]] && handleError "No Hard disks not found!"
+[[ -z $disks ]] && handleError "No Hard disks not found! ($0)\n   Args Passed: $*"
 for disk in $disks; do
     echo " Starting TestDisk on $disk"
     getPartitions "$disk"

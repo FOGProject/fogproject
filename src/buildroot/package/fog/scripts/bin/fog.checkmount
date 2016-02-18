@@ -12,13 +12,13 @@ if [[ ! -f /images/.mntcheck ]]; then
             9)
                 echo "Failed"
                 debugPause
-                handleError "Error during failure notification: $blame"
+                handleError "Error during failure notification: $blame ($0)\n   Args Passed: $*"
                 ;;
         esac
     done
     echo "Failed"
     debugPause
-    handleError "Could not verify mount point, check if .mntcheck exists"
+    handleError "Could not verify mount point, check if .mntcheck exists ($0)\n   Args Passed: $*"
 fi
 echo "Done"
 debugPause

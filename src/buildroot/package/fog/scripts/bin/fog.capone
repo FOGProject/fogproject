@@ -22,7 +22,7 @@ while [[ -z $dmi ]]; do
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
-        handleError "Could not find DMI Value"
+        handleError "Could not find DMI Value ($0)\n   Args Passed: $*"
     fi
     let count+=1
     usleep 5000000
@@ -42,7 +42,7 @@ while [[ -z $img ]]; do
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
-        handleError "Count not find an Image definition"
+        handleError "Count not find an Image definition ($0)\n   Args Passed: $*"
     fi
     let count+=1
     usleep 5000000
@@ -58,7 +58,7 @@ mbrfile=""
 defaultpart2start=""
 for line in $img; do
     linedecode=$(echo $line | base64 -d)
-    [[ -z $linedecode ]] && handleError "No image definition was found for $dmivalue"
+    [[ -z $linedecode ]] && handleError "No image definition was found for $dmivalue ($0)\n   Args Passed: $*"
     let cnt+=1
     awk_returned_vars=$(echo $linedecode | awk -F"|" "{printf(\"%s\n%s\n%s\n%s\n%s\",\$1,\$2,\$3,\$4,\$5)}")
     read img osid imgType imgPartitionType imgFormat <<< $awk_returned_vars
@@ -85,7 +85,7 @@ for line in $img; do
 done
 case $cnt in
     0)
-        handleError "No image definition was found for $dmivalue"
+        handleError "No image definition was found for $dmivalue ($0)\n   Args Passed: $*"
         ;;
     1)
         ;;

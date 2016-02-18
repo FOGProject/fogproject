@@ -25,7 +25,7 @@ case $imgType in
         if [[ -z $hd ]]; then
             echo "Failed"
             debugPause
-            handleError "Could not find hard disk ($0)"
+            handleError "Could not find hard disk ($0)\n   Args Passed: $*"
         fi
         echo "Done"
         debugPause
@@ -35,7 +35,7 @@ case $imgType in
         if [[ -z $parts ]]; then
             echo "Failed"
             debugPause
-            handleError "Could not find partitions ($0)"
+            handleError "Could not find partitions ($0)\n   Args Passed: $*"
         fi
         echo "Done"
         debugPause
@@ -47,7 +47,7 @@ case $imgType in
         if [[ -z $disks ]]; then
             echo "Failed"
             debugPause
-            handleError "Could not find any disks ($0)"
+            handleError "Could not find any disks ($0)\n   Args Passed: $*"
         fi
         echo "Done"
         debugPause
@@ -108,7 +108,7 @@ case $imgType in
         if [[ $ntfscnt -eq 0 && $extfscnt -eq 0 ]]; then
             echo "Failed"
             debugPause
-            handleError "No resizable partitions found ($0)"
+            handleError "No resizable partitions found ($0)\n   Args Passed: $*"
         fi
         echo "Done"
         debugPause

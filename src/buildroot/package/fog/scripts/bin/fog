@@ -1,6 +1,6 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
-if [[ -n $mode ]]; then
+if [[ -n $mode && $mode != +(*debug*) ]]; then
     case $mode in
         wipe)
             fog.wipe
@@ -39,7 +39,7 @@ if [[ -n $mode ]]; then
             fog.donatefull
             ;;
         *)
-            handleError "Fatal Error: Unknown mode :: $mode"
+            handleError "Fatal Error: Unknown mode :: $mode ($0)\n   Args Passed: $*"
             ;;
     esac
 else
