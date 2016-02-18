@@ -611,7 +611,7 @@ abstract class FOGPage extends FOGBase {
                         ->set('password',$this->getSetting('FOG_TFTP_FTP_PASSWORD'));
                     if (!$this->FOGFTP->connect()) throw new Exception(_('Error: Unable to connect to tftp server'));
                     $orig = sprintf('/%s/%s',trim($this->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/'),$destfile);
-                    $backuppath = sprintf('/%s/backup/',$orig);
+                    $backuppath = sprintf('/%s/backup/',dirname($orig));
                     $backupfile = sprintf('%s%s_%s',$backuppath,$destfile,$this->formatTime('','Ymd_His'));
                     $this->FOGFTP->mkdir($backuppath);
                     $this->FOGFTP->rename($backupfile,$orig);
