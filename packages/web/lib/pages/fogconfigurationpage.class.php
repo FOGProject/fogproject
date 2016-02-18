@@ -98,7 +98,7 @@ class FOGConfigurationPage extends FOGPage {
             printf('<div id="kdlRes"><p id="currentdlstate">%s</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>',_('Starting process...'));
         } else {
             $tmpFile = basename(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8'));
-            $tmpArch = htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8');
+            $tmpArch = htmlentities($_REQUEST['arch'],ENT_QUOTES,'utf-8');
             printf('<form method="post" action="?node=%s&sub=kernel&install=1&file=%s"><p>%s: <input class="smaller" type="text" name="dstName" value="%s"/></p><p><input class="smaller" type="submit" value="%s"/></p></form>',$this->node,basename(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')),_('Kernel Name'),($tmpArch == 64 || ! $tmpArch ? 'bzImage' : 'bzImage32'),_('Next'));
         }
     }
