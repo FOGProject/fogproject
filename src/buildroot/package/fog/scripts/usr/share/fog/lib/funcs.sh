@@ -69,7 +69,7 @@ verifyNetworkConnection() {
 }
 # Verifies that the OS is valid for resizing
 validResizeOS() {
-    [[ $osid != +([1-2]|[5-7]|9|50) ]] && handleError " * Invalid operating system id: $osname ($osid) (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ $osid != @([1-2]|[5-7]|9|50) ]] && handleError " * Invalid operating system id: $osname ($osid) (${FUNCNAME[0]})\n   Args Passed: $*"
 }
 # Gets the information from the system for inventory
 doInventory() {
