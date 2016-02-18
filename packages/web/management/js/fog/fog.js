@@ -386,6 +386,9 @@ function setupFogTableInfoFunction() {
                 break;
             case 'image':
                 headParser = {0: {sorter: 'iParser'},1: {sorter: 'checkboxParser'},3: {sorter: 'sizeParser'}};
+                headExtra = {4: {sorter: 'sizeParser'}};
+                if ($('th').length > 7) $.extend(headParser,headExtra);
+                console.log(headParser);
                 break;
             case 'storage':
                 headParser = {};
