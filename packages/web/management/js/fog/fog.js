@@ -334,6 +334,35 @@ function setupParserInfo() {
         },
         type: 'text'
     });
+    $.tablesorter.addParser({
+        id: 'sizeParser',
+        is: function(s) {
+            return s.match(new RegExp(/[0-9]+(\.[0-9]+)?\ (iB|KiB|MiB|GiB|TiB|EiB|ZiB|YiB)/));
+        },
+        format: function(s) {
+            var suf = s.match(new RegExp(/(iB|KiB|MiB|GiB|TiB|EiB|ZiB|YiB)$/))[1];
+            var num = parseFloat(s.match(new RegExp(/^[0-9]+(\.[0-9]+)?/))[0]);
+            switch(suf) {
+                case 'iB':
+                return num;
+                case 'KiB':
+                return num*1024;
+                case 'MiB':
+                return num*1024*1024;
+                case 'GiB':
+                return num*1024*1024*1024;
+                case 'TiB':
+                return num*1024*1024*1024*1024;
+                case 'EiB':
+                return num*1024*1024*1024*1024*1024;
+                case 'ZiB':
+                return num*1024*1024*1024*1024*1024*1024;
+                case 'YiB':
+                return num*1024*1024*1024*1024*1024*1024*1024;
+            }
+        },
+        type: 'numeric'
+    });
 }
 function setupFogTableInfoFunction() {
     if (typeof $.tablesorter == 'undefined') return;
@@ -356,7 +385,7 @@ function setupFogTableInfoFunction() {
                 headParser = {0: {sorter: 'questionParser'},1: {sorter: 'checkboxParser'}};
                 break;
             case 'image':
-                headParser = {0: {sorter: 'iParser'},1: {sorter: 'checkboxParser'}};
+                headParser = {0: {sorter: 'iParser'},1: {sorter: 'checkboxParser'},3: {sorter: 'sizeParser'}};
                 break;
             case 'storage':
                 headParser = {};
