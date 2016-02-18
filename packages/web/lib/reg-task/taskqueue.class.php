@@ -48,7 +48,7 @@ class TaskQueue extends TaskingElement {
                         unset($StorageNode);
                     }
                 }
-                if ($tmpStorageNode->get('id') != $this->StorageNode->get('id')) $this->StorageNode = $tmpStorageNode;
+                if ($tmpStorageNode instanceof StorageNode && $tmpStorageNode->get('id') != $this->StorageNode->get('id')) $this->StorageNode = $tmpStorageNode;
                 if (!$this->StorageNode->isValid()) throw new Exception(_('Unable to find a auitable Storage Node for imaging!'));
                 $this->Task
                     ->set('NFSMemberID',$this->StorageNode->get('id'));
