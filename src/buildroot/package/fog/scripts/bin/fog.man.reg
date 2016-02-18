@@ -139,7 +139,7 @@ setIDs() {
     done
     IFS=$oIFS
 }
-[[ $exists != "#!ok" ]] && handleError "Unable to register host: $exists"
+[[ $exists != "#!ok" ]] && handleError "Unable to register host: $exists ($0)\n   Args Passed: $*"
 host=""
 ip=""
 productKey=""

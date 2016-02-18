@@ -70,7 +70,7 @@ while [[ -z $res ]]; do
             ;;
         9)
             echo "Failed"
-            handleError "Cannot register host"
+            handleError "Cannot register host. ($0)\n   Args Passed: $*"
             ;;
     esac
 done

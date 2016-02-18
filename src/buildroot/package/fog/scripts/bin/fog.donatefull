@@ -13,7 +13,7 @@ while [[ $res != "##" ]]; do
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
-        handleError "Could not check in"
+        handleError "Could not check in ($0)\n   Args Passed: $*"
     fi
     let count+=1
     usleep 5000000

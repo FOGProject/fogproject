@@ -28,7 +28,7 @@ case $imgType in
         if [[ -z $hd ]]; then
             echo "Failed"
             debugPause
-            handleError "Could not find hard disk ($0)"
+            handleError "Could not find hard disk ($0)\n   Args Passed: $*"
         fi
         echo "Done"
         debugPause
@@ -44,7 +44,7 @@ case $imgType in
         if [[ -z $disks ]]; then
             echo "Failed"
             debugPause
-            handleError "Count not find any disks ($0)"
+            handleError "Count not find any disks ($0)\n   Args Passed: $*"
         fi
         echo "Done"
         debugPause
@@ -59,11 +59,11 @@ case $imgType in
         runPartprobe "$hd"
         case $osid in
             50)
-                [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
+                [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
                 prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
                 ;;
             [1-2])
-                [[ ! -f $imagePath && ! -f $imagePath/$img && ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
+                [[ ! -f $imagePath && ! -f $imagePath/$img && ! -d $imagePath ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
                 [[ -d $imagePath && -f $imagePath/$img ]] && imagePath="$imagePath/$img"
                 if [[ -d $imagePath ]]; then
                     prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
@@ -73,7 +73,7 @@ case $imgType in
                     if [[ ! $? -eq 0 ]]; then
                         echo "Failed"
                         debugPause
-                        handleError "Fatal Error: Could not remove old partition ($0)"
+                        handleError "Fatal Error: Could not remove old partition ($0)\n   Args Passed: $*"
                     fi
                     echo "Done"
                     debugPause
@@ -82,7 +82,7 @@ case $imgType in
                     if [[ ! $? -eq 0 ]]; then
                         echo "Failed"
                         debugPause
-                        handleError "Could not create partition to fill disk"
+                        handleError "Could not create partition to fill disk ($0)\n   Args Passed: $*"
                     fi
                     echo "Done"
                     debugPause
@@ -91,7 +91,7 @@ case $imgType in
                     if [[ ! $? -eq 0 ]]; then
                         echo "Failed"
                         debugPause
-                        handleError "Fatal Error: Could not make partition bootable ($0)"
+                        handleError "Fatal Error: Could not make partition bootable ($0)\n   Args Passed: $*"
                     fi
                     runPartprobe "$hd"
                     echo "Done"
@@ -103,7 +103,7 @@ case $imgType in
                 fi
                 ;;
             [5-7]|9)
-                [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Unable to locate image store ($0)"
+                [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
                 [[ ! -f $imagePath/sys.img.000 ]] && prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
                 if [[ -f $imagePath/sys.img.000 ]]; then
                     echo " * Using legacy style partition setup"
@@ -122,7 +122,7 @@ case $imgType in
                     if [[ ! $? -eq 0 ]]; then
                         echo "Failed"
                         debugPause
-                        handleError "Fatal Error: Could not remove old partition ($0)"
+                        handleError "Fatal Error: Could not remove old partition ($0)\n   Args Passed: $*"
                     fi
                     echo "Done"
                     debugPause
@@ -143,7 +143,7 @@ case $imgType in
                                     if [[ ! $? -eq 0 ]]; then
                                         echo "Failed"
                                         debugPause
-                                        handleError "Fatal Error: Could not recreate first partition ($0)"
+                                        handleError "Fatal Error: Could not recreate first partition ($0)\n   Args Passed: $*"
                                     fi
                                     echo "Done"
                                     dots "Setting boot partition"
@@ -151,7 +151,7 @@ case $imgType in
                                     if [[ ! $? -eq 0 ]]; then
                                         echo "Failed"
                                         debugPause
-                                        handleError "Fatal Error: Could not make partition bootable ($0)"
+                                        handleError "Fatal Error: Could not make partition bootable ($0)\n   Args Passed: $*"
                                     fi
                                     echo "Done"
                                     ;;
@@ -161,7 +161,7 @@ case $imgType in
                                     if [[ ! $? -eq 0 ]]; then
                                         echo "Failed"
                                         debugPause
-                                        handleError "Fatal Error: Could not recreate main partition ($0)"
+                                        handleError "Fatal Error: Could not recreate main partition ($0)\n   Args Passed: $*"
                                     fi
                                     echo "Done"
                                     debugPause
@@ -170,7 +170,7 @@ case $imgType in
                                     if [[ ! $? -eq 0 ]]; then
                                         echo "Failed"
                                         debugPause
-                                        handleError "Fatal Error: Could not make partition bootable ($0)"
+                                        handleError "Fatal Error: Could not make partition bootable ($0)\nArgsPassed: $*"
                                     fi
                                     echo "Done"
                                     ;;
@@ -180,13 +180,13 @@ case $imgType in
                                     if [[ ! $? -eq 0 ]]; then
                                         echo "Failed"
                                         debugPause
-                                        handleError "Fatal Error: Could not recreate partitions ($0)"
+                                        handleError "Fatal Error: Could not recreate partitions ($0)\n   Args Passed: $*"
                                     fi
                                     sgdisk -x 3:$(sgdisk -E $hd) $hd >/dev/null 2>&1
                                     if [[ ! $? -eq 0 ]]; then
                                         echo "Failed"
                                         debugPause
-                                        handleError "Fatal Error: Could not resize partitions ($0)"
+                                        handleError "Fatal Error: Could not resize partitions ($0)\n   Args Passed: $*"
                                     fi
                                     echo "Done"
                                     ;;
@@ -210,7 +210,7 @@ case $imgType in
         esac
         ;;
     mps)
-        [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
+        [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
         echo " * Wiping $hd partition information"
         initHardDisk "$hd"
         runPartprobe "$hd"
@@ -219,7 +219,7 @@ case $imgType in
         gptcheck="$global_gptcheck"
         ;;
     mpa)
-        [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)"
+        [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
         getHardDisk "true"
         disk_number=1
         for disk in $disks; do
@@ -247,13 +247,13 @@ case $imgType in
         [[ $imgType == +(n|mps) ]] && disks="$hd"
         case $osid in
             [1-2])
-                [[ ! -f $imagePath && ! -d $imagePath ]] && handleError "Fatal Error: Could not locate file ($0)"
+                [[ ! -f $imagePath && ! -d $imagePath ]] && handleError "Fatal Error: Could not locate file ($0)\n   Args Passed: $*"
                 ;;
             [5-7]|9)
-                [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Fatal Error: Could not locate file ($0)"
+                [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Fatal Error: Could not locate file ($0)\n   Args Passed: $*"
                 ;;
             50)
-                [[ ! -d $imagePath ]] && handleError "Fatal Error: could not locate file ($0)"
+                [[ ! -d $imagePath ]] && handleError "Fatal Error: could not locate file ($0)\n   Args Passed: $*"
                 ;;
         esac
         performRestore "$disks" "$imagePath" "$imgPartitionType" "$mc"

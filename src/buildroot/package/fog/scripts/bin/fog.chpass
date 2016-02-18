@@ -13,7 +13,7 @@ dots "Creating chntpw partition"
 if [[ ! -d /chntpw ]]; then
     echo "Failed"
     debugPause
-    handleError "Unable to create chntpw folder"
+    handleError "Unable to create chntpw folder ($0)\n   Args Passed: $*"
 fi
 echo "Done"
 debugPause
@@ -22,7 +22,7 @@ getHardDisk
 if [[ -z $hd ]]; then
     echo "Failed"
     debugPause
-    handleError "Could not locate disk to work from"
+    handleError "Could not locate disk to work from ($0)\n   Args Passed: $*"
 fi
 echo "$hd"
 debugPause

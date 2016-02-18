@@ -11,7 +11,7 @@ getHardDisk "true"
 if [[ -z $disks ]]; then
     echo "Failed"
     debugPause
-    handleError "No hard disks found!"
+    handleError "No hard disks found! ($0)\n   Args Passed: $*"
 fi
 echo "Done"
 debugPause
@@ -23,7 +23,7 @@ while [[ $res != "##@GO" ]]; do
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
-        handleError "Could not checkin"
+        handleError "Could not checkin. ($0)\n   Args Passed: $*"
     fi
     let count+=1
     usleep 5000000
@@ -41,7 +41,7 @@ for disk in $disks; do
         *)
             echo "Failed"
             debugPause
-            handleError "Could not perform surface scan on $disk"
+            handleError "Could not perform surface scan on $disk ($0)\n   Args Passed: $*"
             ;;
     esac
     debugPause

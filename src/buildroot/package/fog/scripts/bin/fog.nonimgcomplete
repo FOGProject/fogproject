@@ -9,7 +9,7 @@ while [[ $res != "##" ]]; do
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
-        handleError "Could not complete tasking"
+        handleError "Could not complete tasking. ($0)\n   Args Passed: $*"
     fi
     let count+=1
     usleep 5000000
