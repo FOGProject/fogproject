@@ -2147,3 +2147,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.`taskTypes` SET `ttDescription`='"._('Fast wipe will boot the client computer and wipe the first few sectors of data on the hard disk.  Data will not be overwritten but the boot up of the disk and partition layout will no longer exist.')."' WHERE `ttID`=18",
 );
+// 211
+$this->schema[] = array(
+	"INSERT INTO `" . DATABASE_NAME . "`.`os` (`osID`, `osName`, `osDescription`) VALUES ('51', 'Chromium OS', 'Chromium OS')",
+);
