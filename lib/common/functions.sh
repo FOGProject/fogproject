@@ -1623,8 +1623,9 @@ class Config {
     cnt=0
     while [[ $localinitsum != $remoteinitsum && $cnt -lt 10 ]]; do
         [[ $cnt -eq 0 ]] && echo "Failed init.xz"
+        let cnt+=1
         dots "Attempting to redownload init.xz"
-        curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/init.xz >/dev/null 2>&1
+        curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz >/dev/null 2>&1
         errorStat $?
         localinitsum=$(sha512sum $webdirdest/service/ipxe/init.xz | awk '{print $1}')
     done
@@ -1635,8 +1636,9 @@ class Config {
     cnt=0
     while [[ $localinit_32sum != $remoteinit_32sum && $cnt -lt 10 ]]; do
         [[ $cnt -eq 0 ]] && echo "Failed init_32.xz"
+        let cnt+=1
         dots "Attempting to redownload init_32.xz"
-        curl --silent -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/init_32.xz >/dev/null 2>&1
+        curl --silent -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz >/dev/null 2>&1
         errorStat $?
         localinit_32sum=$(sha512sum $webdirdest/service/ipxe/init_32.xz | awk '{print $1}')
     done
