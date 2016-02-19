@@ -58,7 +58,7 @@ case $imgType in
         initHardDisk "$hd"
         runPartprobe "$hd"
         case $osid in
-            50)
+            50|51)
                 [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
                 prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
                 ;;
@@ -252,7 +252,7 @@ case $imgType in
             [5-7]|9)
                 [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Fatal Error: Could not locate file ($0)\n   Args Passed: $*"
                 ;;
-            50)
+            50|51)
                 [[ ! -d $imagePath ]] && handleError "Fatal Error: could not locate file ($0)\n   Args Passed: $*"
                 ;;
         esac

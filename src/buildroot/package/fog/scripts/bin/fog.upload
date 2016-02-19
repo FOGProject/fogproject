@@ -117,7 +117,7 @@ case $imgType in
         echo " * EXTFS Partition count of: $extfscnt"
         debugPause
         case $osid in
-            [5-7]|9|50)
+            [5-7]|9|50|51)
                 echo " * Setting up any additional fixed parts"
                 part_number=0
                 for part in $parts; do
