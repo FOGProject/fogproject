@@ -96,7 +96,7 @@ class SnapinManagementPage extends FOGPage {
             unset($StorageNode,$filelist);
         }
         $files = array_filter(array_unique((array)$files));
-        sort($files);
+        natcasesort($files);
         ob_start();
         foreach ((array)$files AS $i => &$file) {
             printf('<option value="%s"%s>%s</option>',
@@ -215,7 +215,7 @@ class SnapinManagementPage extends FOGPage {
             unset($StorageNode,$filelist);
         }
         $files = array_filter(array_unique((array)$files));
-        sort($files);
+        natcasesort($files);
         ob_start();
         foreach ((array)$files AS $i => &$file) {
             printf('<option value="%s"%s>%s</option>',
