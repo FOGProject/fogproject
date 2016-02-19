@@ -158,12 +158,15 @@ class ReportManagementPage extends FOGPage {
             unset($csvHeader);
         }
         $this->ReportMaker->endCSVLine();
+        ini_set('display_errors',true);
         foreach ((array)$this->getClass('ImagingLogManager')->find(array('start'=>null,'finish'=>null),'OR','',''," BETWEEN '$date1' AND '$date2'",'','','',false) AS $i => &$ImagingLog) {
             if (!$ImagingLog->isValid()) continue;
-            $start = $this->nice_date($ImagingLog->get('start'));
-            $end = $this->nice_date($ImagingLog->get('finish'));
+            $start = $ImagingLog->get('start');
+            $end = $ImagingLog->get('finish');
             if (!$this->validDate($start) || !$this->validDate($end)) continue;
             $diff = $this->diff($start,$end);
+            $start = $this->nice_date($start);
+            $end = $this->nice_date($end);
             $Host = $this->getClass('Host',$ImagingLog->get('hostID'));
             if (!$Host->isValid()) continue;
             $hostName = $Host->get('name');
