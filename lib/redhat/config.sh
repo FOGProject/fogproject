@@ -32,14 +32,14 @@ case $linuxReleaseName in
         packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process"
         command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ $? -eq 0 ]]; then
-            packageinstaller="dnf -y --enablerepo=remi install"
-            packagelist="dnf list --enablerepo=remi"
-            packageupdater="dnf -y --enablerepo=remi update"
-            packmanUpdate="dnf --enablerepo=remi check-update"
+            packageinstaller="dnf -y --enablerepo=$repos install"
+            packagelist="dnf list --enablerepo=$repos"
+            packageupdater="dnf -y --enablerepo=$repos update"
+            packmanUpdate="dnf --enablerepo=$repos check-update"
         else
-            packageinstaller="yum -y --enablerepo=remi,epel install"
-            packagelist="yum --enablerepo=remi,epel list"
-            packageupdater="yum -y --enablerepo=remi,epel update"
+            packageinstaller="yum -y --enablerepo=$repos install"
+            packagelist="yum --enablerepo=$repos list"
+            packageupdater="yum -y --enablerepo=$repos update"
             packmanUpdate="yum check-update"
             command -v yum-config-manager >/dev/null 2>&1
             if [[ ! $? -eq 0 ]]; then
