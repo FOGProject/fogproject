@@ -144,7 +144,7 @@ class SnapinManagementPage extends FOGPage {
             if (!$snapinName) throw new Exception(_('Please enter a name to give this Snapin'));
             if ($this->getClass('SnapinManager')->exists($snapinName)) throw new Exception(_('Snapin with that name already exists'));
             if (!$_REQUEST['storagegroup']) throw new Exception(_('Please select a storage group for this snapin to reside in'));
-            $snapinfile = trim(basename($_REQUEST['snapinfileexists']));
+            $snapinfile = trim(basename($_REQUEST['snapinfileexist']));
             $uploadfile = trim(basename($_FILES['snapin']['name']));
             if ($uploadfile) $snapinfile = $uploadfile;
             if (!$snapinfile) throw new Exception(_('A file to use for the snapin must be either uploaded or chosen from the already present list'));

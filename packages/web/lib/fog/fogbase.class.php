@@ -77,16 +77,16 @@ abstract class FOGBase {
     }
     public function getAllBlamedNodes() {
         $Host = $this->getHostItem(false);
-        $NodeFailures = $this->getClass(NodeFailureManager)->find(array(taskID=>$Host->get(task)->get(id),hostID=>$Host->get(id)));
+        $NodeFailures = (array)$this->getClass('NodeFailureManager')->find(array('taskID'=>$Host->get('task')->get('id'),'hostID'=>$Host->get('id')));
         $DateInterval = $this->nice_date()->modify('-5 minutes');
         foreach($NodeFailures AS $i => &$NodeFailure) {
-            $DateTime = $this->nice_date($NodeFailure->get(failureTime));
+            $DateTime = $this->nice_date($NodeFailure->get('failureTime'));
             if ($DateTime >= $DateInterval) {
-                $node = $NodeFailure->get(id);
+                $node = $NodeFailure->get('id');
                 if (!in_array($node,(array)$nodeRet)) $nodeRet[] = $node;
             } else $NodeFailure->destroy();
+            unset($NodeFailure);
         }
-        unset($NodeFailure);
         return $nodeRet;
     }
     protected function getActivePlugins() {
@@ -150,9 +150,9 @@ abstract class FOGBase {
         }
     }
     protected function array_insert_before($key, array &$array, $new_key, $new_value) {
-        if (!in_array($key,(array)$array)) {
+        if (!in_array($key,$array)) {
             $new = array();
-            foreach ($array as $k => &$value) {
+            foreach($array AS $k => &$value) {
                 if ($k === $key) $new[$new_key] = $new_value;
                 $new[$k] = $value;
                 unset($value);
@@ -161,9 +161,9 @@ abstract class FOGBase {
         }
     }
     protected function array_insert_after($key, array &$array, $new_key, $new_value) {
-        if (!in_array($key,(array)$array)) {
+        if (!in_array($key,$array)) {
             $new = array();
-            foreach ($array as $k => &$value) {
+            foreach($array AS $k => &$value) {
                 $new[$k] = $value;
                 if ($k === $key) $new[$new_key] = $new_value;
                 unset($value);
@@ -173,14 +173,16 @@ abstract class FOGBase {
     }
     protected function array_remove($key, array &$array) {
         if (is_array($key)) {
-            foreach ($key AS $k => &$value) unset($array[$value]);
-            unset($value);
+            foreach ($key AS $k => &$value) {
+                unset($array[$value]);
+                unset($value);
+            }
         } else {
-            foreach ($array AS $k => &$value) {
+            foreach($array AS $k => &$value) {
                 if (is_array($value)) $this->array_remove($key, $value);
                 else unset($array[$key]);
+                unset($value);
             }
-            unset($value);
         }
     }
     protected function isLoaded($key) {
@@ -188,12 +190,17 @@ abstract class FOGBase {
         return $this->isLoaded[$key];
     }
     protected function resetRequest() {
-        $reqVars = $_REQUEST;
+        $reqVars = (array)$_REQUEST;
         unset($_REQUEST);
-        foreach((array)$_SESSION['post_request_vals'] AS $key => &$val) $_REQUEST[$key] = $val;
-        unset($val);
-        foreach((array)$reqVars AS $key => &$val) $_REQUEST[$key] = $val;
-        unset($val);
+        $sesVars = (array)$_SESSION['post_request_vals'];
+        foreach($sesVars AS $key => &$val) {
+            $_REQUEST[$key] = $val;
+            unset($val);
+        }
+        foreach($reqVars AS $key => &$val) {
+            $_REQUEST[$key] = $val;
+            unset($val);
+        }
         unset($_SESSION['post_request_vals'], $reqVars);
     }
     protected function setRequest() {
@@ -319,10 +326,11 @@ abstract class FOGBase {
         return $size;
     }
     protected function array_filter_recursive(&$input,$keepkeys = false) {
+        $input = (array)$input;
         foreach($input AS $i => &$value) {
-            if (is_array($value)) $value = $this->array_filter_recursive($value);
+            if (is_array($value)) $value = $this->array_filter_recursive($value,$keepkeys);
+            unset($value);
         }
-        unset($value);
         $input = array_filter($input);
         if (!$keepkeys) $input = array_values($input);
         return $input;
@@ -408,8 +416,8 @@ abstract class FOGBase {
         $MAClist = array();
         $MACs = $stringlist;
         if (!is_array($stringlist) && strpos($stringlist,'|')) $MACs = explode('|',$stringlist);
-        $AssocMACs = $this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs),'mac');
-        foreach ((array)$AssocMACs AS $i => &$MAC) {
+        $AssocMACs = (array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs),'mac');
+        foreach ($this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs),'mac') AS $i => &$MAC) {
             $MAC = $this->getClass('MACAddress',$MAC);
             if (!$MAC->isValid()) continue;
             if (in_array($MAC->__toString(),$MAClist)) continue;
@@ -418,7 +426,8 @@ abstract class FOGBase {
             $MAClist[] = $MAC->__toString();
             unset($MAC);
         }
-        foreach ((array)$MACs AS $i => &$MAC) {
+        $MACs = (array)$MACs;
+        foreach ($MACs AS $i => &$MAC) {
             $MAC = $this->getClass('MACAddress',$MAC);
             if (!$MAC->isValid()) continue;
             if (in_array($MAC->__toString(),$MAClist)) continue;
@@ -428,9 +437,9 @@ abstract class FOGBase {
             unset($MAC);
         }
         unset($MACs);
-        $Ignore = array_filter(array_map('trim',explode(',',$this->FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
+        $Ignore = (array)array_filter(array_map('trim',explode(',',$this->FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
         if (count($Ignore)) {
-            foreach ((array)$Ignore AS $i => &$ignore) {
+            foreach ($Ignore AS $i => &$ignore) {
                 $matches = preg_grep("#$ignore#i",(array)$MAClist);
                 if (!count($matches)) continue;
                 $NewMatches = array_merge((array)$NewMatches,$matches);
@@ -440,7 +449,7 @@ abstract class FOGBase {
             unset($Ignore);
         }
         if (!count($MAClist)) return false;
-        return array_unique(array_diff((array)$MAClist,(array)$NewMatches));
+        return (array)array_unique(array_diff((array)$MAClist,(array)$NewMatches));
     }
     protected function sendData($datatosend,$service = true) {
         if ($service) {
@@ -452,11 +461,12 @@ abstract class FOGBase {
         }
     }
     protected function array_strpos($haystack, $needles, $case = true) {
-        foreach ($needles AS $i => &$needle) {
+        $needles = (array)$needles;
+        foreach($needles AS $i => &$needle) {
             if ($case) return (bool)strpos($haystack,$needle) !== false;
             else return (bool)stripos($haystack,$needle) !== false;
+            unset($needle);
         }
-        unset($needle);
         return false;
     }
     protected function logHistory($string) {
