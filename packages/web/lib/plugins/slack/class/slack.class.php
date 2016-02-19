@@ -20,6 +20,7 @@ class Slack extends FOGController {
         }
         unset($channelnames);
         natcasesort($channels);
+        $channels = array_values((array)$channels);
         return (array)$channels;
     }
     public function getUsers() {
@@ -33,6 +34,7 @@ class Slack extends FOGController {
         }
         unset($usernames);
         natcasesort($users);
+        $users = array_values((array)$users);
         return (array)$users;
     }
     public function verifyToken() {

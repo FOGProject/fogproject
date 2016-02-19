@@ -173,6 +173,7 @@ class MulticastTask extends MulticastManager {
             break;
         }
         natcasesort($filelist);
+        $filelist = array_values((array)$filelist);
         ob_start();
         foreach ($filelist AS $i => &$file) {
             printf('cat %s%s%s | %s',rtrim($this->getImagePath(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,$file,implode($buildcmd));
