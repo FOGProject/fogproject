@@ -69,7 +69,7 @@ verifyNetworkConnection() {
 }
 # Verifies that the OS is valid for resizing
 validResizeOS() {
-    [[ $osid != @([1-2]|[5-7]|9|50) ]] && handleError " * Invalid operating system id: $osname ($osid) (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ $osid != @([1-2]|[5-7]|9|50|51) ]] && handleError " * Invalid operating system id: $osname ($osid) (${FUNCNAME[0]})\n   Args Passed: $*"
 }
 # Gets the information from the system for inventory
 doInventory() {
@@ -1020,7 +1020,7 @@ removePageFile() {
     fsTypeSetting "$part"
     [[ ! $ignorepg -eq 1 ]] && return
     case $osid in
-        [1-2]|[5-7]|[9]|50)
+        [1-2]|[5-7]|[9]|50|51)
             case $fstype in
                 ntfs)
                     dots "Mounting partition ($part)"
@@ -1137,6 +1137,10 @@ determineOS() {
             ;;
         50)
             osname="Linux"
+            mbrfile=""
+            ;;
+        51)
+            osname="Chromium OS"
             mbrfile=""
             ;;
         99)
@@ -1364,7 +1368,7 @@ handleError() {
     # Linux:
     if [[ -n $2 ]]; then
         case $osid in
-            [1-2]|[5-7]|9|50)
+            [1-2]|[5-7]|9|50|51)
                 if [[ -n "$hd" ]]; then
                     getPartitions "$hd"
                     for part in $parts; do
@@ -1734,7 +1738,7 @@ savePartitionTablesAndBootLoaders() {
         0)
             strdots="Saving Partition Tables (MBR)"
             case $osid in
-                50)
+                50|51)
                     [[ $disk_number -eq 1 ]] && strdots="Saving Partition Tables and GRUB (MBR)"
                     ;;
             esac
@@ -1826,7 +1830,7 @@ restorePartitionTablesAndBootLoaders() {
         echo "Done"
     else
         case $osid in
-            50)
+            50|51)
                 strdots="Restoring Partition Tables and GRUB (MBR)"
                 ;;
             *)
@@ -1966,7 +1970,7 @@ restorePartition() {
                 [1-2])
                     imgpart="$imagePath"
                     ;;
-                50)
+                50|51)
                     imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     ;;
                 [5-7]|9)
