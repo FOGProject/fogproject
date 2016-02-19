@@ -216,9 +216,9 @@ class FOGConfigurationPage extends FOGPage {
             $this->getClass('PXEMenuOptionsManager')->update(array('id'=>$_REQUEST['menu_id']),'',array('name'=>$_REQUEST['menu_item'],'description'=>$_REQUEST['menu_description'],'params'=>$_REQUEST['menu_params'],'regMenu'=>$_REQUEST['menu_regmenu'],'args'=>$_REQUEST['menu_options'],'default'=>$_REQUEST['menu_default']));
             if ($_REQUEST['menu_default']) {
                 $MenuIDs = $this->getSubObjectIDs('PXEMenuOptions');
-                sort($MenuIDs);
+                natsort($MenuIDs);
                 $MenuIDs = array_unique(array_diff($MenuIDs,(array)$_REQUEST['menu_id']));
-                sort($MenuIDs);
+                natsort($MenuIDs);
                 $this->getClass('PXEMenuOptionsManager')->update(array('id'=>$MenuIDs),'',array('default'=>'0'));
             }
             unset($MenuIDs);
