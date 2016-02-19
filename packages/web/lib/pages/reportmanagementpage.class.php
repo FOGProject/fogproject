@@ -597,9 +597,9 @@ class ReportManagementPage extends FOGPage {
         );
         $UserNames = $this->getSubObjectIDs('UserTracking','','username');
         $HostNames = $this->getSubObjectIDs('Host','','name');
-        asort($UserNames);
+        natcasesort($UserNames);
         $UserNames = array_filter(array_unique((array)$UserNames));
-        asort($HostNames);
+        natcasesort($HostNames);
         $HostNames = array_filter(array_unique((array)$HostNames));
         if (count($UserNames) > 0) {
             ob_start();
