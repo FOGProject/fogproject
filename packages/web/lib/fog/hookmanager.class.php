@@ -59,6 +59,7 @@ class HookManager extends EventManager {
         $this->events = array_unique($this->events);
         $this->events = array_values($this->events);
         natcasesort($this->events);
+        $this->events = array_values((array)$this->events);
     }
     public function processEvent($event, $arguments = array()) {
         if ($this->data[$event]) {

@@ -50,6 +50,7 @@ class Plugin extends FOGController {
         }
         closedir($handle);
         natcasesort($files);
+        $files = array_values((array)$files);
         return $files;
     }
     public function getPlugins() {
