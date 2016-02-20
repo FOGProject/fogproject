@@ -482,6 +482,7 @@ class Host extends FOGController {
     }
     private function createSnapinTasking($snapin = -1) {
         try {
+            if ($this->getClass('SnapinAssociationManager')->count(array('hostID'=>$this->get('id'))) < 1) return;
             $SnapinJob = $this->getClass('SnapinJob')
                 ->set('hostID',$this->get('id'))
                 ->set('stateID',$this->getQueuedState())
