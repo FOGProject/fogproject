@@ -17,13 +17,19 @@ abstract class FOGService extends FOGBase {
         $output = array();
         exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
         if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2",$IPs,$retVal);
+        if (@fsockopen('ipinfo.io',80)) {
+            $res = $this->FOGURLRequests->process('http://ipinfo.io/ip','GET');
+            $IPs[] = $res[0];
+        }
+        @natcasesort($IPs);
         foreach ($IPs AS $i => &$IP) {
             $IP = trim($IP);
             if (filter_var($IP,FILTER_VALIDATE_IP)) $output[] = $IP;
             $output[] = gethostbyaddr($IP);
         }
         unset($IP);
-        $this->ips = array_values(array_unique((array)$output));
+        @natcasesort($output);
+        $this->ips = array_values(array_filter(array_unique((array)$output)));
         return $this->ips;
     }
     protected function checkIfNodeMaster() {
