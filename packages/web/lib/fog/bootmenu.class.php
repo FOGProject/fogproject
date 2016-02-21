@@ -248,7 +248,7 @@ class BootMenu extends FOGBase {
                 'sleep 3'
             );
             $shutdown = stripos('shutdown=1',$_SESSION['extraargs']);
-            $isdebug = preg_match('#isdebug=yes|mode=.*debug.* #i',$_SESSION['extraargs']);
+            $isdebug = preg_match('#isdebug=yes|mode=debug|mode=onlydebug#i',$_SESSION['extraargs']);
             $this->Host->createImagePackage(10,'Inventory',$shutdown,$isdebug,false,false,$_REQUEST['username']);
         } else {
             $Send['approvefail'] = array(
@@ -267,8 +267,8 @@ class BootMenu extends FOGBase {
             if (is_array($arg)) {
                 if (!$arg['active']) continue;
                 if (!$arg['value']) continue;
-                $kernelArgs[] = preg_replace('#mode=debug#i','isdebug=yes',$arg['value']);
-            } else $kernelArgs[] = preg_replace('#mode=debug#i','isdebug=yes',$arg);
+                $kernelArgs[] = preg_replace('#mode=debug|mode=onlydebug#i','isdebug=yes',$arg['value']);
+            } else $kernelArgs[] = preg_replace('#mode=debug|mode=onlydebug#i','isdebug=yes',$arg);
             unset($arg);
         }
         $kernelArgs = array_unique($kernelArgs);
@@ -504,7 +504,7 @@ class BootMenu extends FOGBase {
     public function multijoin($msid) {
         $MultiSess = new MulticastSessions($msid);
         $shutdown = stripos('shutdown=1',$_SESSION['extraargs']);
-        $isdebug = preg_match('#isdebug=yes|mode=.*debug.* #i',$_SESSION['extraargs']);
+        $isdebug = preg_match('#isdebug=yes|mode=debug|mode=onlydebug#i',$_SESSION['extraargs']);
         if ($MultiSess->isValid()) {
             if ($this->Host->isValid()) {
                 $this->Host->set('imageID',$MultiSess->get('image'));
@@ -573,7 +573,7 @@ class BootMenu extends FOGBase {
     }
     public function setTasking($imgID = '') {
         $shutdown = stripos('shutdown=1',$_SESSION['extraargs']);
-        $isdebug = preg_match('#isdebug=yes|mode=.*debug.* #i',$_SESSION['extraargs']);
+        $isdebug = preg_match('#isdebug=yes|mode=debug|mode=onlydebug#i',$_SESSION['extraargs']);
         if (!$imgID) $this->printImageList();
         if ($imgID) {
             if ($this->Host->isValid()) {
