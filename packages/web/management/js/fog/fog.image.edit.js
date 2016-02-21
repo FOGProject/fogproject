@@ -17,6 +17,6 @@ $(function() {
         $('#groupNoImage').toggle();
         e.preventDefault();
     });
-    checkboxAssociations('.toggle-checkbox1:checkbox','.toggle-host1:checkbox');
+    checkboxAssociations('.toggle-checkbox1:checkbox','.toggle-group:checkbox,.toggle-host1:checkbox');
     checkboxAssociations('.toggle-checkbox2:checkbox','.toggle-host2:checkbox');
 });

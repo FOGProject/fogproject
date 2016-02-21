@@ -79,144 +79,6 @@ function getQueryParams(qs) {
     ActionBoxDel[callme]();
     setupParserInfo();
     setupFogTableInfoFunction();
-    $.fn.fogAjaxSearch = function(opts) {
-        if (this.length == 0) return this;
-        var Defaults = {
-            URL: $('#search-wrapper').prop('action'),
-            Container: '#search-content,#active-tasks',
-            SearchDelay: 300,
-            SearchMinLength: 1,
-        };
-        var SearchAJAX = null;
-        var SearchTimer;
-        var SearchLastQuery;
-        var Options = $.extend({},Defaults,opts || {});
-        Container = $(Options.Container);
-        if (!Container.length) {
-            alert('No Container element found: '+Options.Container);
-            return this;
-        }
-        callme = 'hide';
-        if ($('tbody > tr',Container).filter('.no-active-tasks').length > 0) callme = 'show';
-        Container[callme]().fogTableInfo().trigger('update');
-        ActionBox[callme]();
-        ActionBoxDel[callme]();
-        return this.each(function() {
-            var searchElement = $(this);
-            var SubmitButton = $('#'+searchElement.prop('id')+'-submit');
-            SubmitButton.append('<i class="fa fa-play fa-1x icon"></i>');
-            searchElement.keyup(function() {
-                if (this.SearchTimer) clearTimeout(this.SearchTimer);
-                this.SearchTimer = setTimeout(PerformSearch,Options.SearchDelay);
-            }).focus(function() {
-                var searchElement = $(this).removeClass('placeholder');
-                if (searchElement.val() == searchElement.prop('placeholder')) searchElement.val('');
-            }).blur(function() {
-                var searchElement = $(this);
-                if (searchElement.val() == '') {
-                    searchElement.addClass('placeholder').val(searchElement.prop('placeholder'));
-                    if (this.SearchAJAX) this.SearchAJAX.abort();
-                    if (this.SearchTimer) clearTimeout(this.SearchTimer);
-                    Loader.fogStatusUpdate();
-                    $('tbody',Container).empty().parents('table').hide();
-                }
-            }).each(function() {
-                var searchElement = $(this);
-                if (searchElement.val() != searchElement.prop('placeholder')) searchElement.val('');
-            }).parents('form').submit(function(e) {
-                e.preventDefault();
-            });
-            function PerformSearch() {
-                var Query = searchElement.val();
-                if (Query == this.SearchLastQuery) return;
-                this.SearchLastQuery = Query;
-                if (Query.length < Options.SearchMinLength) {
-                    Container.hide();
-                    ActionBox.hide();
-                    ActionBoxDel.hide();
-                    Loader.hide();
-                    return this;
-                }
-                if (this.SearchAJAX) this.SearchAJAX.abort();
-                this.SearchAJAX = $.ajax({
-                    type: $('#search-wrapper').prop('method'),
-                    cache: false,
-                    url: $('#search-wrapper').prop('action'),
-                    dataType: 'json',
-                    data: {crit: Query},
-                    beforeSend: function() {
-                        Loader.fogStatusUpdate();
-                        SubmitButton.addClass('searching').find('i').removeClass().addClass('fa fa-spinner fa-pulse fa-fw');
-                    },
-                    success: function(response) {
-                        dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
-                        SubmitButton.removeClass('searching').find('i').removeClass().addClass('fa fa-play');
-                        thead = $('thead',Container);
-                        tbody = $('tbody',Container);
-                        LastCount = dataLength;
-                        Loader.removeClass('loading').fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle');
-                        if (dataLength > 0) buildRow(response.data,response.templates,response.attributes);
-                        TableCheck();
-                        this.SearchAJAX = null;
-                        checkboxToggleSearchListPages();
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        Loader.fogStatusUpdate(_L['ERROR_SEARCHING']+(errorThrown != '' ? errorThrown : ''));
-                        this.SearchAJAX = null;
-                        this.SearchLastQuery = null;
-                    }
-                });
-            }
-        });
-    }
-    $.fn.fogMessageBox = function() {
-        if (this.length == 0) return this;
-        var Messages = new Array;
-        this.each(function() {
-            var messageBox = $(this);
-            Messages[Messages.length] = messageBox.html();
-        });
-        if (Messages.length > 0) Loader.fogStatusUpdate(Messages.join('</p><p>')).hide().fadeIn();
-        return this;
-    }
-    $.fn.fogStatusUpdate = function(txt, opts) {
-        var Defaults = {
-            AutoHide: 0,
-            Raw: false,
-            Progress: null
-        };
-        var Options = $.extend({},Defaults,opts || {});
-        var Loader = $(this);
-        var i = Loader.find('i');
-        var p = Loader.find('p');
-        var ProgressBar = $('#progress',this);
-        if (Options.Progress) ProgressBar.show().progressBar(Options.Progress);
-        else ProgressBar.hide().progressBar(0);
-        if (!txt) p.remove().end().hide();
-        else {
-            i.addClass('fa fa-exclamation-circle fw');
-            p.remove().end().append((Options.Raw ? txt : '<p>'+txt+'</p>')).show();
-        }
-        Loader.removeClass();
-        if (Options.Class) Loader.addClass(Options.Class);
-        if (StatusAutoHideTimer) clearTimeout(StatusAutoHideTimer);
-        if (Options.AutoHide) StatusAutoHideTimer = setTimeout(function() {Loader.fadeOut('fast');},Options.AutoHide);
-        return this;
-    }
-    $.fn.fogVariable = function(opts) {
-        if (this.length == 0) return this;
-        var Defaults = {Debug: false};
-        var Options = $.extend({}, Defaults, opts || {});
-        var Variables = {};
-        return this.each(function() {
-            var variableElement = $(this);
-            window[variableElement.attr('id').toString()] = variableElement.html().toString();
-            if (Options.Debug) alert(variableElement.attr('id').toString()+' = '+variableElement.html().toString());
-            variableElement.remove();
-        });
-    }
-    jQuery.fn.exists = function() {return this.length > 0;}
-    jQuery.fn.isIE8 = function() {return $.browser.msie && parseInt($.browser.version, 10) <= 8;}
 })(jQuery);
 function forceClick(e) {
     $(this).unbind('click').click(function(evt) {evt.preventDefault();});
@@ -232,6 +94,136 @@ function forceClick(e) {
         error: function() {$(this).removeClass().addClass('fa fa-bolt fa-fw icon');}
     });
     e.preventDefault();
+}
+$.fn.exists = function() {return this.length > 0;}
+$.fn.isIE8 = function() {return $.browser.msie && parseInt($.browser.version, 10) <= 8;}
+$.fn.fogVariable = function(opts) {
+    if (this.length == 0) return this;
+    return this.each(function() {
+        window[$(this).prop('id').toString()] = $(this).html().toString();
+        $(this).remove();
+    });
+}
+$.fn.fogAjaxSearch = function(opts) {
+    if (this.length == 0) return this;
+    var Defaults = {
+        URL: $('#search-wrapper').prop('action'),
+        Container: '#search-content,#active-tasks',
+        SearchDelay: 300,
+        SearchMinLength: 1,
+    };
+    var SearchAJAX = null;
+    var SearchTimer;
+    var SearchLastQuery;
+    var Options = $.extend({},Defaults,opts || {});
+    Container = $(Options.Container);
+    if (!Container.length) return this;
+    callme = 'hide';
+    if ($('tbody > tr',Container).filter('.no-active-tasks').length > 0) callme = 'show';
+    Container[callme]().fogTableInfo().trigger('update');
+    ActionBox[callme]();
+    ActionBoxDel[callme]();
+    return this.each(function() {
+        var searchElement = $(this);
+        var SubmitButton = $('#'+searchElement.prop('id')+'-submit');
+        SubmitButton.append('<i class="fa fa-play fa-1x icon"></i>');
+        searchElement.keyup(function() {
+            if (this.SearchTimer) clearTimeout(this.SearchTimer);
+            this.SearchTimer = setTimeout(PerformSearch,Options.SearchDelay);
+        }).focus(function() {
+            var searchElement = $(this).removeClass('placeholder');
+            if (searchElement.val() == searchElement.prop('placeholder')) searchElement.val('');
+        }).blur(function() {
+            var searchElement = $(this);
+            if (searchElement.val() == '') {
+                searchElement.addClass('placeholder').val(searchElement.prop('placeholder'));
+                if (this.SearchAJAX) this.SearchAJAX.abort();
+                if (this.SearchTimer) clearTimeout(this.SearchTimer);
+                Loader.fogStatusUpdate();
+                $('tbody',Container).empty().parents('table').hide();
+            }
+        }).each(function() {
+            var searchElement = $(this);
+            if (searchElement.val() != searchElement.prop('placeholder')) searchElement.val('');
+        }).parents('form').submit(function(e) {
+            e.preventDefault();
+        });
+        function PerformSearch() {
+            var Query = searchElement.val();
+            if (Query == this.SearchLastQuery) return;
+            this.SearchLastQuery = Query;
+            if (Query.length < Options.SearchMinLength) {
+                Container.hide();
+                ActionBox.hide();
+                ActionBoxDel.hide();
+                Loader.hide();
+                return this;
+            }
+            if (this.SearchAJAX) this.SearchAJAX.abort();
+            this.SearchAJAX = $.ajax({
+                type: $('#search-wrapper').prop('method'),
+                cache: false,
+                url: $('#search-wrapper').prop('action'),
+                dataType: 'json',
+                data: {crit: Query},
+                beforeSend: function() {
+                    Loader.fogStatusUpdate();
+                    SubmitButton.addClass('searching').find('i').removeClass().addClass('fa fa-spinner fa-pulse fa-fw');
+                },
+                success: function(response) {
+                    dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
+                    SubmitButton.removeClass('searching').find('i').removeClass().addClass('fa fa-play');
+                    thead = $('thead',Container);
+                    tbody = $('tbody',Container);
+                    LastCount = dataLength;
+                    Loader.removeClass('loading').fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle');
+                    if (dataLength > 0) buildRow(response.data,response.templates,response.attributes);
+                    TableCheck();
+                    this.SearchAJAX = null;
+                    checkboxToggleSearchListPages();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    Loader.fogStatusUpdate(_L['ERROR_SEARCHING']+(errorThrown != '' ? errorThrown : ''));
+                    this.SearchAJAX = null;
+                    this.SearchLastQuery = null;
+                }
+            });
+        }
+    });
+}
+$.fn.fogMessageBox = function() {
+    if (this.length == 0) return this;
+    var Messages = new Array;
+    this.each(function() {
+        var messageBox = $(this);
+        Messages[Messages.length] = messageBox.html();
+    });
+    if (Messages.length > 0) Loader.fogStatusUpdate(Messages.join('</p><p>')).hide().fadeIn();
+    return this;
+}
+$.fn.fogStatusUpdate = function(txt, opts) {
+    var Defaults = {
+        AutoHide: 0,
+        Raw: false,
+        Progress: null
+    };
+    var Options = $.extend({},Defaults,opts || {});
+    var Loader = $(this);
+    var i = Loader.find('i');
+    var p = Loader.find('p');
+    var ProgressBar = $('#progress',this);
+    if (Options.Progress) ProgressBar.show().progressBar(Options.Progress);
+    else ProgressBar.hide().progressBar(0);
+    if (!txt) p.remove().end().hide();
+    else {
+        i.addClass('fa fa-exclamation-circle fw');
+        p.remove().end().append((Options.Raw ? txt : '<p>'+txt+'</p>')).show();
+    }
+    Loader.removeClass();
+    if (Options.Class) Loader.addClass(Options.Class);
+    if (StatusAutoHideTimer) clearTimeout(StatusAutoHideTimer);
+    if (Options.AutoHide) StatusAutoHideTimer = setTimeout(function() {Loader.fadeOut('fast');},Options.AutoHide);
+    return this;
 }
 function showForceButton() {
     $('.icon-forced').addClass('fa fa-angle-double-right fa-1x icon');
@@ -307,6 +299,7 @@ function setupParserInfo() {
             return false;
         },
         format: function (s, table, cell, cellIndex) {
+            if (s.length < 1) return;
             checkbox = $(cell).find('input:checkbox');
             if (checkbox.length > -1) return checkbox.prop('value');
         },
@@ -318,6 +311,7 @@ function setupParserInfo() {
             return false;
         },
         format: function(s, table, cell, cellIndex) {
+            if (s.length < 1) return;
             span = $(cell).find('span');
             if (span.length > -1) return span.prop('original-title');
         },
@@ -329,6 +323,7 @@ function setupParserInfo() {
             return false;
         },
         format: function(s, table, cell, cellIndex) {
+            if (s.length < 1) return;
             i = $(cell).find('i');
             if (i.length > -1) return i.prop('original-title');
         },
@@ -340,25 +335,26 @@ function setupParserInfo() {
             return s.match(new RegExp(/[0-9]+(\.[0-9]+)?\ (iB|KiB|MiB|GiB|TiB|EiB|ZiB|YiB)/));
         },
         format: function(s) {
+            if (s.length < 1) return;
             var suf = s.match(new RegExp(/(iB|KiB|MiB|GiB|TiB|EiB|ZiB|YiB)$/))[1];
             var num = parseFloat(s.match(new RegExp(/^[0-9]+(\.[0-9]+)?/))[0]);
             switch(suf) {
                 case 'iB':
-                return num;
+                    return num;
                 case 'KiB':
-                return num*1024;
+                    return num*1024;
                 case 'MiB':
-                return num*1024*1024;
+                    return num*1024*1024;
                 case 'GiB':
-                return num*1024*1024*1024;
+                    return num*1024*1024*1024;
                 case 'TiB':
-                return num*1024*1024*1024*1024;
+                    return num*1024*1024*1024*1024;
                 case 'EiB':
-                return num*1024*1024*1024*1024*1024;
+                    return num*1024*1024*1024*1024*1024;
                 case 'ZiB':
-                return num*1024*1024*1024*1024*1024*1024;
+                    return num*1024*1024*1024*1024*1024*1024;
                 case 'YiB':
-                return num*1024*1024*1024*1024*1024*1024*1024;
+                    return num*1024*1024*1024*1024*1024*1024*1024;
             }
         },
         type: 'numeric'
@@ -388,14 +384,13 @@ function setupFogTableInfoFunction() {
                 headParser = {0: {sorter: 'iParser'},1: {sorter: 'checkboxParser'},3: {sorter: 'sizeParser'}};
                 headExtra = {4: {sorter: 'sizeParser'}};
                 if ($('th').length > 7) $.extend(headParser,headExtra);
-                console.log(headParser);
                 break;
             case 'storage':
                 headParser = {};
                 break;
         }
         table = $('table',this)
-        if (table.length == 0 || !table.has('thead')) return this;
+            if (table.length == 0 || !table.has('thead')) return this;
         table.find('thead > tr').addClass('hand');
         table.tablesorter({
             headers: headParser,
