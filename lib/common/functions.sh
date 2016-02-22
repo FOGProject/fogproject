@@ -622,36 +622,28 @@ confirmPackageInstallation() {
                 for sqlclient in $sqlclientlist; do
                     x=$sqlclient
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    if [[ $? -eq 0 ]]; then
-                        break
-                    fi
+                    [[ $? -eq 0 ]] && break
                 done
                 ;;
             mysql-server)
                 for sqlserver in $sqlserverlist; do
                     x=$sqlserver
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    if [[ $? -eq 0 ]]; then
-                        break
-                    fi
+                    [[ $? -eq 0 ]] && break
                 done
                 ;;
             php${php_ver}-json)
                 for json in $jsontest; do
                     x=$json
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    if [[ $? -eq 0 ]]; then
-                        break
-                    fi
+                    [[ $? -eq 0 ]] && break
                 done
                 ;;
             php${php_ver}-mysqlnd)
-                for phpmysql in "php${php_ver}-mysqlnd php${php_ver}-mysql"; do
+                for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
+                    x=$phpmysql
                     eval $packagelist $phpmysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    if [[ $? -eq 0 ]]; then
-                        x=$phpmysql
-                        break
-                    fi
+                    [[ $? -eq 0 ]] && break
                 done
                 ;;
         esac
