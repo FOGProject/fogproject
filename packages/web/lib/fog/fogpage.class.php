@@ -381,13 +381,20 @@ abstract class FOGPage extends FOGBase {
                             ->set('isActive',1);
                         if ($_REQUEST['scheduleType'] == 'single') $ScheduledTask->set('scheduleTime',$scheduleDeployTime->getTimestamp());
                         else if ($_REQUEST['scheduleType'] == 'cron') {
-                            $ScheduledTask
-                                ->set('minute',$_REQUEST['scheduleCronMin'])
-                                ->set('hour',$_REQUEST['scheduleCronHour'])
-                                ->set('dayOfMonth',$_REQUEST['scheduleCronDOM'])
-                                ->set('month',$_REQUEST['scheduleCronMonth'])
-                                ->set('dayOfWeek',$_REQUEST['scheduleCronDOW'])
-                                ->set('isActive',1);
+                            $valsToTest = array(
+                                'checkMinutesField' => array('minute',(int)$_REQUEST['scheduleCronMin']),
+                                'checkHoursField' => array('hour',(int)$_REQUEST['scheduleCronHour']),
+                                'checkDOMField' => array('dayOfMonth',(int)$_REQUEST['scheduleCronDOM']),
+                                'checkMonthField' => array('month',(int)$_REQUEST['scheduleCronMonth']),
+                                'checkDOWField' => array('dayOfWeek',(int)$_REQUEST['scheduleDOWField']),
+                            );
+                            foreach ($valsToTest AS $func => &$val) {
+                                if (!FOGCron::$func($val[1])) throw new Exception(sprintf('%s %s invalid',$func,$val[1]));
+                                else $ScheduledTask->set($val[0],$val[1]);
+                                unset($val);
+                            }
+                            unset($valsToTest);
+                            $ScheduledTask->set('isActive',1);
                         }
                         if ($ScheduledTask->save()) {
                             if ($this->obj instanceof Group) {

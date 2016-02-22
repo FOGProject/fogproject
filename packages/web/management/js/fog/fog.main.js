@@ -31,22 +31,21 @@ $(function() {
     });
     // Bind to AD Settings checkbox
     $('#adEnabled').click(function() {
-        if (this.checked) {
-            $.ajax({
-                url: '../management/index.php',
-                type: 'POST',
-                timeout: 1000,
-                data: {sub: 'adInfo'},
-                dataType: 'json',
-                success: function(data) {
-                    $("#adDomain[type=text][value='']").val(data['domainname']);
-                    $("#adOU[type=text][value='']").val(data['ou']);
-                    $("#adUsername[type=text][value='']").val(data['domainuser']);
-                    $("#adPassword[type=password][value='']").val(data['domainpass']);
-                    $("#adPasswordLegacy[type=password][value='']").val(data['domainpasslegacy']);
-                }
-            });
-        }
+        if (!this.checked) return this;
+        $.ajax({
+            url: '../management/index.php',
+            type: 'POST',
+            timeout: 1000,
+            data: {sub: 'adInfo'},
+            dataType: 'json',
+            success: function(data) {
+                $("#adDomain[type=text][value='']").val(data['domainname']);
+                $("#adOU[type=text][value='']").val(data['ou']);
+                $("#adUsername[type=text][value='']").val(data['domainuser']);
+                $("#adPassword[type=password][value='']").val(data['domainpass']);
+                $("#adPasswordLegacy[type=password][value='']").val(data['domainpasslegacy']);
+            }
+        });
     });
     var allRadios = $('.primary,.default');
     var radioChecked;
@@ -264,9 +263,8 @@ function DeployStuff() {
     });
     // Auto open the calendar when chosen
     $('#scheduleSingle').click(function() {
-        if (this.checked) {
-            $('#scheduleSingleTime').focus();
-        }
+        if (!this.checked) return this;
+        $('#scheduleSingleTime').focus();
     });
 }
 function checkField(field, min, max) {
@@ -302,14 +300,10 @@ function checkField(field, min, max) {
 }
 function checkIntValue(value,min,max,extremity) {
     var val = parseInt(value,10);
-    if (value == val) {
-        if (extremity) {
-            if (val < min || val > max) {
-                return false;
-            }
-        }
-        return true;
-    }
+    if (value != val) return false;
+    if (!extremity) return true;
+    if (val >= min && val <= max) return true;
+    return false;
 }
 function checkMinutesField(minutes) {
     return checkField(minutes,0,59);

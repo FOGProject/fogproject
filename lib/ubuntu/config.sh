@@ -16,11 +16,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-php_ver=5
-php_verAdds="-5.6"
+[[ -z $php_ver ]] && php_ver=5
+[[ -z $php_verAdds ]] && php_verAdds="-5.6"
 repo="php${php_ver}${php_verAdds}"
 [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
-[[ $php_ver != 5 ]] && phpfpm="php-fpm${php_ver}" || phpfpm="php5-fpm"
+[[ $php_ver != 5 ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
 packageQuery="dpkg -l \$x | grep '^ii'"
 case $linuxReleaseName in
     *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
