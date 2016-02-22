@@ -588,6 +588,15 @@ installPackages() {
                     fi
                 done
                 ;;
+            php${php_ver}-mysqlnd)
+                for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
+                    eval $packagelist $phpmysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    if [[ $? -eq 0 ]]; then
+                        x=$phpmysql
+                        break
+                    fi
+                done
+                ;;
         esac
         newPackList="$newPackList $x"
         eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -632,6 +641,15 @@ confirmPackageInstallation() {
                     x=$json
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
+                        break
+                    fi
+                done
+                ;;
+            php${php_ver}-mysqlnd)
+                for phpmysql in "php${php_ver}-mysqlnd php${php_ver}-mysql"; do
+                    eval $packagelist $phpmysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    if [[ $? -eq 0 ]]; then
+                        x=$phpmysql
                         break
                     fi
                 done
