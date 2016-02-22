@@ -1,28 +1,59 @@
 <?php
 class FOGCron extends FOGBase {
-    public static function parse(&$FOGCore,$Cron,$TimeStamp = null) {
-        $Cron = preg_split("/[\s]+/",trim($Cron));
-        if ($Cron[4] == 0) $Cron[4] = 7;
-        $Start = empty($TimeStamp) ? $FOGCore->nice_date() : $FOGCore->nice_date($TimeStamp);
-        $date = array(
-            'minutes' => self::_parseCronNumbers($Cron[0],0,59),
-            'hours' => self::_parseCronNumbers($Cron[1],0,23),
-            'dom' => self::_parseCronNumbers($Cron[2],1,31),
-            'month' => self::_parseCronNumbers($Cron[3],1,12),
-            'dow' => self::_parseCronNumbers($Cron[4],1,7),
-        );
-        $increment = '+1 minute';
-        while (true) {
-            if ($dom && $month && $dow && $hours && $minutes) return $Start->getTimestamp();
-            $Start->modify($increment);
-            if (!$minutes) $minutes = in_array((int)$Start->format('i'),$date['minutes']);
-            if ($minutes) $increment = '+1 hour';
-            if (!$hours) $hours = in_array((int)$Start->format('H'),$date['hours']);
-            if ($hours) $increment = '+1 day';
-            $dom = in_array((int)$Start->format('j'),$date['dom']);
-            $month = in_array((int)$Start->format('n'),$date['month']);
-            $dow = in_array((int)$Start->format('N'),$date['dow']);
+    private static function fit($str,$num) {
+        if (strpos($str,',')) {
+            $arr = explode(',',$str);
+            foreach ($arr AS &$element) return (self::fit($element,(int)$num));
         }
+        if (strpos($str,'-')) {
+            list($low,$high) = explode('-',$str);
+            return ($num = (int)$low);
+        }
+        if (strpos($str,'/')) {
+            list($pre,$pos) = explode('/',$str);
+            if ($pre == '*') return ($num % (int)$pos == 0);
+            return ($num % (int)$pos == (int)$pre);
+        }
+        return ((int)$str == $num);
+    }
+    public static function parse(&$FOGCore,$Cron,$TimeStamp = null) {
+        list($min,$hour,$dom,$month,$dow) = preg_split('/[\s]+/',trim($Cron));
+        if (is_numeric($dow) && $dow == 0) $dow = 7;
+        $Start = empty($TimeStamp) ? $FOGCore->nice_date() : $FOGCore->nice_date()->setTimestamp($TimeStamp);
+        do {
+            list($nmin,$nhour,$ndom,$nmonth,$ndow) = preg_split('/[\s]+/',$Start->format('i H j n N'));
+            if ($min != '*') {
+                if (!self::fit($min,(int)$nmin)) {
+                    $Start->modify('+1 minute');
+                    continue;
+                }
+            }
+            if ($hour != '*') {
+                if (!self::fit($hour,(int)$nhour)) {
+                    $Start->modify('+1 hour');
+                    continue;
+                }
+            }
+            if ($dom != '*') {
+                if (!self::fit($dom,(int)$ndom)) {
+                    $Start->modify('+1 day');
+                    continue;
+                }
+            }
+            if ($month != '*') {
+                if (!self::fit($month,(int)$nmonth)) {
+                    $Start->modify('+1 month');
+                    continue;
+                }
+            }
+            if ($dow != '*') {
+                if (!self::fit($dow,(int)$ndow)) {
+                    $Start->modify('+1 day');
+                    continue;
+                }
+            }
+            return $Start->getTimestamp();
+        } while (true);
     }
     private static function checkField($field, $min, $max) {
         $field = trim($field);
