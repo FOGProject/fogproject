@@ -11,8 +11,8 @@ class Timer extends FOGCron {
             $this->debug = false;
             $this->blSingle = true;
         } else {
-            $this->cron = $minute.' '.$hour.' '.$dom.' '.$month.' '.$dow;
-            $this->lngSingle = self::parse($this->FOGCore,$this->cron);
+            $this->cron = sprintf('%s %s %s %s %s',$minute,$hour,$dom,$month,$dow);
+            $this->lngSingle = self::parse($this->cron);
             $this->debug = false;
             $this->blSingle = false;
         }
