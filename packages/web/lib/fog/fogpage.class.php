@@ -382,11 +382,11 @@ abstract class FOGPage extends FOGBase {
                         if ($_REQUEST['scheduleType'] == 'single') $ScheduledTask->set('scheduleTime',$scheduleDeployTime->getTimestamp());
                         else if ($_REQUEST['scheduleType'] == 'cron') {
                             $valsToTest = array(
-                                'checkMinutesField' => array('minute',(int)$_REQUEST['scheduleCronMin']),
-                                'checkHoursField' => array('hour',(int)$_REQUEST['scheduleCronHour']),
-                                'checkDOMField' => array('dayOfMonth',(int)$_REQUEST['scheduleCronDOM']),
-                                'checkMonthField' => array('month',(int)$_REQUEST['scheduleCronMonth']),
-                                'checkDOWField' => array('dayOfWeek',(int)$_REQUEST['scheduleDOWField']),
+                                'checkMinutesField' => array('minute',$_REQUEST['scheduleCronMin']),
+                                'checkHoursField' => array('hour',$_REQUEST['scheduleCronHour']),
+                                'checkDOMField' => array('dayOfMonth',$_REQUEST['scheduleCronDOM']),
+                                'checkMonthField' => array('month',$_REQUEST['scheduleCronMonth']),
+                                'checkDOWField' => array('dayOfWeek',$_REQUEST['scheduleCronDOW']),
                             );
                             foreach ($valsToTest AS $func => &$val) {
                                 if (!FOGCron::$func($val[1])) throw new Exception(sprintf('%s %s invalid',$func,$val[1]));
