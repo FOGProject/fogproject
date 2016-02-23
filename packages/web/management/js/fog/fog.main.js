@@ -218,6 +218,49 @@ function DeployStuff() {
             $('.error').removeClass('error');
         }
     });
+    $('#specialCrons').change(function(e) {
+        e.preventDefault();
+        switch(this.value) {
+            case 'hourly':
+                $('#scheduleCronMin').focus().val('0');
+                $('#scheduleCronHour').focus().val('*');
+                $('#scheduleCronDOM').focus().val('*');
+                $('#scheduleCronMonth').focus().val('*');
+                $('#scheduleCronDOW').focus().val('*');
+                break;
+            case 'daily':
+                $('#scheduleCronMin').focus().val('0');
+                $('#scheduleCronHour').focus().val('0');
+                $('#scheduleCronDOM').focus().val('*');
+                $('#scheduleCronMonth').focus().val('*');
+                $('#scheduleCronDOW').focus().val('*');
+                break;
+            case 'weekly':
+                $('#scheduleCronMin').focus().val('0');
+                $('#scheduleCronHour').focus().val('0');
+                $('#scheduleCronDOM').focus().val('*');
+                $('#scheduleCronMonth').focus().val('*');
+                $('#scheduleCronDOW').focus().val('0');
+                break;
+            case 'monthly':
+                $('#scheduleCronMin').focus().val('0');
+                $('#scheduleCronHour').focus().val('0');
+                $('#scheduleCronDOM').focus().val('1');
+                $('#scheduleCronMonth').focus().val('*');
+                $('#scheduleCronDOW').focus().val('*');
+                break;
+            case 'yearly':
+                $('#scheduleCronMin').focus().val('0');
+                $('#scheduleCronHour').focus().val('0');
+                $('#scheduleCronDOM').focus().val('1');
+                $('#scheduleCronMonth').focus().val('1');
+                $('#scheduleCronDOW').focus().val('*');
+                break
+        }
+        $('.placeholder').each(function() {
+            $(this).focus().val('*');
+        });
+    });
     // Basic validation on deployment page
     $('form#deploy-container').submit(function() {
         var result = true;
