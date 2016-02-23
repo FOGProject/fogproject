@@ -13,6 +13,7 @@ class StorageNode extends FOGController {
         'ftppath' => 'ngmFTPPath',
         'bitrate' => 'ngmMaxBitrate',
         'snapinpath' => 'ngmSnapinPath',
+        'sslpath' => 'ngmSSLPath',
         'ip' => 'ngmHostname',
         'maxClients' => 'ngmMaxClients',
         'user' => 'ngmUser',
@@ -31,7 +32,7 @@ class StorageNode extends FOGController {
         'pass',
     );
     public function get($key = '') {
-        if (in_array($this->key($key),array('path','ftppath','snapinpath','webroot'))) return rtrim(parent::get($key), '/');
+        if (in_array($this->key($key),array('path','ftppath','snapinpath','sslpath','webroot'))) return rtrim(parent::get($key), '/');
         return parent::get($key);
     }
     public function getStorageGroup() {

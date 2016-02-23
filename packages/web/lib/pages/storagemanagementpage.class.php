@@ -127,6 +127,7 @@ class StorageManagementPage extends FOGPage {
             $this->foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off" />',
             $this->foglang['FTPPath'] => '<input type="text" name="ftppath" value="${node_ftppath}" autocomplete="off" />',
             $this->foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off" />',
+            $this->foglang['SSLPath'] => '<input type="text" name="sslpath" value="${node_sslpath}" autocomplete="off" />',
             _('Bitrate') => '<input type="text" name="bitrate" value="${node_bitrate}" autocomplete="off" />',
             $this->foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off" />',
             $this->foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" checked value="1" />',
@@ -151,6 +152,7 @@ class StorageManagementPage extends FOGPage {
                 'node_path'=>$_REQUEST['path']?$_REQUEST['path']:'/images/',
                 'node_ftppath'=>$_REQUEST['ftppath']?$_REQUEST['ftppath']:'/images/',
                 'node_snapinpath'=>$_REQUEST['snapinpath']?$_REQUEST['snapinpath']:'/opt/fog/snapins/',
+                'node_sslpath'=>$_REQUEST['sslpath']?$_REQUEST['sslpath']:'/opt/fog/snapins/ssl/',
                 'node_bitrate'=>$_REQUEST['bitrate'],
                 'node_interface'=>$_REQUEST['interface'] ? $_REQUEST['interface'] : 'eth0',
                 'node_user'=>$_REQUEST['user'],
@@ -185,6 +187,7 @@ class StorageManagementPage extends FOGPage {
                 ->set('path',$_REQUEST['path'])
                 ->set('ftppath',$_REQUEST['ftppath'])
                 ->set('snapinpath',$_REQUEST['snapinpath'])
+                ->set('sslpath',$_REQUEST['sslpath'])
                 ->set('bitrate', $_REQUEST['bitrate'])
                 ->set('interface',$_REQUEST['interface'])
                 ->set('isGraphEnabled',(int)isset($_REQUEST['isGraphEnabled']))
@@ -227,6 +230,7 @@ class StorageManagementPage extends FOGPage {
             $this->foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off"/>',
             $this->foglang['FTPPath'] => '<input type="text" name="ftppath" value="${node_ftppath}" autocomplete="off"/>',
             $this->foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off"/>',
+            $this->foglang['SSLPath'] => '<input type="text" name="sslpath" value="${node_sslpath}" autocomplete="off"/>',
             _('Bitrate') => '<input type="text" name="bitrate" value="${node_bitrate}" autocomplete="off" />',
             $this->foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off"/>',
             $this->foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" value="1" ${isenabled}/>',
@@ -255,6 +259,7 @@ class StorageManagementPage extends FOGPage {
                 'node_path'=>$this->obj->get('path'),
                 'node_ftppath'=>$this->obj->get('ftppath'),
                 'node_snapinpath'=>$this->obj->get('snapinpath'),
+                'node_sslpath'=>$this->obj->get('sslpath'),
                 'node_bitrate'=>$this->obj->get('bitrate'),
                 'node_interface'=>$this->obj->get('interface'),
                 'node_user'=>$this->obj->get('user'),
@@ -288,6 +293,7 @@ class StorageManagementPage extends FOGPage {
                 ->set('path',$_REQUEST['path'])
                 ->set('ftppath',$_REQUEST['ftppath'])
                 ->set('snapinpath',$_REQUEST['snapinpath'])
+                ->set('sslpath',$_REQUEST['sslpath'])
                 ->set('bitrate',$_REQUEST['bitrate'])
                 ->set('interface',$_REQUEST['interface'])
                 ->set('isGraphEnabled',(int)isset($_REQUEST['isGraphEnabled']))

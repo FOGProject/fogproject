@@ -2151,3 +2151,8 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"INSERT INTO `" . DATABASE_NAME . "`.`os` (`osID`, `osName`, `osDescription`) VALUES ('51', 'Chromium OS', 'Chromium OS')",
 );
+// 212
+$this->schema[] = array(
+	"ALTER TABLE `".DATABASE_NAME."`.`nfsGroupMembers` ADD COLUMN `ngmSSLPath` LONGTEXT NOT NULL AFTER `ngmRootPath`",
+	"UPDATE `".DATABASE_NAME."`.`nfsGroupMembers` SET `ngmSSLPath`='/opt/fog/snapins/ssl'",
+);
