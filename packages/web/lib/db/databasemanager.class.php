@@ -19,6 +19,12 @@ class DatabaseManager extends FOGCore {
         return $this;
     }
     public function getVersion() {
+        $this->DB->query('SELECT @@session.old_passwords AS sessoldpass');
+        if ($this->DB->fetch()->get('sessoldpass')) {
+            $this->DB->query('SET @@global.old_passwords=0');
+            $this->DB->query('SET @@session.old_passwords=0');
+            $this->DB->query('FLUSH PRIVILEGES');
+        }
         return (int)$this->DB->query('SELECT vValue FROM schemaVersion')->fetch()->get('vValue');
     }
 }
