@@ -5,16 +5,6 @@ class RegisterClient extends FOGClient implements FOGClientSend {
         $MACs = array();
         $maxPending = $this->getSetting('FOG_QUICKREG_MAX_PENDING_MACS');
         $MACs = $this->getHostItem(true,false,false,true);
-        $macs = array();
-        foreach ($MACs AS &$MAC) {
-            $MAC = $this->getClass('MACAddress',$MAC);
-            if (!$MAC->isValid()) continue;
-            if ($MAC->getHost()->isValid()) continue;
-            $macs[] = $MAC->__toString();
-            unset($MAC);
-        }
-        $MACs = $macs;
-        unset($macs);
         if ($this->newService) {
             $_REQUEST['hostname'] = trim($_REQUEST['hostname']);
             if (!($this->Host instanceof Host && $this->Host->isValid())) {
