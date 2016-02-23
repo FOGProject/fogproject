@@ -261,6 +261,20 @@ abstract class FOGPage extends FOGBase {
             echo '<p class="hidden hideFromDebug" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off"/></p>';
             printf('<p><input type="radio" name="scheduleType" id="scheduleCron" value="cron" autocomplete="off"><label for="scheduleCron">%s <u>%s</u></label></p>',_('Schedule'),_('Cron-style Deployment'));
             echo '<p class="hidden hideFromDebug" id="cronOptions">';
+            $specialCrons = array(
+                ''=>_('Select a cron type'),
+                'yearly'=>sprintf('%s/%s',_('Yearly'),_('Annually')),
+                'monthly'=>_('Monthly'),
+                'weekly'=>_('Weekly'),
+                'daily'=>sprintf('%s/%s',_('Daily'),_('Midnight')),
+                'hourly'=>_('Hourly'),
+            );
+            ob_start();
+            foreach($specialCrons AS $val => &$name) {
+                printf('<option value="%s">%s</option>',$val,$name);
+                unset($name);
+            }
+            printf('<select id="specialCrons" name="specialCrons">%s</select><br/><br/>',ob_get_clean());
             echo '<input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off"/>';
             echo '<input type="text" name="scheduleCronHour" id="scheduleCronHour" placeholder="hour" autocomplete="off"/>';
             echo '<input type="text" name="scheduleCronDOM" id="scheduleCronDOM" placeholder="dom" autocomplete="off"/>';
