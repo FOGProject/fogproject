@@ -495,7 +495,7 @@ class BootMenu extends FOGBase {
             );
             $Send['bootmefunc'] = array(
                 ':bootme',
-                'chain -ar '.$this->booturl.'/ipxe/boot.php##params',
+                "chain -ar $this->booturl/ipxe/boot.php##params",
                 'goto MENU',
             );
             $this->parseMe($Send);
