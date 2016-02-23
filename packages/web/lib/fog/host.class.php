@@ -385,7 +385,13 @@ class Host extends FOGController {
         }
     }
     protected function loadSnapins() {
-        if ($this->get('id')) $this->set('snapins',$this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID'));
+        if ($this->get('id')) {
+            $AssocSnapins = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
+            $ValidSnapins = $this->getSubObjectIDs('Snapin',array('id'=>$AssocSnapins));
+            $InvalidSnapins = array_unique(array_filter(array_diff((array)$AssocSnapins,(array)$ValidSnapins)));
+            if (count($InvalidSnapins)) $this->getClass('SnapinManager')->destroy(array('id'=>$InvalidSnapins));
+            $this->set('snapins',$ValidSnapins);
+        }
     }
     protected function loadSnapinsnotinme() {
         if ($this->get('id')) {
