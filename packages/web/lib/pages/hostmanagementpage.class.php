@@ -799,7 +799,7 @@ class HostManagementPage extends FOGPage {
     }
     public function edit_ajax() {
         //$this->obj->removeAddMAC($_REQUEST['additionalMACsRM'])->save();
-        echo _('Success');
+        //echo _('Success');
         exit;
     }
     public function edit_post() {
