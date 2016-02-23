@@ -396,17 +396,26 @@ abstract class FOGBase {
         if ($padding) $padding = OPENSSL_PKCS1_PADDING;
         else $padding = OPENSSL_NO_PADDING;
         $data = $this->hex2bin($data);
-        $path = sprintf('%s%s',DIRECTORY_SEPARATOR,trim($this->getSetting('FOG_SNAPINDIR'),DIRECTORY_SEPARATOR));
-        $path = !$path ? '/opt/fog/snapins/ssl/' : sprintf('%s%sssl%s',$path,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
-        if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'.srvprivate.key'))) throw new Exception('Private Key Failed');
+        $paths = array_map('trim',(array)$this->getSubObjectIDs('StorageNode',array('enabled'=>1),'sslpath'));
+        foreach ($paths AS &$path) {
+            $sslfile = sprintf('%s%s.srvprivate.key',$path,DIRECTORY_SEPARATOR);
+            if (file_exists($sslfile)) {
+                unset($path);
+                break;
+            }
+            unset($sslfile,$path);
+        }
+        if (!$sslfile) throw new Exception(_('Private key not found'));
+        if (!is_readable($sslfile)) throw new Exception(_('Private key not readable'));
+        if (!($priv_key = openssl_pkey_get_private(file_get_contents($sslfile)))) throw new Exception(_('Private key failed'));
         $a_key = openssl_pkey_get_details($priv_key);
         $chunkSize = ceil($a_key['bits']/8);
         $output = '';
         while ($data) {
-            $chunk = substr($data, 0, $chunkSize);
+            $chunk = substr($data,0,$chunkSize);
             $data = substr($data,$chunkSize);
             $decrypt = '';
-            if (!openssl_private_decrypt($chunk,$decrypt,$priv_key,$padding)) throw new Exception('Failed to decrypt data');
+            if (!openssl_private_decrypt($chunk,$decrypt,$priv_key,$padding)) throw new Exception(_('Failed to decrypt data'));
             $output .= $decrypt;
         }
         openssl_free_key($priv_key);
