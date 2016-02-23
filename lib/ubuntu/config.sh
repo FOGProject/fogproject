@@ -33,6 +33,7 @@ case $linuxReleaseName in
         olddhcpname="dhcp3-server"
         ;;
 esac
+[[ $php_ver != 5 ]] && packages="$packages php${php_ver}-mbstring"
 langPackages="language-pack-it language-pack-en language-pack-es language-pack-zh-hans"
 if [[ $systemctl == yes ]]; then
 	initdpath="/lib/systemd/system"
