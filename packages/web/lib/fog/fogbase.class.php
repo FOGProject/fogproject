@@ -69,7 +69,7 @@ abstract class FOGBase {
         if ($encoded === true) $mac = base64_decode($mac);
         $mac = trim($mac);
         $MACs = $this->parseMacList($mac,!$service,$service);
-        if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC'].' '.$_REQUEST['mac']);
+        if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : sprintf('%s %s',$this->foglang['InvalidMAC'],$_REQUEST['mac']));
         if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
         $Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
         if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get(pending)) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
@@ -415,41 +415,24 @@ abstract class FOGBase {
     protected function parseMacList($stringlist,$image = false,$client = false) {
         $MAClist = array();
         $MACs = $stringlist;
-        if (!is_array($stringlist) && strpos($stringlist,'|')) $MACs = explode('|',$stringlist);
-        $AssocMACs = (array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs),'mac');
-        foreach ($this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs),'mac') AS $i => &$MAC) {
-            $MAC = $this->getClass('MACAddress',$MAC);
-            if (!$MAC->isValid()) continue;
-            if (in_array($MAC->__toString(),$MAClist)) continue;
-            if ($image && $MAC->isImageIgnored()) continue;
-            if ($client && $MAC->isClientIgnored()) continue;
-            $MAClist[] = $MAC->__toString();
-            unset($MAC);
+        if (!is_array($stringlist) && strpos($stringlist,'|')) $MACs = array_values(array_filter(array_unique(array_map('strtolower',array_map('trim',explode('|',$stringlist))))));
+        if ($client) {
+            $ClientIgnoredMACs = array_map('strtolower',array_map('trim',(array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'clientIgnore'=>1),'mac')));
+            $MACs = array_diff((array)$MACs,(array)$ClientIgnoredMACs);
+            unset($ClientIgnoredMACs);
         }
-        $MACs = (array)$MACs;
-        foreach ($MACs AS $i => &$MAC) {
-            $MAC = $this->getClass('MACAddress',$MAC);
-            if (!$MAC->isValid()) continue;
-            if (in_array($MAC->__toString(),$MAClist)) continue;
-            if ($image && $MAC->isImageIgnored()) continue;
-            if ($client && $MAC->isClientIgnored()) continue;
-            $MAClist[] = $MAC->__toString();
-            unset($MAC);
+        if ($image) {
+            $ImageIgnoredMACs = array_map('strtolower',array_map('trim',(array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'imageIgnore'=>1),'mac')));
+            $MACs = array_diff((array)$MACs,(array)$ImageIgnoredMACs);
+            unset($ImageIgnoredMACs);
         }
-        unset($MACs);
-        $Ignore = (array)array_filter(array_map('trim',explode(',',$this->FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
-        if (count($Ignore)) {
-            foreach ($Ignore AS $i => &$ignore) {
-                $matches = preg_grep("#$ignore#i",(array)$MAClist);
-                if (!count($matches)) continue;
-                $NewMatches = array_merge((array)$NewMatches,$matches);
-                unset($matches);
-                unset($ignore);
-            }
-            unset($Ignore);
-        }
-        if (!count($MAClist)) return false;
-        return (array)array_unique(array_diff((array)$MAClist,(array)$NewMatches));
+        $MACs = array_values(array_unique(array_filter((array)$MACs)));
+        $MACs = preg_grep('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$|^([a-fA-F0-9]{2}\-){5}[a-fA-F0-9]{2}$|^[a-fA-F0-9]{12}$|^([a-fA-F0-9]{4}\.){2}[a-fA-F0-9]{4}$/',(array)$MACs);
+        $Ignore = (array)array_filter(array_map('strtolower',array_map('trim',explode(',',$this->FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER')))));
+        $IgnoreMACs = preg_grep(sprintf('#%s#i',implode('|',(array)$Ignore)),$MACs);
+        $MACs = array_values(array_unique(array_filter(array_diff((array)$MACs,(array)$IgnoreMACs))));
+        if (!count($MACs)) return false;
+        return (array)$MACs;
     }
     protected function sendData($datatosend,$service = true) {
         if ($service) {
