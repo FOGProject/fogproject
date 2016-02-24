@@ -8,8 +8,6 @@
 /var/www/fog/index.php
 /var/www/fog/lib/fog/SnapinGroupAssociationManager.class.php
 /var/www/fog/lib/fog/NodeFailure.class.php
-/var/www/fog/lib/fog/PeerTorrent.class.php
-/var/www/fog/lib/fog/TorrentManager.class.php
 /var/www/fog/lib/fog/ImagePartitionTypeManager.class.php
 /var/www/fog/lib/fog/GroupManager.class.php
 /var/www/fog/lib/fog/ImagingLog.class.php
@@ -27,7 +25,6 @@
 /var/www/fog/lib/fog/OS.class.php
 /var/www/fog/lib/fog/MulticastTask.class.php
 /var/www/fog/lib/fog/NodeFailureManager.class.php
-/var/www/fog/lib/fog/PeerManager.class.php
 /var/www/fog/lib/fog/FOGPage.class.php
 /var/www/fog/lib/fog/SnapinGroupAssociation.class.php
 /var/www/fog/lib/fog/SnapinJob.class.php
@@ -38,7 +35,6 @@
 /var/www/fog/lib/fog/TaskTypeManager.class.php
 /var/www/fog/lib/fog/Schema.class.php
 /var/www/fog/lib/fog/MACAddressAssociationManager.class.php
-/var/www/fog/lib/fog/PeerTorrentManager.class.php
 /var/www/fog/lib/fog/TaskScheduler.class.php
 /var/www/fog/lib/fog/SnapinTask.class.php
 /var/www/fog/lib/fog/Timer.class.php
@@ -77,7 +73,6 @@
 /var/www/fog/lib/fog/FOGCore.class.php
 /var/www/fog/lib/fog/SnapinAssociationManager.class.php
 /var/www/fog/lib/fog/iPXEManager.class.php
-/var/www/fog/lib/fog/Torrent.class.php
 /var/www/fog/lib/fog/GroupAssociationManager.class.php
 /var/www/fog/lib/fog/ImageAssociationManager.class.php
 /var/www/fog/lib/fog/SnapinJobManager.class.php
@@ -122,7 +117,6 @@
 /var/www/fog/lib/fog/ReportMaker.class.php
 /var/www/fog/lib/fog/HostScreenSettingsManager.class.php
 /var/www/fog/lib/fog/SchemaManager.class.php
-/var/www/fog/lib/fog/Announce.class.php
 /var/www/fog/lib/fog/Daemon.class.php
 /var/www/fog/lib/fog/MulticastSessionsManager.class.php
 /var/www/fog/lib/fog/iPXE.class.php
@@ -132,7 +126,6 @@
 /var/www/fog/lib/fog/VirusManager.class.php
 /var/www/fog/lib/fog/Hook.class.php
 /var/www/fog/lib/fog/SnapinTaskManager.class.php
-/var/www/fog/lib/fog/Peer.class.php
 /var/www/fog/lib/fog/UserManager.class.php
 /var/www/fog/lib/fog/DirCleaner.class.php
 /var/www/fog/lib/fog/MACAddressAssociation.class.php
@@ -232,7 +225,6 @@
 /var/www/fog/service/man.hostexists.php
 /var/www/fog/service/capone.php
 /var/www/fog/service/index.php
-/var/www/fog/service/announce.php
 /var/www/fog/service/usertracking.report.php
 /var/www/fog/service/hostname.php
 /var/www/fog/service/snapcheck.php
@@ -257,7 +249,6 @@
 /var/www/fog/service/checkcredentials.php
 /var/www/fog/service/getversion.php
 /var/www/fog/service/hostnameloop.php
-/var/www/fog/service/torrent.php
 /var/www/fog/service/blame.php
 /var/www/fog/service/displaymanager.php
 /var/www/fog/service/snapins.checkin.php

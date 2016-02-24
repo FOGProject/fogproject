@@ -658,11 +658,6 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_SERVICE_USERCLEANUP_ENABLED' => $checkbox,
             // FOG Service - User Tracker
             'FOG_SERVICE_USERTRACKER_ENABLED' => $checkbox,
-            // FOG Torrent
-            'FOG_TORRENT_INTERVAL' => true,
-            'FOG_TORRENT_TIMEOUT' => true,
-            'FOG_TORRENT_INTERVAL_MIN' => true,
-            'FOG_TORRENT_PPR' => true,
             // FOG View Settings
             'FOG_DATA_RETURNED' => true,
             // General Settings
