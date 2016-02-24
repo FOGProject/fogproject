@@ -24,8 +24,8 @@ class TaskQueue extends TaskingElement {
                 } else if ($this->Task->isForced()) {
                     $this->HookManager->processEvent('TASK_GROUP',array('StorageGroup'=>&$this->StorageGroup,'Host'=>&$this->Host));
                     $this->StorageNode = $this->Image->getStorageGroup()->getOptimalStorageNode();
+                    if ($this->Task->isUpload()) $this->StorageNode = $this->Image->StorageGroup->getMasterStorageNode();
                     $this->HookManager->processEvent('TASK_NODE',array('StorageNode'=>&$this->StorageNode,'Host'=>&$this->Host));
-                    if ($this->Task->isUpload()) $this->StorageNode = $this->StorageGroup->getMasterStorageNode();
                 } else {
                     $totalSlots = $this->StorageGroup->getTotalSupportedClients();
                     $usedSlots = $this->StorageGroup->getUsedSlotCount();
