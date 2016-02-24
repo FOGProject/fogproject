@@ -9,16 +9,20 @@ class Registration extends FOGBase {
     public function __construct() {
         parent::__construct();
         if ($this->getSetting('FOG_REGISTRATION_ENABLED')) {
-            $this->MACs = $this->getHostItem(false,true,true,true);
-            $this->PriMAC = @array_shift($this->MACs);
-            $this->Host = $this->getHostItem(false,true,true);
-            $this->macsimple = strtolower(str_replace(array(':','-'),'',$this->PriMAC));
-            if (!$this->regExists()) {
-                $this->modulesToJoin = $this->getSubObjectIDs('Module');
-                $this->description = sprintf('%s %s',_('Created by FOG Reg on'),$this->formatTime('now','F j, Y, g:i a'));
-                if (isset($_REQUEST['advanced'])) $this->fullReg();
-                else if ($this->getSetting('FOG_QUICKREG_AUTOPOP')) $this->quickRegAuto();
-                else $this->quickReg();
+            try {
+                $this->MACs = $this->getHostItem(false,true,true,true);
+                $this->PriMAC = @array_shift($this->MACs);
+                $this->Host = $this->getHostItem(false,true,true);
+                $this->macsimple = strtolower(str_replace(array(':','-'),'',$this->PriMAC));
+                if (!$this->regExists()) {
+                    $this->modulesToJoin = $this->getSubObjectIDs('Module');
+                    $this->description = sprintf('%s %s',_('Created by FOG Reg on'),$this->formatTime('now','F j, Y, g:i a'));
+                    if (isset($_REQUEST['advanced'])) $this->fullReg();
+                    else if ($this->getSetting('FOG_QUICKREG_AUTOPOP')) $this->quickRegAuto();
+                    else $this->quickReg();
+                }
+            } catch (Exception $e) {
+                die($e->getMessage());
             }
         }
     }
