@@ -17,6 +17,10 @@ class FOGConfigurationPage extends FOGPage {
             'config'=>$this->foglang['ConfigSave'],
             'http://www.sf.net/projects/freeghost'=>$this->foglang['FOGSFPage'],
             'https://fogproject.org'=>$this->foglang['FOGWebPage'],
+            'https://github.com/fogproject/fogproject.git'=>_('FOG Project on Github'),
+            'https://github.com/fogproject/fog-client.git'=>_('FOG Client on Github'),
+            'https://wiki.fogproject.org/wiki/index.php'=>_('FOG Wiki'),
+            'https://forums.fogproject.org'=>_('FOG Forums'),
         );
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
