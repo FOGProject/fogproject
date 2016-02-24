@@ -31,8 +31,8 @@ class TaskQueue extends TaskingElement {
                     $usedSlots = $this->StorageGroup->getUsedSlotCount();
                     $inFront = $this->Task->getInFrontOfHostCount();
                     $groupOpenSlots = $totalSlots - $usedSlots;
-                    if ($groupOpenSlots < 1) throw new Exception(sprintf('%s %s %s %s',_('Waiting on'),$inFront,_('other'),$inFront != 1 ? _('clients') : _('client')));
-                    if ($groupOpenSlots <= $inFront) throw new Exception(sprintf('%s %s %s %s',_('Open slots but there are'),$inFront,_('that are queued before me')));
+                    if ($groupOpenSlots < 1) throw new Exception(sprintf('%s, %s %d %s',_('No open slots'),_('There are'),$inFront,_('before me.')));
+                    if ($groupOpenSlots <= $inFront) throw new Exception(sprintf('%s %d %s',_('There are open slots, but'),$inFront,_('before me')));
                     $method = ($this->Task->isUpload() ? 'getMasterStorageNode' : 'getOptimalStorageNode');
                     $this->StorageNode = self::nodeFail($this->Image->getStorageGroup()->$method(),$this->Host->get('id'));
                     foreach ($this->StorageNodes AS $i => &$StorageNode) {
