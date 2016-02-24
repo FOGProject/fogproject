@@ -48,9 +48,9 @@ class DashboardPage extends FOGPage {
         $StorageEnabledCount = $this->getClass('StorageNodeManager')->count(array('isEnabled'=>1,'isGraphEnabled'=>1));
         if ($StorageEnabledCount > 0) {
             // Activity Pane
-            printf('<li><h4>%s</h4><div class="graph pie-graph" id="graph-activity"></div></li>',_('System Activity'));
+            printf('<li><h4 class="box" title="%s">%s</h4><div class="graph pie-graph" id="graph-activity"></div></li>',_('The selected node\'s storage group slot usage'),_('Storage Group Activity'));
             // Disk Usage Pane
-            printf('<li><h4>%s</h4><div id="diskusage-selector">',_('System Activity'),_('Disk Information'));
+            printf('<li><h4 class="box" title="%s">%s</h4><div id="diskusage-selector">',_('The selected node\'s image storage disk usage'),_('Node Image Storage Usage'));
             ob_start();
             foreach ((array)$this->getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>1)) AS $i => &$StorageNode) {
                 if (!$StorageNode->isValid()) continue;

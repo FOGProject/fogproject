@@ -41,7 +41,7 @@ function getChecked() {
     return val;
 }
 function setTipsyStuff() {
-    $('.icon,.icon-ping-up,.icon-ping-down,#logo > h1 > a > img').tipsy({
+    $('.box,.icon,.icon-ping-up,.icon-ping-down,#logo > h1 > a > img').tipsy({
         gravity: $.fn.tipsy.autoNS
     });
 }
