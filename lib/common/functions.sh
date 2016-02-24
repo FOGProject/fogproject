@@ -1155,8 +1155,8 @@ writeUpdateFile() {
                 sed -i "s/notpxedefaultfile=?['\"].*?['\"]/notpxedefaultfile='$notpxedefaultfile'/g" $fogprogramdir/.fogsettings || \
                 echo "notpxedefaultfile='$escnotpxedefaultfile'" >> $fogprogramdir/.fogsettings
             grep -q "sslpath=" $fogprogramdir/.fogsettings && \
-                sed -i "s/sslpath=?['\"].*?['\"]/sslpath='$sslpath'/g" $fogprogramdir/.fogsettings || \
-                echo "sslpath='$escsslpath'" >> $fogprogramdir/.fogsettings
+                sed -i "s/sslpath=?['\"].*?['\"]/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
+                echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
         else
             echo "## Start of FOG Settings
             ## Created by the FOG Installer
