@@ -56,7 +56,8 @@ uninstall() {
     esac
 }
 help() {
-    echo -e "Usage: $0 [-h?dEUuHSCKYXT] [-f <filename>] [-D </directory/to/document/root/>]"
+    echo -e "Usage: $0 [-h?dEUuHSCKYXT] [-f <filename>]"
+    echo -e "\t\t[-D </directory/to/document/root/>] [-c <sslPath>]"
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
     echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
@@ -68,6 +69,8 @@ help() {
     echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
     echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
     echo -e "\t-f    --file\t\t\tUse different update file"
+    echo -e "\t-c    --ssl-file\t\tSpecify the ssl path"
+    echo -e "\t               \t\t\t\tdefaults to /opt/fog/snapins/ssl"
     echo -e "\t-D    --docroot\t\t\tSpecify the Apache Docroot for fog"
     echo -e "\t               \t\t\t\tdefaults to OS DocumentRoot"
     echo -e "\t-W    --webroot\t\t\tSpecify the web root url want fog to use"
@@ -1048,6 +1051,7 @@ writeUpdateFile() {
     escpackages=$(echo $packages | sed -e $replace)
     escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
     escnotpxedefaultfile=$(echo $notpxedefaultfile | sed -e $replace)
+    escsslpath=$(echo $sslpath | sed -e $replace)
     if [[ -f $fogprogramdir/.fogsettings ]]; then
         grep -q "^## Start of FOG Settings" $fogprogramdir/.fogsettings || grep -q "^## Version:.*" $fogprogramdir/.fogsettings
         if [[ $? == 0 ]]; then
@@ -1150,6 +1154,9 @@ writeUpdateFile() {
             grep -q "notpxedefaultfile=" $fogprogramdir/.fogsettings && \
                 sed -i "s/notpxedefaultfile=?['\"].*?['\"]/notpxedefaultfile='$notpxedefaultfile'/g" $fogprogramdir/.fogsettings || \
                 echo "notpxedefaultfile='$escnotpxedefaultfile'" >> $fogprogramdir/.fogsettings
+            grep -q "sslpath=" $fogprogramdir/.fogsettings && \
+                sed -i "s/sslpath=?['\"].*?['\"]/sslpath='$sslpath'/g" $fogprogramdir/.fogsettings || \
+                echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
         else
             echo "## Start of FOG Settings
             ## Created by the FOG Installer
@@ -1188,6 +1195,7 @@ writeUpdateFile() {
             packages='$packages'
             noTftpBuild='$noTftpBuild'
             notpxedefaultfile='$notpxedefaultfile'
+            sslpath='$sslpath'
             ## End of FOG Settings
             " > "$fogprogramdir/.fogsettings"
         fi
@@ -1229,6 +1237,7 @@ writeUpdateFile() {
         packages='$packages'
         noTftpBuild='$noTftpBuild'
         notpxedefaultfile='$notpxedefaultfile'
+        sslpath='$sslpath'
         ## End of FOG Settings
         " > "$fogprogramdir/.fogsettings"
     fi
@@ -1259,11 +1268,15 @@ displayBanner() {
     echo
 }
 createSSLCA() {
-    if [[ $recreateCA == yes || $caCreated != yes || ! -e /opt/fog/snapins/CA || ! -e /opt/fog/snapins/CA/.fogCA.key ]]; then
-        mkdir -p /opt/fog/snapins/CA >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ -z $sslpath ]]; then
+        [[ -d /opt/fog/snapins/CA && -d /opt/fog/snapins/ssl ]] && mv /opt/fog/snapins/CA /opt/fog/snapins/ssl/
+        sslpath='/opt/fog/snapins/ssl/'
+    fi
+    if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslpath/CA || ! -e $sslpath/CA/.fogCA.key ]]; then
+        mkdir -p $sslpath/CA >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         dots "Creating SSL CA"
-        openssl genrsa -out /opt/fog/snapins/CA/.fogCA.key 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        openssl req -x509 -new -nodes -key /opt/fog/snapins/CA/.fogCA.key -days 3650 -out /opt/fog/snapins/CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
+        openssl genrsa -out $sslpath/CA/.fogCA.key 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        openssl req -x509 -new -nodes -key $sslpath/CA/.fogCA.key -days 3650 -out $sslpath/CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
 .
 .
 .
@@ -1274,11 +1287,11 @@ FOG Server CA
 EOF
         errorStat $?
     fi
-    if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e /opt/fog/snapins/ssl || ! -e /opt/fog/snapins/ssl/.srvprivate.key ]]; then
+    if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e $sslpath || ! -e $sslpath/.srvprivate.key ]]; then
         dots "Creating SSL Private Key"
-        mkdir -p /opt/fog/snapins/ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        openssl genrsa -out /opt/fog/snapins/ssl/.srvprivate.key 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        openssl req -new -key /opt/fog/snapins/ssl/.srvprivate.key -out /opt/fog/snapins/ssl/fog.csr >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
+        mkdir -p $sslpath >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        openssl genrsa -out $sslpath/.srvprivate.key 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        openssl req -new -key $sslpath/.srvprivate.key -out $sslpath/fog.csr >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
 .
 .
 .
@@ -1293,10 +1306,10 @@ EOF
     fi
     dots "Creating SSL Certificate"
     mkdir -p $webdirdest/management/other/ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    openssl x509 -req -in /opt/fog/snapins/ssl/fog.csr -CA /opt/fog/snapins/CA/.fogCA.pem -CAkey /opt/fog/snapins/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    openssl x509 -req -in $sslpath/fog.csr -CA $sslpath/CA/.fogCA.pem -CAkey $sslpath/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Creating auth pub key and cert"
-    cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    cp $sslpath/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Resetting SSL Permissions"
@@ -1317,7 +1330,7 @@ EOF
     DocumentRoot $docroot
     SSLEngine On
     SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt
-    SSLCertificateKeyFile /opt/fog/snapins/ssl/.srvprivate.key
+    SSLCertificateKeyFile $sslpath/.srvprivate.key
     SSLCertificateChainFile $webdirdest/management/other/ca.cert.der
 </VirtualHost>" > "$etcconf"
     errorStat $?
