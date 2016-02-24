@@ -41,11 +41,14 @@ class SchemaUpdaterPage extends FOGPage {
                     }
                     unset($updates);
                     $this->DB->current_db();
-                    if ($this->DB->db_name) {
+                    if (!$this->DB->db_name) {
                         $newSchema = $this->getClass('SchemaManager')->find();
                         $newSchema = @array_shift($newSchema);
                         if ($newSchema && $newSchema->isValid()) $newSchema->set(version,$version);
-                        if (!$newSchema->save() || count($this->schema) != $newSchema->get(version)) throw new Exception(_('Install / Update Failed!'));
+                        if (!$newSchema->save() || count($this->schema) != $newSchema->get('version')) {
+                            printf('<p>%s</p>',_('Install / Update Failed!'));
+                            if (count($errors)) throw new Exception(sprintf('<h2>%s</h2>%s',_('The following errors occurred'),implode('<hr/>',$errors)));
+                        }
                     }
                     printf('<p>%s</p>',_('Install/Upgrade Successful!'));
                     if (count($errors)) throw new Exception(sprintf('<h2>%s</h2>%s',_('The following errors occured'),implode('<hr/>',$errors)));
