@@ -111,27 +111,6 @@ class FOGCore extends FOGBase {
         $data['end'] = '@@end';
         return $data;
     }
-    public function track($list, $c = 0, $i = 0) {
-        if (is_string($list)) return 'd14:failure reason'.strlen($list).':'.$list.'e';
-        $p = '';
-        foreach((array)$list AS $i => &$d) {
-            $peer_id = '';
-            if (!$_REQUEST['no_peer_id']) $peer_id = '7:peer id'.strlen($this->hex2bin($d[2])).':'.$this->hex2bin($d[2]);
-            $p .= 'd2:ip'.strlen($d[0]).':'.$d[0].$peer_id.'4:porti'.$d[1].'ee';
-        }
-        unset($d);
-        return 'd8:intervali'.$this->getSetting(FOG_TORRENT_INTERVAL).'e12:min intervali'.$this->getSetting(FOG_TORRENT_INTERVAL_MIN).'e8:completei'.$c.'e10:incompletei'.$i.'e5:peersl'.$p.'ee';
-    }
-    public function valdata($g,$fixed_size=false) {
-        try {
-            if (!$_REQUEST[$g]) throw new Exception($this->track('Invalid request, missing data'));
-            if (!is_string($_REQUEST[$g])) throw new Exception($this->track('Invalid request, unkown data type'));
-            if ($fixed_size && strlen($_REQUEST[$g]) != 20) throw new Exception($this->track('Invalid request, length on fixed argument not correct'));
-            if (strlen($_REQUEST[$g]) > 80) throw new Exception($this->track('Request too long'));
-        } catch (Exception $e) {
-            die($e->getMessage());
-        }
-    }
     public function setSessionEnv() {
         $_SESSION['HostCount'] = $this->getClass('HostManager')->count();
         $this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");

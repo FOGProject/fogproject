@@ -1527,50 +1527,9 @@ isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='f
 );
 // 123
 $this->schema[] = array(
-	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME ."`.`peer` (
-        `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-        `hash` char(40) NOT NULL COMMENT 'peer_id',
-        `user_agent` varchar(80) DEFAULT NULL,
-        `ip_address` int(10) unsigned NOT NULL COMMENT 'ip',
-        `key` char(40) NOT NULL COMMENT 'key',
-        `port` smallint(5) unsigned NOT NULL COMMENT 'port',
-        PRIMARY KEY (`id`),
-UNIQUE KEY `hash_key` (`hash`,`key`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
-	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME ."`.`peer_torrent` (
-        `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-        `peer_id` int(10) unsigned NOT NULL,
-        `torrent_id` int(10) unsigned NOT NULL,
-        `uploaded` bigint(20) unsigned DEFAULT NULL COMMENT 'uploaded',
-        `downloaded` bigint(20) unsigned DEFAULT NULL COMMENT 'downloaded',
-        `left` bigint(20) unsigned DEFAULT NULL COMMENT 'left',
-        `last_updated` datetime NOT NULL,
-        `stopped` tinyint(1) NOT NULL DEFAULT '0',
-        PRIMARY KEY (`id`),
-UNIQUE KEY `peer_torrent` (`peer_id`,`torrent_id`),
-KEY `update_torrent` (`torrent_id`,`stopped`,`last_updated`,`left`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
-	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME ."`.`torrent` (
-        `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-        `hash` char(40) NOT NULL COMMENT 'info_hash',
-        PRIMARY KEY (`id`),
-UNIQUE KEY `hash` (`hash`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
 );
 // 124
 $this->schema[] = array(
-	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_TORRENT_INTERVAL','This setting defines the interval between updates for the tracker. This value should be numeric and is defaulted to 1800 seconds.  The value here is in seconds as well.','1800','FOG Torrent')",
-	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_TORRENT_TIMEOUT','This setting defines the grace period between update interval and the client in case something went wrong. Default value is 120.  Value is in seconds.','120','FOG Torrent')",
-	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_TORRENT_INTERVAL_MIN','This setting defines the minimum interval value.  If FOG_TORRENT_INTERVAL is less than this number, it will default to this value for the interval plus the timeout. Default value is 60 seconds.  Again, this is in seconds.','60','FOG Torrent')",
-	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_TORRENT_PPR','This setting defines the maximum number of hosts to encode.  Default value is 20.','20','FOG Torrent')",
-	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_TORRENTDIR','This setting defines the location for the torrents to transfer over to the client for torrent cast.','/opt/fog/torrents/','FOG Torrent')",
-    "INSERT INTO `" . DATABASE_NAME . "`.`taskTypes` (`ttID`, `ttName`, `ttDescription`, `ttIcon`, `ttKernel`, `ttKernelArgs`, `ttType`, `ttIsAdvanced`, `ttIsAccess`) VALUES
-    (24, 'Torrent-Cast', 'This task will run a download task that will be used to download the image from the peer(s).', 'torrent.png', '', 'mc=bt', 'fog', '1', 'both')",
 );
 // 125
 $this->schema[] = array(
@@ -1742,10 +1701,8 @@ $this->schema[] = array(
 );
 // 151
 $this->schema[] = array(
-	"ALTER TABLE `".DATABASE_NAME."`.`torrent` ENGINE=MyISAM",
 	"ALTER TABLE `".DATABASE_NAME."`.`taskTypes` ENGINE=MyISAM",
 	"ALTER TABLE `".DATABASE_NAME."`.`taskStates` ENGINE=MyISAM",
-	"ALTER TABLE `".DATABASE_NAME."`.`peer_torrent` ENGINE=MyISAM",
 	"ALTER TABLE `".DATABASE_NAME."`.`taskLog` ENGINE=MyISAM",
 	"ALTER TABLE `".DATABASE_NAME."`.`peer` ENGINE=MyISAM",
 	"ALTER TABLE `".DATABASE_NAME."`.`os` ENGINE=MyISAM",
@@ -2155,4 +2112,12 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"ALTER TABLE `".DATABASE_NAME."`.`nfsGroupMembers` ADD COLUMN `ngmSSLPath` LONGTEXT NOT NULL AFTER `ngmRootPath`",
 	"UPDATE `".DATABASE_NAME."`.`nfsGroupMembers` SET `ngmSSLPath`='/opt/fog/snapins/ssl'",
+);
+// 213
+$this->schema[] = array(
+    "DROP TABLE IF EXISTS `".DATABASE_NAME."`.`peer`",
+    "DROP TABLE IF EXISTS `".DATABASE_NAME."`.`peer_torrent`",
+    "DROP TABLE IF EXISTS `".DATABASE_NAME."`.`torrent`",
+    "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey` IN ('FOG_TORRENT_INTERVAL','FOG_TORRENT_TIMEOUT','FOG_TORRENT_INTERVAL_MIN','FOG_TORRENT_PPR','FOG_TORRENTDIR')",
+    "DELETE FROM `".DATABASE_NAME."`.`taskTypes` WHERE `ttID`=24",
 );
