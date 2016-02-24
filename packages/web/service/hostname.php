@@ -1,3 +1,3 @@
 <?php
 require('../commons/base.inc.php');
-$FOGCore->getClass('HostnameChanger');
+$FOGCore->getClass('HostnameChanger',true,false,false,false,isset($_REQUEST['newService']));
