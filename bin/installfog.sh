@@ -117,7 +117,7 @@ else
     echo "   previous version of FOG."
     echo
 fi
-optspec="h?dEUHSCKYyXxTPf:-:W:D:B:s:e:b:"
+optspec="h?dEUHSCKYyXxTPf:c:-:W:D:B:s:e:b:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -125,6 +125,12 @@ while getopts "$optspec" o; do
                 help)
                     help
                     exit 0
+                    ;;
+                ssl-path)
+                    sslpath="${OPTARG}"
+                    sslpath="${sslpath#'/'}"
+                    sslpath="${sslpath%'/'}"
+                    sslpath="/${sslpath}/"
                     ;;
                 no-defaults)
                     guessdefaults=0
@@ -308,6 +314,12 @@ while getopts "$optspec" o; do
             ;;
         P)
             notpxedefaultfile="true"
+            ;;
+        c)
+            sslpath="${OPTARG}"
+            sslpath="${sslpath#'/'}"
+            sslpath="${sslpath%'/'}"
+            sslpath="/${sslpath}/"
             ;;
         :)
             echo "Option -$OPTARG requires a value"
