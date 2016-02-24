@@ -1162,10 +1162,16 @@ sec2string() {
     local H=$((T/60/60%24))
     local i=$((T/60%60))
     local s=$((T%60))
-    (($d > 0)) && printf '%d days ' "$d"
-    (($H > 0)) && printf '%d hours ' "$H"
-    (($i > 0)) && printf '%d minutes ' "$i"
-    (($s > 0)) && printf '%d seconds ' "$s"
+    local dayspace=''
+    local hourspace=''
+    local minspace=''
+    [[ $H > 0 ]] && dayspace=' '
+    [[ $i > 0 ]] && hourspace=' '
+    [[ $s > 0 ]] && minspace=' '
+    (($d > 0)) && printf '%d d%s' "$d" "$dayspace"
+    (($H > 0)) && printf '%d H%s' "$H" "$hourspace"
+    (($i > 0)) && printf '%d i%s' "$i" "$minspace"
+    (($s > 0)) && printf '%d s' "$s"
 }
 # Returns the disk based off the partition passed
 #
