@@ -396,7 +396,7 @@ abstract class FOGBase {
         if ($padding) $padding = OPENSSL_PKCS1_PADDING;
         else $padding = OPENSSL_NO_PADDING;
         $data = $this->hex2bin($data);
-        $paths = array_map('trim',(array)$this->getSubObjectIDs('StorageNode',array('enabled'=>1),'sslpath'));
+        $paths = array_map('trim',(array)$this->getSubObjectIDs('StorageNode',array('isEnabled'=>1),'sslpath'));
         foreach ($paths AS &$path) {
             $sslfile = sprintf('%s%s.srvprivate.key',$path,DIRECTORY_SEPARATOR);
             if (file_exists($sslfile)) {

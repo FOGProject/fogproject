@@ -85,13 +85,17 @@ function forceClick(e) {
     if (AJAXTaskForceRequest) AJAXTaskForceRequest.abort();
     AJAXTaskForceRequest = $.ajax({
         type: 'POST',
-        url: this.href,
-        beforeSend: function() {$(this).removeClass().addClass('fa fa-refresh fa-spin fa-fw icon');},
+        url: $(this).attr('href'),
+        beforeSend: function() {
+            $(this).unbind('click').removeClass().addClass('fa fa-refresh fa-spin fa-fw icon');
+        },
         success: function(data) {
             if (typeof(data) == 'undefined' || data === null) return;
-            $(this).removeClass().addClass('fa fa-angle-double-right fa-fw icon');
+            $(this).unbind('click').removeClass().addClass('fa fa-angle-double-right fa-fw icon');
         },
-        error: function() {$(this).removeClass().addClass('fa fa-bolt fa-fw icon');}
+        error: function() {
+            $(this).bind('click').removeClass().addClass('fa fa-bolt fa-fw icon');
+        }
     });
     e.preventDefault();
 }
@@ -227,8 +231,7 @@ $.fn.fogStatusUpdate = function(txt, opts) {
 }
 function showForceButton() {
     $('.icon-forced').addClass('fa fa-angle-double-right fa-1x icon');
-    $('.icon-force').addClass('fa fa-bolt fa-fw hand');
-    $('.icon-force').unbind('click').click(forceClick);
+    $('.icon-force').addClass('fa fa-bolt fa-fw hand').click(forceClick);
 }
 function showProgressBar() {
     $('.with-progress').hover(function() {
