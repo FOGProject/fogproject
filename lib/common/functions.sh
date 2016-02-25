@@ -1544,7 +1544,7 @@ configureHttpd() {
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
-    [[ -n $snmysqlpass ]] && snmysqlpass=$(echo $snmysqlpass|sed -e "s/[\'\"]/\\&/g")
+    [[ -n $snmysqlpass ]] && snmysqlpass=$(echo $snmysqlpass|sed -e "s/[\$\'\"]/\\&/g")
     dots "Creating config file"
     echo "<?php
 class Config {
