@@ -1,7 +1,7 @@
 <?php
 function getInterface($type = 'tx') {
     $output = array();
-    exec("/sbin/ip addr | awk -F'[: /]+' '/state UP/ {print $2}'",$interfaces,$retVal);
+    if (!count($interfaces)) exec("/sbin/ip addr | awk -F'[: /]+' '/,?UP,?/ {print $2}'",$interfaces,$retVal);
     if (!count($interfaces)) exec("/sbin/ifconfig -a | awk -F'[: /]+' '/HWaddr/ {print $1}'",$interfaces,$retVal);
     if (!count($interfaces)) die ('No interfaces found');
     $dev = trim(($_REQUEST['dev'] ? basename(htmlentities($_REQUEST['dev'],ENT_QUOTES,'utf-8')) : (defined('NFS_ETH_MONITOR') ? NFS_ETH_MONITOR : 'eth0')));
