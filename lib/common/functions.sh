@@ -1752,9 +1752,9 @@ configureDHCP() {
     case $bldhcp in
         1)
             [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
-            serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
+            serverip=$(/sbin/ip addr show | grep $interface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | $grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
-            [[ -z $serverip ]] && serverip=$(/sbin/ip addr show | grep $interface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | $grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
+            [[ -z $serverip ]] && serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
             [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
             network=$(mask2network $serverip $submask)
             [[ -z $startrange ]] && startrange=$(addToAddress $network 10)
