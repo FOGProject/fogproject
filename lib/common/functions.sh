@@ -1544,9 +1544,8 @@ configureHttpd() {
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
+    [[ -n $snmysqlpass ]] && printf -v 'snmysqlpass' "%q" "$snmysqlpass"
     dots "Creating config file"
-    replace='s/[]\/$*.^|[]/\\&/g'
-    [[ -n $snmysqlpass ]] && printf -v 'escsnmysqlpass' "%q" $(echo $snmysqlpass|sed -e $replace)
     echo "<?php
 class Config {
     /** @function __construct() Calls the required functions to define items
@@ -1565,7 +1564,7 @@ class Config {
         define('DATABASE_HOST','$dbhost');
         define('DATABASE_NAME','fog');
         define('DATABASE_USERNAME','$dbuser');
-        define('DATABASE_PASSWORD','$escsnmysqlpass');
+        define('DATABASE_PASSWORD',\"$snmysqlpass\");
     }
     /** @function svc_setting() Defines the service settings
      * (e.g. FOGMulticastManager)
