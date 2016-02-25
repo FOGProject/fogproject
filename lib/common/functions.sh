@@ -1544,7 +1544,6 @@ configureHttpd() {
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
-    echo $snmysqlpass
     dots "Creating config file"
     replace='s/[]\/$*.^|[]/\\&/g'
     [[ -n $snmysqlpass ]] && printf -v 'escsnmysqlpass' "%q" $(echo $snmysqlpass|sed -e $replace)
