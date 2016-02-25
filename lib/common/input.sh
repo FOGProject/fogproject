@@ -117,6 +117,12 @@ done
 while [[ -z $interface ]]; do
     blInt="N"
     if [[ -z $autoaccept ]]; then
+	$numberOfFieldsInOutput=$(grep -o " " <<< "$(ip addr | grep $ipaddress)" | wc -l)
+	let numberOfFieldsInOutput+=1
+        $newStrSuggestedInterface = ip addr | grep 10.0.0.1 | cut -d ' ' -f $numberOfFieldsInOutput
+        if [[ $newStrSuggestedInterface != $strSuggestedInterface ]]; then
+		strSuggestedInterface=$newStrSuggestedInterface
+        fi
         echo
         echo "  Would you like to change the default network interface from $strSuggestedInterface?"
         echo -n "  If you are not sure, select No. [y/N] "
