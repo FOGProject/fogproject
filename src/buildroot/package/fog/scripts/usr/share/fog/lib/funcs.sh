@@ -1974,7 +1974,7 @@ restorePartition() {
         n|mps|mpa)
             case $osid in
                 [1-2])
-                    imgpart="$imagePath"
+                    [[ -f $imagePath ]] && imgpart="$imagePath" || imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     ;;
                 50|51)
                     imgpart="$imagePath/d${disk_number}p${part_number}.img*"
