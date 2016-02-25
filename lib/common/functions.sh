@@ -950,7 +950,6 @@ EOF
                 if [[ -f $webdirdest/lib/fog/config.class.php ]]; then
                     password=$(cat $webdirdest/lib/fog/config.class.php | grep TFTP_FTP_PASSWORD | cut -d"," -f2 | cut -d"\"" -f2)
                 fi
-                echo "Exists"
                 bluseralreadyexists=1
             fi
         else
