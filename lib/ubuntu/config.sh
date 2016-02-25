@@ -24,7 +24,7 @@
 packageQuery="dpkg -l \$x | grep '^ii'"
 case $linuxReleaseName in
     *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
-        packages="apache2 php${php_ver} php${php_ver}-json php${php_ver}-gd php${php_ver}-cli php${php_ver}-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php-gettext php${php_ver}-mcrypt php${php_ver}-mysqlnd curl libc6 libcurl3 zlib1g php${php_ver}-fpm libapache2-mod-php${php_ver}"
+        packages="apache2 php${php_ver} php${php_ver}-json php${php_ver}-gd php${php_ver}-cli php${php_ver}-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php${php_ver}-gettext php${php_ver}-mcrypt php${php_ver}-mysqlnd curl libc6 libcurl3 zlib1g php${php_ver}-fpm libapache2-mod-php${php_ver}"
         packageinstaller="apt-get -yq install -o Dpkg::='--force-confdef' -o Dpkg::Options::='--force-confold'"
         packagelist="apt-cache pkgnames | grep"
         packageupdater="apt-get -yq upgrade -o Dpkg::='--force-confdef' -o Dpkg::Options::='--force-confold'"
