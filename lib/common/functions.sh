@@ -1544,7 +1544,6 @@ configureHttpd() {
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
-    [[ -n $snmysqlpass ]] && snmysqlpass=$(echo $snmysqlpass|sed -e "s/[\$\'\"]/\\&/g")
     dots "Creating config file"
     echo "<?php
 class Config {
@@ -1564,7 +1563,7 @@ class Config {
         define('DATABASE_HOST','$dbhost');
         define('DATABASE_NAME','fog');
         define('DATABASE_USERNAME','$dbuser');
-        define('DATABASE_PASSWORD',\"$snmysqlpass\");
+        define('DATABASE_PASSWORD',\"${snmysqlpass}\");
     }
     /** @function svc_setting() Defines the service settings
      * (e.g. FOGMulticastManager)
