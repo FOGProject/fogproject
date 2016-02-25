@@ -348,10 +348,13 @@ case $? in
         [[ -z $webroot ]] && webroot="fog/"
         ;;
 esac
-[[ -z $backupPath ]] && backupPath="/home/"
-backupPath="${backupPath%'/'}"
-backupPath="${backupPath#'/'}"
-backupPath="/$backupPath/"
+if [[ -z $backupPath ]]; then
+    backupPath="/home/"
+    backupPath="${backupPath%'/'}"
+    backupPath="${backupPath#'/'}"
+    backupPath="/$backupPath/"
+fi
+[[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
 echo
 echo "   ######################################################################"
