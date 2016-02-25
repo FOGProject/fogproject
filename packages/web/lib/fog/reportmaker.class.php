@@ -77,8 +77,8 @@ class ReportMaker extends FOGBase {
             $ip = preg_replace('#p:#','',DATABASE_HOST);
             if (false === filter_var($ip,FILTER_VALIDATE_IP)) $ip = gethostbyname($ip);
             if (!filter_var($ip,FILTER_VALIDATE_IP) === false) {
-                $cmd = sprintf("mysqldump --opt -u'%s' -h'$ip' %s > $filepath",DATABASE_USERNAME,DATABASE_NAME);
-                if (DATABASE_PASSWORD) $cmd = sprintf("mysqldump --opt -u'%s' -p'%s' -h'$ip' %s > $filepath",DATABASE_USERNAME,DATABASE_PASSWORD,DATABASE_NAME);
+                $cmd = sprintf("mysqldump --opt -u%s -h'$ip' %s > $filepath",escapeshellarg(DATABASE_USERNAME),escapeshellarg(DATABASE_NAME));
+                if (DATABASE_PASSWORD) $cmd = sprintf("mysqldump --opt -u%s -p%s -h'$ip' %s > $filepath",escapeshellarg(DATABASE_USERNAME),escapeshellarg(DATABASE_PASSWORD),escapeshellarg(DATABASE_NAME));
                 exec($cmd);
                 $filesize = filesize($filepath);
                 header("X-Sendfile: $filepath");
