@@ -41,19 +41,31 @@ class TaskType extends FOGController {
         unset($icons);
         return sprintf('%s</select>',ob_get_clean());
     }
+    public function getIcon() {
+        return $this instanceof Task ? $this->getTaskType()->get('icon') : $this->get('icon');
+    }
     public function isUpload() {
-        return in_array($this->get('id'),array(2,16)) || preg_match('#type=(2|16|up)#i',$this->get('kernelArgs'));
+        $id = $this instanceof Task ? 'typeID' : 'id';
+        return in_array($this->get($id),array(2,16)) || preg_match('#type=(2|16|up)#i',$this->get('kernelArgs'));
+    }
+    public function isSnapinTasking() {
+        $id = $this instanceof Task ? 'typeID' : 'id';
+        return !in_array($this->get($id),array(12,13));
     }
     public function isSnapinTask() {
-        return ($this->isDownload() && $this->get('id') != 17) || in_array($this->get(id),array(12,13));
+        $id = $this instanceof Task ? 'typeID' : 'id';
+        return ($this->isDownload() && $this->get($id) != 17) || in_array($this->get($id),array(12,13));
     }
     public function isDownload() {
-        return in_array($this->get(id),array(1,8,15,17,24)) || preg_match('#type=(1|8|15|17|24|down)#i', $this->get(kernelArgs));
+        $id = $this instanceof Task ? 'typeID' : 'id';
+        return in_array($this->get($id),array(1,8,15,17,24)) || preg_match('#type=(1|8|15|17|24|down)#i', $this->get('kernelArgs'));
     }
     public function isMulticast() {
-        return $this->get(id) == 8 || preg_match('#(type=8|mc=yes)#i', $this->get(kernelArgs));
+        $id = $this instanceof Task ? 'typeID' : 'id';
+        return $this->get($id) == 8 || preg_match('#(type=8|mc=yes)#i', $this->get('kernelArgs'));
     }
     public function isDebug() {
-        return in_array($this->get(id),array(15,16)) || preg_match('#mode=debug#i', $this->get(kernelArgs)) || preg_match('#mode=onlydebug#i', $this->get(kernelArgs));
+        $id = $this instanceof Task ? 'typeID' : 'id';
+        return in_array($this->get($id),array(15,16)) || preg_match('#mode=debug#i', $this->get('kernelArgs')) || preg_match('#mode=onlydebug#i', $this->get('kernelArgs'));
     }
 }
