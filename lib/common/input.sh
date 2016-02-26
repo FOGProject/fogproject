@@ -28,20 +28,27 @@ if [[ $guessdefaults == 1 ]]; then
             strSuggestedOS=1
             ;;
     esac
-    strSuggestedIPAddress=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $4}' | head -n2 | tail -n1)
+    strSuggestedInterface=$(getFirstGoodInterface)
+    if [[ $strSuggestedInterface == "" ]]; then
+        echo "Not able to find an interface with an active internet connection. Trying alternative methods for determining the interface."
+        strSuggestedIPAddress=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $4}' | head -n2 | tail -n1)
+        if [[ -z $strSuggestedIPAddress ]]; then
+            strSuggestedIPAddress=$(/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
+        fi
+        strSuggestedInterface=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $2}' | head -n2 | tail -n1)
+        if [[ -z $strSuggestedInterface ]]; then
+            strSuggestedInterface=$(/sbin/ifconfig -a | grep "'${strSuggestedIPAddress}'" -B1 | awk -F'[:]+' '{print $1}' | head -n1)
+        fi
+    fi    
+    strSuggestedIPAddress=$(/sbin/ip addr show | grep $strSuggestedInterface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
     if [[ -z $strSuggestedIPAddress ]]; then
         strSuggestedIPAddress=$(/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
     fi
-    strSuggestedInterface=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $2}' | head -n2 | tail -n1)
-    if [[ -z $strSuggestedInterface ]]; then
-        strSuggestedIntervace=$(/sbin/ifconfig -a | grep "'${strSuggestedIPAddress}'" -B1 | awk -F'[:]+' '{print $1}' | head -n1)
-    fi
-    strSuggestedSubMask=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $5}' | head -n2 | tail -n1)
+    strSuggestedSubMask=$(cidr2mask $(getCidr $strSuggestedInterface))
     if [[ -z $strSuggestedSubMask ]]; then
         strSuggestedSubMask=$(/sbin/ifconfig -a | grep $strSuggestedIPAddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
         strSuggestedSubMask=$(mask2cidr $strSuggestedSubMask)
     fi
-    strSuggestedSubMask=$(cidr2mask $strSuggestedSubMask)
     submask=$strSuggestedSubMask
     strSuggestedRoute=$(ip route | head -n1 | cut -d' ' -f3 | tr -d [:blank:])
     if [[ -z $strSuggestedRoute ]]; then
@@ -117,10 +124,6 @@ done
 while [[ -z $interface ]]; do
     blInt="N"
     if [[ -z $autoaccept ]]; then
-	$numberOfFieldsInOutput=$(grep -o " " <<< "$(ip addr | grep $ipaddress)" | wc -l)
-	let numberOfFieldsInOutput+=1
-        $newStrSuggestedInterface=$(ip addr | grep $ipaddress | cut -d ' ' -f $numberOfFieldsInOutput)
-        [[ $newStrSuggestedInterface != $strSuggestedInterface ]] && strSuggestedInterface=$newStrSuggestedInterface
         echo
         echo "  Would you like to change the default network interface from $strSuggestedInterface?"
         echo -n "  If you are not sure, select No. [y/N] "
@@ -139,6 +142,14 @@ while [[ -z $interface ]]; do
             ;;
     esac
 done
+    if [[ $strSuggestedInterface != $interface ]]; then
+        strSuggestedSubMask=$(cidr2mask $(getCidr $interface))
+        if [[ -z $strSuggestedSubMask ]]; then
+            strSuggestedSubMask=$(/sbin/ifconfig -a | grep $strSuggestedIPAddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
+            strSuggestedSubMask=$(mask2cidr $strSuggestedSubMask)
+        fi
+        submask=$strSuggestedSubMask
+    fi
 case $installtype in
     [Nn])
         count=0

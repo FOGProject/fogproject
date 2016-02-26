@@ -319,6 +319,51 @@ addToAddress() {
     fi
     return 1
 }
+getFirstGoodInterface() {
+siteToCheckForInternet=www.google.com #Must be domain name.
+ipToCheckForInternet=8.8.8.8 #Must be IP.
+anInterface=""
+if [[ -e $workingdir/tempInterfaces.txt ]]; then >/dev/null 2>&1
+        rm -f $workingdir/tempInterfaces.txt >/dev/null 2>&1
+fi
+ip addr | grep " inet " |
+while IFS= read -r line
+do
+        numberOfFieldsInOutput=$(grep -o " " <<< "$(echo $line)" | wc -l)
+        let numberOfFieldsInOutput+=1 >/dev/null 2>&1
+        anInterface=$(echo $line | cut -d ' ' -f $numberOfFieldsInOutput)
+        echo $anInterface >> $workingdir/tempInterfaces.txt
+done
+cat $workingdir/tempInterfaces.txt | while read anInterface
+do
+ping -c 1 $ipToCheckForInternet -I $anInterface >/dev/null 2>&1
+        if [[ $? -eq 0 ]]; then
+                ping -c 1 $siteToCheckForInternet -I $anInterface >/dev/null 2>&1
+                if [[ $? -eq 0 ]]; then
+                        echo $anInterface >> $workingdir/goodInterface.txt
+                        break
+                else
+                        echo "Internet detected on $anInterface but there seems to be a DNS problem." >>$workingdir/error_logs/fog_error_${version}.log
+                        echo "Check the contents of /etc/resolv." >>$workingdir/error_logs/fog_error_${version}.log
+                        echo "If this is CentOS, RHEL, or Fedora or an other RH variant," >>$workingdir/error_logs/fog_error_${version}.log
+			echo "also check the DNS entries for /etc/sysconfig/network-scripts/ifcfg-$anInterface" >>$workingdir/error_logs/fog_error_${version}.log
+                fi
+        fi
+done
+if [[ -e $workingdir/tempInterfaces.txt ]]; then
+        rm -f $workingdir/tempInterfaces.txt >/dev/null 2>&1
+fi
+goodInterface=$(cat $workingdir/goodInterface.txt)
+if [[ -e $workingdir/goodInterface.txt ]]; then
+        rm -f $workingdir/goodInterface.txt >/dev/null 2>&1
+fi
+if [[ -z $goodInterface ]]; then
+    echo "There was no interface with an active internet connection found." >>$workingdir/error_logs/fog_error_${version}.log
+    echo ""
+else
+    echo $goodInterface
+fi
+}
 join() {
     local IFS="$1"
     shift
