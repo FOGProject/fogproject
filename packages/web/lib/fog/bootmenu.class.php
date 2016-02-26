@@ -751,8 +751,7 @@ class BootMenu extends FOGBase {
                 $this->getSetting('FOG_KERNEL_ARGS'),
                 $this->Host->get('kernelArgs'),
             );
-            if ($Task->get('typeID') == 12 || $Task->get('typeID') == 13) $this->printDefault();
-            else if ($Task->get('typeID') == 4) {
+            if ($Task->get('typeID') == 4) {
                 $Send['memtest'] = array(
                     "#!ipxe",
                     "$this->memdisk iso raw",
