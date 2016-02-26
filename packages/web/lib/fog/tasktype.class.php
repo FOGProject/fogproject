@@ -50,7 +50,7 @@ class TaskType extends FOGController {
     }
     public function isSnapinTasking() {
         $id = $this instanceof Task ? 'typeID' : 'id';
-        return !in_array($this->get($id),array(12,13));
+        return in_array($this->get($id),array(12,13));
     }
     public function isSnapinTask() {
         $id = $this instanceof Task ? 'typeID' : 'id';
