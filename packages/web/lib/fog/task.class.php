@@ -1,5 +1,5 @@
 <?php
-class Task extends FOGController {
+class Task extends TaskType {
     protected $databaseTable = 'tasks';
     protected $databaseFields = array(
         'id' => 'taskID',
@@ -96,10 +96,7 @@ class Task extends FOGController {
     public function isForced() {
         return (bool)($this->get('isForced') > 0);
     }
-    public function isUpload() {
-        return (bool)$this->getTaskType()->isUpload();
-    }
-    public function isMulticast() {
-        return (bool)$this->getTaskType()->isMulticast();
+    public function isDebug() {
+        return (bool)(parent::isDebug() || $this->get('isDebug'));
     }
 }

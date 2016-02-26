@@ -70,7 +70,7 @@ class TaskManagementPage extends FOGPage {
                 'host_name' => $Host->get('name'),
                 'host_mac' => $Host->get('mac')->__toString(),
                 'icon_state' => $Task->getTaskState()->getIcon(),
-                'icon_type' => $Task->getTaskType()->get('icon'),
+                'icon_type' => $Task->getIcon(),
             );
             unset($Task,$Host);
         }
@@ -107,7 +107,7 @@ class TaskManagementPage extends FOGPage {
                 'host_name' => $Host->get('name'),
                 'host_mac' => $Host->get('mac')->__toString(),
                 'icon_state' => $Task->getTaskState()->getIcon(),
-                'icon_type' => $Task->getTaskType()->get('icon'),
+                'icon_type' => $Task->getIcon(),
             );
             unset($Task,$Host);
         }
