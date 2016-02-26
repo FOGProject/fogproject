@@ -600,6 +600,14 @@ installPackages() {
                     fi
                 done
                 ;;
+            *)
+                eval $packagelist $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                if [[ ! $? -eq 0 ]]; then
+                    newPackList="$newPackList "
+                    newPackList=$(echo $newPackList)
+                    continue
+                fi
+                ;;
         esac
         newPackList="$newPackList $x"
         eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1801,7 +1809,7 @@ configureDHCP() {
             echo "    class \"Legacy\" {" >> "$dhcptouse"
             echo "        match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00000\";" >> "$dhcptouse"
             echo "        filename \"undionly.kkpxe\";" >> "$dhcptouse"
-            echo "    }" >> "$dhcptouse"            
+            echo "    }" >> "$dhcptouse"
             echo "    class \"UEFI-32-2\" {" >> "$dhcptouse"
             echo "        match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00002\";" >> "$dhcptouse"
             echo "        filename \"i386-efi/ipxe.efi\";" >> "$dhcptouse"

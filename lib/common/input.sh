@@ -120,9 +120,7 @@ while [[ -z $interface ]]; do
 	$numberOfFieldsInOutput=$(grep -o " " <<< "$(ip addr | grep $ipaddress)" | wc -l)
 	let numberOfFieldsInOutput+=1
         $newStrSuggestedInterface=$(ip addr | grep $ipaddress | cut -d ' ' -f $numberOfFieldsInOutput)
-        if [[ $newStrSuggestedInterface != $strSuggestedInterface ]]; then
-		strSuggestedInterface=$newStrSuggestedInterface
-        fi
+        [[ $newStrSuggestedInterface != $strSuggestedInterface ]] && strSuggestedInterface=$newStrSuggestedInterface
         echo
         echo "  Would you like to change the default network interface from $strSuggestedInterface?"
         echo -n "  If you are not sure, select No. [y/N] "
