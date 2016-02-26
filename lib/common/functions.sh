@@ -1680,6 +1680,7 @@ class Config {
     cnt=0
     while [[ $localbzImagesum != $remotebzImagesum && $cnt -lt 10 ]]; do
         [[ $cnt -eq 0 ]] && echo "Failed bzImage"
+        let cnt+=1
         dots "Attempting to redownload bzImage"
         curl --silent -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage >/dev/null 2>&1
         errorStat $?
@@ -1692,6 +1693,7 @@ class Config {
     cnt=0
     while [[ $localbzImage32sum != $remotebzImage32sum && $cnt -lt 10 ]]; do
         [[ $cnt -eq 0 ]] && echo "Failed bzImage32"
+        let cnt+=1
         dots "Attempting to redownload bzImage32"
         curl --silent -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >/dev/null 2>&1
         errorStat $?
