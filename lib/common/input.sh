@@ -121,6 +121,14 @@ while [[ -z $ipaddress ]]; do
         count=$(($count + 1))
     fi
 done
+if [[ $strSuggestedIPAddress != $ipaddress ]]; then
+    inetIPline=$(ip addr | grep "inet $ipaddress")
+    numberOfFieldsInOutput=$(grep -o " " <<< "$inetIPline" | wc -l)
+    let numberOfFieldsInOutput+=1 >/dev/null 2>&1
+    strSuggestedInterface=$(echo $line | cut -d ' ' -f $numberOfFieldsInOutput)
+    strSuggestedSubMask=$(/sbin/ifconfig -a | grep $ipaddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
+    submask=$(mask2cidr $strSuggestedSubMask)
+fi
 while [[ -z $interface ]]; do
     blInt="N"
     if [[ -z $autoaccept ]]; then
