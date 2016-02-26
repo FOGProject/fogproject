@@ -1752,9 +1752,9 @@ configureDHCP() {
     case $bldhcp in
         1)
             [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
-            serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
+            serverip=$(/sbin/ip addr show | grep $interface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
-            [[ -z $serverip ]] && serverip=$(/sbin/ip addr show | grep $interface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | $grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
+            [[ -z $serverip ]] && serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
             [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
             network=$(mask2network $serverip $submask)
             [[ -z $startrange ]] && startrange=$(addToAddress $network 10)
@@ -1798,12 +1798,16 @@ configureDHCP() {
             echo "    max-lease-time 43200;" >> "$dhcptouse"
             [[ $(validip $routeraddress) -eq 0 ]] && echo "    option routers $routeraddress;" >> "$dhcptouse"
             [[ $(validip $dnsaddress) -eq 0 ]] && echo "    option domain-name-servers $dnsaddress;" >> "$dhcptouse"
-            echo "    class \"UEFI-32-1\" {" >> "$dhcptouse"
-            echo "        match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00006\";" >> "$dhcptouse"
-            echo "        filename \"i386-efi/ipxe.efi\";" >> "$dhcptouse"
-            echo "    }" >> "$dhcptouse"
+            echo "    class \"Legacy\" {" >> "$dhcptouse"
+            echo "        match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00000\";" >> "$dhcptouse"
+            echo "        filename \"undionly.kkpxe\";" >> "$dhcptouse"
+            echo "    }" >> "$dhcptouse"            
             echo "    class \"UEFI-32-2\" {" >> "$dhcptouse"
             echo "        match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00002\";" >> "$dhcptouse"
+            echo "        filename \"i386-efi/ipxe.efi\";" >> "$dhcptouse"
+            echo "    }" >> "$dhcptouse"
+            echo "    class \"UEFI-32-1\" {" >> "$dhcptouse"
+            echo "        match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00006\";" >> "$dhcptouse"
             echo "        filename \"i386-efi/ipxe.efi\";" >> "$dhcptouse"
             echo "    }" >> "$dhcptouse"
             echo "    class \"UEFI-64-1\" {" >> "$dhcptouse"
@@ -1817,10 +1821,6 @@ configureDHCP() {
             echo "    class \"UEFI-64-3\" {" >> "$dhcptouse"
             echo "        match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00009\";" >> "$dhcptouse"
             echo "        filename \"ipxe.efi\";" >> "$dhcptouse"
-            echo "    }" >> "$dhcptouse"
-            echo "    class \"Legacy\" {" >> "$dhcptouse"
-            echo "        match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00000\";" >> "$dhcptouse"
-            echo "        filename \"undionly.kkpxe\";" >> "$dhcptouse"
             echo "    }" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             case $systemctl in
