@@ -385,6 +385,7 @@ echo " * Here are the settings FOG will use:"
 echo " * Base Linux: $osname"
 echo " * Detected Linux Distribution: $linuxReleaseName"
 echo " * Server IP Address: $ipaddress"
+echo " * Server Subnet Mask: $submask"
 echo " * Interface: $interface"
 case $installtype in
     N)
