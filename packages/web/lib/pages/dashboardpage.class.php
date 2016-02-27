@@ -50,7 +50,7 @@ class DashboardPage extends FOGPage {
             // Activity Pane
             printf('<li><h4 class="box" title="%s">%s</h4><div class="graph pie-graph" id="graph-activity"></div></li>',_('The selected node\'s storage group slot usage'),_('Storage Group Activity'));
             // Disk Usage Pane
-            printf('<li><h4 class="box" title="%s">%s</h4><div id="diskusage-selector">',_('The selected node\'s image storage disk usage'),_('Node Image Storage Usage'));
+            printf('<li><h4 class="box" title="%s">%s</h4><div id="diskusage-selector">',_('The selected node\'s image storage disk usage'),_('Storage Node Disk Usage'));
             ob_start();
             foreach ((array)$this->getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>1)) AS $i => &$StorageNode) {
                 if (!$StorageNode->isValid()) continue;
