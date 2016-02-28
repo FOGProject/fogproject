@@ -46,11 +46,8 @@ class StorageNode extends FOGController {
         }
     }
     public function getClientLoad() {
-        if ($this->get('maxClients') > 0) {
-            $this->set('maxClients',$this->get('maxClients') - $this->getUsedSlotCount());
-            return (($this->getUsedSlotCount() + $this->getQueuedSlotCount()) / ($this->get('maxClients') + $this->getUsedSlotCount()));
-        }
-        return 0;
+        if ($this->get('maxClients') < 1) return 100;
+        return ($this->getStorageGroup()->getUsedSlotCount() + $this->getStorageGroup()->getQueuedSlotCount()) / ($this->get('maxClients') - ($this->getUsedSlotCount() + $this->getQueuedSlotCount()));
     }
     public function getUsedSlotCount() {
         $UsedTasks = explode(',',$this->getSetting('FOG_USED_TASKS'));

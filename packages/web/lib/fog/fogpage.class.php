@@ -359,16 +359,19 @@ abstract class FOGPage extends FOGBase {
                     if (!$this->obj->checkIfExist($TaskType->get('id'))) throw new Exception(_('You must first upload an image to create a download task'));
                 } else if ($this->obj instanceof Group && $imagingTasks) {
                     if ($TaskType->isMulticast() && !$this->obj->doMembersHaveUniformImages()) throw new Exception(_('Hosts do not contain the same image assignments'));
-                    unset($NoImage,$ImageExists,$Tasks);
-                    $Hosts = $this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts')));
-                    foreach($Hosts AS $i => &$Host) {
-                        if (!$Host->get('pending')) $NoImage[] = !$Host->getImage() || !$Host->getImage()->isValid();
+                    foreach($this->getClass('HostManager')->find(array('pending'=>array('',0),'id'=>$this->obj->get('hosts'))) AS &$Host) {
+                        if (!$Host->isValid()) continue;
+                        $NoImage[] = (bool)!$Host->getImage()->isValid();
+                        unset($Host);
                     }
-                    unset($Host);
-                    if (in_array(true,$NoImage)) throw new Exception(_('One or more hosts do not have an image set'));
-                    foreach($Hosts AS $id => &$Host) if (!$Host->get('pending')) $ImageExists[] = !$Host->checkIfExist($TaskType->get('id'));
-                    unset($Host);
-                    if (in_array(true,$ImageExists)) throw new Exception(_('One or more hosts have an image that does not exist'));
+                    if (in_array(true,$NoImage,true)) throw new Exception(_('One or more hosts do not have an image set'));
+                    foreach($this->getClass('HostManager')->find(array('pending'=>array('',0),'id'=>$this->obj->get('hosts'))) AS &$Host) {
+                        if (!$Host->isValid()) continue;
+                        $ImageExists[] = (bool)!$Host->checkIfExist($TaskType->get('id'));
+                        unset($Host);
+                    }
+                    if (in_array(true,$ImageExists,true)) throw new Exception(_('One or more hosts have an image that does not exist'));
+                    unset($NoImage,$ImageExists,$Tasks);
                 }
                 if ($TaskType->get('id') == 11 && empty($passreset)) throw New Exception(_('Password reset requires a user account to reset'));
                 try {
