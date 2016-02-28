@@ -205,10 +205,10 @@ abstract class FOGService extends FOGBase {
     public function startTasking($cmd,$logname,$index = 0,$itemType = false,$filename = false) {
         $descriptor = array(0=>array('pipe','r'),1=>array('file',$logname,'a'),2=>array('file',$this->log,'a'));
         if ($itemType === false) {
-            $this->procRef[$index] = @proc_open(sprintf('exec %s',$cmd),$descriptor,$pipes);
+            $this->procRef[$index] = @proc_open($cmd,$descriptor,$pipes);
             $this->procPipes[$index] = $pipes;
         } else {
-            $this->procRef[$itemType][$filename][$index] = @proc_open(sprintf('exec %s',$cmd),$descriptor,$pipes);
+            $this->procRef[$itemType][$filename][$index] = @proc_open($cmd,$descriptor,$pipes);
             $this->procPipes[$itemType][$filename][$index] = $pipes;
         }
     }
