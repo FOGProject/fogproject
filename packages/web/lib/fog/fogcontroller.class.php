@@ -44,6 +44,7 @@ abstract class FOGController extends FOGBase {
             unset($this->data[$key]);
             return false;
         } else if (!$this->isLoaded($key)) $this->loadItem($key);
+        if (!isset($this->data[$key])) return $this->data[$key] = '';
         if (is_object($this->data[$key])) {
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Object'),$this->data[$key]->__toString()));
         } else if (is_array($this->data[$key])) {
@@ -229,6 +230,8 @@ abstract class FOGController extends FOGBase {
         return true;
     }
     public function buildQuery($not = false, $compare = '=') {
+        $join = array();
+        $whereArrayAnd = array();
         foreach ((array)$this->databaseFieldClassRelationships AS $class => &$fields) {
             $class = $this->getClass($class);
             $join[] = sprintf(' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',$class->databaseTable,$class->databaseTable,$class->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);

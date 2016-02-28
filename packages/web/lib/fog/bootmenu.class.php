@@ -174,7 +174,6 @@ class BootMenu extends FOGBase {
         $debug = (int)$debug;
         if (!$this->hiddenmenu || $shortCircuit) {
             $Send['chainnohide'] = array(
-                '#!ipxe',
                 'cpuid --ext 29 && set arch x86_64 || set arch i386',
                 'params',
                 'param mac0 ${net0/mac}',
@@ -191,7 +190,6 @@ class BootMenu extends FOGBase {
             $KSKey = $this->KS->isValid() ? trim($this->KS->get('ascii')) : '0x1b';
             $KSName = $this->KS->isValid() ? trim($this->KS->get('name')) : 'Escape';
             $Send['chainhide'] = array(
-                '#!ipxe',
                 'cpuid --ext 29 && set arch x86_64 || set arch i386',
                 "iseq \${platform} efi && set key 0x1b || set key $KSKey",
                 "iseq \${platform} efi && set keyName ESC || set keyName $KSName",
@@ -217,13 +215,11 @@ class BootMenu extends FOGBase {
     private function delHost() {
         if($this->Host->destroy()) {
             $Send['delsuccess'] = array(
-                '#!ipxe',
                 'echo Host deleted successfully',
                 'sleep 3'
             );
         } else {
             $Send['delfail'] = array(
-                '#!ipxe',
                 'echo Failed to destroy Host!',
                 'sleep 3',
             );
@@ -233,17 +229,15 @@ class BootMenu extends FOGBase {
     }
     private function printImageIgnored() {
         $Send['ignored'] = array(
-            '#!ipxe',
             'echo The MAC Address is set to be ignored for imaging tasks',
             'sleep 15',
         );
         $this->parseMe($Send);
-        $this->noMenu();
+        $this->printDefault();
     }
     private function approveHost() {
         if ($this->Host->set('pending',null)->save()) {
             $Send['approvesuccess'] = array(
-                '#!ipxe',
                 'echo Host approved successfully',
                 'sleep 3'
             );
@@ -252,7 +246,6 @@ class BootMenu extends FOGBase {
             $this->Host->createImagePackage(10,'Inventory',$shutdown,$isdebug,false,false,$_REQUEST['username']);
         } else {
             $Send['approvefail'] = array(
-                '#!ipxe',
                 'echo Host approval failed',
                 'sleep 3'
             );
@@ -274,7 +267,6 @@ class BootMenu extends FOGBase {
         $kernelArgs = array_unique($kernelArgs);
         $kernelArgs = implode(' ',(array)$kernelArgs);
         $Send['task'] = array(
-            '#!ipxe',
             "$this->kernel $kernelArgs",
             $this->initrd,
             'boot',
@@ -283,7 +275,6 @@ class BootMenu extends FOGBase {
     }
     public function delConf() {
         $Send['delconfirm'] = array(
-            '#!ipxe',
             'cpuid --ext 29 && set arch x86_64 || set arch i386',
             'prompt --key y Would you like to delete this host? (y/N): &&',
             'params',
@@ -300,7 +291,6 @@ class BootMenu extends FOGBase {
     }
     public function aprvConf() {
         $Send['aprvconfirm'] = array(
-            '#!ipxe',
             'cpuid --ext 29 && set arch x86_64 || set arch i386',
             'prompt --key y Would you like to approve this host? (y/N): &&',
             'params',
@@ -317,7 +307,6 @@ class BootMenu extends FOGBase {
     }
     public function keyreg() {
         $Send['keyreg'] = array(
-            '#!ipxe',
             'cpuid --ext 29 && set arch x86_64 || set arch i386',
             'echo -n Please enter the product key : ',
             'read key',
@@ -341,7 +330,6 @@ class BootMenu extends FOGBase {
         $MulticastSession = $this->getClass('MulticastSessions',@max($this->getSubObjectIDs('MulticastSessions',$findWhere)));
         if (!$MulticastSession->isValid()) {
             $Send['checksession'] = array(
-                '#!ipxe',
                 'echo No session found with that name.',
                 'clear sessname',
                 'sleep 3',
@@ -363,7 +351,6 @@ class BootMenu extends FOGBase {
     }
     public function sessjoin() {
         $Send['joinsession'] = array(
-            '#!ipxe',
             'cpuid --ext 29 && set arch x86_64 || set arch i386',
             'echo -n Please enter the session name to join > ',
             'read sessname',
@@ -442,7 +429,6 @@ class BootMenu extends FOGBase {
     }
     public function printImageList() {
         $Send['ImageListing'] = array(
-            '#!ipxe',
             'goto MENU',
             ':MENU',
             'menu',
@@ -451,7 +437,6 @@ class BootMenu extends FOGBase {
         $Images = $this->getClass('ImageManager')->find(array('isEnabled'=>1));
         if (!$Images) {
             $Send['NoImages'] = array(
-                '#!ipxe',
                 'echo No Images on server found',
                 'sleep 3',
             );
@@ -516,7 +501,6 @@ class BootMenu extends FOGBase {
         $this->Host->set('productKey',$this->encryptpw($_REQUEST['key']));
         if ($this->Host->save()) {
             $Send['keychangesuccess'] = array(
-                "#!ipxe",
                 "echo Successfully changed key",
                 "sleep 3",
             );
@@ -531,14 +515,12 @@ class BootMenu extends FOGBase {
     }
     public function advLogin() {
         $Send['advancedlogin'] = array(
-            "#!ipxe",
             "chain -ar $this->booturl/ipxe/advanced.php",
         );
         $this->parseMe($Send);
     }
     private function debugAccess() {
         $Send['debugaccess'] = array(
-            "#!ipxe",
             "$this->kernel isdebug=yes",
             "$this->initrd",
             "boot",
@@ -546,6 +528,7 @@ class BootMenu extends FOGBase {
         $this->parseMe($Send);
     }
     public function verifyCreds() {
+        if ($this->getSetting('FOG_NO_MENU')) $this->noMenu();
         if ($this->FOGCore->attemptLogin($_REQUEST['username'],$_REQUEST['password'])) {
             if ($this->getSetting('FOG_ADVANCED_MENU_LOGIN') && $_REQUEST['advLog']) $this->advLogin();
             if ($_REQUEST['delhost']) $this->delConf();
@@ -557,11 +540,9 @@ class BootMenu extends FOGBase {
                 unset($this->hiddenmenu);
                 $this->chainBoot(true);
             } else if ($_REQUEST['debugAccess']) $this->debugAccess();
-            else if (!$this->getSetting('FOG_NO_MENU')) $this->printDefault();
-            else $this->noMenu();
+            else $this->printDefault();
         } else {
             $Send['invalidlogin'] = array(
-                "#!ipxe",
                 "echo Invalid login!",
                 "clear username",
                 "clear password",
@@ -584,7 +565,6 @@ class BootMenu extends FOGBase {
                         $this->chainBoot(false, true);
                     } catch (Exception $e) {
                         $Send['fail'] = array(
-                            '#!ipxe',
                             sprintf('echo %s',$e->getMessage()),
                             'sleep 3',
                         );
@@ -597,16 +577,15 @@ class BootMenu extends FOGBase {
     }
     public function noMenu() {
         $Send['nomenu'] = array(
-            "#!ipxe",
             "$this->bootexittype",
         );
         $this->parseMe($Send);
+        exit;
     }
     public function getTasking() {
         $Task = $this->Host->get('task');
         if (!$Task->isValid() || $Task->isSnapinTasking()) {
-            if ($this->getSetting('FOG_NO_MENU')) $this->noMenu();
-            else $this->printDefault();
+            $this->printDefault();
         } else {
             if ($this->Host->get('mac')->isImageIgnored()) $this->printImageIgnored();
             $TaskType = new TaskType($Task->get('typeID'));
@@ -753,7 +732,6 @@ class BootMenu extends FOGBase {
             );
             if ($Task->get('typeID') == 4) {
                 $Send['memtest'] = array(
-                    "#!ipxe",
                     "$this->memdisk iso raw",
                     "$this->memtest",
                     "boot",
@@ -794,6 +772,7 @@ class BootMenu extends FOGBase {
         return $Send;
     }
     public function printDefault() {
+        if ($this->getSetting('FOG_NO_MENU')) $this->noMenu();
         if ($this->hiddenmenu) {
             $this->chainBoot(true);
             return;
