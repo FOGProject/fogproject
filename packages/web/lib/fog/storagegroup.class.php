@@ -33,12 +33,14 @@ class StorageGroup extends FOGController {
     }
     public function getOptimalStorageNode() {
         $winner = null;
-        foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes'))) AS $i => &$StorageNode) {
+        foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes'))) AS &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
-            if ($StorageNode->get('maxClients') > 0) {
-                if ($winner == null) $winner = $StorageNode;
-                else if ($StorageNode->getClientLoad() < $winner->getClientLoad()) $winner = $StorageNode;
+            if ($StorageNode->get('maxClients') < 1) continue;
+            if ($winner == null || !$winner->isValid()) {
+                $winner = $StorageNode;
+                continue;
             }
+            if ($StorageNode->getClientLoad() < $winner->getClientLoad()) $winner = $StorageNode;
             unset($StorageNode);
         }
         return $winner;

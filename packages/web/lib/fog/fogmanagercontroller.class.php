@@ -97,6 +97,7 @@ abstract class FOGManagerController extends FOGBase {
     public function count($findWhere = array(), $whereOperator = 'AND', $compare = '=') {
         if (empty($findWhere)) $findWhere = array();
         if (empty($whereOperator)) $whereOperator = 'AND';
+        $whereArray = array();
         if (count($findWhere)) {
             foreach ((array)$findWhere AS $field => &$value) {
                 $field = trim($field);

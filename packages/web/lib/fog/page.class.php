@@ -32,7 +32,7 @@ class Page extends FOGBase {
         $this->addCSS('css/font-awesome.min.css');
         $this->addCSS('css/select2.min.css');
         $this->addCSS('css/theme.blue.css');
-        if (!$_REQUEST['node']) $_REQUEST['node'] = 'home';
+        if (!isset($_REQUEST['node']) || !$_REQUEST['node']) $_REQUEST['node'] = 'home';
         $this->isHomepage = (in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize')) || !$this->FOGUser->isValid());
         if ($this->FOGUser->isValid() && strtolower($_REQUEST['node']) != 'schemaupdater') {
             if (!$this->isMobile) {
