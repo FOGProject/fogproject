@@ -99,10 +99,7 @@ class Snapin extends FOGController {
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
-            if (!$this->FOGFTP->connect()) {
-                $this->FOGFTP->close();
-                continue;
-            }
+            if (!$this->FOGFTP->connect()) continue;
             $snapinfiles = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
             $snapinfile = preg_grep(sprintf('#%s#',$this->get('file')),$snapinfiles);
             if (!count($snapinfile)) continue;

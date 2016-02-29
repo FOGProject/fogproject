@@ -448,7 +448,8 @@ class Host extends FOGController {
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'))
                 ->set('host',$StorageNode->get('ip'));
-            if (!$this->FOGFTP->connect() || !$this->FOGFTP->exists('/'.trim($StorageNode->get('ftppath'),'/').'/'.$Image->get('path'))) $res = false;
+            $pathstring = sprintf('/%s/%s',trim($StorageNode->get('ftppath'),'/'),$Image->get('path'));
+            if (!$this->FOGFTP->connect() || !$this->FOGFTP->exists($pathstring)) $res = false;
             $this->FOGFTP->close();
         }
         return $res;
