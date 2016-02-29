@@ -64,12 +64,12 @@ class FOGFTP extends FOGGetSet {
         return $this;
     }
     public function recursive_delete($path) {
-        if (!(@ftp_delete($this->link, $path)||@ftp_rmdir($this->link,$path))) {
-            $filelist = @ftp_nlist($this->link,$path);
+        if (!(@ftp_delete(self::$link, $path) || @ftp_rmdir(self::$link,$path))) {
+            $filelist = $this->nlist($path);
             if ($filelist) {
-                foreach($filelist AS $i => &$file) $this->delete($file);
+                foreach($filelist AS $i => &$file) $this->recursive_delete($file);
                 unset($file);
-                $this->delete($path);
+                $this->recursive_delete($path);
             }
         }
         return $this;
