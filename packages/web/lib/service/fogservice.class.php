@@ -9,6 +9,22 @@ abstract class FOGService extends FOGBase {
     private $transferLog = array();
     public $procRef = array();
     public $procPipes = array();
+    private static function files_are_equal($file_a,$file_b) {
+        if (filesize($file_a) != filesize($file_b)) return false;
+        $fp_a = fopen($file_a,'rb');
+        $fp_b = fopen($file_b,'rb');
+        $res = true;
+        while (!feof($fp_a)) {
+            $b = fread($fp_a,8192);
+            $b_b = fread($fp_b,8192);
+            if ($b == $b_b) continue;
+            $res = false;
+            break;
+        }
+        fclose($fp_a);
+        fclose($fp_b);
+        return $res;
+    }
     public function __construct() {
         parent::__construct();
         $this->logpath = sprintf('/%s/',trim($this->getSetting('SERVICE_LOG_PATH'),'/'));
@@ -161,14 +177,14 @@ abstract class FOGService extends FOGBase {
                     ->set('password',$PotentialStorageNode->get('pass'))
                     ->set('host',$PotentialStorageNode->get('ip'));
                 if (!$this->FOGFTP->connect()) {
-                    $this->outall(_(" * Cannot connect to {$StorageNodeToSend->get(name)}"));
+                    $this->outall(_(" * Cannot connect to {$PotentialStorageNode->get(name)}"));
                     continue;
                 }
                 $nodename = $PotentialStorageNode->get('name');
                 $username = $this->FOGFTP->get('username');
                 $password = $this->FOGFTP->get('password');
+                $encpassword = urlencode($password);
                 $ip = $this->FOGFTP->get('host');
-                $this->FOGFTP->close();
                 $removeDir = sprintf('/%s/',trim($PotentialStorageNode->get($getPathOfItemField),'/'));
                 $removeFile = $myFile;
                 $limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
@@ -176,15 +192,49 @@ abstract class FOGService extends FOGBase {
                 if ($limitmain > 0) $limitset = "set net:limit-total-rate 0:$limitmain;";
                 if ($limitsend > 0) $limitset .= "set net:limit-rate 0:$limitsend;";
                 $limit = $limitset;
+                $ftpstart = "ftp://$username:$encpassword@$ip";
                 if (is_file($myAdd)) {
                     $remItem = dirname("$removeDir$removeFile");
                     $includeFile = sprintf('-R -i %s',$myFile);
                     if (!$myAddItem) $myAddItem = dirname($myAdd);
+                    $localfilescheck[0] = $myAdd;
+                    $remotefilescheck[0] = $remItem;
                 } else if (is_dir($myAdd)) {
                     $remItem = "$removeDir$removeFile";
+                    $localfilescheck = glob("$myAdd/*");
+                    $remotefilescheck = $this->FOGFTP->nlist($remItem);
                     $includeFile = '-R';
                     if (!$myAddItem) $myAddItem = $myAdd;
                 }
+                sort($localfilescheck);
+                sort($remotefilescheck);
+                foreach ($localfilescheck AS $i => &$localfile) {
+                    if (($index = array_search($localfile,$remotefilescheck)) === -1) continue;
+                    $this->outall(" | Local File: $localfile");
+                    $this->outall(" | Remote File: {$remotefilescheck[$index]}");
+                    $res = 'true';
+                    if (!self::files_are_equal($localfile,$ftpstart.$remotefilescheck[$index])) {
+                        $localhash = sha1_file($localfile);
+                        $remotehash = sha1_file($ftpstart.$remotefilescheck[$index]);
+                        $this->outall(" | Local Hash: $localhash");
+                        $this->outall(" | Remote Hash: $remotehash");
+                        if ($localhash !== $remotehash) {
+                            $this->outall(" | Files do not match");
+                            $this->outall(" * Deleting remote file: {$remotefilescheck[$index]}");
+                            $this->FOGFTP->delete($remotefilescheck[$index]);
+                            break;
+                        } else {
+                            $this->outall(" | Files match");
+                            $this->FOGFTP->close();
+                            continue;
+                        }
+                    } else {
+                        $this->outall(" | Files match");
+                        $this->FOGFTP->close();
+                        continue;
+                    }
+                }
+                $this->FOGFTP->close();
                 $logname = "$this->log.transfer.$nodename.log";
                 $filename = $Obj->get('name');
                 if (!$i) $this->outall(_(' * Starting Sync Actions'));
