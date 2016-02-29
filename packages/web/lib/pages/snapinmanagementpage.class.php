@@ -162,7 +162,7 @@ class SnapinManagementPage extends FOGPage {
                     if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
                 }
                 if (is_file($dest)) $this->FOGFTP->delete($dest);
-                if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
+                if (!$this->FOGFTP->put($src,$dest)) throw new Exception(_('Failed to add/update snapin file'));
                 $this->FOGFTP->close();
             }
             $Snapin = $this->getClass('Snapin')
@@ -346,7 +346,7 @@ class SnapinManagementPage extends FOGPage {
                         if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
                     }
                     if (is_file($dest)) $this->FOGFTP->delete($dest);
-                    if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
+                    if (!$this->FOGFTP->put($src,$dest)) throw new Exception(_('Failed to add/update snapin file'));
                     $this->FOGFTP->close();
                 }
                 $this->obj
