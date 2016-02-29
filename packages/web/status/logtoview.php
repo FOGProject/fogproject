@@ -18,6 +18,7 @@ $vals = function($reverse,$HookManager) {
     do {
         $can_read = $block_size;
         if (ftell($fh) < $block_size) $can_read = ftell($fh);
+        if ((int)$can_read == 0) continue;
         fseek($fh, -$can_read, SEEK_CUR);
         ob_start();
         $line = htmlentities(fread($fh,$can_read),ENT_QUOTES,'utf-8');

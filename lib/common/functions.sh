@@ -488,8 +488,8 @@ configureTFTPandPXE() {
         yes)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
                 echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"-s\"" > "$tftpconfigupstartdefaults"
-                systemctl enable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                systemctl restart xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl disable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl stop xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 systemctl enable tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 systemctl restart tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 sleep 2
