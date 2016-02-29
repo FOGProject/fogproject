@@ -639,7 +639,7 @@ abstract class FOGPage extends FOGBase {
                     $backupfile = sprintf('%s%s_%s',$backuppath,$destfile,$this->formatTime('','Ymd_His'));
                     $this->FOGFTP->mkdir($backuppath);
                     $this->FOGFTP->rename($backupfile,$orig);
-                    if (!$this->FOGFTP->put($orig,$tmpfile,FTP_BINARY)) throw new Exception(_('Error: Failed to install new kernel'));
+                    if (!$this->FOGFTP->put($tmpfile,$orig)) throw new Exception(_('Error: Failed to install new kernel'));
                     $this->FOGFTP->close(true);
                     @unlink($tmpfile);
                     $SendME = '##OK##';
