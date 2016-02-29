@@ -17,16 +17,16 @@ class FOGFTP extends FOGGetSet {
     public function __destruct() {
         $this->close();
     }
-    public function alloc(int $filesize,string &$result) {
+    public function alloc($filesize,&$result) {
         return @ftp_alloc(self::$link,$filesize,$result);
     }
     public function cdup() {
         return @ftp_cdup(self::$link);
     }
-    public function chdir(string $directory) {
+    public function chdir($directory) {
         return @ftp_chdir(self::$link,$directory);
     }
-    public function chmod($mode = 0,string $filename) {
+    public function chmod($mode = 0,$filename) {
         if (!$mode) $mode = $this->get('mode');
         return @ftp_chmod(self::$link,$mode,$filename);
     }
@@ -54,7 +54,7 @@ class FOGFTP extends FOGGetSet {
         self::$lastConnectionHash = self::$currentConnectionHash;
         return $this;
     }
-    public function delete(string $path,$recursive = true) {
+    public function delete($path,$recursive = true) {
         if ($recursive) return $this->recursive_delete($path);
         try {
             if (@ftp_delete(self::$link,$path) === false) self::ftperror();
@@ -74,14 +74,14 @@ class FOGFTP extends FOGGetSet {
         }
         return $this;
     }
-    public function exec(string $command) {
+    public function exec($command) {
         return @ftp_exec(self::$link,$command);
     }
-    public function fget($handle,string $remote_file,$mode = 0,$resumepos = 0) {
+    public function fget($handle,$remote_file,$mode = 0,$resumepos = 0) {
         if (!$mode) $mode = $this->get('mode');
         return @ftp_fget(self::$link,$handle,$remote_file,$mode,$resumepos);
     }
-    public function fput(string $remote_file,$handle,$mode = 0,$startpos = 0) {
+    public function fput($remote_file,$handle,$mode = 0,$startpos = 0) {
         if (!$mode) $mode = $this->get('mode');
         return @ftp_fput(self::$link,$remote_file,$handle,$mode,$startpos);
     }
@@ -89,14 +89,14 @@ class FOGFTP extends FOGGetSet {
         $error = error_get_last();
         throw new Exception(sprintf('%s: %s, %s: %s, %s: %s, %s: %s',_('Type'),$error['type'],_('File'),$error['file'],_('Line'),$error['line'],_('Message'),$error['message']));
     }
-    public function get_option(int $option) {
+    public function get_option($option) {
         return @ftp_get_option(self::$link,$option);
     }
-    public function pull(string $local_file,string $remote_file,$mode = 0,$resumepos = 0) {
+    public function pull($local_file,$remote_file,$mode = 0,$resumepos = 0) {
         if (!$mode) $mode = $this->get('mode');
         return @ftp_get(self::$link,$local_file,$remote_file,$mode,$resumepos);
     }
-    public function login(string $username = null,string $password = null) {
+    public function login($username = null,$password = null) {
         try {
             self::$currentLoginHash = password_hash(serialize($this),PASSWORD_BCRYPT,['cost'=>11]);
             if (self::$currentLoginHash == self::$lastLoginHash) return $this;
@@ -110,39 +110,39 @@ class FOGFTP extends FOGGetSet {
         self::$lastLoginHash = self::$currentLoginHash;
         return $this;
     }
-    public function mdtm(string $remote_file) {
+    public function mdtm($remote_file) {
         return @ftp_mdtm(self::$link,$remote_file);
     }
-    public function mkdir(string $directory) {
+    public function mkdir($directory) {
         return @ftp_mkdir(self::$link,$directory);
     }
     public function nb_continue() {
         return @ftp_nb_continue(self::$link);
     }
-    public function nb_fget($handle,string $remote_file,$mode = 0,$resumepos = 0) {
+    public function nb_fget($handle,$remote_file,$mode = 0,$resumepos = 0) {
         if (!$mode) $mode = $this->get('mode');
         return @ftp_nb_fget(self::$link,$handle,$remote_file,$mode,$resumepos);
     }
-    public function nb_fput(string $remote_file,$handle,$mode =0,$startpos = 0) {
+    public function nb_fput($remote_file,$handle,$mode =0,$startpos = 0) {
         if (!$mode) $mode = $this->get('mode');
         return @ftp_nb_fput(self::$link,$remote_file,$handle,$mode,$resumepos);
     }
-    public function nb_get(string $local_file,string $remote_file,$mode = 0,$resumepos = 0) {
+    public function nb_get($local_file,$remote_file,$mode = 0,$resumepos = 0) {
         if (!$mode) $mode = $this->get('mode');
         return @ftp_nb_get(self::$link,$local_file,$remote_file,$mode,$resumepos);
     }
-    public function nb_put(string $remote_file,string $local_file,$mode =0,$startpos = 0) {
+    public function nb_put($remote_file,$local_file,$mode =0,$startpos = 0) {
         if (!$mode) $mode = $this->get('mode');
         return @ftp_nb_put(self::$link,$remote_file,$local_file,$mode,$resumepos);
     }
-    public function nlist(string $directory) {
+    public function nlist($directory) {
         return @ftp_nlist(self::$link,$directory);
     }
     public function pasv($pasv = false) {
         if (!$pasv) $pasv = $this->get('passive');
         return @ftp_pasv(self::$link,$pasv);
     }
-    public function put(string $remote_file,string $local_file,$mode = 0,$startpos = 0) {
+    public function put($remote_file,$local_file,$mode = 0,$startpos = 0) {
         if (!$mode) $mode = $this->get('mode');
         return @ftp_put(self::$link,$remote_file,$local_file,$mode,$resumepos);
     }
@@ -152,13 +152,13 @@ class FOGFTP extends FOGGetSet {
     public function quit() {
         return $this->close();
     }
-    public function raw(string $command) {
+    public function raw($command) {
         return @ftp_raw(self::$link,$command);
     }
-    public function rawlist(string $directory,$recursive = false) {
+    public function rawlist($directory,$recursive = false) {
         return @ftp_rawlist(self::$link,$directory,$recursive);
     }
-    public function rename(string $oldname,string $newname) {
+    public function rename($oldname,$newname) {
         return @ftp_rename(self::$link,$oldname,$newname);
     }
     /*public function rename($remotePath, $localPath) {
@@ -170,20 +170,20 @@ class FOGFTP extends FOGGetSet {
         }
         return $this;
     }*/
-    public function rmdir(string $directory) {
+    public function rmdir($directory) {
         return @ftp_rmdir(self::$link,$directory);
     }
-    public function set_option(int $option,$value) {
+    public function set_option($option,$value) {
         return @ftp_set_option(self::$link,$option,$value);
     }
-    public function site(string $command) {
+    public function site($command) {
         return @ftp_site(self::$link,$command);
     }
-    public function size(string $remote_file,$rawsize = true) {
+    public function size($remote_file,$rawsize = true) {
         if ($rawsize) return $this->rawsize($remote_file);
         return @ftp_size(self::$link,$remote_file);
     }
-    public function rawsize(string $remote_file) {
+    public function rawsize($remote_file) {
         $size = 0;
         $filelist = $this->rawlist($remote_file);
         if (!$filelist || count($filelist) < 1) return 0;
