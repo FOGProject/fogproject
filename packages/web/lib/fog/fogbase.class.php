@@ -312,7 +312,7 @@ abstract class FOGBase {
     }
     protected function getFTPByteSize($StorageNode,$file) {
         try {
-            if (!$StorageNode || !$StorageNode->isValid()) throw new Exception('No Storage Node');
+            if (!$StorageNode->isValid()) throw new Exception(_('No storage node'));
             $this->FOGFTP
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'))
