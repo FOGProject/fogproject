@@ -715,7 +715,7 @@ getValidRestorePartitions() {
         ls $imgpart >/dev/null 2>&1
         [[ $? -eq 0 ]] && valid_parts="$valid_parts $part"
     done
-    [[ -z $restoreparts ]] && restoreparts=$(echo $valid_parts | uniq | sort -V)
+    restoreparts=$(echo $valid_parts | uniq | sort -V)
 }
 # Makes all swap partitions and sets uuid's in linux setups
 #
