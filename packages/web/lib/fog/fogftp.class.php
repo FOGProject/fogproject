@@ -138,7 +138,7 @@ class FOGFTP extends FOGGetSet {
     public function nlist(string $directory) {
         return @ftp_nlist(self::$link,$directory);
     }
-    public function pasv(bool $pasv = false) {
+    public function pasv($pasv = false) {
         if (!$pasv) $pasv = $this->get('passive');
         return @ftp_pasv(self::$link,$pasv);
     }
