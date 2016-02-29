@@ -602,7 +602,7 @@ installPackages() {
                 false
             fi
         fi
-        packages=$packages
+        packages="$packages"
     fi
     errorStat $?
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
@@ -665,7 +665,7 @@ installPackages() {
         eval "DEBIAN_FRONTEND=noninteractive $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1"
         errorStat $?
     done
-    packages=$(trim $newPackList)
+    packages=$(echo $newPackList)
     dots "Updating packages as needed"
     eval "DEBIAN_FRONTEND=noninteractive $packageupdater $packages >>$workingdir/error_logs/fog_error_${version}.log 2>&1"
     echo "OK"
@@ -1210,88 +1210,84 @@ writeUpdateFile() {
                 sed -i "s/sslpath=['\"]?.*['\"]?/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
                 echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
         else
-            echo "## Start of FOG Settings
-            ## Created by the FOG Installer
-            ## Version: $version
-            ## Install time: $tmpDte
-
-            ipaddress='$ipaddress'
-            interface='$interface'
-            submask='$submask'
-            routeraddress='$routeraddress'
-            plainrouter='$plainrouter'
-            dnsaddress='$dnsaddress'
-            dnsbootimage='$dnsbootimage'
-            password='$password'
-            osid='$osid'
-            osname='$osname'
-            dodhcp='$dodhcp'
-            bldhcp='$bldhcp'
-            blexports='$blexports'
-            installtype='$installtype'
-            snmysqluser='$snmysqluser'
-            snmysqlpass='$snmysqlpass'
-            snmysqlhost='$snmysqlhost'
-            installlang='$installlang'
-            donate='$donate'
-            storageLocation='$storageLocation'
-            fogupdateloaded=1
-            storageftpuser='$storageftpuser'
-            storageftppass='$storageftppass'
-            docroot='$docroot'
-            webroot='$webroot'
-            caCreated='$caCreated'
-            startrange='$startrange'
-            endrange='$endrange'
-            bootfilename='$bootfilename'
-            packages='$packages'
-            noTftpBuild='$noTftpBuild'
-            notpxedefaultfile='$notpxedefaultfile'
-            sslpath='$sslpath'
-            ## End of FOG Settings
-            " > "$fogprogramdir/.fogsettings"
+            echo "## Start of FOG Settings" > "$fogprogramdir/.fogsettings"
+            echo "## Created by the FOG Installer" >> "$fogprogramdir/.fogsettings"
+            echo "## Version: $version" >> "$fogprogramdir/.fogsettings"
+            echo "## Install time: $tmpDte" >> "$fogprogramdir/.fogsettings"
+            echo "ipaddress='$ipaddress'" >> "$fogprogramdir/.fogsettings"
+            echo "interface='$interface'" >> "$fogprogramdir/.fogsettings"
+            echo "submask='$submask'" >> "$fogprogramdir/.fogsettings"
+            echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
+            echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
+            echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
+            echo "dnsbootimage='$dnsbootimage'" >> "$fogprogramdir/.fogsettings"
+            echo "password='$password'" >> "$fogprogramdir/.fogsettings"
+            echo "osid='$osid'" >> "$fogprogramdir/.fogsettings"
+            echo "osname='$osname'" >> "$fogprogramdir/.fogsettings"
+            echo "dodhcp='$dodhcp'" >> "$fogprogramdir/.fogsettings"
+            echo "bldhcp='$bldhcp'" >> "$fogprogramdir/.fogsettings"
+            echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
+            echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
+            echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
+            echo "snmysqlpass='$snmysqlpass'" >> "$fogprogramdir/.fogsettings"
+            echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
+            echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
+            echo "donate='$donate'" >> "$fogprogramdir/.fogsettings"
+            echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
+            echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
+            echo "storageftpuser='$storageftpuser'" >> "$fogprogramdir/.fogsettings"
+            echo "storageftppass='$storageftppass'" >> "$fogprogramdir/.fogsettings"
+            echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
+            echo "webroot='$webroot'" >> "$fogprogramdir/.fogsettings"
+            echo "caCreated='$caCreated'" >> "$fogprogramdir/.fogsettings"
+            echo "startrange='$startrange'" >> "$fogprogramdir/.fogsettings"
+            echo "endrange='$endrange'" >> "$fogprogramdir/.fogsettings"
+            echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
+            echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
+            echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
+            echo "notpxedefaultfile='$notpxedefaultfile'" >> "$fogprogramdir/.fogsettings"
+            echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
+            echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
         fi
     else
-        echo "## Start of FOG Settings
-        ## Created by the FOG Installer
-        ## Version: $version
-        ## Install time: $tmpDte
-
-        ipaddress='$ipaddress'
-        interface='$interface'
-        submask='$submask'
-        routeraddress='$routeraddress'
-        plainrouter='$plainrouter'
-        dnsaddress='$dnsaddress'
-        dnsbootimage='$dnsbootimage'
-        password='$password'
-        osid='$osid'
-        osname='$osname'
-        dodhcp='$dodhcp'
-        bldhcp='$bldhcp'
-        blexports='$blexports'
-        installtype='$installtype'
-        snmysqluser='$snmysqluser'
-        snmysqlpass='$snmysqlpass'
-        snmysqlhost='$snmysqlhost'
-        installlang='$installlang'
-        donate='$donate'
-        storageLocation='$storageLocation'
-        fogupdateloaded=1
-        storageftpuser='$storageftpuser'
-        storageftppass='$storageftppass'
-        docroot='$docroot'
-        webroot='$webroot'
-        caCreated='$caCreated'
-        startrange='$startrange'
-        endrange='$endrange'
-        bootfilename='$bootfilename'
-        packages='$packages'
-        noTftpBuild='$noTftpBuild'
-        notpxedefaultfile='$notpxedefaultfile'
-        sslpath='$sslpath'
-        ## End of FOG Settings
-        " > "$fogprogramdir/.fogsettings"
+        echo "## Start of FOG Settings" > "$fogprogramdir/.fogsettings"
+        echo "## Created by the FOG Installer" >> "$fogprogramdir/.fogsettings"
+        echo "## Version: $version" >> "$fogprogramdir/.fogsettings"
+        echo "## Install time: $tmpDte" >> "$fogprogramdir/.fogsettings"
+        echo "ipaddress='$ipaddress'" >> "$fogprogramdir/.fogsettings"
+        echo "interface='$interface'" >> "$fogprogramdir/.fogsettings"
+        echo "submask='$submask'" >> "$fogprogramdir/.fogsettings"
+        echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
+        echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
+        echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
+        echo "dnsbootimage='$dnsbootimage'" >> "$fogprogramdir/.fogsettings"
+        echo "password='$password'" >> "$fogprogramdir/.fogsettings"
+        echo "osid='$osid'" >> "$fogprogramdir/.fogsettings"
+        echo "osname='$osname'" >> "$fogprogramdir/.fogsettings"
+        echo "dodhcp='$dodhcp'" >> "$fogprogramdir/.fogsettings"
+        echo "bldhcp='$bldhcp'" >> "$fogprogramdir/.fogsettings"
+        echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
+        echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
+        echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
+        echo "snmysqlpass='$snmysqlpass'" >> "$fogprogramdir/.fogsettings"
+        echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
+        echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
+        echo "donate='$donate'" >> "$fogprogramdir/.fogsettings"
+        echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
+        echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
+        echo "storageftpuser='$storageftpuser'" >> "$fogprogramdir/.fogsettings"
+        echo "storageftppass='$storageftppass'" >> "$fogprogramdir/.fogsettings"
+        echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
+        echo "webroot='$webroot'" >> "$fogprogramdir/.fogsettings"
+        echo "caCreated='$caCreated'" >> "$fogprogramdir/.fogsettings"
+        echo "startrange='$startrange'" >> "$fogprogramdir/.fogsettings"
+        echo "endrange='$endrange'" >> "$fogprogramdir/.fogsettings"
+        echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
+        echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
+        echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
+        echo "notpxedefaultfile='$notpxedefaultfile'" >> "$fogprogramdir/.fogsettings"
+        echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
+        echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
     fi
 }
 displayBanner() {
