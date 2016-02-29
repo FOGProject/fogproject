@@ -20,7 +20,7 @@ try {
         ->set('password',$StorageNode->get('pass'));
     if (!$FOGFTP->connect()) throw new Exception(sprintf('%s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP Connection has failed!')));
     $FOGFTP->delete($dest);
-    if (!$FOGFTP->rename($dest,$src) && !$FOGFTP->put($dest,$src)) throw new Exception(_('Move/rename failed'));
+    if (!$FOGFTP->rename($dest,$src) && !$FOGFTP->put($src,$dest)) throw new Exception(_('Move/rename failed'));
     in_array($_REQUEST['osid'],array(1,2)) ? $FOGFTP->delete(sprintf('%s/dev/%s',$StorageNode->get('ftppath'),$macftp)) : null;
     $FOGFTP->close();
     if ($Image->get('format') == 1) $Image->set('format',0)->save();
