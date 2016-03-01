@@ -48,23 +48,19 @@ class FOGFTP extends FOGGetSet {
                 $this->pasv($this->get('passive'));
             }
         } catch (Exception $e) {
-            echo $e->getMessage();
-            return false;
+            throw new Exception($e->getMessage());
         }
         self::$lastConnectionHash = self::$currentConnectionHash;
         return $this;
     }
-    public function delete($path,$recursive = true) {
+    public function delete($path,$recursive = true,$recur_delete_run = false) {
         if ($recursive) return $this->recursive_delete($path);
-        try {
-            if (@ftp_delete(self::$link,$path) === false) self::ftperror();
-        } catch (Exception $e) {
-            echo $e->getMessage();
-        }
+        if ($recur_delete_run) return @ftp_delete(self::$link,$path);
+        if (@ftp_delete(self::$link,$path) === false) self::ftperror();
         return $this;
     }
     public function recursive_delete($path) {
-        if (!($this->delete($path,false) || $this->rmdir($path))) {
+        if (!($this->delete($path,false,true) || $this->rmdir($path))) {
             $filelist = $this->nlist($path);
             if ($filelist) {
                 foreach($filelist AS $i => &$file) $this->recursive_delete($file);
@@ -107,8 +103,7 @@ class FOGFTP extends FOGGetSet {
             if (!$password) $password = $this->get('password');
             if (@ftp_login(self::$link,$username,$password) === false) self::ftperror();
         } catch (Exception $e) {
-            echo $e->getMessage();
-            return false;
+            throw new Exception($e->getMessage());
         }
         self::$lastLoginHash = self::$currentLoginHash;
         return $this;
@@ -152,7 +147,7 @@ class FOGFTP extends FOGGetSet {
     public function put($remote_file,$local_file,$mode = 0,$startpos = 0) {
         if (!$mode) $mode = $this->get('mode');
         if ($startpos) return @ftp_put(self::$link,$remote_file,$local_file,$mode,$resumepos);
-        return @ftp_put(self::$link,$remote_file,$local_file,$mode);
+        return @ftp_put(self::$link,$remote_file,$local_file,$mode,$resumepos);
     }
     public function pwd() {
         return @ftp_pwd(self::$link);
@@ -167,18 +162,7 @@ class FOGFTP extends FOGGetSet {
         return @ftp_rawlist(self::$link,$directory,$recursive);
     }
     public function rename($oldname,$newname,$recurse_rename = true) {
-        if ($recurse_rename) return $this->recurse_rename($newname, $oldname);
         return @ftp_rename(self::$link,$oldname,$newname);
-    }
-    public function recurse_rename($newname, $oldname) {
-        try {
-            if ($this->nlist($oldname)) {
-                if ($this->rename($oldname,$newname,false)) self::ftperror();
-            }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-        return $this;
     }
     public function rmdir($directory) {
         return @ftp_rmdir(self::$link,$directory);
@@ -217,8 +201,7 @@ class FOGFTP extends FOGGetSet {
                 $this->pasv($this->get('passive'));
             }
         } catch (Exception $e) {
-            echo $e->getMessage();
-            return false;
+            throw new Exception($e->getMessage());
         }
         self::$lastConnectionHash = password_hash(serialize(self::$link),PASSWORD_BCRYPT,['cost'=>11]);
         return $this;
@@ -227,7 +210,7 @@ class FOGFTP extends FOGGetSet {
         return @ftp_systype(self::$link);
     }
     public function exists($path) {
-        $dirlisting = $this->nlist(dirname($path));
+        $dirlisting = $this->nlist(is_dir($path) ? dirname($path) : $path);
         return in_array($path,$dirlisting);
     }
 }
