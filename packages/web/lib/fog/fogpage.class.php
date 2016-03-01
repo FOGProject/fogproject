@@ -637,10 +637,10 @@ abstract class FOGPage extends FOGBase {
                     $orig = sprintf('/%s/%s',trim($this->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/'),$destfile);
                     $backuppath = sprintf('/%s/backup/',dirname($orig));
                     $backupfile = sprintf('%s%s_%s',$backuppath,$destfile,$this->formatTime('','Ymd_His'));
-                    $this->FOGFTP->mkdir($backuppath);
-                    $this->FOGFTP->rename($backupfile,$orig);
-                    if (!$this->FOGFTP->put($tmpfile,$orig)) throw new Exception(_('Error: Failed to install new kernel'));
-                    $this->FOGFTP->close(true);
+                    if ($this->FOGFTP->exists($backuppath)) $this->FOGFTP->mkdir($backuppath);
+                    $this->FOGFTP->delete($orig);
+                    if (!($this->FOGFTP->rename($orig,$backupfile) || $this->FOGFTP->put($orig,$tmpfile))) throw new Exception(_('Error: Failed to install new kernel'));
+                    $this->FOGFTP->close();
                     @unlink($tmpfile);
                     $SendME = '##OK##';
                 }
