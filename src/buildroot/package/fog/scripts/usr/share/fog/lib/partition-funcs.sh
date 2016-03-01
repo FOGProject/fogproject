@@ -521,11 +521,8 @@ processSfdisk() {
     getPartBlockSize "$disk" "chunksize"
     case $osid in
         [1-2])
-            chunksize=512
-            minstart=63
-            ;;
-        *)
-            [[ $minstart -eq 63 ]] && chunksize=512
+            [[ -z $minstart ]] && chunksize=512
+            [[ -z $minstart ]] && minstart=63
             ;;
     esac
     local awkArgs="-v CHUNK_SIZE=$chunksize -v MIN_START=$minstart"

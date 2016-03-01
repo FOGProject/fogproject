@@ -716,7 +716,7 @@ getValidRestorePartitions() {
         ls $imgpart >/dev/null 2>&1
         [[ $? -eq 0 ]] && valid_parts="$valid_parts $part"
     done
-    [[ -z $setrestoreparts ]] && restoreparts=$(echo $valid_parts | uniq | sort -V)
+    [[ -z $setrestoreparts ]] && restoreparts=$(echo $valid_parts | uniq | sort -V) || restoreparts="$(echo $setrestoreparts | uniq | sort -V)"
 }
 # Makes all swap partitions and sets uuid's in linux setups
 #
@@ -2118,6 +2118,7 @@ performRestore() {
             [[ $imgType =~ [Nn] ]] && expandPartition "$restorepart" "$fixed_size_partitions"
             [[ $osid == +([5-7]) && $imgType =~ [Nn] ]] && fixWin7boot "$restorepart"
         done
+        restoreparts=""
         echo " * Resetting UUIDs for $disk"
         debugPause
         restoreUUIDInformation "$disk" "$mainuuidfilename"
@@ -2125,6 +2126,5 @@ performRestore() {
         debugPause
         makeAllSwapSystems "$disk" "$disk_number" "$imagePath" "$imgPartitionType"
         let disk_number+=1
-        restoreparts=""
     done
 }
