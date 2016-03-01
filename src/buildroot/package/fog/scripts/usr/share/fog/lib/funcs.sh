@@ -674,6 +674,7 @@ getValidRestorePartitions() {
     local disk="$1"
     local disk_number="$2"
     local imagePath="$3"
+    local setrestoreparts="$4"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
@@ -715,7 +716,7 @@ getValidRestorePartitions() {
         ls $imgpart >/dev/null 2>&1
         [[ $? -eq 0 ]] && valid_parts="$valid_parts $part"
     done
-    restoreparts=$(echo $valid_parts | uniq | sort -V)
+    [[ -z $setrestoreparts ]] && restoreparts=$(echo $valid_parts | uniq | sort -V)
 }
 # Makes all swap partitions and sets uuid's in linux setups
 #
@@ -2107,7 +2108,7 @@ performRestore() {
     for disk in $disks; do
         mainuuidfilename=""
         mainUUIDFileName "$imagePath" "$disk_number"
-        getValidRestorePartitions "$disk" "$disk_number" "$imagePath"
+        getValidRestorePartitions "$disk" "$disk_number" "$imagePath" "$restoreparts"
         for restorepart in $restoreparts; do
             getPartitionNumber "$restorepart"
             [[ $imgPartitionType != all && $imgPartitionType != $part_number ]] && continue
@@ -2124,5 +2125,6 @@ performRestore() {
         debugPause
         makeAllSwapSystems "$disk" "$disk_number" "$imagePath" "$imgPartitionType"
         let disk_number+=1
+        restoreparts=""
     done
 }
