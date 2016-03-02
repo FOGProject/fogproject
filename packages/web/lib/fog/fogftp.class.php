@@ -180,7 +180,9 @@ class FOGFTP extends FOGGetSet {
     public function rawsize($remote_file) {
         $size = 0;
         $filelist = $this->rawlist($remote_file);
-        if (!$filelist || count($filelist) < 1) return 0;
+        if (!$filelist || count($filelist) < 1) $filelist = $this->rawlist(dirname($remote_file));
+        $filename = basename($remote_file);
+        $filelist = preg_grep("#$filename#",$filelist);
         foreach($filelist AS &$file) {
             $fileinfo = preg_split('#\s+#',$file,null,PREG_SPLIT_NO_EMPTY);
             $size += $fileinfo[4];

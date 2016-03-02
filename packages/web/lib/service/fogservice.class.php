@@ -9,17 +9,19 @@ abstract class FOGService extends FOGBase {
     private $transferLog = array();
     public $procRef = array();
     public $procPipes = array();
-    private static function files_are_equal($file_a,$file_b) {
-        if (filesize($file_a) != filesize($file_b)) return false;
-        $fp_a = fopen($file_a,'rb');
-        $fp_b = fopen($file_b,'rb');
+    private static function files_are_equal($size_a,$size_b,$file_a,$file_b) {
+        if ($size_a !== $size_b) return false;
         $res = true;
-        while (!feof($fp_a)) {
-            $b = fread($fp_a,8192);
-            $b_b = fread($fp_b,8192);
-            if ($b == $b_b) continue;
-            $res = false;
-            break;
+        $fp_a = fopen($file_a,'r');
+        $fp_b = fopen($file_b,'r');
+        while (($a = fgets($fp_a,4096)) !== false) {
+            $a_hex = bin2hex($a);
+            $b = fgets($fp_b,4096);
+            $b_hex = bin2hex($b);
+            if ($a_hex !== $b_hex) {
+                $res = false;
+                break;
+            }
         }
         fclose($fp_a);
         fclose($fp_b);
@@ -213,26 +215,16 @@ abstract class FOGService extends FOGBase {
                     $this->outall(" | Local File: $localfile");
                     $this->outall(" | Remote File: {$remotefilescheck[$index]}");
                     $res = 'true';
-                    if (!self::files_are_equal($localfile,$ftpstart.$remotefilescheck[$index])) {
-                        $localhash = sha1_file($localfile);
-                        $remotehash = sha1_file($ftpstart.$remotefilescheck[$index]);
-                        $this->outall(" | Local Hash: $localhash");
-                        $this->outall(" | Remote Hash: $remotehash");
-                        if ($localhash !== $remotehash) {
-                            $this->outall(" | Files do not match");
-                            $this->outall(" * Deleting remote file: {$remotefilescheck[$index]}");
-                            $this->FOGFTP->delete($remotefilescheck[$index]);
-                            break;
-                        } else {
-                            $this->outall(" | Files match");
-                            $this->FOGFTP->close();
-                            continue;
-                        }
-                    } else {
-                        $this->outall(" | Files match");
-                        $this->FOGFTP->close();
-                        continue;
-                    }
+                    $filesize_main = filesize($localfile);
+                    $filesize_rem = $this->FOGFTP->size($remotefilescheck[$index]);
+                    $this->outall(" | Local File size: $filesize_main");
+                    $this->outall(" | Remote File size: $filesize_rem");
+                    if (!self::files_are_equal($filesize_main,$filesize_rem,$local,$ftpstart.$remotefilescheck[$index])) {
+                        $this->outall(" | Files do not match");
+                        $this->outall(" * Deleting remote file: {$remotefilescheck[$index]}");
+                        $this->FOGFTP->delete($remotefilescheck[$index]);
+                    } else $this->outall(" | Files match");
+                    unset($localfile);
                 }
                 $this->FOGFTP->close();
                 $logname = "$this->log.transfer.$nodename.log";
