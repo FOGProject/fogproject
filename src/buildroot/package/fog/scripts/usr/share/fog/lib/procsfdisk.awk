@@ -214,12 +214,14 @@ function fill_disk(partition_names, partitions, args, \
 		};
 		if(p_type == "5" || p_type == "f") {
 			partitions[pName, "newsize"] = CHUNK_SIZE;
+            partitions[pName, "size"] = partitions[pName, "newsize"] - partitions[pName, "newsize"] % CHUNK_SIZE;
 		} else if(found) {
 			partitions[pName, "newsize"] = p_size;
+            partitions[pName, "size"] = partitions[pName, "newsize"];
 		} else {
 			partitions[pName, "newsize"] = (new_variable*p_size/original_variable);
+            partitions[pName, "size"] = partitions[pName, "newsize"] - partitions[pName, "newsize"] % CHUNK_SIZE;
 		}
-		partitions[pName, "size"] = partitions[pName, "newsize"] - partitions[pName, "newsize"] % CHUNK_SIZE;
 		if(p_number >= 5) {
 			# + CHUNK_SIZE to allow for margin after each logical partition (required if 2 or more logical partitions exist)
 			new_logical += partitions[pName, "size"] + CHUNK_SIZE;
