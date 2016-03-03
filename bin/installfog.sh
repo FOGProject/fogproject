@@ -441,14 +441,14 @@ while [[ -z $blGo ]]; do
                 for z in $packages; do
                     [[ $z != htmldoc ]] && newpackagelist="$newpackagelist $z"
                 done
-                packages=$(trim $newpackagelist)
+                packages="$(echo $newpackagelist)"
             fi
             if [[ $bldhcp == 0 ]]; then
                 newpackagelist=""
                 for z in $packages; do
                     [[ $z != $dhcpname ]] && newpackagelist="$newpackagelist $z"
                 done
-                packages=$(trim $newpackagelist)
+                packages="$(echo $newpackagelist)"
             fi
             installPackages
             echo
@@ -478,7 +478,7 @@ while [[ -z $blGo ]]; do
             fi
             case $installtype in
                 [Ss])
-                    packages=$(echo $packages | sed 's/[[:space:]].*dhcp.*[[:space:]]/ /')
+                    packages="$(echo $packages | sed 's/[[:space:]].*dhcp.*[[:space:]]/ /')"
                     configureUsers
                     configureMinHttpd
                     configureStorage

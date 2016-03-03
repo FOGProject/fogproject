@@ -29,21 +29,15 @@ if [[ $guessdefaults == 1 ]]; then
             ;;
     esac
     strSuggestedInterface=$(getFirstGoodInterface)
-    if [[ $strSuggestedInterface == "" ]]; then
+    if [[ -z $strSuggestedInterface ]]; then
         echo "Not able to find an interface with an active internet connection. Trying alternative methods for determining the interface."
         strSuggestedIPAddress=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $4}' | head -n2 | tail -n1)
-        if [[ -z $strSuggestedIPAddress ]]; then
-            strSuggestedIPAddress=$(/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
-        fi
+        [[ -z $strSuggestedIPAddress ]] && strSuggestedIPAddress=$(/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
         strSuggestedInterface=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $2}' | head -n2 | tail -n1)
-        if [[ -z $strSuggestedInterface ]]; then
-            strSuggestedInterface=$(/sbin/ifconfig -a | grep "'${strSuggestedIPAddress}'" -B1 | awk -F'[:]+' '{print $1}' | head -n1)
-        fi
+        [[ -z $strSuggestedInterface ]] && strSuggestedInterface=$(/sbin/ifconfig -a | grep "'${strSuggestedIPAddress}'" -B1 | awk -F'[:]+' '{print $1}' | head -n1)
     fi    
     strSuggestedIPAddress=$(/sbin/ip addr show | grep $strSuggestedInterface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
-    if [[ -z $strSuggestedIPAddress ]]; then
-        strSuggestedIPAddress=$(/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
-    fi
+    [[ -z $strSuggestedIPAddress ]] && strSuggestedIPAddress=$(/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
     strSuggestedSubMask=$(cidr2mask $(getCidr $strSuggestedInterface))
     if [[ -z $strSuggestedSubMask ]]; then
         strSuggestedSubMask=$(/sbin/ifconfig -a | grep $strSuggestedIPAddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
@@ -56,14 +50,8 @@ if [[ $guessdefaults == 1 ]]; then
         strSuggestedRoute=$(echo ${strSuggestedRoute:16:16} | tr -d [:blank:])
     fi
     strSuggestedDNS=""
-    if [[ -f /etc/resolv.conf ]]; then
-        strSuggestedDNS=$(cat /etc/resolv.conf | grep "nameserver" | head -n 1 | tr -d "nameserver" | tr -d [:blank:] | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$")
-    fi
-    if [[ -z $strSuggestedDNS ]]; then
-        if [[ -d /etc/NetworkManager/system-connections ]]; then
-            strSuggestedDNS=$(cat /etc/NetworkManager/system-connections/* | grep "dns" | head -n 1 | tr -d "dns=" | tr -d ";" | tr -d [:blank:] | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$")
-        fi
-    fi
+    [[ -f /etc/resolv.conf ]] && strSuggestedDNS=$(cat /etc/resolv.conf | grep "nameserver" | head -n 1 | tr -d "nameserver" | tr -d [:blank:] | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$")
+    [[ -z $strSuggestedDNS && -d /etc/NetworkManager/system-connections ]] && strSuggestedDNS=$(cat /etc/NetworkManager/system-connections/* | grep "dns" | head -n 1 | tr -d "dns=" | tr -d ";" | tr -d [:blank:] | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$")
     strSuggestedSNUser="fogstorage"
 fi
 displayOSChoices

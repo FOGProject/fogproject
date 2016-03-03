@@ -48,7 +48,7 @@ case $OS in
         echo
         echo
         if [[ -z $trunk ]]; then
-            [[ $(trim $version) == $(trim $latest) ]] && handleError " * You are already up to date!" 0
+            [[ $(echo $version) == $(echo $latest) ]] && handleError " * You are already up to date!" 0
             echo "   You are not running the latest stable version"
             echo
             echo
