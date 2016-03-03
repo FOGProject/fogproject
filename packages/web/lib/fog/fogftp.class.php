@@ -212,7 +212,7 @@ class FOGFTP extends FOGGetSet {
         return @ftp_systype(self::$link);
     }
     public function exists($path) {
-        $dirlisting = $this->nlist(is_dir($path) ? dirname($path) : $path);
+        $dirlisting = $this->nlist(!is_dir($path) ? dirname($path) : $path);
         return in_array($path,$dirlisting);
     }
 }
