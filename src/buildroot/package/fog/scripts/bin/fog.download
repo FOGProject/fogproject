@@ -104,8 +104,9 @@ case $imgType in
                 ;;
             [5-7]|9)
                 [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
-                [[ ! -f $imagePath/sys.img.000 ]] && prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
-                if [[ -f $imagePath/sys.img.000 ]]; then
+                if [[ ! -f $imagePath/sys.img.000 ]]; then
+                    prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
+                else
                     echo " * Using legacy style partition setup"
                     win7partcnt=1
                     dots "Windows Boot Partition Exists"
