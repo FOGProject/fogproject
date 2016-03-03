@@ -8,7 +8,9 @@ function getInterface($type = 'tx') {
     $interface = preg_grep("#$dev#",(array)$interfaces);
     $dev = @array_shift($interface);
     if ($type === true) return $dev;
-    return fgets(fopen(sprintf('/sys/class/net/%s/statistics/%s_bytes',$dev,$type),'rb'));
+    $handle = fopen(sprintf('/sys/class/net/%s/statistics/%s_bytes',$dev,$type),'rb');
+    if ($handle === false) return 0;
+    return fgets($handle);
 }
 header('Content-Type: text/event-stream');
 $dev = getInterface(true);
