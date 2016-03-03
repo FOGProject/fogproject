@@ -20,12 +20,6 @@ dots() {
     local pad=$(printf "%0.1s" "."{1..60})
     printf " * %s%*.*s" "$1" 0 $((60-${#1})) "$pad"
 }
-trim() {
-    local var="$*"
-    var="${var#"${var%%[![:space:]]*}"}"
-    var="${var%"${var##*[![:space:]]}"}"
-    echo -n "$var"
-}
 uninstall() {
     case $autoaccept in
         yes)
@@ -680,7 +674,7 @@ installPackages() {
         eval "DEBIAN_FRONTEND=noninteractive $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1"
         errorStat $?
     done
-    packages=$(echo $newPackList)
+    packages="$(echo $newPackList)"
     dots "Updating packages as needed"
     eval "DEBIAN_FRONTEND=noninteractive $packageupdater $packages >>$workingdir/error_logs/fog_error_${version}.log 2>&1"
     echo "OK"
@@ -1033,7 +1027,6 @@ $password
 EOF
                 mkdir /home/$username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 chown -R $username /home/$username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                echo "OK"
             else
                 if [[ -f $webdirdest/lib/fog/config.class.php ]]; then
                     password=$(cat $webdirdest/lib/fog/config.class.php | grep TFTP_FTP_PASSWORD | cut -d"," -f2 | cut -d"\"" -f2)
