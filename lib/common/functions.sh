@@ -1011,12 +1011,8 @@ configureUsers() {
         else
             storageftpuser=$storageftpuser
             storageftppass=$storageftppass
-            if [[ -z $storageftpuser ]]; then
-                storageftpuser='fog'
-            fi
-            if [[ -z $storageftppass ]]; then
-                storageftppass=$password
-            fi
+            [[ -z $storageftpuser ]] && storageftpuser='fog'
+            [[ -z $storageftppass ]] && storageftppass="$password"
         fi
         if [[ -n $password ]]; then
             useradd -s "/bin/bash" -d "/home/${username}" $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1028,9 +1024,7 @@ EOF
                 mkdir /home/$username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 chown -R $username /home/$username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             else
-                if [[ -f $webdirdest/lib/fog/config.class.php ]]; then
-                    password=$(cat $webdirdest/lib/fog/config.class.php | grep TFTP_FTP_PASSWORD | cut -d"," -f2 | cut -d"\"" -f2)
-                fi
+                [[ -f $webdirdest/lib/fog/config.class.php ]] && password="$(awk -F'[(")]' '/TFTP_FTP_PASSWORD/ {print $3}' $webdirdest/lib/fog/config.class.php)"
                 bluseralreadyexists=1
             fi
         else
@@ -1842,8 +1836,8 @@ configureDHCP() {
     case $bldhcp in
         1)
             [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
-            serverip=$(/sbin/ip addr show | grep $interface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
-            [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
+            serverip=$(ip addr show $interface | awk -F'[ /]' '/([0-9][0-9]?[0-9]?\.){3}([0-9][0-9]?[0-9]?){1}/ {print $6}'
+            [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | awk '/inet[:]?.*(cast)/ {print $2}')
             [[ -z $serverip ]] && serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
             [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
             network=$(mask2network $serverip $submask)

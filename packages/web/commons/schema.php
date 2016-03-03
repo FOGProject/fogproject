@@ -1288,7 +1288,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "DELETE FROM `" . DATABASE_NAME . "`.`globalSettings` where settingKey = 'FOG_TFTP_PXE_CONFIG_DIR' limit 1",
     "UPDATE `" . DATABASE_NAME . "`.`globalSettings` set settingValue = 'bzImage' WHERE settingKey = 'FOG_TFTP_PXE_KERNEL'",
-    "UPDATE `" . DATABASE_NAME . "`.`globalSettings` set settingValue = '" . BASEPATH . "service/ipxe/' WHERE settingKey = 'FOG_TFTP_PXE_KERNEL_DIR'",
+    "UPDATE `" . DATABASE_NAME . "`.`globalSettings` set settingValue = '".BASEPATH."/service/ipxe/' WHERE settingKey = 'FOG_TFTP_PXE_KERNEL_DIR'",
     "UPDATE `" . DATABASE_NAME . "`.`globalSettings` set settingValue = 'init.xz' WHERE settingKey = 'FOG_PXE_BOOT_IMAGE'",
     "UPDATE `" . DATABASE_NAME . "`.`globalSettings` set settingValue = 'memtest.bin' WHERE settingKey = 'FOG_MEMTEST_KERNEL'",
 );
