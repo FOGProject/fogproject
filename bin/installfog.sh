@@ -478,7 +478,7 @@ while [[ -z $blGo ]]; do
             fi
             case $installtype in
                 [Ss])
-                    packages="$(echo $packages | sed 's/[[:space:]].*dhcp.*[[:space:]]/ /')"
+                    packages=$(echo $packages | sed 's/[a-zA-Z-]*dhcp[-a-zA-Z]*//g')
                     configureUsers
                     configureMinHttpd
                     configureStorage
