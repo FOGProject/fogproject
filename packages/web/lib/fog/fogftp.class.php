@@ -178,11 +178,14 @@ class FOGFTP extends FOGGetSet {
         return @ftp_size(self::$link,$remote_file);
     }
     public function rawsize($remote_file) {
+        if (!$this->exists($remote_file)) return 0;
         $size = 0;
         $filelist = $this->rawlist($remote_file);
-        if (!$filelist || count($filelist) < 1) $filelist = $this->rawlist(dirname($remote_file));
-        $filename = basename($remote_file);
-        $filelist = preg_grep("#$filename#",$filelist);
+        if (!$filelist) {
+            $filelist = $this->rawlist(dirname($remote_file));
+            $filename = basename($remote_file);
+            $filelist = preg_grep("#$filename#",$filelist);
+        }
         foreach($filelist AS &$file) {
             $fileinfo = preg_split('#\s+#',$file,null,PREG_SPLIT_NO_EMPTY);
             $size += $fileinfo[4];
