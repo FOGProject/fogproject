@@ -1671,11 +1671,12 @@ MBRFileName() {
     local mbr=""
     case $osid in
         [1-2])
-            printf -v "$varVar" "$mbrfile"
+            [[ ! -f $imagePath/d${disk_number}.mbr ]] && mbr="$mbrfile" || mbr="$imagePath/d${disk_number}.mbr"
+            printf -v "$varVar" "$mbr"
             ;;
         [5-7]|9)
             [[ -n $sgdisk ]] && mbr="$imagePath/d${disk_number}.grub.mbr" || mbr="$imagePath/d${disk_number}.mbr"
-            [[ -f $imagePath/sys.img.000 ]] && mbr="$mbrfile"
+            [[ ! -f $imagePath/d${disk_number}.mbr ]] && mbr="$mbrfile" || mbr="$imagePath/d${disk_number}.mbr"
             printf -v "$varVar" "$mbr"
             ;;
         *)
