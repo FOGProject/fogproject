@@ -1831,7 +1831,7 @@ configureDHCP() {
     case $bldhcp in
         1)
             [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
-            serverip=$(ip addr show $interface | awk -F'[ /]' '/([0-9][0-9]?[0-9]?\.){3}([0-9][0-9]?[0-9]?){1}/ {print $6}'
+            serverip=$(ip addr show $interface | awk -F'[ /]' '/([0-9][0-9]?[0-9]?\.){3}([0-9][0-9]?[0-9]?){1}/ {print $6}')
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | awk '/inet[:]?.*(cast)/ {print $2}')
             [[ -z $serverip ]] && serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
             [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
