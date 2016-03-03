@@ -655,7 +655,7 @@ installPackages() {
         eval $packagelist $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
             dots "Skipping package: $x"
-            echo "(Doesn't exist)"
+            echo "(Does not exist)"
             continue
         fi
         newPackList="$newPackList $x"
@@ -1117,7 +1117,7 @@ writeUpdateFile() {
     escstartrange=$(echo $startrange | sed -e $replace)
     escendrange=$(echo $endrange | sed -e $replace)
     escbootfilename=$(echo $bootfilename | sed -e $replace)
-    escpackages=$(echo $packages | sed -e $replace)
+    escpackages=$(echo "$packages" | sed -e $replace)
     escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
     escnotpxedefaultfile=$(echo $notpxedefaultfile | sed -e $replace)
     escsslpath=$(echo $sslpath | sed -e $replace)
