@@ -60,7 +60,7 @@ class FOGFTP extends FOGGetSet {
         return $this;
     }
     public function recursive_delete($path) {
-        if (!($this->delete($path,false,true) || $this->rmdir($path))) {
+        if ($this->exists($path) && !($this->delete($path,false,true) || $this->rmdir($path))) {
             $filelist = $this->nlist($path);
             if ($filelist) {
                 foreach($filelist AS $i => &$file) $this->recursive_delete($file);
