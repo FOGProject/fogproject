@@ -413,10 +413,7 @@ configureFTP() {
     if [[ $vsvermaj -gt 3 ]] || [[ $vsvermaj -eq 3 && $vsverbug -ge 2 ]]; then
         seccompsand="seccomp_sandbox=NO"
     fi
-    tcpwrappers="YES"
-    if [[ $osid == 3 ]]; then
-        tcpwrappers="NO"
-    fi
+    [[ $osid -eq 3 ]] && tcpwrappers="NO" || tcpwrappers="YES"
     echo -e  "anonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\ntcp_wrappers=$tcpwrappers\n$seccompsand" > "$ftpconfig"
     case $systemctl in
         yes)
@@ -567,9 +564,7 @@ installPackages() {
             eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             if [[ ! $? -eq 0 ]]; then
                 eval $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                if [[ -n $repoenable ]]; then
-                    eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
+                [[ -n $repoenable ]] && eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             fi
             unset x
             ;;
@@ -611,7 +606,6 @@ installPackages() {
                 false
             fi
         fi
-        packages="$packages"
     fi
     errorStat $?
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
@@ -656,13 +650,14 @@ installPackages() {
                 ;;
             *)
                 eval $packagelist $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                if [[ ! $? -eq 0 ]]; then
-                    newPackList="$newPackList "
-                    newPackList=$(echo $newPackList)
-                    continue
-                fi
                 ;;
         esac
+        eval $packagelist $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ ! $? -eq 0 ]]; then
+            dots "Skipping package: $x"
+            echo "(Doesn't exist)"
+            continue
+        fi
         newPackList="$newPackList $x"
         eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ $? -eq 0 ]]; then
@@ -674,7 +669,7 @@ installPackages() {
         eval "DEBIAN_FRONTEND=noninteractive $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1"
         errorStat $?
     done
-    packages="$(echo $newPackList)"
+    packages=$(echo $newPackList)
     dots "Updating packages as needed"
     eval "DEBIAN_FRONTEND=noninteractive $packageupdater $packages >>$workingdir/error_logs/fog_error_${version}.log 2>&1"
     echo "OK"
@@ -1100,7 +1095,7 @@ writeUpdateFile() {
     escplainrouter=$(echo $plainrouter | sed -e $replace)
     escdnsaddress=$(echo $dnsaddress | sed -e $replace)
     escdnsbootimage=$(echo $dnsbootimage | sed -e $replace)
-    escpassword=$(echo $password | sed -e $replace)
+    escpassword=$(echo $password | sed -e $replace -e "s/[']{1}/'''/g")
     escosid=$(echo $osid | sed -e $replace)
     escosname=$(echo $osname | sed -e $replace)
     escdodhcp=$(echo $dodhcp | sed -e $replace)
@@ -1108,14 +1103,14 @@ writeUpdateFile() {
     escblexports=$(echo $blexports | sed -e $replace)
     escinstalltype=$(echo $installtype | sed -e $replace)
     escsnmysqluser=$(echo $snmysqluser | sed -e $replace)
-    escsnmysqlpass=$(echo $snmysqlpass | sed -e $replace)
+    escsnmysqlpass=$(echo $snmysqlpass | sed -e $replace -e "s/[']{1}/'''/g")
     escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
     escinstalllange=$(echo $installlang | sed -e $replace)
     escdonate=$(echo $donate | sed -e $replace)
     escstorageLocation=$(echo $storageLocation | sed -e $replace)
     escfogupdateloaded=$(echo $fogupdateloaded | sed -e $replace)
     escstorageftpuser=$(echo $storageftpuser | sed -e $replace)
-    escstorageftppass=$(echo $storageftppass | sed -e $replace)
+    escstorageftppass=$(echo $storageftppass | sed -e $replace -e "s/[']{1}/'''/g")
     escdocroot=$(echo $docroot | sed -e $replace)
     escwebroot=$(echo $webroot | sed -e $replace)
     esccaCreated=$(echo $caCreated | sed -e $replace)
