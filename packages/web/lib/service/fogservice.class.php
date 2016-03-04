@@ -211,7 +211,7 @@ abstract class FOGService extends FOGBase {
                 sort($localfilescheck);
                 sort($remotefilescheck);
                 foreach ($localfilescheck AS $i => &$localfile) {
-                    if (($index = array_search($localfile,$remotefilescheck)) === -1) continue;
+                    if (($index = array_search($localfile,$remotefilescheck)) === false) continue;
                     $this->outall(" | Local File: $localfile");
                     $this->outall(" | Remote File: {$remotefilescheck[$index]}");
                     $res = 'true';
