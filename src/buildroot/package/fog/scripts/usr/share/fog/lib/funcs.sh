@@ -1502,7 +1502,7 @@ saveGRUB() {
     # Hack Note: print $4+0 causes the column to be interpretted as a number
     #            so the comma is tossed
     local count=$(sfdisk -d $disk 2>/dev/null | awk /start=\ *[1-9]/'{print $4+0}' | sort -n | head -n1)
-    local has_grub=$(dd if=$disk bs=512 count=1 2>&1 | grep GRUB)
+    local has_grub=$(dd if=$disk bs=512 count=1 2>&1 | grep -i 'grub')
     local hasgrubfilename=""
     if [[ -n $has_grub ]]; then
         hasGrubFileName "$imagePath" "$disk_number" "$sgdisk"
@@ -1669,17 +1669,15 @@ MBRFileName() {
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $varVar ]] && handleError "No variable to set passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local mbr=""
-    case $osid in
-        [1-2])
-            [[ ! -f $imagePath/d${disk_number}.mbr ]] && mbr="$mbrfile" || mbr="$imagePath/d${disk_number}.mbr"
-            printf -v "$varVar" "$mbr"
-            ;;
-        [5-7]|9)
+    case $type in
+        down)
             [[ -n $sgdisk ]] && mbr="$imagePath/d${disk_number}.grub.mbr" || mbr="$imagePath/d${disk_number}.mbr"
-            [[ ! -f $imagePath/d${disk_number}.mbr ]] && mbr="$mbrfile" || mbr="$imagePath/d${disk_number}.mbr"
+            [[ ! -f $mbr && -z $mbrfile ]] && handleError "Image store corrupt, unable to locate MBR"
+            [[ ! -f $mbr && ! -f $mbrfile ]] && handleError "Image store corrupt, unable to locate MBR"
+            [[ ! -f $mbr ]] && mbr="$mbrfile"
             printf -v "$varVar" "$mbr"
             ;;
-        *)
+        up)
             [[ -n $sgdisk ]] && mbr="$imagePath/d${disk_number}.grub.mbr" || mbr="$imagePath/d${disk_number}.mbr"
             printf -v "$varVar" "$mbr"
             ;;
