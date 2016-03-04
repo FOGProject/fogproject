@@ -603,7 +603,7 @@ hasHybridMBR() {
 hasGPT() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    local gpt=$(gdisk -l $disk | awk '/^\ *GPT:/{print $2}')
+    local gpt=$(gdisk -l $disk | awk -F'[(: )]' '/GPT:/ {print $5}')
     [[ $gpt == present ]] &&  hasgpt=1
     [[ $gpt == not ]] && hasgpt=0
 }
