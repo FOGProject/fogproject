@@ -12,19 +12,22 @@ abstract class FOGService extends FOGBase {
     private static function files_are_equal($size_a,$size_b,$file_a,$file_b) {
         if ($size_a !== $size_b) return false;
         $res = true;
-        $fp_a = fopen($file_a,'r');
-        $fp_b = fopen($file_b,'r');
-        while (($a = fgets($fp_a,4096)) !== false) {
-            $a_hex = bin2hex($a);
-            $b = fgets($fp_b,4096);
-            $b_hex = bin2hex($b);
-            if ($a_hex !== $b_hex) {
-                $res = false;
-                break;
+        global $FOGCore;
+        if ($FOGCore->getSetting('FOG_FULL_SCAN_FILE')) {
+            $fp_a = fopen($file_a,'r');
+            $fp_b = fopen($file_b,'r');
+            while (($a = fgets($fp_a,4096)) !== false) {
+                $a_hex = bin2hex($a);
+                $b = fgets($fp_b,4096);
+                $b_hex = bin2hex($b);
+                if ($a_hex !== $b_hex) {
+                    $res = false;
+                    break;
+                }
             }
+            fclose($fp_a);
+            fclose($fp_b);
         }
-        fclose($fp_a);
-        fclose($fp_b);
         return $res;
     }
     public function __construct() {
@@ -219,7 +222,7 @@ abstract class FOGService extends FOGBase {
                     $filesize_rem = $this->FOGFTP->size($remotefilescheck[$index]);
                     $this->outall(" | Local File size: $filesize_main");
                     $this->outall(" | Remote File size: $filesize_rem");
-                    if (!self::files_are_equal($filesize_main,$filesize_rem,$local,$ftpstart.$remotefilescheck[$index])) {
+                    if (!self::files_are_equal($filesize_main,$filesize_rem,$localfile,$ftpstart.$remotefilescheck[$index])) {
                         $this->outall(" | Files do not match");
                         $this->outall(" * Deleting remote file: {$remotefilescheck[$index]}");
                         $this->FOGFTP->delete($remotefilescheck[$index]);
