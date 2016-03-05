@@ -69,7 +69,7 @@ verifyNetworkConnection() {
 }
 # Verifies that the OS is valid for resizing
 validResizeOS() {
-    [[ $osid != @([1-2]|[5-7]|9|50|51) ]] && handleError " * Invalid operating system id: $osname ($osid) (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ $osid != @([1-2]|4|[5-7]|9|50|51) ]] && handleError " * Invalid operating system id: $osname ($osid) (${FUNCNAME[0]})\n   Args Passed: $*"
 }
 # Gets the information from the system for inventory
 doInventory() {
@@ -512,6 +512,9 @@ shrinkPartition() {
                         adjustedfdsize=$((sizefd + part_start))
                         resizePartition "$part" "$adjustedfdsize" "$imagePath"
                         ;;
+                    4)
+                        resizePartition "$part" "$adjustedfdsize" "$imagePath"
+                        ;;
                 esac
                 echo "Done"
             fi
@@ -690,7 +693,7 @@ getValidRestorePartitions() {
             [1-2])
                 [[ ! -f $imagePath ]] && imgpart="$imagePath/d${disk_number}p${part_number}.img*" || imgpart="$imagePath"
                 ;;
-            [5-7]|9)
+            4|[5-7]|9)
                 [[ ! -f $imagePath/sys.img.000 ]] && imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                 if [[ -z $imgpart ]]; then
                     case $win7partcnt in
@@ -812,7 +815,7 @@ changeHostname() {
                 key9="$REG_HOSTNAME_KEY9_XP"
                 key10="$REG_HOSTNAME_KEY10_XP"
                 ;;
-            2|[5-7]|9)
+            2|4|[5-7]|9)
                 regfile="$REG_LOCAL_MACHINE_7"
                 key1="$REG_HOSTNAME_KEY1_7"
                 key2="$REG_HOSTNAME_KEY2_7"
@@ -961,7 +964,7 @@ clearMountedDevices() {
         esac
     fi
     case $osid in
-        [5-7]|9)
+        4|[5-7]|9)
             local fstype=""
             fsTypeSetting "$part"
             if [[ ! -f /usr/share/fog/lib/EOFMOUNT ]]; then
@@ -1021,7 +1024,7 @@ removePageFile() {
     fsTypeSetting "$part"
     [[ ! $ignorepg -eq 1 ]] && return
     case $osid in
-        [1-2]|[5-7]|[9]|50|51)
+        [1-2]|4|[5-7]|[9]|50|51)
             case $fstype in
                 ntfs)
                     dots "Mounting partition ($part)"
@@ -1375,7 +1378,7 @@ handleError() {
     # Linux:
     if [[ -n $2 ]]; then
         case $osid in
-            [1-2]|[5-7]|9|50|51)
+            [1-2]|4|[5-7]|9|50|51)
                 if [[ -n "$hd" ]]; then
                     getPartitions "$hd"
                     for part in $parts; do
@@ -1744,7 +1747,7 @@ savePartitionTablesAndBootLoaders() {
         0)
             strdots="Saving Partition Tables (MBR)"
             case $osid in
-                50|51)
+                4|50|51)
                     [[ $disk_number -eq 1 ]] && strdots="Saving Partition Tables and GRUB (MBR)"
                     ;;
             esac
@@ -1976,7 +1979,7 @@ restorePartition() {
                 [1-2])
                     [[ -f $imagePath ]] && imgpart="$imagePath" || imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     ;;
-                50|51)
+                4|50|51)
                     imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     ;;
                 [5-7]|9)
