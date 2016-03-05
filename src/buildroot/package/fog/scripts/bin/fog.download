@@ -58,7 +58,7 @@ case $imgType in
         initHardDisk "$hd"
         runPartprobe "$hd"
         case $osid in
-            50|51)
+            4|50|51)
                 [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
                 prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
                 ;;
@@ -253,7 +253,7 @@ case $imgType in
             [5-7]|9)
                 [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Fatal Error: Could not locate file ($0)\n   Args Passed: $*"
                 ;;
-            50|51)
+            4|50|51)
                 [[ ! -d $imagePath ]] && handleError "Fatal Error: could not locate file ($0)\n   Args Passed: $*"
                 ;;
         esac
@@ -266,7 +266,7 @@ if [[ -f /images/postdownloadscripts/fog.postdownload ]]; then
     . ${postdownpath}fog.postdownload
 fi
 if [[ ! $capone -eq 1 ]]; then
-    if [[ $osid == +([1-2]|[5-7]|9) ]]; then
+    if [[ $osid == +([1-2]|4|[5-7]|9) ]]; then
         for disk in $disks; do
             getPartitions "$disk"
             for part in $parts; do
