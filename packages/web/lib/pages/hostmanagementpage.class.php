@@ -257,7 +257,7 @@ class HostManagementPage extends FOGPage {
             $this->obj->set('pending',null);
             if ($this->obj->save()) $this->setMessage(_('Host approved'));
             else $this->setMessage(_('Host approval failed.'));
-            $this->redirect(sprintf('?node=%s&sub=edit&id=%s',$this->node,$_REQUEST['id']));
+            $this->redirect(sprintf('?node=%s&sub=edit&id=%s#host-general',$this->node,$_REQUEST['id']));
         }
         if ($this->obj->get('pending')) printf('<h2><a href="%s&approveHost=1">%s</a></h2>',$this->formAction,_('Approve this host?'));
         unset($this->headerData);
@@ -276,12 +276,12 @@ class HostManagementPage extends FOGPage {
             } catch (Exception $e) {
                 $this->setMessage($e->getMessage());
             }
-            $this->redirect($this->formAction);
+            $this->redirect(sprintf('?node=%s&sub=edit&id=%s#host-general',$this->node,$_REQUEST['id']));
         }
         else if ($_REQUEST['approveAll']) {
             $this->getClass('MACAddressAssociationManager')->update(array('hostID'=>$this->obj->get('id')),'',array('pending'=>0));
             $this->setMessage('All Pending MACs approved.');
-            $this->redirect($this->formAction);
+            $this->redirect(sprintf('?node=%s&sub=edit&id=%s#host-general',$this->node,$_REQUEST['id']));
         }
         ob_start();
         foreach ((array)$this->obj->get('additionalMACs') AS $i => &$MAC) {
