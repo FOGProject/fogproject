@@ -544,7 +544,7 @@ class Host extends FOGController {
                 if (!$StorageGroup->isValid()) throw new Exception($this->foglang['ImageGroupNotValid']);
                 $StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
                 if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode($this->get('imageID'));
-                if (!$StorageNode->isValid()) throw new Exception($this->foglang['SGNotValid']);
+                if (!$StorageNode || !$StorageNode->isValid()) throw new Exception($this->foglang['SGNotValid']);
                 $imageTaskImgID = $this->get('imageID');
                 $hostsWithImgID = $this->getSubObjectIDs('Host',array('imageID'=>$imageTaskImgID));
                 $realImageID = $this->getSubObjectIDs('Host',array('id'=>$this->get('id')),'imageID');
