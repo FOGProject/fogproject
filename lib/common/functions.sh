@@ -998,7 +998,7 @@ configureUsers() {
         fi
     fi
     echo $password >$workingdir/tmppasswd
-    echo $password >>$workdingdir/tmppasswd
+    echo $password >>$workingdir/tmppasswd
     passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1 <$workingdir/tmppasswd
     if [[ ! $? -eq 0 ]]; then
         rm $workingdir/tmppasswd
