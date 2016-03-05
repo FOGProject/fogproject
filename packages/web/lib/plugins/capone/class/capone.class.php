@@ -17,6 +17,6 @@ class Capone extends FOGController {
         return $this->getImage()->getStorageGroup();
     }
     public function getStorageNode() {
-        return $this->getStorageGroup()->getOptimalStorageNode();
+        return $this->getStorageGroup()->getOptimalStorageNode($this->get('imageID'));
     }
 }

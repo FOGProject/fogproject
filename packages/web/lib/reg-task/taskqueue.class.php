@@ -23,7 +23,7 @@ class TaskQueue extends TaskingElement {
                     $this->Host->set('imageID',$MulticastSession->get('image'));
                 } else if ($this->Task->isForced()) {
                     $this->HookManager->processEvent('TASK_GROUP',array('StorageGroup'=>&$this->StorageGroup,'Host'=>&$this->Host));
-                    $this->StorageNode = $this->Image->getStorageGroup()->getOptimalStorageNode();
+                    $this->StorageNode = $this->Image->getStorageGroup()->getOptimalStorageNode($this->Host->get('imageID'));
                     if ($this->Task->isUpload()) $this->StorageNode = $this->Image->StorageGroup->getMasterStorageNode();
                     $this->HookManager->processEvent('TASK_NODE',array('StorageNode'=>&$this->StorageNode,'Host'=>&$this->Host));
                 } else {
@@ -34,7 +34,7 @@ class TaskQueue extends TaskingElement {
                     if ($groupOpenSlots < 1) throw new Exception(sprintf('%s, %s %d %s',_('No open slots'),_('There are'),$inFront,_('before me.')));
                     if ($groupOpenSlots <= $inFront) throw new Exception(sprintf('%s %d %s',_('There are open slots, but'),$inFront,_('before me')));
                     $method = ($this->Task->isUpload() ? 'getMasterStorageNode' : 'getOptimalStorageNode');
-                    $this->StorageNode = self::nodeFail($this->Image->getStorageGroup()->$method(),$this->Host->get('id'));
+                    $this->StorageNode = self::nodeFail($this->Image->getStorageGroup()->$method($this->Host->get('imageID')),$this->Host->get('id'));
                     foreach ($this->StorageNodes AS $i => &$StorageNode) {
                         if (!$StorageNode->isValid()) continue;
                         if ($StorageNode->get('maxClients') < 1) continue;

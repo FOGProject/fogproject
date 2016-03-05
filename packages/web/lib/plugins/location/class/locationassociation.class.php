@@ -25,7 +25,7 @@ class LocationAssociation extends FOGController {
         $Location = $this->getLocation();
         if (!$Location->isValid()) return;
         if ($Location->get('storageNodeID')) return $this->getClass('StorageNode',$Location->get('storageNodeID'));
-        return $this->getStorageGroup()->getOptimalStorageNode();
+        return $this->getStorageGroup()->getOptimalStorageNode($this->getHost()->get('imageID'));
     }
     public function isTFTP() {
         $Location = $this->getLocation();
