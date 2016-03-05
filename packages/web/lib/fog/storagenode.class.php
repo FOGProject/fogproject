@@ -49,13 +49,12 @@ class StorageNode extends FOGController {
         }
     }
     public function loadImages() {
-        $this->FOGFTP
-            ->set('host',$this->get('ip'))
-            ->set('username',$this->get('user'))
-            ->set('password',$this->get('pass'));
-        $pathstring = sprintf('/%s/',trim($this->get('ftppath'),'/'));
-        if (!$this->FOGFTP->connect()) return;
-        $paths = array_values(array_unique(array_filter(preg_replace('#dev|postdownloadscripts#','',preg_replace("#$pathstring#",'',$this->FOGFTP->nlist($pathstring))))));
+        $URL = sprintf('http://%s/fog/status/getimages.php?path=%s',$this->get('ip'),urlencode($this->get('path')));
+        $paths = $this->FOGURLRequests->process($URL);
+        $paths = @array_shift($paths);
+        $paths = json_decode($paths);
+        $pathstring = sprintf('/%s/',trim($this->get('path'),'/'));
+        $paths = array_values(array_unique(array_filter(preg_replace('#dev|postdownloadscripts#','',preg_replace("#$pathstring#",'',$paths)))));
         $this->set('images',$this->getSubObjectIDs('Image',array('path'=>$paths)));
     }
     public function getClientLoad() {
