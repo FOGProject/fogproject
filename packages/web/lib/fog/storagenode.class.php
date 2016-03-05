@@ -31,6 +31,9 @@ class StorageNode extends FOGController {
         'user',
         'pass',
     );
+    protected $additionalFields = array(
+        'images',
+    );
     public function get($key = '') {
         if (in_array($this->key($key),array('path','ftppath','snapinpath','sslpath','webroot'))) return rtrim(parent::get($key), '/');
         return parent::get($key);
@@ -45,28 +48,36 @@ class StorageNode extends FOGController {
             unset($NodeFailure);
         }
     }
+    public function loadImages() {
+        $this->FOGFTP
+            ->set('host',$this->get('ip'))
+            ->set('username',$this->get('user'))
+            ->set('password',$this->get('pass'));
+        $pathstring = sprintf('/%s/',trim($this->get('ftppath'),'/'));
+        if (!$this->FOGFTP->connect()) return;
+        $paths = array_values(array_unique(array_filter(preg_replace('#dev|postdownloadscripts#','',preg_replace("#$pathstring#",'',$this->FOGFTP->nlist($pathstring))))));
+        $this->set('images',$this->getSubObjectIDs('Image',array('path'=>$paths)));
+    }
     public function getClientLoad() {
-        if ($this->get('maxClients') < 1) return 100;
-        return ($this->getStorageGroup()->getUsedSlotCount() + $this->getStorageGroup()->getQueuedSlotCount()) / ($this->get('maxClients') - ($this->getUsedSlotCount() + $this->getQueuedSlotCount()));
+        if ((int)$this->get('maxClients') <= 0) return (double)((int)$this->getStorageGroup()->getUsedSlotCount() + (int)$this->getStorageGroup()->getQueuedSlotCount()) / (int)$this->getTotalSupportedClients();
+        return (double)((int)$this->getUsedSlotCount() + (int)$this->getQueuedSlotCount()) / (int)$this->get('maxClients');
     }
     public function getUsedSlotCount() {
         $UsedTasks = explode(',',$this->getSetting('FOG_USED_TASKS'));
         $countTasks = 0;
-        if ($index = array_search(8,$UsedTasks)) {
-            unset($UsedTasks[$index]);
-            $UsedTasks = array_values(array_filter((array)$UsedTasks));
-            $countTasks = count(array_unique($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->getSubObjectIDs('Task',array('stateID'=>$this->getProgressState(),'typeID'=>8))),'msID')));
-        }
+        if (($index = array_search(8,$UsedTasks)) === false) return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>$this->getProgressState(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
+        unset($UsedTasks[$index]);
+        $UsedTasks = array_values(array_filter((array)$UsedTasks));
+        $countTasks = count(array_unique($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->getSubObjectIDs('Task',array('stateID'=>$this->getProgressState(),'typeID'=>8))),'msID')));
         return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>$this->getProgressState(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
     }
     public function getQueuedSlotCount() {
         $UsedTasks = explode(',',$this->getSetting('FOG_USED_TASKS'));
         $countTasks = 0;
-        if ($index = array_search(8,$UsedTasks)) {
-            unset($UsedTasks[$index]);
-            $UsedTasks = array_values(array_filter((array)$UsedTasks));
-            $countTasks = count(array_unique($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->getSubObjectIDs('Task',array('stateID'=>$this->getQueuedStates(),'typeID'=>8))),'msID')));
-        }
+        if (($index = array_search(8,$UsedTasks)) === false) return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>$this->getQueuedStates(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
+        unset($UsedTasks[$index]);
+        $UsedTasks = array_values(array_filter((array)$UsedTasks));
+        $countTasks = count(array_unique($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->getSubObjectIDs('Task',array('stateID'=>$this->getQueuedStates(),'typeID'=>8))),'msID')));
         return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>$this->getQueuedStates(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
     }
 }

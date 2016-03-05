@@ -356,73 +356,78 @@ class Host extends FOGController {
         return $this;
     }
     protected function loadMac() {
-        if ($this->get('id')) $this->set('mac',$this->getClass('MACAddress',$this->get('primac')->get('mac')));
+        if (!$this->get('id')) return;
+        $this->set('mac',$this->getClass('MACAddress',$this->get('primac')->get('mac')));
     }
     protected function loadAdditionalMACs() {
-        if ($this->get('id')) $this->set('additionalMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>array(null,0,'')),'mac'));
+        if (!$this->get('id')) return;
+        $this->set('additionalMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>array(null,0,'')),'mac'));
     }
     protected function loadPendingMACs() {
-        if ($this->get('id')) $this->set('pendingMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>1),'mac'));
+        if (!$this->get('id')) return;
+        $this->set('pendingMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>1),'mac'));
     }
     protected function loadGroups() {
-        if ($this->get('id')) $this->set('groups',$this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID'));
+        if (!$this->get('id')) return;
+        $this->set('groups',$this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID'));
     }
     protected function loadGroupsnotinme() {
-        if ($this->get('id')) {
-            $find = array('id'=>$this->get('groups'));
-            $this->set('groupsnotinme',$this->getSubObjectIDs('Group',$find,'id',true));
-            unset($find);
-        }
+        if (!$this->get('id')) return;
+        $find = array('id'=>$this->get('groups'));
+        $this->set('groupsnotinme',$this->getSubObjectIDs('Group',$find,'id',true));
+        unset($find);
     }
     protected function loadPrinters() {
-        if ($this->get('id')) $this->set('printers',$this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID'));
+        if (!$this->get('id')) return;
+        $this->set('printers',$this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID'));
     }
     protected function loadPrintersnotinme() {
-        if ($this->get('id')) {
-            $find = array('id'=>$this->get('printers'));
-            $this->set('printersnotinme',$this->getSubObjectIDs('Printer',$find,'id',true));
-            unset($find);
-        }
+        if (!$this->get('id')) return;
+        $find = array('id'=>$this->get('printers'));
+        $this->set('printersnotinme',$this->getSubObjectIDs('Printer',$find,'id',true));
+        unset($find);
     }
     protected function loadSnapins() {
-        if ($this->get('id')) {
-            $AssocSnapins = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
-            $ValidSnapins = $this->getSubObjectIDs('Snapin',array('id'=>$AssocSnapins));
-            $InvalidSnapins = array_unique(array_filter(array_diff((array)$AssocSnapins,(array)$ValidSnapins)));
-            if (count($InvalidSnapins)) $this->getClass('SnapinManager')->destroy(array('id'=>$InvalidSnapins));
-            $this->set('snapins',$ValidSnapins);
-        }
+        if (!$this->get('id')) return;
+        $AssocSnapins = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
+        $ValidSnapins = $this->getSubObjectIDs('Snapin',array('id'=>$AssocSnapins));
+        $InvalidSnapins = array_unique(array_filter(array_diff((array)$AssocSnapins,(array)$ValidSnapins)));
+        if (count($InvalidSnapins)) $this->getClass('SnapinManager')->destroy(array('id'=>$InvalidSnapins));
+        $this->set('snapins',$ValidSnapins);
     }
     protected function loadSnapinsnotinme() {
-        if ($this->get('id')) {
-            $find = array('id'=>$this->get('snapins'));
-            $this->set('snapinsnotinme',$this->getSubObjectIDs('Snapin',$find,'id',true));
-            unset($find);
-        }
+        if (!$this->get('id')) return;
+        $find = array('id'=>$this->get('snapins'));
+        $this->set('snapinsnotinme',$this->getSubObjectIDs('Snapin',$find,'id',true));
+        unset($find);
     }
     protected function loadModules() {
-        if ($this->get('id')) $this->set('modules',$this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID'));
+        if (!$this->get('id')) return;
+        $this->set('modules',$this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID'));
     }
     protected function loadUsers() {
-        if ($this->get('id')) $this->set('users',$this->getSubObjectIDs('UserTracking',array('hostID'=>$this->get('id'))));
+        if (!$this->get('id')) return;
+        $this->set('users',$this->getSubObjectIDs('UserTracking',array('hostID'=>$this->get('id'))));
     }
     protected function loadSnapinjob() {
-        if ($this->get('id')) $this->set('snapinjob',@max($this->getSubObjectIDs('SnapinJob',array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'hostID'=>$this->get('id')),'id')));
+        if (!$this->get('id')) return;
+        $this->set('snapinjob',@max($this->getSubObjectIDs('SnapinJob',array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'hostID'=>$this->get('id')),'id')));
     }
     protected function loadInventory() {
-        if ($this->get('id')) $this->set('inventory',@max($this->getSubObjectIDs('Inventory',array('hostID'=>$this->get('id')),'id')));
+        if (!$this->get('id')) return;
+        $this->set('inventory',@max($this->getSubObjectIDs('Inventory',array('hostID'=>$this->get('id')),'id')));
     }
     protected function loadTask() {
-        if ($this->get('id')) {
-            $find['hostID'] = $this->get('id');
-            $find['stateID'] = array_merge($this->getQueuedStates(),(array)$this->getProgressState());
-            if (in_array($_REQUEST['type'], array('up','down'))) $find['typeID'] = ($_REQUEST['type'] == 'up' ? array(2,16) : array(1,8,15,17,24));
-            $this->set('task',@max($this->getSubObjectIDs('Task',$find,'id')));
-            unset($find);
-        }
+        if ($this->get('id')) return;
+        $find['hostID'] = $this->get('id');
+        $find['stateID'] = array_merge($this->getQueuedStates(),(array)$this->getProgressState());
+        if (in_array($_REQUEST['type'], array('up','down'))) $find['typeID'] = ($_REQUEST['type'] == 'up' ? array(2,16) : array(1,8,15,17,24));
+        $this->set('task',@max($this->getSubObjectIDs('Task',$find,'id')));
+        unset($find);
     }
     protected function loadOptimalStorageNode() {
-        if ($this->get('id')) $this->set('optimalStorageNode', $this->getClass('Image',$this->get('imageID'))->getStorageGroup()->getOptimalStorageNode());
+        if (!$this->get('id')) return;
+        $this->set('optimalStorageNode', $this->getClass('Image',$this->get('imageID'))->getStorageGroup()->getOptimalStorageNode($this->get('imageID')));
     }
     public function getActiveTaskCount() {
         return $this->getClass('TaskManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'hostID'=>$this->get('id')));
@@ -434,25 +439,17 @@ class Host extends FOGController {
         return $this->get('optimalStorageNode');
     }
     public function checkIfExist($taskTypeID) {
-        $res = true;
         $TaskType = $this->getClass('TaskType',$taskTypeID);
         $isUpload = $TaskType->isUpload();
         $Image = $this->getImage();
         $StorageGroup = $Image->getStorageGroup();
-        $StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
-        if (!$isUpload)	$this->HookManager->processEvent('HOST_NEW_SETTINGS',array('Host'=>&$this,'StorageNode'=>&$StorageNode,'StorageGroup'=>&$StorageGroup));
+        $StorageNode = $StorageGroup->getMasterStorageNode();
+        $this->HookManager->processEvent('HOST_NEW_SETTINGS',array('Host'=>&$this,'StorageNode'=>&$StorageNode,'StorageGroup'=>&$StorageGroup));
         if (!$StorageGroup || !$StorageGroup->isValid()) throw new Exception(_('No Storage Group found for this image'));
         if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('No Storage Node found for this image'));
-        if (in_array($TaskType->get('id'),array(1,8,15,17))) {
-            $this->FOGFTP
-                ->set('username',$StorageNode->get('user'))
-                ->set('password',$StorageNode->get('pass'))
-                ->set('host',$StorageNode->get('ip'));
-            $pathstring = sprintf('/%s/%s',trim($StorageNode->get('ftppath'),'/'),$Image->get('path'));
-            if (!$this->FOGFTP->connect() || !$this->FOGFTP->exists($pathstring)) $res = false;
-            $this->FOGFTP->close();
-        }
-        return $res;
+        if (!in_array($TaskType->get('id'),array(1,8,15,17,24))) return true;
+        if (!in_array($Image->get('id'),$StorageNode->get('images'))) return false;
+        return true;
     }
     /** createTasking creates the tasking so I don't have to keep typing it in for each element.
      * @param $taskName the name to assign to the tasking
@@ -545,8 +542,8 @@ class Host extends FOGController {
                 if (!$Image->get('isEnabled')) throw new Exception(_('Image is not enabled'));
                 $StorageGroup = $Image->getStorageGroup();
                 if (!$StorageGroup->isValid()) throw new Exception($this->foglang['ImageGroupNotValid']);
-                $StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
-                if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode();
+                $StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
+                if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode($this->get('imageID'));
                 if (!$StorageNode->isValid()) throw new Exception($this->foglang['SGNotValid']);
                 $imageTaskImgID = $this->get('imageID');
                 $hostsWithImgID = $this->getSubObjectIDs('Host',array('imageID'=>$imageTaskImgID));
@@ -556,7 +553,7 @@ class Host extends FOGController {
             }
             $isUpload = $TaskType->isUpload();
             $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
-            $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
+            $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageGroup->getOptimalStorageNode($this->get('imageID'))->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
             $Task->set('imageID',$this->get('imageID'));
             if (!$Task->save()) throw new Exception($this->foglang['FailedTask']);
             if ($TaskType->isSnapinTask()) {
@@ -622,7 +619,7 @@ class Host extends FOGController {
             $Task = $this->getClass('Task')
                 ->set('hostID',$this->get('id'))
                 ->set('NFSGroupID',$StorageGroup->get('id'))
-                ->set('NFSMemberID',$StorageGroup->getOptimalStorageNode()->get('id'))
+                ->set('NFSMemberID',$StorageGroup->getOptimalStorageNode($this->get('imageID'))->get('id'))
                 ->set('imageID',$Image->get('id'));
         } catch (Exception $e) {
             $this->FOGCore->error(sprintf('%s():xError: %s', __FUNCTION__, $e->getMessage()));

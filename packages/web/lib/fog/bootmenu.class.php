@@ -373,7 +373,7 @@ class BootMenu extends FOGBase {
             $TaskType = new TaskType(8);
         }
         $StorageGroup = $Image->getStorageGroup();
-        $StorageNode = $StorageGroup->getOptimalStorageNode();
+        $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
         $osid = $Image->get('osID');
         $storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),'');
         $storageip = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
@@ -598,7 +598,7 @@ class BootMenu extends FOGBase {
             if (in_array($TaskType->get('id'),$imagingTasks)) {
                 $Image = $Task->getImage();
                 $StorageGroup = $Image->getStorageGroup();
-                $StorageNode = $StorageGroup->getOptimalStorageNode();
+                $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
                 $this->HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
                 if ($TaskType->isUpload() || $TaskType->isMulticast()) $StorageNode = $StorageGroup->getMasterStorageNode();
                 $osid = $Image->get('osID');
