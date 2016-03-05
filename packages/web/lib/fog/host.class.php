@@ -418,7 +418,7 @@ class Host extends FOGController {
         $this->set('inventory',@max($this->getSubObjectIDs('Inventory',array('hostID'=>$this->get('id')),'id')));
     }
     protected function loadTask() {
-        if ($this->get('id')) return;
+        if (!$this->get('id')) return;
         $find['hostID'] = $this->get('id');
         $find['stateID'] = array_merge($this->getQueuedStates(),(array)$this->getProgressState());
         if (in_array($_REQUEST['type'], array('up','down'))) $find['typeID'] = ($_REQUEST['type'] == 'up' ? array(2,16) : array(1,8,15,17,24));
