@@ -31,10 +31,11 @@ class StorageGroup extends FOGController {
         //if (!$masternode > 0) throw New Exception(_('No Storage nodes enabled for this group'));
         return $this->getClass('StorageNode',$masternode);
     }
-    public function getOptimalStorageNode() {
+    public function getOptimalStorageNode($image) {
         $winner = null;
         foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes'))) AS &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
+            if (!in_array($image,$StorageNode->get('images'))) continue;
             if ($StorageNode->get('maxClients') < 1) continue;
             if ($winner == null || !$winner->isValid()) {
                 $winner = $StorageNode;
