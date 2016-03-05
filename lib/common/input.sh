@@ -35,7 +35,7 @@ if [[ $guessdefaults == 1 ]]; then
         [[ -z $strSuggestedIPAddress ]] && strSuggestedIPAddress=$(/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
         strSuggestedInterface=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $2}' | head -n2 | tail -n1)
         [[ -z $strSuggestedInterface ]] && strSuggestedInterface=$(/sbin/ifconfig -a | grep "'${strSuggestedIPAddress}'" -B1 | awk -F'[:]+' '{print $1}' | head -n1)
-    fi    
+    fi
     strSuggestedIPAddress=$(/sbin/ip addr show | grep $strSuggestedInterface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
     [[ -z $strSuggestedIPAddress ]] && strSuggestedIPAddress=$(/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
     strSuggestedSubMask=$(cidr2mask $(getCidr $strSuggestedInterface))
@@ -138,14 +138,14 @@ while [[ -z $interface ]]; do
             ;;
     esac
 done
-    if [[ $strSuggestedInterface != $interface ]]; then
-        strSuggestedSubMask=$(cidr2mask $(getCidr $interface))
-        if [[ -z $strSuggestedSubMask ]]; then
-            strSuggestedSubMask=$(/sbin/ifconfig -a | grep $strSuggestedIPAddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
-            strSuggestedSubMask=$(mask2cidr $strSuggestedSubMask)
-        fi
-        submask=$strSuggestedSubMask
+if [[ $strSuggestedInterface != $interface ]]; then
+    strSuggestedSubMask=$(cidr2mask $(getCidr $interface))
+    if [[ -z $strSuggestedSubMask ]]; then
+        strSuggestedSubMask=$(/sbin/ifconfig -a | grep $strSuggestedIPAddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
+        strSuggestedSubMask=$(mask2cidr $strSuggestedSubMask)
     fi
+    submask=$strSuggestedSubMask
+fi
 case $installtype in
     [Nn])
         count=0
