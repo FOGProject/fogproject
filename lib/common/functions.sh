@@ -631,9 +631,6 @@ installPackages() {
                     fi
                 done
                 ;;
-            *)
-                eval $packagelist $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                ;;
         esac
         eval $packagelist $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
