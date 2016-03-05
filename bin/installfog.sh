@@ -71,6 +71,7 @@ routeraddress=""
 plainrouter=""
 dnsaddress=""
 dnsbootimage=""
+username=""
 password=""
 osid=""
 osname=""
@@ -82,8 +83,6 @@ snmysqlpass=""
 snmysqlhost=""
 installlang=""
 bluseralreadyexists=0
-storageftpuser=""
-storageftppass=""
 guessdefaults=1
 doupdate=1
 ignorehtmldoc=0
@@ -508,8 +507,8 @@ while [[ -z $blGo ]]; do
                         echo "   http://${snmysqlhost}/fog"
                         echo
                         echo "   You will need this, write this down!"
-                        echo "   Username: $storageftpuser"
-                        echo "   Password: $storageftppass"
+                        echo "   Username: $username"
+                        echo "   Password: $password"
                         echo
                     fi
                     ;;

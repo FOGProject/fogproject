@@ -976,50 +976,37 @@ configureSnapins() {
     errorStat $?
 }
 configureUsers() {
+    [[ -z $username ]] && username='fog'
+    dots "Setting up $username user"
     getent passwd $username > /dev/null
-    if [[ $? != 0 || ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]]; then
-        dots "Setting up fog user"
-        password=$(openssl rand -base64 32)
-        if [[ $installtype == S ]]; then
-            storageftpuser=$username
-            storageftppass=$password
-        else
-            storageftpuser=$storageftpuser
-            storageftppass=$storageftppass
-            [[ -z $storageftpuser ]] && storageftpuser='fog'
-            [[ -z $storageftppass ]] && storageftppass="$password"
-        fi
-        if [[ -n $password ]]; then
-            useradd -s "/bin/bash" -d "/home/${username}" $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            if [[ $? -eq 0 ]]; then
-                passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
-$password
-$password
-EOF
-                mkdir /home/$username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                chown -R $username /home/$username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            else
-                [[ -f $webdirdest/lib/fog/config.class.php ]] && password="$(awk -F'[(")]' '/TFTP_FTP_PASSWORD/ {print $3}' $webdirdest/lib/fog/config.class.php)"
-                bluseralreadyexists=1
-            fi
-        else
+    if [[ $? -eq 0 ]]; then
+        echo "Already setup"
+        return
+    else
+        useradd -s "/bin/bash" -d "/home/${username}" $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        errorStat $?
+        mkdir -p /home/$username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        chown -R $username /home/$username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
+    dots "Setting up $username password"
+    if [[ -z $password ]]; then
+        [[ -f $webdirdest/lib/fog/config.class.php ]] && password="$(awk -F'[(")]' '/TFTP_FTP_PASSWORD/ {print $3}' $webdirdest/lib/fog/config.class.php)"
+        [[ -z $password ]] && password=$(openssl rand -base64 32)
+        if [[ -z $password ]]; then
             false
+            errorStat $?
         fi
+    fi
+    echo $password >$workingdir/tmppasswd
+    echo $password >>$workdingdir/tmppasswd
+    passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1 <$workingdir/tmppasswd
+    if [[ ! $? -eq 0 ]]; then
+        rm $workingdir/tmppasswd
+        false
         errorStat $?
     fi
-    if [[ -z $password && -z $storageftppass ]]; then
-        dots "Setting password for FOG User"
-        password=$(openssl rand -base64 32)
-        passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
-$password
-$password
-EOF
-        errorStat $?
-        storageftpuser=$username
-        storageftppass=$password
-        echo -e " * New password set for:\n\t\tusername: $username\n\t\tpassword: $password\n"
-        sleep 10
-    fi
+    rm $workingdir/tmppasswd
+    errorStat $?
 }
 linkOptFogDir() {
     if [[ ! -h /var/log/fog ]]; then
@@ -1089,8 +1076,7 @@ writeUpdateFile() {
     escdonate=$(echo $donate | sed -e $replace)
     escstorageLocation=$(echo $storageLocation | sed -e $replace)
     escfogupdateloaded=$(echo $fogupdateloaded | sed -e $replace)
-    escstorageftpuser=$(echo $storageftpuser | sed -e $replace)
-    escstorageftppass=$(echo $storageftppass | sed -e $replace -e "s/[']{1}/'''/g")
+    escusername=$(echo $username | sed -e $replace)
     escdocroot=$(echo $docroot | sed -e $replace)
     escwebroot=$(echo $webroot | sed -e $replace)
     esccaCreated=$(echo $caCreated | sed -e $replace)
@@ -1171,11 +1157,12 @@ writeUpdateFile() {
                 sed -i "s/fogupdateloaded=['\"]?.*['\"]?/fogupdateloaded=$escfogupdateloaded/g" $fogprogramdir/.fogsettings || \
                 echo "fogupdateloaded=$fogupdateloaded" >> $fogprogramdir/.fogsettings
             grep -q "storageftpuser=" $fogprogramdir/.fogsettings && \
-                sed -i "s/storageftpuser=['\"]?.*['\"]?/storageftpuser='$escstorageftpuser'/g" $fogprogramdir/.fogsettings || \
-                echo "storageftpuser='$storageftpuser'" >> $fogprogramdir/.fogsettings
+                sed -i "/storageftpuser=['\"]?.*['\"]?/d" $fogprogramdir/.fogsettings
             grep -q "storageftppass=" $fogprogramdir/.fogsettings && \
-                sed -i "s/storageftppass=['\"]?.*['\"]?/storageftppass=\"$escstorageftppass\"/g" $fogprogramdir/.fogsettings || \
-                echo "storageftppass=\"$escstorageftppass\"" >> $fogprogramdir/.fogsettings
+                sed -i "/storageftppass=['\"]?.*['\"]?/d" $fogprogramdir/.fogsettings
+            grep -q "username=" $fogprogramdir/.fogsettings && \
+                sed -i "s/username=['\"]?.*['\"]?/username='$escusername'/g" $fogprogramdir/.fogsettings || \
+                echo "username='$username'" >> $fogprogramdir/.fogsettings
             grep -q "docroot=" $fogprogramdir/.fogsettings && \
                 sed -i "s/docroot=['\"]?.*['\"]?/docroot='$escdocroot'/g" $fogprogramdir/.fogsettings || \
                 echo "docroot='$docroot'" >> $fogprogramdir/.fogsettings
@@ -1218,6 +1205,7 @@ writeUpdateFile() {
             echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
             echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
             echo "dnsbootimage='$dnsbootimage'" >> "$fogprogramdir/.fogsettings"
+            echo "username='$username'" >> "$fogprogramdir/.fogsettings"
             echo "password='$password'" >> "$fogprogramdir/.fogsettings"
             echo "osid='$osid'" >> "$fogprogramdir/.fogsettings"
             echo "osname='$osname'" >> "$fogprogramdir/.fogsettings"
@@ -1232,8 +1220,6 @@ writeUpdateFile() {
             echo "donate='$donate'" >> "$fogprogramdir/.fogsettings"
             echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
             echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
-            echo "storageftpuser='$storageftpuser'" >> "$fogprogramdir/.fogsettings"
-            echo "storageftppass='$storageftppass'" >> "$fogprogramdir/.fogsettings"
             echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
             echo "webroot='$webroot'" >> "$fogprogramdir/.fogsettings"
             echo "caCreated='$caCreated'" >> "$fogprogramdir/.fogsettings"
@@ -1258,6 +1244,7 @@ writeUpdateFile() {
         echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
         echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
         echo "dnsbootimage='$dnsbootimage'" >> "$fogprogramdir/.fogsettings"
+        echo "username='$username'" >> "$fogprogramdir/.fogsettings"
         echo "password='$password'" >> "$fogprogramdir/.fogsettings"
         echo "osid='$osid'" >> "$fogprogramdir/.fogsettings"
         echo "osname='$osname'" >> "$fogprogramdir/.fogsettings"
@@ -1272,8 +1259,6 @@ writeUpdateFile() {
         echo "donate='$donate'" >> "$fogprogramdir/.fogsettings"
         echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
         echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
-        echo "storageftpuser='$storageftpuser'" >> "$fogprogramdir/.fogsettings"
-        echo "storageftppass='$storageftppass'" >> "$fogprogramdir/.fogsettings"
         echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
         echo "webroot='$webroot'" >> "$fogprogramdir/.fogsettings"
         echo "caCreated='$caCreated'" >> "$fogprogramdir/.fogsettings"
