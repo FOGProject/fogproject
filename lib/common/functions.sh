@@ -1157,9 +1157,9 @@ writeUpdateFile() {
                 sed -i "s/fogupdateloaded=['\"]?.*['\"]?/fogupdateloaded=$escfogupdateloaded/g" $fogprogramdir/.fogsettings || \
                 echo "fogupdateloaded=$fogupdateloaded" >> $fogprogramdir/.fogsettings
             grep -q "storageftpuser=" $fogprogramdir/.fogsettings && \
-                sed -i "/storageftpuser=['\"]?.*['\"]?/d" $fogprogramdir/.fogsettings
+                sed -i "/storageftpuser=/d" $fogprogramdir/.fogsettings
             grep -q "storageftppass=" $fogprogramdir/.fogsettings && \
-                sed -i "/storageftppass=['\"]?.*['\"]?/d" $fogprogramdir/.fogsettings
+                sed -i "/storageftppass=/d" $fogprogramdir/.fogsettings
             grep -q "username=" $fogprogramdir/.fogsettings && \
                 sed -i "s/username=['\"]?.*['\"]?/username='$escusername'/g" $fogprogramdir/.fogsettings || \
                 echo "username='$username'" >> $fogprogramdir/.fogsettings
