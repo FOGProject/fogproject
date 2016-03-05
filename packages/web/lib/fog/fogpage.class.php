@@ -253,9 +253,10 @@ abstract class FOGPage extends FOGBase {
             }
             if ($this->obj instanceof Group) printf('%s</p>',$this->getClass('SnapinManager')->buildSelectBox('','snapin'));
         }
-        printf('<div class="advanced-settings"><h2>%s</h2><p class="hideFromDebug"><input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">%s <u>%s</u> %s</label></p>',_('Advanced Settings'),_('Schedule'),_('Shutdown'),_('after task completion'));
+        printf('<div class="advanced-settings"><h2>%s</h2>',_('Advanced Settings'));
+        if (!$TaskType->isInitNeededTasking() && !$TaskType->isDebug()) printf('<p class="hideFromDebug"><input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">%s <u>%s</u> %s</label></p>',_('Schedule'),_('Shutdown'),_('after task completion'));
         if (!$TaskType->isDebug() && $TaskType->get('id') != 11) {
-            if (!($this->obj instanceof Group)) printf('<p><input type="checkbox" name="isDebugTask" id="checkDebug"><label for="checkDebug">%s</label></p>',_('Schedule task as a debug task'));
+            if (!($TaskType->isInitNeededTasking() || $this->obj instanceof Group)) printf('<p><input type="checkbox" name="isDebugTask" id="checkDebug"><label for="checkDebug">%s</label></p>',_('Schedule task as a debug task'));
             printf('<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked/><label for="scheduleInstant">%s <u>%s</u></label></p>',_('Schedule'),_('Instant Deployment'));
             printf('<p><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off"/><label for="scheduleSingle">%s <u>%s</u></label></p>',_('Schedule'),_('Delayed Deployment'));
             echo '<p class="hidden hideFromDebug" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off"/></p>';
