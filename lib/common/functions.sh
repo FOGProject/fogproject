@@ -976,13 +976,15 @@ configureSnapins() {
     errorStat $?
 }
 configureUsers() {
+    userexists=0
     [[ -z $username ]] && username='fog'
     dots "Setting up $username user"
     getent passwd $username > /dev/null
     if [[ $? -eq 0 ]]; then
         echo "Already setup"
-        return
-    else
+        userexists=1
+    fi
+    if [[ $userexists -eq 0 ]]; then
         useradd -s "/bin/bash" -d "/home/${username}" $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
         mkdir -p /home/$username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
