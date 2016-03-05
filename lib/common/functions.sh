@@ -632,6 +632,12 @@ installPackages() {
                 done
                 ;;
         esac
+        eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ $? -eq 0 ]]; then
+            dots "Skipping package: $x"
+            echo "(Already Installed)"
+            continue
+        fi
         eval $packagelist $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
             dots "Skipping package: $x"
@@ -639,12 +645,6 @@ installPackages() {
             continue
         fi
         newPackList="$newPackList $x"
-        eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        if [[ $? -eq 0 ]]; then
-            dots "Skipping package: $x"
-            echo "(Already Installed)"
-            continue
-        fi
         dots "Installing package: $x"
         eval "DEBIAN_FRONTEND=noninteractive $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1"
         errorStat $?
