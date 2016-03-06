@@ -636,6 +636,7 @@ installPackages() {
         if [[ $? -eq 0 ]]; then
             dots "Skipping package: $x"
             echo "(Already Installed)"
+            newPackList="$newPackList $x"
             continue
         fi
         eval $packagelist $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
