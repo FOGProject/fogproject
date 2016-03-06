@@ -12,22 +12,15 @@ abstract class FOGService extends FOGBase {
     private static function files_are_equal($size_a,$size_b,$file_a,$file_b) {
         if ($size_a !== $size_b) return false;
         $res = true;
-        global $FOGCore;
-        if ($FOGCore->getSetting('FOG_FULL_SCAN_FILE')) {
-            $fp_a = fopen($file_a,'r');
-            $fp_b = fopen($file_b,'r');
-            while (($a = fgets($fp_a,4096)) !== false) {
-                $a_hex = bin2hex($a);
-                $b = fgets($fp_b,4096);
-                $b_hex = bin2hex($b);
-                if ($a_hex !== $b_hex) {
-                    $res = false;
-                    break;
-                }
-            }
-            fclose($fp_a);
-            fclose($fp_b);
-        }
+        $fp_a = fopen($file_a,'r');
+        $fp_b = fopen($file_b,'r');
+        $a = fgets($fp_a,10240);
+        $a_hex = bin2hex($a);
+        $b = fgets($fp_b,10240);
+        $b_hex = bin2hex($b);
+        if ($a_hex !== $b_hex) $res = false;
+        fclose($fp_a);
+        fclose($fp_b);
         return $res;
     }
     public function __construct() {
@@ -171,16 +164,15 @@ abstract class FOGService extends FOGBase {
             foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
                 if (!$PotentialStorageNode->isValid()) continue;
                 if ($master && $PotentialStorageNode->get('storageGroupID') == $myStorageGroupID) continue;
+                if ($this->isRunning($this->procRef[$itemType][$Obj->get('name')][$i])) {
+                    $this->outall(_(' | Replication not complete'));
+                    $this->outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$itemType][$Obj->get('name')][$i])));
+                    continue;
+                }
                 if (!file_exists("$myAdd")) {
                     $this->outall(_(" * Not syncing $objType between $itemType(s)"));
                     $this->outall(_(" | $objType Name: {$Obj->get(name)}"));
                     $this->outall(_(" | File or path cannot be reached"));
-                    continue;
-                }
-                $filename = $Obj->get('name');
-                if ($this->isRunning($this->procRef[$itemType][$filename][$i])) {
-                    $this->outall(_(' | Replication not complete'));
-                    $this->outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$itemType][$filename][$i])));
                     continue;
                 }
                 $this->FOGFTP
@@ -238,10 +230,10 @@ abstract class FOGService extends FOGBase {
                 $this->FOGFTP->close();
                 $logname = "$this->log.transfer.$nodename.log";
                 if (!$i) $this->outall(_(' * Starting Sync Actions'));
-                $this->killTasking($i,$itemType,$filename);
+                $this->killTasking($i,$itemType,$Obj->get('name'));
                 $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
                 if ($this->getSetting('FOG_SERVICE_DEBUG')) $this->outall(" | CMD:\n\t\t\t$cmd");
-                $this->startTasking($cmd,$logname,$i,$itemType,$filename);
+                $this->startTasking($cmd,$logname,$i,$itemType,$Obj->get('name'));
                 $this->outall(sprintf(' * %s %s %s',_('Started sync for'),$objType,$Obj->get('name')));
                 unset($PotentialStorageNode);
             }
