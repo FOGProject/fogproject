@@ -16,7 +16,7 @@
 username="fog"
 dbuser="root"
 dbpass=""
-dbhost="p:localhost"
+dbhost="p:127.0.0.1"
 webdirsrc="../packages/web"
 tftpdirsrc="../packages/tftp"
 udpcastsrc="../packages/udpcast-20120424.tar.gz"
