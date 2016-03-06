@@ -448,7 +448,10 @@ class Host extends FOGController {
         if (!$StorageGroup || !$StorageGroup->isValid()) throw new Exception(_('No Storage Group found for this image'));
         if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('No Storage Node found for this image'));
         if (!in_array($TaskType->get('id'),array(1,8,15,17,24))) return true;
-        if (!in_array($Image->get('id'),$StorageNode->get('images'))) return false;
+        if (!in_array($Image->get('id'),$StorageNode->get('images'))) {
+            throw new Exception(sprintf('%s: %s',_('Image not found on node'),$StorageNode->get('name')));
+            return false;
+        }
         return true;
     }
     /** createTasking creates the tasking so I don't have to keep typing it in for each element.
