@@ -1,7 +1,7 @@
 <?php
 class System {
     public function __construct() {
-        define('FOG_VERSION', '6601');
+        define('FOG_VERSION', '6603');
         define('FOG_SCHEMA', 213);
         define('FOG_BCACHE_VER',50);
         define('FOG_SVN_REVISION', '$Revision: 2868 $');
