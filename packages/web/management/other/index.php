@@ -71,7 +71,7 @@ unset($stylesheet); ?>
 					<!-- <div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> Memory Usage: <?php echo $this->formatByteSize(memory_get_usage(true)) ?></div> -->
 					<!-- Javascript -->
 					<?php $cnt = 0;
-    $this->HookManager->processEvent(JAVASCRIPT,array(javascripts=>&$this->javascripts));
+    $this->HookManager->processEvent('JAVASCRIPT',array('javascripts'=>&$this->javascripts));
     foreach ($this->javascripts AS $i => &$javascript) {
         echo ($cnt++ > 0 ? "\t\t" : '') . '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>' . "\n";
     }

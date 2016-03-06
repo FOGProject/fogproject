@@ -636,6 +636,7 @@ installPackages() {
         if [[ $? -eq 0 ]]; then
             dots "Skipping package: $x"
             echo "(Already Installed)"
+            newPackList="$newPackList $x"
             continue
         fi
         eval $packagelist $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1504,7 +1505,7 @@ configureHttpd() {
         if [[ ! -z $snmysqlhost && $snmysqlhost != $dbhost ]]; then
             dbhost=$snmysqlhost
         elif [[ ! -z $snmysqlhost ]]; then
-            dbhost="p:localhost"
+            dbhost="p:127.0.0.1"
         fi
     fi
     if [[ ! -z $snmysqluser && $snmysqluser != $dbuser ]]; then

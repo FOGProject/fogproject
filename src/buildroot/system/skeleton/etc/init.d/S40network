@@ -67,7 +67,12 @@ if [[ -z "$primary_iface" && -z "$iface" ]]; then
 else
     echo "Failed to get an IP! Tried on interface(s): $primary_iface $iface"
 fi
-echo "Please check your network setup and try again! Hit <ENTER> to reboot..."
-read
-reboot
+if [[ -z $isdebug ]]; then
+    echo "Please check your network setup and try again! Hit <ENTER> to reboot..."
+    read
+    reboot
+else
+    echo "Please check your network setup and try again!"
+    debugPause
+fi
 exit 1

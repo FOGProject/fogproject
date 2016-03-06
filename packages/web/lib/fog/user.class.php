@@ -76,7 +76,7 @@ class User extends FOGController {
             $this->setMessage($this->foglang['SessionTimeout']);
             if (!isset($_SESSION['OBSOLETE'])) $_SESSION['OBSOLETE'] = true;
         }
-        if ($_SESSION['OBSOLETE']) {
+        if (isset($_SESSION['OBSOLETE']) && $_SESSION['OBSOLETE']) {
             $_SESSION['OBSOLETE'] = false;
             $this->redirect('index.php?node=logout');
         }
