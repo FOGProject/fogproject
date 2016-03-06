@@ -545,7 +545,7 @@ class Host extends FOGController {
                 if (!$Image->get('isEnabled')) throw new Exception(_('Image is not enabled'));
                 $StorageGroup = $Image->getStorageGroup();
                 if (!$StorageGroup->isValid()) throw new Exception($this->foglang['ImageGroupNotValid']);
-                $StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
+                $StorageNode = ($TaskType->isUpload() ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
                 if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode($this->get('imageID'));
                 if (!$StorageNode || !$StorageNode->isValid()) throw new Exception($this->foglang['SGNotValid']);
                 $imageTaskImgID = $this->get('imageID');
@@ -556,7 +556,7 @@ class Host extends FOGController {
             }
             $isUpload = $TaskType->isUpload();
             $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
-            $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageGroup->getOptimalStorageNode($this->get('imageID'))->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
+            $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageNode->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
             $Task->set('imageID',$this->get('imageID'));
             if (!$Task->save()) throw new Exception($this->foglang['FailedTask']);
             if ($TaskType->isSnapinTask()) {
