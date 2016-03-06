@@ -24,14 +24,14 @@ abstract class FOGPage extends FOGBase {
         parent::__construct();
         if (!empty($name)) $this->name = $name;
         $this->title = $this->name;
-        $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
-        $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST['id']}";
-        $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST['id']}";
         $PagesWithObjects = array('user','host','image','group','snapin','printer');
         $this->HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
         if (in_array($this->node,$PagesWithObjects)) {
             $this->childClass = ucfirst($this->node);
             if (isset($_REQUEST['id'])) {
+                $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
+                $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST['id']}";
+                $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST['id']}";
                 $this->obj = $this->getClass($this->childClass,$_REQUEST['id']);
                 if ((int) $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
                     unset($this->obj);
@@ -108,7 +108,7 @@ abstract class FOGPage extends FOGBase {
                 );
                 $contentField = 'search-content';
             }
-            if ($this->form) printf($this->form);
+            if (isset($this->form)) printf($this->form);
             printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<tbody>',
                 '100%',
                 $contentField,
@@ -130,7 +130,7 @@ abstract class FOGPage extends FOGBase {
                 foreach ((array)$this->data AS $i => &$rowData) {
                     printf('<tr id="%s-%s">%s</tr>',
                         strtolower($this->childClass),
-                        $rowData['id'] ? $rowData['id'] : $rowData[$id_field],
+                        isset($rowData['id']) ? $rowData['id'] : $rowData[$id_field],
                         $this->buildRow($rowData)
                     );
                 }

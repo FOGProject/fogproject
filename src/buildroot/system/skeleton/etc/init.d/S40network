@@ -7,30 +7,72 @@ if [[ -n $has_usb_nic ]]; then
     echo -n "Please press enter key to connect [Enter]"
     read -p "$*"
     echo "Sleeping for 5 seconds to allow USB to sync back with system"
-    /bin/usleep 5000000
+    sleep 5
 fi
-# Enable all interfaces
+# Enable loopback interface
 echo "auto lo" > /etc/network/interfaces
 echo "iface lo inet loopback" >> /etc/network/interfaces
-ifaces=$(ls -1 /sys/class/net | tr -d '@')
-timeout=10
-for iface in $ifaces; do
-    # Check if each interface is up and if not wait up to 10 seconds
-    if [[ x$iface == xlo ]]; then
-        /sbin/ip addr add 127.0.0.1 dev lo
-        /sbin/ip link set lo up
-        continue
-    fi
-    echo "Starting $iface interface"
-    /sbin/ip link set $iface up
-    for delay in $(seq 10); do
-        linkstate=$(/bin/cat /sys/class/net/$iface/carrier)
+echo "" >> /etc/network/interfaces
+/sbin/ip addr add 127.0.0.1/8 dev lo
+/sbin/ip link set lo up
+
+# Find interface having primary MAC address
+primary_iface=$(grep $mac /sys/class/net/*/address | cut -d '/' -f 5 2>/dev/null)
+if [[ -n $primary_iface ]]; then
+    # Bring interface up and wait for a moment
+    echo "Starting $primary_iface interface"
+    echo "auto $primary_iface" >> /etc/network/interfaces
+    echo "iface $primary_iface inet dhcp" >> /etc/network/interfaces
+    echo "" >> /etc/network/interfaces
+    /sbin/ip link set $primary_iface up
+    sleep 1
+    for retry in $(seq 3); do
+        linkstate=$(cat /sys/class/net/$primary_iface/carrier)
         if [[ x$linkstate == x1 ]]; then
-            /sbin/udhcpc -i $iface -t 2 -T $timeout --now
-            [[ $? -eq 0 ]] && break
-            timeout=$((timeout + 5))
+            # Try requesting an IP and exit the script if we have one
+            /sbin/udhcpc -i $primary_iface --now
+            [[ $? -eq 0 ]] && exit 0
+            echo "trying again on interface $primary_iface..."
         fi
-        /bin/usleep 1000000
+        sleep 1
+    done
+fi
+
+# If getting an IP on the primary interface failed or if we could not find
+# the primary interface through its MAC address we try other interfaces
+ifaces=$(ls -1 /sys/class/net | grep -v -e "lo" -e "^${primary_iface}$" | tr -d '@')
+for iface in $ifaces; do
+    # Bring interface up and wait for a moment
+    echo "Starting $iface interface"
+    echo "auto $iface" >> /etc/network/interfaces
+    echo "iface $iface inet dhcp" >> /etc/network/interfaces
+    echo "" >> /etc/network/interfaces
+    /sbin/ip link set $iface up
+    sleep 1
+    for retry in $(seq 3); do
+        linkstate=$(/bin/cat /sys/class/net/$iface/carrier)
+        echo "linkstate=$linkstate"
+        if [[ x$linkstate == x1 ]]; then
+            # Try requesting an IP and exit the script if we have one
+            /sbin/udhcpc -i $iface --now
+            [[ $? -eq 0 ]] && exit 0
+            echo "trying again on interface $iface..."
+        fi
+        sleep 1
     done
 done
-exit $?
+
+if [[ -z "$primary_iface" && -z "$iface" ]]; then
+    echo "Could not find any ethernet network interface! Kernel is probably missing a driver."
+else
+    echo "Failed to get an IP! Tried on interface(s): $primary_iface $iface"
+fi
+if [[ -z $isdebug ]]; then
+    echo "Please check your network setup and try again! Hit <ENTER> to reboot..."
+    read
+    reboot
+else
+    echo "Please check your network setup and try again!"
+    debugPause
+fi
+exit 1
