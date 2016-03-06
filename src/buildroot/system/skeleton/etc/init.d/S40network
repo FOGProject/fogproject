@@ -30,8 +30,11 @@ if [[ -n $primary_iface ]]; then
         linkstate=$(cat /sys/class/net/$primary_iface/carrier)
         if [[ x$linkstate == x1 ]]; then
             # Try requesting an IP and exit the script if we have one
-            /sbin/udhcpc -i $primary_iface -t 2 -T 10 --now
-            [[ $? -eq 0 ]] && exit 0
+            /sbin/udhcpc -i $primary_iface -t 2 -T 10 -q
+            if [[ $? -eq 0 ]]; then
+                /sbin/ifup -a
+                exit 0
+            fi
             echo "trying again on interface $primary_iface..."
         fi
         sleep 1
@@ -40,7 +43,7 @@ fi
 
 # If getting an IP on the primary interface failed or if we could not find
 # the primary interface through its MAC address we try other interfaces
-ifaces=$(ls -1 /sys/class/net | grep -v -e "lo" -e "^${primary_iface}$" | tr -d '@')
+ifaces=$(ls -1 /sys/class/net | tr -d '@' | grep -v -e "lo" -e "^${primary_iface}$")
 for iface in $ifaces; do
     # Bring interface up and wait for a moment
     echo "Starting $iface interface"
@@ -54,25 +57,24 @@ for iface in $ifaces; do
         echo "linkstate=$linkstate"
         if [[ x$linkstate == x1 ]]; then
             # Try requesting an IP and exit the script if we have one
-            /sbin/udhcpc -i $iface -t 2 -T 10 --now
-            [[ $? -eq 0 ]] && exit 0
+            /sbin/udhcpc -i $iface -t 2 -T 10 -q
+            if [[ $? -eq 0 ]]; then
+                /sbin/ifup -a
+                exit 0
+            fi
             echo "trying again on interface $iface..."
         fi
         sleep 1
     done
 done
 
-if [[ -z "$primary_iface" && -z "$iface" ]]; then
-    echo "Could not find any ethernet network interface! Kernel is probably missing a driver."
-else
+[[ -z $primary_iface && -z $iface ]] && \
+    echo "Could not find any ethernet network interface! Kernel is probably missing a driver." || \
     echo "Failed to get an IP! Tried on interface(s): $primary_iface $iface"
-fi
 if [[ -z $isdebug ]]; then
-    echo "Please check your network setup and try again! Hit <ENTER> to reboot..."
-    read
+    sleep 60
     reboot
-else
-    echo "Please check your network setup and try again!"
-    debugPause
 fi
+echo "Please check your network setup and try again!"
+read
 exit 1
