@@ -1505,7 +1505,7 @@ configureHttpd() {
         if [[ ! -z $snmysqlhost && $snmysqlhost != $dbhost ]]; then
             dbhost=$snmysqlhost
         elif [[ ! -z $snmysqlhost ]]; then
-            dbhost="p:localhost"
+            dbhost="p:127.0.0.1"
         fi
     fi
     if [[ ! -z $snmysqluser && $snmysqluser != $dbuser ]]; then
