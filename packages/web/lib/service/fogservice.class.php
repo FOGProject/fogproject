@@ -14,12 +14,10 @@ abstract class FOGService extends FOGBase {
         $res = true;
         $fp_a = fopen($file_a,'r');
         $fp_b = fopen($file_b,'r');
-        fseek($fp_a,-10240,SEEK_END);
-        $a = fread($fp_a,-10240);
-        $a_hex=bin2hex($a);
-        fseek($fp_b,-10240,SEEK_END);
-        $b = fread($fp_b,-10240);
-        $b_hex=bin2hex($b);
+        $a = fgets($fp_a,10240);
+        $a_hex = bin2hex($a);
+        $b = fgets($fp_b,10240);
+        $b_hex = bin2hex($b);
         if ($a_hex !== $b_hex) $res = false;
         fclose($fp_a);
         fclose($fp_b);
