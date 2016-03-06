@@ -25,5 +25,15 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
         );
         if ($productKey) printf("\n#Key=%s",$productKey);
         $this->send = ob_get_clean();
+        if ($this->json) {
+            $val = array(
+                'AD' => $this->Host->get('useAD'),
+                'ADDom' => $this->Host->get('useAD') ? $this->Host->get('ADDomain') : '',
+                'ADOU' => $this->Host->get('useAD') ? $this->Host->get('ADOU') : '',
+                'ADUser' => $this->Host->get('useAD') ? $adUser : '',
+                'ADPass' => $this->Host->get('useAD') ? $password : '',
+            );
+            return $val;
+        }
     }
 }

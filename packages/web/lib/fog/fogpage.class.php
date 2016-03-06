@@ -741,6 +741,18 @@ abstract class FOGPage extends FOGBase {
         }
         exit;
     }
+    public function requestClientInfo() {
+        $array = array();
+        $array = array(
+            'autologout' => $this->getClass('Autologout',true,false,false,false,isset($_REQUEST['newService']))->send(),
+            'displaymanager' => $this->getClass('DisplayManager',true,false,false,false,isset($_REQUEST['newService']))->send(),
+            'greenfog' => $this->getClass('GF',true,false,false,false,isset($_REQUEST['newService']))->send(),
+            'hostnamechanger' => $this->getClass('HostnameChanger',true,false,false,false,isset($_REQUEST['newService']))->send(),
+            'jobs' => $this->getClass('Jobs',true,false,false,false,isset($_REQUEST['newService']))->send(),
+        );
+        echo json_encode($array);
+        exit;
+    }
     public function clearAES() {
         if (isset($_REQUEST['groupid'])) $this->getClass('HostManager')->update(array('id'=>$this->getClass('Group',$_REQUEST['groupid'])->get('hosts')),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
         else if (isset($_REQUEST['id'])) $this->getClass('HostManager')->update(array('id'=>$_REQUEST['id']),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
