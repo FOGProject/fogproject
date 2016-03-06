@@ -31,7 +31,7 @@ if [[ -n $primary_iface ]]; then
         if [[ x$linkstate == x1 ]]; then
             # Try requesting an IP and exit the script if we have one
             /sbin/udhcpc -i $primary_iface --now
-            [[ $? -eq 0 ]] && sleep 5 && exit 0
+            [[ $? -eq 0 ]] && exit 0
             echo "trying again on interface $primary_iface..."
         fi
         sleep 1
@@ -55,7 +55,7 @@ for iface in $ifaces; do
         if [[ x$linkstate == x1 ]]; then
             # Try requesting an IP and exit the script if we have one
             /sbin/udhcpc -i $iface --now
-            [[ $? -eq 0 ]] && sleep 5 && exit 0
+            [[ $? -eq 0 ]] && exit 0
             echo "trying again on interface $iface..."
         fi
         sleep 1
@@ -67,7 +67,12 @@ if [[ -z "$primary_iface" && -z "$iface" ]]; then
 else
     echo "Failed to get an IP! Tried on interface(s): $primary_iface $iface"
 fi
-echo "Please check your network setup and try again! Hit <ENTER> to reboot..."
-read
-reboot
+if [[ -z $isdebug ]]; then
+    echo "Please check your network setup and try again! Hit <ENTER> to reboot..."
+    read
+    reboot
+else
+    echo "Please check your network setup and try again!"
+    debugPause
+fi
 exit 1

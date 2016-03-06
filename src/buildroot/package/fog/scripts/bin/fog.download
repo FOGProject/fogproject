@@ -35,7 +35,7 @@ case $imgType in
         diskSize=$(lsblk --bytes -dplno SIZE -I 3,8,9,179,259 $hd)
         [[ $diskSize -gt 2199023255552 ]] && layPartSize="2tB"
         echo " * Using Disk: $hd"
-        validResizeOS
+        [[ $imgType == +([nN]) ]] && validResizeOS
         enableWriteCache "$hd"
         ;;
     mpa)
