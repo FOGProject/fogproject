@@ -177,6 +177,12 @@ abstract class FOGService extends FOGBase {
                     $this->outall(_(" | File or path cannot be reached"));
                     continue;
                 }
+                $filename = $Obj->get('name');
+                if ($this->isRunning($this->procRef[$itemType][$filename][$i])) {
+                    $this->outall(_(' | Replication not complete'));
+                    $this->outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$itemType][$filename][$i])));
+                    continue;
+                }
                 $this->FOGFTP
                     ->set('username',$PotentialStorageNode->get('user'))
                     ->set('password',$PotentialStorageNode->get('pass'))
@@ -214,7 +220,6 @@ abstract class FOGService extends FOGBase {
                 sort($localfilescheck);
                 sort($remotefilescheck);
                 foreach ($localfilescheck AS $i => &$localfile) {
-                    if ($this->isRunning($this->procRef[$itemType][$filename][$i])) break;
                     if (($index = array_search($localfile,$remotefilescheck)) === false) continue;
                     $this->outall(" | Local File: $localfile");
                     $this->outall(" | Remote File: {$remotefilescheck[$index]}");
@@ -232,17 +237,11 @@ abstract class FOGService extends FOGBase {
                 }
                 $this->FOGFTP->close();
                 $logname = "$this->log.transfer.$nodename.log";
-                $filename = $Obj->get('name');
                 if (!$i) $this->outall(_(' * Starting Sync Actions'));
-                if ($this->isRunning($this->procRef[$itemType][$filename][$i])) {
-                    $this->outall(_(' | Replication not complete'));
-                    $this->outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$itemType][$filename][$i])));
-                } else {
-                    $this->killTasking($i,$itemType,$filename);
-                    $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
-                    if ($this->getSetting('FOG_SERVICE_DEBUG')) $this->outall(" | CMD:\n\t\t\t$cmd");
-                    $this->startTasking($cmd,$logname,$i,$itemType,$filename);
-                }
+                $this->killTasking($i,$itemType,$filename);
+                $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
+                if ($this->getSetting('FOG_SERVICE_DEBUG')) $this->outall(" | CMD:\n\t\t\t$cmd");
+                $this->startTasking($cmd,$logname,$i,$itemType,$filename);
                 $this->outall(sprintf(' * %s %s %s',_('Started sync for'),$objType,$Obj->get('name')));
                 unset($PotentialStorageNode);
             }
