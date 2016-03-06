@@ -12,7 +12,7 @@ class FOGPageManager Extends FOGBase {
     }
     public function __construct() {
         parent::__construct();
-        $this->classValue = $_REQUEST['node'] ? $this->replaceVariable($_REQUEST['node']) : 'home';
+        $this->classValue = isset($_REQUEST['node']) && $_REQUEST['node'] ? $this->replaceVariable($_REQUEST['node']) : 'home';
         unset($value);
         $this->methodValue = $this->replaceVariable($_REQUEST['sub']);
         $this->HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
@@ -55,7 +55,7 @@ class FOGPageManager Extends FOGBase {
                 if (empty($method) || !method_exists($class, $method)) $method = 'index';
                 $displayScreen = trim(strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']));
                 if (!array_key_exists($this->classValue, $this->nodes)) throw new Exception(_('No FOGPage Class found for this node'));
-                if ($_REQUEST[$class->id]) $this->arguments = array('id'=>$_REQUEST[$class->id]);
+                if (isset($_REQUEST[$class->id]) && $_REQUEST[$class->id]) $this->arguments = array('id'=>$_REQUEST[$class->id]);
                 if ($this->post) $this->setRequest();
                 else $this->resetRequest();
                 if ($this->classValue != 'schemaupdater' && $method == 'index' && $displayScreen != 'list' && $this->methodValue != 'list' && method_exists($class, 'search') && in_array($class->node,$this->searchPages)) $method = 'search';

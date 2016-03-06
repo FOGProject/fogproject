@@ -128,6 +128,7 @@ abstract class FOGBase {
         $_SESSION['FOG_MESSAGES'] = (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
     }
     protected function getMessages() {
+        if (!isset($_SESSION['FOG_MESSAGES'])) $_SESSION['FOG_MESSAGES'] = array();
         $messages = (array)$_SESSION['FOG_MESSAGES'];
         unset($_SESSION['FOG_MESSAGES']);
         if ($this->HookManager instanceof HookManager) $this->HookManager->processEvent('MessageBox',array('data'=>&$messages));
@@ -192,6 +193,7 @@ abstract class FOGBase {
     protected function resetRequest() {
         $reqVars = (array)$_REQUEST;
         unset($_REQUEST);
+        if (!isset($_SESSION['post_request_vals'])) $_SESSION['post_request_vals'] = array();
         $sesVars = (array)$_SESSION['post_request_vals'];
         foreach($sesVars AS $key => &$val) {
             $_REQUEST[$key] = $val;

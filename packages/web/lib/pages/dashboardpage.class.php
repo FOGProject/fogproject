@@ -4,7 +4,7 @@ class DashboardPage extends FOGPage {
     public function __construct($name = '') {
         $this->name = 'Dashboard';
         parent::__construct($this->name);
-        $this->obj = $this->getClass('StorageNode',$_REQUEST['id']);
+        if (isset($_REQUEST['id'])) $this->obj = $this->getClass('StorageNode',$_REQUEST['id']);
         $this->menu = array();
         $this->subMenu = array();
         $this->notes = array();
