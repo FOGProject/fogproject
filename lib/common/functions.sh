@@ -400,6 +400,15 @@ configureFTP() {
     echo -e  "anonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\ntcp_wrappers=$tcpwrappers\n$seccompsand" > "$ftpconfig"
     case $systemctl in
         yes)
+            systemctl enable vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            sleep 2
+            systemctl stop vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            sleep 2
+            systemctl start vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            sleep 2
+            systemctl status vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            ;;
+        *)
             case $osid in
                 2)
                     sysv-rc-conf vsftpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -410,23 +419,14 @@ configureFTP() {
                     service vsftpd status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
-                    systemctl enable vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    chkconfig vsftpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    service vsftpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sleep 2
-                    systemctl stop vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    service vsftpd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sleep 2
-                    systemctl start vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
-                    systemctl status vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    service vsftpd status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
-            ;;
-        *)
-            chkconfig vsftpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            service vsftpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            service vsftpd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            service vsftpd status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             ;;
     esac
     errorStat $?
