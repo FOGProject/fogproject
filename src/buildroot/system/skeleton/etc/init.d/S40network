@@ -20,7 +20,7 @@ for primary_iface in $primary_ifaces; do
     # Check if each interface is up and if not wait up to 3 seconds
     echo "Starting $primary_iface interface"
     echo "auto $primary_iface" >> /etc/network/interfaces
-    echo "iface $primary_iface inet dhcp" >> /etc/network/
+    echo "iface $primary_iface inet dhcp" >> /etc/network/interfaces
     echo "" >> /etc/network/interfaces
     /sbin/ip link set $primary_iface up
     sleep 1
@@ -39,7 +39,7 @@ for iface in $ifaces; do
     # Check if each interface is up and if not wait up to 10 seconds
     echo "Starting $iface interface"
     echo "auto $iface" >> /etc/network/interfaces
-    echo "iface $iface inet dhcp" >> /etc/network/
+    echo "iface $iface inet dhcp" >> /etc/network/interfaces
     echo "" >> /etc/network/interfaces
     /sbin/ip link set $iface up
     sleep 1
