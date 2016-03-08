@@ -456,16 +456,9 @@ class ImageManagementPage extends FOGPage {
         $this->redirect(sprintf('?node=%s&sub=multicast',$this->node));
     }
     public function stop() {
-        if (is_numeric($_REQUEST['mcid']) && $_REQUEST['mcid'] > 0) {
-            foreach ((array)$this->getClass('MulticastSessionsAssociationManager')->find(array('msID'=>$_REQUEST['mcid'])) AS $i => &$MulticastAssoc) {
-                if (!$MulticastAssoc->isValid()) continue;
-                $Task = $MulticastAssoc->getTask();
-                if (!$Task->isValid()) continue;
-                $Task->cancel();
-                unset($MulticastAssoc);
-            }
-            $this->setMessage(_('Cancelled task'));
-            $this->redirect(sprintf('?node=%s&sub=multicast',$this->node));
-        }
+        if ((int)$_REQUEST['mcid'] < 1) $this->redirect(sprintf('?node=%s&sub=multicast',$this->node));
+        $this->getClass('MulticastSessionsManager')->cancel($_REQUEST['mcid']);
+        $this->setMessage(sprintf('%s%s',_('Cancelled task'),count($_REQUEST['mcid']) !== 1 ? 's' : ''));
+        $this->redirect(sprintf('?node=%s&sub=multicast',$this->node));
     }
 }

@@ -18,8 +18,17 @@ res=""
 dots "Updating Database"
 while [[ $res != "##" ]]; do
     res=$(wget --post-data="$poststring" -qO - http://${web}service/$php_post 2>/dev/null)
+    if [[ $res != "##" && $count -lt 10 ]]; then
+        echo "Failed"
+        debugPause
+        printf " * Error returned: %s" "$res"
+        debugPause
+        dots "Reattempting to update database"
+    fi
     if [[ $count -ge 10 ]]; then
         echo "Failed"
+        debugPause
+        printf " * Error returned: %s" "$res"
         debugPause
         handleError "Could not complete tasking ($0)\n   Args Passed: $*"
     fi
