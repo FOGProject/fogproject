@@ -1677,6 +1677,8 @@ MBRFileName() {
         down)
             [[ ! -f $mbr ]] && mbr="$mbrfile"
             printf -v "$varVar" "$mbr"
+            [[ -z $mbr ]] && handleError "Image store corrupt, unable to locate MBR, no default file specified (${FUNCNAME[0]})\n    Args Passed: $*\n    $varVar Variable set to: ${!varVar}"
+            [[ ! -f $mbr ]] && handleError "Image store corrupt, unable to locate MBR, no file found (${FUNCNAME[0]})\n    Args Passed: $*\n    Variable set to: ${!varVar}\n    $varVar Variable set to: ${!varVar}"
             ;;
         up)
             printf -v "$varVar" "$mbr"
