@@ -742,14 +742,36 @@ abstract class FOGPage extends FOGBase {
         exit;
     }
     public function requestClientInfo() {
+        $globalModules = array_diff(array_keys(array_filter($this->getGlobalModuleStatus())),array('dircleanup','usercleanup','clientupdater','hostregister'));
+        $Host = $this->getHostItem();
+        $hostModules = $this->getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName');
+        $hostModules = array_intersect($globalModules,(array)$hostModules);
         $array = array();
-        $array = array(
-            'autologout' => $this->getClass('Autologout',true,false,false,false,isset($_REQUEST['newService']))->send(),
-            'displaymanager' => $this->getClass('DisplayManager',true,false,false,false,isset($_REQUEST['newService']))->send(),
-            'greenfog' => $this->getClass('GF',true,false,false,false,isset($_REQUEST['newService']))->send(),
-            'hostnamechanger' => $this->getClass('HostnameChanger',true,false,false,false,isset($_REQUEST['newService']))->send(),
-            'jobs' => $this->getClass('Jobs',true,false,false,false,isset($_REQUEST['newService']))->send(),
-        );
+        foreach ($hostModules AS &$key) {
+            switch ($key) {
+            case 'usertracker':
+            case 'printermanager':
+            case 'snapinclient':
+                continue 2;
+            case 'greenfog':
+                $class='GF';
+                break;
+            case 'printermanager':
+                $class='PrinterClient';
+                break;
+            case 'taskreboot':
+                $class='Jobs';
+                break;
+            case 'usertracker':
+                $class='UserTrack';
+                break;
+            default:
+                $class=$key;
+                break;
+            }
+            $array[$key] = $this->getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
+            unset($key);
+        }
         echo json_encode($array);
         exit;
     }
