@@ -1675,7 +1675,7 @@ MBRFileName() {
     [[ -n $sgdisk ]] && mbr="$imagePath/d${disk_number}.grub.mbr" || mbr="$imagePath/d${disk_number}.mbr"
     case $type in
         down)
-            [[ ! -f $mbr ]] && mbr="$mbrfile"
+            [[ ! -f $mbr && -n $mbrfile ]] && mbr="$mbrfile"
             printf -v "$varVar" "$mbr"
             [[ -z $mbr ]] && handleError "Image store corrupt, unable to locate MBR, no default file specified (${FUNCNAME[0]})\n    Args Passed: $*\n    $varVar Variable set to: ${!varVar}"
             [[ ! -f $mbr ]] && handleError "Image store corrupt, unable to locate MBR, no file found (${FUNCNAME[0]})\n    Args Passed: $*\n    Variable set to: ${!varVar}\n    $varVar Variable set to: ${!varVar}"
