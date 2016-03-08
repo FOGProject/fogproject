@@ -994,7 +994,7 @@ clearMountedDevices() {
                         umount /ntfs >/dev/null 2>&1
                         return
                     fi
-                    reged -e </usr/share/fog/lib/EOFMOUNT >/dev/null 2>&1
+                    reged -e $REG_LOCAL_MACHINE_7 </usr/share/fog/lib/EOFMOUNT >/dev/null 2>&1
                     case $? in
                         [0-2])
                             echo "Done"
