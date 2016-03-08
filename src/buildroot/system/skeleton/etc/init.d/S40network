@@ -15,48 +15,43 @@ echo "iface lo inet loopback" >> /etc/network/interfaces
 echo "" >> /etc/network/interfaces
 /sbin/ip addr add 127.0.0.1 dev lo
 /sbin/ip link set lo up
+
+# Generated a sorted list with primary interfaces first
 primary_ifaces=$(egrep -i "($mac)" /sys/class/net/*/address | awk -F'(/)' '{print $5}')
-for primary_iface in $primary_ifaces; do
-    # Check if each interface is up and if not wait up to 3 seconds
-    echo "Starting $primary_iface interface"
-    echo "auto $primary_iface" >> /etc/network/interfaces
-    echo "iface $primary_iface inet dhcp" >> /etc/network/interfaces
-    echo "" >> /etc/network/interfaces
-    /sbin/ip link set $primary_iface up
-    sleep 1
-    for retry in $(seq 3); do
-        linkstate=$(/bin/cat /sys/class/net/$primary_iface/carrier)
-        if [[ x$linkstate == x1 ]]; then
-            /sbin/udhcpc -i $primary_iface --now
-            [[ $? -eq 0 ]] && exit 0;
-            echo "Trying again on interface $primary_iface..."
-        fi
-        sleep 1
-    done
-done
-ifaces=$(egrep -v -i "($mac|00:00:00:00:00:00)" /sys/class/net/*/address | awk -F'(/)' '{print $5}')
+other_ifaces=$(egrep -v -i "($mac|00:00:00:00:00:00)" /sys/class/net/*/address | awk -F'(/)' '{print $5}')
+ifaces="$primary_ifaces $other_ifaces"
 for iface in $ifaces; do
-    # Check if each interface is up and if not wait up to 10 seconds
-    echo "Starting $iface interface"
+    echo "Starting $iface interface and waiting for the link to come up"
     echo "auto $iface" >> /etc/network/interfaces
     echo "iface $iface inet dhcp" >> /etc/network/interfaces
     echo "" >> /etc/network/interfaces
     /sbin/ip link set $iface up
-    sleep 1
-    for retry in $(seq 3); do
+
+    # Wait till the interface is fully up and ready (spanning tree)
+    timeout=0
+    linkstate=0
+    until [[ $linkstate -eq 1 || $timeout -ge 35 ]]; do
+        sleep 1
         linkstate=$(/bin/cat /sys/class/net/$iface/carrier)
-        if [[ x$linkstate == x1 ]]; then
-            /sbin/udhcpc -i $iface --now
-            [[ $? -eq 0 ]] && exit 0
-            echo "trying again on interface $iface..."
-        fi
+        timeout=$((timeout + 1))
+    done
+    [[ $linkstate -eq 0 ]] && echo "No link detected on $iface for $timeout seconds, skipping it." && continue
+    for retry in $(seq 3); do
+        /sbin/udhcpc -i $iface --now
+        [[ $? -eq 0 ]] && exit 0
         sleep 1
     done
+    echo "No DHCP response on interface $iface, skipping it."
 done
-[[ -z $primary_ifaces && -z $ifaces ]] && echo "No network interfaces found, kernel is probably missing a driver" || "Failed to get an IP!, Tried on interfaces(s): $primary_ifaces $ifaces"
+
+# If we end up here something went wrong as we do exit the script as soon as we get an IP!
+if [[ -z $ifaces ]]; then
+    echo "No network interfaces found, your kernel is most probably missing the correct driver!"
+else
+    echo "Failed to get an IP via DHCP! Tried on interfaces(s): $ifaces"
+fi
 echo "Please check your network setup and try again!"
-[[ -z $isdebug ]] && sleep 60
-[[ -z $isdebug ]] && reboot
+[[ -z $isdebug ]] && sleep 60 && reboot
 echo "Press enter to continue"
 read
 exit 1
