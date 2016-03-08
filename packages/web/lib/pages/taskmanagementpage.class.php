@@ -317,6 +317,7 @@ class TaskManagementPage extends FOGPage {
         $MulticastSessionIDs = (array)$_REQUEST['task'];
         $TaskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MulticastSessionIDs),'taskID');
         $this->getClass('TaskManager')->cancel($TaskIDs);
+        $this->getClass('MulticastSessionsManager')->cancel($_REQUEST['task']);
         unset($MulticastSessionIDs);
         exit;
     }
