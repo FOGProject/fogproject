@@ -994,7 +994,7 @@ clearMountedDevices() {
                         umount /ntfs >/dev/null 2>&1
                         return
                     fi
-                    reged -e </usr/share/fog/lib/EOFMOUNT >/dev/null 2>&1
+                    reged -e $REG_LOCAL_MACHINE_7 </usr/share/fog/lib/EOFMOUNT >/dev/null 2>&1
                     case $? in
                         [0-2])
                             echo "Done"
@@ -1672,16 +1672,15 @@ MBRFileName() {
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $varVar ]] && handleError "No variable to set passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local mbr=""
+    [[ -n $sgdisk ]] && mbr="$imagePath/d${disk_number}.grub.mbr" || mbr="$imagePath/d${disk_number}.mbr"
     case $type in
         down)
-            [[ -n $sgdisk ]] && mbr="$imagePath/d${disk_number}.grub.mbr" || mbr="$imagePath/d${disk_number}.mbr"
-            [[ ! -f $mbr && -z $mbrfile ]] && handleError "Image store corrupt, unable to locate MBR, no default file specified (${FUNCNAME[0]})\n    Args Passed: $*"
-            [[ ! -f $mbr && ! -f $mbrfile ]] && handleError "Image store corrupt, unable to locate MBR, no file found (${FUNCNAME[0]})\n    Args Passed: $*"
-            [[ ! -f $mbr ]] && mbr="$mbrfile"
+            [[ ! -f $mbr && -n $mbrfile ]] && mbr="$mbrfile"
             printf -v "$varVar" "$mbr"
+            [[ -z $mbr ]] && handleError "Image store corrupt, unable to locate MBR, no default file specified (${FUNCNAME[0]})\n    Args Passed: $*\n    $varVar Variable set to: ${!varVar}"
+            [[ ! -f $mbr ]] && handleError "Image store corrupt, unable to locate MBR, no file found (${FUNCNAME[0]})\n    Args Passed: $*\n    Variable set to: ${!varVar}\n    $varVar Variable set to: ${!varVar}"
             ;;
         up)
-            [[ -n $sgdisk ]] && mbr="$imagePath/d${disk_number}.grub.mbr" || mbr="$imagePath/d${disk_number}.mbr"
             printf -v "$varVar" "$mbr"
             ;;
     esac

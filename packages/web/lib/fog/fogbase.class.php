@@ -52,7 +52,7 @@ abstract class FOGBase {
         $this->isMobile = (bool)preg_match('#/mobile/#i',$this->urlself);
         $this->service = (bool)preg_match('#/service/#i', $this->urlself);
         $this->ajax = (bool)isset($_SERVER['HTTP_X_REQUESTED_WITH']) && preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);
-        $this->post = (bool)preg_match('#^post$#i',$_SERVER['REQUEST_METHOD']);
+        $this->post = (bool)preg_match('#^post$#i',isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] ? $_SERVER['REQUEST_METHOD'] : '');
     }
     public function __toString() {
         return (string)get_class($this);

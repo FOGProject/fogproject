@@ -583,11 +583,11 @@ getDesiredPartitionTableType() {
     [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
     table_type="MBR"
-    local mbrfile=""
-    MBRFileName "$imagePath" "$disk_number" "mbrfile"
-    [[ ! -r $mbrfile ]] && return
+    local mbrfilename=""
+    MBRFileName "$imagePath" "$disk_number" "mbrfilename"
+    [[ ! -r $mbrfilename ]] && return
     local tmpfile="/tmp/gptsig"
-    dd skip=512 bs=1 if=$mbrfile of=$tmpfile count=8 >/dev/null 2>&1
+    dd skip=512 bs=1 if=$mbrfilename of=$tmpfile count=8 >/dev/null 2>&1
     touch $tmpfile
     local gptsig=$(cat $tmpfile)
     [[ $gptsig == "EFI PART" ]] && table_type="GPT"
