@@ -16,7 +16,7 @@ abstract class FOGClient extends FOGBase {
             $this->sendData(trim($this->send));
         } catch (Exception $e) {
             echo $e->getMessage();
-            //exit;
+            exit;
         }
     }
 }
