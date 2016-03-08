@@ -3,6 +3,7 @@ class Jobs extends FOGClient implements FOGClientSend {
     public function send() {
         $this->send = '#!nj';
         $Task = $this->Host->get('task');
-        if ($Task->isValid() && !in_array($Task->get('typeID'),array(12,13))) $this->send = '#!ok';
+        if ($Task->isValid() && $Task->isInitNeededTasking()) $this->send = '#!ok';
+        if ($this->json) return $Task->isValid() && $Task->isInitNeededTasking() ? 'yes' : 'no';
     }
 }

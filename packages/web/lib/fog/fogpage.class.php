@@ -741,6 +741,40 @@ abstract class FOGPage extends FOGBase {
         }
         exit;
     }
+    public function requestClientInfo() {
+        $globalModules = array_diff(array_keys(array_filter($this->getGlobalModuleStatus())),array('dircleanup','usercleanup','clientupdater','hostregister'));
+        $Host = $this->getHostItem();
+        $hostModules = $this->getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName');
+        $hostModules = array_intersect($globalModules,(array)$hostModules);
+        $array = array();
+        foreach ($hostModules AS &$key) {
+            switch ($key) {
+            case 'usertracker':
+            case 'printermanager':
+            case 'snapinclient':
+                continue 2;
+            case 'greenfog':
+                $class='GF';
+                break;
+            case 'printermanager':
+                $class='PrinterClient';
+                break;
+            case 'taskreboot':
+                $class='Jobs';
+                break;
+            case 'usertracker':
+                $class='UserTrack';
+                break;
+            default:
+                $class=$key;
+                break;
+            }
+            $array[$key] = $this->getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
+            unset($key);
+        }
+        echo json_encode($array);
+        exit;
+    }
     public function clearAES() {
         if (isset($_REQUEST['groupid'])) $this->getClass('HostManager')->update(array('id'=>$this->getClass('Group',$_REQUEST['groupid'])->get('hosts')),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
         else if (isset($_REQUEST['id'])) $this->getClass('HostManager')->update(array('id'=>$_REQUEST['id']),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));

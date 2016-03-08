@@ -16,7 +16,7 @@ class ServiceModule extends FOGClient implements FOGClientSend {
             $moduleID = $this->getClass('Module',@max($this->getSubObjectIDs('Module',array('shortName'=>$_REQUEST['moduleid']),'','','OR')));
         }
         if (!$moduleID->isValid()) throw new Exception('#!um');
-        $moduleName = $this->getClass('HostManager')->getGlobalModuleStatus();
+        $moduleName = $this->getGlobalModuleStatus();
         if (!$moduleName[$moduleID->get('shortName')]) throw new Exception("#!ng\n");
         $activeIDs = $this->Host->get('modules');
         $this->send = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
