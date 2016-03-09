@@ -251,6 +251,12 @@ function fill_disk(partition_names, partitions, args, \
 		p_type = partitions[pName, "type"];
 		p_number = partitions[pName, "number"] + 0;
 		p_size = partitions[pName, "size"] + 0;
+        p_start = partitions[pName, "start"] + 0;
+        for (j in fixed_partitions) {
+            if (fixed_partitions[j] == p_number) {
+                curr_start = p_start;
+            }
+        }
 		if(p_size > 0) {
 			partitions[pName, "start"] = curr_start;
 		}
