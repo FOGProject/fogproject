@@ -15,8 +15,8 @@ echo -e "auto lo\niface lo inet loopback\n\n" >> /etc/network/interfaces
 /sbin/ip link set lo up
 
 # Generated a sorted list with primary interfaces first
-read p_ifaces <<< $(/sbin/ip -0 -o addr show | awk -F'[: ]+' '/'$mac'/ {print $2}')
-read o_ifaces <<< $(/sbin/ip -0 -o addr show | awk -F'[: ]+' '!/'$mac'|00:00:00:00:00:00/ {print $2}')
+read p_ifaces <<< $(/sbin/ip -0 -o addr show | awk -F'[: ]+' '/link[/]?ether/ && /'$mac'/ {print $2}')
+read o_ifaces <<< $(/sbin/ip -0 -o addr show | awk -F'[: ]+' '/link[/]?ether/ && !/'$mac'/ {print $2}')
 ifaces="$p_ifaces $o_ifaces"
 for iface in $ifaces; do
     echo "Starting $iface interface and waiting for the link to come up"
