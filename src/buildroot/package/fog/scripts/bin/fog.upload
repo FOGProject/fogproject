@@ -83,10 +83,10 @@ debugPause
 case $imgType in
     [Nn])
         validResizeOS
-        [[ $osid =~ @([1-2]|4|[5-7]|9) ]] && win7partcnt=$(echo $parts | wc -w)
-        dots "Checking for fixed partitions"
         runPartprobe "$hd"
         getPartitions "$hd"
+        [[ $osid == @([1-2]|[4-7]|9) ]] && win7partcnt=$(echo $parts | wc -w)
+        dots "Checking for fixed partitions"
         part_number=""
         for part in $parts; do
             fsTypeSetting "$part"
@@ -117,7 +117,7 @@ case $imgType in
         echo " * EXTFS Partition count of: $extfscnt"
         debugPause
         case $osid in
-            4|[5-7]|9|50|51)
+            [4-7]|9|50|51)
                 echo " * Setting up any additional fixed parts"
                 part_number=0
                 for part in $parts; do
@@ -138,7 +138,7 @@ case $imgType in
         esac
         # All:
         #  save the list of fixed size partitions
-        fixed_size_partitions=$(echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://')
+        fixed_size_partitions=$(echo $fixed_size_partitions | sed -r -e 's/[^:0-9]//g' -e 's/^://g')
         echo "$fixed_size_partitions" > "$imagePath/d1.fixed_size_partitions"
         case $osid in
             [1-2])
