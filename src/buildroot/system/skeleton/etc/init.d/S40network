@@ -33,7 +33,7 @@ for iface in $ifaces; do
     until [[ $linkstate -eq 1 || $timeout -ge 35 ]]; do
         sleep 1
         linkstate=$(/bin/cat /sys/class/net/$iface/carrier)
-        timeout=$((timeout + 1))
+        let timeout+=1
     done
     [[ $linkstate -eq 0 ]] && echo "No link detected on $iface for $timeout seconds, skipping it." && continue
     for retry in $(seq 3); do

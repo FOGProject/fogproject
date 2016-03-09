@@ -52,13 +52,9 @@ displayBanner() {
 }
 # Gets all system mac addresses except for loopback
 getMACAddresses() {
-    ifaces=$(grep -v -i "00:00:00:00:00:00" /sys/class/net/*/address | awk -F'(/)' '{print $5}')
-    for iface in $ifaces; do
-        ip=$(/sbin/ifconfig $iface | grep "inet addr" | awk -F' ' '{print $2}' | awk -F':' '{print $2}')
-        mac=$(cat /sys/class/net/$iface/address | tr -d '\n')
-        [[ -n $ip ]] && mac_addresses=("$mac" "${mac_addresses[@]}") || mac_addresses=("${mac_addresses[@]}" "$mac")
-    done
-    echo ${mac_addresses[@]} | tr ' ' '|'
+    read ifaces <<< $(/sbin/ip -4 -o addr | awk -F'([ /])+' '/global/ {print $2}' | tr '[:space:]' '|' | sed -e 's/^[|]//g' -e 's/[|]$//g')
+    read mac_addresses <<< $(/sbin/ip -0 -o addr | awk "/$ifaces/ {print \$14}" | tr '[:space:]' '|' | sed -e 's/^[|]//g' -e 's/[|]$//g')
+    echo $mac_addresses
 }
 # Verifies that there is a network interface
 verifyNetworkConnection() {
