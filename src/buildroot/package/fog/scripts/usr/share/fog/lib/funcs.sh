@@ -52,8 +52,13 @@ displayBanner() {
 }
 # Gets all system mac addresses except for loopback
 getMACAddresses() {
-    local lomac="00:00:00:00:00:00"
-    cat /sys/class/net/*/address | grep -v $lomac | tr '\n' '|' | sed s/.$//g
+    ifaces=$(grep -v -i "00:00:00:00:00:00" /sys/class/net/*/address | awk -F'(/)' '{print $5}')
+    for iface in $ifaces; do
+        ip=$(/sbin/ifconfig $iface | grep "inet addr" | awk -F' ' '{print $2}' | awk -F':' '{print $2}')
+        mac=$(cat /sys/class/net/$iface/address | tr -d '\n')
+        [[ -n $ip ]] && mac_addresses=("$mac" "${mac_addresses[@]}") || mac_addresses=("${mac_addresses[@]}" "$mac")
+    done
+    echo ${mac_addresses[@]} | tr ' ' '|'
 }
 # Verifies that there is a network interface
 verifyNetworkConnection() {
