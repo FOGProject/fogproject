@@ -10,30 +10,24 @@ if [[ -n $has_usb_nic ]]; then
     sleep 5
 fi
 # Enable loopback interface
-echo "auto lo" > /etc/network/interfaces
-echo "iface lo inet loopback" >> /etc/network/interfaces
-echo "" >> /etc/network/interfaces
-/sbin/ip addr add 127.0.0.1 dev lo
+echo -e "auto lo\niface lo inet loopback\n\n" >> /etc/network/interfaces
+/sbin/ip addr add 127.0.0.1/8 dev lo
 /sbin/ip link set lo up
 
 # Generated a sorted list with primary interfaces first
-primary_ifaces=$(egrep -i "($mac)" /sys/class/net/*/address | awk -F'(/)' '{print $5}')
-other_ifaces=$(egrep -v -i "($mac|00:00:00:00:00:00)" /sys/class/net/*/address | awk -F'(/)' '{print $5}')
-ifaces="$primary_ifaces $other_ifaces"
+read ifaces <<< $(/sbin/ip -0 -o addr show | awk -F'[: ]+' '/link[/]?ether/ {print $2}')
 for iface in $ifaces; do
     echo "Starting $iface interface and waiting for the link to come up"
-    echo "auto $iface" >> /etc/network/interfaces
-    echo "iface $iface inet dhcp" >> /etc/network/interfaces
-    echo "" >> /etc/network/interfaces
+    echo -e "auto $iface\niface $iface inet dhcp\n\n" >> /etc/network/interfaces
     /sbin/ip link set $iface up
 
     # Wait till the interface is fully up and ready (spanning tree)
     timeout=0
     linkstate=0
     until [[ $linkstate -eq 1 || $timeout -ge 35 ]]; do
-        sleep 1
-        linkstate=$(/bin/cat /sys/class/net/$iface/carrier)
         let timeout+=1
+        linkstate=$(/bin/cat /sys/class/net/$iface/carrier)
+        [[ $linkstate -eq 0 ]] && sleep 1 || break
     done
     [[ $linkstate -eq 0 ]] && echo "No link detected on $iface for $timeout seconds, skipping it." && continue
     for retry in $(seq 3); do
