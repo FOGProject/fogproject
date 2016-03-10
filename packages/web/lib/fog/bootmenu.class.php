@@ -772,7 +772,7 @@ class BootMenu extends FOGBase {
         return $Send;
     }
     public function printDefault() {
-        if ($this->getSetting('FOG_NO_MENU')) $this->noMenu();
+        if ($this->Host->isValid() && $this->getSetting('FOG_NO_MENU')) $this->noMenu();
         if ($this->hiddenmenu) {
             $this->chainBoot(true);
             return;

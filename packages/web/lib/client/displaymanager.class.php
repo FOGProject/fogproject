@@ -7,11 +7,14 @@ class DisplayManager extends FOGClient implements FOGClientSend {
         $this->send = base64_encode(sprintf('%dx%dx%d',$x,$y,$r));
         if ($this->newService) {
             if ($this->json) {
-                $val['x'] = (int)$x;
-                $val['y'] = (int)$y;
-                $val['r'] = (int)$r;
-                return $val;
-            } else $this->send = sprintf("#!ok\n#x=%d#y=%d#r=%d",(int)$x,(int)$y,(int)$r);
+                return array(
+                    'error'=>'ok',
+                    'x'=>(int)$x,
+                    'y'=>(int)$y,
+                    'r'=>(int)$r,
+                );
+            }
+            $this->send = sprintf("#!ok\n#x=%d#y=%d#r=%d",(int)$x,(int)$y,(int)$r);
         }
     }
 }

@@ -17,11 +17,10 @@ class TaskScheduler extends FOGService {
             $this->outall(sprintf(" * %s active task%s awaiting check-in.",$taskcount,($taskcount != 1 ? 's' : '')));
             if ($taskcount) {
                 $this->outall(' | Sending WOL Packet(s)');
-                foreach ((array)$this->getClass('HostManager')->find(array('id'=>$this->getSubObjectIDs('Task',$findWhere,'hostID'))) AS $i => &$Host) {
+                foreach ($this->getClass('HostManager')->find(array('id'=>$this->getSubObjectIDs('Task',$findWhere,'hostID'))) AS &$Host) {
                     if (!$Host->isValid()) continue;
                     $this->outall(sprintf("\t\t- Host: %s WOL sent to all macs associated",$Host->get('name')));
                     $Host->wakeOnLan();
-                    usleep(50000);
                     unset($Host);
                 }
                 unset($Hosts,$taskcount,$findWhere);
@@ -34,32 +33,16 @@ class TaskScheduler extends FOGService {
             foreach ((array)$this->getClass('ScheduledTaskManager')->find($findWhere) AS $i => &$Task) {
                 $Timer = $Task->getTimer();
                 $this->outall(sprintf(" * Task run time: %s",$Timer->toString()));
-                if (!$Timer->shouldRunNow()) {
-                    $this->outall(' * Task does not run now');
-                    continue;
-                }
+                if (!$Timer->shouldRunNow()) continue;
                 $this->outall(" * Found a task that should run...");
-                if ($Task->isGroupBased()) {
-                    $this->outall(sprintf("\t\t - Is a group based task."));
-                    $Group = $Task->getGroup();
-                    if ($Task->get('taskType') == 8) $this->outall("\t\t - Multicast task found!");
-                    else $this->outall("\t\t - Regular task found!");
-                    $this->outall(sprintf("\t\t - Group %s",$Group->get('name')));
-                    if ($Group->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$Task->get('other2'),true,$Task->get('other3'))) $this->outall(sprintf("\t\t - Tasks started for group %s!",$Group->get('name')));
-                    if ($Timer->isSingleRun()) {
-                        if ($this->FOGCore->stopScheduledTask($Task)) $this->outall("\t\t - Scheduled Task cleaned.");
-                        else $this->outall("\t\t - failed to clean task.");
-                    } else $this->outall("\t\t - Cron style - No cleaning!");
-                } else {
-                    $this->outall("\t\t - Is a host based task.");
-                    $Host = $Task->getHost();
-                    $Host->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$Task->get('other2'),false,$Task->get('other3'));
-                    $this->outall(sprintf("\t\t - Task Started for host %s!",$Host->get('name')));
-                }
-                if ($Timer->isSingleRun()) {
-                    if ($this->FOGCore->stopScheduledTask($Task)) $this->outall("\t\t - Scheduled Task cleaned.");
-                    else $this->outall("\t\t - failed to clean task.");
-                } else $this->outall("\t\t - Cron style - No cleaning!");
+                $this->outall(sprintf("\t\t - %s %s %s.",_('Is a'),$Task->isGroupBased() ? _('group') : _('host'),_('based task')));
+                $Item = $Task->isGroupBased() ? $Task->getGroup() : $Task->getHost();
+                $this->outall(sprintf("\t\t - %s %s!",$Task->isMulticast() ? _('Multicast') : _('Unicast'),_('task found')));
+                $this->outall(sprintf("\t\t - %s %s",_(get_class($Item)),$Item->get('name')));
+                $Item->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$Task->get('other2'),$Task->isGroupBased(),$Task->get('other3'));
+                $this->outall(sprintf("\t\t - %s %s %s!",_('Tasks started for'),strtolower(get_class($Item)),$Item->get('name')));
+                if (!$Timer->isSingleRun()) continue;
+                $Task->set('isActive',0)->save();
             }
             unset($Task);
         } catch (Exception $e) {

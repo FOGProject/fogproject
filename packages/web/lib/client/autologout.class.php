@@ -10,7 +10,10 @@ class Autologout extends FOGClient implements FOGClientSend {
             if ($this->json) {
                 $this->send = null;
                 if ($this->time < 5) $this->time = 0;
-                $val['time'] = $this->time * 60;
+                $val = array(
+                    'error'=>'ok',
+                    'time'=>$this->time * 60,
+                );
                 return $val;
             }
             $time = sprintf("#!ok\n#time=%s",($this->time * 60));
