@@ -543,13 +543,9 @@ installPackages() {
                     repo="enterprise"
                     ;;
             esac
-            x="http://rpms.remirepo.net/$repo/remi-release-${OSVersion}.rpm"
-            eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                eval $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                [[ -n $repoenable ]] && eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            fi
-            unset x
+            rpm -Uvh "http://rpms.remirepo.net/$repo/remi-release-${OSVersion}.rpm" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            [[ -n $repoenable ]] && eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             ;;
         2)
             case $linuxReleaseName in
@@ -971,7 +967,7 @@ configureSnapins() {
     dots "Setting up FOG Snapins"
     mkdir -p $snapindir >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ -d $snapindir ]]; then
-        chmod 775 $snapindir
+        chmod -R 775 $snapindir
         chown -R fog:$apacheuser $snapindir
     fi
     errorStat $?
