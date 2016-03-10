@@ -23,14 +23,14 @@ test -f $DAEMON || exit 1
 
 . /lib/lsb/init-functions
 
-case "$1" in 
+case "$1" in
 	start)
 		log_begin_msg "Starting $DESC: $NAME"
 		mkdir -p `dirname "$PIDFILE"`
 		if [ ! -f "$PIDFILE" ]; then
 			start-stop-daemon --start --quiet --pidfile "$PIDFILE" --make-pidfile -b --exec "$DAEMON"
 			log_end_msg $?
-		else 
+		else
 			log_end_msg 1;
 		fi
 		;;
@@ -50,10 +50,10 @@ case "$1" in
 		if [ ! -f "$PIDFILE" ]; then
 			start-stop-daemon --start --quiet --pidfile "$PIDFILE" --make-pidfile -b --exec "$DAEMON"
 			log_end_msg $?
-		else 
+		else
 			log_end_msg 1;
 		fi
-		;;						
+		;;
 	status)
 		status_of_proc ${DAEMON} ${NAME}
 		;;
