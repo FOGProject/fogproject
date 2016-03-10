@@ -742,15 +742,19 @@ abstract class FOGPage extends FOGBase {
         exit;
     }
     public function requestClientInfo() {
-        $globalModules = array_diff(array_keys(array_filter($this->getGlobalModuleStatus())),array('dircleanup','usercleanup','clientupdater','hostregister'));
-        $Host = $this->getHostItem();
-        $hostModules = $this->getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName');
-        $hostModules = array_intersect($globalModules,(array)$hostModules);
+        if (!isset($_REQUEST['newService'])) {
+            print_r(array_keys($this->getGlobalModuleStatus()));
+            exit;
+        }
+        $globalModules = array_diff(array_keys(array_filter($this->getGlobalModuleStatus())),array('dircleanup','usercleanup','clientupdater'));
+        $Host = $this->getHostItem(true,false,true,false,isset($_REQUEST['newService']));
+        $hostModules = $Host->isValid() ? $this->getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName') : 'hostregister';
+        $hostModules = array_values(array_intersect($globalModules,(array)$hostModules));
         $array = array();
-        foreach ($hostModules AS &$key) {
+        foreach ($hostModules AS $i => &$key) {
+            $hostNotNeeded = false;
             switch ($key) {
             case 'usertracker':
-            case 'printermanager':
             case 'snapinclient':
                 continue 2;
             case 'greenfog':
@@ -765,11 +769,15 @@ abstract class FOGPage extends FOGBase {
             case 'usertracker':
                 $class='UserTrack';
                 break;
+            case 'hostregister':
+                $class='RegisterClient';
+                $hostNotNeeded = isset($_REQUEST['newService']);
+                break;
             default:
                 $class=$key;
                 break;
             }
-            $array[$key] = $this->getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
+            $array[$key] = $this->getClass($class,true,false,$hostNotNeeded,false,isset($_REQUEST['newService']))->send();
             unset($key);
         }
         echo json_encode($array);

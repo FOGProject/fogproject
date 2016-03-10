@@ -534,9 +534,9 @@ class Host extends FOGController {
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false) {
         try {
             if (!$this->isValid()) throw new Exception($this->foglang['HostNotValid']);
-            if (!in_array($taskTypeID,array(12,13)) && $this->getActiveTaskCount()) throw new Exception($this->foglang['InTask']);
             $TaskType = $this->getClass('TaskType',$taskTypeID);
             if (!$TaskType->isValid()) throw new Exception($this->foglang['TaskTypeNotValid']);
+            if (!$TaskType->isSnapinTasking() && $this->getActiveTaskCount()) throw new Exception($this->foglang['InTask']);
             $imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17,24));
             $wolTypes = in_array($taskTypeID,array_merge(range(1,11),range(14,24)));
             if ($imagingTypes) {
