@@ -550,7 +550,7 @@ installPackages() {
                 rpm -Uvh $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             fi
-            [[ -n $repoenable ]] && eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            [[ -n $repoenable ]] && eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
             ;;
         2)
             case $linuxReleaseName in
