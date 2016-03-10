@@ -38,7 +38,6 @@ class RegisterClient extends FOGClient implements FOGClientSend {
             }
             throw new Exception('#!ig');
         } catch (Exception $e) {
-            if ($this->json) return array('error'=>preg_replace('/^[#][!]/','',$e->getMessage()));
             throw new Exception($e->getMessage());
         }
     }
