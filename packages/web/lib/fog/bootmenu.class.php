@@ -132,7 +132,7 @@ class BootMenu extends FOGBase {
         else if (!$this->Host->isValid()) $this->printDefault();
         else $this->getTasking();
     }
-    private static function caponeMenu(&$storage, &$path, &$shutdown,&$DMISet,&$Shutdown,&$StorageNode,&$FOGCore) {
+    private static function caponeMenu(&$storage, &$path, &$shutdown,$DMISet,$Shutdown,&$StorageNode,&$FOGCore) {
         if (!in_array('capone',(array)$_SESSION['PluginsInstalled'])) return;
         if (!$DMISet) return;
         $storage = $StorageNode->get('ip');
