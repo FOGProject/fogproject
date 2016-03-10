@@ -68,6 +68,9 @@ class ScheduledTask extends FOGController {
         $dow = trim($this->get('dayOfWeek'));
         return new Timer($minute,$hour,$dom,$month,$dow);
     }
+    public function isMulticast() {
+        return (bool)$this->getClass('TaskType',$this->get('taskType'))->isMulticast();
+    }
     public function getScheduledType() {
         return $this->get('type') ? _('Cron') : _('Delayed');
     }

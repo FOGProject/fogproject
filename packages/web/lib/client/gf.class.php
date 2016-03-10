@@ -4,7 +4,7 @@ class GF extends FOGClient implements FOGClientSend {
         $SendEnc = '';
         $SendMe = array();
         $this->send = '#!na';
-        $vals = array();
+        $vals['error'] = 'ok';
         foreach ($this->getClass('GreenFogManager')->find() AS &$gf) {
             if (!$gf->isValid()) continue;
             $val = sprintf('%s@%s@%s',$gf->get('hour'),$gf->get('min'),$gf->get('action'));
@@ -23,7 +23,10 @@ class GF extends FOGClient implements FOGClientSend {
             }
             unset($gf);
         }
-        if ($this->json) return $vals;
+        if ($this->json) {
+            if (count($vals) > 1) return $vals;
+            return array('error'=>'na');
+        }
         if (count($SendMe)) $this->send = implode($SendMe);
     }
 }
