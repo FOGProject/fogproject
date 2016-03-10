@@ -44,10 +44,9 @@ case $linuxReleaseName in
             packageupdater="yum -y --enablerepo=$repos update"
             packmanUpdate="yum check-update"
             command -v yum-config-manager >/dev/null 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                $packageinstaller yum-utils >/dev/null 2>&1
-            fi
-            repoenable="yum-config-manager --enable"
+            [[ ! $? -eq 0 ]] && $packageinstaller yum-utils >/dev/null 2>&1
+            command -v yum-config-manager >/dev/null 2>&1
+            [[ $? -eq 0 ]] && repoenable="yum-config-manager --enable"
         fi
         dhcpname="dhcp"
         ;;
