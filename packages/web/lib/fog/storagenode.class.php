@@ -54,7 +54,7 @@ class StorageNode extends FOGController {
         $paths = @array_shift($paths);
         $paths = json_decode($paths);
         $pathstring = sprintf('/%s/',trim($this->get('path'),'/'));
-        $paths = array_values(array_unique(array_filter(preg_replace('#dev|postdownloadscripts#','',preg_replace("#$pathstring#",'',$paths)))));
+        $paths = array_values(array_unique(array_filter((array)preg_replace('#dev|postdownloadscripts#','',preg_replace("#$pathstring#",'',$paths)))));
         if (count($paths) < 1) {
             $this->FOGFTP
                 ->set('host',$this->get('ip'))
@@ -63,7 +63,7 @@ class StorageNode extends FOGController {
             $pathstring = sprintf('/%s/',trim($this->get('ftppath'),'/'));
             if (!$this->FOGFTP->connect()) return;
             $paths = $this->FOGFTP->nlist($pathstring);
-            $paths = array_values(array_unique(array_filter(preg_replace('#dev|postdownloadscripts#','',preg_replace("#$pathstring#",'',$paths)))));
+            $paths = array_values(array_unique(array_filter((array)preg_replace('#dev|postdownloadscripts#','',preg_replace("#$pathstring#",'',$paths)))));
         }
         $this->set('images',$this->getSubObjectIDs('Image',array('path'=>$paths)));
     }
