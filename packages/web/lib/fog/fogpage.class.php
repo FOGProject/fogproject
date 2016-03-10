@@ -746,9 +746,9 @@ abstract class FOGPage extends FOGBase {
             print_r(array_keys($this->getGlobalModuleStatus()));
             exit;
         }
-        $globalModules = array_diff(array_keys(array_filter($this->getGlobalModuleStatus())),array('dircleanup','usercleanup','clientupdater'));
+        $globalModules = array_diff(array_keys(array_filter($this->getGlobalModuleStatus())),array('dircleanup','usercleanup','clientupdater','hostregister'));
         $Host = $this->getHostItem(true,false,true,false,isset($_REQUEST['newService']));
-        $hostModules = $Host->isValid() ? $this->getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName') : 'hostregister';
+        $hostModules = $this->getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName');
         $hostModules = array_values(array_intersect($globalModules,(array)$hostModules));
         $array = array();
         foreach ($hostModules AS $i => &$key) {
@@ -769,15 +769,11 @@ abstract class FOGPage extends FOGBase {
             case 'usertracker':
                 $class='UserTrack';
                 break;
-            case 'hostregister':
-                $class='RegisterClient';
-                $hostNotNeeded = isset($_REQUEST['newService']);
-                break;
             default:
                 $class=$key;
                 break;
             }
-            $array[$key] = $this->getClass($class,true,false,$hostNotNeeded,false,isset($_REQUEST['newService']))->send();
+            $array[$key] = $this->getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
             unset($key);
         }
         echo json_encode($array);
