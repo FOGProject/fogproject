@@ -11,7 +11,6 @@ class Autologout extends FOGClient implements FOGClientSend {
                 $this->send = null;
                 if ($this->time < 5) $this->time = 0;
                 $val = array(
-                    'error'=>'ok',
                     'time'=>$this->time * 60,
                 );
                 return $val;

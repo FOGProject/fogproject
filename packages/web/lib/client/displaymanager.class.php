@@ -8,7 +8,6 @@ class DisplayManager extends FOGClient implements FOGClientSend {
         if ($this->newService) {
             if ($this->json) {
                 return array(
-                    'error'=>'ok',
                     'x'=>(int)$x,
                     'y'=>(int)$y,
                     'r'=>(int)$r,
