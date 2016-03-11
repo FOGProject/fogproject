@@ -40,7 +40,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                             $vals["printer$tmp"] = (int)$Printer->get('id');
                             continue;
                         }
-                        if ($i) $this->send = "#!ok\n#mode=$mode\n";
+                        if (!$i) $this->send = "#!ok\n#mode=$mode\n";
                         $this->send .= sprintf($strtosend,$i,$Printer->get('id'));
                         unset($Printer);
                     }
