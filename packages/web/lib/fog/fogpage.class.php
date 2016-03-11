@@ -539,7 +539,7 @@ abstract class FOGPage extends FOGBase {
         echo '</div></div>';
         unset($this->data);
     }
-    public function adFieldsToDisplay($useAD = '',$ADDomain = '',$ADOU = '',$ADUser = '',$ADPass = '',$ADPassLegacy = '') {
+    public function adFieldsToDisplay($useAD = '',$ADDomain = '',$ADOU = '',$ADUser = '',$ADPass = '',$ADPassLegacy = '',$enforce = '') {
         unset($this->data,$this->headerData,$this->templates,$this->attributes);
         if (empty($useAD)) $useAD = ($this->obj instanceof Host ? $this->obj->get('useAD') : $_REQUEST['domain']);
         if (empty($ADDomain)) $ADDomain = ($this->obj instanceof Host ? $this->obj->get('ADDomain') : $_REQUEST['domainname']);
@@ -547,6 +547,7 @@ abstract class FOGPage extends FOGBase {
         if (empty($ADUser)) $ADUser = ($this->obj instanceof Host ? $this->obj->get('ADUser') : $_REQUEST['domainuser']);
         if (empty($ADPass)) $ADPass = ($this->obj instanceof Host ? $this->obj->get('ADPass') : $_REQUEST['domainpassword']);
         if (empty($ADPassLegacy)) $ADPassLegacy = ($this->obj instanceof Host ? $this->obj->get('ADPassLegacy') : $_REQUEST['domainpasswordlegacy']);
+        if (empty($enforce)) $enforce = ($this->obj instanceof Host ? $this->obj->get('enforce') : (!isset($_REQUEST['enforce']) ? (int)$this->getSetting('FOG_ENFORCE_HOST_CHANGES') : $_REQUEST['enforcesel']));
         $OUs = explode('|',$this->getSetting('FOG_AD_DEFAULT_OU'));
         foreach((array)$OUs AS $i => &$OU) $OUOptions[] = $OU;
         unset($OU);
@@ -554,7 +555,7 @@ abstract class FOGPage extends FOGBase {
         if (count($OUOptions) > 1) {
             $OUs = array_unique((array)$OUOptions);
             $optFound = false;
-            foreach ((array)$OUs AS $i => &$OU) {
+            foreach ($OUs AS &$OU) {
                 if (!$optFound && preg_match('#;#i',$OU)) {
                 $optFound = trim(preg_replace('#;#','',$OU));
                 unset($OU);
@@ -591,6 +592,7 @@ abstract class FOGPage extends FOGBase {
             _('Domain Username') => sprintf('<input id="adUsername" class="smaller" type="text"name="domainuser" value="%s" autocomplete="off"/>',$ADUser),
             sprintf('%s<br/>(%s)',_('Domain Password'),_('Will auto-encrypt plaintext')) => sprintf('<input id="adPassword" class="smaller" type="password" name="domainpassword" value="%s" autocomplete="off"/>',$ADPass),
             sprintf('%s<br/>(%s)',_('Domain Password Legacy'),_('Must be encrypted')) => sprintf('<input id="adPasswordLegacy" class="smaller" type="password" name="domainpasswordlegacy" value="%s" autocomplete="off"/>',$ADPassLegacy),
+            sprintf('%s',_('Host changes every cycle')) => sprintf('<input name="enforcesel" type="checkbox" autocomplete="off"%s/><input type="hidden" name="enforce"/>',$enforce ? ' checked' : ''),
             '&nbsp;' => sprintf('<input name="updatead" type="submit" value="%s"/>',($_REQUEST['sub'] == 'add' ? _('Add') : _('Update'))),
         );
         printf('<div id="%s-active-directory"><form method="post" action="%s&tab=%s-active-directory"><h2>%s<div id="adClear"></div></h2>',$this->node,$this->formAction,$this->node,_('Active Directory'));

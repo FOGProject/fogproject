@@ -70,6 +70,7 @@ class Registration extends FOGBase {
                 $ADUser = $this->getSetting('FOG_AD_DEFAULT_USER');
                 $ADPass = $this->getSetting('FOG_AD_DEFAULT_PASSWORD');
                 $ADPassLegacy = $this->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY');
+                $enforce = $this->getSetting('FOG_ENFORCE_HOST_CHANGES');
             }
             $groupsToJoin = explode(',',$this->stripAndDecode($_REQUEST['groupid']));
             $snapinsToJoin = explode(',',$this->stripAndDecode($_REQUEST['snapinid']));
@@ -83,7 +84,7 @@ class Registration extends FOGBase {
                 ->addSnapin($snapinsToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs)
-                ->setAD($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,false,true,$ADPassLegacy,$productKey);
+                ->setAD($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,false,true,$ADPassLegacy,$productKey,$enforce);
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
             $this->HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
             try {

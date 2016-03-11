@@ -2120,3 +2120,9 @@ $this->schema[] = array(
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey` IN ('FOG_TORRENT_INTERVAL','FOG_TORRENT_TIMEOUT','FOG_TORRENT_INTERVAL_MIN','FOG_TORRENT_PPR','FOG_TORRENTDIR')",
     "DELETE FROM `".DATABASE_NAME."`.`taskTypes` WHERE `ttID`=24",
 );
+// 214
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sShutdown` ENUM('0','1') NOT NULL DEFAULT '0'",
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` ADD `hostEnforce` ENUM('0','1') NOT NULL DEFAULT '1'",
+    "INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_ENFORCE_HOST_CHANGES','This setting only operates with the new client.  Default value is 1 which allows the new client to enforce name changing on every cycle it checks in, so any change on FOG will take place on the next cycle. If unset (value 0) it will only perform hostname change and/or AD Joining on host restart.',1,'Active Directory Defaults')",
+);
