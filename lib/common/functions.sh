@@ -1800,9 +1800,8 @@ configureDHCP() {
     case $bldhcp in
         1)
             [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
-            serverip=$(ip addr show $interface | awk -F'[ /]' '/([0-9][0-9]?[0-9]?\.){3}([0-9][0-9]?[0-9]?){1}/ {print $6}')
+            serverip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | grep -oE 'inet[:]? addr[:]?([0-9]{1,3}\.){3}[0-9]{1,3}' | awk -F'(inet[:]? ?addr[:]?)' '{print $2}')
-            [[ -z $serverip ]] && serverip=$(/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
             [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
             network=$(mask2network $serverip $submask)
             [[ -z $startrange ]] && startrange=$(addToAddress $network 10)
