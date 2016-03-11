@@ -133,9 +133,9 @@ class Group extends FOGController {
         }
         return $success;
     }
-    public function setAD($useAD, $domain, $ou, $user, $pass, $legacy) {
+    public function setAD($useAD, $domain, $ou, $user, $pass, $legacy, $enforce) {
         $pass = trim($this->encryptpw($pass));
-        $this->getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('useAD'=>$useAD,'ADDomain'=>trim($domain),'ADOU'=>trim($ou),'ADUser'=>trim($user),'ADPass'=>$pass,'ADPassLegacy'=>$legacy));
+        $this->getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('useAD'=>$useAD,'ADDomain'=>trim($domain),'ADOU'=>trim($ou),'ADUser'=>trim($user),'ADPass'=>$pass,'ADPassLegacy'=>$legacy,'enforce'=>$enforce));
         return $this;
     }
     public function doMembersHaveUniformImages() {

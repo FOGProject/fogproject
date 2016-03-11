@@ -29,6 +29,7 @@ class Host extends FOGController {
         'pingstatus' => 'hostPingCode',
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
+        'enforce' => 'hostEnforce',
     );
     protected $databaseFieldsRequired = array(
         'name',
@@ -763,7 +764,7 @@ class Host extends FOGController {
     public function imageMacCheck($MAC = false) {
         return $this->getClass('MACAddress',$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'imageIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
     }
-    public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false,$legacy = '',$productKey = '') {
+    public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false,$legacy = '',$productKey = '',$enforce = '') {
         if ($this->get('id')) {
             if (!$override) {
                 if (empty($useAD)) $useAD = $this->get('useAD');
@@ -773,6 +774,7 @@ class Host extends FOGController {
                 if (empty($pass)) $pass = trim($this->encryptpw($this->get('ADPass')));
                 if (empty($legacy)) $legacy = trim($this->get('ADPassLegacy'));
                 if (empty($productKey)) $productKey = trim($this->encryptpw($this->get('productKey')));
+                if (empty($enforce)) $enforce = (int)$this->get('enforce');
             }
         }
         if ($pass) $pass = trim($this->encryptpw($pass));
@@ -782,7 +784,8 @@ class Host extends FOGController {
             ->set('ADUser',trim($user))
             ->set('ADPass',trim($this->encryptpw($pass)))
             ->set('ADPassLegacy',$legacy)
-            ->set('productKey',trim($this->encryptpw($productKey)));
+            ->set('productKey',trim($this->encryptpw($productKey)))
+            ->set('enforce',$enforce);
         if (!$nosave) $this->save();
         return $this;
     }

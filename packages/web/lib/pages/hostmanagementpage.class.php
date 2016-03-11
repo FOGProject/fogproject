@@ -226,6 +226,7 @@ class HostManagementPage extends FOGPage {
             $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
             $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
             $productKey = substr($productKey,0,29);
+            $enforce = (int)isset($_REQUEST['enforcesel']);
             $Host = $this->getClass('Host')
                 ->set('name',$hostName)
                 ->set('description',$_REQUEST['description'])
@@ -238,7 +239,7 @@ class HostManagementPage extends FOGPage {
                 ->set('productKey',$this->encryptpw($productKey))
                 ->addModule($ModuleIDs)
                 ->addPriMAC($MAC)
-                ->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey);
+                ->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey,$enforce);
             if (!$Host->save()) throw new Exception(_('Host create failed'));
             $this->HookManager->processEvent('HOST_ADD_SUCCESS',array('Host'=>&$Host));
             $this->setMessage(_('Host added'));
@@ -841,7 +842,8 @@ class HostManagementPage extends FOGPage {
                 $user = trim($_REQUEST['domainuser']);
                 $pass = trim($_REQUEST['domainpassword']);
                 $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-                $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey);
+                $enforce = (int)isset($_REQUEST['enforcesel']);
+                $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey,$enforce);
                 break;
             case 'host-printers':
                 $PrinterManager = $this->getClass('PrinterAssociationManager');

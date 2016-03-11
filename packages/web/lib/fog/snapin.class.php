@@ -10,6 +10,7 @@ class Snapin extends FOGController {
         'createdTime' => 'sCreateDate',
         'createdBy' => 'sCreator',
         'reboot' => 'sReboot',
+        'shutdown' => 'sShutdown',
         'runWith' => 'sRunWith',
         'runWithArgs' => 'sRunWithArgs',
         'protected' => 'snapinProtect',
