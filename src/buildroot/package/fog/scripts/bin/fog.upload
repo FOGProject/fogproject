@@ -96,7 +96,7 @@ case $imgType in
                     continue
                     ;;
                 *)
-                    fixed_size_partitions="$fixed_size_partitions:$part_number:"
+                    fixed_size_partitions="$fixed_size_partitions:$part_number"
                     ;;
             esac
         done
@@ -122,12 +122,13 @@ case $imgType in
                 part_number=0
                 for part in $parts; do
                     getPartitionNumber "$part"
+                    [[ $part_number -eq 1 ]] && fixed_size_partitions="$fixed_size_partitions:$part_number"
                     case $win7partcnt in
                         2)
-                            [[ $part_number -eq 1 ]] && fixed_size_partitions="$fixed_size_partitions:$part:"
+                            [[ $part_number -eq 1 ]] && fixed_size_partitions="$fixed_size_partitions:$part"
                             ;;
                         3)
-                            [[ $part_number == +(1|2) ]] && fixed_size_partitions="$fixed_size_partitions:$part:"
+                            [[ $part_number == +(1|2) ]] && fixed_size_partitions="$fixed_size_partitions:$part"
                             ;;
                         *)
                             continue
@@ -138,17 +139,8 @@ case $imgType in
         esac
         # All:
         #  save the list of fixed size partitions
-        fixed_size_partitions=$(echo $fixed_size_partitions | sed -r -e 's/[^:0-9]//g' -e 's/^://g')
+        fixed_size_partitions=$(echo $fixed_size_partitions | sed -r -e 's/[^:0-9]//g' -e 's/^://g' -e 's/:$//g')
         echo "$fixed_size_partitions" > "$imagePath/d1.fixed_size_partitions"
-        case $osid in
-            [1-2])
-                dots "Getting sector start"
-                partitionStart=$(fdisk -lu | awk "/$(escapeItem $part)/{print \$3}")
-                [[ -z $partitionStart ]] && partitionStart=63
-                echo "Done"
-                debugPause
-                ;;
-        esac
         # Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
         #  Save unmodified partition table for download use
         #  Start filesytem type record
