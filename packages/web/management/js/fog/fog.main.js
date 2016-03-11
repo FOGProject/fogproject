@@ -47,7 +47,7 @@ $(function() {
             }
         });
     });
-    var allRadios = $('.primary,.default');
+    var allRadios = $('.primary,.default,.action');
     var radioChecked;
     var setCurrent = function(e) {
         var obj = e.target;
@@ -59,10 +59,16 @@ $(function() {
         $(obj).prop('checked',!radioChecked);
     }
     $.each(allRadios, function(i, val) {
-        var label = $('label[for='+$(this).prop('id')+']');
+        if (this.id.length > 0) {
+            var label = $('label[for='+this.id+']');
+            var element = label.prev();
+        } else {
+            var label = $('input[value='+$(this).val()+'].action');
+            var element = label;
+        }
         $(this).bind('mousedown keydown', function(e) {setCurrent(e);});
         label.bind('mousedown keydown', function(e) {
-            e.target = $('#'+$(this).attr("for"));
+            e.target = $(element);
             setCurrent(e);
         });
         $(this).bind('click', function(e) {setCheck(e);});

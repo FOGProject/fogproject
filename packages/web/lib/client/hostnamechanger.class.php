@@ -27,6 +27,7 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
         $this->send = ob_get_clean();
         if ($this->json) {
             $val = array(
+                'enforce' => (bool)$this->Host->get('enforce'),
                 'hostname' => $this->Host->get('name'),
                 'AD' => $this->Host->get('useAD'),
                 'ADDom' => $this->Host->get('useAD') ? $this->Host->get('ADDomain') : '',

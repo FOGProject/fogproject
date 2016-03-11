@@ -137,14 +137,16 @@ class GroupManagementPage extends FOGPage {
         $imageID = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'imageID','','','','','array_count_values');
         $imageMatchID = (count($imageID) == 1 && $imageID[0] == $HostCount ? $this->getClass('Host',current($this->obj->get('hosts')))->get('imageID') : '');
         $groupKey = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'productKey','','','','','array_count_values');
-        $aduse = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'useAD','','','','','array_count_values');
+        $aduse = count($this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'useAD','','','','','array_filter'));
+        $enforcetest = count($this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'enforce','','','','','array_filter'));
         $adDomain = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADDomain','','','','','array_count_values');
         $adOU = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADOU','','','','','array_count_values');
         $adUser = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADUser','','','','','array_count_values');
         $adPass = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPass','','','','','array_count_values');
         $adPassLegacy = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPassLegacy','','','','','array_count_values');
         $Host = $this->getClass('Host',current($this->obj->get('hosts')));
-        $useAD = (bool)(count($aduse) == 1 && $aduse[0] == $HostCount);
+        $useAD = (bool)($aduse == $HostCount);
+        $enforce = (int)($enforcetest == $HostCount);
         unset($aduse);
         $ADDomain = (count($adDomain) == 1 && $adDomain[0] == $HostCount ? $Host->get('ADDomain') : '');
         unset($adDomain);
@@ -385,7 +387,7 @@ class GroupManagementPage extends FOGPage {
         $this->render();
         unset($this->data);
         echo '</fieldset></form></div>';
-        $this->adFieldsToDisplay($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,$ADPassLegacy);
+        $this->adFieldsToDisplay($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,$ADPassLegacy,$enforce);
         echo '<!-- Printers --><div id="group-printers">';
         if ($this->getClass('PrinterManager')->count()) {
             printf('<form method="post" action="%s&tab=group-printers"><h2>%s</h2><p class="l"><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="0" />%s<br/><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="1" />%s<br/><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="2" />%s<br/></p><div class="hostgroup">',$this->formAction,_('Select Management Level for all hosts in this group'),_('This setting turns off all FOG Printer Management. Although there are multiple levels already between host and global settings, this is just another to ensure safety'),_('No Printer Management'),_('This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned.'),_('FOG Managed Printers'),_('This setting will only allow FOG Assigned printers to be added to the host.  Any printer that is installed, even printers not within FOG, will be removed'),_('Add and Remove'));
@@ -493,8 +495,8 @@ class GroupManagementPage extends FOGPage {
                 $user = $_REQUEST['domainuser'];
                 $pass = $_REQUEST['domainpassword'];
                 $legacy = $_REQUEST['domainpasswordlegacy'];
-                $this->obj->setAD($useAD,$domain,$ou,$user,$pass,$legacy);
-                $this->resetRequest();
+                $enforce = (int)isset($_REQUEST['enforcesel']);
+                $this->obj->setAD($useAD,$domain,$ou,$user,$pass,$legacy,$enforce);
                 break;
                 case 'group-printers';
                 $this->obj->addPrinter($_REQUEST['prntadd'],$_REQUEST['prntdel'],$_REQUEST['level']);

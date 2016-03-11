@@ -448,6 +448,7 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_EMAIL_ACTION',
             'FOG_FTP_IMAGE_SIZE',
             'FOG_KERNEL_DEBUG',
+            'FOG_ENFORCE_HOST_CHANGES',
         );
         $this->title = _('FOG System Settings');
         printf('<p class="hostgroup">%s</p><form method="post" action="%s"><div id="tab-container-1">',_('This section allows you to customize or alter the way in which FOG operates. Please be very careful changing any of the following settings, as they can cause issues that are difficult to troubleshoot.'),$this->formAction);
