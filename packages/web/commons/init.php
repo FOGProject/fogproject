@@ -185,6 +185,7 @@ $HookManager = $FOGCore->getClass('HookManager');
 $FOGCore->setSessionEnv();
 /** $TimeZone the timezone setter */
 $TimeZone = $_SESSION['TimeZone'];
-$HookManager->load();
+$HookManager->load('HookPaths','/hook/','.hook.php');
+$EventManager->load();
 /** $HookManager initiates the FOGURLRequest class */
 $FOGURLRequests = $FOGCore->getClass('FOGURLRequests');
