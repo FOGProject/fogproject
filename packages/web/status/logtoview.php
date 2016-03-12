@@ -8,31 +8,29 @@ $vals = function($reverse,$HookManager) {
     if (!preg_grep($pattern,$folders)) return _('Invalid Folder');
     $lines = array();
     $line_count = (int) $_REQUEST['lines'];
-    $block_size = 8192;
+    $block_size = 4092;
     $leftover = "";
     $file = trim(basename(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')));
     $path = sprintf('%s%s',$folder,$file);
     $fh = fopen($path,'rb');
     if ($fh === false) return _('No data to read');
-    fseek($fh, 0, SEEK_END);
-    do {
-        $can_read = $block_size;
-        if (ftell($fh) < $block_size) $can_read = ftell($fh);
-        if ((int)$can_read == 0) continue;
-        fseek($fh, -$can_read, SEEK_CUR);
-        ob_start();
-        $line = htmlentities(fread($fh,$can_read),ENT_QUOTES,'utf-8');
-        echo $line;
-        echo $leftover;
-        fseek($fh, -$can_read, SEEK_CUR);
-        $split_data = array_reverse(explode("\n",ob_get_clean()));
-        $new_lines = array_slice($split_data, 0, -1);
-        $lines = array_merge($lines, $new_lines);
-        $leftover = $split_data[count($split_data)-1];
-    } while (count($lines) < $line_count && ftell($fh) != 0);
-    if (ftell($fh) == 0) $lines[] = $leftover;
+    fseek($fh,0,SEEK_END);
+    if (fread($fh,1) != "\n") $line_count--;
+    while (ftell($fh) > 0 && $line_count >= 0) {
+        $can_read = min(ftell($fh),$block_size);
+        fseek($fh,-$can_read,SEEK_CUR);
+        $chunk = fread($fh,$can_read);
+        $split_data = array_reverse(explode("\n",$chunk));
+        $new_lines = array_slice($split_data,0,-1);
+        $lines = array_merge($lines,$new_lines);
+        fseek($fh,-mb_strlen($chunk,'8bit'),SEEK_CUR);
+        $line_count -= substr_count($chunk,"\n");
+        if ($line_count <= 0) break;
+    }
     fclose($fh);
-    return implode("\n",($reverse ? array_slice($lines,0,$line_count) : array_reverse(array_slice($lines,0,$line_count))));
+    $lines = array_slice($lines,0,(int)$_REQUEST['lines']);
+    if (!$reverse) $lines = array_reverse($lines);
+    return implode("\n",$lines);
 };
 require('../commons/base.inc.php');
 $url = trim($FOGCore->aesdecrypt(htmlentities($_REQUEST['ip'],ENT_QUOTES,'utf-8')));
