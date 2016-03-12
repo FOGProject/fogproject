@@ -8,12 +8,12 @@ class HookDebugger extends Hook {
     public $logToFile = false;
     public $logToBrowser = true;
     public function run($arguments) {
-        $this->log(print_r($arguments['event'],1));
+        $this->log(print_r($arguments['event'],1),$this->logLevel);
     }
 }
 $HookDebugger = new HookDebugger();
 if (!$HookManager->events) $HookManager->getEvents();
-foreach($HookManager->events AS $i => &$event) {
+foreach ($HookManager->events AS &$event) {
     $HookManager->register($event,array($HookDebugger,'run'));
     unset($event);
 }

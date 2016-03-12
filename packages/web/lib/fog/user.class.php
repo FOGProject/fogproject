@@ -43,7 +43,9 @@ class User extends FOGController {
             $_SESSION['FOG_USER'] = serialize($this);
             $_SESSION['FOG_USERNAME'] = $this->get('name');
             $res = $this;
+            $this->log(sprintf('%s %s.',$this->get('name'),_('user successfully logged in')));
         } else {
+            $this->log(sprintf('%s %s.',$this->get('name'),_('user failed to login'),$this->get('name')));
             $this->EventManager->notify('LoginFail',array('Failure'=>$this->get('name')));
             $this->HookManager->processEvent('LoginFail',array('username'=>$this->get('name'),'password'=>&$password));
             $this->setMessage($this->foglang['InvalidLogin']);

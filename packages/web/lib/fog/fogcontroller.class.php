@@ -197,6 +197,7 @@ abstract class FOGController extends FOGBase {
             );
             if (!$this->DB->query($query)->fetch()->get()) throw new Exception(_('Could not delete item'));
         } catch (Exception $e) {
+            $this->log(sprintf('%s: %s',_('Destroy failed'),$e->getMessage()));
             $this->debug(_('Destroy failed: %s'),array($e->getMessage()));
         }
         return $this;
