@@ -462,6 +462,14 @@ abstract class FOGBase {
         }
         return false;
     }
+    protected function log($txt, $level = 1) {
+        if ($this->ajax) return;
+        $txt = trim(preg_replace(array("#\r#","#\n#",'#\s+#','# ,#'),array('',' ',' ',','),$txt));
+        if (empty($txt)) return;
+        $txt = sprintf('[%s] %s',$this->nice_date()->format('Y-m-d H:i:s'),$txt);
+        if ($this->logLevel >= $level) echo $txt;
+        $this->logHistory($txt);
+    }
     protected function logHistory($string) {
         $string = htmlentities(mb_convert_encoding($string,'UTF-8'),ENT_QUOTES,'UTF-8');
         $name = $_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog';
