@@ -32,7 +32,7 @@ abstract class FOGController extends FOGBase {
     }
     public function __destruct() {
         if ($this->autoSave) $this->save();
-        return null;
+        return false;
     }
     public function __toString() {
         return ($this->get('name') ? $this->get('name') : sprintf('%s ID: %s',get_class($this),$this->get('id')));
@@ -40,10 +40,11 @@ abstract class FOGController extends FOGBase {
     public function get($key = '') {
         $key = $this->key($key);
         if (!$key) return $this->data;
-        else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
+        if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
             unset($this->data[$key]);
             return false;
-        } else if (!$this->isLoaded($key)) $this->loadItem($key);
+        }
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         if (!isset($this->data[$key])) return $this->data[$key] = '';
         if (is_object($this->data[$key])) {
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Object'),$this->data[$key]->__toString()));
@@ -143,7 +144,15 @@ abstract class FOGController extends FOGBase {
             );
             if (!$this->DB->query($query)->fetch()->get()) throw new Exception($this->DB->sqlerror());
             if (!$this->get('id')) $this->set('id',$this->DB->insert_id());
+            if (!$this instanceof History) {
+                if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s.',get_class($this),$this->get('id'),$this->get('name'),_('has been successfully updated')));
+                else $this->log(sprintf('%s ID: %s %s.',get_class($this),$this->get('id'),_('has been successfully updated')));
+            }
         } catch (Exception $e) {
+            if (!$this instanceof History) {
+                if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s. ERROR: %s',get_class($this),$this->get('id'),$this->get('name'),_('has failed to save'),$e->getMessage()));
+                else $this->log(sprintf('%s ID: %s %s. ERROR: %s',get_class($this),$this->get('id'),_('has failed to save'),$e->getMessage()));
+            }
             $this->debug(_('Database save failed: ID: %s, Error: %s'),array($this->data['id'],$e->getMessage()));
             return false;
         }
@@ -196,8 +205,15 @@ abstract class FOGController extends FOGBase {
                 $this->DB->sanitize($this->get($this->key($field)))
             );
             if (!$this->DB->query($query)->fetch()->get()) throw new Exception(_('Could not delete item'));
+            if (!$this instanceof History) {
+                if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s.',get_class($this),$this->get('id'),$this->get('name'),_('has been destroyed')));
+                else $this->log(sprintf('%s ID: %s %s.',get_class($this),$this->get('id'),_('has been destroyed')));
+            }
         } catch (Exception $e) {
-            $this->log(sprintf('%s: %s',_('Destroy failed'),$e->getMessage()));
+            if (!$this instanceof History) {
+                if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s. ERROR: %s',get_class($this),$this->get('id'),$this->get('name'),_('has failed to be destroyed'),$e->getMessage()));
+                else $this->log(sprintf('%s ID: %s %s. ERROR: %s',get_class($this),$this->get('id'),_('has failed to be destroyed'),$e->getMessage()));
+            }
             $this->debug(_('Destroy failed: %s'),array($e->getMessage()));
         }
         return $this;
@@ -264,6 +280,6 @@ abstract class FOGController extends FOGBase {
         return $this;
     }
     public function getManager() {
-        return $this->getClass(get_class($this).'Manager');
+        return $this->getClass(sprintf('%sManager',get_class($this)));
     }
 }
