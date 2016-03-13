@@ -79,7 +79,7 @@ class FOGURLRequests extends FOGBase {
         do {
             curl_multi_exec($this->handle,$active);
         } while ($active > 0);
-        foreach ((array)$curl AS $key => &$val) {
+        foreach ($curl AS $key => &$val) {
             $response[] = curl_multi_getcontent($val);
             curl_multi_remove_handle($this->handle,$val);
         }
