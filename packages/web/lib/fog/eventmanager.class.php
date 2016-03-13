@@ -60,10 +60,12 @@ class EventManager extends FOGBase {
                 }
                 if (($fh = fopen($fileInfo->getPathname(),'rb')) === false) continue;
                 while (feof($fh) === false) {
+                    unset($active);
                     $line = fgets($fh,4096);
                     if ($line === false) continue;
-                    preg_match_all('#active\s\?=',$line,$linefound);
-                    if (stripos($line,'active') === false) continue;
+                    preg_match('#(\$active\s?=\s?.*;)#',$line,$linefound);
+                    eval(array_pop($linefound));
+                    if (!isset($active) || $active === false) continue;
                     $this->getClass($className);
                     break;
                 }
