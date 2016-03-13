@@ -1,15 +1,5 @@
 <?php
 class Initiator {
-    /** $HookPaths the paths were hooks are stored */
-    public $HookPaths;
-    /** $EventPaths the paths where events are stored */
-    public $EventPaths;
-    /** $FOGPaths the paths for the main fog stuff */
-    public $FOGPaths;
-    /** $PagePaths the paths where pages are stored */
-    public $PagePaths;
-    /** $plugPaths the plugin paths integrated with the other paths */
-    public $plugPaths;
     /** __construct() Initiates to load the rest of FOG
      * @return void
      */
@@ -21,8 +11,8 @@ class Initiator {
         define('BASEPATH', self::DetermineBasePath());
         $plugs = sprintf('%s%s%slib%splugins%s*',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,BASEPATH),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
         $path = sprintf('%s%s%slib%s%s%s',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,BASEPATH),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR,'%s',DIRECTORY_SEPARATOR);
-        $this->plugPaths = array_filter(glob($plugs),'is_dir');
-        foreach($this->plugPaths AS $plugPath) {
+        $plugPaths = array_filter(glob($plugs),'is_dir');
+        foreach($plugPaths AS $plugPath) {
             $plug_class[] = sprintf('%s%s%sclass%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
             $plug_class[] = sprintf('%s%s%sclient%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
             $plug_class[] = sprintf('%s%s%sreg-task%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
@@ -36,11 +26,11 @@ class Initiator {
         $HookPaths = array(sprintf($path,'hooks'));
         $EventPaths = array(sprintf($path,'events'));
         $PagePaths = array(sprintf($path,'pages'));
-        $this->FOGPaths = array_merge((array)$FOGPaths,(array)$plug_class);
-        $this->HookPaths = array_merge((array)$HookPaths,(array)$plug_hook);
-        $this->EventPaths = array_merge((array)$EventPaths,(array)$plug_event);
-        $this->PagePaths = array_merge((array)$PagePaths,(array)$plug_page);
-        set_include_path(sprintf('%s%s%s',implode(PATH_SEPARATOR,array_merge($this->FOGPaths,$this->PagePaths,$this->HookPaths,$this->EventPaths)),PATH_SEPARATOR,get_include_path()));
+        $FOGPaths = array_merge((array)$FOGPaths,(array)$plug_class);
+        $HookPaths = array_merge((array)$HookPaths,(array)$plug_hook);
+        $EventPaths = array_merge((array)$EventPaths,(array)$plug_event);
+        $PagePaths = array_merge((array)$PagePaths,(array)$plug_page);
+        set_include_path(sprintf('%s%s%s',implode(PATH_SEPARATOR,array_merge($FOGPaths,$PagePaths,$HookPaths,$EventPaths)),PATH_SEPARATOR,get_include_path()));
         spl_autoload_extensions('.class.php,.event.php,.hook.php');
         spl_autoload_register(array($this,'FOGLoader'));
     }
@@ -185,7 +175,7 @@ $HookManager = $FOGCore->getClass('HookManager');
 $FOGCore->setSessionEnv();
 /** $TimeZone the timezone setter */
 $TimeZone = $_SESSION['TimeZone'];
-$HookManager->load('HookPaths','/hook/','.hook.php');
+$HookManager->load();
 $EventManager->load();
 /** $HookManager initiates the FOGURLRequest class */
 $FOGURLRequests = $FOGCore->getClass('FOGURLRequests');

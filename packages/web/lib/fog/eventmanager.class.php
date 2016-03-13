@@ -33,45 +33,58 @@ class EventManager extends FOGBase {
         try {
             if  (!is_array($eventData)) throw new Exception(_('Data is invalid'));
             if (!isset($this->data[$event])) return;
-            foreach ($this->data[$event] AS &$className) {
-                if (!$className->active) continue;
-                $className->onEvent($event,$eventData);
-                unset($className);
-            }
+            $runEvent = function($element) use ($event,$eventData){
+                if (!$element->active) return;
+                $element->onEvent($event,$eventData);
+            };
+            array_map($runEvent,$this->data[$event]);
         } catch (Exception $e) {
             $this->log(sprintf('Could not register: Error: %s, Event: %s, Class: %s', $e->getMessage(), $event, $class[1]));
             return false;
         }
         return true;
     }
-    public function load($paths = 'EventPaths',$dirpath = '/event/',$ext = '.event.php') {
-        global $Init;
-        foreach($Init->$paths AS &$path) {
-            if (!file_exists($path)) continue;
-            if (preg_match('#plugins#i',$path) && !in_array(basename(substr($path,0,-strlen($dirpath))),(array)$_SESSION['PluginsInstalled'])) continue;
-            foreach ($this->getClass('DirectoryIterator',$path) AS $fileInfo) {
-                if ($fileInfo->isDot()) continue;
-                if (substr($fileInfo->getFilename(),-strlen($ext)) != $ext) continue;
-                $className = substr($fileInfo->getFilename(),0,-strlen($ext));
-                if (in_array($className,get_declared_classes())) continue;
-                if (preg_match('#plugins#i',$fileInfo->getPathname())) {
-                    $this->getClass($className);
-                    continue;
-                }
-                if (($fh = fopen($fileInfo->getPathname(),'rb')) === false) continue;
-                while (feof($fh) === false) {
-                    unset($active);
-                    $line = fgets($fh,4096);
-                    if ($line === false) continue;
-                    preg_match('#(\$active\s?=\s?.*;)#',$line,$linefound);
-                    eval(array_pop($linefound));
-                    if (!isset($active) || $active === false) continue;
-                    $this->getClass($className);
-                    break;
-                }
-                fclose($fh);
-            }
-            unset($path);
+    public function load() {
+        if ($this instanceof EventManager) {
+            $regext = '#^.+/events/.*\.event\.php$#';
+            $dirpath = '/events/';
+            $strlen = -strlen('.event.php');
         }
+        if ($this instanceof HookManager) {
+            $regext = '#^.+/hooks/.*\.hook\.php$#';
+            $dirpath = '/hooks/';
+            $strlen = -strlen('.hook.php');
+        }
+        $normalfileitems = function($element) use ($dirpath) {
+            preg_match("#^(?!.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
+            return $match[0];
+        };
+        $pluginfileitems = function($element) use ($dirpath) {
+            preg_match("#^(?=.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
+            return $match[0];
+        };
+        $files = iterator_to_array($this->getClass('RegexIterator',$this->getClass('RecursiveIteratorIterator',$this->getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RecursiveRegexIterator::GET_MATCH),false);
+        $normalfiles = array_values(array_filter(array_map($normalfileitems,$files)));
+        $pluginfiles = array_values(array_filter(preg_grep(sprintf('#/(%s)/#',implode('|',$_SESSION['PluginsInstalled'])),array_map($pluginfileitems,$files))));
+        $startClass = function($element) use ($strlen) {
+            $this->getClass(substr(basename($element),0,$strlen));
+        };
+        array_map($startClass,$pluginfiles);
+        unset($pluginfiles);
+        $checkNormalAndStart = function($element) use ($strlen,$startClass) {
+            if (($fh = fopen($element,'rb')) === false) return;
+            while (feof($fh) === false) {
+                unset($active);
+                $line = fgets($fh, 4096);
+                if ($line === false) continue;
+                preg_match('#(\$active\s?=\s?.*;)#',$line,$linefound);
+                eval(array_pop($linefound));
+                if (!isset($active) || $active === false) continue;
+                $startClass($element);
+                break;
+            }
+            fclose($fh);
+        };
+        array_map($checkNormalAndStart,$normalfiles);
     }
 }

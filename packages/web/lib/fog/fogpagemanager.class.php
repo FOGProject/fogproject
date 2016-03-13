@@ -81,29 +81,33 @@ class FOGPageManager Extends FOGBase {
         return $this;
     }
     private function loadPageClasses() {
-        global $Init;
-        foreach ($Init->PagePaths AS $i => &$path) {
-            if (!file_exists($path)) continue;
-            if (preg_match('#plugins#i',$path)) {
-                $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
-                if (!in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) continue;
-            }
-            $iterator = $this->getClass('DirectoryIterator',$path);
-            foreach ($iterator AS $i => $fileInfo) {
-                $className = null;
-                if (substr($fileInfo->getFilename(),-10) != '.class.php') continue;
-                $className = substr($fileInfo->getFilename(),0,-10);
-                if (!$className || in_array($className,get_declared_classes())) continue;
-                if ($this->isMobile && !preg_match('#mobile#i',$className)) continue;
-                if (!$this->isMobile && preg_match('#mobile#i',$className)) continue;
-                $vals = get_class_vars($className);
-                if ($vals['node'] === $this->classValue) {
-                    $this->nodes[$this->classValue] = $className;
-                    $this->register($this->getClass($className));
-                }
-                unset($vals);
-            }
-            unset($path);
-        }
+        $regext = '#^.+/pages/.*\.class\.php$#';
+        $dirpath = '/pages/';
+        $strlen = -strlen('.class.php');
+        $normalfileitems = function($element) use ($dirpath) {
+            preg_match("#^(?!.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
+            return $match[0];
+        };
+        $pluginfileitems = function($element) use ($dirpath) {
+            preg_match("#^(?=.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
+            return $match[0];
+        };
+        $files = iterator_to_array($this->getClass('RegexIterator',$this->getClass('RecursiveIteratorIterator',$this->getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RecursiveRegexIterator::GET_MATCH),false);
+        $normalfiles = array_values(array_filter(array_map($normalfileitems,$files)));
+        $pluginfiles = array_values(array_filter(preg_grep(sprintf('#/(%s)/#',implode('|',$_SESSION['PluginsInstalled'])),array_map($pluginfileitems,$files))));
+        $files = array_values(array_filter(array_unique(array_merge($normalfiles,$pluginfiles))));
+        unset($normalfiles,$pluginfiles);
+        $startClass = function($element) use ($strlen) {
+            if (substr($element,$strlen) !== '.class.php') return;
+            $className = substr(basename($element),0,$strlen);
+            if (in_array($className,get_declared_classes())) return;
+            if (($this->isMobile && !preg_match('#mobile#i',$className)) || (!$this->isMobile && preg_match('#mobile#i',$className))) return;
+            $vals = get_class_vars($className);
+            if ($vals['node'] !== trim(htmlentities($_REQUEST['node'],ENT_QUOTES,'utf-8'))) return;
+            unset($vals);
+            $this->nodes[$this->classValue] = $className;
+            $this->register($this->getClass($className));
+        };
+        array_map($startClass,$files);
     }
 }
