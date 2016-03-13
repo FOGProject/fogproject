@@ -76,23 +76,23 @@ class ReportMaker extends FOGBase {
             $filepath = "{$path}{$filename}";
             $ip = preg_replace('#p:#','',DATABASE_HOST);
             if (false === filter_var($ip,FILTER_VALIDATE_IP)) $ip = gethostbyname($ip);
-            if (!filter_var($ip,FILTER_VALIDATE_IP) === false) {
-                $cmd = sprintf("mysqldump --opt -u%s -h'$ip' %s > $filepath",escapeshellarg(DATABASE_USERNAME),escapeshellarg(DATABASE_NAME));
-                if (DATABASE_PASSWORD) $cmd = sprintf("mysqldump --opt -u%s -p%s -h'$ip' %s > $filepath",escapeshellarg(DATABASE_USERNAME),escapeshellarg(DATABASE_PASSWORD),escapeshellarg(DATABASE_NAME));
-                exec($cmd);
-                $filesize = filesize($filepath);
-                header("X-Sendfile: $filepath");
-                header('Content-Type: application/octet-stream');
-                header("Content-Length: $filesize");
-                header("Content-Disposition: attachment; filename=$filename");
-                if (false !== ($handle = fopen($filepath,'rb'))) {
-                    while (!feof($handle)) {
-                        $line = htmlentities(fread($handle,8*1024*1024),ENT_QUOTES,'utf-8');
-                        echo $line;
-                    }
-                }
-                exec ("rm -rf '$filepath'");
+            if (filter_var($ip,FILTER_VALIDATE_IP) === false) return;
+            $cmd = sprintf("mysqldump --opt -u%s -h'$ip' %s > $filepath",escapeshellarg(DATABASE_USERNAME),escapeshellarg(DATABASE_NAME));
+            if (DATABASE_PASSWORD) $cmd = sprintf("mysqldump --opt -u%s -p%s -h'$ip' %s > %s",escapeshellarg(DATABASE_USERNAME),escapeshellarg(DATABASE_PASSWORD),escapeshellarg(DATABASE_NAME),escapeshellarg($filepath));
+            exec($cmd);
+            $filesize = filesize($filepath);
+            if (($fh = fopen($filepath,'rb')) === false) return;
+            header("X-Sendfile: $filepath");
+            header('Content-Type: application/octet-stream');
+            header("Content-Length: $filesize");
+            header("Content-Disposition: attachment; filename=$filename");
+            while (feof($fh) === false) {
+                $line = htmlentities(fread($fh,4096),ENT_QUOTES,'utf-8');
+                echo $line;
             }
+            fclose($fh);
+            $cmd = sprintf("rm -rf %s",escapeshellarg($filepath));
+            exec($cmd);
         }
     }
 }
