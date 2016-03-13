@@ -163,7 +163,7 @@ abstract class FOGController extends FOGBase {
         try {
             if (!$this->get($field)) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
             list($join, $where) = $this->buildQuery();
-            foreach ((array)$field AS $i => &$key) {
+            foreach ($field AS &$key) {
                 $key = $this->key($key);
                 if (!is_array($this->get($key))) {
                     $query = sprintf($this->loadQueryTemplateSingle,
