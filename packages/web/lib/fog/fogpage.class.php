@@ -13,6 +13,7 @@ abstract class FOGPage extends FOGBase {
     protected $data = array();
     protected $templates = array();
     protected $attributes = array();
+    protected $returnData;
     private $wrapper = 'td';
     private $headerWrap = 'th';
     private $result;
