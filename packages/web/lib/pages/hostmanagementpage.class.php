@@ -79,12 +79,8 @@ class HostManagementPage extends FOGPage {
             array('width'=>50,'class'=>'r'),
             array('width'=>20,'class'=>'r')
         );
-    }
-    public function index() {
-        $this->title = $this->foglang['AllHosts'];
-        if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)$this->getClass('HostManager')->find(array('pending'=>array(0,null))) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
+        $this->returnData = function(&$Host) {
+            if (!$Host->isValid()) return;
             $this->data[] = array(
                 'id'=>$Host->get('id'),
                 'deployed'=>$this->formatTime($Host->get('deployed'),'Y-m-d H:i:s'),
@@ -95,25 +91,20 @@ class HostManagementPage extends FOGPage {
                 'pingstatus'=>$Host->getPingCodeStr(),
             );
             unset($Host);
-        }
+        };
+    }
+    public function index() {
+        $this->title = $this->foglang['AllHosts'];
+        if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        $this->data = array();
+        array_map($this->returnData,$this->getClass('HostManager')->find(array('pending'=>array(0,null,false))));
         $this->HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData,'title'=>&$this->title));
         $this->render();
     }
     public function search_post() {
-        foreach ((array)$this->getClass('HostManager')->search('',true) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
-            $this->data[] = array(
-                'id'=>$Host->get('id'),
-                'deployed'=>$this->formatTime($Host->get('deployed'),'Y-m-d H:i:s'),
-                'host_name'=>$Host->get('name'),
-                'host_mac'=>$Host->get('mac')->__toString(),
-                'host_desc'=>$Host->get('description'),
-                'image_name'=>$Host->getImageName(),
-                'pingstatus'=>$Host->getPingCodeStr(),
-            );
-            unset($Host);
-        }
+        $this->data = array();
+        array_map($this->returnData,$this->getClass('HostManager')->search('',true));
         $this->HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         $this->render();

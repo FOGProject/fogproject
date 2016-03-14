@@ -61,61 +61,49 @@ class ImageManagementPage extends FOGPage {
             array('width'=>50,'class'=>'c'),
             array('width'=>50,'class'=>'c')
         );
+        $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
+        $servSize = function($path) use ($StorageNode) {
+            return false;
+        };
+        if (isset($_SESSION['FOG_FTP_IMAGE_SIZE']) && $_SESSION['FOG_FTP_IMAGE_SIZE']) {
+            $servSize = function($path) use ($StorageNode) {
+                return $this->getFTPByteSize($StorageNode,sprintf('%s/%s',$StorageNode->get('ftppath'),$Image->get('path')));
+            };
+        }
+        $this->returnData = function(&$Image) use ($servSize) {
+            if (!$Image->isValid()) return;
+            $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
+            if (!$StorageNode->isValid()) return;
+            $imageSize = $this->formatByteSize((double)$Image->get('size'));
+            $serverSize = $servSize($Image->get('path'));
+            $this->data[] = array(
+                'id' => $Image->get('id'),
+                'name' => $Image->get('name'),
+                'description' => $Image->get('description'),
+                'storageGroup' => $Image->getStorageGroup()->get('name'),
+                'os' => $Image->getOS()->isValid() ? $Image->getOS()->get('name') : _('Not set'),
+                'deployed' => $this->validDate($Image->get('deployed')) ? $this->formatTime($Image->get('deployed'),'Y-m-d H:i:s') : 'No Data',
+                'size' => $imageSize,
+                'serv_size' => $serverSize,
+                'image_type'=>$Image->getImageType()->get('name'),
+                'image_partition_type' => $Image->getImagePartitionType()->get('name'),
+                'protected' => sprintf('<i class="fa fa-%slock fa-1x icon hand" title="%s"></i>',(!$Image->get('protected') ? 'un' : ''),(!$Image->get('protected') ? _('Not Protected') : _('Protected'))),
+                'type'=>$Image->get('format') ? _('Partimage') : _('Partclone'),
+            );
+            unset($Image,$imageSize,$serverSize);
+        };
     }
     public function index() {
         $this->title = _('All Images');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['ImageCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
-        foreach ((array)$this->getClass('ImageManager')->find() AS $i => &$Image) {
-            if (!$Image->isValid()) continue;
-            $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-            if (!$StorageNode->isValid()) continue;
-            $imageSize = $this->formatByteSize((double)$Image->get('size'));
-            if ($SizeServer) $servSize = $this->getFTPByteSize($StorageNode,sprintf('%s/%s',$StorageNode->get('ftppath'),$Image->get('path')));
-            unset($StorageNode);
-            $this->data[] = array(
-                'id'=>$Image->get('id'),
-                'name'=>$Image->get('name'),
-                'description'=>$Image->get('description'),
-                'storageGroup'=>$Image->getStorageGroup()->get('name'),
-                'os'=>$Image->getOS()->isValid() ? $Image->getOS()->get('name') : _('Not set'),
-                'deployed'=>$this->validDate($Image->get('deployed')) ? $this->formatTime($Image->get('deployed'),'Y-m-d H:i:s') : 'No Data',
-                'size' => $imageSize,
-                $SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
-                'image_type'=>$Image->getImageType()->get('name'),
-                'image_partition_type' => $Image->getImagePartitionType()->get('name'),
-                'protected'=>sprintf('<i class="fa fa-%slock fa-1x icon hand" title="%s"></i>',(!$Image->get('protected') ? 'un' : ''),(!$Image->get('protected') ? _('Not Protected') : _('Protected'))),
-                'type'=>$Image->get('format') ? _('Partimage') : _('Partclone'),
-            );
-            unset($Image,$imageSize);
-        }
+        $this->data = array();
+        array_map($this->returnData,$this->getClass('ImageManager')->find());
         $this->HookManager->processEvent('IMAGE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
-        $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
-        foreach ($this->getClass('ImageManager')->search('',true) AS $i => &$Image) {
-            if (!$Image->isValid()) continue;
-            $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-            if (!$StorageNode->isValid()) continue;
-            $imageSize = $this->formatByteSize((double)$Image->get('size'));
-            if ($SizeServer) $servSize = $this->getFTPByteSize($StorageNode,sprintf('%s/%s',$StorageNode->get('ftppath'),$Image->get('path')));
-            $this->data[] = array(
-                'id'=>$Image->get('id'),
-                'name'=>$Image->get('name'),
-                'description'=>$Image->get('description'),
-                'storageGroup'=>$Image->getStorageGroup()->get('name'),
-                'os'=>$Image->getOS()->get('name'),
-                'deployed'=>$this->validDate($Image->get('deployed')) ? $this->formatTime($Image->get('deployed'),'Y-m-d H:i:s') : _('No Data'),
-                'size'=>$imageSize,
-                $SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
-                'image_type'=>$Image->getImageType()->get('name'),
-                'image_partition_type'=>$Image->getImagePartitionType()->get('name'),
-                'type'=>_($Image->get('format') ? _('Partimage') : _('Partclone')),
-                'protected'=>sprintf('<i class="fa fa-%slock fa-1x icon hand" title="%s"></i>',(!$Image->get('protected') ? 'un' : ''),(!$Image->get('protected') ? _('Not Protected') : _('Protected'))),
-            );
-            unset($Image,$imageSize);
-        }
+        $this->data = array();
+        array_map($this->returnData,$this->getClass('ImageManager')->search('',true));
         $this->HookManager->processEvent('IMAGE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
