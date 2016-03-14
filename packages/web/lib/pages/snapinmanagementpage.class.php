@@ -35,36 +35,29 @@ class SnapinManagementPage extends FOGPage {
             array('class'=>'c','width'=>50),
             array('class'=>'r filter-false'),
         );
+        $this->returnData = function(&$Snapin) {
+            if (!$Snapin->isValid()) return;
+            $this->data[] = array(
+                'id' => $Snapin->get('id'),
+                'name' => $Snapin->get('name'),
+                'storage_group' => $Snapin->getStorageGroup()->get('name'),
+                'description' => $Snapin->get('description'),
+                'file' => $Snapin->get('file'),
+            );
+            unset($Snapin);
+        };
     }
     public function index() {
         $this->title = _('All Snap-ins');
         if ($this->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('SnapinManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)$this->getClass('SnapinManager')->find() AS $i => &$Snapin) {
-            if (!$Snapin->isValid()) continue;
-            $this->data[] = array(
-                'id'=>$Snapin->get('id'),
-                'name'=>$Snapin->get('name'),
-                'storage_group'=>$Snapin->getStorageGroup()->get('name'),
-                'description'=>$Snapin->get('description'),
-                'file'=>$Snapin->get('file')
-            );
-            unset($Snapin);
-        }
+        $this->data = array();
+        array_map($this->returnData,$this->getClass('SnapinManager')->find());
         $this->HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
-        foreach ((array)$this->getClass('SnapinManager')->search('',true) AS $i => &$Snapin) {
-            if (!$Snapin->isValid()) continue;
-            $this->data[] = array(
-                'id'=>$Snapin->get('id'),
-                'name'=>$Snapin->get('name'),
-                'storage_group'=>$Snapin->getStorageGroup()->get('name'),
-                'description'=>$Snapin->get('description'),
-                'file'=>$Snapin->get('file'),
-            );
-            unset($Snapin);
-        }
+        $this->data = array();
+        array_map($this->returnData,$this->getClass('SnapinManager')->search('',true));
         $this->HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -272,15 +265,18 @@ class SnapinManagementPage extends FOGPage {
             array('class'=>'l filter-false','width'=>16),
             array(),
         );
-        foreach ((array)$this->getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroupsnotinme'))) AS $i => &$StorageGroup) {
-            if (!$StorageGroup->isValid()) continue;
+        $storageGroups = function(&$StorageGroup) {
+            if (!$StorageGroup->isValid()) return;
             $this->data[] = array(
                 'storageGroup_id' => $StorageGroup->get('id'),
                 'storageGroup_name' => $StorageGroup->get('name'),
+                'is_primary' => ($this->obj->getPrimaryGroup($StorageGroup->get('id')) ? ' checked' : ''),
             );
-            unset($StorageGroup);
-        }
+        };
+        array_map($storageGroups,$this->getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroupsnotinme'))));
         if (count($this->data) > 0) {
+            print 'here';
+            exit;
             $this->HookManager->processEvent('SNAPIN_GROUP_ASSOC',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             printf('<p class="c"><label for="groupMeShow">%s&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow"/></label><div id="groupNotInMe"><form method="post" action="%s&tab=snap-storage"><h2>%s %s</h2><p class="c">%s</p>',
                 _('Check here to see groups not assigned with this snapin'),
@@ -308,16 +304,7 @@ class SnapinManagementPage extends FOGPage {
             sprintf('<input class="primary" type="radio" name="primary" id="group${storageGroup_id}" value="${storageGroup_id}"${is_primary}/><label for="group${storageGroup_id}" class="icon icon-hand" title="%s">&nbsp;</label>',_('Primary Group Selector')),
             '${storageGroup_name}',
         );
-        $GroupIDs = $this->obj->get('storageGroups');
-        foreach ((array)$this->getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroups'))) AS $i => &$StorageGroup) {
-            if (!$StorageGroup->isValid()) continue;
-            $this->data[] = array(
-                'storageGroup_id' => $StorageGroup->get('id'),
-                'storageGroup_name' => $StorageGroup->get('name'),
-                'is_primary' => ($this->obj->getPrimaryGroup($StorageGroup->get('id')) ? ' checked' : ''),
-            );
-            unset($StorageGroup);
-        }
+        array_map($storageGroups,$this->getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroups'))));
         $this->HookManager->processEvent('SNAPIN_EDIT_GROUP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=snap-storage">',$this->formAction);
         $this->render();

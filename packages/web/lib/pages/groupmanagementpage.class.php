@@ -46,34 +46,28 @@ class GroupManagementPage extends FOGPage {
             array('width'=>90,'class'=>'c filter-false'),
             array('width'=>50,'class'=>'c filter-false'),
         );
+        $this->returnData = function(&$Group) {
+            if (!$Group->isValid()) return;
+            $this->data[] = array(
+                'id' => $Group->get('id'),
+                'name' => $Group->get('name'),
+                'description' => $Group->get('description'),
+                'count' => $Group->getHostCount(),
+            );
+            unset($Group);
+        };
     }
     public function index() {
         $this->title = _('All Groups');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['GroupCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)$this->getClass('GroupManager')->find() AS $i => &$Group) {
-            if (!$Group->isValid()) continue;
-            $this->data[] = array(
-                'id'=>$Group->get('id'),
-                'name'=>$Group->get('name'),
-                'description'=>$Group->get('description'),
-                'count'=>$Group->getHostCount(),
-            );
-            unset($Group);
-        }
+        $this->data = array();
+        array_map($this->returnData,$this->getClass('GroupManager')->find());
         $this->HookManager->processEvent('GROUP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
-        foreach ((array)$this->getClass('GroupManager')->search('',true) AS $i => &$Group) {
-            if (!$Group->isValid()) continue;
-            $this->data[] = array(
-                'id'=>$Group->get('id'),
-                'name'=>$Group->get('name'),
-                'description'=>$Group->get('description'),
-                'count'=>$Group->getHostCount(),
-            );
-            unset($Group);
-        }
+        $this->data = array();
+        array_map($this->returnData,$this->getClass('GroupManager')->search('',true));
         $this->HookManager->processEvent('GROUP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
