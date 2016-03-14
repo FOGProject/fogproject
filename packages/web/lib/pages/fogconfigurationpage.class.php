@@ -13,7 +13,7 @@ class FOGConfigurationPage extends FOGPage {
             'client-updater'=>$this->foglang['ClientUpdater'],
             'mac-list'=>$this->foglang['MACAddrList'],
             'settings'=>$this->foglang['FOGSettings'],
-            'log'=>$this->foglang['LogViewer'],
+            'logviewer'=>$this->foglang['LogViewer'],
             'config'=>$this->foglang['ConfigSave'],
             'http://www.sf.net/projects/freeghost'=>$this->foglang['FOGSFPage'],
             'https://fogproject.org'=>$this->foglang['FOGWebPage'],
@@ -728,7 +728,7 @@ class FOGConfigurationPage extends FOGPage {
         $this->setMessage('Settings Successfully stored!');
         $this->redirect($this->formAction);
     }
-    public function log() {
+    public function logviewer() {
         foreach ((array)$this->getClass('StorageGroupManager')->find() AS $i => &$StorageGroup) {
             if (!$StorageGroup->isValid()) continue;
             if (!count($StorageGroup->get('enablednodes'))) continue;
