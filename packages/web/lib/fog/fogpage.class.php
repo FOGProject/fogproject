@@ -59,7 +59,13 @@ abstract class FOGPage extends FOGBase {
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
     public function index() {
-        printf('Index page of: %s%s', get_class($this), (count($args) ? ', Arguments = ' . implode(', ', array_map(create_function('$key, $value', 'return $key." : ".$value;'), array_keys($args), array_values($args))) : ''));
+        $vals = function(&$value,$key) {
+            return sprintf('%s : %s',$key,$value);
+        };
+        printf('Index page of: %s%s',
+            get_class($this),
+            (count($args) ? sprintf(', Arguments = %s',implode(', ',array_walk($args,$vals))) : '')
+        );
     }
     public function set($key, $value) {
         $this->$key = $value;
@@ -127,14 +133,13 @@ abstract class FOGPage extends FOGBase {
                 if ((!$sub && $defaultScreen == 'list') || (in_array($sub,$defaultScreens) && in_array($node,$this->searchPages)))
                     if ($this->node != 'home') $this->setMessage(sprintf('%s %s%s found',count($this->data),$this->childClass,(count($this->data) != 1 ? 's' : '')));
                 $id_field = "{$node}_id";
-                foreach ((array)$this->data AS $i => &$rowData) {
+                array_map(function(&$rowData) use ($id_field) {
                     printf('<tr id="%s-%s">%s</tr>',
                         strtolower($this->childClass),
-                        isset($rowData['id']) ? $rowData['id'] : $rowData[$id_field],
+                        (isset($rowData['id']) ? $rowData['id'] : (isset($rowData[$id_field]) ? $rowData[$id_field] : '')),
                         $this->buildRow($rowData)
                     );
-                }
-                unset($rowData);
+                },$this->data);
             }
             echo '</tbody></table>';
             if (((!$sub || ($sub && in_array($sub,$defaultScreens))) && in_array($node,$this->searchPages)) && !$this->isMobile) {
@@ -164,32 +169,33 @@ abstract class FOGPage extends FOGBase {
         return $result;
     }
     private function setAtts() {
-        foreach((array)$this->attributes AS $i => &$vals) {
-            foreach((array)$vals AS $name => &$val) $this->atts[$i] .= sprintf(' %s="%s" ',$name,($this->dataFind ? preg_replace($this->dataFind,$this->dataReplace,$val) : $val));
-            unset($val);
-        }
-        unset($vals);
+        array_walk($this->attributes,function(&$attribute,$index) {
+            array_walk($attribute,function(&$val, $name) use ($index) {
+                $this->atts[$index] .= sprintf(' %s="%s" ',
+                    $name,
+                    ($this->dataFind ? preg_replace($this->dataFind,$this->dataReplace,$val) : $val)
+                );
+            });
+        });
     }
     public function buildHeaderRow() {
         unset($this->atts);
         $this->setAtts();
-        if ($this->headerData) {
-            ob_start();
-            printf('<thead%s><tr class="header">',count($this->data) < 1 ? ' class="hidden"' : '');
-            foreach ($this->headerData AS $i => &$content) {
-                printf(
-                    '<%s%s data-column="%s">%s</%s>',
-                    $this->headerWrap,
-                    ($this->atts[$i] ? $this->atts[$i] : ''),
-                    $i,
-                    $content,
-                    $this->headerWrap
-                );
-                unset($content);
-            }
-            echo '</tr></thead>';
-            return ob_get_clean();
-        }
+        if (!$this->headerData) return;
+        $setHeaderData = function(&$content,$index) {
+            printf('<%s%s data-column="%s">%s</%s>',
+                $this->headerWrap,
+                ($this->atts[$index] ? $this->atts[$index] : ''),
+                $index,
+                $content,
+                $this->headerWrap
+            );
+        };
+        ob_start();
+        printf('<thead%s><tr class="header">',count($this->data) < 1 ? ' class="hidden"' : '');
+        array_walk($this->headerData,$setHeaderData);
+        echo '</tr></thead>';
+        return ob_get_clean();
     }
     private function replaceNeeds($data) {
         unset($this->dataFind,$this->dataReplace);
@@ -197,33 +203,28 @@ abstract class FOGPage extends FOGBase {
         preg_match_all('#\$\{(.+?)\}#',implode($this->templates),$foundchanges);
         $arrayReplace = array_merge($urlvars,(array)$data);
         $foundchanges = $foundchanges[1];
-        foreach ($foundchanges AS &$name) {
+        array_map(function(&$name) use ($arrayReplace) {
             $this->dataFind[] = sprintf('#\$\{%s\}#',$name);
-            $this->dataReplace[] = in_array($name,array_keys($arrayReplace)) ? $arrayReplace[$name] : '';
-            unset($name);
-        }
-        unset($foundchanges);
-        foreach ($arrayReplace AS $name => &$val) {
+            $this->dataReplace[] = isset($arrayReplace[$name]) ? $arrayReplace[$name] : '';
+        },$foundchanges);
+        array_walk($arrayReplace,function(&$val,$name) {
             $this->dataFind[] = sprintf('#\$\{%s\}#',$name);
-            $this->dataReplace[] = $val;
-            unset($val);
-        }
+            $this->dataReplace[] = isset($val) ? $val : '';
+        });
     }
     public function buildRow($data) {
         unset($this->atts);
         $this->replaceNeeds($data);
         $this->setAtts();
         ob_start();
-        foreach ($this->templates AS $i => &$template) {
-            printf(
-                '<%s%s>%s</%s>',
+        array_walk($this->templates,function(&$template,$index) {
+            printf('<%s%s>%s</%s>',
                 $this->wrapper,
-                ($this->atts[$i] ? $this->atts[$i] : ''),
+                $this->atts[$index] ? $this->atts[$index] : '',
                 preg_replace($this->dataFind,$this->dataReplace,$template),
                 $this->wrapper
             );
-            unset($template);
-        }
+        });
         return ob_get_clean();
     }
     public function deploy() {
