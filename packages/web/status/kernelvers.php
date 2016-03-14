@@ -1,5 +1,8 @@
 <?php
 require('../commons/base.inc.php');
-$bzImage = exec('strings '.BASEPATH.'/service/ipxe/bzImage|grep -A1 "Undefined video mode number:"|tail -1|awk \'{print $1}\'');
-$bzImage32 = exec('strings '.BASEPATH.'/service/ipxe/bzImage32|grep -A1 "Undefined video mode number:"|tail -1|awk \'{print $1}\'');
-echo "bzImage Version: $bzImage\nbzImage32 Version: $bzImage32\n";
+$kernelvers = function($kernel) {
+    $basepath = escapeshellarg(preg_replace('#\\|/#','',sprintf('%s/service/ipxe/%s',BASEPATH,$kernel)));
+    return exec("file $basepath | awk '/version/ {print \$9}'");
+};
+printf("bzImage Version: %s\n",$kernelvers('bzImage'));
+printf("bzImage32 Version: %s\n",$kernelvers('bzImage32'));
