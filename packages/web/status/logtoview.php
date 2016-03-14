@@ -6,31 +6,26 @@ $vals = function($reverse,$HookManager) {
     $folders = array('/var/log/fog/','/opt/fog/log/','/var/log/httpd/','/var/log/apache2/');
     $HookManager->processEvent('LOG_FOLDERS',array('folders'=>&$folders));
     if (!preg_grep($pattern,$folders)) return _('Invalid Folder');
-    $lines = array();
-    $line_count = (int) $_REQUEST['lines'];
-    $block_size = 4092;
-    $leftover = "";
     $file = trim(basename(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')));
     $path = sprintf('%s%s',$folder,$file);
-    $fh = fopen($path,'rb');
-    if ($fh === false) return _('No data to read');
-    fseek($fh,0,SEEK_END);
-    if (fread($fh,1) != "\n") $line_count--;
-    while (ftell($fh) > 0 && $line_count >= 0) {
-        $can_read = min(ftell($fh),$block_size);
-        fseek($fh,-$can_read,SEEK_CUR);
-        $chunk = fread($fh,$can_read);
-        $split_data = array_reverse(explode("\n",$chunk));
-        $new_lines = array_slice($split_data,0,-1);
-        $lines = array_merge($lines,$new_lines);
+    if (($fh = fopen($path,'rb')) === false) return _('Unable to open file for reading');
+    $lines = (int)$_REQUEST['lines'];
+    $buffer = 4096;
+    fseek($fh, -1, SEEK_END);
+    if (fread($fh, 1) != "\n") $lines -= 1;
+    $output = '';
+    $chunk = '';
+    while (ftell($fh) > 0 && $lines >= 0) {
+        $seek = min(ftell($fh),$buffer);
+        fseek($fh,-$seek,SEEK_CUR);
+        $output = ($chunk = fread($fh,$seek)).$output;
         fseek($fh,-mb_strlen($chunk,'8bit'),SEEK_CUR);
-        $line_count -= substr_count($chunk,"\n");
-        if ($line_count <= 0) break;
+        $lines -= substr_count($chunk,"\n");
     }
+    while ($lines++ < 0) $output = substr($output,strpos($output,"\n")+1);
     fclose($fh);
-    $lines = array_slice($lines,0,(int)$_REQUEST['lines']);
-    if (!$reverse) $lines = array_reverse($lines);
-    return implode("\n",$lines);
+    if ($reverse) $output = implode("\n",array_reverse(explode("\n",$output)));
+    return trim($output);
 };
 require('../commons/base.inc.php');
 $url = trim($FOGCore->aesdecrypt(htmlentities($_REQUEST['ip'],ENT_QUOTES,'utf-8')));
