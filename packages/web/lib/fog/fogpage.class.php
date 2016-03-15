@@ -140,7 +140,7 @@ abstract class FOGPage extends FOGBase {
                         (isset($rowData['id']) ? $rowData['id'] : (isset($rowData[$id_field]) ? $rowData[$id_field] : '')),
                         $this->buildRow($rowData)
                     );
-                },$this->data);
+                },(array)$this->data);
             }
             echo '</tbody></table>';
             if (((!$sub || ($sub && in_array($sub,$defaultScreens))) && in_array($node,$this->searchPages)) && !$this->isMobile) {
@@ -207,7 +207,7 @@ abstract class FOGPage extends FOGBase {
         array_map(function(&$name) use ($arrayReplace) {
             $this->dataFind[] = sprintf('#\$\{%s\}#',$name);
             $this->dataReplace[] = isset($arrayReplace[$name]) ? $arrayReplace[$name] : '';
-        },$foundchanges);
+        },(array)$foundchanges);
         array_walk($arrayReplace,function(&$val,$name) {
             $this->dataFind[] = sprintf('#\$\{%s\}#',$name);
             $this->dataReplace[] = isset($val) ? $val : '';

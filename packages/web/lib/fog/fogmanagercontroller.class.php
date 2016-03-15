@@ -84,17 +84,17 @@ abstract class FOGManagerController extends FOGBase {
                     $idstore = trim($idstore);
                     $ids[$idstore] = array_map('html_entity_decode',array_values(array_filter(@$filter($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
                     unset($idstore);
-                },$idField);
+                },(array)$idField);
             } else {
                 $idField = trim($idField);
-                $ids = array_map('html_entity_decode',array_values((array)array_filter((array)@$filter($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
+                $ids = array_map('html_entity_decode',(array)array_values((array)array_filter((array)@$filter($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
             }
             $data = $ids;
         } else {
             $queryData = $this->DB->query($query)->fetch('','fetch_all')->get();
             $data = array_map(function(&$row) {
                 return $this->getClass($this->childClass)->setQuery($row);
-            },$queryData);
+            },(array)$queryData);
             unset($row);
         }
         return (array)$data;
@@ -177,7 +177,7 @@ abstract class FOGManagerController extends FOGBase {
             $listArray = sprintf('<option value="%s"%s>%s</option>',$Object->get('id'),($matchID == $Object->get('id') ? ' selected' : ($template ? " \${selected_item{$Object->get(id)}" : '')),"{$Object->get(name)} - ({$Object->get(id)})");
             unset($Object);
             return $listArray;
-        },$this->find($filter ? array('id'=>$filter):'','',$orderBy,'','','',($filter ? true : false)));
+        },(array)$this->find($filter ? array('id'=>$filter):'','',$orderBy,'','','',($filter ? true : false)));
         return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',($template ? '${selector_name}' : $elementName),"- {$this->foglang['PleaseSelect']} -",implode($listArray)) : false);
     }
     public function exists($name, $id = 0, $idField = 'name') {

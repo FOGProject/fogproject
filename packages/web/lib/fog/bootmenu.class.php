@@ -749,7 +749,7 @@ class BootMenu extends FOGBase {
         $Send = array($name);
         if (trim($option->get('params'))) {
             $params = explode("\n",$option->get('params'));
-            $params = array_map('trim',$params);
+            $params = array_map('trim',(array)$params);
             if ($type) {
                 $index = array_search('params',$params);
                 if ($index != false && is_numeric($index)) $this->array_insert_after($index,$params,'extra',"param extraargs \"$type\"");

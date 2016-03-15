@@ -37,7 +37,7 @@ class EventManager extends FOGBase {
                 if (!$element->active) return;
                 $element->onEvent($event,$eventData);
             };
-            array_map($runEvent,$this->data[$event]);
+            array_map($runEvent,(array)$this->data[$event]);
         } catch (Exception $e) {
             $this->log(sprintf('Could not register: Error: %s, Event: %s, Class: %s', $e->getMessage(), $event, $class[1]));
             return false;
@@ -61,13 +61,13 @@ class EventManager extends FOGBase {
             return $match[0];
         };
         $plugins == '?!';
-        $normalfiles = array_values(array_filter(array_map($fileitems,$files)));
+        $normalfiles = array_values(array_filter(array_map($fileitems,(array)$files)));
         $plugins == '?=';
-        $pluginfiles = array_values(array_filter(preg_grep(sprintf('#/(%s)/#',implode('|',$_SESSION['PluginsInstalled'])),array_map($fileitems,$files))));
+        $pluginfiles = array_values(array_filter(preg_grep(sprintf('#/(%s)/#',implode('|',$_SESSION['PluginsInstalled'])),array_map($fileitems,(array)$files))));
         $startClass = function($element) use ($strlen) {
             $this->getClass(substr(basename($element),0,$strlen));
         };
-        array_map($startClass,$pluginfiles);
+        array_map($startClass,(array)$pluginfiles);
         unset($pluginfiles);
         $checkNormalAndStart = function($element) use ($strlen,$startClass) {
             if (($fh = fopen($element,'rb')) === false) return;
@@ -83,6 +83,6 @@ class EventManager extends FOGBase {
             }
             fclose($fh);
         };
-        array_map($checkNormalAndStart,$normalfiles);
+        array_map($checkNormalAndStart,(array)$normalfiles);
     }
 }
