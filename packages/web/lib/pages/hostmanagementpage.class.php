@@ -112,10 +112,10 @@ class HostManagementPage extends FOGPage {
     public function pending() {
         $this->title = _('Pending Host List');
         $this->data = array();
-        printf('<form method="post" action="%s">',$this->formAction);
         array_map($this->returnData,$this->getClass('HostManager')->search('',true));
         $this->HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
+        if (count($this->data) > 0) printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         if (count($this->data) > 0) printf('<p class="c"><input name="approvependhost" type="submit" value="%s"/>&nbsp;&nbsp;<input name="delpendhost" type="submit" value="%s"/></p></form>',_('Approve selected Hosts'),_('Delete selected Hosts'));
     }
