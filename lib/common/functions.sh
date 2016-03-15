@@ -1350,31 +1350,20 @@ EOF
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Setting up SSL FOG Server"
-    echo "<VirtualHost *:80>
-    KeepAlive Off
-    ServerName $ipaddress
-    DocumentRoot $docroot
-    ${forcehttps}RewriteEngine On
-    ${forcehttps}RewriteRule /management/other/ca.cert.der$ - [L]
-    ${forcehttps}RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
-</VirtualHost>
-<VirtualHost *:443>
-    KeepAlive Off
-    Servername $ipaddress
-    DocumentRoot $docroot
-    SSLEngine On
-    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt
-    SSLCertificateKeyFile $sslpath/.srvprivate.key
-    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der
-</VirtualHost>" > "$etcconf"
-    errorStat $?
-    dots "Restarting Apache2 for fog vhost"
-    ln -s $webdirdest $webdirdest >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    if [[ $osid -eq 2 ]]; then
-        a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ ! -f $etcconf ]]; then
+        [[ $forcehttps == 'yes' ]] && forcehttps='' || forcehttps='#'
+        echo -e "<VirtualHost *:80>\n\tKeepAlive Off\n\tServerName $ipaddress\n\tDocumentRoot $docroot\n\t${forcehttps}RewriteEngine On\n\t${forcehttps}RewriteRule /management/other/ca.cert.der$ - [L]\n\t${forcehttps}RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]\n\t</VirtualHost>\n<VirtualHost *:443>\n\tKeepAlive Off\n\tServername $ipaddress\n\tDocumentRoot $docroot\n\tSSLEngine On\n\tSSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt\n\tSSLCertificateKeyFile $sslpath/.srvprivate.key\n\tSSLCertificateChainFile $webdirdest/management/other/ca.cert.der\n\t</VirtualHost>" > "$etcconf"
+        errorStat $?
+        dots "Restarting Apache2 for fog vhost"
+        ln -s $webdirdest $webdirdest >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ $osid -eq 2 ]]; then
+            a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
+    else
+        echo "Done"
     fi
     case $systemctl in
         yes)
