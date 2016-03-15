@@ -28,13 +28,15 @@ abstract class FOGManagerController extends FOGBase {
         $not = ($not ? ' NOT ' : ' ');
         if (count($findWhere)) {
             $count = 0;
-            foreach ((array)$findWhere AS $field => &$value) {
+            $whereArray = array();
+            array_walk($findWhere,function(&$value,&$field) use (&$count,$onecompare,$compare,&$whereArray) {
                 $field = trim($field);
                 if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN ('%s')",$this->databaseTable,$this->databaseFields[$field],$not,implode("','",$value));
                 else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? "'".(string)$value."'" : null));
                 $count++;
-            }
-            unset($value);
+                unset($value);
+                return ($whereArray);
+            });
         }
         if (!is_array($orderBy)) {
             $orderBy = sprintf('ORDER BY %s`%s`.`%s`%s',($orderBy == 'name' ? 'LOWER(' : ''),$this->databaseTable,$this->databaseFields[$orderBy],($orderBy == 'name' ? ')' : ''));
@@ -77,11 +79,12 @@ abstract class FOGManagerController extends FOGBase {
         $data = array();
         if ($idField) {
             if (is_array($idField)) {
-                foreach ($idField AS $i => &$idstore) {
+                $ids = array();
+                array_map(function(&$idstore) use ($ids,$query,$filter) {
                     $idstore = trim($idstore);
-                    $ids[$idstore] = array_map('html_entity_decode',array_values((array)array_filter(@$filter($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
-                }
-                unset($idstore);
+                    $ids[$idstore] = array_map('html_entity_decode',array_values(array_filter(@$filter($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
+                    unset($idstore);
+                },$idField);
             } else {
                 $idField = trim($idField);
                 $ids = array_map('html_entity_decode',array_values((array)array_filter((array)@$filter($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
@@ -89,7 +92,9 @@ abstract class FOGManagerController extends FOGBase {
             $data = $ids;
         } else {
             $queryData = $this->DB->query($query)->fetch('','fetch_all')->get();
-            foreach ((array)$queryData AS $i => &$row) $data[] = $this->getClass($this->childClass)->setQuery($row);
+            $data = array_map(function(&$row) {
+                return $this->getClass($this->childClass)->setQuery($row);
+            },$queryData);
             unset($row);
         }
         return (array)$data;
@@ -99,12 +104,12 @@ abstract class FOGManagerController extends FOGBase {
         if (empty($whereOperator)) $whereOperator = 'AND';
         $whereArray = array();
         if (count($findWhere)) {
-            foreach ((array)$findWhere AS $field => &$value) {
+            array_walk($findWhere,function(&$value,&$field) use (&$whereArray,$compare){
                 $field = trim($field);
                 if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s` IN ('%s')",$this->databaseTable,$this->databaseFields[$field],implode("','",$value));
                 else $whereArray[] = sprintf("`%s`.`%s`%s'%s'",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? 'LIKE' : $compare), (string)$value);
-            }
-            unset($value);
+                unset($value,$field);
+            });
         }
         $isEnabled = false;
         if (!in_array($this->childClass,array('Image','Snapin')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
@@ -121,20 +126,21 @@ abstract class FOGManagerController extends FOGBase {
         if (empty($findWhere)) $findWhere = array();
         if (empty($whereOperator)) $whereOperator = 'AND';
         $insertArray = array();
-        foreach ((array)$insertData AS $field => &$value) {
+        array_walk($insertData,function(&$value,&$field) use (&$insertArray) {
             $field = trim($field);
             $insertKey = sprintf('`%s`.`%s`',$this->databaseTable,$this->databaseFields[$field]);
             $insertVal = $this->DB->sanitize($value);
             $insertArray[] = sprintf("%s='%s'",$insertKey,$insertVal);
-        }
-        unset($value);
+            unset($value);
+        });
         if (count($findWhere)) {
-            foreach ((array)$findWhere AS $field => &$value) {
+            $whereArray = array();
+            array_walk($findWhere,function(&$value,&$field) use (&$whereArray) {
                 $field = trim($field);
                 if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s` IN ('%s')",$this->databaseTable,$this->databaseFields[$field],implode("','",$value));
                 else $whereArray[] = sprintf("`%s`.`%s`%s'%s'",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? 'LIKE' : '='), (string)$value);
-            }
-            unset($value);
+                unset($value,$field);
+            });
         }
         $query = sprintf(
             $this->updateQueryTemplate,
@@ -165,13 +171,14 @@ abstract class FOGManagerController extends FOGBase {
         $matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
         if (empty($elementName)) $elementName = strtolower($this->childClass);
         $this->orderBy($orderBy);
-        $Objects = $this->find($filter ? array('id'=>$filter) : '', '', $orderBy, '', '', '',($filter ? true : false));
-        foreach ($Objects AS $i => &$Object) {
-            if (array_key_exists('isEnabled',$this->databaseFields) && !$Object->get('isEnabled')) continue;
-            $listArray[] = sprintf('<option value="%s"%s>%s</option>',$Object->get('id'),($matchID == $Object->get('id') ? ' selected' : ($template ? ' ${selected_item'.$Object->get('id').'}' : '')),$Object->get('name').' - ('.$Object->get('id').')');
+        $listArray = array_map(function(&$Object) {
+            if (!$Object->isValid()) return;
+            if (array_key_exists('isEnabled',$this->databaseFields) && !$Object->get('isEnabled')) return;
+            $listArray = sprintf('<option value="%s"%s>%s</option>',$Object->get('id'),($matchID == $Object->get('id') ? ' selected' : ($template ? " \${selected_item{$Object->get(id)}" : '')),"{$Object->get(name)} - ({$Object->get(id)})");
             unset($Object);
-        }
-        return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',($template ? '${selector_name}' : $elementName),'- '.$this->foglang[PleaseSelect].' -',implode($listArray)) : false);
+            return $listArray;
+        },$this->find($filter ? array('id'=>$filter):'','',$orderBy,'','','',($filter ? true : false)));
+        return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',($template ? '${selector_name}' : $elementName),"- {$this->foglang['PleaseSelect']} -",implode($listArray)) : false);
     }
     public function exists($name, $id = 0, $idField = 'name') {
         if (empty($id)) $id = 0;

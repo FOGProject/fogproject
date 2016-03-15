@@ -73,6 +73,7 @@ class GroupManagementPage extends FOGPage {
     }
     public function add() {
         $this->title = _('New Group');
+        $this->data = array();
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -91,13 +92,13 @@ class GroupManagementPage extends FOGPage {
             '' => sprintf('<input type="submit" value="%s"/>',_('Add')),
         );
         printf('<form method="post" action="%s">',$this->formAction);
-        foreach ((array)$fields AS $field => &$formField) {
+        array_walk($fields,function(&$formField,&$field) {
             $this->data[] = array(
-                'field'=>$field,
-                'formField'=>$formField,
+                'field' => $field,
+                'formField' => $formField,
             );
-            unset($formField);
-        }
+            unset($formField,$field);
+        });
         unset($fields);
         $this->HookManager->processEvent('GROUP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
@@ -185,13 +186,13 @@ class GroupManagementPage extends FOGPage {
         );
         $this->HookManager->processEvent('GROUP_FIELDS',array('fields'=>&$fields,'Group'=>&$this->obj));
         printf('<form method="post" action="%s&tab=group-general"><div id="tab-container"><!-- General --><div id="group-general"><h2>%s: %s</h2><div id="resetSecDataBox" class="c"><input type="button" id="resetSecData"/></div><br/>',$this->formAction,_('Modify Group'),$this->obj->get('name'));
-        foreach ((array)$fields AS $field => $input) {
+        array_walk($fields,function(&$input,&$field) {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
             );
-            unset($input);
-        }
+            unset($input,$field);
+        });
         unset($fields);
         $this->HookManager->processEvent('GROUP_DATA_GEN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
@@ -232,15 +233,16 @@ class GroupManagementPage extends FOGPage {
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );
-        foreach ((array)$this->getClass('SnapinManager')->find() AS $i => &$Snapin) {
-            if (!$Snapin->isValid()) continue;
+        $returnSnapins = function(&$Snapin) {
+            if (!$Snapin->isValid()) return;
             $this->data[] = array(
-                'snapin_id'=>$Snapin->get('id'),
-                'snapin_name'=>$Snapin->get('name'),
-                'snapin_created'=>$this->formatTime($Snapin->get('createdTime'),'Y-m-d H:i:s'),
+                'snapin_id' => $Snapin->get('id'),
+                'snapin_name' => $Snapin->get('name'),
+                'snapin_created' => $this->formatTime($Snapin->get('createdTime'),'Y-m-d H:i:s'),
             );
             unset($Snapin);
-        }
+        };
+        array_map($returnSnapins,$this->getClass('SnapinManager')->find());
         $this->HookManager->processEvent('GROUP_SNAP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
@@ -260,16 +262,7 @@ class GroupManagementPage extends FOGPage {
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );
-        foreach ((array)$this->getClass('SnapinManager')->find() AS $i => &$Snapin) {
-            if (!$Snapin->isValid()) continue;
-            $this->data[] = array(
-                'snapin_id'=>$Snapin->get('id'),
-                'snapin_name'=>$Snapin->get('name'),
-                'snapin_created'=>$Snapin->get('createdTime'),
-            );
-            unset($Snapin);
-        }
-        unset($Snapins);
+        array_map($returnSnapins,$this->getClass('SnapinManager')->find());
         $this->HookManager->processEvent('GROUP_SNAP_DEL',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->headerData,$this->data);
@@ -291,18 +284,17 @@ class GroupManagementPage extends FOGPage {
         );
         printf('<div id="group-service"><h2>%s</h2><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',_('Service Configuration'),$this->formAction,_('General'));
         $moduleName = $this->getGlobalModuleStatus();
-        foreach ((array)$this->getClass('ModuleManager')->find() AS $i => &$Module) {
-            if (!$Module->isValid()) continue;
+        array_map(function(&$Module) use ($moduleName) {
+            if (!$Module->isValid()) return;
             $ModuleOn = $this->getSubObjectIDs('ModuleAssociation',array('moduleID'=>$Module->get('id'),'hostID'=>$this->obj->get('hosts')),'moduleID','','','','','array_count_values');
             $this->data[] = array(
                 'input'=>sprintf('<input %stype="checkbox" name="modules[]" value="%s"%s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ' : ''), $Module->get('id'), (count($ModuleOn) == 1 && $ModuleOn[0] == $HostCount ? ' checked' : ''), !$moduleName[$Module->get('shortName')] ? ' disabled' : ''),
                 'span'=>sprintf('<span class="icon fa fa-question fa-1x hand" title="%s"></span>',str_replace('"','\"',$Module->get('description'))),
                 'mod_name'=>$Module->get('name'),
             );
-            unset($ModuleOn);
-            unset($Module);
-        }
-        unset($ModOns,$Modules);
+            unset($ModuleOn,$Module);
+        },$this->getClass('ModuleManager')->find());
+        unset($ModOns,$Modules,$moduleName);
         $this->data[] = array(
             'mod_name'=> '',
             'input'=>'',
