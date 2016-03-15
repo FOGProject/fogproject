@@ -547,7 +547,7 @@ installPackages() {
             x=$(basename $y | awk -F[.] '{print $1}')
             eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             if [[ ! $? -eq 0 ]]; then
-                rpm -Uvh $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                rpm -Uvh $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             fi
             [[ -n $repoenable ]] && eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
