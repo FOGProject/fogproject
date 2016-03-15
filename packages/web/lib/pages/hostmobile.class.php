@@ -27,6 +27,16 @@ class HostMobile extends FOGPage {
             '${host_mac}',
             sprintf('<a href="index.php?node=${node}&sub=deploy&id=${id}"><i class="fa fa-%s fa-2x"></i></a>',$icon),
         );
+        $this->returnData = function(&$Host) {
+            if (!$Host->isValid()) return;
+            $this->data[] = array(
+                'id'=>$Host->get('id'),
+                'host_name'=>$Host->get('name'),
+                'host_mac'=>$Host->get('mac')->__toString(),
+                'node' => $this->node,
+            );
+            unset($Host);
+        };
     }
     public function index() {
         $this->search();
@@ -35,36 +45,23 @@ class HostMobile extends FOGPage {
         try {
             $this->title = $this->foglang['QuickImageMenu'];
             unset($this->headerData);
-            $this->attributes = array(
-                array(),
-            );
-            $this->templates = array(
-                '${task_started}',
-            );
+            $this->attributes = array(array());
+            $this->templates = array('${task_started}');
+            $this->data = array();
             if (!$this->obj->getImageMemberFromHostID($_REQUEST['id'])) throw new Exception($this->foglang['ErrorImageAssoc']);
             if (!$this->obj->createImagePackage('1', "Mobile: {$this->obj->get(name)}",false,false,true,false,$_SESSION['FOG_USERNAME'])) throw new Exception($this->foglang['FailedTask']);
-            $this->data[] = array(
-                $this->foglang['TaskStarted'],
-            );
+            $this->data[] = array($this->foglang['TaskStarted'],);
         } catch (Exception $e) {
-            $this->data[] = array(
-                $e->getMessage(),
-            );
+            $this->data[] = array($e->getMessage());
         }
         $this->render();
         $this->redirect('?node=task');
     }
     public function search_post() {
-        foreach ((array)$this->getClass('HostManager')->search('',true) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
-            $this->data[] = array(
-                'id' => $Host->get('id'),
-                'host_name' => $Host->get('name'),
-                'host_mac' => $Host->get('mac')->__toString(),
-                'node' => $this->node,
-            );
-            unset($Host);
-        }
+        $this->data = array();
+        array_map($this->returnData,$this->getClass('HostManager')->search('',true));
+        $this->HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         $this->render();
     }
 }
