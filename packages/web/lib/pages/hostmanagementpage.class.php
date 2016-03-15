@@ -111,39 +111,9 @@ class HostManagementPage extends FOGPage {
     }
     public function pending() {
         $this->title = _('Pending Host List');
+        $this->data = array();
         printf('<form method="post" action="%s">',$this->formAction);
-        $this->headerData = array(
-            '',
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
-            ($_SESSION['FOGPingActive'] ? '' : null),
-            _('Host Name'),
-            _('Edit/Remove'),
-        );
-        $this->templates = array(
-            '<i class="icon fa fa-question hand" title="${host_desc}"></i>',
-            '<input type="checkbox" name="host[]" value="${id}" class="toggle-action" />',
-            ($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
-            '<a href="?node=host&sub=edit&id=${id}" title="Edit: ${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
-            '<a href="?node=host&sub=edit&id=${id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
-        );
-        $this->attributes = array(
-            array('width'=>22,'id'=>'host-${host_name}','class'=>'l filter-false'),
-            array('class' =>'l filter-false','width'=>16),
-            ($_SESSION['FOGPingActive'] ? array('width'=>20,'class'=>'l filter-false') : ''),
-            array(),
-            array('width'=>80,'class'=>'c'),
-            array('width'=>50,'class'=>'r filter-false'),
-        );
-        foreach ((array)$this->getClass('HostManager')->find(array('pending'=>1)) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
-            $this->data[] = array(
-                'id'=>$Host->get('id'),
-                'host_name'=>$Host->get('name'),
-                'host_mac'=>$Host->get('mac')->__toString(),
-                'host_desc'=>$Host->get('description'),
-            );
-            unset($Host);
-        }
+        array_map($this->returnData,$this->getClass('HostManager')->search('',true));
         $this->HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         $this->render();
@@ -182,13 +152,13 @@ class HostManagementPage extends FOGPage {
         );
         printf('<h2>%s</h2><form method="post" action="%s">',_('Add new host definition'),$this->formAction);
         $this->HookManager->processEvent('HOST_FIELDS',array('fields'=>&$fields,'Host'=>$this->getClass('Host')));
-        foreach ($fields AS $field => &$input) {
+        array_walk($fields,function(&$input,&$field) {
             $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
+                'field' => $field,
+                'input' => $input,
             );
-        }
-        unset($input);
+            unset($field,$input);
+        });
         $this->HookManager->processEvent('HOST_ADD_GEN',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'fields'=>&$fields));
         $this->render();
         echo $this->adFieldsToDisplay();

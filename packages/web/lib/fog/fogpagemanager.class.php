@@ -84,17 +84,15 @@ class FOGPageManager Extends FOGBase {
         $regext = '#^.+/pages/.*\.class\.php$#';
         $dirpath = '/pages/';
         $strlen = -strlen('.class.php');
-        $normalfileitems = function($element) use ($dirpath) {
-            preg_match("#^(?!.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
-            return $match[0];
-        };
-        $pluginfileitems = function($element) use ($dirpath) {
-            preg_match("#^(?=.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
+        $fileitems = function($element) use ($dirpath,&$plugins) {
+            preg_match("#^($plugins.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
             return $match[0];
         };
         $files = iterator_to_array($this->getClass('RegexIterator',$this->getClass('RecursiveIteratorIterator',$this->getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RecursiveRegexIterator::GET_MATCH),false);
-        $normalfiles = array_values(array_filter(array_map($normalfileitems,$files)));
-        $pluginfiles = array_values(array_filter(preg_grep(sprintf('#/(%s)/#',implode('|',$_SESSION['PluginsInstalled'])),array_map($pluginfileitems,$files))));
+        $plugins = '?!';
+        $normalfiles = array_values(array_filter(array_map($fileitems,(array)$files)));
+        $plugins = '?=';
+        $pluginfiles = array_values(array_filter(preg_grep(sprintf('#/(%s)/#',implode('|',$_SESSION['PluginsInstalled'])),array_map($fileitems,(array)$files))));
         $files = array_values(array_filter(array_unique(array_merge($normalfiles,$pluginfiles))));
         unset($normalfiles,$pluginfiles);
         $startClass = function($element) use ($strlen) {
@@ -108,6 +106,6 @@ class FOGPageManager Extends FOGBase {
             $this->nodes[$this->classValue] = $className;
             $this->register($this->getClass($className));
         };
-        array_map($startClass,$files);
+        array_map($startClass,(array)$files);
     }
 }
