@@ -67,7 +67,7 @@ class ImageManagementPage extends FOGPage {
         };
         if (isset($_SESSION['FOG_FTP_IMAGE_SIZE']) && $_SESSION['FOG_FTP_IMAGE_SIZE']) {
             $servSize = function($path) use ($StorageNode) {
-                return $this->getFTPByteSize($StorageNode,sprintf('%s/%s',$StorageNode->get('ftppath'),$Image->get('path')));
+                return $this->getFTPByteSize($StorageNode,sprintf('%s/%s',$StorageNode->get('ftppath'),$path));
             };
         }
         $this->returnData = function(&$Image) use ($servSize) {
