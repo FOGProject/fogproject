@@ -29,7 +29,7 @@ abstract class FOGManagerController extends FOGBase {
         if (count($findWhere)) {
             $count = 0;
             $whereArray = array();
-            array_walk($findWhere,function(&$value,&$field) use (&$count,$onecompare,$compare,&$whereArray) {
+            array_walk($findWhere,function(&$value,&$field) use (&$count,$onecompare,$compare,&$whereArray,&$not) {
                 $field = trim($field);
                 if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN ('%s')",$this->databaseTable,$this->databaseFields[$field],$not,implode("','",$value));
                 else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? "'".(string)$value."'" : null));
@@ -80,7 +80,7 @@ abstract class FOGManagerController extends FOGBase {
         if ($idField) {
             if (is_array($idField)) {
                 $ids = array();
-                array_map(function(&$idstore) use ($ids,$query,$filter) {
+                array_map(function(&$idstore) use (&$ids,&$query,&$filter) {
                     $idstore = trim($idstore);
                     $ids[$idstore] = array_map('html_entity_decode',array_values(array_filter(@$filter($this->DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
                     unset($idstore);
