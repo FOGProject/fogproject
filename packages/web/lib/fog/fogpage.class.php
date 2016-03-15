@@ -14,6 +14,7 @@ abstract class FOGPage extends FOGBase {
     protected $templates = array();
     protected $attributes = array();
     protected $returnData;
+    protected $fieldsToData;
     private $wrapper = 'td';
     private $headerWrap = 'th';
     private $result;
@@ -55,6 +56,14 @@ abstract class FOGPage extends FOGBase {
             'export'=>sprintf($this->foglang[sprintf('Export%s',$this->childClass)]),
             'import'=>sprintf($this->foglang[sprintf('Import%s',$this->childClass)]),
         );
+        $this->fieldsToData = function(&$input,&$field) {
+            $this->data[] = array(
+                'field'=>$field,
+                'input'=>$input,
+            );
+            if (is_array($this->span) && count($this->span) === 2) $this->data[count($this->data)-1][$this->span[0]] = $this->span[1];
+            unset($input);
+        };
         $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',$this->urlself,htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))),FILTER_SANITIZE_URL));
         $this->HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));

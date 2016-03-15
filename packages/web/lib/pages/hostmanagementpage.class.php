@@ -281,12 +281,7 @@ class HostManagementPage extends FOGPage {
         $this->HookManager->processEvent('HOST_FIELDS', array('fields' => &$fields,'Host' => &$this->obj));
         echo '<div id="tab-container"><!-- General --><div id="host-general">';
         if ($this->obj->get('pub_key') || $this->obj->get('sec_tok')) $this->form = '<div class="c" id="resetSecDataBox"><input type="button" id="resetSecData"/></div><br/>';
-        foreach ($fields AS $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-        }
+        array_walk($fields,$this->fieldsToData);
         unset($input);
         $this->HookManager->processEvent('HOST_EDIT_GEN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'Host'=>&$this->obj));
         printf('<form method="post" action="%s&tab=host-general"><h2>%s</h2>',$this->formAction,_('Edit host definition'));
@@ -533,82 +528,43 @@ class HostManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
+        array_map(function(&$x) {
+            $this->obj->get('inventory')->set($x,implode(' ',array_unique(explode(' ',$this->obj->get('inventory')->get($x)))));
+            unset($x);
+        }, array('cpuman','cpuversion'));
         $fields = array(
-            _('Primary User') => '<input type="text" value="${inv_user}" name="pu"/>',
-            _('Other Tag #1') => '<input type="text" value="${inv_oth1}" name="other1"/>',
-            _('Other Tag #2') => '<input type="text" value="${inv_oth2}" name="other2"/>',
-            _('System Manufacturer') => '${inv_sysman}',
-            _('System Product') => '${inv_sysprod}',
-            _('System Version') => '${inv_sysver}',
-            _('System Serial Number') => '${inv_sysser}',
-            _('System Type') => '${inv_systype}',
-            _('BIOS Vendor') => '${bios_ven}',
-            _('BIOS Version') => '${bios_ver}',
-            _('BIOS Date') => '${bios_date}',
-            _('Motherboard Manufacturer') => '${mb_man}',
-            _('Motherboard Product Name') => '${mb_name}',
-            _('Motherboard Version') => '${mb_ver}',
-            _('Motherboard Serial Number') => '${mb_ser}',
-            _('Motherboard Asset Tag') => '${mb_asset}',
-            _('CPU Manufacturer') => '${cpu_man}',
-            _('CPU Version') => '${cpu_ver}',
-            _('CPU Normal Speed') => '${cpu_nspeed}',
-            _('CPU Max Speed') => '${cpu_mspeed}',
-            _('Memory') => '${inv_mem}',
-            _('Hard Disk Model') => '${hd_model}',
-            _('Hard Disk Firmware') => '${hd_firm}',
-            _('Hard Disk Serial Number') => '${hd_ser}',
-            _('Chassis Manufacturer') => '${case_man}',
-            _('Chassis Version') => '${case_ver}',
-            _('Chassis Serial') => '${case_ser}',
-            _('Chassis Asset') => '${case_asset}',
-            ' ' => sprintf('<input name="update" type="submit" value="%s" />',_('Update')),
+            _('Primary User') => sprintf('<input type="text" value="%s" name="pu"/>',$this->obj->get('inventory')->get('primaryUser')),
+            _('Other Tag #1') => sprintf('<input type="text" value="%s" name="other1"/>',$this->obj->get('inventory')->get('other1')),
+            _('Other Tag #2') => sprintf('<input type="text" value="%s" name="other2"/>',$this->obj->get('inventory')->get('other2')),
+            _('System Manufacturer') => $this->obj->get('inventory')->get('sysman'),
+            _('System Product') => $this->obj->get('inventory')->get('sysproduct'),
+            _('System Version') => $this->obj->get('inventory')->get('sysversion'),
+            _('System Serial Number') => $this->obj->get('inventory')->get('sysserial'),
+            _('System Type') => $this->obj->get('inventory')->get('systype'),
+            _('BIOS Vendor') => $this->obj->get('inventory')->get('biosvendor'),
+            _('BIOS Version') => $this->obj->get('inventory')->get('biosversion'),
+            _('BIOS Date') => $this->obj->get('inventory')->get('biosdate'),
+            _('Motherboard Manufacturer') => $this->obj->get('inventory')->get('mbman'),
+            _('Motherboard Product Name') => $this->obj->get('inventory')->get('mbproductname'),
+            _('Motherboard Version') => $this->obj->get('inventory')->get('mbversion'),
+            _('Motherboard Serial Number') => $this->obj->get('inventory')->get('mbserial'),
+            _('Motherboard Asset Tag') => $this->obj->get('inventory')->get('mbasset'),
+            _('CPU Manufacturer') => $this->obj->get('inventory')->get('cpuman'),
+            _('CPU Version') => $this->obj->get('inventory')->get('cpuversion'),
+            _('CPU Normal Speed') => $this->obj->get('inventory')->get('cpucurrent'),
+            _('CPU Max Speed') => $this->obj->get('inventory')->get('cpumax'),
+            _('Memory') => $this->obj->get('inventory')->getMem(),
+            _('Hard Disk Model') => $this->obj->get('inventory')->get('hdmodel'),
+            _('Hard Disk Firmware') => $this->obj->get('inventory')->get('hdfirmware'),
+            _('Hard Disk Serial Number') => $this->obj->get('inventory')->get('hdserial'),
+            _('Chassis Manufacturer') => $this->obj->get('inventory')->get('caseman'),
+            _('Chassis Version') => $this->obj->get('inventory')->get('caseversion'),
+            _('Chassis Serial') => $this->obj->get('inventory')->get('caseserial'),
+            _('Chassis Asset') => $this->obj->get('inventory')->get('caseasset'),
+            ' ' => sprintf('<input name="update" type="submit" value="%s"/>',_('Update')),
         );
         printf('<div id="host-hardware-inventory"><form method="post" action="%s&tab=host-hardware-inventory"><h2>%s</h2>',$this->formAction,_('Host Hardware Inventory'));
-        if ($this->obj->get('inventory')->isValid()) {
-            $cpustuff = array('cpuman','cpuversion');
-            foreach ((array)$cpustuff AS $i => &$x) {
-                $this->obj->get('inventory')->set($x,implode(' ',array_unique(explode(' ',$this->obj->get('inventory')->get($x)))));
-                unset($x);
-            }
-            unset($cpustuff);
-            foreach ((array)$fields AS $field => &$input) {
-                $this->data[] = array(
-                    'field'=>$field,
-                    'input'=>$input,
-                    'inv_user'=>$this->obj->get('inventory')->get('primaryUser'),
-                    'inv_oth1'=>$this->obj->get('inventory')->get('other1'),
-                    'inv_oth2'=>$this->obj->get('inventory')->get('other2'),
-                    'inv_sysman'=>$this->obj->get('inventory')->get('sysman'),
-                    'inv_sysprod'=>$this->obj->get('inventory')->get('sysproduct'),
-                    'inv_sysver'=>$this->obj->get('inventory')->get('sysversion'),
-                    'inv_sysser'=>$this->obj->get('inventory')->get('sysserial'),
-                    'inv_systype'=>$this->obj->get('inventory')->get('systype'),
-                    'bios_ven'=>$this->obj->get('inventory')->get('biosvendor'),
-                    'bios_ver'=>$this->obj->get('inventory')->get('biosversion'),
-                    'bios_date'=>$this->obj->get('inventory')->get('biosdate'),
-                    'mb_man'=>$this->obj->get('inventory')->get('mbman'),
-                    'mb_name'=>$this->obj->get('inventory')->get('mbproductname'),
-                    'mb_ver'=>$this->obj->get('inventory')->get('mbversion'),
-                    'mb_ser'=>$this->obj->get('inventory')->get('mbserial'),
-                    'mb_asset'=>$this->obj->get('inventory')->get('mbasset'),
-                    'cpu_man'=>$this->obj->get('inventory')->get('cpuman'),
-                    'cpu_ver'=>$this->obj->get('inventory')->get('cpuversion'),
-                    'cpu_nspeed'=>$this->obj->get('inventory')->get('cpucurrent'),
-                    'cpu_mspeed'=>$this->obj->get('inventory')->get('cpumax'),
-                    'inv_mem'=>$this->obj->get('inventory')->getMem(),
-                    'hd_model'=>$this->obj->get('inventory')->get('hdmodel'),
-                    'hd_firm'=>$this->obj->get('inventory')->get('hdfirmware'),
-                    'hd_ser'=>$this->obj->get('inventory')->get('hdserial'),
-                    'case_man'=>$this->obj->get('inventory')->get('caseman'),
-                    'case_ver'=>$this->obj->get('inventory')->get('caseversion'),
-                    'case_ser'=>$this->obj->get('inventory')->get('caseserial'),
-                    'case_asset'=>$this->obj->get('inventory')->get('caseasset'),
-                );
-                unset($input);
-            }
-            unset($fields);
-        }
+        if ($this->obj->get('inventory')->isValid()) array_walk($fields,$this->fieldsToData);
         $this->HookManager->processEvent('HOST_INVENTORY',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data,$fields);
