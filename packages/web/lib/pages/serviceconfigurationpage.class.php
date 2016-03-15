@@ -52,7 +52,7 @@ class ServiceConfigurationPage extends FOGPage {
         echo '</div>';
         $moduleName = $this->getGlobalModuleStatus();
         $modNames = $this->getGlobalModuleStatus(true);
-        foreach ((array)$this->getClass('ModuleManager')->find() AS $i => &$Module) {
+        foreach ((array)$this->getClass('ModuleManager')->find() AS &$Module) {
             if (!$Module->isValid()) continue;
             unset($this->data,$this->headerData,$this->attributes,$this->templates);
             $this->attributes = array(
@@ -69,20 +69,20 @@ class ServiceConfigurationPage extends FOGPage {
                 sprintf('%s %s?',$Module->get('name'),_('Enabled')) => sprintf('<input type="checkbox" name="en"%s/>',$moduleName[$Module->get('shortName')] ? ' checked' : ''),
                 sprintf('%s',($moduleName[$Module->get('shortName')] ? sprintf('%s %s?',$Module->get('name'),_('Enabled as default')) : '')) => sprintf('%s',($moduleName[$Module->get('shortName')] ? sprintf('<input type="checkbox" name="defen"%s/>',$Module->get('isDefault') ? ' checked' : '') : '')),
             );
-            $fields = array_filter($fields);
-            foreach((array)$fields AS $field => &$input) {
-                $this->data[] = array(
-                    'field'=>$field,
-                    'input'=>$input,
-                    'span'=>sprintf('<i class="icon fa fa-question hand" title="%s"></i>',$Module->get('description')),
-                );
-                unset($input);
-            }
-            $this->data[] = array(
-                'field'=>sprintf('<input type="hidden" name="name" value="%s"/>',$modNames[$Module->get('shortName')]),
-                'input'=>'',
-                'span'=>sprintf('<input type="submit" name="updatestatus" value="%s"/>',_('Update')),
+            $this->span = array(
+                'span',
+                sprintf('<i class="icon fa fa-question hand" title="%s"></i>',$Module->get('description')),
             );
+            array_walk($fields,$this->fieldsToData);
+            $this->span = array(
+                'span',
+                sprintf('<input type="submit" name="updatestatus" value="%s"/>',_('Update')),
+            );
+            $fields = array(
+                sprintf('<input type="hidden" name="name" value="%s"/>',$modNames[$Module->get('shortName')])=>'&nbsp;',
+            );
+            array_walk($fields,$this->fieldsToData);
+            unset($this->span);
             printf('<!-- %s --><div id="%s"><h2>%s</h2><form method="post" action="?node=service&sub=edit&tab=%s"><p>%s</p><h2>%s</h2>',
                 $Module->get('name'),
                 $Module->get('shortName'),
@@ -161,13 +161,7 @@ class ServiceConfigurationPage extends FOGPage {
                     $this->formAction,
                     $Module->get('shortName')
                 );
-                foreach((array)$fields AS $field => &$input) {
-                    $this->data[] = array(
-                        'field'=>$field,
-                        'input'=>$input,
-                    );
-                    unset($input);
-                }
+                array_walk($fields,$this->fieldsToData);
                 $this->render();
                 echo '</form>';
                 break;
@@ -199,7 +193,7 @@ class ServiceConfigurationPage extends FOGPage {
                     $modNames[$Module->get('shortName')],
                     _('Add Event')
                 );
-                foreach ((array)$this->getClass('GreenFogManager')->find() AS $i => &$GreenFog) {
+                foreach ((array)$this->getClass('GreenFogManager')->find() AS &$GreenFog) {
                     if (!$GreenFog->isValid()) continue;
                     $gftime = $this->nice_date($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
                     $this->data[] = array(
@@ -231,13 +225,7 @@ class ServiceConfigurationPage extends FOGPage {
                     $this->formAction,
                     $Module->get('shortName')
                 );
-                foreach((array)$fields AS $field => &$input) {
-                    $this->data[] = array(
-                        'field'=>$field,
-                        'input'=>$input,
-                    );
-                    unset($input);
-                }
+                array_walk($fields,$this->fieldsToData);
                 $this->render();
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->headerData = array(
