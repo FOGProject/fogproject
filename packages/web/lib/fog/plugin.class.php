@@ -35,7 +35,7 @@ class Plugin extends FOGController {
             if ($tmphash !== $hash) return;
             $Plugin = $P;
             unset($P);
-            $_SESSION['fogactiveplugin'] = serialize($Plugin);
+            $_SESSION['fogactiveplugin'] = $Plugin->get('name');
         },(array)$this->getPlugins());
         return $Plugin->getEntryPoint();
     }

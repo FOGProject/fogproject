@@ -35,14 +35,14 @@ class FOGFTP extends FOGGetSet {
         self::$link = null;
         return $this;
     }
-    public function connect($host = '',$port = 0,$timeout = 90,$autologin = true) {
+    public function connect($host = '',$port = 0,$timeout = 90,$autologin = true,$connectmethod = 'ftp_connect') {
         try {
             self::$currentConnectionHash = password_hash(serialize($this->data),PASSWORD_BCRYPT,['cost'=>11]);
             if (self::$link && self::$currentConnectionHash == self::$lastConnectionHash) return $this;
             if (!$host) $host = $this->get('host');
             if (!$port) $port = $this->getSetting('FOG_FTP_PORT') ? $this->getSetting('FOG_FTP_PORT') : $this->get('port');
             if (!$timeout) $timeout = $this->getSetting('FOG_FTP_TIMEOUT') ? $this->getSetting('FOG_FTP_TIMEOUT') : $this->get('timeout');
-            if ((self::$link = @ftp_connect($host,$port,$timeout)) === false) self::ftperror();
+            if ((self::$link = @$connectmethod($host,$port,$timeout)) === false) self::ftperror();
             if ($autologin) {
                 $this->login();
                 $this->pasv($this->get('passive'));
@@ -97,7 +97,7 @@ class FOGFTP extends FOGGetSet {
     }
     public function login($username = null,$password = null) {
         try {
-            self::$currentLoginHash = password_hash(serialize($this),PASSWORD_BCRYPT,['cost'=>11]);
+            self::$currentLoginHash = password_hash(serialize(self::$link),PASSWORD_BCRYPT,['cost'=>11]);
             if (self::$currentLoginHash == self::$lastLoginHash) return $this;
             if (!$username) $username = $this->get('username');
             if (!$password) $password = $this->get('password');
@@ -196,19 +196,13 @@ class FOGFTP extends FOGGetSet {
     }
     public function ssl_connect($host = '',$port = 0,$timeout = 90,$autologin = true) {
         try {
-            if (self::$link && password_verify(serialize(self::$link),self::$lastConnectionHash)) return $this;
             if (!$host) $host = $this->get('host');
             if (!$port) $port = $this->getSetting('FOG_FTP_PORT') ? $this->getSetting('FOG_FTP_PORT') : $this->get('port');
             if (!$timeout) $timeout = $this->getSetting('FOG_FTP_TIMEOUT') ? $this->getSetting('FOG_FTP_TIMEOUT') : $this->get('timeout');
-            if ((self::$link = @ftp_ssl_connect($host,$port,$timeout)) === false) self::ftperror();
-            if ($autologin) {
-                $this->login();
-                $this->pasv($this->get('passive'));
-            }
+            $this->connect($host,$port,$timeout,$autologin,'ftp_ssl_connect');
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
-        self::$lastConnectionHash = password_hash(serialize(self::$link),PASSWORD_BCRYPT,['cost'=>11]);
         return $this;
     }
     public function systype() {
