@@ -1352,8 +1352,7 @@ EOF
     dots "Setting up SSL FOG Server"
     if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
         [[ $forcehttps == yes ]] && forcehttps='' || forcehttps='#'
-        echo -e "<VirtualHost *:80>\n\tKeepAlive Off\n\tServerName $ipaddress\n\tDocumentRoot $docroot\n\t${forcehttps}RewriteEngine On\n\t${forcehttps}RewriteRule /management/other/ca.cert.der$ - [L]\n\t${forcehttps}RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]\n\t</VirtualHost>\n<VirtualHost *:443>\n\tKeepAlive Off\n\tServername $ipaddress\n\tDocumentRoot $docroot\n\tSSLEngine On\n\tSSLProtocol all -SSLv3 -SSLv2\n\tSSLCipherSuite
-        HIGH:!aNULL:!eNULL:!kECDH:!aDH:!RC4:!3DES:!CAMELLIA:!MD5:!PSK:!SRP:!KRB5:@STRENGTH\n\tSSLHonorCipherOrder on\n\tSSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt\n\tSSLCertificateKeyFile $sslpath/.srvprivate.key\n\tSSLCertificateChainFile $webdirdest/management/other/ca.cert.der\n\t</VirtualHost>" > "$etcconf"
+        echo -e "<VirtualHost *:80>\n\tKeepAlive Off\n\tServerName $ipaddress\n\tDocumentRoot $docroot\n\t${forcehttps}RewriteEngine On\n\t${forcehttps}RewriteRule /management/other/ca.cert.der$ - [L]\n\t${forcehttps}RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]\n\t</VirtualHost>\n<VirtualHost *:443>\n\tKeepAlive Off\n\tServername $ipaddress\n\tDocumentRoot $docroot\n\tSSLEngine On\n\tSSLProtocol all -SSLv3 -SSLv2\n\tSSLCipherSuite HIGH:!aNULL:!eNULL:!kECDH:!aDH:!RC4:!3DES:!CAMELLIA:!MD5:!PSK:!SRP:!KRB5:@STRENGTH\n\tSSLHonorCipherOrder on\n\tSSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt\n\tSSLCertificateKeyFile $sslpath/.srvprivate.key\n\tSSLCertificateChainFile $webdirdest/management/other/ca.cert.der\n\t</VirtualHost>" > "$etcconf"
         errorStat $?
         dots "Restarting Apache2 for fog vhost"
         ln -s $webdirdest $webdirdest >>$workingdir/error_logs/fog_error_${version}.log 2>&1
