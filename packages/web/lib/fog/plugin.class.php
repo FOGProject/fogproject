@@ -29,12 +29,14 @@ class Plugin extends FOGController {
     );
     public function getRunInclude($hash) {
         $hash = trim($hash);
-        foreach($this->getPlugins() AS &$Plugin) {
-            $tmphash = trim(md5(trim($Plugin->get('name'))));
-            if($tmphash !== $hash) continue;
+        $Plugin = $this->getClass('Plugin',0);
+        array_map(function(&$P) use (&$Plugin,$hash) {
+            $tmphash = trim(md5(trim($P->get('name'))));
+            if ($tmphash !== $hash) return;
+            $Plugin = $P;
+            unset($P);
             $_SESSION['fogactiveplugin'] = serialize($Plugin);
-            break;
-        }
+        },(array)$this->getPlugins());
         return $Plugin->getEntryPoint();
     }
     private function getActivePlugs() {
@@ -50,7 +52,7 @@ class Plugin extends FOGController {
         $patternReplacer = function($element) {
             return preg_replace('#config/plugin\.config\.php$#i','',$element[0]);
         };
-        $files = array_map($patternReplacer,iterator_to_array($this->getClass('RegexIterator',$this->getClass('RecursiveIteratorIterator',$this->getClass('RecursiveDirectoryIterator',$dir,FileSystemIterator::SKIP_DOTS)),'#^.+/config/plugin\.config\.php$#i',RecursiveRegexIterator::GET_MATCH),false));
+        $files = array_map($patternReplacer,(array)iterator_to_array($this->getClass('RegexIterator',$this->getClass('RecursiveIteratorIterator',$this->getClass('RecursiveDirectoryIterator',$dir,FileSystemIterator::SKIP_DOTS)),'#^.+/config/plugin\.config\.php$#i',RecursiveRegexIterator::GET_MATCH),false));
         natcasesort($files);
         return (array)array_values(array_unique(array_filter($files)));
     }

@@ -245,7 +245,6 @@ class GroupManagementPage extends FOGPage {
         array_map($returnSnapins,$this->getClass('SnapinManager')->find());
         $this->HookManager->processEvent('GROUP_SNAP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
-        unset($this->data);
         printf('<input class="c" type="submit" value="%s"/></form></div><!-- Remove Snapins --><div id="group-snap-del"><h2>%s: %s</h2><form method="post" action="%s&tab=group-snap-del">',_('Add Snapin(s)'),_('Remove Snapin to all hosts in'),$this->obj->get('name'),$this->formAction);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapinrm" class="toggle-checkboxsnapinrm" />',
@@ -262,7 +261,6 @@ class GroupManagementPage extends FOGPage {
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );
-        array_map($returnSnapins,$this->getClass('SnapinManager')->find());
         $this->HookManager->processEvent('GROUP_SNAP_DEL',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->headerData,$this->data);
@@ -314,8 +312,8 @@ class GroupManagementPage extends FOGPage {
             '${input}',
             '${span}',
         );
-        foreach ((array)$this->getClass('ServiceManager')->find(array('name'=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id') AS $i => &$Service) {
-            if (!$Service->isValid()) continue;
+        array_map(function(&$Service) {
+            if (!$Service->isValid()) return;
             switch ($Service->get('name')) {
             case 'FOG_SERVICE_DISPLAYMANAGER_X':
                 $name = 'x';
@@ -336,8 +334,7 @@ class GroupManagementPage extends FOGPage {
                 'field'=>$field,
             );
             unset($name,$field,$Service);
-        }
-        unset($Services);
+        },$this->getClass('ServiceManager')->find(array('name'=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id'));
         $this->data[] = array(
             'field'=>'',
             'input'=>'',
@@ -395,21 +392,20 @@ class GroupManagementPage extends FOGPage {
                 array('width'=>50,'class'=>'l'),
                 array('width'=>50,'class'=>'r'),
             );
-            foreach ((array)$this->getClass('PrinterManager')->find() AS $i => &$Printer) {
-                if (!$Printer->isValid()) continue;
+            array_map(function(&$Printer) {
+                if (!$Printer->isValid()) return;
                 $this->data[] = array(
                     'printer_id'=>$Printer->get('id'),
                     'printer_name'=>$Printer->get('name'),
                     'printer_type'=>$Printer->get('config'),
                 );
                 unset($Printer);
-            }
+            },$this->getClass('PrinterManager')->find());
             if (count($this->data) > 0) {
                 printf('<h2>%s</h2>',_('Add new printer(s) to all hosts in this group.'));
                 $this->HookManager->processEvent('GROUP_ADD_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes));
             }
             $this->render();
-            unset($this->data);
             $this->headerData = array(
                 '<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprintrm"/>',
                 _('Printer Name'),
@@ -425,19 +421,9 @@ class GroupManagementPage extends FOGPage {
                 array('width'=>50,'class'=>'l'),
                 array('width'=>50,'class'=>'r'),
             );
-            foreach ((array)$this->getClass('PrinterManager')->find() AS $i => &$Printer) {
-                if (!$Printer->isValid()) continue;
-                $this->data[] = array(
-                    'printer_id'=>$Printer->get('id'),
-                    'printer_name'=>$Printer->get('name'),
-                    'printer_type'=>$Printer->get('config'),
-                );
-                unset($Printer);
-            }
-            unset($Printers);
             $inputupdate = '';
             if (count($this->data)) {
-                echo '<h2>'._('Remove printer from all hosts in this group.').'</h2>';
+                printf('<h2>%s</h2>',_('Remove printer from all hosts in this group.'));
                 $this->HookManager->processEvent('GROUP_REM_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes));
                 $inputupdate = sprintf('<p class="c"><input type="submit" value="%s" name="update"/></p>',_('Update'));
 
@@ -496,13 +482,12 @@ class GroupManagementPage extends FOGPage {
                 $modOn = $_REQUEST['modules'];
                 $modOff = $this->getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
                 $this->obj->addModule($modOn)->removeModule($modOff);
-                foreach ((array)$this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))) AS $i => &$Host) {
-                    if (!$Host->isValid()) continue;
+                array_map(function(&$Host) {
+                    if (!$Host->isValid()) return;
                     if (isset($_REQUEST['updatedisplay'])) $Host->setDisp($x,$y,$r);
                     if (isset($_REQUEST['updatealo'])) $Host->setAlo($time);
                     unset($Host);
-                }
-                unset($Hosts);
+                },$this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
                 break;
             }
             if (!$this->obj->save()) throw new Exception(_('Database update failed'));
@@ -530,15 +515,15 @@ class GroupManagementPage extends FOGPage {
             '${host_name}<br/><small>${host_mac}</small>',
             '<small>${host_deployed}</small>',
         );
-        foreach ((array)$this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
+        array_map(function(&$Host) {
+            if (!$Host->isValid()) return;
             $this->data[] = array(
                 'host_name' => $Host->get('name'),
                 'host_mac' => $Host->get('mac'),
                 'host_deployed' => $this->formatTime($Host->get('deployed'),'Y-m-d H:i:s'),
             );
             unset($Host);
-        }
+        }, $this->getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
         printf('<p>%s</p>',_('Confirm you really want to delete the following hosts'));
         printf('<form method="post" action="?node=group&sub=delete&id=%s" class="c">',$this->obj->get('id'));
         $this->HookManager->processEvent('GROUP_DELETE_HOST_FORM',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));

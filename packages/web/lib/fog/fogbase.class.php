@@ -90,7 +90,7 @@ abstract class FOGBase {
         return $nodeRet;
     }
     protected function getActivePlugins() {
-        return array_map('strtolower',$this->getClass('PluginManager')->find(array('installed'=>1),'','','','','','','name'));
+        return array_map('strtolower',(array)$this->getClass('PluginManager')->find(array('installed'=>1),'','','','','','','name'));
     }
     protected function fatalError($txt, $data = array()) {
         if (!$this->service && !$this->ajax) {
@@ -426,19 +426,22 @@ abstract class FOGBase {
     protected function parseMacList($stringlist,$image = false,$client = false) {
         $MAClist = array();
         $MACs = $stringlist;
-        if (!is_array($stringlist) && strpos($stringlist,'|')) $MACs = array_values(array_filter(array_unique(array_map('strtolower',array_map('trim',explode('|',$stringlist))))));
+        $lowerAndTrim = function($element) {
+            return strtolower(trim($element));
+        };
+        if (!is_array($stringlist) && strpos($stringlist,'|')) $MACs = array_values(array_filter(array_unique(array_map($lowerAndTrim,(array)explode('|',$stringlist)))));
         if ($client) {
-            $ClientIgnoredMACs = array_map('strtolower',array_map('trim',(array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'clientIgnore'=>1),'mac')));
+            $ClientIgnoredMACs = array_map($lowerAndTrim,(array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'clientIgnore'=>1),'mac'));
             $MACs = array_diff((array)$MACs,(array)$ClientIgnoredMACs);
             unset($ClientIgnoredMACs);
         }
         if ($image) {
-            $ImageIgnoredMACs = array_map('strtolower',array_map('trim',(array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'imageIgnore'=>1),'mac')));
+            $ImageIgnoredMACs = array_map($lowerAndTrim,(array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'imageIgnore'=>1),'mac'));
             $MACs = array_diff((array)$MACs,(array)$ImageIgnoredMACs);
             unset($ImageIgnoredMACs);
         }
         $MACs = array_values(array_unique(array_filter((array)$MACs)));
-        $Ignore = (array)array_filter(array_map('strtolower',array_map('trim',explode(',',$this->FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER')))));
+        $Ignore = (array)array_filter(array_map($lowerAndTrim,(array)explode(',',$this->FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
         if (count($Ignore)) $MACs = array_values(array_unique(array_filter(array_diff((array)$MACs,preg_grep(sprintf('#%s#i',implode('|',(array)$Ignore)),$MACs)))));
         $MACs = preg_grep('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$|^([a-fA-F0-9]{2}\-){5}[a-fA-F0-9]{2}$|^[a-fA-F0-9]{12}$|^([a-fA-F0-9]{4}\.){2}[a-fA-F0-9]{4}$/',(array)$MACs);
         if (!count($MACs)) return false;
