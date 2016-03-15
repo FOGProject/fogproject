@@ -40,7 +40,7 @@ class User extends FOGController {
                 ->set('authTime',time())
                 ->set('authLastActivity',time())
                 ->set('authID',$this->sessionID);
-            $_SESSION['FOG_USER'] = serialize($this);
+            $_SESSION['FOG_USER'] = $this->get('id');
             $_SESSION['FOG_USERNAME'] = $this->get('name');
             $res = $this;
             $this->log(sprintf('%s %s.',$this->get('name'),_('user successfully logged in')));
@@ -94,7 +94,7 @@ class User extends FOGController {
         }
         $this->set('authLastActivity',time());
         if (!isset($_SESSION['FOG_USER'])) {
-            $_SESSION['FOG_USER'] = serialize($this);
+            $_SESSION['FOG_USER'] = $this->get('id');
             $_SESSION['FOG_USERNAME'] = $this->get('name');
         }
         return true;

@@ -1,5 +1,5 @@
 <?php
-class ReportMaker extends FOGBase {
+class ReportMaker {
     private $strHTML, $strCSV, $strLine, $filename;
     public $types = array(
         'html' => 0,
