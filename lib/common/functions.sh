@@ -1310,7 +1310,7 @@ createSSLCA() {
         mkdir -p $sslpath/CA >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         dots "Creating SSL CA"
         openssl genrsa -out $sslpath/CA/.fogCA.key 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        openssl req -x509 -new -nodes -key $sslpath/CA/.fogCA.key -days 3650 -out $sslpath/CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
+        openssl req -x509 -new -sha512 -nodes -key $sslpath/CA/.fogCA.key -days 3650 -out $sslpath/CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
 .
 .
 .
@@ -1325,7 +1325,7 @@ EOF
         dots "Creating SSL Private Key"
         mkdir -p $sslpath >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         openssl genrsa -out $sslpath/.srvprivate.key 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        openssl req -new -key $sslpath/.srvprivate.key -out $sslpath/fog.csr >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
+        openssl req -new -sha512 -key $sslpath/.srvprivate.key -out $sslpath/fog.csr >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
 .
 .
 .
