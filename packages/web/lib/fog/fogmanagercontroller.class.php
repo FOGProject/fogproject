@@ -171,7 +171,7 @@ abstract class FOGManagerController extends FOGBase {
         $matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
         if (empty($elementName)) $elementName = strtolower($this->childClass);
         $this->orderBy($orderBy);
-        $listArray = array_map(function(&$Object) {
+        $listArray = array_map(function(&$Object) use ($matchID,$elementName,$orderBy,$filter,$template) {
             if (!$Object->isValid()) return;
             if (array_key_exists('isEnabled',$this->databaseFields) && !$Object->get('isEnabled')) return;
             $listArray = sprintf('<option value="%s"%s>%s</option>',$Object->get('id'),($matchID == $Object->get('id') ? ' selected' : ($template ? " \${selected_item{$Object->get(id)}" : '')),"{$Object->get(name)} - ({$Object->get(id)})");
