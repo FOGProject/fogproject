@@ -29,7 +29,7 @@ abstract class FOGManagerController extends FOGBase {
         if (count($findWhere)) {
             $count = 0;
             $whereArray = array();
-            array_walk($findWhere,function(&$value,&$field) use (&$count,$onecompare,$compare,&$whereArray,&$not) {
+            array_walk($findWhere,function(&$value,&$field) use (&$count,&$onecompare,&$compare,&$whereArray,&$not) {
                 $field = trim($field);
                 if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN ('%s')",$this->databaseTable,$this->databaseFields[$field],$not,implode("','",$value));
                 else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? "'".(string)$value."'" : null));
@@ -171,7 +171,7 @@ abstract class FOGManagerController extends FOGBase {
         $matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
         if (empty($elementName)) $elementName = strtolower($this->childClass);
         $this->orderBy($orderBy);
-        $listArray = array_map(function(&$Object) use ($matchID,$elementName,$orderBy,$filter,$template) {
+        $listArray = array_map(function(&$Object) use (&$matchID,&$elementName,&$orderBy,&$filter,&$template) {
             if (!$Object->isValid()) return;
             if (array_key_exists('isEnabled',$this->databaseFields) && !$Object->get('isEnabled')) return;
             $listArray = sprintf('<option value="%s"%s>%s</option>',$Object->get('id'),($matchID == $Object->get('id') ? ' selected' : ($template ? " \${selected_item{$Object->get(id)}" : '')),"{$Object->get(name)} - ({$Object->get(id)})");
