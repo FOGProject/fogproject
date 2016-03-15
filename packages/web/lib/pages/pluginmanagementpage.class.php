@@ -107,7 +107,7 @@ class PluginManagementPage extends FOGPage {
         unset($Plugin);
     }
     public function run() {
-        $plugin = unserialize($_SESSION['fogactiveplugin']);
+        $plugin = $this->getClass('Plugin',@min($this->getSubObjectIDs(array('name'=>$_SESSION['fogactiveplugin']))));
         try {
             if ($plugin == null) throw new Exception(_('Unable to determine plugin details.'));
             $this->title = sprintf('%s: %s',_('Plugin'),$plugin->get('name'));
@@ -250,8 +250,7 @@ class PluginManagementPage extends FOGPage {
     }
     public function install_post() {
         $this->getClass('Plugin')->getRunInclude($_REQUEST['run']);
-        $Plugin = unserialize($_SESSION['fogactiveplugin']);
-        $Plugin = $this->getClass('Plugin',$Plugin->get('id'));
+        $Plugin = $this->getClass('Plugin',@min($this->getSubObjectIDs(array('name'=>$_SESSION['fogactiveplugin']))));
         try {
             if (!$Plugin->isValid()) throw new Exception(_('Invalid Plugin Passed'));
             if (isset($_REQUEST['install'])) {
