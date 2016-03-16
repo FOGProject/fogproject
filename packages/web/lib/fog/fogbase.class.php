@@ -230,7 +230,7 @@ abstract class FOGBase {
         );
     }
     public function nice_date($Date = 'now',$utc = false) {
-        $TZ = $this->getClass('DateTimeZone',($utc ? 'UTC' : $this->TimeZone));
+        $TZ = $this->getClass('DateTimeZone',($utc || empty($this->TimeZone)? 'UTC' : $this->TimeZone));
         return $this->getClass('DateTime',$Date,$TZ);
     }
     public function formatTime($time, $format = false, $utc = false) {
