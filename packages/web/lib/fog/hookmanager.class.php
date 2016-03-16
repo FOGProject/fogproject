@@ -6,7 +6,7 @@ class HookManager extends EventManager {
     public function getEvents() {
         $regexp = '#processEvent\([\'\"](.*?)[\'\"]#';
         global $Init;
-        foreach ($this->getClass('RegexIterator',$this->getClass('RecursiveIteratorIterator',$this->getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),'/^.+\.php$/i',RecursiveRegexIterator::GET_MATCH) AS $file) {
+        foreach (self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),'/^.+\.php$/i',RecursiveRegexIterator::GET_MATCH) AS $file) {
             if (($fh = fopen($file[0],'rb')) === false) continue;
             while (feof($fh) === false) {
                 if (($line = fgets($fh,4096)) === false) continue;
@@ -16,12 +16,12 @@ class HookManager extends EventManager {
             fclose($fh);
             unset($file);
         }
-        foreach($this->getClass('ServiceManager')->getSettingCats() AS &$CAT) {
+        foreach(self::getClass('ServiceManager')->getSettingCats() AS &$CAT) {
             $divTab = preg_replace('/[\s+\:\.]/','_',$CAT);
             $this->events[] = sprintf('CLIENT_UPDATE_%s',$divTab);
             unset($CAT);
         }
-        foreach($this->getClass('PXEMenuOptionsManager')->find() AS &$Menu) {
+        foreach(self::getClass('PXEMenuOptionsManager')->find() AS &$Menu) {
             $divTab = preg_replace('/[\s+\:\.]/','_',$Menu->get('name'));
             $this->events[] = sprintf('BOOT_ITEMS_%s',$divTab);
             unset($Menu);

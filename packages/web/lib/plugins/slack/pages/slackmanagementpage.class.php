@@ -36,7 +36,7 @@ class SlackManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('Accounts');
-        foreach ((array)$this->getClass('SlackManager')->find() AS &$Token) {
+        foreach ((array)self::getClass('SlackManager')->find() AS &$Token) {
             if (!$Token->isValid()) continue;
             $team_name = $Token->call('auth.test');
             $this->data[] = array(
@@ -87,12 +87,12 @@ class SlackManagementPage extends FOGPage {
             if (!$usertype && !$channeltype) throw new Exception(_('Must use an @ or # to signify if this is a user or channel to send message to!'));
             $user = preg_replace('/^[#]|^[@]/','',trim($_REQUEST['user']));
             if (!$token) throw new Exception(_('Please enter an access token'));
-            $Slack = $this->getClass('Slack')
+            $Slack = self::getClass('Slack')
                 ->set('token',$token)
                 ->set('name',$usersend);
             if (!$Slack->verifyToken()) throw new Exception(_('Invalid token passed'));
             if (array_search($user,array_merge((array)$Slack->getChannels(),(array)$Slack->getUsers())) === false) throw new Exception(_('Invalid user and/or channel passed'));
-            if ($this->getClass('SlackManager')->exists($token,'','token') && $this->getClass('SlackManager')->exists($usersend)) throw new Exception(_('Account already linked'));
+            if (self::getClass('SlackManager')->exists($token,'','token') && self::getClass('SlackManager')->exists($usersend)) throw new Exception(_('Account already linked'));
             if (!$Slack->save()) throw new Exception(_('Failed to create'));
             $args = array(
                 'channel' => $Slack->get('name'),

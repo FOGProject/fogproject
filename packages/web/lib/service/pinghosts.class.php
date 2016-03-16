@@ -22,9 +22,9 @@ class PingHosts extends FOGService {
                 unset($ip);
             }
             if (!in_array($webServerIP,$this->ips)) throw new Exception(_('I am not the fog web server'));
-            $hostCount = $this->getClass('HostManager')->count();
-            $this->outall(sprintf(' * %s %s %s%s',_('Attempting to ping'),$this->getClass('HostManager')->count(),_('host'),($hostCount != 1 ? 's' : '')));
-            foreach ((array)$this->getClass('HostManager')->find() AS $i => &$Host) {
+            $hostCount = self::getClass('HostManager')->count();
+            $this->outall(sprintf(' * %s %s %s%s',_('Attempting to ping'),self::getClass('HostManager')->count(),_('host'),($hostCount != 1 ? 's' : '')));
+            foreach ((array)self::getClass('HostManager')->find() AS $i => &$Host) {
                 if (!$Host->isValid()) continue;
                 $Host->setPingStatus();
                 unset($Host);

@@ -6,7 +6,7 @@ class RemoveSlackItem extends Hook {
     public $active = true;
     public $node = 'slack';
     public function remove_multi($arguments) {
-        foreach ((array)$this->getClass('SlackManager')->find(array('id'=>$arguments['removing'])) AS &$Token) {
+        foreach ((array)self::getClass('SlackManager')->find(array('id'=>$arguments['removing'])) AS &$Token) {
             if (!$Token->isValid()) continue;
             $args = array(
                 'channel' => $Token->get('name'),

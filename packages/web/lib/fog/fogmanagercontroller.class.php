@@ -10,7 +10,7 @@ abstract class FOGManagerController extends FOGBase {
     public function __construct() {
         parent::__construct();
         $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
-        $classVars = $this->getClass($this->childClass,'',true);
+        $classVars = self::getClass($this->childClass,'',true);
         $this->databaseTable = $classVars['databaseTable'];
         $this->databaseFields = $classVars['databaseFields'];
         $this->databaseFieldsRequired = $classVars['databaseFieldsRequired'];
@@ -43,7 +43,7 @@ abstract class FOGManagerController extends FOGBase {
             if ($groupBy) $groupBy = sprintf('GROUP BY `%s`.`%s`',$this->databaseTable,$this->databaseFields[$groupBy]);
             else $groupBy = '';
         } else $orderBy = '';
-        list($join, $whereArrayAnd) = $this->getClass($this->childClass)->buildQuery($not, $compare);
+        list($join, $whereArrayAnd) = self::getClass($this->childClass)->buildQuery($not, $compare);
         $isEnabled = false;
         if (!in_array($this->childClass,array('Image','Snapin','StorageNode')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
         $query = sprintf(
@@ -93,7 +93,7 @@ abstract class FOGManagerController extends FOGBase {
         } else {
             $queryData = $this->DB->query($query)->fetch('','fetch_all')->get();
             $data = array_map(function(&$row) {
-                return $this->getClass($this->childClass)->setQuery($row);
+                return self::getClass($this->childClass)->setQuery($row);
             },(array)$queryData);
             unset($row);
         }
@@ -202,7 +202,7 @@ abstract class FOGManagerController extends FOGBase {
         $mac_keyword = join(':',str_split(str_replace(array('-',':'),'',$keyword),2));
         $mac_keyword = preg_replace('#[%\+\s\+]#','%',sprintf('%%%s%%',$mac_keyword));
         if (empty($keyword)) $keyword = '%';
-        if ($keyword === '%') return $this->getClass($this->childClass)->getManager()->find();
+        if ($keyword === '%') return self::getClass($this->childClass)->getManager()->find();
         $keyword = preg_replace('#[%\+\s\+]#','%',sprintf('%%%s%%',$keyword));
         $_SESSION['caller'] = __FUNCTION__;
         $this->array_remove($this->aliasedFields,$this->databaseFields);
@@ -253,7 +253,7 @@ abstract class FOGManagerController extends FOGBase {
             break;
         }
         $itemIDs = array_values(array_filter(array_unique($itemIDs)));
-        if ($returnObjects) return $this->getClass($this->childClass)->getManager()->find(array('id'=>$itemIDs));
+        if ($returnObjects) return self::getClass($this->childClass)->getManager()->find(array('id'=>$itemIDs));
         return $itemIDs;
     }
 }

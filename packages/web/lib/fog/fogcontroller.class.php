@@ -250,7 +250,7 @@ abstract class FOGController extends FOGBase {
         $join = array();
         $whereArrayAnd = array();
         foreach ((array)$this->databaseFieldClassRelationships AS $class => &$fields) {
-            $class = $this->getClass($class);
+            $class = self::getClass($class);
             $join[] = sprintf(' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',$class->databaseTable,$class->databaseTable,$class->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);
             if ($fields[3]) {
                 foreach ((array)$fields[3] AS $field => &$value) {
@@ -275,11 +275,11 @@ abstract class FOGController extends FOGBase {
         $classData = array_map('addslashes',(array)$classData);
         if (count(preg_grep('#text/plain#i',headers_list())) > 0 || $this->service) $classData = array_map('stripslashes',(array)$classData);
         $this->data = array_merge((array)$this->data,(array)$classData);
-        foreach ((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
+        foreach ((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],self::getClass($class)->setQuery($queryData));
         unset($fields);
         return $this;
     }
     public function getManager() {
-        return $this->getClass(sprintf('%sManager',get_class($this)));
+        return self::getClass(sprintf('%sManager',get_class($this)));
     }
 }

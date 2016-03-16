@@ -32,7 +32,7 @@ class FOGPageManager Extends FOGBase {
     public function getSideMenu() {
         if ($this->FOGUser->isValid()) {
             $class = $this->getFOGPageClass();
-            $this->FOGSubMenu = $this->getClass('FOGSubMenu');
+            $this->FOGSubMenu = self::getClass('FOGSubMenu');
             foreach ((array)$class->menu AS $link => &$title) $this->FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link));
             unset($title);
             if (is_object($class->obj)) {
@@ -89,7 +89,7 @@ class FOGPageManager Extends FOGBase {
             preg_match("#^($plugins.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
             return $match[0];
         };
-        $files = iterator_to_array($this->getClass('RegexIterator',$this->getClass('RecursiveIteratorIterator',$this->getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RecursiveRegexIterator::GET_MATCH),false);
+        $files = iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RecursiveRegexIterator::GET_MATCH),false);
         $plugins = '?!';
         $normalfiles = array_values(array_filter(array_map($fileitems,(array)$files)));
         $plugins = '?=';
@@ -105,7 +105,7 @@ class FOGPageManager Extends FOGBase {
             if ($vals['node'] !== trim(htmlentities($_REQUEST['node'],ENT_QUOTES,'utf-8'))) return;
             unset($vals);
             $this->nodes[$this->classValue] = $className;
-            $this->register($this->getClass($className));
+            $this->register(self::getClass($className));
         };
         array_map($startClass,(array)$files);
     }

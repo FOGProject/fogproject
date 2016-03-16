@@ -19,18 +19,18 @@ class SnapinReplicator extends FOGService {
             $myStorageNodeID = $StorageNode->get('id');
             $this->outall(" * Starting Snapin Replication.");
             $this->outall(sprintf(" * We are group ID: #%s",$myStorageGroupID));
-            $this->outall(sprintf(" | We are group name: %s",$this->getClass('StorageGroup',$myStorageGroupID)->get('name')));
+            $this->outall(sprintf(" | We are group name: %s",self::getClass('StorageGroup',$myStorageGroupID)->get('name')));
             $this->outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
-            $this->outall(sprintf(" | We are node name: %s",$this->getClass('StorageNode',$myStorageNodeID)->get('name')));
+            $this->outall(sprintf(" | We are node name: %s",self::getClass('StorageNode',$myStorageNodeID)->get('name')));
             $SnapinIDs = $this->getSubObjectIDs('Snapin',array('isEnabled'=>1,'toReplicate'=>1));
             $SnapinAssocs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$SnapinIDs),'snapinID',true);
-            if (count($SnapinAssocs)) $this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$SnapinAssocs));
+            if (count($SnapinAssocs)) self::getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$SnapinAssocs));
             unset($SnapinAssocs);
-            $SnapinAssocCount = $this->getClass('SnapinGroupAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID,'snapinID'=>$SnapinIDs));
-            $SnapinCount = $this->getClass('SnapinManager')->count();
+            $SnapinAssocCount = self::getClass('SnapinGroupAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID,'snapinID'=>$SnapinIDs));
+            $SnapinCount = self::getClass('SnapinManager')->count();
             if ($SnapinAssocCount <= 0 || $SnapinCount <= 0) throw new Exception(_('There is nothing to replicate'));
             unset($SnapinAssocCount,$SnapinCount);
-            $Snapins = $this->getClass('SnapinManager')->find(array('id'=>$this->getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$myStorageGroupID,'snapinID'=>$SnapinIDs),'snapinID')));
+            $Snapins = self::getClass('SnapinManager')->find(array('id'=>$this->getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$myStorageGroupID,'snapinID'=>$SnapinIDs),'snapinID')));
             unset($SnapinIDs);
             foreach ((array)$Snapins AS $i => &$Snapin) {
                 if (!$Snapin->isValid()) continue;

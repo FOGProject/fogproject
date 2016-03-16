@@ -59,8 +59,7 @@ class ReportMaker {
             unset($status,$this->strHTML);
             break;
         case 3:
-            global $FOGCore;
-            $SchemaSave = $FOGCore->getClass('Schema');
+            $SchemaSave = FOGCore::getClass('Schema');
             $SchemaSave->send_file($SchemaSave->export_db());
             unset($SchemaSave);
             break;

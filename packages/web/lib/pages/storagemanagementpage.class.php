@@ -13,7 +13,7 @@ class StorageManagementPage extends FOGPage {
         );
         if (in_array($_REQUEST['sub'],array('edit','delete','delete-storage-node','delete_storage_node'))) {
             if (isset($_REQUEST['id'])) {
-                $this->obj = $this->getClass('StorageNode',$_REQUEST['id']);
+                $this->obj = self::getClass('StorageNode',$_REQUEST['id']);
                 if ((int) $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
                     unset($this->obj);
                         $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
@@ -31,7 +31,7 @@ class StorageManagementPage extends FOGPage {
             }
         } else if (in_array($_REQUEST['sub'],array('edit-storage-group','delete-storage-group','edit_storage_group','delete_storage_group'))) {
             if (isset($_REQUEST['id'])) {
-                $this->obj = $this->getClass('StorageGroup',$_REQUEST['id']);
+                $this->obj = self::getClass('StorageGroup',$_REQUEST['id']);
                 if ((int) $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
                     unset($this->obj);
                         $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
@@ -64,8 +64,8 @@ class StorageManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = $this->foglang['AllSN'];
-        foreach ((array)$this->getClass('StorageNodeManager')->find() AS $i => &$StorageNode) {
-            $StorageGroup = $this->getClass('StorageGroup',$StorageNode->get('storageGroupID'));
+        foreach ((array)self::getClass('StorageNodeManager')->find() AS $i => &$StorageNode) {
+            $StorageGroup = self::getClass('StorageGroup',$StorageNode->get('storageGroupID'));
             $this->data[] = array_merge((array)$StorageNode->get(),array(
                 'isMasterText'=>($StorageNode->get('isMaster')?'Yes':'No'),
                 'isEnabledText'=>($StorageNode->get('isEnabled')?'Yes':'No'),
@@ -148,7 +148,7 @@ class StorageManagementPage extends FOGPage {
                 'node_maxclient'=>$_REQUEST['maxClients']?$_REQUEST['maxClients']:10,
                 'span'=>'<i class="icon fa fa-question hand" title="'.$this->foglang['CautionPhrase'].'"></i>',
                 'span2'=>'<i class="icon fa fa-question hand" title="'.$this->foglang['BandwidthRepHelp'].'"></i>',
-                'node_group'=>$this->getClass('StorageGroupManager')->buildSelectBox(1, 'storageGroupID'),
+                'node_group'=>self::getClass('StorageGroupManager')->buildSelectBox(1, 'storageGroupID'),
                 'node_path'=>$_REQUEST['path']?$_REQUEST['path']:'/images/',
                 'node_ftppath'=>$_REQUEST['ftppath']?$_REQUEST['ftppath']:'/images/',
                 'node_snapinpath'=>$_REQUEST['snapinpath']?$_REQUEST['snapinpath']:'/opt/fog/snapins/',
@@ -169,14 +169,14 @@ class StorageManagementPage extends FOGPage {
         $this->HookManager->processEvent('STORAGE_NODE_ADD_POST');
         try {
             if (empty($_REQUEST['name'])) throw new Exception($this->foglang['StorageNameRequired']);
-            if ($this->getClass('StorageNodeManager')->exists($_REQUEST['name'])) throw new Exception($this->foglang['StorageNameExists']);
+            if (self::getClass('StorageNodeManager')->exists($_REQUEST['name'])) throw new Exception($this->foglang['StorageNameExists']);
             if (empty($_REQUEST['ip'])) throw new Exception($this->foglang['StorageIPRequired']);
             if (empty($_REQUEST['maxClients'])) throw new Exception($this->foglang['StorageClientsRequired']);
             if (empty($_REQUEST['interface'])) throw new Exception($this->foglang['StorageIntRequired']);
             if (empty($_REQUEST['user'])) throw new Exception($this->foglang['StorageUserRequired']);
             if (empty($_REQUEST['pass'])) throw new Exception($this->foglang['StoragePassRequired']);
             if (((is_numeric($_REQUEST['bandwidth']) && $_REQUEST['bandwidth'] <= 0) || !is_numeric($_REQUEST['bandwidth'])) && $_REQUEST['bandwidth']) throw new Exception(_('Bandwidth should be numeric and greater than 0'));
-            $StorageNode = $this->getClass('StorageNode')
+            $StorageNode = self::getClass('StorageNode')
                 ->set('name',$_REQUEST['name'])
                 ->set('description',$_REQUEST['description'])
                 ->set('ip',$_REQUEST['ip'])
@@ -196,7 +196,7 @@ class StorageManagementPage extends FOGPage {
                 ->set('pass',$_REQUEST['pass'])
                 ->set('bandwidth',$_REQUEST['bandwidth']);
             if (!$StorageNode->save()) throw new Exception($this->foglang['DBupfailed']);
-            if ($StorageNode->get('isMaster')) $this->getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$StorageNode->get('id'),$this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$StorageNode->get('storageGroupID'))))),'',array('isMaster'=>0));
+            if ($StorageNode->get('isMaster')) self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$StorageNode->get('id'),$this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$StorageNode->get('storageGroupID'))))),'',array('isMaster'=>0));
             $this->HookManager->processEvent('STORAGE_NODE_ADD_SUCCESS',array('StorageNode'=>&$StorageNode));
             $this->setMessage($this->foglang['SNCreated']);
             $this->redirect(sprintf('?node=%s&id=%s',$_REQUEST['node'],$this->id, $StorageNode->get('id')));
@@ -254,7 +254,7 @@ class StorageManagementPage extends FOGPage {
                 'graphenabled'=>$this->obj->get('isGraphEnabled') ? 'checked' : '',
                 'span'=>'<i class="icon fa fa-question hand" title="'.$this->foglang['CautionPhrase'].'"></i>',
                 'span2'=>'<i class="icon fa fa-question hand" title="'.$this->foglang['BandwidthRepHelp'].'"></i>',
-                'node_group'=>$this->getClass('StorageGroupManager')->buildSelectBox($this->obj->get('storageGroupID'),'storageGroupID'),
+                'node_group'=>self::getClass('StorageGroupManager')->buildSelectBox($this->obj->get('storageGroupID'),'storageGroupID'),
                 'node_bandwidth'=>$this->obj->get('bandwidth'),
                 'node_path'=>$this->obj->get('path'),
                 'node_ftppath'=>$this->obj->get('ftppath'),
@@ -275,7 +275,7 @@ class StorageManagementPage extends FOGPage {
         $this->HookManager->processEvent('STORAGE_NODE_EDIT_POST',array('StorageNode'=>&$this->obj));
         try {
             if (empty($_REQUEST['name'])) throw new Exception($this->foglang['StorageNameRequired']);
-            if ($this->obj->get('name') != $_REQUEST['name'] && $this->getClass('StorageNodeManager')->exists($_REQUEST['name'], $this->obj->get('id'))) throw new Exception($this->foglang['StorageNameExists']);
+            if ($this->obj->get('name') != $_REQUEST['name'] && self::getClass('StorageNodeManager')->exists($_REQUEST['name'], $this->obj->get('id'))) throw new Exception($this->foglang['StorageNameExists']);
             if (empty($_REQUEST['ip'])) throw new Exception($this->foglang['StorageIPRequired']);
             if (!is_numeric($_REQUEST['maxClients']) || $_REQUEST['maxClients'] < 0) throw new Exception($this->foglang['StorageClientRequired']);
             if (empty($_REQUEST['interface'])) throw new Exception($this->foglang['StorageIntRequired']);
@@ -303,7 +303,7 @@ class StorageManagementPage extends FOGPage {
                 ->set('bandwidth',$_REQUEST['bandwidth']);
             // Save
             if (!$this->obj->save()) throw new Exception($this->foglang['DBupfailed']);
-            if ($this->obj->get('isMaster')) $this->getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$this->obj->get('id'),$this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$this->obj->get('storageGroupID'))))),'',array('isMaster'=>0));
+            if ($this->obj->get('isMaster')) self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$this->obj->get('id'),$this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$this->obj->get('storageGroupID'))))),'',array('isMaster'=>0));
             $this->HookManager->processEvent('STORAGE_NODE_EDIT_SUCCESS',array('StorageNode'=>&$this->obj));
             $this->setMessage($this->foglang['SNUpdated']);
             $this->redirect($this->formAction);
@@ -355,7 +355,7 @@ class StorageManagementPage extends FOGPage {
     }
     public function storage_group() {
         $this->title = $this->foglang['AllSG'];
-        foreach ((array)$this->getClass('StorageGroupManager')->find() AS $i => &$StorageGroup) {
+        foreach ((array)self::getClass('StorageGroupManager')->find() AS $i => &$StorageGroup) {
             $this->data[] = $StorageGroup->get();
             unset($StorageGroup);
         }
@@ -373,7 +373,7 @@ class StorageManagementPage extends FOGPage {
             array('class'=>'c filter-false','width'=>50),
         );
         unset($this->data);
-        $StorageGroups = $this->getClass(StorageGroup)->getManager()->find();
+        $StorageGroups = self::getClass(StorageGroup)->getManager()->find();
         foreach ($StorageGroups AS $i => &$StorageGroup) {
             $this->data[] = $StorageGroup->get();
         }
@@ -427,9 +427,9 @@ class StorageManagementPage extends FOGPage {
         try {
             // Error checking
             if (empty($_REQUEST[name])) throw new Exception($this->foglang[SGNameReq]);
-            if ($this->getClass(StorageGroupManager)->exists($_REQUEST[name])) throw new Exception($this->foglang[SGExist]);
+            if (self::getClass(StorageGroupManager)->exists($_REQUEST[name])) throw new Exception($this->foglang[SGExist]);
             // Create new Object
-            $StorageGroup = $this->getClass(StorageGroup)
+            $StorageGroup = self::getClass(StorageGroup)
                 ->set(name,$_REQUEST[name])
                 ->set(description,$_REQUEST[description]);
             // Save
@@ -491,7 +491,7 @@ class StorageManagementPage extends FOGPage {
         try {
             // Error checking
             if (empty($_REQUEST[name])) throw new Exception($this->foglang[SGName]);
-            if ($this->obj->get(name) != $_REQUEST[name] && $this->getClass(StorageGroupManager)->exists($_REQUEST[name], $this->obj->get(id))) throw new Exception($this->foglang[SGExist]);
+            if ($this->obj->get(name) != $_REQUEST[name] && self::getClass(StorageGroupManager)->exists($_REQUEST[name], $this->obj->get(id))) throw new Exception($this->foglang[SGExist]);
             // Update Object
             $this->obj
                 ->set(name,$_REQUEST[name])
@@ -551,7 +551,7 @@ class StorageManagementPage extends FOGPage {
         // POST
         try {
             // Error checking
-            if ($this->getClass(StorageGroupManager)->count() == 1) throw new Exception($this->foglang[OneSG]);
+            if (self::getClass(StorageGroupManager)->count() == 1) throw new Exception($this->foglang[OneSG]);
             // Destroy
             if (!$this->obj->destroy()) throw new Exception($this->foglang[FailDelSG]);
             // Hook

@@ -49,15 +49,15 @@ class SnapinManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Snap-ins');
-        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('SnapinManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('SnapinManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map($this->returnData,$this->getClass('SnapinManager')->find());
+        array_map($this->returnData,self::getClass('SnapinManager')->find());
         $this->HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map($this->returnData,$this->getClass('SnapinManager')->search('',true));
+        array_map($this->returnData,self::getClass('SnapinManager')->search('',true));
         $this->HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -72,42 +72,32 @@ class SnapinManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        foreach ((array)$this->getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS $i => $StorageNode) {
-            if (!$StorageNode->isValid()) continue;
+        self::$selected = isset($_REQUEST['snapinfileexist']) ? basename(htmlentities($_REQUEST['snapinfileexist'],ENT_QUOTES,'utf-8')) : '';
+        $filelist = array();
+        array_map(function(&$StorageNode) use (&$filelist) {
+            if (!$StorageNode->isValid()) return;
             $this->FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
-            if (!$this->FOGFTP->connect()) continue;
-            $filelist = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
-            foreach ((array)$filelist AS $i => &$file) {
-                if ($this->FOGFTP->chdir($file)) continue;
-                $files[] = basename($file);
-                unset($file);
-            }
+            if (!$this->FOGFTP->connect()) return;
+            $filelist = array_map(self::$ftpfilesonly,$this->FOGFTP->nlist($StorageNode->get('snapinpath')));
             $this->FOGFTP->close();
-            unset($StorageNode,$filelist);
-        }
-        natcasesort($files);
-        $files = array_values(array_filter(array_unique((array)$files)));
+            unset($StorageNode);
+        },self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)));
+        natcasesort($filelist);
+        $filelist = array_values(array_filter(array_unique((array)$filelist)));
         ob_start();
-        foreach ((array)$files AS $i => &$file) {
-            printf('<option value="%s"%s>%s</option>',
-                basename($file),
-                (basename(htmlentities($_REQUEST['snapinfileexist'],ENT_QUOTES,'utf-8')) == basename($file) ? ' selected' : ''),
-                basename($file)
-            );
-            unset($file);
-        }
+        array_map(self::$buildSelectBox,$filelist);
         $selectFiles = sprintf('<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
         $fields = array(
             _('Snapin Name') => sprintf('<input type="text" name="name" value="%s"/>',$_REQUEST['name']),
             _('Snapin Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
-            _('Snapin Storage Group') => $this->getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup']),
+            _('Snapin Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup']),
             _('Snapin Run With') => sprintf('<input class="cmdlet1" type="text" name="rw" value="%s"/>',$_REQUEST['rw']),
             _('Snapin Run With Argument') => sprintf('<input class="cmdlet2" type="text" name="rwa" value="%s"/>',$_REQUEST['rwa']),
             sprintf('%s <span class="lightColor">%s:%s</span>',_('Snapin File'),_('Max Size'),ini_get('post_max_size')) => sprintf('<input class="cmdlet3" name="snapin" value="%s" type="file"/>',$_FILES['snapin']),
-            (count($files) > 0 ? _('Snapin File (exists)') : '') => (count($files) > 0 ? $selectFiles : ''),
+            (count($filelist) > 0 ? _('Snapin File (exists)') : '') => (count($filelist) > 0 ? $selectFiles : ''),
             _('Snapin Arguments') => sprintf('<input class="cmdlet4" type="text" name="args" value="%s"/>',$_REQUEST['args']),
             _('Snapin Enabled') => '<input type="checkbox" name="isEnabled" value="1"checked/>',
             _('Replicate?') => '<input type="checkbox" name="toReplicate" value="1" checked/>',
@@ -136,14 +126,14 @@ class SnapinManagementPage extends FOGPage {
         try {
             $snapinName = trim($_REQUEST['name']);
             if (!$snapinName) throw new Exception(_('Please enter a name to give this Snapin'));
-            if ($this->getClass('SnapinManager')->exists($snapinName)) throw new Exception(_('Snapin with that name already exists'));
+            if (self::getClass('SnapinManager')->exists($snapinName)) throw new Exception(_('Snapin with that name already exists'));
             if (!$_REQUEST['storagegroup']) throw new Exception(_('Please select a storage group for this snapin to reside in'));
             $snapinfile = trim(basename($_REQUEST['snapinfileexist']));
             $uploadfile = trim(basename($_FILES['snapin']['name']));
             if ($uploadfile) $snapinfile = $uploadfile;
             if (!$snapinfile) throw new Exception(_('A file to use for the snapin must be either uploaded or chosen from the already present list'));
             if (!$_REQUEST['storagegroup']) throw new Exception(_('Must have snapin associated to a group'));
-            $StorageNode = $this->getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
+            $StorageNode = self::getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
             if ($_FILES['snapin']['name']) {
                 $src = sprintf('%s/%s',dirname($_FILES['snapin']['tmp_name']),basename($_FILES['snapin']['tmp_name']));
                 $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$snapinfile);
@@ -159,7 +149,7 @@ class SnapinManagementPage extends FOGPage {
                 if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
                 $this->FOGFTP->close();
             }
-            $Snapin = $this->getClass('Snapin')
+            $Snapin = self::getClass('Snapin')
                 ->set('name',$snapinName)
                 ->set('description',$_REQUEST['description'])
                 ->set('file',$snapinfile)
@@ -193,33 +183,23 @@ class SnapinManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        foreach ((array)$this->getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->obj->get('storageGroups'),'isEnabled'=>1,'isMaster'=>1)) AS $i => &$StorageNode) {
-            if (!$StorageNode->isValid()) continue;
+        self::$selected = $this->obj->get('file');
+        $filelist = array();
+        array_map(function(&$StorageNode) use (&$filelist) {
+            if (!$StorageNode->isValid()) return;
             $this->FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
-            if (!$this->FOGFTP->connect()) continue;
-            $filelist = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
-            foreach ((array)$filelist AS $i => &$file) {
-                if ($this->FOGFTP->chdir($file)) continue;
-                $files[] = basename($file);
-                unset($file);
-            }
+            if (!$this->FOGFTP->connect()) return;
+            $filelist = array_map(self::$ftpfilesonly,$this->FOGFTP->nlist($StorageNode->get('snapinpath')));
             $this->FOGFTP->close();
-            unset($StorageNode,$filelist);
-        }
-        natcasesort($files);
-        $files = array_values(array_filter(array_unique((array)$files)));
+            unset($StorageNode);
+        },self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)));
+        natcasesort($filelist);
+        $filelist = array_values(array_filter(array_unique((array)$filelist)));
         ob_start();
-        foreach ((array)$files AS $i => &$file) {
-            printf('<option value="%s"%s>%s</option>',
-                basename($file),
-                (basename($this->obj->get('file')) == basename($file) ? ' selected' : ''),
-                basename($file)
-            );
-            unset($file);
-        }
+        array_map(self::$buildSelectBox,$filelist);
         $selectFiles = sprintf('<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
         $fields = array(
             _('Snapin Name') => sprintf('<input type="text" name="name" value="%s"/>',$this->obj->get('name')),
@@ -227,7 +207,7 @@ class SnapinManagementPage extends FOGPage {
             _('Snapin Run With') => sprintf('<input class="cmdlet1" type="text" name="rw" value="%s"/>',$this->obj->get('runWith')),
             _('Snapin Run With Argument') => sprintf('<input class="cmdlet2" type="text" name="rwa" value="%s"/>',$this->obj->get('runWithArgs')),
             sprintf('%s <span class="lightColor">%s:%s</span>',_('Snapin File'),_('Max Size'),ini_get('post_max_size')) => sprintf('<label id="uploader" for="snapin-uploader">%s<a href="#" id="snapin-upload"> <i class="fa fa-arrow-up noBorder"></i></a></label>',basename($this->obj->get('file'))),
-            (count($files) > 0 ? _('Snapin File (exists)') : '') => (count($files) > 0 ? $selectFiles : ''),
+            (count($filelist) > 0 ? _('Snapin File (exists)') : '') => (count($filelist) > 0 ? $selectFiles : ''),
             _('Snapin Arguments') => sprintf('<input class="cmdlet4" type="text" name="args" value="%s"/>',$this->obj->get('args')),
             _('Protected') => sprintf('<input type="checkbox" name="protected_snapin" value="1"%s/>',$this->obj->get('protected') ? ' checked' : ''),
             _('Reboot after install') => sprintf('<input class="action" type="radio" name="action" value="reboot"%s/>',$this->obj->get('reboot') ? ' checked' : ''),
@@ -273,7 +253,7 @@ class SnapinManagementPage extends FOGPage {
                 'is_primary' => ($this->obj->getPrimaryGroup($StorageGroup->get('id')) ? ' checked' : ''),
             );
         };
-        array_map($storageGroups,$this->getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroupsnotinme'))));
+        array_map($storageGroups,self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroupsnotinme'))));
         if (count($this->data) > 0) {
             $this->HookManager->processEvent('SNAPIN_GROUP_ASSOC',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             printf('<p class="c"><label for="groupMeShow">%s&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow"/></label><div id="groupNotInMe"><form method="post" action="%s&tab=snap-storage"><h2>%s %s</h2><p class="c">%s</p>',
@@ -302,7 +282,7 @@ class SnapinManagementPage extends FOGPage {
             sprintf('<input class="primary" type="radio" name="primary" id="group${storageGroup_id}" value="${storageGroup_id}"${is_primary}/><label for="group${storageGroup_id}" class="icon icon-hand" title="%s">&nbsp;</label>',_('Primary Group Selector')),
             '${storageGroup_name}',
         );
-        array_map($storageGroups,$this->getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroups'))));
+        array_map($storageGroups,self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroups'))));
         $this->HookManager->processEvent('SNAPIN_EDIT_GROUP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=snap-storage">',$this->formAction);
         $this->render();

@@ -8,12 +8,12 @@ class TaskQueue extends TaskingElement {
                         ->set('checkinTime',$this->formatTime('','Y-md H:i:s'))
                         ->set('stateID',$this->getCheckedInState());
                     if (!$this->Task->save()) throw new Exception(_('Failed to update task'));
-                    $MulticastSession = $this->getClass('MulticastSessions',@max($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->Task->get('id')),'msID')));
+                    $MulticastSession = self::getClass('MulticastSessions',@max($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->Task->get('id')),'msID')));
                     if (!$MulticastSession->isValid()) throw new Exception(_('Invalid Session'));
                     $clientCount = (int)$MulticastSession->get('clients');
                     $MulticastSession->set('clients',++$clientCount);
                     if (!$MulticastSession->save()) throw new Exception(_('Failed to update session'));
-                    $CheckedInCount = (int)$this->getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MulticastSession->get('id')));
+                    $CheckedInCount = (int)self::getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MulticastSession->get('id')));
                     $sessionClientCount = (int)$MulticastSession->get('sessclients');
                     $SessionStateID = ($CheckedInCount == $clientCount || ($sessionClientCount > 0 && $clientCount > 0)) ? 3 : 1;
                     $this->Task->set('stateID',$this->getProgressState());

@@ -32,8 +32,8 @@ class WOLBroadcastManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Broadcasts');
-        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('WolbroadcastManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)$this->getClass('WolbroadcastManager')->find() AS $i => &$Broadcast) {
+        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('WolbroadcastManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        foreach ((array)self::getClass('WolbroadcastManager')->find() AS $i => &$Broadcast) {
             if (!$Broadcast->isValid()) continue;
             $this->data[] = array(
                 'id'	=> $Broadcast->get('id'),
@@ -46,7 +46,7 @@ class WOLBroadcastManagementPage extends FOGPage {
         $this->render();
     }
     public function search_post() {
-        foreach ((array)$this->getClass('WolbroadcastManager')->search('',true) AS $i => &$Broadcast) {
+        foreach ((array)self::getClass('WolbroadcastManager')->search('',true) AS $i => &$Broadcast) {
             if (!$Broadcast->isValid()) continue;
             $this->data[] = array(
                 'id'		=> $Broadcast->get('id'),
@@ -90,11 +90,11 @@ class WOLBroadcastManagementPage extends FOGPage {
         try {
             $name = $_REQUEST['name'];
             $ip = $_REQUEST['broadcast'];
-            if ($this->getClass('WolbroadcastManager')->exists($name)) throw new Exception(_('Broacast name already Exists, please try again.'));
+            if (self::getClass('WolbroadcastManager')->exists($name)) throw new Exception(_('Broacast name already Exists, please try again.'));
             if (!$name) throw new Exception(_('Please enter a name for this address.'));
             if (empty($ip)) throw new Exception(_('Please enter the broadcast address.'));
             if (strlen($ip) > 15 || !filter_var($ip,FILTER_VALIDATE_IP)) throw new Exception(_('Please enter a valid ip'));
-            $WOLBroadcast = $this->getClass('Wolbroadcast')
+            $WOLBroadcast = self::getClass('Wolbroadcast')
                 ->set('name',$name)
                 ->set('broadcast',$ip);
             if (!$WOLBroadcast->save()) throw new Exception(_('Failed to create'));

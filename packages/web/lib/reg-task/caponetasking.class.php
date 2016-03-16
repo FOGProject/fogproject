@@ -13,7 +13,7 @@ class CaponeTasking extends FOGBase {
             try {
                 $strSetup = "%s|%s|%s|%s|%s";
                 ob_start();
-                foreach ((array)$this->getClass('CaponeManager')->find(array('key'=>trim(base64_decode($_REQUEST['key'])))) AS $i => &$Capone) {
+                foreach ((array)self::getClass('CaponeManager')->find(array('key'=>trim(base64_decode($_REQUEST['key'])))) AS $i => &$Capone) {
                     if (!$Capone->isValid()) continue;
                     printf("%s\n",
                         base64_encode(sprintf($strSetup,

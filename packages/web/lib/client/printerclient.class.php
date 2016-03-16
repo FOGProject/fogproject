@@ -9,7 +9,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
     public function send() {
         try {
             $level = $this->Host->get('printerLevel');
-            $Printers = $this->getClass('PrinterManager')->find(array('id'=>$this->Host->get('printers')));
+            $Printers = self::getClass('PrinterManager')->find(array('id'=>$this->Host->get('printers')));
             if ($level > 2 || $level <= 0) $level = 0;
             if (!$this->newService) {
                 $level = "#!mg=$level";
@@ -24,7 +24,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                 unset($Printers);
                 $this->send = base64_encode($level)."\n".$this->send;
             } else {
-                if (!$this->getClass('PrinterAssociationManager')->count(array('printerID'=>$this->Host->get('printers')))) {
+                if (!self::getClass('PrinterAssociationManager')->count(array('printerID'=>$this->Host->get('printers')))) {
                     if ($this->json) return array('error'=>'np','mode'=>empty($mode) ? 0 : $mode);
                     throw new Exception("#!np\n#mode=$mode\n");
                 }
@@ -47,7 +47,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                     unset($Printers,$count);
                     if ($this->json) return $vals;
                 } else {
-                    $Printer = $this->getClass('Printer',$_REQUEST['id']);
+                    $Printer = self::getClass('Printer',$_REQUEST['id']);
                     if (!$Printer->isValid()) throw new Exception(_('Printer is invalid'));
                     $strtosend = "#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s";
                     //$strtosend = "#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s\n#configFile=%s";

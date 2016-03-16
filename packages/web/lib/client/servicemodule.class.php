@@ -1,7 +1,7 @@
 <?php
 class ServiceModule extends FOGClient implements FOGClientSend {
     public function send() {
-        $moduleID = $this->getClass('Module',@max($this->getSubObjectIDs('Module',array('shortName'=>$_REQUEST['moduleid']))));
+        $moduleID = self::getClass('Module',@max($this->getSubObjectIDs('Module',array('shortName'=>$_REQUEST['moduleid']))));
         if (!$moduleID->isValid()) {
             switch (strtolower($_REQUEST['moduleid'])) {
                 case 'dircleaner':
@@ -13,7 +13,7 @@ class ServiceModule extends FOGClient implements FOGClientSend {
                     $_REQUEST['moduleid'] = array('snapin','snapinclient');
                     break;
             }
-            $moduleID = $this->getClass('Module',@max($this->getSubObjectIDs('Module',array('shortName'=>$_REQUEST['moduleid']),'','','OR')));
+            $moduleID = self::getClass('Module',@max($this->getSubObjectIDs('Module',array('shortName'=>$_REQUEST['moduleid']),'','','OR')));
         }
         if (!$moduleID->isValid()) throw new Exception('#!um');
         $moduleName = $this->getGlobalModuleStatus();

@@ -4,7 +4,7 @@ class ServerInfo extends FOGPage {
     public function __construct($name = '') {
         $this->name = 'Hardware Information';
         parent::__construct($this->name);
-        $this->obj = $this->getClass('StorageNode',$_REQUEST['id']);
+        $this->obj = self::getClass('StorageNode',$_REQUEST['id']);
         $this->menu = array(
             "?node=storage&sub=edit&id={$_REQUEST['id']}" => _('Edit Node')
         );

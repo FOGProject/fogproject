@@ -898,9 +898,9 @@ $this->schema[] = array(
 $this->DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
 while ($Host = $this->DB->fetch()->get()) $allImageID[$Host['hostImage']] = $Host['hostOS'];
 foreach ((array)$allImageID AS $imageID => $osID) {
-    $Image = $this->getClass('Image',$imageID);
+    $Image = self::getClass('Image',$imageID);
     if (!$Image->isValid()) continue;
-    $OS = $this->getClass('OS',$osID);
+    $OS = self::getClass('OS',$osID);
     if (!$OS->isValid()) continue;
     if (!$Image->set('osID',$osID)->save()) $errors[] = sprintf('<div>Failed updating the osID of imageID: %s, osID: %s</div>',$imageID,$osID);
 }

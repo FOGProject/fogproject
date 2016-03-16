@@ -16,7 +16,7 @@ class Module extends FOGController {
         return (bool)parent::isValid() && $this->get('shortName');
     }
     public function destroy($field = 'id') {
-        $this->getClass('ModuleAssociationManager')->destroy(array('moduleID' => $this->get('id')));
+        self::getClass('ModuleAssociationManager')->destroy(array('moduleID' => $this->get('id')));
         return parent::destroy($field);
     }
 }
