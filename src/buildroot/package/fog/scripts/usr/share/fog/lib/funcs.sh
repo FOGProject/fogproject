@@ -180,7 +180,7 @@ expandPartition() {
     local part_number=0
     getDiskFromPartition "$part"
     getPartitionNumber "$part"
-    local is_fixed=$(echo $fixed | awk "/(^$part_number:|:$part_number:|:$part_number$)/{print 1}")
+    local is_fixed=$(echo $fixed | awk "/(^$part_number:|:$part_number:|:$part_number$|^$part_number$)/{print 1}")
     if [[ $is_fixed -eq 1 ]]; then
         echo " * Not expanding ($part) fixed size"
         debugPause
@@ -422,7 +422,7 @@ shrinkPartition() {
     local part_number=0
     getDiskFromPartition "$part"
     getPartitionNumber "$part"
-    local is_fixed=$(echo $fixed | awk "/(^$part_number:|:$part_number:|:$part_number$)/{print 1}")
+    local is_fixed=$(echo $fixed | awk "/(^$part_number:|:$part_number:|:$part_number$|^$part_number$)/{print 1}")
     if [[ $is_fixed -eq 1 ]]; then
         echo " * Not shrinking ($part) fixed size"
         debugPause
@@ -499,7 +499,7 @@ shrinkPartition() {
                 dots "Resizing partition $part"
                 getPartBlockSize "$part" "part_block_size"
                 case $osid in
-                    [1-2])
+                    [1-2]|4)
                         resizePartition "$part" "$sizentfsresize" "$imagePath"
                         [[ $osid -eq 2 ]] && correctVistaMBR "$disk"
                         ;;
@@ -511,9 +511,6 @@ shrinkPartition() {
                             handleError "Unable to determine disk start location (${FUNCNAME[0]})\n   Args Passed: $*"
                         fi
                         adjustedfdsize=$((sizefd + part_start))
-                        resizePartition "$part" "$adjustedfdsize" "$imagePath"
-                        ;;
-                    4)
                         resizePartition "$part" "$adjustedfdsize" "$imagePath"
                         ;;
                 esac
