@@ -44,7 +44,7 @@ class TaskManagementPage extends FOGPage {
         $this->active();
     }
     public function search_post() {
-        foreach ($this->getClass('TaskManager')->search('',true) AS &$Task) {
+        foreach (self::getClass('TaskManager')->search('',true) AS &$Task) {
             if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
             if (!$Host->isValid()) continue;
@@ -80,7 +80,7 @@ class TaskManagementPage extends FOGPage {
     }
     public function active() {
         $this->title = 'Active Tasks';
-        foreach ($this->getClass('Taskmanager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS &$Task) {
+        foreach (self::getClass('Taskmanager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS &$Task) {
             if (!$Task->isValid()) continue;
             $Host = $Task->getHost();
             if (!$Host->isValid()) continue;
@@ -117,8 +117,8 @@ class TaskManagementPage extends FOGPage {
     }
     public function listhosts() {
         $this->title = 'All Hosts';
-        $up = $this->getClass('TaskType',2);
-        $down = $this->getClass('TaskType',1);
+        $up = self::getClass('TaskType',2);
+        $down = self::getClass('TaskType',1);
         $up = sprintf('<a href="?node=task&sub=hostdeploy&type=%s&id=${id}"><i class="icon hand fa fa-%s fa-fw" title="%s"></i></a>',$up->get('id'),$up->get('icon'),$up->get('name'));
         $down = sprintf('<a href="?node=task&sub=hostdeploy&type=%s&id=${id}"><i class="icon hand fa fa-%s fa-fw" title="%s"></i></a>',$down->get('id'),$down->get('icon'),$down->get('name'));
         $adv = sprintf('<a href="?node=task&sub=hostadvanced&id=${id}#host-tasks"><i class="icon hand fa fa-arrows-alt fa-fw title="%s"></i></a>',_('Advanced'));
@@ -137,7 +137,7 @@ class TaskManagementPage extends FOGPage {
             array('width'=>60,'class'=>'c'),
             array('width'=>60,'class'=>'r filter-false'),
         );
-        foreach ($this->getClass('HostManager')->find() AS &$Host) {
+        foreach (self::getClass('HostManager')->find() AS &$Host) {
             if (!$Host->isValid() || $Host->get('pending')) continue;
             $this->data[] = array(
                 'id' => $Host->get('id'),
@@ -153,8 +153,8 @@ class TaskManagementPage extends FOGPage {
     }
     public function listgroups() {
         $this->title = 'All Groups';
-        $mc = $this->getClass('TaskType',8);
-        $down = $this->getClass('TaskType',1);
+        $mc = self::getClass('TaskType',8);
+        $down = self::getClass('TaskType',1);
         $mc = sprintf('<a href="?node=task&sub=groupdeploy&type=%s&id=${id}"><i class="icon hand fa fa-%s fa-fw" title="%s"></i></a>',$mc->get('id'),$mc->get('icon'),$mc->get('name'));
         $down = sprintf('<a href="?node=task&sub=groupdeploy&type=%s&id=${id}"><i class="icon hand fa fa-%s fa-fw" title="%s"></i></a>',$down->get('id'),$down->get('icon'),$down->get('name'));
         $adv = sprintf('<a href="?node=task&sub=groupadvanced&id=${id}#group-tasks"><i class="icon hand fa fa-arrows-alt fa-fw title="%s"></i></a>',_('Advanced'));
@@ -170,7 +170,7 @@ class TaskManagementPage extends FOGPage {
             array('width'=>100,'class'=>'i'),
             array('width'=>60,'class'=>'r filter-false'),
         );
-        foreach ($this->getClass('GroupManager')->find() AS &$Group) {
+        foreach (self::getClass('GroupManager')->find() AS &$Group) {
             if (!$Group->isValid()) continue;
             $this->data[] = array(
                 'id' => $Group->get('id'),
@@ -187,9 +187,9 @@ class TaskManagementPage extends FOGPage {
             $types = array('host','group');
             if (!in_array($type,$types)) throw new Exception(_('Invalid object type passed'));
             $var = ucfirst($type);
-            $$var = $this->getClass($var,(int)$_REQUEST['id']);
+            $$var = self::getClass($var,(int)$_REQUEST['id']);
             if (!$$var->isValid()) throw new Exception(_(sprintf('Invalid %s',$var)));
-            $TaskType = $this->getClass('TaskType',(int)$_REQUEST['type']);
+            $TaskType = self::getClass('TaskType',(int)$_REQUEST['type']);
             if (!$TaskType->isValid()) throw new Exception(_('Invalid Task Type'));
             if ($type == 'host') {
                 $Image = $$var->getImage();
@@ -227,7 +227,7 @@ class TaskManagementPage extends FOGPage {
             array(),
             array(),
         );
-        foreach ($this->getClass('TaskTypeManager')->find(array('access'=>array('both',$type),'isAdvanced'=>1),'AND','id') AS &$TaskType) {
+        foreach (self::getClass('TaskTypeManager')->find(array('access'=>array('both',$type),'isAdvanced'=>1),'AND','id') AS &$TaskType) {
             if (!$TaskType->isValid()) continue;
             $this->data[] = array(
                 'id' => $id,
@@ -250,12 +250,12 @@ class TaskManagementPage extends FOGPage {
     }
     public function active_post() {
         if (!$this->ajax) $this->nonajax();
-        $this->getClass('TaskManager')->cancel($_REQUEST['task']);
+        self::getClass('TaskManager')->cancel($_REQUEST['task']);
         exit;
     }
     public function force_task() {
         try {
-            $Task = $this->getClass('Task',(int)$_REQUEST['id']);
+            $Task = self::getClass('Task',(int)$_REQUEST['id']);
             if (!$Task->isValid()) throw new Exception(_('Invalid task'));
             $this->HookManager->processEvent('TASK_FORCE',array('Task'=>&$Task));
             $Task->set('isForced',1)->save();
@@ -295,14 +295,14 @@ class TaskManagementPage extends FOGPage {
             array('class'=>'c'),
             array('width'=>40,'class'=>'c')
         );
-        foreach ($this->getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS &$MulticastSession) {
+        foreach (self::getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS &$MulticastSession) {
             if (!$MulticastSession->isValid()) continue;
             $TaskState = $MulticastSession->getTaskState();
             if (!$TaskState->isValid()) continue;
             $this->data[] = array(
                 'id' => $MulticastSession->get('id'),
                 'name' => $MulticastSession->get('name') ? $MulticastSession->get('name') : _('MulticastTask'),
-                'count' => $this->getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MulticastSession->get('id'))),
+                'count' => self::getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MulticastSession->get('id'))),
                 'start_date' => $this->formatTime($MulticastSession->get('starttime'),'Y-m-d H:i:s'),
                 'state' => $TaskState->get('name') ? $TaskState->get('name') : '',
                 'percent' => $MulticastSession->get('percent'),
@@ -316,8 +316,8 @@ class TaskManagementPage extends FOGPage {
         if (!$this->ajax) $this->nonajax();
         $MulticastSessionIDs = (array)$_REQUEST['task'];
         $TaskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MulticastSessionIDs),'taskID');
-        $this->getClass('TaskManager')->cancel($TaskIDs);
-        $this->getClass('MulticastSessionsManager')->cancel($_REQUEST['task']);
+        self::getClass('TaskManager')->cancel($TaskIDs);
+        self::getClass('MulticastSessionsManager')->cancel($_REQUEST['task']);
         unset($MulticastSessionIDs);
         exit;
     }
@@ -344,7 +344,7 @@ class TaskManagementPage extends FOGPage {
             array('class'=>'l','width'=>50),
             array('class'=>'r','width'=>40),
         );
-        foreach ($this->getClass('SnapinTaskManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS &$SnapinTask) {
+        foreach (self::getClass('SnapinTaskManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS &$SnapinTask) {
             if (!$SnapinTask->isValid()) continue;
             $Snapin = $SnapinTask->getSnapin();
             if (!$Snapin->isValid()) continue;
@@ -361,7 +361,7 @@ class TaskManagementPage extends FOGPage {
                 'host_name' => $Host->get('name'),
                 'host_mac' => $Host->get('mac')->__toString(),
                 'startDate' => $this->formatTime($SnapinTask->get('checkin'),'Y-m-d H:i:s'),
-                'state' => $this->getClass('TaskState',$SnapinTask->get('stateID'))->get('name'),
+                'state' => self::getClass('TaskState',$SnapinTask->get('stateID'))->get('name'),
             );
             unset($SnapinTask,$Snapin,$SnapinJob,$Host);
         }
@@ -380,9 +380,9 @@ class TaskManagementPage extends FOGPage {
         $SnapinJobIDs = $this->getSubObjectIDs('SnapinTask',array('id'=>$SnapinTaskIDs),'jobID');
         $HostIDs = $this->getSubObjectIDs('SnapinJob',array('id'=>(array)$SnapinJobIDs),'hostID');
         $TaskIDs = $this->getSubObjectIDs('Task',array('hostID'=>$HostIDs));
-        $this->getClass('TaskManager')->cancel($TaskIDs);
-        $this->getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
-        if ($this->getClass('SnapinTaskManager')->count(array('jobID'=>$SnapinJobIDs)) < 1) $this->getClass('SnapinJobManager')->cancel($SnapinJobIDs);
+        self::getClass('TaskManager')->cancel($TaskIDs);
+        self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
+        if (self::getClass('SnapinTaskManager')->count(array('jobID'=>$SnapinJobIDs)) < 1) self::getClass('SnapinJobManager')->cancel($SnapinJobIDs);
         exit;
     }
     public function active_scheduled() {
@@ -417,7 +417,7 @@ class TaskManagementPage extends FOGPage {
             array('width'=>30,'class'=>'c'),
             array('width'=>80,'class'=>'c'),
         );
-        foreach ($this->getClass('ScheduledTaskManager')->find() AS &$ScheduledTask) {
+        foreach (self::getClass('ScheduledTaskManager')->find() AS &$ScheduledTask) {
             if (!$ScheduledTask->isValid()) continue;
             $ObjTest = $ScheduledTask->isGroupBased() ? $ScheduledTask->getGroup() : $ScheduledTask->getHost();
             if (!$ObjTest->isValid()) continue;
@@ -445,7 +445,7 @@ class TaskManagementPage extends FOGPage {
     }
     public function active_scheduled_post() {
         if (!$this->ajax) $this->nonajax();
-        $this->getClass('ScheduledTaskManager')->destroy(array('id'=>(array)$_REQUEST['task']));
+        self::getClass('ScheduledTaskManager')->destroy(array('id'=>(array)$_REQUEST['task']));
         exit;
     }
 }

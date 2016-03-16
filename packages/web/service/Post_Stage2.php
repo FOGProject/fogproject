@@ -4,7 +4,7 @@ try {
     $Host = $FOGCore->getHostItem(false);
     $Task = $Host->get('task');
     if (!$Task || !$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'),$Host->get('mac')->__toString()));
-    $TaskType = $FOGCore->getClass('TaskType',$Task->get('typeID'));
+    $TaskType = FOGCore::getClass('TaskType',$Task->get('typeID'));
     $StorageGroup = $Task->getStorageGroup();
     if (!$StorageGroup->isValid()) throw new Exception(_('Invalid Storage Group'));
     $StorageNode = $StorageGroup->getMasterStorageNode();
@@ -29,14 +29,14 @@ try {
     $EventManager->notify('HOST_IMAGEUP_COMPLETE', array(HostName=>$Host->get('name')));
     $id = @max($FOGCore->getSubObjectIDs('ImagingLog',array('hostID'=>$Host->get('id'))));
     $Image->set('deployed',$FOGCore->formatTime('now','Y-m-d H:i:s'))->save();
-    $FOGCore->getClass('ImagingLog',$id)
+    FOGCore::getClass('ImagingLog',$id)
         ->set('taskID',$Task->get('id'))
         ->set('taskStateID',$Task->get('stateID'))
         ->set('createdTime',$Task->get('createdTime'))
         ->set('createdBy',$Task->get('createdBy'))
         ->set('finish',$FOGCore->formatTime('now','Y-m-d H:i:s'))
         ->save();
-    $FOGCore->getClass('TaskLog',$Task)
+    FOGCore::getClass('TaskLog',$Task)
         ->set('taskID',$Task->get('id'))
         ->set('taskStateID',$Task->get('stateID'))
         ->set('createdTime',$Task->get('createdTime'))

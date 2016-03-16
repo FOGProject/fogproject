@@ -6,7 +6,7 @@ class ImageFail_Slack extends Event {
     var $author = 'Tom Elliott';
     var $active = true;
     public function onEvent($event, $data) {
-        foreach ((array)$this->getClass('SlackManager')->find() AS &$Token) {
+        foreach ((array)self::getClass('SlackManager')->find() AS &$Token) {
             if (!$Token->isValid()) continue;
             $args = array(
                 'channel' => $Token->get('name'),

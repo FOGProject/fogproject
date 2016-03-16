@@ -10,8 +10,8 @@ class ImageFail_PushBullet extends Event {
     var $author = 'Jbob';
     var $active = true;
     public function onEvent($event, $data) {
-        foreach ((array)$this->getClass('PushbulletManager')->find() AS $Token)
-            $this->getClass('PushbulletHandler',$Token->get('token'))->pushNote('', $data['HostName'].' Failed', 'This host has failed to image');
+        foreach ((array)self::getClass('PushbulletManager')->find() AS $Token)
+            self::getClass('PushbulletHandler',$Token->get('token'))->pushNote('', $data['HostName'].' Failed', 'This host has failed to image');
     }
 }
 $EventManager->register('HOST_IMAGE_FAIL', new ImageFail_PushBullet());

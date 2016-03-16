@@ -21,7 +21,7 @@ abstract class TaskingElement extends FOGBase {
                 self::checkStorageGroup($this->StorageGroup);
                 self::checkStorageNodes($this->StorageGroup);
                 $this->Image = $this->Task->getImage();
-                $this->StorageNodes = $this->getClass('StorageNodeManager')->find(array('id'=>$this->StorageGroup->get('enablednodes')));
+                $this->StorageNodes = self::getClass('StorageNodeManager')->find(array('id'=>$this->StorageGroup->get('enablednodes')));
                 $this->Host->set('sec_tok',null)->set('pub_key',null)->save();
                 if ($this->Task->isUpload() || $this->Task->isMulticast()) $this->StorageNode = $this->Image->getStorageGroup()->getMasterStorageNode();
             }
@@ -41,13 +41,13 @@ abstract class TaskingElement extends FOGBase {
     }
     protected static function nodeFail($StorageNode,$Host) {
         if ($StorageNode->getNodeFailure($Host)) {
-            $StorageNode = $StorageNode->getClass('StorageNode',0);
+            $StorageNode = FOGCore::getClass('StorageNode',0);
             printf('%s %s (%s) %s',_('Storage Node'),$StorageNode->get('name'),$StorageNode->get('ip'),_('is open, but has recently failed for this Host'));
         }
         return $StorageNode;
     }
     protected function TaskLog() {
-        return $this->getClass('TaskLog',$this->Task)
+        return self::getClass('TaskLog',$this->Task)
             ->set('taskID',$this->Task->get('id'))
             ->set('taskStateID',$this->Task->get('stateID'))
             ->set('createdTime',$this->Task->get('createdTime'))
@@ -55,14 +55,14 @@ abstract class TaskingElement extends FOGBase {
             ->save();
     }
     protected function ImageLog($checkin = false) {
-        if ($checkin === true) return $this->getClass('ImagingLog',@max($this->getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id'),'type'=>$_REQUEST['type'],'complete'=>'0000-00-00 00:00:00'))))
+        if ($checkin === true) return self::getClass('ImagingLog',@max($this->getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id'),'type'=>$_REQUEST['type'],'complete'=>'0000-00-00 00:00:00'))))
             ->set('hostID',$this->Host->get('id'))
             ->set('start',$this->formatTime('','Y-m-d H:i:s'))
             ->set('image',$this->Image->get('name'))
             ->set('type',$_REQUEST['type'])
             ->set('createdBy',$this->Task->get('createdBy'))
             ->save();
-        return $this->getClass('ImagingLog',@max($this->getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id')))))
+        return self::getClass('ImagingLog',@max($this->getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id')))))
             ->set('finish',$this->formatTime('','Y-m-d H:i:s'))
             ->save();
     }

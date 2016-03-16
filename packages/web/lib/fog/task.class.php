@@ -34,7 +34,7 @@ class Task extends TaskType {
         'hostID',
     );
     public function getInFrontOfHostCount() {
-        $Tasks = $this->getClass('TaskManager')->find(array(
+        $Tasks = self::getClass('TaskManager')->find(array(
             'stateID'=>$this->getQueuedStates(),
             'typeID'=>array(1,15,17),
             'NFSGroupID'=>$this->get('NFSGroupID'),
@@ -54,10 +54,10 @@ class Task extends TaskType {
     public function cancel() {
         $SnapinJob = $this->getHost()->get('snapinjob');
         if ($SnapinJob instanceof SnapinJob && $SnapinJob->isValid()) {
-            $this->getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJob->get('id')),'',array('complete'=>$this->nice_date()->format('Y-m-d H:i:s'),'stateID'=>$this->getCancelledState()));
+            self::getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJob->get('id')),'',array('complete'=>$this->nice_date()->format('Y-m-d H:i:s'),'stateID'=>$this->getCancelledState()));
             $SnapinJob->set('stateID',$this->getCancelledState())->save();
         }
-        if ($this->isMulticast()) $this->getClass('MulticastSessionsManager')->update(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->get('id')),'jobID')),'',array('clients'=>0,'completetime'=>$this->formatTime('now','Y-m-d H:i:s'),'stateID'=>$this->getCancelledState()));
+        if ($this->isMulticast()) self::getClass('MulticastSessionsManager')->update(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->get('id')),'jobID')),'',array('clients'=>0,'completetime'=>$this->formatTime('now','Y-m-d H:i:s'),'stateID'=>$this->getCancelledState()));
         $this->set('stateID',$this->getCancelledState())->save();
         return $this;
     }
@@ -70,25 +70,25 @@ class Task extends TaskType {
         return parent::destroy($field);
     }
     public function getHost() {
-        return $this->getClass('Host',$this->get('hostID'));
+        return self::getClass('Host',$this->get('hostID'));
     }
     public function getStorageGroup() {
-        return $this->getClass('StorageGroup',$this->get('NFSGroupID'));
+        return self::getClass('StorageGroup',$this->get('NFSGroupID'));
     }
     public function getStorageNode() {
-        return $this->getClass('StorageNode',$this->get('NFSMemberID'));
+        return self::getClass('StorageNode',$this->get('NFSMemberID'));
     }
     public function getImage() {
-        return $this->getClass('Image',$this->get('imageID'));
+        return self::getClass('Image',$this->get('imageID'));
     }
     public function getTaskType() {
-        return $this->getClass('TaskType',$this->get('typeID'));
+        return self::getClass('TaskType',$this->get('typeID'));
     }
     public function getTaskTypeText() {
         return $this->getTaskType()->get('name');
     }
     public function getTaskState() {
-        return $this->getClass('TaskState',$this->get('stateID'));
+        return self::getClass('TaskState',$this->get('stateID'));
     }
     public function getTaskStateText() {
         return $this->getTaskState()->get('name');

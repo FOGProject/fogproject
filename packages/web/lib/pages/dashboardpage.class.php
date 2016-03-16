@@ -4,7 +4,7 @@ class DashboardPage extends FOGPage {
     public function __construct($name = '') {
         $this->name = 'Dashboard';
         parent::__construct($this->name);
-        if (isset($_REQUEST['id'])) $this->obj = $this->getClass('StorageNode',$_REQUEST['id']);
+        if (isset($_REQUEST['id'])) $this->obj = self::getClass('StorageNode',$_REQUEST['id']);
         $this->menu = array();
         $this->subMenu = array();
         $this->notes = array();
@@ -39,8 +39,8 @@ class DashboardPage extends FOGPage {
         $this->render();
         echo '</li>';
         unset($this->templates,$this->attributes,$fields,$SystemUptime);
-        $StorageEnabledCount = $this->getClass('StorageNodeManager')->count(array('isEnabled'=>1,'isGraphEnabled'=>1));
-        if ($this->getClass('StorageNodeManager')->count(array('isEnabled'=>1,'isGraphEnabled'=>1)) > 0) {
+        $StorageEnabledCount = self::getClass('StorageNodeManager')->count(array('isEnabled'=>1,'isGraphEnabled'=>1));
+        if (self::getClass('StorageNodeManager')->count(array('isEnabled'=>1,'isGraphEnabled'=>1)) > 0) {
             // Activity Pane
             printf('<li><h4 class="box" title="%s">%s</h4><div class="graph pie-graph" id="graph-activity"></div></li>',_('The selected node\'s storage group slot usage'),_('Storage Group Activity'));
             // Disk Usage Pane
@@ -60,7 +60,7 @@ class DashboardPage extends FOGPage {
                 $version = array_shift($version);
                 printf('<option value="%s">%s%s (%s)</option>',$StorageNode->get('id'),$StorageNode->get('name'),($StorageNode->get('isMaster') ? ' *' : ''),$version);
                 unset($version,$StorageNode);
-            },$this->getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>1)));
+            },self::getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>1)));
             printf('<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">%s</select></div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li>',ob_get_clean());
         }
         echo '</ul>';
@@ -68,8 +68,8 @@ class DashboardPage extends FOGPage {
         // 30 Day Usage Graph
         printf('<h3>%s</h3><div id="graph-30day" class="graph"></div>',_('Imaging Over the last 30 days'));
         ob_start();
-        array_walk(iterator_to_array($this->getClass('DatePeriod',$this->nice_date()->modify('-30 days'),$this->getClass('DateInterval','P1D'),$this->nice_date()->setTime(23,59,59))),function(&$date,&$index) {
-            printf('["%s", %s]%s',(1000 * $date->getTimestamp()),$this->getClass('ImagingLogManager')->count(array('start'=>$date->format('Y-m-d%'),'finish'=>$date->format('Y-m-d%')),'OR'),($index < 30 ? ', ' : ''));
+        array_walk(iterator_to_array(self::getClass('DatePeriod',$this->nice_date()->modify('-30 days'),self::getClass('DateInterval','P1D'),$this->nice_date()->setTime(23,59,59))),function(&$date,&$index) {
+            printf('["%s", %s]%s',(1000 * $date->getTimestamp()),self::getClass('ImagingLogManager')->count(array('start'=>$date->format('Y-m-d%'),'finish'=>$date->format('Y-m-d%')),'OR'),($index < 30 ? ', ' : ''));
             unset($date,$index);
         });
         printf('<div class="fog-variable" id="Graph30dayData">[%s]</div>',ob_get_clean());
@@ -92,7 +92,7 @@ class DashboardPage extends FOGPage {
             unset($URL);
             $data[$StorageNode->get('name')] = json_decode(array_shift($dataSet));
             unset($dataSet,$StorageNode);
-        },$this->getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1,'isEnabled'=>1)));
+        },self::getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1,'isEnabled'=>1)));
         echo json_encode((array)$data);
         unset($data);
         exit;
@@ -119,7 +119,7 @@ class DashboardPage extends FOGPage {
     }
     public function clientcount() {
         if (!($this->obj->isValid() && $this->obj->get('isGraphEnabled'))) return;
-        $StorageGroup = $this->getClass('StorageGroup',$this->obj->get('storageGroupID'));
+        $StorageGroup = self::getClass('StorageGroup',$this->obj->get('storageGroupID'));
         if (!$StorageGroup->isValid()) return;
         $ActivityActive = $ActivityQueued = $ActivityTotalClients = 0;
         $ActivityTotalClients = $StorageGroup->getTotalSupportedClients();
@@ -130,7 +130,7 @@ class DashboardPage extends FOGPage {
             $ActivityTotalClients -= $ActivityActive;
             if ($ActivityTotalClients <= 0) $ActivityTotalClients = 0;
             unset($Node);
-        },$this->getClass('StorageNodeManager')->find(array('id'=>$StorageGroup->get('enablednodes'))));
+        },self::getClass('StorageNodeManager')->find(array('id'=>$StorageGroup->get('enablednodes'))));
         $data = array(
             'ActivityActive'=>$ActivityActive,
             'ActivityQueued'=>$ActivityQueued,

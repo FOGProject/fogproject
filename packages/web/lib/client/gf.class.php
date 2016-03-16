@@ -4,7 +4,7 @@ class GF extends FOGClient implements FOGClientSend {
         $SendEnc = '';
         $SendMe = array();
         $this->send = '#!na';
-        foreach ($this->getClass('GreenFogManager')->find() AS &$gf) {
+        foreach (self::getClass('GreenFogManager')->find() AS &$gf) {
             if (!$gf->isValid()) continue;
             $val = sprintf('%s@%s@%s',$gf->get('hour'),$gf->get('min'),$gf->get('action'));
             $SendMe[$i] = base64_encode($val);

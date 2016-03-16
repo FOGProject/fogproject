@@ -39,11 +39,11 @@ class StorageNode extends FOGController {
         return parent::get($key);
     }
     public function getStorageGroup() {
-        return $this->getClass('StorageGroup',$this->get('storageGroupID'));
+        return self::getClass('StorageGroup',$this->get('storageGroupID'));
     }
     public function getNodeFailure($Host) {
         $CurrTime = $this->nice_date();
-        foreach ((array)$this->getClass('NodeFailureManager')->find(array('storageNodeID'=>$this->get('id'),'hostID'=>$Host)) AS $i => &$NodeFailure) {
+        foreach ((array)self::getClass('NodeFailureManager')->find(array('storageNodeID'=>$this->get('id'),'hostID'=>$Host)) AS $i => &$NodeFailure) {
             if ($CurrTime < $this->nice_date($NodeFailure->get('failureTime'))) return $NodeFailure;
             unset($NodeFailure);
         }
@@ -74,19 +74,19 @@ class StorageNode extends FOGController {
     public function getUsedSlotCount() {
         $UsedTasks = explode(',',$this->getSetting('FOG_USED_TASKS'));
         $countTasks = 0;
-        if (($index = array_search(8,$UsedTasks)) === false) return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>$this->getProgressState(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
+        if (($index = array_search(8,$UsedTasks)) === false) return ($countTasks + self::getClass('TaskManager')->count(array('stateID'=>$this->getProgressState(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
         unset($UsedTasks[$index]);
         $UsedTasks = array_values(array_filter((array)$UsedTasks));
         $countTasks = count(array_unique($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->getSubObjectIDs('Task',array('stateID'=>$this->getProgressState(),'typeID'=>8))),'msID')));
-        return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>$this->getProgressState(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
+        return ($countTasks + self::getClass('TaskManager')->count(array('stateID'=>$this->getProgressState(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
     }
     public function getQueuedSlotCount() {
         $UsedTasks = explode(',',$this->getSetting('FOG_USED_TASKS'));
         $countTasks = 0;
-        if (($index = array_search(8,$UsedTasks)) === false) return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>$this->getQueuedStates(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
+        if (($index = array_search(8,$UsedTasks)) === false) return ($countTasks + self::getClass('TaskManager')->count(array('stateID'=>$this->getQueuedStates(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
         unset($UsedTasks[$index]);
         $UsedTasks = array_values(array_filter((array)$UsedTasks));
         $countTasks = count(array_unique($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->getSubObjectIDs('Task',array('stateID'=>$this->getQueuedStates(),'typeID'=>8))),'msID')));
-        return ($countTasks + $this->getClass('TaskManager')->count(array('stateID'=>$this->getQueuedStates(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
+        return ($countTasks + self::getClass('TaskManager')->count(array('stateID'=>$this->getQueuedStates(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
     }
 }

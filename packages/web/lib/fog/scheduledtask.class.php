@@ -30,13 +30,13 @@ class ScheduledTask extends FOGController {
         'hostID',
     );
     public function getHost() {
-        return $this->getClass('Host',$this->get('hostID'));
+        return self::getClass('Host',$this->get('hostID'));
     }
     public function getGroup() {
-        return $this->getClass('Group',$this->get('hostID'));
+        return self::getClass('Group',$this->get('hostID'));
     }
     public function getImage() {
-        return $this->getClass('Image',$this->get('imageID'));
+        return self::getClass('Image',$this->get('imageID'));
     }
     public function getShutdownAfterTask() {
         return $this->get('shutdown');
@@ -69,13 +69,13 @@ class ScheduledTask extends FOGController {
         return new Timer($minute,$hour,$dom,$month,$dow);
     }
     public function isMulticast() {
-        return (bool)$this->getClass('TaskType',$this->get('taskType'))->isMulticast();
+        return (bool)self::getClass('TaskType',$this->get('taskType'))->isMulticast();
     }
     public function getScheduledType() {
         return $this->get('type') ? _('Cron') : _('Delayed');
     }
     public function getTaskType() {
-        return $this->getClass('TaskType',$this->get('taskType'));
+        return self::getClass('TaskType',$this->get('taskType'));
     }
     public function isGroupBased() {
         return (bool)$this->get('isGroupTask') > 0;

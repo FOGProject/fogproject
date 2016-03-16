@@ -12,6 +12,6 @@ class SnapinJob extends FOGController {
         'stateID',
     );
     public function getHost() {
-        return $this->getClass('Host',$this->get('hostID'));
+        return self::getClass('Host',$this->get('hostID'));
     }
 }

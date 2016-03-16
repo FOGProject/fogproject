@@ -29,11 +29,11 @@ class StorageGroup extends FOGController {
         $masternode = array_shift($masternode);
         if (!$masternode > 0) $masternode = @min($this->get('enablednodes'));
         //if (!$masternode > 0) throw New Exception(_('No Storage nodes enabled for this group'));
-        return $this->getClass('StorageNode',$masternode);
+        return self::getClass('StorageNode',$masternode);
     }
     public function getOptimalStorageNode($image) {
         $winner = null;
-        foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes'))) AS &$StorageNode) {
+        foreach ((array)self::getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes'))) AS &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
             if (!in_array($image,$StorageNode->get('images'))) continue;
             if ($StorageNode->get('maxClients') < 1) continue;
@@ -47,14 +47,14 @@ class StorageGroup extends FOGController {
         return $winner;
     }
     public function getUsedSlotCount() {
-        return $this->getClass('TaskManager')->count(array(
+        return self::getClass('TaskManager')->count(array(
             'stateID'=>$this->getProgressState(),
             'typeID'=>explode(',',$this->getSetting('FOG_USED_TASKS')),
             'NFSGroupID'=>$this->get('id'),
         ));
     }
     public function getQueuedSlotCount() {
-        return $this->getClass('TaskManager')->count(array(
+        return self::getClass('TaskManager')->count(array(
             'stateID'=>$this->getQueuedStates(),
             'typeID'=>array(1,2,8,15,16,17,24),
             'NFSGroupID'=>$this->get('id'),

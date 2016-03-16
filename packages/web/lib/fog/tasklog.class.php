@@ -14,10 +14,10 @@ class TaskLog extends FOGController {
         return $this->set('ip', $_SERVER['REMOTE_ADDR']);
     }
     public function getTask() {
-        return $this->getClass('Task',$this->get('taskID'));
+        return self::getClass('Task',$this->get('taskID'));
     }
     public function getTaskState() {
-        return $this->getClass('TaskState',$this->get('taskStateID'));
+        return self::getClass('TaskState',$this->get('taskStateID'));
     }
     public function getHost() {
         return $this->getTask()->getHost();

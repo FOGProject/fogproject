@@ -25,15 +25,15 @@ class AccesscontrolManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Access Controls');
-        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('AccesscontrolManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)$this->getClass('AccesscontrolManager')->find() AS $i => &$AccessControl) {
+        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('AccesscontrolManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        foreach ((array)self::getClass('AccesscontrolManager')->find() AS $i => &$AccessControl) {
             if (!$AccessControl->isValid()) continue;
             $this->data[] = array(
                 'id'=>$AccessControl->get('id'),
                 'name'=>$AccessControl->get('name'),
                 'desc'=>$AccessControl->get('description'),
                 'other'=>$AccessControl->get('other'),
-                'user'=>$this->getClass('User',$AccessControl->get('userID'))->get('name'),
+                'user'=>self::getClass('User',$AccessControl->get('userID'))->get('name'),
                 'group'=>$AccessControl->get('groupID'),
             );
             unset($AccessControl);
@@ -42,9 +42,9 @@ class AccesscontrolManagementPage extends FOGPage {
         $this->render();
     }
     public function search_post() {
-        foreach($this->getClass('AccesscontrolManager')->search('',true) AS $i => &$AccessControl) {
+        foreach(self::getClass('AccesscontrolManager')->search('',true) AS $i => &$AccessControl) {
             if (!$AccessControl->isValid()) continue;
-            $User = $this->getClass('User',$AccessControl->get('userID'));
+            $User = self::getClass('User',$AccessControl->get('userID'));
             if (!$User->isValid()) continue;
             $this->data[] = array(
                 'id'=>$AccessControl->get('id'),

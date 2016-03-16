@@ -48,7 +48,7 @@ abstract class FOGService extends FOGBase {
     }
     protected function checkIfNodeMaster() {
         $this->getIPAddress();
-        foreach ((array)$this->getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS $i => &$StorageNode) {
+        foreach ((array)self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS $i => &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
             if (!in_array($this->FOGCore->resolveHostname($StorageNode->get('ip')),$this->ips)) continue;
             return $StorageNode;
@@ -142,10 +142,10 @@ abstract class FOGService extends FOGBase {
             'storageGroupID' => $master ? $Obj->get('storageGroups') : $myStorageGroupID,
         );
         if ($master) $findWhere['isMaster'] = 1;
-        $StorageNode = $this->getClass('StorageNode',$myStorageNodeID);
+        $StorageNode = self::getClass('StorageNode',$myStorageNodeID);
         if (!$StorageNode->isValid() || !$StorageNode->get('isMaster')) throw new Exception(_(' * I am not the master'));
         $objType = get_class($Obj);
-        $groupOrNodeCount = $this->getClass('StorageNodeManager')->count($findWhere);
+        $groupOrNodeCount = self::getClass('StorageNodeManager')->count($findWhere);
         $countTest = ($master ? 1 : 0);
         if ($groupOrNodeCount <= 1) {
             $this->outall(_(" * Not syncing $objType between $itemType(s)"));
@@ -161,7 +161,7 @@ abstract class FOGService extends FOGBase {
             $myFile = basename($Obj->get($getFileOfItemField));
             $myAdd = "$myDir$myFile";
             $myAddItem = false;
-            foreach ((array)$this->getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
+            foreach ((array)self::getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
                 if (!$PotentialStorageNode->isValid()) continue;
                 if ($master && $PotentialStorageNode->get('storageGroupID') == $myStorageGroupID) continue;
                 if ($this->isRunning($this->procRef[$itemType][$Obj->get('name')][$i])) {

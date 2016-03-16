@@ -36,8 +36,8 @@ class TaskstateeditManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Task States');
-        if ($this->getSetting('FOG_DATA_RETURNED')>0 && $this->getClass('TaskStateManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)$this->getClass('TaskStateManager')->find() AS $i => &$TaskState) {
+        if ($this->getSetting('FOG_DATA_RETURNED')>0 && self::getClass('TaskStateManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        foreach ((array)self::getClass('TaskStateManager')->find() AS $i => &$TaskState) {
             if (!$TaskState->isValid()) continue;
             $this->data[] = array(
                 'icon'=>$TaskState->get('icon'),
@@ -50,7 +50,7 @@ class TaskstateeditManagementPage extends FOGPage {
         $this->render();
     }
     public function search_post() {
-        foreach ($this->getClass('TaskStateManager')->search('',true) AS $i => &$TaskState) {
+        foreach (self::getClass('TaskStateManager')->search('',true) AS $i => &$TaskState) {
             if (!$TaskState->isValid()) continue;
             $this->data[] = array(
                 'icon'=>$TaskState->get('icon'),
@@ -76,7 +76,7 @@ class TaskstateeditManagementPage extends FOGPage {
         $fields = array(
             _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$_REQUEST['name']),
             _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
-            _('Icon') => $this->getClass('TaskType')->iconlist($_REQUEST['icon']),
+            _('Icon') => self::getClass('TaskType')->iconlist($_REQUEST['icon']),
             _('Additional Icon elements') => sprintf('<input type="text" value="%s" name="additional"/>',$_REQUEST['additional']),
             '&nbsp;'=> sprintf('<input class="smaller" type="submit" value="%s"/>',_('Add'))
         );
@@ -99,8 +99,8 @@ class TaskstateeditManagementPage extends FOGPage {
             $description = $_REQUEST['description'];
             $icon = trim("{$_REQUEST['icon']} {$_REQUEST['additional']}");
             if (!$name) throw new Exception(_('You must enter a name'));
-            if ($this->getClass('TaskStateManager')->exists($name)) throw new Exception(_('Task state already exists, please try again.'));
-            $TaskState = $this->getClass('TaskState')
+            if (self::getClass('TaskStateManager')->exists($name)) throw new Exception(_('Task state already exists, please try again.'));
+            $TaskState = self::getClass('TaskState')
                 ->set('name',$name)
                 ->set('description',$description)
                 ->set('icon',$icon);
@@ -128,7 +128,7 @@ class TaskstateeditManagementPage extends FOGPage {
         $fields = array(
             _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$this->obj->get('name')),
             _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
-            _('Icon') => $this->getClass('TaskType')->iconlist(@array_shift($icon)),
+            _('Icon') => self::getClass('TaskType')->iconlist(@array_shift($icon)),
             _('Additional Icon elements') => sprintf('<input type="text" value="%s" name="additional"/>',implode(' ',(array)$icon)),
             '&nbsp;' => sprintf('<input class="smaller" type="submit" value="%s"/>',_('Update')),
         );
@@ -152,7 +152,7 @@ class TaskstateeditManagementPage extends FOGPage {
             $description = $_REQUEST['description'];
             $icon = trim("{$_REQUEST['icon']} {$_REQUEST['additional']}");
             if (!$name) throw new Exception(_('You must enter a name'));
-            if ($this->obj->get('name') != $name && $this->getClass('TaskStateManager')->exists($name)) throw new Exception(_('Task state already exists, please try again.'));
+            if ($this->obj->get('name') != $name && self::getClass('TaskStateManager')->exists($name)) throw new Exception(_('Task state already exists, please try again.'));
             $this->obj
                 ->set('name',$name)
                 ->set('description',$description)

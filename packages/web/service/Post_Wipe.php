@@ -7,7 +7,7 @@ try {
         if ($Task && $Task->isValid()) {
             if (!in_array($Task->get('typeID'),array(12,13))) $Task->set('stateID',$FOGCore->getCompleteState());
             if (!$Task->save()) throw new Exception(_('Failed to updated Task'));
-            $TaskLog = $FOGCore->getClass('TaskLog',$Task)
+            $TaskLog = FOGCore::getClass('TaskLog',$Task)
                 ->set('taskID',$Task->get('id'))
                 ->set('taskStateID',$Task->get('stateID'))
                 ->set('createdTime',$Task->get('createdTime'))

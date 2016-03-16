@@ -12,9 +12,9 @@ class ModuleAssociation extends FOGController {
         'moduleID',
     );
     public function getModule() {
-        return $this->getClass('Module',$this->get('moduleID'));
+        return self::getClass('Module',$this->get('moduleID'));
     }
     public function getHost() {
-        return $this->getClass('Host',$this->get('hostID'));
+        return self::getClass('Host',$this->get('hostID'));
     }
 }

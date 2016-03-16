@@ -10,7 +10,7 @@ abstract class Event extends FOGBase {
     public $delformat;
     public function __construct() {
         parent::__construct();
-        $this->FOGUser = $this->getClass('User',(int)$_SESSION['FOG_USER']);
+        $this->FOGUser = self::getClass('User',(int)$_SESSION['FOG_USER']);
     }
     public function log($txt, $level = 1) {
         if ($this->ajax) return;

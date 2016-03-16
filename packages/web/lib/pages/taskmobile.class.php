@@ -28,7 +28,7 @@ class TaskMobile extends FOGPage {
             '${task_state}',
             '<a href="?node=${node}&sub=killtask&id=${id}"><i class="fa fa-minus-circle fa-2x task"></i></a>',
         );
-        if (isset($_REQUEST['id'])) $this->obj = $this->getClass('Task',$_REQUEST['id']);
+        if (isset($_REQUEST['id'])) $this->obj = self::getClass('Task',$_REQUEST['id']);
     }
     public function index() {
         $this->active();
@@ -63,7 +63,7 @@ class TaskMobile extends FOGPage {
                 'task_force'=>(!$Task->isForced() ? '<a href="?node=${node}&sub=force&id=${id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
             );
             unset($Task);
-        },$this->getClass('TaskManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))));
+        },self::getClass('TaskManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))));
         $this->render();
     }
 }

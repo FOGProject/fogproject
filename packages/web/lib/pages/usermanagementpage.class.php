@@ -42,13 +42,13 @@ class UserManagementPage extends FOGPage {
         $this->title = _('All Users');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['UserCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('%s?node=%s&sub=search', $this->urlself, $this->node));
         $this->data = array();
-        array_map($this->returnData,$this->getClass('UserManager')->find());
+        array_map($this->returnData,self::getClass('UserManager')->find());
         $this->HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map($this->returnData,$this->getClass('UserManager')->search('',true));
+        array_map($this->returnData,self::getClass('UserManager')->search('',true));
         $this->HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -81,9 +81,9 @@ class UserManagementPage extends FOGPage {
     public function add_post() {
         $this->HookManager->processEvent('USER_ADD_POST');
         try {
-            if ($this->getClass('UserManager')->exists($_REQUEST['name'])) throw new Exception(_('Username already exists'));
-            if (!$this->getClass('UserManager')->isPasswordValid($_REQUEST['password'],$_REQUEST['password_confirm'])) throw new Exception(_('Password is invalid'));
-            $User = $this->getClass('User')
+            if (self::getClass('UserManager')->exists($_REQUEST['name'])) throw new Exception(_('Username already exists'));
+            if (!self::getClass('UserManager')->isPasswordValid($_REQUEST['password'],$_REQUEST['password_confirm'])) throw new Exception(_('Password is invalid'));
+            $User = self::getClass('User')
                 ->set('name',$_REQUEST['name'])
                 ->set('type',(int)isset($_REQUEST['isGuest']))
                 ->set('password',$_REQUEST['password']);
