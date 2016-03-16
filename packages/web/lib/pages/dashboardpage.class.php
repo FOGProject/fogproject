@@ -26,7 +26,7 @@ class DashboardPage extends FOGPage {
         );
         $this->templates = array(
             '${field}',
-            '${fielddata}',
+            '${input}',
         );
         $this->attributes = array(
             array(),
@@ -34,13 +34,7 @@ class DashboardPage extends FOGPage {
         );
         // Overview Pane
         printf('<ul id="dashboard-boxes"><li><h4>%s</h4>',_('System Overview'));
-        array_walk($fields,function(&$fielddata,$field) {
-            $this->data[] = array(
-                'field' => $field,
-                'fielddata' => $fielddata,
-            );
-            unset($fielddata,$field);
-        });
+        array_walk($fields,$this->fieldsToData);
         $this->HookManager->processEvent('DashboardData',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</li>';
@@ -90,14 +84,15 @@ class DashboardPage extends FOGPage {
         }
     }
     public function bandwidth() {
-        foreach ((array)$this->getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1,'isEnabled'=>1)) AS $i => &$StorageNode) {
-            if (!$StorageNode->isValid()) continue;
+        $data = array();
+        array_map(function(&$StorageNode) use (&$data) {
+            if (!$StorageNode->isValid()) return;
             $URL = filter_var(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface')),FILTER_SANITIZE_URL);
             $dataSet = $this->FOGURLRequests->process($URL,'GET');
             unset($URL);
             $data[$StorageNode->get('name')] = json_decode(array_shift($dataSet));
             unset($dataSet,$StorageNode);
-        }
+        },$this->getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1,'isEnabled'=>1)));
         echo json_encode((array)$data);
         unset($data);
         exit;
@@ -128,15 +123,14 @@ class DashboardPage extends FOGPage {
         if (!$StorageGroup->isValid()) return;
         $ActivityActive = $ActivityQueued = $ActivityTotalClients = 0;
         $ActivityTotalClients = $StorageGroup->getTotalSupportedClients();
-        foreach ($this->getClass('StorageNodeManager')->find(array('id'=>$StorageGroup->get('enablednodes'))) AS $i => &$Node) {
-            if (!$Node->isValid()) continue;
+        array_map(function(&$Node) use (&$ActivityActive,&$ActivityQueued,&$ActivityTotalClients) {
+            if (!$Node->isValid()) return;
             $ActivityActive += $Node->getUsedSlotCount();
             $ActivityQueued += $Node->getQueuedSlotCount();
             $ActivityTotalClients -= $ActivityActive;
             if ($ActivityTotalClients <= 0) $ActivityTotalClients = 0;
             unset($Node);
-        }
-        unset($StorageGroup,$Nodes);
+        },$this->getClass('StorageNodeManager')->find(array('id'=>$StorageGroup->get('enablednodes'))));
         $data = array(
             'ActivityActive'=>$ActivityActive,
             'ActivityQueued'=>$ActivityQueued,

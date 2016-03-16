@@ -139,13 +139,7 @@ class ImageManagementPage extends FOGPage {
             '&nbsp;' => sprintf('<input type="submit" name="add" value="%s"/>',_('Add')),
         );
         printf('<h2>%s</h2>',_('Add new image definition'));
-        foreach ((array)$fields AS $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        }
-        unset($input);
+        array_walk($fields,$this->fieldsToData);
         $this->HookManager->processEvent('IMAGE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
@@ -217,13 +211,7 @@ class ImageManagementPage extends FOGPage {
             $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? _('Image Manager') : '' => $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? $format : '',
             '' => sprintf('<input type="submit" name="update" value="%s"/>',_('Update')),
         );
-        foreach ((array)$fields AS $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        }
-        unset($input);
+        array_walk($fields,$this->fieldsToData);
         $this->HookManager->processEvent('IMAGE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<!-- General --><div id="image-gen"><h2>%s</h2><form method="post" action="%s&tab=image-gen">',_('Edit image definition'),$this->formAction);
         $this->render();
@@ -241,14 +229,13 @@ class ImageManagementPage extends FOGPage {
             array('class'=>'l filter-false','width'=>16),
             array(),
         );
-        foreach ((array)$this->getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroupsnotinme'))) AS $i => $Group) {
-            if (!$Group->isValid()) continue;
+        array_map(function(&$Group) {
+            if (!$Group->isValid()) return;
             $this->data[] = array(
                 'storageGroup_id'=>$Group->get('id'),
                 'storageGroup_name'=>$Group->get('name'),
             );
-            unset($Group);
-        }
+        },$this->getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroupsnotinme'))));
         $GroupDataExists = false;
         if (count($this->data) > 0) {
             $GroupDataExists = true;
@@ -275,16 +262,14 @@ class ImageManagementPage extends FOGPage {
             sprintf('<input type="radio" class="primary" name="primary" id="group${storageGroup_id}" value="${storageGroup_id}"${is_primary}/><label for="group${storageGroup_id}" class="icon icon-hand" title="%s">&nbsp;</label>',_('Primary Group Selector')),
             '${storageGroup_name}',
         );
-        foreach ((array)$this->getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroups'))) AS $i => $Group) {
-            if (!$Group->isValid()) continue;
+        array_map(function(&$Group) {
+            if (!$Group->isValid()) return;
             $this->data[] = array(
                 'storageGroup_id'=>$Group->get('id'),
                 'storageGroup_name'=>$Group->get('name'),
                 'is_primary'=>$this->obj->getPrimaryGroup($Group->get('id')) ? ' checked' : '',
             );
-            unset($Group);
-        }
-        unset($Group);
+        },$this->getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroups'))));
         $this->HookManager->processEvent('IMAGE_EDIT_GROUP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=image-storage">',$this->formAction);
         $this->render();
@@ -354,13 +339,7 @@ class ImageManagementPage extends FOGPage {
             '' => sprintf('<input name="start" type="submit" value="%s"/>',_('Start')),
         );
         printf('<h2>%s</h2><form method="post" action="%s">',_('Start Multicast Session'),$this->formAction);
-        foreach ((array)$fields AS $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        }
-        unset($input);
+        array_walk($fields,$this->fieldsToData);
         $this->HookManager->processEvent('IMAGE_MULTICAST_SESS',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
@@ -388,10 +367,10 @@ class ImageManagementPage extends FOGPage {
             '${mc_state}',
             sprintf('<a href="?node=%s&sub=stop&mcid=${mc_id}" title="%s"><i class="fa fa-minus-circle" alt="%s"></i></a>',$this->node,_('Remove'),_('Kill')),
         );
-        foreach ((array)$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$MulticastSession) {
-            if (!$MulticastSession->isValid()) continue;
+        array_map(function(&$MulticastSession) {
+            if (!$MulticastSession->isValid()) return;
             $Image = $MulticastSession->getImage();
-            if (!$Image->isValid()) continue;
+            if (!$Image->isValid()) return;
             $this->data[] = array(
                 'mc_name'=>$MulticastSession->get('name'),
                 'mc_count'=>$MulticastSession->get('sessclients'),
@@ -402,8 +381,8 @@ class ImageManagementPage extends FOGPage {
                 'mc_state'=>$MulticastSession->getTaskState()->get('name'),
                 'mc_id'=>$MulticastSession->get('id'),
             );
-        }
-        unset($MulticastSession);
+            unset($MulticastSession);
+        },$this->getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))));
         $this->HookManager->processEvent('IMAGE_MULTICAST_START',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
