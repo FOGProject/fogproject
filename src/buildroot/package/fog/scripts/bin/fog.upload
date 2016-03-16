@@ -122,18 +122,7 @@ case $imgType in
                 part_number=0
                 for part in $parts; do
                     getPartitionNumber "$part"
-                    [[ $part_number -eq 1 ]] && fixed_size_partitions="$fixed_size_partitions:$part_number"
-                    case $win7partcnt in
-                        2)
-                            [[ $part_number -eq 1 ]] && fixed_size_partitions="$fixed_size_partitions:$part"
-                            ;;
-                        3)
-                            [[ $part_number == +(1|2) ]] && fixed_size_partitions="$fixed_size_partitions:$part"
-                            ;;
-                        *)
-                            continue
-                            ;;
-                    esac
+                    [[ $((ntfscnt + extfscnt)) -gt 1  && $part_number -eq 1 ]] && fixed_size_partitions="$fixed_partitions:$part"
                 done
                 ;;
         esac
@@ -166,7 +155,6 @@ case $imgType in
         done
         echo " * Saving shrunken partition table"
         debugPause
-        runPartprobe "$hd"
         sfdiskminimumpartitionfilename=""
         sfdiskMinimumPartitionFileName "$imagePath" 1
         savePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType" "$sfdiskminimumpartitionfilename"
