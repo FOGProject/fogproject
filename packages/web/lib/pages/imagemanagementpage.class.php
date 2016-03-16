@@ -62,20 +62,20 @@ class ImageManagementPage extends FOGPage {
             array('width'=>50,'class'=>'c')
         );
         $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
-        $servSize = function($path) use ($StorageNode) {
+        $servSize = function(&$path,&$StorageNode) {
             return false;
         };
         if (isset($_SESSION['FOG_FTP_IMAGE_SIZE']) && $_SESSION['FOG_FTP_IMAGE_SIZE']) {
-            $servSize = function($path) use ($StorageNode) {
+            $servSize = function(&$path,&$StorageNode) {
                 return $this->getFTPByteSize($StorageNode,sprintf('%s/%s',$StorageNode->get('ftppath'),$path));
             };
         }
-        $this->returnData = function(&$Image) use ($servSize) {
+        $this->returnData = function(&$Image) use (&$servSize) {
             if (!$Image->isValid()) return;
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
             if (!$StorageNode->isValid()) return;
             $imageSize = $this->formatByteSize((double)$Image->get('size'));
-            $serverSize = $servSize($Image->get('path'));
+            $serverSize = $servSize($Image->get('path'),$StorageNode);
             $this->data[] = array(
                 'id' => $Image->get('id'),
                 'name' => $Image->get('name'),
