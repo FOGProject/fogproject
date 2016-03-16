@@ -166,6 +166,7 @@ case $imgType in
         done
         echo " * Saving shrunken partition table"
         debugPause
+        runPartprobe "$hd"
         sfdiskminimumpartitionfilename=""
         sfdiskMinimumPartitionFileName "$imagePath" 1
         savePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType" "$sfdiskminimumpartitionfilename"
