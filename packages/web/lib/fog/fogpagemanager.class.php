@@ -84,6 +84,7 @@ class FOGPageManager Extends FOGBase {
         $regext = '#^.+/pages/.*\.class\.php$#';
         $dirpath = '/pages/';
         $strlen = -strlen('.class.php');
+        $plugins = '';
         $fileitems = function($element) use ($dirpath,&$plugins) {
             preg_match("#^($plugins.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
             return $match[0];
