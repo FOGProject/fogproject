@@ -88,7 +88,7 @@ class ReportMaker {
             header("Content-Length: $filesize");
             header("Content-Disposition: attachment; filename=$filename");
             while (feof($fh) === false) {
-                $line = htmlentities(fread($fh,4096),ENT_QUOTES,'utf-8');
+                $line = fread($fh,4096);
                 echo $line;
             }
             fclose($fh);
