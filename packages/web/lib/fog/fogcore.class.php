@@ -139,7 +139,7 @@ class FOGCore extends FOGBase {
         $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $this->getSetting('FOG_FORMAT_FLAG_IN_GUI');
         $_SESSION['FOG_SNAPINDIR'] = $this->getSetting('FOG_SNAPINDIR');
         $_SESSION['FOG_REPORT_DIR'] = $this->getSetting('FOG_REPORT_DIR');
-        $_SESSION['TimeZone'] = (ini_get('date.timezone')?ini_get('date.timezone'):$this->getSetting('FOG_TZ_INFO'));
+        $_SESSION['TimeZone'] = (ini_get('date.timezone') ? ini_get('date.timezone') : ($this->getSetting('FOG_TZ_INFO') ? $this->getSetting('FOG_TZ_INFO') : 'UTC'));
         ini_set('max_input_vars',5000);
     }
 }
