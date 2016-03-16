@@ -73,11 +73,7 @@ class Schema extends FOGController {
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
-        ob_start(null,1024);
         echo $content;
-        ob_flush();
-        flush();
-        ob_end_flush();
         exit;
     }
 }
