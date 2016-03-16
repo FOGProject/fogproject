@@ -13,14 +13,14 @@ class HostMobile extends FOGPage {
             $this->foglang['MAC'],
             $this->foglang['Image'],
         );
-        if ($_REQUEST['id']) $this->obj = $this->getClass('Host',$_REQUEST['id']);
+        if ($_REQUEST['id']) $this->obj = self::getClass('Host',$_REQUEST['id']);
         $this->attributes = array(
             array(),
             array(),
             array(),
             array(),
         );
-        $icon = $this->getClass('TaskType',1)->get('icon');
+        $icon = self::getClass('TaskType',1)->get('icon');
         $this->templates = array(
             '${id}',
             '${host_name}',
@@ -59,7 +59,7 @@ class HostMobile extends FOGPage {
     }
     public function search_post() {
         $this->data = array();
-        array_map($this->returnData,$this->getClass('HostManager')->search('',true));
+        array_map($this->returnData,self::getClass('HostManager')->search('',true));
         $this->HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         $this->render();

@@ -53,6 +53,6 @@ class MACAddress extends FOGBase {
         return (bool)count($this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'imageIgnore'=>1)));
     }
     public function getHost() {
-        return $this->getClass('Host',@max($this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString()),'hostID')));
+        return self::getClass('Host',@max($this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString()),'hostID')));
     }
 }

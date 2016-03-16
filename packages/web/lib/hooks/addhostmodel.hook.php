@@ -7,7 +7,7 @@ class AddHostModel extends Hook {
     public function HostData($arguments) {
         if ($_REQUEST['node'] != 'host') return;
         foreach((array)$arguments['data'] AS $i => &$data) {
-            $Host = $this->getClass('Host',@max($this->getSubObjectIDs('Host',array('name'=>$data['host_name']),'id')));
+            $Host = self::getClass('Host',@max($this->getSubObjectIDs('Host',array('name'=>$data['host_name']),'id')));
             if (!$Host->isValid()) continue;
             if (!$Host->get('inventory')->isValid()) continue;
             $arguments['templates'][5] = '${model}';

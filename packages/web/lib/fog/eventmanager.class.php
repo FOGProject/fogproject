@@ -60,13 +60,13 @@ class EventManager extends FOGBase {
             preg_match("#^($plugins.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
             return $match[0];
         };
-        $files = iterator_to_array($this->getClass('RegexIterator',$this->getClass('RecursiveIteratorIterator',$this->getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RecursiveRegexIterator::GET_MATCH),false);
+        $files = iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RecursiveRegexIterator::GET_MATCH),false);
         $plugins = '?!';
         $normalfiles = array_values(array_filter(array_map($fileitems,(array)$files)));
         $plugins = '?=';
         $pluginfiles = array_values(array_filter(preg_grep(sprintf('#/(%s)/#',implode('|',$_SESSION['PluginsInstalled'])),array_map($fileitems,(array)$files))));
         $startClass = function($element) use ($strlen) {
-            $this->getClass(substr(basename($element),0,$strlen));
+            self::getClass(substr(basename($element),0,$strlen));
         };
         array_map($startClass,(array)$pluginfiles);
         unset($pluginfiles);

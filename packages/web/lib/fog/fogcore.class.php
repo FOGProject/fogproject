@@ -1,10 +1,10 @@
 <?php
 class FOGCore extends FOGBase {
     public function attemptLogin($username,$password) {
-        return $this->getClass('User',@max($this->getSubObjectIDs('User',array('name'=>$username),'id')))->validate_pw($password);
+        return self::getClass('User',@max($this->getSubObjectIDs('User',array('name'=>$username),'id')))->validate_pw($password);
     }
     public function stopScheduledTask($task) {
-        return $this->getClass('ScheduledTask',$task->get('id'))->set('isActive',(int)false)->save();
+        return self::getClass('ScheduledTask',$task->get('id'))->set('isActive',(int)false)->save();
     }
     public function addUpdateMACLookupTable($macprefix) {
         $this->clearMACLookupTable();
@@ -14,19 +14,19 @@ class FOGCore extends FOGBase {
             unset($maker);
         }
         $macfields = rtrim($macfields,',');
-        $OUITable = $this->getClass('OUI','',true);
+        $OUITable = self::getClass('OUI','',true);
         $OUITable = $OUITable['databaseTable'];
         $this->DB->query("INSERT INTO `$OUITable` (`ouiMACPrefix`,`ouiMan`) VALUES $macfields");
         return $this->DB->fetch()->get();
     }
     public function clearMACLookupTable() {
-        $OUITable = $this->getClass('OUI','',true);
+        $OUITable = self::getClass('OUI','',true);
         $OUITable = $OUITable['databaseTable'];
         $this->DB->query("TRUNCATE TABLE `$OUITable`");
         return $this->DB->fetch()->get();
     }
     public function getMACLookupCount() {
-        return $this->getClass(OUIManager)->count();
+        return self::getClass(OUIManager)->count();
     }
     public function resolveHostname($host) {
         if (filter_var(trim($host),FILTER_VALIDATE_IP)) return trim($host);
@@ -112,7 +112,7 @@ class FOGCore extends FOGBase {
         return $data;
     }
     public function setSessionEnv() {
-        $_SESSION['HostCount'] = $this->getClass('HostManager')->count();
+        $_SESSION['HostCount'] = self::getClass('HostManager')->count();
         $this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
         $this->DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
         $tables = $this->DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
@@ -124,14 +124,14 @@ class FOGCore extends FOGBase {
         $_SESSION['PluginsInstalled'] = (array)$this->getActivePlugins();
         $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = $this->getSetting('FOG_VIEW_DEFAULT_SCREEN');
         $_SESSION['FOG_FTP_IMAGE_SIZE'] = $this->getSetting('FOG_FTP_IMAGE_SIZE');
-        $_SESSION['Pending-Hosts'] = $this->getClass('HostManager')->count(array('pending'=>1));
-        $_SESSION['Pending-MACs'] = $this->getClass('MACAddressAssociationManager')->count(array('pending'=>1));
+        $_SESSION['Pending-Hosts'] = self::getClass('HostManager')->count(array('pending'=>1));
+        $_SESSION['Pending-MACs'] = self::getClass('MACAddressAssociationManager')->count(array('pending'=>1));
         $_SESSION['DataReturn'] = $this->getSetting('FOG_DATA_RETURNED');
-        $_SESSION['UserCount'] = $this->getClass('UserManager')->count();
-        $_SESSION['GroupCount'] = $this->getClass('GroupManager')->count();
-        $_SESSION['ImageCount'] = $this->getClass('ImageManager')->count();
-        $_SESSION['SnapinCount'] = $this->getClass('SnapinManager')->count();
-        $_SESSION['PrinterCount'] = $this->getClass('PrinterManager')->count();
+        $_SESSION['UserCount'] = self::getClass('UserManager')->count();
+        $_SESSION['GroupCount'] = self::getClass('GroupManager')->count();
+        $_SESSION['ImageCount'] = self::getClass('ImageManager')->count();
+        $_SESSION['SnapinCount'] = self::getClass('SnapinManager')->count();
+        $_SESSION['PrinterCount'] = self::getClass('PrinterManager')->count();
         $_SESSION['FOGPingActive'] = $this->getSetting('FOG_HOST_LOOKUP');
         $_SESSION['memory'] = $this->getSetting('FOG_MEMORY_LIMIT');
         $memorySet = preg_replace('#M#','',ini_get('memory_limit'));

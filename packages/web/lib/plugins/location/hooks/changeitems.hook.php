@@ -8,7 +8,7 @@ class ChangeItems extends Hook {
     public function StorageNodeSetting($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$arguments['Host']->isValid()) return;
-        $LA = $this->getClass('LocationAssociation',@max($this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')))));
+        $LA = self::getClass('LocationAssociation',@max($this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')))));
         if (!$LA->isValid()) return;
         $method = false;
         if ($arguments['Host']->get('task')->isValid() && ($arguments['Host']->get('task')->isUpload() || $arguments['Host']->get('task')->isMulticast())) $method = 'getMasterStorageNode';
@@ -19,7 +19,7 @@ class ChangeItems extends Hook {
     public function StorageGroupSetting($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$arguments['Host']->isValid()) return;
-        $LA = $this->getClass('LocationAssociation',@max($this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')))));
+        $LA = self::getClass('LocationAssociation',@max($this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')))));
         if (!$LA->isValid()) return;
         if (!$LA->getStorageGroup()->isValid()) return;
         $arguments['StorageGroup'] = $LA->getStorageGroup();
@@ -27,7 +27,7 @@ class ChangeItems extends Hook {
     public function BootItemSettings($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if (!$arguments['Host']->isValid()) return;
-        $LA = $this->getClass('LocationAssociation',@max($this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')))));
+        $LA = self::getClass('LocationAssociation',@max($this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')))));
         if (!$LA->isValid()) return;
         $Location = $LA->getLocation();
         if (!$Location->isValid()) return;

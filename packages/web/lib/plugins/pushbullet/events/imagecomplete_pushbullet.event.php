@@ -10,8 +10,8 @@ class ImageComplete_PushBullet extends Event {
     var $author = 'Jbob';
     var $active = true;
     public function onEvent($event, $data) {
-        foreach ((array)$this->getClass('PushbulletManager')->find() AS $Token) {
-            $this->getClass('PushbulletHandler',$Token->get('token'))->pushNote('', $data['HostName'].' Complete', 'This host has finished imaging');
+        foreach ((array)self::getClass('PushbulletManager')->find() AS $Token) {
+            self::getClass('PushbulletHandler',$Token->get('token'))->pushNote('', $data['HostName'].' Complete', 'This host has finished imaging');
         }
     }
 }

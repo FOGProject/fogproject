@@ -3,15 +3,15 @@ class SnapinClient extends FOGClient implements FOGClientSend {
     public function send() {
         if ($this->Host->get('task')->isValid() && !$this->Host->get('task')->isSnapinTasking()) throw new Exception('#!it');
         if (isset($_REQUEST['taskid'])) {
-            $SnapinTask = $this->getClass('SnapinTask',(int) $_REQUEST['taskid']);
+            $SnapinTask = self::getClass('SnapinTask',(int) $_REQUEST['taskid']);
             if (!$SnapinTask->isValid() || in_array($SnapinTask->get('stateID'),array_merge((array)$this->getCompleteState(),(array)$this->getCancelledState()))) throw new Exception(_('Invalid snapin tasking passed'));
         } else {
             if (!$this->Host->get('snapinjob')->isValid()) throw new Exception('#!ns');
-            $SnapinTask = $this->getClass('SnapinTaskManager')->find(array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())),'','name');
+            $SnapinTask = self::getClass('SnapinTaskManager')->find(array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())),'','name');
             $SnapinTask = @array_shift($SnapinTask);
         }
         if (!($SnapinTask instanceof SnapinTask && $SnapinTask->isValid())) {
-            if ($this->getClass('SnapinTaskManager')->count(array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) < 1) {
+            if (self::getClass('SnapinTaskManager')->count(array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) < 1) {
                 if ($this->Host->get('task')->isValid()) $this->Host->get('task')->cancel();
                 $this->Host->get('snapinjob')->set('stateID',$this->getCancelledState())->save();
             }
@@ -50,7 +50,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 ->set('details',$_REQUEST['exitdesc'])
                 ->set('complete',$this->nice_date()->format('Y-m-d H:i:s'));
             if ($SnapinTask->save()) echo '#!ok';
-            if ($this->getClass('SnapinTaskManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) < 1) {
+            if (self::getClass('SnapinTaskManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) < 1) {
                 $Task = $this->Host->get('task');
                 if ($Task->isValid()) {
                     $Task

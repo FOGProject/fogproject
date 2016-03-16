@@ -38,8 +38,8 @@ class LDAPManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('Search');
-        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('LDAPManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)$this->getClass('LDAPManager')->find() AS $i => &$LDAP) {
+        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('LDAPManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        foreach ((array)self::getClass('LDAPManager')->find() AS $i => &$LDAP) {
             if (!$LDAP->isValid()) continue;
             $this->data[] = array(
                 'id' => $LDAP->get('id'),
@@ -55,7 +55,7 @@ class LDAPManagementPage extends FOGPage {
         $this->render();
     }
     public function search_post() {
-        foreach ($this->getClass('LDAPManager')->search('',true) AS $i => &$LDAP) {
+        foreach (self::getClass('LDAPManager')->search('',true) AS $i => &$LDAP) {
             if (!$LDAP->isValid()) continue;
             $this->data[] = array(
                 'id' => $LDAP->get('id'),
@@ -109,8 +109,8 @@ class LDAPManagementPage extends FOGPage {
             $address = trim($_REQUEST['address']);
             if (empty($name)) throw new Exception(_('Please enter a name for this LDAP server.'));
             if (empty($address)) throw new Exception(_('Please enter a LDAP server address'));
-            if ($this->getClass('LDAPManager')->exists($name)) throw new Exception(_('LDAP server already Exists, please try again.'));
-            $LDAP = $this->getClass('LDAP')
+            if (self::getClass('LDAPManager')->exists($name)) throw new Exception(_('LDAP server already Exists, please try again.'));
+            $LDAP = self::getClass('LDAP')
                 ->set('name',$name)
                 ->set('description',$_REQUEST['description'])
                 ->set('address',$address)

@@ -4,7 +4,7 @@ try {
     if (trim($_REQUEST['mode']) != array('q','s')) throw new Exception(_('Invalid operational mode'));
     $string = explode(':',base64_decode($_REQUEST['string']));
     $vInfo = explode(' ',trim($string[1]));
-    $Virus = $FOGCore->getClass('Virus')
+    $Virus = FOGCore::getClass('Virus')
         ->set('name',$vInfo[0])
         ->set('hostMAC',strtolower($_REQUEST['mac']))
         ->set('file',$string[0])

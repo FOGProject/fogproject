@@ -19,7 +19,7 @@ class AddLocationHost extends Hook {
         foreach((array)$arguments['data'] AS $index => &$vals) {
             $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['data'][$index]['id']),'locationID');
             $locID = array_shift($locationID);
-            $arguments['data'][$index]['location'] = $this->getClass('Location',$locID)->get('name');
+            $arguments['data'][$index]['location'] = self::getClass('Location',$locID)->get('name');
             unset($vals);
         }
     }
@@ -28,20 +28,20 @@ class AddLocationHost extends Hook {
         if ($_REQUEST['node'] != 'host') return;
         $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
         $locID = array_shift($locationID);
-        $this->array_insert_after(_('Host Product Key'),$arguments['fields'],_('Host Location'),$this->getClass('LocationManager')->buildSelectBox($locID));
+        $this->array_insert_after(_('Host Product Key'),$arguments['fields'],_('Host Location'),self::getClass('LocationManager')->buildSelectBox($locID));
     }
     public function HostAddLocation($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if ($_REQUEST['node'] != 'host') return;
         if (!in_array($_REQUEST['sub'],array('add','add_post','edit','edit_post'))) return;
         if (str_replace('_','-',$_REQUEST['tab']) != 'host-general') return;
-        $this->getClass('LocationAssociationManager')->destroy(array('hostID'=>$arguments['Host']->get('id')));
-        $Location = $this->getClass('Location',$_REQUEST['location']);
+        self::getClass('LocationAssociationManager')->destroy(array('hostID'=>$arguments['Host']->get('id')));
+        $Location = self::getClass('Location',$_REQUEST['location']);
         if ($Location->isValid()) $Location->addHost($arguments['Host']->get('id'))->save(false);
     }
     public function HostImport($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $Location = $this->getClass('Location',$arguments['data'][5]);
+        $Location = self::getClass('Location',$arguments['data'][5]);
         if (!$Location->isValid()) return;
         $Location->addHost($arguments['Host']->get('id'))->save(false);
     }
@@ -53,19 +53,19 @@ class AddLocationHost extends Hook {
     }
     public function HostDestroy($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $this->getClass('LocationAssociationManager')->destroy(array('hostID'=>$arguments['Host']->get('id')));
+        self::getClass('LocationAssociationManager')->destroy(array('hostID'=>$arguments['Host']->get('id')));
     }
     public function HostEmailHook($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
         $locID = array_shift($locationID);
-        if (!$this->getClass('Location',$locID)->isValid()) return;
-        $this->array_insert_after("\nSnapin Used: ",$arguments['email'],"\nImaged From (Location): ",$this->getClass('Location',$locID)->get('name'));
+        if (!self::getClass('Location',$locID)->isValid()) return;
+        $this->array_insert_after("\nSnapin Used: ",$arguments['email'],"\nImaged From (Location): ",self::getClass('Location',$locID)->get('name'));
     }
     public function HostRegister($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         $locationID = trim(base64_decode($_REQUEST['location']));
-        $Location = $this->getClass('Location',$locationID);
+        $Location = self::getClass('Location',$locationID);
         if (!$Location->isValid()) return;
         $Location->addHost($arguments['Host']->get('id'))->save(false);
         $Host = $arguments['Host'];

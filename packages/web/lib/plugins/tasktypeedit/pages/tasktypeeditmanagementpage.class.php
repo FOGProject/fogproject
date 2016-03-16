@@ -40,8 +40,8 @@ class TasktypeeditManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Task Types');
-        if ($this->getSetting('FOG_DATA_RETURNED')>0 && $this->getClass('TaskTypeManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)$this->getClass('TaskTypeManager')->find() AS $i => &$TaskType) {
+        if ($this->getSetting('FOG_DATA_RETURNED')>0 && self::getClass('TaskTypeManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        foreach ((array)self::getClass('TaskTypeManager')->find() AS $i => &$TaskType) {
             if (!$TaskType->isValid()) continue;
             $this->data[] = array(
                 'icon'=>$TaskType->get('icon'),
@@ -56,7 +56,7 @@ class TasktypeeditManagementPage extends FOGPage {
         $this->render();
     }
     public function search_post() {
-        foreach ($this->getClass('TaskTypeManager')->search('',true) AS $i => &$TaskType) {
+        foreach (self::getClass('TaskTypeManager')->search('',true) AS $i => &$TaskType) {
             if (!$TaskType->isValid()) continue;
             $this->data[] = array(
                 'icon'=>$TaskType->get('icon'),
@@ -92,7 +92,7 @@ class TasktypeeditManagementPage extends FOGPage {
         $fields = array(
             _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$_REQUEST['name']),
             _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
-            _('Icon') => $this->getClass('TaskType')->iconlist($_REQUEST['icon']),
+            _('Icon') => self::getClass('TaskType')->iconlist($_REQUEST['icon']),
             _('Kernel') => sprintf('<input type="text" name="kernel" class="smaller" value="%s"/>',$_REQUEST['kernel']),
             _('Kernel Arguments') => sprintf('<input type="text" name="kernelargs" class="smaller" value="%s"/>',$_REQUEST['kernelargs']),
             _('Type') => sprintf('<input type="text" name="type" class="smaller" value="%s"/>',$_REQUEST['type']),
@@ -124,8 +124,8 @@ class TasktypeeditManagementPage extends FOGPage {
             $advanced = (int)isset($_REQUEST['advanced']);
             $access = $_REQUEST['access'];
             if (!$name) throw new Exception(_('You must enter a name'));
-            if ($this->getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
-            $TaskType = $this->getClass('TaskType')
+            if (self::getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
+            $TaskType = self::getClass('TaskType')
                 ->set('name',$name)
                 ->set('description',$description)
                 ->set('icon',$icon)
@@ -164,7 +164,7 @@ class TasktypeeditManagementPage extends FOGPage {
             _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$this->obj->get('name')),
             _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
             _('Icon') => sprintf('<input type="text" name="icon" class="smaller" value="%s"/>',$this->obj->get('icon')),
-            _('Icon') => $this->getClass('TaskType')->iconlist($this->obj->get('icon')),
+            _('Icon') => self::getClass('TaskType')->iconlist($this->obj->get('icon')),
             _('Kernel') => sprintf('<input type="text" name="kernel" class="smaller" value="%s"/>',$this->obj->get('kernel')),
             _('Kernel Arguments') => sprintf('<input type="text" name="kernelargs" class="smaller" value="%s"/>',$this->obj->get('kernelArgs')),
             _('Type') => sprintf('<input type="text" name="type" class="smaller" value="%s"/>',$this->obj->get('type')),
@@ -197,7 +197,7 @@ class TasktypeeditManagementPage extends FOGPage {
             $advanced = (int)isset($_REQUEST['advanced']);
             $access = $_REQUEST['access'];
             if (!$name) throw new Exception(_('You must enter a name'));
-            if ($this->obj->get('name') != $name && $this->getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
+            if ($this->obj->get('name') != $name && self::getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
             $this->obj
                 ->set('name',$name)
                 ->set('description',$description)

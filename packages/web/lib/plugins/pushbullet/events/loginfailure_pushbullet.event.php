@@ -10,8 +10,8 @@ class LoginFailure_PushBullet extends Event {
     var $author = 'Tom Elliott';
     var $active = true;
     public function onEvent($event, $data) {
-        foreach ((array)$this->getClass('PushbulletManager')->find() AS $Token) {
-            $this->getClass('PushbulletHandler',$Token->get('token'))->pushNote('', $data['Failure'].' failed to login', 'If you see repeatedly, please check your security');
+        foreach ((array)self::getClass('PushbulletManager')->find() AS $Token) {
+            self::getClass('PushbulletHandler',$Token->get('token'))->pushNote('', $data['Failure'].' failed to login', 'If you see repeatedly, please check your security');
         }
     }
 }

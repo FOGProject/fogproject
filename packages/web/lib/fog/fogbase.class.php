@@ -1,5 +1,8 @@
 <?php
 abstract class FOGBase {
+    protected static $buildSelectBox;
+    protected static $ftpfilesonly;
+    protected static $selected;
     protected $debug = false;
     protected $info = false;
     protected $FOGFTP;
@@ -38,6 +41,18 @@ abstract class FOGBase {
         global $FOGURLRequests;
         global $FOGPageManager;
         global $TimeZone;
+        self::$buildSelectBox = function(&$option) {
+            printf('<option value="%s"%s>%s</option>',
+                $option,
+                (self::$selected == $option ? ' selected' : ''),
+                $option
+            );
+            unset($option);
+        };
+        self::$ftpfilesonly = function(&$item) {
+            if ($this->FOGFTP->chdir($item)) return;
+            return basename($item);
+        };
         $this->foglang = &$foglang;
         $this->FOGFTP = &$FOGFTP;
         $this->FOGCore = &$FOGCore;
@@ -57,7 +72,7 @@ abstract class FOGBase {
     public function __toString() {
         return (string)get_class($this);
     }
-    public function getClass($class, $data = '',$props = false) {
+    public static function getClass($class, $data = '',$props = false) {
         $args = func_get_args();
         array_shift($args);
         $obj = new ReflectionClass($class);
@@ -71,13 +86,13 @@ abstract class FOGBase {
         $MACs = $this->parseMacList($mac,!$service,$service);
         if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : sprintf('%s %s',$this->foglang['InvalidMAC'],$_REQUEST['mac']));
         if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
-        $Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
+        $Host = self::getClass('HostManager')->getHostByMacAddresses($MACs);
         if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get(pending)) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
         return $Host;
     }
     public function getAllBlamedNodes() {
         $Host = $this->getHostItem(false);
-        $NodeFailures = (array)$this->getClass('NodeFailureManager')->find(array('taskID'=>$Host->get('task')->get('id'),'hostID'=>$Host->get('id')));
+        $NodeFailures = (array)self::getClass('NodeFailureManager')->find(array('taskID'=>$Host->get('task')->get('id'),'hostID'=>$Host->get('id')));
         $DateInterval = $this->nice_date()->modify('-5 minutes');
         foreach($NodeFailures AS $i => &$NodeFailure) {
             $DateTime = $this->nice_date($NodeFailure->get('failureTime'));
@@ -90,7 +105,7 @@ abstract class FOGBase {
         return $nodeRet;
     }
     protected function getActivePlugins() {
-        return array_map('strtolower',(array)$this->getClass('PluginManager')->find(array('installed'=>1),'','','','','','','name'));
+        return array_map('strtolower',(array)self::getClass('PluginManager')->find(array('installed'=>1),'','','','','','','name'));
     }
     protected function fatalError($txt, $data = array()) {
         if (!$this->service && !$this->ajax) {
@@ -230,8 +245,8 @@ abstract class FOGBase {
         );
     }
     public function nice_date($Date = 'now',$utc = false) {
-        $TZ = $this->getClass('DateTimeZone',($utc || empty($this->TimeZone)? 'UTC' : $this->TimeZone));
-        return $this->getClass('DateTime',$Date,$TZ);
+        $TZ = self::getClass('DateTimeZone',($utc || empty($this->TimeZone)? 'UTC' : $this->TimeZone));
+        return self::getClass('DateTime',$Date,$TZ);
     }
     public function formatTime($time, $format = false, $utc = false) {
         if (!$time instanceof DateTime) $time = $this->nice_date($time,$utc);
@@ -273,7 +288,7 @@ abstract class FOGBase {
         if ($format == 'N') return ($Date instanceof DateTime ? ($Date->format('N') >= 0 && $Date->format('N') <= 7) : $Date >= 0 && $Date <= 7);
         if (!$Date instanceof DateTime) $Date = $this->nice_date($Date);
         if (!$format) $format = 'm/d/Y';
-        return DateTime::createFromFormat($format,$Date->format($format),$this->getClass(DateTimeZone,$this->TimeZone));
+        return DateTime::createFromFormat($format,$Date->format($format),self::getClass(DateTimeZone,$this->TimeZone));
     }
     protected function pluralize($count,$text,$space = false) {
         return sprintf("%d %s%s%s",(int)$count,$text,(int)$count != 1 ? 's' : '',$space === true ? ' ' : '');
@@ -477,7 +492,7 @@ abstract class FOGBase {
         $string = htmlentities(mb_convert_encoding($string,'UTF-8'),ENT_QUOTES,'UTF-8');
         $name = $_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog';
         if ($this->DB) {
-            $this->getClass('History')
+            self::getClass('History')
                 ->set('info',$string)
                 ->set('ip',$_SERVER['REMOTE_ADDR'])
                 ->save();
@@ -499,33 +514,33 @@ abstract class FOGBase {
         if (empty($object)) $object = 'Host';
         if (empty($getField)) $getField = 'id';
         if (empty($operator)) $operator = 'AND';
-        return $this->getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','',$groupBy,$not,$getField,'',$filter);
+        return self::getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','',$groupBy,$not,$getField,'',$filter);
     }
     public function getSetting($key) {
         $value = $this->getSubObjectIDs('Service',array('name'=>$key),'value');
         return trim(html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",array_shift($value)),'UTF-8'),ENT_QUOTES,'UTF-8'));
     }
     public function setSetting($key, $value) {
-        $this->getClass('ServiceManager')->update(array('name'=>$key),'',array('value'=>trim($value)));
+        self::getClass('ServiceManager')->update(array('name'=>$key),'',array('value'=>trim($value)));
         return $this;
     }
     public function getQueuedStates() {
-        return (array)$this->getClass('TaskState')->getQueuedStates();
+        return (array)self::getClass('TaskState')->getQueuedStates();
     }
     public function getQueuedState() {
-        return $this->getClass('TaskState')->getQueuedState();
+        return self::getClass('TaskState')->getQueuedState();
     }
     public function getCheckedInState() {
-        return $this->getClass('TaskState')->getCheckedInState();
+        return self::getClass('TaskState')->getCheckedInState();
     }
     public function getProgressState() {
-        return $this->getClass('TaskState')->getProgressState();
+        return self::getClass('TaskState')->getProgressState();
     }
     public function getCompleteState() {
-        return $this->getClass('TaskState')->getCompleteState();
+        return self::getClass('TaskState')->getCompleteState();
     }
     public function getCancelledState() {
-        return $this->getClass('TaskState')->getCancelledState();
+        return self::getClass('TaskState')->getCancelledState();
     }
     public function string_between($string, $start, $end) {
         $string = " $string";

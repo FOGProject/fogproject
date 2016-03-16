@@ -12,13 +12,13 @@ class Service extends FOGController {
         'name',
     );
     public function addDir($dir) {
-        if ($this->getClass(DirCleanerManager)->count(array('path'=>$dir)) > 0) throw new Exception($this->foglang['n/a']);
-        $this->getClass(DirCleaner)
+        if (self::getClass(DirCleanerManager)->count(array('path'=>$dir)) > 0) throw new Exception($this->foglang['n/a']);
+        self::getClass(DirCleaner)
             ->set(path,$dir)
             ->save();
     }
     public function remDir($dir) {
-        $this->getClass(DirCleanerManager)->destroy(array(id=>$dir));
+        self::getClass(DirCleanerManager)->destroy(array(id=>$dir));
     }
     public function setDisplay($x,$y,$r) {
         $keySettings = array(
@@ -29,9 +29,9 @@ class Service extends FOGController {
         foreach($keySettings AS $name => $value) $this->FOGCore->setSetting($name,$value);
     }
     public function setGreenFog($h,$m,$t) {
-        if ($this->getClass(GreenFogManager)->count(array(hour=>$h,'min'=>$m))>0) throw new Exception($this->foglang[TimeExists]);
+        if (self::getClass(GreenFogManager)->count(array(hour=>$h,'min'=>$m))>0) throw new Exception($this->foglang[TimeExists]);
         else {
-            $this->getClass(GreenFog)
+            self::getClass(GreenFog)
                 ->set(hour,$h)
                 ->set('min',$m)
                 ->set(action,$t)
@@ -39,15 +39,15 @@ class Service extends FOGController {
         }
     }
     public function remGF($gf) {
-        $this->getClass(GreenFogManager)->destroy(array(id=>$gf));
+        self::getClass(GreenFogManager)->destroy(array(id=>$gf));
     }
     public function addUser($user) {
-        if ($this->getClass(UserCleanupManager)->count(array(name=>$user))>0) throw new Exception($this->foglang[UserExists]);
-        foreach ((array)$user AS $i => &$name) $this->getClass(User)->set(name,$name)->save();
+        if (self::getClass(UserCleanupManager)->count(array(name=>$user))>0) throw new Exception($this->foglang[UserExists]);
+        foreach ((array)$user AS $i => &$name) self::getClass(User)->set(name,$name)->save();
         unset($name);
     }
     public function remUser($id) {
-        $this->getClass(UserCleanup,$id)->destroy();
+        self::getClass(UserCleanup,$id)->destroy();
     }
     public static function buildExitSelector($name = '',$selected = '',$nullField = false) {
         if (empty($name)) $name = $this->get(name);

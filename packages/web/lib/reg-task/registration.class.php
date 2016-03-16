@@ -43,10 +43,10 @@ class Registration extends FOGBase {
             $productKey = $this->stripAndDecode($_REQUEST['productKey']);
             $username = $this->stripAndDecode($_REQUEST['username']);
             $hostname = $this->stripAndDecode($_REQUEST['host']);
-            $hostname = strtoupper(($this->getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple));
+            $hostname = strtoupper((self::getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple));
             $ip = $this->stripAndDecode($_REQUEST['ip']);
             $imageid = $this->stripAndDecode($_REQUEST['imageid']);
-            $imageid = ($this->getClass('Image',$imageid)->isValid() ? $imageid : 0);
+            $imageid = (self::getClass('Image',$imageid)->isValid() ? $imageid : 0);
             $primaryuser = $this->stripAndDecode($_REQUEST['primaryuser']);
             $other1 = $this->stripAndDecode($_REQUEST['other1']);
             $other2 = $this->stripAndDecode($_REQUEST['other2']);
@@ -74,7 +74,7 @@ class Registration extends FOGBase {
             }
             $groupsToJoin = explode(',',$this->stripAndDecode($_REQUEST['groupid']));
             $snapinsToJoin = explode(',',$this->stripAndDecode($_REQUEST['snapinid']));
-            $this->Host = $this->getClass('Host')
+            $this->Host = self::getClass('Host')
                 ->set('name',$hostname)
                 ->set('description',$this->description)
                 ->set('imageID',$imageid)
@@ -95,7 +95,7 @@ class Registration extends FOGBase {
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
-            $this->getClass('Inventory')
+            self::getClass('Inventory')
                 ->set('hostID',$this->Host->get('id'))
                 ->set('primaryUser', $primaryuser)
                 ->set('other1', $other1)
@@ -111,7 +111,7 @@ class Registration extends FOGBase {
             $autoRegSysName = trim($this->getSetting('FOG_QUICKREG_SYS_NAME'));
             $autoRegSysNumber = (int)$this->getSetting('FOG_QUICKREG_SYS_NUMBER');
             $hostname = trim((strtoupper($autoRegSysName) == 'MAC' ? $this->macsimple : $autoRegSysName));
-            $hostname = ($this->getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
+            $hostname = (self::getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
             $paddingLen = substr_count($autoRegSysName,'*');
             $paddingString = null;
             if ($paddingLen > 0) {
@@ -120,17 +120,17 @@ class Registration extends FOGBase {
                 if (trim(strtoupper($autoRegSysName)) == 'MAC') $hostname = $this->macsimple;
                 else {
                     $hostname = str_replace($paddingString,$paddedInsert,$autoRegSysName);
-                    while ($this->getClass('HostManager')->exists($hostname)) {
+                    while (self::getClass('HostManager')->exists($hostname)) {
                         $paddingString = str_repeat('*',$paddingLen);
                         $paddedInsert = str_pad(++$autoRegSysNumber,$paddingLen,0,STR_PAD_LEFT);
                         $hostname = str_replace($paddingString,$paddedInsert,$autuRegSysName);
                     }
                 }
             }
-            if (!$this->getClass('Host')->isHostnameSafe($hostname)) $hostname = $this->macsimple;
+            if (!self::getClass('Host')->isHostnameSafe($hostname)) $hostname = $this->macsimple;
             $this->setSetting('FOG_QUICKREG_SYS_NUMBER',++$autoRegSysNumber);
             $imageid = (int)$this->getSetting('FOG_QUICKREG_IMG_ID');
-            $this->Host = $this->getClass('Host')
+            $this->Host = self::getClass('Host')
                 ->set('name',$hostname)
                 ->set('description',$this->description)
                 ->set('imageID',$imageid)
@@ -151,7 +151,7 @@ class Registration extends FOGBase {
     }
     private function quickReg() {
         try {
-            $this->Host = $this->getClass('Host')
+            $this->Host = self::getClass('Host')
                 ->set('name',$this->macsimple)
                 ->set('description',$this->description)
                 ->addModule($this->modulesToJoin)

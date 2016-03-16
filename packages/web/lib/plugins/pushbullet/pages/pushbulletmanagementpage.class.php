@@ -35,7 +35,7 @@ class PushbulletManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('Accounts');
-        foreach ((array)$this->getClass('PushbulletManager')->find() AS $i => $Token) {
+        foreach ((array)self::getClass('PushbulletManager')->find() AS $i => $Token) {
             $this->data[] = array(
                 'name'    => $Token->get('name'),
                 'email'   => $Token->get('email'),
@@ -76,15 +76,15 @@ class PushbulletManagementPage extends FOGPage {
     public function add_post() {
         try {
             $token = trim($_REQUEST['apiToken']);
-            if ($this->getClass('PushbulletManager')->exists(trim($_REQUEST['apiToken']))) throw new Exception(_('Account already linked'));
+            if (self::getClass('PushbulletManager')->exists(trim($_REQUEST['apiToken']))) throw new Exception(_('Account already linked'));
             if (!$token) throw new Exception(_('Please enter an access token'));
-            $userInfo = $this->getClass('PushbulletHandler',$token)->getUserInformation();
-            $Bullet = $this->getClass('Pushbullet')
+            $userInfo = self::getClass('PushbulletHandler',$token)->getUserInformation();
+            $Bullet = self::getClass('Pushbullet')
                 ->set('token',$token)
                 ->set('name',$userInfo->name)
                 ->set('email',$userInfo->email);
             if (!$Bullet->save()) throw new Exception(_('Failed to create'));
-            $this->getClass('PushbulletHandler',$token)->pushNote('', 'FOG', 'Account linked');
+            self::getClass('PushbulletHandler',$token)->pushNote('', 'FOG', 'Account linked');
             $this->setMessage(_('Account Added!'));
             $this->redirect('?node=pushbullet&sub=list');
         } catch (Exception $e) {

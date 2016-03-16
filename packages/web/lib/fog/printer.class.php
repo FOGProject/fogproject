@@ -24,7 +24,7 @@ class Printer extends FOGController {
         'hostsnotinme',
     );
     public function destroy($field = 'id') {
-        $this->getClass('PrinterAssociationManager')->destroy(array('printerID'=>$this->get('id')));
+        self::getClass('PrinterAssociationManager')->destroy(array('printerID'=>$this->get('id')));
         return parent::destroy($field);
     }
     public function save($mainObject = true) {
@@ -42,18 +42,18 @@ class Printer extends FOGController {
             $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_unique(array_diff((array)$DBHostIDs,(array)$this->get('hosts')));
             if (count($RemoveHostIDs)) {
-                $this->getClass('PrinterAssociationManager')->destroy(array('hostID'=>$RemoveHostIDs,'printerID'=>$this->get('id')));
+                self::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$RemoveHostIDs,'printerID'=>$this->get('id')));
                 $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
                 unset($RemoveHostIDs);
             }
-            $Hosts = $this->getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs)));
+            $Hosts = self::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs)));
             foreach ((array)$Hosts AS $i => &$Host) {
                 if (!$Host->isValid()) {
                     $Host->destroy();
                     continue;
                 }
-                $hasDefault = $this->getClass('PrinterAssociationManager')->count(array('isDefault'=>1,'hostID'=>$Host->get('id')));
-                $this->getClass('PrinterAssociation')
+                $hasDefault = self::getClass('PrinterAssociationManager')->count(array('isDefault'=>1,'hostID'=>$Host->get('id')));
+                self::getClass('PrinterAssociation')
                     ->set('printerID',$this->get('id'))
                     ->set('hostID',$Host->get('id'))
                     ->set('isDefault',($hasDefault != 1))
@@ -84,7 +84,7 @@ class Printer extends FOGController {
         return $this;
     }
     public function updateDefault($hostid,$onoff) {
-        foreach ((array)$hostid AS $i => &$id) $this->getClass('Host',$id)->updateDefault($this->get('id'),in_array($id,(array)$onoff));
+        foreach ((array)$hostid AS $i => &$id) self::getClass('Host',$id)->updateDefault($this->get('id'),in_array($id,(array)$onoff));
         unset($id);
         return $this;
     }

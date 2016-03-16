@@ -43,7 +43,7 @@ class BootItem extends Hook {
         // item-<label-name>  so fog.local has item value of: item-fog.local
         // inside of the item label is an arrayed item of value [0] containing the label
         // so to tweak:
-        foreach($this->getClass('PXEMenuOptionsManager')->find() AS $i => &$Menu) {
+        foreach(self::getClass('PXEMenuOptionsManager')->find() AS $i => &$Menu) {
             if ($arguments['ipxe']['item-'.$Menu->get('name')] && $Menu->get('name') == 'fog.local') $arguments['ipxe']['item-fog.local'][0] = 'item fog.local THIS BOOTS TO DISK';
             // Similar to the item-<label-name>  The choices follow similar constructs
             if ($arguments['ipxe']['choice-'.$Menu->get('name')] && $Menu->get('name') == 'fog.local') {

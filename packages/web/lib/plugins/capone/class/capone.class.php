@@ -8,10 +8,10 @@ class Capone extends FOGController {
         'key' => 'cKey',
     );
     public function getImage() {
-        return $this->getClass('Image',$this->get('imageID'));
+        return self::getClass('Image',$this->get('imageID'));
     }
     public function getOS() {
-        return $this->getClass('OS',$this->get('osID'));
+        return self::getClass('OS',$this->get('osID'));
     }
     public function getStorageGroup() {
         return $this->getImage()->getStorageGroup();

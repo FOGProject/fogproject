@@ -59,7 +59,7 @@ class PrinterManagementPage extends FOGPage {
     public function index() {
         $this->title = _('All printers');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['PrinterCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)$this->getClass('PrinterManager')->find() AS $i => &$Printer) {
+        foreach ((array)self::getClass('PrinterManager')->find() AS $i => &$Printer) {
             if (!$Printer->isValid()) continue;
             $this->config = stripos($Printer->get('config'),'local') !== false ? _('TCP/IP') : $Printer->get('config');
             $this->data[] = array(
@@ -79,7 +79,7 @@ class PrinterManagementPage extends FOGPage {
         $this->render();
     }
     public function search_post() {
-        foreach ($this->getClass('PrinterManager')->search('',true) AS $i => &$Printer) {
+        foreach (self::getClass('PrinterManager')->search('',true) AS $i => &$Printer) {
             if (!$Printer->isValid()) continue;
             $this->config = stripos($Printer->get('config'),'local') !== false ? _('TCP/IP') : $Printer->get('config');
             $this->data[] = array(
@@ -197,8 +197,8 @@ class PrinterManagementPage extends FOGPage {
                 else if (isset($_REQUEST['iprint']) && (empty($_REQUEST['alias']) || empty($_REQUEST['port']))) throw new Exception(_('You must specify the alias and port. Unable to create!'));
                 else if (isset($_REQUEST['network']) && empty($_REQUEST['alias'])) throw new Exception(_('You must specify the alias. Unable to create!'));
                 else if (isset($_REQUEST['cups']) && (!$_REQUEST['alias'] || !$_REQUEST['ip'] || !$_REQUEST['inf'])) throw new Exception(_('You must specify the alias, inf and ip'));
-                if ($this->getClass('PrinterManager')->exists($_REQUEST['alias'])) throw new Exception(_('Printer already exists'));
-                $Printer = $this->getClass('Printer')
+                if (self::getClass('PrinterManager')->exists($_REQUEST['alias'])) throw new Exception(_('Printer already exists'));
+                $Printer = self::getClass('Printer')
                     ->set('description',$_REQUEST['description'])
                     ->set('name',$_REQUEST['alias'])
                     ->set('config',$printertype)

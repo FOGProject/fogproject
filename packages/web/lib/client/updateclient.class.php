@@ -9,7 +9,7 @@ class UpdateClient extends FOGClient implements FOGClientSend {
         $file = base64_decode($_REQUEST['file']);
         $findWhere = array('name'=>$file);
         if ($action == 'list') $findWhere = '';
-        $ClientUpdateFiles = $this->getClass('ClientUpdaterManager')->find($findWhere);
+        $ClientUpdateFiles = self::getClass('ClientUpdaterManager')->find($findWhere);
         switch ($action) {
             case 'ask':
                 $ClientUpdateFile = @array_shift($ClientUpdateFiles);

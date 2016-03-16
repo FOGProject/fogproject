@@ -52,7 +52,7 @@ class ServiceConfigurationPage extends FOGPage {
         echo '</div>';
         $moduleName = $this->getGlobalModuleStatus();
         $modNames = $this->getGlobalModuleStatus(true);
-        foreach ((array)$this->getClass('ModuleManager')->find() AS &$Module) {
+        foreach ((array)self::getClass('ModuleManager')->find() AS &$Module) {
             if (!$Module->isValid()) continue;
             unset($this->data,$this->headerData,$this->attributes,$this->templates);
             $this->attributes = array(
@@ -105,7 +105,7 @@ class ServiceConfigurationPage extends FOGPage {
                 break;
             case 'clientupdater':
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
-                $this->getClass('FOGConfigurationPage')->client_updater();
+                self::getClass('FOGConfigurationPage')->client_updater();
                 break;
             case 'dircleanup':
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
@@ -130,7 +130,7 @@ class ServiceConfigurationPage extends FOGPage {
                     _('Add Directory'),
                     _('Directories Cleaned')
                 );
-                foreach ((array)$this->getClass('DirCleanerManager')->find() AS $i => &$DirCleaner) {
+                foreach ((array)self::getClass('DirCleanerManager')->find() AS $i => &$DirCleaner) {
                     if (!$DirCleaner->isValid()) continue;
                     $this->data[] = array(
                         'dir_path'=>$DirCleaner->get('path'),
@@ -193,7 +193,7 @@ class ServiceConfigurationPage extends FOGPage {
                     $modNames[$Module->get('shortName')],
                     _('Add Event')
                 );
-                foreach ((array)$this->getClass('GreenFogManager')->find() AS &$GreenFog) {
+                foreach ((array)self::getClass('GreenFogManager')->find() AS &$GreenFog) {
                     if (!$GreenFog->isValid()) continue;
                     $gftime = $this->nice_date($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
                     $this->data[] = array(
@@ -242,7 +242,7 @@ class ServiceConfigurationPage extends FOGPage {
                 );
                 echo '<h2>'._('Current Protected User Accounts').'</h2>';
                 printf('<h2>%s</h2>',_('Current Protected User Accounts'));
-                foreach ((array)$this->getClass('UserCleanupManager')->find() AS $i => &$UserCleanup) {
+                foreach ((array)self::getClass('UserCleanupManager')->find() AS $i => &$UserCleanup) {
                     if (!$UserCleanup->isValid()) continue;
                     $this->data[] = array(
                         'user_name'=>$UserCleanup->get('name'),
@@ -261,9 +261,9 @@ class ServiceConfigurationPage extends FOGPage {
         echo '</div>';
     }
     public function edit_post() {
-        $Service = $this->getClass('ServiceManager')->find(array('name'=>$_REQUEST['name']));
+        $Service = self::getClass('ServiceManager')->find(array('name'=>$_REQUEST['name']));
         $Service = @array_shift($Service);
-        $Module = $this->getClass('ModuleManager')->find(array('shortName'=>$_REQUEST['tab']));
+        $Module = self::getClass('ModuleManager')->find(array('shortName'=>$_REQUEST['tab']));
         $Module = @array_shift($Module);
         $this->HookManager->processEvent('SERVICE_EDIT_POST',array('Service'=>&$Service));
         $onoff = (int)isset($_REQUEST['en']);
@@ -297,7 +297,7 @@ class ServiceConfigurationPage extends FOGPage {
                 if(isset($_REQUEST['delid'])) $Service->remUser($_REQUEST['delid']);
                 break;
             case 'clientupdater':
-                $this->getClass('FOGConfigurationPage')->client_updater_post();
+                self::getClass('FOGConfigurationPage')->client_updater_post();
                 break;
             }
             if (!$Service->save()) throw new Exception(_('Service update failed'));
