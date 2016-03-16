@@ -29,31 +29,26 @@ class UserManagementPage extends FOGPage {
             array(),
             array('class'=>'c filter-false','width'=>55),
         );
+        $this->returnData = function(&$User) {
+            if (!$User->isValid()) return;
+            $this->data[] = array(
+                'id' => $User->get('id'),
+                'name' => $User->get('name'),
+            );
+            unset($User);
+        };
     }
     public function index() {
         $this->title = _('All Users');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['UserCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('%s?node=%s&sub=search', $this->urlself, $this->node));
-        foreach ((array)$this->getClass('UserManager')->find() AS $i => &$User) {
-            if (!$User->isValid()) continue;
-            $this->data[] = array(
-                'id' => $User->get('id'),
-                'name' => $User->get('name'),
-            );
-            unset($User);
-        }
+        $this->data = array();
+        array_map($this->returnData,$this->getClass('UserManager')->find());
         $this->HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
-        $ids = $this->getClass('UserManager')->search();
-        foreach ((array)$this->getClass('UserManager')->search('',true) AS $i => &$User) {
-            if (!$User->isValid()) continue;
-            $this->data[] = array(
-                'id' => $User->get('id'),
-                'name' => $User->get('name'),
-            );
-            unset($User);
-        }
+        $this->data = array();
+        array_map($this->returnData,$this->getClass('UserManager')->search('',true));
         $this->HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -68,6 +63,7 @@ class UserManagementPage extends FOGPage {
             array(),
             array(),
         );
+        $this->data = array();
         $fields = array(
             '<input style="display:none" type="text" name="fakeusernameremembered"/>'=>'<input style="display:none" type="password" name="fakepasswordremembered"/>',
             _('User Name') => sprintf('<input type="text" name="name" value="%s" autocomplete="off"/>',$_REQUEST['name']),
@@ -76,13 +72,7 @@ class UserManagementPage extends FOGPage {
             sprintf('%s&nbsp;<i class="icon icon-help hand fa fa-question" title="%s"></i>',_('Mobile/Quick Image Access Only?'),_('Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future.')) => '<input type="checkbox" name="isGuest" autocomplete="off"/>',
             '&nbsp;' => sprintf('<input name="add" type="submit" value="%s"/>',_('Create User')),
         );
-        foreach ((array)$fields AS $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        }
-        unset($input,$fields);
+        array_walk($fields,$this->fieldsToData);
         $this->HookManager->processEvent('USER_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<h2>%s</h2><form method="post" action="%s">',_('Add new user account'),$this->formAction);
         $this->render();
@@ -119,19 +109,14 @@ class UserManagementPage extends FOGPage {
         unset ($this->headerData);
         $this->templates = array(
             '${field}',
-            '${formData}',
+            '${input}',
         );
         $this->attributes = array(
             array(),
             array(),
         );
-        foreach ((array)$fields AS $field => &$formData) {
-            $this->data[] = array(
-                'field'=>$field,
-                'formData'=>$formData,
-            );
-        }
-        unset($fields,$formData);
+        $this->data = array();
+        array_walk($fields,$this->fieldsToData);
         $this->HookManager->processEvent('USER_EDIT',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
