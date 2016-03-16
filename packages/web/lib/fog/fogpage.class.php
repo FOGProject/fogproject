@@ -1008,6 +1008,11 @@ abstract class FOGPage extends FOGBase {
                     if ($Item->getManager()->exists($data[$iterator])) throw new Exception(sprintf('%s %s: %s',$this->childClass,_('already exists with this name'),$data[$iterator]));
                     foreach (array_keys((array)$this->databaseFields) AS $i => $field) {
                         if ($Item instanceof Host) $i++;
+                        if (isset($field) && $field === 'productKey') {
+                            $test_encryption = $this->aesdecrypt($data[$i]);
+                            if ($test_base64 = base64_decode($data[$i])) $data[$i] = $this->aesencrypt($test_base64);
+                            else if (empty($test_encryption) || !mb_detect_encoding($test_encryption,'UTF-8',true)) $data[$i] = $this->aesencrypt($data[$i]);
+                        }
                         $Item->set($field,$data[$i],($field == 'password'));
                     }
                     if ($Item instanceof Host) {
