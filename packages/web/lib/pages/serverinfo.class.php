@@ -35,7 +35,7 @@ class ServerInfo extends FOGPage {
         $curroot = trim(trim($this->obj->get('webroot'),'/'));
         $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
         $URL = sprintf('http://%s%sstatus/hw.php',$this->obj->get('ip'),$webroot);
-        $ret = $this->FOGURLRequests->process($URL);
+        $ret = self::$FOGURLRequests->process($URL);
         $ret = trim($ret[0]);
         if (empty($ret) || !$ret) {
             printf('<p>%s</p>',_('Unable to pull server information!'));

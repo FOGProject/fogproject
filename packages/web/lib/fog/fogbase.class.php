@@ -1,20 +1,21 @@
 <?php
 abstract class FOGBase {
+    protected $debug = false;
+    protected $info = false;
+    public static $foglang;
     protected static $buildSelectBox;
     protected static $ftpfilesonly;
     protected static $selected;
-    public static $foglang;
     protected static $DB;
     protected static $FOGFTP;
     protected static $FOGCore;
     protected static $EventManager;
     protected static $HookManager;
+    protected static $TimeZone;
     protected static $FOGUser;
-    protected $debug = false;
-    protected $info = false;
-    protected $FOGPageManager;
-    protected $FOGURLRequests;
-    protected $FOGSubMenu;
+    protected static $FOGPageManager;
+    protected static $FOGURLRequests;
+    protected static $FOGSubMenu;
     protected static $urlself;
     protected static $isMobile;
     protected static $isLoaded = array();
@@ -40,6 +41,9 @@ abstract class FOGBase {
         global $currentUser;
         global $EventManager;
         global $HookManager;
+        global $FOGURLRequests;
+        global $FOGPageManager;
+        global $TimeZone;
         self::$foglang =& $foglang;
         self::$FOGFTP =& $FOGFTP;
         self::$FOGCore = &$FOGCore;
@@ -52,6 +56,9 @@ abstract class FOGBase {
         self::$service = (bool)preg_match('#/service/#i', self::$urlself);
         self::$ajax = (bool)isset($_SERVER['HTTP_X_REQUESTED_WITH']) && preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);
         self::$post = (bool)preg_match('#^post$#i',isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] ? $_SERVER['REQUEST_METHOD'] : '');
+        self::$FOGURLRequests = &$FOGURLRequests;
+        self::$FOGPageManager = &$FOGPageManager;
+        self::$TimeZone = &$TimeZone;
         self::$buildSelectBox = function(&$option,&$index = false) {
             $value = $option;
             if ($index) $value = $index;
@@ -70,12 +77,6 @@ abstract class FOGBase {
         return $this;
     }
     public function __construct() {
-        global $FOGURLRequests;
-        global $FOGPageManager;
-        global $TimeZone;
-        $this->FOGURLRequests = &$FOGURLRequests;
-        $this->FOGPageManager = &$FOGPageManager;
-        $this->TimeZone = &$TimeZone;
         self::init();
     }
     public function __toString() {
@@ -210,9 +211,9 @@ abstract class FOGBase {
             }
         }
     }
-    protected function isLoaded($key) {
-        $this->isLoaded[$key] = (isset($this->isLoaded[$key]) ? true : false);
-        return $this->isLoaded[$key];
+    protected static function isLoaded($key) {
+        self::$isLoaded[$key] = (isset(self::$isLoaded[$key]) ? true : false);
+        return self::$isLoaded[$key];
     }
     protected function resetRequest() {
         $reqVars = (array)$_REQUEST;
@@ -254,7 +255,7 @@ abstract class FOGBase {
         );
     }
     public function nice_date($Date = 'now',$utc = false) {
-        $TZ = self::getClass('DateTimeZone',($utc || empty($this->TimeZone)? 'UTC' : $this->TimeZone));
+        $TZ = self::getClass('DateTimeZone',($utc || empty(self::$TimeZone)? 'UTC' : self::$TimeZone));
         return self::getClass('DateTime',$Date,$TZ);
     }
     public function formatTime($time, $format = false, $utc = false) {
@@ -297,7 +298,7 @@ abstract class FOGBase {
         if ($format == 'N') return ($Date instanceof DateTime ? ($Date->format('N') >= 0 && $Date->format('N') <= 7) : $Date >= 0 && $Date <= 7);
         if (!$Date instanceof DateTime) $Date = $this->nice_date($Date);
         if (!$format) $format = 'm/d/Y';
-        return DateTime::createFromFormat($format,$Date->format($format),self::getClass(DateTimeZone,$this->TimeZone));
+        return DateTime::createFromFormat($format,$Date->format($format),self::getClass(DateTimeZone,self::$TimeZone));
     }
     protected function pluralize($count,$text,$space = false) {
         return sprintf("%d %s%s%s",(int)$count,$text,(int)$count != 1 ? 's' : '',$space === true ? ' ' : '');

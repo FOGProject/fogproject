@@ -56,7 +56,7 @@ class DashboardPage extends FOGPage {
                 $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
                 $URL = filter_var("http://$ip{$webroot}service/getversion.php",FILTER_SANITIZE_URL);
                 unset($curroot,$webroot,$ip);
-                $version = $this->FOGURLRequests->process($URL,'POST');
+                $version = self::$FOGURLRequests->process($URL,'POST');
                 $version = array_shift($version);
                 printf('<option value="%s">%s%s (%s)</option>',$StorageNode->get('id'),$StorageNode->get('name'),($StorageNode->get('isMaster') ? ' *' : ''),$version);
                 unset($version,$StorageNode);
@@ -88,7 +88,7 @@ class DashboardPage extends FOGPage {
         array_map(function(&$StorageNode) use (&$data) {
             if (!$StorageNode->isValid()) return;
             $URL = filter_var(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface')),FILTER_SANITIZE_URL);
-            $dataSet = $this->FOGURLRequests->process($URL,'GET');
+            $dataSet = self::$FOGURLRequests->process($URL,'GET');
             unset($URL);
             $data[$StorageNode->get('name')] = json_decode(array_shift($dataSet));
             unset($dataSet,$StorageNode);
@@ -106,7 +106,7 @@ class DashboardPage extends FOGPage {
             $URL = filter_var(sprintf('http://%s%sstatus/freespace.php?path=%s',$this->obj->get('ip'),$webroot,base64_encode($this->obj->get('path'))),FILTER_SANITIZE_URL);
             unset($curroot,$webroot);
             if (!filter_var($URL,FILTER_VALIDATE_URL)) throw new Exception('%s: %s',_('Invalid URL'),$URL);
-            $Response = $this->FOGURLRequests->process($URL,'GET');
+            $Response = self::$FOGURLRequests->process($URL,'GET');
             $Response = json_decode(array_shift($Response), true);
             $Data = array('free'=>$Response['free'],'used'=>$Response['used']);
             unset($Response);

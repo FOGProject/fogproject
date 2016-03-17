@@ -44,7 +44,7 @@ abstract class FOGController extends FOGBase {
             unset($this->data[$key]);
             return false;
         }
-        if (!$this->isLoaded($key)) $this->loadItem($key);
+        if (!self::isLoaded($key)) $this->loadItem($key);
         if (!isset($this->data[$key])) return $this->data[$key] = '';
         if (is_object($this->data[$key])) {
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Object'),$this->data[$key]->__toString()));
@@ -62,7 +62,7 @@ abstract class FOGController extends FOGBase {
             else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being set'));
-            } else if (!$this->isLoaded($key)) $this->loadItem($key);
+            } else if (!self::isLoaded($key)) $this->loadItem($key);
             if (is_numeric($value) && $value < ($key == 'id' ? 1 : -1)) throw new Exception(_('Invalid numeric entry'));
             if (is_object($value)) {
                 $this->info(sprintf('%s: %s %s: %s',_('Setting Key'),$key,_('Object'),$value->__toString()));
@@ -84,7 +84,7 @@ abstract class FOGController extends FOGBase {
             else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being added'));
-            } else if (!$this->isLoaded($key)) $this->loadItem($key);
+            } else if (!self::isLoaded($key)) $this->loadItem($key);
             if (is_object($value)) {
                 $this->info(sprintf('%s: %s, %s: %s',_('Adding Key'),$key,_('Object'),$value->__toString()));
                 $this->data[$key][] = $value;
@@ -108,7 +108,7 @@ abstract class FOGController extends FOGBase {
             else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being removed'));
-            } else if (!$this->isLoaded($key)) $this->loadItem($key);
+            } else if (!self::isLoaded($key)) $this->loadItem($key);
             if (!is_array($this->data[$key])) $this->data[$key] = array($this->data[$key]);
             $this->data[$key] = array_unique($this->data[$key]);
             $index = array_search($value,$this->data[$key]);

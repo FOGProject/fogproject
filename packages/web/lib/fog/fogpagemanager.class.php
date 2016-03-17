@@ -15,7 +15,7 @@ class FOGPageManager Extends FOGBase {
         $this->classValue = isset($_REQUEST['node']) && $_REQUEST['node'] ? $this->replaceVariable($_REQUEST['node']) : 'home';
         unset($value);
         $this->methodValue = $this->replaceVariable($_REQUEST['sub']);
-        self::$HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
+        self::$HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&self::$searchPages));
     }
     public function getFOGPageClass() {
         return $this->nodes[$this->classValue];
@@ -58,7 +58,7 @@ class FOGPageManager Extends FOGBase {
                 if (isset($_REQUEST[$class->id]) && $_REQUEST[$class->id]) $this->arguments = array('id'=>$_REQUEST[$class->id]);
                 if (self::$post) $this->setRequest();
                 else $this->resetRequest();
-                if ($this->classValue != 'schemaupdater' && $method == 'index' && $displayScreen != 'list' && $this->methodValue != 'list' && method_exists($class, 'search') && in_array($class->node,$this->searchPages)) $method = 'search';
+                if ($this->classValue != 'schemaupdater' && $method == 'index' && $displayScreen != 'list' && $this->methodValue != 'list' && method_exists($class, 'search') && in_array($class->node,self::$searchPages)) $method = 'search';
                 if (self::$ajax && method_exists($class, $method.'_ajax')) $method = $this->methodValue.'_ajax';
                 if (self::$post && method_exists($class, $method.'_post')) $method = $this->methodValue.'_post';
             } catch (Exception $e) {

@@ -50,7 +50,7 @@ class Image extends FOGController {
             $this->destroy();
             throw new Exception(_('Image ID was not set, or unable to be created'));
             break;
-        case ($this->isLoaded('hosts')):
+        case (self::isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
@@ -61,7 +61,7 @@ class Image extends FOGController {
             $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
             self::getClass('HostManager')->update(array('id'=>$Hosts),'',array('imageID'=>$this->get('id')));
             unset($Hosts,$DBHostIDs);
-        case ($this->isLoaded('storageGroups')):
+        case (self::isLoaded('storageGroups')):
             $DBGroupIDs = $this->getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
             $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('storageGroups'));
             if (count($RemoveGroupIDs)) {

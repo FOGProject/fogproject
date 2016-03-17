@@ -65,7 +65,7 @@ abstract class FOGPage extends FOGBase {
             unset($input);
         };
         $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',self::$urlself,htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))),FILTER_SANITIZE_URL));
-        self::$HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
+        self::$HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&self::$searchPages));
         self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
     public function index() {
@@ -140,7 +140,7 @@ abstract class FOGPage extends FOGBase {
                     ($this->data['error'] ? (is_array($this->data['error']) ? sprintf('<p>%s</p>',implode('</p><p>',$this->data['error'])) : $this->data['error']) : ($this->node != 'task' ? (!self::$isMobile ? self::$foglang['NoResults'] : '') : self::$foglang['NoResults']))
                 );
             } else {
-                if ((!$sub && $defaultScreen == 'list') || (in_array($sub,$defaultScreens) && in_array($node,$this->searchPages)))
+                if ((!$sub && $defaultScreen == 'list') || (in_array($sub,$defaultScreens) && in_array($node,self::$searchPages)))
                     if ($this->node != 'home') $this->setMessage(sprintf('%s %s%s found',count($this->data),$this->childClass,(count($this->data) != 1 ? 's' : '')));
                 $id_field = "{$node}_id";
                 array_map(function(&$rowData) use ($id_field) {
@@ -152,7 +152,7 @@ abstract class FOGPage extends FOGBase {
                 },(array)$this->data);
             }
             echo '</tbody></table>';
-            if (((!$sub || ($sub && in_array($sub,$defaultScreens))) && in_array($node,$this->searchPages)) && !self::$isMobile) {
+            if (((!$sub || ($sub && in_array($sub,$defaultScreens))) && in_array($node,self::$searchPages)) && !self::$isMobile) {
                 if ($this->node == 'host') {
                     printf('<form method="post" action="%s", id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" value="%s"/></p></form>',
                         sprintf('?node=%s&sub=save_group',$this->node),
@@ -636,7 +636,7 @@ abstract class FOGPage extends FOGBase {
                 if ($_REQUEST['msg'] == 'dl') {
                     $fp = fopen($_SESSION['tmp-kernel-file'],'wb');
                     if (!$fp) throw new Exception(_('Error: Failed to open temp file'));
-                    $this->FOGURLRequests->process(mb_convert_encoding($_SESSION['dl-kernel-file'],'UTF-8'),'GET',false,false,false,false,$fp);
+                    self::$FOGURLRequests->process(mb_convert_encoding($_SESSION['dl-kernel-file'],'UTF-8'),'GET',false,false,false,false,$fp);
                     if (!file_exists($_SESSION['tmp-kernel-file'])) throw new Exception(_('Error: Failed to download kernel'));
                     if (!filesize($_SESSION['tmp-kernel-file']) >  1048576) throw new Exception(sprintf('%s: %s: %s - %s',_('Error'),_('Download Failed'),_('Failed'),_('filesize'),filesize($_SESSION['tmp-kernel-file'])));
                     $SendME = '##OK##';
@@ -666,7 +666,7 @@ abstract class FOGPage extends FOGBase {
         echo $SendME;
     }
     public function loginInfo() {
-        $data = $this->FOGURLRequests->process(array('http://fogproject.org/globalusers','http://fogproject.org/version/version.php'),'GET');
+        $data = self::$FOGURLRequests->process(array('http://fogproject.org/globalusers','http://fogproject.org/version/version.php'),'GET');
         if (!$data[0]) $data['error-sites'] = _('Error contacting server');
         else $data['sites'] = $data[0];
         if (!$data[1]) $data['error-version'] = _('Error contacting server');
@@ -821,7 +821,7 @@ abstract class FOGPage extends FOGBase {
         $eventClass = $this->childClass;
         if ($this->childClass == 'Task') $eventClass = 'host';
         $this->title = _('Search');
-        if (in_array($this->node,$this->searchPages)) $this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
+        if (in_array($this->node,self::$searchPages)) $this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
         self::$HookManager->processEvent(sprintf('%s_DATA',strtoupper($eventClass)),array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes,'title'=>&$this->title,'searchFormURL'=>&$this->searchFormURL));
         self::$HookManager->processEvent(sprintf('%s_HEADER_DATA',strtoupper($this->childClass)),array('headerData'=>&$this->headerData));
         $this->render();

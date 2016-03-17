@@ -51,7 +51,7 @@ unset($stylesheet); ?>
 							<?php
     } ?></div>
 							<?php if (self::$FOGUser && !$this->isHomepage) { ?><!-- Submenu -->
-								<?php echo $this->FOGPageManager->getSideMenu();
+								<?php echo self::$FOGPageManager->getSideMenu();
     } ?>
 								</header><!-- Content -->
 								<div id="content"<?php echo ($this->isHomepage ? ' class="dashboard"' : '') ?>>
