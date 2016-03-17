@@ -72,7 +72,7 @@ class Host extends FOGController {
     );
     public function set($key, $value) {
         $key = $this->key($key);
-        if (!self::isLoaded($key)) $this->loadItem($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         switch ($key) {
         case 'mac':
             if (!($value instanceof MACAddress)) $value = self::getClass('MACAddress',$value);
@@ -97,7 +97,7 @@ class Host extends FOGController {
     }
     public function add($key, $value) {
         $key = $this->key($key);
-        if (!self::isLoaded($key)) $this->loadItem($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         switch ($key) {
         case 'additionalMACs':
         case 'pendingMACs':
@@ -137,7 +137,7 @@ class Host extends FOGController {
             $this->destroy();
             throw new Exception(_('Host ID was not set, or unable to be created'));
             break;
-        case (self::isLoaded('mac')):
+        case ($this->isLoaded('mac')):
             if (!(($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())) throw new Exception(self::$foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
             $CurrPriMAC = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
@@ -159,7 +159,7 @@ class Host extends FOGController {
                     ->save();
             }
             unset($DBPriMACs,$RealPriMAC,$RemoveMAC,$HostWithMAC);
-        case (self::isLoaded('additionalMACs')):
+        case ($this->isLoaded('additionalMACs')):
             $theseMACs = $this->get('additionalMACs');
             $RealAddMACs = $PreOwnedMACs = array();
             foreach ((array)$theseMACs AS $i => &$thisMAC) {
@@ -195,7 +195,7 @@ class Host extends FOGController {
                 unset($RealAddMAC);
             }
             unset($RealAddMACs);
-        case (self::isLoaded('pendingMACs')):
+        case ($this->isLoaded('pendingMACs')):
             $theseMACs = $this->get('pendingMACs');
             $RealPendMACs = $PreOwnedMACs = array();
             foreach ((array)$theseMACs AS $i => &$thisMAC) {
@@ -231,7 +231,7 @@ class Host extends FOGController {
                 unset($RealPendMAC);
             }
             unset($RealPendMACs);
-        case (self::isLoaded('modules')):
+        case ($this->isLoaded('modules')):
             $DBModuleIDs = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
             $RemoveModuleIDs = array_diff((array)$DBModuleIDs,(array)$this->get('modules'));
             if (count($RemoveModuleIDs)) {
@@ -252,7 +252,7 @@ class Host extends FOGController {
                 unset($Module);
             }
             unset($DBModuleIDs,$RemoveModuleIDs);
-        case (self::isLoaded('printers')):
+        case ($this->isLoaded('printers')):
             $DBPrinterIDs = $this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
             $RemovePrinterIDs = array_diff((array)$DBPrinterIDs,(array)$this->get('printers'));
             if (count($RemovePrinterIDs)) {
@@ -269,7 +269,7 @@ class Host extends FOGController {
                 unset($Printer);
             }
             unset($DBPrinterIDs,$RemovePrinterIDs);
-        case (self::isLoaded('snapins')):
+        case ($this->isLoaded('snapins')):
             $DBSnapinIDs = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
             $RemoveSnapinIDs = array_diff((array)$DBSnapinIDs,(array)$this->get('snapins'));
             if (count($RemoveSnapinIDs)) {
@@ -286,7 +286,7 @@ class Host extends FOGController {
                 unset($Snapin);
             }
             unset($DBSnapinIDs,$RemoveSnapinIDs);
-        case (self::isLoaded('groups')):
+        case ($this->isLoaded('groups')):
             $DBGroupIDs = $this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
             $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('groups'));
             if (count($RemoveGroupIDs)) {

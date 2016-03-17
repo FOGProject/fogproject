@@ -47,7 +47,7 @@ class Snapin extends FOGController {
             $this->destroy();
             throw new Exception(_('Snapin ID was not set, or unable to be created'));
             break;
-        case (self::isLoaded('hosts')):
+        case ($this->isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
@@ -68,7 +68,7 @@ class Snapin extends FOGController {
                 unset($Host);
             }
             unset($Hosts,$DBHostIDs);
-        case (self::isLoaded('storageGroups')):
+        case ($this->isLoaded('storageGroups')):
             $DBGroupIDs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID');
             $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('storageGroups'));
             if (count($RemoveGroupIDs)) {
