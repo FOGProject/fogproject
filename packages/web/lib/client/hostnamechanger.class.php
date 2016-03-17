@@ -16,12 +16,13 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
         if (strpos($username,chr(92)) || strpos($username,chr(64))) $adUser = $username;
         else if ($username) $adUser = sprintf('%s\%s',$this->Host->get('ADDomain'),$username);
         else $adUser = '';
-        printf("#AD=%s\n#ADDom=%s\n#ADOU=%s\n#ADUser=%s\n#ADPass=%s",
+        printf("#AD=%s\n#ADDom=%s\n#ADOU=%s\n#ADUser=%s\n#ADPass=%s%s",
             $this->Host->get('useAD'),
             $this->Host->get('ADDomain'),
             $this->Host->get('ADOU'),
             $adUser,
-            $password
+            $password,
+            $this->newService ? sprintf("\n#enforce=%s",(int)$this->Host->get('enforce')) : ''
         );
         if ($productKey) printf("\n#Key=%s",$productKey);
         $this->send = ob_get_clean();
