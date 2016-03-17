@@ -59,7 +59,8 @@ class PluginManagementPage extends FOGPage {
     }
     public function install() {
         $this->title = 'Install Plugins';
-        array_map(function(&$Plugin) {
+        $P = null;
+        array_map(function(&$Plugin) use (&$P) {
             if (!$Plugin->isActive() || $Plugin->isInstalled() || isset($_REQUEST['plug_name']) && $_REQUEST['plug_name'] != $Plugin->get('name')) return;
             $this->data[] = array(
                 'name'=>$Plugin->get('name'),
@@ -70,19 +71,22 @@ class PluginManagementPage extends FOGPage {
                 'icon'=>$Plugin->getIcon(),
                 'pluginid'=>$Plugin->get('id') ? $Plugin->get('id') : '',
             );
+            $P = $Plugin;
+            unset($Plugin);
         },self::getClass('Plugin')->getPlugins());
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if ($_REQUEST['run']) {
-            $runner = $Plugin->getRunInclude($_REQUEST['run']);
-            if (file_exists($runner) && $Plugin->isInstalled()) require($runner);
+            $runner = $P->getRunInclude($_REQUEST['run']);
+            if (file_exists($runner) && $P->isInstalled()) require($runner);
             else $this->run();
         }
-        unset($Plugin);
+        unset($P);
     }
     public function installed() {
         $this->title = _('Installed Plugins');
-        array_map(function(&$Plugin) {
+        $P = null;
+        array_map(function(&$Plugin) use (&$P) {
             if (!$Plugin->isActive() || !$Plugin->isInstalled()) return;
             $this->data[] = array(
                 'name'=>$Plugin->get('name'),
@@ -93,18 +97,20 @@ class PluginManagementPage extends FOGPage {
                 'icon'=>$Plugin->getIcon(),
                 'pluginid'=>$Plugin->get('id') ? $Plugin->get('id') : '',
             );
+            $P = $Plugin;
+            unset($Plugin);
         },self::getClass('Plugin')->getPlugins());
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if ($_REQUEST['run']) {
-            $runner = $Plugin->getRunInclude($_REQUEST['run']);
-            if (file_exists($runner) && $Plugin->isInstalled()) require($runner);
+            $runner = $P->getRunInclude($_REQUEST['run']);
+            if (file_exists($runner) && $P->isInstalled()) require($runner);
             else $this->run();
         }
-        unset($Plugin);
+        unset($P);
     }
     public function run() {
-        $plugin = self::getClass('Plugin',@min($this->getSubObjectIDs(array('name'=>$_SESSION['fogactiveplugin']))));
+        $plugin = self::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
         try {
             if ($plugin == null) throw new Exception(_('Unable to determine plugin details.'));
             $this->title = sprintf('%s: %s',_('Plugin'),$plugin->get('name'));
@@ -235,7 +241,7 @@ class PluginManagementPage extends FOGPage {
     }
     public function install_post() {
         self::getClass('Plugin')->getRunInclude($_REQUEST['run']);
-        $Plugin = self::getClass('Plugin',@min($this->getSubObjectIDs(array('name'=>$_SESSION['fogactiveplugin']))));
+        $Plugin = self::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
         try {
             if (!$Plugin->isValid()) throw new Exception(_('Invalid Plugin Passed'));
             if (isset($_REQUEST['install'])) {
