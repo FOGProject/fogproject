@@ -490,7 +490,7 @@ abstract class FOGBase {
         if (empty($txt)) return;
         $txt = sprintf('[%s] %s',$this->nice_date()->format('Y-m-d H:i:s'),$txt);
         if ($this->logLevel >= $level) echo $txt;
-        $this->logHistory($txt);
+        //$this->logHistory($txt);
     }
     protected function logHistory($string) {
         $string = htmlentities(mb_convert_encoding($string,'UTF-8'),ENT_QUOTES,'UTF-8');

@@ -33,32 +33,27 @@ class TaskstateeditManagementPage extends FOGPage {
             array('width'=>22,'class'=>'l filter-false'),
             array('class'=>'l'),
         );
+        self::$returnData = function(&$TaskState) {
+            if (!$TaskState->isValid()) return;
+            $this->data[] = array(
+                'id'=>$TaskState->get('id'),
+                'name'=>$TaskState->get('name'),
+                'icon'=>$TaskState->get('icon'),
+            );
+            unset($TaskState);
+        };
     }
     public function index() {
         $this->title = _('All Task States');
         if ($this->getSetting('FOG_DATA_RETURNED')>0 && self::getClass('TaskStateManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)self::getClass('TaskStateManager')->find() AS $i => &$TaskState) {
-            if (!$TaskState->isValid()) continue;
-            $this->data[] = array(
-                'icon'=>$TaskState->get('icon'),
-                'id'=>$TaskState->get('id'),
-                'name'=>$TaskState->get('name'),
-            );
-            unset($TaskState);
-        }
+        $this->data = array();
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('TASKSTATE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
-        foreach (self::getClass('TaskStateManager')->search('',true) AS $i => &$TaskState) {
-            if (!$TaskState->isValid()) continue;
-            $this->data[] = array(
-                'icon'=>$TaskState->get('icon'),
-                'id'=>$TaskState->get('id'),
-                'name'=>$TaskState->get('name'),
-            );
-            unset($TaskState);
-        }
+        $this->data = array();
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->search('',true));
         self::$HookManager->processEvent('TASKSTATE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }

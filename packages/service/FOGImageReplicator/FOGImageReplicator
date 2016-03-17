@@ -5,7 +5,7 @@ require_once(dirname(realpath(__FILE__)).'/../etc/config.php');
 require_once(dirname(realpath(__FILE__)).'/../lib/service_lib.php');
 $service_name = 'FOGImageReplicator';
 service_persist($service_name);
-$ServiceClass = FOGCore::getClass('ImageReplicator');
+$ServiceClass = $FOGCore::getClass('ImageReplicator');
 @unlink($ServiceClass->log);
 $ServiceClass->getBanner();
 $ServiceClass->wait_interface_ready();

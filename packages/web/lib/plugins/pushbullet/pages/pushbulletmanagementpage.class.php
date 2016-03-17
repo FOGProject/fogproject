@@ -29,22 +29,25 @@ class PushbulletManagementPage extends FOGPage {
             array('class' => 'l'),
             array('class' => 'r'),
         );
-    }
-    public function search() {
-        $this->index();
+        self::$returnData = function(&$PushBullet) {
+            if (!$PushBullet->isValid()) return;
+            $this->data[] = array(
+                'name'    => $PushBullet->get('name'),
+                'email'   => $PushBullet->get('email'),
+                'id'      => $PushBullet->get('id'),
+            );
+            unset($PushBullet);
+        };
     }
     public function index() {
         $this->title = _('Accounts');
-        foreach ((array)self::getClass('PushbulletManager')->find() AS $i => $Token) {
-            $this->data[] = array(
-                'name'    => $Token->get('name'),
-                'email'   => $Token->get('email'),
-                'id'      => $Token->get('id'),
-            );
-            unset($Token);
-        }
+        $this->data = array();
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('PUSHBULLET_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
+    }
+    public function search() {
+        $this->index();
     }
     public function add() {
         $this->title = _('Link New Account');
