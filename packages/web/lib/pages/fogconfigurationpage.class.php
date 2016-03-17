@@ -40,7 +40,7 @@ class FOGConfigurationPage extends FOGPage {
             $URLs[] = filter_var("http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php",FILTER_SANITIZE_URL);
             unset($StorageNode);
         }
-        $Responses = $this->FOGURLRequests->process($URLs,'GET');
+        $Responses = self::$FOGURLRequests->process($URLs,'GET');
         array_unshift($Nodes,'');
         foreach ((array)$Responses AS $i => &$data) {
             if ($i === 0) echo "<p><div class=\"sub\">{$Responses[$i]}</div></p><h1>Kernel Versions</h1>";
@@ -65,7 +65,7 @@ class FOGConfigurationPage extends FOGPage {
     public function kernel_update() {
         $this->kernelselForm('pk');
         $url = filter_var(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
-        $htmlData = $this->FOGURLRequests->process($url,'GET');
+        $htmlData = self::$FOGURLRequests->process($url,'GET');
         echo $htmlData[0];
     }
     public function kernelselForm($type) {
@@ -77,19 +77,19 @@ class FOGConfigurationPage extends FOGPage {
             case 'pk':
                 $this->kernelselForm('pk');
                 $url = filter_var(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
-                $htmlData = $this->FOGURLRequests->process($url,'GET');
+                $htmlData = self::$FOGURLRequests->process($url,'GET');
                 echo $htmlData[0];
                 break;
             case 'ok':
                 $this->kernelselForm('ok');
                 $url = filter_var(sprintf('https://freeghost.sourceforge.net/kernelupdates/index.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
-                $htmlData = $this->FOGURLRequests->process($url,'GET');
+                $htmlData = self::$FOGURLRequests->process($url,'GET');
                 echo $htmlData[0];
                 break;
             default:
                 $this->kernelselForm('pk');
                 $url = filter_var(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
-                $htmlData = $this->FOGURLRequests->process($url,'GET');
+                $htmlData = self::$FOGURLRequests->process($url,'GET');
                 echo $htmlData[0];
                 break;
             }
@@ -385,7 +385,7 @@ class FOGConfigurationPage extends FOGPage {
             $url = 'http://standards.ieee.org/develop/regauth/oui/oui.txt';
             $fp = fopen($f,'wb');
             if (!$fp) throw new Exception(_('Error: Failed to open temp file'));
-            $this->FOGURLRequests->process($url,'GET',false,false,false,false,$fp);
+            self::$FOGURLRequests->process($url,'GET',false,false,false,false,$fp);
             fclose($fp);
             if (false !== ($handle = fopen($f,'rb'))) {
                 $start = 18;
