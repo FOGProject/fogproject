@@ -38,7 +38,7 @@ class AccesscontrolManagementPage extends FOGPage {
             );
             unset($AccessControl);
         }
-        $this->HookManager->processEvent('CONTROL_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('CONTROL_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
@@ -56,7 +56,7 @@ class AccesscontrolManagementPage extends FOGPage {
             );
             unset($AccessControl,$User);
         }
-        $this->HookManager->processEvent('CONTROL_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('CONTROL_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
 }

@@ -7,11 +7,11 @@ abstract class FOGBase {
     protected static $DB;
     protected static $FOGFTP;
     protected static $FOGCore;
+    protected static $EventManager;
+    protected static $HookManager;
+    protected static $FOGUser;
     protected $debug = false;
     protected $info = false;
-    protected $HookManager;
-    protected $EventManager;
-    protected $FOGUser;
     protected $FOGPageManager;
     protected $FOGURLRequests;
     protected $FOGSubMenu;
@@ -37,10 +37,16 @@ abstract class FOGBase {
         global $FOGFTP;
         global $FOGCore;
         global $DB;
+        global $currentUser;
+        global $EventManager;
+        global $HookManager;
         self::$foglang =& $foglang;
         self::$FOGFTP =& $FOGFTP;
         self::$FOGCore = &$FOGCore;
         self::$DB =& $DB;
+        self::$EventManager =& $EventManager;
+        self::$HookManager =& $HookManager;
+        self::$FOGUser =& $currentUser;
         self::$buildSelectBox = function(&$option,&$index = false) {
             $value = $option;
             if ($index) $value = $index;
@@ -59,15 +65,9 @@ abstract class FOGBase {
         return $this;
     }
     public function __construct() {
-        global $currentUser;
-        global $HookManager;
-        global $EventManager;
         global $FOGURLRequests;
         global $FOGPageManager;
         global $TimeZone;
-        $this->FOGUser = &$currentUser;
-        $this->EventManager = &$EventManager;
-        $this->HookManager = &$HookManager;
         $this->FOGURLRequests = &$FOGURLRequests;
         $this->FOGPageManager = &$FOGPageManager;
         $this->TimeZone = &$TimeZone;
@@ -155,7 +155,7 @@ abstract class FOGBase {
         if (!isset($_SESSION['FOG_MESSAGES'])) $_SESSION['FOG_MESSAGES'] = array();
         $messages = (array)$_SESSION['FOG_MESSAGES'];
         unset($_SESSION['FOG_MESSAGES']);
-        if ($this->HookManager instanceof HookManager) $this->HookManager->processEvent('MessageBox',array('data'=>&$messages));
+        if (self::$HookManager instanceof HookManager) self::$HookManager->processEvent('MessageBox',array('data'=>&$messages));
         foreach ($messages AS $i => &$message) {
             if (!$i) echo '<!-- FOG Messages -->';
             printf('<div class="fog-message-box">%s</div>',$message);

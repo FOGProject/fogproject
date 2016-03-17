@@ -10,7 +10,7 @@ class PluginManagementPage extends FOGPage {
             'install'=>self::$foglang['InstallPlugins'],
             'installed'=>self::$foglang['InstalledPlugins'],
         );
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
         $this->headerData = array(
             _('Plugin Name'),
             _('Description'),
@@ -49,7 +49,7 @@ class PluginManagementPage extends FOGPage {
             );
             unset($Plugin);
         },self::getClass('Plugin')->getPlugins());
-        $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if (!empty($_REQUEST['activate']) && $_REQUEST['sub'] == 'activate') {
             self::getClass('Plugin')->activatePlugin($_REQUEST['activate']);
@@ -74,7 +74,7 @@ class PluginManagementPage extends FOGPage {
             $P = $Plugin;
             unset($Plugin);
         },self::getClass('Plugin')->getPlugins());
-        $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if ($_REQUEST['run']) {
             $runner = $P->getRunInclude($_REQUEST['run']);
@@ -100,7 +100,7 @@ class PluginManagementPage extends FOGPage {
             $P = $Plugin;
             unset($Plugin);
         },self::getClass('Plugin')->getPlugins());
-        $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if ($_REQUEST['run']) {
             $runner = $P->getRunInclude($_REQUEST['run']);

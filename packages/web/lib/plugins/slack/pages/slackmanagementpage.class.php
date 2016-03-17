@@ -47,7 +47,7 @@ class SlackManagementPage extends FOGPage {
             );
             unset($Token);
         }
-        $this->HookManager->processEvent('SLACK_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        self::$HookManager->processEvent('SLACK_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
     }
     public function add() {
@@ -73,7 +73,7 @@ class SlackManagementPage extends FOGPage {
             );
         }
         unset($fields);
-        $this->HookManager->processEvent('SLACK_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        self::$HookManager->processEvent('SLACK_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';

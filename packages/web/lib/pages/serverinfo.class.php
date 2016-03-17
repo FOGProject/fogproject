@@ -131,7 +131,7 @@ class ServerInfo extends FOGPage {
                 'input' => $input,
             );
         });
-        $this->HookManager->processEvent('SERVER_INFO_DISP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('SERVER_INFO_DISP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
 }

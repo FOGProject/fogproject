@@ -24,7 +24,7 @@ class ReportManagementPage extends FOGPage {
             unset($fileInfo);
         }
         $this->menu = array_merge($this->menu,array('upload'=>self::$foglang['UploadRprts']));
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
         $this->pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
         $this->csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
         $_SESSION['foglastreport'] = null;

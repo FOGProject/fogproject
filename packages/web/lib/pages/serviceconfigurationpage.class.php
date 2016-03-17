@@ -20,7 +20,7 @@ class ServiceConfigurationPage extends FOGPage {
             "$servicelink#usercleanup" => self::$foglang['UserCleanup'],
             "$servicelink#usertracker" => self::$foglang['UserTracker'],
         );
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'servicelink'=>&$servicelink));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'servicelink'=>&$servicelink));
         $this->headerData = array(
             _('Username'),
             _('Edit'),
@@ -265,7 +265,7 @@ class ServiceConfigurationPage extends FOGPage {
         $Service = @array_shift($Service);
         $Module = self::getClass('ModuleManager')->find(array('shortName'=>$_REQUEST['tab']));
         $Module = @array_shift($Module);
-        $this->HookManager->processEvent('SERVICE_EDIT_POST',array('Service'=>&$Service));
+        self::$HookManager->processEvent('SERVICE_EDIT_POST',array('Service'=>&$Service));
         $onoff = (int)isset($_REQUEST['en']);
         $defen = (int)isset($_REQUEST['defen']);
         try {
@@ -301,10 +301,10 @@ class ServiceConfigurationPage extends FOGPage {
                 break;
             }
             if (!$Service->save()) throw new Exception(_('Service update failed'));
-            $this->HookManager->processEvent('SERVICE_EDIT_SUCCESS',array('Service'=>&$Service));
+            self::$HookManager->processEvent('SERVICE_EDIT_SUCCESS',array('Service'=>&$Service));
             $this->setMessage(_('Service Updated!'));
         } catch (Exception $e) {
-            $this->HookManager->processEvent('SERVICE_EDIT_FAIL',array('Service'=>&$Service));
+            self::$HookManager->processEvent('SERVICE_EDIT_FAIL',array('Service'=>&$Service));
             $this->setMessage($e->getMessage());
         }
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));

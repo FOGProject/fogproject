@@ -51,7 +51,7 @@ class LDAPManagementPage extends FOGPage {
             );
             unset($LDAP);
         }
-        $this->HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
@@ -67,7 +67,7 @@ class LDAPManagementPage extends FOGPage {
             );
             unset($LDAP);
         }
-        $this->HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -97,7 +97,7 @@ class LDAPManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        $this->HookManager->processEvent('LDAP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('LDAP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -152,13 +152,13 @@ class LDAPManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        $this->HookManager->processEvent('LDAP_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('LDAP_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        $this->HookManager->processEvent('LDAP_EDIT_POST', array('LDAP'=> &$LDAP));
+        self::$HookManager->processEvent('LDAP_EDIT_POST', array('LDAP'=> &$LDAP));
         try {
             if (!isset($_REQUEST['update'])) throw new Exception(_('Not able to update'));
             $name = trim($_REQUEST['name']);
@@ -173,10 +173,10 @@ class LDAPManagementPage extends FOGPage {
                 ->set('DN',$_REQUEST['DN'])
                 ->set('port',$_REQUEST['port']);
             if (!$LDAP->save()) throw new Exception(_('Database update failed'));
-            $this->HookManager->processEvent('LDAP_EDIT_SUCCESS',array('LDAP'=>&$this->obj));
+            self::$HookManager->processEvent('LDAP_EDIT_SUCCESS',array('LDAP'=>&$this->obj));
             $this->setMessage(_('LDAP information updated!'));
         } catch (Exception $e) {
-            $this->HookManager->processEvent('LDAP_EDIT_FAIL',array('LDAP'=>&$this->obj));
+            self::$HookManager->processEvent('LDAP_EDIT_FAIL',array('LDAP'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
         $this->redirect($this->formAction);

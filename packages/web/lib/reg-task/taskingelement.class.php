@@ -17,7 +17,7 @@ abstract class TaskingElement extends FOGBase {
             $this->StorageGroup = $this->Task->getStorageGroup();
             if ($this->imagingTask) {
                 $this->StorageNode = $this->Task->isUpload() || $this->Task->isMulticast() ? $this->StorageGroup->getMasterStorageNode() : $this->StorageGroup->getOptimalStorageNode($this->Host->get('imageID'));
-                $this->HookManager->processEvent('HOST_NEW_SETTINGS',array('Host'=>&$this->Host,'StorageNode'=>&$this->StorageNode,'StorageGroup'=>&$this->StorageGroup));
+                self::$HookManager->processEvent('HOST_NEW_SETTINGS',array('Host'=>&$this->Host,'StorageNode'=>&$this->StorageNode,'StorageGroup'=>&$this->StorageGroup));
                 self::checkStorageGroup($this->StorageGroup);
                 self::checkStorageNodes($this->StorageGroup);
                 $this->Image = $this->Task->getImage();

@@ -54,7 +54,7 @@ class LocationManagementPage extends FOGPage {
             );
             unset($Location);
         }
-        $this->HookManager->processEvent('LOCATION_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('LOCATION_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
@@ -69,7 +69,7 @@ class LocationManagementPage extends FOGPage {
             );
             unset($Location);
         }
-        $this->HookManager->processEvent('LOCATION_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('LOCATION_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -98,7 +98,7 @@ class LocationManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        $this->HookManager->processEvent('LOCATION_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('LOCATION_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -149,13 +149,13 @@ class LocationManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        $this->HookManager->processEvent('LOCATION_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('LOCATION_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&id=%d">',$this->formAction,$this->obj->get('id'));
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        $this->HookManager->processEvent('LOCATION_EDIT_POST',array('Location'=> &$this->obj));
+        self::$HookManager->processEvent('LOCATION_EDIT_POST',array('Location'=> &$this->obj));
         try {
             if ($_REQUEST['name'] != $this->obj->get('name') && $this->obj->getManager()->exists($_REQUEST['name'])) throw new Exception(_('A location with that name already exists.'));
             if (isset($_REQUEST['update'])) {

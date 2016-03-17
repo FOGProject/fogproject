@@ -86,7 +86,7 @@ class Registration extends FOGBase {
                 ->addAddMAC($this->MACs)
                 ->setAD($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,false,true,$ADPassLegacy,$productKey,$enforce);
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
-            $this->HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
+            self::$HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
             try {
                 if (!$doimage) throw new Exception(_('Done, without imaging!'));
                 if (!$this->Host->getImageMemberFromHostID()) throw new Exception(_('Done, No image assigned!'));
@@ -138,7 +138,7 @@ class Registration extends FOGBase {
                 ->addGroup($groupsToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
-            $this->HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
+            self::$HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
             if ($imageid && $this->Host->getImageMemberFromHostID()) {
                 if (!$this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$username)) throw new Exception(_('Done, Failed to create tasking'));
@@ -157,7 +157,7 @@ class Registration extends FOGBase {
                 ->addModule($this->modulesToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
-            $this->HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
+            self::$HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
             throw new Exception(_('Done'));
         } catch (Exception $e) {

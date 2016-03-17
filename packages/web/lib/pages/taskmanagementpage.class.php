@@ -13,7 +13,7 @@ class TaskManagementPage extends FOGPage {
             'active-snapins' => self::$foglang['ActiveSnapins'],
             'active-scheduled' => self::$foglang['ScheduledTasks'],
         );
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
         $this->headerData = array(
             '<input type="checkbox" class="toggle-checkboxAction"/>',
             _('Started By:'),
@@ -74,7 +74,7 @@ class TaskManagementPage extends FOGPage {
             );
             unset($Task,$Host);
         }
-        $this->HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
     }
@@ -111,7 +111,7 @@ class TaskManagementPage extends FOGPage {
             );
             unset($Task,$Host);
         }
-        $this->HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
     }
@@ -147,7 +147,7 @@ class TaskManagementPage extends FOGPage {
             );
             unset($Host);
         }
-        $this->HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
     }
@@ -178,7 +178,7 @@ class TaskManagementPage extends FOGPage {
             );
             unset($Group);
         }
-        $this->HookManager->processEvent('TasksListGroupData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('TasksListGroupData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
     }
@@ -238,7 +238,7 @@ class TaskManagementPage extends FOGPage {
             );
             unset($TaskType);
         }
-        $this->HookManager->processEvent('TASK_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('TASK_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
     }
@@ -257,7 +257,7 @@ class TaskManagementPage extends FOGPage {
         try {
             $Task = self::getClass('Task',(int)$_REQUEST['id']);
             if (!$Task->isValid()) throw new Exception(_('Invalid task'));
-            $this->HookManager->processEvent('TASK_FORCE',array('Task'=>&$Task));
+            self::$HookManager->processEvent('TASK_FORCE',array('Task'=>&$Task));
             $Task->set('isForced',1)->save();
             $result['success'] = true;
         } catch (Exception $e) {
@@ -309,7 +309,7 @@ class TaskManagementPage extends FOGPage {
             );
             unset($TaskState,$MulticastSession);
         }
-        $this->HookManager->processEvent('TaskActiveMulticastData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('TaskActiveMulticastData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function active_multicast_post() {
@@ -365,7 +365,7 @@ class TaskManagementPage extends FOGPage {
             );
             unset($SnapinTask,$Snapin,$SnapinJob,$Host);
         }
-        $this->HookManager->processEvent('TaskActiveSnapinsData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('TaskActiveSnapinsData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
     }
@@ -439,7 +439,7 @@ class TaskManagementPage extends FOGPage {
             );
             unset($ScheduledTask,$ObjTest,$TaskType);
         }
-        $this->HookManager->processEvent('TaskScheduledData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('TaskScheduledData',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
     }

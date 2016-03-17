@@ -69,7 +69,7 @@ class AddLocationHost extends Hook {
         if (!$Location->isValid()) return;
         $Location->addHost($arguments['Host']->get('id'))->save(false);
         $Host = $arguments['Host'];
-        $this->HookManager->processEvent('HOST_REGISTER_LOCATION',array('Host'=>$Host,'Location'=>&$Location));
+        self::$HookManager->processEvent('HOST_REGISTER_LOCATION',array('Host'=>$Host,'Location'=>&$Location));
     }
 }
 $AddLocationHost = new AddLocationHost();

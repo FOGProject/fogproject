@@ -8,8 +8,8 @@ class RestrictUAA extends Hook {
     public $node = 'accesscontrol';
     public function UserData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        if (!$this->FOGUser->isValid()) return;
-        if (!in_array($this->FOGUser->get('type'),array(2))) return;
+        if (!self::$FOGUser->isValid()) return;
+        if (!in_array(self::$FOGUser->get('type'),array(2))) return;
         foreach ((array)$arguments['data'] AS $i => &$data) {
             if ($data['name'] == $_SESSION['FOG_USERNAME']) continue;
             unset($arguments['data'][$i]);
@@ -18,15 +18,15 @@ class RestrictUAA extends Hook {
     }
     public function RemoveName($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        if (!$this->FOGUser->isValid()) return;
-        if (!in_array($this->FOGUser->get('type'),array(2))) return;
+        if (!self::$FOGUser->isValid()) return;
+        if (!in_array(self::$FOGUser->get('type'),array(2))) return;
         unset($arguments['data'][0]);
         unset($arguments['template'][0]);
     }
     public function RemoveCreate($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        if (!$this->FOGUser->isValid()) return;
-        if (!in_array($this->FOGUser->get('type'),array(2))) return;
+        if (!self::$FOGUser->isValid()) return;
+        if (!in_array(self::$FOGUser->get('type'),array(2))) return;
         if (!in_array($_REQUEST['node'],$this->linksToFilter)) return;
         unset($arguments['submenu']['add']);
     }

@@ -22,7 +22,7 @@ class FOGConfigurationPage extends FOGPage {
             'https://wiki.fogproject.org/wiki/index.php'=>_('FOG Wiki'),
             'https://forums.fogproject.org'=>_('FOG Forums'),
         );
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
     public function index() {
         $this->version();
@@ -146,7 +146,7 @@ class FOGConfigurationPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        $this->HookManager->processEvent('PXE_BOOT_MENU',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('PXE_BOOT_MENU',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -208,7 +208,7 @@ class FOGConfigurationPage extends FOGPage {
                 unset($input);
             }
             unset($fields);
-            $this->HookManager->processEvent(sprintf('BOOT_ITEMS_%s',$divTab),array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
+            self::$HookManager->processEvent(sprintf('BOOT_ITEMS_%s',$divTab),array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
             $this->render();
             echo '</form></div>';
             unset($this->data,$Menu);
@@ -263,7 +263,7 @@ class FOGConfigurationPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        $this->HookManager->processEvent('BOOT_ITEMS_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
+        self::$HookManager->processEvent('BOOT_ITEMS_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo "</form>";
@@ -283,11 +283,11 @@ class FOGConfigurationPage extends FOGPage {
             if (!$Menu->save()) throw new Exception(_('Menu create failed'));
             $countDefault = self::getClass('PXEMenuOptionsManager')->count(array('default'=>1));
             if ($countDefault == 0 || $countDefault > 1) self::getClass('PXEMenuOptions',1)->set('default',1)->save();
-            $this->HookManager->processEvent('MENU_ADD_SUCCESS',array('Menu'=>&$Menu));
+            self::$HookManager->processEvent('MENU_ADD_SUCCESS',array('Menu'=>&$Menu));
             $this->setMessage(_('Menu Added'));
             $this->redirect(sprintf('?node=%s&sub=edit&%s=%s',$this->node,$this->id,$Menu->get('id')));
         } catch (Exception $e) {
-            $this->HookManager->processEvent('MENU_ADD_FAIL',array('Menu'=>&$Menu));
+            self::$HookManager->processEvent('MENU_ADD_FAIL',array('Menu'=>&$Menu));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
@@ -323,7 +323,7 @@ class FOGConfigurationPage extends FOGPage {
             );
             unset($ClientUpdate);
         }
-        $this->HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=clientupdater">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -348,7 +348,7 @@ class FOGConfigurationPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        $this->HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=clientupdater" enctype="multipart/form-data"><input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED"/>',$this->formAction);
         $this->render();
         echo '</form>';
@@ -577,7 +577,7 @@ class FOGConfigurationPage extends FOGPage {
                 'service_name'=>'',
                 'input_type'=>sprintf('<input name="update" type="submit" value="%s"/>',_('Save Changes')),
             );
-            $this->HookManager->processEvent(sprintf('CLIENT_UPDATE_%s',$divTab),array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+            self::$HookManager->processEvent(sprintf('CLIENT_UPDATE_%s',$divTab),array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             $this->render();
             echo '</div>';
             unset($this->data,$options,$ServiceCAT);
@@ -790,7 +790,7 @@ class FOGConfigurationPage extends FOGPage {
                 );
             }
             $ip[$StorageNode->get('name')] = $StorageNode->get('ip');
-            $this->HookManager->processEvent('LOG_VIEWER_HOOK',array('files'=>&$files,'StorageNode'=>&$StorageNode));
+            self::$HookManager->processEvent('LOG_VIEWER_HOOK',array('files'=>&$files,'StorageNode'=>&$StorageNode));
             unset($StorageGroup);
         }
         unset($StorageGroups);
@@ -820,7 +820,7 @@ class FOGConfigurationPage extends FOGPage {
         printf('<select name="n" id="linesToView">%s</select><br/><p class="c"><label for="reverse">%s : <input type="checkbox" name="reverse" id="reverse"/></label></p></label><br/><p class="c"><input type="button" id="logpause"/></p></p></form><br/><div id="logsGoHere"></div></p>',ob_get_clean(),_('Reverse the file: (newest on top)'));
     }
     public function config() {
-        $this->HookManager->processEvent('IMPORT');
+        self::$HookManager->processEvent('IMPORT');
         $this->title='Configuration Import/Export';
         $report = self::getClass('ReportMaker');
         $_SESSION['foglastreport']=serialize($report);
@@ -856,7 +856,7 @@ class FOGConfigurationPage extends FOGPage {
         unset($this->attributes,$this->templates,$this->data);
     }
     public function config_post() {
-        $this->HookManager->processEvent('IMPORT_POST');
+        self::$HookManager->processEvent('IMPORT_POST');
         $Schema = self::getClass('Schema');
         try {
             if (!$_FILES['dbFile']) throw new Exception(_('No files uploaded'));

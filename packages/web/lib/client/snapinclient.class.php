@@ -19,13 +19,13 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         }
         $Snapin = $SnapinTask->getSnapin();
         if ($Snapin->getStorageGroup()->isValid() && $Snapin->isValid()) $StorageGroup = $Snapin->getStorageGroup();
-        $this->HookManager->processEvent('SNAPIN_GROUP',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageGroup'=>&$StorageGroup));
+        self::$HookManager->processEvent('SNAPIN_GROUP',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageGroup'=>&$StorageGroup));
         if (!($StorageGroup instanceof StorageGroup && $StorageGroup->isValid())) {
             $SnapinFile = sprintf('%s%s',trim($this->getSetting('FOG_SNAPINDIR')),DIRECTORY_SEPARATOR);
             if (!file_exists($SnapinFile) && !file_exists($Snapin->get('file'))) throw new Exception('Snapin file does not exist');
         } else {
             $StorageNode = $StorageGroup->getMasterStorageNode();
-            $this->HookManager->processEvent('SNAPIN_NODE',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageNode'=>&$StorageNode));
+            self::$HookManager->processEvent('SNAPIN_NODE',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageNode'=>&$StorageNode));
             if (!$StorageNode->isValid()) throw new Exception(_('Failed to find a node'));
             self::$FOGFTP
                 ->set('host',$StorageNode->get('ip'))
