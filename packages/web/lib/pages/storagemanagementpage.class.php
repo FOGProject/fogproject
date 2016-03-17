@@ -99,7 +99,7 @@ class StorageManagementPage extends FOGPage {
             array('class'=>'c','width'=>90),
             array('class'=>'c filter-false','width'=>50),
         );
-        $this->HookManager->processEvent('STORAGE_NODE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('STORAGE_NODE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
 
         $this->render();
     }
@@ -161,12 +161,12 @@ class StorageManagementPage extends FOGPage {
             );
         }
         unset($input);
-        $this->HookManager->processEvent('STORAGE_NODE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('STORAGE_NODE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
     public function add_storage_node_post() {
-        $this->HookManager->processEvent('STORAGE_NODE_ADD_POST');
+        self::$HookManager->processEvent('STORAGE_NODE_ADD_POST');
         try {
             if (empty($_REQUEST['name'])) throw new Exception(self::$foglang['StorageNameRequired']);
             if (self::getClass('StorageNodeManager')->exists($_REQUEST['name'])) throw new Exception(self::$foglang['StorageNameExists']);
@@ -197,11 +197,11 @@ class StorageManagementPage extends FOGPage {
                 ->set('bandwidth',$_REQUEST['bandwidth']);
             if (!$StorageNode->save()) throw new Exception(self::$foglang['DBupfailed']);
             if ($StorageNode->get('isMaster')) self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$StorageNode->get('id'),$this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$StorageNode->get('storageGroupID'))))),'',array('isMaster'=>0));
-            $this->HookManager->processEvent('STORAGE_NODE_ADD_SUCCESS',array('StorageNode'=>&$StorageNode));
+            self::$HookManager->processEvent('STORAGE_NODE_ADD_SUCCESS',array('StorageNode'=>&$StorageNode));
             $this->setMessage(self::$foglang['SNCreated']);
             $this->redirect(sprintf('?node=%s&id=%s',$_REQUEST['node'],$this->id, $StorageNode->get('id')));
         } catch (Exception $e) {
-            $this->HookManager->processEvent('STORAGE_NODE_ADD_FAIL',array('StorageNode'=>&$StorageNode));
+            self::$HookManager->processEvent('STORAGE_NODE_ADD_FAIL',array('StorageNode'=>&$StorageNode));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
@@ -267,12 +267,12 @@ class StorageManagementPage extends FOGPage {
             );
         }
         unset($input);
-        $this->HookManager->processEvent('STORAGE_NODE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('STORAGE_NODE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo "</form>";
     }
     public function edit_storage_node_post() {
-        $this->HookManager->processEvent('STORAGE_NODE_EDIT_POST',array('StorageNode'=>&$this->obj));
+        self::$HookManager->processEvent('STORAGE_NODE_EDIT_POST',array('StorageNode'=>&$this->obj));
         try {
             if (empty($_REQUEST['name'])) throw new Exception(self::$foglang['StorageNameRequired']);
             if ($this->obj->get('name') != $_REQUEST['name'] && self::getClass('StorageNodeManager')->exists($_REQUEST['name'], $this->obj->get('id'))) throw new Exception(self::$foglang['StorageNameExists']);
@@ -304,11 +304,11 @@ class StorageManagementPage extends FOGPage {
             // Save
             if (!$this->obj->save()) throw new Exception(self::$foglang['DBupfailed']);
             if ($this->obj->get('isMaster')) self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$this->obj->get('id'),$this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$this->obj->get('storageGroupID'))))),'',array('isMaster'=>0));
-            $this->HookManager->processEvent('STORAGE_NODE_EDIT_SUCCESS',array('StorageNode'=>&$this->obj));
+            self::$HookManager->processEvent('STORAGE_NODE_EDIT_SUCCESS',array('StorageNode'=>&$this->obj));
             $this->setMessage(self::$foglang['SNUpdated']);
             $this->redirect($this->formAction);
         } catch (Exception $e) {
-            $this->HookManager->processEvent('STORAGE_NODE_EDIT_FAIL',array('StorageNode'=>&$this->obj));
+            self::$HookManager->processEvent('STORAGE_NODE_EDIT_FAIL',array('StorageNode'=>&$this->obj));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
@@ -336,19 +336,19 @@ class StorageManagementPage extends FOGPage {
         }
         unset($input);
         echo '<form method="post" action="'.$this->formAction.'" class="c">';
-        $this->HookManager->processEvent('STORAGE_NODE_DELETE',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('STORAGE_NODE_DELETE',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
     public function delete_storage_node_post() {
-        $this->HookManager->processEvent('STORAGE_NODE_DELETE_POST', array('StorageNode'=>&$this->obj));
+        self::$HookManager->processEvent('STORAGE_NODE_DELETE_POST', array('StorageNode'=>&$this->obj));
         try {
             if (!$this->obj->destroy()) throw new Exception(self::$foglang['FailDelSN']);
-            $this->HookManager->processEvent('STORAGE_NODE_DELETE_SUCCESS',array('StorageNode'=>&$this->obj));
+            self::$HookManager->processEvent('STORAGE_NODE_DELETE_SUCCESS',array('StorageNode'=>&$this->obj));
             $this->setMessage(sprintf('%s: %s',self::$foglang['SNDelSuccess'],$this->obj->get('name')));
             $this->redirect(sprintf('?node=%s',$_REQUEST['node']));
         } catch (Exception $e) {
-            $this->HookManager->processEvent('STORAGE_NODE_DELETE_FAIL',array('StorageNode'=>&$this->obj));
+            self::$HookManager->processEvent('STORAGE_NODE_DELETE_FAIL',array('StorageNode'=>&$this->obj));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
@@ -379,7 +379,7 @@ class StorageManagementPage extends FOGPage {
         }
         unset($StorageGroup);
         // Hook
-        $this->HookManager->processEvent(STORAGE_GROUP_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        self::$HookManager->processEvent(STORAGE_GROUP_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
     }
@@ -415,14 +415,14 @@ class StorageManagementPage extends FOGPage {
         }
         unset($input);
         // Hook
-        $this->HookManager->processEvent(STORAGE_GROUP_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        self::$HookManager->processEvent(STORAGE_GROUP_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
         echo '</form>';
     }
     public function add_storage_group_post() {
         // Hook
-        $this->HookManager->processEvent(STORAGE_GROUP_ADD_POST);
+        self::$HookManager->processEvent(STORAGE_GROUP_ADD_POST);
         // POST
         try {
             // Error checking
@@ -435,14 +435,14 @@ class StorageManagementPage extends FOGPage {
             // Save
             if (!$StorageGroup->save()) throw new Exception(self::$foglang[DBupfailed]);
             // Hook
-            $this->HookManager->processEvent(STORAGE_GROUP_ADD_POST_SUCCESS,array(StorageGroup=>&$StorageGroup));
+            self::$HookManager->processEvent(STORAGE_GROUP_ADD_POST_SUCCESS,array(StorageGroup=>&$StorageGroup));
             // Set session message
             $this->setMessage(self::$foglang[SGCreated]);
             // Redirect to new entry
             $this->redirect(sprintf('?node=%s&sub=edit-storage-group&%s=%s',$_REQUEST[node],$this->id,$StorageGroup->get(id)));
         } catch (Exception $e) {
             // Hook
-            $this->HookManager->processEvent(STORAGE_GROUP_ADD_POST_FAIL, array(StorageGroup=>&$StorageGroup));
+            self::$HookManager->processEvent(STORAGE_GROUP_ADD_POST_FAIL, array(StorageGroup=>&$StorageGroup));
             // Set session message
             $this->setMessage($e->getMessage());
             // Redirect to new entry
@@ -479,14 +479,14 @@ class StorageManagementPage extends FOGPage {
         }
         unset($input);
         // Hook
-        $this->HookManager->processEvent(STORAGE_GROUP_EDIT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        self::$HookManager->processEvent(STORAGE_GROUP_EDIT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
         echo '</form>';
     }
     public function edit_storage_group_post() {
         // Hook
-        $this->HookManager->processEvent(STORAGE_GROUP_EDIT_POST,array(StorageGroup=>&$this->obj));
+        self::$HookManager->processEvent(STORAGE_GROUP_EDIT_POST,array(StorageGroup=>&$this->obj));
         // POST
         try {
             // Error checking
@@ -499,14 +499,14 @@ class StorageManagementPage extends FOGPage {
             // Save
             if (!$this->obj->save()) throw new Exception(self::$foglang[DBupfailed]);
             // Hook
-            $this->HookManager->processEvent(STORAGE_GROUP_EDIT_POST_SUCCESS,array(StorageGroup=>&$this->obj));
+            self::$HookManager->processEvent(STORAGE_GROUP_EDIT_POST_SUCCESS,array(StorageGroup=>&$this->obj));
             // Set session message
             $this->setMessage(self::$foglang[SGUpdated]);
             // Redirect to new entry
             $this->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST[node],$this->id,$this->obj->get(id)));
         } catch (Exception $e) {
             // Hook
-            $this->HookManager->processEvent(STORAGE_GROUP_EDIT_FAIL,array(StorageGroup=>&$this->obj));
+            self::$HookManager->processEvent(STORAGE_GROUP_EDIT_FAIL,array(StorageGroup=>&$this->obj));
             // Set session message
             $this->setMessage($e->getMessage());
             // Redirect to new entry
@@ -540,14 +540,14 @@ class StorageManagementPage extends FOGPage {
         unset($input);
         echo '<form method="post" action="'.$this->formAction.'" class="c">';
         // Hook
-        $this->HookManager->processEvent(STORAGE_GROUP_DELETE,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        self::$HookManager->processEvent(STORAGE_GROUP_DELETE,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
         echo '</form>';
     }
     public function delete_storage_group_post() {
         // Hook
-        $this->HookManager->processEvent(STORAGE_GROUP_DELETE_POST,array(StorageGroup=>&$this->obj));
+        self::$HookManager->processEvent(STORAGE_GROUP_DELETE_POST,array(StorageGroup=>&$this->obj));
         // POST
         try {
             // Error checking
@@ -555,14 +555,14 @@ class StorageManagementPage extends FOGPage {
             // Destroy
             if (!$this->obj->destroy()) throw new Exception(self::$foglang[FailDelSG]);
             // Hook
-            $this->HookManager->processEvent(STORAGE_GROUP_DELETE_POST_SUCCESS, array(StorageGroup=>&$this->obj));
+            self::$HookManager->processEvent(STORAGE_GROUP_DELETE_POST_SUCCESS, array(StorageGroup=>&$this->obj));
             // Set session message
             $this->setMessage(sprintf('%s: %s',self::$foglang[SGDelSuccess],$this->obj->get(name)));
             // Redirect
             $this->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST[node]));
         } catch (Exception $e) {
             // Hook
-            $this->HookManager->processEvent(STORAGE_GROUP_DELETE_POST_FAIL,array(StorageGroup=>&$this->obj));
+            self::$HookManager->processEvent(STORAGE_GROUP_DELETE_POST_FAIL,array(StorageGroup=>&$this->obj));
             // Set session message
             $this->setMessage($e->getMessage());
             // Redirect

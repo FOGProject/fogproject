@@ -21,7 +21,7 @@ class ImageManagementPage extends FOGPage {
                 _('Primary Storage Group') => $this->obj->getStorageGroup()->get('name'),
             );
         }
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));
         $this->headerData = array(
             '',
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
@@ -98,13 +98,13 @@ class ImageManagementPage extends FOGPage {
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['ImageCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
         array_map($this->returnData,self::getClass('ImageManager')->find());
-        $this->HookManager->processEvent('IMAGE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('IMAGE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
         array_map($this->returnData,self::getClass('ImageManager')->search('',true));
-        $this->HookManager->processEvent('IMAGE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('IMAGE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -140,13 +140,13 @@ class ImageManagementPage extends FOGPage {
         );
         printf('<h2>%s</h2>',_('Add new image definition'));
         array_walk($fields,$this->fieldsToData);
-        $this->HookManager->processEvent('IMAGE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('IMAGE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function add_post() {
-        $this->HookManager->processEvent('IMAGE_ADD_POST');
+        self::$HookManager->processEvent('IMAGE_ADD_POST');
         try {
             $_REQUEST['file'] = trim($_REQUEST['file']);
             $name = trim($_REQUEST['name']);
@@ -170,11 +170,11 @@ class ImageManagementPage extends FOGPage {
                 ->set('toReplicate',(int) isset($_REQUEST['toReplicate']))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Image->save()) throw new Exception(_('Database update failed'));
-            $this->HookManager->processEvent('IMAGE_ADD_SUCCESS',array('Image'=>&$Image));
+            self::$HookManager->processEvent('IMAGE_ADD_SUCCESS',array('Image'=>&$Image));
             $this->setMessage(_('Image created'));
             $this->redirect(sprintf('?node=%s&sub=edit&id=%s',$_REQUEST['node'],$Image->get('id')));
         } catch (Exception $e) {
-            $this->HookManager->processEvent('IMAGE_ADD_FAIL',array('Image'=>&$Image));
+            self::$HookManager->processEvent('IMAGE_ADD_FAIL',array('Image'=>&$Image));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
@@ -212,7 +212,7 @@ class ImageManagementPage extends FOGPage {
             '' => sprintf('<input type="submit" name="update" value="%s"/>',_('Update')),
         );
         array_walk($fields,$this->fieldsToData);
-        $this->HookManager->processEvent('IMAGE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('IMAGE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<!-- General --><div id="image-gen"><h2>%s</h2><form method="post" action="%s&tab=image-gen">',_('Edit image definition'),$this->formAction);
         $this->render();
         unset($this->data);
@@ -239,7 +239,7 @@ class ImageManagementPage extends FOGPage {
         $GroupDataExists = false;
         if (count($this->data) > 0) {
             $GroupDataExists = true;
-            $this->HookManager->processEvent('IMAGE_GROUP_ASSOC',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+            self::$HookManager->processEvent('IMAGE_GROUP_ASSOC',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             printf('<p class="c"><label for="groupMeShow">%s&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow"/></label>',_('Check here to see groups not assigned this image'));
             printf('<form method="post" action="%s&tab=image-storage"><div id="groupNotInMe"><h2>%s %s</h2><p>%s %s</p>',$this->formAction,_('Modify group association for'),$this->obj->get('name'),_('Add image to groups'),$this->obj->get('name'));
             $this->render();
@@ -270,14 +270,14 @@ class ImageManagementPage extends FOGPage {
                 'is_primary'=>$this->obj->getPrimaryGroup($Group->get('id')) ? ' checked' : '',
             );
         },self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroups'))));
-        $this->HookManager->processEvent('IMAGE_EDIT_GROUP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('IMAGE_EDIT_GROUP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=image-storage">',$this->formAction);
         $this->render();
         if (count($this->data) > 0) printf('<p class="c"><input name="update" type="submit" value="%s"/>&nbsp;<input name="deleteGroup" type="submit" value="%s"/></p>',_('Update Primary Group'),_('Delete Selected Group associations'));
         echo '</form></div></div>';
     }
     public function edit_post() {
-        $this->HookManager->processEvent('IMAGE_EDIT_POST',array('Image'=>&$this->obj));
+        self::$HookManager->processEvent('IMAGE_EDIT_POST',array('Image'=>&$this->obj));
         try {
             switch ($_REQUEST['tab']) {
             case 'image-gen':
@@ -312,10 +312,10 @@ class ImageManagementPage extends FOGPage {
                 break;
             }
             if (!$this->obj->save()) throw new Exception(_('Database update failed'));
-            $this->HookManager->processEvent('IMAGE_UPDATE_SUCCESS',array('Image'=>&$this->obj));
+            self::$HookManager->processEvent('IMAGE_UPDATE_SUCCESS',array('Image'=>&$this->obj));
             $this->setMessage(_('Image updated'));
         } catch (Exception $e) {
-            $this->HookManager->processEvent('IMAGE_UPDATE_FAIL',array('Image'=>&$this->obj));
+            self::$HookManager->processEvent('IMAGE_UPDATE_FAIL',array('Image'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
@@ -340,7 +340,7 @@ class ImageManagementPage extends FOGPage {
         );
         printf('<h2>%s</h2><form method="post" action="%s">',_('Start Multicast Session'),$this->formAction);
         array_walk($fields,$this->fieldsToData);
-        $this->HookManager->processEvent('IMAGE_MULTICAST_SESS',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('IMAGE_MULTICAST_SESS',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
         $this->headerData = array(
@@ -383,7 +383,7 @@ class ImageManagementPage extends FOGPage {
             );
             unset($MulticastSession);
         },self::getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))));
-        $this->HookManager->processEvent('IMAGE_MULTICAST_START',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('IMAGE_MULTICAST_START',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }

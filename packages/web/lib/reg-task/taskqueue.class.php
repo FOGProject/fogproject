@@ -22,10 +22,10 @@ class TaskQueue extends TaskingElement {
                     if (!$MulticastSession->save()) throw new Exception(_('Failed to update Session'));
                     $this->Host->set('imageID',$MulticastSession->get('image'));
                 } else if ($this->Task->isForced()) {
-                    $this->HookManager->processEvent('TASK_GROUP',array('StorageGroup'=>&$this->StorageGroup,'Host'=>&$this->Host));
+                    self::$HookManager->processEvent('TASK_GROUP',array('StorageGroup'=>&$this->StorageGroup,'Host'=>&$this->Host));
                     $this->StorageNode = $this->Image->getStorageGroup()->getOptimalStorageNode($this->Host->get('imageID'));
                     if ($this->Task->isUpload()) $this->StorageNode = $this->Image->StorageGroup->getMasterStorageNode();
-                    $this->HookManager->processEvent('TASK_NODE',array('StorageNode'=>&$this->StorageNode,'Host'=>&$this->Host));
+                    self::$HookManager->processEvent('TASK_NODE',array('StorageNode'=>&$this->StorageNode,'Host'=>&$this->Host));
                 } else {
                     $totalSlots = $this->StorageGroup->getTotalSupportedClients();
                     $usedSlots = $this->StorageGroup->getUsedSlotCount();
@@ -57,7 +57,7 @@ class TaskQueue extends TaskingElement {
             $this->Task->set('stateID',$this->getProgressState());
             if (!$this->Task->save()) throw new Exception(_('Failed to update Task'));
             if (!$this->TaskLog()) throw new Exception(_('Failed to update/create task log'));
-            $this->EventManager->notify('HOST_CHECKIN',array('Host'=>&$this->Host));
+            self::$EventManager->notify('HOST_CHECKIN',array('Host'=>&$this->Host));
             echo '##@GO';
         } catch (Exception $e) {
             echo $e->getMessage();

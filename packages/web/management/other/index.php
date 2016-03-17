@@ -15,7 +15,7 @@
 				<?php
 }
 $cnt = 0;
-$this->HookManager->processEvent('CSS', array('stylesheets' => & $this->stylesheets));
+self::$HookManager->processEvent('CSS', array('stylesheets' => & $this->stylesheets));
 foreach ($this->stylesheets AS $i => & $stylesheet) echo '<link href="'.$stylesheet.'?ver='.FOG_BCACHE_VER.'" rel="stylesheet" type="text/css" />';
 unset($stylesheet); ?>
 <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
@@ -27,7 +27,7 @@ unset($stylesheet); ?>
 <?php !$this->isMobile ? $this->getMessages() : '' ?>
 <?php if ($this->isMobile) { // Mobile Login
      ?><div id="header"></div>
-	<?php if ($this->FOGUser) { ?><div id="mainContainer">
+	<?php if (self::$FOGUser) { ?><div id="mainContainer">
 		<div class="mainContent"><?php echo $this->menu;
         echo ($this->pageTitle ? "<h2>$this->pageTitle</h2>" : null) . "\n" ?>
 			<div id="mobile_content">
@@ -41,25 +41,25 @@ unset($stylesheet); ?>
 					<!-- Main -->
 					<div id="wrapper">
 					<!-- Header --><header>
-					<div id="header"<?php echo (!$this->FOGUser ? ' class="login"' : '') ?>>
+					<div id="header"<?php echo (!self::$FOGUser ? ' class="login"' : '') ?>>
 					<div id="logo">
 					<h1><a href="<?php echo $this->urlself ?>"><img src="<?php echo $this->imagelink ?>fog-logo.png" title="<?php echo self::$foglang['Home'] ?>" /><sup><?php echo FOG_VERSION ?></sup></a></h1>
 					<h2><?php echo self::$foglang['Slogan'] ?></h2>
 					</div>
-					<?php if ($this->FOGUser) { ?><!-- Mainmenu -->
+					<?php if (self::$FOGUser) { ?><!-- Mainmenu -->
 							<?php echo $this->menu ?>
 							<?php
     } ?></div>
-							<?php if ($this->FOGUser && !$this->isHomepage) { ?><!-- Submenu -->
+							<?php if (self::$FOGUser && !$this->isHomepage) { ?><!-- Submenu -->
 								<?php echo $this->FOGPageManager->getSideMenu();
     } ?>
 								</header><!-- Content -->
 								<div id="content"<?php echo ($this->isHomepage ? ' class="dashboard"' : '') ?>>
 								<?php echo "<h1>$this->sectionTitle</h1>\n" ?>
 								<div id="content-inner">
-								<?php if ($this->FOGUser) {
+								<?php if (self::$FOGUser) {
         echo ($this->pageTitle ? "<h2>$this->pageTitle</h2>" : null);
-        $this->HookManager->processEvent('CONTENT_DISPLAY', array('content' => & $this->body, 'sectionTitle' => & $this->sectionTitle, 'pageTitle' => & $this->pageTitle));
+        self::$HookManager->processEvent('CONTENT_DISPLAY', array('content' => & $this->body, 'sectionTitle' => & $this->sectionTitle, 'pageTitle' => & $this->pageTitle));
     }
     echo $this->body
 ?>
@@ -72,7 +72,7 @@ unset($stylesheet); ?>
 					<!-- <div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> Memory Usage: <?php echo $this->formatByteSize(memory_get_peak_usage()) ?></div> -->
 					<!-- Javascript -->
 					<?php $cnt = 0;
-    $this->HookManager->processEvent('JAVASCRIPT',array('javascripts'=>&$this->javascripts));
+    self::$HookManager->processEvent('JAVASCRIPT',array('javascripts'=>&$this->javascripts));
     foreach ($this->javascripts AS $i => &$javascript) {
         echo ($cnt++ > 0 ? "\t\t" : '') . '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>' . "\n";
     }

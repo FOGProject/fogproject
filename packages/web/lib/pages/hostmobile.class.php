@@ -60,8 +60,8 @@ class HostMobile extends FOGPage {
     public function search_post() {
         $this->data = array();
         array_map($this->returnData,self::getClass('HostManager')->search('',true));
-        $this->HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
+        self::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         $this->render();
     }
 }

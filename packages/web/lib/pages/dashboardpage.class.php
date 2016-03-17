@@ -35,7 +35,7 @@ class DashboardPage extends FOGPage {
         // Overview Pane
         printf('<ul id="dashboard-boxes"><li><h4>%s</h4>',_('System Overview'));
         array_walk($fields,$this->fieldsToData);
-        $this->HookManager->processEvent('DashboardData',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('DashboardData',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</li>';
         unset($this->templates,$this->attributes,$fields,$SystemUptime);

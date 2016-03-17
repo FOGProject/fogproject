@@ -33,8 +33,8 @@ class Page extends FOGBase {
         $this->addCSS('css/select2.min.css');
         $this->addCSS('css/theme.blue.css');
         if (!isset($_REQUEST['node']) || !$_REQUEST['node']) $_REQUEST['node'] = 'home';
-        $this->isHomepage = (in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo')) || !$this->FOGUser->isValid());
-        if ($this->FOGUser->isValid() && strtolower($_REQUEST['node']) != 'schemaupdater') {
+        $this->isHomepage = (in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo')) || !self::$FOGUser->isValid());
+        if (self::$FOGUser->isValid() && strtolower($_REQUEST['node']) != 'schemaupdater') {
             if (!$this->isMobile) {
                 $this->main = array(
                     'home'=>array(self::$foglang['Home'],'fa fa-home fa-2x'),
@@ -61,7 +61,7 @@ class Page extends FOGBase {
                 );
             }
             $this->main = array_unique(array_filter($this->main),SORT_REGULAR);
-            $this->HookManager->processEvent('MAIN_MENU_DATA',array('main'=>&$this->main));
+            self::$HookManager->processEvent('MAIN_MENU_DATA',array('main'=>&$this->main));
             $links = array();
             foreach ($this->main AS $link => &$title) $links[] = $link;
             unset($title);
@@ -83,7 +83,7 @@ class Page extends FOGBase {
             echo '</ul></nav>';
             $this->menu = ob_get_clean();
         }
-        if ($this->FOGUser->isValid() && !$this->isMobile) {
+        if (self::$FOGUser->isValid() && !$this->isMobile) {
             $files = array(
                 'js/jquery-latest.js',
                 'js/jquery.tablesorter.combined.js',

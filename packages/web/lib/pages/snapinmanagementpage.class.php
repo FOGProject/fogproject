@@ -16,7 +16,7 @@ class SnapinManagementPage extends FOGPage {
                 self::$foglang['File'] => $this->obj->get('file'),
             );
         }
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             _('Snapin Name'),
@@ -52,13 +52,13 @@ class SnapinManagementPage extends FOGPage {
         if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('SnapinManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
         array_map($this->returnData,self::getClass('SnapinManager')->find());
-        $this->HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
         array_map($this->returnData,self::getClass('SnapinManager')->search('',true));
-        $this->HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -116,13 +116,13 @@ class SnapinManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        $this->HookManager->processEvent('SNAPIN_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('SNAPIN_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
         unset($this->data,$this->templates,$this->attributes,$this->headerData);
     }
     public function add_post() {
-        $this->HookManager->processEvent('SNAPIN_ADD_POST');
+        self::$HookManager->processEvent('SNAPIN_ADD_POST');
         try {
             $snapinName = trim($_REQUEST['name']);
             if (!$snapinName) throw new Exception(_('Please enter a name to give this Snapin'));
@@ -162,12 +162,12 @@ class SnapinManagementPage extends FOGPage {
                 ->set('toReplicate',(int)isset($_REQUEST['toReplicate']))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Snapin->save()) throw new Exception(_('Add snapin failed!'));
-            $this->HookManager->processEvent('SNAPIN_ADD_SUCCESS',array('Snapin'=>&$Snapin));
+            self::$HookManager->processEvent('SNAPIN_ADD_SUCCESS',array('Snapin'=>&$Snapin));
             $this->setMessage(_('Snapin added, Editing now!'));
             $this->redirect(sprintf('?node=%s&sub=edit&%s=%s', $_REQUEST['node'],$this->id,$Snapin->get('id')));
         } catch (Exception $e) {
             self::$FOGFTP->close();
-            $this->HookManager->processEvent('SNAPIN_ADD_FAIL',array('Snapin'=>&$Snapin));
+            self::$HookManager->processEvent('SNAPIN_ADD_FAIL',array('Snapin'=>&$Snapin));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
@@ -226,7 +226,7 @@ class SnapinManagementPage extends FOGPage {
             );
         }
         unset($input);
-        $this->HookManager->processEvent('SNAPIN_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('SNAPIN_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=snap-gen" enctype="multipart/form-data">',$this->formAction);
         $this->render();
         echo '</form></div>';
@@ -255,7 +255,7 @@ class SnapinManagementPage extends FOGPage {
         };
         array_map($storageGroups,self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroupsnotinme'))));
         if (count($this->data) > 0) {
-            $this->HookManager->processEvent('SNAPIN_GROUP_ASSOC',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+            self::$HookManager->processEvent('SNAPIN_GROUP_ASSOC',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             printf('<p class="c"><label for="groupMeShow">%s&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow"/></label><div id="groupNotInMe"><form method="post" action="%s&tab=snap-storage"><h2>%s %s</h2><p class="c">%s</p>',
                 _('Check here to see groups not assigned with this snapin'),
                 $this->formAction,
@@ -283,14 +283,14 @@ class SnapinManagementPage extends FOGPage {
             '${storageGroup_name}',
         );
         array_map($storageGroups,self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroups'))));
-        $this->HookManager->processEvent('SNAPIN_EDIT_GROUP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('SNAPIN_EDIT_GROUP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=snap-storage">',$this->formAction);
         $this->render();
         if (count($this->data) > 0) printf('<p class="c"><input name="update" type="submit" value="%s"/>&nbsp;<input name="deleteGroup" type="submit" value="%s"/></p>',_('Update Primary Group'),_('Deleted selected group associations'));
         echo '</form></div></div>';
     }
     public function edit_post() {
-        $this->HookManager->processEvent('SNAPIN_EDIT_POST',array('Snapin'=>&$this->obj));
+        self::$HookManager->processEvent('SNAPIN_EDIT_POST',array('Snapin'=>&$this->obj));
         try {
             switch ($_REQUEST['tab']) {
             case 'snap-gen':
@@ -340,12 +340,12 @@ class SnapinManagementPage extends FOGPage {
                 break;
             }
             if (!$this->obj->save()) throw new Exception(_('Snapin update failed'));
-            $this->HookManager->processEvent('SNAPIN_UPDATE_SUCCESS',array('Snapin'=>&$this->obj));
+            self::$HookManager->processEvent('SNAPIN_UPDATE_SUCCESS',array('Snapin'=>&$this->obj));
             $this->setMessage(_('Snapin updated'));
             $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s',$this->node, $this->id, $this->obj->get('id'),$_REQUEST['tab']));
         } catch (Exception $e) {
             self::$FOGFTP->close();
-            $this->HookManager->processEvent('SNAPIN_UPDATE_FAIL',array('Snapin'=>&$this->obj));
+            self::$HookManager->processEvent('SNAPIN_UPDATE_FAIL',array('Snapin'=>&$this->obj));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }

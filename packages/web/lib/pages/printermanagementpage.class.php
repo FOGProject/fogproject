@@ -17,8 +17,8 @@ class PrinterManagementPage extends FOGPage {
                 self::$foglang['Type'] => $this->config,
             );
         }
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));
         $this->headerData = array(
             '',
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
@@ -75,7 +75,7 @@ class PrinterManagementPage extends FOGPage {
             );
             unset($Printer);
         }
-        $this->HookManager->processEvent('PRINTER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('PRINTER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
@@ -95,7 +95,7 @@ class PrinterManagementPage extends FOGPage {
             );
             unset($Printer);
         }
-        $this->HookManager->processEvent('PRINTER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('PRINTER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -168,14 +168,14 @@ class PrinterManagementPage extends FOGPage {
             );
         }
         unset($input,$fields);
-        $this->HookManager->processEvent('PRINTER_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('PRINTER_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=printer-gen">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function add_post() {
         try {
-            $this->HookManager->processEvent('PRINTER_ADD_POST');
+            self::$HookManager->processEvent('PRINTER_ADD_POST');
             switch ($_REQUEST['tab']) {
             case 'printer-type':
                 $this->setMessage(sprintf('%s: %s',_('Printer type changed to'),$_REQUEST['printertype']));
@@ -208,12 +208,12 @@ class PrinterManagementPage extends FOGPage {
                     ->set('configFile',$_REQUEST['configFile'])
                     ->set('ip',$_REQUEST['ip']);
                 if (!$Printer->save()) throw new Exception(_('Could not create printer'));
-                $this->HookManager->processEvent('PRINTER_ADD_SUCCESS',array('Printer'=>&$Printer));
+                self::$HookManager->processEvent('PRINTER_ADD_SUCCESS',array('Printer'=>&$Printer));
                 $this->setMessage(_('Printer was created! Editing now!'));
                 $this->redirect(sprintf('?node=printer&sub=edit&id=%s',$Printer->get('id')));
             }
         } catch (Exception $e) {
-            $this->HookManager->processEvent('PRINTER_ADD_FAIL',array('Printer'=>&$Printer));
+            self::$HookManager->processEvent('PRINTER_ADD_FAIL',array('Printer'=>&$Printer));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
@@ -293,14 +293,14 @@ class PrinterManagementPage extends FOGPage {
             );
         }
         unset($input);
-        $this->HookManager->processEvent('PRINTER_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('PRINTER_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=printer-type"><p class="c"><select class="c" name="printertype" onchange="this.form.submit()">%s</select></p><br/></form><form method="post" action="%s&tab=printer-gen">',$this->formAction,$optionPrinter,$this->formAction);
         $this->render();
         echo '</form></div></div>';
         unset($this->data);
     }
     public function edit_post() {
-        $this->HookManager->processEvent('PRINTER_EDIT_POST',array('Printer'=>&$this->obj));
+        self::$HookManager->processEvent('PRINTER_EDIT_POST',array('Printer'=>&$this->obj));
         try {
             switch ($_REQUEST['tab']) {
             case 'printer-type':
@@ -340,10 +340,10 @@ class PrinterManagementPage extends FOGPage {
                 break;
             }
             if (!$this->obj->save()) throw new Exception(_('Printer update failed!'));
-            $this->HookManager->processEvent('PRINTER_UPDATE_SUCCESS',array('Printer'=>&$this->obj));
+            self::$HookManager->processEvent('PRINTER_UPDATE_SUCCESS',array('Printer'=>&$this->obj));
             $this->setMessage(_('Printer updated!'));
         } catch (Exception $e) {
-            $this->HookManager->processEvent('PRINTER_UPDATE_FAIL',array('Printer'=>&$this->obj));
+            self::$HookManager->processEvent('PRINTER_UPDATE_FAIL',array('Printer'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));

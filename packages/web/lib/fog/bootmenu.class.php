@@ -71,7 +71,7 @@ class BootMenu extends FOGBase {
         if (!$exit || !in_array($exit,array_keys(self::$exitTypes))) $exit = 'sanboot';
         $initrd = $imagefile;
         if ($this->Host->isValid()) {
-            $this->HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS',array(
+            self::$HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS',array(
                 'Host' => &$this->Host,
                 'StorageGroup' => &$StorageGroup,
                 'StorageNode' => &$StorageNode,
@@ -509,7 +509,7 @@ class BootMenu extends FOGBase {
         }
     }
     private function parseMe($Send) {
-        $this->HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send,'Host' => &$this->Host,'kernel' => &$this->kernel,'initrd' => &$this->initrd,'booturl' => &$this->booturl, 'memdisk' => &$this->memdisk,'memtest' => &$this->memtest, 'web' => &$this->web, 'defaultChoice' => &$this->defaultChoice, 'bootexittype' => &$this->bootexittype,'storage' => &$this->storage,'shutdown' => &$this->shutdown,'path' => &$this->path,'timeout' => &$this->timeout,'KS' => $this->ks));
+        self::$HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send,'Host' => &$this->Host,'kernel' => &$this->kernel,'initrd' => &$this->initrd,'booturl' => &$this->booturl, 'memdisk' => &$this->memdisk,'memtest' => &$this->memtest, 'web' => &$this->web, 'defaultChoice' => &$this->defaultChoice, 'bootexittype' => &$this->bootexittype,'storage' => &$this->storage,'shutdown' => &$this->shutdown,'path' => &$this->path,'timeout' => &$this->timeout,'KS' => $this->ks));
         foreach($Send AS $ipxe => &$val) echo implode("\n",$val)."\n";
         unset($val);
     }
@@ -599,7 +599,7 @@ class BootMenu extends FOGBase {
                 $Image = $Task->getImage();
                 $StorageGroup = $Image->getStorageGroup();
                 $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
-                $this->HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
+                self::$HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
                 if ($TaskType->isUpload() || $TaskType->isMulticast()) $StorageNode = $StorageGroup->getMasterStorageNode();
                 $osid = $Image->get('osID');
                 $storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
