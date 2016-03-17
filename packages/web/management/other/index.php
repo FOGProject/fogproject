@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<?php if (!$this->isMobile) {
+<?php if (!self::$isMobile) {
     foreach ($this->headJavascripts AS $i => &$javascript) {
         echo '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>';
     }
@@ -21,11 +21,11 @@ unset($stylesheet); ?>
 <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
 </head>
 <body>
-<?php if (!$this->isMobile) { ?><div class="fog-variable" id="FOGPingActive"><?php echo (int) $_SESSION['FOGPingActive'] ?></div><?php
+<?php if (!self::$isMobile) { ?><div class="fog-variable" id="FOGPingActive"><?php echo (int) $_SESSION['FOGPingActive'] ?></div><?php
 } ?>
 <!-- Session Messages -->
-<?php !$this->isMobile ? $this->getMessages() : '' ?>
-<?php if ($this->isMobile) { // Mobile Login
+<?php !self::$isMobile ? $this->getMessages() : '' ?>
+<?php if (self::$isMobile) { // Mobile Login
      ?><div id="header"></div>
 	<?php if (self::$FOGUser) { ?><div id="mainContainer">
 		<div class="mainContent"><?php echo $this->menu;
@@ -43,7 +43,7 @@ unset($stylesheet); ?>
 					<!-- Header --><header>
 					<div id="header"<?php echo (!self::$FOGUser ? ' class="login"' : '') ?>>
 					<div id="logo">
-					<h1><a href="<?php echo $this->urlself ?>"><img src="<?php echo $this->imagelink ?>fog-logo.png" title="<?php echo self::$foglang['Home'] ?>" /><sup><?php echo FOG_VERSION ?></sup></a></h1>
+					<h1><a href="<?php echo self::$urlself ?>"><img src="<?php echo $this->imagelink ?>fog-logo.png" title="<?php echo self::$foglang['Home'] ?>" /><sup><?php echo FOG_VERSION ?></sup></a></h1>
 					<h2><?php echo self::$foglang['Slogan'] ?></h2>
 					</div>
 					<?php if (self::$FOGUser) { ?><!-- Mainmenu -->

@@ -249,7 +249,7 @@ class TaskManagementPage extends FOGPage {
         $this->advanced('group');
     }
     public function active_post() {
-        if (!$this->ajax) $this->nonajax();
+        if (!self::$ajax) $this->nonajax();
         self::getClass('TaskManager')->cancel($_REQUEST['task']);
         exit;
     }
@@ -263,7 +263,7 @@ class TaskManagementPage extends FOGPage {
         } catch (Exception $e) {
             $result['error'] = $e->getMessage();
         }
-        if ($this->ajax) {
+        if (self::$ajax) {
             echo json_encode($result);
             exit;
         }
@@ -313,7 +313,7 @@ class TaskManagementPage extends FOGPage {
         $this->render();
     }
     public function active_multicast_post() {
-        if (!$this->ajax) $this->nonajax();
+        if (!self::$ajax) $this->nonajax();
         $MulticastSessionIDs = (array)$_REQUEST['task'];
         $TaskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MulticastSessionIDs),'taskID');
         self::getClass('TaskManager')->cancel($TaskIDs);
@@ -374,7 +374,7 @@ class TaskManagementPage extends FOGPage {
         $this->redirect($this->formAction);
     }
     public function active_snapins_post() {
-        if (!$this->ajax) $this->nonajax();
+        if (!self::$ajax) $this->nonajax();
         $SnapinTaskIDs = (array)$_REQUEST['task'];
         $SnapinJobIDs = $this->getSubObjectIDs('SnapinTask',array('id'=>$SnapinTaskIDs),'jobID');
         $SnapinJobIDs = $this->getSubObjectIDs('SnapinTask',array('id'=>$SnapinTaskIDs),'jobID');
@@ -444,7 +444,7 @@ class TaskManagementPage extends FOGPage {
         unset($this->data);
     }
     public function active_scheduled_post() {
-        if (!$this->ajax) $this->nonajax();
+        if (!self::$ajax) $this->nonajax();
         self::getClass('ScheduledTaskManager')->destroy(array('id'=>(array)$_REQUEST['task']));
         exit;
     }
