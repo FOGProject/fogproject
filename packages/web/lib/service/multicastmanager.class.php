@@ -133,6 +133,6 @@ class MulticastManager extends FOGService {
     public function serviceRun() {
         $this->out(' ',$this->dev);
         $this->out(' +---------------------------------------------------------',$this->dev);
-        $this->serviceLoop();
+        self::$serviceLoop();
     }
 }

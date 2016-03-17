@@ -17,10 +17,10 @@ class Page extends FOGBase {
             $this->theme = $this->theme ? $this->theme : 'default/fog.css';
             if (!file_exists("../management/css/$this->theme")) $this->theme = 'default/fog.css';
             $dispTheme = "css/$this->theme";
-            $this->imagelink = sprintf('css/%simages/',(!$this->isMobile ? sprintf('%s/',dirname($this->theme)) : ''));
+            $this->imagelink = sprintf('css/%simages/',(!self::$isMobile ? sprintf('%s/',dirname($this->theme)) : ''));
             if (!file_exists("../management/$dispTheme")) $dispTheme = 'css/default/fog.css';
         }
-        if (!$this->isMobile) {
+        if (!self::$isMobile) {
             $this->addCSS('css/jquery-ui.css');
             $this->addCSS('css/jquery-ui.theme.css');
             $this->addCSS('css/jquery-ui.structure.css');
@@ -35,7 +35,7 @@ class Page extends FOGBase {
         if (!isset($_REQUEST['node']) || !$_REQUEST['node']) $_REQUEST['node'] = 'home';
         $this->isHomepage = (in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo')) || !self::$FOGUser->isValid());
         if (self::$FOGUser->isValid() && strtolower($_REQUEST['node']) != 'schemaupdater') {
-            if (!$this->isMobile) {
+            if (!self::$isMobile) {
                 $this->main = array(
                     'home'=>array(self::$foglang['Home'],'fa fa-home fa-2x'),
                     'user'=>array(self::$foglang['User Management'],'fa fa-users fa-2x'),
@@ -65,7 +65,7 @@ class Page extends FOGBase {
             $links = array();
             foreach ($this->main AS $link => &$title) $links[] = $link;
             unset($title);
-            if (!$this->isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
+            if (!self::$isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
             if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links)) $this->redirect('index.php');
             ob_start();
             echo '<nav class="menu"><ul class="nav-list">';
@@ -83,7 +83,7 @@ class Page extends FOGBase {
             echo '</ul></nav>';
             $this->menu = ob_get_clean();
         }
-        if (self::$FOGUser->isValid() && !$this->isMobile) {
+        if (self::$FOGUser->isValid() && !self::$isMobile) {
             $files = array(
                 'js/jquery-latest.js',
                 'js/jquery.tablesorter.combined.js',
@@ -134,7 +134,7 @@ class Page extends FOGBase {
                 array_push($files,'js/fog/fog.dashboard.js');
                 if (preg_match('#MSIE [6|7|8|9|10|11]#',$_SERVER['HTTP_USER_AGENT'])) array_push($files,'js/flot/excanvas.js');
             }
-        } else if (!$this->isMobile) {
+        } else if (!self::$isMobile) {
             $files = array(
                 'js/jquery-latest.js',
                 'js/jquery.tipsy.js',

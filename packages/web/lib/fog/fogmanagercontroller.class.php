@@ -198,7 +198,7 @@ abstract class FOGManagerController extends FOGBase {
         return (bool)self::$DB->query($query)->fetch()->get('total');
     }
     public function search($keyword = '',$returnObjects = false) {
-        if (empty($keyword)) $keyword = trim($this->isMobile ? $_REQUEST['host-search'] : $_REQUEST['crit']);
+        if (empty($keyword)) $keyword = trim(self::$isMobile ? $_REQUEST['host-search'] : $_REQUEST['crit']);
         $mac_keyword = join(':',str_split(str_replace(array('-',':'),'',$keyword),2));
         $mac_keyword = preg_replace('#[%\+\s\+]#','%',sprintf('%%%s%%',$mac_keyword));
         if (empty($keyword)) $keyword = '%';

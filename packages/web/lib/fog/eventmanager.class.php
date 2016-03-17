@@ -13,7 +13,7 @@ class EventManager extends FOGBase {
                 array_push($this->data[$event], $listener);
                 break;
             case 'HookManager':
-                if ($this->isMobile && !$listener[0]->mobile) throw new Exception(_('Not registering to mobile page'));
+                if (self::$isMobile && !$listener[0]->mobile) throw new Exception(_('Not registering to mobile page'));
                 if (!is_array($listener) || count($listener) < 2 || count($listener) > 2) throw new Exception(_('Second parameter must be in the form array(Hook class,Function to run)'));
                 if (!($listener[0] instanceof Hook)) throw new Exception(_('Class must extend hook'));
                 if (!method_exists($listener[0],$listener[1])) throw new Exception(sprintf('%s: %s->%s',_('Method does not exist'),get_class($listener[0]),$listener[1]));

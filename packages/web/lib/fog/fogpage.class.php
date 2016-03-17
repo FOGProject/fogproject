@@ -64,7 +64,7 @@ abstract class FOGPage extends FOGBase {
             if (is_array($this->span) && count($this->span) === 2) $this->data[count($this->data)-1][$this->span[0]] = $this->span[1];
             unset($input);
         };
-        $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',$this->urlself,htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))),FILTER_SANITIZE_URL));
+        $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',self::$urlself,htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))),FILTER_SANITIZE_URL));
         self::$HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
         self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
@@ -96,7 +96,7 @@ abstract class FOGPage extends FOGBase {
             $defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
             $defaultScreens = array('search','list');
             if (!count($this->templates)) throw new Exception(_('Requires templates to process'));
-            if ($this->ajax) {
+            if (self::$ajax) {
                 echo @json_encode(array(
                     'data'=>&$this->data,
                     'templates'=>&$this->templates,
@@ -115,12 +115,12 @@ abstract class FOGPage extends FOGBase {
                     $this->searchFormURL,
                     (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
                     sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), self::$foglang['Search']),
-                    $this->isMobile ? 'name="host-search"' : '',
-                    $this->isMobile ? 'input' : 'button',
+                    self::$isMobile ? 'name="host-search"' : '',
+                    self::$isMobile ? 'input' : 'button',
                     (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
-                    $this->isMobile ? 'submit' : 'button',
-                    $this->isMobile ? self::$foglang['Search'] : '',
-                    $this->isMobile ? '</input>' : '</button>'
+                    self::$isMobile ? 'submit' : 'button',
+                    self::$isMobile ? self::$foglang['Search'] : '',
+                    self::$isMobile ? '</input>' : '</button>'
                 );
                 $contentField = 'search-content';
             }
@@ -137,7 +137,7 @@ abstract class FOGPage extends FOGBase {
                 printf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
                     count($this->templates),
                     $contentField,
-                    ($this->data['error'] ? (is_array($this->data['error']) ? sprintf('<p>%s</p>',implode('</p><p>',$this->data['error'])) : $this->data['error']) : ($this->node != 'task' ? (!$this->isMobile ? self::$foglang['NoResults'] : '') : self::$foglang['NoResults']))
+                    ($this->data['error'] ? (is_array($this->data['error']) ? sprintf('<p>%s</p>',implode('</p><p>',$this->data['error'])) : $this->data['error']) : ($this->node != 'task' ? (!self::$isMobile ? self::$foglang['NoResults'] : '') : self::$foglang['NoResults']))
                 );
             } else {
                 if ((!$sub && $defaultScreen == 'list') || (in_array($sub,$defaultScreens) && in_array($node,$this->searchPages)))
@@ -152,7 +152,7 @@ abstract class FOGPage extends FOGBase {
                 },(array)$this->data);
             }
             echo '</tbody></table>';
-            if (((!$sub || ($sub && in_array($sub,$defaultScreens))) && in_array($node,$this->searchPages)) && !$this->isMobile) {
+            if (((!$sub || ($sub && in_array($sub,$defaultScreens))) && in_array($node,$this->searchPages)) && !self::$isMobile) {
                 if ($this->node == 'host') {
                     printf('<form method="post" action="%s", id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" value="%s"/></p></form>',
                         sprintf('?node=%s&sub=save_group',$this->node),
@@ -627,7 +627,7 @@ abstract class FOGPage extends FOGBase {
             'domainpass' => $this->encryptpw($this->getSetting('FOG_AD_DEFAULT_PASSWORD')),
             'domainpasslegacy' => $this->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
         );
-        if ($this->ajax) echo json_encode($Data);
+        if (self::$ajax) echo json_encode($Data);
     }
     public function kernelfetch() {
         try {
@@ -897,7 +897,7 @@ abstract class FOGPage extends FOGBase {
         if (count($this->data)) printf('<p class="c"><input type="submit" value="%s %ss %s %s" name="remhosts"/></p>',_('Delete Selected'),$ClassCall,_('From'),$this->node);
     }
     public function membership_post() {
-        if ($this->ajax) return;
+        if (self::$ajax) return;
         if (isset($_REQUEST['addHosts'])) $this->obj->addHost($_REQUEST['host']);
         if (isset($_REQUEST['remhosts'])) $this->obj->removeHost($_REQUEST['hostdel']);
         if ($this->obj->save(false)) {

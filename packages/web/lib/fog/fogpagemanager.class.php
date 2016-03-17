@@ -56,11 +56,11 @@ class FOGPageManager Extends FOGBase {
                 $displayScreen = trim(strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']));
                 if (!array_key_exists($this->classValue, $this->nodes)) throw new Exception(_('No FOGPage Class found for this node'));
                 if (isset($_REQUEST[$class->id]) && $_REQUEST[$class->id]) $this->arguments = array('id'=>$_REQUEST[$class->id]);
-                if ($this->post) $this->setRequest();
+                if (self::$post) $this->setRequest();
                 else $this->resetRequest();
                 if ($this->classValue != 'schemaupdater' && $method == 'index' && $displayScreen != 'list' && $this->methodValue != 'list' && method_exists($class, 'search') && in_array($class->node,$this->searchPages)) $method = 'search';
-                if ($this->ajax && method_exists($class, $method.'_ajax')) $method = $this->methodValue.'_ajax';
-                if ($this->post && method_exists($class, $method.'_post')) $method = $this->methodValue.'_post';
+                if (self::$ajax && method_exists($class, $method.'_ajax')) $method = $this->methodValue.'_ajax';
+                if (self::$post && method_exists($class, $method.'_post')) $method = $this->methodValue.'_post';
             } catch (Exception $e) {
                 $this->debug(_('Failed to Render Page: Node: %s, Error: %s'),array(get_class($class),$e->getMessage()));
             }
@@ -100,7 +100,7 @@ class FOGPageManager Extends FOGBase {
             if (substr($element,$strlen) !== '.class.php') return;
             $className = substr(basename($element),0,$strlen);
             if (in_array($className,get_declared_classes())) return;
-            if (($this->isMobile && !preg_match('#mobile#i',$className)) || (!$this->isMobile && preg_match('#mobile#i',$className))) return;
+            if ((self::$isMobile && !preg_match('#mobile#i',$className)) || (!self::$isMobile && preg_match('#mobile#i',$className))) return;
             $vals = get_class_vars($className);
             if ($vals['node'] !== trim(htmlentities($_REQUEST['node'],ENT_QUOTES,'utf-8'))) return;
             unset($vals);

@@ -16,7 +16,7 @@ if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && !in_array($_
     $Page->render();
 } else {
     $_SESSION['AllowAJAXTasks'] = true;
-    if ($FOGCore->ajax) {
+    if ($FOGCore::$ajax) {
         $FOGPageManager->render();
         exit;
     }
