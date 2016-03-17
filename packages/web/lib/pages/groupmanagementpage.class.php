@@ -46,7 +46,7 @@ class GroupManagementPage extends FOGPage {
             array('width'=>90,'class'=>'c filter-false'),
             array('width'=>50,'class'=>'c filter-false'),
         );
-        $this->returnData = function(&$Group) {
+        self::$returnData = function(&$Group) {
             if (!$Group->isValid()) return;
             $this->data[] = array(
                 'id' => $Group->get('id'),
@@ -61,13 +61,13 @@ class GroupManagementPage extends FOGPage {
         $this->title = _('All Groups');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['GroupCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map($this->returnData,self::getClass('GroupManager')->find());
+        array_map(self::$returnData,self::getClass('GroupManager')->find());
         self::$HookManager->processEvent('GROUP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map($this->returnData,self::getClass('GroupManager')->search('',true));
+        array_map(self::$returnData,self::getClass('GroupManager')->search('',true));
         self::$HookManager->processEvent('GROUP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }

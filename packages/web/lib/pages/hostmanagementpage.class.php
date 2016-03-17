@@ -79,7 +79,7 @@ class HostManagementPage extends FOGPage {
             array('width'=>50,'class'=>'r'),
             array('width'=>20,'class'=>'r')
         );
-        $this->returnData = function(&$Host) {
+        self::$returnData = function(&$Host) {
             if (!$Host->isValid()) return;
             $this->data[] = array(
                 'id'=>$Host->get('id'),
@@ -97,14 +97,14 @@ class HostManagementPage extends FOGPage {
         $this->title = self::$foglang['AllHosts'];
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map($this->returnData,self::getClass('HostManager')->find(array('pending'=>array(0,null,false))));
+        array_map(self::$returnData,self::getClass('HostManager')->find(array('pending'=>array(0,null,false))));
         self::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         self::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData,'title'=>&$this->title));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map($this->returnData,self::getClass('HostManager')->search('',true));
+        array_map(self::$returnData,self::getClass('HostManager')->search('',true));
         self::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         self::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         $this->render();
@@ -112,7 +112,7 @@ class HostManagementPage extends FOGPage {
     public function pending() {
         $this->title = _('Pending Host List');
         $this->data = array();
-        array_map($this->returnData,self::getClass('HostManager')->search('',true));
+        array_map(self::$returnData,self::getClass('HostManager')->search('',true));
         self::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         self::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         if (count($this->data) > 0) printf('<form method="post" action="%s">',$this->formAction);

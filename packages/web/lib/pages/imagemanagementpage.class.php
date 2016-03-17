@@ -70,7 +70,7 @@ class ImageManagementPage extends FOGPage {
                 return $this->getFTPByteSize($StorageNode,sprintf('%s/%s',$StorageNode->get('ftppath'),$path));
             };
         }
-        $this->returnData = function(&$Image) use (&$servSize) {
+        self::$returnData = function(&$Image) use (&$servSize) {
             if (!$Image->isValid()) return;
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
             if (!$StorageNode->isValid()) return;
@@ -97,13 +97,13 @@ class ImageManagementPage extends FOGPage {
         $this->title = _('All Images');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['ImageCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map($this->returnData,self::getClass('ImageManager')->find());
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('IMAGE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map($this->returnData,self::getClass('ImageManager')->search('',true));
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->search('',true));
         self::$HookManager->processEvent('IMAGE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }

@@ -169,13 +169,13 @@ $FOGCore = new FOGCore();
 /** $DB set's the DB class from the DatabaseManager */
 $DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
 /** $EventManager initiates the EventManager class */
-$EventManager = FOGCore::getClass('EventManager');
+$EventManager = $FOGCore::getClass('EventManager');
 /** $HookManager initiates the HookManager class */
-$HookManager = FOGCore::getClass('HookManager');
+$HookManager = $FOGCore::getClass('HookManager');
 $FOGCore->setSessionEnv();
 /** $TimeZone the timezone setter */
 $TimeZone = $_SESSION['TimeZone'];
 $HookManager->load();
 $EventManager->load();
 /** $HookManager initiates the FOGURLRequest class */
-$FOGURLRequests = FOGCore::getClass('FOGURLRequests');
+$FOGURLRequests = $FOGCore::getClass('FOGURLRequests');

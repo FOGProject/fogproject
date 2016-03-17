@@ -4,14 +4,14 @@ try {
     $Host = $FOGCore->getHostItem(false);
     $Task = $Host->get('task');
     if (!$Task || !$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'),$Host->get('mac')->__toString()));
-    $TaskType = FOGCore::getClass('TaskType',$Task->get('typeID'));
+    $TaskType =$FOGCore::getClass('TaskType',$Task->get('typeID'));
     if (!in_array($Task->get('typeID'),array(12,13))) $Task->set('stateID',$FOGCore->getCompleteState())->set('pct',100)->set('percent',100);
     $Host->set('deployed',$FOGCore->nice_date()->format('Y-m-d H:i:s'))->save();
     $id = @max($FOGCore->getSubObjectIDs('ImagingLog',array('hostID' => $Host->get('id'))));
-    FOGCore::getClass('ImagingLog',$id)
+   $FOGCore::getClass('ImagingLog',$id)
         ->set('finish',$FOGCore->nice_date()->format('Y-m-d H:i:s'))
         ->save();
-    FOGCore::getClass('TaskLog',$Task)
+   $FOGCore::getClass('TaskLog',$Task)
         ->set(taskID,$Task->get(id))
         ->set(taskStateID,$Task->get('stateID'))
         ->set(createdTime,$Task->get(createdTime))
@@ -24,14 +24,14 @@ try {
     $EventManager->notify('HOST_IMAGE_COMPLETE', array(HostName=>$Host->get(name)));
     ////============================== Email Notification Start ==============================
     if ($FOGCore->getSetting(FOG_EMAIL_ACTION)) {
-        $Inventory = current(FOGCore::getClass(InventoryManager)->find(array('hostID' => $Host->get(id)))); //Get inventory Data
+        $Inventory = current($FOGCore::getClass(InventoryManager)->find(array('hostID' => $Host->get(id)))); //Get inventory Data
         if ($Inventory && $Inventory->isValid()) {
             $SnapinJob = $Host->get(snapinjob); //Get Snapin(s) Used/Queued
             if ($SnapinJob && $SnapinJob->isValid()) {
-                $SnapinTasks = FOGCore::getClass(SnapinTaskManager)->find(array('stateID' => $FOGCore->getQueuedStates(),'jobID' => $SnapinJob->get(id)));
+                $SnapinTasks =$FOGCore::getClass(SnapinTaskManager)->find(array('stateID' => $FOGCore->getQueuedStates(),'jobID' => $SnapinJob->get(id)));
                 foreach($SnapinTasks AS $SnapinTask) {
                     if ($SnapinTask && $SnapinTask->isValid()) {
-                        $Snapin = FOGCore::getClass(Snapin,$SnapinTask->get(snapinID));
+                        $Snapin =$FOGCore::getClass(Snapin,$SnapinTask->get(snapinID));
                         if ($Snapin->isValid()) $SnapinNames[] = $Snapin->get(name);
                     }
                 }
@@ -53,7 +53,7 @@ try {
                 "\nSerial Number: " => $Inventory->get(sysserial),
                 "\nMAC Address: " => $Host->get(mac),
                 "\n" => '',
-                "\nImage Used: " => FOGCore::getClass(ImagingLog,$id)->get(image),
+                "\nImage Used: " =>$FOGCore::getClass(ImagingLog,$id)->get(image),
                 "\nSnapin Used: " => $snpusd,
                 "\n" => '',
                 "\nImaged By (Engineer): " => $engineer,
@@ -77,9 +77,9 @@ try {
     echo '##';
     // If it's a multicast job, decrement the client count, though not fully needed.
     if ($Task->get(typeID) == 8) {
-        $MyMulticastTask = current(FOGCore::getClass(MulticastSessionsAssociationManager)->find(array(taskID=>$Task->get(id))));
+        $MyMulticastTask = current$FOGCore::getClass(MulticastSessionsAssociationManager)->find(array(taskID=>$Task->get(id))));
         if ($MyMulticastTask && $MyMulticastTask->isValid()) {
-            $MulticastSession = FOGCore::getClass(MulticastSessions,$MyMulticastTask->get(msID));
+            $MulticastSession = $FOGCore::getClass(MulticastSessions,$MyMulticastTask->get(msID));
             $MulticastSession
                 ->set(clients,$MulticastSession->get(clients) - 1)
                 ->save();

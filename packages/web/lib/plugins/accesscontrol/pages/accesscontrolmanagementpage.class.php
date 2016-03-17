@@ -22,12 +22,8 @@ class AccesscontrolManagementPage extends FOGPage {
             array(),
             array(),
         );
-    }
-    public function index() {
-        $this->title = _('All Access Controls');
-        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('AccesscontrolManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)self::getClass('AccesscontrolManager')->find() AS $i => &$AccessControl) {
-            if (!$AccessControl->isValid()) continue;
+        self::$returnData = function(&$AccessControl) {
+            if (!$AccessControl->isValid()) return;
             $this->data[] = array(
                 'id'=>$AccessControl->get('id'),
                 'name'=>$AccessControl->get('name'),
@@ -37,25 +33,19 @@ class AccesscontrolManagementPage extends FOGPage {
                 'group'=>$AccessControl->get('groupID'),
             );
             unset($AccessControl);
-        }
+        };
+    }
+    public function index() {
+        $this->title = _('All Access Controls');
+        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('AccesscontrolManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        $this->data = array();
+        array_map(self::$returnData,self::getClass('AccesscontrolManager')->find());
         self::$HookManager->processEvent('CONTROL_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
-        foreach(self::getClass('AccesscontrolManager')->search('',true) AS $i => &$AccessControl) {
-            if (!$AccessControl->isValid()) continue;
-            $User = self::getClass('User',$AccessControl->get('userID'));
-            if (!$User->isValid()) continue;
-            $this->data[] = array(
-                'id'=>$AccessControl->get('id'),
-                'name'=>$AccessControl->get('name'),
-                'desc'=>$AccessControl->get('description'),
-                'other'=>$AccessControl->get('other'),
-                'user'=>$User->get('name'),
-                'group'=>$AccessControl->get('groupID'),
-            );
-            unset($AccessControl,$User);
-        }
+        $this->data = array();
+        array_map(self::$returnData,self::getClass('AccesscontrolManager')->search('',true));
         self::$HookManager->processEvent('CONTROL_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
