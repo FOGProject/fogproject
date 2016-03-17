@@ -21,7 +21,7 @@ class MACAddress extends FOGBase {
             else $this->MAC = self::normalizeMAC($this->tmpMAC);
             if (!$this->isValid()) throw new Exception("#!im\n");
         } catch (Exception $e) {
-            if ($this->debug) $this->FOGCore->debug($e->getMessage().' MAC: %s', $this->MAC);
+            if ($this->debug) self::$FOGCore->debug($e->getMessage().' MAC: %s', $this->MAC);
         }
         return $this;
     }

@@ -6,7 +6,7 @@ class Schema extends FOGController {
         'version' => 'vValue',
     );
     public function export_db($tables = false, $backup_name = false) {
-        $mysqli = $this->DB->link();
+        $mysqli = self::$DB->link();
         $mysqli->select_db(DATABASE_NAME);
         $mysqli->query("SET NAMES 'utf8'");
         $queryTables = $mysqli->query('SHOW TABLES');
@@ -48,7 +48,7 @@ class Schema extends FOGController {
         return ob_get_clean();
     }
     public function import_db($file) {
-        $mysqli = $this->DB->link();
+        $mysqli = self::$DB->link();
         if (false === ($handle = fopen($file,'rb'))) throw new Exception(_('Error Opening DB File'));
         while (($line = fgets($handle)) !== false) {
             if (substr($line,0,2) == '--' || $line == '') continue;

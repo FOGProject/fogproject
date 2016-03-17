@@ -5,7 +5,7 @@ class SlackManagementPage extends FOGPage {
         $this->name = 'Slack Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'list' => sprintf($this->foglang['ListAll'],_('Slack Accounts')),
+            'list' => sprintf(self::$foglang['ListAll'],_('Slack Accounts')),
             'add' => _('Link Slack Account'),
         );
         if ($_REQUEST['id']) unset($this->subMenu);

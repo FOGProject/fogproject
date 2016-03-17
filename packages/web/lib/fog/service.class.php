@@ -12,7 +12,7 @@ class Service extends FOGController {
         'name',
     );
     public function addDir($dir) {
-        if (self::getClass(DirCleanerManager)->count(array('path'=>$dir)) > 0) throw new Exception($this->foglang['n/a']);
+        if (self::getClass(DirCleanerManager)->count(array('path'=>$dir)) > 0) throw new Exception(self::$foglang['n/a']);
         self::getClass(DirCleaner)
             ->set(path,$dir)
             ->save();
@@ -26,31 +26,31 @@ class Service extends FOGController {
             'FOG_SERVICE_DISPLAYMANAGER_Y' => $y,
             'FOG_SERVICE_DISPLAYMANAGER_R' => $r,
         );
-        foreach($keySettings AS $name => $value) $this->FOGCore->setSetting($name,$value);
+        foreach($keySettings AS $name => $value) $this->setSetting($name,$value);
     }
     public function setGreenFog($h,$m,$t) {
-        if (self::getClass(GreenFogManager)->count(array(hour=>$h,'min'=>$m))>0) throw new Exception($this->foglang[TimeExists]);
+        if (self::getClass('GreenFogManager')->count(array('hour'=>$h,'min'=>$m))>0) throw new Exception(self::$foglang['TimeExists']);
         else {
-            self::getClass(GreenFog)
-                ->set(hour,$h)
+            self::getClass('GreenFog')
+                ->set('hour',$h)
                 ->set('min',$m)
-                ->set(action,$t)
+                ->set('action',$t)
                 ->save();
         }
     }
     public function remGF($gf) {
-        self::getClass(GreenFogManager)->destroy(array(id=>$gf));
+        self::getClass('GreenFogManager')->destroy(array('id'=>$gf));
     }
     public function addUser($user) {
-        if (self::getClass(UserCleanupManager)->count(array(name=>$user))>0) throw new Exception($this->foglang[UserExists]);
-        foreach ((array)$user AS $i => &$name) self::getClass(User)->set(name,$name)->save();
+        if (self::getClass('UserCleanupManager')->count(array('name'=>$user))>0) throw new Exception(self::$foglang['UserExists']);
+        foreach ((array)$user AS $i => &$name) self::getClass('User')->set('name',$name)->save();
         unset($name);
     }
     public function remUser($id) {
-        self::getClass(UserCleanup,$id)->destroy();
+        self::getClass('UserCleanup',$id)->destroy();
     }
     public static function buildExitSelector($name = '',$selected = '',$nullField = false) {
-        if (empty($name)) $name = $this->get(name);
+        if (empty($name)) $name = $this->get('name');
         $types = array(
             'sanboot',
             'grub',

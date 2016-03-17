@@ -8,13 +8,13 @@ class PrinterManagementPage extends FOGPage {
         if ($_REQUEST['id']) {
             $this->config = stripos($this->obj->get('config'),'local') !== false ? _('TCP/IP') : $this->obj->get('config');
             $this->subMenu = array(
-                "$this->linkformat#$this->node-gen" => $this->foglang['General'],
-                $this->membership => $this->foglang['Membership'],
-                $this->delformat => $this->foglang['Delete'],
+                "$this->linkformat#$this->node-gen" => self::$foglang['General'],
+                $this->membership => self::$foglang['Membership'],
+                $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
-                $this->foglang['Printer'] => stripslashes($this->obj->get('name')),
-                $this->foglang['Type'] => $this->config,
+                self::$foglang['Printer'] => stripslashes($this->obj->get('name')),
+                self::$foglang['Type'] => $this->config,
             );
         }
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));

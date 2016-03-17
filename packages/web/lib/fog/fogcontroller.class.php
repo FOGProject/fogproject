@@ -127,9 +127,9 @@ abstract class FOGController extends FOGBase {
             if (count($this->aliasedFields)) $this->array_remove($this->aliasedFields, $this->databaseFields);
             foreach ((array)$this->databaseFields AS $name => &$field) {
                 $key = sprintf('`%s`',trim($field));
-                if ($name == 'createdBy' && !$this->get($name)) $val = trim($_SESSION['FOG_USERNAME'] ? $this->DB->sanitize($_SESSION['FOG_USERNAME']) : 'fog');
+                if ($name == 'createdBy' && !$this->get($name)) $val = trim($_SESSION['FOG_USERNAME'] ? self::$DB->sanitize($_SESSION['FOG_USERNAME']) : 'fog');
                 else if ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) $val = $this->formatTime('now','Y-m-d H:i:s');
-                else $val = $this->DB->sanitize($this->get($name));
+                else $val = self::$DB->sanitize($this->get($name));
                 if ($name == 'id' && (empty($val) || $val == null || $val == 0 || $val == false)) continue;
                 $insertKeys[] = $key;
                 $insertValues[] = $val;
@@ -142,8 +142,8 @@ abstract class FOGController extends FOGBase {
                 implode("','",(array)$insertValues),
                 implode(',',(array)$updateData)
             );
-            if (!$this->DB->query($query)->fetch()->get()) throw new Exception($this->DB->sqlerror());
-            if (!$this->get('id')) $this->set('id',$this->DB->insert_id());
+            if (!self::$DB->query($query)->fetch()->get()) throw new Exception(self::$DB->sqlerror());
+            if (!$this->get('id')) $this->set('id',self::$DB->insert_id());
             if (!$this instanceof History) {
                 if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s.',get_class($this),$this->get('id'),$this->get('name'),_('has been successfully updated')));
                 else $this->log(sprintf('%s ID: %s %s.',get_class($this),$this->get('id'),_('has been successfully updated')));
@@ -170,12 +170,12 @@ abstract class FOGController extends FOGBase {
                         $this->databaseTable,
                         $join,
                         $this->databaseFields[$key],
-                        $this->DB->sanitize($this->get($key)),
+                        self::$DB->sanitize($this->get($key)),
                         count($where) ? ' AND '.implode(' AND ',$where) : ''
                     );
                 } else {
                     $fields = $this->get($key);
-                    foreach((array)$fields AS $i => &$fieldValue) $fieldData[] = sprintf("`%s`.`%s`='%s'",$this->databaseTable,$this->databaseFields[$key],$this->DB->sanitize($fieldValue));
+                    foreach((array)$fields AS $i => &$fieldValue) $fieldData[] = sprintf("`%s`.`%s`='%s'",$this->databaseTable,$this->databaseFields[$key],self::$DB->sanitize($fieldValue));
                     unset($fieldValue);
                     $query = sprintf($this->loadQueryTemplateMultiple,
                         $this->databaseTable,
@@ -184,7 +184,7 @@ abstract class FOGController extends FOGBase {
                         count($where) ? ' AND '.implode(' AND ',$where) : ''
                     );
                 }
-                if (!($vals = $this->DB->query($query)->fetch('','fetch_all')->get())) throw new Exception($this->DB->sqlerror());
+                if (!($vals = self::$DB->query($query)->fetch('','fetch_all')->get())) throw new Exception(self::$DB->sqlerror());
                 $vals = @array_shift($vals);
                 $this->setQuery($vals);
             }
@@ -202,9 +202,9 @@ abstract class FOGController extends FOGBase {
             $query = sprintf($this->destroyQueryTemplate,
                 $this->databaseTable,
                 $fieldToGet,
-                $this->DB->sanitize($this->get($this->key($field)))
+                self::$DB->sanitize($this->get($this->key($field)))
             );
-            if (!$this->DB->query($query)->fetch()->get()) throw new Exception(_('Could not delete item'));
+            if (!self::$DB->query($query)->fetch()->get()) throw new Exception(_('Could not delete item'));
             if (!$this instanceof History) {
                 if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s.',get_class($this),$this->get('id'),$this->get('name'),_('has been destroyed')));
                 else $this->log(sprintf('%s ID: %s %s.',get_class($this),$this->get('id'),_('has been destroyed')));
@@ -235,7 +235,7 @@ abstract class FOGController extends FOGBase {
     public function isValid() {
         try {
             foreach ((array)$this->databaseFieldsRequired AS $i => &$field) {
-                if (!$this->get($field) === 0 && !$this->get($field)) throw new Exception($this->foglang['RequiredDB']);
+                if (!$this->get($field) === 0 && !$this->get($field)) throw new Exception(self::$foglang['RequiredDB']);
                 unset($field);
             }
             if (!$this->get('id')) throw new Exception(_('Invalid ID'));

@@ -50,11 +50,11 @@ abstract class FOGPage extends FOGBase {
             unset($classVars);
         }
         $this->menu = array(
-            'search'=>$this->foglang['NewSearch'],
-            'list'=>sprintf($this->foglang['ListAll'],_(sprintf('%ss',$this->childClass))),
-            'add'=>sprintf($this->foglang['CreateNew'],_($this->childClass)),
-            'export'=>sprintf($this->foglang[sprintf('Export%s',$this->childClass)]),
-            'import'=>sprintf($this->foglang[sprintf('Import%s',$this->childClass)]),
+            'search'=>self::$foglang['NewSearch'],
+            'list'=>sprintf(self::$foglang['ListAll'],_(sprintf('%ss',$this->childClass))),
+            'add'=>sprintf(self::$foglang['CreateNew'],_($this->childClass)),
+            'export'=>sprintf(self::$foglang[sprintf('Export%s',$this->childClass)]),
+            'import'=>sprintf(self::$foglang[sprintf('Import%s',$this->childClass)]),
         );
         $this->fieldsToData = function(&$input,&$field) {
             $this->data[] = array(
@@ -114,12 +114,12 @@ abstract class FOGPage extends FOGBase {
                 printf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><%s id="%s-search-submit" class="search-submit" type="%s" value="%s"></form>%s',
                     $this->searchFormURL,
                     (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
-                    sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
+                    sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), self::$foglang['Search']),
                     $this->isMobile ? 'name="host-search"' : '',
                     $this->isMobile ? 'input' : 'button',
                     (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
                     $this->isMobile ? 'submit' : 'button',
-                    $this->isMobile ? $this->foglang['Search'] : '',
+                    $this->isMobile ? self::$foglang['Search'] : '',
                     $this->isMobile ? '</input>' : '</button>'
                 );
                 $contentField = 'search-content';
@@ -137,7 +137,7 @@ abstract class FOGPage extends FOGBase {
                 printf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
                     count($this->templates),
                     $contentField,
-                    ($this->data['error'] ? (is_array($this->data['error']) ? sprintf('<p>%s</p>',implode('</p><p>',$this->data['error'])) : $this->data['error']) : ($this->node != 'task' ? (!$this->isMobile ? $this->foglang['NoResults'] : '') : $this->foglang['NoResults']))
+                    ($this->data['error'] ? (is_array($this->data['error']) ? sprintf('<p>%s</p>',implode('</p><p>',$this->data['error'])) : $this->data['error']) : ($this->node != 'task' ? (!$this->isMobile ? self::$foglang['NoResults'] : '') : self::$foglang['NoResults']))
                 );
             } else {
                 if ((!$sub && $defaultScreen == 'list') || (in_array($sub,$defaultScreens) && in_array($node,$this->searchPages)))
@@ -677,7 +677,7 @@ abstract class FOGPage extends FOGBase {
     public function getmacman() {
         try {
             if (!$_SESSION['AllowAJAXTasks']) throw new Exception(_('FOG Session Invalid'));
-            if (!$this->FOGCore->getMACLookupCount()) throw new Exception(sprintf('<a href="?node=about&sub=mac-list">%s</a>',_('Load MAC Vendors')));
+            if (!self::$FOGCore->getMACLookupCount()) throw new Exception(sprintf('<a href="?node=about&sub=mac-list">%s</a>',_('Load MAC Vendors')));
             $MAC = self::getClass('MACAddress',$_REQUEST['prefix']);
             $prefix = $MAC->getMACPrefix();
             if (!$MAC->isValid() || !$prefix) throw new Exception(_('Unknown'));

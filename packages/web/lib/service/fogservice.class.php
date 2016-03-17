@@ -50,7 +50,7 @@ abstract class FOGService extends FOGBase {
         $this->getIPAddress();
         foreach ((array)self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS $i => &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
-            if (!in_array($this->FOGCore->resolveHostname($StorageNode->get('ip')),$this->ips)) continue;
+            if (!in_array(self::$FOGCore->resolveHostname($StorageNode->get('ip')),$this->ips)) continue;
             return $StorageNode;
         }
         throw new Exception(_(' | This is not the master node'));
@@ -66,7 +66,7 @@ abstract class FOGService extends FOGBase {
         unset($ip);
     }
     public function wait_db_ready() {
-        while ($this->DB->link()->connect_errno) {
+        while (self::$DB->link()->connect_errno) {
             $this->outall(sprintf('FOGService: %s - %s',get_class($this),_('Waiting for mysql to be available')),$this->dev);
             sleep(10);
         }
@@ -175,19 +175,19 @@ abstract class FOGService extends FOGBase {
                     $this->outall(_(" | File or path cannot be reached"));
                     continue;
                 }
-                $this->FOGFTP
+                self::$FOGFTP
                     ->set('username',$PotentialStorageNode->get('user'))
                     ->set('password',$PotentialStorageNode->get('pass'))
                     ->set('host',$PotentialStorageNode->get('ip'));
-                if (!$this->FOGFTP->connect()) {
+                if (!self::$FOGFTP->connect()) {
                     $this->outall(_(" * Cannot connect to {$PotentialStorageNode->get(name)}"));
                     continue;
                 }
                 $nodename = $PotentialStorageNode->get('name');
-                $username = $this->FOGFTP->get('username');
-                $password = $this->FOGFTP->get('password');
+                $username = self::$FOGFTP->get('username');
+                $password = self::$FOGFTP->get('password');
                 $encpassword = urlencode($password);
-                $ip = $this->FOGFTP->get('host');
+                $ip = self::$FOGFTP->get('host');
                 $removeDir = sprintf('/%s/',trim($PotentialStorageNode->get($getPathOfItemField),'/'));
                 $removeFile = $myFile;
                 $limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
@@ -205,7 +205,7 @@ abstract class FOGService extends FOGBase {
                 } else if (is_dir($myAdd)) {
                     $remItem = "$removeDir$removeFile";
                     $localfilescheck = glob("$myAdd/*");
-                    $remotefilescheck = $this->FOGFTP->nlist($remItem);
+                    $remotefilescheck = self::$FOGFTP->nlist($remItem);
                     $includeFile = '-R';
                     if (!$myAddItem) $myAddItem = $myAdd;
                 }
@@ -217,17 +217,17 @@ abstract class FOGService extends FOGBase {
                     $this->outall(" | Remote File: {$remotefilescheck[$index]}");
                     $res = 'true';
                     $filesize_main = filesize($localfile);
-                    $filesize_rem = $this->FOGFTP->size($remotefilescheck[$index]);
+                    $filesize_rem = self::$FOGFTP->size($remotefilescheck[$index]);
                     $this->outall(" | Local File size: $filesize_main");
                     $this->outall(" | Remote File size: $filesize_rem");
                     if (!self::files_are_equal($filesize_main,$filesize_rem,$localfile,$ftpstart.$remotefilescheck[$index])) {
                         $this->outall(" | Files do not match");
                         $this->outall(" * Deleting remote file: {$remotefilescheck[$index]}");
-                        $this->FOGFTP->delete($remotefilescheck[$index]);
+                        self::$FOGFTP->delete($remotefilescheck[$index]);
                     } else $this->outall(" | Files match");
                     unset($localfile);
                 }
-                $this->FOGFTP->close();
+                self::$FOGFTP->close();
                 $logname = "$this->log.transfer.$nodename.log";
                 if (!$i) $this->outall(_(' * Starting Sync Actions'));
                 $this->killTasking($i,$itemType,$Obj->get('name'));

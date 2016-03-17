@@ -10,20 +10,20 @@ class FOGCore extends FOGBase {
         $this->clearMACLookupTable();
         $macfields = '';
         foreach($macprefix AS $macpre => &$maker) {
-            $macfields .= "('".$this->DB->sanitize($macpre)."','".$this->DB->sanitize($maker)."'),";
+            $macfields .= "('".self::$DB->sanitize($macpre)."','".self::$DB->sanitize($maker)."'),";
             unset($maker);
         }
         $macfields = rtrim($macfields,',');
         $OUITable = self::getClass('OUI','',true);
         $OUITable = $OUITable['databaseTable'];
-        $this->DB->query("INSERT INTO `$OUITable` (`ouiMACPrefix`,`ouiMan`) VALUES $macfields");
-        return $this->DB->fetch()->get();
+        self::$DB->query("INSERT INTO `$OUITable` (`ouiMACPrefix`,`ouiMan`) VALUES $macfields");
+        return self::$DB->fetch()->get();
     }
     public function clearMACLookupTable() {
         $OUITable = self::getClass('OUI','',true);
         $OUITable = $OUITable['databaseTable'];
-        $this->DB->query("TRUNCATE TABLE `$OUITable`");
-        return $this->DB->fetch()->get();
+        self::$DB->query("TRUNCATE TABLE `$OUITable`");
+        return self::$DB->fetch()->get();
     }
     public function getMACLookupCount() {
         return self::getClass(OUIManager)->count();
@@ -113,11 +113,11 @@ class FOGCore extends FOGBase {
     }
     public function setSessionEnv() {
         $_SESSION['HostCount'] = self::getClass('HostManager')->count();
-        $this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
-        $this->DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
-        $tables = $this->DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
+        self::$DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
+        self::$DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
+        $tables = self::$DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
         if (is_array($tables)) {
-            foreach ((array)$tables AS $i => &$table) $this->DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
+            foreach ((array)$tables AS $i => &$table) self::$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
             unset($table);
             unset($tables,$table);
         }

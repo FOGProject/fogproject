@@ -36,9 +36,9 @@ class FOGPageManager Extends FOGBase {
             foreach ((array)$class->menu AS $link => &$title) $this->FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link));
             unset($title);
             if (is_object($class->obj)) {
-                foreach ((array)$class->subMenu AS $link => &$title) $this->FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link),$class->id,sprintf($this->foglang['SelMenu'],get_class($class->obj)));
+                foreach ((array)$class->subMenu AS $link => &$title) $this->FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link),$class->id,sprintf(self::$foglang['SelMenu'],get_class($class->obj)));
                 unset($title);
-                foreach((array)$class->notes AS $title => $item) $this->FOGSubMenu->addNotes($this->classValue,array((string)$title => (string)$item),$class->id,sprintf($this->foglang[SelMenu],get_class($class->obj)));
+                foreach((array)$class->notes AS $title => $item) $this->FOGSubMenu->addNotes($this->classValue,array((string)$title => (string)$item),$class->id,sprintf(self::$foglang[SelMenu],get_class($class->obj)));
                 unset($item);
             }
             return sprintf('<div id="sidebar">%s</div>',$this->FOGSubMenu->get($this->classValue));
@@ -71,7 +71,7 @@ class FOGPageManager Extends FOGBase {
     private function register($class) {
         if (!$class) die(_('No class value sent'));
         try {
-            if (!($class instanceof FOGPage)) throw new Exception($this->foglang['NotExtended']);
+            if (!($class instanceof FOGPage)) throw new Exception(self::$foglang['NotExtended']);
             if (!$class->node) throw new Exception(_('No node associated'));
             $this->info(sprintf(_('Adding FOGPage: %s, Node: %s'),get_class($class),$class->node));
             $this->nodes[$class->node] = $class;

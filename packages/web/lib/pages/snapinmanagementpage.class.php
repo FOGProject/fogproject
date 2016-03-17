@@ -6,14 +6,14 @@ class SnapinManagementPage extends FOGPage {
         parent::__construct($name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                "$this->linkformat#snap-gen" => $this->foglang['General'],
-                "$this->linkformat#snap-storage" => "{$this->foglang['Storage']} {$this->foglang['Group']}",
-                $this->membership => $this->foglang['Membership'],
-                $this->delformat => $this->foglang['Delete'],
+                "$this->linkformat#snap-gen" => self::$foglang['General'],
+                "$this->linkformat#snap-storage" => sprintf('%s %s',self::$foglang['Storage'],self::$foglang['Group']),
+                $this->membership => self::$foglang['Membership'],
+                $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
-                $this->foglang['Snapin'] => $this->obj->get('name'),
-                $this->foglang['File'] => $this->obj->get('file'),
+                self::$foglang['Snapin'] => $this->obj->get('name'),
+                self::$foglang['File'] => $this->obj->get('file'),
             );
         }
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));
@@ -76,13 +76,13 @@ class SnapinManagementPage extends FOGPage {
         $filelist = array();
         array_map(function(&$StorageNode) use (&$filelist) {
             if (!$StorageNode->isValid()) return;
-            $this->FOGFTP
+            self::$FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
-            if (!$this->FOGFTP->connect()) return;
-            $filelist = array_map(self::$ftpfilesonly,$this->FOGFTP->nlist($StorageNode->get('snapinpath')));
-            $this->FOGFTP->close();
+            if (!self::$FOGFTP->connect()) return;
+            $filelist = array_map(self::$ftpfilesonly,self::$FOGFTP->nlist($StorageNode->get('snapinpath')));
+            self::$FOGFTP->close();
             unset($StorageNode);
         },self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)));
         natcasesort($filelist);
@@ -137,17 +137,17 @@ class SnapinManagementPage extends FOGPage {
             if ($_FILES['snapin']['name']) {
                 $src = sprintf('%s/%s',dirname($_FILES['snapin']['tmp_name']),basename($_FILES['snapin']['tmp_name']));
                 $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$snapinfile);
-                $this->FOGFTP
+                self::$FOGFTP
                     ->set('host',$StorageNode->get('ip'))
                     ->set('username',$StorageNode->get('user'))
                     ->set('password',$StorageNode->get('pass'));
-                if (!$this->FOGFTP->connect()) throw new Exception(sprintf('%s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP Connection has failed')));
-                if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                    if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+                if (!self::$FOGFTP->connect()) throw new Exception(sprintf('%s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP Connection has failed')));
+                if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                    if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
                 }
-                if (is_file($dest)) $this->FOGFTP->delete($dest);
-                if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
-                $this->FOGFTP->close();
+                if (is_file($dest)) self::$FOGFTP->delete($dest);
+                if (!self::$FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
+                self::$FOGFTP->close();
             }
             $Snapin = self::getClass('Snapin')
                 ->set('name',$snapinName)
@@ -166,7 +166,7 @@ class SnapinManagementPage extends FOGPage {
             $this->setMessage(_('Snapin added, Editing now!'));
             $this->redirect(sprintf('?node=%s&sub=edit&%s=%s', $_REQUEST['node'],$this->id,$Snapin->get('id')));
         } catch (Exception $e) {
-            $this->FOGFTP->close();
+            self::$FOGFTP->close();
             $this->HookManager->processEvent('SNAPIN_ADD_FAIL',array('Snapin'=>&$Snapin));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
@@ -187,13 +187,13 @@ class SnapinManagementPage extends FOGPage {
         $filelist = array();
         array_map(function(&$StorageNode) use (&$filelist) {
             if (!$StorageNode->isValid()) return;
-            $this->FOGFTP
+            self::$FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
-            if (!$this->FOGFTP->connect()) return;
-            $filelist = array_map(self::$ftpfilesonly,$this->FOGFTP->nlist($StorageNode->get('snapinpath')));
-            $this->FOGFTP->close();
+            if (!self::$FOGFTP->connect()) return;
+            $filelist = array_map(self::$ftpfilesonly,self::$FOGFTP->nlist($StorageNode->get('snapinpath')));
+            self::$FOGFTP->close();
             unset($StorageNode);
         },self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)));
         natcasesort($filelist);
@@ -305,17 +305,17 @@ class SnapinManagementPage extends FOGPage {
                 if ($_FILES['snapin']['name']) {
                     $src = sprintf('%s/%s',dirname($_FILES['snapin']['tmp_name']),basename($_FILES['snapin']['tmp_name']));
                     $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$snapinfile);
-                    $this->FOGFTP
+                    self::$FOGFTP
                         ->set('host',$StorageNode->get('ip'))
                         ->set('username',$StorageNode->get('user'))
                         ->set('password',$StorageNode->get('pass'));
-                    if (!$this->FOGFTP->connect()) throw new Exception(sprintf('%s: %s: %s %s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP connection has failed')));
-                    if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                        if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+                    if (!self::$FOGFTP->connect()) throw new Exception(sprintf('%s: %s: %s %s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP connection has failed')));
+                    if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                        if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
                     }
-                    if (is_file($dest)) $this->FOGFTP->delete($dest);
-                    if (!$this->FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
-                    $this->FOGFTP->close();
+                    if (is_file($dest)) self::$FOGFTP->delete($dest);
+                    if (!self::$FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
+                    self::$FOGFTP->close();
                 }
                 $this->obj
                     ->set('name',$snapinName)
@@ -344,7 +344,7 @@ class SnapinManagementPage extends FOGPage {
             $this->setMessage(_('Snapin updated'));
             $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s',$this->node, $this->id, $this->obj->get('id'),$_REQUEST['tab']));
         } catch (Exception $e) {
-            $this->FOGFTP->close();
+            self::$FOGFTP->close();
             $this->HookManager->processEvent('SNAPIN_UPDATE_FAIL',array('Snapin'=>&$this->obj));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);

@@ -6,19 +6,19 @@ class ServiceConfigurationPage extends FOGPage {
         parent::__construct($name);
         $servicelink = "?node=$this->node&sub=edit";
         $this->menu = array(
-            "?node=$this->node#home" => $this->foglang['Home'],
-            "$servicelink#autologout" => "{$this->foglang['Auto']} {$this->foglang['Home']}",
-            "$servicelink#clientupdater" => $this->foglang['ClientUpdater'],
-            "$servicelink#dircleanup" => $this->foglang['DirectoryCleaner'],
-            "$servicelink#displaymanager" => sprintf($this->foglang['SelManager'],$this->foglang['Display']),
-            "$servicelink#greenfog" => $this->foglang['GreenFOG'],
-            "$servicelink#hostregister" => $this->foglang['HostRegistration'],
-            "$servicelink#hostnamechanger" => $this->foglang['HostnameChanger'],
-            "$servicelink#printermanager" => sprintf($this->foglang['SelManager'],$this->foglang[Printer]),
-            "$servicelink#snapinclient" => $this->foglang['SnapinClient'],
-            "$servicelink#taskreboot" => $this->foglang['TaskReboot'],
-            "$servicelink#usercleanup" => $this->foglang['UserCleanup'],
-            "$servicelink#usertracker" => $this->foglang['UserTracker'],
+            "?node=$this->node#home" => self::$foglang['Home'],
+            "$servicelink#autologout" => sprintf('%s %s',self::$foglang['Auto'],self::$foglang['Home']),
+            "$servicelink#clientupdater" => self::$foglang['ClientUpdater'],
+            "$servicelink#dircleanup" => self::$foglang['DirectoryCleaner'],
+            "$servicelink#displaymanager" => sprintf(self::$foglang['SelManager'],self::$foglang['Display']),
+            "$servicelink#greenfog" => self::$foglang['GreenFOG'],
+            "$servicelink#hostregister" => self::$foglang['HostRegistration'],
+            "$servicelink#hostnamechanger" => self::$foglang['HostnameChanger'],
+            "$servicelink#printermanager" => sprintf(self::$foglang['SelManager'],self::$foglang[Printer]),
+            "$servicelink#snapinclient" => self::$foglang['SnapinClient'],
+            "$servicelink#taskreboot" => self::$foglang['TaskReboot'],
+            "$servicelink#usercleanup" => self::$foglang['UserCleanup'],
+            "$servicelink#usertracker" => self::$foglang['UserTracker'],
         );
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'servicelink'=>&$servicelink));
         $this->headerData = array(

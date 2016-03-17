@@ -167,7 +167,7 @@ $FOGFTP = new FOGFTP();
 /** $FOGCore the FOGCore class */
 $FOGCore = new FOGCore();
 /** $DB set's the DB class from the DatabaseManager */
-$DB = FOGCore::getClass('DatabaseManager')->establish()->DB;
+$DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
 /** $EventManager initiates the EventManager class */
 $EventManager = FOGCore::getClass('EventManager');
 /** $HookManager initiates the HookManager class */
