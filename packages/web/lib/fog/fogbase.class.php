@@ -18,7 +18,7 @@ abstract class FOGBase {
     protected static $FOGSubMenu;
     protected static $urlself;
     protected static $isMobile;
-    protected static $isLoaded = array();
+    protected $isLoaded = array();
     protected static $searchPages = array(
         'user',
         'host',
@@ -211,9 +211,9 @@ abstract class FOGBase {
             }
         }
     }
-    protected static function isLoaded($key) {
-        self::$isLoaded[$key] = (isset(self::$isLoaded[$key]) ? true : false);
-        return self::$isLoaded[$key];
+    protected function isLoaded($key) {
+        $this->isLoaded[$key] = (bool)isset($this->isLoaded[$key]);
+        return $this->isLoaded[$key];
     }
     protected function resetRequest() {
         $reqVars = (array)$_REQUEST;
