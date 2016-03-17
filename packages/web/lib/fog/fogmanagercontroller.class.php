@@ -76,28 +76,21 @@ abstract class FOGManagerController extends FOGBase {
                 $sort
             );
         }
-        $data = array();
         if ($idField) {
             if (is_array($idField)) {
-                $ids = array();
-                array_map(function(&$idstore) use (&$ids,&$query,&$filter) {
+                return array_map(function(&$idstore) use ($query,$filter) {
                     $idstore = trim($idstore);
-                    $ids[$idstore] = array_map('html_entity_decode',array_values(array_filter(@$filter(self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
-                    unset($idstore);
-                },(array)$idField);
+                    return array_map('html_entity_decode',array_values(array_filter(@$filter(self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
+                },$idField);
             } else {
                 $idField = trim($idField);
-                $ids = array_map('html_entity_decode',(array)array_values((array)array_filter((array)@$filter(self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
+                return array_map('html_entity_decode',(array)array_values((array)array_filter((array)@$filter(self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
             }
-            $data = $ids;
         } else {
-            $queryData = self::$DB->query($query)->fetch('','fetch_all')->get();
-            $data = array_map(function(&$row) {
-                return self::getClass($this->childClass)->setQuery($row);
-            },(array)$queryData);
-            unset($row);
+            return array_map(function(&$row) {
+                return FOGCore::getClass($this->childClass)->setQuery($row);
+            },(array)self::$DB->query($query)->fetch('','fetch_all')->get());
         }
-        return (array)$data;
     }
     public function count($findWhere = array(), $whereOperator = 'AND', $compare = '=') {
         if (empty($findWhere)) $findWhere = array();

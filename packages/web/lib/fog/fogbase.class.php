@@ -261,7 +261,7 @@ abstract class FOGBase {
     public function formatTime($time, $format = false, $utc = false) {
         if (!$time instanceof DateTime) $time = $this->nice_date($time,$utc);
         if ($format) {
-            if (!$this->validDate($time)) return;
+            if (!$this->validDate($time)) return _('No Data');
             return $time->format($format);
         }
         $now = $this->nice_date('now',$utc);
@@ -287,18 +287,12 @@ abstract class FOGBase {
         else if ($absolute / 604800 <= 5) return $this->humanify($diff / 604800,'week');
         else if ($absolute / 2628000 < 12) return $this->humanify($diff / 2628000,'month');
         return $this->humanify($diff / 31536000,'year');
-        // Forced format
-        if (!$this->validDate($time)) return 'No Data';
-        $CurrTime = $this->nice_date('now',$utc);
-        if ($time < $CurrTime) $TimeVal = $CurrTime->diff($time);
-        if ($time > $CurrTime) $TimeVal = $time->diff($CurrTime);
-        return ($time > $CurrTime ? _('Next Run Time: ') : _('Ran At: ')).$time->format('Y-m-d H:i:s');
     }
     protected function validDate($Date, $format = '') {
         if ($format == 'N') return ($Date instanceof DateTime ? ($Date->format('N') >= 0 && $Date->format('N') <= 7) : $Date >= 0 && $Date <= 7);
         if (!$Date instanceof DateTime) $Date = $this->nice_date($Date);
         if (!$format) $format = 'm/d/Y';
-        return DateTime::createFromFormat($format,$Date->format($format),self::getClass(DateTimeZone,self::$TimeZone));
+        return DateTime::createFromFormat($format,$Date->format($format),self::getClass('DateTimeZone',self::$TimeZone));
     }
     protected function pluralize($count,$text,$space = false) {
         return sprintf("%d %s%s%s",(int)$count,$text,(int)$count != 1 ? 's' : '',$space === true ? ' ' : '');
