@@ -107,7 +107,7 @@ class ProcessLogin extends FOGBase {
     private function setCurUser($tmpUser) {
         $this->setRedirMode();
         $this->currentUser = $tmpUser;
-        if (!$this->isMobile) self::$HookManager->processEvent('LoginSuccess',array('user'=>&$this->currentUser,'username'=>$this->username, 'password'=>&$this->password));
+        if (!self::$isMobile) self::$HookManager->processEvent('LoginSuccess',array('user'=>&$this->currentUser,'username'=>$this->username, 'password'=>&$this->password));
     }
     private function setRedirMode() {
         foreach ($_REQUEST AS $key => &$value) $redirect[$key] = htmlentities($value,ENT_QUOTES,'utf-8');
@@ -129,7 +129,7 @@ class ProcessLogin extends FOGBase {
         $tmpUser = self::$FOGCore->attemptLogin($this->username,$this->password);
         if (!$tmpUser || !$tmpUser->isValid()) return;
         self::$HookManager->processEvent('USER_LOGGING_IN',array('User'=>&$tmpUser,'username'=>&$this->username,'password'=>&$this->password));
-        if (!$this->isMobile && $tmpUser->get('type') == 1) {
+        if (!self::$isMobile && $tmpUser->get('type') == 1) {
             $this->setMessage(self::$foglang['NotAllowedHere']);
             $this->redirect('index.php?node=logout');
         }

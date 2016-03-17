@@ -15,10 +15,10 @@ abstract class FOGBase {
     protected $FOGPageManager;
     protected $FOGURLRequests;
     protected $FOGSubMenu;
-    protected $urlself;
-    protected $isMobile;
-    protected $isLoaded = array();
-    protected $searchPages = array(
+    protected static $urlself;
+    protected static $isMobile;
+    protected static $isLoaded = array();
+    protected static $searchPages = array(
         'user',
         'host',
         'group',
@@ -27,9 +27,9 @@ abstract class FOGBase {
         'printer',
         'task',
     );
-    public $ajax = false;
-    public $post = false;
-    public $service = false;
+    public static $ajax = false;
+    public static $post = false;
+    public static $service = false;
     private static $initialized = false;
     private static function init() {
         if (self::$initialized === true) return $this;
@@ -47,6 +47,11 @@ abstract class FOGBase {
         self::$EventManager =& $EventManager;
         self::$HookManager =& $HookManager;
         self::$FOGUser =& $currentUser;
+        self::$urlself = htmlentities($_SERVER['SCRIPT_NAME'],ENT_QUOTES,'utf-8');
+        self::$isMobile = (bool)preg_match('#/mobile/#i',self::$urlself);
+        self::$service = (bool)preg_match('#/service/#i', self::$urlself);
+        self::$ajax = (bool)isset($_SERVER['HTTP_X_REQUESTED_WITH']) && preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);
+        self::$post = (bool)preg_match('#^post$#i',isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] ? $_SERVER['REQUEST_METHOD'] : '');
         self::$buildSelectBox = function(&$option,&$index = false) {
             $value = $option;
             if ($index) $value = $index;
@@ -71,11 +76,6 @@ abstract class FOGBase {
         $this->FOGURLRequests = &$FOGURLRequests;
         $this->FOGPageManager = &$FOGPageManager;
         $this->TimeZone = &$TimeZone;
-        $this->urlself = htmlentities($_SERVER['SCRIPT_NAME'],ENT_QUOTES,'utf-8');
-        $this->isMobile = (bool)preg_match('#/mobile/#i',$this->urlself);
-        $this->service = (bool)preg_match('#/service/#i', $this->urlself);
-        $this->ajax = (bool)isset($_SERVER['HTTP_X_REQUESTED_WITH']) && preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);
-        $this->post = (bool)preg_match('#^post$#i',isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] ? $_SERVER['REQUEST_METHOD'] : '');
         self::init();
     }
     public function __toString() {
@@ -117,7 +117,7 @@ abstract class FOGBase {
         return array_map('strtolower',(array)self::getClass('PluginManager')->find(array('installed'=>1),'','','','','','','name'));
     }
     protected function fatalError($txt, $data = array()) {
-        if (!$this->service && !$this->ajax) {
+        if (!self::$service && !self::$ajax) {
             echo sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>',
                 get_class($this),
                 (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
@@ -125,7 +125,7 @@ abstract class FOGBase {
         }
     }
     protected function error($txt, $data = array()) {
-        if ($this->debug && !$this->service && !$this->ajax) {
+        if ($this->debug && !self::$service && !self::$ajax) {
             echo sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>',
                 get_class($this),
                 (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
@@ -133,7 +133,7 @@ abstract class FOGBase {
         }
     }
     protected function debug($txt, $data = array()) {
-        if ($this->debug && !$this->service && !$this->ajax) {
+        if ($this->debug && !self::$service && !self::$ajax) {
             echo sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>',
                 get_class($this),
                 (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
@@ -141,7 +141,7 @@ abstract class FOGBase {
         }
     }
     protected function info($txt, $data = array()) {
-        if ($this->info && !$this->service && !$this->ajax) {
+        if ($this->info && !self::$service && !self::$ajax) {
             echo sprintf('<div class="debug-info">FOG INFO: %s: %s</div>',
                 get_class($this),
                 (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
@@ -163,7 +163,7 @@ abstract class FOGBase {
         unset($message);
     }
     protected function redirect($url = '') {
-        if (!headers_sent() && !$this->service) {
+        if (!headers_sent() && !self::$service) {
             header('Strict-Transport-Security: "max-age=15768000"');
             header('X-Content-Type-Options: nosniff');
             header('X-XSS-Protection: 1; mode=block');
@@ -230,7 +230,7 @@ abstract class FOGBase {
         unset($_SESSION['post_request_vals'], $reqVars);
     }
     protected function setRequest() {
-        if (!$_SESSION['post_request_vals'] && $this->post) $_SESSION['post_request_vals'] = $_REQUEST;
+        if (!$_SESSION['post_request_vals'] && self::$post) $_SESSION['post_request_vals'] = $_REQUEST;
     }
     protected function formatByteSize($size) {
         $units = array('iB','KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
@@ -362,7 +362,7 @@ abstract class FOGBase {
         return $input;
     }
     protected function array_change_key(&$array, $old_key, $new_key) {
-        $array[$new_key] = count(preg_grep('#text/plain#i',headers_list())) > 0 || $this->service ? html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8') : $array[$old_key];
+        $array[$new_key] = count(preg_grep('#text/plain#i',headers_list())) > 0 || self::$service ? html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8') : $array[$old_key];
         if ($old_key != $new_key) unset($array[$old_key]);
     }
     protected function byteconvert($kilobytes) {
@@ -490,7 +490,7 @@ abstract class FOGBase {
         return false;
     }
     protected function log($txt, $level = 1) {
-        if ($this->ajax) return;
+        if (self::$ajax) return;
         $txt = trim(preg_replace(array("#\r#","#\n#",'#\s+#','# ,#'),array('',' ',' ',','),$txt));
         if (empty($txt)) return;
         $txt = sprintf('[%s] %s',$this->nice_date()->format('Y-m-d H:i:s'),$txt);
