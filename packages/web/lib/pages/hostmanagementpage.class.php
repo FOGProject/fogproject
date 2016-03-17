@@ -4,34 +4,34 @@ class HostManagementPage extends FOGPage {
     public function __construct($name = '') {
         $this->name = 'Host Management';
         parent::__construct($this->name);
-        if ($_SESSION['Pending-Hosts']) $this->menu['pending'] = $this->foglang['PendingHosts'];
+        if ($_SESSION['Pending-Hosts']) $this->menu['pending'] = self::$foglang['PendingHosts'];
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                "$this->linkformat#host-general"=>$this->foglang['General'],
+                "$this->linkformat#host-general"=>self::$foglang['General'],
             );
-            if (!$this->obj->get('pending')) $this->subMenu = array_merge($this->subMenu,array("$this->linkformat#host-tasks"=>$this->foglang['BasicTasks']));
+            if (!$this->obj->get('pending')) $this->subMenu = array_merge($this->subMenu,array("$this->linkformat#host-tasks"=>self::$foglang['BasicTasks']));
             $this->subMenu = array_merge($this->subMenu,array(
-                "$this->linkformat#host-active-directory"=>$this->foglang['AD'],
-                "$this->linkformat#host-printers"=>$this->foglang['Printers'],
-                "$this->linkformat#host-snapins"=>$this->foglang['Snapins'],
-                "$this->linkformat#host-service"=>"{$this->foglang['Service']} {$this->foglang['Settings']}",
-                "$this->linkformat#host-hardware-inventory"=>$this->foglang['Inventory'],
-                "$this->linkformat#host-virus-history"=>$this->foglang['VirusHistory'],
-                "$this->linkformat#host-login-history"=>$this->foglang['LoginHistory'],
-                "$this->linkformat#host-image-history"=>$this->foglang['ImageHistory'],
-                "$this->linkformat#host-snapin-history"=>$this->foglang['SnapinHistory'],
-                $this->membership=>$this->foglang['Membership'],
-                $this->delformat=>$this->foglang['Delete'],
+                "$this->linkformat#host-active-directory"=>self::$foglang['AD'],
+                "$this->linkformat#host-printers"=>self::$foglang['Printers'],
+                "$this->linkformat#host-snapins"=>self::$foglang['Snapins'],
+                "$this->linkformat#host-service"=>sprintf('%s %s',self::$foglang['Service'],self::$foglang['Settings']),
+                "$this->linkformat#host-hardware-inventory"=>self::$foglang['Inventory'],
+                "$this->linkformat#host-virus-history"=>self::$foglang['VirusHistory'],
+                "$this->linkformat#host-login-history"=>self::$foglang['LoginHistory'],
+                "$this->linkformat#host-image-history"=>self::$foglang['ImageHistory'],
+                "$this->linkformat#host-snapin-history"=>self::$foglang['SnapinHistory'],
+                $this->membership=>self::$foglang['Membership'],
+                $this->delformat=>self::$foglang['Delete'],
             ));
             $this->notes = array(
-                $this->foglang['Host']=>$this->obj->get('name'),
-                $this->foglang['MAC']=>$this->obj->get('mac'),
-                $this->foglang['Image']=>$this->obj->getImageName(),
-                $this->foglang['LastDeployed']=>$this->obj->get('deployed'),
+                self::$foglang['Host']=>$this->obj->get('name'),
+                self::$foglang['MAC']=>$this->obj->get('mac'),
+                self::$foglang['Image']=>$this->obj->getImageName(),
+                self::$foglang['LastDeployed']=>$this->obj->get('deployed'),
             );
             $Group = self::getClass('Group',@min($this->obj->get('groups')));
             if ($Group->isValid()) {
-                $this->notes[$this->foglang['PrimaryGroup']] = $Group->get('name');
+                $this->notes[self::$foglang['PrimaryGroup']] = $Group->get('name');
                 unset($Group);
             }
         }
@@ -94,7 +94,7 @@ class HostManagementPage extends FOGPage {
         };
     }
     public function index() {
-        $this->title = $this->foglang['AllHosts'];
+        $this->title = self::$foglang['AllHosts'];
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
         array_map($this->returnData,self::getClass('HostManager')->find(array('pending'=>array(0,null,false))));

@@ -5,13 +5,13 @@ class TaskstateeditManagementPage extends FOGPage {
         $this->name = 'Task State Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'search' => $this->foglang['NewSearch'],
-            'list' => sprintf($this->foglang['ListAll'],_('Task States')),
-            'add' => sprintf($this->foglang['CreateNew'],_('Task State')),
+            'search' => self::$foglang['NewSearch'],
+            'list' => sprintf(self::$foglang['ListAll'],_('Task States')),
+            'add' => sprintf(self::$foglang['CreateNew'],_('Task State')),
         );
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                $this->delformat => $this->foglang['Delete'],
+                $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
                 _('Name')=>$this->obj->get('name'),

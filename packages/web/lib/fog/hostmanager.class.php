@@ -2,7 +2,7 @@
 class HostManager extends FOGManagerController {
     public function getHostByMacAddresses($MACs) {
         $MACHost = $this->getSubObjectIDs('MACAddressAssociation',array('pending'=>0,'mac'=>$MACs),'hostID');
-        if (count($MACHost) > 1) throw new Exception($this->foglang['ErrorMultipleHosts']);
+        if (count($MACHost) > 1) throw new Exception(self::$foglang['ErrorMultipleHosts']);
         return self::getClass('Host',@min($MACHost));
     }
     public function destroy($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false) {

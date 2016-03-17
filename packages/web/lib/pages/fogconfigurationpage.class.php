@@ -5,18 +5,18 @@ class FOGConfigurationPage extends FOGPage {
         $this->name = 'FOG Configuration';
         parent::__construct($this->name);
         $this->menu = array(
-            'license'=>$this->foglang['License'],
-            'kernel-update'=>$this->foglang['KernelUpdate'],
-            'pxemenu'=>$this->foglang['PXEBootMenu'],
-            'customize-edit'=>$this->foglang['PXEConfiguration'],
-            'new-menu'=>$this->foglang['NewMenu'],
-            'client-updater'=>$this->foglang['ClientUpdater'],
-            'mac-list'=>$this->foglang['MACAddrList'],
-            'settings'=>$this->foglang['FOGSettings'],
-            'logviewer'=>$this->foglang['LogViewer'],
-            'config'=>$this->foglang['ConfigSave'],
-            'http://www.sf.net/projects/freeghost'=>$this->foglang['FOGSFPage'],
-            'https://fogproject.org'=>$this->foglang['FOGWebPage'],
+            'license'=>self::$foglang['License'],
+            'kernel-update'=>self::$foglang['KernelUpdate'],
+            'pxemenu'=>self::$foglang['PXEBootMenu'],
+            'customize-edit'=>self::$foglang['PXEConfiguration'],
+            'new-menu'=>self::$foglang['NewMenu'],
+            'client-updater'=>self::$foglang['ClientUpdater'],
+            'mac-list'=>self::$foglang['MACAddrList'],
+            'settings'=>self::$foglang['FOGSettings'],
+            'logviewer'=>self::$foglang['LogViewer'],
+            'config'=>self::$foglang['ConfigSave'],
+            'http://www.sf.net/projects/freeghost'=>self::$foglang['FOGSFPage'],
+            'https://fogproject.org'=>self::$foglang['FOGWebPage'],
             'https://github.com/fogproject/fogproject.git'=>_('FOG Project on Github'),
             'https://github.com/fogproject/fog-client.git'=>_('FOG Client on Github'),
             'https://wiki.fogproject.org/wiki/index.php'=>_('FOG Wiki'),
@@ -178,7 +178,7 @@ class FOGConfigurationPage extends FOGPage {
         }
     }
     public function customize_edit() {
-        $this->title = $this->foglang['PXEMenuCustomization'];
+        $this->title = self::$foglang['PXEMenuCustomization'];
         printf('<p>%s</p><div id="tab-container-1">',_('This item allows you to edit all of the PXE Menu items as you see fit.  Mind you, iPXE syntax is very finicky when it comes to edits.  If you need help understanding what items are needed, please see the forums.  You can also look at ipxe.org for syntactic usage and methods.  Some of the items here are bound to limitations.  Documentation will follow when enough time is provided.'));
         $this->templates = array(
             '${field}',
@@ -197,8 +197,8 @@ class FOGConfigurationPage extends FOGPage {
                 _('Boot Options:') => sprintf('<input type="text" name="menu_options" id="menu_options" value="%s"/>',$Menu->get('args')),
                 _('Default Item:') => sprintf('<input type="checkbox" name="menu_default" value="1"%s/>',$menuDefault),
                 _('Menu Show with:') => self::getClass('PXEMenuOptionsManager')->regSelect($Menu->get('regMenu')),
-                sprintf('<input type="hidden" name="menu_id" value="%s"/>',$Menu->get('id')) => sprintf('<input type="submit" name="saveform" value="%s"/>',$this->foglang['Submit']),
-                !$menuid ? sprintf('<input type="hidden" name="rmid" value="%s"/>',$Menu->get('id')) : '' => !$menuid ? sprintf('<input type="submit" name="delform" value="%s %s"/>',$this->foglang['Delete'],$Menu->get('name')) : '',
+                sprintf('<input type="hidden" name="menu_id" value="%s"/>',$Menu->get('id')) => sprintf('<input type="submit" name="saveform" value="%s"/>',self::$foglang['Submit']),
+                !$menuid ? sprintf('<input type="hidden" name="rmid" value="%s"/>',$Menu->get('id')) : '' => !$menuid ? sprintf('<input type="submit" name="delform" value="%s %s"/>',self::$foglang['Delete'],$Menu->get('name')) : '',
             );
             foreach ((array)$fields AS $field => &$input) {
                 $this->data[] = array(
@@ -253,7 +253,7 @@ class FOGConfigurationPage extends FOGPage {
             _('Boot Options:') => sprintf('<input type="text" name="menu_options" id="menu_options" value="%s"/>',$_REQUEST['menu_options']),
             _('Default Item:') => sprintf('<input type="checkbox" name="menu_default" value="1"%s/>',$menudefault),
             _('Menu Show with:') => self::getClass('PXEMenuOptionsManager')->regSelect($_REQUEST['menu_regmenu']),
-            '&nbsp;' => sprintf('<input type="submit" value="%s %s"/>',$this->foglang['Add'],_('New Menu')),
+            '&nbsp;' => sprintf('<input type="submit" value="%s %s"/>',self::$foglang['Add'],_('New Menu')),
         );
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
@@ -377,7 +377,7 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function mac_list() {
         $this->title = _('MAC Address Manufacturer Listing');
-        printf('<div class="hostgroup">%s</div><div><p>%s: %s</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="%s" value="%s" onclick="clearMacs()"/><input class="macButtons" style="margin-left: 20px" type="button" title="%s" value="%s" onclick="updateMacs()"/></p><p>%s<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>',_('This section allows you to import known mac address makers into the FOG Database for easier identification.'),_('Current Records'),$this->FOGCore->getMACLookupCount(),_('Delete MACs'),_('Delete Current Records'),_('Update MACs'),_('Update Current Listing'),_('MAC Address listing source: '));
+        printf('<div class="hostgroup">%s</div><div><p>%s: %s</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="%s" value="%s" onclick="clearMacs()"/><input class="macButtons" style="margin-left: 20px" type="button" title="%s" value="%s" onclick="updateMacs()"/></p><p>%s<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>',_('This section allows you to import known mac address makers into the FOG Database for easier identification.'),_('Current Records'),self::$FOGCore->getMACLookupCount(),_('Delete MACs'),_('Delete Current Records'),_('Update MACs'),_('Update Current Listing'),_('MAC Address listing source: '));
     }
     public function mac_list_post() {
         if ($_REQUEST['update']) {
@@ -404,10 +404,10 @@ class FOGConfigurationPage extends FOGPage {
                     }
                 }
                 fclose($handle);
-                $this->FOGCore->addUpdateMACLookupTable($macsandmakers);
+                self::$FOGCore->addUpdateMACLookupTable($macsandmakers);
                 $this->setMessage(sprintf('%s %s',$imported,_(' mac addresses updated!')));
             } else printf('%s: %s',_('Unable to locate file'),$f);
-        } else if ($_REQUEST['clear']) $this->FOGCore->clearMACLookupTable();
+        } else if ($_REQUEST['clear']) self::$FOGCore->clearMACLookupTable();
         @unlink($f);
         $this->resetRequest();
         $this->redirect('?node=about&sub=mac-list');
@@ -510,8 +510,8 @@ class FOGConfigurationPage extends FOGPage {
                     break;
                 case 'FOG_DEFAULT_LOCALE':
                     ob_start();
-                    foreach ((array)$this->foglang['Language'] AS $lang => &$humanreadable) {
-                        printf('<option value="%s"%s>%s</option>',$lang,($this->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->getSetting('FOG_DEFAULT_LOCALE') == $this->foglang['Language'][$lang] ? ' selected' : ''),$humanreadable);
+                    foreach ((array)self::$foglang['Language'] AS $lang => &$humanreadable) {
+                        printf('<option value="%s"%s>%s</option>',$lang,($this->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->getSetting('FOG_DEFAULT_LOCALE') == self::$foglang['Language'][$lang] ? ' selected' : ''),$humanreadable);
                         unset($humanreadable);
                     }
                     $type = sprintf('<select name="${service_id}" autocomplete="off" style="width: 220px">%s</select>',ob_get_clean());
@@ -738,15 +738,15 @@ class FOGConfigurationPage extends FOGPage {
             $user = $StorageNode->get('user');
             $pass = $StorageNode->get('pass');
             $host = $StorageNode->get('ip');
-            $this->FOGFTP
+            self::$FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
             try {
-                $this->FOGFTP->connect();
+                self::$FOGFTP->connect();
                 $fogfiles = array();
-                $fogfiles = array_merge($this->FOGFTP->nlist('/var/log/httpd/'),$this->FOGFTP->nlist('/var/log/apache2/'),$this->FOGFTP->nlist('/var/log/fog'));
-                $this->FOGFTP->close();
+                $fogfiles = array_merge(self::$FOGFTP->nlist('/var/log/httpd/'),self::$FOGFTP->nlist('/var/log/apache2/'),self::$FOGFTP->nlist('/var/log/fog'));
+                self::$FOGFTP->close();
                 $apacheerrlog = preg_grep('#(error\.log$|.*error_log$)#i',$fogfiles);
                 $apacheerrlog = @array_shift($apacheerrlog);
                 $apacheacclog = preg_grep('#(access\.log$|.*access_log$)#i',$fogfiles);

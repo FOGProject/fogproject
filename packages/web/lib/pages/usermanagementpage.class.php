@@ -6,11 +6,11 @@ class UserManagementPage extends FOGPage {
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                $this->linkformat => $this->foglang['General'],
-                $this->delformat => $this->foglang['Delete'],
+                $this->linkformat => self::$foglang['General'],
+                $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
-                $this->foglang['User'] => $this->obj->get('name'),
+                self::$foglang['User'] => $this->obj->get('name'),
             );
         }
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat));

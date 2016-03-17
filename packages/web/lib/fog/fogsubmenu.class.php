@@ -29,7 +29,7 @@ class FOGSubMenu {
         $this->info = array();
     }
     public function addItems($node, $items, $ifVariable = '', $ifVariableTitle = '') {
-        $variableSetter = (!$ifVariable ? $this->foglang['MainMenu'] : $ifVariableTitle);
+        $variableSetter = (!$ifVariable ? FOGCore::$foglang['MainMenu'] : $ifVariableTitle);
         if (isset($_REQUEST[$ifVariable])) {
             foreach ((array)$items AS $title => &$link) {
                 if (!$this->isExternalLink($link)) $items[$title] = "$link&$ifVariable={$GLOBALS[$ifVariable]}";
@@ -65,7 +65,7 @@ class FOGSubMenu {
                     else {
                         $string = sprintf($string,"?node=$node&sub=%s");
                         $sub = htmlentities($_REQUEST['sub'],ENT_QUOTES,'utf-8');
-                        (!$sub || $title == $this->foglang['MainMenu'] ? printf($string,$link) : ($this->defaultSubs[$node] ? printf($string,"{$this->defaultSubs[$node]}&tab=$link") : printf($string,"$sub&tab=$link")));
+                        (!$sub || $title == FOGCore::$foglang['MainMenu'] ? printf($string,$link) : ($this->defaultSubs[$node] ? printf($string,"{$this->defaultSubs[$node]}&tab=$link") : printf($string,"$sub&tab=$link")));
                     }
                     unset($link);
                 }

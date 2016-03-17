@@ -6,15 +6,15 @@ class LocationManagementPage extends FOGPage {
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                "$this->linkformat" => $this->foglang['General'],
-                $this->membership => $this->foglang['Membership'],
-                "$this->delformat" => $this->foglang['Delete'],
+                "$this->linkformat" => self::$foglang['General'],
+                $this->membership => self::$foglang['Membership'],
+                "$this->delformat" => self::$foglang['Delete'],
             );
             $this->notes = array(
-                $this->foglang['Location'] => $this->obj->get('name'),
-                "{$this->foglang['Storage']} {$this->foglang['Group']}" => $this->obj->getStorageGroup(),
+                self::$foglang['Location'] => $this->obj->get('name'),
+                sprintf('%s %s',self::$foglang['Storage'],self::$foglang['Group']) => $this->obj->getStorageGroup(),
             );
-            if ($this->obj->getStorageNode()->isValid()) $this->notes["{$this->foglang['Storage']} {$this->foglang['Node']}"] = $this->obj->getStorageNode();
+            if ($this->obj->getStorageNode()->isValid()) $this->notes[sprintf('%s %s',self::$foglang['Storage'],self::$foglang['Node'])] = $this->obj->getStorageNode();
         }
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',

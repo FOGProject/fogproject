@@ -7,7 +7,6 @@ class MySQL extends DatabaseManager {
     private $execute = false;
     public $db_name;
     public function __construct() {
-        parent::__construct();
         try {
             if (!class_exists('mysqli')) throw new Exception(sprintf('%s %s',__CLASS__,_('PHP Extentions not loaded')));
             if (!$this->connect()) throw new Exception(_('Failed to connect'));

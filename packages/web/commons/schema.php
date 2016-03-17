@@ -1,5 +1,5 @@
 <?php
-$this->mySchema = $this->DB->getVersion();
+$this->mySchema = self::$DB->getVersion();
 // 0
 $this->schema[] = array(
 	"CREATE DATABASE " . DATABASE_NAME ,
@@ -895,8 +895,8 @@ $this->schema[] = array(
 "UPDATE `" . DATABASE_NAME . "`.`schemaVersion` set vValue = '28'",
 );
 // 29
-$this->DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
-while ($Host = $this->DB->fetch()->get()) $allImageID[$Host['hostImage']] = $Host['hostOS'];
+self::$DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
+while ($Host = self::$DB->fetch()->get()) $allImageID[$Host['hostImage']] = $Host['hostOS'];
 foreach ((array)$allImageID AS $imageID => $osID) {
     $Image = self::getClass('Image',$imageID);
     if (!$Image->isValid()) continue;

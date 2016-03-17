@@ -5,15 +5,15 @@ class ReportManagementPage extends FOGPage {
         $this->name = 'Report Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'home' => $this->foglang['Home'],
-            'equip-loan' => $this->foglang['EquipLoan'],
-            'host-list' => $this->foglang['HostList'],
-            'imaging-log' => $this->foglang['ImageLog'],
-            'inventory' => $this->foglang['Inventory'],
-            'pend-mac' => $this->foglang['PendingMACs'],
-            'snapin-log' => $this->foglang['SnapinLog'],
-            'user-track' => $this->foglang['LoginHistory'],
-            'vir-hist' => $this->foglang['VirusHistory'],
+            'home' => self::$foglang['Home'],
+            'equip-loan' => self::$foglang['EquipLoan'],
+            'host-list' => self::$foglang['HostList'],
+            'imaging-log' => self::$foglang['ImageLog'],
+            'inventory' => self::$foglang['Inventory'],
+            'pend-mac' => self::$foglang['PendingMACs'],
+            'snapin-log' => self::$foglang['SnapinLog'],
+            'user-track' => self::$foglang['LoginHistory'],
+            'vir-hist' => self::$foglang['VirusHistory'],
         );
         $reportlink = "?node={$this->node}&sub=file&f=";
         foreach (self::getClass('DirectoryIterator',$_SESSION['FOG_REPORT_DIR']) AS $fileInfo) {
@@ -23,7 +23,7 @@ class ReportManagementPage extends FOGPage {
             $this->menu = array_merge($this->menu,array(sprintf('%s%s',$reportlink,base64_encode($fileInfo->getFilename()))=>substr($fileInfo->getFilename(),0,-strlen('.php'))));
             unset($fileInfo);
         }
-        $this->menu = array_merge($this->menu,array('upload'=>$this->foglang['UploadRprts']));
+        $this->menu = array_merge($this->menu,array('upload'=>self::$foglang['UploadRprts']));
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
         $this->pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
         $this->csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
@@ -60,7 +60,7 @@ class ReportManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $AllDates = array_merge($this->DB->query("SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM `imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'),$this->DB->query("SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM `imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'));
+        $AllDates = array_merge(self::$DB->query("SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM `imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'),self::$DB->query("SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM `imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'));
         foreach ((array)$AllDates AS $i => &$Date) {
             $tmp = array_shift($Date);
             if (!$this->validDate($tmp)) continue;
@@ -828,7 +828,7 @@ class ReportManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $AllDates = array_merge($this->DB->query("SELECT DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') start FROM `snapinTasks` WHERE DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'),$this->DB->query("SELECT DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') finish FROM `snapinTasks` WHERE DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'));
+        $AllDates = array_merge(self::$DB->query("SELECT DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') start FROM `snapinTasks` WHERE DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'),self::$DB->query("SELECT DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') finish FROM `snapinTasks` WHERE DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'));
         foreach ((array)$AllDates AS $i => &$Date) {
             $tmp = array_shift($Date);
             if (!$this->validDate($tmp)) continue;

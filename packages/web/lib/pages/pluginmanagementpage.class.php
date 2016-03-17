@@ -5,10 +5,10 @@ class PluginManagementPage extends FOGPage {
         $this->name = 'Plugin Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'home'=>$this->foglang['Home'],
-            'activate'=>$this->foglang['ActivatePlugins'],
-            'install'=>$this->foglang['InstallPlugins'],
-            'installed'=>$this->foglang['InstalledPlugins'],
+            'home'=>self::$foglang['Home'],
+            'activate'=>self::$foglang['ActivatePlugins'],
+            'install'=>self::$foglang['InstallPlugins'],
+            'installed'=>self::$foglang['InstalledPlugins'],
         );
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
         $this->headerData = array(

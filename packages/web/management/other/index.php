@@ -8,7 +8,7 @@
     unset($javascript);
 ?><meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 	<meta http-equiv="content-type" content="text/json; charset=utf-8" />
-		<title><?php echo ($this->pageTitle ?  "$this->pageTitle &gt; $this->sectionTitle &gt; FOG &gt; {$this->foglang['Slogan']}" : "$this->sectionTitle &gt; FOG &gt; {$this->foglang['Slogan']}") ?></title><?php
+		<title><?php echo ($this->pageTitle ?  "$this->pageTitle &gt; $this->sectionTitle &gt; FOG &gt; ".self::$foglang['Slogan'] : "$this->sectionTitle &gt; FOG &gt; ".self::$foglang['Slogan']) ?></title><?php
 } else { ?><meta name="viewport" content="width=device-width" />
 			<meta name="viewport" content="initial-scale=1.0" />
 				<title><?php echo 'FOG :: ' . _('Mobile Manager') . ' :: ' . _('Version') . ' ' . FOG_VERSION ?></title>
@@ -43,8 +43,8 @@ unset($stylesheet); ?>
 					<!-- Header --><header>
 					<div id="header"<?php echo (!$this->FOGUser ? ' class="login"' : '') ?>>
 					<div id="logo">
-					<h1><a href="<?php echo $this->urlself ?>"><img src="<?php echo $this->imagelink ?>fog-logo.png" title="<?php echo $this->foglang['Home'] ?>" /><sup><?php echo FOG_VERSION ?></sup></a></h1>
-					<h2><?php echo $this->foglang['Slogan'] ?></h2>
+					<h1><a href="<?php echo $this->urlself ?>"><img src="<?php echo $this->imagelink ?>fog-logo.png" title="<?php echo self::$foglang['Home'] ?>" /><sup><?php echo FOG_VERSION ?></sup></a></h1>
+					<h2><?php echo self::$foglang['Slogan'] ?></h2>
 					</div>
 					<?php if ($this->FOGUser) { ?><!-- Mainmenu -->
 							<?php echo $this->menu ?>
@@ -69,6 +69,7 @@ unset($stylesheet); ?>
 					<!-- Footer: Be nice, give us some credit -->
 					<div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a></div>
 					<!-- <div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> Memory Usage: <?php echo $this->formatByteSize(memory_get_usage(true)) ?></div> -->
+					<!-- <div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> Memory Usage: <?php echo $this->formatByteSize(memory_get_peak_usage()) ?></div> -->
 					<!-- Javascript -->
 					<?php $cnt = 0;
     $this->HookManager->processEvent('JAVASCRIPT',array('javascripts'=>&$this->javascripts));

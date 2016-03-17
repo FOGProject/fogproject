@@ -93,19 +93,19 @@ class Snapin extends FOGController {
         return $this;
     }
     public function deleteFile() {
-        if ($this->get('protected')) throw new Exception($this->foglang['ProtectedSnapin']);
+        if ($this->get('protected')) throw new Exception(self::$foglang['ProtectedSnapin']);
         foreach ((array)self::getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'),'isEnabled'=>1)) AS $i => &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
-            $this->FOGFTP
+            self::$FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
-            if (!$this->FOGFTP->connect()) continue;
-            $snapinfiles = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
+            if (!self::$FOGFTP->connect()) continue;
+            $snapinfiles = self::$FOGFTP->nlist($StorageNode->get('snapinpath'));
             $snapinfile = preg_grep(sprintf('#%s#',$this->get('file')),$snapinfiles);
             if (!count($snapinfile)) continue;
             $delete = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$this->get('file'));
-            $this->FOGFTP
+            self::$FOGFTP
                 ->delete($delete)
                 ->close();
             unset($StorageNode);

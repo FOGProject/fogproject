@@ -138,7 +138,7 @@ class Host extends FOGController {
             throw new Exception(_('Host ID was not set, or unable to be created'));
             break;
         case ($this->isLoaded('mac')):
-            if (!(($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())) throw new Exception($this->foglang['InvalidMAC']);
+            if (!(($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())) throw new Exception(self::$foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
             $CurrPriMAC = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
             if (count($CurrPriMAC) === 1 && $CurrPriMAC[0] != $RealPriMAC) self::getClass('MACAddressAssociationManager')->update(array('mac'=>$CurrPriMAC[0],'hostID'=>$this->get('id'),'primary'=>1),'',array('primary'=>0));
@@ -534,21 +534,21 @@ class Host extends FOGController {
     }
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false) {
         try {
-            if (!$this->isValid()) throw new Exception($this->foglang['HostNotValid']);
+            if (!$this->isValid()) throw new Exception(self::$foglang['HostNotValid']);
             $TaskType = self::getClass('TaskType',$taskTypeID);
-            if (!$TaskType->isValid()) throw new Exception($this->foglang['TaskTypeNotValid']);
-            if (!$TaskType->isSnapinTasking() && $this->getActiveTaskCount()) throw new Exception($this->foglang['InTask']);
+            if (!$TaskType->isValid()) throw new Exception(self::$foglang['TaskTypeNotValid']);
+            if (!$TaskType->isSnapinTasking() && $this->getActiveTaskCount()) throw new Exception(self::$foglang['InTask']);
             $imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17,24));
             $wolTypes = in_array($taskTypeID,array_merge(range(1,11),range(14,24)));
             if ($imagingTypes) {
                 $Image = $this->getImage();
-                if (!$Image->isValid()) throw new Exception($this->foglang['ImageNotValid']);
+                if (!$Image->isValid()) throw new Exception(self::$foglang['ImageNotValid']);
                 if (!$Image->get('isEnabled')) throw new Exception(_('Image is not enabled'));
                 $StorageGroup = $Image->getStorageGroup();
-                if (!$StorageGroup->isValid()) throw new Exception($this->foglang['ImageGroupNotValid']);
+                if (!$StorageGroup->isValid()) throw new Exception(self::$foglang['ImageGroupNotValid']);
                 $StorageNode = ($TaskType->isUpload() ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
                 if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode($this->get('imageID'));
-                if (!$StorageNode || !$StorageNode->isValid()) throw new Exception($this->foglang['SGNotValid']);
+                if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(self::$foglang['SGNotValid']);
                 $imageTaskImgID = $this->get('imageID');
                 $hostsWithImgID = $this->getSubObjectIDs('Host',array('imageID'=>$imageTaskImgID));
                 $realImageID = $this->getSubObjectIDs('Host',array('id'=>$this->get('id')),'imageID');
@@ -559,7 +559,7 @@ class Host extends FOGController {
             $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
             $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageNode->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
             $Task->set('imageID',$this->get('imageID'));
-            if (!$Task->save()) throw new Exception($this->foglang['FailedTask']);
+            if (!$Task->save()) throw new Exception(self::$foglang['FailedTask']);
             if ($TaskType->isSnapinTask()) {
                 if ($deploySnapins === true) $deploySnapins = -1;
                 $this->cancelJobsSnapinsForHost();
@@ -626,7 +626,7 @@ class Host extends FOGController {
                 ->set('NFSMemberID',$StorageGroup->getOptimalStorageNode($this->get('imageID'))->get('id'))
                 ->set('imageID',$Image->get('id'));
         } catch (Exception $e) {
-            $this->FOGCore->error(sprintf('%s():xError: %s', __FUNCTION__, $e->getMessage()));
+            self::$FOGCore->error(sprintf('%s():xError: %s', __FUNCTION__, $e->getMessage()));
             $Task = false;
         }
         return $Task;
@@ -803,7 +803,7 @@ class Host extends FOGController {
     }
     public function setPingStatus() {
         $org_ip = $this->get('ip');
-        if (filter_var($this->get('ip'),FILTER_VALIDATE_IP) === false) $this->set('ip',$this->FOGCore->resolveHostname($this->get('name')));
+        if (filter_var($this->get('ip'),FILTER_VALIDATE_IP) === false) $this->set('ip',self::$FOGCore->resolveHostname($this->get('name')));
         if (filter_var($this->get('ip'),FILTER_VALIDATE_IP) === false) $this->set('ip',$this->get('name'));
         $this->getManager()->update(array('id'=>$this->get('id')),'',array('pingstatus'=>self::getClass('Ping',$this->get('ip'))->execute(),'ip'=>$org_ip));
         unset($org_ip);

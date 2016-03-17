@@ -9,10 +9,10 @@ class ServerInfo extends FOGPage {
             "?node=storage&sub=edit&id={$_REQUEST['id']}" => _('Edit Node')
         );
         $this->notes = array(
-            "{$this->foglang['Storage']} {$this->foglang['Node']}" => $this->obj->get('name'),
+            sprintf('%s %s',self::$foglang['Storage'],self::$foglang['Node']) => $this->obj->get('name'),
             _('Hostname / IP') => $this->obj->get('ip'),
-            $this->foglang['ImagePath'] => $this->obj->get('path'),
-            $this->foglang['FTPPath'] => $this->obj->get('ftppath')
+            self::$foglang['ImagePath'] => $this->obj->get('path'),
+            self::$foglang['FTPPath'] => $this->obj->get('ftppath')
         );
     }
     public function index() {
@@ -97,7 +97,7 @@ class ServerInfo extends FOGPage {
         $fields = array(
             sprintf('<b>%s</b>',_('General Information')) => '&nbsp;',
             _('Storage Node') => $this->obj->get('name'),
-            _('IP') => $this->FOGCore->resolveHostname($this->obj->get('ip')),
+            _('IP') => self::$FOGCore->resolveHostname($this->obj->get('ip')),
             _('Kernel') => $arGeneral[0],
             _('Hostname') => $arGeneral[1],
             _('Uptime') => $arGeneral[2],
