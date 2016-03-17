@@ -5,13 +5,13 @@ class TaskManagementPage extends FOGPage {
         $this->name = 'Task Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'search' => $this->foglang['NewSearch'],
-            'active' => $this->foglang['ActiveTasks'],
-            'listhosts' => sprintf($this->foglang['ListAll'],$this->foglang['Hosts']),
-            'listgroups' => sprintf($this->foglang['ListAll'],$this->foglang['Groups']),
-            'active-multicast' => $this->foglang['ActiveMCTasks'],
-            'active-snapins' => $this->foglang['ActiveSnapins'],
-            'active-scheduled' => $this->foglang['ScheduledTasks'],
+            'search' => self::$foglang['NewSearch'],
+            'active' => self::$foglang['ActiveTasks'],
+            'listhosts' => sprintf(self::$foglang['ListAll'],self::$foglang['Hosts']),
+            'listgroups' => sprintf(self::$foglang['ListAll'],self::$foglang['Groups']),
+            'active-multicast' => self::$foglang['ActiveMCTasks'],
+            'active-snapins' => self::$foglang['ActiveSnapins'],
+            'active-scheduled' => self::$foglang['ScheduledTasks'],
         );
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
         $this->headerData = array(

@@ -4,20 +4,20 @@ class ImageManagementPage extends FOGPage {
     public function __construct($name = '') {
         $this->name = 'Image Management';
         parent::__construct($this->name);
-        $this->menu['multicast'] = sprintf('%s %s',$this->foglang['Multicast'],$this->foglang['Image']);
+        $this->menu['multicast'] = sprintf('%s %s',self::$foglang['Multicast'],self::$foglang['Image']);
         $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                "$this->linkformat#image-gen" => $this->foglang['General'],
-                "$this->linkformat#image-storage" => sprintf('%s %s',$this->foglang['Storage'],$this->foglang['Group']),
-                $this->membership => $this->foglang['Membership'],
-                $this->delformat => $this->foglang['Delete'],
+                "$this->linkformat#image-gen" => self::$foglang['General'],
+                "$this->linkformat#image-storage" => sprintf('%s %s',self::$foglang['Storage'],self::$foglang['Group']),
+                $this->membership => self::$foglang['Membership'],
+                $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
-                $this->foglang['Images'] => $this->obj->get('name'),
-                $this->foglang['LastUploaded'] => $this->obj->get('deployed'),
-                $this->foglang['DeployMethod'] => $this->obj->get('format') ? _('Partimage') : _('Partclone'),
-                $this->foglang['ImageType'] => $this->obj->getImageType() ? $this->obj->getImageType() : $this->foglang['NoAvail'],
+                self::$foglang['Images'] => $this->obj->get('name'),
+                self::$foglang['LastUploaded'] => $this->obj->get('deployed'),
+                self::$foglang['DeployMethod'] => $this->obj->get('format') ? _('Partimage') : _('Partclone'),
+                self::$foglang['ImageType'] => $this->obj->getImageType() ? $this->obj->getImageType() : self::$foglang['NoAvail'],
                 _('Primary Storage Group') => $this->obj->getStorageGroup()->get('name'),
             );
         }
@@ -321,7 +321,7 @@ class ImageManagementPage extends FOGPage {
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
     }
     public function multicast() {
-        $this->title = $this->foglang['Multicast'];
+        $this->title = self::$foglang['Multicast'];
         unset($this->headerData);
         $this->attributes = array(
             array(),

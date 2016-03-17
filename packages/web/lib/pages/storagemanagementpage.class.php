@@ -6,10 +6,10 @@ class StorageManagementPage extends FOGPage {
         $this->name = 'Storage Management';
         parent::__construct($this->name);
         $this->menu = array(
-            '' => $this->foglang['AllSN'],
-            'add-storage-node' => $this->foglang['AddSN'],
-            'storage-group' => $this->foglang['AllSG'],
-            'add-storage-group' => $this->foglang['AddSG'],
+            '' => self::$foglang['AllSN'],
+            'add-storage-node' => self::$foglang['AddSN'],
+            'storage-group' => self::$foglang['AllSG'],
+            'add-storage-group' => self::$foglang['AddSG'],
         );
         if (in_array($_REQUEST['sub'],array('edit','delete','delete-storage-node','delete_storage_node'))) {
             if (isset($_REQUEST['id'])) {
@@ -20,13 +20,13 @@ class StorageManagementPage extends FOGPage {
                     $this->redirect(sprintf('?node=%s',$this->node));
                 }
                 $this->subMenu = array(
-                    "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => $this->foglang['General'],
-                    "?node={$this->node}&sub=delete-storage-node&id={$_REQUEST['id']}" => $this->foglang['Delete'],
+                    "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => self::$foglang['General'],
+                    "?node={$this->node}&sub=delete-storage-node&id={$_REQUEST['id']}" => self::$foglang['Delete'],
                 );
                 $this->notes = array(
-                    "{$this->foglang['Storage']} {$this->foglang['Node']}" => $this->obj->get('name'),
-                    $this->foglang['ImagePath'] => $this->obj->get('path'),
-                    $this->foglang['FTPPath'] => $this->obj->get('ftppath'),
+                    sprintf('%s %s',self::$foglang['Storage'],self::$foglang['Node']) => $this->obj->get('name'),
+                    self::$foglang['ImagePath'] => $this->obj->get('path'),
+                    self::$foglang['FTPPath'] => $this->obj->get('ftppath'),
                 );
             }
         } else if (in_array($_REQUEST['sub'],array('edit-storage-group','delete-storage-group','edit_storage_group','delete_storage_group'))) {
@@ -38,11 +38,11 @@ class StorageManagementPage extends FOGPage {
                     $this->redirect(sprintf('?node=%s',$this->node));
                 }
                 $this->subMenu = array(
-                    "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => $this->foglang['General'],
-                    "?node={$this->node}&sub=delete-storage-group&id={$_REQUEST['id']}" => $this->foglang['Delete'],
+                    "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => self::$foglang['General'],
+                    "?node={$this->node}&sub=delete-storage-group&id={$_REQUEST['id']}" => self::$foglang['Delete'],
                 );
                 $this->notes = array(
-                    "{$this->foglang['Storage']} {$this->foglang['Group']}" => $this->obj->get('name'),
+                    sprintf('%s %s',self::$foglang['Storage'],self::$foglang['Group']) => $this->obj->get('name'),
                 );
             }
         }
@@ -63,7 +63,7 @@ class StorageManagementPage extends FOGPage {
         $this->delete_storage_node_post();
     }
     public function index() {
-        $this->title = $this->foglang['AllSN'];
+        $this->title = self::$foglang['AllSN'];
         foreach ((array)self::getClass('StorageNodeManager')->find() AS $i => &$StorageNode) {
             $StorageGroup = self::getClass('StorageGroup',$StorageNode->get('storageGroupID'));
             $this->data[] = array_merge((array)$StorageNode->get(),array(
@@ -75,21 +75,21 @@ class StorageManagementPage extends FOGPage {
         }
         unset($StorageNode);
         $this->headerData = array(
-            $this->foglang['SN'],
-            $this->foglang['SG'],
-            $this->foglang['Enabled'],
-            $this->foglang['GraphEnabled'],
-            $this->foglang['MasterNode'],
+            self::$foglang['SN'],
+            self::$foglang['SG'],
+            self::$foglang['Enabled'],
+            self::$foglang['GraphEnabled'],
+            self::$foglang['MasterNode'],
             ''
         );
         // Row templates
         $this->templates = array(
-            sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, $this->foglang['Edit']),
+            sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, self::$foglang['Edit']),
             sprintf('${storage_group}',$this->node,$this->id),
             sprintf('${isEnabledText}',$this->node,$this->id),
             sprintf('${isGraphEnabledText}',$this->node,$this->id),
             sprintf('${isMasterText}',$this->node,$this->id),
-            sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a> <a href="?node=%s&sub=delete&%s=${id}" title="%s"><i class="icon fa fa-minus-circle"></i></a>',$this->node,$this->id,$this->foglang['Edit'],$this->node,$this->id,$this->foglang['Delete'])
+            sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a> <a href="?node=%s&sub=delete&%s=${id}" title="%s"><i class="icon fa fa-minus-circle"></i></a>',$this->node,$this->id,self::$foglang['Edit'],$this->node,$this->id,self::$foglang['Delete'])
         );
         $this->attributes = array(
             array(),
@@ -104,7 +104,7 @@ class StorageManagementPage extends FOGPage {
         $this->render();
     }
     public function add_storage_node() {
-        $this->title = $this->foglang['AddSN'];
+        $this->title = self::$foglang['AddSN'];
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -116,25 +116,25 @@ class StorageManagementPage extends FOGPage {
         );
         $fields = array(
             '<input style="display:none" type="text" name="fakeusernameremembered"/>'=>'<input style="display:none" type="text" name="fakepasswordremembered"/>',
-            $this->foglang['SNName'] => '<input type="text" name="name" value="${node_name}" autocomplete="off" />*',
-            $this->foglang['SNDesc'] => '<textarea name="description" rows="8" cols="40" autocomplete="off">${node_desc}</textarea>',
-            $this->foglang['IPAdr'] => '<input type="text" name="ip" value="${node_ip}" autocomplete="off" />*',
+            self::$foglang['SNName'] => '<input type="text" name="name" value="${node_name}" autocomplete="off" />*',
+            self::$foglang['SNDesc'] => '<textarea name="description" rows="8" cols="40" autocomplete="off">${node_desc}</textarea>',
+            self::$foglang['IPAdr'] => '<input type="text" name="ip" value="${node_ip}" autocomplete="off" />*',
             _('Web root')  => '<input type="text" name="webroot" value="${node_webroot}" autocomplete="off" />*',
-            $this->foglang['MaxClients'] => '<input type="text" name="maxClients" value="${node_maxclient}" autocomplete="off" />*',
-            $this->foglang['IsMasterNode'] => '<input type="checkbox" name="isMaster" value="1" />&nbsp;&nbsp;${span}',
-            $this->foglang['BandwidthReplication'].' (Kbps)' => '<input type="text" name="bandwidth" value="${node_bandwidth}" autocomplete="off" />&nbsp;&nbsp;${span2}',
-            $this->foglang['SG'] => '${node_group}',
-            $this->foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off" />',
-            $this->foglang['FTPPath'] => '<input type="text" name="ftppath" value="${node_ftppath}" autocomplete="off" />',
-            $this->foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off" />',
-            $this->foglang['SSLPath'] => '<input type="text" name="sslpath" value="${node_sslpath}" autocomplete="off" />',
+            self::$foglang['MaxClients'] => '<input type="text" name="maxClients" value="${node_maxclient}" autocomplete="off" />*',
+            self::$foglang['IsMasterNode'] => '<input type="checkbox" name="isMaster" value="1" />&nbsp;&nbsp;${span}',
+            self::$foglang['BandwidthReplication'].' (Kbps)' => '<input type="text" name="bandwidth" value="${node_bandwidth}" autocomplete="off" />&nbsp;&nbsp;${span2}',
+            self::$foglang['SG'] => '${node_group}',
+            self::$foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off" />',
+            self::$foglang['FTPPath'] => '<input type="text" name="ftppath" value="${node_ftppath}" autocomplete="off" />',
+            self::$foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off" />',
+            self::$foglang['SSLPath'] => '<input type="text" name="sslpath" value="${node_sslpath}" autocomplete="off" />',
             _('Bitrate') => '<input type="text" name="bitrate" value="${node_bitrate}" autocomplete="off" />',
-            $this->foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off" />',
-            $this->foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" checked value="1" />',
-            $this->foglang['IsGraphEnabled'].'<br /><small>('.$this->foglang[OnDash].')'  => '<input type="checkbox" name="isGraphEnabled" checked value="1" />',
-            $this->foglang['ManUser'] => '<input type="text" name="user" value="${node_user}" autocomplete="off" />*',
-            $this->foglang['ManPass'] => '<input type="password" name="pass" value="${node_pass}" autocomplete="off" />*',
-            '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'.$this->foglang['Add'].'" autocomplete="off" />',
+            self::$foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off" />',
+            self::$foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" checked value="1" />',
+            self::$foglang['IsGraphEnabled'].'<br /><small>('.self::$foglang[OnDash].')'  => '<input type="checkbox" name="isGraphEnabled" checked value="1" />',
+            self::$foglang['ManUser'] => '<input type="text" name="user" value="${node_user}" autocomplete="off" />*',
+            self::$foglang['ManPass'] => '<input type="password" name="pass" value="${node_pass}" autocomplete="off" />*',
+            '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'.self::$foglang['Add'].'" autocomplete="off" />',
         );
         echo '<form method="post" action="'.$this->formAction.'">';
         foreach ((array)$fields AS $field => &$input) {
@@ -146,8 +146,8 @@ class StorageManagementPage extends FOGPage {
                 'node_ip'=>$_REQUEST['ip'],
                 'node_webroot'=>$_REQUEST['webroot'],
                 'node_maxclient'=>$_REQUEST['maxClients']?$_REQUEST['maxClients']:10,
-                'span'=>'<i class="icon fa fa-question hand" title="'.$this->foglang['CautionPhrase'].'"></i>',
-                'span2'=>'<i class="icon fa fa-question hand" title="'.$this->foglang['BandwidthRepHelp'].'"></i>',
+                'span'=>'<i class="icon fa fa-question hand" title="'.self::$foglang['CautionPhrase'].'"></i>',
+                'span2'=>'<i class="icon fa fa-question hand" title="'.self::$foglang['BandwidthRepHelp'].'"></i>',
                 'node_group'=>self::getClass('StorageGroupManager')->buildSelectBox(1, 'storageGroupID'),
                 'node_path'=>$_REQUEST['path']?$_REQUEST['path']:'/images/',
                 'node_ftppath'=>$_REQUEST['ftppath']?$_REQUEST['ftppath']:'/images/',
@@ -168,13 +168,13 @@ class StorageManagementPage extends FOGPage {
     public function add_storage_node_post() {
         $this->HookManager->processEvent('STORAGE_NODE_ADD_POST');
         try {
-            if (empty($_REQUEST['name'])) throw new Exception($this->foglang['StorageNameRequired']);
-            if (self::getClass('StorageNodeManager')->exists($_REQUEST['name'])) throw new Exception($this->foglang['StorageNameExists']);
-            if (empty($_REQUEST['ip'])) throw new Exception($this->foglang['StorageIPRequired']);
-            if (empty($_REQUEST['maxClients'])) throw new Exception($this->foglang['StorageClientsRequired']);
-            if (empty($_REQUEST['interface'])) throw new Exception($this->foglang['StorageIntRequired']);
-            if (empty($_REQUEST['user'])) throw new Exception($this->foglang['StorageUserRequired']);
-            if (empty($_REQUEST['pass'])) throw new Exception($this->foglang['StoragePassRequired']);
+            if (empty($_REQUEST['name'])) throw new Exception(self::$foglang['StorageNameRequired']);
+            if (self::getClass('StorageNodeManager')->exists($_REQUEST['name'])) throw new Exception(self::$foglang['StorageNameExists']);
+            if (empty($_REQUEST['ip'])) throw new Exception(self::$foglang['StorageIPRequired']);
+            if (empty($_REQUEST['maxClients'])) throw new Exception(self::$foglang['StorageClientsRequired']);
+            if (empty($_REQUEST['interface'])) throw new Exception(self::$foglang['StorageIntRequired']);
+            if (empty($_REQUEST['user'])) throw new Exception(self::$foglang['StorageUserRequired']);
+            if (empty($_REQUEST['pass'])) throw new Exception(self::$foglang['StoragePassRequired']);
             if (((is_numeric($_REQUEST['bandwidth']) && $_REQUEST['bandwidth'] <= 0) || !is_numeric($_REQUEST['bandwidth'])) && $_REQUEST['bandwidth']) throw new Exception(_('Bandwidth should be numeric and greater than 0'));
             $StorageNode = self::getClass('StorageNode')
                 ->set('name',$_REQUEST['name'])
@@ -195,10 +195,10 @@ class StorageManagementPage extends FOGPage {
                 ->set('user',$_REQUEST['user'])
                 ->set('pass',$_REQUEST['pass'])
                 ->set('bandwidth',$_REQUEST['bandwidth']);
-            if (!$StorageNode->save()) throw new Exception($this->foglang['DBupfailed']);
+            if (!$StorageNode->save()) throw new Exception(self::$foglang['DBupfailed']);
             if ($StorageNode->get('isMaster')) self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$StorageNode->get('id'),$this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$StorageNode->get('storageGroupID'))))),'',array('isMaster'=>0));
             $this->HookManager->processEvent('STORAGE_NODE_ADD_SUCCESS',array('StorageNode'=>&$StorageNode));
-            $this->setMessage($this->foglang['SNCreated']);
+            $this->setMessage(self::$foglang['SNCreated']);
             $this->redirect(sprintf('?node=%s&id=%s',$_REQUEST['node'],$this->id, $StorageNode->get('id')));
         } catch (Exception $e) {
             $this->HookManager->processEvent('STORAGE_NODE_ADD_FAIL',array('StorageNode'=>&$StorageNode));
@@ -207,7 +207,7 @@ class StorageManagementPage extends FOGPage {
         }
     }
     public function edit_storage_node() {
-        $this->title = sprintf('%s: %s',$this->foglang['Edit'],$this->obj->get('name'));
+        $this->title = sprintf('%s: %s',self::$foglang['Edit'],$this->obj->get('name'));
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -219,25 +219,25 @@ class StorageManagementPage extends FOGPage {
         );
         $fields = array(
             '<input style="display:none" type="text" name="fakeusernameremembered"/>'=>'<input style="display:none" type="text" name="fakepasswordremembered"/>',
-            $this->foglang['SNName'] => '<input type="text" name="name" value="${node_name}" autocomplete="off" />*',
-            $this->foglang['SNDesc'] => '<textarea name="description" rows="8" cols="40" autocomplete="off">${node_desc}</textarea>',
-            $this->foglang['IPAdr'] => '<input type="text" name="ip" value="${node_ip}" autocomplete="off" />*',
+            self::$foglang['SNName'] => '<input type="text" name="name" value="${node_name}" autocomplete="off" />*',
+            self::$foglang['SNDesc'] => '<textarea name="description" rows="8" cols="40" autocomplete="off">${node_desc}</textarea>',
+            self::$foglang['IPAdr'] => '<input type="text" name="ip" value="${node_ip}" autocomplete="off" />*',
             _('Web root')  => '<input type="text" name="webroot" value="${node_webroot}" autocomplete="off" />*',
-            $this->foglang['MaxClients'] => '<input type="text" name="maxClients" value="${node_maxclient}" autocomplete="off" />*',
-            $this->foglang['IsMasterNode'] => '<input type="checkbox" name="isMaster" value="1" ${ismaster} autocomplete="off" />&nbsp;&nbsp;${span}',
-            $this->foglang['BandwidthReplication'].'  (Kbps)' => '<input type="text" name="bandwidth" value="${node_bandwidth}" autocomplete="off" />&nbsp;&nbsp;${span2}',
-            $this->foglang['SG'] => '${node_group}',
-            $this->foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off"/>',
-            $this->foglang['FTPPath'] => '<input type="text" name="ftppath" value="${node_ftppath}" autocomplete="off"/>',
-            $this->foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off"/>',
-            $this->foglang['SSLPath'] => '<input type="text" name="sslpath" value="${node_sslpath}" autocomplete="off"/>',
+            self::$foglang['MaxClients'] => '<input type="text" name="maxClients" value="${node_maxclient}" autocomplete="off" />*',
+            self::$foglang['IsMasterNode'] => '<input type="checkbox" name="isMaster" value="1" ${ismaster} autocomplete="off" />&nbsp;&nbsp;${span}',
+            self::$foglang['BandwidthReplication'].'  (Kbps)' => '<input type="text" name="bandwidth" value="${node_bandwidth}" autocomplete="off" />&nbsp;&nbsp;${span2}',
+            self::$foglang['SG'] => '${node_group}',
+            self::$foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off"/>',
+            self::$foglang['FTPPath'] => '<input type="text" name="ftppath" value="${node_ftppath}" autocomplete="off"/>',
+            self::$foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off"/>',
+            self::$foglang['SSLPath'] => '<input type="text" name="sslpath" value="${node_sslpath}" autocomplete="off"/>',
             _('Bitrate') => '<input type="text" name="bitrate" value="${node_bitrate}" autocomplete="off" />',
-            $this->foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off"/>',
-            $this->foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" value="1" ${isenabled}/>',
-            $this->foglang['IsGraphEnabled'].'<br /><small>('.$this->foglang['OnDash'].')'  => '<input type="checkbox" name="isGraphEnabled" value="1" ${graphenabled} />',
-            $this->foglang['ManUser'] => '<input type="text" name="user" value="${node_user}" autocomplete="off" />*',
-            $this->foglang['ManPass'] => '<input type="password" name="pass" value="${node_pass}" autocomplete="off" />*',
-            '&nbsp;' => '<input type="submit" name="update" value="'.$this->foglang['Update'].'" />',
+            self::$foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off"/>',
+            self::$foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" value="1" ${isenabled}/>',
+            self::$foglang['IsGraphEnabled'].'<br /><small>('.self::$foglang['OnDash'].')'  => '<input type="checkbox" name="isGraphEnabled" value="1" ${graphenabled} />',
+            self::$foglang['ManUser'] => '<input type="text" name="user" value="${node_user}" autocomplete="off" />*',
+            self::$foglang['ManPass'] => '<input type="password" name="pass" value="${node_pass}" autocomplete="off" />*',
+            '&nbsp;' => '<input type="submit" name="update" value="'.self::$foglang['Update'].'" />',
         );
         echo '<form method="post" action="'.$this->formAction.'">';
         foreach ((array)$fields AS $field => &$input) {
@@ -252,8 +252,8 @@ class StorageManagementPage extends FOGPage {
                 'ismaster'=>$this->obj->get('isMaster') ? 'checked' : '',
                 'isenabled'=>$this->obj->get('isEnabled') ? 'checked' : '',
                 'graphenabled'=>$this->obj->get('isGraphEnabled') ? 'checked' : '',
-                'span'=>'<i class="icon fa fa-question hand" title="'.$this->foglang['CautionPhrase'].'"></i>',
-                'span2'=>'<i class="icon fa fa-question hand" title="'.$this->foglang['BandwidthRepHelp'].'"></i>',
+                'span'=>'<i class="icon fa fa-question hand" title="'.self::$foglang['CautionPhrase'].'"></i>',
+                'span2'=>'<i class="icon fa fa-question hand" title="'.self::$foglang['BandwidthRepHelp'].'"></i>',
                 'node_group'=>self::getClass('StorageGroupManager')->buildSelectBox($this->obj->get('storageGroupID'),'storageGroupID'),
                 'node_bandwidth'=>$this->obj->get('bandwidth'),
                 'node_path'=>$this->obj->get('path'),
@@ -274,13 +274,13 @@ class StorageManagementPage extends FOGPage {
     public function edit_storage_node_post() {
         $this->HookManager->processEvent('STORAGE_NODE_EDIT_POST',array('StorageNode'=>&$this->obj));
         try {
-            if (empty($_REQUEST['name'])) throw new Exception($this->foglang['StorageNameRequired']);
-            if ($this->obj->get('name') != $_REQUEST['name'] && self::getClass('StorageNodeManager')->exists($_REQUEST['name'], $this->obj->get('id'))) throw new Exception($this->foglang['StorageNameExists']);
-            if (empty($_REQUEST['ip'])) throw new Exception($this->foglang['StorageIPRequired']);
-            if (!is_numeric($_REQUEST['maxClients']) || $_REQUEST['maxClients'] < 0) throw new Exception($this->foglang['StorageClientRequired']);
-            if (empty($_REQUEST['interface'])) throw new Exception($this->foglang['StorageIntRequired']);
-            if (empty($_REQUEST['user'])) throw new Exception($this->foglang['StorageUserRequired']);
-            if (empty($_REQUEST['pass'])) throw new Exception($this->foglang['StoragePassRequired']);
+            if (empty($_REQUEST['name'])) throw new Exception(self::$foglang['StorageNameRequired']);
+            if ($this->obj->get('name') != $_REQUEST['name'] && self::getClass('StorageNodeManager')->exists($_REQUEST['name'], $this->obj->get('id'))) throw new Exception(self::$foglang['StorageNameExists']);
+            if (empty($_REQUEST['ip'])) throw new Exception(self::$foglang['StorageIPRequired']);
+            if (!is_numeric($_REQUEST['maxClients']) || $_REQUEST['maxClients'] < 0) throw new Exception(self::$foglang['StorageClientRequired']);
+            if (empty($_REQUEST['interface'])) throw new Exception(self::$foglang['StorageIntRequired']);
+            if (empty($_REQUEST['user'])) throw new Exception(self::$foglang['StorageUserRequired']);
+            if (empty($_REQUEST['pass'])) throw new Exception(self::$foglang['StoragePassRequired']);
             if (((is_numeric($_REQUEST['bandwidth']) && $_REQUEST['bandwidth'] <= 0) || !is_numeric($_REQUEST['bandwidth'])) && $_REQUEST['bandwidth']) throw new Exception(_('Bandwidth should be numeric and greater than 0'));
             $this->obj
                 ->set('name',$_REQUEST['name'])
@@ -302,10 +302,10 @@ class StorageManagementPage extends FOGPage {
                 ->set('pass',$_REQUEST['pass'])
                 ->set('bandwidth',$_REQUEST['bandwidth']);
             // Save
-            if (!$this->obj->save()) throw new Exception($this->foglang['DBupfailed']);
+            if (!$this->obj->save()) throw new Exception(self::$foglang['DBupfailed']);
             if ($this->obj->get('isMaster')) self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$this->obj->get('id'),$this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$this->obj->get('storageGroupID'))))),'',array('isMaster'=>0));
             $this->HookManager->processEvent('STORAGE_NODE_EDIT_SUCCESS',array('StorageNode'=>&$this->obj));
-            $this->setMessage($this->foglang['SNUpdated']);
+            $this->setMessage(self::$foglang['SNUpdated']);
             $this->redirect($this->formAction);
         } catch (Exception $e) {
             $this->HookManager->processEvent('STORAGE_NODE_EDIT_FAIL',array('StorageNode'=>&$this->obj));
@@ -314,7 +314,7 @@ class StorageManagementPage extends FOGPage {
         }
     }
     public function delete_storage_node() {
-        $this->title = sprintf('%s: %s',$this->foglang['Remove'],$this->obj->get('name'));
+        $this->title = sprintf('%s: %s',self::$foglang['Remove'],$this->obj->get('name'));
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -325,7 +325,7 @@ class StorageManagementPage extends FOGPage {
             '${input}',
         );
         $fields = array(
-            $this->foglang['ConfirmDel'].' <b>'.$this->obj->get('name').'</b>' => '<input type="submit" value="${title}" />',
+            self::$foglang['ConfirmDel'].' <b>'.$this->obj->get('name').'</b>' => '<input type="submit" value="${title}" />',
         );
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
@@ -343,9 +343,9 @@ class StorageManagementPage extends FOGPage {
     public function delete_storage_node_post() {
         $this->HookManager->processEvent('STORAGE_NODE_DELETE_POST', array('StorageNode'=>&$this->obj));
         try {
-            if (!$this->obj->destroy()) throw new Exception($this->foglang['FailDelSN']);
+            if (!$this->obj->destroy()) throw new Exception(self::$foglang['FailDelSN']);
             $this->HookManager->processEvent('STORAGE_NODE_DELETE_SUCCESS',array('StorageNode'=>&$this->obj));
-            $this->setMessage(sprintf('%s: %s',$this->foglang['SNDelSuccess'],$this->obj->get('name')));
+            $this->setMessage(sprintf('%s: %s',self::$foglang['SNDelSuccess'],$this->obj->get('name')));
             $this->redirect(sprintf('?node=%s',$_REQUEST['node']));
         } catch (Exception $e) {
             $this->HookManager->processEvent('STORAGE_NODE_DELETE_FAIL',array('StorageNode'=>&$this->obj));
@@ -354,18 +354,18 @@ class StorageManagementPage extends FOGPage {
         }
     }
     public function storage_group() {
-        $this->title = $this->foglang['AllSG'];
+        $this->title = self::$foglang['AllSG'];
         foreach ((array)self::getClass('StorageGroupManager')->find() AS $i => &$StorageGroup) {
             $this->data[] = $StorageGroup->get();
             unset($StorageGroup);
         }
         $this->headerData = array(
-            $this->foglang['SG'],
+            self::$foglang['SG'],
             '',
         );
         $this->templates = array(
-            sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s">${name}</a>',$this->node,$this->id,$this->foglang[Edit]),
-            sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a> <a href="?node=%s&sub=delete-storage-group&%s=${id}" title="%s"><i class="icon fa fa-minus-circle"></i></a>',$this->node,$this->id,$this->foglang[Edit],$this->node,$this->id,$this->foglang[Delete])
+            sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s">${name}</a>',$this->node,$this->id,self::$foglang[Edit]),
+            sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a> <a href="?node=%s&sub=delete-storage-group&%s=${id}" title="%s"><i class="icon fa fa-minus-circle"></i></a>',$this->node,$this->id,self::$foglang[Edit],$this->node,$this->id,self::$foglang[Delete])
         );
         // Row attributes
         $this->attributes = array(
@@ -385,7 +385,7 @@ class StorageManagementPage extends FOGPage {
     }
     public function add_storage_group() {
         // Set title
-        $this->title = $this->foglang[AddSG];
+        $this->title = self::$foglang[AddSG];
         // Header Data
         unset($this->headerData);
         // Attributes
@@ -400,9 +400,9 @@ class StorageManagementPage extends FOGPage {
         );
         // Fields
         $fields = array(
-            $this->foglang[SGName] => '<input type="text" name="name" value="${storgrp_name}" />',
-            $this->foglang[SGDesc] => '<textarea name="description" rows="8" cols="40">${storgrp_desc}</textarea>',
-            '&nbsp;' => '<input type="submit" value="'.$this->foglang[Add].'" />',
+            self::$foglang[SGName] => '<input type="text" name="name" value="${storgrp_name}" />',
+            self::$foglang[SGDesc] => '<textarea name="description" rows="8" cols="40">${storgrp_desc}</textarea>',
+            '&nbsp;' => '<input type="submit" value="'.self::$foglang[Add].'" />',
         );
         echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
@@ -426,18 +426,18 @@ class StorageManagementPage extends FOGPage {
         // POST
         try {
             // Error checking
-            if (empty($_REQUEST[name])) throw new Exception($this->foglang[SGNameReq]);
-            if (self::getClass(StorageGroupManager)->exists($_REQUEST[name])) throw new Exception($this->foglang[SGExist]);
+            if (empty($_REQUEST[name])) throw new Exception(self::$foglang[SGNameReq]);
+            if (self::getClass(StorageGroupManager)->exists($_REQUEST[name])) throw new Exception(self::$foglang[SGExist]);
             // Create new Object
             $StorageGroup = self::getClass(StorageGroup)
                 ->set(name,$_REQUEST[name])
                 ->set(description,$_REQUEST[description]);
             // Save
-            if (!$StorageGroup->save()) throw new Exception($this->foglang[DBupfailed]);
+            if (!$StorageGroup->save()) throw new Exception(self::$foglang[DBupfailed]);
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_ADD_POST_SUCCESS,array(StorageGroup=>&$StorageGroup));
             // Set session message
-            $this->setMessage($this->foglang[SGCreated]);
+            $this->setMessage(self::$foglang[SGCreated]);
             // Redirect to new entry
             $this->redirect(sprintf('?node=%s&sub=edit-storage-group&%s=%s',$_REQUEST[node],$this->id,$StorageGroup->get(id)));
         } catch (Exception $e) {
@@ -451,7 +451,7 @@ class StorageManagementPage extends FOGPage {
     }
     public function edit_storage_group() {
         // Title
-        $this->title = sprintf('%s: %s', $this->foglang['Edit'], $this->obj->get('name'));
+        $this->title = sprintf('%s: %s', self::$foglang['Edit'], $this->obj->get('name'));
         // Header Data
         unset($this->headerData);
         // Attributes
@@ -466,9 +466,9 @@ class StorageManagementPage extends FOGPage {
         );
         // Fields
         $fields = array(
-            $this->foglang[SGName]=>'<input type="text" name="name" value="'.$this->obj->get(name).'" />',
-            $this->foglang[SGDesc]=>'<textarea name="description" rows="8" cols="40">'.$this->obj->get(description).'</textarea>',
-            '&nbsp;'=>'<input type="submit" value="'.$this->foglang[Update].'" />',
+            self::$foglang[SGName]=>'<input type="text" name="name" value="'.$this->obj->get(name).'" />',
+            self::$foglang[SGDesc]=>'<textarea name="description" rows="8" cols="40">'.$this->obj->get(description).'</textarea>',
+            '&nbsp;'=>'<input type="submit" value="'.self::$foglang[Update].'" />',
         );
         echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
@@ -490,18 +490,18 @@ class StorageManagementPage extends FOGPage {
         // POST
         try {
             // Error checking
-            if (empty($_REQUEST[name])) throw new Exception($this->foglang[SGName]);
-            if ($this->obj->get(name) != $_REQUEST[name] && self::getClass(StorageGroupManager)->exists($_REQUEST[name], $this->obj->get(id))) throw new Exception($this->foglang[SGExist]);
+            if (empty($_REQUEST[name])) throw new Exception(self::$foglang[SGName]);
+            if ($this->obj->get(name) != $_REQUEST[name] && self::getClass(StorageGroupManager)->exists($_REQUEST[name], $this->obj->get(id))) throw new Exception(self::$foglang[SGExist]);
             // Update Object
             $this->obj
                 ->set(name,$_REQUEST[name])
                 ->set(description,$_REQUEST[description]);
             // Save
-            if (!$this->obj->save()) throw new Exception($this->foglang[DBupfailed]);
+            if (!$this->obj->save()) throw new Exception(self::$foglang[DBupfailed]);
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_EDIT_POST_SUCCESS,array(StorageGroup=>&$this->obj));
             // Set session message
-            $this->setMessage($this->foglang[SGUpdated]);
+            $this->setMessage(self::$foglang[SGUpdated]);
             // Redirect to new entry
             $this->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST[node],$this->id,$this->obj->get(id)));
         } catch (Exception $e) {
@@ -515,7 +515,7 @@ class StorageManagementPage extends FOGPage {
     }
     public function delete_storage_group() {
         // Title
-        $this->title = sprintf('%s: %s',$this->foglang[Remove],$this->obj->get(name));
+        $this->title = sprintf('%s: %s',self::$foglang[Remove],$this->obj->get(name));
         // Headerdata
         unset($this->headerData);
         // Attributes
@@ -529,7 +529,7 @@ class StorageManagementPage extends FOGPage {
             '${input}',
         );
         $fields = array(
-            $this->foglang[ConfirmDel].' <b>'.$this->obj->get(name).'</b>' => '<input type="submit" value="'.$this->title.'" />',
+            self::$foglang[ConfirmDel].' <b>'.$this->obj->get(name).'</b>' => '<input type="submit" value="'.$this->title.'" />',
         );
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
@@ -551,13 +551,13 @@ class StorageManagementPage extends FOGPage {
         // POST
         try {
             // Error checking
-            if (self::getClass(StorageGroupManager)->count() == 1) throw new Exception($this->foglang[OneSG]);
+            if (self::getClass(StorageGroupManager)->count() == 1) throw new Exception(self::$foglang[OneSG]);
             // Destroy
-            if (!$this->obj->destroy()) throw new Exception($this->foglang[FailDelSG]);
+            if (!$this->obj->destroy()) throw new Exception(self::$foglang[FailDelSG]);
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_DELETE_POST_SUCCESS, array(StorageGroup=>&$this->obj));
             // Set session message
-            $this->setMessage(sprintf('%s: %s',$this->foglang[SGDelSuccess],$this->obj->get(name)));
+            $this->setMessage(sprintf('%s: %s',self::$foglang[SGDelSuccess],$this->obj->get(name)));
             // Redirect
             $this->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST[node]));
         } catch (Exception $e) {

@@ -5,13 +5,13 @@ class TasktypeeditManagementPage extends FOGPage {
         $this->name = 'Task Type Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'search' => $this->foglang['NewSearch'],
-            'list' => sprintf($this->foglang['ListAll'],_('Task Types')),
-            'add' => sprintf($this->foglang['CreateNew'],_('Task Type')),
+            'search' => self::$foglang['NewSearch'],
+            'list' => sprintf(self::$foglang['ListAll'],_('Task Types')),
+            'add' => sprintf(self::$foglang['CreateNew'],_('Task Type')),
         );
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                $this->delformat => $this->foglang['Delete'],
+                $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
                 _('Name')=>$this->obj->get('name'),

@@ -1,25 +1,23 @@
 <?php
 class PXEMenuOptionsManager extends FOGManagerController {
     private static $regVals;
-    public static function regText($foglang) {
+    public static function regText() {
         return self::$regVals = array(
-            0 => $foglang['NotRegHost'],
-            1 => $foglang['RegHost'],
-            2 => $foglang['AllHosts'],
-            3 => $foglang['DebugOpts'],
-            4 => $foglang['AdvancedOpts'],
-            5 => $foglang['AdvancedLogOpts'],
-            6 => $foglang['PendRegHost'],
-            7 => $foglang['DoNotList'],
+            0 => self::$foglang['NotRegHost'],
+            1 => self::$foglang['RegHost'],
+            2 => self::$foglang['AllHosts'],
+            3 => self::$foglang['DebugOpts'],
+            4 => self::$foglang['AdvancedOpts'],
+            5 => self::$foglang['AdvancedLogOpts'],
+            6 => self::$foglang['PendRegHost'],
+            7 => self::$foglang['DoNotList'],
         );
     }
     public function regSelect($request = '') {
-        $request = (int)$request;
+        self::$selected = (int)$request;
         ob_start();
-        foreach (self::regText($this->foglang) AS $num => &$val) {
-            printf('<option value="%s"%s>%s</option>',$num,($request === $num ? ' selected' : ''),$val);
-            unset($val);
-        }
+        $sender = self::regText();
+        array_walk($sender,self::$buildSelectBox);
         return sprintf('<select name="menu_regmenu">%s</select>',ob_get_clean());
     }
 }

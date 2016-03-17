@@ -86,19 +86,19 @@ class Image extends FOGController {
         return $this;
     }
     public function deleteFile() {
-        if ($this->get('protected')) throw new Exception($this->foglang['ProtectedImage']);
+        if ($this->get('protected')) throw new Exception(self::$foglang['ProtectedImage']);
         foreach ((array)self::getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'),'isEnabled'=>1)) AS $i => &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
-            $this->FOGFTP
+            self::$FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
-            if (!$this->FOGFTP->connect()) {
-                $this->FOGFTP->close();
+            if (!self::$FOGFTP->connect()) {
+                self::$FOGFTP->close();
                 continue;
             }
             $delete = sprintf('/%s/%s',trim($StorageNode->get('ftppath'),'/'),$this->get('path'));
-            $this->FOGFTP
+            self::$FOGFTP
                 ->delete($delete)
                 ->close();
             unset($StorageNode);

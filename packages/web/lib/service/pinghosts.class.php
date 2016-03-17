@@ -13,7 +13,7 @@ class PingHosts extends FOGService {
     private function commonOutput() {
         try {
             if (!$this->getSetting('FOG_HOST_LOOKUP')) throw new Exception(_(' * Host Ping is not enabled'));
-            $webServerIP = $this->FOGCore->resolveHostName($this->getSetting('FOG_WEB_HOST'));
+            $webServerIP = self::$FOGCore->resolveHostName($this->getSetting('FOG_WEB_HOST'));
             $this->outall(sprintf(' * FOG Web Host IP: %s',$webServerIP));
             $this->getIPAddress();
             foreach ((array)$this->ips AS $i => &$ip) {

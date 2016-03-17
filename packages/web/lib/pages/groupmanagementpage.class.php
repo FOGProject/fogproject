@@ -6,20 +6,20 @@ class GroupManagementPage extends FOGPage {
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                "$this->linkformat#group-general" => $this->foglang['General'],
-                "$this->linkformat#group-tasks" => $this->foglang['BasicTasks'],
-                "$this->linkformat#group-image" => $this->foglang['ImageAssoc'],
-                "$this->linkformat#group-snap-add" => "{$this->foglang['Add']} {$this->foglang['Snapins']}",
-                "$this->linkformat#group-snap-del" => "{$this->foglang['Remove']} {$this->foglang['Snapins']}",
-                "$this->linkformat#group-service" => "{$this->foglang['Service']} {$this->foglang['Settings']}",
-                "$this->linkformat#group-active-directory" => $this->foglang['AD'],
-                "$this->linkformat#group-printers" => $this->foglang['Printers'],
-                $this->membership => $this->foglang['Membership'],
-                $this->delformat => $this->foglang['Delete'],
+                "$this->linkformat#group-general" => self::$foglang['General'],
+                "$this->linkformat#group-tasks" => self::$foglang['BasicTasks'],
+                "$this->linkformat#group-image" => self::$foglang['ImageAssoc'],
+                "$this->linkformat#group-snap-add" => sprintf('%s %s',self::$foglang['Add'],self::$foglang['Snapins']),
+                "$this->linkformat#group-snap-del" => sprintf('%s %s',self::$foglang['Remove'],self::$foglang['Snapins']),
+                "$this->linkformat#group-service" => sprintf('%s %s',self::$foglang['Service'],self::$foglang['Settings']),
+                "$this->linkformat#group-active-directory" => self::$foglang['AD'],
+                "$this->linkformat#group-printers" => self::$foglang['Printers'],
+                $this->membership => self::$foglang['Membership'],
+                $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
-                $this->foglang['Group'] => $this->obj->get('name'),
-                $this->foglang['Members'] => $this->obj->getHostCount(),
+                self::$foglang['Group'] => $this->obj->get('name'),
+                self::$foglang['Members'] => $this->obj->getHostCount(),
             );
         }
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));

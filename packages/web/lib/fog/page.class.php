@@ -37,27 +37,27 @@ class Page extends FOGBase {
         if ($this->FOGUser->isValid() && strtolower($_REQUEST['node']) != 'schemaupdater') {
             if (!$this->isMobile) {
                 $this->main = array(
-                    'home'=>array($this->foglang['Home'],'fa fa-home fa-2x'),
-                    'user'=>array($this->foglang['User Management'],'fa fa-users fa-2x'),
-                    'host'=>array($this->foglang['Host Management'],'fa fa-desktop fa-2x'),
-                    'group'=>array($this->foglang['Group Management'],'fa fa-sitemap fa-2x'),
-                    'image'=>array($this->foglang['Image Management'],'fa fa-picture-o fa-2x'),
-                    'storage'=>array($this->foglang['Storage Management'],'fa fa-archive fa-2x'),
-                    'snapin'=>array($this->foglang['Snapin Management'],'fa fa-files-o fa-2x'),
-                    'printer'=>array($this->foglang['Printer Management'],'fa fa-print fa-2x'),
-                    'service'=>array($this->foglang['Service Configuration'],'fa fa-cogs fa-2x'),
-                    'task'=>array($this->foglang['Task Management'],'fa fa-tasks fa-2x'),
-                    'report'=>array($this->foglang['Report Management'],'fa fa-file-text fa-2x'),
-                    'about'=>array($this->foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
-                    'logout'=>array($this->foglang['Logout'],'fa fa-sign-out fa-2x'),
+                    'home'=>array(self::$foglang['Home'],'fa fa-home fa-2x'),
+                    'user'=>array(self::$foglang['User Management'],'fa fa-users fa-2x'),
+                    'host'=>array(self::$foglang['Host Management'],'fa fa-desktop fa-2x'),
+                    'group'=>array(self::$foglang['Group Management'],'fa fa-sitemap fa-2x'),
+                    'image'=>array(self::$foglang['Image Management'],'fa fa-picture-o fa-2x'),
+                    'storage'=>array(self::$foglang['Storage Management'],'fa fa-archive fa-2x'),
+                    'snapin'=>array(self::$foglang['Snapin Management'],'fa fa-files-o fa-2x'),
+                    'printer'=>array(self::$foglang['Printer Management'],'fa fa-print fa-2x'),
+                    'service'=>array(self::$foglang['Service Configuration'],'fa fa-cogs fa-2x'),
+                    'task'=>array(self::$foglang['Task Management'],'fa fa-tasks fa-2x'),
+                    'report'=>array(self::$foglang['Report Management'],'fa fa-file-text fa-2x'),
+                    'about'=>array(self::$foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
+                    'logout'=>array(self::$foglang['Logout'],'fa fa-sign-out fa-2x'),
                 );
-                if ($this->getSetting('FOG_PLUGINSYS_ENABLED')) $this->array_insert_after('about',$this->main,'plugin',array($this->foglang['Plugin Management'],'fa fa-cog fa-2x'));
+                if ($this->getSetting('FOG_PLUGINSYS_ENABLED')) $this->array_insert_after('about',$this->main,'plugin',array(self::$foglang['Plugin Management'],'fa fa-cog fa-2x'));
             } else {
                 $this->main = array(
-                    'home'=>array($this->foglang['Home'],'fa fa-home fa-2x'),
-                    'host'=>array($this->foglang['Host Management'],'fa fa-desktop fa-2x'),
-                    'task'=>array($this->foglang['Task Management'],'fa fa-tasks fa-2x'),
-                    'logout'=>array($this->foglang['Logout'],'fa fa-sign-out fa-2x'),
+                    'home'=>array(self::$foglang['Home'],'fa fa-home fa-2x'),
+                    'host'=>array(self::$foglang['Host Management'],'fa fa-desktop fa-2x'),
+                    'task'=>array(self::$foglang['Task Management'],'fa fa-tasks fa-2x'),
+                    'logout'=>array(self::$foglang['Logout'],'fa fa-sign-out fa-2x'),
                 );
             }
             $this->main = array_unique(array_filter($this->main),SORT_REGULAR);

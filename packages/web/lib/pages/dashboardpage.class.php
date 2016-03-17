@@ -16,7 +16,7 @@ class DashboardPage extends FOGPage {
         if ($_SESSION['Pending-Hosts'] && $_SESSION['Pending-MACs']) $this->setMessage("$hostPend<br/>$macPend");
         else if ($_SESSION['Pending-Hosts']) $this->setMessage($hostPend);
         else if ($_SESSION['Pending-MACs']) $this->setMessage($macPend);
-        $SystemUptime = $this->FOGCore->SystemUptime();
+        $SystemUptime = self::$FOGCore->SystemUptime();
         $fields = array(
             _('Username') => $_SESSION['FOG_USERNAME'],
             _('Web Server') => $this->getSetting('FOG_WEB_HOST'),
@@ -80,7 +80,7 @@ class DashboardPage extends FOGPage {
             $datapointsten = (int)($datapointshour / 6);
             $datapointstwo = (int)($datapointshour / 30);
             // Bandwidth Graph
-            printf('<input type="hidden" id="bandwidthtime" value="%s"/><h3 id="graph-bandwidth-title">%s - <span>%s</span><!-- (<span>2 Minutes</span>)--></h3><div id="graph-bandwidth-filters"><div><a href="#" id="graph-bandwidth-filters-transmit" class="l active">%s</a><a href="#" id="graph-bandwidth-filters-receive" class="l">%s</a></div><div class="spacer"></div><div><a href="#" rel="%s" class="r">%s</a><a href="#" rel="%s" class="r">%s</a><a href="#" rel="%s" class="r">%s</a><a href="#" rel="%s" class="r active">%s</a></div></div><div id="graph-bandwidth" class="graph"></div>',$bandwidthtime,$this->foglang['Bandwidth'],$this->foglang['Transmit'],$this->foglang['Transmit'],$this->foglang['Receive'],$datapointshour,_('1 hour'),$datapointshalf,_('30 Minutes'),$datapointsten,_('10 Minutes'),$datapointstwo,_('2 Minutes'));
+            printf('<input type="hidden" id="bandwidthtime" value="%s"/><h3 id="graph-bandwidth-title">%s - <span>%s</span><!-- (<span>2 Minutes</span>)--></h3><div id="graph-bandwidth-filters"><div><a href="#" id="graph-bandwidth-filters-transmit" class="l active">%s</a><a href="#" id="graph-bandwidth-filters-receive" class="l">%s</a></div><div class="spacer"></div><div><a href="#" rel="%s" class="r">%s</a><a href="#" rel="%s" class="r">%s</a><a href="#" rel="%s" class="r">%s</a><a href="#" rel="%s" class="r active">%s</a></div></div><div id="graph-bandwidth" class="graph"></div>',$bandwidthtime,self::$foglang['Bandwidth'],self::$foglang['Transmit'],self::$foglang['Transmit'],self::$foglang['Receive'],$datapointshour,_('1 hour'),$datapointshalf,_('30 Minutes'),$datapointsten,_('10 Minutes'),$datapointstwo,_('2 Minutes'));
         }
     }
     public function bandwidth() {

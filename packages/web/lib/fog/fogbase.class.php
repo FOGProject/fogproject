@@ -3,18 +3,18 @@ abstract class FOGBase {
     protected static $buildSelectBox;
     protected static $ftpfilesonly;
     protected static $selected;
+    public static $foglang;
+    protected static $DB;
+    protected static $FOGFTP;
+    protected static $FOGCore;
     protected $debug = false;
     protected $info = false;
-    protected $FOGFTP;
-    protected $FOGCore;
-    protected $DB;
     protected $HookManager;
     protected $EventManager;
     protected $FOGUser;
     protected $FOGPageManager;
     protected $FOGURLRequests;
     protected $FOGSubMenu;
-    protected $foglang;
     protected $urlself;
     protected $isMobile;
     protected $isLoaded = array();
@@ -30,33 +30,41 @@ abstract class FOGBase {
     public $ajax = false;
     public $post = false;
     public $service = false;
-    public function __construct() {
+    private static $initialized = false;
+    private static function init() {
+        if (self::$initialized === true) return $this;
         global $foglang;
         global $FOGFTP;
         global $FOGCore;
         global $DB;
+        self::$foglang =& $foglang;
+        self::$FOGFTP =& $FOGFTP;
+        self::$FOGCore = &$FOGCore;
+        self::$DB =& $DB;
+        self::$buildSelectBox = function(&$option,&$index = false) {
+            $value = $option;
+            if ($index) $value = $index;
+            printf('<option value="%s"%s>%s</option>',
+                $value,
+                (self::$selected == $value ? ' selected' : ''),
+                $option
+            );
+            unset($option,$index,$value);
+        };
+        self::$ftpfilesonly = function(&$item) {
+            if (self::$FOGFTP->chdir($item)) return;
+            return basename($item);
+        };
+        self::$initialized = true;
+        return $this;
+    }
+    public function __construct() {
         global $currentUser;
         global $HookManager;
         global $EventManager;
         global $FOGURLRequests;
         global $FOGPageManager;
         global $TimeZone;
-        self::$buildSelectBox = function(&$option) {
-            printf('<option value="%s"%s>%s</option>',
-                $option,
-                (self::$selected == $option ? ' selected' : ''),
-                $option
-            );
-            unset($option);
-        };
-        self::$ftpfilesonly = function(&$item) {
-            if ($this->FOGFTP->chdir($item)) return;
-            return basename($item);
-        };
-        $this->foglang = &$foglang;
-        $this->FOGFTP = &$FOGFTP;
-        $this->FOGCore = &$FOGCore;
-        $this->DB = &$DB;
         $this->FOGUser = &$currentUser;
         $this->EventManager = &$EventManager;
         $this->HookManager = &$HookManager;
@@ -68,6 +76,7 @@ abstract class FOGBase {
         $this->service = (bool)preg_match('#/service/#i', $this->urlself);
         $this->ajax = (bool)isset($_SERVER['HTTP_X_REQUESTED_WITH']) && preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);
         $this->post = (bool)preg_match('#^post$#i',isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] ? $_SERVER['REQUEST_METHOD'] : '');
+        self::init();
     }
     public function __toString() {
         return (string)get_class($this);
@@ -84,7 +93,7 @@ abstract class FOGBase {
         if ($encoded === true) $mac = base64_decode($mac);
         $mac = trim($mac);
         $MACs = $this->parseMacList($mac,!$service,$service);
-        if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : sprintf('%s %s',$this->foglang['InvalidMAC'],$_REQUEST['mac']));
+        if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : sprintf('%s %s',self::$foglang['InvalidMAC'],$_REQUEST['mac']));
         if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
         $Host = self::getClass('HostManager')->getHostByMacAddresses($MACs);
         if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get(pending)) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
@@ -330,16 +339,16 @@ abstract class FOGBase {
     protected function getFTPByteSize($StorageNode,$file) {
         try {
             if (!$StorageNode->isValid()) throw new Exception(_('No storage node'));
-            $this->FOGFTP
+            self::$FOGFTP
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'))
                 ->set('host',$StorageNode->get('ip'));
-            if (!$this->FOGFTP->connect()) throw new Exception(_('Cannot connect to node.'));
-            $size = $this->formatByteSize((double)$this->FOGFTP->size($file));
+            if (!self::$FOGFTP->connect()) throw new Exception(_('Cannot connect to node.'));
+            $size = $this->formatByteSize((double)self::$FOGFTP->size($file));
         } catch (Exception $e) {
             return $e->getMessage();
         }
-        $this->FOGFTP->close();
+        self::$FOGFTP->close();
         return $size;
     }
     protected function array_filter_recursive(&$input,$keepkeys = false) {
@@ -456,7 +465,7 @@ abstract class FOGBase {
             unset($ImageIgnoredMACs);
         }
         $MACs = array_values(array_unique(array_filter((array)$MACs)));
-        $Ignore = (array)array_filter(array_map($lowerAndTrim,(array)explode(',',$this->FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
+        $Ignore = (array)array_filter(array_map($lowerAndTrim,(array)explode(',',$this->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
         if (count($Ignore)) $MACs = array_values(array_unique(array_filter(array_diff((array)$MACs,preg_grep(sprintf('#%s#i',implode('|',(array)$Ignore)),$MACs)))));
         $MACs = preg_grep('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$|^([a-fA-F0-9]{2}\-){5}[a-fA-F0-9]{2}$|^[a-fA-F0-9]{12}$|^([a-fA-F0-9]{4}\.){2}[a-fA-F0-9]{4}$/',(array)$MACs);
         if (!count($MACs)) return false;
@@ -491,7 +500,7 @@ abstract class FOGBase {
     protected function logHistory($string) {
         $string = htmlentities(mb_convert_encoding($string,'UTF-8'),ENT_QUOTES,'UTF-8');
         $name = $_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog';
-        if ($this->DB) {
+        if (self::$DB) {
             self::getClass('History')
                 ->set('info',$string)
                 ->set('ip',$_SERVER['REMOTE_ADDR'])

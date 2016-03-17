@@ -5,7 +5,7 @@ class PushbulletManagementPage extends FOGPage {
         $this->name = 'Pushbullet Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'list' => sprintf($this->foglang['ListAll'],_('Pushbullet Accounts')),
+            'list' => sprintf(self::$foglang['ListAll'],_('Pushbullet Accounts')),
             'add' => _('Link Pushbullet Account'),
         );
         if ($_REQUEST['id']) {

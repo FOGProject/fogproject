@@ -58,6 +58,7 @@ function service_persist($service_name) {
                     service_log_message($service_logpath, $service_name, 'pnctl_waitpid() failed.');
                     exit(1);
                 }
+                sleep($service_sleep_time);
             }
             if(pcntl_wifexited($status)) {
                 $code = pcntl_wexitstatus($status);
@@ -69,12 +70,12 @@ function service_persist($service_name) {
                 service_log_message($service_logpath, $service_name, "child process ($service_child_pid) stopped for unknown reason.");
             }
             $service_child_pid = 0;
-            sleep((int)$service_sleep_time);
         } else if ($service_child_pid == 0) {
             service_unregister_signal_handler();
             service_log_message($service_logpath, $service_name, 'child process ('.posix_getpid().') is running.');
             return;
         }
+        sleep($service_sleep_time);
     }
     service_log_message($service_logpath, $service_name, 'Parent process ('.posix_getpid().') reached end of loop.');
     exit(0);

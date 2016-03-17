@@ -8,10 +8,10 @@ class HostMobile extends FOGPage {
         $this->subMenu = array();
         $this->notes = array();
         $this->headerData = array(
-            $this->foglang['ID'],
-            $this->foglang['Name'],
-            $this->foglang['MAC'],
-            $this->foglang['Image'],
+            self::$foglang['ID'],
+            self::$foglang['Name'],
+            self::$foglang['MAC'],
+            self::$foglang['Image'],
         );
         if ($_REQUEST['id']) $this->obj = self::getClass('Host',$_REQUEST['id']);
         $this->attributes = array(
@@ -43,14 +43,14 @@ class HostMobile extends FOGPage {
     }
     public function deploy() {
         try {
-            $this->title = $this->foglang['QuickImageMenu'];
+            $this->title = self::$foglang['QuickImageMenu'];
             unset($this->headerData);
             $this->attributes = array(array());
             $this->templates = array('${task_started}');
             $this->data = array();
-            if (!$this->obj->getImageMemberFromHostID($_REQUEST['id'])) throw new Exception($this->foglang['ErrorImageAssoc']);
-            if (!$this->obj->createImagePackage('1', "Mobile: {$this->obj->get(name)}",false,false,true,false,$_SESSION['FOG_USERNAME'])) throw new Exception($this->foglang['FailedTask']);
-            $this->data[] = array($this->foglang['TaskStarted'],);
+            if (!$this->obj->getImageMemberFromHostID($_REQUEST['id'])) throw new Exception(self::$foglang['ErrorImageAssoc']);
+            if (!$this->obj->createImagePackage('1', "Mobile: {$this->obj->get(name)}",false,false,true,false,$_SESSION['FOG_USERNAME'])) throw new Exception(self::$foglang['FailedTask']);
+            $this->data[] = array(self::$foglang['TaskStarted'],);
         } catch (Exception $e) {
             $this->data[] = array($e->getMessage());
         }
