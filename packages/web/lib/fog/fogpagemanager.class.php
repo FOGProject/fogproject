@@ -15,7 +15,7 @@ class FOGPageManager Extends FOGBase {
         $this->classValue = isset($_REQUEST['node']) && $_REQUEST['node'] ? $this->replaceVariable($_REQUEST['node']) : 'home';
         unset($value);
         $this->methodValue = $this->replaceVariable($_REQUEST['sub']);
-        $this->HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
+        self::$HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
     }
     public function getFOGPageClass() {
         return $this->nodes[$this->classValue];
@@ -30,7 +30,7 @@ class FOGPageManager Extends FOGBase {
         return (bool)$this->getFOGPageClass()->titleEnabled == true && !empty($this->FOGPageClass()->title);
     }
     public function getSideMenu() {
-        if ($this->FOGUser->isValid()) {
+        if (self::$FOGUser->isValid()) {
             $class = $this->getFOGPageClass();
             $this->FOGSubMenu = self::getClass('FOGSubMenu');
             foreach ((array)$class->menu AS $link => &$title) $this->FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link));
@@ -45,7 +45,7 @@ class FOGPageManager Extends FOGBase {
         }
     }
     public function render() {
-        $toRender = in_array($_REQUEST['node'],array('client','schemaupdater')) || in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo')) || ($this->FOGUser->isValid());
+        $toRender = in_array($_REQUEST['node'],array('client','schemaupdater')) || in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo')) || (self::$FOGUser->isValid());
         if ($toRender) {
             $this->loadPageClasses();
             try {

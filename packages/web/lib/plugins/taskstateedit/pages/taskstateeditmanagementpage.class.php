@@ -46,7 +46,7 @@ class TaskstateeditManagementPage extends FOGPage {
             );
             unset($TaskState);
         }
-        $this->HookManager->processEvent('TASKSTATE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('TASKSTATE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
@@ -59,7 +59,7 @@ class TaskstateeditManagementPage extends FOGPage {
             );
             unset($TaskState);
         }
-        $this->HookManager->processEvent('TASKSTATE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('TASKSTATE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -88,7 +88,7 @@ class TaskstateeditManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        $this->HookManager->processEvent('TASKSTATE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('TASKSTATE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -140,13 +140,13 @@ class TaskstateeditManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        $this->HookManager->processEvent('TASKSTATE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('TASKSTATE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        $this->HookManager->processEvent('TASKSTATE_EDIT_POST',array('TaskState'=>&$this->obj));
+        self::$HookManager->processEvent('TASKSTATE_EDIT_POST',array('TaskState'=>&$this->obj));
         try {
             $name = $_REQUEST['name'];
             $description = $_REQUEST['description'];

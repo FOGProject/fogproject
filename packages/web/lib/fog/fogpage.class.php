@@ -27,7 +27,7 @@ abstract class FOGPage extends FOGBase {
         if (!empty($name)) $this->name = $name;
         $this->title = $this->name;
         $PagesWithObjects = array('user','host','image','group','snapin','printer');
-        $this->HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
+        self::$HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
         if (in_array($this->node,$PagesWithObjects)) {
             $this->childClass = ucfirst($this->node);
             if (isset($_REQUEST['id'])) {
@@ -65,8 +65,8 @@ abstract class FOGPage extends FOGBase {
             unset($input);
         };
         $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',$this->urlself,htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))),FILTER_SANITIZE_URL));
-        $this->HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
+        self::$HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
     public function index() {
         $vals = function(&$value,$key) {
@@ -171,7 +171,7 @@ abstract class FOGPage extends FOGBase {
                     );
                 }
             }
-            $this->HookManager->processEvent('ACTIONBOX',array('actionbox'=>&$actionbox));
+            self::$HookManager->processEvent('ACTIONBOX',array('actionbox'=>&$actionbox));
             return ob_get_clean();
         } catch (Exception $e) {
             return $e->getMessage();
@@ -339,7 +339,7 @@ abstract class FOGPage extends FOGBase {
                 unset($Host);
             }
         }
-        $this->HookManager->processEvent(sprintf('%s_DEPLOY',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_DEPLOY',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if (count($this->data)) printf('<p class="c"><input type="submit" value="%s"/></p>',$this->title);
         echo '</form>';
@@ -488,7 +488,7 @@ abstract class FOGPage extends FOGBase {
         }
     }
     public function deletemulti_conf() {
-        $this->HookManager->processEvent('MULTI_REMOVE',array('removing'=>&$_REQUEST['remitems']));
+        self::$HookManager->processEvent('MULTI_REMOVE',array('removing'=>&$_REQUEST['remitems']));
         self::getClass($this->childClass)->getManager()->destroy(array('id'=>$_REQUEST['remitems']));
         $this->setMessage(_('All selected items have been deleted'));
         $this->redirect(sprintf('?node=%s',$this->node));
@@ -527,7 +527,7 @@ abstract class FOGPage extends FOGBase {
             'task_name' => _('Advanced'),
             'task_desc' => sprintf('%s %s',_('View advanced tasks for this'),$this->node),
         );
-        $this->HookManager->processEvent(sprintf('%s_EDIT_TASKS',strtoupper($this->childClass)), array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_EDIT_TASKS',strtoupper($this->childClass)), array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
         printf('<div id="advanced-tasks" class="hidden"><h2>%s</h2>',_('Advanced Actions'));
@@ -545,7 +545,7 @@ abstract class FOGPage extends FOGBase {
             );
             unset($TaskType);
         }
-        $this->HookManager->processEvent(sprintf('%s_DATA_ADV',strtoupper($this->node)), array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_DATA_ADV',strtoupper($this->node)), array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</div></div>';
         unset($this->data);
@@ -614,7 +614,7 @@ abstract class FOGPage extends FOGBase {
             );
         }
         unset($input);
-        $this->HookManager->processEvent(strtoupper($this->childClass).'_EDIT_AD', array('headerData' => &$this->headerData,'data' => &$this->data,'attributes' => &$this->attributes,'templates' => &$this->templates));
+        self::$HookManager->processEvent(strtoupper($this->childClass).'_EDIT_AD', array('headerData' => &$this->headerData,'data' => &$this->data,'attributes' => &$this->attributes,'templates' => &$this->templates));
         $this->render();
         unset($this->data);
         echo '</form></div>';
@@ -709,7 +709,7 @@ abstract class FOGPage extends FOGBase {
             '&nbsp;' => '<input type="submit" value="${label}"/>',
         );
         $fields = array_filter($fields);
-        $this->HookManager->processEvent(sprintf('%s_DEL_FIELDS',strtoupper($this->node)),array($this->childClass=>&$this->obj));
+        self::$HookManager->processEvent(sprintf('%s_DEL_FIELDS',strtoupper($this->node)),array($this->childClass=>&$this->obj));
         foreach($fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
@@ -718,7 +718,7 @@ abstract class FOGPage extends FOGBase {
             );
         }
         unset($input);
-        $this->HookManager->processEvent(sprintf('%S_DEL',strtoupper($this->childClass)),array($this->childClass=>&$this->obj));
+        self::$HookManager->processEvent(sprintf('%S_DEL',strtoupper($this->childClass)),array($this->childClass=>&$this->obj));
         printf('<form method="post" action="%s" class="c">',$this->formAction);
         $this->render();
         printf('</form>');
@@ -797,7 +797,7 @@ abstract class FOGPage extends FOGBase {
         else if (isset($_REQUEST['id'])) self::getClass('HostManager')->update(array('id'=>$_REQUEST['id']),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
     }
     public function delete_post() {
-        $this->HookManager->processEvent(sprintf('%s_DEL_POST',strtoupper($this->node)), array($this->childClass=>&$this->obj));
+        self::$HookManager->processEvent(sprintf('%s_DEL_POST',strtoupper($this->node)), array($this->childClass=>&$this->obj));
         try {
             if ($this->obj->get('protected')) throw new Exception(sprintf('%s %s',$this->childClass,_('is protected, removal not allowed')));
             if ($this->obj instanceof Group) {
@@ -806,12 +806,12 @@ abstract class FOGPage extends FOGBase {
             }
             if (isset($_REQUEST['andFile'])) $this->obj->deleteFile();
             if (!$this->obj->destroy()) throw new Exception(_('Failed to destroy'));
-            $this->HookManager->processEvent(sprintf('%s_DELETE_SUCCESS',strtoupper($this->childClass)), array($this->childClass=>&$this->obj));
+            self::$HookManager->processEvent(sprintf('%s_DELETE_SUCCESS',strtoupper($this->childClass)), array($this->childClass=>&$this->obj));
             $this->setMessage(sprintf('%s %s: %s',$this->childClass,_('deleted'),$this->obj->get('name')));
             $this->resetRequest();
             $this->redirect(sprintf('?node=%s',$this->node));
         } catch (Exception $e) {
-            $this->HookManager->processEvent(sprintf('%s_DELETE_FAIL',strtoupper($this->node)),array($this->childClass=>&$this->obj));
+            self::$HookManager->processEvent(sprintf('%s_DELETE_FAIL',strtoupper($this->node)),array($this->childClass=>&$this->obj));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
@@ -822,8 +822,8 @@ abstract class FOGPage extends FOGBase {
         if ($this->childClass == 'Task') $eventClass = 'host';
         $this->title = _('Search');
         if (in_array($this->node,$this->searchPages)) $this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
-        $this->HookManager->processEvent(sprintf('%s_DATA',strtoupper($eventClass)),array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes,'title'=>&$this->title,'searchFormURL'=>&$this->searchFormURL));
-        $this->HookManager->processEvent(sprintf('%s_HEADER_DATA',strtoupper($this->childClass)),array('headerData'=>&$this->headerData));
+        self::$HookManager->processEvent(sprintf('%s_DATA',strtoupper($eventClass)),array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes,'title'=>&$this->title,'searchFormURL'=>&$this->searchFormURL));
+        self::$HookManager->processEvent(sprintf('%s_HEADER_DATA',strtoupper($this->childClass)),array('headerData'=>&$this->headerData));
         $this->render();
     }
     public function membership() {
@@ -854,7 +854,7 @@ abstract class FOGPage extends FOGBase {
             unset ($Host);
         }
         if (count($this->data) > 0) {
-            $this->HookManager->processEvent(sprintf('OBJ_%s_NOT_IN_ME',strtoupper($ClassCall)),array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+            self::$HookManager->processEvent(sprintf('OBJ_%s_NOT_IN_ME',strtoupper($ClassCall)),array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
             printf('<form method="post" action="%s"><label for="%sMeShow"><p class="c">%s %ss %s %s&nbsp;&nbsp;<input type="checkbox" name="%sMeShow" id="%sMeShow"/></p></label><div id="%sNotInMe"><h2>%s %s</h2>',
                 $this->formAction,
                 strtolower($ClassCall),
@@ -891,7 +891,7 @@ abstract class FOGPage extends FOGBase {
             );
             unset($Host);
         }
-        $this->HookManager->processEvent('OBJ_MEMBERSHIP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('OBJ_MEMBERSHIP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         if (count($this->data)) printf('<p class="c"><input type="submit" value="%s %ss %s %s" name="remhosts"/></p>',_('Delete Selected'),$ClassCall,_('From'),$this->node);
@@ -931,7 +931,7 @@ abstract class FOGPage extends FOGBase {
                 'input'=>$input,
             );
         }
-        $this->HookManager->processEvent(sprintf('%s_IMPORT_OUT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_IMPORT_OUT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
@@ -969,7 +969,7 @@ abstract class FOGPage extends FOGBase {
                 $report->addCSVCell($Item->get($field));
                 unset($field);
             }
-            $this->HookManager->processEvent(sprintf('%s_EXPORT_REPORT',strtoupper($this->childClass)),array('report'=>&$report,$this->childClass=>&$Item));
+            self::$HookManager->processEvent(sprintf('%s_EXPORT_REPORT',strtoupper($this->childClass)),array('report'=>&$report,$this->childClass=>&$Item));
             $report->endCSVLine();
             unset($Item);
         }
@@ -981,7 +981,7 @@ abstract class FOGPage extends FOGBase {
                 'input'=>$input,
             );
         }
-        $this->HookManager->processEvent(sprintf('%s_EXPORT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_EXPORT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
@@ -1022,7 +1022,7 @@ abstract class FOGPage extends FOGBase {
                         unset($ModuleIDs,$MACs,$PriMAC);
                     }
                     if ($Item->save()) {
-                        $this->HookManager->processEvent(strtoupper($this->childClass).'_IMPORT',array('data'=>&$data,$this->childClass=>&$Item));
+                        self::$HookManager->processEvent(strtoupper($this->childClass).'_IMPORT',array('data'=>&$data,$this->childClass=>&$Item));
                         $numSuccess++;
                     } else $numFailed++;
                 } catch (Exception $e) {
@@ -1057,7 +1057,7 @@ abstract class FOGPage extends FOGBase {
             );
         }
         unset($input);
-        $this->HookManager->processEvent(sprintf('%s_IMPORT_FIELDS',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_IMPORT_FIELDS',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
 }

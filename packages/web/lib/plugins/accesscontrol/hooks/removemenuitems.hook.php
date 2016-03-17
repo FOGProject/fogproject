@@ -8,15 +8,15 @@ class RemoveMenuItems extends Hook {
     public $node = 'accesscontrol';
     public function MenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        if (!$this->FOGUser->isValid()) return;
-        if (!in_array($this->FOGUser->get('type'),array(2))) return;
+        if (!self::$FOGUser->isValid()) return;
+        if (!in_array(self::$FOGUser->get('type'),array(2))) return;
         if (!in_array($_REQUEST['node'],(array)$this->linksToFilter)) return;
         unset($arguments['main']);
     }
     public function SubMenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        if (!$this->FOGUser->isValid()) return;
-        if (!in_array($this->FOGUser->get('type'),array(2))) return;
+        if (!self::$FOGUser->isValid()) return;
+        if (!in_array(self::$FOGUser->get('type'),array(2))) return;
         if (!in_array($_REQUEST['node'],(array)$this->linksToFilter)) return;
         $linkformat = $arguments['linkformat'];
         $delformat = $arguments['delformat'];
@@ -27,8 +27,8 @@ class RemoveMenuItems extends Hook {
     }
     public function NotAllowed($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        if (!$this->FOGUser->isValid()) return;
-        if (!in_array($this->FOGUser->get('type'),array(2))) return;
+        if (!self::$FOGUser->isValid()) return;
+        if (!in_array(self::$FOGUser->get('type'),array(2))) return;
         if (!in_array($_REQUEST['node'],(array)$this->linksToFilter)) return;
         $this->setMessage(_('Not Allowed!'));
         $this->redirect('index.php');
