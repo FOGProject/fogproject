@@ -38,7 +38,7 @@ class Printer extends FOGController {
             $this->destroy();
             throw new Exception(_('Printer ID was not set, or unable to be created'));
             break;
-        case ($this->isLoaded('hosts')):
+        case (self::isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_unique(array_diff((array)$DBHostIDs,(array)$this->get('hosts')));
             if (count($RemoveHostIDs)) {

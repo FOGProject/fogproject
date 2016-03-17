@@ -50,7 +50,7 @@ class StorageNode extends FOGController {
     }
     public function loadImages() {
         $URL = sprintf('http://%s/fog/status/getimages.php?path=%s',$this->get('ip'),urlencode($this->get('path')));
-        $paths = $this->FOGURLRequests->process($URL);
+        $paths = self::$FOGURLRequests->process($URL);
         $paths = @array_shift($paths);
         $paths = json_decode($paths);
         $pathstring = sprintf('/%s/',trim($this->get('path'),'/'));

@@ -32,7 +32,7 @@ abstract class FOGService extends FOGBase {
         exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
         if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2",$IPs,$retVal);
         if (@fsockopen('ipinfo.io',80)) {
-            $res = $this->FOGURLRequests->process('http://ipinfo.io/ip','GET');
+            $res = self::$FOGURLRequests->process('http://ipinfo.io/ip','GET');
             $IPs[] = $res[0];
         }
         @natcasesort($IPs);
