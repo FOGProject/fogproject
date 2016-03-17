@@ -35,7 +35,7 @@ class SnapinManagementPage extends FOGPage {
             array('class'=>'c','width'=>50),
             array('class'=>'r filter-false'),
         );
-        $this->returnData = function(&$Snapin) {
+        self::$returnData = function(&$Snapin) {
             if (!$Snapin->isValid()) return;
             $this->data[] = array(
                 'id' => $Snapin->get('id'),
@@ -51,13 +51,13 @@ class SnapinManagementPage extends FOGPage {
         $this->title = _('All Snap-ins');
         if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('SnapinManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map($this->returnData,self::getClass('SnapinManager')->find());
+        array_map(self::$returnData,self::getClass('SnapinManager')->find());
         self::$HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map($this->returnData,self::getClass('SnapinManager')->search('',true));
+        array_map(self::$returnData,self::getClass('SnapinManager')->search('',true));
         self::$HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }

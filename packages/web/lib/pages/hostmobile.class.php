@@ -27,7 +27,7 @@ class HostMobile extends FOGPage {
             '${host_mac}',
             sprintf('<a href="index.php?node=${node}&sub=deploy&id=${id}"><i class="fa fa-%s fa-2x"></i></a>',$icon),
         );
-        $this->returnData = function(&$Host) {
+        self::$returnData = function(&$Host) {
             if (!$Host->isValid()) return;
             $this->data[] = array(
                 'id'=>$Host->get('id'),
@@ -59,7 +59,7 @@ class HostMobile extends FOGPage {
     }
     public function search_post() {
         $this->data = array();
-        array_map($this->returnData,self::getClass('HostManager')->search('',true));
+        array_map(self::$returnData,self::getClass('HostManager')->search('',true));
         self::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         self::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         $this->render();

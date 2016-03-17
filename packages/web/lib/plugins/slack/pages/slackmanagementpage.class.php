@@ -30,25 +30,27 @@ class SlackManagementPage extends FOGPage {
             array('class' => 'l','width'=> 80),
             array('class' => 'r filter-false','width' => 16),
         );
-    }
-    public function search() {
-        $this->index();
+        self::$returnData = function(&$Slack) {
+            if (!$Slack->isValid()) return;
+            $team_name = $Slack->call('auth.test');
+            $this->data[] = array(
+                'id' => $Slack->get('id'),
+                'team' => $team_name['team'],
+                'createdBy' => $team_name['user'],
+                'name' => $Slack->get('name'),
+            );
+            unset($Slack);
+        };
     }
     public function index() {
         $this->title = _('Accounts');
-        foreach ((array)self::getClass('SlackManager')->find() AS &$Token) {
-            if (!$Token->isValid()) continue;
-            $team_name = $Token->call('auth.test');
-            $this->data[] = array(
-                'id'      => $Token->get('id'),
-                'team' => $team_name['team'],
-                'createdBy' => $team_name['user'],
-                'name'    => $Token->get('name'),
-            );
-            unset($Token);
-        }
+        $this->data = array();
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('SLACK_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
+    }
+    public function search() {
+        $this->index();
     }
     public function add() {
         $this->title = _('Link New Account');

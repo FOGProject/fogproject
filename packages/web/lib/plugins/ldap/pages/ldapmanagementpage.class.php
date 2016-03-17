@@ -35,12 +35,8 @@ class LDAPManagementPage extends FOGPage {
             array('class' => 'l'),
             array('class' => 'l'),
         );
-    }
-    public function index() {
-        $this->title = _('Search');
-        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('LDAPManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)self::getClass('LDAPManager')->find() AS $i => &$LDAP) {
-            if (!$LDAP->isValid()) continue;
+        self::$returnData = function(&$LDAP) {
+            if (!$LDAP->isValid()) return;
             $this->data[] = array(
                 'id' => $LDAP->get('id'),
                 'name' => $LDAP->get('name'),
@@ -50,23 +46,19 @@ class LDAPManagementPage extends FOGPage {
                 'port' => $LDAP->get('port'),
             );
             unset($LDAP);
-        }
+        };
+    }
+    public function index() {
+        $this->title = _('All LDAPs');
+        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('LDAPManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        $this->data = array();
+        array_map(self::$returnData,self::getClass('LDAPManager')->find());
         self::$HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
-        foreach (self::getClass('LDAPManager')->search('',true) AS $i => &$LDAP) {
-            if (!$LDAP->isValid()) continue;
-            $this->data[] = array(
-                'id' => $LDAP->get('id'),
-                'name' => $LDAP->get('name'),
-                'description' => $LDAP->get('description'),
-                'address' => $LDAP->get('address'),
-                'DN' => $LDAP->get('DN'),
-                'port' => $LDAP->get('port'),
-            );
-            unset($LDAP);
-        }
+        $this->data = array();
+        array_map(self::$returnData,self::getClass('LDAPManager')->search('',true));
         self::$HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }

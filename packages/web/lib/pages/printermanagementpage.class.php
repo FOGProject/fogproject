@@ -55,46 +55,33 @@ class PrinterManagementPage extends FOGPage {
             array(),
             array('class'=>'c filter-false','width'=>55),
         );
+        self::$returnData = function(&$Printer) {
+            if (!$Printer->isValid()) return;
+            $this->data[] = array(
+                'id'=>$Printer->get('id'),
+                'name'=>$Printer->get('name'),
+                'config'=>$this->config,
+                'model'=>$Printer->get('model'),
+                'port'=>$Printer->get('port'),
+                'file'=>$Printer->get('file'),
+                'ip'=>$Printer->get('ip'),
+                'configFile'=>$Printer->get('configFile'),
+                'desc'=>$Printer->get('description'),
+            );
+            unset($Printer);
+        };
     }
     public function index() {
         $this->title = _('All printers');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['PrinterCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)self::getClass('PrinterManager')->find() AS $i => &$Printer) {
-            if (!$Printer->isValid()) continue;
-            $this->config = stripos($Printer->get('config'),'local') !== false ? _('TCP/IP') : $Printer->get('config');
-            $this->data[] = array(
-                'id'=>$Printer->get('id'),
-                'name'=>$Printer->get('name'),
-                'config'=>$this->config,
-                'model'=>$Printer->get('model'),
-                'port'=>$Printer->get('port'),
-                'file'=>$Printer->get('file'),
-                'ip'=>$Printer->get('ip'),
-                'configFile'=>$Printer->get('configFile'),
-                'desc'=>$Printer->get('description'),
-            );
-            unset($Printer);
-        }
+        $this->data = array();
+        array_map(self::$returnData,(array)self::getClass('PrinterManager')->find());
         self::$HookManager->processEvent('PRINTER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
-        foreach (self::getClass('PrinterManager')->search('',true) AS $i => &$Printer) {
-            if (!$Printer->isValid()) continue;
-            $this->config = stripos($Printer->get('config'),'local') !== false ? _('TCP/IP') : $Printer->get('config');
-            $this->data[] = array(
-                'id'=>$Printer->get('id'),
-                'name'=>$Printer->get('name'),
-                'config'=>$this->config,
-                'model'=>$Printer->get('model'),
-                'port'=>$Printer->get('port'),
-                'file'=>$Printer->get('file'),
-                'ip'=>$Printer->get('ip'),
-                'configFile'=>$Printer->get('configFile'),
-                'desc'=>$Printer->get('description'),
-            );
-            unset($Printer);
-        }
+        $this->data = array();
+        array_map(self::$returnData,(array)self::getClass('PrinterManager')->search('',true));
         self::$HookManager->processEvent('PRINTER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }

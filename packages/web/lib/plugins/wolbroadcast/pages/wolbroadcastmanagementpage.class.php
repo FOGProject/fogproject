@@ -29,31 +29,27 @@ class WOLBroadcastManagementPage extends FOGPage {
             array('class' => 'l'),
             array('class' => 'r'),
         );
+        self::$returnData = function(&$WOLBroadcast) {
+            if (!$WOLBroadcast->isValid()) return;
+            $this->data[] = array(
+                'id'	=> $WOLBroadcast->get('id'),
+                'name'  => $WOLBroadcast->get('name'),
+                'wol_ip' => $WOLBroadcast->get('broadcast'),
+            );
+            unset($WOLBroadcast);
+        };
     }
     public function index() {
         $this->title = _('All Broadcasts');
         if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('WolbroadcastManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)self::getClass('WolbroadcastManager')->find() AS $i => &$Broadcast) {
-            if (!$Broadcast->isValid()) continue;
-            $this->data[] = array(
-                'id'	=> $Broadcast->get('id'),
-                'name'  => $Broadcast->get('name'),
-                'wol_ip' => $Broadcast->get('broadcast'),
-            );
-            unset($Broadcast);
-        }
+        $this->data = array();
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('BROADCAST_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
     }
     public function search_post() {
-        foreach ((array)self::getClass('WolbroadcastManager')->search('',true) AS $i => &$Broadcast) {
-            if (!$Broadcast->isValid()) continue;
-            $this->data[] = array(
-                'id'		=> $Broadcast->get('id'),
-                'name'		=> $Broadcast->get('name'),
-                'wol_ip' => $Broadcast->get('broadcast'),
-            );
-        }
+        $this->data = array();
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('BROADCAST_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
     }

@@ -37,36 +37,28 @@ class TasktypeeditManagementPage extends FOGPage {
             array('class'=>'c'),
             array('class'=>'r'),
         );
+        self::$returnData = function(&$TaskType) {
+            if (!$TaskType->isValid()) return;
+            $this->data[] = array(
+                'icon'=>$TaskType->get('icon'),
+                'id'=>$TaskType->get('id'),
+                'name'=>$TaskType->get('name'),
+                'access'=>$TaskType->get('access'),
+                'args'=>$TaskType->get('kernelArgs'),
+            );
+            unset($TaskType);
+        };
     }
     public function index() {
         $this->title = _('All Task Types');
         if ($this->getSetting('FOG_DATA_RETURNED')>0 && self::getClass('TaskTypeManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)self::getClass('TaskTypeManager')->find() AS $i => &$TaskType) {
-            if (!$TaskType->isValid()) continue;
-            $this->data[] = array(
-                'icon'=>$TaskType->get('icon'),
-                'id'=>$TaskType->get('id'),
-                'name'=>$TaskType->get('name'),
-                'access'=>$TaskType->get('access'),
-                'args'=>$TaskType->get('kernelArgs'),
-            );
-            unset($TaskType);
-        }
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('TASKTYPE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
-        foreach (self::getClass('TaskTypeManager')->search('',true) AS $i => &$TaskType) {
-            if (!$TaskType->isValid()) continue;
-            $this->data[] = array(
-                'icon'=>$TaskType->get('icon'),
-                'id'=>$TaskType->get('id'),
-                'name'=>$TaskType->get('name'),
-                'access'=>$TaskType->get('access'),
-                'args'=>$TaskType->get('kernelArgs'),
-            );
-            unset($TaskType);
-        }
+        $this->data = array();
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->search('',true));
         self::$HookManager->processEvent('TASKTYPE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }

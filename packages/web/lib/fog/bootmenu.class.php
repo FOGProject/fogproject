@@ -139,7 +139,7 @@ class BootMenu extends FOGBase {
         $path = $StorageNode->get('path');
         $shutdown = $Shutdown;
         $args = trim("mode=capone shutdown=$shutdown storage=$storage:$path");
-        $CaponeMenu = FOGCore::getClass('PXEMenuOptions',$FOGCore->getSubObjectIDs('PXEMenuOptions',array('name'=>'fog.capone')));
+        $CaponeMenu = self::getClass('PXEMenuOptions',$FOGCore->getSubObjectIDs('PXEMenuOptions',array('name'=>'fog.capone')));
         if (!$CaponeMenu->isValid()) {
             $CaponeMenu->set('name','fog.capone')
                 ->set('description',_('Capone Deploy'))

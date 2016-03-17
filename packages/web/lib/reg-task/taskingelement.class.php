@@ -41,7 +41,7 @@ abstract class TaskingElement extends FOGBase {
     }
     protected static function nodeFail($StorageNode,$Host) {
         if ($StorageNode->getNodeFailure($Host)) {
-            $StorageNode = FOGCore::getClass('StorageNode',0);
+            $StorageNode = self::getClass('StorageNode',0);
             printf('%s %s (%s) %s',_('Storage Node'),$StorageNode->get('name'),$StorageNode->get('ip'),_('is open, but has recently failed for this Host'));
         }
         return $StorageNode;
