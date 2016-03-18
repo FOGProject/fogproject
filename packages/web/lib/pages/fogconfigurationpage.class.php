@@ -33,20 +33,21 @@ class FOGConfigurationPage extends FOGPage {
         $this->title = _('FOG Version Information');
         printf('<p>%s: %s</p>',_('Version'),FOG_VERSION);
         $URLs[] = sprintf('https://fogproject.org/version/index.php?version=%s',FOG_VERSION);
-        $Nodes = self::getClass('StorageNodeManager')->find(array('isEnabled'=>1));
-        foreach ((array)$Nodes AS $i => &$StorageNode) {
+        $Nodes = (array)self::getClass('StorageNodeManager')->find(array('isEnabled'=>1));
+        array_map(function(&$StorageNode) use (&$URLs) {
+            if (!$StorageNode->isValid()) return;
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-            $URLs[] = filter_var("http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php",FILTER_SANITIZE_URL);
+            $URLs[] = filter_var(sprintf('http://%s%sstatus/kernelvers.php',$StorageNode->get('ip'),$webroot),FILTER_SANITIZE_URL);
             unset($StorageNode);
-        }
-        $Responses = self::$FOGURLRequests->process($URLs,'GET');
+        },$Nodes);
         array_unshift($Nodes,'');
-        foreach ((array)$Responses AS $i => &$data) {
-            if ($i === 0) echo "<p><div class=\"sub\">{$Responses[$i]}</div></p><h1>Kernel Versions</h1>";
-            else echo "<h2>{$Nodes[$i]->get(name)}</h2><pre>$data</pre>";
-            unset($data);
-        }
+        $Responses = self::$FOGURLRequests->process($URLs,'GET');
+        array_walk($Responses,function(&$data,&$i) use ($Nodes) {
+            if (!$i) printf('<p><div class="sub">%s</div></p><h1>Kernel Versions</h1>',$data);
+            else printf('<h2>%s</h2><pre>%s</pre>',$Nodes[$i],$data);
+            unset($data,$i);
+        });
         unset($Responses,$Nodes);
     }
     public function license() {

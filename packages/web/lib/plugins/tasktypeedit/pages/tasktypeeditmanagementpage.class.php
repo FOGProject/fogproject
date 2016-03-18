@@ -51,7 +51,7 @@ class TasktypeeditManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Task Types');
-        if ($this->getSetting('FOG_DATA_RETURNED')>0 && self::getClass('TaskTypeManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if ($this->getSetting('FOG_DATA_RETURNED')>0 && self::getClass($this->childClass)->getManager()->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('TASKTYPE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
