@@ -375,7 +375,7 @@ class BootMenu extends FOGBase {
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
         $osid = $Image->get('osID');
-        $storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),'');
+        $storage = escapeshellcmd(sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),''));
         $storageip = self::$FOGCore->resolveHostname($StorageNode->get('ip'));
         $img = escapeshellcmd($Image->get('path'));
         $imgFormat = $Image->get('format');
@@ -602,7 +602,7 @@ class BootMenu extends FOGBase {
                 self::$HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
                 if ($TaskType->isUpload() || $TaskType->isMulticast()) $StorageNode = $StorageGroup->getMasterStorageNode();
                 $osid = $Image->get('osID');
-                $storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
+                $storage = escapeshellcmd(in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null);
             }
             if ($this->Host && $this->Host->isValid()) $mac = $this->Host->get('mac');
             else $mac = $_REQUEST['mac'];
