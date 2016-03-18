@@ -294,7 +294,11 @@ class ServiceConfigurationPage extends FOGPage {
             case 'usercleanup':
                 $addUser = trim($_REQUEST['usr']);
                 if(!empty($addUser)) $Service->addUser($addUser);
-                if(isset($_REQUEST['delid'])) $Service->remUser($_REQUEST['delid']);
+                if(isset($_REQUEST['delid'])) {
+                    print 'here';
+                    exit;
+                    $Service->remUser($_REQUEST['delid']);
+                }
                 break;
             case 'clientupdater':
                 self::getClass('FOGConfigurationPage')->client_updater_post();
