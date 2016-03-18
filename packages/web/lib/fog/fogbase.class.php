@@ -126,7 +126,7 @@ abstract class FOGBase {
         }
     }
     protected function error($txt, $data = array()) {
-        if ($this->debug && !self::$service && !self::$ajax) {
+        if (self::$debug && !self::$service && !self::$ajax) {
             echo sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>',
                 get_class($this),
                 (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
@@ -134,7 +134,7 @@ abstract class FOGBase {
         }
     }
     protected function debug($txt, $data = array()) {
-        if ($this->debug && !self::$service && !self::$ajax) {
+        if (self::$debug && !self::$service && !self::$ajax) {
             echo sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>',
                 get_class($this),
                 (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
