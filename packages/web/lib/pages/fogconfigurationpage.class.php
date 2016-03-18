@@ -710,6 +710,7 @@ class FOGConfigurationPage extends FOGPage {
         unset($findWhere,$setWhere);
         foreach ((array)self::getClass('ServiceManager')->find() AS $i => &$Service) {
             $key = $Service->get('id');
+            if (!isset($_REQUEST[$key])) continue;
             $_REQUEST[$key] = trim($_REQUEST[$key]);
             if ($_REQUEST[$key] == trim($Service->get('value'))) continue;
             if (isset($needstobenumeric[$Service->get('name')])) {
@@ -720,10 +721,14 @@ class FOGConfigurationPage extends FOGPage {
             switch ($Service->get('name')) {
             case 'FOG_MEMORY_LIMIT':
                 if ($_REQUEST[$key] < 128) $_REQUEST[$key] = 128;
+                break;
             case 'FOG_AD_DEFAULT_PASSWORD':
                 $_REQUEST[$key] = $this->encryptpw($_REQUEST[$key]);
+                break;
+            default:
+                break;
             }
-            $Service->getManager()->update(array('name'=>$Service->get('name')),'',array('value'=>$_REQUEST[$key]));
+            $Service->set('value',$_REQUEST[$key])->save();
             unset($Service);
         }
         $this->setMessage('Settings Successfully stored!');
