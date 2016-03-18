@@ -644,17 +644,17 @@ abstract class FOGPage extends FOGBase {
                     $destfile = $_SESSION['dest-kernel-file'];
                     $tmpfile = $_SESSION['tmp-kernel-file'];
                     unset($_SESSION['dest-kernel-file'],$_SESSION['tmp-kernel-file'],$_SESSION['dl-kernel-file']);
-                    $this->FOGFTP->set('host',$this->getSetting('FOG_TFTP_HOST'))
+                    self::$FOGFTP->set('host',$this->getSetting('FOG_TFTP_HOST'))
                         ->set('username',trim($this->getSetting('FOG_TFTP_FTP_USERNAME')))
                         ->set('password',$this->getSetting('FOG_TFTP_FTP_PASSWORD'));
-                    if (!$this->FOGFTP->connect()) throw new Exception(_('Error: Unable to connect to tftp server'));
+                    if (!self::$FOGFTP->connect()) throw new Exception(_('Error: Unable to connect to tftp server'));
                     $orig = sprintf('/%s/%s',trim($this->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/'),$destfile);
                     $backuppath = sprintf('/%s/backup/',dirname($orig));
                     $backupfile = sprintf('%s%s_%s',$backuppath,$destfile,$this->formatTime('','Ymd_His'));
-                    if ($this->FOGFTP->exists($backuppath)) $this->FOGFTP->mkdir($backuppath);
-                    $this->FOGFTP->delete($orig);
-                    if (!($this->FOGFTP->rename($orig,$backupfile) || $this->FOGFTP->put($orig,$tmpfile))) throw new Exception(_('Error: Failed to install new kernel'));
-                    $this->FOGFTP->close();
+                    if (self::$FOGFTP->exists($backuppath)) self::$FOGFTP->mkdir($backuppath);
+                    self::$FOGFTP->delete($orig);
+                    if (!(self::$FOGFTP->rename($orig,$backupfile) || self::$FOGFTP->put($orig,$tmpfile))) throw new Exception(_('Error: Failed to install new kernel'));
+                    self::$FOGFTP->close();
                     @unlink($tmpfile);
                     $SendME = '##OK##';
                 }
@@ -662,7 +662,7 @@ abstract class FOGPage extends FOGBase {
         } catch (Exception $e) {
             echo $e->getMessage();
         }
-        $this->FOGFTP->close();
+        self::$FOGFTP->close();
         echo $SendME;
     }
     public function loginInfo() {

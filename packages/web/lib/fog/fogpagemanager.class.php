@@ -32,16 +32,16 @@ class FOGPageManager Extends FOGBase {
     public function getSideMenu() {
         if (self::$FOGUser->isValid()) {
             $class = $this->getFOGPageClass();
-            $this->FOGSubMenu = self::getClass('FOGSubMenu');
-            foreach ((array)$class->menu AS $link => &$title) $this->FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link));
+            self::$FOGSubMenu = self::getClass('FOGSubMenu');
+            foreach ((array)$class->menu AS $link => &$title) self::$FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link));
             unset($title);
             if (is_object($class->obj)) {
-                foreach ((array)$class->subMenu AS $link => &$title) $this->FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link),$class->id,sprintf(self::$foglang['SelMenu'],get_class($class->obj)));
+                foreach ((array)$class->subMenu AS $link => &$title) self::$FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link),$class->id,sprintf(self::$foglang['SelMenu'],get_class($class->obj)));
                 unset($title);
-                foreach((array)$class->notes AS $title => $item) $this->FOGSubMenu->addNotes($this->classValue,array((string)$title => (string)$item),$class->id,sprintf(self::$foglang[SelMenu],get_class($class->obj)));
+                foreach((array)$class->notes AS $title => $item) self::$FOGSubMenu->addNotes($this->classValue,array((string)$title => (string)$item),$class->id,sprintf(self::$foglang[SelMenu],get_class($class->obj)));
                 unset($item);
             }
-            return sprintf('<div id="sidebar">%s</div>',$this->FOGSubMenu->get($this->classValue));
+            return sprintf('<div id="sidebar">%s</div>',self::$FOGSubMenu->get($this->classValue));
         }
     }
     public function render() {
