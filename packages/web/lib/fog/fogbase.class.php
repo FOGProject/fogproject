@@ -1,6 +1,9 @@
 <?php
 abstract class FOGBase {
     public static $foglang;
+    public static $ajax = false;
+    public static $post = false;
+    public static $service = false;
     protected $isLoaded = array();
     protected static $debug = false;
     protected static $info = false;
@@ -28,9 +31,6 @@ abstract class FOGBase {
         'printer',
         'task',
     );
-    public static $ajax = false;
-    public static $post = false;
-    public static $service = false;
     private static $initialized = false;
     private static function init() {
         if (self::$initialized === true) return $this;
@@ -77,7 +77,7 @@ abstract class FOGBase {
         return $this;
     }
     public function __construct() {
-        self::init();
+        return self::init();
     }
     public function __toString() {
         return (string)get_class($this);
@@ -97,25 +97,25 @@ abstract class FOGBase {
         if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : sprintf('%s %s',self::$foglang['InvalidMAC'],$_REQUEST['mac']));
         if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
         $Host = self::getClass('HostManager')->getHostByMacAddresses($MACs);
-        if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get(pending)) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
+        if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get('pending')) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
         return $Host;
     }
     public function getAllBlamedNodes() {
         $Host = $this->getHostItem(false);
-        $NodeFailures = (array)self::getClass('NodeFailureManager')->find(array('taskID'=>$Host->get('task')->get('id'),'hostID'=>$Host->get('id')));
         $DateInterval = $this->nice_date()->modify('-5 minutes');
-        foreach($NodeFailures AS $i => &$NodeFailure) {
+        $nodeRet = array_map(function(&$NodeFailure) use (&$nodeRet) {
+            if (!$NodeFailure->isValid()) return;
             $DateTime = $this->nice_date($NodeFailure->get('failureTime'));
-            if ($DateTime >= $DateInterval) {
-                $node = $NodeFailure->get('id');
-                if (!in_array($node,(array)$nodeRet)) $nodeRet[] = $node;
-            } else $NodeFailure->destroy();
-            unset($NodeFailure);
-        }
-        return $nodeRet;
+            if ($DateTime < $DateInterval) {
+                $NodeFailure->destroy();
+                return;
+            }
+            return (int)$NodeFailure->get('id');
+        },(array)self::getClass('NodeFailureManager')->find(array('taskID'=>$Host->get('task')->get('id'),'hostID'=>$Host->get('id'))));
+        return array_values(array_filter(array_unique((array)$nodeRet)));
     }
     protected function getActivePlugins() {
-        return array_map('strtolower',(array)self::getClass('PluginManager')->find(array('installed'=>1),'','','','','','','name'));
+        return array_map('strtolower',(array)self::getSubObjectIDs('Plugin','','name'));
     }
     protected function fatalError($txt, $data = array()) {
         if (!self::$service && !self::$ajax) {
