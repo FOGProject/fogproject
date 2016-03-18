@@ -157,6 +157,9 @@ class MySQL extends DatabaseManager {
         }
         return $data;
     }
+    public function db_name() {
+        return self::$db_name;
+    }
     public function link() {
         return self::$link;
     }
