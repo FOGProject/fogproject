@@ -77,7 +77,7 @@ try {
     echo '##';
     // If it's a multicast job, decrement the client count, though not fully needed.
     if ($Task->get(typeID) == 8) {
-        $MyMulticastTask = current$FOGCore::getClass(MulticastSessionsAssociationManager)->find(array(taskID=>$Task->get(id))));
+        $MyMulticastTask = current($FOGCore::getClass(MulticastSessionsAssociationManager)->find(array(taskID=>$Task->get(id))));
         if ($MyMulticastTask && $MyMulticastTask->isValid()) {
             $MulticastSession = $FOGCore::getClass(MulticastSessions,$MyMulticastTask->get(msID));
             $MulticastSession
