@@ -46,6 +46,10 @@ class SnapinManagementPage extends FOGPage {
             );
             unset($Snapin);
         };
+        self::$ftpfilesonly = function(&$item) {
+            if (self::$FOGFTP->chdir($item)) return;
+            return basename($item);
+        };
     }
     public function index() {
         $this->title = _('All Snap-ins');
