@@ -806,10 +806,10 @@ enableInitScript() {
                 dots "Enabling $serviceItem Service"
                 systemctl enable $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 if [[ ! $? -eq 0 && $osid -eq 2 ]]; then
-                    update-rc.d $serviceItem enable 2 >>$workingdir/error_logs/fog_error${version}.log 2>&1
-                    update-rc.d $serviceItem enable 3 >>$workingdir/error_logs/fog_error${version}.log 2>&1
-                    update-rc.d $serviceItem enable 4 >>$workingdir/error_logs/fog_error${version}.log 2>&1
-                    update-rc.d $serviceItem enable 5 >>$workingdir/error_logs/fog_error${version}.log 2>&1
+                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 2 >>$workingdir/error_logs/fog_error${version}.log 2>&1
+                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 3 >>$workingdir/error_logs/fog_error${version}.log 2>&1
+                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 4 >>$workingdir/error_logs/fog_error${version}.log 2>&1
+                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 5 >>$workingdir/error_logs/fog_error${version}.log 2>&1
                 fi
                 ;;
             *)
