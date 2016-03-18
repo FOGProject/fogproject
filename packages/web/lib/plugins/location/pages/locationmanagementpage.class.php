@@ -21,7 +21,7 @@ class LocationManagementPage extends FOGPage {
             _('Location Name'),
             _('Storage Group'),
             _('Storage Node'),
-            _('TFTP Server'),
+            _('Kernels/Inits from location'),
         );
         $this->templates = array(
             '<input type="checkbox" name="location[]" value="${id}" class="toggle-action" checked/>',
@@ -87,7 +87,7 @@ class LocationManagementPage extends FOGPage {
             _('Location Name') => '<input class="smaller" type="text" name="name" />',
             _('Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox(),
             _('Storage Node') => self::getClass('StorageNodeManager')->buildSelectBox(),
-            _('TFTP From Node') => '<input type="checkbox" name="tftp" value="on" />',
+            _('Use inits and kernels from this node') => sprintf('<input type="checkbox" name="tftp" value="on"%s/>',$this->obj->get('tftp') ? ' checked' : ''),
             '' => sprintf('<input name="add" class="smaller" type="submit" value="%s"/>',_('Add')),
         );
         foreach((array)$fields AS $field => &$input) {
@@ -138,7 +138,8 @@ class LocationManagementPage extends FOGPage {
             _('Location Name') => sprintf('<input class="smaller" type="text" name="name" value="%s"/>',$this->obj->get('name')),
             _('Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox($this->obj->get('storageGroupID')),
             _('Storage Node') => self::getClass('StorageNodeManager')->buildSelectBox($this->obj->get('storageNodeID')),
-            _('TFTP From Node') => sprintf('<input type="checkbox" name="tftp" value="on"%s/>',$this->obj->get('tftp') ? ' checked' : ''),
+            _('Use inits and kernels from this node') => sprintf('<input type="checkbox" name="tftp" value="on"%s/>',$this->obj->get('tftp') ? ' checked' : ''),
+            _('My kernels and inits') => '<input type="checkbox" name="tftp" value="on"/>',
             '&nbsp;' => sprintf('<input type="submit" class="smaller" name="update" value="%s"/>',_('Update')),
         );
         foreach ((array)$fields AS $field => &$input) {
