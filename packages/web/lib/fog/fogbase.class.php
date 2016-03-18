@@ -69,10 +69,6 @@ abstract class FOGBase {
             );
             unset($option,$index,$value);
         };
-        self::$ftpfilesonly = function(&$item) {
-            if ((self::$FOGFTP instanceof FOGFTP) && self::$FOGFTP->chdir($item)) return;
-            return basename($item);
-        };
         self::$initialized = true;
         return $this;
     }
