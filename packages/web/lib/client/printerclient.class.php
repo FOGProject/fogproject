@@ -1,10 +1,10 @@
 <?php
 class PrinterClient extends FOGClient implements FOGClientSend {
     private function getString($stringsend,&$Printer) {
-        //if (!$this->newService)
+        if (!$this->newService)
         return sprintf($stringsend,$Printer->get('port'),$Printer->get('file'),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id')));
-        //else
-        //return sprintf($stringsend,$Printer->get('port'),$Printer->get('file'),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id')),$Printer->get('configFile'));
+        else
+        return sprintf($stringsend,$Printer->get('port'),$Printer->get('file'),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id')),$Printer->get('configFile'));
     }
     public function send() {
         try {
@@ -49,8 +49,8 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                 } else {
                     $Printer = self::getClass('Printer',$_REQUEST['id']);
                     if (!$Printer->isValid()) throw new Exception(_('Printer is invalid'));
-                    $strtosend = "#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s";
-                    //$strtosend = "#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s\n#configFile=%s";
+                    //$strtosend = "#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s";
+                    $strtosend = "#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s\n#configFile=%s";
                     $this->send .= sprintf("#!ok\n#type=%s\n%s",$Printer->get('config'),$this->getString($strtosend,$Printer));
                 }
             }
