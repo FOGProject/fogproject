@@ -142,7 +142,7 @@ abstract class FOGBase {
         }
     }
     protected function info($txt, $data = array()) {
-        if ($this->info && !self::$service && !self::$ajax) {
+        if (self::$info && !self::$service && !self::$ajax) {
             echo sprintf('<div class="debug-info">FOG INFO: %s: %s</div>',
                 get_class($this),
                 (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
