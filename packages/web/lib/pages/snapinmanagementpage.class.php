@@ -51,13 +51,13 @@ class SnapinManagementPage extends FOGPage {
         $this->title = _('All Snap-ins');
         if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('SnapinManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map(self::$returnData,self::getClass('SnapinManager')->find());
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(self::$returnData,self::getClass('SnapinManager')->search('',true));
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->search('',true));
         self::$HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
@@ -81,7 +81,7 @@ class SnapinManagementPage extends FOGPage {
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
             if (!self::$FOGFTP->connect()) return;
-            $filelist = array_map(self::$ftpfilesonly,self::$FOGFTP->nlist($StorageNode->get('snapinpath')));
+            $filelist = array_map(self::$ftpfilesonly,(array)self::$FOGFTP->nlist($StorageNode->get('snapinpath')));
             self::$FOGFTP->close();
             unset($StorageNode);
         },self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)));

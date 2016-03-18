@@ -1,8 +1,9 @@
 <?php
 abstract class FOGBase {
-    protected $debug = false;
-    protected $info = false;
     public static $foglang;
+    protected $isLoaded = array();
+    protected static $debug = false;
+    protected static $info = false;
     protected static $buildSelectBox;
     protected static $ftpfilesonly;
     protected static $selected;
@@ -18,7 +19,6 @@ abstract class FOGBase {
     protected static $FOGSubMenu;
     protected static $urlself;
     protected static $isMobile;
-    protected $isLoaded = array();
     protected static $searchPages = array(
         'user',
         'host',
