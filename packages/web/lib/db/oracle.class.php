@@ -14,8 +14,6 @@ class Oracle extends DatabaseManager {
     public function __construct() {
         parent::__construct();
         try {
-            $this->debug = false;
-            $this->info = false;
             if (!function_exists('oci_new_connect')) throw new Exception(sprintf('%s PHP extension not loaded', __CLASS__));
             if (!$this->connect()) throw new Exception('Failed to connect');
         } catch (Exception $e) {
