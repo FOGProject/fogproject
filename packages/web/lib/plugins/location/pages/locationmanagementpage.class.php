@@ -90,13 +90,7 @@ class LocationManagementPage extends FOGPage {
             _('Use inits and kernels from this node') => '<input type="checkbox" name="tftp" value="on"/>',
             '' => sprintf('<input name="add" class="smaller" type="submit" value="%s"/>',_('Add')),
         );
-        foreach((array)$fields AS $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            unset($input);
-        }
+        array_walk($fields,$this->fieldsToData);
         unset($fields);
         self::$HookManager->processEvent('LOCATION_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
