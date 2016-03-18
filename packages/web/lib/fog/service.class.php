@@ -43,8 +43,11 @@ class Service extends FOGController {
     }
     public function addUser($user) {
         if (self::getClass('UserCleanupManager')->count(array('name'=>$user))>0) throw new Exception(self::$foglang['UserExists']);
-        foreach ((array)$user AS $i => &$name) self::getClass('User')->set('name',$name)->save();
-        unset($name);
+        array_map(function(&$name) {
+            self::getClass('UserCleanup')->set('name',$name)->save();
+            unset($name);
+        },(array)$user);
+        return $this;
     }
     public function remUser($id) {
         self::getClass('UserCleanup',$id)->destroy();
