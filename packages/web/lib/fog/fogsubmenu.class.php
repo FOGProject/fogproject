@@ -20,16 +20,10 @@
  * Add note with callback
  * $FOGSubMenu->addNotes('node', create_function('','return array('banana' => 'chicken');'), 'id variable');
  */
-class FOGSubMenu {
-    public $debug = false;
-    public $version = 0.1;
+class FOGSubMenu extends FOGBase {
     public $defaultSubs = array('host'=>'edit','group'=>'edit');
-    public function __construct() {
-        $this->items = array();
-        $this->info = array();
-    }
     public function addItems($node, $items, $ifVariable = '', $ifVariableTitle = '') {
-        $variableSetter = (!$ifVariable ? FOGCore::$foglang['MainMenu'] : $ifVariableTitle);
+        $variableSetter = (!$ifVariable ? self::$foglang['MainMenu'] : $ifVariableTitle);
         if (isset($_REQUEST[$ifVariable])) {
             foreach ((array)$items AS $title => &$link) {
                 if (!$this->isExternalLink($link)) $items[$title] = "$link&$ifVariable={$GLOBALS[$ifVariable]}";
@@ -65,7 +59,7 @@ class FOGSubMenu {
                     else {
                         $string = sprintf($string,"?node=$node&sub=%s");
                         $sub = htmlentities($_REQUEST['sub'],ENT_QUOTES,'utf-8');
-                        (!$sub || $title == FOGCore::$foglang['MainMenu'] ? printf($string,$link) : ($this->defaultSubs[$node] ? printf($string,"{$this->defaultSubs[$node]}&tab=$link") : printf($string,"$sub&tab=$link")));
+                        (!$sub || $title == self::$foglang['MainMenu'] ? printf($string,$link) : ($this->defaultSubs[$node] ? printf($string,"{$this->defaultSubs[$node]}&tab=$link") : printf($string,"$sub&tab=$link")));
                     }
                     unset($link);
                 }
@@ -93,8 +87,5 @@ class FOGSubMenu {
     }
     public function isExternalLink($link) {
         return (bool)(substr($link, 0, 5) == 'https' || substr($link, 0, 4) == 'http' || $link{0} == '/' ||  $link{0} == '?' || $link{0} == '#');
-    }
-    public function debug($txt) {
-        if ($this->debug) printf("[%s] %s\n",$this->formatTime('','m/d/y H:i:s'),is_array($txt) ? print_r($txt, 1) : $txt);
     }
 }
