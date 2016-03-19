@@ -59,7 +59,7 @@ abstract class FOGBase {
         self::$FOGURLRequests = &$FOGURLRequests;
         self::$FOGPageManager = &$FOGPageManager;
         self::$TimeZone = &$TimeZone;
-        self::$buildSelectBox = function(&$option,&$index = false) {
+        static::$buildSelectBox = function(&$option,&$index = false) {
             $value = $option;
             if ($index) $value = $index;
             printf('<option value="%s"%s>%s</option>',
@@ -68,6 +68,10 @@ abstract class FOGBase {
                 $option
             );
             unset($option,$index,$value);
+        };
+        static::$ftpfilesonly = function(&$item) {
+            if (self::$FOGFTP->chdir($item)) return;
+            return basename($item);
         };
         self::$initialized = true;
         return $this;
