@@ -9,28 +9,10 @@ class Initiator {
             session_cache_limiter('no-cache');
         }
         define('BASEPATH', self::DetermineBasePath());
-        $plugs = sprintf('%s%s%slib%splugins%s*',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,BASEPATH),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
-        $path = sprintf('%s%s%slib%s%s%s',DIRECTORY_SEPARATOR,trim(str_replace(array('\\','/'),DIRECTORY_SEPARATOR,BASEPATH),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR,'%s',DIRECTORY_SEPARATOR);
-        $plugPaths = array_filter(glob($plugs),'is_dir');
-        foreach($plugPaths AS $plugPath) {
-            $plug_class[] = sprintf('%s%s%sclass%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
-            $plug_class[] = sprintf('%s%s%sclient%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
-            $plug_class[] = sprintf('%s%s%sreg-task%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
-            $plug_class[] = sprintf('%s%s%sservice%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
-            $plug_hook[] = sprintf('%s%s%shooks%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
-            $plug_event[] = sprintf('%s%s%sevents%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
-            $plug_page[] = sprintf('%s%s%spages%s',DIRECTORY_SEPARATOR,trim($plugPath,'/'),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
-        }
-        $FOGPaths = array();
-        $FOGPaths = array(sprintf($path,'fog'),sprintf($path,'db'),sprintf($path,'client'),sprintf($path,'reg-task'),sprintf($path,'service'));
-        $HookPaths = array(sprintf($path,'hooks'));
-        $EventPaths = array(sprintf($path,'events'));
-        $PagePaths = array(sprintf($path,'pages'));
-        $FOGPaths = array_merge((array)$FOGPaths,(array)$plug_class);
-        $HookPaths = array_merge((array)$HookPaths,(array)$plug_hook);
-        $EventPaths = array_merge((array)$EventPaths,(array)$plug_event);
-        $PagePaths = array_merge((array)$PagePaths,(array)$plug_page);
-        set_include_path(sprintf('%s%s%s',implode(PATH_SEPARATOR,array_merge($FOGPaths,$PagePaths,$HookPaths,$EventPaths)),PATH_SEPARATOR,get_include_path()));
+        $allpaths = array_map(function($element) {
+            return dirname($element[0]);
+        },iterator_to_array(new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(BASEPATH,FileSystemIterator::SKIP_DOTS)),'#^.*\.(event|class|hook)\.php$#',RecursiveRegexIterator::GET_MATCH)));
+        set_include_path(sprintf('%s%s%s',implode(PATH_SEPARATOR,$allpaths),PATH_SEPARATOR,get_include_path));
         spl_autoload_extensions('.class.php,.event.php,.hook.php');
         spl_autoload_register(array($this,'FOGLoader'));
     }
@@ -159,13 +141,13 @@ $FOGCore = new FOGCore();
 /** $DB set's the DB class from the DatabaseManager */
 $DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
 /** $EventManager initiates the EventManager class */
-$EventManager = $FOGCore::getClass('EventManager');
+$EventManager = FOGCore::getClass('EventManager');
 /** $HookManager initiates the HookManager class */
-$HookManager = $FOGCore::getClass('HookManager');
+$HookManager = FOGCore::getClass('HookManager');
 $FOGCore->setSessionEnv();
 /** $TimeZone the timezone setter */
 $TimeZone = $_SESSION['TimeZone'];
 $HookManager->load();
 $EventManager->load();
 /** $HookManager initiates the FOGURLRequest class */
-$FOGURLRequests = $FOGCore::getClass('FOGURLRequests');
+$FOGURLRequests = FOGCore::getClass('FOGURLRequests');
