@@ -1,4 +1,5 @@
 <?php
+require_once('../commons/base.inc.php');
 $vals = function($reverse,$HookManager) {
     ini_set("auto_detect_line_endings", true);
     $folder = sprintf('/%s/',trim(trim(dirname(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')),'/')));
@@ -27,7 +28,6 @@ $vals = function($reverse,$HookManager) {
     if ($reverse) $output = implode("\n",array_reverse(explode("\n",$output)));
     return trim($output);
 };
-require('../commons/base.inc.php');
 $url = trim($FOGCore->aesdecrypt(htmlentities($_REQUEST['ip'],ENT_QUOTES,'utf-8')));
 $ip = $FOGCore->resolveHostname($url);
 if (filter_var($ip,FILTER_VALIDATE_IP) === false) {

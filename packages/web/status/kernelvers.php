@@ -1,5 +1,5 @@
 <?php
-require('../commons/base.inc.php');
+require_once('../commons/base.inc.php');
 $kernelvers = function($kernel) {
     $basepath = escapeshellarg(preg_replace('#\\|/#','',sprintf('%s/service/ipxe/%s',BASEPATH,$kernel)));
     return exec("file $basepath | awk '/version/ {print \$9}'");
