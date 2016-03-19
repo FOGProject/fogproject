@@ -20,14 +20,14 @@ diff -rupN partclone-0.2.80/src/progress.c partclone-0.2.80-new/src/progress.c
  }
  
 +/// Convert the size
-+char* filesize_conv(double size, char *buf) {
++char* filesize_conv(double size, char *buf, size_t len) {
 +    int i = 0;
-+    const char* units[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
++    const char* units[] = {"iB", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"};
 +    while (size > 1024) {
 +        size /= 1024;
 +        i++;
 +    }
-+    sprintf(buf, "%.*f %s", i, size, units[i]);
++    snprintf(buf, len, "%.*f %s", i, size, units[i]);
 +    return buf;
 +}
 +
@@ -43,17 +43,18 @@ diff -rupN partclone-0.2.80/src/progress.c partclone-0.2.80-new/src/progress.c
      char clear_buf = ' ';
      prog_stat_t prog_stat;
  
-@@ -202,6 +220,20 @@ extern void progress_update(struct progr
+@@ -202,6 +220,21 @@ extern void progress_update(struct progr
  	    fprintf(stderr, _(", %6.2f%s/min,"), prog_stat.speed, prog_stat.speed_unit);
  	if(prog->flag == IO)
  	    fprintf(stderr, "\n\r%80c\rcurrent block: %10lld, total block: %10lld, Complete: %6.2f%%%s\r", clear_buf, current, prog->total, prog_stat.total_percent, "\x1b[A");
 +    double totalsize=prog->block_size * prog->total;
 +    double currentsize=prog->block_size * current;
-+    char total_str[15];
-+    char current_str[15];
-+    char buf[10];
-+    sprintf(total_str,filesize_conv(totalsize,buf));
-+    sprintf(current_str,filesize_conv(currentsize,buf));
++    int max_len=15;
++    char total_str[max_len];
++    char current_str[max_len];
++    char buf[max_len];
++    sprintf(total_str,filesize_conv(totalsize,buf,max_len));
++    sprintf(current_str,filesize_conv(currentsize,buf,max_len));
 +    fprintf(fog_log,"%6.2f%s@",prog_stat.speed,prog_stat.speed_unit);
 +    fprintf(fog_log,"%s@",prog_stat.Eformated);
 +    fprintf(fog_log,"%s@",prog_stat.Rformated);
@@ -64,7 +65,7 @@ diff -rupN partclone-0.2.80/src/progress.c partclone-0.2.80-new/src/progress.c
      } else {
  	setlocale(LC_ALL, "");
  	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -218,12 +250,19 @@ extern void progress_update(struct progr
+@@ -218,12 +251,19 @@ extern void progress_update(struct progr
  	    fprintf(stderr, _("Ave. Rate: %6.1f%s/min, "), prog_stat.speed, prog_stat.speed_unit);
          fprintf(stderr, _("%s"), "100.00% completed!\n");
      }
@@ -84,17 +85,18 @@ diff -rupN partclone-0.2.80/src/progress.c partclone-0.2.80-new/src/progress.c
  
      char *p_block, *t_block;
      prog_stat_t prog_stat;
-@@ -279,6 +318,20 @@ extern void Ncurses_progress_update(stru
+@@ -279,6 +319,21 @@ extern void Ncurses_progress_update(stru
  	wrefresh(p_win);
          wrefresh(bar_win);
          wrefresh(tbar_win);
 +    double totalsize=prog->block_size * prog->total;
 +    double currentsize=prog->block_size * current;
-+    char total_str[15];
-+    char current_str[15];
-+    char buf[10];
-+    sprintf(total_str,filesize_conv(totalsize,buf));
-+    sprintf(current_str,filesize_conv(currentsize,buf));
++    int max_len=15;
++    char total_str[max_len];
++    char current_str[max_len];
++    char buf[max_len];
++    sprintf(total_str,filesize_conv(totalsize,buf,max_len));
++    sprintf(current_str,filesize_conv(currentsize,buf,max_len));
 +    fprintf(fog_log,"%6.2f%s@",prog_stat.speed,prog_stat.speed_unit);
 +    fprintf(fog_log,"%s@",prog_stat.Eformated);
 +    fprintf(fog_log,"%s@",prog_stat.Rformated);
@@ -105,7 +107,7 @@ diff -rupN partclone-0.2.80/src/progress.c partclone-0.2.80-new/src/progress.c
      } else {
          mvwprintw(p_win, 0, 0, _("Total Time: %s Remaining: %s "), prog_stat.Eformated, prog_stat.Rformated);
  	if((prog->flag == IO) || (prog->flag == NO_BLOCK_DETAIL))
-@@ -308,6 +361,6 @@ extern void Ncurses_progress_update(stru
+@@ -308,6 +363,6 @@ extern void Ncurses_progress_update(stru
          refresh();
  	sleep(1);
      }
@@ -113,3 +115,4 @@ diff -rupN partclone-0.2.80/src/progress.c partclone-0.2.80-new/src/progress.c
 +    fclose(fog_log);
  #endif
  }
+ 

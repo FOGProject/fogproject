@@ -56,37 +56,27 @@ class Initiator {
         @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
         self::verCheck();
         self::extCheck();
-        foreach(array('node','sub','printertype','id','sub','crit','sort','confirm','tab') AS $x) {
+        $globalVars = array('node','sub','printertype','id','sub','crit','sort','confirm','tab');
+        array_map(function(&$x) {
             global $$x;
             if (isset($_REQUEST[$x])) $_REQUEST[$x] = $$x = trim(htmlentities(mb_convert_encoding($_REQUEST[$x],'UTF-8'),ENT_QUOTES,'UTF-8'));
             unset($x);
-        }
+        },$globalVars);
         new System();
         new Config();
     }
-    public function sanitize_items($value = '') {
+    public function sanitize_items(&$value = '') {
+        $sanitize_items = function(&$val,&$key) use (&$value) {
+            if (is_string($val)) $val = htmlentities($val,ENT_QUOTES,'utf-8');
+            if (is_array($val)) $value = $this->sanitize_items($val);
+        };
         if (!$value) {
-            foreach ($_REQUEST AS $key => &$val) {
-                if (is_string($val)) $_REQUEST[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
-                else if (is_array($val)) $_REQUEST[$key] = $this->sanitize_items($val);
-                unset($val);
-            }
-            foreach ($_GET AS $key => &$val) {
-                if (is_string($val)) $_GET[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
-                else if (is_array($val)) $_GET[$key] = $this->sanitize_items($val);
-                unset($val);
-            }
-            foreach ($_POST AS $key => &$val) {
-                if (is_string($val)) $_POST[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
-                else if (is_array($val)) $_POST[$key] = $this->sanitize_items($val);
-                unset($val);
-            }
+            array_walk($_REQUEST,$sanitize_items);
+            array_walk($_COOKIE,$sanitize_items);
+            array_walk($_POST,$sanitize_items);
+            array_walk($_GET,$sanitize_items);
         } else {
-            foreach ($value AS $key => &$val) {
-                if (is_string($val)) $value[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
-                else if (is_array($val)) $value[$key] = $this->sanitize_items($val);
-                unset($val);
-            }
+            array_walk($value,$sanitize_items);
             return $value;
         }
     }
@@ -105,10 +95,10 @@ class Initiator {
      * @return void
      */
     private static function extCheck() {
-        $requiredExtensions = array('gettext');
-        foreach($requiredExtensions AS $extension) {
-            if (!in_array($extension, get_loaded_extensions())) $missingExtensions[] = $extension;
-        }
+        $requiredExtensions = array('gettext','mysqli');
+        $missingExtensions = array_values(array_unique(array_filter(array_map(function(&$ext) {
+            if (!in_array($ext,get_loaded_extensions())) return $ext;
+        },$requiredExtensions))));
         try {
             if (count($missingExtensions)) throw new Exception(sprintf('%s: %s',_('Missing Extensions'),implode(', ',(array)$missingExtensions)));
         } catch (Exception $e) {
