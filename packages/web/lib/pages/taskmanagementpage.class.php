@@ -38,16 +38,10 @@ class TaskManagementPage extends FOGPage {
             array('width'=>100,'class'=>'r'),
             array('width'=>50,'class'=>'r filter-false'),
         );
-        unset($this->data);
-    }
-    public function index() {
-        $this->active();
-    }
-    public function search_post() {
-        foreach (self::getClass('TaskManager')->search('',true) AS &$Task) {
-            if (!$Task->isValid()) continue;
+        $this->returnData = function(&$Task) {
+            if (!$Task->isValid()) return;
             $Host = $Task->getHost();
-            if (!$Host->isValid()) continue;
+            if (!$Host->isValid()) return;
             if ($Task->get('typeID') < 3) $forcetask = $Task->get('isForced') ? sprintf('<i class="icon-forced" title="%s"></i>',_('Task forced to start')) : sprintf('<i title="%s" class="icon-force icon" href="?node=task&sub=force-task&id=${id}"></i>',_('Force task to start'));
             $this->data[] = array(
                 'startedby' => $Task->get('createdBy'),
@@ -73,44 +67,22 @@ class TaskManagementPage extends FOGPage {
                 'icon_type' => $Task->getIcon(),
             );
             unset($Task,$Host);
-        }
+        };
+    }
+    public function index() {
+        $this->active();
+    }
+    public function search_post() {
+        $this->data = array();
+        array_map($this->returnData,self::getClass($this->childClass)->getManager()->search('',true));
         self::$HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
     }
     public function active() {
         $this->title = 'Active Tasks';
-        foreach (self::getClass('Taskmanager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS &$Task) {
-            if (!$Task->isValid()) continue;
-            $Host = $Task->getHost();
-            if (!$Host->isValid()) continue;
-            $forcetask = '';
-            if ($Task->get('typeID') < 3) $forcetask = $Task->get('isForced') ? sprintf('<i class="icon-forced" title="%s"></i>',_('Task forced to start')) : sprintf('<i title="%s" class="icon-force icon" href="?node=task&sub=force-task&id=${id}"></i>',_('Force task to start'));
-            $this->data[] = array(
-                'startedby' => $Task->get('createdBy'),
-                'details_taskforce' => $forcetask,
-                'id' => $Task->get('id'),
-                'name' => $Task->get('name'),
-                'time' => $this->formatTime($Task->get('createdTime'),'Y-m-d H:i:s'),
-                'state' => $Task->getTaskStateText(),
-                'forced' => $Task->get('isForced'),
-                'type' => $Task->getTaskTypeText(),
-                'width' => 600 * $Task->get('percent') / 100,
-                'elapsed' => $Task->get('timeElapsed'),
-                'remains' => $Task->get('timeRemaining'),
-                'percent' => $Task->get('pct'),
-                'copied' => $Task->get('dataCopied'),
-                'total' => $Task->get('dataTotal'),
-                'bpm' => $Task->get('bpm'),
-                'details_taskname' => $Task->get('name') ? sprintf('<div class="task-name">%s</div>',$Task->get('name')) : '',
-                'host_id' => $Task->get('hostID'),
-                'host_name' => $Host->get('name'),
-                'host_mac' => $Host->get('mac')->__toString(),
-                'icon_state' => $Task->getTaskState()->getIcon(),
-                'icon_type' => $Task->getIcon(),
-            );
-            unset($Task,$Host);
-        }
+        $this->data = array();
+        array_map($this->returnData,self::getClass($this->childClass)->getManager()->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))));
         self::$HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);

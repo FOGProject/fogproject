@@ -42,13 +42,13 @@ class UserManagementPage extends FOGPage {
         $this->title = _('All Users');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['UserCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('%s?node=%s&sub=search', self::$urlself, $this->node));
         $this->data = array();
-        array_map(self::$returnData,self::getClass('UserManager')->find());
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(self::$returnData,self::getClass('UserManager')->search('',true));
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->search('',true));
         self::$HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }

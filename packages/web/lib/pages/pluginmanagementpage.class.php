@@ -48,11 +48,11 @@ class PluginManagementPage extends FOGPage {
                 'icon'=>$Plugin->getIcon(),
             );
             unset($Plugin);
-        },self::getClass('Plugin')->getPlugins());
+        },self::getClass($this->childClass)->getPlugins());
         self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if (!empty($_REQUEST['activate']) && $_REQUEST['sub'] == 'activate') {
-            self::getClass('Plugin')->activatePlugin($_REQUEST['activate']);
+            self::getClass($this->childClass)->activatePlugin($_REQUEST['activate']);
             $this->setMessage(_('Successfully activated Plugin!'));
             $this->redirect(preg_replace('#&activate=.*&?#','',$this->formAction));
         }
@@ -73,7 +73,7 @@ class PluginManagementPage extends FOGPage {
             );
             $P = $Plugin;
             unset($Plugin);
-        },self::getClass('Plugin')->getPlugins());
+        },self::getClass($this->childClass)->getPlugins());
         self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if ($_REQUEST['run']) {
@@ -99,7 +99,7 @@ class PluginManagementPage extends FOGPage {
             );
             $P = $Plugin;
             unset($Plugin);
-        },self::getClass('Plugin')->getPlugins());
+        },self::getClass($this->childClass)->getPlugins());
         self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if ($_REQUEST['run']) {
