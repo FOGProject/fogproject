@@ -46,10 +46,6 @@ class SnapinManagementPage extends FOGPage {
             );
             unset($Snapin);
         };
-        self::$ftpfilesonly = function(&$item) {
-            if (self::$FOGFTP->chdir($item)) return;
-            return basename($item);
-        };
     }
     public function index() {
         $this->title = _('All Snap-ins');
@@ -85,7 +81,10 @@ class SnapinManagementPage extends FOGPage {
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
             if (!self::$FOGFTP->connect()) return;
-            $filelist = array_map(self::$ftpfilesonly,(array)self::$FOGFTP->nlist($StorageNode->get('snapinpath')));
+            $filelist = array_map(function(&$item) {
+                if (self::$FOGFTP->chdir($item)) return;
+                return basename($item);
+            },(array)self::$FOGFTP->nlist($StorageNode->get('snapinpath')));
             self::$FOGFTP->close();
             unset($StorageNode);
         },self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)));
@@ -196,8 +195,10 @@ class SnapinManagementPage extends FOGPage {
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
             if (!self::$FOGFTP->connect()) return;
-            $filelist = array_map(self::$ftpfilesonly,self::$FOGFTP->nlist($StorageNode->get('snapinpath')));
-            self::$FOGFTP->close();
+            $filelist = array_map(function(&$item) {
+                if (self::$FOGFTP->chdir($item)) return;
+                return basename($item);
+            },(array)self::$FOGFTP->nlist($StorageNode->get('snapinpath')));
             unset($StorageNode);
         },self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)));
         natcasesort($filelist);
