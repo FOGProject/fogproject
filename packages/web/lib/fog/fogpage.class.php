@@ -28,8 +28,8 @@ abstract class FOGPage extends FOGBase {
         $this->title = $this->name;
         $PagesWithObjects = array('user','host','image','group','snapin','printer');
         self::$HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
+        $this->childClass = ucfirst($this->node);
         if (in_array($this->node,$PagesWithObjects)) {
-            $this->childClass = ucfirst($this->node);
             if (isset($_REQUEST['id'])) {
                 $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
                 $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST['id']}";

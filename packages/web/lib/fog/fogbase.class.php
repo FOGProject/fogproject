@@ -205,7 +205,7 @@ abstract class FOGBase {
             }
         }
     }
-    protected function isLoaded(&$key) {
+    protected function isLoaded($key) {
         $key = $this->key($key);
         $this->isLoaded[$key] = (bool)isset($this->isLoaded[$key]);
         return $this->isLoaded[$key];
