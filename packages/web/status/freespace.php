@@ -1,17 +1,13 @@
 <?php
 $path = escapeshellarg(base64_decode($_REQUEST['path']));
-$t = shell_exec("df -B 1 $path | grep -vE '^Filesystem|shm'");
-$l = explode("\n",$t);
-unset($t);
 $hdtotal = 0;
 $hdused = 0;
-foreach ((array)$l AS $i => &$n) {
-    if (!preg_match("/(\d+) +(\d+) +(\d+) +\d+%/",$n,$matches)) continue;
+array_map(function(&$n) use (&$hdtotal,&$hdused) {
+    if (!preg_match('/(\d+) +(\d+) +(\d+) +\d+%/',$n,$matches)) return;
     $hdtotal += $matches[3];
     $hdused += $matches[2];
     unset($n);
-}
-unset($l);
+},explode("\n",shell_exec("df -B 1 $path | grep -vE '^Filesystem|shm'")));
 $Data = array('free' => $hdtotal, 'used' => $hdused);
 echo json_encode($Data);
 exit;

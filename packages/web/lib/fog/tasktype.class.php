@@ -30,14 +30,14 @@ class TaskType extends FOGController {
         ksort($icons);
         ob_start();
         echo '<select name="icon" class="fa">';
-        foreach ($icons AS $name => &$unicode) {
+        array_walk($icons,function(&$unicode,&$name) use ($selected) {
             printf('<option value="%s"%s> %s</option>',
                 $name,
                 $selected == $name ? ' selected' : '',
                 $name
             );
-            unset($unicode);
-        }
+            unset($unicode,$name);
+        });
         unset($icons);
         return sprintf('%s</select>',ob_get_clean());
     }
