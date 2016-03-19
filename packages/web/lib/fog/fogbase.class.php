@@ -153,11 +153,11 @@ abstract class FOGBase {
         $messages = (array)$_SESSION['FOG_MESSAGES'];
         unset($_SESSION['FOG_MESSAGES']);
         if (self::$HookManager instanceof HookManager) self::$HookManager->processEvent('MessageBox',array('data'=>&$messages));
-        foreach ($messages AS $i => &$message) {
+        array_walk($messages,function(&$message,&$i) {
             if (!$i) echo '<!-- FOG Messages -->';
             printf('<div class="fog-message-box">%s</div>',$message);
-        }
-        unset($message);
+        },$messages);
+        unset($messages);
     }
     protected function redirect($url = '') {
         if (!headers_sent() && !self::$service) {
@@ -172,26 +172,24 @@ abstract class FOGBase {
         }
     }
     protected function array_insert_before($key, array &$array, $new_key, $new_value) {
-        if (!in_array($key,$array)) {
-            $new = array();
-            foreach($array AS $k => &$value) {
-                if ($k === $key) $new[$new_key] = $new_value;
-                $new[$k] = $value;
-                unset($value);
-            }
-            $array = $new;
+        if (in_array($key, $array)) return;
+        $new = array();
+        foreach($array AS $k => &$value) {
+            if ($k === $key) $new[$new_key] = $new_value;
+            $new[$k] = $value;
+            unset($value);
         }
+        $array = $new;
     }
     protected function array_insert_after($key, array &$array, $new_key, $new_value) {
-        if (!in_array($key,$array)) {
-            $new = array();
-            foreach($array AS $k => &$value) {
-                $new[$k] = $value;
-                if ($k === $key) $new[$new_key] = $new_value;
-                unset($value);
-            }
-            $array = $new;
+        if (in_array($key, $array)) return;
+        $new = array();
+        foreach($array AS $k => &$value) {
+            $new[$k] = $value;
+            if ($k === $key) $new[$new_key] = $new_value;
+            unset($value);
         }
+        $array = $new;
     }
     protected function array_remove($key, array &$array) {
         if (is_array($key)) {
@@ -207,7 +205,8 @@ abstract class FOGBase {
             }
         }
     }
-    protected function isLoaded($key) {
+    protected function isLoaded(&$key) {
+        $key = $this->key($key);
         $this->isLoaded[$key] = (bool)isset($this->isLoaded[$key]);
         return $this->isLoaded[$key];
     }
@@ -344,10 +343,10 @@ abstract class FOGBase {
     }
     protected function array_filter_recursive(&$input,$keepkeys = false) {
         $input = (array)$input;
-        foreach($input AS $i => &$value) {
+        array_map(function(&$value) {
             if (is_array($value)) $value = $this->array_filter_recursive($value,$keepkeys);
-            unset($value);
-        }
+            unset($input);
+        },$input);
         $input = array_filter($input);
         if (!$keepkeys) $input = array_values($input);
         return $input;
@@ -375,7 +374,7 @@ abstract class FOGBase {
         return $hex2bin($hex);
     }
     protected function createSecToken() {
-        $token = md5(uniqid(mt_rand(), true)).md5(uniqid(mt_rand(),true));
+        $token = sprintf('%s%s',md5(uniqid(mt_rand(), true)),md5(uniqid(mt_rand(),true)));
         return trim(bin2hex($token));
     }
     protected function encryptpw($pass) {
@@ -392,7 +391,7 @@ abstract class FOGBase {
         } else $key = $this->hex2bin($key);
         $iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
         $cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
-        return bin2hex($iv).'|'.bin2hex($cipher).($addKey ? '|'.bin2hex($key) : '');
+        return sprintf('%s|%s%s',bin2hex($iv),bin2hex($cipher),($addKey ? sprintf('|%s',bin2hex($key)) : ''));
     }
     public function aesdecrypt($encdata,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
         $iv_size = mcrypt_get_iv_size($enctype,$mode);
