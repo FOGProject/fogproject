@@ -133,7 +133,6 @@ class LocationManagementPage extends FOGPage {
             _('Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox($this->obj->get('storageGroupID')),
             _('Storage Node') => self::getClass('StorageNodeManager')->buildSelectBox($this->obj->get('storageNodeID')),
             _('Use inits and kernels from this node') => sprintf('<input type="checkbox" name="tftp" value="on"%s/>',$this->obj->get('tftp') ? ' checked' : ''),
-            _('My kernels and inits') => '<input type="checkbox" name="tftp" value="on"/>',
             '&nbsp;' => sprintf('<input type="submit" class="smaller" name="update" value="%s"/>',_('Update')),
         );
         foreach ((array)$fields AS $field => &$input) {
