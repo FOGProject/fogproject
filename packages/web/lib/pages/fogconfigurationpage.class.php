@@ -710,7 +710,6 @@ class FOGConfigurationPage extends FOGPage {
         unset($findWhere,$setWhere);
         foreach ((array)self::getClass('ServiceManager')->find() AS $i => &$Service) {
             $key = $Service->get('id');
-            if (!isset($_REQUEST[$key])) continue;
             $_REQUEST[$key] = trim($_REQUEST[$key]);
             if ($_REQUEST[$key] == trim($Service->get('value'))) continue;
             if (isset($needstobenumeric[$Service->get('name')])) {
