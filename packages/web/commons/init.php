@@ -12,7 +12,7 @@ class Initiator {
         $allpaths = array_map(function($element) {
             return dirname($element[0]);
         },iterator_to_array(new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(BASEPATH,FileSystemIterator::SKIP_DOTS)),'#^.*\.(event|class|hook)\.php$#',RecursiveRegexIterator::GET_MATCH)));
-        set_include_path(sprintf('%s%s%s',implode(PATH_SEPARATOR,$allpaths),PATH_SEPARATOR,get_include_path));
+        set_include_path(sprintf('%s%s%s',implode(PATH_SEPARATOR,$allpaths),PATH_SEPARATOR,get_include_path()));
         spl_autoload_extensions('.class.php,.event.php,.hook.php');
         spl_autoload_register(array($this,'FOGLoader'));
     }

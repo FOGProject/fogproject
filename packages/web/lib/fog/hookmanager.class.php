@@ -33,10 +33,10 @@ class HookManager extends EventManager {
     }
     public function processEvent($event, $arguments = array()) {
         if (!isset($this->data[$event])) return;
-        foreach ($this->data[$event] AS &$function) {
-            if (!$function[0]->active) continue;
-            call_user_func($function, array_merge(array('event'=>$event), (array)$arguments));
+        array_map(function(&$function) use ($event,$arguments) {
+            if (stripos(self::getClass('ReflectionClass',get_class($function[0]))->getFileName(),'plugins') === false && !$function[0]->active) return;
+            call_user_func($function,array_merge(array('event'=>$event),(array)$arguments));
             unset($function);
-        }
+        },(array)$this->data[$event]);
     }
 }
