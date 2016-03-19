@@ -1,14 +1,10 @@
 <?php
 function getInterface() {
     $dev = trim($_REQUEST['dev'] ? basename(htmlentities($_REQUEST['dev'],ENT_QUOTES,'utf-8')) : 'eth0');
-    $sys_interfaces = array_diff(scandir('/sys/class/net'), array('..', '.'));
-    $interfaces = array();
-    foreach ($sys_interfaces AS &$iface) {
-        if (trim(file_get_contents(sprintf('/sys/class/net/%s/operstate',$iface))) !== 'up') continue;
-        array_push($interfaces,$iface);
-        unset($iface);
-    }
-    unset($sys_interfaces);
+    $interfaces = array_map(function(&$iface) use (&$interfaces) {
+        if (trim(file_get_contents(sprintf('/sys/class/net/%s/operstate',$iface))) !== 'up') return;
+        return $iface;
+    },array_diff(scandir('/sys/class/net'),array('..','.')));
     $interface = preg_grep("#$dev#",(array)$interfaces);
     $dev = @array_shift($interface);
     if (empty($dev)) return array('dev'=>'unknown','rx'=>0,'tx'=>0);

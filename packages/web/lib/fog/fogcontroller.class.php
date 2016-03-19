@@ -125,17 +125,17 @@ abstract class FOGController extends FOGBase {
         try {
             $insertKeys = $insertValues = $updateData = $fieldData = array();
             if (count($this->aliasedFields)) $this->array_remove($this->aliasedFields, $this->databaseFields);
-            foreach ((array)$this->databaseFields AS $name => &$field) {
+            array_walk($this->databaseFields,function(&$field,&$name) use (&$insertKeys,&$insertValues,&$updateData) {
                 $key = sprintf('`%s`',trim($field));
                 if ($name == 'createdBy' && !$this->get($name)) $val = trim($_SESSION['FOG_USERNAME'] ? self::$DB->sanitize($_SESSION['FOG_USERNAME']) : 'fog');
                 else if ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) $val = $this->formatTime('now','Y-m-d H:i:s');
                 else $val = self::$DB->sanitize($this->get($name));
-                if ($name == 'id' && (empty($val) || $val == null || $val == 0 || $val == false)) continue;
+                if ($name == 'id' && (empty($val) || $val == null || $val == 0 || $val == false)) return;
                 $insertKeys[] = $key;
                 $insertValues[] = $val;
                 $updateData[] = sprintf("%s='%s'",$key,$val);
-            }
-            unset($field);
+                unset($key,$val,$field,$name);
+            });
             $query = sprintf($this->insertQueryTemplate,
                 $this->databaseTable,
                 implode(',',(array)$insertKeys),
@@ -163,7 +163,7 @@ abstract class FOGController extends FOGBase {
         try {
             if (!$this->get($field)) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
             list($join, $where) = $this->buildQuery();
-            foreach ((array)$field AS &$key) {
+            array_map(function(&$key) use ($join,$where) {
                 $key = $this->key($key);
                 if (!is_array($this->get($key))) {
                     $query = sprintf($this->loadQueryTemplateSingle,
@@ -175,8 +175,11 @@ abstract class FOGController extends FOGBase {
                     );
                 } else {
                     $fields = $this->get($key);
-                    foreach((array)$fields AS $i => &$fieldValue) $fieldData[] = sprintf("`%s`.`%s`='%s'",$this->databaseTable,$this->databaseFields[$key],self::$DB->sanitize($fieldValue));
-                    unset($fieldValue);
+                    $fieldData = array();
+                    array_map(function(&$fieldValue) use ($key,&$fieldData) {
+                        $fieldData[] = sprintf("`%s`.`%s`='%s'",$this->databaseTable,$this->databaseFields[$key],self::$DB->sanitize($fieldValue));
+                        unset($fieldValue,$key);
+                    },(array)$fields);
                     $query = sprintf($this->loadQueryTemplateMultiple,
                         $this->databaseTable,
                         $join,
@@ -187,7 +190,8 @@ abstract class FOGController extends FOGBase {
                 if (!($vals = self::$DB->query($query)->fetch('','fetch_all')->get())) throw new Exception(self::$DB->sqlerror());
                 $vals = @array_shift($vals);
                 $this->setQuery($vals);
-            }
+                unset($vals,$key,$join,$where);
+            },(array)$field);
         } catch (Exception $e) {
             $this->debug(_('Load failed: %s'),array($e->getMessage()));
         }
@@ -234,10 +238,10 @@ abstract class FOGController extends FOGBase {
     }
     public function isValid() {
         try {
-            foreach ((array)$this->databaseFieldsRequired AS $i => &$field) {
+            array_map(function(&$field) {
                 if (!$this->get($field) === 0 && !$this->get($field)) throw new Exception(self::$foglang['RequiredDB']);
                 unset($field);
-            }
+            },(array)$this->databaseFieldsRequired);
             if (!$this->get('id')) throw new Exception(_('Invalid ID'));
             if (array_key_exists('name',(array)$this->databaseFields) && !$this->get('name')) throw new Exception(_(get_class($this).' no longer exists'));
         } catch (Exception $e) {
@@ -267,16 +271,19 @@ abstract class FOGController extends FOGBase {
         $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
         if (count($classData) <= 0) $classData = array_intersect_key((array)$queryData,$this->databaseFields);
         else {
-            foreach ((array)$this->databaseFieldsFlipped AS $db_key => &$obj_key) {
+            array_walk($this->databaseFieldsFlipped,function(&$obj_key,&$db_key) use (&$classData) {
                 $this->array_change_key($classData,$db_key,$obj_key);
-                unset($obj_key);
-            }
+                unset($obj_key,$db_key);
+            });
         }
         $classData = array_map('addslashes',(array)$classData);
         if (count(preg_grep('#text/plain#i',headers_list())) > 0 || self::$service) $classData = array_map('stripslashes',(array)$classData);
         $this->data = array_merge((array)$this->data,(array)$classData);
-        foreach ((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],self::getClass($class)->setQuery($queryData));
-        unset($fields);
+        array_walk($this->databaseFieldClassRelationships,function(&$fields,&$class) use (&$queryData) {
+            $class = self::getClass($class);
+            $this->set($fields[2],$class->setQuery(array_intersect_key((array)$queryData,(array)$class->databaseFieldsFlipped)));
+            unset($fields,$class);
+        });
         return $this;
     }
     public function getManager() {
