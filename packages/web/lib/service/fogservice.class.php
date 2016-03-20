@@ -5,15 +5,16 @@ abstract class FOGService extends FOGBase {
     protected $log = '';
     protected $zzz = '';
     protected $ips = array();
-    public $service = true;
     private $transferLog = array();
     public $procRef = array();
     public $procPipes = array();
     private static function files_are_equal($size_a,$size_b,$file_a,$file_b) {
         if ($size_a !== $size_b) return false;
         $res = true;
-        $fp_a = fopen($file_a,'r');
-        $fp_b = fopen($file_b,'r');
+        $fp_a = fopen($file_a,'rb');
+        stream_set_blocking($fp_a,false);
+        $fp_b = fopen($file_b,'rb');
+        stream_set_blocking($fp_b,false);
         $a = fgets($fp_a,10240);
         $a_hex = bin2hex($a);
         $b = fgets($fp_b,10240);
@@ -100,17 +101,20 @@ abstract class FOGService extends FOGBase {
         return;
     }
     protected function out($string,$device) {
-        if (!$hdl = fopen($device,'w')) return;
-        if (fwrite($hdl,"$string\n") === false) return;
-        fclose($hdl);
+        if (!$fh = fopen($device,'wb')) return;
+        stream_set_blocking($fh,false);
+        if (fwrite($fh,"$string\n") === false) return;
+        fclose($fh);
     }
     protected function getDateTime() {
         return $this->nice_date()->format('m-d-y g:i:s a');
     }
     protected function wlog($string, $path) {
         if (file_exists($path) && filesize($path) >= $this->getSetting('SERVICE_LOG_SIZE')) unlink($path);
-        if (!$hdl = fopen($path,'a')) $this->out("\n * Error: Unable to open file: $path\n",$this->dev);
-        if (fwrite($hdl,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n",$this->dev);
+        if (!$fh = fopen($path,'ab')) $this->out("\n * Error: Unable to open file: $path\n",$this->dev);
+        stream_set_blocking($fh,false);
+        if (fwrite($fh,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n",$this->dev);
+        fclose($fh);
     }
     public function serviceStart() {
         $this->outall(sprintf(' * Starting %s Service',get_class($this)));
