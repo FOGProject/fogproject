@@ -6,7 +6,6 @@ abstract class FOGClient extends FOGBase {
     public function __construct($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false) {
         try {
             parent::__construct();
-            header('Content-Type: text/plain');
             $this->newService = isset($_REQUEST['newService']);
             $this->json = isset($_REQUEST['sub']) && $_REQUEST['sub'] == 'requestClientInfo' || isset($_REQUEST['json']);
             $this->Host = $this->getHostItem($service,$encoded,$hostnotrequired,$returnmacs,$override);
