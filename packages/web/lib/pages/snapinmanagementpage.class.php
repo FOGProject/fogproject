@@ -81,7 +81,7 @@ class SnapinManagementPage extends FOGPage {
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
             if (!self::$FOGFTP->connect()) return;
-            $filelist = array_map(static::$ftpfilesonly,(array)self::$FOGFTP->nlist($StorageNode->get('snapinpath')));
+            $filelist = array_merge((array)$filelist,array_map(static::$ftpfilesonly,(array)self::$FOGFTP->nlist($StorageNode->get('snapinpath'))));
             self::$FOGFTP->close();
             unset($StorageNode);
         },self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)));
@@ -192,7 +192,7 @@ class SnapinManagementPage extends FOGPage {
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
             if (!self::$FOGFTP->connect()) return;
-            $filelist = array_map(static::$ftpfilesonly,self::$FOGFTP->nlist($StorageNode->get('snapinpath')));
+            $filelist = array_merge((array)$filelist,array_map(static::$ftpfilesonly,(array)self::$FOGFTP->nlist($StorageNode->get('snapinpath'))));
             self::$FOGFTP->close();
             unset($StorageNode);
         },self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)));
