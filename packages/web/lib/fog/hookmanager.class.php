@@ -8,6 +8,7 @@ class HookManager extends EventManager {
         global $Init;
         foreach (self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),'/^.+\.php$/i',RecursiveRegexIterator::GET_MATCH) AS $file) {
             if (($fh = fopen($file[0],'rb')) === false) continue;
+            stream_set_blocking($fh,false);
             while (feof($fh) === false) {
                 if (($line = fgets($fh,4096)) === false) continue;
                 preg_match_all($regexp,$line,$match);

@@ -91,9 +91,13 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             header('Expires: 0');
             header('Cache-Control: must-revalidate');
             header('Pragma: public');
-            if (false !== ($handle = fopen($SnapinFile,'rb'))) {
-                while (!feof($handle)) echo fread($handle,4*1024*1024);
+            if (($fh = fopen($SnapinFile,'rb')) === false) return;
+            stream_set_blocking($fh,false);
+            while (feof($fh) === false) {
+                if (($line = fread($fh,4092)) === false) break;
+                echo $line;
             }
+            fclose($fh);
             if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getProgressState())->save();
             $SnapinTask->set('stateID',$this->getProgressState())->set('return',-1)->set('details',_('Pending...'))->save();
             exit;

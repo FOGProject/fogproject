@@ -49,8 +49,9 @@ class Schema extends FOGController {
     }
     public function import_db($file) {
         $mysqli = self::$DB->link();
-        if (false === ($handle = fopen($file,'rb'))) throw new Exception(_('Error Opening DB File'));
-        while (($line = fgets($handle)) !== false) {
+        if (false === ($fh = fopen($file,'rb'))) throw new Exception(_('Error Opening DB File'));
+        stream_set_blocking($fh);
+        while (($line = fgets($fh)) !== false) {
             if (substr($line,0,2) == '--' || $line == '') continue;
             $tmpline .= $line;
             if (substr(trim($line),-1,1) == ';') {
@@ -58,7 +59,7 @@ class Schema extends FOGController {
                 $tmpline = '';
             }
         }
-        fclose($handle);
+        fclose($fh);
         if ($error) return $error;
         return true;
     }

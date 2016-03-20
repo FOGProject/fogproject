@@ -18,14 +18,15 @@ class TaskType extends FOGController {
     );
     public function iconlist($selected = '') {
         $selected = trim($selected);
-        if (!($file = fopen('../management/scss/_variables.scss','rb'))) return _('Icon File not found');
-        while (($line = fgets($file)) !== false) {
+        if (!($fh = fopen('../management/scss/_variables.scss','rb'))) return _('Icon File not found');
+        stream_set_blocking($fh);
+        while (($line = fgets($fh)) !== false) {
             if (!preg_match('#^\$fa-var-#',$line)) continue;
             $match = preg_split('#[:\s|:^\s]+#',trim(preg_replace('#[\$\"\;\\\]|fa-var-#','',$line)));
             $icons[trim($match[0])] = sprintf('&#x%s',trim($match[1]));
             unset($match);
         }
-        fclose($file);
+        fclose($fh);
         if (!count($icons)) return _('No icons found');
         ksort($icons);
         ob_start();

@@ -53,12 +53,12 @@ class FOGConfigurationPage extends FOGPage {
     public function license() {
         $this->title = _('FOG License Information');
         $file = "./languages/{$_SESSION['locale']}/gpl-3.0.txt";
-        if ($handle = fopen($file,'rb')) {
-            echo '<pre>';
-            while (($line = fgets($handle)) !== false) echo $line;
-            echo '</pre>';
-        }
-        fclose($handle);
+        if (($fh = fopen($file,'rb')) === false) return;
+        stream_set_blocking($fh,false);
+        echo '<pre>';
+        while (($line = fgets($fh)) !== false) echo $line;
+        echo '</pre>';
+        fclose($fh);
     }
     public function kernel() {
         $this->kernel_update_post();
@@ -384,32 +384,32 @@ class FOGConfigurationPage extends FOGPage {
         if ($_REQUEST['update']) {
             $f = '/tmp/oui.txt';
             $url = 'http://standards.ieee.org/develop/regauth/oui/oui.txt';
-            $fp = fopen($f,'wb');
-            if (!$fp) throw new Exception(_('Error: Failed to open temp file'));
-            self::$FOGURLRequests->process($url,'GET',false,false,false,false,$fp);
-            fclose($fp);
-            if (false !== ($handle = fopen($f,'rb'))) {
-                $start = 18;
-                $imported = 0;
-                while (!feof($handle)) {
-                    $line = trim(fgets($handle));
-                    if (preg_match("#^([0-9a-fA-F][0-9a-fA-F][:-]){2}([0-9a-fA-F][0-9a-fA-F]).*$#",$line)) {
-                        $macprefix = substr($line,0,8);
-                        $maker = substr($line,$start,strlen($line)-$start);
-                        if (strlen($macprefix) == 8 && strlen($maker) > 0) {
-                            $mac = trim($macprefix);
-                            $mak = trim($maker);
-                            $macsandmakers[$mac] = $mak;
-                            $imported++;
-                        }
-                    }
-                }
-                fclose($handle);
-                self::$FOGCore->addUpdateMACLookupTable($macsandmakers);
-                $this->setMessage(sprintf('%s %s',$imported,_(' mac addresses updated!')));
-            } else printf('%s: %s',_('Unable to locate file'),$f);
-        } else if ($_REQUEST['clear']) self::$FOGCore->clearMACLookupTable();
-        @unlink($f);
+            $fh = fopen($f,'wb');
+            stream_set_blocking($fh,false);
+            if (!$fh) throw new Exception(_('Error: Failed to open temp file'));
+            self::$FOGURLRequests->process($url,'GET',false,false,false,false,$fh);
+            fclose($fh);
+            if (($fh = fopen($f,'rb')) === false) throw new Exception(_('Could not open file for reading'));
+            stream_set_blocking($fh,false);
+            $start = 18;
+            $imported = 0;
+            while (feof($fh) === false) {
+                $line = trim(fgets($fh));
+                if (!preg_match("#^([0-9a-fA-F]{2}[:-]){2}([0-9a-fA-F]{2}).*$#",$line)) continue;
+                $macprefix = substr($line,0,8);
+                $maker = substr($line,$start,strlen($line)-$start);
+                if (strlen($macprefix) != 8 || strlen($maker) < 1) continue;
+                $mac = trim($macprefix);
+                $mak = trim($maker);
+                $macsandmakers[$mac] = $mak;
+                $imported++;
+            }
+            fclose($fh);
+            self::$FOGCore->addUpdateMACLookupTable($macsandmakers);
+            $this->setMessage(sprintf('%s %s',$imported,_(' mac addresses updated!')));
+            @unlink($f);
+        }
+        if ($_REQUEST['clear']) self::$FOGCore->clearMACLookupTable();
         $this->resetRequest();
         $this->redirect('?node=about&sub=mac-list');
     }
