@@ -72,6 +72,7 @@ class EventManager extends FOGBase {
         unset($pluginfiles);
         $checkNormalAndStart = function($element) use ($strlen,$startClass) {
             if (($fh = fopen($element,'rb')) === false) return;
+            stream_set_blocking($fh,false);
             while (feof($fh) === false) {
                 unset($active);
                 $line = fgets($fh, 4096);
