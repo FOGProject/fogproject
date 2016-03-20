@@ -14,7 +14,7 @@ try {
     $mactftp = strtolower(str_replace(':','-',$_REQUEST['mac']));
     $macftp = strtolower(str_replace(':','',$_REQUEST['mac']));
     $src = sprintf('%s/dev/%s',$StorageNode->get('ftppath'),$macftp);
-    $dest = sprintf('%s/%s',$StorageNode->get('ftppath'),$_REQUEST['to']);
+    $dest = sprintf('%s/%s',$StorageNode->get('ftppath'),$Image->get('path'));
     $FOGFTP->set('host',$StorageNode->get('ip'))
         ->set('username',$StorageNode->get('user'))
         ->set('password',$StorageNode->get('pass'))
