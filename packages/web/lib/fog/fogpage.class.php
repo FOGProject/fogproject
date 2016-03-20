@@ -635,7 +635,6 @@ abstract class FOGPage extends FOGBase {
             if ($_SESSION['allow_ajax_kdl'] && $_SESSION['dest-kernel-file'] && $_SESSION['tmp-kernel-file'] && $_SESSION['dl-kernel-file']) {
                 if ($_REQUEST['msg'] == 'dl') {
                     if (($fh = fopen($_SESSION['tmp-kernel-file'],'wb')) === false) throw new Exception(_('Error: Failed to open temp file'));
-                    stream_set_blocking($fh,false);
                     self::$FOGURLRequests->process(mb_convert_encoding($_SESSION['dl-kernel-file'],'UTF-8'),'GET',false,false,false,false,$fh);
                     if (!file_exists($_SESSION['tmp-kernel-file'])) throw new Exception(_('Error: Failed to download kernel'));
                     if (!filesize($_SESSION['tmp-kernel-file']) >  1048576) throw new Exception(sprintf('%s: %s: %s - %s',_('Error'),_('Download Failed'),_('Failed'),_('filesize'),filesize($_SESSION['tmp-kernel-file'])));
@@ -992,7 +991,6 @@ abstract class FOGPage extends FOGBase {
             if (!file_exists($file)) throw new Exception(_('Could not find temp filename'));
             $numSuccess = $numFailed = $numAlreadExist = 0;
             $fh = fopen($file,'rb');
-            stream_set_blocking($fh,false);
             $this->array_remove('id',$this->databaseFields);
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
                 $totalRows++;

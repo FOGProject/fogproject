@@ -19,7 +19,6 @@ class TaskType extends FOGController {
     public function iconlist($selected = '') {
         $selected = trim($selected);
         if (!($fh = fopen('../management/scss/_variables.scss','rb'))) return _('Icon File not found');
-        stream_set_blocking($fh);
         while (($line = fgets($fh)) !== false) {
             if (!preg_match('#^\$fa-var-#',$line)) continue;
             $match = preg_split('#[:\s|:^\s]+#',trim(preg_replace('#[\$\"\;\\\]|fa-var-#','',$line)));

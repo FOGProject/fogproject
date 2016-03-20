@@ -15,7 +15,6 @@ header('Expires: 0');
 header('Cache-Control: must-revalidate');
 header('Pragma: public');
 if (($fh = fopen($file,'rb')) === false) exit;
-stream_set_blocking($fh,false);
 while (feof($fh) === false) {
     if (($line = fread($fh,4092)) === false) break;
     echo $line;
