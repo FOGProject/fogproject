@@ -37,7 +37,7 @@ class FOGCron extends FOGBase {
     public static function parse($Cron,$lastrun = false) {
         list($min,$hour,$dom,$month,$dow) = preg_split('/[\s]+/',trim($Cron));
         if (is_numeric($dow) && $dow == 0) $dow = 7;
-        $Start = $GLOBALS['FOGCore']->nice_date();
+        $Start = self::nice_date();
         do {
             list($nmin,$nhour,$ndom,$nmonth,$ndow) = preg_split('/[\s]+/',$Start->format('i H j n N'));
             if ($min != '*') {
@@ -179,7 +179,7 @@ class FOGCron extends FOGBase {
      * @return (bool) if it is time to run
      */
     public static function shouldRunCron($Time) {
-        $CurrTime = $GLOBALS['FOGCore']->nice_date();
+        $CurrTime = self::nice_date();
         return ($Time <= $CurrTime);
     }
 }
