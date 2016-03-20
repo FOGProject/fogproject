@@ -10,7 +10,6 @@ $vals = function($reverse,$HookManager) {
     $file = trim(basename(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')));
     $path = sprintf('%s%s',$folder,$file);
     if (($fh = fopen($path,'rb')) === false) return _('Unable to open file for reading');
-    stream_set_blocking($fh,false);
     $lines = (int)$_REQUEST['lines'];
     $buffer = 4096;
     fseek($fh, -1, SEEK_END);

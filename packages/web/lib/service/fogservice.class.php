@@ -100,7 +100,6 @@ abstract class FOGService extends FOGBase {
     }
     protected function out($string,$device) {
         if (!$fh = fopen($device,'wb')) return;
-        stream_set_blocking($fh,false);
         if (fwrite($fh,"$string\n") === false) return;
         fclose($fh);
     }
@@ -110,7 +109,6 @@ abstract class FOGService extends FOGBase {
     protected function wlog($string, $path) {
         if (file_exists($path) && filesize($path) >= $this->getSetting('SERVICE_LOG_SIZE')) unlink($path);
         if (!$fh = fopen($path,'ab')) $this->out("\n * Error: Unable to open file: $path\n",$this->dev);
-        stream_set_blocking($fh,false);
         if (fwrite($fh,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n",$this->dev);
         fclose($fh);
     }

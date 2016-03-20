@@ -50,7 +50,6 @@ class Schema extends FOGController {
     public function import_db($file) {
         $mysqli = self::$DB->link();
         if (false === ($fh = fopen($file,'rb'))) throw new Exception(_('Error Opening DB File'));
-        stream_set_blocking($fh);
         while (($line = fgets($fh)) !== false) {
             if (substr($line,0,2) == '--' || $line == '') continue;
             $tmpline .= $line;
