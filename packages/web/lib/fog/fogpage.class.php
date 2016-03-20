@@ -209,7 +209,10 @@ abstract class FOGPage extends FOGBase {
     }
     private function replaceNeeds($data) {
         unset($this->dataFind,$this->dataReplace);
-        $urlvars = array('node'=>$GLOBALS['node'],'sub'=>$GLOBALS['sub'],'tab'=>$GLOBALS['tab']);
+        global $node;
+        global $sub;
+        global $tab;
+        $urlvars = array('node'=>$node,'sub'=>$sub,'tab'=>$tab);
         preg_match_all('#\$\{(.+?)\}#',implode($this->templates),$foundchanges);
         $arrayReplace = array_merge($urlvars,(array)$data);
         $foundchanges = $foundchanges[1];

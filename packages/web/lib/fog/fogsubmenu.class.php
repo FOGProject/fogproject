@@ -25,8 +25,9 @@ class FOGSubMenu extends FOGBase {
     public function addItems($node, $items, $ifVariable = '', $ifVariableTitle = '') {
         $variableSetter = (!$ifVariable ? self::$foglang['MainMenu'] : $ifVariableTitle);
         if (isset($_REQUEST[$ifVariable])) {
+            global $$ifVariable;
             array_walk($items,function(&$link,&$title) use ($ifVariable) {
-                if (!$this->isExternalLink($link)) $link = "$link&$ifVariable={$GLOBALS[$ifVariable]}";
+                if (!$this->isExternalLink($link)) $link = "$link&$ifVariable={$$ifVariable}";
                 unset($link,$title);
             });
         }
