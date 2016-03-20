@@ -12,9 +12,7 @@ abstract class FOGService extends FOGBase {
         if ($size_a !== $size_b) return false;
         $res = true;
         $fp_a = fopen($file_a,'rb');
-        stream_set_blocking($fp_a,false);
         $fp_b = fopen($file_b,'rb');
-        stream_set_blocking($fp_b,false);
         $a = fgets($fp_a,10240);
         $a_hex = bin2hex($a);
         $b = fgets($fp_b,10240);
