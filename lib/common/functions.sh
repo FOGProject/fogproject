@@ -1829,7 +1829,6 @@ configureDHCP() {
             echo "use-host-decl-names on;" >> "$dhcptouse"
             echo "ddns-update-style interim;" >> "$dhcptouse"
             echo "ignore client-updates;" >> "$dhcptouse"
-            echo "next-server $ipaddress;" >> "$dhcptouse"
             echo "# Specify subnet of ether device you do NOT want service." >> "$dhcptouse"
             echo "# For systems with two or more ethernet devices." >> "$dhcptouse"
             echo "# subnet 136.165.0.0 netmask 255.255.0.0 {}" >> "$dhcptouse"
@@ -1842,6 +1841,7 @@ configureDHCP() {
             [[ ! $(validip $dnsaddress) -eq 0 ]] && dnsaddress=$(echo $dnsaddress | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
             [[ $(validip $routeraddress) -eq 0 ]] && echo "    option routers $routeraddress;" >> "$dhcptouse" || ( echo "    #option routers 0.0.0.0" >> "$dhcptouse" && echo " !!! No router address found !!!" )
             [[ $(validip $dnsaddress) -eq 0 ]] && echo "    option domain-name-servers $dnsaddress;" >> "$dhcptouse" || ( echo "    #option routers 0.0.0.0" >> "$dhcptouse" && echo " !!! No dns address found !!!" )
+            echo "    next-server $ipaddress;" >> "$dhcptouse"
             echo "    class \"Legacy\" {" >> "$dhcptouse"
             echo "        match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00000\";" >> "$dhcptouse"
             echo "        filename \"undionly.kkpxe\";" >> "$dhcptouse"
