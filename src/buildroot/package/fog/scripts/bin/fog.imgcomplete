@@ -7,7 +7,7 @@ case $type in
         ;;
     [Uu][Pp])
         php_post="Post_Stage2.php"
-        poststring="mac=$mac&type=$type&to=$img&ftp=$ftp&size=$size&imgid=$imgid&osid=$osid"
+        poststring="mac=$mac&type=$type&osid=$osid"
         ;;
     *)
         handleError "Wrong type for this completetion script ($0)\n   Args Passed: $*"
