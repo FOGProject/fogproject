@@ -82,7 +82,6 @@ class ReportMaker {
             exec($cmd);
             $filesize = filesize($filepath);
             if (($fh = fopen($filepath,'rb')) === false) return;
-            stream_set_blocking($fh,false);
             header("X-Sendfile: $filepath");
             header('Content-Type: application/octet-stream');
             header("Content-Length: $filesize");

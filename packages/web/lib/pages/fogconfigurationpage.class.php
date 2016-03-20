@@ -54,7 +54,6 @@ class FOGConfigurationPage extends FOGPage {
         $this->title = _('FOG License Information');
         $file = "./languages/{$_SESSION['locale']}/gpl-3.0.txt";
         if (($fh = fopen($file,'rb')) === false) return;
-        stream_set_blocking($fh,false);
         echo '<pre>';
         while (($line = fgets($fh)) !== false) echo $line;
         echo '</pre>';
@@ -385,12 +384,10 @@ class FOGConfigurationPage extends FOGPage {
             $f = '/tmp/oui.txt';
             $url = 'http://standards.ieee.org/develop/regauth/oui/oui.txt';
             $fh = fopen($f,'wb');
-            stream_set_blocking($fh,false);
             if (!$fh) throw new Exception(_('Error: Failed to open temp file'));
             self::$FOGURLRequests->process($url,'GET',false,false,false,false,$fh);
             fclose($fh);
             if (($fh = fopen($f,'rb')) === false) throw new Exception(_('Could not open file for reading'));
-            stream_set_blocking($fh,false);
             $start = 18;
             $imported = 0;
             while (feof($fh) === false) {

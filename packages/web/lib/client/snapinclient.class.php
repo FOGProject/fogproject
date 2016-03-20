@@ -92,7 +92,6 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             header('Cache-Control: must-revalidate');
             header('Pragma: public');
             if (($fh = fopen($SnapinFile,'rb')) === false) return;
-            stream_set_blocking($fh,false);
             while (feof($fh) === false) {
                 if (($line = fread($fh,4092)) === false) break;
                 echo $line;
