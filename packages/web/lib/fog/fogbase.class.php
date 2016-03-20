@@ -5,6 +5,7 @@ abstract class FOGBase {
     public static $post = false;
     public static $service = false;
     protected $isLoaded = array();
+    protected static $strlen;
     protected static $debug = false;
     protected static $info = false;
     protected static $buildSelectBox;
