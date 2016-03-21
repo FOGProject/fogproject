@@ -33,6 +33,7 @@ class StorageNode extends FOGController {
     );
     protected $additionalFields = array(
         'images',
+        'snapinfiles',
     );
     public function get($key = '') {
         if (in_array($this->key($key),array('path','ftppath','snapinpath','sslpath','webroot'))) return rtrim(parent::get($key), '/');
@@ -48,13 +49,30 @@ class StorageNode extends FOGController {
             unset($NodeFailure);
         }
     }
+    public function loadSnapinfiles() {
+        $URL = sprintf('http://%s/fog/status/getsnapins.php?path=%s',$this->get('ip'),urlencode($this->get('snapinpath')));
+        $paths = self::$FOGURLRequests->process($URL);
+        $paths = @array_shift($paths);
+        $paths = json_decode($paths);
+        $pathstring = sprintf('/%s/',trim($this->get('snapinpath'),'/'));
+        if (count($paths) < 1) {
+            self::$FOGFTP
+                ->set('host',$this->get('ip'))
+                ->set('username',$this->get('user'))
+                ->set('password',$this->get('pass'));
+            if (!self::$FOGFTP->connect()) return;
+            $paths = self::$FOGFTP->nlist($pathstring);
+            self::$FOGFTP->close();
+        }
+        $paths = array_values(array_unique(array_filter((array)preg_replace('#dev|postdownloadscripts|ssl#','',preg_replace("#$pathstring#",'',$paths)))));
+        $this->set('snapinfiles',$paths);
+    }
     public function loadImages() {
         $URL = sprintf('http://%s/fog/status/getimages.php?path=%s',$this->get('ip'),urlencode($this->get('path')));
         $paths = self::$FOGURLRequests->process($URL);
         $paths = @array_shift($paths);
         $paths = json_decode($paths);
         $pathstring = sprintf('/%s/',trim($this->get('path'),'/'));
-        $paths = array_values(array_unique(array_filter((array)preg_replace('#dev|postdownloadscripts#','',preg_replace("#$pathstring#",'',$paths)))));
         if (count($paths) < 1) {
             self::$FOGFTP
                 ->set('host',$this->get('ip'))
@@ -63,8 +81,9 @@ class StorageNode extends FOGController {
             $pathstring = sprintf('/%s/',trim($this->get('ftppath'),'/'));
             if (!self::$FOGFTP->connect()) return;
             $paths = self::$FOGFTP->nlist($pathstring);
-            $paths = array_values(array_unique(array_filter((array)preg_replace('#dev|postdownloadscripts#','',preg_replace("#$pathstring#",'',$paths)))));
+            self::$FOGFTP->close();
         }
+        $paths = array_values(array_unique(array_filter((array)preg_replace('#dev|postdownloadscripts|ssl#','',preg_replace("#$pathstring#",'',$paths)))));
         $this->set('images',$this->getSubObjectIDs('Image',array('path'=>$paths)));
     }
     public function getClientLoad() {

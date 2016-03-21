@@ -9,7 +9,6 @@ abstract class FOGBase {
     protected static $debug = false;
     protected static $info = false;
     protected static $buildSelectBox;
-    protected static $ftpfilesonly;
     protected static $selected;
     protected static $DB;
     protected static $FOGFTP;
@@ -47,7 +46,7 @@ abstract class FOGBase {
         global $TimeZone;
         self::$foglang =& $foglang;
         self::$FOGFTP =& $FOGFTP;
-        self::$FOGCore = &$FOGCore;
+        self::$FOGCore =& $FOGCore;
         self::$DB =& $DB;
         self::$EventManager =& $EventManager;
         self::$HookManager =& $HookManager;
@@ -69,10 +68,6 @@ abstract class FOGBase {
                 $option
             );
             unset($option,$index,$value);
-        };
-        static::$ftpfilesonly = function(&$item) {
-            if (self::$FOGFTP->chdir($item)) return;
-            return basename($item);
         };
         self::$initialized = true;
         return $this;
