@@ -76,17 +76,12 @@ class SnapinManagementPage extends FOGPage {
         $filelist = array();
         array_map(function(&$StorageNode) use (&$filelist) {
             if (!$StorageNode->isValid()) return;
-            self::$FOGFTP
-                ->set('host',$StorageNode->get('ip'))
-                ->set('username',$StorageNode->get('user'))
-                ->set('password',$StorageNode->get('pass'));
-            if (!self::$FOGFTP->connect()) return;
-            $filelist = array_merge((array)$filelist,array_map(static::$ftpfilesonly,(array)self::$FOGFTP->nlist($StorageNode->get('snapinpath'))));
-            self::$FOGFTP->close();
+            if (!$StorageNode->isValid()) return;
+            $filelist = array_merge((array)$filelist,(array)$StorageNode->get('snapinfiles'));
             unset($StorageNode);
         },self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)));
         natcasesort($filelist);
-        $filelist = array_values(array_filter(array_unique((array)$filelist)));
+        $filelist = array_values(array_unique(array_filter((array)$filelist)));
         ob_start();
         array_map(self::$buildSelectBox,$filelist);
         $selectFiles = sprintf('<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
@@ -187,13 +182,7 @@ class SnapinManagementPage extends FOGPage {
         $filelist = array();
         array_map(function(&$StorageNode) use (&$filelist) {
             if (!$StorageNode->isValid()) return;
-            self::$FOGFTP
-                ->set('host',$StorageNode->get('ip'))
-                ->set('username',$StorageNode->get('user'))
-                ->set('password',$StorageNode->get('pass'));
-            if (!self::$FOGFTP->connect()) return;
-            $filelist = array_merge((array)$filelist,array_map(static::$ftpfilesonly,(array)self::$FOGFTP->nlist($StorageNode->get('snapinpath'))));
-            self::$FOGFTP->close();
+            $filelist = array_merge((array)$filelist,(array)$StorageNode->get('snapinfiles'));
             unset($StorageNode);
         },self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)));
         natcasesort($filelist);
