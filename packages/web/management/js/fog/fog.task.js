@@ -5,16 +5,15 @@ var CANCELURL,
     cancelButton,
     cancelTasks;
 $(function() {
+    if (typeof(sub) == 'undefined') {
+        window.location.replace(location.href+'&sub=active');
+        sub = 'active';
+    }
+    var cancelurl = (sub.indexOf('active') != -1 ? location.href : '');
     var Options = {
         URL: location.href,
         Container: '#search-content,#active-tasks',
-        CancelURL: function() {
-            if (typeof(sub) == 'undefined') {
-                window.location.replace(location.href+'&sub=active');
-                sub = 'active';
-            }
-            return (sub.indexOf('active') != -1 ? location.href : '');
-        },
+        CancelURL:  cancelurl
     };
     Container = $(Options.Container);
     if (!Container.length) alert('No Container element found: '+Options.Container);
