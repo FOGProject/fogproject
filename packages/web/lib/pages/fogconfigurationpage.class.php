@@ -737,18 +737,8 @@ class FOGConfigurationPage extends FOGPage {
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if (!$StorageNode->isValid()) continue;
             if (!$StorageNode->get('isEnabled')) continue;
-            $user = $StorageNode->get('user');
-            $pass = $StorageNode->get('pass');
-            $host = $StorageNode->get('ip');
-            self::$FOGFTP
-                ->set('host',$StorageNode->get('ip'))
-                ->set('username',$StorageNode->get('user'))
-                ->set('password',$StorageNode->get('pass'));
+            $fogfiles = $StorageNode->get('logfiles');
             try {
-                self::$FOGFTP->connect();
-                $fogfiles = array();
-                $fogfiles = array_merge(self::$FOGFTP->nlist('/var/log/httpd/'),self::$FOGFTP->nlist('/var/log/apache2/'),self::$FOGFTP->nlist('/var/log/fog'));
-                self::$FOGFTP->close();
                 $apacheerrlog = preg_grep('#(error\.log$|.*error_log$)#i',$fogfiles);
                 $apacheerrlog = @array_shift($apacheerrlog);
                 $apacheacclog = preg_grep('#(access\.log$|.*access_log$)#i',$fogfiles);
