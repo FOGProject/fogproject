@@ -111,7 +111,7 @@ abstract class FOGBase {
         return array_values(array_filter(array_unique((array)$nodeRet)));
     }
     protected function getActivePlugins() {
-        return array_map('strtolower',(array)self::getSubObjectIDs('Plugin','','name'));
+        return array_map('strtolower',(array)self::getSubObjectIDs('Plugin',array('installed'=>1,'state'=>1),'name'));
     }
     protected function fatalError($txt, $data = array()) {
         if (!self::$service && !self::$ajax) {
