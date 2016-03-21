@@ -34,6 +34,7 @@ class StorageNode extends FOGController {
     protected $additionalFields = array(
         'images',
         'snapinfiles',
+        'logfiles',
     );
     public function get($key = '') {
         if (in_array($this->key($key),array('path','ftppath','snapinpath','sslpath','webroot'))) return rtrim(parent::get($key), '/');
@@ -49,21 +50,26 @@ class StorageNode extends FOGController {
             unset($NodeFailure);
         }
     }
+    public function loadLogfiles() {
+        $URL = array_map(function(&$path) {
+            return sprintf('http://%s/fog/status/getlogs.php?path=%s',$this->get('ip'),urlencode($path));
+        },array('/var/log/httpd/','/var/log/apache2/','/var/log/fog'));
+        $paths = self::$FOGURLRequests->process($URL);
+        $tmppath = array();
+        array_walk($paths,function(&$response,&$index) use (&$tmppath) {
+            $tmppath = array_filter(array_merge((array)$tmppath,json_decode($response,true)));
+        },(array)$paths);
+        $paths = array_unique($tmppath);
+        unset($tmppath);
+        natcasesort($paths);
+        $this->set('logfiles',array_values($paths));
+    }
     public function loadSnapinfiles() {
         $URL = sprintf('http://%s/fog/status/getsnapins.php?path=%s',$this->get('ip'),urlencode($this->get('snapinpath')));
         $paths = self::$FOGURLRequests->process($URL);
         $paths = @array_shift($paths);
         $paths = json_decode($paths);
         $pathstring = sprintf('/%s/',trim($this->get('snapinpath'),'/'));
-        if (count($paths) < 1) {
-            self::$FOGFTP
-                ->set('host',$this->get('ip'))
-                ->set('username',$this->get('user'))
-                ->set('password',$this->get('pass'));
-            if (!self::$FOGFTP->connect()) return;
-            $paths = self::$FOGFTP->nlist($pathstring);
-            self::$FOGFTP->close();
-        }
         $paths = array_values(array_unique(array_filter((array)preg_replace('#dev|postdownloadscripts|ssl#','',preg_replace("#$pathstring#",'',$paths)))));
         $this->set('snapinfiles',$paths);
     }
