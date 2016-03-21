@@ -8,7 +8,13 @@ $(function() {
     var Options = {
         URL: location.href,
         Container: '#search-content,#active-tasks',
-        CancelURL: (sub.indexOf('action') != -1 ? location.href : ''),
+        CancelURL: function() {
+            if (typeof(sub) == 'undefined') {
+                window.location.replace(location.href+'&sub=active');
+                sub = 'active';
+            }
+            return (sub.indexOf('active') != -1 ? location.href : '');
+        },
     };
     Container = $(Options.Container);
     if (!Container.length) alert('No Container element found: '+Options.Container);
