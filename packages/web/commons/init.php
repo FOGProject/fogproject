@@ -67,7 +67,7 @@ class Initiator {
      */
     private static function verCheck() {
         try {
-            if (!version_compare(phpversion(),'5.3.0','>=')) throw new Exception('FOG Requires PHP v5.3.0 or higher. You have PHP v'.phpversion());
+            if (!version_compare(phpversion(),'5.5.0','>=')) throw new Exception('FOG Requires PHP v5.5.0 or higher. You have PHP v'.phpversion());
         } catch (Exception $e) {
             echo $e->getMessage();
             exit;
