@@ -115,6 +115,26 @@ abstract class FOGManagerController extends FOGBase {
         );
         return (int)self::$DB->query($query)->fetch()->get('total');
     }
+    public function insert_batch($fields,$values) {
+        $fieldlength = count($fields);
+        $valuelength = count($values);
+        if (!$fieldlength) die(_('No fields passed'));
+        if (!$valuelength) die(_('No values passed'));
+        array_map(function($value) use ($fieldlength) {
+            $valuelength = count((array)$value);
+            if ($fieldlength !== $valuelength) die(_('Field and values do not have equal parameters.'));
+        },(array)$values);
+        $keys = array_map(function(&$key) {
+            return $this->databaseFields[$key];
+        },(array)$fields);
+        $sqlQuery = "INSERT INTO `%s` (`%s`) VALUES %s";
+        $vals = array_map(function(&$value) {
+            return sprintf("('%s')",implode("','",(array)$value));
+        },(array)$values);
+        $query = sprintf($sqlQuery,$this->databaseTable,implode('`,`',$keys),implode(',',$vals));
+        self::$DB->query($query);
+        return array(self::$DB->insert_id(),self::$DB->affected_rows());
+    }
     public function update($findWhere = array(), $whereOperator = 'AND', $insertData) {
         if (empty($findWhere)) $findWhere = array();
         if (empty($whereOperator)) $whereOperator = 'AND';

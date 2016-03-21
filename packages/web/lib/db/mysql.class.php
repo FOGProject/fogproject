@@ -140,7 +140,7 @@ class MySQL extends DatabaseManager {
         return self::$link->affected_rows;
     }
     public function num_rows() {
-        self::$link->num_rows;
+        return self::$link->num_rows;
     }
     public function escape($data) {
         return $this->sanitize($data);
