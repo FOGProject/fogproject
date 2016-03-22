@@ -735,7 +735,7 @@ class FOGConfigurationPage extends FOGPage {
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if (!$StorageNode->isValid()) continue;
             if (!$StorageNode->get('isEnabled')) continue;
-            $fogfiles = $StorageNode->get('logfiles');
+            $fogfiles = (array)$StorageNode->get('logfiles');
             try {
                 $apacheerrlog = preg_grep('#(error\.log$|.*error_log$)#i',$fogfiles);
                 $apacheerrlog = @array_shift($apacheerrlog);
