@@ -443,9 +443,8 @@ configureTFTPandPXE() {
     [[ -d $tftpdirdst && ! -d ${tftpdirdst}.prev ]] && mkdir -p ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -d ${tftpdirdst}.prev ]] && cp -Rf $tftpdirdst/* ${tftpdirdst}.prev/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     cd $tftpdirsrc
-    tftpdirs=$(find ! -path . ! -path .. -type d | awk -F[./] '{print $3}')
-    for tftpdir in $tftpdirs; do
-        [[ ! -d $tftpdir ]] && mkdir -p $tftpdirdst/$tftpdir >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    for tftpdir in $(ls -d */); do
+        [[ ! -d $tftpdirdst/$tftpdir ]] && mkdir -p $tftpdirdst/$tftpdir >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
     local findoptions=""
     [[ $notpxedefaultfile == true ]] && findoptions="! -name default"
@@ -1758,7 +1757,6 @@ class Config {
                 fi
             fi
         fi
-        cp /etc/apache2/mods-available/php${php_ver}* /etc/apache2/mods-enabled/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     dots "Enabling apache and fpm services on boot"
     if [[ $osid -eq 2 ]]; then
