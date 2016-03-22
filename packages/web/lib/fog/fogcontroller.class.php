@@ -267,8 +267,9 @@ abstract class FOGController extends FOGBase {
         unset($fields);
         return array(implode((array)$join),$whereArrayAnd);
     }
-    public function setQuery($queryData) {
+    public function setQuery(&$queryData) {
         $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
+        $queryData = array_diff((array)$queryData,$classData);
         if (count($classData) <= 0) $classData = array_intersect_key((array)$queryData,$this->databaseFields);
         else {
             array_walk($this->databaseFieldsFlipped,function(&$obj_key,&$db_key) use (&$classData) {
@@ -281,7 +282,8 @@ abstract class FOGController extends FOGBase {
         $this->data = array_merge((array)$this->data,(array)$classData);
         array_walk($this->databaseFieldClassRelationships,function(&$fields,&$class) use (&$queryData) {
             $class = self::getClass($class);
-            $this->set($fields[2],$class->setQuery(array_intersect_key((array)$queryData,(array)$class->databaseFieldsFlipped)));
+            $leftover = array_intersect_key((array)$queryData,(array)$class->databaseFieldsFlipped);
+            $this->set($fields[2],$class->setQuery($leftover));
             unset($fields,$class);
         });
         return $this;
