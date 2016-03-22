@@ -57,12 +57,12 @@ class StorageNode extends FOGController {
         $paths = self::$FOGURLRequests->process($URL);
         $tmppath = array();
         array_walk($paths,function(&$response,&$index) use (&$tmppath) {
-            $tmppath = array_filter(array_merge((array)$tmppath,json_decode($response,true)));
+            $tmppath = array_filter((array)array_merge((array)$tmppath,(array)json_decode($response,true)));
         },(array)$paths);
-        $paths = array_unique($tmppath);
+        $paths = array_unique((array)$tmppath);
         unset($tmppath);
-        natcasesort($paths);
-        $this->set('logfiles',array_values($paths));
+        @natcasesort($paths);
+        $this->set('logfiles',array_values((array)$paths));
     }
     public function loadSnapinfiles() {
         $URL = sprintf('http://%s/fog/status/getsnapins.php?path=%s',$this->get('ip'),urlencode($this->get('snapinpath')));

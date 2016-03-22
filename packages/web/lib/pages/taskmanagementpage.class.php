@@ -38,7 +38,7 @@ class TaskManagementPage extends FOGPage {
             array('width'=>100,'class'=>'r'),
             array('width'=>50,'class'=>'r filter-false'),
         );
-        $this->returnData = function(&$Task) {
+        self::$returnData = function(&$Task) {
             if (!$Task->isValid()) return;
             $Host = $Task->getHost();
             if (!$Host->isValid()) return;
@@ -74,7 +74,7 @@ class TaskManagementPage extends FOGPage {
     }
     public function search_post() {
         $this->data = array();
-        array_map($this->returnData,self::getClass($this->childClass)->getManager()->search('',true));
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->search('',true));
         self::$HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
@@ -82,7 +82,7 @@ class TaskManagementPage extends FOGPage {
     public function active() {
         $this->title = 'Active Tasks';
         $this->data = array();
-        array_map($this->returnData,self::getClass($this->childClass)->getManager()->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))));
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))));
         self::$HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
