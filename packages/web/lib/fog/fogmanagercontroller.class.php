@@ -129,9 +129,12 @@ abstract class FOGManagerController extends FOGBase {
             return $this->databaseFields[$key];
         },(array)$fields);
         $vals = array_map(function(&$value) {
+            $value = array_map(function($value) {
+                return self::$DB->sanitize($value);
+            },(array)$value);
             return sprintf("('%s')",implode("','",(array)$value));
         },(array)$values);
-        $query = sprintf($insertBatchTemplate,$this->databaseTable,implode('`,`',$keys),implode(',',$vals));
+        $query = sprintf($this->insertBatchTemplate,$this->databaseTable,implode('`,`',$keys),implode(',',$vals));
         self::$DB->query($query);
         return array(self::$DB->insert_id(),self::$DB->affected_rows());
     }

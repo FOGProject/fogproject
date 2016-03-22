@@ -6,19 +6,6 @@ class FOGCore extends FOGBase {
     public function stopScheduledTask($task) {
         return self::getClass('ScheduledTask',$task->get('id'))->set('isActive',(int)false)->save();
     }
-    public function addUpdateMACLookupTable($macprefix) {
-        $this->clearMACLookupTable();
-        $macfields = '';
-        foreach($macprefix AS $macpre => &$maker) {
-            $macfields .= "('".self::$DB->sanitize($macpre)."','".self::$DB->sanitize($maker)."'),";
-            unset($maker);
-        }
-        $macfields = rtrim($macfields,',');
-        $OUITable = self::getClass('OUI','',true);
-        $OUITable = $OUITable['databaseTable'];
-        self::$DB->query("INSERT INTO `$OUITable` (`ouiMACPrefix`,`ouiMan`) VALUES $macfields");
-        return self::$DB->fetch()->get();
-    }
     public function clearMACLookupTable() {
         $OUITable = self::getClass('OUI','',true);
         $OUITable = $OUITable['databaseTable'];
