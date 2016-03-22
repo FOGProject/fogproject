@@ -381,30 +381,28 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function mac_list_post() {
         if ($_REQUEST['update']) {
-            $f = '/tmp/oui.txt';
-            $url = 'http://standards.ieee.org/develop/regauth/oui/oui.txt';
-            $fh = fopen($f,'wb');
-            if (!$fh) throw new Exception(_('Error: Failed to open temp file'));
-            self::$FOGURLRequests->process($url,'GET',false,false,false,false,$fh);
-            fclose($fh);
-            if (($fh = fopen($f,'rb')) === false) throw new Exception(_('Could not open file for reading'));
+            self::$FOGCore->clearMACLookupTable();
+            $url = 'http://linuxnet.ca/ieee/oui.txt';
+            if (($fh = fopen($url,'rb')) === false) throw new Exception(_('Could not read temp file'));
+            $items = array();
             $start = 18;
             $imported = 0;
-            while (feof($fh) === false) {
-                $line = trim(fgets($fh));
+            while (($line = fgets($fh,4096)) !== false) {
+                $line = trim($line);
                 if (!preg_match("#^([0-9a-fA-F]{2}[:-]){2}([0-9a-fA-F]{2}).*$#",$line)) continue;
-                $macprefix = substr($line,0,8);
-                $maker = substr($line,$start,strlen($line)-$start);
-                if (strlen($macprefix) != 8 || strlen($maker) < 1) continue;
-                $mac = trim($macprefix);
-                $mak = trim($maker);
-                $macsandmakers[$mac] = $mak;
-                $imported++;
+                $mac = trim(substr($line,0,8));
+                $mak = trim(substr($line,$start,strlen($line)-$start));
+                if (strlen($mac) != 8 || strlen($mak) < 1) continue;
+                $items[] = array($mac,$mak);
             }
             fclose($fh);
-            self::$FOGCore->addUpdateMACLookupTable($macsandmakers);
+            if (count($items)) {
+                list($first_id,$affected_rows) = self::getClass('OUIManager')->insert_batch(array('prefix','name'),$items);
+                $imported += $affected_rows;
+                unset($items);
+            }
+            unset($first_id);
             $this->setMessage(sprintf('%s %s',$imported,_(' mac addresses updated!')));
-            @unlink($f);
         }
         if ($_REQUEST['clear']) self::$FOGCore->clearMACLookupTable();
         $this->resetRequest();
