@@ -753,27 +753,16 @@ changeHostname() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $hostname || $hostearly -eq 0 ]] && return
-    REG_HOSTNAME_KEY1_XP="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
-    REG_HOSTNAME_KEY2_XP="\ControlSet001\Services\Tcpip\Parameters\Hostname"
-    REG_HOSTNAME_KEY3_XP="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
-    REG_HOSTNAME_KEY4_XP="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
-    REG_HOSTNAME_KEY5_XP="\ControlSet001\services\Tcpip\Parameters\Hostname"
-    REG_HOSTNAME_KEY6_XP="\CurrentControlSet\Services\Tcpip\Parameters\NV Hostname"
-    REG_HOSTNAME_KEY7_XP="\CurrentControlSet\Services\Tcpip\Parameters\Hostname"
-    REG_HOSTNAME_KEY8_XP="\CurrentControlSet\Control\ComputerName\ComputerName\ComputerName"
-    REG_HOSTNAME_KEY9_XP="\CurrentControlSet\services\Tcpip\Parameters\NV Hostname"
-    REG_HOSTNAME_KEY10_XP="\CurrentControlSet\services\Tcpip\Parameters\Hostname"
-    REG_HOSTNAME_KEY1_7="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
-    REG_HOSTNAME_KEY2_7="\ControlSet001\Services\Tcpip\Parameters\Hostname"
-    REG_HOSTNAME_KEY3_7="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
-    REG_HOSTNAME_KEY4_7="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
-    REG_HOSTNAME_KEY5_7="\ControlSet001\services\Tcpip\Parameters\Hostname"
-    REG_HOSTNAME_KEY6_7="\CurrentControlSet\Services\Tcpip\Parameters\NV Hostname"
-    REG_HOSTNAME_KEY7_7="\CurrentControlSet\Services\Tcpip\Parameters\Hostname"
-    REG_HOSTNAME_KEY8_7="\CurrentControlSet\Control\ComputerName\ComputerName\ComputerName"
-    REG_HOSTNAME_KEY9_7="\CurrentControlSet\services\Tcpip\Parameters\NV Hostname"
-    REG_HOSTNAME_KEY10_7="\CurrentControlSet\services\Tcpip\Parameters\Hostname"
-    REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
+    REG_HOSTNAME_KEY1="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY2="\ControlSet001\Services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY3="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
+    REG_HOSTNAME_KEY4="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY5="\ControlSet001\services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY6="\CurrentControlSet\Services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY7="\CurrentControlSet\Services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY8="\CurrentControlSet\Control\ComputerName\ComputerName\ComputerName"
+    REG_HOSTNAME_KEY9="\CurrentControlSet\services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY10="\CurrentControlSet\services\Tcpip\Parameters\Hostname"
     dots "Mounting directory"
     if [[ ! -d /ntfs ]]; then
         mkdir -p /ntfs >/dev/null 2>&1
@@ -799,32 +788,22 @@ changeHostname() {
             ;;
     esac
     if [[ ! -f /usr/share/fog/lib/EOFREG ]]; then
+        key1="$REG_HOSTNAME_KEY1"
+        key2="$REG_HOSTNAME_KEY2"
+        key3="$REG_HOSTNAME_KEY3"
+        key4="$REG_HOSTNAME_KEY4"
+        key5="$REG_HOSTNAME_KEY5"
+        key6="$REG_HOSTNAME_KEY6"
+        key7="$REG_HOSTNAME_KEY7"
+        key8="$REG_HOSTNAME_KEY8"
+        key9="$REG_HOSTNAME_KEY9"
+        key10="$REG_HOSTNAME_KEY10"
         case $osid in
             1)
                 regfile="$REG_LOCAL_MACHINE_XP"
-                key1="$REG_HOSTNAME_KEY1_XP"
-                key2="$REG_HOSTNAME_KEY2_XP"
-                key3="$REG_HOSTNAME_KEY3_XP"
-                key4="$REG_HOSTNAME_KEY4_XP"
-                key5="$REG_HOSTNAME_KEY5_XP"
-                key6="$REG_HOSTNAME_KEY6_XP"
-                key7="$REG_HOSTNAME_KEY7_XP"
-                key8="$REG_HOSTNAME_KEY8_XP"
-                key9="$REG_HOSTNAME_KEY9_XP"
-                key10="$REG_HOSTNAME_KEY10_XP"
                 ;;
             2|4|[5-7]|9)
                 regfile="$REG_LOCAL_MACHINE_7"
-                key1="$REG_HOSTNAME_KEY1_7"
-                key2="$REG_HOSTNAME_KEY2_7"
-                key3="$REG_HOSTNAME_KEY3_7"
-                key4="$REG_HOSTNAME_KEY4_7"
-                key5="$REG_HOSTNAME_KEY5_7"
-                key6="$REG_HOSTNAME_KEY6_7"
-                key7="$REG_HOSTNAME_KEY7_7"
-                key8="$REG_HOSTNAME_KEY8_7"
-                key9="$REG_HOSTNAME_KEY9_7"
-                key10="$REG_HOSTNAME_KEY10_7"
                 ;;
         esac
         echo "ed $key1" >/usr/share/fog/lib/EOFREG
@@ -965,6 +944,7 @@ clearMountedDevices() {
         4|[5-7]|9)
             local fstype=""
             fsTypeSetting "$part"
+            REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
             if [[ ! -f /usr/share/fog/lib/EOFMOUNT ]]; then
                 echo "cd $REG_HOSTNAME_MOUNTED_DEVICES_7" >/usr/share/fog/lib/EOFMOUNT
                 echo "dellallv" >>/usr/share/fog/lib/EOFMOUNT
