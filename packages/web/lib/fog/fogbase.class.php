@@ -549,4 +549,15 @@ abstract class FOGBase {
         $len = strpos($string, $end, $ini) - $ini;
         return substr($string, $ini, $len);
     }
+    public static function stripAndDecode(&$item) {
+        $item = (array)$item;
+        foreach($item AS $key => &$val) {
+            $val = urlencode($val);
+            $tmp = trim(base64_decode(preg_replace('#[[:space:]]#','+',$val)));
+            if ($tmp && mb_detect_encoding($tmp,'utf-8',true)) $val = $tmp;
+            unset($tmp);
+            $val = trim(htmlentities(urldecode($val),ENT_QUOTES,'utf-8'));
+        }
+        return $item;
+    }
 }

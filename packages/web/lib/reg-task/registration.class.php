@@ -26,9 +26,6 @@ class Registration extends FOGBase {
             }
         }
     }
-    private function stripAndDecode($item) {
-        return trim(base64_decode($item));
-    }
     private function regExists() {
         try {
             if ($this->Host instanceof Host && $this->Host->isValid()) throw new Exception(sprintf('%s %s',_('Already registered as'),$this->Host->get('name')));
@@ -40,16 +37,17 @@ class Registration extends FOGBase {
     }
     private function fullReg() {
         try {
-            $productKey = $this->stripAndDecode($_REQUEST['productKey']);
-            $username = $this->stripAndDecode($_REQUEST['username']);
-            $hostname = $this->stripAndDecode($_REQUEST['host']);
-            $hostname = strtoupper((self::getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple));
-            $ip = $this->stripAndDecode($_REQUEST['ip']);
-            $imageid = $this->stripAndDecode($_REQUEST['imageid']);
+            self::stripAndDecode($_REQUEST);
+            $productKey = $_REQUEST['productKey'];
+            $username = $_REQUEST['username'];
+            $host = $_REQUEST['host'];
+            $host = strtoupper((self::getClass('Host')->isHostnameSafe($host) ? $host : $this->macsimple));
+            $ip = $_REQUEST['ip'];
+            $imageid = $_REQUEST['imageid'];
             $imageid = (self::getClass('Image',$imageid)->isValid() ? $imageid : 0);
-            $primaryuser = $this->stripAndDecode($_REQUEST['primaryuser']);
-            $other1 = $this->stripAndDecode($_REQUEST['other1']);
-            $other2 = $this->stripAndDecode($_REQUEST['other2']);
+            $primaryuser = $_REQUEST['primaryuser'];
+            $other1 = $_REQUEST['other1'];
+            $other2 = $_REQUEST['other2'];
             $doimage = trim($_REQUEST['doimage']);
             if ($_REQUEST['doad']) {
                 $OUs = explode('|',$this->getSetting('FOG_AD_DEFAULT_OU'));
@@ -72,10 +70,10 @@ class Registration extends FOGBase {
                 $ADPassLegacy = $this->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY');
                 $enforce = $this->getSetting('FOG_ENFORCE_HOST_CHANGES');
             }
-            $groupsToJoin = explode(',',$this->stripAndDecode($_REQUEST['groupid']));
-            $snapinsToJoin = explode(',',$this->stripAndDecode($_REQUEST['snapinid']));
+            $groupsToJoin = explode(',',$_REQUEST['groupid']);
+            $snapinsToJoin = explode(',',$_REQUEST['snapinid']);
             $this->Host = self::getClass('Host')
-                ->set('name',$hostname)
+                ->set('name',$host)
                 ->set('description',$this->description)
                 ->set('imageID',$imageid)
                 ->set('productKey',$this->encryptpw($productKey))

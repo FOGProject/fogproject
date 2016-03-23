@@ -23,6 +23,9 @@ if [[ -n $mode && $mode != +(*debug*) ]]; then
         manreg)
             fog.man.reg
             ;;
+        inventory)
+            fog.inventory
+            ;;
         capone)
             fog.capone
             ;;
