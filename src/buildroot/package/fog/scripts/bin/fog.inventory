@@ -1,4 +1,7 @@
 #!/bin/bash
+. /usr/share/fog/lib/funcs.sh
+[[ $deployed -eq 1 ]] && . /bin/fog.checkin
+getHardDisk
 doInventory
 if [[ -z $1 ]]; then
     echo -e "\n\n\n"
@@ -93,3 +96,4 @@ while [[ -z $res ]]; do
 done
 echo "Done"
 debugPause
+[[ $deployed -eq 1 ]] && . /bin/fog.nonimgcomplete $mac

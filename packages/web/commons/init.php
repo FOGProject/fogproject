@@ -47,10 +47,10 @@ class Initiator {
         new System();
         new Config();
     }
-    public function sanitize_items(&$value = '') {
+    public static function sanitize_items(&$value = '') {
         $sanitize_items = function(&$val,&$key) use (&$value) {
-            if (is_string($val)) $val = htmlentities($val,ENT_QUOTES,'utf-8');
-            if (is_array($val)) $value = $this->sanitize_items($val);
+            if (is_string($val)) $val = $val;
+            if (is_array($val)) $val = self::sanitize_items($val);
         };
         if (!$value) {
             array_walk($_REQUEST,$sanitize_items);
