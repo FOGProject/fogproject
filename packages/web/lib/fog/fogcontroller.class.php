@@ -269,7 +269,6 @@ abstract class FOGController extends FOGBase {
     }
     public function setQuery(&$queryData) {
         $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
-        $queryData = array_diff((array)$queryData,$classData);
         if (count($classData) <= 0) $classData = array_intersect_key((array)$queryData,$this->databaseFields);
         else {
             array_walk($this->databaseFieldsFlipped,function(&$obj_key,&$db_key) use (&$classData) {
