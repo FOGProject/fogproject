@@ -3,7 +3,7 @@ echo " * Task Complete"
 [[ ! -z $1 ]] && mactosend="$1" || mactosend="$mac"
 count=0
 res=""
-dots " * Updating Database"
+dots "Updating Database"
 while [[ $res != "##" ]]; do
     res=$(wget --post-data="mac=$mactosend" -qO - http://${web}service/Post_Wipe.php 2>/dev/null)
     if [[ $count -ge 10 ]]; then

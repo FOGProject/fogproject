@@ -40,7 +40,7 @@ esac
 debugPause
 verifyNetworkConnection
 dots "Checking Operating System"
-determineOS "$osid"
+[[ -z $deployed ]] && determineOS "$osid"
 echo "$osname"
 dots "Checking CPU Cores"
 cores=$(nproc)
@@ -97,7 +97,7 @@ case $mode in
     clamav)
         poststring="mac=$mac&avmode=$avmode"
         ;;
-    "")
+    ""|*)
         poststring="mac=$mac&type=$type"
         ;;
 esac
