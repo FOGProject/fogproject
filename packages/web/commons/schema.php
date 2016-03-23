@@ -2126,3 +2126,7 @@ $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`hosts` ADD `hostEnforce` ENUM('0','1') NOT NULL DEFAULT '1'",
     "INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_ENFORCE_HOST_CHANGES','This setting only operates with the new client.  Default value is 1 which allows the new client to enforce name changing on every cycle it checks in, so any change on FOG will take place on the next cycle. If unset (value 0) it will only perform hostname change and/or AD Joining on host restart.',1,'Active Directory Defaults')",
 );
+// 215
+$this->schema[] = array(
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` SET `ttKernelArgs`='mode=inventory deployed=1' WHERE `ttID`=10",
+);
