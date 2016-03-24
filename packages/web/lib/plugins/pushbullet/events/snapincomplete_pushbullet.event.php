@@ -1,16 +1,16 @@
 <?php
 /****************************************************
- *  Called when imaging is completed
- *	Author:		Jbob
+ *  Called when snapin tasking is complete
+ *	Author:		Tom Elliott
  ***/
-class ImageComplete_PushBullet extends PushbulletExtends {
+class SnapinComplete_PushBullet extends PushbulletExtends {
     // Class variables
-    protected $name = 'ImageComplete_PushBullet';
-    protected $description = 'Triggers when a host finishes imaging';
-    protected $author = 'Jbob';
+    protected $name = 'SnapinComplete_PushBullet';
+    protected $description = 'Triggers when a host completes snapin taskings';
+    protected $author = 'Tom Elliott';
     public $active = true;
     public function onEvent($event, $data) {
-        self::$message = 'This host has finished imaging.';
+        self::$message = 'This host has completed snapin tasking.';
         self::$shortdesc = 'Complete';
         parent::onEvent($event,$data);
     }
