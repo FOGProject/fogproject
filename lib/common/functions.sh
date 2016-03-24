@@ -84,13 +84,9 @@ help() {
 }
 backupReports() {
     dots "Backing up user reports"
-    if [[ ! -d ../rpttmp/ ]]; then
-        mkdir ../rpttmp/
-    fi
-    if [[ -d $webdirdest/management/reports/ ]]; then
-        cp -a $webdirdest/management/reports/* ../rpttmp/
-    fi
-    errorStat $?
+    [[ ! -d ../rpttmp/ ]] && mkdir ../rpttmp/ >>$workingdir/error_logs/fog_error_${version}.log
+    [[ -d $webdirdest/management/reports/ ]] && cp -a $webdirdest/management/reports/* ../rpttmp/ >>$workingdir/error_logs/fog_error_${version}.log
+    echo "Done"
 }
 validip() {
     local ip=$1
