@@ -1274,9 +1274,8 @@ $this->schema[] = array(
         );
 // 96
 $this->schema[] = array(
-    "ALTER TABLE `" . DATABASE_NAME . "`.`tasks`
-    ADD COLUMN `taskPassreset` varchar(250)  NOT NULL AFTER `taskLastMemberID`",
-    );
+    "ALTER TABLE `" . DATABASE_NAME . "`.`tasks` ADD COLUMN `taskPassreset` varchar(250)  NOT NULL AFTER `taskLastMemberID`",
+);
 
 // 97
 $this->schema[] = array(
@@ -2129,4 +2128,8 @@ $this->schema[] = array(
 // 215
 $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.`taskTypes` SET `ttKernelArgs`='mode=inventory deployed=1' WHERE `ttID`=10",
+);
+// 216
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`tasks` ADD COLUMN `taskWOL` ENUM('0','1')  NOT NULL AFTER `taskLastMemberID`",
 );
