@@ -22,6 +22,7 @@ try {
         ->delete($dest);
     if (!$FOGFTP->rename($src,$dest) && $FOGFTP->put($dest,$src)) throw new Exception(_('Move/rename failed'));
     in_array($_REQUEST['osid'],array(1,2)) ? $FOGFTP->delete(sprintf('%s/dev/%s',$StorageNode->get('ftppath'),$macftp)) : null;
+    $FOGFTP->chmod(0755,$dest);
     $FOGFTP->close();
     if ($Image->get('format') == 1) $Image->set('format',0)->save();
     $Task->set('stateID',$FOGCore->getCompleteState())->set('pct','100')->set('percent','100');
