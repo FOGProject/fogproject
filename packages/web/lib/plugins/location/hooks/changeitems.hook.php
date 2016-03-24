@@ -55,4 +55,4 @@ $HookManager->register('BOOT_TASK_NEW_SETTINGS',array($ChangeItems,'StorageGroup
 $HookManager->register('HOST_NEW_SETTINGS',array($ChangeItems,'StorageNodeSetting'));
 $HookManager->register('HOST_NEW_SETTINGS',array($ChangeItems,'StorageGroupSetting'));
 $HookManager->register('BOOT_TASK_NEW_SETTINGS',array($ChangeItems,'StorageNodeSetting'));
-$HookManager->register('HOST_EDIT_AFTER_SAVE',array($ChangeItems,'HostEditAfterSave'));
+//$HookManager->register('HOST_EDIT_AFTER_SAVE',array($ChangeItems,'HostEditAfterSave'));
