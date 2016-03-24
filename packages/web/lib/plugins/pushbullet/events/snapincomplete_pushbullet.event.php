@@ -15,5 +15,4 @@ class SnapinComplete_PushBullet extends PushbulletExtends {
         parent::onEvent($event,$data);
     }
 }
-$EventManager->register('HOST_IMAGE_COMPLETE', new ImageComplete_PushBullet());
-$EventManager->register('HOST_IMAGEUP_COMPLETE', new ImageComplete_PushBullet());
+$EventManager->register('HOST_SNAPIN_COMPLETE', new ImageComplete_PushBullet());
