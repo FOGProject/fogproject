@@ -174,7 +174,7 @@ class TaskManagementPage extends FOGPage {
             }
             $enableSnapins = $TaskType->get('id') == 17 ? false : -1;
             $enableDebug = in_array($TaskType->get('id'),array(3,15,16));
-            $$var->createImagePackage($TaskType->get('id'),$taskName,false,$enableDebug,$enableSnapins,false,$_SESSION['FOG_USERNAME']);
+            $$var->createImagePackage($TaskType->get('id'),$taskName,false,$enableDebug,$enableSnapins,false,$_SESSION['FOG_USERNAME'],false,false,!$TaskType->isSnapinTasking());
             $this->setMessage(_(sprintf('Successfully created %s tasking',$var)));
             $this->redirect("?node=$this->node");
         } catch (Exception $e) {

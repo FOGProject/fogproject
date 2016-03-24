@@ -467,7 +467,7 @@ class Host extends FOGController {
      * @param $debug if the task is a debug task, defaults as false.
      * @return $Task returns the tasking generated to be saved later
      */
-    private function createTasking($taskName, $taskTypeID, $username, $groupID, $memID, $imagingTask = true,$shutdown = false, $passreset = false, $debug = false) {
+    private function createTasking($taskName, $taskTypeID, $username, $groupID, $memID, $imagingTask = true,$shutdown = false, $passreset = false, $debug = false,$wol = false) {
         $Task = self::getClass('Task')
             ->set('name',$taskName)
             ->set('createdBy',$username)
@@ -476,7 +476,8 @@ class Host extends FOGController {
             ->set('stateID',$this->getQueuedState())
             ->set('typeID',$taskTypeID)
             ->set('NFSGroupID',$groupID)
-            ->set('NFSMemberID',$memID);
+            ->set('NFSMemberID',$memID)
+            ->set('wol',(int)$wol);
         if ($imagingTask) $Task->set('imageID',$this->getImage()->get('id'));
         if ($shutdown) $Task->set('shutdown',$shutdown);
         if ($debug) $Task->set('isDebug',$debug);
@@ -532,14 +533,13 @@ class Host extends FOGController {
         }
         return $this;
     }
-    public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false) {
+    public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false,$wol = false) {
         try {
             if (!$this->isValid()) throw new Exception(self::$foglang['HostNotValid']);
             $TaskType = self::getClass('TaskType',$taskTypeID);
             if (!$TaskType->isValid()) throw new Exception(self::$foglang['TaskTypeNotValid']);
             if (!$TaskType->isSnapinTasking() && $this->getActiveTaskCount()) throw new Exception(self::$foglang['InTask']);
             $imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17,24));
-            $wolTypes = in_array($taskTypeID,array_merge(range(1,11),range(14,24)));
             if ($imagingTypes) {
                 $Image = $this->getImage();
                 if (!$Image->isValid()) throw new Exception(self::$foglang['ImageNotValid']);
@@ -557,7 +557,7 @@ class Host extends FOGController {
             }
             $isUpload = $TaskType->isUpload();
             $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
-            $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageNode->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
+            $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageNode->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug,$wol);
             $Task->set('imageID',$this->get('imageID'));
             if (!$Task->save()) throw new Exception(self::$foglang['FailedTask']);
             if ($TaskType->isSnapinTask()) {
@@ -606,7 +606,7 @@ class Host extends FOGController {
                         ->save();
                 }
             }
-            if ($wolTypes) $this->wakeOnLAN();
+            if ($wol) $this->wakeOnLAN();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

@@ -12,9 +12,9 @@ class TaskScheduler extends FOGService {
     }
     private function commonOutput() {
         try {
-            $findWhere = array('stateID'=>$this->getQueuedState(),'typeID'=>array_merge(range(1,11),range(14,24)));
+            $findWhere = array('stateID'=>$this->getQueuedState(),'typeID'=>array_merge(range(1,11),range(14,24)),'wol'=>1);
             $taskcount = self::getClass('TaskManager')->count($findWhere);
-            $this->outall(sprintf(" * %s active task%s awaiting check-in.",$taskcount,($taskcount != 1 ? 's' : '')));
+            $this->outall(sprintf(" * %s active task%s waiting to wake up.",$taskcount,($taskcount != 1 ? 's' : '')));
             if ($taskcount) {
                 $this->outall(' | Sending WOL Packet(s)');
                 foreach (self::getClass('HostManager')->find(array('id'=>$this->getSubObjectIDs('Task',$findWhere,'hostID'))) AS &$Host) {
@@ -39,7 +39,7 @@ class TaskScheduler extends FOGService {
                 $Item = $Task->isGroupBased() ? $Task->getGroup() : $Task->getHost();
                 $this->outall(sprintf("\t\t - %s %s!",$Task->isMulticast() ? _('Multicast') : _('Unicast'),_('task found')));
                 $this->outall(sprintf("\t\t - %s %s",_(get_class($Item)),$Item->get('name')));
-                $Item->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$Task->get('other2'),$Task->isGroupBased(),$Task->get('other3'));
+                $Item->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$Task->get('other2'),$Task->isGroupBased(),$Task->get('other3'),false,false,(bool)$Task->get('other4'));
                 $this->outall(sprintf("\t\t - %s %s %s!",_('Tasks started for'),strtolower(get_class($Item)),$Item->get('name')));
                 if (!$Timer->isSingleRun()) continue;
                 $Task->set('isActive',0)->save();
