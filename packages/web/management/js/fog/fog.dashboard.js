@@ -37,7 +37,6 @@ var GraphBandwidthdata = [];
 var GraphBandwidthMaxDataPoints;
 var UpdateTimeout;
 var GraphBandwidthOpts = {
-    colors: ['#7386AD','#91a73c'],
     xaxis: {mode: 'time'},
     yaxis: {
         min: 0,
