@@ -189,6 +189,12 @@ function UpdateBandwidth() {
 }
 function UpdateBandwidthGraph(data) {
     if (data === null || typeof(data) == 'undefined' || data.length == 0) return;
+    //if (!GraphBandwidthOpts.colors) {
+    //    GraphBandwidthOpts.colors = $.map(data,function(o,i) {
+    //        console.log(i);
+    //        return '#'+('00000'+(Math.random()*(1<<24)|0).toString(16)).slice(-6);
+    //    });
+    //}
     var d = new Date();
     var tx = new Array();
     var rx = new Array();
