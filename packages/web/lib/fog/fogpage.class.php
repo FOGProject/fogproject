@@ -269,8 +269,9 @@ abstract class FOGPage extends FOGBase {
         }
         printf('<div class="advanced-settings"><h2>%s</h2>',_('Advanced Settings'));
         if ($TaskType->isInitNeededTasking() && !$TaskType->isDebug()) printf('<p class="hideFromDebug"><input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">%s <u>%s</u> %s</label></p>',_('Schedule'),_('Shutdown'),_('after task completion'));
+        printf('<p><input type="checkbox" name="wol"%s/><label for="checkDebug">%s</label></p>',($TaskType->isSnapinTasking() ? '' : ' checked'),_('Wake on lan?'));
         if (!$TaskType->isDebug() && $TaskType->get('id') != 11) {
-            if ($TaskType->isInitNeededTasking() && !($this->obj instanceof Group)) printf('<p><input type="checkbox" name="isDebugTask" id="checkDebug"><label for="checkDebug">%s</label></p>',_('Schedule task as a debug task'));
+            if ($TaskType->isInitNeededTasking() && !($this->obj instanceof Group)) printf('<p><input type="checkbox" name="isDebugTask" id="checkDebug"/><label for="checkDebug">%s</label></p>',_('Schedule task as a debug task'));
             printf('<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked/><label for="scheduleInstant">%s <u>%s</u></label></p>',_('Schedule'),_('Instant Deployment'));
             printf('<p><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off"/><label for="scheduleSingle">%s <u>%s</u></label></p>',_('Schedule'),_('Delayed Deployment'));
             echo '<p class="hidden hideFromDebug" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off"/></p>';
@@ -364,6 +365,7 @@ abstract class FOGPage extends FOGBase {
         $scheduleDeployTime = $this->nice_date($_REQUEST['scheduleSingleTime']);
         $imagingTasks = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
         $passreset = trim(htmlentities($_REQUEST['account'],ENT_QUOTES,'utf-8'));
+        $wol = (int)(isset($_REQUEST['wol']) || $TaskType->get('id') == 14);
         try {
             if (!$TaskType || !$TaskType->isValid()) throw new Exception(_('Task type is not valid'));
             $taskName = sprintf('%s Task',$TaskType->get('name'));
@@ -393,7 +395,7 @@ abstract class FOGPage extends FOGBase {
                     $groupTask = $this->obj instanceof Group;
                     switch ($_REQUEST['scheduleType']) {
                     case 'instant':
-                        $success = $this->obj->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$groupTask,$_SESSION['FOG_USERNAME'],$passreset);
+                        $success = $this->obj->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$groupTask,$_SESSION['FOG_USERNAME'],$passreset,false,(bool)$wol);
                         if (!is_array($success)) $success = array($success);
                         break;
                     case 'single':
@@ -410,7 +412,8 @@ abstract class FOGPage extends FOGBase {
                             ->set('type',($_REQUEST['scheduleType'] == 'single' ? 'S' : 'C'))
                             ->set('isGroupTask',$groupTask)
                             ->set('other3',$_SESSION['FOG_USERNAME'])
-                            ->set('isActive',1);
+                            ->set('isActive',1)
+                            ->set('other4',(int)$wol);
                         if ($_REQUEST['scheduleType'] == 'single') $ScheduledTask->set('scheduleTime',$scheduleDeployTime->getTimestamp());
                         else if ($_REQUEST['scheduleType'] == 'cron') {
                             $valsToTest = array(

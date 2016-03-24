@@ -27,6 +27,7 @@ class Task extends TaskType {
         'passreset' => 'taskPassreset',
         'isDebug' => 'taskIsDebug',
         'imageID' => 'taskImageID',
+        'wol' => 'taskWOL',
     );
     protected $databaseFieldsRequired = array(
         'id',
