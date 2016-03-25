@@ -24,7 +24,7 @@ class MySQL extends DatabaseManager {
         try {
             if (self::$link) return $this;
             self::$link = mysqli_init();
-            self::$link->real_connect((self::$ajax || self::$post ? preg_replace('#p:#','',DATABASE_HOST) : DATABASE_HOST),DATABASE_USERNAME,DATABASE_PASSWORD);
+            self::$link->real_connect(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
             self::$link->set_charset('utf8');
             $this->current_db();
         } catch (Exception $e) {
