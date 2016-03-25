@@ -52,13 +52,13 @@ class LDAPManagementPage extends FOGPage {
         $this->title = _('All LDAPs');
         if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass($this->childClass)->getManager()->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find());
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->search('',true));
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->search('',true));
         self::$HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }

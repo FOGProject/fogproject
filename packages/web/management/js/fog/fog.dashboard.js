@@ -169,7 +169,7 @@ function GraphDiskUsagePlots(data) {
         GraphDiskUsage.html((data.error ? data.error : 'No error, but no data was returned')).addClass('loaded');
         return;
     };
-    GraphDiskUsageData = [{label: 'Free',data: parseInt(data.free)},{label: 'Used',data: parseInt(data.used)}];
+    GraphDiskUsageData = [{label: 'Free',data: parseInt(data.free,10)},{label: 'Used',data: parseInt(data.used,10)}];
     $.plot(GraphDiskUsage,GraphDiskUsageData,GraphDiskUsageOpts);
     GraphDiskUsage.addClass('loaded');
 }
