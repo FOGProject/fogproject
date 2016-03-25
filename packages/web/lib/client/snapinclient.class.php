@@ -56,9 +56,10 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                     $Task
                         ->set('stateID',$this->getCompleteState())
                         ->save();
-                    $this->Host->get('snapinjob')->set('stateID',$this->getCompleteState())->save();
-                    $EventManager->notify('HOST_SNAPIN_COMPLETE', array('HostName'=>$Host->get('name')));
                 }
+                $this->Host->get('snapinjob')->set('stateID',$this->getCompleteState())->save();
+                $hostname = $this->Host->get('name');
+                self::$EventManager->notify('HOST_SNAPIN_COMPLETE',array('HostName'=>&$hostname));
             }
         } else if (!isset($_REQUEST['taskid']) || !is_numeric($_REQUEST['taskid'])) {
             $this->Host->get('snapinjob')->set('stateID',$this->getProgressState())->save();
