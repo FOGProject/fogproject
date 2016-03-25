@@ -11,7 +11,7 @@ class ImageComplete_PushBullet extends PushbulletExtends {
     public $active = true;
     public function onEvent($event, $data) {
         self::$message = 'This host has finished imaging.';
-        self::$shortdesc = 'Complete';
+        self::$shortdesc = 'Imaging Complete';
         parent::onEvent($event,$data);
     }
 }
