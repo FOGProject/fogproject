@@ -61,7 +61,7 @@ checkin() {
         if [[ $res != "##@GO" ]]; then
             echo "Failed"
             debugPause
-            echo -n " * $res ("
+            echo -n " * $res (In line for "
             sec2string "$waittime"
             echo ")"
             let waittime+=5
