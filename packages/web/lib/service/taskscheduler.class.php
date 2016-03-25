@@ -12,7 +12,7 @@ class TaskScheduler extends FOGService {
     }
     private function commonOutput() {
         try {
-            $findWhere = array('stateID'=>$this->getQueuedState(),'typeID'=>array_merge(range(1,11),range(14,24)),'wol'=>1);
+            $findWhere = array('stateID'=>$this->getQueuedState(),'wol'=>1);
             $taskcount = self::getClass('TaskManager')->count($findWhere);
             $this->outall(sprintf(" * %s active task%s waiting to wake up.",$taskcount,($taskcount != 1 ? 's' : '')));
             if ($taskcount) {
