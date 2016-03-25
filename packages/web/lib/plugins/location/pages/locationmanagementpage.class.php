@@ -37,29 +37,8 @@ class LocationManagementPage extends FOGPage {
             array('class' => 'c'),
             array('class' => 'r'),
         );
-    }
-    public function index() {
-        $this->title = _('Search');
-        if ($this->getSetting('FOG_DATA_RETURNED')>0 && self::getClass('LocationManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
-        foreach ((array)self::getClass('LocationManager')->find() AS $i => &$Location) {
-            if (!$Location->isValid()) continue;
-            $StorageGroup = self::getClass('StorageGroup',$Location->get('storageGroupID'));
-            if (!$StorageGroup->isValid()) continue;
-            $this->data[] = array(
-                'id'=>$Location->get('id'),
-                'name'=>$Location->get('name'),
-                'storageNode'=>($Location->get('storageNodeID')?self::getClass('StorageNode',$Location->get('storageNodeID'))->get('name'):'Not Set'),
-                'storageGroup'=>$StorageGroup->get('name'),
-                'tftp'=>$Location->get('tftp')?_('Yes'):_('No'),
-            );
-            unset($Location);
-        }
-        self::$HookManager->processEvent('LOCATION_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        $this->render();
-    }
-    public function search_post() {
-        foreach (self::getClass('LocationManager')->search('',true) AS $i => &$Location) {
-            if (!$Location->isValid()) continue;
+        self::$returnData = function(&$Location) {
+            if (!$Location->isValid()) return;
             $this->data[] = array(
                 'id'=>$Location->get('id'),
                 'name'=>$Location->get('name'),
@@ -68,7 +47,19 @@ class LocationManagementPage extends FOGPage {
                 'tftp'=>$Location->get('tftp') ? _('Yes') : _('No'),
             );
             unset($Location);
-        }
+        };
+    }
+    public function index() {
+        $this->title = _('Search');
+        if ($this->getSetting('FOG_DATA_RETURNED')>0 && self::getClass('LocationManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        $this->data = array();
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
+        self::$HookManager->processEvent('LOCATION_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        $this->render();
+    }
+    public function search_post() {
+        $this->data = array();
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->search('',true));
         self::$HookManager->processEvent('LOCATION_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
