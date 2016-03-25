@@ -1168,12 +1168,12 @@ sec2string() {
     local hourspace=''
     local minspace=''
     [[ $H > 0 ]] && dayspace=' '
-    [[ $i > 0 ]] && hourspace=' '
-    [[ $s > 0 ]] && minspace=' '
-    (($d > 0)) && printf '%d d%s' "$d" "$dayspace"
-    (($H > 0)) && printf '%d H%s' "$H" "$hourspace"
-    (($i > 0)) && printf '%d i%s' "$i" "$minspace"
-    (($s > 0)) && printf '%d s' "$s"
+    [[ $i > 0 ]] && hourspace=':'
+    [[ $s > 0 ]] && minspace=':'
+    (($d > 0)) && printf '%d day%s' "$d" "$dayspace"
+    (($H > 0)) && printf '%d' "$H" "$hourspace"
+    (($i > 0)) && printf '%d' "$i" "$minspace"
+    (($s > 0)) && printf '%d' "$s"
 }
 # Returns the disk based off the partition passed
 #
