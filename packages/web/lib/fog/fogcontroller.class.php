@@ -253,18 +253,18 @@ abstract class FOGController extends FOGBase {
     public function buildQuery($not = false, $compare = '=') {
         $join = array();
         $whereArrayAnd = array();
-        foreach ((array)$this->databaseFieldClassRelationships AS $class => &$fields) {
+        $whereInfo = function(&$value,&$field) use (&$whereArrayAnd) {
+            if (is_array($value)) $whereArrayAnd[] = sprintf("`%s`.`%s` IN ('%s')",$class->databaseTable,$field,implode("','",$value));
+            else $whereArrayAnd[] = sprintf("`%s`.`%s` %s '%s'",$class->databaseTable,$class->databaseFields[$field],(preg_match('#%#',$value) ? 'LIKE' : $compare), $value);
+            unset($value,$field);
+        };
+        $joinInfo = function(&$fields,&$class) use (&$join,&$whereArrayAnd) {
             $class = self::getClass($class);
             $join[] = sprintf(' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',$class->databaseTable,$class->databaseTable,$class->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);
-            if ($fields[3]) {
-                foreach ((array)$fields[3] AS $field => &$value) {
-                    if (is_array($value)) $whereArrayAnd[] = sprintf("`%s`.`%s` IN ('%s')",$class->databaseTable,$field,implode("','",$value));
-                    else $whereArrayAnd[] = sprintf("`%s`.`%s` %s '%s'",$class->databaseTable,$class->databaseFields[$field],(preg_match('#%#',$value) ? 'LIKE' : $compare), $value);
-                }
-                unset($value);
-            }
-        }
-        unset($fields);
+            if ($fields[3]) array_walk($fields[3],$whereInfo);
+            unset($class,$fields);
+        };
+        array_walk($this->databaseFieldClassRelationships,$joinInfo);
         return array(implode((array)$join),$whereArrayAnd);
     }
     public function setQuery(&$queryData) {
