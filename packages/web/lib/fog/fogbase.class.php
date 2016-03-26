@@ -552,7 +552,6 @@ abstract class FOGBase {
     public static function stripAndDecode(&$item) {
         $item = (array)$item;
         foreach($item AS $key => &$val) {
-            $val = urlencode($val);
             $tmp = trim(base64_decode(preg_replace('#[[:space:]]#','+',$val)));
             if ($tmp && mb_detect_encoding($tmp,'utf-8',true)) $val = $tmp;
             unset($tmp);

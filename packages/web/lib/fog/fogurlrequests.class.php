@@ -24,17 +24,17 @@ class FOGURLRequests extends FOGBase {
     public function process($urls, $method = 'GET',$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
         if (!is_array($urls)) $urls = array($urls);
         if (empty($method)) $method = 'GET';
-        foreach ((array)$urls AS $i => &$url) {
+        array_map(function(&$url) use ($urls,$method,$data,$sendAsJSON,$auth,$callback,$file,&$curl) {
             $url = filter_var($url, FILTER_SANITIZE_URL);
             if (filter_var($url,FILTER_VALIDATE_URL) === false) {
                 unset($url);
-                continue;
+                return;
             }
             $ProxyUsed = false;
             if (self::$DB && ($ip = $this->getSetting('FOG_PROXY_IP'))) {
                 if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
                     unset($url,$ip);
-                    continue;
+                    return;
                 }
                 $IPs = $this->getSubObjectIDs('StorageNode','','ip');
                 if (!preg_match('#^(?!.*'.implode('|',(array)$IPs).')$#i',$url)) $ProxyUsed = true;
@@ -70,20 +70,19 @@ class FOGURLRequests extends FOGBase {
             }
             $this->contextOptions[CURLOPT_CUSTOMREQUEST] = $method;
             curl_setopt_array($ch,$this->contextOptions);
-            $curl[$i] = $ch;
+            $curl[] = $ch;
             curl_multi_add_handle($this->handle,$ch);
-        }
-        unset($url);
+            unset($url);
+        },(array)$urls);
         $active = null;
         $response = array();
         do {
             curl_multi_exec($this->handle,$active);
         } while ($active > 0);
-        foreach ($curl AS $key => &$val) {
+        array_walk($curl,function(&$val,&$key) use (&$response) {
             $response[] = curl_multi_getcontent($val);
             curl_multi_remove_handle($this->handle,$val);
-        }
-        unset($val);
+        });
         if (!$file) return $response;
         @fclose($file);
     }
