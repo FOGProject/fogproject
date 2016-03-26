@@ -249,7 +249,7 @@ while [[ -z $askme ]]; do
             askme="N"
             ;;
         [Yy]|[Yy][Ee][Ss])
-            blDoAD=1
+            blDoAD=$(echo -n 1 | base64)
             askme="Y"
             ;;
         *)
@@ -293,7 +293,7 @@ while [[ -z $askme ]]; do
                     '#!ok')
                         echo " * This host will reboot and imaging will start!"
                         ret=$tmp
-                        realdoimage=1
+                        realdoimage=$(echo -n 1 | base64)
                         break
                         ;;
                     '#!il')
@@ -313,7 +313,7 @@ done
 dots "Attempting to register host"
 res=""
 while [[ -z $res ]]; do
-    res=$(wget --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64&snapinid=$snapin64&productKey=$productKey" -qO - http://${web}service/auto.register.php 2>/dev/null)
+    res=$(wget --post-data="mac=$mac&advanced=$(echo -n 1 | base64)&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64&snapinid=$snapin64&productKey=$productKey" -qO - http://${web}service/auto.register.php 2>/dev/null)
     echo "$res"
     usleep 2000000
 done

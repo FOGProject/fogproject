@@ -2,8 +2,6 @@
 require('../commons/base.inc.php');
 FOGCore::stripAndDecode($_REQUEST);
 try {
-    $Host = $FOGCore->getHostItem(false,true);
-    if (!$Host->isValid())
     $Host = $FOGCore->getHostItem(false,false);
     $Inventory = $Host->get('inventory')
         ->set('hostID',$Host->get('id'));
