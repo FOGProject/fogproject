@@ -552,10 +552,10 @@ abstract class FOGBase {
     public static function stripAndDecode(&$item) {
         $item = (array)$item;
         foreach($item AS $key => &$val) {
-            $tmp = trim(base64_decode(preg_replace('#[[:space:]]#','+',$val)));
-            if ($tmp && mb_detect_encoding($tmp,'utf-8',true)) $val = $tmp;
+            $tmp = trim(base64_decode(preg_replace('# #','+',$val)));
+            if (isset($tmp) && mb_detect_encoding($tmp,'utf-8',true)) $val = $tmp;
             unset($tmp);
-            $val = trim(htmlentities(urldecode($val),ENT_QUOTES,'utf-8'));
+            $val = trim(htmlentities($val,ENT_QUOTES,'utf-8'));
         }
         return $item;
     }
