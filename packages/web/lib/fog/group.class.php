@@ -36,23 +36,25 @@ class Group extends FOGController {
             break;
         case ($this->isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
+            $ValidHostIDs = $this->getSubObjectIDs('Host','','id');
+            $notValid = array_diff((array)$DBHostIDs,(array)$ValidHostIDs);
+            if (count($notValid)) self::getClass('GroupAssociationManager')->destroy(array('hostID'=>$notValid));
+            unset($ValidHostIDs,$DBHostIDs);
+            $DBHostIDs = $this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
                 self::getClass('GroupAssociationManager')->destroy(array('groupID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
                 $DBHostIDs = $this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
                 unset($RemoveHostIDs);
             }
-            foreach ((array)self::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))) AS $i => &$Host) {
-                if (!$Host->isValid()) {
-                    $Host->destroy();
-                    continue;
-                }
+            array_map(function(&$Host) {
+                if (!$Host->isValid()) return;
                 self::getClass('GroupAssociation')
                     ->set('hostID',$Host->get('id'))
                     ->set('groupID',$this->get('id'))
                     ->save();
                 unset($Host);
-            }
+            },(array)self::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))));
             unset($DBHostIDs,$RemoveHostIDs);
             break;
         }
@@ -67,45 +69,45 @@ class Group extends FOGController {
     }
     public function addPrinter($printerAdd, $printerDel, $level = 0) {
         self::getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('printerLevel'=>$level));
-        foreach ((array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
+        array_map(function(&$Host) use ($printerAdd,$printerDel,$level) {
+            if (!$Host->isValid()) return;
             if ($printerAdd) $Host->addPrinter($printerAdd);
             if ($printerDel) $Host->removePrinter($printerDel);
             $Host->save();
             unset($Host);
-        }
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     public function addSnapin($addArray) {
-        foreach ((array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
+        array_map(function(&$Host) use ($addArray) {
+            if (!$Host->isValid()) return;
             $Host->addSnapin($addArray)->save();
             unset($Host);
-        }
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     public function removeSnapin($removeArray) {
-        foreach ((array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
+        array_map(function(&$Host) use ($removeArray) {
+            if (!$Host->isValid()) return;
             $Host->removeSnapin($removeArray)->save();
             unset($Host);
-        }
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     public function addModule($addArray) {
-        foreach ((array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
+        array_map(function(&$Host) use ($addArray) {
+            if (!$Host->isValid()) return;
             $Host->addModule($addArray)->save();
             unset($Host);
-        }
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     public function removeModule($removeArray) {
-        foreach ((array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
+        array_map(function(&$Host) use ($removeArray) {
+            if (!$Host->isValid()) return;
             $Host->removeModule($removeArray)->save();
             unset($Host);
-        }
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     public function addHost($addArray) {
@@ -126,11 +128,11 @@ class Group extends FOGController {
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false,$wol = false) {
         if (self::getClass('TaskManager')->count(array('hostID'=>$this->get('hosts'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) throw new Exception(_('There is a host in a tasking'));
         $success = array();
-        foreach ((array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
+        array_map(function(&$Host) use ($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$username,$passreset,$sessionjoin,$wol,&$success) {
+            if (!$Host->isValid()) return;
             $success[] = $Host->createImagePackage($taskTypeID,$taskName,$shutdown, $debug,$deploySnapins,$isGroupTask,$_SESSION['FOG_USERNAME'],$passreset,$sessionjoin,$wol);
             unset($Host);
-        }
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $success;
     }
     public function setAD($useAD, $domain, $ou, $user, $pass, $legacy, $enforce) {
@@ -144,11 +146,11 @@ class Group extends FOGController {
         return $imageID == $this->getHostCount();
     }
     public function updateDefault($printerid) {
-        foreach ((array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
+        array_map(function(&$Host) use ($printerid) {
+            if (!$Host->isValid()) return;
             $Host->updateDefault($printerid,true);
             unset($Host);
-        }
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     protected function loadHosts() {
