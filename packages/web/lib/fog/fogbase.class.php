@@ -22,6 +22,7 @@ abstract class FOGBase {
     protected static $FOGSubMenu;
     protected static $urlself;
     protected static $isMobile;
+    protected static $ips = array();
     protected static $searchPages = array(
         'user',
         'host',
@@ -174,35 +175,35 @@ abstract class FOGBase {
     protected function array_insert_before($key, array &$array, $new_key, $new_value) {
         if (in_array($key, $array)) return;
         $new = array();
-        foreach($array AS $k => &$value) {
+        array_walk($array,function(&$value,&$k) use ($key,$new_key,$new_value,&$new) {
             if ($k === $key) $new[$new_key] = $new_value;
             $new[$k] = $value;
-            unset($value);
-        }
+            unset($k,$value);
+        });
         $array = $new;
     }
     protected function array_insert_after($key, array &$array, $new_key, $new_value) {
         if (in_array($key, $array)) return;
         $new = array();
-        foreach($array AS $k => &$value) {
+        array_walk($array,function(&$value,&$k) use ($key,$new_key,$new_value,&$new) {
             $new[$k] = $value;
             if ($k === $key) $new[$new_key] = $new_value;
-            unset($value);
-        }
+            unset($k,$value);
+        });
         $array = $new;
     }
     protected function array_remove($key, array &$array) {
         if (is_array($key)) {
-            foreach ($key AS $k => &$value) {
+            array_map(function(&$value) use (&$array) {
                 unset($array[$value]);
                 unset($value);
-            }
+            },(array)$key);
         } else {
-            foreach($array AS $k => &$value) {
+            array_map(function(&$value) use (&$array,&$key) {
                 if (is_array($value)) $this->array_remove($key, $value);
                 else unset($array[$key]);
                 unset($value);
-            }
+            },(array)$array);
         }
     }
     protected function isLoaded($key) {
@@ -212,18 +213,16 @@ abstract class FOGBase {
     }
     protected function resetRequest() {
         $reqVars = (array)$_REQUEST;
+        $sesVars = (array)$_SESSION['post_request_vals'];
         unset($_REQUEST);
         if (!isset($_SESSION['post_request_vals'])) $_SESSION['post_request_vals'] = array();
-        $sesVars = (array)$_SESSION['post_request_vals'];
-        foreach($sesVars AS $key => &$val) {
+        $setReq = function(&$val,&$key) {
             $_REQUEST[$key] = $val;
-            unset($val);
-        }
-        foreach($reqVars AS $key => &$val) {
-            $_REQUEST[$key] = $val;
-            unset($val);
-        }
-        unset($_SESSION['post_request_vals'], $reqVars);
+            unset($val,$key);
+        };
+        array_walk($sesVars,$setReq);
+        array_walk($reqVars,$setReq);
+        unset($_SESSION['post_request_vals'], $sesVars, $reqVars);
     }
     protected function setRequest() {
         if (!$_SESSION['post_request_vals'] && self::$post) $_SESSION['post_request_vals'] = $_REQUEST;
@@ -409,19 +408,13 @@ abstract class FOGBase {
         return $this->aesencrypt($data,$Host->get('pub_key'));
     }
     protected function certDecrypt($data,$padding = true) {
+        $this->getIPAddress();
         if ($padding) $padding = OPENSSL_PKCS1_PADDING;
         else $padding = OPENSSL_NO_PADDING;
         $data = $this->hex2bin($data);
-        $paths = array_map('trim',(array)$this->getSubObjectIDs('StorageNode',array('isEnabled'=>1),'sslpath'));
-        foreach ($paths AS &$path) {
-            $sslfile = sprintf('%s%s.srvprivate.key',$path,DIRECTORY_SEPARATOR);
-            if (file_exists($sslfile)) {
-                unset($path);
-                break;
-            }
-            unset($sslfile,$path);
-        }
-        if (!$sslfile) throw new Exception(_('Private key not found'));
+        $sslfile = $this->getSubObjectIDs('StorageNode',array('isEnabled'=>1,'ip'=>self::$ips),'sslpath');
+        $sslfile = $sslfile[0];
+        if (!file_exists($sslfile)) throw new Exception(_('Private key not found'));
         if (!is_readable($sslfile)) throw new Exception(_('Private key not readable'));
         if (!($priv_key = openssl_pkey_get_private(file_get_contents($sslfile)))) throw new Exception(_('Private key failed'));
         $a_key = openssl_pkey_get_details($priv_key);
@@ -471,14 +464,19 @@ abstract class FOGBase {
         }
     }
     protected function array_strpos($haystack, $needles, $case = true) {
-        $needles = (array)$needles;
-        foreach($needles AS $i => &$needle) {
-            if ($case) return (bool)strpos($haystack,$needle) !== false;
-            else return (bool)stripos($haystack,$needle) !== false;
-            unset($needle);
-        }
-        return false;
+        $cmd = sprintf('str%spos',($case ? 'i' : ''));
+        $mapinfo = array_map(function(&$needle) use ($haystack,$needles,$cmd) {
+            return (bool)$cmd($haystack,$needle);
+        },(array)$needles);
+        return (bool)count(array_filter($mapinfo));
     }
+    /*protected function array_strpos($haystack, $needles, $case = true) {
+        $mapinfo = array_map(function(&$needle) use ($haystack,$needles,$case) {
+            if ($case) return (bool)strpos($haystack,$needle) !== false;
+            return (bool)stripos($haystack,$needle) !== false;
+        },(array)$needles);
+        return (bool)!in_array(false,$mapinfo,true);
+    }*/
     protected function log($txt, $level = 1) {
         if (self::$ajax) return;
         $txt = trim(preg_replace(array("#\r#","#\n#",'#\s+#','# ,#'),array('',' ',' ',','),$txt));
@@ -551,12 +549,33 @@ abstract class FOGBase {
     }
     public static function stripAndDecode(&$item) {
         $item = (array)$item;
-        foreach($item AS $key => &$val) {
+        array_walk($item,function(&$val,&$key) {
             $tmp = trim(base64_decode(preg_replace('# #','+',$val)));
             if (isset($tmp) && mb_detect_encoding($tmp,'utf-8',true)) $val = $tmp;
             unset($tmp);
             $val = trim(htmlentities($val,ENT_QUOTES,'utf-8'));
-        }
+        });
         return $item;
+    }
+    protected function getIPAddress() {
+        $output = array();
+        exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
+        if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2",$IPs,$retVal);
+        if (@fsockopen('ipinfo.io',80)) {
+            $res = self::$FOGURLRequests->process('http://ipinfo.io/ip','GET');
+            $IPs[] = $res[0];
+        }
+        @natcasesort($IPs);
+        $retVal = function(&$IP) use (&$iponly) {
+            $IP = trim($IP);
+            if ($iponly === true && filter_var($IP,FILTER_VALIDATE_IP)) return $IP;
+            return gethostbyaddr($IP);
+        };
+        $output = array_map($retVal,(array)$IPs);
+        $iponly = true;
+        $output = array_merge($output,array_map($retVal,(array)$IPs));
+        @natcasesort($output);
+        self::$ips = array_values(array_filter(array_unique((array)$output)));
+        return self::$ips;
     }
 }

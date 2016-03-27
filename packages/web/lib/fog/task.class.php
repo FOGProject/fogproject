@@ -35,21 +35,16 @@ class Task extends TaskType {
         'hostID',
     );
     public function getInFrontOfHostCount() {
-        $Tasks = self::getClass('TaskManager')->find(array(
-            'stateID'=>$this->getQueuedStates(),
-            'typeID'=>array(1,15,17),
-            'NFSGroupID'=>$this->get('NFSGroupID'),
-        ));
         $count = 0;
-        $curTime = $this->nice_date();
-        foreach($Tasks AS $i => &$Task) {
-            if (!$Task->isValid()) continue;
+        array_map(function(&$Task) use (&$count) {
+            $curTime = $this->nice_date();
+            if (!$Task->isValid()) return;
             if ($this->get('id') != $Task->get('id')) {
                 $tasktime = $this->nice_date($Task->get('checkInTime'));
                 ($curTime->getTimestamp() - $tasktime->getTimestamp()) < $this->getSetting('FOG_CHECKIN_TIMEOUT') ? $count++ : null;
             }
-        }
-        unset($Task);
+            unset($Task);
+        },(array)self::getClass('TaskManager')->find(array('stateID'=>$this->getQueuedStates(),'typeID'=>array(1,15,17),'NFSGroupID'=>$this->get('NFSGroupID'))));
         return $count;
     }
     public function cancel() {

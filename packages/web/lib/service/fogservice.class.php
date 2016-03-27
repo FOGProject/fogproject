@@ -4,7 +4,6 @@ abstract class FOGService extends FOGBase {
     protected $logpath = '';
     protected $log = '';
     protected $zzz = '';
-    protected $ips = array();
     private $transferLog = array();
     public $procRef = array();
     public $procPipes = array();
@@ -26,42 +25,23 @@ abstract class FOGService extends FOGBase {
         parent::__construct();
         $this->logpath = sprintf('/%s/',trim($this->getSetting('SERVICE_LOG_PATH'),'/'));
     }
-    protected function getIPAddress() {
-        $output = array();
-        exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
-        if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2",$IPs,$retVal);
-        if (@fsockopen('ipinfo.io',80)) {
-            $res = self::$FOGURLRequests->process('http://ipinfo.io/ip','GET');
-            $IPs[] = $res[0];
-        }
-        @natcasesort($IPs);
-        foreach ($IPs AS $i => &$IP) {
-            $IP = trim($IP);
-            if (filter_var($IP,FILTER_VALIDATE_IP)) $output[] = $IP;
-            $output[] = gethostbyaddr($IP);
-        }
-        unset($IP);
-        @natcasesort($output);
-        $this->ips = array_values(array_filter(array_unique((array)$output)));
-        return $this->ips;
-    }
     protected function checkIfNodeMaster() {
         $this->getIPAddress();
         foreach ((array)self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS $i => &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
-            if (!in_array(self::$FOGCore->resolveHostname($StorageNode->get('ip')),$this->ips)) continue;
+            if (!in_array(self::$FOGCore->resolveHostname($StorageNode->get('ip')),self::$ips)) continue;
             return $StorageNode;
         }
         throw new Exception(_(' | This is not the master node'));
     }
     public function wait_interface_ready() {
         $this->getIPAddress();
-        if (!count($this->ips)) {
+        if (!count(self::$ips)) {
             $this->outall('Interface not ready, waiting.',$this->dev);
             sleep(10);
             $this->wait_interface_ready();
         }
-        foreach ($this->ips AS $i => &$ip) $this->outall(_("Interface Ready with IP Address: $ip"),$this->dev);
+        foreach (self::$ips AS $i => &$ip) $this->outall(_("Interface Ready with IP Address: $ip"),$this->dev);
         unset($ip);
     }
     public function wait_db_ready() {
