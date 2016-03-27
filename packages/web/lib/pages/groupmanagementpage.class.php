@@ -282,16 +282,16 @@ class GroupManagementPage extends FOGPage {
         );
         printf('<div id="group-service"><h2>%s</h2><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',_('Service Configuration'),$this->formAction,_('General'));
         $moduleName = $this->getGlobalModuleStatus();
-        array_map(function(&$Module) use ($moduleName) {
+        $ModuleOn = array_count_values($this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID'));
+        array_map(function(&$Module) use ($moduleName,$ModuleOn,$HostCount) {
             if (!$Module->isValid()) return;
-            $ModuleOn = $this->getSubObjectIDs('ModuleAssociation',array('moduleID'=>$Module->get('id'),'hostID'=>$this->obj->get('hosts')),'moduleID','','','','','array_count_values');
             $this->data[] = array(
-                'input'=>sprintf('<input %stype="checkbox" name="modules[]" value="%s"%s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ' : ''), $Module->get('id'), (count($ModuleOn) == 1 && $ModuleOn[0] == $HostCount ? ' checked' : ''), !$moduleName[$Module->get('shortName')] ? ' disabled' : ''),
+                'input' => sprintf('<input %stype="checkbox" name="modules[]" value="%s"%s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ': ''), $Module->get('id'),($ModuleOn[$Module->get('id')] === $HostCount ? ' checked' : ''),!$moduleName[$Module->get('shortName')] ? ' disabled' : ''),
                 'span'=>sprintf('<span class="icon fa fa-question fa-1x hand" title="%s"></span>',str_replace('"','\"',$Module->get('description'))),
                 'mod_name'=>$Module->get('name'),
             );
             unset($ModuleOn,$Module);
-        },self::getClass('ModuleManager')->find());
+        },(array)self::getClass('ModuleManager')->find());
         unset($ModOns,$Modules,$moduleName);
         $this->data[] = array(
             'mod_name'=> '',
@@ -479,7 +479,7 @@ class GroupManagementPage extends FOGPage {
                 $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
                 $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
                 $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $this->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
-                $modOn = $_REQUEST['modules'];
+                $modOn = (array)$_REQUEST['modules'];
                 $modOff = $this->getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
                 $this->obj->addModule($modOn)->removeModule($modOff);
                 array_map(function(&$Host) {
