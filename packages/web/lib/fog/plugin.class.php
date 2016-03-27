@@ -57,9 +57,8 @@ class Plugin extends FOGController {
         return (array)array_values(array_unique(array_filter($files)));
     }
     public function getPlugins() {
-        $cfgfile = 'plugin.config.php';
-        foreach ($this->getDirs() AS &$file) {
-            require(sprintf('%s/config/%s',rtrim($file,'/'),$cfgfile));
+        return array_map(function(&$file) {
+            require(sprintf('%s/config/plugin.config.php',rtrim($file,'/')));
             $p = self::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$fog_plugin['name']))))
                 ->set('name',$fog_plugin['name'])
                 ->set('description',$fog_plugin['description']);
@@ -67,22 +66,21 @@ class Plugin extends FOGController {
             $p->strEntryPoint = sprintf('%s%s',$file,$fog_plugin['entrypoint']);
             $p->strIcon = sprintf('%s%s',$file,$fog_plugin['menuicon']);
             $p->strIconHover = sprintf('%s%s',$file,$fog_plugin['menuicon_hover']);
-            $arPlugs[] = $p;
-            unset($file);
-        }
-        return (array)$arPlugs;
+            unset($file,$fog_plugin);
+            return $p;
+        },(array)$this->getDirs());
     }
     public function activatePlugin($hash) {
         $hash = trim($hash);
-        foreach ($this->getPlugins() AS &$Plugin) {
+        array_map(function(&$Plugin) use (&$hash) {
             $tmphash = trim(md5(trim($Plugin->get('name'))));
-            if ($tmphash !== $hash) continue;
-            $Plugin->set('state',1)
+            if ($tmphash !== $hash) return;
+            $Plugin
+                ->set('state',1)
                 ->set('installed',0)
                 ->set('name',$Plugin->get('name'))
                 ->save();
-            break;
-        }
+        },(array)$this->getPlugins());
         return $this;
     }
     public function getManager() {

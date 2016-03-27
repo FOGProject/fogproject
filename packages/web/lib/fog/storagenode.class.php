@@ -44,11 +44,13 @@ class StorageNode extends FOGController {
         return self::getClass('StorageGroup',$this->get('storageGroupID'));
     }
     public function getNodeFailure($Host) {
-        $CurrTime = $this->nice_date();
-        foreach ((array)self::getClass('NodeFailureManager')->find(array('storageNodeID'=>$this->get('id'),'hostID'=>$Host)) AS $i => &$NodeFailure) {
-            if ($CurrTime < $this->nice_date($NodeFailure->get('failureTime'))) return $NodeFailure;
-            unset($NodeFailure);
-        }
+        $NodeFailure = array_map(function(&$Failed) {
+            $CurrTime = $this->nice_date();
+            if ($CurrTime < $this->nice_date($Failed->get('failureTime'))) return $Failed;
+            unset($Failed);
+        },(array)self::getClass('NodeFailureManager')->find(array('storageNodeID'=>$this->get('id'),'hostID'=>$Host)));
+        $NodeFailure = @array_shift($NodeFailure);
+        if ($NodeFailure instanceof StorageNode && $NodeFailure->isValid()) return $NodeFailure;
     }
     public function loadLogfiles() {
         $URL = array_map(function(&$path) {
