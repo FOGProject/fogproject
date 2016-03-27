@@ -63,9 +63,10 @@ class FOGFTP extends FOGGetSet {
         if ($this->exists($path) && !($this->delete($path,false,true) || $this->rmdir($path))) {
             $filelist = $this->nlist($path);
             if ($filelist) {
-                foreach($filelist AS $i => &$file) $this->recursive_delete($file);
-                unset($file);
-                $this->recursive_delete($path);
+                array_map(function(&$file) {
+                    $this->recursive_delete($file);
+                    unset($file);
+                },(array)$filelist);
             }
         }
         return $this;
@@ -186,12 +187,11 @@ class FOGFTP extends FOGGetSet {
             $filename = basename($remote_file);
             $filelist = preg_grep("#$filename#",$filelist);
         }
-        foreach($filelist AS &$file) {
+        array_map(function(&$file) use (&$size) {
             $fileinfo = preg_split('#\s+#',$file,null,PREG_SPLIT_NO_EMPTY);
             $size += $fileinfo[4];
             unset($file);
-        }
-        unset($filelist);
+        },(array)$filelist);
         return $size;
     }
     public function ssl_connect($host = '',$port = 0,$timeout = 90,$autologin = true) {

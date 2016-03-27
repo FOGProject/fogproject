@@ -16,12 +16,12 @@ class PingHosts extends FOGService {
             $webServerIP = self::$FOGCore->resolveHostName($this->getSetting('FOG_WEB_HOST'));
             $this->outall(sprintf(' * FOG Web Host IP: %s',$webServerIP));
             $this->getIPAddress();
-            foreach ((array)$this->ips AS $i => &$ip) {
+            foreach ((array)self::$ips AS $i => &$ip) {
                 if (!$i) $this->outall(" * This server's IP Addresses");
                 $this->outall(" |\t$ip");
                 unset($ip);
             }
-            if (!in_array($webServerIP,$this->ips)) throw new Exception(_('I am not the fog web server'));
+            if (!in_array($webServerIP,self::$ips)) throw new Exception(_('I am not the fog web server'));
             $hostCount = self::getClass('HostManager')->count();
             $this->outall(sprintf(' * %s %s %s%s',_('Attempting to ping'),self::getClass('HostManager')->count(),_('host'),($hostCount != 1 ? 's' : '')));
             foreach ((array)self::getClass('HostManager')->find() AS $i => &$Host) {

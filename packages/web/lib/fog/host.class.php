@@ -160,18 +160,14 @@ class Host extends FOGController {
             }
             unset($DBPriMACs,$RealPriMAC,$RemoveMAC,$HostWithMAC);
         case ($this->isLoaded('additionalMACs')):
-            $theseMACs = $this->get('additionalMACs');
-            $RealAddMACs = $PreOwnedMACs = array();
-            foreach ((array)$theseMACs AS $i => &$thisMAC) {
-                if (($thisMAC instanceof MACAddress) && $thisMAC->isValid() && !in_array($thisMAC->__toString(),(array)$RealAddMACs)) $RealAddMACs[] = $thisMAC->__toString();
-                unset($thisMAC);
-            }
-            unset($theseMACs);
+            $RealAddMACs = array_values(array_unique(array_filter(array_map(function(&$MAC) {
+                if ($MAC instanceof MACAddress && $MAC->isValid()) return $MAC->__toString();
+            },(array)$this->get('additionalMACs')))));
             $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('primary'=>1),'mac');
-            foreach ((array)$DBPriMACs AS $i => &$DBPriMAC) {
-                if ($this->array_strpos($DBPriMAC,$RealAddMACs) !== false) throw new Exception(_('Cannot add a pre-existing Primary MAC as an additional MAC'));
-                unset($DBPriMAC);
-            }
+            array_map(function(&$MAC) use ($RealAddMACs) {
+                if ($this->array_strpos($MAC,$RealAddMACs) !== false) throw new Exception(_('Cannot add Primary mac as additional mac'));
+                unset($MAC);
+            },(array)$DBPriMACs);
             unset($DBPriMACs);
             $PreOwnedMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>1),'mac',true);
             $RealAddMACs = array_diff((array)$RealAddMACs,(array)$PreOwnedMACs);
