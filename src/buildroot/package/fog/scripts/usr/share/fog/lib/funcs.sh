@@ -1171,8 +1171,8 @@ sec2string() {
     [[ $i > 0 ]] && hourspace=':'
     [[ $s > 0 ]] && minspace=':'
     (($d > 0)) && printf '%d day%s' "$d" "$dayspace"
-    (($H > 0)) && printf '%d' "$H" "$hourspace"
-    (($i > 0)) && printf '%d' "$i" "$minspace"
+    (($H > 0)) && printf '%d%s' "$H" "$hourspace"
+    (($i > 0)) && printf '%d%s' "$i" "$minspace"
     (($s > 0)) && printf '%d' "$s"
 }
 # Returns the disk based off the partition passed
