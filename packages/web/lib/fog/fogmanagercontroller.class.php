@@ -88,10 +88,11 @@ abstract class FOGManagerController extends FOGBase {
                 return array_map('html_entity_decode',(array)array_values((array)array_filter((array)@$filter(self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
             }
         } else {
-            return array_unique(array_map(function(&$row) {
+            $data = array_map(function(&$row) {
                 return FOGCore::getClass($this->childClass)->setQuery($row);
-            },(array)self::$DB->query($query)->fetch('','fetch_all')->get()));
+            },(array)self::$DB->query($query)->fetch('','fetch_all')->get());
         }
+        return array_values(array_filter(@$filter($data)));
     }
     public function count($findWhere = array(), $whereOperator = 'AND', $compare = '=') {
         if (empty($findWhere)) $findWhere = array();
