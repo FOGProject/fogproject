@@ -72,15 +72,16 @@ class Host extends FOGController {
     );
     public function set($key, $value) {
         $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
+        if (!self::isLoaded($key)) $this->loadItem($key);
         switch ($key) {
         case 'mac':
             if (!($value instanceof MACAddress)) $value = self::getClass('MACAddress',$value);
             break;
         case 'additionalMACs':
         case 'pendingMACs':
-            foreach((array)$value AS $i => &$mac) $newValue[] = self::getClass('MACAddress',$mac);
-            unset($mac);
+            $newValue = array_map(function(&$mac) {
+                return self::getClass('MACAddress',$mac);
+            },(array)$value);
             $value = (array)$newValue;
             break;
         case 'snapinjob':
@@ -97,7 +98,7 @@ class Host extends FOGController {
     }
     public function add($key, $value) {
         $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
+        if (!self::isLoaded($key)) $this->loadItem($key);
         switch ($key) {
         case 'additionalMACs':
         case 'pendingMACs':
@@ -128,6 +129,11 @@ class Host extends FOGController {
     }
     public function save($mainObject = true) {
         if ($mainObject) parent::save();
+        $itemSetter = function(&$item) {
+            if (!$item->isValid()) return;
+            $item->addHost($this->get('id'))->save(false);
+            unset($item);
+        };
         switch ($this->get('id')) {
         case 0:
         case null:
@@ -137,7 +143,7 @@ class Host extends FOGController {
             $this->destroy();
             throw new Exception(_('Host ID was not set, or unable to be created'));
             break;
-        case ($this->isLoaded('mac')):
+        case (self::isLoaded('mac')):
             if (!(($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())) throw new Exception(self::$foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
             $CurrPriMAC = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
@@ -159,7 +165,7 @@ class Host extends FOGController {
                     ->save();
             }
             unset($DBPriMACs,$RealPriMAC,$RemoveMAC,$HostWithMAC);
-        case ($this->isLoaded('additionalMACs')):
+        case (self::isLoaded('additionalMACs')):
             $RealAddMACs = array_values(array_unique(array_filter(array_map(function(&$MAC) {
                 if ($MAC instanceof MACAddress && $MAC->isValid()) return $MAC->__toString();
             },(array)$this->get('additionalMACs')))));
@@ -179,9 +185,7 @@ class Host extends FOGController {
                 $DBAddMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>array(0,null)),'mac');
                 unset($RemoveAddMAC);
             }
-            $RealAddMACs = array_diff((array)$RealAddMACs,(array)$DBAddMACs);
-            unset($DBAddMACs);
-            foreach ((array)$RealAddMACs AS $i => &$RealAddMAC) {
+            array_map(function(&$RealAddMAC) {
                 self::getClass('MACAddressAssociation')
                     ->set('hostID',$this->get('id'))
                     ->set('mac',$RealAddMAC)
@@ -189,21 +193,17 @@ class Host extends FOGController {
                     ->set('pending',0)
                     ->save();
                 unset($RealAddMAC);
-            }
-            unset($RealAddMACs);
-        case ($this->isLoaded('pendingMACs')):
-            $theseMACs = $this->get('pendingMACs');
-            $RealPendMACs = $PreOwnedMACs = array();
-            foreach ((array)$theseMACs AS $i => &$thisMAC) {
-                if (($thisMAC instanceof MACAddress) && $thisMAC->isValid() && false === $this->array_strpos($thisMAC->__toString(),$RealPendMACs)) $RealPendMACs[] = $thisMAC->__toString();
-                unset($thisMAC);
-            }
-            unset($theseMACs);
+            },(array)array_diff((array)$RealAddMACs,(array)$DBAddMACs));
+            unset($DBAddMACs,$RealAddMACs,$RemoveAddMAC);
+        case (self::isLoaded('pendingMACs')):
+            $RealPendMACs = array_map(function(&$MAC) {
+                if ($MAC instanceof MACAddress && $MAC->isValid()) return $MAC->__toString();
+            },(array)$this->get('pendingMACs'));
             $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('primary'=>1),'mac');
-            foreach ((array)$DBPriMACs AS $i => &$DBPriMAC) {
+            array_map(function(&$DBPriMAC) use ($RealPendMACs) {
                 if ($this->array_strpos($DBPriMAC,$RealPendMACs) !== false) throw new Exception(_('Cannot add a pre-existing Primary MAC as a pending MAC'));
                 unset($DBPriMAC);
-            }
+            },(array)$DBPriMACs);
             unset($DBPriMACs);
             $PreOwnedMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>array(0,null)),'mac',true);
             $RealPendMACs = array_diff((array)$RealPendMACs,(array)$PreOwnedMACs);
@@ -215,9 +215,7 @@ class Host extends FOGController {
                 $DBPendMACs = $this->getSubObjectIDs('MACAddressAssociation',array('primary'=>array(0,null),'pending'=>1),'mac');
                 unset($RemovePendMAC);
             }
-            $RealPendMACs = array_diff((array)$RealPendMACs,(array)$DBPendMACs);
-            unset($DBPendMACs);
-            foreach ((array)$RealPendMACs AS $i => &$RealPendMAC) {
+            array_map(function(&$RealPendMAC) {
                 self::getClass('MACAddressAssociation')
                     ->set('hostID',$this->get('id'))
                     ->set('mac',$RealPendMAC)
@@ -225,9 +223,15 @@ class Host extends FOGController {
                     ->set('pending',1)
                     ->save();
                 unset($RealPendMAC);
-            }
-            unset($RealPendMACs);
-        case ($this->isLoaded('modules')):
+            },(array)array_diff((array)$RealPendMACs,(array)$DBPendMACs));
+            $RealPendMACs = array_diff((array)$RealPendMACs,(array)$DBPendMACs);
+            unset($DBPendMACs,$RealPendMACs,$RemovePendMAC);
+        case (self::isLoaded('modules')):
+            $DBModuleIDs = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
+            $ValidModuleIDs = $this->getSubObjectIDs('Module');
+            $notValid = array_diff((array)$DBModuleIDs,(array)$ValidModuleIDs);
+            if (count($notValid)) self::getClass('ModuleAssociationManager')->destroy(array('moduleID'=>$notValid));
+            unset($ValidModuleIDs,$DBModuleIDs);
             $DBModuleIDs = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
             $RemoveModuleIDs = array_diff((array)$DBModuleIDs,(array)$this->get('modules'));
             if (count($RemoveModuleIDs)) {
@@ -236,8 +240,8 @@ class Host extends FOGController {
                 unset($RemoveModuleIDs);
             }
             $moduleName = $this->getGlobalModuleStatus();
-            foreach((array)self::getClass('ModuleManager')->find(array('id'=>array_diff((array)$this->get('modules'),(array)$DBModuleIDs))) AS $i => &$Module) {
-                if (!$Module->isValid()) continue;
+            array_map(function(&$Module) use ($moduleName) {
+                if (!$Module->isValid()) return;
                 if ($moduleName[$Module->get('shortName')]) {
                     self::getClass('ModuleAssociation')
                         ->set('hostID',$this->get('id'))
@@ -246,9 +250,14 @@ class Host extends FOGController {
                         ->save();
                 }
                 unset($Module);
-            }
-            unset($DBModuleIDs,$RemoveModuleIDs);
-        case ($this->isLoaded('printers')):
+            },(array)self::getClass('ModuleManager')->find(array('id'=>array_diff((array)$this->get('modules'),(array)$DBModuleIDs))));
+            unset($DBModuleIDs,$RemoveModuleIDs,$moduleName);
+        case (self::isLoaded('printers')):
+            $DBPrinterIDs = $this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
+            $ValidPrinterIDs = $this->getSubObjectIDs('Printer');
+            $notValid = array_diff((array)$DBPrinterIDs,(array)$ValidPrinterIDs);
+            if (count($notValid)) self::getClass('PrinterAssociationManager')->destroy(array('printerID'=>$notValid));
+            unset($ValidPrinterIDs,$DBPrinterIDs);
             $DBPrinterIDs = $this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
             $RemovePrinterIDs = array_diff((array)$DBPrinterIDs,(array)$this->get('printers'));
             if (count($RemovePrinterIDs)) {
@@ -256,16 +265,9 @@ class Host extends FOGController {
                 $DBPrinterIDs = $this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
                 unset($RemovePrinterIDs);
             }
-            foreach ((array)self::getClass('PrinterManager')->find(array('id'=>array_diff((array)$this->get('printers'),(array)$DBPrinterIDs))) AS $i => $Printer) {
-                if (!$Printer->isValid()) {
-                    $Printer->destroy();
-                    continue;
-                }
-                $Printer->addHost($this->get('id'))->save(false);
-                unset($Printer);
-            }
+            array_map($itemSetter,(array)self::getClass('PrinterManager')->find(array('id'=>array_diff((array)$this->get('printers'),(array)$DBPrinterIDs))));
             unset($DBPrinterIDs,$RemovePrinterIDs);
-        case ($this->isLoaded('snapins')):
+        case (self::isLoaded('snapins')):
             $DBSnapinIDs = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
             $RemoveSnapinIDs = array_diff((array)$DBSnapinIDs,(array)$this->get('snapins'));
             if (count($RemoveSnapinIDs)) {
@@ -273,16 +275,9 @@ class Host extends FOGController {
                 $DBSnapinIDs = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
                 unset($RemoveSnapinIDs);
             }
-            foreach ((array)self::getClass('SnapinManager')->find(array('id'=>array_diff((array)$this->get('snapins'),(array)$DBSnapinIDs))) AS $i => $Snapin) {
-                if (!$Snapin->isValid()) {
-                    $Snapin->destroy();
-                    continue;
-                }
-                $Snapin->addHost($this->get('id'))->save(false);
-                unset($Snapin);
-            }
+            array_map($itemSetter,(array)self::getClass('SnapinManager')->find(array('id'=>array_diff((array)$this->get('snapins'),(array)$DBSnapinIDs))));
             unset($DBSnapinIDs,$RemoveSnapinIDs);
-        case ($this->isLoaded('groups')):
+        case (self::isLoaded('groups')):
             $DBGroupIDs = $this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
             $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('groups'));
             if (count($RemoveGroupIDs)) {
@@ -290,14 +285,7 @@ class Host extends FOGController {
                 $DBGroupIDs = $this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
                 unset($RemoveGroupIDs);
             }
-            foreach ((array)self::getClass('GroupManager')->find(array('id'=>array_diff((array)$this->get('groups'),(array)$DBGroupIDs))) AS $i => $Group) {
-                if (!$Group->isValid()) {
-                    $Group->destroy();
-                    continue;
-                }
-                $Group->addHost($this->get('id'))->save(false);
-                unset($Group);
-            }
+            array_map($itemSetter,(array)self::getClass('GroupManager')->find(array('id'=>array_diff((array)$this->get('groups'),(array)$DBGroupIDs))));
             unset($DBGroupIDs,$RemoveGroupIDs);
         }
         return $this;
