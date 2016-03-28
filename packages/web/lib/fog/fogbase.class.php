@@ -413,7 +413,7 @@ abstract class FOGBase {
         else $padding = OPENSSL_NO_PADDING;
         $data = $this->hex2bin($data);
         $sslfile = $this->getSubObjectIDs('StorageNode',array('isEnabled'=>1,'ip'=>self::$ips),'sslpath');
-        $sslfile = $sslfile[0];
+        $sslfile = sprintf('%s%s.srvprivate.key',$sslfile[0],DIRECTORY_SEPARATOR);
         if (!file_exists($sslfile)) throw new Exception(_('Private key not found'));
         if (!is_readable($sslfile)) throw new Exception(_('Private key not readable'));
         if (!($priv_key = openssl_pkey_get_private(file_get_contents($sslfile)))) throw new Exception(_('Private key failed'));
