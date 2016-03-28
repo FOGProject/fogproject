@@ -28,23 +28,22 @@ class StorageGroup extends FOGController {
         $masternode = $this->getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes'),'isMaster'=>1,'isEnabled'=>1),'id');
         $masternode = array_shift($masternode);
         if (!$masternode > 0) $masternode = @min($this->get('enablednodes'));
-        //if (!$masternode > 0) throw New Exception(_('No Storage nodes enabled for this group'));
         return self::getClass('StorageNode',$masternode);
     }
     public function getOptimalStorageNode($image) {
-        $winner = null;
-        foreach ((array)self::getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes'))) AS &$StorageNode) {
-            if (!$StorageNode->isValid()) continue;
-            if (!in_array($image,$StorageNode->get('images'))) continue;
-            if ($StorageNode->get('maxClients') < 1) continue;
-            if ($winner == null || !$winner->isValid()) {
-                $winner = $StorageNode;
-                continue;
+        $this->winner = null;
+        array_map(function(&$StorageNode) use ($image) {
+            if (!$StorageNode->isValid()) return;
+            if (!in_array($image,$StorageNode->get('images'))) return;
+            if ($StorageNode->get('maxClients') < 1) return;
+            if ($this->winner == null || !$this->winner->isValid()) {
+                $this->winner = $StorageNode;
+                return;
             }
-            if ($StorageNode->getClientLoad() < $winner->getClientLoad()) $winner = $StorageNode;
+            if ($StorageNode->getClientLoad() < $this->winner->getClientLoad()) $this->winner = $StorageNode;
             unset($StorageNode);
-        }
-        return $winner;
+        },(array)self::getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes'))));
+        return $this->winner;
     }
     public function getUsedSlotCount() {
         return self::getClass('TaskManager')->count(array(
