@@ -36,7 +36,7 @@ class Group extends FOGController {
             break;
         case ($this->isLoaded('hosts')):
             $DBHostIDs = $this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
-            $ValidHostIDs = $this->getSubObjectIDs('Host','','id');
+            $ValidHostIDs = $this->getSubObjectIDs('Host');
             $notValid = array_diff((array)$DBHostIDs,(array)$ValidHostIDs);
             if (count($notValid)) self::getClass('GroupAssociationManager')->destroy(array('hostID'=>$notValid));
             unset($ValidHostIDs,$DBHostIDs);
