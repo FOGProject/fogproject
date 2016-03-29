@@ -40,7 +40,7 @@ class Task extends TaskType {
         $MyCheckinTime = $this->nice_date($this->get('checkInTime'));
         $myLastCheckin = $curTime->getTimestamp() - $MyCheckinTime->getTimestamp();
         if ($myLastCheckin < $this->getSetting('FOG_CHECKIN_TIMEOUT')) $this->set('checkInTime',$curTime->format('Y-m-d H:i:s'))->save();
-        array_map(function(&$Task) use (&$count) {
+        array_map(function(&$Task) use (&$count,$curTime,$MyCheckinTime) {
             if (!$Task->isValid()) return;
             $TaskCheckinTime = $this->nice_date($Task->get('checkInTime'));
             $timeOfLastCheckin = $curTime->getTimestamp() - $TaskCheckinTime->getTimestamp();
