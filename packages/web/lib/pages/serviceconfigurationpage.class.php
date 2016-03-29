@@ -7,7 +7,7 @@ class ServiceConfigurationPage extends FOGPage {
         $servicelink = "?node=$this->node&sub=edit";
         $this->menu = array(
             "?node=$this->node#home" => self::$foglang['Home'],
-            "$servicelink#autologout" => sprintf('%s %s',self::$foglang['Auto'],self::$foglang['Home']),
+            "$servicelink#autologout" => sprintf('%s %s',self::$foglang['Auto'],self::$foglang['Logout']),
             "$servicelink#clientupdater" => self::$foglang['ClientUpdater'],
             "$servicelink#dircleanup" => self::$foglang['DirectoryCleaner'],
             "$servicelink#displaymanager" => sprintf(self::$foglang['SelManager'],self::$foglang['Display']),

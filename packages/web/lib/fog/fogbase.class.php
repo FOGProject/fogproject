@@ -569,7 +569,7 @@ abstract class FOGBase {
         $retVal = function(&$IP) use (&$iponly) {
             $IP = trim($IP);
             if ($iponly === true && filter_var($IP,FILTER_VALIDATE_IP)) return $IP;
-            return gethostbyaddr($IP);
+            return gethostbyaddr(gethostbyname($IP));
         };
         $output = array_map($retVal,(array)$IPs);
         $iponly = true;
