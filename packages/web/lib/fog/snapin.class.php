@@ -135,7 +135,7 @@ class Snapin extends FOGController {
             if ($this->getPrimaryGroup($id)) return self::getClass('StorageGroup',$id);
         },(array)$this->get('storageGroups'));
         $Group = array_shift($Group);
-        if ($Group->isValid()) return $Group;
+        if ($Group instanceof StorageGroup && $Group->isValid()) return $Group;
         return self::getClass('StorageGroup',@min($this->get('storageGroups')));
     }
     public function getPrimaryGroup($groupID) {
