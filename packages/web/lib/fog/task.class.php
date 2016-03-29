@@ -39,13 +39,12 @@ class Task extends TaskType {
         $curTime = $this->nice_date();
         $MyCheckinTime = $this->nice_date($this->get('checkInTime'));
         $myLastCheckin = $curTime->getTimestamp() - $MyCheckinTime->getTimestamp();
-        if ($myLastCheckin < $this->getSetting('FOG_CHECKIN_TIMEOUT')) $this->set('checkInTime',$curTime->format('Y-m-d H:i:s'))->save();
+        if ($myLastCheckin >= $this->getSetting('FOG_CHECKIN_TIMEOUT')) $this->set('checkInTime',$curTime->format('Y-m-d H:i:s'))->save();
         array_map(function(&$Task) use (&$count,$curTime,$MyCheckinTime) {
             if (!$Task->isValid()) return;
-            if ($Task->get('id') === $this->get('id')) return;
             $TaskCheckinTime = $this->nice_date($Task->get('checkInTime'));
             $timeOfLastCheckin = $curTime->getTimestamp() - $TaskCheckinTime->getTimestamp();
-            if ($timeOfLastCheckin < $this->getSetting('FOG_CHECKIN_TIMEOUT')) $Task->set('checkInTime',$curTime->format('Y-m-d H:i:s'))->save();
+            if ($timeOfLastCheckin >= $this->getSetting('FOG_CHECKIN_TIMEOUT')) $Task->set('checkInTime',$curTime->format('Y-m-d H:i:s'))->save();
             if ($MyCheckinTime > $TaskCheckinTime) $count++;
             unset($Task);
         },(array)self::getClass('TaskManager')->find(array('stateID'=>$this->getQueuedStates(),'typeID'=>array(1,15,17),'NFSGroupID'=>$this->get('NFSGroupID'))));
