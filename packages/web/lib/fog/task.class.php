@@ -36,13 +36,16 @@ class Task extends TaskType {
     );
     public function getInFrontOfHostCount() {
         $count = 0;
+        $curTime = $this->nice_date();
+        $MyCheckinTime = $this->nice_date($this->get('checkInTime'));
+        $myLastCheckin = $curTime->getTimestamp() - $MyCheckinTime->getTimestamp();
+        if ($myLastCheckin < $this->getSetting('FOG_CHECKIN_TIMEOUT')) $this->set('checkInTime',$curTime->format('Y-m-d H:i:s'))->save();
         array_map(function(&$Task) use (&$count) {
-            $curTime = $this->nice_date();
             if (!$Task->isValid()) return;
-            if ($this->get('id') != $Task->get('id')) {
-                $tasktime = $this->nice_date($Task->get('checkInTime'));
-                ($curTime->getTimestamp() - $tasktime->getTimestamp()) < $this->getSetting('FOG_CHECKIN_TIMEOUT') ? $count++ : null;
-            }
+            $TaskCheckinTime = $this->nice_date($Task->get('checkInTime'));
+            $timeOfLastCheckin = $curTime->getTimestamp() - $TaskCheckinTime->getTimestamp();
+            if ($timeOfLastCheckin < $this->getSetting('FOG_CHECKIN_TIMEOUT')) $Task->set('checkInTime',$curTime->format('Y-m-d H:i:s'))->save();
+            if ($MyCheckinTime > $TaskCheckinTime) $count++;
             unset($Task);
         },(array)self::getClass('TaskManager')->find(array('stateID'=>$this->getQueuedStates(),'typeID'=>array(1,15,17),'NFSGroupID'=>$this->get('NFSGroupID'))));
         return $count;
