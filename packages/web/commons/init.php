@@ -49,18 +49,19 @@ class Initiator {
     }
     public static function sanitize_items(&$value = '') {
         $sanitize_items = function(&$val,&$key) use (&$value) {
-            if (is_string($val)) $val = $val;
-            if (is_array($val)) $val = self::sanitize_items($val);
+            if (is_string($val)) $value[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
+            if (is_array($val)) self::sanitize_items($value[$key]);
         };
-        if (!$value) {
+        if (!count($value)) {
             array_walk($_REQUEST,$sanitize_items);
             array_walk($_COOKIE,$sanitize_items);
             array_walk($_POST,$sanitize_items);
             array_walk($_GET,$sanitize_items);
         } else {
+            $value = array_values(array_filter(array_unique((array)$value)));
             array_walk($value,$sanitize_items);
-            return $value;
         }
+        return $value;
     }
     /** verCheck() Checks the php version is good with current system
      * @return void
