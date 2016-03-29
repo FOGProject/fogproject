@@ -78,20 +78,22 @@ abstract class FOGManagerController extends FOGBase {
             );
         }
         if ($idField) {
-            if (is_array($idField)) {
-                return array_map(function(&$idstore) use ($query,$filter) {
-                    $idstore = trim($idstore);
-                    return array_map('html_entity_decode',array_values(array_filter(@$filter(self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idstore])))));
-                },$idField);
-            } else {
-                $idField = trim($idField);
-                return array_map('html_entity_decode',(array)array_values((array)array_filter((array)@$filter(self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$idField])))));
-            }
+            $idField = array_map(function(&$item) {
+                return trim($item);
+            },(array)$idField);
+            $htmlEntDecode = function(&$item) {
+                return html_entity_decode($item,ENT_QUOTES,'utf-8');
+            };
+            $data = array_map(function(&$item) use ($query,$htmlEntDecode) {
+                return array_map($htmlEntDecode,self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$item]));
+            },(array)$idField);
+            if (count($data) === 1) return array_shift($data);
         } else {
-            return array_map(function(&$row) {
-                return FOGCore::getClass($this->childClass)->setQuery($row);
+            $data = array_map(function(&$item) {
+                return FOGCore::getClass($this->childClass)->setQuery($item);
             },(array)self::$DB->query($query)->fetch('','fetch_all')->get());
         }
+        return array_values(array_filter(@$filter($data)));
     }
     public function count($findWhere = array(), $whereOperator = 'AND', $compare = '=') {
         if (empty($findWhere)) $findWhere = array();
