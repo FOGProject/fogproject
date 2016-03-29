@@ -29,9 +29,9 @@ class TaskQueue extends TaskingElement {
                 } else {
                     if (in_array($this->Task->get('stateID'),array_merge((array)$this->getQueuedState(),(array)$this->getCheckedInState()))) {
                         $this->Task
-                            ->set('checkInTime',$this->formatTime('now','Y-m-d H:i:s'))
-                            ->set('stateID',$this->getCheckedInState())
-                            ->save();
+                            ->set('stateID',$this->getCheckedInState());
+                        if (!$this->validDate($this->Task->get('checkInTime'))) $this->Task->set('checkInTime',$this->formatTime('now','Y-m-d H:i:s'));
+                        $this->Task->save();
                         $totalSlots = $this->StorageGroup->getTotalSupportedClients();
                         $usedSlots = $this->StorageGroup->getUsedSlotCount();
                         $inFront = $this->Task->getInFrontOfHostCount();
