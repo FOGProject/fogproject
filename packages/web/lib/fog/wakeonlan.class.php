@@ -18,7 +18,7 @@ class WakeOnLan extends FOGBase {
             if ($options >= 0 && socket_sendto($sock,$packet,strlen($packet),0,$SendTo,self::WOL_UDP_PORT)) socket_close($sock);
             unset($SendTo);
         };
-        array_map(function(&$MAC) use (&$packet) {
+        array_map(function(&$MAC) use (&$packet,$BroadCast,$sendWOL) {
             $packet = sprintf('%s%s',str_repeat(chr(255),6),str_repeat(pack('H12',str_replace(array('-',':'),'',$MAC)),16));
             array_map($sendWOL,(array)$BroadCast);
             unset($MAC);
