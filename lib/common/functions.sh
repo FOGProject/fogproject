@@ -1878,7 +1878,7 @@ configureDHCP() {
                             sleep 2
                             service $dhcpd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             sleep 2
-                            service status $dhcpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            service $dhcpd status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             ;;
                         2)
                             sysv-rc-conf $dhcpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
