@@ -72,6 +72,15 @@ class StorageNode extends FOGController {
         $paths = @array_shift($paths);
         $paths = json_decode($paths);
         $pathstring = sprintf('/%s/',trim($this->get('snapinpath'),'/'));
+        if (count($paths) < 1) {
+            self::$FOGFTP
+                ->set('host',$this->get('ip'))
+                ->set('username',$this->get('user'))
+                ->set('password',$this->get('pass'));
+            if (!self::$FOGFTP->connect()) return;
+            $paths = self::$FOGFTP->nlist($pathstring);
+            self::$FOGFTP->close();
+        }
         $paths = array_values(array_unique(array_filter((array)preg_replace('#dev|postdownloadscripts|ssl#','',preg_replace("#$pathstring#",'',$paths)))));
         $this->set('snapinfiles',$paths);
     }
@@ -81,6 +90,16 @@ class StorageNode extends FOGController {
         $paths = @array_shift($paths);
         $paths = json_decode($paths);
         $pathstring = sprintf('/%s/',trim($this->get('path'),'/'));
+        if (count($paths) < 1) {
+            self::$FOGFTP
+                ->set('host',$this->get('ip'))
+                ->set('username',$this->get('user'))
+                ->set('password',$this->get('pass'));
+            if (!self::$FOGFTP->connect()) return;
+            $pathstring = sprintf('/%s/',trim($this->get('ftppath'),'/'));
+            $paths = self::$FOGFTP->nlist($pathstring);
+            self::$FOGFTP->close();
+        }
         $paths = array_values(array_unique(array_filter((array)preg_replace('#dev|postdownloadscripts|ssl#','',preg_replace("#$pathstring#",'',$paths)))));
         $this->set('images',$this->getSubObjectIDs('Image',array('path'=>$paths)));
     }
