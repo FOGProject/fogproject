@@ -87,13 +87,17 @@ abstract class FOGManagerController extends FOGBase {
             $data = array_map(function(&$item) use ($query,$htmlEntDecode) {
                 return array_map($htmlEntDecode,(array)self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$item]));
             },(array)$idField);
-            if (count($data) === 1) return array_shift($data);
+            if (count($data) === 1) {
+                if ($filter) return @$filter((array)array_shift($data));
+                return array_shift($data);
+            }
         } else {
             $data = array_map(function(&$item) {
                 return FOGCore::getClass($this->childClass)->setQuery($item);
             },(array)self::$DB->query($query)->fetch('','fetch_all')->get());
         }
-        return array_values(array_filter(@$filter($data)));
+        if ($filter) return @$filter(array_values(array_filter($data)));
+        return array_values(array_filter($data));
     }
     public function count($findWhere = array(), $whereOperator = 'AND', $compare = '=') {
         if (empty($findWhere)) $findWhere = array();
