@@ -11,10 +11,8 @@ class Schema extends FOGController {
         $dump = self::getClass('Mysqldump');
         $dump->start($file);
         if (!file_exists($file) || !is_readable($file)) throw new Exception(_('Could not read tmp file.'));
-        $filesize = filesize($file);
         $fh = fopen($file,'rb');
         header('Content-Type: text/plain');
-        header("Content-Length: $filesize");
         header("Content-Disposition: attachment; filename=$backup_name");
         header('Cache-Control: private');
         while (feof($fh) === false) {
