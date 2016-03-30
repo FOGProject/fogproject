@@ -520,7 +520,7 @@ while [[ -z $blGo ]]; do
                     dots "Backing up database"
                     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
                         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php?type=sqldump" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php?type=sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
                     errorStat $?
                     case $dbupdate in
