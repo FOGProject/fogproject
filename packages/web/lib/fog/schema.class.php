@@ -12,7 +12,6 @@ class Schema extends FOGController {
         $queryTables = $mysqli->query('SHOW TABLES');
         while ($row = $queryTables->fetch_row()) $target_tables[] = $row[0];
         if ($tables !== false) $target_tables = array_intersect($target_tables,$tables);
-        ob_start();
         printf('-- FOG MySQL Dump created %s%s',$this->formatTime('','r'),"\n\n");
         if ($tables === false) {
             printf('DROP DATABASE IF EXISTS `%s`;%s',DATABASE_NAME,"\n\n");
@@ -45,7 +44,6 @@ class Schema extends FOGController {
                 echo "\n\n\n";
             }
         }
-        return ob_get_clean();
     }
     public function import_db($file) {
         $mysqli = self::$DB->link();
@@ -61,19 +59,5 @@ class Schema extends FOGController {
         fclose($fh);
         if ($error) return $error;
         return true;
-    }
-    public function send_file($content, $backup_name = '') {
-        $backup_name = $backup_name ? $backup_name : sprintf('fog_backup_%s.sql',$this->formatTime('','Ymd_His'));
-        $filesize = strlen($content);
-        header("X-Sendfile: $backup_name");
-        header('Content-Description: File Transfer');
-        header('Content-Type: text/plain');
-        header("Content-Length: $filesize");
-        header("Content-disposition: attachment; filename=$backup_name");
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        echo $content;
-        exit;
     }
 }
