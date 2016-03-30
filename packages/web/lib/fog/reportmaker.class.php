@@ -62,14 +62,7 @@ class ReportMaker {
             $SchemaSave = FOGCore::getClass('Schema');
             global $FOGCore;
             $backup_name = sprintf('fog_backup_%s.sql',$FOGCore->formatTime('','Ymd_His'));
-            header("X-Sendfile: $backup_name");
-            header('Content-Description: File Transfer');
-            header('Content-Type: text/plain');
-            header("Content-disposition: attachment; filename=$backup_name");
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            $SchemaSave->export_db();
+            $SchemaSave->export_db($backup_name);
             unset($SchemaSave);
             break;
         case 4:
