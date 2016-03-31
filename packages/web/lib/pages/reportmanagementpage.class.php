@@ -438,22 +438,26 @@ class ReportManagementPage extends FOGPage {
         unset($classGet);
         $this->ReportMaker->endCSVLine();
         $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             _('Host name'),
             _('Host Primary MAC'),
             _('Host Pending MAC'),
         );
         $this->templates = array(
+            '<input type="checkbox" name="pendmac[]" value="${id}" class="toggle-action"/>',
             '${host_name}',
             '${host_mac}',
             '${host_pend}',
         );
         $this->attributes = array(
+            array('width'=>16,'class'=>'l filter-false'),
             array(),
             array(),
             array(),
         );
-        foreach ((array)$this->getSubObjectIDs('MACAddressAssociation',array('pending'=>1),'mac') AS $i => &$PendingMAC) {
-            $PendingMAC = self::getClass('MACAddress',$PendingMAC);
+        foreach ((array)self::getClass('MACAddressAssociationManager')->find(array('pending'=>1)) AS &$Pending) {
+            if (!$Pending->isValid()) continue;
+            $PendingMAC = self::getClass('MACAddress',$Pending->get('mac'));
             if (!$PendingMAC->isValid()) continue;
             $Host = $PendingMAC->getHost();
             if (!$Host->isValid()) continue;
@@ -461,9 +465,10 @@ class ReportManagementPage extends FOGPage {
             $hostName = $Host->get('name');
             $hostMac = $Host->get('mac');
             $hostDesc = $Host->get('description');
-            $hostPend = self::getClass('MACAddress',$PendingMAC)->__toString();
+            $hostPend = $PendingMAC->__toString();
             unset($Host,$PendingMAC);
             $this->data[] = array(
+                'id' => $Pending->get('id'),
                 'host_name' => $hostName,
                 'host_mac' => $hostMac,
                 'host_pend' => $hostPend,
@@ -477,9 +482,18 @@ class ReportManagementPage extends FOGPage {
             unset($hostID,$hostName,$hostMac,$hostDesc,$hostPend);
             unset($Host,$PendingMAC);
         }
+        if (count($this->data) > 0) printf('<form method="post" action="%s">',$this->formAction);
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
+        if (count($this->data) > 0) printf('<p class="c"><input name="approvependmac" type="submit" value="%s"/>&nbsp;&nbsp;<input name="delpendmac" type="submit" value="%s"/></p></form>',_('Approve selected pending macs'),_('Delete selected pending macs'));
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
+    }
+    public function pend_mac_post() {
+        if (isset($_REQUEST['approvependmac'])) self::getClass('MACAddressAssociationManager')->update(array('id'=>$_REQUEST['pendmac']),'',array('pending'=>0));
+        if (isset($_REQUEST['delpendmac'])) self::getClass('MACAddressAssociationManager')->destroy(array('id'=>$_REQUEST['pendmac']));
+        $appdel = (isset($_REQUEST['approvependmac']) ? 'approved' : 'deleted');
+        $this->setMessage(_("All pending macs $appdel successfully"));
+        $this->redirect("?node=$this->node");
     }
     public function vir_hist() {
         $this->title = _('FOG Virus Summary');
