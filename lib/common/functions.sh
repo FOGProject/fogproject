@@ -1558,7 +1558,7 @@ configureHttpd() {
     fi
     mkdir -p "$webdirdest" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ -d $docroot && ! -h ${docroot}fog ]] || [[ ! -d ${docroot}fog ]]; then
-        ln -s ${docroot}$webdirdest  ${docroot}fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        ln -s $webdirdest  ${docroot}/fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     errorStat $?
     if [[ -d ${backupPath}/fog_web_${version}.BACKUP ]]; then
