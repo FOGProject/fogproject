@@ -358,7 +358,8 @@ class FOGConfigurationPage extends FOGPage {
             self::getClass('ClientUpdaterManager')->destroy(array('id'=>$_REQUEST['delcu']));
             $this->setMessage(_('Client module update deleted!'));
         }
-        if ($_FILES['module']) {
+        try {
+            if ($_FILES['module']['error'] > 0) throw new UploadException($_FILES['module']['error']);
             foreach ((array)$_FILES['module']['tmp_name'] AS $index => &$tmp_name) {
                 if (!file_exists($tmp_name)) continue;
                 if (!($md5 = md5(file_get_contents($tmp_name)))) continue;
@@ -371,8 +372,10 @@ class FOGConfigurationPage extends FOGPage {
                     ->save();
                 unset($tmp_name);
             }
+            $this->setMessage(_('Modules added/updated'));
+        } catch (Exception $e) {
+            $this->setMessage($e->getMessage());
         }
-        $this->setMessage(_('Modules added/updated'));
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
     }
     public function mac_list() {
@@ -849,7 +852,7 @@ class FOGConfigurationPage extends FOGPage {
         self::$HookManager->processEvent('IMPORT_POST');
         $Schema = self::getClass('Schema');
         try {
-            if (!$_FILES['dbFile']) throw new Exception(_('No files uploaded'));
+            if ($_FILES['dbFile']['error'] > 0) throw new UploadException($_FILES['dbFile']['error']);
             $original = $Schema->export_db();
             $tmp_name = htmlentities($_FILES['dbFile']['tmp_name'],ENT_QUOTES,'utf-8');
             $filename = sprintf('%s%s%s',dirname($tmp_name),DIRECTORY_SEPARATOR,basename($tmp_name));
