@@ -98,7 +98,7 @@ class BootMenu extends FOGBase {
         $this->booturl = "http://{$webserver}{$webroot}service";
         $this->memdisk = "kernel $memdisk";
         $this->memtest = "initrd $memtest";
-        $this->kernel = sprintf('kernel %s %s initrd=%s root=/dev/ram0 rw ramdisk_size=%s keymap=%s web=%s consoleblank=0%s',
+        $this->kernel = sprintf('kernel %s %s initrd=%s root=/dev/ram0 rw ramdisk_size=%s keymap=%s web=%s consoleblank=0%s rootfstype=ext4',
             $bzImage,
             $this->loglevel,
             basename($initrd),
@@ -254,7 +254,8 @@ class BootMenu extends FOGBase {
         $this->chainBoot();
     }
     private function printTasking($kernelArgsArray) {
-        $kernelArgs = '';
+        $kernelArgs = array();
+        $kernelArgs[] = 'rootfstype=ext4';
         foreach($kernelArgsArray AS &$arg) {
             if (empty($arg)) continue;
             if (is_array($arg)) {
@@ -501,8 +502,8 @@ class BootMenu extends FOGBase {
         $this->Host->set('productKey',$this->encryptpw($_REQUEST['key']));
         if ($this->Host->save()) {
             $Send['keychangesuccess'] = array(
-                "echo Successfully changed key",
-                "sleep 3",
+                'echo Successfully changed key',
+                'sleep 3',
             );
             $this->parseMe($Send);
             $this->chainBoot();
