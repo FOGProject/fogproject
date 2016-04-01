@@ -200,7 +200,7 @@ case $imgType in
         imgpart="$imagePath/$img"
         mkfifo /tmp/pigz1 >/dev/null 2>&1
         uploadFormat "/tmp/pigz1" "$imgpart"
-        partclone.imager -c -s "$hd" -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog
+        partclone.imager -c -s "$hd" -O /tmp/pigz1 -N -f 1
         rm /tmp/pigz1 >/dev/null 2>&1
         clearScreen
         ;;

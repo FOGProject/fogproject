@@ -659,7 +659,7 @@ writeImage()  {
         pigz -d -c </tmp/pigz1 | partimage restore $target stdin -f3 -b 2>/tmp/status.fog
     else
         echo " * Imaging using Partclone"
-        pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O $target -N -f 1 2>/tmp/status.fog
+        pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O $target -N -f 1
     fi
     [[ ! $? -eq 0 ]] && handleError "Image failed to restore and exited with exit code $? (${FUNCNAME[0]})\n   Args Passed: $*"
     rm -rf /tmp/pigz1 >/dev/null 2>&1
@@ -1929,7 +1929,7 @@ savePartition() {
                     debugPause
                     imgpart="$imagePath/d${disk_number}p${part_number}.img"
                     uploadFormat "$fifoname" "$imgpart"
-                    partclone.$fstype -fsck-src-part -c -s $part -O $fifoname -N -f 1 2>/tmp/status.fog
+                    partclone.$fstype -fsck-src-part -c -s $part -O $fifoname -N -f 1
                     case $? in
                         0)
                             mv ${imgpart}.000 $imgpart >/dev/null 2>&1
