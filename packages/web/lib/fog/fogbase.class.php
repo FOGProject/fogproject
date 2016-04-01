@@ -568,12 +568,12 @@ abstract class FOGBase {
         @natcasesort($IPs);
         $retIPs = function(&$IP) {
             $IP = trim($IP);
-            if (!filter_var($IP,FILTER_VALIDATE_IP)) $IP = gethostbyname($IP);
+            if (!filter_var($IP,FILTER_VALIDATE_IP)) $IP = @gethostbyname($IP);
             if (filter_var($IP,FILTER_VALIDATE_IP)) return $IP;
         };
         $retNames = function(&$IP) {
             $IP = trim($IP);
-            if (filter_var($IP,FILTER_VALIDATE_IP)) return gethostbyaddr($IP);
+            if (filter_var($IP,FILTER_VALIDATE_IP)) return @gethostbyaddr($IP);
             return $IP;
         };
         $IPs = array_map($retIPs,(array)$IPs);
