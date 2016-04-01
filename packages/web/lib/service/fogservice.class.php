@@ -27,7 +27,7 @@ abstract class FOGService extends FOGBase {
     }
     protected function checkIfNodeMaster() {
         $this->getIPAddress();
-        foreach ((array)self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS $i => &$StorageNode) {
+        foreach ((array)self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
             if (!in_array(self::$FOGCore->resolveHostname($StorageNode->get('ip')),self::$ips)) continue;
             return $StorageNode;
