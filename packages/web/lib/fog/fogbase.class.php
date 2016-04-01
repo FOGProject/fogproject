@@ -566,14 +566,20 @@ abstract class FOGBase {
             $IPs[] = $res[0];
         }
         @natcasesort($IPs);
-        $retVal = function(&$IP) use (&$iponly) {
+        $retIPs = function(&$IP) {
             $IP = trim($IP);
-            if ($iponly === true && filter_var($IP,FILTER_VALIDATE_IP)) return $IP;
-            return gethostbyaddr(gethostbyname($IP));
+            if (!filter_var($IP,FILTER_VALIDATE_IP)) $IP = gethostbyname($IP);
+            if (filter_var($IP,FILTER_VALIDATE_IP)) return $IP;
         };
-        $output = array_map($retVal,(array)$IPs);
-        $iponly = true;
-        $output = array_merge($output,array_map($retVal,(array)$IPs));
+        $retNames = function(&$IP) {
+            $IP = trim($IP);
+            if (filter_var($IP,FILTER_VALIDATE_IP)) return gethostbyaddr($IP);
+            return $IP;
+        };
+        $IPs = array_map($retIPs,(array)$IPs);
+        $Names = array_map($retNames,(array)$IPs);
+        $output = array_merge($IPs,$Names);
+        unset($IPs,$Names);
         @natcasesort($output);
         self::$ips = array_values(array_filter(array_unique((array)$output)));
         return self::$ips;
