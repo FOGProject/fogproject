@@ -111,7 +111,7 @@ case $OS in
         cwd=$(pwd)
         cd $download
         extract=$(basename $fileplace)
-        extract=$(echo $extract | sed -i 's/\.tar\.gz//g')
+        extract=$(echo $extract | sed 's/\.tar\.gz//g')
         tar -xzf $fileplace -C $downloaddir/$extract >/dev/null 2>&1
         errorStat $?
         cd $cwd
