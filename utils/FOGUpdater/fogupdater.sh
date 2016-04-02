@@ -7,9 +7,45 @@ handleError() {
 [[ ! -f /opt/fog/.fogsettings ]] && handleError "   No fog settings found so nothing to update" 1
 . /opt/fog/.fogsettings
 [[ ! -d $docroot ]] && handleError "   No web folder found" 2
-[[ ! -d ${docroot}${webroot} ]] && handleError "   No fog web directory found" 3
-[[ ! -f ${docroot}${webroot}config.class.php && ! -f ${docroot}${webroot}Config.class.php ]] && handleError "   No config file found" 4
-[[ -f ${docroot}${webroot}config.class.php ]] && configpath=${docroot}${webroot} || configpath=${docroot}${webroot}Config.class.php
+case $osid in
+    1)
+        if [[ -z $docroot ]]; then
+            docroot="/var/www/html/"
+            webdirdest="${docroot}fog/"
+        elif [[ $docroot != *'fog'* ]]; then
+            webdirdest="${docroot}fog/"
+        else
+            webdirdest="${docroot}/"
+        fi
+        ;;
+    2)
+        if [[ -z $docroot ]]; then
+            docroot="/var/www/html/"
+            webdirdest="${docroot}fog/"
+        elif [[ "$docroot" != *'fog'* ]]; then
+            webdirdest="${docroot}fog/"
+        else
+            webdirdest="${docroot}/"
+        fi
+        if [[ $docroot == /var/www/html/ && ! -d $docroot ]]; then
+            docroot="/var/www/"
+            webdirdest="${docroot}fog/"
+        fi
+        ;;
+    3)
+        if [ -z "$docroot" ]; then
+            docroot="/srv/http/"
+            webdirdest="${docroot}fog/"
+        elif [[ "$docroot" != *'fog'* ]]; then
+            webdirdest="${docroot}fog/"
+        else
+            webdirdest="${docroot}/"
+        fi
+        ;;
+esac
+[[ ! -d $webdirdest ]] && handleError "   No fog web directory found" 3
+[[ ! -f ${webdirdest}config.class.php && ! -f ${webdirdest}Config.class.php ]] && handleError "   No config file found" 4
+[[ -f ${webdirdest}config.class.php ]] && configpath=${webdirdest}config.class.php || configpath=${webdirdest}Config.class.php
 OS=$(uname -s)
 case $OS in
     [Ll][Ii][Nn][Uu][Xx])
