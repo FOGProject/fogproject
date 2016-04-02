@@ -50,11 +50,8 @@ OS=$(uname -s)
 case $OS in
     [Ll][Ii][Nn][Uu][Xx])
         [[ -z $downloaddir ]] && downloaddir="/opt/"
-        [[ -z $updatemirrors ]] && updatemirrors="http://internap.dl.sourceforge.net/sourceforge/freeghost/ http://voxel.dl.sourceforge.net/sourceforge/freeghost/ http://kent.dl.sourceforge.net/sourceforge/freeghost/ http://heanet.dl.sourceforge.net/sourceforge/freeghost/"
         clear
         displayBanner
-        echo
-        echo
         echo "   ***************************************************************"
         echo "   *                         ** Notice **                        *"
         echo "   ***************************************************************"
@@ -62,74 +59,64 @@ case $OS in
         echo "   * Your FOG server may go offline during this upgrade process! *"
         echo "   *                                                             *"
         echo "   ***************************************************************"
-        echo
-        echo
-        sleep 5
         dots "Checking running version"
         version=$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' $configpath | tr -d '[[:space:]]')
         [[ -z $version ]] && errorStat 1
         echo "Done"
-        echo
-        echo
-        echo " * Current FOG Version: $version"
-        echo
-        echo
-        dots " * Checking latest version"
+        echo "Current FOG Version: $version"
+        dots "Checking latest version"
         [[ -z $trunk ]] && latest=$(wget --no-check-certificate -qO - --post-data="stable" https://fogproject.org/version/index.php) || latest=$(wget --no-check-certificate -qO - --post-data="dev" https://fogproject.org/version/index.php)
         [[ -z $latest ]] && errorStat 1
         echo "Done"
-        echo
-        echo
-        echo " * Latest FOG Version: $latest"
-        echo
-        echo
+        echo "Latest FOG Version: $latest"
         if [[ -z $trunk ]]; then
+            [[ -z $updatemirrors ]] && updatemirrors="http://internap.dl.sourceforge.net/sourceforge/freeghost/ http://voxel.dl.sourceforge.net/sourceforge/freeghost/ http://kent.dl.sourceforge.net/sourceforge/freeghost/ http://heanet.dl.sourceforge.net/sourceforge/freeghost/"
             [[ $(echo $version) == $(echo $latest) ]] && handleError " * You are already up to date!" 0
             echo "   You are not running the latest stable version"
-            echo
-            echo
-            sleep 3
             echo " * Preparing to upgrade"
             echo " * Attempting to download latest stable to $downloaddir"
-            echo
-            echo
-            sleep 3
-            downloaded=""
-            for url in $updatemirrors; do
-                echo " * Trying mirror $url"
-                dots " * Attempting Download"
-                fileplace=$downloaddir/fog_${latest}.tar.gz
-                filedownload=$url/fog_${latest}.tar.gz
-                wget --no-check-certificate -qO $fileplace $filedownload >/dev/null 2>&1
-                case $? in
-                    0)
-                        echo "Done"
-                        dowloaded=1
-                        break
-                        ;;
-                    *)
-                        echo "Failed"
-                        continue
-                        ;;
-                esac
-            done
-            [[ -z $downloaded ]] && handleError "   Failed to download current file" 5
-            echo
-            echo
-            echo " * Extracting package $fileplace"
-            echo
-            echo
-            dots " * Extracting"
-            cwd=$(pwd)
-            cd $download
-            tar -xzf $fileplace >/dev/null 2>&1
-            errorStat $?
-            cd $cwd
-            echo "Done"
-            echo
-            cd $downloaddir/fog_$latest/bin
-            ./installfog.sh -y
+        else
+            [[ -z $updatemirrors ]] && updatemirrors="http://freeghost.svn.sourceforge.net/viewvc/freeghost/trunk/?view=tar https://github.com/fogproject/fogproject/archive/dev-branch.tar.gz"
+            [[ $(echo $version) == $(echo $latest) ]] && handleError " * You are already up to date!" 0
+            echo "   You are not running the latest dev version"
+            echo " * Preparing to upgrade"
+            echo " * Attempting to download latest dev version to $downloaddir"
         fi
+        downloaded=""
+        for url in $updatemirrors; do
+            echo " * Trying mirror $url"
+            dots "Attempting Download"
+            fileplace=$downloaddir/fog_${latest}.tar.gz
+            filedownload=$url/fog_${latest}.tar.gz
+            wget --no-check-certificate -qO $fileplace $filedownload >/dev/null 2>&1
+            case $? in
+                0)
+                    echo "Done"
+                    dowloaded=1
+                    break
+                    ;;
+                *)
+                    echo "Failed"
+                    continue
+                    ;;
+            esac
+        done
+        [[ -z $downloaded ]] && handleError "   Failed to download current file" 5
+        echo
+        echo
+        echo " * Extracting package $fileplace"
+        echo
+        echo
+        dots "Extracting"
+        cwd=$(pwd)
+        cd $download
+        tar -xzf $fileplace >/dev/null 2>&1
+        errorStat $?
+        cd $cwd
+        echo "Done"
+        echo
+        cd $downloaddir/fog_$latest/bin
+        ./installfog.sh -y
         ;;
     *)
         handleError "   We only support installation on Linux OS's" 6
