@@ -1212,6 +1212,102 @@ getHardDisk() {
         break
     done
 }
+# Finds the hard drive info and set's up the type
+findHDDInfo() {
+    case $imgType in
+        [Nn]|mps|dd)
+            dots "Looking for Hard Disk"
+            getHardDisk
+            if [[ -z $hd ]]; then
+                echo "Failed"
+                debugPause
+                handleError "Could not find hard disk ($0)\n   Args Passed: $*"
+            fi
+            echo "Done"
+            debugPause
+            case $type in
+                down)
+                    diskSize=$(lsblk --bytes -dplno SIZE -I 3,8,9,179,259 $hd)
+                    [[ $diskSize -gt 2199023255552 ]] && layPartSize="2tB"
+                    echo " * Using Disk: $hd"
+                    [[ $imgType == +([nN]) ]] && validResizeOS
+                    enableWriteCache "$hd"
+                    ;;
+                up)
+                    dots "Reading PartitionTables"
+                    runPartprobe "$hd"
+                    getPartitions "$hd"
+                    if [[ -z $parts ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Could not find partitions ($0)\n    Args Passed: $*"
+                    fi
+                    echo "Done"
+                    debugPause
+                    ;;
+            esac
+            echo " * Using Hard Disk: $hd"
+            ;;
+        mpa)
+            dots "Looking for Hard Disks"
+            getHardDisk "true"
+            if [[ -z $disks ]]; then
+                echo "Failed"
+                debugPause
+                handleError "Count not find any disks ($0)\n   Args Passed: $*"
+            fi
+            echo "Done"
+            debugPause
+            case $type in
+                up)
+                    for disk in $disks; do
+                        dots "Reading Partition Tables on $disk"
+                        getPartitions "$disk"
+                        if [[ -z $parts ]]; then
+                            echo "Failed"
+                            debugPause
+                            echo " * No partitions for disk $disk"
+                            debugPause
+                            continue
+                        fi
+                        echo "Done"
+                        debugPause
+                    done
+                    ;;
+            esac
+            echo " * Using Disks: $disks"
+            ;;
+    esac
+}
+
+# Imaging complete
+completeTasking() {
+    case $type in
+        up)
+            chmod -R 777 "$imagePath" >/dev/null 2>&1
+            killStatusReporter
+            . /bin/fog.imgcomplete
+            ;;
+        down)
+            killStatusReporter
+            if [[ -f /images/postdownloadscripts/fog.postdownload ]]; then
+                postdownpath="/images/postdownloadscripts/"
+                . ${postdownpath}fog.postdownload
+            fi
+            [[ $capone -eq 1 ]] && exit 0
+            if [[ $osid == +([1-2]|4|[5-7]|9) ]]; then
+                for disk in $disks; do
+                    getPartitions "$disk"
+                    for part in $parts; do
+                        fsTypeSetting "$part"
+                        [[ $fstype == ntfs ]] && changeHostname "$part"
+                    done
+                done
+            fi
+            . /bin/fog.imgcomplete
+            ;;
+    esac
+}
 # Corrects mbr layout for Vista OS
 #
 # $1 is the disk to correct for
