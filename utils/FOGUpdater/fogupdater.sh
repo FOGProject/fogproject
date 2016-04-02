@@ -44,8 +44,8 @@ case $osid in
         ;;
 esac
 [[ ! -d $webdirdest ]] && handleError "   No fog web directory found" 3
-[[ ! -f ${webdirdest}config.class.php && ! -f ${webdirdest}Config.class.php ]] && handleError "   No config file found" 4
-[[ -f ${webdirdest}config.class.php ]] && configpath=${webdirdest}config.class.php || configpath=${webdirdest}Config.class.php
+[[ -f ${webdirdest}lib/fog/system.class.php ]] && configpath=${webdirdest}lib/fog/system.class.php || configpath=${webdirdest}lib/fog/System.class.php
+[[ ! -f $configpath ]] && handleError "   No config file found" 4
 OS=$(uname -s)
 case $OS in
     [Ll][Ii][Nn][Uu][Xx])
@@ -65,7 +65,7 @@ case $OS in
         echo
         echo
         sleep 5
-        dots " * Checking running version"
+        dots "Checking running version"
         version=$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' $configpath | tr -d '[[:space:]]')
         [[ -z $version ]] && errorStat 1
         echo "Done"
