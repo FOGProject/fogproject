@@ -92,7 +92,7 @@ case $OS in
             case $? in
                 0)
                     echo "Done"
-                    dowloaded=1
+                    downloaded=1
                     break
                     ;;
                 *)
