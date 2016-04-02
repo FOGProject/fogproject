@@ -1072,6 +1072,7 @@ writeUpdateFile() {
     escosname=$(echo $osname | sed -e $replace)
     escdodhcp=$(echo $dodhcp | sed -e $replace)
     escbldhcp=$(echo $bldhcp | sed -e $replace)
+    escdhcpd=$(echo $dhcpd | sed -e $replace)
     escblexports=$(echo $blexports | sed -e $replace)
     escinstalltype=$(echo $installtype | sed -e $replace)
     escsnmysqluser=$(echo $snmysqluser | sed -e $replace)
@@ -1134,6 +1135,9 @@ writeUpdateFile() {
             grep -q "bldhcp=" $fogprogramdir/.fogsettings && \
                 sed -i "s/bldhcp=.*/bldhcp='$escbldhcp'/g" $fogprogramdir/.fogsettings || \
                 echo "bldhcp='$bldhcp'" >> $fogprogramdir/.fogsettings
+            grep -q "dhcpd=" $fogprogramdir/.fogsettings && \
+                sed -i "s/dhcpd=.*/dhcpd='$escdhcpd'/g" $fogprogramdir/.fogsettings || \
+                echo "dhcpd='$dhcpd'" >> $fogprogramdir/.fogsettings
             grep -q "blexports=" $fogprogramdir/.fogsettings && \
                 sed -i "s/blexports=.*/blexports='$escblexports'/g" $fogprogramdir/.fogsettings || \
                 echo "blexports='$blexports'" >> $fogprogramdir/.fogsettings
@@ -1216,6 +1220,7 @@ writeUpdateFile() {
             echo "osname='$osname'" >> "$fogprogramdir/.fogsettings"
             echo "dodhcp='$dodhcp'" >> "$fogprogramdir/.fogsettings"
             echo "bldhcp='$bldhcp'" >> "$fogprogramdir/.fogsettings"
+            echo "dhcpd='$dhcpd'" >> "$fogprogramdir/.fogsettings"
             echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
             echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
             echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
@@ -1255,6 +1260,7 @@ writeUpdateFile() {
         echo "osname='$osname'" >> "$fogprogramdir/.fogsettings"
         echo "dodhcp='$dodhcp'" >> "$fogprogramdir/.fogsettings"
         echo "bldhcp='$bldhcp'" >> "$fogprogramdir/.fogsettings"
+        echo "dhcpd='$dhcpd'" >> "$fogprogramdir/.fogsettings"
         echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
         echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
