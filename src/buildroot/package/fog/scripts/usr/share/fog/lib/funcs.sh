@@ -687,6 +687,7 @@ getValidRestorePartitions() {
     getPartitions "$disk"
     for part in $parts; do
         getPartitionNumber "$part"
+        [[ $imgPartitionType != all && $imgPartitionType != $part_number ]] && continue
         case $osid in
             [1-2])
                 [[ ! -f $imagePath ]] && imgpart="$imagePath/d${disk_number}p${part_number}.img*" || imgpart="$imagePath"
@@ -1211,60 +1212,6 @@ getHardDisk() {
         break
     done
 }
-# Initialize hard drive by formatting it
-# Note: This probably should not be used
-#
-# $1 is the drive that should be initialized (Required)
-initHardDisk() {
-    local disk="$1"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    local parts=""
-    local part=""
-    clearPartitionTables "$disk"
-    dots "Creating disk with new label"
-    parted -s $disk mklabel msdos >/dev/null 2>&1
-    case $? in
-        0)
-            echo "Done"
-            ;;
-        *)
-            echo "Failed"
-            debugPause
-            handleError "Failed to set label of $disk (${FUNCNAME[0]})\n   Args Passed: $*"
-            ;;
-    esac
-    debugPause
-    dots "Initializing $disk with NTFS partition"
-    parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s >/dev/null 2>&1
-    case $? in
-        0)
-            echo "Done"
-            ;;
-        *)
-            echo "Failed"
-            debugPause
-            handleError "Failed to create partition (${FUNCNAME[0]})\n   Args Passed: $*"
-            ;;
-    esac
-    debugPause
-    runPartprobe "$disk"
-    dots "Formatting initialized partition"
-    getPartitions "$disk"
-    for part in $parts; do
-        mkfs.ntfs -Qq $part >/dev/null 2>&1
-        case $? in
-            0)
-                ;;
-            *)
-                echo "Failed"
-                debugPause
-                handleError "Failed to initialize (${FUNCNAME[0]})\n   Args Passed: $*"
-                ;;
-        esac
-    done
-    echo "Done"
-    debugPause
-}
 # Corrects mbr layout for Vista OS
 #
 # $1 is the disk to correct for
@@ -1735,11 +1682,6 @@ savePartitionTablesAndBootLoaders() {
     local strdots=""
     [[ $hasgpt -eq 0 ]] && have_extended_partition=$(sfdisk -l $disk 2>/dev/null | egrep "^${disk}.* (Extended|W95 Ext'd \(LBA\))$" | wc -l)
     runPartprobe "$disk"
-    if [[ $imgPartitionType != all && $imgPartitionType != mbr ]]; then
-        echo " * Skipping partition tables and MBR"
-        debugPause
-        return
-    fi
     case $hasgpt in
         0)
             strdots="Saving Partition Tables (MBR)"
@@ -1773,6 +1715,7 @@ savePartitionTablesAndBootLoaders() {
 clearPartitionTables() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ $nombr -eq 1 ]] && return
     dots "Erasing current MBR/GPT Tables"
     sgdisk -Z $disk >/dev/null 2>&1
     case $? in
@@ -2071,6 +2014,11 @@ prepareResizeDownloadPartitions() {
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $osid ]] && handleError "No osid passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $imgPartitionType ]] && handleError "No image partition type  passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    if [[ $nombr -eq 1 ]]; then
+        echo -e " * Skipping partition preperation\n"
+        debugPause
+        return
+    fi
     restorePartitionTablesAndBootLoaders "$disk" "$disk_number" "$imagePath" "$osid" "$imgPartitionType"
     local do_fill=0
     fillDiskWithPartitionsIsOK "$disk" "$imagePath" "$disk_number"
@@ -2108,9 +2056,9 @@ performRestore() {
         mainuuidfilename=""
         mainUUIDFileName "$imagePath" "$disk_number"
         getValidRestorePartitions "$disk" "$disk_number" "$imagePath" "$restoreparts"
+        [[ -z $restoreparts ]] && handleError "No image file(s) found that would match the partition(s) to be restored (${FUNCNAME[0]})\n   Args Passed: $*"
         for restorepart in $restoreparts; do
             getPartitionNumber "$restorepart"
-            [[ $imgPartitionType != all && $imgPartitionType != $part_number ]] && continue
             [[ $imgType =~ [Nn] ]] && tmpEBRFileName "$disk_number" "$part_number"
             restorePartition "$restorepart" "$disk_number" "$imagePath" "$mc"
             [[ $imgType =~ [Nn] ]] && restoreEBR "$restorepart" "$tmpebrfilename"
