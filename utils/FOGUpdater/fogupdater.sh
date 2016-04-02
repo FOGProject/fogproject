@@ -110,14 +110,17 @@ case $OS in
         dots "Extracting"
         cwd=$(pwd)
         cd $download
-        extract=$(basename $fileplace)
-        extract=$(echo $extract | sed 's/\.tar\.gz//g')
+        if [[ ! -z $trunk ]]; then
+            extract=$(basename $fileplace)
+            extract=$(echo $extract | sed 's/\.tar\.gz//g')
+            mkdir $downloaddir/$extract >/dev/null 2>&1
+        fi
         tar -xzf $fileplace -C $downloaddir/$extract >/dev/null 2>&1
         errorStat $?
         cd $cwd
         echo "Done"
         echo
-        cd $downloaddir/fog_$latest/bin
+        [[ -z $trunk ]] && cd $downloaddir/fog_$latest/bin || cd $downloaddir/fog_$latest/*/bin
         ./installfog.sh -y
         ;;
     *)
