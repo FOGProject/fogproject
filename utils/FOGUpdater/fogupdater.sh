@@ -76,7 +76,7 @@ case $OS in
             echo " * Preparing to upgrade"
             echo " * Attempting to download latest stable to $downloaddir"
         else
-            [[ -z $updatemirrors ]] && updatemirrors="http://freeghost.svn.sourceforge.net/viewvc/freeghost/trunk/?view=tar https://github.com/fogproject/fogproject/archive/dev-branch.tar.gz"
+            [[ -z $updatemirrors ]] && updatemirrors="https://github.com/fogproject/fogproject/archive/dev-branch.tar.gz"
             [[ $(echo $version) == $(echo $latest) ]] && handleError " * You are already up to date!" 0
             echo "   You are not running the latest dev version"
             echo " * Preparing to upgrade"
