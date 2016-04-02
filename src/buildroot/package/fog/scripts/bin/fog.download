@@ -230,7 +230,7 @@ if [[ $imgPartitionType == 'mbr' ]]; then
 else
     runPartprobe "$hd"
     getPartitions "$hd"
-    [[ -z $parts ]] && echo -e " * Seams like you are trying to restore to an empty disk. Be aware this will most probably cause trouble.\n"
+    [[ -z $parts ]] && echo -e " * Seems like you are trying to restore to an empty disk. Be aware this will most probably cause trouble.\n"
     echo "   +--------------------------------+"
     echo "   |  Attempting to download image  |"
     echo "   +--------------------------------+"
