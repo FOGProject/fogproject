@@ -76,7 +76,7 @@ case $OS in
             echo " * Preparing to upgrade"
             echo " * Attempting to download latest stable to $downloaddir"
         else
-            [[ -z $updatemirrors ]] && updatemirrors="https://github.com/fogproject/fogproject/archive/dev-branch.tar.gz"
+            [[ -z $updatemirrors ]] && updatemirrors="https://github.com/fogproject/fogproject/tarball"
             [[ $(echo $version) == $(echo $latest) ]] && handleError " * You are already up to date!" 0
             echo "   You are not running the latest dev version"
             echo " * Preparing to upgrade"
@@ -86,9 +86,9 @@ case $OS in
         for url in $updatemirrors; do
             echo " * Trying mirror $url"
             dots "Attempting Download"
-            fileplace=$downloaddir/fog_${latest}.tar.gz
-            filedownload=$url/fog_${latest}.tar.gz
-            wget --no-check-certificate -qO $fileplace $filedownload >/dev/null 2>&1
+            fileplace="$downloaddir/fog_${latest}.tar.gz"
+            [[ -z $trunk ]] && filedownload="fog_${latest}.tar.gz" || filedownload='dev-branch'
+            wget --no-check-certificate -qO $fileplace $url/$filedownload >/dev/null 2>&1
             case $? in
                 0)
                     echo "Done"
