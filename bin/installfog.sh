@@ -49,7 +49,7 @@ command -v lsb_release >$workingdir/error_logs/fog_error_${version}.log 2>&1
 if [[ ! $? -eq 0 ]]; then
     case $linuxReleaseName in
         *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
-            apt-get -yq install lsb_release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            apt-get -yq install lsb-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             ;;
         *[Cc][Ee][Nn][Tt][Oo][Ss]*|*[Rr][Ee][Dd]*[Hh][Aa][Tt]*|*[Ff][Ee][Dd][Oo][Rr][Aa]*)
             command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
