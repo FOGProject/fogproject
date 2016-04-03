@@ -629,6 +629,7 @@ installPackages() {
                 ;;
         esac
         eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        [[ $osid == 2 && -z $dhcpd && $x == +(*'dhcp')* ]] && dhcpd=$x
         if [[ $? -eq 0 ]]; then
             dots "Skipping package: $x"
             echo "(Already Installed)"
