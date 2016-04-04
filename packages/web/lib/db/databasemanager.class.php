@@ -22,6 +22,6 @@ class DatabaseManager extends FOGCore {
         return self::$DB;
     }
     public function getVersion() {
-        return (int)self::$DB->query('SELECT vValue FROM schemaVersion')->fetch()->get('vValue');
+        return (int)self::$DB->query('SELECT `vValue` FROM `schemaVersion`')->fetch()->get('vValue');
     }
 }
