@@ -18,12 +18,12 @@
 #
 command -v dnf >/dev/null 2>&1
 [[ $? -eq 0 ]] && repos="remi" || repos="remi,remi-php56,epel"
-packageQuery="rpm -q \$x"
+packageQuery="rpm -qa | grep ^\$x"
 case $linuxReleaseName in
     *[Mm][Aa][Gg][Ee][Ii][Aa]*)
         packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process"
         packageinstaller="urpmi --auto"
-        packagelist="urpmq"
+        packagelist="urpmq | grep"
         packageupdater="$packageinstaller"
         packmanUpdate="urpmi.update -a"
         dhcpname="dhcp-server"
@@ -35,12 +35,12 @@ case $linuxReleaseName in
         command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ $? -eq 0 ]]; then
             packageinstaller="dnf -y --enablerepo=$repos install"
-            packagelist="dnf list --enablerepo=$repos"
+            packagelist="dnf list --enablerepo=$repos | grep"
             packageupdater="dnf -y --enablerepo=$repos update"
             packmanUpdate="dnf --enablerepo=$repos check-update"
         else
             packageinstaller="yum -y --enablerepo=$repos install"
-            packagelist="yum --enablerepo=$repos list"
+            packagelist="yum --enablerepo=$repos list | grep"
             packageupdater="yum -y --enablerepo=$repos update"
             packmanUpdate="yum check-update"
             command -v yum-config-manager >/dev/null 2>&1
