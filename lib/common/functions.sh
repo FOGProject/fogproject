@@ -600,7 +600,8 @@ installPackages() {
         case $x in
             mysql)
                 for sqlclient in $sqlclientlist; do
-                    eval $packagelist "^$sqlclient" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    [[ $osid -eq 2 ]] && sqlclient="^$sqlclient"
+                    eval $packagelist "$sqlclient" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$sqlclient
                         break
@@ -609,7 +610,8 @@ installPackages() {
                 ;;
             mysql-server)
                 for sqlserver in $sqlserverlist; do
-                    eval $packagelist "^$sqlserver" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    [[ $osid -eq 2 ]] && sqlserver="^$sqlserver"
+                    eval $packagelist "$sqlserver" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$sqlserver
                         break
@@ -618,7 +620,8 @@ installPackages() {
                 ;;
             php${php_ver}-json)
                 for json in $jsontest; do
-                    eval $packagelist "^$json" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    [[ $osid -eq 2 ]] && json="^$json"
+                    eval $packagelist "$json" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$json
                         break
@@ -627,7 +630,8 @@ installPackages() {
                 ;;
             php${php_ver}-mysqlnd)
                 for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
-                    eval $packagelist "^$phpmysql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    [[ $osid -eq 2 ]] && phpmysql="^$phpmysql"
+                    eval $packagelist "$phpmysql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$phpmysql
                         break
@@ -643,7 +647,8 @@ installPackages() {
             newPackList="$newPackList $x"
             continue
         fi
-        eval $packagelist "^$x" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        [[ $osid == 2 ]] && tmppack="^$x" || tmppack="$x"
+        eval $packagelist "$tmppack" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
             dots "Skipping package: $x"
             echo "(Does not exist)"
@@ -687,7 +692,7 @@ confirmPackageInstallation() {
             php${php_ver}-mysqlnd)
                 for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
                     x=$phpmysql
-                    eval $packagelist "^$phpmysql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     [[ $? -eq 0 ]] && break
                 done
                 ;;
