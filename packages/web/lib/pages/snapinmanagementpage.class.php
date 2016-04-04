@@ -129,7 +129,7 @@ class SnapinManagementPage extends FOGPage {
             if (!$snapinfile) throw new Exception(_('A file to use for the snapin must be either uploaded or chosen from the already present list'));
             if (!$_REQUEST['storagegroup']) throw new Exception(_('Must have snapin associated to a group'));
             $StorageNode = self::getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
-            if ($_FILES['snapin']['error'] > 0) throw new UploadException($_FILES['snapin']['error']);
+            if (!$snapinfile && $_FILES['snapin']['error'] > 0) throw new UploadException($_FILES['snapin']['error']);
             $src = sprintf('%s/%s',dirname($_FILES['snapin']['tmp_name']),basename($_FILES['snapin']['tmp_name']));
             $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$snapinfile);
             self::$FOGFTP
@@ -291,7 +291,7 @@ class SnapinManagementPage extends FOGPage {
                 if ($uploadfile) $snapinfile = $uploadfile;
                 if (!$snapinfile) throw new Exception(_('A file to use for the snapin must be either uploaded or chosen from the already present list'));
                 $StorageNode = $this->obj->getStorageGroup()->getMasterStorageNode();
-                if ($_FILES['snapin']['error'] > 0) throw new UploadException($_FILES['snapin']['error']);
+                if (!$snapinfile && $_FILES['snapin']['error'] > 0) throw new UploadException($_FILES['snapin']['error']);
                 $src = sprintf('%s/%s',dirname($_FILES['snapin']['tmp_name']),basename($_FILES['snapin']['tmp_name']));
                 $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$snapinfile);
                 self::$FOGFTP
