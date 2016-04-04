@@ -21,7 +21,7 @@
 [[ $php_ver != 5 ]] && repo="php" || repo="php${php_ver}${php_verAdds}"
 [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
 [[ $php_ver != 5 ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
-packageQuery="dpkg -l \$x | grep '^ii'"
+packageQuery="dpkg -l ^\$x | grep '^ii'"
 case $linuxReleaseName in
     *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
         packages="apache2 php${php_ver} php${php_ver}-json php${php_ver}-gd php${php_ver}-cli php${php_ver}-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php-gettext php${php_ver}-mcrypt php${php_ver}-mysqlnd curl libc6 libcurl3 zlib1g php${php_ver}-fpm libapache2-mod-php${php_ver} php${php_ver}-mbstring"
