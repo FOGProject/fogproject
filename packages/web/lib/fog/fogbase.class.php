@@ -233,20 +233,30 @@ abstract class FOGBase {
         return sprintf('%3.2f %s',$size/pow(1024,$factor),@$units[$factor]);
     }
     protected function getGlobalModuleStatus($names = false) {
-        return array(
-            'dircleanup' => !$names ? (int)$this->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED') : 'FOG_SERVICE_DIRECTORYCLEANER_ENABLED',
-            'usercleanup' => !$names ? (int)$this->getSetting('FOG_SERVICE_USERCLEANUP_ENABLED') : 'FOG_SERVICE_USERCLEANUP_ENABLED',
-            'displaymanager' => !$names ? (int)$this->getSetting('FOG_SERVICE_DISPLAYMANAGER_ENABLED') : 'FOG_SERVICE_DISPLAYMANAGER_ENABLED',
-            'autologout' => !$names ? (int)$this->getSetting('FOG_SERVICE_AUTOLOGOFF_ENABLED') : 'FOG_SERVICE_AUTOLOGOFF_ENABLED',
-            'greenfog' => !$names ? $this->getSetting('FOG_SERVICE_GREENFOG_ENABLED') : 'FOG_SERVICE_GREENFOG_ENABLED',
-            'hostnamechanger' => !$names ? (int)$this->getSetting('FOG_SERVICE_HOSTNAMECHANGER_ENABLED') : 'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
-            'snapinclient' => !$names ? (int)$this->getSetting('FOG_SERVICE_SNAPIN_ENABLED') : 'FOG_SERVICE_SNAPIN_ENABLED',
-            'clientupdater' => !$names ? (int)$this->getSetting('FOG_SERVICE_CLIENTUPDATER_ENABLED') : 'FOG_SERVICE_CLIENTUPDATER_ENABLED',
-            'hostregister' => !$names ? (int)$this->getSetting('FOG_SERVICE_HOSTREGISTER_ENABLED') : 'FOG_SERVICE_HOSTREGISTER_ENABLED',
-            'printermanager' => !$names ? (int)$this->getSetting('FOG_SERVICE_PRINTERMANAGER_ENABLED') : 'FOG_SERVICE_PRINTERMANAGER_ENABLED',
-            'taskreboot' => !$names ? (int)$this->getSetting('FOG_SERVICE_TASKREBOOT_ENABLED') : 'FOG_SERVICE_TASKREBOOT_ENABLED',
-            'usertracker' => !$names ? (int)$this->getSetting('FOG_SERVICE_USERTRACKER_ENABLED') : 'FOG_SERVICE_USERTRACKER_ENABLED',
+        $services = array(
+            'autologout' => 'AUTOLOGOFF',
+            'clientupdater' => 'CLIENTUPDATER',
+            'dircleanup' => 'DIRECTORYCLEANER',
+            'displaymanager' => 'DISPLAYMANAGER',
+            'greenfog' => 'GREENFOG',
+            'hostnamechanger' => 'HOSTNAMECHANGER',
+            'hostregister' => 'HOSTREGISTER',
+            'printermanager' => 'PRINTERMANAGER',
+            'snapinclient' => 'SNAPIN',
+            'taskreboot' => 'TASKREBOOT',
+            'usercleanup' => 'USERCLEANUP',
+            'usertracker' => 'USERTRACKER',
         );
+        array_walk($services,function(&$value,&$short) {
+            $value = sprintf('FOG_SERVICE_%s_ENABLED',$value);
+        });
+
+        if ($names) return $services;
+        $serviceEn = $this->getSubObjectIDs('Service',array('name'=>array_values($services)),'value',false,'AND','name',false,false);
+        $serviceEn = array_map(function(&$val) {
+            return (int)$val;
+        },(array)$serviceEn);
+        return array_combine(array_keys($services),$serviceEn);
     }
     public function nice_date($Date = 'now',$utc = false) {
         $TZ = self::getClass('DateTimeZone',($utc || empty(self::$TimeZone)? 'UTC' : self::$TimeZone));
