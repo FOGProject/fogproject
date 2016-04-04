@@ -1,5 +1,5 @@
 <?php
-require('../commons/base.inc.php');
+require_once('../commons/base.inc.php');
 try {
     $Host = $FOGCore->getHostItem(false,false,true);
     if ($Host && $Host->isValid()) {

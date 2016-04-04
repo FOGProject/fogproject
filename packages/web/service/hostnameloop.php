@@ -1,5 +1,5 @@
 <?php
-require('../commons/base.inc.php');
+require_once('../commons/base.inc.php');
 try {
     $hostname = trim(base64_decode(trim($_REQUEST['host'])));
     foreach ($FOGCore::getClass('HostManager')->find(array('name' => $hostname)) AS &$Host) {

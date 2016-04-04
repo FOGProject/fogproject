@@ -78,7 +78,7 @@ class PluginManagementPage extends FOGPage {
         $this->render();
         if ($_REQUEST['run']) {
             $runner = $P->getRunInclude($_REQUEST['run']);
-            if (file_exists($runner) && $P->isInstalled()) require($runner);
+            if (file_exists($runner) && $P->isInstalled()) require_once($runner);
             else $this->run();
         }
         unset($P);
@@ -104,7 +104,7 @@ class PluginManagementPage extends FOGPage {
         $this->render();
         if ($_REQUEST['run']) {
             $runner = $P->getRunInclude($_REQUEST['run']);
-            if (file_exists($runner) && $P->isInstalled()) require($runner);
+            if (file_exists($runner) && $P->isInstalled()) require_once($runner);
             else $this->run();
         }
         unset($P);
