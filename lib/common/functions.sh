@@ -559,14 +559,21 @@ installPackages() {
                     fi
                     ;;
                 *)
-                    addUbuntuRepo
-                    if [[ $? != 0 ]]; then
-                        apt-get update >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        apt-get -yq install python-software-properties ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
+                        addUbuntuRepo
+                        if [[ $? != 0 ]]; then
+                            apt-get update >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            apt-get -yq install python-software-properties ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        fi
                     fi
+                    apt-get update >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
             ;;
@@ -593,7 +600,7 @@ installPackages() {
         case $x in
             mysql)
                 for sqlclient in $sqlclientlist; do
-                    eval $packagelist $sqlclient >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    eval $packagelist "^$sqlclient" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$sqlclient
                         break
@@ -602,7 +609,7 @@ installPackages() {
                 ;;
             mysql-server)
                 for sqlserver in $sqlserverlist; do
-                    eval $packagelist $sqlserver >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    eval $packagelist "^$sqlserver" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$sqlserver
                         break
@@ -611,7 +618,7 @@ installPackages() {
                 ;;
             php${php_ver}-json)
                 for json in $jsontest; do
-                    eval $packagelist $json >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    eval $packagelist "^$json" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$json
                         break
@@ -620,7 +627,7 @@ installPackages() {
                 ;;
             php${php_ver}-mysqlnd)
                 for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
-                    eval $packagelist $phpmysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    eval $packagelist "^$phpmysql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$phpmysql
                         break
@@ -636,7 +643,7 @@ installPackages() {
             newPackList="$newPackList $x"
             continue
         fi
-        eval $packagelist $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        eval $packagelist "^$x" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
             dots "Skipping package: $x"
             echo "(Does not exist)"
@@ -644,12 +651,12 @@ installPackages() {
         fi
         newPackList="$newPackList $x"
         dots "Installing package: $x"
-        eval "DEBIAN_FRONTEND=noninteractive $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1"
+        DEBIAN_FRONTEND=noninteractive $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
     done
     packages=$(echo $newPackList)
     dots "Updating packages as needed"
-    eval "DEBIAN_FRONTEND=noninteractive $packageupdater $packages >>$workingdir/error_logs/fog_error_${version}.log 2>&1"
+    DEBIAN_FRONTEND=noninteractive $packageupdater $packages >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     echo "OK"
 }
 confirmPackageInstallation() {
@@ -680,7 +687,7 @@ confirmPackageInstallation() {
             php${php_ver}-mysqlnd)
                 for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
                     x=$phpmysql
-                    eval $packagelist $phpmysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    eval $packagelist "^$phpmysql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     [[ $? -eq 0 ]] && break
                 done
                 ;;
@@ -774,7 +781,7 @@ stopInitScript() {
         if [ "$systemctl" == "yes" ]; then
             systemctl stop $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
         else
-            $initdpath/$serviceItem stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+            [[ -x $initdpath/$serviceItem ]] && $initdpath/$serviceItem stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
         fi
         echo "OK"
     done
@@ -786,7 +793,7 @@ startInitScript() {
         if [[ $systemctl == yes ]]; then
             systemctl start $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
         else
-            $initdpath/$serviceItem start >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+            [[ -x $initdpath/$serviceItem ]] && $initdpath/$serviceItem start >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
         fi
         errorStat $?
     done
