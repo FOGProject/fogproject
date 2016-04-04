@@ -553,6 +553,16 @@ installPackages() {
                     fi
                     ;;
                 *)
+                    if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
+                        addUbuntuRepo
+                        if [[ $? != 0 ]]; then
+                            apt-get update >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            apt-get -yq install python-software-properties ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        fi
+                    fi
                     apt-get update >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
