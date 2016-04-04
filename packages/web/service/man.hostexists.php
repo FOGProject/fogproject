@@ -1,5 +1,5 @@
 <?php
-require('../commons/base.inc.php');
+require_once('../commons/base.inc.php');
 try {
     $MACs = $FOGCore->getHostItem(true,true,true,true);
     $Host = $FOGCore::getClass('HostManager')->getHostByMacAddresses($MACs);

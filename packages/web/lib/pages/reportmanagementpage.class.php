@@ -51,7 +51,7 @@ class ReportManagementPage extends FOGPage {
     public function file() {
         $path = sprintf('%s/%s',trim($this->getSetting('FOG_REPORT_DIR'),'/'),basename(base64_decode($_REQUEST['f'])));
         if (!file_exists($path)) $this->fatalError(sprintf('%s: %s',_('Report file does not exist! Path'),array($path)));
-        require($path);
+        require_once($path);
     }
     public function imaging_log() {
         $this->title = _('FOG Imaging Log - Select Date Range');

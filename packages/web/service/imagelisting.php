@@ -1,5 +1,5 @@
 <?php
-require('../commons/base.inc.php');
+require_once('../commons/base.inc.php');
 try {
     if (!$FOGCore::getClass('ImageManager')->count(array('isEnabled'=>1))) throw new Exception(_('There are no images on this server.'));
     foreach ((array)$FOGCore::getClass('ImageManager')->find(array('isEnabled'=>1)) AS $i => &$Image) {

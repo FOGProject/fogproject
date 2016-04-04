@@ -1,5 +1,5 @@
 <?php
-require('../commons/base.inc.php');
+require_once('../commons/base.inc.php');
 if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'], array('deletemulti', 'deleteconf'))) unset($_SESSION['delitems']);
 $currentUser = $FOGCore::getClass('User',(int)$_SESSION['FOG_USER']);
 if ($currentUser->isValid()) $currentUser->isLoggedIn();

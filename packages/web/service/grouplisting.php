@@ -1,5 +1,5 @@
 <?php
-require('../commons/base.inc.php');
+require_once('../commons/base.inc.php');
 try {
     if (!$FOGCore::getClass('GroupManager')->count()) throw new Exception(_('There are no groups on this server.'));
     foreach ((array)$FOGCore::getClass('GroupManager')->find() AS $i => &$Group) {
