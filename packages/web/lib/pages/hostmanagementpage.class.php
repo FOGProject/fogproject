@@ -436,8 +436,8 @@ class HostManagementPage extends FOGPage {
         printf('<div id="host-service"><form method="post" action="%s&tab=host-service"><h2>%s</h2><fieldset><legend>%s</legend>',$this->formAction,_('Service Configuration'),_('General'));
         $ModOns = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('id')),'moduleID');
         $moduleName = $this->getGlobalModuleStatus();
-        foreach ((array)self::getClass('ModuleManager')->find() AS $i => &$Module) {
-            if (!$Module->isValid()) continue;
+        array_map(function(&$Module) use ($ModOns,$moduleName) {
+            if (!$Module->isValid()) return;
             $this->data[] = array(
                 'input'=>sprintf('<input type="checkbox"%s name="modules[]" value="${mod_id}"${checked}%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? ' class="checkboxes"' : ''),(!$moduleName[$Module->get('shortName')] ? ' disabled' : '')),
                 'span'=>'<span class="icon fa fa-question fa-1x hand" title="${mod_desc}"></span>',
@@ -448,7 +448,7 @@ class HostManagementPage extends FOGPage {
                 'mod_desc'=>str_replace('"','\"',$Module->get('description')),
             );
             unset($Module);
-        }
+        },(array)self::getClass('ModuleManager')->find());
         unset($ModOns);
         $this->data[] = array(
             'mod_name'=>'',

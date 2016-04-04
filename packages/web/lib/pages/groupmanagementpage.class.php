@@ -282,11 +282,11 @@ class GroupManagementPage extends FOGPage {
         );
         printf('<div id="group-service"><h2>%s</h2><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',_('Service Configuration'),$this->formAction,_('General'));
         $moduleName = $this->getGlobalModuleStatus();
-        $ModuleOn = array_count_values($this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID'));
+        $ModuleOn = array_values($this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID',false,'AND','id',false,''));
         array_map(function(&$Module) use ($moduleName,$ModuleOn,$HostCount) {
             if (!$Module->isValid()) return;
             $this->data[] = array(
-                'input' => sprintf('<input %stype="checkbox" name="modules[]" value="%s"%s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ': ''), $Module->get('id'),($ModuleOn[$Module->get('id')] === $HostCount ? ' checked' : ''),!$moduleName[$Module->get('shortName')] ? ' disabled' : ''),
+                'input' => sprintf('<input %stype="checkbox" name="modules[]" value="%s"%s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ': ''), $Module->get('id'),(count(array_keys($ModuleOn,$Module->get('id'))) == $HostCount ? ' checked' : ''),!$moduleName[$Module->get('shortName')] ? ' disabled' : ''),
                 'span'=>sprintf('<span class="icon fa fa-question fa-1x hand" title="%s"></span>',str_replace('"','\"',$Module->get('description'))),
                 'mod_name'=>$Module->get('name'),
             );
