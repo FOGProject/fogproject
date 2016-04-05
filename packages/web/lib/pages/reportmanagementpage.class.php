@@ -675,7 +675,7 @@ class ReportManagementPage extends FOGPage {
                 unset($Host);
             }
         } else if (!trim($_REQUEST['hostsearch']) && trim($_REQUEST['usersearch'])) {
-            $ids = $this->getSubObjectIDs('UserTracking',array('username'=>$usersearch),array('id','hostID'));
+            $ids = $this->getSubObjectIDs('UserTracking',array('username'=>$usersearch),array('id','hostID'),false,'AND','name',false,'');
             $lastUser = '';
             foreach ((array)self::getClass('HostManager')->find(array('id'=>$ids['hostID'])) AS $i => &$Host) {
                 if (!$Host->isValid()) $ids['hostID'] = array_diff((array)$Host->get('id'),(array)$ids['hostID']);
