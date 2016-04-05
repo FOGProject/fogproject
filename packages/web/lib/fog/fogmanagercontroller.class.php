@@ -93,7 +93,7 @@ abstract class FOGManagerController extends FOGBase {
                 if ($filter) return @$filter((array)array_shift($data));
                 return array_shift($data);
             }
-            return $data;
+            if (empty($filter)) return $data;
         } else {
             $data = array_map(function(&$item) {
                 return FOGCore::getClass($this->childClass)->setQuery($item);
