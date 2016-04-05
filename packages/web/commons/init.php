@@ -28,7 +28,7 @@ class Initiator {
      * @return void
      */
     public function __destruct() {
-        spl_autoload_unregister(array($this,'FOGLaoder'));
+        spl_autoload_unregister(array($this,'FOGLoader'));
     }
     /** startInit() initiates the environment
      * @return void
