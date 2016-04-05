@@ -748,8 +748,8 @@ abstract class FOGPage extends FOGBase {
                 throw new Exception('#!ist');
             }
             if ($Host->get('sec_tok') && !$key) throw new Exception('#!ihc');
-            if ($this->nice_date()->getTimestamp() - $this->nice_date($Host->get('sec_time'))->getTimestamp() >= 1800) $Host->set('sec_time',$this->nice_date('+30 minutes')->format('Y-m-d H:i:s'));
             $Host
+                ->set('sec_time',$this->nice_date('+30 minutes')->format('Y-m-d H:i:s'))
                 ->set('pub_key',$key)
                 ->set('sec_tok',$this->createSecToken())
                 ->save();
