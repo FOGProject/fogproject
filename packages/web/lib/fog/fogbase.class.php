@@ -417,11 +417,10 @@ abstract class FOGBase {
         if (!$Host->get('pub_key')) throw new Exception('#!ihc');
         return $this->aesencrypt($data,$Host->get('pub_key'));
     }
-    protected function certDecrypt($data,$padding = true) {
+    protected function certDecrypt($dataArr,$padding = true) {
         $this->getIPAddress();
         if ($padding) $padding = OPENSSL_PKCS1_PADDING;
         else $padding = OPENSSL_NO_PADDING;
-        $data = $this->hex2bin($data);
         $sslfile = $this->getSubObjectIDs('StorageNode',array('ip'=>self::$ips),'sslpath');
         $sslfile = sprintf('%s%s.srvprivate.key',$sslfile[0],DIRECTORY_SEPARATOR);
         if (!file_exists($sslfile)) throw new Exception(_('Private key not found'));
@@ -429,16 +428,21 @@ abstract class FOGBase {
         if (!($priv_key = openssl_pkey_get_private(file_get_contents($sslfile)))) throw new Exception(_('Private key failed'));
         $a_key = openssl_pkey_get_details($priv_key);
         $chunkSize = ceil($a_key['bits']/8);
-        $output = '';
-        while ($data) {
-            $chunk = substr($data,0,$chunkSize);
-            $data = substr($data,$chunkSize);
-            $decrypt = '';
-            if (!openssl_private_decrypt($chunk,$decrypt,$priv_key,$padding)) throw new Exception(_('Failed to decrypt data'));
-            $output .= $decrypt;
-        }
+        $output = array_map(function(&$data) use ($chunkSize,$priv_key,$padding) {
+            $dataun = '';
+            while ($data) {
+                $data = $this->hex2bin($data);
+                $chunk = substr($data,0,$chunkSize);
+                $data = substr($data,$chunkSize);
+                $decrypt = '';
+                if (!openssl_private_decrypt($chunk,$decrypt,$priv_key,$padding)) throw new Exception(_('Failed to decrypt data'));
+                $dataun .= $decrypt;
+            }
+            unset($data);
+            return $dataun;
+        },(array)$dataArr);
         openssl_free_key($priv_key);
-        return $output;
+        return (array)$output;
     }
     protected function parseMacList($stringlist,$image = false,$client = false) {
         $MAClist = array();
