@@ -740,15 +740,16 @@ abstract class FOGPage extends FOGBase {
     public function authorize() {
         try {
             $Host = $this->getHostItem(true);
-            $key = bin2hex($this->certDecrypt($_REQUEST['sym_key']));
-            $token = bin2hex($this->certDecrypt($_REQUEST['token']));
+            $data = array_values(array_map('bin2hex',$this->certDecrypt(array($_REQUEST['sym_key'],$_REQUEST['token']))));
+            $key = $data[0];
+            $token = $data[1];
             if ($Host->get('sec_tok') && $token !== $Host->get('sec_tok')) {
                 $Host->set('pub_key',null)->save();
                 throw new Exception('#!ist');
             }
             if ($Host->get('sec_tok') && !$key) throw new Exception('#!ihc');
+            if ($this->nice_date()->getTimestamp() - $this->nice_date($Host->get('sec_time'))->getTimestamp() >= 1800) $Host->set('sec_time',$this->nice_date('+30 minutes')->format('Y-m-d H:i:s'));
             $Host
-                ->set('sec_time',$this->nice_date('+30 minutes')->format('Y-m-d H:i:s'))
                 ->set('pub_key',$key)
                 ->set('sec_tok',$this->createSecToken())
                 ->save();
