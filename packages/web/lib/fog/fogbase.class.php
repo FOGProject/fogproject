@@ -418,11 +418,18 @@ abstract class FOGBase {
         return $this->aesencrypt($data,$Host->get('pub_key'));
     }
     protected function certDecrypt($dataArr,$padding = true) {
-        $this->getIPAddress();
+        //$this->getIPAddress();
         if ($padding) $padding = OPENSSL_PKCS1_PADDING;
         else $padding = OPENSSL_NO_PADDING;
-        $sslfile = $this->getSubObjectIDs('StorageNode',array('ip'=>self::$ips),'sslpath');
-        $sslfile = sprintf('%s%s.srvprivate.key',$sslfile[0],DIRECTORY_SEPARATOR);
+        $sslfile = $this->getSubObjectIDs('StorageNode','','sslpath');
+        $tmpssl = array_map(function(&$path) {
+            if (!file_exists($path) || !is_readable($path)) return null;
+            return $path;
+        },(array)$this->getSubObjectIDs('StorageNode','','sslpath'));
+        $tmpssl = array_values(array_filter($tmpssl));
+        if (count($tmpssl) < 1) throw new Exception(_('Private key path not found'));
+        $sslfile = sprintf('%s%s.srvprivate.key',preg_replace('#[\\/]#',DIRECTORY_SEPARATOR,$tmpssl[0]),DIRECTORY_SEPARATOR);
+        unset($tmpssl);
         if (!file_exists($sslfile)) throw new Exception(_('Private key not found'));
         if (!is_readable($sslfile)) throw new Exception(_('Private key not readable'));
         if (!($priv_key = openssl_pkey_get_private(file_get_contents($sslfile)))) throw new Exception(_('Private key failed'));
