@@ -5,7 +5,7 @@ try {
     echo "#!ok\n";
     $printers = (array)FOGCore::getClass('PrinterManager')->find('','AND','name','ASC','=',false,false,'name');
     array_walk($printers,function(&$name,$index) {
-        echo "#printer=$index=$name\n";
+        echo "#printer$index=$name\n";
         unset($name,$index);
     });
 } catch (Exception $e) {
