@@ -1,9 +1,13 @@
 <?php
 require_once('../commons/base.inc.php');
+$FOGPageManager = $FOGCore::getClass('FOGPageManager');
+if (!isset($_SERVER['HTTP_USER_AGENT']) || !$_SERVER['HTTP_USER_AGENT']) {
+    $FOGPageManager->render();
+    exit;
+}
 if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'], array('deletemulti', 'deleteconf'))) unset($_SESSION['delitems']);
 $currentUser =  $FOGCore::getClass('User',(int)$_SESSION['FOG_USER']);
 if ($currentUser->isValid()) $currentUser->isLoggedIn();
-$FOGPageManager = $FOGCore::getClass('FOGPageManager');
 $FOGCore::getClass('ProcessLogin')->processMainLogin();
 $Page = $FOGCore::getClass('Page');
 if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && !in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo')) && ($node == 'logout' || !$currentUser->isValid())) {

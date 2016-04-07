@@ -771,7 +771,6 @@ abstract class FOGPage extends FOGBase {
         $hostModules = array_values(array_intersect($globalModules,(array)$hostModules));
         $array = array();
         foreach ($hostModules AS $i => &$key) {
-            $hostNotNeeded = false;
             switch ($key) {
             case 'usertracker':
             case 'snapinclient':
