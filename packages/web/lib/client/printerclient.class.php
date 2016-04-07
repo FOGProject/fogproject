@@ -11,18 +11,18 @@ class PrinterClient extends FOGClient implements FOGClientSend {
             $level = $this->Host->get('printerLevel');
             $Printers = self::getClass('PrinterManager')->find(array('id'=>$this->Host->get('printers')));
             if ($level > 2 || $level <= 0) $level = 0;
-            if (!$this->newService) {
+            if (!$this->newService && $_REQUEST['sub'] != 'requestClientInfo') {
                 $level = "#!mg=$level";
                 $this->send = '';
                 if ($level === 0) throw new Exception(sprintf('%s%s',base64_encode($level),"\n"));
                 $strtosend = "%s|%s|%s|%s|%s|%s";
-                foreach ($Printers AS $i => &$Printer) {
-                    if (!$Printer->isValid()) continue;
-                    $this->send .= base64_encode($this->getString($strtosend,$Printer))."\n";
+                array_map(function(&$Printer) use ($strtosend) {
+                    if (!$Printer->isValid()) return;
+                    $this->send .= sprintf("%s\n",base64_encode($this->getString($strtosend,$Printer)));
                     unset($Printer);
-                }
+                }, (array)$Printers);
                 unset($Printers);
-                $this->send = base64_encode($level)."\n".$this->send;
+                $this->send = sprintf("%s\n%s",base64_encode($level),$this->send);
             } else {
                 if (!self::getClass('PrinterAssociationManager')->count(array('printerID'=>$this->Host->get('printers')))) {
                     if ($this->json) return array('error'=>'np','mode'=>empty($mode) ? 0 : $mode);
@@ -32,18 +32,20 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                 $mode = $modes[$this->Host->get('printerLevel')];
                 if (!isset($_REQUEST['id'])) {
                     $strtosend = "#printer%s=%s\n";
-                    foreach ($Printers AS $i => &$Printer) {
+                    $i = 0;
+                    $vals = array();
+                    array_map(function(&$Printer) use ($strtosend,$mode,&$i,&$vals) {
+                        if (!$Printer->isValid()) return;
                         if ($this->json) {
                             if (!$i) $vals['mode'] = $mode;
-                            $tmp = $i+1;
-                            if (!$Printer->isValid()) continue;
-                            $vals["printer$tmp"] = (int)$Printer->get('id');
-                            continue;
+                            $vals["printer$i"] = (int)$Printer->get('id');
+                        } else {
+                            if (!$i) $this->send = "#!ok\n#mode=$mode\n";
+                            $this->send .= sprintf($strtosend,$i,$Printer->get('id'));
                         }
-                        if (!$i) $this->send = "#!ok\n#mode=$mode\n";
-                        $this->send .= sprintf($strtosend,$i,$Printer->get('id'));
+                        $i++;
                         unset($Printer);
-                    }
+                    },(array)$Printers);
                     unset($Printers,$count);
                     if ($this->json) return $vals;
                 } else {

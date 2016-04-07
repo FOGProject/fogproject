@@ -4,9 +4,9 @@ class Initiator {
      * @return void
      */
     public function __construct() {
-        if ((!isset($_SESSION['HTTP_USER_AGENT']) || !$_SESSION['HTTP_USER_AGENT']) &&!isset($_SESSION)) {
+        if (isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] && !isset($_SESSION)) {
             session_start();
-            session_cache_limiter('no-cache');
+            session_cache_limiter('nocache');
         }
         define('BASEPATH', self::DetermineBasePath());
         $allpaths = array_map(function($element) {
