@@ -1,10 +1,6 @@
 <?php
 require_once('../commons/base.inc.php');
 $FOGPageManager = $FOGCore::getClass('FOGPageManager');
-if (!isset($_SERVER['HTTP_USER_AGENT']) || !$_SERVER['HTTP_USER_AGENT']) {
-    $FOGPageManager->render();
-    exit;
-}
 if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'], array('deletemulti', 'deleteconf'))) unset($_SESSION['delitems']);
 $currentUser =  $FOGCore::getClass('User',(int)$_SESSION['FOG_USER']);
 if ($currentUser->isValid()) $currentUser->isLoggedIn();
