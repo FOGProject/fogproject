@@ -8,7 +8,7 @@ class Schema extends FOGController {
     public function export_db($backup_name = '',$remove_file = true) {
         $file = '/tmp/fog_backup_tmp.sql';
         if (!$backup_name) $backup_name = sprintf('fog_backup_%s.sql',$this->formatTime('','Ymd_His'));
-        $dump = self::getClass('Mysqldump');
+        $dump = static::getClass('Mysqldump');
         $dump->start($file);
         if (!file_exists($file) || !is_readable($file)) throw new Exception(_('Could not read tmp file.'));
         if ($remove_file) {
@@ -28,7 +28,7 @@ class Schema extends FOGController {
         return $file;
     }
     public function import_db($file) {
-        $mysqli = self::$DB->link();
+        $mysqli = static::$DB->link();
         if (false === ($fh = fopen($file,'rb'))) throw new Exception(_('Error Opening DB File'));
         while (($line = fgets($fh)) !== false) {
             if (substr($line,0,2) == '--' || $line == '') continue;

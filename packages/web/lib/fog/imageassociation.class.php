@@ -12,10 +12,10 @@ class ImageAssociation extends FOGController {
         'storageGroupID',
     );
     public function getImage() {
-        return self::getClass('Image',$this->get('imageID'));
+        return static::getClass('Image',$this->get('imageID'));
     }
     public function getStorageGroup() {
-        return self::getClass('StorageGroup',$this->get('storageGroupID'));
+        return static::getClass('StorageGroup',$this->get('storageGroupID'));
     }
     public function getPrimary() {
         return (bool)$this->get('primary');

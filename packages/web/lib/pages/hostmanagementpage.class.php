@@ -4,40 +4,40 @@ class HostManagementPage extends FOGPage {
     public function __construct($name = '') {
         $this->name = 'Host Management';
         parent::__construct($this->name);
-        if ($_SESSION['Pending-Hosts']) $this->menu['pending'] = self::$foglang['PendingHosts'];
+        if ($_SESSION['Pending-Hosts']) $this->menu['pending'] = static::$foglang['PendingHosts'];
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                "$this->linkformat#host-general"=>self::$foglang['General'],
+                "$this->linkformat#host-general"=>static::$foglang['General'],
             );
-            if (!$this->obj->get('pending')) $this->subMenu = array_merge($this->subMenu,array("$this->linkformat#host-tasks"=>self::$foglang['BasicTasks']));
+            if (!$this->obj->get('pending')) $this->subMenu = array_merge($this->subMenu,array("$this->linkformat#host-tasks"=>static::$foglang['BasicTasks']));
             $this->subMenu = array_merge($this->subMenu,array(
-                "$this->linkformat#host-active-directory"=>self::$foglang['AD'],
-                "$this->linkformat#host-printers"=>self::$foglang['Printers'],
-                "$this->linkformat#host-snapins"=>self::$foglang['Snapins'],
-                "$this->linkformat#host-service"=>sprintf('%s %s',self::$foglang['Service'],self::$foglang['Settings']),
-                "$this->linkformat#host-hardware-inventory"=>self::$foglang['Inventory'],
-                "$this->linkformat#host-virus-history"=>self::$foglang['VirusHistory'],
-                "$this->linkformat#host-login-history"=>self::$foglang['LoginHistory'],
-                "$this->linkformat#host-image-history"=>self::$foglang['ImageHistory'],
-                "$this->linkformat#host-snapin-history"=>self::$foglang['SnapinHistory'],
-                $this->membership=>self::$foglang['Membership'],
-                $this->delformat=>self::$foglang['Delete'],
+                "$this->linkformat#host-active-directory"=>static::$foglang['AD'],
+                "$this->linkformat#host-printers"=>static::$foglang['Printers'],
+                "$this->linkformat#host-snapins"=>static::$foglang['Snapins'],
+                "$this->linkformat#host-service"=>sprintf('%s %s',static::$foglang['Service'],static::$foglang['Settings']),
+                "$this->linkformat#host-hardware-inventory"=>static::$foglang['Inventory'],
+                "$this->linkformat#host-virus-history"=>static::$foglang['VirusHistory'],
+                "$this->linkformat#host-login-history"=>static::$foglang['LoginHistory'],
+                "$this->linkformat#host-image-history"=>static::$foglang['ImageHistory'],
+                "$this->linkformat#host-snapin-history"=>static::$foglang['SnapinHistory'],
+                $this->membership=>static::$foglang['Membership'],
+                $this->delformat=>static::$foglang['Delete'],
             ));
             $this->notes = array(
-                self::$foglang['Host']=>$this->obj->get('name'),
-                self::$foglang['MAC']=>$this->obj->get('mac'),
-                self::$foglang['Image']=>$this->obj->getImageName(),
-                self::$foglang['LastDeployed']=>$this->obj->get('deployed'),
+                static::$foglang['Host']=>$this->obj->get('name'),
+                static::$foglang['MAC']=>$this->obj->get('mac'),
+                static::$foglang['Image']=>$this->obj->getImageName(),
+                static::$foglang['LastDeployed']=>$this->obj->get('deployed'),
             );
-            $Group = self::getClass('Group',@min($this->obj->get('groups')));
+            $Group = static::getClass('Group',@min($this->obj->get('groups')));
             if ($Group->isValid()) {
-                $this->notes[self::$foglang['PrimaryGroup']] = $Group->get('name');
+                $this->notes[static::$foglang['PrimaryGroup']] = $Group->get('name');
                 unset($Group);
             }
         }
         $this->exitNorm = Service::buildExitSelector('bootTypeExit',($this->obj && $this->obj->isValid() ? $this->obj->get('biosexit') : $_REQUEST['bootTypeExit']),true);
         $this->exitEfi = Service::buildExitSelector('efiBootTypeExit',($this->obj && $this->obj->isValid() ? $this->obj->get('efiexit') : $_REQUEST['efiBootTypeExit']),true);
-        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'biosexit'=>&$this->exitNorm,'efiexit'=>&$this->exitEfi,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));
+        static::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'biosexit'=>&$this->exitNorm,'efiexit'=>&$this->exitEfi,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));
         $this->headerData = array(
             '',
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
@@ -55,9 +55,9 @@ class HostManagementPage extends FOGPage {
             '<input type="checkbox" name="host[]" value="${id}" class="toggle-action"/>',
         );
         $_SESSION['FOGPingActive'] ? array_push($this->templates,'${pingstatus}') : null;
-        $up = self::getClass('TaskType',2);
-        $down = self::getClass('TaskType',1);
-        $mc = self::getClass('TaskType',8);
+        $up = static::getClass('TaskType',2);
+        $down = static::getClass('TaskType',1);
+        $mc = static::getClass('TaskType',8);
         array_push($this->templates,
             '<a href="?node=host&sub=edit&id=${id}" title="Edit: ${host_name}" id="host-${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
             '<small>${deployed}</small>',
@@ -79,7 +79,7 @@ class HostManagementPage extends FOGPage {
             array('width'=>50,'class'=>'r'),
             array('width'=>20,'class'=>'r')
         );
-        self::$returnData = function(&$Host) {
+        static::$returnData = function(&$Host) {
             if (!$Host->isValid()) return;
             $this->data[] = array(
                 'id'=>$Host->get('id'),
@@ -94,34 +94,34 @@ class HostManagementPage extends FOGPage {
         };
     }
     public function index() {
-        $this->title = self::$foglang['AllHosts'];
+        $this->title = static::$foglang['AllHosts'];
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find(array('pending'=>array(0,null,false))));
-        self::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        self::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData,'title'=>&$this->title));
+        array_map(static::$returnData,static::getClass($this->childClass)->getManager()->find(array('pending'=>array(0,null,false))));
+        static::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData,'title'=>&$this->title));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->search('',true));
-        self::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        self::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
+        array_map(static::$returnData,static::getClass($this->childClass)->getManager()->search('',true));
+        static::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         $this->render();
     }
     public function pending() {
         $this->title = _('Pending Host List');
         $this->data = array();
-        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find(array('pending'=>1)));
-        self::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        self::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
+        array_map(static::$returnData,static::getClass($this->childClass)->getManager()->find(array('pending'=>1)));
+        static::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         if (count($this->data) > 0) printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         if (count($this->data) > 0) printf('<p class="c"><input name="approvependhost" type="submit" value="%s"/>&nbsp;&nbsp;<input name="delpendhost" type="submit" value="%s"/></p></form>',_('Approve selected Hosts'),_('Delete selected Hosts'));
     }
     public function pending_post() {
-        if (isset($_REQUEST['approvependhost'])) self::getClass('HostManager')->update(array('id'=>$_REQUEST['host']),'',array('pending'=>0));
-        if (isset($_REQUEST['delpendhost'])) self::getClass('HostManager')->destroy(array('id'=>$_REQUEST['host']));
+        if (isset($_REQUEST['approvependhost'])) static::getClass('HostManager')->update(array('id'=>$_REQUEST['host']),'',array('pending'=>0));
+        if (isset($_REQUEST['delpendhost'])) static::getClass('HostManager')->destroy(array('id'=>$_REQUEST['host']));
         $appdel = (isset($_REQUEST['approvependhost']) ? 'approved' : 'deleted');
         $this->setMessage(_("All hosts $appdel successfully"));
         $this->redirect("?node=$this->node");
@@ -143,7 +143,7 @@ class HostManagementPage extends FOGPage {
             _('Primary MAC') => sprintf('<input type="text" id="mac" name="mac" value="%s"/>*<span id="priMaker"></span><span class="mac-manufactor"></span><i class="icon add-mac fa fa-plus-circle hand" title="%s"></i>',$_REQUEST['mac'],_('Add MAC')),
             _('Host Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
             _('Host Product Key') => sprintf('<input id="productKey" type="text" name="key" value="%s"/>',$_REQUEST['key']),
-            _('Host Image') => self::getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','id'),
+            _('Host Image') => static::getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','id'),
             _('Host Kernel') => sprintf('<input type="text" name="kern" value="%s"/>',$_REQUEST['kern']),
             _('Host Kernel Arguments') => sprintf('<input type="text" name="args" value="%s"/>',$_REQUEST['args']),
             _('Host Primary Disk') => sprintf('<input type="text" name="dev" value="%s"/>',$_REQUEST['dev']),
@@ -151,7 +151,7 @@ class HostManagementPage extends FOGPage {
             _('Host EFI Exit Type') => $this->exitEfi,
         );
         printf('<h2>%s</h2><form method="post" action="%s">',_('Add new host definition'),$this->formAction);
-        self::$HookManager->processEvent('HOST_FIELDS',array('fields'=>&$fields,'Host'=>self::getClass('Host')));
+        static::$HookManager->processEvent('HOST_FIELDS',array('fields'=>&$fields,'Host'=>static::getClass('Host')));
         array_walk($fields,function(&$input,&$field) {
             $this->data[] = array(
                 'field' => $field,
@@ -159,22 +159,22 @@ class HostManagementPage extends FOGPage {
             );
             unset($field,$input);
         });
-        self::$HookManager->processEvent('HOST_ADD_GEN',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'fields'=>&$fields));
+        static::$HookManager->processEvent('HOST_ADD_GEN',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'fields'=>&$fields));
         $this->render();
         echo $this->adFieldsToDisplay();
         echo '</form>';
     }
     public function add_post() {
-        self::$HookManager->processEvent('HOST_ADD_POST');
+        static::$HookManager->processEvent('HOST_ADD_POST');
         try {
             $hostName = trim($_REQUEST['host']);
             if (empty($hostName)) throw new Exception(_('Please enter a hostname'));
-            if (!self::getClass('Host')->isHostnameSafe($hostName)) throw new Exception(_('Please enter a valid hostname'));
-            if (self::getClass('HostManager')->exists($hostName)) throw new Exception(_('Hostname Exists already'));
+            if (!static::getClass('Host')->isHostnameSafe($hostName)) throw new Exception(_('Please enter a valid hostname'));
+            if (static::getClass('HostManager')->exists($hostName)) throw new Exception(_('Hostname Exists already'));
             if (empty($_REQUEST['mac'])) throw new Exception(_('MAC Address is required'));
-            $MAC = self::getClass('MACAddress',$_REQUEST['mac']);
+            $MAC = static::getClass('MACAddress',$_REQUEST['mac']);
             if (!$MAC->isValid()) throw new Exception(_('MAC Format is invalid'));
-            $Host = self::getClass('HostManager')->getHostByMacAddresses($MAC);
+            $Host = static::getClass('HostManager')->getHostByMacAddresses($MAC);
             if ($Host && $Host->isValid()) throw new Exception(sprintf(_('A host with this MAC already exists with Hostname: %s'),$Host->get('name')));
             $ModuleIDs = $this->getSubObjectIDs('Module');
             $password = $_REQUEST['domainpassword'];
@@ -188,7 +188,7 @@ class HostManagementPage extends FOGPage {
             $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
             $productKey = substr($productKey,0,29);
             $enforce = (int)isset($_REQUEST['enforcesel']);
-            $Host = self::getClass('Host')
+            $Host = static::getClass('Host')
                 ->set('name',$hostName)
                 ->set('description',$_REQUEST['description'])
                 ->set('imageID',$_REQUEST['image'])
@@ -202,11 +202,11 @@ class HostManagementPage extends FOGPage {
                 ->addPriMAC($MAC)
                 ->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey,$enforce);
             if (!$Host->save()) throw new Exception(_('Host create failed'));
-            self::$HookManager->processEvent('HOST_ADD_SUCCESS',array('Host'=>&$Host));
+            static::$HookManager->processEvent('HOST_ADD_SUCCESS',array('Host'=>&$Host));
             $this->setMessage(_('Host added'));
             $url = sprintf('?node=%s&sub=edit&id=%s',$_REQUEST['node'],$Host->get('id'));
         } catch (Exception $e) {
-            self::$HookManager->processEvent('HOST_ADD_FAIL',array('Host'=>&$Host));
+            static::$HookManager->processEvent('HOST_ADD_FAIL',array('Host'=>&$Host));
             $this->setMessage($e->getMessage());
             $url = $this->formAction;
         }
@@ -241,7 +241,7 @@ class HostManagementPage extends FOGPage {
             $this->redirect(sprintf('?node=%s&sub=edit&id=%s#host-general',$this->node,$_REQUEST['id']));
         }
         else if ($_REQUEST['approveAll']) {
-            self::getClass('MACAddressAssociationManager')->update(array('hostID'=>$this->obj->get('id')),'',array('pending'=>0));
+            static::getClass('MACAddressAssociationManager')->update(array('hostID'=>$this->obj->get('id')),'',array('pending'=>0));
             $this->setMessage('All Pending MACs approved.');
             $this->redirect(sprintf('?node=%s&sub=edit&id=%s#host-general',$this->node,$_REQUEST['id']));
         }
@@ -262,7 +262,7 @@ class HostManagementPage extends FOGPage {
             printf('<div>%s<a href="%s&approveAll=1"><i class="icon fa fa-check-circle"></i></a></div>',_('Approve All MACs?'),$this->formAction);
         }
         $pending = ob_get_clean();
-        $imageSelect = self::getClass('ImageManager')->buildSelectBox($this->obj->get('imageID'));
+        $imageSelect = static::getClass('ImageManager')->buildSelectBox($this->obj->get('imageID'));
         $fields = array(
             _('Host Name') => '<input type="text" name="host" value="'.$this->obj->get('name').'" maxlength="15" class="hostname-input" />*',
             _('Primary MAC') => sprintf('<input type="text" name="mac" id="mac" value="%s"/>*<span id="priMaker"></span><i class="icon add-mac fa fa-plus-circle hand" title="%s"></i><span class="icon icon-hand" title="%s"><input type="checkbox" name="igclient[]" value="%s" %s/></span><span class="icon icon-hand" title="%s"><input type="checkbox" name="igimage[]" value="%s" %s/></span><br/><span class="mac-manufactor"></span>',$this->obj->get('mac')->__toString(),_('Add MAC'),_('Ignore MAC on Client'),$this->obj->get('mac')->__toString(),$this->obj->clientMacCheck(),_('Ignore MAC for Imaging'),$this->obj->get('mac')->__toString(),$this->obj->imageMacCheck()),
@@ -278,12 +278,12 @@ class HostManagementPage extends FOGPage {
             _('Host EFI Exit Type') => $this->exitEfi,
             ' ' => sprintf('<input type="submit" value="%s"/>',_('Update')),
         );
-        self::$HookManager->processEvent('HOST_FIELDS', array('fields' => &$fields,'Host' => &$this->obj));
+        static::$HookManager->processEvent('HOST_FIELDS', array('fields' => &$fields,'Host' => &$this->obj));
         echo '<div id="tab-container"><!-- General --><div id="host-general">';
         if ($this->obj->get('pub_key') || $this->obj->get('sec_tok')) $this->form = '<div class="c" id="resetSecDataBox"><input type="button" id="resetSecData"/></div><br/>';
         array_walk($fields,$this->fieldsToData);
         unset($input);
-        self::$HookManager->processEvent('HOST_EDIT_GEN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'Host'=>&$this->obj));
+        static::$HookManager->processEvent('HOST_EDIT_GEN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'Host'=>&$this->obj));
         printf('<form method="post" action="%s&tab=host-general"><h2>%s</h2>',$this->formAction,_('Edit host definition'));
         $this->render();
         echo '</form></div>';
@@ -307,7 +307,7 @@ class HostManagementPage extends FOGPage {
             array('width'=>50,'class'=>'l'),
             array('width'=>50,'class'=>'r'),
         );
-        foreach ((array)self::getClass('PrinterManager')->find(array('id'=>$this->obj->get('printersnotinme'))) AS $i => &$Printer) {
+        foreach ((array)static::getClass('PrinterManager')->find(array('id'=>$this->obj->get('printersnotinme'))) AS $i => &$Printer) {
             if (!$Printer->isValid()) continue;
             $this->data[] = array(
                 'printer_id'=>$Printer->get('id'),
@@ -319,7 +319,7 @@ class HostManagementPage extends FOGPage {
         $PrintersFound = false;
         if (count($this->data) > 0) {
             $PrintersFound = true;
-            self::$HookManager->processEvent('HOST_ADD_PRINTER',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+            static::$HookManager->processEvent('HOST_ADD_PRINTER',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             printf('<p class="c"><label for="hostPrinterShow">%s&nbsp;&nbsp;<input type="checkbox" name="hostPrinterShow" id="hostPrinterShow"/></label></p><div id="printerNotInHost"><h2>%s</h2>',_('Check here to see what printers can be added'),_('Add new printer(s) to this host'));
             $this->render();
             echo '</div>';
@@ -343,7 +343,7 @@ class HostManagementPage extends FOGPage {
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
             '${printer_type}',
         );
-        foreach ((array)self::getClass('PrinterManager')->find(array('id'=>$this->obj->get('printers'))) AS $i => &$Printer) {
+        foreach ((array)static::getClass('PrinterManager')->find(array('id'=>$this->obj->get('printers'))) AS $i => &$Printer) {
             if (!$Printer->isValid()) continue;
             $this->data[] = array(
                 'printer_id'=>$Printer->get('id'),
@@ -353,7 +353,7 @@ class HostManagementPage extends FOGPage {
             );
             unset($Printer);
         }
-        self::$HookManager->processEvent('HOST_EDIT_PRINTER',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_EDIT_PRINTER',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<h2>%s</h2><p>%s</p><p><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="0"%s/>%s<br/><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="1"%s/>%s<br/><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="2"%s/>%s<br/></p>',_('Host Printer Configuration'),_('Select Management Level for this Host'),_('This setting turns off all FOG Printer Management. Although there are multiple levels already between host and global settings, this is just another to ensure safety'),($this->obj->get('printerLevel') == 0 ? ' checked' : ''),_('No Printer Management'),_('This setting only adds and removes printers that are management by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unsigned host. It will add printers to the host that are assigned.'),($this->obj->get('printerLevel') == 1 ? ' checked' : ''),_('FOG Managed Printers'),_('This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers.'),($this->obj->get('printerLevel') == 2 ? ' checked': ''),_('Only Assigned Printers'));
         $this->render();
         if ($PrintersFound || count($this->data) > 0) printf('<p class="c"><input type="submit" value="%s" name="updateprinters"/>',_('Update'));
@@ -376,7 +376,7 @@ class HostManagementPage extends FOGPage {
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );
-        foreach ((array)self::getClass('SnapinManager')->find(array('id'=>$this->obj->get('snapinsnotinme'))) AS $i => &$Snapin) {
+        foreach ((array)static::getClass('SnapinManager')->find(array('id'=>$this->obj->get('snapinsnotinme'))) AS $i => &$Snapin) {
             if (!$Snapin->isValid()) continue;
             $this->data[] = array(
                 'snapin_id'=>$Snapin->get('id'),
@@ -387,7 +387,7 @@ class HostManagementPage extends FOGPage {
         }
         if (count($this->data) > 0) {
             printf('<p class="c"><label for="hostSnapinShow">%s&nbsp;&nbsp;<input type="checkbox" name="hostSnapinShow" id="hostSnapinShow"/></label><div id="snapinNotInHost">',_('Check here to see what snapins can be added'));
-            self::$HookManager->processEvent('HOST_SNAPIN_JOIN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+            static::$HookManager->processEvent('HOST_SNAPIN_JOIN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             $this->render();
             printf('<input type="submit" value="%s"/></form></div></p><form method="post" action="%s&tab=host-snapins">',_('Add Snapin(s)'),$this->formAction);
             unset($this->data);
@@ -404,7 +404,7 @@ class HostManagementPage extends FOGPage {
             '<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="toggle-action"/>',
             '<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
         );
-        foreach ((array)self::getClass('SnapinManager')->find(array('id'=>$this->obj->get('snapins'))) AS $i => &$Snapin) {
+        foreach ((array)static::getClass('SnapinManager')->find(array('id'=>$this->obj->get('snapins'))) AS $i => &$Snapin) {
             if (!$Snapin->isValid()) continue;
             $this->data[] = array(
                 'snap_id'=>$Snapin->get('id'),
@@ -412,7 +412,7 @@ class HostManagementPage extends FOGPage {
             );
             unset($Snapin);
         }
-        self::$HookManager->processEvent('HOST_EDIT_SNAPIN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_EDIT_SNAPIN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if (count($this->data)) $inputremove = sprintf('<input type="submit" name="snaprem" value="%s"/>',_('Remove selected snapins'));
         echo "<p class='c'>$inputremove</p></form></div>";
@@ -448,14 +448,14 @@ class HostManagementPage extends FOGPage {
                 'mod_desc'=>str_replace('"','\"',$Module->get('description')),
             );
             unset($Module);
-        },(array)self::getClass('ModuleManager')->find());
+        },(array)static::getClass('ModuleManager')->find());
         unset($ModOns);
         $this->data[] = array(
             'mod_name'=>'',
             'input'=>'',
             'span'=>sprintf('<input type="submit" name="updatestatus" value="%s"/>',_('Update')),
         );
-        self::$HookManager->processEvent('HOST_EDIT_SERVICE',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_EDIT_SERVICE',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
         printf('</fieldset></form><form method="post" action="%s&tab=host-service"><fieldset><legend>%s</legend>',$this->formAction,_('Host Screen Resolution'));
@@ -469,7 +469,7 @@ class HostManagementPage extends FOGPage {
             '${input}',
             '${span}',
         );
-        foreach ((array)self::getClass('ServiceManager')->find(array('name'=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR') AS $i => &$Service) {
+        foreach ((array)static::getClass('ServiceManager')->find(array('name'=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR') AS $i => &$Service) {
             if (!$Service->isValid()) continue;
             $this->data[] = array(
                 'input'=>'<input type="text" name="${type}" value="${disp}"/>',
@@ -486,7 +486,7 @@ class HostManagementPage extends FOGPage {
             'input'=>'',
             'span'=>sprintf('<input type="submit" name="updatedisplay" value="%s"/>',_('Update')),
         );
-        self::$HookManager->processEvent('HOST_EDIT_DISPSERV',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_EDIT_DISPSERV',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
         printf('</fieldset></form><form method="post" action="%s&tab=host-service"><fieldset><legend>%s</legend>',$this->formAction,_('Auto Log Out Settings'));
@@ -500,7 +500,7 @@ class HostManagementPage extends FOGPage {
             '${input}',
             '${desc}',
         );
-        $Service = self::getClass('Service',@min($this->getSubObjectIDs('Service',array('name'=>'FOG_SERVICE_AUTOLOGOFF_MIN'))));
+        $Service = static::getClass('Service',@min($this->getSubObjectIDs('Service',array('name'=>'FOG_SERVICE_AUTOLOGOFF_MIN'))));
         if ($Service->isValid()) {
             $this->data[] = array(
                 'field'=>_('Auto Log Out Time (in minutes)'),
@@ -516,7 +516,7 @@ class HostManagementPage extends FOGPage {
             'input'=>'',
             'desc'=> sprintf('<input type="submit" name="updatealo" value="%s"/>',_('Update')),
         );
-        self::$HookManager->processEvent('HOST_EDIT_ALO',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_EDIT_ALO',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data,$fields);
         echo '</fieldset></form></div><!-- Inventory -->';
@@ -565,7 +565,7 @@ class HostManagementPage extends FOGPage {
         );
         printf('<div id="host-hardware-inventory"><form method="post" action="%s&tab=host-hardware-inventory"><h2>%s</h2>',$this->formAction,_('Host Hardware Inventory'));
         if ($this->obj->get('inventory')->isValid()) array_walk($fields,$this->fieldsToData);
-        self::$HookManager->processEvent('HOST_INVENTORY',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_INVENTORY',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data,$fields);
         echo '</form></div><!-- Virus -->';
@@ -591,7 +591,7 @@ class HostManagementPage extends FOGPage {
             sprintf('<input type="checkbox" id="vir_del${virus_id}" class="delvid" name="delvid" onclick="this.form.submit()" value="${virus_id}"/><label for="${virus_id}" class="icon icon-hand" title="%s ${virus_name}"><i class="icon fa fa-minus-circle link"></i></label>',_('Delete')),
         );
         printf('<div id="host-virus-history"><form method="post" action="%s&tab=host-virus-history"><h2>%s</h2><h2><a href="#"><input type="checkbox" class="delvid" id="all" name="delvid" value="all" onclick="this.form.submit()"/><label for="all">(%s)</label></a></h2>',$this->formAction,_('Virus History'),_('clear all history'));
-        foreach ((array)self::getClass('VirusManager')->find(array('hostMAC'=>$this->obj->getMyMacs()),'OR') AS $i => &$Virus) {
+        foreach ((array)static::getClass('VirusManager')->find(array('hostMAC'=>$this->obj->getMyMacs()),'OR') AS $i => &$Virus) {
             if (!$Virus->isValid()) continue;
             $this->data[] = array(
                 'virus_name'=>$Virus->get('name'),
@@ -602,7 +602,7 @@ class HostManagementPage extends FOGPage {
             );
             unset($Virus);
         }
-        self::$HookManager->processEvent('HOST_VIRUS',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_VIRUS',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data,$this->headerData);
         printf('</form></div><!-- Login History --><div id="host-login-history" ><h2>%s</h2><form id="dte" method="post" action="%s&tab=host-login-history">',_('Host Login History'),$this->formAction);
@@ -636,7 +636,7 @@ class HostManagementPage extends FOGPage {
             }
             unset($Dates);
             printf('<select name="dte" id="loghist-date" size="1" onchange="document.getElementById(\'dte\').submit()">%s</select><a href="#" onclick="document.getElementByID(\'dte\').submit()"><i class="icon fa fa-play noBorder"></i></a></p>',ob_get_clean());
-            foreach ((array)self::getClass('UserTrackingManager')->find(array('id'=>$this->obj->get('users'))) AS $i => &$UserLogin) {
+            foreach ((array)static::getClass('UserTrackingManager')->find(array('id'=>$this->obj->get('users'))) AS $i => &$UserLogin) {
                 if (!$UserLogin->isValid()) continue;
                 if ($UserLogin->get('date') == $_REQUEST['dte']) {
                     $this->data[] = array(
@@ -648,7 +648,7 @@ class HostManagementPage extends FOGPage {
                 }
                 unset($UserLogin);
             }
-            self::$HookManager->processEvent('HOST_USER_LOGIN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+            static::$HookManager->processEvent('HOST_USER_LOGIN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             $this->render();
         } else printf('<p>%s</p>',_('No user history data found!'));
         unset($this->data,$this->headerData);
@@ -668,7 +668,7 @@ class HostManagementPage extends FOGPage {
             array(),
             array(),
         );
-        foreach ((array)self::getClass('ImagingLogManager')->find(array('hostID'=>$this->obj->get('id'))) AS $i => &$ImageLog) {
+        foreach ((array)static::getClass('ImagingLogManager')->find(array('hostID'=>$this->obj->get('id'))) AS $i => &$ImageLog) {
             if (!$ImageLog->isValid()) continue;
             $Start = $ImageLog->get('start');
             $End = $ImageLog->get('finish');
@@ -680,7 +680,7 @@ class HostManagementPage extends FOGPage {
             );
             unset($ImageLog,$Start,$End);
         }
-        self::$HookManager->processEvent('HOST_IMAGE_HIST',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_IMAGE_HIST',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
         echo '</div><div id="host-snapin-history">';
@@ -698,20 +698,20 @@ class HostManagementPage extends FOGPage {
             '${snapin_duration}',
             '${snapin_return}',
         );
-        foreach ((array)self::getClass('SnapinTaskManager')->find(array('jobID'=>$this->getSubObjectIDs('SnapinJob',array('hostID'=>$this->obj->get('id'))))) AS $i => &$SnapinTask) {
+        foreach ((array)static::getClass('SnapinTaskManager')->find(array('jobID'=>$this->getSubObjectIDs('SnapinJob',array('hostID'=>$this->obj->get('id'))))) AS $i => &$SnapinTask) {
             if (!$SnapinTask->isValid()) continue;
             $Snapin = $SnapinTask->getSnapin();
             if (!$Snapin->isValid()) continue;
             $this->data[] = array(
                 'snapin_name' => $Snapin->get('name'),
                 'snapin_start' => $this->formatTime($SnapinTask->get('checkin'),'Y-m-d H:i:s'),
-                'snapin_end' => sprintf('<span class="icon" title="%s">%s</span>',$this->formatTime($SnapinTask->get('complete'),'Y-m-d H:i:s'),self::getClass('TaskState',$SnapinTask->get('stateID'))->get('name')),
+                'snapin_end' => sprintf('<span class="icon" title="%s">%s</span>',$this->formatTime($SnapinTask->get('complete'),'Y-m-d H:i:s'),static::getClass('TaskState',$SnapinTask->get('stateID'))->get('name')),
                 'snapin_duration' => $this->diff($SnapinTask->get('checkin'),$SnapinTask->get('complete')),
                 'snapin_return'=> $SnapinTask->get('return'),
             );
             unset($Snapin,$SnapinTask);
         }
-        self::$HookManager->processEvent('HOST_SNAPIN_HIST',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_SNAPIN_HIST',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</div></div>';
     }
@@ -721,7 +721,7 @@ class HostManagementPage extends FOGPage {
         exit;
     }
     public function edit_post() {
-        self::$HookManager->processEvent('HOST_EDIT_POST',array('Host'=>&$this->obj));
+        static::$HookManager->processEvent('HOST_EDIT_POST',array('Host'=>&$this->obj));
         try {
             switch ($_REQUEST['tab']) {
             case 'host-general':
@@ -730,7 +730,7 @@ class HostManagementPage extends FOGPage {
                 if ($this->obj->get('name') != $hostName && !$this->obj->isHostnameSafe($hostName)) throw new Exception(_('Please enter a valid hostname'));
                 if ($this->obj->get('name') != $hostName && $this->obj->getManager()->exists($hostName)) throw new Exception('Hostname Exists already');
                 if (empty($_REQUEST['mac'])) throw new Exception('MAC Address is required');
-                $mac = self::getClass('MACAddress',$_REQUEST['mac']);
+                $mac = static::getClass('MACAddress',$_REQUEST['mac']);
                 $Task = $this->obj->get('task');
                 if (!$mac->isValid()) throw new Exception(_('MAC Address is not valid'));
                 if ((!$_REQUEST['image'] && $Task->isValid()) || ($_REQUEST['image'] && $_REQUEST['image'] != $this->obj->get('imageID') && $Task->isValid())) throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
@@ -763,7 +763,7 @@ class HostManagementPage extends FOGPage {
                 $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey,$enforce);
                 break;
             case 'host-printers':
-                $PrinterManager = self::getClass('PrinterAssociationManager');
+                $PrinterManager = static::getClass('PrinterAssociationManager');
                 if (isset($_REQUEST['level'])) $this->obj->set('printerLevel',$_REQUEST['level']);
                 if (isset($_REQUEST['updateprinters'])) {
                     if (isset($_REQUEST['printer'])) $this->obj->addPrinter($_REQUEST['printer']);
@@ -810,16 +810,16 @@ class HostManagementPage extends FOGPage {
                 if (isset($_REQUEST['delvid']) && $_REQUEST['delvid'] == 'all') {
                     $this->obj->clearAVRecordsForHost();
                     $this->redirect(sprintf('?node=host&sub=edit&id=%s#%s',$this->obj->get('id'),$_REQUEST['tab']));
-                } else if (isset($_REQUEST['delvid'])) self::getClass('VirusManager')->destroy(array('id' => $_REQUEST['delvid']));
+                } else if (isset($_REQUEST['delvid'])) static::getClass('VirusManager')->destroy(array('id' => $_REQUEST['delvid']));
                 break;
             }
             if (!$this->obj->save()) throw new Exception(_('Host Update Failed'));
             $this->obj->setAD();
             if ($_REQUEST['tab'] == 'host-general') $this->obj->ignore($_REQUEST['igimage'],$_REQUEST['igclient']);
-            self::$HookManager->processEvent('HOST_EDIT_SUCCESS',array('Host'=>&$this->obj));
+            static::$HookManager->processEvent('HOST_EDIT_SUCCESS',array('Host'=>&$this->obj));
             $this->setMessage('Host updated!');
         } catch (Exception $e) {
-            self::$HookManager->processEvent('HOST_EDIT_FAIL',array('Host'=>&$this->obj));
+            static::$HookManager->processEvent('HOST_EDIT_FAIL',array('Host'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
@@ -829,10 +829,10 @@ class HostManagementPage extends FOGPage {
             if (empty($_REQUEST['hostIDArray'])) throw new Exception(_('No Hosts were selected'));
             if (empty($_REQUEST['group_new']) && empty($_REQUEST['group'])) throw new Exception(_('No Group selected and no new Group name entered'));
             if (!empty($_REQUEST['group_new'])) {
-                $Group = self::getClass('Group')
+                $Group = static::getClass('Group')
                     ->set('name',$_REQUEST['group_new']);
                 if (!$Group->save()) throw new Exception(_('Failed to create new Group'));
-            } else $Group = self::getClass('Group',$_REQUEST['group']);
+            } else $Group = static::getClass('Group',$_REQUEST['group']);
             if (!$Group->isValid()) throw new Exception(_('Group is Invalid'));
             $Group->addHost(explode(',',$_REQUEST['hostIDArray']))->save();
             printf('<div class="task-start-ok"><p>%s</p></div>',_('Successfully associated Hosts with the Group '));
@@ -843,7 +843,7 @@ class HostManagementPage extends FOGPage {
     public function hostlogins() {
         $MainDate = $this->nice_date($_REQUEST['dte'])->getTimestamp();
         $MainDate_1 = $this->nice_date($_REQUEST['dte'])->modify('+1 day')->getTimestamp();
-        foreach ((array)self::getClass('UserTrackingManager')->find(array('hostID'=>$this->obj->get('id'),'date'=>$_REQUEST['dte'],'action'=>array(null,0,1)),'AND','date','DESC') AS $i => &$Login) {
+        foreach ((array)static::getClass('UserTrackingManager')->find(array('hostID'=>$this->obj->get('id'),'date'=>$_REQUEST['dte'],'action'=>array(null,0,1)),'AND','date','DESC') AS $i => &$Login) {
             if (!$Login->isValid()) continue;
             if ($Login->get('username') == 'Array') continue;
             $time = $this->nice_date($Login->get('datetime'))->format('U');

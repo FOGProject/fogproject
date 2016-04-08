@@ -20,7 +20,7 @@ class Location extends FOGController {
         'hostsnotinme',
     );
     public function destroy($field = 'id') {
-        self::getClass('LocationAssociationManager')->destroy(array('locationID'=>$this->get('id')));
+        static::getClass('LocationAssociationManager')->destroy(array('locationID'=>$this->get('id')));
         return parent::destroy($field);
     }
     public function save($mainObject = true) {
@@ -38,13 +38,13 @@ class Location extends FOGController {
             $DBHostIDs = $this->getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id'),'hostID'));
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
-                self::getClass('LocationAssociationManager')->destroy(array('locationID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
+                static::getClass('LocationAssociationManager')->destroy(array('locationID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
                 $DBHostIDs = $this->getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id'),'hostID'));
                 unset($RemoveHostIDs);
             }
-            foreach ((array)self::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))) AS $i => &$Host) {
+            foreach ((array)static::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))) AS $i => &$Host) {
                 if (!$Host->isValid()) continue;
-                self::getClass('LocationAssociation')
+                static::getClass('LocationAssociation')
                     ->set('hostID',$Host->get('id'))
                     ->set('locationID',$this->get('id'))
                     ->save();
@@ -63,10 +63,10 @@ class Location extends FOGController {
         return $this;
     }
     public function getStorageGroup() {
-        return self::getClass('StorageGroup',$this->get('storageGroupID'));
+        return static::getClass('StorageGroup',$this->get('storageGroupID'));
     }
     public function getStorageNode() {
-        return self::getClass('StorageNode',$this->get('storageNodeID'));
+        return static::getClass('StorageNode',$this->get('storageNodeID'));
     }
     protected function loadHosts() {
         if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id')),'hostID'));

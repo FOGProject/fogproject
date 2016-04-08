@@ -10,9 +10,9 @@ class WolbroadcastManager extends FOGManagerController {
             PRIMARY KEY(`wbID`),
         INDEX new_index (`wbID`))
         ENGINE = MyISAM";
-        return self::$DB->query($sql)->fetch()->get();
+        return static::$DB->query($sql)->fetch()->get();
     }
     public function uninstall() {
-        return self::$DB->query("DROP TABLE IF EXISTS `wolbroadcast`")->fetch()->get();
+        return static::$DB->query("DROP TABLE IF EXISTS `wolbroadcast`")->fetch()->get();
     }
 }

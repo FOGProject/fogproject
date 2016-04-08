@@ -129,9 +129,9 @@ abstract class FOGController extends FOGBase {
             if (count($this->aliasedFields)) $this->array_remove($this->aliasedFields, $this->databaseFields);
             array_walk($this->databaseFields,function(&$field,&$name) use (&$insertKeys,&$insertValues,&$updateData) {
                 $key = sprintf('`%s`',trim($field));
-                if ($name == 'createdBy' && !$this->get($name)) $val = trim($_SESSION['FOG_USERNAME'] ? self::$DB->sanitize($_SESSION['FOG_USERNAME']) : 'fog');
+                if ($name == 'createdBy' && !$this->get($name)) $val = trim($_SESSION['FOG_USERNAME'] ? static::$DB->sanitize($_SESSION['FOG_USERNAME']) : 'fog');
                 else if ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) $val = $this->formatTime('now','Y-m-d H:i:s');
-                else $val = self::$DB->sanitize($this->get($name));
+                else $val = static::$DB->sanitize($this->get($name));
                 if ($name == 'id' && (empty($val) || $val == null || $val == 0 || $val == false)) return;
                 $insertKeys[] = $key;
                 $insertValues[] = $val;
@@ -144,8 +144,8 @@ abstract class FOGController extends FOGBase {
                 implode("','",(array)$insertValues),
                 implode(',',(array)$updateData)
             );
-            if (!self::$DB->query($query)->fetch()->get()) throw new Exception(self::$DB->sqlerror());
-            if (!$this->get('id')) $this->set('id',self::$DB->insert_id());
+            if (!static::$DB->query($query)->fetch()->get()) throw new Exception(static::$DB->sqlerror());
+            if (!$this->get('id')) $this->set('id',static::$DB->insert_id());
             if (!$this instanceof History) {
                 if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s.',get_class($this),$this->get('id'),$this->get('name'),_('has been successfully updated')));
                 else $this->log(sprintf('%s ID: %s %s.',get_class($this),$this->get('id'),_('has been successfully updated')));
@@ -172,14 +172,14 @@ abstract class FOGController extends FOGBase {
                         $this->databaseTable,
                         $join,
                         $this->databaseFields[$key],
-                        self::$DB->sanitize($this->get($key)),
+                        static::$DB->sanitize($this->get($key)),
                         count($where) ? ' AND '.implode(' AND ',$where) : ''
                     );
                 } else {
                     $fields = $this->get($key);
                     $fieldData = array();
                     array_map(function(&$fieldValue) use ($key,&$fieldData) {
-                        $fieldData[] = sprintf("`%s`.`%s`='%s'",$this->databaseTable,$this->databaseFields[$key],self::$DB->sanitize($fieldValue));
+                        $fieldData[] = sprintf("`%s`.`%s`='%s'",$this->databaseTable,$this->databaseFields[$key],static::$DB->sanitize($fieldValue));
                         unset($fieldValue,$key);
                     },(array)$fields);
                     $query = sprintf($this->loadQueryTemplateMultiple,
@@ -189,7 +189,7 @@ abstract class FOGController extends FOGBase {
                         count($where) ? ' AND '.implode(' AND ',$where) : ''
                     );
                 }
-                if (!($vals = self::$DB->query($query)->fetch('','fetch_all')->get())) throw new Exception(self::$DB->sqlerror());
+                if (!($vals = static::$DB->query($query)->fetch('','fetch_all')->get())) throw new Exception(static::$DB->sqlerror());
                 $vals = @array_shift($vals);
                 $this->setQuery($vals);
                 unset($vals,$key,$join,$where);
@@ -208,9 +208,9 @@ abstract class FOGController extends FOGBase {
             $query = sprintf($this->destroyQueryTemplate,
                 $this->databaseTable,
                 $fieldToGet,
-                self::$DB->sanitize($this->get($this->key($field)))
+                static::$DB->sanitize($this->get($this->key($field)))
             );
-            if (!self::$DB->query($query)->fetch()->get()) throw new Exception(_('Could not delete item'));
+            if (!static::$DB->query($query)->fetch()->get()) throw new Exception(_('Could not delete item'));
             if (!$this instanceof History) {
                 if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s.',get_class($this),$this->get('id'),$this->get('name'),_('has been destroyed')));
                 else $this->log(sprintf('%s ID: %s %s.',get_class($this),$this->get('id'),_('has been destroyed')));
@@ -241,7 +241,7 @@ abstract class FOGController extends FOGBase {
     public function isValid() {
         try {
             array_map(function(&$field) {
-                if (!$this->get($field) === 0 && !$this->get($field)) throw new Exception(self::$foglang['RequiredDB']);
+                if (!$this->get($field) === 0 && !$this->get($field)) throw new Exception(static::$foglang['RequiredDB']);
                 unset($field);
             },(array)$this->databaseFieldsRequired);
             if (!$this->get('id')) throw new Exception(_('Invalid ID'));
@@ -262,7 +262,7 @@ abstract class FOGController extends FOGBase {
             unset($value,$field);
         };
         $joinInfo = function(&$fields,&$class) use (&$join,&$whereArrayAnd,&$whereInfo,&$c) {
-            $class = self::getClass($class);
+            $class = static::getClass($class);
             $join[] = sprintf(' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',$class->databaseTable,$class->databaseTable,$class->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);
             $c = $class;
             if ($fields[3]) array_walk($fields[3],$whereInfo);
@@ -281,10 +281,10 @@ abstract class FOGController extends FOGBase {
             });
         }
         $classData = array_map('addslashes',(array)$classData);
-        if (count(preg_grep('#text/plain#i',headers_list())) > 0 || self::$service) $classData = array_map('stripslashes',(array)$classData);
+        if (count(preg_grep('#text/plain#i',headers_list())) > 0 || static::$service) $classData = array_map('stripslashes',(array)$classData);
         $this->data = array_merge((array)$this->data,(array)$classData);
         array_walk($this->databaseFieldClassRelationships,function(&$fields,&$class) use (&$queryData) {
-            $class = self::getClass($class);
+            $class = static::getClass($class);
             $leftover = array_intersect_key((array)$queryData,(array)$class->databaseFieldsFlipped);
             $this->set($fields[2],$class->setQuery($leftover));
             unset($fields,$class);
@@ -292,6 +292,6 @@ abstract class FOGController extends FOGBase {
         return $this;
     }
     public function getManager() {
-        return self::getClass(sprintf('%sManager',get_class($this)));
+        return static::getClass(sprintf('%sManager',get_class($this)));
     }
 }

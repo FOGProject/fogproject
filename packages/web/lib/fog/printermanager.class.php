@@ -6,7 +6,7 @@ class PrinterManager extends FOGManagerController {
             $fieldWhere = $findWhere;
             $findWhere = array('printerID'=>$findWhere['id']);
         }
-        self::getClass('PrinterAssociationManager')->destroy($findWhere);
+        static::getClass('PrinterAssociationManager')->destroy($findWhere);
         return parent::destroy($fieldWhere);
     }
 }
