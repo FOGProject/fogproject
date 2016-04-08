@@ -38,7 +38,7 @@ class Slack extends FOGController {
         return (array)$users;
     }
     public function verifyToken() {
-        $testAuth = self::getClass('SlackHandler',$this->get('token'))->call('auth.test');
+        $testAuth = static::getClass('SlackHandler',$this->get('token'))->call('auth.test');
         return (bool)$testAuth['ok'];
     }
     public function call($method, $args = array()) {
@@ -50,6 +50,6 @@ class Slack extends FOGController {
                 $args['as_user'] = true;
             }
         }
-        return self::getClass('SlackHandler',$this->get('token'))->call($method,$args);
+        return static::getClass('SlackHandler',$this->get('token'))->call($method,$args);
     }
 }

@@ -6,8 +6,8 @@ class WOLBroadcastManagementPage extends FOGPage {
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                $this->linkformat => self::$foglang['General'],
-                $this->delformat => self::$foglang['Delete'],
+                $this->linkformat => static::$foglang['General'],
+                $this->delformat => static::$foglang['Delete'],
             );
             $this->notes = array(
                 _('Broadcast Name') => $this->obj->get('name'),
@@ -29,7 +29,7 @@ class WOLBroadcastManagementPage extends FOGPage {
             array('class' => 'l'),
             array('class' => 'r'),
         );
-        self::$returnData = function(&$WOLBroadcast) {
+        static::$returnData = function(&$WOLBroadcast) {
             if (!$WOLBroadcast->isValid()) return;
             $this->data[] = array(
                 'id'	=> $WOLBroadcast->get('id'),
@@ -41,16 +41,16 @@ class WOLBroadcastManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Broadcasts');
-        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass($this->childClass)->getManager()->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && static::getClass($this->childClass)->getManager()->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
-        self::$HookManager->processEvent('BROADCAST_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->find());
+        static::$HookManager->processEvent('BROADCAST_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
-        self::$HookManager->processEvent('BROADCAST_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->find());
+        static::$HookManager->processEvent('BROADCAST_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
     }
     public function add() {
@@ -77,7 +77,7 @@ class WOLBroadcastManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        self::$HookManager->processEvent('BROADCAST_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        static::$HookManager->processEvent('BROADCAST_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -86,11 +86,11 @@ class WOLBroadcastManagementPage extends FOGPage {
         try {
             $name = $_REQUEST['name'];
             $ip = $_REQUEST['broadcast'];
-            if (self::getClass('WolbroadcastManager')->exists($name)) throw new Exception(_('Broacast name already Exists, please try again.'));
+            if (static::getClass('WolbroadcastManager')->exists($name)) throw new Exception(_('Broacast name already Exists, please try again.'));
             if (!$name) throw new Exception(_('Please enter a name for this address.'));
             if (empty($ip)) throw new Exception(_('Please enter the broadcast address.'));
             if (strlen($ip) > 15 || !filter_var($ip,FILTER_VALIDATE_IP)) throw new Exception(_('Please enter a valid ip'));
-            $WOLBroadcast = self::getClass('Wolbroadcast')
+            $WOLBroadcast = static::getClass('Wolbroadcast')
                 ->set('name',$name)
                 ->set('broadcast',$ip);
             if (!$WOLBroadcast->save()) throw new Exception(_('Failed to create'));
@@ -125,13 +125,13 @@ class WOLBroadcastManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        self::$HookManager->processEvent('BROADCAST_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        static::$HookManager->processEvent('BROADCAST_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        self::$HookManager->processEvent('BROADCAST_EDIT_POST', array('Broadcast'=> &$this->obj));
+        static::$HookManager->processEvent('BROADCAST_EDIT_POST', array('Broadcast'=> &$this->obj));
         try {
             $name = $_REQUEST['name'];
             $ip = $_REQUEST['broadcast'];

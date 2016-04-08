@@ -5,7 +5,7 @@ class SlackManagementPage extends FOGPage {
         $this->name = 'Slack Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'list' => sprintf(self::$foglang['ListAll'],_('Slack Accounts')),
+            'list' => sprintf(static::$foglang['ListAll'],_('Slack Accounts')),
             'add' => _('Link Slack Account'),
         );
         if ($_REQUEST['id']) unset($this->subMenu);
@@ -30,7 +30,7 @@ class SlackManagementPage extends FOGPage {
             array('class' => 'l','width'=> 80),
             array('class' => 'r filter-false','width' => 16),
         );
-        self::$returnData = function(&$Slack) {
+        static::$returnData = function(&$Slack) {
             if (!$Slack->isValid()) return;
             $team_name = $Slack->call('auth.test');
             $this->data[] = array(
@@ -45,8 +45,8 @@ class SlackManagementPage extends FOGPage {
     public function index() {
         $this->title = _('Accounts');
         $this->data = array();
-        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
-        self::$HookManager->processEvent('SLACK_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->find());
+        static::$HookManager->processEvent('SLACK_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
     }
     public function search() {
@@ -75,7 +75,7 @@ class SlackManagementPage extends FOGPage {
             );
         }
         unset($fields);
-        self::$HookManager->processEvent('SLACK_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        static::$HookManager->processEvent('SLACK_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -89,12 +89,12 @@ class SlackManagementPage extends FOGPage {
             if (!$usertype && !$channeltype) throw new Exception(_('Must use an @ or # to signify if this is a user or channel to send message to!'));
             $user = preg_replace('/^[#]|^[@]/','',trim($_REQUEST['user']));
             if (!$token) throw new Exception(_('Please enter an access token'));
-            $Slack = self::getClass('Slack')
+            $Slack = static::getClass('Slack')
                 ->set('token',$token)
                 ->set('name',$usersend);
             if (!$Slack->verifyToken()) throw new Exception(_('Invalid token passed'));
             if (array_search($user,array_merge((array)$Slack->getChannels(),(array)$Slack->getUsers())) === false) throw new Exception(_('Invalid user and/or channel passed'));
-            if (self::getClass('SlackManager')->exists($token,'','token') && self::getClass('SlackManager')->exists($usersend)) throw new Exception(_('Account already linked'));
+            if (static::getClass('SlackManager')->exists($token,'','token') && static::getClass('SlackManager')->exists($usersend)) throw new Exception(_('Account already linked'));
             if (!$Slack->save()) throw new Exception(_('Failed to create'));
             $args = array(
                 'channel' => $Slack->get('name'),

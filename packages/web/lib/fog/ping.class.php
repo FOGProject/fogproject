@@ -41,6 +41,6 @@ class Ping {
         return (int) $errno;
     }
     public function execute() {
-        return self::execSend($this->host,$this->timeout,$this->port);
+        return static::execSend($this->host,$this->timeout,$this->port);
     }
 }

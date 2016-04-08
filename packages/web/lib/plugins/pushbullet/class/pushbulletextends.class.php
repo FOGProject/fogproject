@@ -10,12 +10,12 @@ abstract class PushbulletExtends extends Event {
     protected static $message;
     public function __construct() {
         parent::__construct();
-        self::$eventloop = function(&$Pushbullet) {
-            self::getClass('PushbulletHandler',$Pushbullet->get('token'))->pushNote('',sprintf('%s %s',self::$elements['HostName'],_(self::$shortdesc)),_(self::$message));
+        static::$eventloop = function(&$Pushbullet) {
+            static::getClass('PushbulletHandler',$Pushbullet->get('token'))->pushNote('',sprintf('%s %s',static::$elements['HostName'],_(static::$shortdesc)),_(static::$message));
         };
     }
     public function onEvent($event,$data) {
-        self::$elements = $data;
-        array_map(self::$eventloop,(array)self::getClass('PushbulletManager')->find());
+        static::$elements = $data;
+        array_map(static::$eventloop,(array)static::getClass('PushbulletManager')->find());
     }
 }

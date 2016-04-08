@@ -8,26 +8,26 @@ class HostMobile extends FOGPage {
         $this->subMenu = array();
         $this->notes = array();
         $this->headerData = array(
-            self::$foglang['ID'],
-            self::$foglang['Name'],
-            self::$foglang['MAC'],
-            self::$foglang['Image'],
+            static::$foglang['ID'],
+            static::$foglang['Name'],
+            static::$foglang['MAC'],
+            static::$foglang['Image'],
         );
-        if ($_REQUEST['id']) $this->obj = self::getClass('Host',$_REQUEST['id']);
+        if ($_REQUEST['id']) $this->obj = static::getClass('Host',$_REQUEST['id']);
         $this->attributes = array(
             array(),
             array(),
             array(),
             array(),
         );
-        $icon = self::getClass('TaskType',1)->get('icon');
+        $icon = static::getClass('TaskType',1)->get('icon');
         $this->templates = array(
             '${id}',
             '${host_name}',
             '${host_mac}',
             sprintf('<a href="index.php?node=${node}&sub=deploy&id=${id}"><i class="fa fa-%s fa-2x"></i></a>',$icon),
         );
-        self::$returnData = function(&$Host) {
+        static::$returnData = function(&$Host) {
             if (!$Host->isValid()) return;
             $this->data[] = array(
                 'id'=>$Host->get('id'),
@@ -43,14 +43,14 @@ class HostMobile extends FOGPage {
     }
     public function deploy() {
         try {
-            $this->title = self::$foglang['QuickImageMenu'];
+            $this->title = static::$foglang['QuickImageMenu'];
             unset($this->headerData);
             $this->attributes = array(array());
             $this->templates = array('${task_started}');
             $this->data = array();
-            if (!$this->obj->getImageMemberFromHostID($_REQUEST['id'])) throw new Exception(self::$foglang['ErrorImageAssoc']);
-            if (!$this->obj->createImagePackage('1', "Mobile: {$this->obj->get(name)}",false,false,true,false,$_SESSION['FOG_USERNAME'],false,false,true)) throw new Exception(self::$foglang['FailedTask']);
-            $this->data[] = array(self::$foglang['TaskStarted'],);
+            if (!$this->obj->getImageMemberFromHostID($_REQUEST['id'])) throw new Exception(static::$foglang['ErrorImageAssoc']);
+            if (!$this->obj->createImagePackage('1', "Mobile: {$this->obj->get(name)}",false,false,true,false,$_SESSION['FOG_USERNAME'],false,false,true)) throw new Exception(static::$foglang['FailedTask']);
+            $this->data[] = array(static::$foglang['TaskStarted'],);
         } catch (Exception $e) {
             $this->data[] = array($e->getMessage());
         }
@@ -59,9 +59,9 @@ class HostMobile extends FOGPage {
     }
     public function search_post() {
         $this->data = array();
-        array_map(self::$returnData,self::getClass('HostManager')->search('',true));
-        self::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        self::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
+        array_map(static::$returnData,static::getClass('HostManager')->search('',true));
+        static::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         $this->render();
     }
 }
