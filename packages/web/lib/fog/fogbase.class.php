@@ -98,7 +98,6 @@ abstract class FOGBase {
         return $Host;
     }
     public function getAllBlamedNodes() {
-        $Host = $this->getHostItem(false);
         $DateInterval = $this->nice_date()->modify('-5 minutes');
         $nodeRet = array_map(function(&$NodeFailure) use (&$nodeRet) {
             if (!$NodeFailure->isValid()) return;
@@ -108,7 +107,7 @@ abstract class FOGBase {
                 return;
             }
             return (int)$NodeFailure->get('id');
-        },(array)self::getClass('NodeFailureManager')->find(array('taskID'=>$Host->get('task')->get('id'),'hostID'=>$Host->get('id'))));
+        },(array)self::getClass('NodeFailureManager')->find(array('taskID'=>$this->Host->get('task')->get('id'),'hostID'=>$this->Host->get('id'))));
         return array_values(array_filter(array_unique((array)$nodeRet)));
     }
     protected function getActivePlugins() {
