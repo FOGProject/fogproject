@@ -9,7 +9,6 @@ var $_GET = getQueryParams(document.location.search),
     node = $_GET['node'],
     sub = $_GET['sub'],
     tab = $_GET['tab'],
-    wrapper = 'td',
     _L = new Array(),
     StatusAutoHideTimer,
     StatusAutoHideDelay = 30000,
@@ -181,7 +180,11 @@ $.fn.fogAjaxSearch = function(opts) {
                     tbody = $('tbody',Container);
                     LastCount = dataLength;
                     Loader.removeClass('loading').fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle');
-                    if (dataLength > 0) buildRow(response.data,response.templates,response.attributes);
+                    if (dataLength > 0) {
+                        buildHeaderRow(response.headerData,response.attributes,'th');
+                        thead = $('thead',Container);
+                        buildRow(response.data,response.templates,response.attributes,'td',tbody);
+                    }
                     TableCheck();
                     this.SearchAJAX = null;
                     checkboxToggleSearchListPages();
@@ -245,7 +248,21 @@ function showProgressBar() {
         progress.find('.no-min').removeClass('no-min').addClass('min').end().find('ul').hide();
     });
 }
-function buildRow(data,templates,attributes) {
+function buildHeaderRow(data,attributes,wrapper) {
+    thead.empty();
+    var rows = [];
+    $.each(data,function(index,value) {
+        var attribs = [];
+        $.each(attributes[index],function(ind,val) {
+            attribs[attribs.length] = ind+'="'+val+'"';
+        });
+        var row = '<'+wrapper+(attribs.length ? ' '+attribs.join(' ') : '')+' data-column="'+index+'">'+value+'</'+wrapper+'>';
+        rows[rows.length] = row;
+    });
+    thead.append('<tr class="header hand tablesorter-headerRow" role="row">'+rows.join()+'</tr>');
+    thead.hide();
+}
+function buildRow(data,templates,attributes,wrapper) {
     var colspan = templates.length;
     var rows = [];
     checkedIDs = getChecked();
@@ -284,7 +301,7 @@ function TableCheck() {
         if ($('.not-found').length > 0) $('.not-found').remove();
         callme = 'show';
     }
-    Container[callme]().fogTableInfo().trigger('update');
+    Container[callme]().fogTableInfo().trigger('updateAll');
     ActionBox[callme]();
     ActionBoxDel[callme]();
     thead[callme]();
