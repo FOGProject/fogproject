@@ -115,7 +115,7 @@ class Mysqldump
             'exclude-tables' => array(),
             'compress' => Mysqldump::NONE,
             'no-data' => false,
-            'add-drop-table' => false,
+            'add-drop-table' => true,
             'single-transaction' => true,
             'lock-tables' => true,
             'add-locks' => true,

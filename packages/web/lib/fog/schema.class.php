@@ -5,22 +5,27 @@ class Schema extends FOGController {
         'id' => 'vID',
         'version' => 'vValue',
     );
-    public function export_db($backup_name = '') {
+    public function export_db($backup_name = '',$remove_file = true) {
         $file = '/tmp/fog_backup_tmp.sql';
         if (!$backup_name) $backup_name = sprintf('fog_backup_%s.sql',$this->formatTime('','Ymd_His'));
         $dump = self::getClass('Mysqldump');
         $dump->start($file);
         if (!file_exists($file) || !is_readable($file)) throw new Exception(_('Could not read tmp file.'));
-        $fh = fopen($file,'rb');
-        header('Content-Type: text/plain');
-        header("Content-Disposition: attachment; filename=$backup_name");
-        header('Cache-Control: private');
-        while (feof($fh) === false) {
-            echo fread($fh,4096);
-            flush();
+        if ($remove_file) {
+            while (ob_get_level()) ob_end_flush();
+            $fh = fopen($file,'rb');
+            header('Content-Type: text/plain');
+            header("Content-Disposition: attachment; filename=$backup_name");
+            header('Cache-Control: private');
+            while (feof($fh) === false) {
+                echo fread($fh,4096);
+                flush();
+            }
+            fclose($fh);
+            unlink($file);
+            return;
         }
-        fclose($fh);
-        unlink($file);
+        return $file;
     }
     public function import_db($file) {
         $mysqli = self::$DB->link();
