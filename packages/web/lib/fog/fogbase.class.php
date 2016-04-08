@@ -53,8 +53,8 @@ abstract class FOGBase {
         self::$HookManager =& $HookManager;
         self::$FOGUser =& $currentUser;
         self::$urlself = htmlentities($_SERVER['SCRIPT_NAME'],ENT_QUOTES,'utf-8');
-        self::$isMobile = (bool)preg_match('#/mobile/#i',static::$urlself);
-        self::$service = (bool)preg_match('#/service/#i', static::$urlself);
+        self::$isMobile = (bool)preg_match('#/mobile/#i',self::$urlself);
+        self::$service = (bool)preg_match('#/service/#i', self::$urlself);
         self::$ajax = (bool)isset($_SERVER['HTTP_X_REQUESTED_WITH']) && preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);
         self::$post = (bool)preg_match('#^post$#i',isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] ? $_SERVER['REQUEST_METHOD'] : '');
         self::$FOGURLRequests = &$FOGURLRequests;
@@ -91,9 +91,9 @@ abstract class FOGBase {
         if ($encoded === true) $mac = base64_decode($mac);
         $mac = trim($mac);
         $MACs = $this->parseMacList($mac,!$service,$service);
-        if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : sprintf('%s %s',static::$foglang['InvalidMAC'],$_REQUEST['mac']));
+        if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : sprintf('%s %s',self::$foglang['InvalidMAC'],$_REQUEST['mac']));
         if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
-        $Host = static::getClass('HostManager')->getHostByMacAddresses($MACs);
+        $Host = self::getClass('HostManager')->getHostByMacAddresses($MACs);
         if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get('pending')) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
         return $Host;
     }
@@ -107,14 +107,14 @@ abstract class FOGBase {
                 return;
             }
             return (int)$NodeFailure->get('id');
-        },(array)static::getClass('NodeFailureManager')->find(array('taskID'=>$this->Host->get('task')->get('id'),'hostID'=>$this->Host->get('id'))));
+        },(array)self::getClass('NodeFailureManager')->find(array('taskID'=>$this->Host->get('task')->get('id'),'hostID'=>$this->Host->get('id'))));
         return array_values(array_filter(array_unique((array)$nodeRet)));
     }
     protected function getActivePlugins() {
-        return array_map('strtolower',(array)static::getSubObjectIDs('Plugin',array('installed'=>1,'state'=>1),'name'));
+        return array_map('strtolower',(array)self::getSubObjectIDs('Plugin',array('installed'=>1,'state'=>1),'name'));
     }
     protected function fatalError($txt, $data = array()) {
-        if (!static::$service && !static::$ajax) {
+        if (!self::$service && !self::$ajax) {
             echo sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>',
                 get_class($this),
                 (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
@@ -122,7 +122,7 @@ abstract class FOGBase {
         }
     }
     protected function error($txt, $data = array()) {
-        if (static::$debug && !static::$service && !static::$ajax) {
+        if (self::$debug && !self::$service && !self::$ajax) {
             echo sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>',
                 get_class($this),
                 (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
@@ -130,7 +130,7 @@ abstract class FOGBase {
         }
     }
     protected function debug($txt, $data = array()) {
-        if (static::$debug && !static::$service && !static::$ajax) {
+        if (self::$debug && !self::$service && !self::$ajax) {
             echo sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>',
                 get_class($this),
                 (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
@@ -138,7 +138,7 @@ abstract class FOGBase {
         }
     }
     protected function info($txt, $data = array()) {
-        if (static::$info && !static::$service && !static::$ajax) {
+        if (self::$info && !self::$service && !self::$ajax) {
             echo sprintf('<div class="debug-info">FOG INFO: %s: %s</div>',
                 get_class($this),
                 (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
@@ -152,7 +152,7 @@ abstract class FOGBase {
         if (!isset($_SESSION['FOG_MESSAGES'])) $_SESSION['FOG_MESSAGES'] = array();
         $messages = (array)$_SESSION['FOG_MESSAGES'];
         unset($_SESSION['FOG_MESSAGES']);
-        if (static::$HookManager instanceof HookManager) static::$HookManager->processEvent('MessageBox',array('data'=>&$messages));
+        if (self::$HookManager instanceof HookManager) self::$HookManager->processEvent('MessageBox',array('data'=>&$messages));
         array_walk($messages,function(&$message,&$i) {
             if (!$i) echo '<!-- FOG Messages -->';
             printf('<div class="fog-message-box">%s</div>',$message);
@@ -160,7 +160,7 @@ abstract class FOGBase {
         unset($messages);
     }
     protected function redirect($url = '') {
-        if (!headers_sent() && !static::$service) {
+        if (!headers_sent() && !self::$service) {
             header('Strict-Transport-Security: "max-age=15768000"');
             header('X-Content-Type-Options: nosniff');
             header('X-XSS-Protection: 1; mode=block');
@@ -224,7 +224,7 @@ abstract class FOGBase {
         unset($_SESSION['post_request_vals'], $sesVars, $reqVars);
     }
     protected function setRequest() {
-        if (!$_SESSION['post_request_vals'] && static::$post) $_SESSION['post_request_vals'] = $_REQUEST;
+        if (!$_SESSION['post_request_vals'] && self::$post) $_SESSION['post_request_vals'] = $_REQUEST;
     }
     protected function formatByteSize($size) {
         $units = array('iB','KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
@@ -258,8 +258,8 @@ abstract class FOGBase {
         return array_combine(array_keys($services),$serviceEn);
     }
     public function nice_date($Date = 'now',$utc = false) {
-        $TZ = static::getClass('DateTimeZone',($utc || empty(static::$TimeZone)? 'UTC' : static::$TimeZone));
-        return static::getClass('DateTime',$Date,$TZ);
+        $TZ = self::getClass('DateTimeZone',($utc || empty(self::$TimeZone)? 'UTC' : self::$TimeZone));
+        return self::getClass('DateTime',$Date,$TZ);
     }
     public function formatTime($time, $format = false, $utc = false) {
         if (!$time instanceof DateTime) $time = $this->nice_date($time,$utc);
@@ -295,7 +295,7 @@ abstract class FOGBase {
         if ($format == 'N') return ($Date instanceof DateTime ? ($Date->format('N') >= 0 && $Date->format('N') <= 7) : $Date >= 0 && $Date <= 7);
         if (!$Date instanceof DateTime) $Date = $this->nice_date($Date);
         if (!$format) $format = 'm/d/Y';
-        return DateTime::createFromFormat($format,$Date->format($format),static::getClass('DateTimeZone',static::$TimeZone));
+        return DateTime::createFromFormat($format,$Date->format($format),self::getClass('DateTimeZone',self::$TimeZone));
     }
     protected function pluralize($count,$text,$space = false) {
         return sprintf("%d %s%s%s",(int)$count,$text,(int)$count != 1 ? 's' : '',$space === true ? ' ' : '');
@@ -337,16 +337,16 @@ abstract class FOGBase {
     protected function getFTPByteSize($StorageNode,$file) {
         try {
             if (!$StorageNode->isValid()) throw new Exception(_('No storage node'));
-            static::$FOGFTP
+            self::$FOGFTP
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'))
                 ->set('host',$StorageNode->get('ip'));
-            if (!static::$FOGFTP->connect()) throw new Exception(_('Cannot connect to node.'));
-            $size = $this->formatByteSize((double)static::$FOGFTP->size($file));
+            if (!self::$FOGFTP->connect()) throw new Exception(_('Cannot connect to node.'));
+            $size = $this->formatByteSize((double)self::$FOGFTP->size($file));
         } catch (Exception $e) {
             return $e->getMessage();
         }
-        static::$FOGFTP->close();
+        self::$FOGFTP->close();
         return $size;
     }
     protected function array_filter_recursive(&$input,$keepkeys = false) {
@@ -360,7 +360,7 @@ abstract class FOGBase {
         return $input;
     }
     protected function array_change_key(&$array, $old_key, $new_key) {
-        $array[$new_key] = count(preg_grep('#text/plain#i',headers_list())) > 0 || static::$service ? html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8') : $array[$old_key];
+        $array[$new_key] = count(preg_grep('#text/plain#i',headers_list())) > 0 || self::$service ? html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8') : $array[$old_key];
         if ($old_key != $new_key) unset($array[$old_key]);
     }
     protected function byteconvert($kilobytes) {
@@ -498,7 +498,7 @@ abstract class FOGBase {
         return (bool)!in_array(false,$mapinfo,true);
     }*/
     protected function log($txt, $level = 1) {
-        if (static::$ajax) return;
+        if (self::$ajax) return;
         $txt = trim(preg_replace(array("#\r#","#\n#",'#\s+#','# ,#'),array('',' ',' ',','),$txt));
         if (empty($txt)) return;
         $txt = sprintf('[%s] %s',$this->nice_date()->format('Y-m-d H:i:s'),$txt);
@@ -509,7 +509,7 @@ abstract class FOGBase {
         $string = htmlentities(mb_convert_encoding($string,'UTF-8'),ENT_QUOTES,'UTF-8');
         $name = $_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog';
         if (self::$DB) {
-            static::getClass('History')
+            self::getClass('History')
                 ->set('info',$string)
                 ->set('ip',$_SERVER['REMOTE_ADDR'])
                 ->save();
@@ -531,33 +531,33 @@ abstract class FOGBase {
         if (empty($object)) $object = 'Host';
         if (empty($getField)) $getField = 'id';
         if (empty($operator)) $operator = 'AND';
-        return static::getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','',$groupBy,$not,$getField,'',$filter);
+        return self::getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','',$groupBy,$not,$getField,'',$filter);
     }
     public function getSetting($key) {
         $value = $this->getSubObjectIDs('Service',array('name'=>$key),'value');
         return trim(html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",array_shift($value)),'UTF-8'),ENT_QUOTES,'UTF-8'));
     }
     public function setSetting($key, $value) {
-        static::getClass('ServiceManager')->update(array('name'=>$key),'',array('value'=>trim($value)));
+        self::getClass('ServiceManager')->update(array('name'=>$key),'',array('value'=>trim($value)));
         return $this;
     }
     public function getQueuedStates() {
-        return (array)static::getClass('TaskState')->getQueuedStates();
+        return (array)self::getClass('TaskState')->getQueuedStates();
     }
     public function getQueuedState() {
-        return static::getClass('TaskState')->getQueuedState();
+        return self::getClass('TaskState')->getQueuedState();
     }
     public function getCheckedInState() {
-        return static::getClass('TaskState')->getCheckedInState();
+        return self::getClass('TaskState')->getCheckedInState();
     }
     public function getProgressState() {
-        return static::getClass('TaskState')->getProgressState();
+        return self::getClass('TaskState')->getProgressState();
     }
     public function getCompleteState() {
-        return static::getClass('TaskState')->getCompleteState();
+        return self::getClass('TaskState')->getCompleteState();
     }
     public function getCancelledState() {
-        return static::getClass('TaskState')->getCancelledState();
+        return self::getClass('TaskState')->getCancelledState();
     }
     public function string_between($string, $start, $end) {
         $string = " $string";
@@ -582,7 +582,7 @@ abstract class FOGBase {
         exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
         if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2",$IPs,$retVal);
         if (@fsockopen('ipinfo.io',80)) {
-            $res = static::$FOGURLRequests->process('http://ipinfo.io/ip','GET');
+            $res = self::$FOGURLRequests->process('http://ipinfo.io/ip','GET');
             $IPs[] = $res[0];
         }
         @natcasesort($IPs);
@@ -601,7 +601,7 @@ abstract class FOGBase {
         $output = array_merge($IPs,$Names);
         unset($IPs,$Names);
         @natcasesort($output);
-        static::$ips = array_values(array_filter(array_unique((array)$output)));
-        return static::$ips;
+        self::$ips = array_values(array_filter(array_unique((array)$output)));
+        return self::$ips;
     }
 }
