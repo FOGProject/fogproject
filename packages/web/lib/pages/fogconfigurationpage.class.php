@@ -853,7 +853,7 @@ class FOGConfigurationPage extends FOGPage {
         $Schema = self::getClass('Schema');
         try {
             if ($_FILES['dbFile']['error'] > 0) throw new UploadException($_FILES['dbFile']['error']);
-            $original = $Schema->export_db();
+            $original = $Schema->export_db('',false);
             $tmp_name = htmlentities($_FILES['dbFile']['tmp_name'],ENT_QUOTES,'utf-8');
             $filename = sprintf('%s%s%s',dirname($tmp_name),DIRECTORY_SEPARATOR,basename($tmp_name));
             $result = self::getClass('Schema')->import_db($filename);
@@ -862,6 +862,7 @@ class FOGConfigurationPage extends FOGPage {
                 printf('<h2>%s</h2>',_('Errors detected on import'));
                 $origres = $result;
                 $result = $Schema->import_db($original);
+                unlink($original);
                 unset($original);
                 if ($result === true) printf('<h2>%s</h2>',_('Database changes reverted'));
                 else printf('%s<br/><br/><code><pre>%s</pre></code>',_('Errors on revert detected'),$result);
