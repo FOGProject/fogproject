@@ -2,7 +2,7 @@
 class DirectoryCleanup extends FOGClient implements FOGClientSend {
     protected $send;
     public function send() {
-        $DirectoryCleanups = self::getClass('DirCleanerManager')->find();
+        $DirectoryCleanups = static::getClass('DirCleanerManager')->find();
         foreach ($DirectoryCleanups AS $i => &$DirectoryCleanup) {
             if (!$DirectoryCleanup->isValid()) continue;
             $SendEnc = base64_encode($DirectoryCleanup->get('path'))."\n";

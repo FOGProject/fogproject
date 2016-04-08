@@ -9,13 +9,13 @@ class WakeOnLan extends FOGBase {
         $this->arrMAC = $this->parseMacList($mac,true);
     }
     public function send() {
-        if ($this->arrMAC === false || !count($this->arrMAC)) throw new Exception(self::$foglang['InvalidMAC']);
-        $BroadCast = array_merge((array)'255.255.255.255',self::$FOGCore->getBroadcast());
-        self::$HookManager->processEvent('BROADCAST_ADDR',array('broadcast'=>&$BroadCast));
+        if ($this->arrMAC === false || !count($this->arrMAC)) throw new Exception(static::$foglang['InvalidMAC']);
+        $BroadCast = array_merge((array)'255.255.255.255',static::$FOGCore->getBroadcast());
+        static::$HookManager->processEvent('BROADCAST_ADDR',array('broadcast'=>&$BroadCast));
         $sendWOL = function(&$SendTo) use (&$packet) {
             if (!($sock = socket_create(AF_INET,SOCK_DGRAM,SOL_UDP))) throw new Exception(_('Socket error'));
             $options = socket_set_option($sock,SOL_SOCKET,SO_BROADCAST,true);
-            if ($options >= 0 && socket_sendto($sock,$packet,strlen($packet),0,$SendTo,self::WOL_UDP_PORT)) socket_close($sock);
+            if ($options >= 0 && socket_sendto($sock,$packet,strlen($packet),0,$SendTo,static::WOL_UDP_PORT)) socket_close($sock);
             unset($SendTo);
         };
         array_map(function(&$MAC) use (&$packet,$BroadCast,$sendWOL) {

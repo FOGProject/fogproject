@@ -4,15 +4,15 @@ class ServerInfo extends FOGPage {
     public function __construct($name = '') {
         $this->name = 'Hardware Information';
         parent::__construct($this->name);
-        $this->obj = self::getClass('StorageNode',$_REQUEST['id']);
+        $this->obj = static::getClass('StorageNode',$_REQUEST['id']);
         $this->menu = array(
             "?node=storage&sub=edit&id={$_REQUEST['id']}" => _('Edit Node')
         );
         $this->notes = array(
-            sprintf('%s %s',self::$foglang['Storage'],self::$foglang['Node']) => $this->obj->get('name'),
+            sprintf('%s %s',static::$foglang['Storage'],static::$foglang['Node']) => $this->obj->get('name'),
             _('Hostname / IP') => $this->obj->get('ip'),
-            self::$foglang['ImagePath'] => $this->obj->get('path'),
-            self::$foglang['FTPPath'] => $this->obj->get('ftppath')
+            static::$foglang['ImagePath'] => $this->obj->get('path'),
+            static::$foglang['FTPPath'] => $this->obj->get('ftppath')
         );
     }
     public function index() {
@@ -35,7 +35,7 @@ class ServerInfo extends FOGPage {
         $curroot = trim(trim($this->obj->get('webroot'),'/'));
         $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
         $URL = sprintf('http://%s%sstatus/hw.php',$this->obj->get('ip'),$webroot);
-        $ret = self::$FOGURLRequests->process($URL);
+        $ret = static::$FOGURLRequests->process($URL);
         $ret = trim($ret[0]);
         if (empty($ret) || !$ret) {
             printf('<p>%s</p>',_('Unable to pull server information!'));
@@ -97,7 +97,7 @@ class ServerInfo extends FOGPage {
         $fields = array(
             sprintf('<b>%s</b>',_('General Information')) => '&nbsp;',
             _('Storage Node') => $this->obj->get('name'),
-            _('IP') => self::$FOGCore->resolveHostname($this->obj->get('ip')),
+            _('IP') => static::$FOGCore->resolveHostname($this->obj->get('ip')),
             _('Kernel') => $arGeneral[0],
             _('Hostname') => $arGeneral[1],
             _('Uptime') => $arGeneral[2],
@@ -131,7 +131,7 @@ class ServerInfo extends FOGPage {
                 'input' => $input,
             );
         });
-        self::$HookManager->processEvent('SERVER_INFO_DISP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('SERVER_INFO_DISP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
 }

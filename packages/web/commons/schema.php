@@ -1,5 +1,5 @@
 <?php
-$this->mySchema = self::$DB->getVersion();
+$this->mySchema = static::$DB->getVersion();
 // 0
 $this->schema[] = array(
     "CREATE DATABASE " . DATABASE_NAME ,
@@ -895,12 +895,12 @@ $this->schema[] = array(
 "UPDATE `" . DATABASE_NAME . "`.`schemaVersion` set vValue = '28'",
 );
 // 29
-self::$DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
-while ($Host = self::$DB->fetch()->get()) $allImageID[$Host['hostImage']] = $Host['hostOS'];
+static::$DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
+while ($Host = static::$DB->fetch()->get()) $allImageID[$Host['hostImage']] = $Host['hostOS'];
 foreach ((array)$allImageID AS $imageID => $osID) {
-    $Image = self::getClass('Image',$imageID);
+    $Image = static::getClass('Image',$imageID);
     if (!$Image->isValid()) continue;
-    $OS = self::getClass('OS',$osID);
+    $OS = static::getClass('OS',$osID);
     if (!$OS->isValid()) continue;
     if (!$Image->set('osID',$osID)->save()) $errors[] = sprintf('<div>Failed updating the osID of imageID: %s, osID: %s</div>',$imageID,$osID);
 }

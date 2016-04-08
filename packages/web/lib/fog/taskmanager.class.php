@@ -6,9 +6,9 @@ class TaskManager extends FOGManagerController {
         $SnapinTaskIDs = $this->getSubObjectIDs('SnapinTask',$findWhere);
         $MulticastSessionIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',$findWhere,'msID');
         $this->array_change_key($findWhere,'taskID','id');
-        if (count($SnapinTaskIDs)) self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
-        if (count($SnapinJobIDs)) self::getClass('SnapinJobManager')->cancel($SnapinJobIDs);
-        if (count($MulticastSessionIDs)) self::getClass('MulticastSessionsManager')->cancel($MulticastSessionIDs);
+        if (count($SnapinTaskIDs)) static::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
+        if (count($SnapinJobIDs)) static::getClass('SnapinJobManager')->cancel($SnapinJobIDs);
+        if (count($MulticastSessionIDs)) static::getClass('MulticastSessionsManager')->cancel($MulticastSessionIDs);
         $this->update($findWhere,'',array('stateID'=>$this->getCancelledState()));
     }
 }

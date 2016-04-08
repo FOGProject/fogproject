@@ -1,8 +1,8 @@
 <?php
 class UploadException extends Exception {
     public function __construct($code) {
-        $message = self::codeToMessage($code);
-        parent::__construct(self::codeToMessage($code),$code);
+        $message = static::codeToMessage($code);
+        parent::__construct(static::codeToMessage($code),$code);
     }
     private static function codeToMessage($code) {
         $message = '';

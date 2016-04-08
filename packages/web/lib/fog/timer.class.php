@@ -11,7 +11,7 @@ class Timer extends FOGCron {
             $this->blSingle = true;
         } else {
             $this->cron = sprintf('%s %s %s %s %s',$minute,$hour,$dom,$month,$dow);
-            $this->lngSingle = self::parse($this->cron);
+            $this->lngSingle = static::parse($this->cron);
             $this->blSingle = false;
         }
     }
@@ -26,7 +26,7 @@ class Timer extends FOGCron {
         return $runTime->format('r');
     }
     public function setDebug($blDebug) {
-        self::$debug = $blDebug;
+        static::$debug = $blDebug;
     }
     private function shouldSingleRun() {
         return ($this->nice_date() >= $this->nice_date()->setTimestamp($this->lngSingle));
@@ -35,11 +35,11 @@ class Timer extends FOGCron {
         if ($this->blSingle) return $this->shouldSingleRun();
         else {
             $runTime = $this->nice_date()->setTimestamp($this->lngSingle);
-            return self::shouldRunCron($runTime);
+            return static::shouldRunCron($runTime);
         }
         return false;
     }
     private function d($s) {
-        if (self::$debug) echo ($s."\n");
+        if (static::$debug) echo ($s."\n");
     }
 }

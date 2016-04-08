@@ -13,18 +13,18 @@ class PingHosts extends FOGService {
     private function commonOutput() {
         try {
             if (!$this->getSetting('FOG_HOST_LOOKUP')) throw new Exception(_(' * Host Ping is not enabled'));
-            $webServerIP = self::$FOGCore->resolveHostName($this->getSetting('FOG_WEB_HOST'));
+            $webServerIP = static::$FOGCore->resolveHostName($this->getSetting('FOG_WEB_HOST'));
             $this->outall(sprintf(' * FOG Web Host IP: %s',$webServerIP));
             $this->getIPAddress();
-            foreach ((array)self::$ips AS $i => &$ip) {
+            foreach ((array)static::$ips AS $i => &$ip) {
                 if (!$i) $this->outall(" * This server's IP Addresses");
                 $this->outall(" |\t$ip");
                 unset($ip);
             }
-            if (!in_array($webServerIP,self::$ips)) throw new Exception(_('I am not the fog web server'));
-            $hostCount = self::getClass('HostManager')->count();
-            $this->outall(sprintf(' * %s %s %s%s',_('Attempting to ping'),self::getClass('HostManager')->count(),_('host'),($hostCount != 1 ? 's' : '')));
-            foreach ((array)self::getClass('HostManager')->find() AS $i => &$Host) {
+            if (!in_array($webServerIP,static::$ips)) throw new Exception(_('I am not the fog web server'));
+            $hostCount = static::getClass('HostManager')->count();
+            $this->outall(sprintf(' * %s %s %s%s',_('Attempting to ping'),static::getClass('HostManager')->count(),_('host'),($hostCount != 1 ? 's' : '')));
+            foreach ((array)static::getClass('HostManager')->find() AS $i => &$Host) {
                 if (!$Host->isValid()) continue;
                 $Host->setPingStatus();
                 unset($Host);
