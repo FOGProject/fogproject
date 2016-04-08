@@ -74,6 +74,9 @@ class TaskManagementPage extends FOGPage {
     }
     public function search_post() {
         $this->data = array();
+        array_shift($this->headerData);
+        array_shift($this->templates);
+        array_shift($this->attributes);
         array_map(static::$returnData,static::getClass($this->childClass)->getManager()->search('',true));
         static::$HookManager->processEvent('HOST_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
