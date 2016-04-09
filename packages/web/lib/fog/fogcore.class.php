@@ -1,7 +1,10 @@
 <?php
 class FOGCore extends FOGBase {
     public function attemptLogin($username,$password) {
-        return static::getClass('User',@max($this->getSubObjectIDs('User',array('name'=>$username),'id')))->validate_pw($password);
+        return static::getClass('User')
+            ->set('name',$username)
+            ->load('name')
+            ->validate_pw($password);
     }
     public function stopScheduledTask($task) {
         return static::getClass('ScheduledTask',$task->get('id'))->set('isActive',(int)false)->save();
@@ -13,7 +16,7 @@ class FOGCore extends FOGBase {
         return static::$DB->fetch()->get();
     }
     public function getMACLookupCount() {
-        return static::getClass(OUIManager)->count();
+        return static::getClass('OUIManager')->count();
     }
     public function resolveHostname($host) {
         if (filter_var(trim($host),FILTER_VALIDATE_IP)) return trim($host);
@@ -31,27 +34,6 @@ class FOGCore extends FOGBase {
         $uptime = $tmp;
         $uptime = (count($uptime) > 1 ? $uptime[0] . ', ' . $uptime[1] : 'uptime not found');
         return array('uptime'=>$uptime,'load'=>$load);
-    }
-    public function clear_screen($outputdevice) {
-        $this->out(chr(27)."[2J".chr(27)."[;H",$outputdevice);
-    }
-    public function wait_interface_ready($interface,$outputdevice) {
-        while (true) {
-            $retarr = array();
-            exec('netstat -inN',$retarr);
-            array_shift($retarr);
-            array_shift($retarr);
-            foreach($retarr AS $i => &$line) {
-                $t = substr($line,0,strpos($line,' '));
-                if ($t == $interface) {
-                    $this->out('Interface now ready..',$outputdevice);
-                    break 2;
-                }
-            }
-            unset($line);
-            $this->out('Interface not ready, waiting..',$outputdevice);
-            sleep(10);
-        }
     }
     public function getBroadcast() {
         $output = array();
