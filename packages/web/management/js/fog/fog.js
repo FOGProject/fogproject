@@ -389,6 +389,10 @@ function setupFogTableInfoFunction() {
         var parser = '';
         switch (node) {
             case 'task':
+                if (sub.indexOf('list') > -1) {
+                    headParser = {};
+                    break;
+                }
             case 'user':
             case 'group':
             case 'snapin':
@@ -410,8 +414,8 @@ function setupFogTableInfoFunction() {
                 headParser = {};
                 break;
         }
-        table = $('table',this)
-            if (table.length == 0 || !table.has('thead')) return this;
+        table = $('table',this);
+        if (table.length == 0 || !table.has('thead')) return this;
         table.find('thead > tr').addClass('hand');
         table.tablesorter({
             headers: headParser,
