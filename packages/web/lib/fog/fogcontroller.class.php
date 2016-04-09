@@ -160,7 +160,7 @@ abstract class FOGController extends FOGBase {
         }
         return $this;
     }
-    protected function load($field = 'id') {
+    public function load($field = 'id') {
         $this->info(sprintf(_('Loading data to field %s'),$field));
         try {
             if (!$this->get($field)) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
