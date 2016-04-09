@@ -35,9 +35,9 @@ class PingHosts extends FOGService {
         }
     }
     public function serviceRun() {
-        $this->out(' ',$this->dev);
-        $this->out(' +---------------------------------------------------------',$this->dev);
+        static::out(' ',$this->dev);
+        static::out(' +---------------------------------------------------------',$this->dev);
         $this->commonOutput();
-        $this->out(' +---------------------------------------------------------',$this->dev);
+        static::out(' +---------------------------------------------------------',$this->dev);
     }
 }
