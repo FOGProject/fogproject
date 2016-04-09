@@ -33,13 +33,19 @@ class FOGPageManager Extends FOGBase {
         if (static::$FOGUser->isValid()) {
             $class = $this->getFOGPageClass();
             static::$FOGSubMenu = static::getClass('FOGSubMenu');
-            foreach ((array)$class->menu AS $link => &$title) static::$FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link));
-            unset($title);
+            @array_walk($class->menu,function(&$title,&$link) {
+                static::$FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link));
+                unset($title,$link);
+            });
             if (is_object($class->obj)) {
-                foreach ((array)$class->subMenu AS $link => &$title) static::$FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link),$class->id,sprintf(static::$foglang['SelMenu'],get_class($class->obj)));
-                unset($title);
-                foreach((array)$class->notes AS $title => $item) static::$FOGSubMenu->addNotes($this->classValue,array((string)$title => (string)$item),$class->id,sprintf(static::$foglang[SelMenu],get_class($class->obj)));
-                unset($item);
+                @array_walk($class->subMenu,function(&$title,&$link) use ($class) {
+                    static::$FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link),$class->id,sprintf(static::$foglang['SelMenu'],get_class($class->obj)));
+                    unset($title,$link);
+                });
+                @array_walk($class->notes,function(&$title,&$link) use ($class) {
+                    static::$FOGSubMenu->addNotes($this->classValue,array((string)$title=>(string)$link),$class->id,sprintf(static::$foglang['SelMenu'],get_class($class->obj)));
+                    unset($title,$link);
+                });
             }
             return sprintf('<div id="sidebar">%s</div>',static::$FOGSubMenu->get($this->classValue));
         }

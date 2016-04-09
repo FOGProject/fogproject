@@ -63,23 +63,25 @@ class Page extends FOGBase {
             $this->main = array_unique(array_filter($this->main),SORT_REGULAR);
             static::$HookManager->processEvent('MAIN_MENU_DATA',array('main'=>&$this->main));
             $links = array();
-            foreach ($this->main AS $link => &$title) $links[] = $link;
-            unset($title);
+            @array_walk($this->main,function(&$title,&$link) use (&$links) {
+                $links[] = $link;
+                unset($title,$link);
+            });
             if (!static::$isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
             if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links)) $this->redirect('index.php');
             ob_start();
             echo '<nav class="menu"><ul class="nav-list">';
-            foreach($this->main AS $link => &$title) {
+            @array_walk($this->main,function(&$title,&$link) {
                 if (!$_REQUEST['node'] && $link == 'home') $_REQUEST['node'] = $link;
                 $activelink = (int)($_REQUEST['node'] == $link);
                 printf('<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li>',
                     $link,
                     ($activelink ? ' activelink' : ''),
-                    $title[0],
-                    $title[1]
+                    array_shift($title),
+                    array_shift($title)
                 );
-                unset($title);
-            }
+                unset($title,$link);
+            });
             echo '</ul></nav>';
             $this->menu = ob_get_clean();
         }
@@ -113,23 +115,20 @@ class Page extends FOGBase {
                 "js/fog/fog.$node.js",
                 "js/fog/fog.$node.$sub.js",
             );
-            foreach($filepaths AS $i => &$jsFilepath) {
+            @array_map(function(&$jsFilepath) use (&$files) {
                 if (file_exists($jsFilepath)) array_push($files,$jsFilepath);
                 unset($jsFilepath);
-            }
-            unset($jsFilepath);
+            },(array)$filepaths);
             $pluginfilepaths = array(
                 "../lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.js",
                 "../lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
                 "../lib/plugins/$node/js/fog.$node.js",
                 "../lib/plugins/$node/js/fog.$node.$sub.js",
             );
-            foreach($pluginfilepaths AS $i => &$pluginfilepath) {
-                $filename = basename($pluginfilepath);
+            @array_map(function(&$pluginfilepath) use (&$files) {
                 if (file_exists($pluginfilepath)) array_push($files,$pluginfilepath);
                 unset($pluginfilepath);
-            }
-            unset($pluginfilepaths);
+            },(array)$pluginfilepaths);
             if ($this->isHomepage && ($_REQUEST['node'] == 'home' || !$_REQUEST['node'])) {
                 array_push($files,'js/fog/fog.dashboard.js');
                 if (preg_match('#MSIE [6|7|8|9|10|11]#',$_SERVER['HTTP_USER_AGENT'])) array_push($files,'js/flot/excanvas.js');
@@ -144,11 +143,10 @@ class Page extends FOGBase {
             );
         }
         $files = array_unique((array)$files);
-        foreach((array)$files AS $i => &$path) {
+        @array_map(function(&$path) {
             $this->addJavascript($path);
             unset($path);
-        }
-        unset($files);
+        },(array)$files);
     }
     public function setTitle($title) {
         $this->pageTitle = $title;
