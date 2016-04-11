@@ -73,12 +73,12 @@ abstract class FOGService extends FOGBase {
         echo "  ###########################################\n";
         $this->outall(ob_get_clean());
     }
-    public static function outall($string) {
-        static::out("$string\n",$this->dev);
+    public function outall($string) {
+        $this->out("$string\n",$this->dev);
         $this->wlog("$string\n",$this->log);
         return;
     }
-    protected static function out($string,$device) {
+    protected function out($string,$device) {
         if (!$fh = fopen($device,'wb')) return;
         if (fwrite($fh,"$string\n") === false) return;
         fclose($fh);
@@ -88,8 +88,8 @@ abstract class FOGService extends FOGBase {
     }
     protected function wlog($string, $path) {
         if (file_exists($path) && filesize($path) >= $this->getSetting('SERVICE_LOG_SIZE')) unlink($path);
-        if (!$fh = fopen($path,'ab')) static::out("\n * Error: Unable to open file: $path\n",$this->dev);
-        if (fwrite($fh,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) static::out("\n * Error: Unable to write to file: $path\n",$this->dev);
+        if (!$fh = fopen($path,'ab')) $this->out("\n * Error: Unable to open file: $path\n",$this->dev);
+        if (fwrite($fh,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n",$this->dev);
         fclose($fh);
     }
     public function serviceStart() {
@@ -104,8 +104,8 @@ abstract class FOGService extends FOGBase {
             $this->zzz = $tmpTime;
             $this->outall(sprintf(" | Sleep time has changed to %s seconds",$this->zzz));
         }
-        static::out('',$this->dev);
-        static::out('+---------------------------------------------------------',$this->dev);
+        $this->out('',$this->dev);
+        $this->out('+---------------------------------------------------------',$this->dev);
     }
     /** replicate_items() replicates data without having to keep repeating
      * @param $myStorageGroupID int this servers groupid
