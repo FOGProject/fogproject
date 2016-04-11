@@ -1,12 +1,13 @@
 <?php
 class SnapinReplicator extends FOGService {
+    public static $logpath = '';
     public static $dev = '';
     public static $log = '';
     public static $zzz = '';
     public static $sleeptime = 'SNAPINREPSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',self::$logpath,$this->getSetting('SNAPINREPLICATORLOGFILENAME'));
+        static::$log = sprintf('%s%s',static::$logpath,$this->getSetting('SNAPINREPLICATORLOGFILENAME'));
         static::$dev = $this->getSetting('SNAPINREPLICATORDEVICEOUTPUT');
         static::$zzz = (int)$this->getSetting(static::$sleeptime);
     }

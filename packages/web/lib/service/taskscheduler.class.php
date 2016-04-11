@@ -1,12 +1,13 @@
 <?php
 class TaskScheduler extends FOGService {
+    public static $logpath = '';
     public static $dev = '';
     public static $log = '';
     public static $zzz = '';
     public static $sleeptime = 'SCHEDULERSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',self::$logpath,$this->getSetting('SCHEDULERLOGFILENAME'));
+        static::$log = sprintf('%s%s',static::$logpath,$this->getSetting('SCHEDULERLOGFILENAME'));
         static::$dev = $this->getSetting('SCHEDULERDEVICEOUTPUT');
         static::$zzz = (int)$this->getSetting(static::$sleeptime);
     }
