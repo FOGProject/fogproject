@@ -1,12 +1,13 @@
 <?php
 class PingHosts extends FOGService {
+    public static $logpath = '';
     public static $dev = '';
     public static $log = '';
     public static $zzz = '';
     public static $sleeptime = 'PINGHOSTSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',self::$logpath,$this->getSetting('PINGHOSTLOGFILENAME'));
+        static::$log = sprintf('%s%s',static::$logpath,$this->getSetting('PINGHOSTLOGFILENAME'));
         static::$dev = $this->getSetting('PINGHOSTDEVICEOUTPUT');
         static::$zzz = (int)$this->getSetting(static::$sleeptime);
     }

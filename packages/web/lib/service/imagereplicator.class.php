@@ -1,12 +1,13 @@
 <?php
 class ImageReplicator extends FOGService {
+    public static $logpath = '';
     public static $dev = '';
     public static $log = '';
     public static $zzz = '';
     public static $sleeptime = 'IMAGEREPSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',self::$logpath,$this->getSetting('IMAGEREPLICATORLOGFILENAME'));
+        static::$log = sprintf('%s%s',static::$logpath,$this->getSetting('IMAGEREPLICATORLOGFILENAME'));
         static::$dev = $this->getSetting('IMAGEREPLICATORDEVICEOUTPUT');
         static::$zzz = (int)$this->getSetting(static::$sleeptime);
     }
