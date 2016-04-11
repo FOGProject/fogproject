@@ -9,9 +9,9 @@ class SlackManager extends FOGManagerController {
             PRIMARY KEY(`sID`),
         KEY new_index (`sToken`))
         ENGINE = MyISAM";
-        return static::$DB->query($sql)->fetch()->get();
+        return self::$DB->query($sql)->fetch()->get();
     }
     public function uninstall() {
-        return static::$DB->query("DROP TABLE IF EXISTS `slack`")->fetch()->get();
+        return self::$DB->query("DROP TABLE IF EXISTS `slack`")->fetch()->get();
     }
 }

@@ -29,7 +29,7 @@ class Plugin extends FOGController {
     );
     public function getRunInclude($hash) {
         $hash = trim($hash);
-        $Plugin = static::getClass('Plugin',0);
+        $Plugin = self::getClass('Plugin',0);
         array_map(function(&$P) use (&$Plugin,$hash) {
             $tmphash = trim(md5(trim($P->get('name'))));
             if ($tmphash !== $hash) return;
@@ -52,14 +52,14 @@ class Plugin extends FOGController {
         $patternReplacer = function($element) {
             return preg_replace('#config/plugin\.config\.php$#i','',$element[0]);
         };
-        $files = array_map($patternReplacer,(array)iterator_to_array(static::getClass('RegexIterator',static::getClass('RecursiveIteratorIterator',static::getClass('RecursiveDirectoryIterator',$dir,FileSystemIterator::SKIP_DOTS)),'#^.+/config/plugin\.config\.php$#i',RecursiveRegexIterator::GET_MATCH),false));
+        $files = array_map($patternReplacer,(array)iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',$dir,FileSystemIterator::SKIP_DOTS)),'#^.+/config/plugin\.config\.php$#i',RecursiveRegexIterator::GET_MATCH),false));
         natcasesort($files);
         return (array)array_values(array_unique(array_filter($files)));
     }
     public function getPlugins() {
         return array_map(function(&$file) {
             require(sprintf('%s/config/plugin.config.php',rtrim($file,'/')));
-            $p = static::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$fog_plugin['name']))))
+            $p = self::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$fog_plugin['name']))))
                 ->set('name',$fog_plugin['name'])
                 ->set('description',$fog_plugin['description']);
             $p->strPath = $file;
@@ -85,7 +85,7 @@ class Plugin extends FOGController {
     }
     public function getManager() {
         if (!class_exists(sprintf('%sManager',$this->get('name')))) return parent::getManager();
-        return static::getClass($this->get('name'))->getManager();
+        return self::getClass($this->get('name'))->getManager();
     }
     public function getPath() {
         return $this->strPath;

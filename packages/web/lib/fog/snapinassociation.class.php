@@ -11,9 +11,9 @@ class SnapinAssociation extends FOGController {
         'snapinID',
     );
     public function getHost() {
-        return static::getClass('Host',$this->get('hostID'));
+        return self::getClass('Host',$this->get('hostID'));
     }
     public function getSnapin() {
-        return static::getClass('Snapin',$this->get('snapinID'));
+        return self::getClass('Snapin',$this->get('snapinID'));
     }
 }

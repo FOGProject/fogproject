@@ -16,9 +16,9 @@ class SnapinTask extends FOGController {
         'snapinID',
     );
     public function getSnapinJob() {
-        return static::getClass('SnapinJob',$this->get('jobID'));
+        return self::getClass('SnapinJob',$this->get('jobID'));
     }
     public function getSnapin() {
-        return static::getClass('Snapin',$this->get('snapinID'));
+        return self::getClass('Snapin',$this->get('snapinID'));
     }
 }

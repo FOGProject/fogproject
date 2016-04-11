@@ -6,7 +6,7 @@ class ProcessLogin extends FOGBase {
     private function getLanguages() {
         $translang = $this->transLang();
         ob_start();
-        foreach ((array)static::$foglang['Language'] AS $i => &$lang) {
+        foreach ((array)self::$foglang['Language'] AS $i => &$lang) {
             printf('<option value="%s"%s>%s</option>',
                 $lang,
                 ($translang == $lang ? ' selected' : ''),
@@ -18,7 +18,7 @@ class ProcessLogin extends FOGBase {
     }
     private function defaultLang() {
         $deflang = $this->getSetting('FOG_DEFAULT_LOCALE');
-        foreach(static::$foglang['Language'] AS $lang => &$val) {
+        foreach(self::$foglang['Language'] AS $lang => &$val) {
             if ($deflang == $lang) $data = array($lang,$val);
             else $data = array('en','English');
         }
@@ -28,53 +28,53 @@ class ProcessLogin extends FOGBase {
     private function transLang() {
         switch($_SESSION['locale']) {
         case 'en_US.UTF-8':
-            return static::$foglang['Language']['en'];
+            return self::$foglang['Language']['en'];
             break;
         case 'it_IT.UTF-8':
-            return static::$foglang['Language']['it'];
+            return self::$foglang['Language']['it'];
             break;
         case 'es_ES.UTF-8':
-            return static::$foglang['Language']['es'];
+            return self::$foglang['Language']['es'];
             break;
         case 'fr_FR.UTF-8':
-            return static::$foglang['Language']['fr'];
+            return self::$foglang['Language']['fr'];
             break;
         case 'zh_CN.UTF-8':
-            return static::$foglang['Language']['zh'];
+            return self::$foglang['Language']['zh'];
             break;
         case 'de_DE.UTF-8':
-            return static::$foglang['Language']['de'];
+            return self::$foglang['Language']['de'];
             break;
         case 'pt_BR.UTF-8':
-            return static::$foglang['Language']['pt'];
+            return self::$foglang['Language']['pt'];
             break;
         default :
             $lang = $this->defaultLang();
-            return static::$foglang['Language'][$lang[0]];
+            return self::$foglang['Language'][$lang[0]];
             break;
         }
     }
     private function specLang() {
         switch ($this->lang[1]) {
-        case static::$foglang['Language']['en']:
+        case self::$foglang['Language']['en']:
             $this->lang = 'en_US.UTF-8';
             break;
-        case static::$foglang['Language']['fr']:
+        case self::$foglang['Language']['fr']:
             $this->lang = 'fr_FR.UTF-8';
             break;
-        case static::$foglang['Language']['it']:
+        case self::$foglang['Language']['it']:
             $this->lang = 'it_IT.UTF-8';
             break;
-        case static::$foglang['Language']['zh']:
+        case self::$foglang['Language']['zh']:
             $this->lang = 'zh_CN.UTF-8';
             break;
-        case static::$foglang['Language']['es']:
+        case self::$foglang['Language']['es']:
             $this->lang = 'es_ES.UTF-8';
             break;
-        case static::$foglang['Language']['de']:
+        case self::$foglang['Language']['de']:
             $this->lang = 'de_DE.UTF-8';
             break;
-        case static::$foglang['Language']['pt']:
+        case self::$foglang['Language']['pt']:
             $this->lang = 'pt_BR.UTF-8';
             break;
         default :
@@ -107,7 +107,7 @@ class ProcessLogin extends FOGBase {
     private function setCurUser($tmpUser) {
         $this->setRedirMode();
         $this->currentUser = $tmpUser;
-        if (!static::$isMobile) static::$HookManager->processEvent('LoginSuccess',array('user'=>&$this->currentUser,'username'=>$this->username, 'password'=>&$this->password));
+        if (!self::$isMobile) self::$HookManager->processEvent('LoginSuccess',array('user'=>&$this->currentUser,'username'=>$this->username, 'password'=>&$this->password));
     }
     private function setRedirMode() {
         foreach ($_REQUEST AS $key => &$value) $redirect[$key] = htmlentities($value,ENT_QUOTES,'utf-8');
@@ -126,11 +126,11 @@ class ProcessLogin extends FOGBase {
         if (!(isset($_REQUEST['uname']) && isset($_REQUEST['upass']))) return;
         $this->username = trim($_REQUEST['uname']);
         $this->password = trim($_REQUEST['upass']);
-        $tmpUser = static::$FOGCore->attemptLogin($this->username,$this->password);
+        $tmpUser = self::$FOGCore->attemptLogin($this->username,$this->password);
         if (!$tmpUser || !$tmpUser->isValid()) return;
-        static::$HookManager->processEvent('USER_LOGGING_IN',array('User'=>&$tmpUser,'username'=>&$this->username,'password'=>&$this->password));
-        if (!static::$isMobile && $tmpUser->get('type') == 1) {
-            $this->setMessage(static::$foglang['NotAllowedHere']);
+        self::$HookManager->processEvent('USER_LOGGING_IN',array('User'=>&$tmpUser,'username'=>&$this->username,'password'=>&$this->password));
+        if (!self::$isMobile && $tmpUser->get('type') == 1) {
+            $this->setMessage(self::$foglang['NotAllowedHere']);
             $this->redirect('index.php?node=logout');
         }
         $this->setCurUser($tmpUser);
@@ -150,12 +150,12 @@ class ProcessLogin extends FOGBase {
             }
         }
         $this->getLanguages();
-        printf('<form method="post" action="" id="login-form"><label for="username">%s</label><input type="text" class="input" name="uname" id="username"/><label for="password">%s</label><input type="password" class="input" name="upass" id="password"/><label for="language">%s</label><select name="ulang" id="language">%s</select><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form><div id="login-form-info"><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p></div>',static::$foglang['Username'],static::$foglang['Password'],static::$foglang['LanguagePhrase'],$this->langMenu,static::$foglang['Login'],static::$foglang['FOGSites'],static::$foglang['LatestVer']);
+        printf('<form method="post" action="" id="login-form"><label for="username">%s</label><input type="text" class="input" name="uname" id="username"/><label for="password">%s</label><input type="password" class="input" name="upass" id="password"/><label for="language">%s</label><select name="ulang" id="language">%s</select><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form><div id="login-form-info"><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p></div>',self::$foglang['Username'],self::$foglang['Password'],self::$foglang['LanguagePhrase'],$this->langMenu,self::$foglang['Login'],self::$foglang['FOGSites'],self::$foglang['LatestVer']);
     }
     public function mobileLoginForm() {
         if (!$_SESSION['locale']) $this->setLang();
         if (in_array($_REQUEST['node'],array('login','logout'))) $this->redirect('index.php');
         $this->getLanguages();
-        printf('<div class="c"><p>%s</p><form method="post" action=""><br/><br/><label for="username">%s: </label><input type="text" name="uname" id="username"/><br/><br/><label for="password">%s: </label><input type="password" name="upass" id="password"/><br/><br/><label for="language">%s: </label><select name="ulang" id="language">%s</select><br/><br/><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form></div>',static::$foglang['FOGMobile'],static::$foglang['Username'],static::$foglang['Password'],static::$foglang['LanguagePhrase'],$this->langMenu,static::$foglang['Login']);
+        printf('<div class="c"><p>%s</p><form method="post" action=""><br/><br/><label for="username">%s: </label><input type="text" name="uname" id="username"/><br/><br/><label for="password">%s: </label><input type="password" name="upass" id="password"/><br/><br/><label for="language">%s: </label><select name="ulang" id="language">%s</select><br/><br/><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form></div>',self::$foglang['FOGMobile'],self::$foglang['Username'],self::$foglang['Password'],self::$foglang['LanguagePhrase'],$this->langMenu,self::$foglang['Login']);
     }
 }

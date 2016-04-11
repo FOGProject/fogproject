@@ -31,7 +31,7 @@ class FOGURLRequests extends FOGBase {
                 return;
             }
             $ProxyUsed = false;
-            if (static::$DB && ($ip = $this->getSetting('FOG_PROXY_IP'))) {
+            if (self::$DB && ($ip = $this->getSetting('FOG_PROXY_IP'))) {
                 if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
                     unset($url,$ip);
                     return;

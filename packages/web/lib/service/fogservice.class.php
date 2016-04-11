@@ -27,28 +27,28 @@ abstract class FOGService extends FOGBase {
     }
     protected function checkIfNodeMaster() {
         $this->getIPAddress();
-        foreach ((array)static::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS &$StorageNode) {
+        foreach ((array)self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
-            if (!in_array(static::$FOGCore->resolveHostname($StorageNode->get('ip')),static::$ips)) continue;
+            if (!in_array(self::$FOGCore->resolveHostname($StorageNode->get('ip')),self::$ips)) continue;
             return $StorageNode;
         }
         throw new Exception(_(' | This is not the master node'));
     }
     public function wait_interface_ready() {
         $this->getIPAddress();
-        if (!count(static::$ips)) {
+        if (!count(self::$ips)) {
             $this->outall('Interface not ready, waiting.',$this->dev);
             sleep(10);
             $this->wait_interface_ready();
         }
-        foreach (static::$ips AS $i => &$ip) $this->outall(_("Interface Ready with IP Address: $ip"),$this->dev);
+        foreach (self::$ips AS $i => &$ip) $this->outall(_("Interface Ready with IP Address: $ip"),$this->dev);
         unset($ip);
     }
     public static function wait_db_ready() {
-        if (!static::$DB->link()->connect_errno) return;
+        if (!self::$DB->link()->connect_errno) return;
         $this->outall(sprintf('FOGService: %s - %s',get_class($this),_('Waiting for mysql to be available')),$this->dev);
         sleep(10);
-        static::wait_db_ready();
+        self::wait_db_ready();
     }
     public function getBanner() {
         ob_start();
@@ -122,10 +122,10 @@ abstract class FOGService extends FOGBase {
             'storageGroupID' => $master ? $Obj->get('storageGroups') : $myStorageGroupID,
         );
         if ($master) $findWhere['isMaster'] = 1;
-        $StorageNode = static::getClass('StorageNode',$myStorageNodeID);
+        $StorageNode = self::getClass('StorageNode',$myStorageNodeID);
         if (!$StorageNode->isValid() || !$StorageNode->get('isMaster')) throw new Exception(_(' * I am not the master'));
         $objType = get_class($Obj);
-        $groupOrNodeCount = static::getClass('StorageNodeManager')->count($findWhere);
+        $groupOrNodeCount = self::getClass('StorageNodeManager')->count($findWhere);
         $countTest = ($master ? 1 : 0);
         if ($groupOrNodeCount <= 1) {
             $this->outall(_(" * Not syncing $objType between $itemType(s)"));
@@ -141,7 +141,7 @@ abstract class FOGService extends FOGBase {
             $myFile = basename($Obj->get($getFileOfItemField));
             $myAdd = "$myDir$myFile";
             $myAddItem = false;
-            foreach ((array)static::getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
+            foreach ((array)self::getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
                 if (!$PotentialStorageNode->isValid()) continue;
                 if ($master && $PotentialStorageNode->get('storageGroupID') == $myStorageGroupID) continue;
                 if ($this->isRunning($this->procRef[$itemType][$Obj->get('name')][$i])) {
@@ -155,19 +155,19 @@ abstract class FOGService extends FOGBase {
                     $this->outall(_(" | File or path cannot be reached"));
                     continue;
                 }
-                static::$FOGFTP
+                self::$FOGFTP
                     ->set('username',$PotentialStorageNode->get('user'))
                     ->set('password',$PotentialStorageNode->get('pass'))
                     ->set('host',$PotentialStorageNode->get('ip'));
-                if (!static::$FOGFTP->connect()) {
+                if (!self::$FOGFTP->connect()) {
                     $this->outall(_(" * Cannot connect to {$PotentialStorageNode->get(name)}"));
                     continue;
                 }
                 $nodename = $PotentialStorageNode->get('name');
-                $username = static::$FOGFTP->get('username');
-                $password = static::$FOGFTP->get('password');
+                $username = self::$FOGFTP->get('username');
+                $password = self::$FOGFTP->get('password');
                 $encpassword = urlencode($password);
-                $ip = static::$FOGFTP->get('host');
+                $ip = self::$FOGFTP->get('host');
                 $removeDir = sprintf('/%s/',trim($PotentialStorageNode->get($getPathOfItemField),'/'));
                 $removeFile = $myFile;
                 $limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
@@ -185,7 +185,7 @@ abstract class FOGService extends FOGBase {
                 } else if (is_dir($myAdd)) {
                     $remItem = "$removeDir$removeFile";
                     $localfilescheck = glob("$myAdd/*");
-                    $remotefilescheck = static::$FOGFTP->nlist($remItem);
+                    $remotefilescheck = self::$FOGFTP->nlist($remItem);
                     $includeFile = '-R';
                     if (!$myAddItem) $myAddItem = $myAdd;
                 }
@@ -197,17 +197,17 @@ abstract class FOGService extends FOGBase {
                     $this->outall(" | Remote File: {$remotefilescheck[$index]}");
                     $res = 'true';
                     $filesize_main = filesize($localfile);
-                    $filesize_rem = static::$FOGFTP->size($remotefilescheck[$index]);
+                    $filesize_rem = self::$FOGFTP->size($remotefilescheck[$index]);
                     $this->outall(" | Local File size: $filesize_main");
                     $this->outall(" | Remote File size: $filesize_rem");
-                    if (!static::files_are_equal($filesize_main,$filesize_rem,$localfile,$ftpstart.$remotefilescheck[$index])) {
+                    if (!self::files_are_equal($filesize_main,$filesize_rem,$localfile,$ftpstart.$remotefilescheck[$index])) {
                         $this->outall(" | Files do not match");
                         $this->outall(" * Deleting remote file: {$remotefilescheck[$index]}");
-                        static::$FOGFTP->delete($remotefilescheck[$index]);
+                        self::$FOGFTP->delete($remotefilescheck[$index]);
                     } else $this->outall(" | Files match");
                     unset($localfile);
                 }
-                static::$FOGFTP->close();
+                self::$FOGFTP->close();
                 $logname = "$this->log.transfer.$nodename.log";
                 if (!$i) $this->outall(_(' * Starting Sync Actions'));
                 $this->killTasking($i,$itemType,$Obj->get('name'));

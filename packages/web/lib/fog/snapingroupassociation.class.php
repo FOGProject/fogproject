@@ -12,10 +12,10 @@ class SnapinGroupAssociation extends FOGController {
         'storageGroupID',
     );
     public function getSnapin() {
-        return static::getClass('Snapin',$this->get('snapinID'));
+        return self::getClass('Snapin',$this->get('snapinID'));
     }
     public function getStorageGroup() {
-        return static::getClass('StorageGroup',$this->get('storageGroupID'));
+        return self::getClass('StorageGroup',$this->get('storageGroupID'));
     }
     public function getPrimary() {
         return (bool)$this->get('primary');
