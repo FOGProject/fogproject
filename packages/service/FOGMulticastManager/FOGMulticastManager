@@ -7,14 +7,14 @@ $service_name = 'FOGMulticastManager';
 service_persist($service_name);
 $ServiceClass = $FOGCore::getClass('MulticastManager');
 if (!file_exists(UDPSENDERPATH)) {
-    $ServiceClass->outall(' * Unable to locate udp-sender!.');
+    $ServiceClass::outall(' * Unable to locate udp-sender!.');
     exit(1);
 }
-@unlink($ServiceClass->log);
+@unlink($ServiceClass::$log);
 $ServiceClass->getBanner();
 $ServiceClass->wait_interface_ready();
 $ServiceClass->wait_db_ready();
 $ServiceClass->serviceStart();
 $ServiceClass->serviceRun();
-$ServiceClass->outall(' * Service has ended.');
+$ServiceClass::outall(' * Service has ended.');
 exit(0);
