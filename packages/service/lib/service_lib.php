@@ -46,10 +46,10 @@ function service_persist($service_name) {
     for(;;) {
         $service_child_pid = pcntl_fork();
         if($service_child_pid < 0) {
-            service_log_message($service_logpath, $service_name, 'Unable to fork() child process.');
+            service_log_message($service_logpath, $service_name, 'Unable to fork child process.');
             exit(1);
         } else if($service_child_pid > 0) {
-            service_log_message($service_logpath, $service_name, "fork()ed child process ($service_child_pid).");
+            service_log_message($service_logpath, $service_name, "forked child process ($service_child_pid).");
             while(true) {
                 $status = 0;
                 $reaped_pid = pcntl_waitpid($service_child_pid, $status, WNOHANG);
