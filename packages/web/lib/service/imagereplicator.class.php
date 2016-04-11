@@ -13,7 +13,7 @@ class ImageReplicator extends FOGService {
     private function commonOutput() {
         try {
             $StorageNode = $this->checkIfNodeMaster();
-            static::out(' * I am the group manager',$this->dev);
+            $this->out(' * I am the group manager',$this->dev);
             $this->wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
             $myStorageGroupID = $StorageNode->get('storageGroupID');
             $myStorageNodeID = $StorageNode->get('id');
@@ -51,11 +51,11 @@ class ImageReplicator extends FOGService {
         }
     }
     public function serviceRun() {
-        static::out(' ',$this->dev);
-        static::out(' +---------------------------------------------------------',$this->dev);
-        static::out(' * Checking if I am the group manager.',$this->dev);
+        $this->out(' ',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
+        $this->out(' * Checking if I am the group manager.',$this->dev);
         $this->wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
         $this->commonOutput();
-        static::out(' +---------------------------------------------------------',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
     }
 }
