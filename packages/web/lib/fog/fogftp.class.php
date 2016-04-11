@@ -162,13 +162,11 @@ class FOGFTP extends FOGGetSet {
     public function rawlist($directory,$recursive = false) {
         return @ftp_rawlist(self::$link,$directory,$recursive);
     }
-    public function rename($oldname,$newname,$recurse_rename = true) {
-        if ($recurse_rename === true) {
-            if ($this->nlist($oldname)) {
-                if (!$this->rename($oldname, $newname)) self::ftperror();
-            }
+    public function rename($oldname,$newname) {
+        if ($this->nlist($oldname)) {
+            if (!@ftp_rename(self::$link,$oldname,$newname)) self::ftperror();
         }
-        return @ftp_rename(self::$link,$oldname,$newname);
+        return $this;
     }
     public function rmdir($directory) {
         return @ftp_rmdir(self::$link,$directory);
