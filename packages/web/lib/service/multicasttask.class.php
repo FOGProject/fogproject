@@ -3,8 +3,8 @@ class MulticastTask extends MulticastManager {
     public function getAllMulticastTasks($root,$myStorageNodeID) {
         $Tasks = array();
         if (self::getClass('MulticastSessionsManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) {
-            $this->outall(sprintf(' | Sleeping for %s seconds to ensure tasks are properly submitted',$this->zzz));
-            sleep($this->zzz);
+            self::outall(sprintf(' | Sleeping for %s seconds to ensure tasks are properly submitted',self::$zzz));
+            sleep(self::$zzz);
         }
         $StorageNode = self::getClass('StorageNode',$myStorageNodeID);
         if (!$StorageNode->get('isMaster')) return;
