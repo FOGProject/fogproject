@@ -1,27 +1,27 @@
 <?php
 class ImageReplicator extends FOGService {
-    public $dev = '';
-    public $log = '';
-    public $zzz = '';
-    public $sleeptime = 'IMAGEREPSLEEPTIME';
+    public static $dev = '';
+    public static $log = '';
+    public static $zzz = '';
+    public static $sleeptime = 'IMAGEREPSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        $this->log = sprintf('%s%s',$this->logpath,$this->getSetting('IMAGEREPLICATORLOGFILENAME'));
-        $this->dev = $this->getSetting('IMAGEREPLICATORDEVICEOUTPUT');
-        $this->zzz = (int)$this->getSetting($this->sleeptime);
+        static::$log = sprintf('%s%s',self::$logpath,$this->getSetting('IMAGEREPLICATORLOGFILENAME'));
+        static::$dev = $this->getSetting('IMAGEREPLICATORDEVICEOUTPUT');
+        static::$zzz = (int)$this->getSetting(static::$sleeptime);
     }
     private function commonOutput() {
         try {
             $StorageNode = $this->checkIfNodeMaster();
-            $this->out(' * I am the group manager',$this->dev);
+            static::out(' * I am the group manager',static::$dev);
             $this->wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
             $myStorageGroupID = $StorageNode->get('storageGroupID');
             $myStorageNodeID = $StorageNode->get('id');
-            $this->outall(" * Starting Image Replication.");
-            $this->outall(sprintf(" * We are group ID: #%s",$myStorageGroupID));
-            $this->outall(sprintf(" | We are group name: %s",self::getClass('StorageGroup',$myStorageGroupID)->get('name')));
-            $this->outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
-            $this->outall(sprintf(" | We are node name: %s",self::getClass('StorageNode',$myStorageNodeID)->get('name')));
+            static::outall(" * Starting Image Replication.");
+            static::outall(sprintf(" * We are group ID: #%s",$myStorageGroupID));
+            static::outall(sprintf(" | We are group name: %s",self::getClass('StorageGroup',$myStorageGroupID)->get('name')));
+            static::outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
+            static::outall(sprintf(" | We are node name: %s",self::getClass('StorageNode',$myStorageNodeID)->get('name')));
             $ImageIDs = $this->getSubObjectIDs('Image',array('isEnabled'=>1,'toReplicate'=>1));
             $ImageAssocs = $this->getSubObjectIDs('ImageAssociation',array('imageID'=>$ImageIDs),'imageID',true);
             if (count($ImageAssocs)) self::getClass('ImageAssociationManager')->destroy(array('imageID'=>$ImageAssocs));
@@ -35,8 +35,8 @@ class ImageReplicator extends FOGService {
             foreach ((array)$Images AS $Image) {
                 if (!$Image->isValid()) continue;
                 if (!$Image->getPrimaryGroup($myStorageGroupID)) {
-                    $this->outall(_(" | Not syncing Image: {$Image->get(name)}"));
-                    $this->outall(_(' | This is not the primary group'));
+                    static::outall(_(" | Not syncing Image: {$Image->get(name)}"));
+                    static::outall(_(' | This is not the primary group'));
                     continue;
                 }
                 $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Image,true);
@@ -47,15 +47,15 @@ class ImageReplicator extends FOGService {
             }
             unset($Images);
         } catch (Exception $e) {
-            $this->outall(' * '.$e->getMessage());
+            static::outall(' * '.$e->getMessage());
         }
     }
     public function serviceRun() {
-        $this->out(' ',$this->dev);
-        $this->out(' +---------------------------------------------------------',$this->dev);
-        $this->out(' * Checking if I am the group manager.',$this->dev);
+        static::out(' ',static::$dev);
+        static::out(' +---------------------------------------------------------',static::$dev);
+        static::out(' * Checking if I am the group manager.',static::$dev);
         $this->wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
         $this->commonOutput();
-        $this->out(' +---------------------------------------------------------',$this->dev);
+        static::out(' +---------------------------------------------------------',static::$dev);
     }
 }
