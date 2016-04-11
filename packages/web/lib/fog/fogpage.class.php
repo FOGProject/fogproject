@@ -27,21 +27,21 @@ abstract class FOGPage extends FOGBase {
         if (!empty($name)) $this->name = $name;
         $this->title = $this->name;
         $PagesWithObjects = array('user','host','image','group','snapin','printer');
-        static::$HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
+        self::$HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
         $this->childClass = ucfirst($this->node);
         if (in_array($this->node,$PagesWithObjects)) {
             if (isset($_REQUEST['id'])) {
                 $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
                 $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST['id']}";
                 $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST['id']}";
-                $this->obj = static::getClass($this->childClass,$_REQUEST['id']);
+                $this->obj = self::getClass($this->childClass,$_REQUEST['id']);
                 if ((int) $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
                     unset($this->obj);
                     $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
                     $this->redirect(sprintf('?node=%s',$this->node));
                 }
             }
-            $classVars = static::getClass($this->childClass,'',true);
+            $classVars = self::getClass($this->childClass,'',true);
             $this->databaseTable = $classVars['databaseTable'];
             $this->databaseFields = $classVars['databaseFields'];
             $this->databaseFieldsRequired = $classVars['databaseFieldsRequired'];
@@ -50,11 +50,11 @@ abstract class FOGPage extends FOGBase {
             unset($classVars);
         }
         $this->menu = array(
-            'search'=>static::$foglang['NewSearch'],
-            'list'=>sprintf(static::$foglang['ListAll'],_(sprintf('%ss',$this->childClass))),
-            'add'=>sprintf(static::$foglang['CreateNew'],_($this->childClass)),
-            'export'=>sprintf(static::$foglang[sprintf('Export%s',$this->childClass)]),
-            'import'=>sprintf(static::$foglang[sprintf('Import%s',$this->childClass)]),
+            'search'=>self::$foglang['NewSearch'],
+            'list'=>sprintf(self::$foglang['ListAll'],_(sprintf('%ss',$this->childClass))),
+            'add'=>sprintf(self::$foglang['CreateNew'],_($this->childClass)),
+            'export'=>sprintf(self::$foglang[sprintf('Export%s',$this->childClass)]),
+            'import'=>sprintf(self::$foglang[sprintf('Import%s',$this->childClass)]),
         );
         $this->fieldsToData = function(&$input,&$field) {
             $this->data[] = array(
@@ -64,9 +64,9 @@ abstract class FOGPage extends FOGBase {
             if (is_array($this->span) && count($this->span) === 2) $this->data[count($this->data)-1][$this->span[0]] = $this->span[1];
             unset($input);
         };
-        $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',static::$urlself,htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))),FILTER_SANITIZE_URL));
-        static::$HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&static::$searchPages));
-        static::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
+        $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',self::$urlself,htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))),FILTER_SANITIZE_URL));
+        self::$HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&self::$searchPages));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
     public function index() {
         $vals = function(&$value,$key) {
@@ -96,7 +96,7 @@ abstract class FOGPage extends FOGBase {
             $defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
             $defaultScreens = array('search','list');
             if (!count($this->templates)) throw new Exception(_('Requires templates to process'));
-            if (static::$ajax) {
+            if (self::$ajax) {
                 echo @json_encode(array(
                     'data'=>&$this->data,
                     'templates'=>&$this->templates,
@@ -114,13 +114,13 @@ abstract class FOGPage extends FOGBase {
                 printf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><%s id="%s-search-submit" class="search-submit" type="%s" value="%s"></form>%s',
                     $this->searchFormURL,
                     (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
-                    sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), static::$foglang['Search']),
-                    static::$isMobile ? 'name="host-search"' : '',
-                    static::$isMobile ? 'input' : 'button',
+                    sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), self::$foglang['Search']),
+                    self::$isMobile ? 'name="host-search"' : '',
+                    self::$isMobile ? 'input' : 'button',
                     (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
-                    static::$isMobile ? 'submit' : 'button',
-                    static::$isMobile ? static::$foglang['Search'] : '',
-                    static::$isMobile ? '</input>' : '</button>'
+                    self::$isMobile ? 'submit' : 'button',
+                    self::$isMobile ? self::$foglang['Search'] : '',
+                    self::$isMobile ? '</input>' : '</button>'
                 );
                 $contentField = 'search-content';
             }
@@ -137,10 +137,10 @@ abstract class FOGPage extends FOGBase {
                 printf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
                     count($this->templates),
                     $contentField,
-                    ($this->data['error'] ? (is_array($this->data['error']) ? sprintf('<p>%s</p>',implode('</p><p>',$this->data['error'])) : $this->data['error']) : ($this->node != 'task' ? (!static::$isMobile ? static::$foglang['NoResults'] : '') : static::$foglang['NoResults']))
+                    ($this->data['error'] ? (is_array($this->data['error']) ? sprintf('<p>%s</p>',implode('</p><p>',$this->data['error'])) : $this->data['error']) : ($this->node != 'task' ? (!self::$isMobile ? self::$foglang['NoResults'] : '') : self::$foglang['NoResults']))
                 );
             } else {
-                if ((!$sub && $defaultScreen == 'list') || (in_array($sub,$defaultScreens) && in_array($node,static::$searchPages)))
+                if ((!$sub && $defaultScreen == 'list') || (in_array($sub,$defaultScreens) && in_array($node,self::$searchPages)))
                     if ($this->node != 'home') $this->setMessage(sprintf('%s %s%s found',count($this->data),$this->childClass,(count($this->data) != 1 ? 's' : '')));
                 $id_field = "{$node}_id";
                 array_map(function(&$rowData) use ($id_field) {
@@ -152,13 +152,13 @@ abstract class FOGPage extends FOGBase {
                 },(array)$this->data);
             }
             echo '</tbody></table>';
-            if (((!$sub || ($sub && in_array($sub,$defaultScreens))) && in_array($node,static::$searchPages)) && !static::$isMobile) {
+            if (((!$sub || ($sub && in_array($sub,$defaultScreens))) && in_array($node,self::$searchPages)) && !self::$isMobile) {
                 if ($this->node == 'host') {
                     printf('<form method="post" action="%s", id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" value="%s"/></p></form>',
                         sprintf('?node=%s&sub=save_group',$this->node),
                         _('Create new group'),
                         _('Add to group'),
-                        static::getClass('GroupManager')->buildSelectBox(),
+                        self::getClass('GroupManager')->buildSelectBox(),
                         _('Process Group Changes')
                     );
                 }
@@ -171,7 +171,7 @@ abstract class FOGPage extends FOGBase {
                     );
                 }
             }
-            static::$HookManager->processEvent('ACTIONBOX',array('actionbox'=>&$actionbox));
+            self::$HookManager->processEvent('ACTIONBOX',array('actionbox'=>&$actionbox));
             return ob_get_clean();
         } catch (Exception $e) {
             return $e->getMessage();
@@ -242,7 +242,7 @@ abstract class FOGPage extends FOGBase {
     }
     public function deploy() {
         try {
-            $TaskType = static::getClass('TaskType',(is_numeric($_REQUEST['type']) && (int) $_REQUEST['type'] ? (int) $_REQUEST['type'] : 1));
+            $TaskType = self::getClass('TaskType',(is_numeric($_REQUEST['type']) && (int) $_REQUEST['type'] ? (int) $_REQUEST['type'] : 1));
             $imagingTypes = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
             if (($this->obj instanceof Group && !(count($this->obj->get('hosts')))) || ($this->obj instanceof Host && ($this->obj->get('pending') || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
             if ($imagingTypes && $this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
@@ -258,14 +258,14 @@ abstract class FOGPage extends FOGBase {
             printf('<p class="c"><p>%s</p>',_('Please select the snapin you want to deploy'));
             if ($this->obj instanceof Host) {
                 foreach((array)$this->obj->get('snapins') AS $i => &$id) {
-                    $name = static::getClass('Snapin',$id)->get('name');
+                    $name = self::getClass('Snapin',$id)->get('name');
                     $optionSnapin .= sprintf('<option value="%s">%s - (%s)</option>',$id,$name,$id);
                 }
                 unset($id);
                 if ($optionSnapin) printf('<select name="snapin">%s</select></p>',$optionSnapin);
                 else printf('%s</p>',_('No snapins associated'));
             }
-            if ($this->obj instanceof Group) printf('%s</p>',static::getClass('SnapinManager')->buildSelectBox('','snapin'));
+            if ($this->obj instanceof Group) printf('%s</p>',self::getClass('SnapinManager')->buildSelectBox('','snapin'));
         }
         printf('<div class="advanced-settings"><h2>%s</h2>',_('Advanced Settings'));
         if ($TaskType->isInitNeededTasking() && !$TaskType->isDebug()) printf('<p class="hideFromDebug"><input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">%s <u>%s</u> %s</label></p>',_('Schedule'),_('Shutdown'),_('after task completion'));
@@ -327,7 +327,7 @@ abstract class FOGPage extends FOGBase {
             );
         }
         if ($this->obj instanceof Group) {
-            foreach(static::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))) AS $i => &$Host) {
+            foreach(self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))) AS $i => &$Host) {
                 if (!$Host->isValid()) continue;
                 $this->data[] = array(
                     'host_link'=>'?node=host&sub=edit&id=${host_id}',
@@ -343,14 +343,14 @@ abstract class FOGPage extends FOGBase {
                 unset($Host);
             }
         }
-        static::$HookManager->processEvent(sprintf('%s_DEPLOY',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_DEPLOY',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if (count($this->data)) printf('<p class="c"><input type="submit" value="%s"/></p>',$this->title);
         echo '</form>';
     }
     public function deploy_post() {
         try {
-            $TaskType = static::getClass('TaskType',((int) $_REQUEST['type'] ? (int) $_REQUEST['type'] : 1));
+            $TaskType = self::getClass('TaskType',((int) $_REQUEST['type'] ? (int) $_REQUEST['type'] : 1));
             $imagingTypes = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
             if (($this->obj instanceof Group && !(count($this->obj->get('hosts')))) || ($this->obj instanceof Host && ($this->obj->get('pending') || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
             if ($imagingTypes && $this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
@@ -358,7 +358,7 @@ abstract class FOGPage extends FOGBase {
             $this->setMessage($e->getMessage());
             $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && (int) $_REQUEST['id'] > 0 ? sprintf('&%s=%s',$this->id,(int) $_REQUEST['id']) : '')));
         }
-        $Snapin = static::getClass('Snapin',(int) $_REQUEST['snapin']);
+        $Snapin = self::getClass('Snapin',(int) $_REQUEST['snapin']);
         $enableShutdown = $_REQUEST['shutdown'] ? true : false;
         $enableSnapins = $TaskType->get('id') != 17 ? ($Snapin instanceof Snapin && $Snapin->isValid() ? $Snapin->get('id') : -1) : false;
         $enableDebug = (bool)((isset($_REQUEST['debug']) && $_REQUEST['debug'] == 'true') || isset($_REQUEST['isDebugTask']));
@@ -376,13 +376,13 @@ abstract class FOGPage extends FOGBase {
                     $this->obj->checkIfExist($TaskType->get('id'));
                 } else if ($this->obj instanceof Group && $imagingTasks) {
                     if ($TaskType->isMulticast() && !$this->obj->doMembersHaveUniformImages()) throw new Exception(_('Hosts do not contain the same image assignments'));
-                    foreach(static::getClass('HostManager')->find(array('pending'=>array('',0),'id'=>$this->obj->get('hosts'))) AS &$Host) {
+                    foreach(self::getClass('HostManager')->find(array('pending'=>array('',0),'id'=>$this->obj->get('hosts'))) AS &$Host) {
                         if (!$Host->isValid()) continue;
                         $NoImage[] = (bool)!$Host->getImage()->isValid();
                         unset($Host);
                     }
                     if (in_array(true,$NoImage,true)) throw new Exception(_('One or more hosts do not have an image set'));
-                    foreach(static::getClass('HostManager')->find(array('pending'=>array('',0),'id'=>$this->obj->get('hosts'))) AS &$Host) {
+                    foreach(self::getClass('HostManager')->find(array('pending'=>array('',0),'id'=>$this->obj->get('hosts'))) AS &$Host) {
                         if (!$Host->isValid()) continue;
                         $ImageExists[] = (bool)!$Host->checkIfExist($TaskType->get('id'));
                         unset($Host);
@@ -403,7 +403,7 @@ abstract class FOGPage extends FOGBase {
                         break;
                     }
                     if (in_array($_REQUEST['scheduleType'],array('single','cron'))) {
-                        $ScheduledTask = static::getClass('ScheduledTask')
+                        $ScheduledTask = self::getClass('ScheduledTask')
                             ->set('taskType',$TaskType->get('id'))
                             ->set('name',$taskName)
                             ->set('hostID',$this->obj->get('id'))
@@ -433,7 +433,7 @@ abstract class FOGPage extends FOGBase {
                         }
                         if ($ScheduledTask->save()) {
                             if ($this->obj instanceof Group) {
-                                $Hosts = static::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts')));
+                                $Hosts = self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts')));
                                 foreach($Hosts AS $i => &$Host) {
                                     if ($Host->isValid() && !$Host->get('pending')) {
                                         if (!$imagingTasks) $success[] = sprintf('<li>%s</li>',$Host->get('name'));
@@ -475,7 +475,7 @@ abstract class FOGPage extends FOGBase {
             '<input type="hidden" value="${id}" name="remitems[]"/>',
         );
         $this->additional = array();
-        foreach ((array)static::getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[sprintf('%sIDArray',$this->node)]))))) AS $i => &$Object) {
+        foreach ((array)self::getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[sprintf('%sIDArray',$this->node)]))))) AS $i => &$Object) {
             if ($Object->get('protected')) continue;
             $this->data[] = array(
                 'id'=>$Object->get('id'),
@@ -494,8 +494,8 @@ abstract class FOGPage extends FOGBase {
         }
     }
     public function deletemulti_conf() {
-        static::$HookManager->processEvent('MULTI_REMOVE',array('removing'=>&$_REQUEST['remitems']));
-        static::getClass($this->childClass)->getManager()->destroy(array('id'=>$_REQUEST['remitems']));
+        self::$HookManager->processEvent('MULTI_REMOVE',array('removing'=>&$_REQUEST['remitems']));
+        self::getClass($this->childClass)->getManager()->destroy(array('id'=>$_REQUEST['remitems']));
         $this->setMessage(_('All selected items have been deleted'));
         $this->redirect(sprintf('?node=%s',$this->node));
     }
@@ -511,7 +511,7 @@ abstract class FOGPage extends FOGBase {
         );
         printf("<!-- Basic Tasks -->");
         printf('<!-- Basic Tasks --><div id="%s-tasks"><h2>%s %s</h2>',$this->node,$this->childClass,_('Tasks'));
-        foreach ((array)static::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>0),'AND','id') AS $i => &$TaskType) {
+        foreach ((array)self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>0),'AND','id') AS $i => &$TaskType) {
             if (!$TaskType->isValid()) continue;
             $this->data[] = array(
                 'node'=>$this->node,
@@ -533,12 +533,12 @@ abstract class FOGPage extends FOGBase {
             'task_name' => _('Advanced'),
             'task_desc' => sprintf('%s %s',_('View advanced tasks for this'),$this->node),
         );
-        static::$HookManager->processEvent(sprintf('%s_EDIT_TASKS',strtoupper($this->childClass)), array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_EDIT_TASKS',strtoupper($this->childClass)), array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
         printf('<div id="advanced-tasks" class="hidden"><h2>%s</h2>',_('Advanced Actions'));
-        $TaskTypes = static::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>1),'AND','id');
-        foreach(static::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>1),'AND','id') AS $i => &$TaskType) {
+        $TaskTypes = self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>1),'AND','id');
+        foreach(self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>1),'AND','id') AS $i => &$TaskType) {
             if (!$TaskType->isValid()) continue;
             $this->data[] = array(
                 'node'=>$this->node,
@@ -551,7 +551,7 @@ abstract class FOGPage extends FOGBase {
             );
             unset($TaskType);
         }
-        static::$HookManager->processEvent(sprintf('%s_DATA_ADV',strtoupper($this->node)), array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_DATA_ADV',strtoupper($this->node)), array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</div></div>';
         unset($this->data);
@@ -620,7 +620,7 @@ abstract class FOGPage extends FOGBase {
             );
         }
         unset($input);
-        static::$HookManager->processEvent(strtoupper($this->childClass).'_EDIT_AD', array('headerData' => &$this->headerData,'data' => &$this->data,'attributes' => &$this->attributes,'templates' => &$this->templates));
+        self::$HookManager->processEvent(strtoupper($this->childClass).'_EDIT_AD', array('headerData' => &$this->headerData,'data' => &$this->data,'attributes' => &$this->attributes,'templates' => &$this->templates));
         $this->render();
         unset($this->data);
         echo '</form></div>';
@@ -633,7 +633,7 @@ abstract class FOGPage extends FOGBase {
             'domainpass' => $this->encryptpw($this->getSetting('FOG_AD_DEFAULT_PASSWORD')),
             'domainpasslegacy' => $this->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
         );
-        if (static::$ajax) echo json_encode($Data);
+        if (self::$ajax) echo json_encode($Data);
     }
     public function kernelfetch() {
         try {
@@ -641,7 +641,7 @@ abstract class FOGPage extends FOGBase {
             if ($_SESSION['allow_ajax_kdl'] && $_SESSION['dest-kernel-file'] && $_SESSION['tmp-kernel-file'] && $_SESSION['dl-kernel-file']) {
                 if ($_REQUEST['msg'] == 'dl') {
                     if (($fh = fopen($_SESSION['tmp-kernel-file'],'wb')) === false) throw new Exception(_('Error: Failed to open temp file'));
-                    static::$FOGURLRequests->process(mb_convert_encoding($_SESSION['dl-kernel-file'],'UTF-8'),'GET',false,false,false,false,$fh);
+                    self::$FOGURLRequests->process(mb_convert_encoding($_SESSION['dl-kernel-file'],'UTF-8'),'GET',false,false,false,false,$fh);
                     if (!file_exists($_SESSION['tmp-kernel-file'])) throw new Exception(_('Error: Failed to download kernel'));
                     if (!filesize($_SESSION['tmp-kernel-file']) >  1048576) throw new Exception(sprintf('%s: %s: %s - %s',_('Error'),_('Download Failed'),_('Failed'),_('filesize'),filesize($_SESSION['tmp-kernel-file'])));
                     $SendME = '##OK##';
@@ -649,17 +649,17 @@ abstract class FOGPage extends FOGBase {
                     $destfile = $_SESSION['dest-kernel-file'];
                     $tmpfile = $_SESSION['tmp-kernel-file'];
                     unset($_SESSION['dest-kernel-file'],$_SESSION['tmp-kernel-file'],$_SESSION['dl-kernel-file']);
-                    static::$FOGFTP->set('host',$this->getSetting('FOG_TFTP_HOST'))
+                    self::$FOGFTP->set('host',$this->getSetting('FOG_TFTP_HOST'))
                         ->set('username',trim($this->getSetting('FOG_TFTP_FTP_USERNAME')))
                         ->set('password',$this->getSetting('FOG_TFTP_FTP_PASSWORD'));
-                    if (!static::$FOGFTP->connect()) throw new Exception(_('Error: Unable to connect to tftp server'));
+                    if (!self::$FOGFTP->connect()) throw new Exception(_('Error: Unable to connect to tftp server'));
                     $orig = sprintf('/%s/%s',trim($this->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/'),$destfile);
                     $backuppath = sprintf('/%s/backup/',dirname($orig));
                     $backupfile = sprintf('%s%s_%s',$backuppath,$destfile,$this->formatTime('','Ymd_His'));
-                    if (static::$FOGFTP->exists($backuppath)) static::$FOGFTP->mkdir($backuppath);
-                    static::$FOGFTP->delete($orig);
-                    if (!(static::$FOGFTP->rename($orig,$backupfile) || static::$FOGFTP->put($orig,$tmpfile))) throw new Exception(_('Error: Failed to install new kernel'));
-                    static::$FOGFTP->close();
+                    if (self::$FOGFTP->exists($backuppath)) self::$FOGFTP->mkdir($backuppath);
+                    self::$FOGFTP->delete($orig);
+                    if (!(self::$FOGFTP->rename($orig,$backupfile) || self::$FOGFTP->put($orig,$tmpfile))) throw new Exception(_('Error: Failed to install new kernel'));
+                    self::$FOGFTP->close();
                     @unlink($tmpfile);
                     $SendME = '##OK##';
                 }
@@ -667,11 +667,11 @@ abstract class FOGPage extends FOGBase {
         } catch (Exception $e) {
             echo $e->getMessage();
         }
-        static::$FOGFTP->close();
+        self::$FOGFTP->close();
         echo $SendME;
     }
     public function loginInfo() {
-        $data = static::$FOGURLRequests->process(array('http://fogproject.org/globalusers','http://fogproject.org/version/version.php'),'GET');
+        $data = self::$FOGURLRequests->process(array('http://fogproject.org/globalusers','http://fogproject.org/version/version.php'),'GET');
         if (!$data[0]) $data['error-sites'] = _('Error contacting server');
         else $data['sites'] = $data[0];
         if (!$data[1]) $data['error-version'] = _('Error contacting server');
@@ -682,11 +682,11 @@ abstract class FOGPage extends FOGBase {
     public function getmacman() {
         try {
             if (!$_SESSION['AllowAJAXTasks']) throw new Exception(_('FOG Session Invalid'));
-            if (!static::$FOGCore->getMACLookupCount()) throw new Exception(sprintf('<a href="?node=about&sub=mac-list">%s</a>',_('Load MAC Vendors')));
-            $MAC = static::getClass('MACAddress',$_REQUEST['prefix']);
+            if (!self::$FOGCore->getMACLookupCount()) throw new Exception(sprintf('<a href="?node=about&sub=mac-list">%s</a>',_('Load MAC Vendors')));
+            $MAC = self::getClass('MACAddress',$_REQUEST['prefix']);
             $prefix = $MAC->getMACPrefix();
             if (!$MAC->isValid() || !$prefix) throw new Exception(_('Unknown'));
-            $OUI = static::getClass('OUIManager')->find(array('prefix'=>$prefix));
+            $OUI = self::getClass('OUIManager')->find(array('prefix'=>$prefix));
             $OUI = @array_shift($OUI);
             if (!(($OUI instanceof OUI) && $OUI->isValid())) throw new Exception(_('Not found'));
             $Data = sprintf('<small>%s</small>',$OUI->get('name'));
@@ -714,7 +714,7 @@ abstract class FOGPage extends FOGBase {
             '&nbsp;' => '<input type="submit" value="${label}"/>',
         );
         $fields = array_filter($fields);
-        static::$HookManager->processEvent(sprintf('%s_DEL_FIELDS',strtoupper($this->node)),array($this->childClass=>&$this->obj));
+        self::$HookManager->processEvent(sprintf('%s_DEL_FIELDS',strtoupper($this->node)),array($this->childClass=>&$this->obj));
         foreach($fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
@@ -723,7 +723,7 @@ abstract class FOGPage extends FOGBase {
             );
         }
         unset($input);
-        static::$HookManager->processEvent(sprintf('%S_DEL',strtoupper($this->childClass)),array($this->childClass=>&$this->obj));
+        self::$HookManager->processEvent(sprintf('%S_DEL',strtoupper($this->childClass)),array($this->childClass=>&$this->obj));
         printf('<form method="post" action="%s" class="c">',$this->formAction);
         $this->render();
         printf('</form>');
@@ -791,32 +791,32 @@ abstract class FOGPage extends FOGBase {
                 $class=$key;
                 break;
             }
-            $array[$key] = static::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
+            $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
             unset($key);
         }
         echo json_encode($array);
         exit;
     }
     public function clearAES() {
-        if (isset($_REQUEST['groupid'])) static::getClass('HostManager')->update(array('id'=>static::getClass('Group',$_REQUEST['groupid'])->get('hosts')),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
-        else if (isset($_REQUEST['id'])) static::getClass('HostManager')->update(array('id'=>$_REQUEST['id']),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
+        if (isset($_REQUEST['groupid'])) self::getClass('HostManager')->update(array('id'=>self::getClass('Group',$_REQUEST['groupid'])->get('hosts')),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
+        else if (isset($_REQUEST['id'])) self::getClass('HostManager')->update(array('id'=>$_REQUEST['id']),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
     }
     public function delete_post() {
-        static::$HookManager->processEvent(sprintf('%s_DEL_POST',strtoupper($this->node)), array($this->childClass=>&$this->obj));
+        self::$HookManager->processEvent(sprintf('%s_DEL_POST',strtoupper($this->node)), array($this->childClass=>&$this->obj));
         try {
             if ($this->obj->get('protected')) throw new Exception(sprintf('%s %s',$this->childClass,_('is protected, removal not allowed')));
             if ($this->obj instanceof Group) {
-                if (isset($_REQUEST['delHostConfirm'])) static::getClass('HostManager')->destroy(array('id'=>$this->obj->get('hosts')));
+                if (isset($_REQUEST['delHostConfirm'])) self::getClass('HostManager')->destroy(array('id'=>$this->obj->get('hosts')));
                 if (isset($_REQUEST['massDelHosts'])) $this->redirect("?node=group&sub=delete_hosts&id={$this->obj->get(id)}");
             }
             if (isset($_REQUEST['andFile'])) $this->obj->deleteFile();
             if (!$this->obj->destroy()) throw new Exception(_('Failed to destroy'));
-            static::$HookManager->processEvent(sprintf('%s_DELETE_SUCCESS',strtoupper($this->childClass)), array($this->childClass=>&$this->obj));
+            self::$HookManager->processEvent(sprintf('%s_DELETE_SUCCESS',strtoupper($this->childClass)), array($this->childClass=>&$this->obj));
             $this->setMessage(sprintf('%s %s: %s',$this->childClass,_('deleted'),$this->obj->get('name')));
             $this->resetRequest();
             $this->redirect(sprintf('?node=%s',$this->node));
         } catch (Exception $e) {
-            static::$HookManager->processEvent(sprintf('%s_DELETE_FAIL',strtoupper($this->node)),array($this->childClass=>&$this->obj));
+            self::$HookManager->processEvent(sprintf('%s_DELETE_FAIL',strtoupper($this->node)),array($this->childClass=>&$this->obj));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
@@ -826,9 +826,9 @@ abstract class FOGPage extends FOGBase {
         $eventClass = $this->childClass;
         if ($this->childClass == 'Task') $eventClass = 'host';
         $this->title = _('Search');
-        if (in_array($this->node,static::$searchPages)) $this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
-        static::$HookManager->processEvent(sprintf('%s_DATA',strtoupper($eventClass)),array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes,'title'=>&$this->title,'searchFormURL'=>&$this->searchFormURL));
-        static::$HookManager->processEvent(sprintf('%s_HEADER_DATA',strtoupper($this->childClass)),array('headerData'=>&$this->headerData));
+        if (in_array($this->node,self::$searchPages)) $this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
+        self::$HookManager->processEvent(sprintf('%s_DATA',strtoupper($eventClass)),array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes,'title'=>&$this->title,'searchFormURL'=>&$this->searchFormURL));
+        self::$HookManager->processEvent(sprintf('%s_HEADER_DATA',strtoupper($this->childClass)),array('headerData'=>&$this->headerData));
         $this->render();
     }
     public function membership() {
@@ -849,7 +849,7 @@ abstract class FOGPage extends FOGBase {
             array('width'=>150,'class'=>'l'),
         );
         $ClassCall = ($objType ? 'Group' : 'Host');
-        foreach(static::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(sprintf('%ssnotinme',strtolower($ClassCall))))) AS $i => &$Host) {
+        foreach(self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(sprintf('%ssnotinme',strtolower($ClassCall))))) AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
                 'host_id'=>$Host->get('id'),
@@ -859,7 +859,7 @@ abstract class FOGPage extends FOGBase {
             unset ($Host);
         }
         if (count($this->data) > 0) {
-            static::$HookManager->processEvent(sprintf('OBJ_%s_NOT_IN_ME',strtoupper($ClassCall)),array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+            self::$HookManager->processEvent(sprintf('OBJ_%s_NOT_IN_ME',strtoupper($ClassCall)),array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
             printf('<form method="post" action="%s"><label for="%sMeShow"><p class="c">%s %ss %s %s&nbsp;&nbsp;<input type="checkbox" name="%sMeShow" id="%sMeShow"/></p></label><div id="%sNotInMe"><h2>%s %s</h2>',
                 $this->formAction,
                 strtolower($ClassCall),
@@ -888,7 +888,7 @@ abstract class FOGPage extends FOGBase {
             '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action"/>',
             sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',strtolower($ClassCall)),
         );
-        foreach(static::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(strtolower($ClassCall).'s'))) AS $i => &$Host) {
+        foreach(self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(strtolower($ClassCall).'s'))) AS $i => &$Host) {
             if (!$Host->isValid()) continue;
             $this->data[] = array(
                 'host_id'=>$Host->get('id'),
@@ -896,13 +896,13 @@ abstract class FOGPage extends FOGBase {
             );
             unset($Host);
         }
-        static::$HookManager->processEvent('OBJ_MEMBERSHIP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('OBJ_MEMBERSHIP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         if (count($this->data)) printf('<p class="c"><input type="submit" value="%s %ss %s %s" name="remhosts"/></p>',_('Delete Selected'),$ClassCall,_('From'),$this->node);
     }
     public function membership_post() {
-        if (static::$ajax) return;
+        if (self::$ajax) return;
         if (isset($_REQUEST['addHosts'])) $this->obj->addHost($_REQUEST['host']);
         if (isset($_REQUEST['remhosts'])) $this->obj->removeHost($_REQUEST['hostdel']);
         if ($this->obj->save(false)) {
@@ -911,7 +911,7 @@ abstract class FOGPage extends FOGBase {
         }
     }
     public function wakeEmUp() {
-        static::getClass('WakeOnLan',$_REQUEST['mac'])->send();
+        self::getClass('WakeOnLan',$_REQUEST['mac'])->send();
     }
     public function import() {
         $this->title = sprintf('Import %s List',$this->childClass);
@@ -936,7 +936,7 @@ abstract class FOGPage extends FOGBase {
                 'input'=>$input,
             );
         }
-        static::$HookManager->processEvent(sprintf('%s_IMPORT_OUT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_IMPORT_OUT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
@@ -954,9 +954,9 @@ abstract class FOGPage extends FOGBase {
         $fields = array(
             _(sprintf("Click the button to download the %s's table backup.",strtolower($this->childClass))) => sprintf('<input type="submit" value="%s"/>',_('Export')),
         );
-        $report = static::getClass('ReportMaker');
+        $report = self::getClass('ReportMaker');
         $this->array_remove('id',$this->databaseFields);
-        foreach ((array)static::getClass($this->childClass)->getManager()->find() AS $i => &$Item) {
+        foreach ((array)self::getClass($this->childClass)->getManager()->find() AS $i => &$Item) {
             if (!$Item->isValid()) continue;
             if ($this->childClass == 'Host') {
                 if (!$Item->get('mac')->isValid()) continue;
@@ -974,7 +974,7 @@ abstract class FOGPage extends FOGBase {
                 $report->addCSVCell($Item->get($field));
                 unset($field);
             }
-            static::$HookManager->processEvent(sprintf('%s_EXPORT_REPORT',strtoupper($this->childClass)),array('report'=>&$report,$this->childClass=>&$Item));
+            self::$HookManager->processEvent(sprintf('%s_EXPORT_REPORT',strtoupper($this->childClass)),array('report'=>&$report,$this->childClass=>&$Item));
             $report->endCSVLine();
             unset($Item);
         }
@@ -986,7 +986,7 @@ abstract class FOGPage extends FOGBase {
                 'input'=>$input,
             );
         }
-        static::$HookManager->processEvent(sprintf('%s_EXPORT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_EXPORT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
@@ -1001,11 +1001,11 @@ abstract class FOGPage extends FOGBase {
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
                 $totalRows++;
                 try {
-                    $Item = static::getClass($this->childClass);
+                    $Item = self::getClass($this->childClass);
                     if ($Item instanceof Host) {
                         $ModuleIDs = $this->getSubObjectIDs('Module','','id');
                         $MACs = $this->parseMacList($data[0]);
-                        $Host = static::getClass('HostManager')->getHostByMacAddresses($MACs);
+                        $Host = self::getClass('HostManager')->getHostByMacAddresses($MACs);
                         if ($Host && $Host->isValid()) throw new Exception(_('Host already exists with at least one of the listed MACs'));
                         $PriMAC = array_shift($MACs);
                         $iterator = 1;
@@ -1027,7 +1027,7 @@ abstract class FOGPage extends FOGBase {
                         unset($ModuleIDs,$MACs,$PriMAC);
                     }
                     if ($Item->save()) {
-                        static::$HookManager->processEvent(strtoupper($this->childClass).'_IMPORT',array('data'=>&$data,$this->childClass=>&$Item));
+                        self::$HookManager->processEvent(strtoupper($this->childClass).'_IMPORT',array('data'=>&$data,$this->childClass=>&$Item));
                         $numSuccess++;
                     } else $numFailed++;
                 } catch (Exception $e) {
@@ -1062,7 +1062,7 @@ abstract class FOGPage extends FOGBase {
             );
         }
         unset($input);
-        static::$HookManager->processEvent(sprintf('%s_IMPORT_FIELDS',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent(sprintf('%s_IMPORT_FIELDS',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
 }

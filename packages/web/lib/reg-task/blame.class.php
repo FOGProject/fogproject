@@ -3,11 +3,11 @@ class Blame extends TaskingElement {
     public function __construct() {
         parent::__construct();
         array_map(function(&$StorageNode) {
-            if ($this->Task->get('NFSMemberID') < 1 || in_array($this->Task->get('NFSMemberID'),static::getAllBlamedNodes())) {
+            if ($this->Task->get('NFSMemberID') < 1 || in_array($this->Task->get('NFSMemberID'),self::getAllBlamedNodes())) {
                 $this->Task->set('stateID',$this->getQueuedState());
                 return;
             }
-            $Failed = static::getClass('NodeFailure')
+            $Failed = self::getClass('NodeFailure')
                 ->set('storageNodeID',$this->Task->get('NFSMemberID'))
                 ->set('taskID',$this->Task->get('id'))
                 ->set('hostID',$this->Host->get('id'))

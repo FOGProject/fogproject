@@ -17,10 +17,10 @@ class Page extends FOGBase {
             $this->theme = $this->theme ? $this->theme : 'default/fog.css';
             if (!file_exists("../management/css/$this->theme")) $this->theme = 'default/fog.css';
             $dispTheme = "css/$this->theme";
-            $this->imagelink = sprintf('css/%simages/',(!static::$isMobile ? sprintf('%s/',dirname($this->theme)) : ''));
+            $this->imagelink = sprintf('css/%simages/',(!self::$isMobile ? sprintf('%s/',dirname($this->theme)) : ''));
             if (!file_exists("../management/$dispTheme")) $dispTheme = 'css/default/fog.css';
         }
-        if (!static::$isMobile) {
+        if (!self::$isMobile) {
             $this->addCSS('css/jquery-ui.css');
             $this->addCSS('css/jquery-ui.theme.css');
             $this->addCSS('css/jquery-ui.structure.css');
@@ -33,41 +33,41 @@ class Page extends FOGBase {
         $this->addCSS('css/select2.min.css');
         $this->addCSS('css/theme.blue.css');
         if (!isset($_REQUEST['node']) || !$_REQUEST['node']) $_REQUEST['node'] = 'home';
-        $this->isHomepage = (in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo')) || !static::$FOGUser->isValid());
-        if (static::$FOGUser->isValid() && strtolower($_REQUEST['node']) != 'schemaupdater') {
-            if (!static::$isMobile) {
+        $this->isHomepage = (in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo')) || !self::$FOGUser->isValid());
+        if (self::$FOGUser->isValid() && strtolower($_REQUEST['node']) != 'schemaupdater') {
+            if (!self::$isMobile) {
                 $this->main = array(
-                    'home'=>array(static::$foglang['Home'],'fa fa-home fa-2x'),
-                    'user'=>array(static::$foglang['User Management'],'fa fa-users fa-2x'),
-                    'host'=>array(static::$foglang['Host Management'],'fa fa-desktop fa-2x'),
-                    'group'=>array(static::$foglang['Group Management'],'fa fa-sitemap fa-2x'),
-                    'image'=>array(static::$foglang['Image Management'],'fa fa-picture-o fa-2x'),
-                    'storage'=>array(static::$foglang['Storage Management'],'fa fa-archive fa-2x'),
-                    'snapin'=>array(static::$foglang['Snapin Management'],'fa fa-files-o fa-2x'),
-                    'printer'=>array(static::$foglang['Printer Management'],'fa fa-print fa-2x'),
-                    'service'=>array(static::$foglang['Service Configuration'],'fa fa-cogs fa-2x'),
-                    'task'=>array(static::$foglang['Task Management'],'fa fa-tasks fa-2x'),
-                    'report'=>array(static::$foglang['Report Management'],'fa fa-file-text fa-2x'),
-                    'about'=>array(static::$foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
-                    'logout'=>array(static::$foglang['Logout'],'fa fa-sign-out fa-2x'),
+                    'home'=>array(self::$foglang['Home'],'fa fa-home fa-2x'),
+                    'user'=>array(self::$foglang['User Management'],'fa fa-users fa-2x'),
+                    'host'=>array(self::$foglang['Host Management'],'fa fa-desktop fa-2x'),
+                    'group'=>array(self::$foglang['Group Management'],'fa fa-sitemap fa-2x'),
+                    'image'=>array(self::$foglang['Image Management'],'fa fa-picture-o fa-2x'),
+                    'storage'=>array(self::$foglang['Storage Management'],'fa fa-archive fa-2x'),
+                    'snapin'=>array(self::$foglang['Snapin Management'],'fa fa-files-o fa-2x'),
+                    'printer'=>array(self::$foglang['Printer Management'],'fa fa-print fa-2x'),
+                    'service'=>array(self::$foglang['Service Configuration'],'fa fa-cogs fa-2x'),
+                    'task'=>array(self::$foglang['Task Management'],'fa fa-tasks fa-2x'),
+                    'report'=>array(self::$foglang['Report Management'],'fa fa-file-text fa-2x'),
+                    'about'=>array(self::$foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
+                    'logout'=>array(self::$foglang['Logout'],'fa fa-sign-out fa-2x'),
                 );
-                if ($this->getSetting('FOG_PLUGINSYS_ENABLED')) $this->array_insert_after('about',$this->main,'plugin',array(static::$foglang['Plugin Management'],'fa fa-cog fa-2x'));
+                if ($this->getSetting('FOG_PLUGINSYS_ENABLED')) $this->array_insert_after('about',$this->main,'plugin',array(self::$foglang['Plugin Management'],'fa fa-cog fa-2x'));
             } else {
                 $this->main = array(
-                    'home'=>array(static::$foglang['Home'],'fa fa-home fa-2x'),
-                    'host'=>array(static::$foglang['Host Management'],'fa fa-desktop fa-2x'),
-                    'task'=>array(static::$foglang['Task Management'],'fa fa-tasks fa-2x'),
-                    'logout'=>array(static::$foglang['Logout'],'fa fa-sign-out fa-2x'),
+                    'home'=>array(self::$foglang['Home'],'fa fa-home fa-2x'),
+                    'host'=>array(self::$foglang['Host Management'],'fa fa-desktop fa-2x'),
+                    'task'=>array(self::$foglang['Task Management'],'fa fa-tasks fa-2x'),
+                    'logout'=>array(self::$foglang['Logout'],'fa fa-sign-out fa-2x'),
                 );
             }
             $this->main = array_unique(array_filter($this->main),SORT_REGULAR);
-            static::$HookManager->processEvent('MAIN_MENU_DATA',array('main'=>&$this->main));
+            self::$HookManager->processEvent('MAIN_MENU_DATA',array('main'=>&$this->main));
             $links = array();
             @array_walk($this->main,function(&$title,&$link) use (&$links) {
                 $links[] = $link;
                 unset($title,$link);
             });
-            if (!static::$isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
+            if (!self::$isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
             if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links)) $this->redirect('index.php');
             ob_start();
             echo '<nav class="menu"><ul class="nav-list">';
@@ -85,7 +85,7 @@ class Page extends FOGBase {
             echo '</ul></nav>';
             $this->menu = ob_get_clean();
         }
-        if (static::$FOGUser->isValid() && !static::$isMobile) {
+        if (self::$FOGUser->isValid() && !self::$isMobile) {
             $files = array(
                 'js/jquery-latest.js',
                 'js/jquery.tablesorter.combined.js',
@@ -133,7 +133,7 @@ class Page extends FOGBase {
                 array_push($files,'js/fog/fog.dashboard.js');
                 if (preg_match('#MSIE [6|7|8|9|10|11]#',$_SERVER['HTTP_USER_AGENT'])) array_push($files,'js/flot/excanvas.js');
             }
-        } else if (!static::$isMobile) {
+        } else if (!self::$isMobile) {
             $files = array(
                 'js/jquery-latest.js',
                 'js/jquery.tipsy.js',

@@ -9,7 +9,7 @@ class Hosts_and_Users extends ReportManagementPage {
 	public function index() {
 		$this->title =_('FOG Hosts and Users Login');
 		echo '<p class="c"><a href="export.php?type=csv" target="_blank"><i class="fa fa-file-excel-o fa-2x"></i></a><a href="export.php?type=pdf" target="_blank"><i class="fa fa-file-pdf-o fa-2x"></i></a></p><br/>';
-		$report = static::getClass('ReportMaker');
+		$report = self::getClass('ReportMaker');
 		$report->appendHTML('<table cellpadding="0" cellspacing="0" border="0" width="100%">');
 		$report->appendHTML('<tr bgcolor="#BDBDBD"><td><b>Hostname</b></td><td><b>MAC</b></td><td><b>Registered</b></td></tr>');
 		$report->addCSVCell('Hostname');
@@ -52,8 +52,8 @@ class Hosts_and_Users extends ReportManagementPage {
 				$report->addCSVCell('MAC');
 				$report->addCSVCell('Registered');
 				$report->endCSVLine();
-			},(array)static::getClass('UserTrackingManager')->find(array('id'=>$Host->get('users'),'action'=>array(null,0,1)),'','datetime','DESC','','username'));
-		},(array)static::getClass('HostManager')->find('','','','','','name'));
+			},(array)self::getClass('UserTrackingManager')->find(array('id'=>$Host->get('users'),'action'=>array(null,0,1)),'','datetime','DESC','','username'));
+		},(array)self::getClass('HostManager')->find('','','','','','name'));
 		$report->appendHTML('</table>');
 		$report->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($report);

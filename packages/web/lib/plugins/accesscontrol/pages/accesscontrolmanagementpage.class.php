@@ -22,14 +22,14 @@ class AccesscontrolManagementPage extends FOGPage {
             array(),
             array(),
         );
-        static::$returnData = function(&$AccessControl) {
+        self::$returnData = function(&$AccessControl) {
             if (!$AccessControl->isValid()) return;
             $this->data[] = array(
                 'id'=>$AccessControl->get('id'),
                 'name'=>$AccessControl->get('name'),
                 'desc'=>$AccessControl->get('description'),
                 'other'=>$AccessControl->get('other'),
-                'user'=>static::getClass('User',$AccessControl->get('userID'))->get('name'),
+                'user'=>self::getClass('User',$AccessControl->get('userID'))->get('name'),
                 'group'=>$AccessControl->get('groupID'),
             );
             unset($AccessControl);
@@ -37,16 +37,16 @@ class AccesscontrolManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Access Controls');
-        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && static::getClass($this->childClass)->getManager()->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass($this->childClass)->getManager()->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->find());
-        static::$HookManager->processEvent('CONTROL_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
+        self::$HookManager->processEvent('CONTROL_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->search('',true));
-        static::$HookManager->processEvent('CONTROL_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->search('',true));
+        self::$HookManager->processEvent('CONTROL_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
 }

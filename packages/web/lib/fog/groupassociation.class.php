@@ -11,9 +11,9 @@ class GroupAssociation extends FOGController {
         'groupID',
     );
     public function getGroup() {
-        return static::getClass('Group',$this->get('groupID'));
+        return self::getClass('Group',$this->get('groupID'));
     }
     public function getHost() {
-        return static::getClass('Host',$this->get('hostID'));
+        return self::getClass('Host',$this->get('hostID'));
     }
 }

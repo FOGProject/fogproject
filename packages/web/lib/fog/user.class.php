@@ -46,9 +46,9 @@ class User extends FOGController {
             $this->log(sprintf('%s %s.',$this->get('name'),_('user successfully logged in')));
         } else {
             $this->log(sprintf('%s %s.',$this->get('name'),_('user failed to login'),$this->get('name')));
-            static::$EventManager->notify('LoginFail',array('Failure'=>$this->get('name')));
-            static::$HookManager->processEvent('LoginFail',array('username'=>$this->get('name'),'password'=>&$password));
-            $this->setMessage(static::$foglang['InvalidLogin']);
+            self::$EventManager->notify('LoginFail',array('Failure'=>$this->get('name')));
+            self::$HookManager->processEvent('LoginFail',array('username'=>$this->get('name'),'password'=>&$password));
+            $this->setMessage(self::$foglang['InvalidLogin']);
             if (!isset($_SESSION['OBSOLETE'])) $_SESSION['OBSOLETE'] = true;
         }
         return $res;
@@ -75,7 +75,7 @@ class User extends FOGController {
             if (!$_SESSION['FOG_MESSAGES']) $this->setMessage(_('Session altered improperly'));
             if (!isset($_SESSION['OBSOLETE'])) $_SESSION['OBSOLETE'] = true;
         } else if ($this->get('authLastActivity') && !$this->alwaysloggedin && ((time() - $this->get('authLastActivity')) >= ($this->inactivitySessionTimeout*60*60))) {
-            $this->setMessage(static::$foglang['SessionTimeout']);
+            $this->setMessage(self::$foglang['SessionTimeout']);
             if (!isset($_SESSION['OBSOLETE'])) $_SESSION['OBSOLETE'] = true;
         }
         if (isset($_SESSION['OBSOLETE']) && $_SESSION['OBSOLETE']) {
