@@ -54,7 +54,7 @@ class StorageNode extends FOGController {
     }
     public function loadLogfiles() {
         $URL = array_map(function(&$path) {
-            return sprintf('http://%s/fog/status/getlogs.php?path=%s',$this->get('ip'),urlencode($path));
+            return sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($path));
         },array('/var/log/httpd/','/var/log/apache2/','/var/log/fog'));
         $paths = static::$FOGURLRequests->process($URL);
         $tmppath = array();
@@ -67,7 +67,7 @@ class StorageNode extends FOGController {
         $this->set('logfiles',array_values((array)$paths));
     }
     public function loadSnapinfiles() {
-        $URL = sprintf('http://%s/fog/status/getsnapins.php?path=%s',$this->get('ip'),urlencode($this->get('snapinpath')));
+        $URL = sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($this->get('snapinpath')));
         $paths = static::$FOGURLRequests->process($URL);
         $paths = @array_shift($paths);
         $paths = json_decode($paths);
@@ -85,7 +85,7 @@ class StorageNode extends FOGController {
         $this->set('snapinfiles',$paths);
     }
     public function loadImages() {
-        $URL = sprintf('http://%s/fog/status/getimages.php?path=%s',$this->get('ip'),urlencode($this->get('path')));
+        $URL = sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($this->get('path')));
         $paths = static::$FOGURLRequests->process($URL);
         $paths = @array_shift($paths);
         $paths = json_decode($paths);

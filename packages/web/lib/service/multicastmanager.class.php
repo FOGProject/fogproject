@@ -120,7 +120,7 @@ class MulticastManager extends FOGService {
             } catch(Exception $e) {
                 $this->outall($e->getMessage());
             }
-            static::out(' +---------------------------------------------------------',$this->dev);
+            $this->out(' +---------------------------------------------------------',$this->dev);
             $tmpTime = (int)$this->getSetting($this->sleeptime);
             if ($this->zzz != $tmpTime) {
                 $this->zzz = $tmpTime;
@@ -131,8 +131,8 @@ class MulticastManager extends FOGService {
         }
     }
     public function serviceRun() {
-        static::out(' ',$this->dev);
-        static::out(' +---------------------------------------------------------',$this->dev);
+        $this->out(' ',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
         static::serviceLoop();
     }
 }
