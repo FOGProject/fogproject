@@ -1,7 +1,7 @@
 <?php
 abstract class FOGService extends FOGBase {
-    public static $dev = '';
     public static $logpath = '';
+    public static $dev = '';
     public static $log = '';
     public static $zzz = '';
     private $transferLog = array();
@@ -23,7 +23,7 @@ abstract class FOGService extends FOGBase {
     }
     public function __construct() {
         parent::__construct();
-        self::$logpath = sprintf('/%s/',trim($this->getSetting('SERVICE_LOG_PATH'),'/'));
+        static::$logpath = sprintf('/%s/',trim($this->getSetting('SERVICE_LOG_PATH'),'/'));
     }
     protected function checkIfNodeMaster() {
         $this->getIPAddress();

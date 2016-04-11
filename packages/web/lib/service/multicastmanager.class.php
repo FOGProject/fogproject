@@ -1,12 +1,13 @@
 <?php
 class MulticastManager extends FOGService {
+    public static $logpath = '';
     public static $dev = '';
     public static $log = '';
     public static $zzz = '';
     public static $sleeptime = 'MULTICASTSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',self::$logpath,$this->getSetting('MULTICASTLOGFILENAME'));
+        static::$log = sprintf('%s%s',static::$logpath,$this->getSetting('MULTICASTLOGFILENAME'));
         static::$dev = $this->getSetting('MULTICASTDEVICEOUTPUT');
         static::$zzz = (int)$this->getSetting(static::$sleeptime);
     }
