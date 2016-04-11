@@ -11,7 +11,7 @@ abstract class FOGManagerController extends FOGBase {
     public function __construct() {
         parent::__construct();
         $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
-        $classVars = static::getClass($this->childClass,'',true);
+        $classVars = self::getClass($this->childClass,'',true);
         $this->databaseTable = $classVars['databaseTable'];
         $this->databaseFields = $classVars['databaseFields'];
         $this->databaseFieldsRequired = $classVars['databaseFieldsRequired'];
@@ -44,7 +44,7 @@ abstract class FOGManagerController extends FOGBase {
             if ($groupBy) $groupBy = sprintf('GROUP BY `%s`.`%s`',$this->databaseTable,$this->databaseFields[$groupBy]);
             else $groupBy = '';
         } else $orderBy = '';
-        list($join, $whereArrayAnd) = static::getClass($this->childClass)->buildQuery($not, $compare);
+        list($join, $whereArrayAnd) = self::getClass($this->childClass)->buildQuery($not, $compare);
         $isEnabled = false;
         if (!in_array($this->childClass,array('Image','Snapin','StorageNode')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
         $query = sprintf(
@@ -86,7 +86,7 @@ abstract class FOGManagerController extends FOGBase {
             };
             $data = array();
             array_map(function(&$item) use ($query,$htmlEntDecode,&$data) {
-                $tmp = array_map($htmlEntDecode,(array)static::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$item]));
+                $tmp = array_map($htmlEntDecode,(array)self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$item]));
                 $data[$item] = count($tmp) === 1 ? array_shift($tmp) : $tmp;
             },(array)$idField);
             if (count($data) === 1) {
@@ -97,7 +97,7 @@ abstract class FOGManagerController extends FOGBase {
         } else {
             $data = array_map(function(&$item) {
                 return FOGCore::getClass($this->childClass)->setQuery($item);
-            },(array)static::$DB->query($query)->fetch('','fetch_all')->get());
+            },(array)self::$DB->query($query)->fetch('','fetch_all')->get());
         }
         if ($filter) return @$filter(array_values(array_filter((array)$data)));
         return array_values(array_filter((array)$data));
@@ -123,7 +123,7 @@ abstract class FOGManagerController extends FOGBase {
             $this->databaseTable,
             (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : ''))
         );
-        return (int)static::$DB->query($query)->fetch()->get('total');
+        return (int)self::$DB->query($query)->fetch()->get('total');
     }
     public function insert_batch($fields,$values) {
         $fieldlength = count($fields);
@@ -139,13 +139,13 @@ abstract class FOGManagerController extends FOGBase {
         },(array)$fields);
         $vals = array_map(function(&$value) {
             $value = array_map(function($value) {
-                return static::$DB->sanitize($value);
+                return self::$DB->sanitize($value);
             },(array)$value);
             return sprintf("('%s')",implode("','",(array)$value));
         },(array)$values);
         $query = sprintf($this->insertBatchTemplate,$this->databaseTable,implode('`,`',$keys),implode(',',$vals));
-        static::$DB->query($query);
-        return array(static::$DB->insert_id(),static::$DB->affected_rows());
+        self::$DB->query($query);
+        return array(self::$DB->insert_id(),self::$DB->affected_rows());
     }
     public function update($findWhere = array(), $whereOperator = 'AND', $insertData) {
         if (empty($findWhere)) $findWhere = array();
@@ -154,7 +154,7 @@ abstract class FOGManagerController extends FOGBase {
         array_walk($insertData,function(&$value,&$field) use (&$insertArray) {
             $field = trim($field);
             $insertKey = sprintf('`%s`.`%s`',$this->databaseTable,$this->databaseFields[$field]);
-            $insertVal = static::$DB->sanitize($value);
+            $insertVal = self::$DB->sanitize($value);
             $insertArray[] = sprintf("%s='%s'",$insertKey,$insertVal);
             unset($value);
         });
@@ -173,7 +173,7 @@ abstract class FOGManagerController extends FOGBase {
             implode(',',(array)$insertArray),
             (count($whereArray) ? ' WHERE '.implode(' '.$whereOperator.' ',(array)$whereArray) : '')
         );
-        return (bool)static::$DB->query($query)->fetch()->get();
+        return (bool)self::$DB->query($query)->fetch()->get();
     }
     public function destroy($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false) {
         if (empty($findWhere)) $findWhere = array();
@@ -190,7 +190,7 @@ abstract class FOGManagerController extends FOGBase {
             $this->databaseFields['id'],
             implode("','",(array)$ids)
         );
-        return static::$DB->query($query)->fetch()->get();
+        return self::$DB->query($query)->fetch()->get();
     }
     public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '', $template = false) {
         $matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
@@ -203,7 +203,7 @@ abstract class FOGManagerController extends FOGBase {
             unset($Object);
             return $listArray;
         },(array)$this->find($filter ? array('id'=>$filter):'','',$orderBy,'','','',($filter ? true : false)));
-        return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',($template ? '${selector_name}' : $elementName),"- ".static::$foglang['PleaseSelect']." -",implode($listArray)) : false);
+        return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',($template ? '${selector_name}' : $elementName),"- ".self::$foglang['PleaseSelect']." -",implode($listArray)) : false);
     }
     public function exists($name, $id = 0, $idField = 'name') {
         if (empty($id)) $id = 0;
@@ -220,14 +220,14 @@ abstract class FOGManagerController extends FOGBase {
             $this->databaseFields[$idField],
             $id
         );
-        return (bool)static::$DB->query($query)->fetch()->get('total');
+        return (bool)self::$DB->query($query)->fetch()->get('total');
     }
     public function search($keyword = '',$returnObjects = false) {
-        if (empty($keyword)) $keyword = trim(static::$isMobile ? $_REQUEST['host-search'] : $_REQUEST['crit']);
+        if (empty($keyword)) $keyword = trim(self::$isMobile ? $_REQUEST['host-search'] : $_REQUEST['crit']);
         $mac_keyword = join(':',str_split(str_replace(array('-',':'),'',$keyword),2));
         $mac_keyword = preg_replace('#[%\+\s\+]#','%',sprintf('%%%s%%',$mac_keyword));
         if (empty($keyword)) $keyword = '%';
-        if ($keyword === '%') return static::getClass($this->childClass)->getManager()->find();
+        if ($keyword === '%') return self::getClass($this->childClass)->getManager()->find();
         $keyword = preg_replace('#[%\+\s\+]#','%',sprintf('%%%s%%',$keyword));
         $_SESSION['caller'] = __FUNCTION__;
         $this->array_remove($this->aliasedFields,$this->databaseFields);
@@ -278,7 +278,7 @@ abstract class FOGManagerController extends FOGBase {
             break;
         }
         $itemIDs = array_values(array_filter(array_unique($itemIDs)));
-        if ($returnObjects) return static::getClass($this->childClass)->getManager()->find(array('id'=>$itemIDs));
+        if ($returnObjects) return self::getClass($this->childClass)->getManager()->find(array('id'=>$itemIDs));
         return $itemIDs;
     }
 }

@@ -5,12 +5,12 @@ class PluginManagementPage extends FOGPage {
         $this->name = 'Plugin Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'home'=>static::$foglang['Home'],
-            'activate'=>static::$foglang['ActivatePlugins'],
-            'install'=>static::$foglang['InstallPlugins'],
-            'installed'=>static::$foglang['InstalledPlugins'],
+            'home'=>self::$foglang['Home'],
+            'activate'=>self::$foglang['ActivatePlugins'],
+            'install'=>self::$foglang['InstallPlugins'],
+            'installed'=>self::$foglang['InstalledPlugins'],
         );
-        static::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
         $this->headerData = array(
             _('Plugin Name'),
             _('Description'),
@@ -48,11 +48,11 @@ class PluginManagementPage extends FOGPage {
                 'icon'=>$Plugin->getIcon(),
             );
             unset($Plugin);
-        },static::getClass($this->childClass)->getPlugins());
-        static::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        },self::getClass($this->childClass)->getPlugins());
+        self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if (!empty($_REQUEST['activate']) && $_REQUEST['sub'] == 'activate') {
-            static::getClass($this->childClass)->activatePlugin($_REQUEST['activate']);
+            self::getClass($this->childClass)->activatePlugin($_REQUEST['activate']);
             $this->setMessage(_('Successfully activated Plugin!'));
             $this->redirect(preg_replace('#&activate=.*&?#','',$this->formAction));
         }
@@ -73,8 +73,8 @@ class PluginManagementPage extends FOGPage {
             );
             $P = $Plugin;
             unset($Plugin);
-        },static::getClass($this->childClass)->getPlugins());
-        static::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        },self::getClass($this->childClass)->getPlugins());
+        self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if ($_REQUEST['run']) {
             $runner = $P->getRunInclude($_REQUEST['run']);
@@ -99,8 +99,8 @@ class PluginManagementPage extends FOGPage {
             );
             $P = $Plugin;
             unset($Plugin);
-        },static::getClass($this->childClass)->getPlugins());
-        static::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        },self::getClass($this->childClass)->getPlugins());
+        self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         if ($_REQUEST['run']) {
             $runner = $P->getRunInclude($_REQUEST['run']);
@@ -110,7 +110,7 @@ class PluginManagementPage extends FOGPage {
         unset($P);
     }
     public function run() {
-        $plugin = static::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
+        $plugin = self::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
         try {
             if ($plugin == null) throw new Exception(_('Unable to determine plugin details.'));
             $this->title = sprintf('%s: %s',_('Plugin'),$plugin->get('name'));
@@ -180,7 +180,7 @@ class PluginManagementPage extends FOGPage {
                     unset($this->headerData,$this->data,$fields);
                     printf('<p class="titleBottomLeft">%s</p>',_('Add Image to DMI Associations'));
                     $fields = array(
-                        sprintf('%s:',_('Image Definition')) => static::getClass('ImageManager')->buildSelectBox(),
+                        sprintf('%s:',_('Image Definition')) => self::getClass('ImageManager')->buildSelectBox(),
                         sprintf('%s:',_('DMI Result')) => '<input type="text" name="key"/>',
                         '' => sprintf('<input type="submit" style="margin-top: 7px;" name="addass" value="%s"/>',_('Add Association')),
                     );
@@ -210,7 +210,7 @@ class PluginManagementPage extends FOGPage {
                     );
                     array_map(function(&$Capone) {
                         if (!$Capone->isValid()) return;
-                        $Image = static::getClass('Image',$Capone->get('imageID'));
+                        $Image = self::getClass('Image',$Capone->get('imageID'));
                         if (!$Image->isValid()) return;
                         $OS = $Image->getOS();
                         if (!$OS->isValid()) return;
@@ -222,7 +222,7 @@ class PluginManagementPage extends FOGPage {
                             'capone_id'=>$Capone->get('id'),
                         );
                         unset($Capone,$Image,$OS);
-                    },static::getClass('CaponeManager')->find());
+                    },self::getClass('CaponeManager')->find());
                     printf('<form method="post" action="%s">',$this->formAction);
                     $this->render();
                     echo '</form>';
@@ -240,8 +240,8 @@ class PluginManagementPage extends FOGPage {
         }
     }
     public function install_post() {
-        static::getClass('Plugin')->getRunInclude($_REQUEST['run']);
-        $Plugin = static::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
+        self::getClass('Plugin')->getRunInclude($_REQUEST['run']);
+        $Plugin = self::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
         try {
             if (!$Plugin->isValid()) throw new Exception(_('Invalid Plugin Passed'));
             if (isset($_REQUEST['install'])) {
@@ -259,15 +259,15 @@ class PluginManagementPage extends FOGPage {
                 throw new Exception(_('Settings Updated'));
             }
             if (isset($_REQUEST['addass'])) {
-                $Capone = static::getClass('Capone')
+                $Capone = self::getClass('Capone')
                     ->set('imageID',$_REQUEST['image'])
-                    ->set('osID',static::getClass('Image',$_REQUEST['image'])->getOS()->get('id'))
+                    ->set('osID',self::getClass('Image',$_REQUEST['image'])->getOS()->get('id'))
                     ->set('key',$_REQUEST['key']);
                 if (!$Capone->save()) throw new Exception(_('Failed to save assignment'));
                 throw new Exception(_('Assignment saved successfully'));
             }
             if ($_REQUEST['kill']) {
-                static::getClass('Capone',$_REQUEST['kill'])->destroy();
+                self::getClass('Capone',$_REQUEST['kill'])->destroy();
                 throw new Exception(_('Destroyed assignment'));
             }
         } catch (Exception $e) {
@@ -276,7 +276,7 @@ class PluginManagementPage extends FOGPage {
         $this->redirect($this->formAction);
     }
     public function removeplugin() {
-        if ($_REQUEST['rmid']) $Plugin = static::getClass('Plugin',$_REQUEST['rmid']);
+        if ($_REQUEST['rmid']) $Plugin = self::getClass('Plugin',$_REQUEST['rmid']);
         $Plugin->getManager()->uninstall();
         if ($Plugin->destroy()) {
             $this->setMessage('Plugin Removed');

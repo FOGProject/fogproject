@@ -9,12 +9,12 @@ class RegisterClient extends FOGClient implements FOGClientSend {
             if ($this->newService) {
                 $_REQUEST['hostname'] = trim($_REQUEST['hostname']);
                 if (!($this->Host instanceof Host && $this->Host->isValid())) {
-                    $this->Host = static::getClass('HostManager')->find(array('name'=>$_REQUEST['hostname']));
+                    $this->Host = self::getClass('HostManager')->find(array('name'=>$_REQUEST['hostname']));
                     $this->Host = @array_shift($this->Host);
                     if (!($this->Host instanceof Host && $this->Host->isValid() && !$this->Host->get('pending'))) {
-                        if (!static::getClass('Host')->isHostnameSafe($_REQUEST['hostname'])) throw new Exception('#!ih');
+                        if (!self::getClass('Host')->isHostnameSafe($_REQUEST['hostname'])) throw new Exception('#!ih');
                         $PriMAC = @array_shift($MACs);
-                        $this->Host = static::getClass('Host')
+                        $this->Host = self::getClass('Host')
                             ->set('name',$_REQUEST['hostname'])
                             ->set('description',_('Pending Registration created by FOG_CLIENT'))
                             ->set('pending',1)

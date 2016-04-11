@@ -5,7 +5,7 @@ class PushbulletManagementPage extends FOGPage {
         $this->name = 'Pushbullet Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'list' => sprintf(static::$foglang['ListAll'],_('Pushbullet Accounts')),
+            'list' => sprintf(self::$foglang['ListAll'],_('Pushbullet Accounts')),
             'add' => _('Link Pushbullet Account'),
         );
         if ($_REQUEST['id']) {
@@ -29,7 +29,7 @@ class PushbulletManagementPage extends FOGPage {
             array('class' => 'l'),
             array('class' => 'r'),
         );
-        static::$returnData = function(&$PushBullet) {
+        self::$returnData = function(&$PushBullet) {
             if (!$PushBullet->isValid()) return;
             $this->data[] = array(
                 'name'    => $PushBullet->get('name'),
@@ -42,8 +42,8 @@ class PushbulletManagementPage extends FOGPage {
     public function index() {
         $this->title = _('Accounts');
         $this->data = array();
-        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->find());
-        static::$HookManager->processEvent('PUSHBULLET_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
+        self::$HookManager->processEvent('PUSHBULLET_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
     }
     public function search() {
@@ -71,7 +71,7 @@ class PushbulletManagementPage extends FOGPage {
             );
         }
         unset($fields);
-        static::$HookManager->processEvent('PUSHBULLET_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        self::$HookManager->processEvent('PUSHBULLET_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -79,15 +79,15 @@ class PushbulletManagementPage extends FOGPage {
     public function add_post() {
         try {
             $token = trim($_REQUEST['apiToken']);
-            if (static::getClass('PushbulletManager')->exists(trim($_REQUEST['apiToken']))) throw new Exception(_('Account already linked'));
+            if (self::getClass('PushbulletManager')->exists(trim($_REQUEST['apiToken']))) throw new Exception(_('Account already linked'));
             if (!$token) throw new Exception(_('Please enter an access token'));
-            $userInfo = static::getClass('PushbulletHandler',$token)->getUserInformation();
-            $Bullet = static::getClass('Pushbullet')
+            $userInfo = self::getClass('PushbulletHandler',$token)->getUserInformation();
+            $Bullet = self::getClass('Pushbullet')
                 ->set('token',$token)
                 ->set('name',$userInfo->name)
                 ->set('email',$userInfo->email);
             if (!$Bullet->save()) throw new Exception(_('Failed to create'));
-            static::getClass('PushbulletHandler',$token)->pushNote('', 'FOG', 'Account linked');
+            self::getClass('PushbulletHandler',$token)->pushNote('', 'FOG', 'Account linked');
             $this->setMessage(_('Account Added!'));
             $this->redirect('?node=pushbullet&sub=list');
         } catch (Exception $e) {

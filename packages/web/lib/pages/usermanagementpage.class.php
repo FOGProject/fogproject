@@ -6,14 +6,14 @@ class UserManagementPage extends FOGPage {
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                $this->linkformat => static::$foglang['General'],
-                $this->delformat => static::$foglang['Delete'],
+                $this->linkformat => self::$foglang['General'],
+                $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
-                static::$foglang['User'] => $this->obj->get('name'),
+                self::$foglang['User'] => $this->obj->get('name'),
             );
         }
-        static::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat));
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Username'),
@@ -29,7 +29,7 @@ class UserManagementPage extends FOGPage {
             array(),
             array('class'=>'c filter-false','width'=>55),
         );
-        static::$returnData = function(&$User) {
+        self::$returnData = function(&$User) {
             if (!$User->isValid()) return;
             $this->data[] = array(
                 'id' => $User->get('id'),
@@ -40,16 +40,16 @@ class UserManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Users');
-        if ($_SESSION['DataReturn'] > 0 && $_SESSION['UserCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('%s?node=%s&sub=search', static::$urlself, $this->node));
+        if ($_SESSION['DataReturn'] > 0 && $_SESSION['UserCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('%s?node=%s&sub=search', self::$urlself, $this->node));
         $this->data = array();
-        array_map(static::$returnData,static::getClass($this->childClass)->getManager()->find());
-        static::$HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find());
+        self::$HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(static::$returnData,static::getClass($this->childClass)->getManager()->search('',true));
-        static::$HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->search('',true));
+        self::$HookManager->processEvent('USER_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -73,25 +73,25 @@ class UserManagementPage extends FOGPage {
             '&nbsp;' => sprintf('<input name="add" type="submit" value="%s"/>',_('Create User')),
         );
         array_walk($fields,$this->fieldsToData);
-        static::$HookManager->processEvent('USER_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('USER_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<h2>%s</h2><form method="post" action="%s">',_('Add new user account'),$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function add_post() {
-        static::$HookManager->processEvent('USER_ADD_POST');
+        self::$HookManager->processEvent('USER_ADD_POST');
         try {
-            if (static::getClass('UserManager')->exists($_REQUEST['name'])) throw new Exception(_('Username already exists'));
-            if (!static::getClass('UserManager')->isPasswordValid($_REQUEST['password'],$_REQUEST['password_confirm'])) throw new Exception(_('Password is invalid'));
-            $User = static::getClass('User')
+            if (self::getClass('UserManager')->exists($_REQUEST['name'])) throw new Exception(_('Username already exists'));
+            if (!self::getClass('UserManager')->isPasswordValid($_REQUEST['password'],$_REQUEST['password_confirm'])) throw new Exception(_('Password is invalid'));
+            $User = self::getClass('User')
                 ->set('name',$_REQUEST['name'])
                 ->set('type',(int)isset($_REQUEST['isGuest']))
                 ->set('password',$_REQUEST['password']);
             if (!$User->save()) throw new Exception(_('Failed to create user'));
-            static::$HookManager->processEvent('USER_ADD_SUCCESS',array('User'=>&$User));
+            self::$HookManager->processEvent('USER_ADD_SUCCESS',array('User'=>&$User));
             $this->setMessage(sprintf('%s<br/>%s',_('User created'),_('You may now create another')));
         } catch (Exception $e) {
-            static::$HookManager->processEvent('USER_ADD_FAIL',array('User'=>&$User));
+            self::$HookManager->processEvent('USER_ADD_FAIL',array('User'=>&$User));
             $this->setMessage($e->getMessage());
         }
         unset($User);
@@ -117,13 +117,13 @@ class UserManagementPage extends FOGPage {
         );
         $this->data = array();
         array_walk($fields,$this->fieldsToData);
-        static::$HookManager->processEvent('USER_EDIT',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('USER_EDIT',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        static::$HookManager->processEvent('USER_EDIT_POST',array('User'=>&$this->obj));
+        self::$HookManager->processEvent('USER_EDIT_POST',array('User'=>&$this->obj));
         try {
             $name = trim($_REQUEST['name']);
             if ($name != trim($this->obj->get('name')) && $this->obj->getManager()->exists($name,$this->obj->get('id'))) throw new Exception(_('Username already exists'));
@@ -135,10 +135,10 @@ class UserManagementPage extends FOGPage {
                 ->set('type',(int)isset($_REQUEST['isGuest']))
                 ->set('password',$_REQUEST['password']);
             if (!$this->obj->save()) throw new Exception(_('User update failed'));
-            static::$HookManager->processEvent('USER_UPDATE_SUCCESS',array('User'=>&$this->obj));
+            self::$HookManager->processEvent('USER_UPDATE_SUCCESS',array('User'=>&$this->obj));
             $this->setMessage(_('User updated'));
         } catch (Exception $e) {
-            static::$HookManager->processEvent('USER_UPDATE_FAIL',array('User'=>&$this->obj));
+            self::$HookManager->processEvent('USER_UPDATE_FAIL',array('User'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));

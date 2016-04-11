@@ -10,8 +10,8 @@ class LoginFailure_PushBullet extends PushbulletExtends {
     protected $author = 'Tom Elliott';
     public $active = true;
     public function onEvent($event, $data) {
-        static::$message = 'If you see repeatedly, please check your security';
-        static::$shortdesc = sprintf('%s %s',$data['Failure'], _('failed to login'));
+        self::$message = 'If you see repeatedly, please check your security';
+        self::$shortdesc = sprintf('%s %s',$data['Failure'], _('failed to login'));
         parent::onEvent($event,$data);
     }
 }
