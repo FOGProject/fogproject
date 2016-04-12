@@ -53,21 +53,16 @@ class FOGFTP extends FOGGetSet {
         self::$lastConnectionHash = self::$currentConnectionHash;
         return $this;
     }
-    public function delete($path,$recursive = true,$recur_delete_run = false) {
-        if ($recursive) return $this->recursive_delete($path);
-        if ($recur_delete_run) return @ftp_delete(self::$link,$path);
-        if (@ftp_delete(self::$link,$path) === false) self::ftperror();
-        return $this;
-    }
-    public function recursive_delete($path) {
-        if ($this->exists($path) && !($this->delete($path,false,true) || $this->rmdir($path))) {
+    public function delete($path) {
+        if ($this->exists($path)) {
             $filelist = $this->nlist($path);
-            if ($filelist) {
+            if (count($filelist)) {
                 array_map(function(&$file) {
-                    $this->recursive_delete($file);
+                    $this->delete($file);
                     unset($file);
                 },(array)$filelist);
             }
+            if (@ftp_delete(self::$link,$path) === false && $this->rmdir($path) === false) self::ftperror();
         }
         return $this;
     }
@@ -165,6 +160,8 @@ class FOGFTP extends FOGGetSet {
     public function rename($oldname,$newname) {
         if ($this->nlist($oldname)) {
             if (!@ftp_rename(self::$link,$oldname,$newname)) self::ftperror();
+        } else {
+            if (!$this->put($newname,$oldname)) self::ftperror();
         }
         return $this;
     }
