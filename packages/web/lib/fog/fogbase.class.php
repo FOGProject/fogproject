@@ -160,16 +160,15 @@ abstract class FOGBase {
         unset($messages);
     }
     protected function redirect($url = '') {
-        if (!headers_sent() && !self::$service) {
-            header('Strict-Transport-Security: "max-age=15768000"');
-            header('X-Content-Type-Options: nosniff');
-            header('X-XSS-Protection: 1; mode=block');
-            header('X-Robots-Tag: none');
-            header('X-Frame-Options: SAMEORIGIN');
-            header('Cache-Control: no-cache');
-            header("Location: $url");
-            exit;
-        }
+        if (self::$service) return;
+        header('Strict-Transport-Security: "max-age=15768000"');
+        header('X-Content-Type-Options: nosniff');
+        header('X-XSS-Protection: 1; mode=block');
+        header('X-Robots-Tag: none');
+        header('X-Frame-Options: SAMEORIGIN');
+        header('Cache-Control: no-cache');
+        header("Location: $url");
+        exit;
     }
     protected function array_insert_before($key, array &$array, $new_key, $new_value) {
         if (in_array($key, $array)) return;

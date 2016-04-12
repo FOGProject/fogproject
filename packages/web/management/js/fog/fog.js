@@ -389,7 +389,7 @@ function setupFogTableInfoFunction() {
         var parser = '';
         switch (node) {
             case 'task':
-                if (sub.indexOf('list') > -1) {
+                if (typeof(sub) == 'undefined' || sub.indexOf('list') > -1) {
                     headParser = {};
                     break;
                 }
