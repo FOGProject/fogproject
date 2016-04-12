@@ -132,6 +132,7 @@ abstract class FOGPage extends FOGBase {
             );
             $node = htmlentities($_REQUEST['node'],ENT_QUOTES,'utf-8');
             $sub = htmlentities($_REQUEST['sub'],ENT_QUOTES,'utf-8');
+            if (in_array($this->node,array('task')) && (!$sub || $sub == 'list')) $this->redirect(sprintf('?node=%s&sub=active',$this->node));
             if (!count($this->data)) {
                 $contentField = 'no-active-tasks';
                 printf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
@@ -822,7 +823,6 @@ abstract class FOGPage extends FOGBase {
         }
     }
     public function search() {
-        if (in_array($this->node,array('task','tasks')) && (!$_REQUEST['sub'] || $_REQUEST['sub'] != 'search')) $this->redirect(sprintf('?node=%s&sub=active',$this->node));
         $eventClass = $this->childClass;
         if ($this->childClass == 'Task') $eventClass = 'host';
         $this->title = _('Search');
