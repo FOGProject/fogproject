@@ -19,8 +19,8 @@ try {
         ->set('username',$StorageNode->get('user'))
         ->set('password',$StorageNode->get('pass'))
         ->connect()
-        ->delete($dest);
-    if (!($FOGFTP->rename($src,$dest) || $FOGFTP->put($dest,$src))) throw new Exception(_('Move/rename failed'));
+        ->delete($dest)
+        ->rename($src,$dest);
     in_array($_REQUEST['osid'],array(1,2)) ? $FOGFTP->delete(sprintf('%s/dev/%s',$StorageNode->get('ftppath'),$macftp)) : null;
     $FOGFTP->chmod(0755,$dest);
     $FOGFTP->close();
