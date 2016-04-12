@@ -123,7 +123,7 @@ $.fn.fogAjaxSearch = function(opts) {
     if (!Container.length) return this;
     callme = 'hide';
     if ($('tbody > tr',Container).filter('.no-active-tasks').length > 0) callme = 'show';
-    Container[callme]().fogTableInfo().trigger('update');
+    Container[callme]().fogTableInfo().trigger('updateAll');
     ActionBox[callme]();
     ActionBoxDel[callme]();
     return this.each(function() {

@@ -20,7 +20,7 @@ class StorageGroup extends FOGController {
         if ($this->get('id')) $this->set('enablednodes',$this->getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id'),'id'=>$this->get('allnodes'),'isEnabled'=>1)));
     }
     public function getTotalSupportedClients() {
-        return array_sum($this->getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes')),'maxClients'));
+        return $this->getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes')),'maxClients',false,'AND','name',false,'array_sum');
     }
     public function getMasterStorageNode() {
         $masternode = $this->getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes'),'isMaster'=>1,'isEnabled'=>1),'id');
