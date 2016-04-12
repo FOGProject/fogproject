@@ -154,7 +154,7 @@ class ImageManagementPage extends FOGPage {
             if (!$name) throw new Exception(_('An image name is required!'));
             if (self::getClass('ImageManager')->exists($name)) throw new Exception(_('An image already exists with this name!'));
             if (empty($_REQUEST['file'])) throw new Exception(_('An image file name is required!'));
-            if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception(_('Please choose a different name, this one is reserved for FOG.'));
+            if ($_REQUEST['file'] == 'postdownloadscripts' || $_REQUEST['file'] == 'dev') throw new Exception(_('Please choose a different name, this one is reserved for FOG.'));
             if (empty($_REQUEST['storagegroup'])) throw new Exception(_('A Storage Group is required!'));
             if (empty($_REQUEST['os'])) throw new Exception(_('An Operating System is required!'));
             if (empty($_REQUEST['imagetype']) || !is_numeric($_REQUEST['imagetype'])) throw new Exception(_('An image type is required!'));
@@ -285,7 +285,7 @@ class ImageManagementPage extends FOGPage {
                 $name = trim($_REQUEST['name']);
                 if (!$name) throw new Exception(_('An image name is required!'));
                 if ($this->obj->get('name') != $_REQUEST['name'] && self::getClass('ImageManager')->exists($name,$this->obj->get('id'))) throw new Exception(_('An image already exists with this name!'));
-                if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception(_('Please choose a different name, this one is reserved for FOG.'));
+                if ($_REQUEST['file'] == 'postdownloadscripts' || $_REQUEST['file'] == 'dev') throw new Exception(_('Please choose a different name, this one is reserved for FOG.'));
                 if (empty($_REQUEST['file'])) throw new Exception(_('An image file name is required!'));
                 if (empty($_REQUEST['os'])) throw new Exception(_('An Operating System is required!'));
                 if (empty($_REQUEST['imagetype']) && $_REQUEST['imagetype'] != 0) throw new Exception(_('An image type is required!'));
