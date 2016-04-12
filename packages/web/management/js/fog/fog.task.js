@@ -19,7 +19,6 @@ $(function() {
     if (!Container.length) alert('No Container element found: '+Options.Container);
     URL = Options.URL;
     CANCELURL = Options.CancelURL;
-    checkboxToggleSearchListPages();
     if (typeof(sub) == 'undefined' || sub.indexOf('active') != -1) {
         Container.before('<p class="c"><input type="button" id="taskpause" value="Pause auto update" class="active"/></p>');
         Container.after('<p class="c"><input type="button" name="Cancel" id="taskcancel" value="Cancel selected tasks?"/><div id="canceltasks"></div></p>');
@@ -83,6 +82,7 @@ function ActiveTasksUpdate() {
                 buildRow(response.data,response.templates,response.attributes,'td');
             }
             TableCheck();
+            checkboxToggleSearchListPages();
             AJAXTaskRunning = null;
             AJAXTaskUpdate = setInterval(ActiveTasksUpdate,ActiveTasksUpdateInterval);
         },
