@@ -77,7 +77,11 @@ function ActiveTasksUpdate() {
             tbody = $('tbody',Container);
             LastCount = dataLength;
             Loader.removeClass('loading').fogStatusUpdate(_L['ACTIVE_TASKS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle fa-fw');
-            if (dataLength > 0) buildRow(response.data,response.templates,response.attributes);
+            if (dataLength > 0) {
+                buildHeaderRow(response.headerData,response.attributes,'th');
+                thead = $('thead',Container);
+                buildRow(response.data,response.templates,response.attributes,'td');
+            }
             TableCheck();
             AJAXTaskRunning = null;
             AJAXTaskUpdate = setInterval(ActiveTasksUpdate,ActiveTasksUpdateInterval);

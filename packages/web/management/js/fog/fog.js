@@ -183,7 +183,7 @@ $.fn.fogAjaxSearch = function(opts) {
                     if (dataLength > 0) {
                         buildHeaderRow(response.headerData,response.attributes,'th');
                         thead = $('thead',Container);
-                        buildRow(response.data,response.templates,response.attributes,'td',tbody);
+                        buildRow(response.data,response.templates,response.attributes,'td');
                     }
                     TableCheck();
                     this.SearchAJAX = null;
