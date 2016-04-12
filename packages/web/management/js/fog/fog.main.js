@@ -153,8 +153,8 @@ $(function() {
     HookTooltips();
     // Search boxes
     $('.search-input').fogAjaxSearch();
-    $('#content-inner').fogTableInfo().trigger('update');
-    $(Container).fogTableInfo();
+    $('#content-inner').fogTableInfo().trigger('updateAll');
+    $(Container).fogTableInfo().trigger('updateAll');
     function format(icon) {
         if (!icon.id) return icon.text;
         var _icon = $('<i class="fa fa-'+icon.element.value.toLowerCase()+' fa-1x">'+icon.text+'</i>');
