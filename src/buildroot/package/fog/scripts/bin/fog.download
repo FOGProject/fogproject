@@ -45,7 +45,8 @@ preparePartitions() {
                         fi
                         echo "Done"
                         debugPause
-                        dots "Attempting to expand/fill partitions"
+                        echo " * Attempting to expand/fill partitions"
+                        dots "Recreating partition"
                         parted -s $hd mkpart primary ntfs 63s -- $layPartSize >/dev/null 2>&1
                         if [[ ! $? -eq 0 ]]; then
                             echo "Failed"
@@ -55,7 +56,7 @@ preparePartitions() {
                         echo "Done"
                         debugPause
                         dots "Setting boot partition"
-                        parted -s "$hd" set 1 boot on >/dev/null 2>&1
+                        parted -s $hd set 1 boot on >/dev/null 2>&1
                         if [[ ! $? -eq 0 ]]; then
                             echo "Failed"
                             debugPause
@@ -86,16 +87,7 @@ preparePartitions() {
                             [[ -f $imagePath/rec.img.001 || -f $imagePath/gpt.bak ]] && win7partcnt=3
                         fi
                         debugPause
-                        dots "Removing partition"
-                        parted -s $hd rm 1 >/dev/null 2>&1
-                        if [[ ! $? -eq 0 ]]; then
-                            echo "Failed"
-                            debugPause
-                            handleError "Fatal Error: Could not remove old partition ($0)\n   Args Passed: $*"
-                        fi
-                        echo "Done"
-                        debugPause
-                        dots "Attempting to expand/fill partitions"
+                        echo " * Attempting to expand/fill partitions"
                         do_fill=0
                         fillDiskWithPartitionsIsOK "$hd" "$imagePath" 1
                         case $do_fill in
@@ -104,10 +96,20 @@ preparePartitions() {
                                 echo "Done"
                                 ;;
                             *)
-                                startsector="2048s"
-                                [[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]] && startsector="63s"
+                                [[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]] && startsector="63s" || startsector="2048s"
+                                restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
                                 case $win7partcnt in
                                     1)
+                                        dots "Removing partition"
+                                        parted -s $hd rm 1 >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not remove old partition ($0)\n   Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        debugPause
+                                        dots "Creating main partition"
                                         parted -s $hd mkpart primary ntfs $startsector -- $layPartSize >/dev/null 2>&1
                                         if [[ ! $? -eq 0 ]]; then
                                             echo "Failed"
@@ -115,6 +117,7 @@ preparePartitions() {
                                             handleError "Fatal Error: Could not recreate first partition ($0)\n   Args Passed: $*"
                                         fi
                                         echo "Done"
+                                        debugPause
                                         dots "Setting boot partition"
                                         parted -s $hd set 1 boot on >/dev/null 2>&1
                                         if [[ ! $? -eq 0 ]]; then
@@ -125,7 +128,34 @@ preparePartitions() {
                                         echo "Done"
                                         ;;
                                     2)
+                                        dots "Removing recovery partition"
+                                        parted -s $hd rm 1 >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not remove old recovery partition ($0)\n   Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        debugPause
+                                        dots "Removing main partition"
+                                        parted -s $hd rm 2 >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not remove old main partition ($0)\n    Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        debugPause
+                                        dots "Recreating recovery partition"
                                         parted -s $hd mkpart primary ntfs $startsector 206847s >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not create recovery partition ($0)\n    Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        debugPause
+                                        dots "Recreating main partition"
                                         parted -s $hd mkpart primary ntfs $defaultpart2start -- $layPartSize >/dev/null 2>&1
                                         if [[ ! $? -eq 0 ]]; then
                                             echo "Failed"
@@ -144,6 +174,7 @@ preparePartitions() {
                                         echo "Done"
                                         ;;
                                     3)
+                                        dots "Removing partition data"
                                         sgdisk -Z $hd >/dev/null 2>&1
                                         sgdisk -gel $imagePath/gpt.bak $hd >/dev/null 2>&1
                                         if [[ ! $? -eq 0 ]]; then
@@ -151,6 +182,9 @@ preparePartitions() {
                                             debugPause
                                             handleError "Fatal Error: Could not recreate partitions ($0)\n   Args Passed: $*"
                                         fi
+                                        echo "Done"
+                                        debugPause
+                                        dots "Recreating sized out partitions"
                                         sgdisk -x 3:$(sgdisk -E $hd) $hd >/dev/null 2>&1
                                         if [[ ! $? -eq 0 ]]; then
                                             echo "Failed"
