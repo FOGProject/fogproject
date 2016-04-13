@@ -129,7 +129,7 @@ preparePartitions() {
                                         ;;
                                     2)
                                         dots "Removing main partition"
-                                        parted -s $hd rm 2 >/dev/null 2>&1
+                                        parted -s $hd rm 1 >/dev/null 2>&1
                                         if [[ ! $? -eq 0 ]]; then
                                             echo "Failed"
                                             debugPause
