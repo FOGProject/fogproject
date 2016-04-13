@@ -34,7 +34,7 @@ abstract class FOGBase {
     );
     private static $initialized = false;
     private static function init() {
-        if (self::$initialized === true) return $this;
+        if (self::$initialized === true) return self;
         global $foglang;
         global $FOGFTP;
         global $FOGCore;
@@ -71,7 +71,7 @@ abstract class FOGBase {
             unset($option,$index,$value);
         };
         self::$initialized = true;
-        return $this;
+        return self;
     }
     public function __construct() {
         return self::init();
