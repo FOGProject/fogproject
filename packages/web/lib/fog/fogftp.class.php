@@ -54,16 +54,14 @@ class FOGFTP extends FOGGetSet {
         return $this;
     }
     public function delete($path) {
-        if ($this->exists($path)) {
+        if (!(@ftp_delete(self::$link,$path) || $this->rmdir($path))) {
             $filelist = $this->nlist($path);
-            if (count($filelist)) {
-                array_map(function(&$file) {
-                    $this->delete($file);
-                    unset($file);
-                },(array)$filelist);
-            }
-            if (@ftp_delete(self::$link,$path) === false && $this->rmdir($path) === false) self::ftperror();
+            array_map(function(&$file) {
+                $this->delete($file);
+                unset($file);
+            },(array)$filelist);
         }
+        if ($this->exists($path)) $this->delete($path);
         return $this;
     }
     public function exec($command) {
@@ -205,6 +203,7 @@ class FOGFTP extends FOGGetSet {
         return @ftp_systype(self::$link);
     }
     public function exists($path) {
+        if ($this->chdir($path)) return true;
         $dirlisting = $this->nlist(dirname($path));
         return in_array($path,$dirlisting);
     }
