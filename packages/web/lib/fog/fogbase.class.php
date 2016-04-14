@@ -612,7 +612,7 @@ abstract class FOGBase {
         if (!file_exists($src)) return false;
         return @rename($src,$dest);
     }
-    private static function lasterror() {
+    public static function lasterror() {
         $error = error_get_last();
         return sprintf('%s: %s, %s: %s, %s: %s, %s: %s',_('Type'),$error['type'],_('File'),$error['file'],_('Line'),$error['line'],_('Message'),$error['message']);
     }
