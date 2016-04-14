@@ -14,7 +14,8 @@ class FOGCron extends FOGBase {
     private static function fit($str,$num) {
         if (strpos($str,',')) {
             $arr = explode(',',$str);
-            foreach ($arr AS &$element) return (self::fit($element,(int)$num));
+            foreach ($arr AS &$element) if (self::fit($element,(int)$num)) return true;
+            return false;
         }
         if (strpos($str,'-')) {
             list($low,$high) = explode('-',$str);
@@ -35,11 +36,11 @@ class FOGCron extends FOGBase {
      * @return (int) timestamp of the date parsed.
      */
     public static function parse($Cron,$lastrun = false) {
-        list($min,$hour,$dom,$month,$dow) = preg_split('/[\s]+/',trim($Cron));
+        list($min,$hour,$dom,$month,$dow) = array_map('trim',preg_split('/ +/',$Cron));
         if (is_numeric($dow) && $dow == 0) $dow = 7;
         $Start = self::nice_date();
         do {
-            list($nmin,$nhour,$ndom,$nmonth,$ndow) = preg_split('/[\s]+/',$Start->format('i H j n N'));
+            list($nmin,$nhour,$ndom,$nmonth,$ndow) = array_map('trim',preg_split('/ +/',$Start->format('i H d n N')));
             if ($min != '*') {
                 if (!self::fit($min,(int)$nmin)) {
                     $Start->modify(sprintf('%s1 minute',$lastrun ? '-' : '+'));
