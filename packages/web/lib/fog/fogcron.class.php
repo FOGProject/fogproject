@@ -14,19 +14,20 @@ class FOGCron extends FOGBase {
     private static function fit($str,$num) {
         if (strpos($str,',')) {
             $arr = explode(',',$str);
-            foreach ($arr AS &$element) if (self::fit($element,(int)$num)) return true;
-            return false;
+            return (bool)in_array(true,array_map(function($element) use ($num) {
+                return (bool)self::fit($element,(int)$num);
+            },(array)$arr),true);
         }
         if (strpos($str,'-')) {
             list($low,$high) = explode('-',$str);
-            return ($num = (int)$low);
+            return (bool)($num = (int)$low);
         }
         if (strpos($str,'/')) {
             list($pre,$pos) = explode('/',$str);
             if ($pre == '*') return ($num % (int)$pos == 0);
             return ($num % (int)$pos == (int)$pre);
         }
-        return ((int)$str == $num);
+        return (bool)((int)$str == $num);
     }
     /**
      * @method parse
