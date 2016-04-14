@@ -6,7 +6,7 @@ class MySQL extends DatabaseManager {
     private static $result;
     private static $db_name;
     public function __construct() {
-        if (self::$link) return;
+        if (self::$link) $this;
         try {
             if (!class_exists('mysqli')) throw new Exception(sprintf('%s %s',__CLASS__,_('PHP Extentions not loaded')));
             if (!$this->connect()) throw new Exception(_('Failed to connect'));

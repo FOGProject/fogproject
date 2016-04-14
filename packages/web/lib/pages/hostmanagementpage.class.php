@@ -63,7 +63,7 @@ class HostManagementPage extends FOGPage {
             '<small>${deployed}</small>',
             sprintf('<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&type=8&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=edit&id=${id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Goto Task List"></i></a>',$down->get('icon'),$down->get('name'),$up->get('icon'),$up->get('name'),$mc->get('icon'),$mc->get('name')),
             '<a href="?node=host&sub=edit&id=${id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
-            '${image_name}'
+            '<a href="?node=image&sub=edit&id=${image_id}">${image_name}</a>'
         );
         unset($up,$down,$mc);
         $this->attributes = array(
@@ -87,6 +87,7 @@ class HostManagementPage extends FOGPage {
                 'host_name'=>$Host->get('name'),
                 'host_mac'=>$Host->get('mac')->__toString(),
                 'host_desc'=>$Host->get('description'),
+                'image_id'=>$Host->get('imageID'),
                 'image_name'=>$Host->getImageName(),
                 'pingstatus'=>$Host->getPingCodeStr(),
             );

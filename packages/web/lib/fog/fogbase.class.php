@@ -603,4 +603,17 @@ abstract class FOGBase {
         self::$ips = array_values(array_filter(array_unique((array)$output)));
         return self::$ips;
     }
+    public static function moveFiles($oldname,$newname) {
+        $src = trim($oldname);
+        $dest = trim($newname);
+        if (!$src || !$dest) return false;
+        $src = preg_replace('#[\\/]#',DIRECTORY_SEPARATOR,sprintf('%s/%s',dirname($src),basename($src)));
+        $dest = preg_replace('#[\\/]#',DIRECTORY_SEPARATOR,sprintf('%s/%s',dirname($dest),basename($dest)));
+        if (!file_exists($src)) return false;
+        return @rename($src,$dest);
+    }
+    private static function lasterror() {
+        $error = error_get_last();
+        return sprintf('%s: %s, %s: %s, %s: %s, %s: %s',_('Type'),$error['type'],_('File'),$error['file'],_('Line'),$error['line'],_('Message'),$error['message']);
+    }
 }
