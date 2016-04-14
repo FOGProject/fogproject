@@ -11,8 +11,7 @@ try {
     if (!$StorageNode) throw new Exception(_('Could not find a Storage Node. Is there one enabled within this Storage Group?'));
     $Image = $Task->getImage();
     $ImageName = $Image->get('name');
-    $mactftp = strtolower(str_replace(':','-',$_REQUEST['mac']));
-    $macftp = strtolower(str_replace(':','',$_REQUEST['mac']));
+    $macftp = strtolower(str_replace(array(':','-','.'),'',$_REQUEST['mac']));
     $src = sprintf('%s/dev/%s',$StorageNode->get('ftppath'),$macftp);
     $dest = sprintf('%s/%s',$StorageNode->get('ftppath'),$Image->get('path'));
     $FOGFTP->set('host',$StorageNode->get('ip'))
