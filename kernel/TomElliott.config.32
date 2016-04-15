@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/i386 4.5.0 Kernel Configuration
+# Linux/i386 4.5.1 Kernel Configuration
 #
 # CONFIG_64BIT is not set
 CONFIG_X86_32=y
@@ -1307,7 +1307,8 @@ CONFIG_NET_VENDOR_NATSEMI=y
 CONFIG_NATSEMI=y
 CONFIG_NS83820=y
 CONFIG_NET_VENDOR_NETRONOME=y
-# CONFIG_NFP_NETVF is not set
+CONFIG_NFP_NETVF=y
+# CONFIG_NFP_NET_DEBUG is not set
 CONFIG_NET_VENDOR_8390=y
 CONFIG_NE2K_PCI=y
 CONFIG_NET_VENDOR_NVIDIA=y
