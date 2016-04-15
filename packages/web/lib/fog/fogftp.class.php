@@ -55,12 +55,20 @@ class FOGFTP extends FOGGetSet {
     }
     public function delete($path) {
         if (!$this->exists($path)) return $this;
-        if (!(@ftp_delete(self::$link,$path) || $this->rmdir($path))) {
+        if (!@ftp_delete(self::$link,$path) && !$this->rmdir($path)) {
             $filelist = $this->nlist($path);
             array_map(function(&$file) {
                 $this->delete($file);
                 unset($file);
             },(array)$filelist);
+            $rawfilelist = $this->rawlist("-a $path");
+            array_map(function(&$file) use ($path) {
+                $chunk = preg_split("/\s+/",$file);
+                if ($chunk[8] === '.' || $chunk[8] === '..') return;
+                $tmpfile = sprintf('%s%s%s%s',DIRECTORY_SEPARATOR,trim(trim($path,'/'),'\\'),DIRECTORY_SEPARATOR,$chunk[8]);
+                $this->delete($tmpfile);
+                unset($file);
+            },(array)$rawfilelist);
         }
         return $this;
     }
@@ -118,7 +126,7 @@ class FOGFTP extends FOGGetSet {
     }
     public function nb_fput($remote_file,$handle,$mode =0,$startpos = 0) {
         if (!$mode) $mode = $this->get('mode');
-        if ($startpos) return @ftp_nb_fput(self::$link,$remote_file,$handle,$mode,$resumepos);
+        if ($startpos) return @ftp_nb_fput(self::$link,$remote_file,$handle,$mode,$startpos);
         return @ftp_nb_fput(self::$link,$remote_file,$handle,$mode);
     }
     public function nb_get($local_file,$remote_file,$mode = 0,$resumepos = 0) {
@@ -128,7 +136,7 @@ class FOGFTP extends FOGGetSet {
     }
     public function nb_put($remote_file,$local_file,$mode =0,$startpos = 0) {
         if (!$mode) $mode = $this->get('mode');
-        if ($startpos) return @ftp_nb_put(self::$link,$remote_file,$local_file,$mode,$resumepos);
+        if ($startpos) return @ftp_nb_put(self::$link,$remote_file,$local_file,$mode,$startpos);
         return @ftp_nb_put(self::$link,$remote_file,$local_file,$mode);
     }
     public function nlist($directory) {
@@ -203,8 +211,13 @@ class FOGFTP extends FOGGetSet {
         return @ftp_systype(self::$link);
     }
     public function exists($path) {
-        if ($this->chdir($path)) return true;
-        $dirlisting = $this->nlist(dirname($path));
+        $tmppath = dirname($path);
+        $rawlisting = $this->rawlist("-a $tmppath");
+        $dirlisting = array_filter(array_map(function(&$file) use ($tmppath) {
+            $chunk = preg_split('/\s+/',$file);
+            if ($chunk[8] === '.' || $chunk[8] === '..') return false;;
+            return sprintf('%s%s%s%s',DIRECTORY_SEPARATOR,trim(trim($tmppath,'/'),'\\'),DIRECTORY_SEPARATOR,$chunk[8]);
+        },(array)$rawlisting));
         return in_array($path,$dirlisting);
     }
 }
