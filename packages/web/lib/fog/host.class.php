@@ -475,43 +475,31 @@ class Host extends FOGController {
     }
     private function createSnapinTasking($snapin = -1) {
         try {
-            if (self::getClass('SnapinAssociationManager')->count(array('hostID'=>$this->get('id'))) < 1) return;
+            if (count($this->get('snapins')) < 1) return $this;
             $SnapinJob = self::getClass('SnapinJob')
                 ->set('hostID',$this->get('id'))
                 ->set('stateID',$this->getQueuedState())
                 ->set('createdTime',$this->nice_date()->format('Y-m-d H:i:s'));
             if (!$SnapinJob->save()) throw new Exception(_('Failed to create Snapin Job'));
             if ($snapin == -1) {
-                if (count($this->get('snapins')) < 1) {
-                    foreach ((array)self::getClass('SnapinManager')->find() AS $i => &$Snapin) {
-                        if (!$Snapin->isValid()) continue;
-                        self::getClass('SnapinTask')
-                            ->set('jobID',$SnapinJob->get('id'))
-                            ->set('stateID',$this->getQueuedState())
-                            ->set('snapinID',$Snapin)
-                            ->save();
-                        unset($Snapin);
-                    }
-                } else {
-                    foreach ((array)$this->get('snapins') AS $i => &$Snapin) {
-                        self::getClass('SnapinTask')
-                            ->set('jobID',$SnapinJob->get('id'))
-                            ->set('stateID',$this->getQueuedState())
-                            ->set('snapinID',$Snapin)
-                            ->save();
-                    }
+                array_map(function(&$Snapin) {
+                    self::getClass('SnapinTask')
+                        ->set('jobID',$this->get('snapinjob')->get('id'))
+                        ->set('stateID',$this->getQueuedState())
+                        ->set('snapinID',$Snapin)
+                        ->save();
                     unset($Snapin);
-                }
-            } else {
-                $Snapin = self::getClass('Snapin',$snapin);
-                if (!$Snapin->isValid()) throw new Exception(_('Snapin is not valid'));
-                self::getClass('SnapinTask')
-                    ->set('jobID',$SnapinJob->get('id'))
-                    ->set('stateID',$this->getQueuedState())
-                    ->set('snapinID',$snapin)
-                    ->save();
-                unset($Snapin);
+                },(array)$this->get('snapins'));
+                return $this;
             }
+            $Snapin = self::getClass('Snapin',$snapin);
+            if (!$Snapin->isValid()) throw new Exception(_('Snapin is not valid'));
+            self::getClass('SnapinTask')
+                ->set('jobID',$SnapinJob->get('id'))
+                ->set('stateID',$this->getQueuedState())
+                ->set('snapinID',$snapin)
+                ->save();
+            unset($Snapin);
         } catch (Exception $e) {
             echo $e->getMessage();
         }
@@ -622,85 +610,83 @@ class Host extends FOGController {
     }
     public function wakeOnLAN() {
         $URLs = array();
-        $mac = $this->getMyMacs();
-        $Nodes = self::getClass('StorageNodeManager')->find(array('isEnabled'=>1));
-        foreach ($Nodes AS $i => &$Node) {
+        $URLs = array_map(function(&$Node) {
             $curroot = trim(trim($Node->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-            $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$Node->get('ip'),$webroot,implode('|',(array)$mac));
-        }
+            return sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$Node->get('ip'),$webroot,implode('|',(array)$this->getMyMacs()));
+        },(array)self::getClass('StorageNodeManager')->find(array('isEnabled'=>1)));
         $curroot = trim(trim($this->getSetting('FOG_WEB_ROOT'),'/'));
         $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-        $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$this->getSetting('FOG_WEB_HOST'),$webroot,implode('|',(array)$mac));
+        $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$this->getSetting('FOG_WEB_HOST'),$webroot,implode('|',(array)$this->getMyMacs()));
+        $URLs = array_values(array_filter(array_unique((array)$URLs)));
         self::$FOGURLRequests->process($URLs,'GET');
         return $this;
     }
     public function addAddMAC($addArray,$pending = false) {
-        if ($pending) foreach((array)$addArray AS $i => &$item) $this->add('pendingMACs', $item);
-        else foreach((array)$addArray AS $i => &$item) $this->add('additionalMACs', $item);
-        unset($item);
+        $addArray = array_map(function(&$item) {
+            return trim(strtolower($item));
+        },(array)$addArray);
+        $addTo = $pending ? 'pendingMACs' : 'additionalMACs';
+        $pushItem = function(&$item) use (&$addTo) {
+            $this->add($addTo,$item);
+            unset($item);
+        };
+        array_map($pushItem,(array)$addArray);
         return $this;
     }
     public function addPendtoAdd($MACs = false) {
-        $MAClist = array();
-        if (!$MACs) {
-            $PendMACs = $this->get('pendingMACs');
-            foreach ((array)$PendMACs AS $i => &$MAC) $MAClist[] = $MAC;
-        } else {
-            $MACs = array_map('strtolower',(array)$MACs);
-            $PendMACs = $this->get('pendingMACs');
-            foreach ((array)$PendMACs AS $i => &$MAC) if (in_array(strtolower($MAC),$MACs)) $MAClist[] = $MAC;
-        }
-        unset($MAC);
-        $this->addAddMAC($MAClist);
-        $this->removePendMAC($MAClist);
-        return $this;
+        $lowerAndTrim = function(&$MAC) {
+            return trim(strtolower($MAC));
+        };
+        $PendMACs = array_map($lowerAndTrim,(array)$this->get('pendingMACs'));
+        $MACs = array_map($lowerAndTrim,(array)$MACs);
+        $matched = ($MACs === false ? array_intersect((array)$PendMACs,(array)$MACs) : $PendMACs);
+        unset($MACs,$PendMACs);
+        return $this->addAddMAC($matched)->removePendMAC($matched);
     }
     public function removeAddMAC($removeArray) {
-        foreach((array)$removeArray AS $i => &$item) $this->remove('additionalMACs',self::getClass('MACAddress',$item));
-        unset($item);
+        array_map(function(&$item) {
+            $item = $item instanceof MACAddress ? $item : self::getClass('MACAddress',$item);
+            $this->remove('additionalMACs',$item);
+            unset($item);
+        },(array)$removeArray);
         return $this;
     }
     public function removePendMAC($removeArray) {
-        foreach((array)$removeArray AS $i => &$item) $this->remove('pendingMACs',self::getClass('MACAddress',$item));
-        unset($item);
+        array_map(function(&$item) {
+            $item = $item instanceof MACAddress ? $item : self::getClass('MACAddress',$item);
+            $this->remove('pendingMACs',$item);
+            unset($item);
+        },(array)$removeArray);
         return $this;
     }
     public function addPriMAC($MAC) {
-        $this->set('mac',$MAC);
-        return $this;
+        return $this->set('mac',$MAC);
     }
     public function addPendMAC($MAC) {
-        $this->addAddMAC($MAC,true);
-        return $this;
+        return $this->addAddMAC($MAC,true);
     }
     public function addPrinter($addArray) {
-        $this->set('printers',array_unique(array_merge((array)$this->get('printers'),(array)$addArray)));
-        return $this;
+        return $this->set('printers',array_unique(array_merge((array)$this->get('printers'),(array)$addArray)));
     }
     public function removePrinter($removeArray) {
-        $this->set('printers',array_unique(array_diff((array)$this->get('printers'),(array)$removeArray)));
-        return $this;
+        return $this->set('printers',array_unique(array_diff((array)$this->get('printers'),(array)$removeArray)));
     }
     public function addSnapin($addArray) {
         $limit = $this->getSetting('FOG_SNAPIN_LIMIT');
         if ($limit > 0) {
             if (self::getClass('SnapinManager')->count(array('id'=>$this->get('snapins'))) >= $limit || count($addArray) > $limit) throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
         }
-        $this->set('snapins',array_unique(array_merge((array)$this->get('snapins'),(array)$addArray)));
-        return $this;
+        return $this->set('snapins',array_unique(array_merge((array)$this->get('snapins'),(array)$addArray)));
     }
     public function removeSnapin($removeArray) {
-        $this->set('snapins',array_unique(array_diff((array)$this->get('snapins'),(array)$removeArray)));
-        return $this;
+        return $this->set('snapins',array_unique(array_diff((array)$this->get('snapins'),(array)$removeArray)));
     }
     public function addModule($addArray) {
-        $this->set('modules',array_unique(array_merge((array)$this->get('modules'),(array)$addArray)));
-        return $this;
+        return $this->set('modules',array_unique(array_merge((array)$this->get('modules'),(array)$addArray)));
     }
     public function removeModule($removeArray) {
-        $this->set('modules',array_unique(array_diff((array)$this->get('modules'),(array)$removeArray)));
-        return $this;
+        return $this->set('modules',array_unique(array_diff((array)$this->get('modules'),(array)$removeArray)));
     }
     public function getMyMacs($justme = true) {
         if ($justme) return $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id')),'mac');
@@ -708,23 +694,17 @@ class Host extends FOGController {
     }
     public function ignore($imageIgnore,$clientIgnore) {
         $MyMACs = $this->getMyMacs();
-        $igMACs = $cgMACs = array();
-        foreach ((array)$imageIgnore AS $i => &$igMAC) {
-            $igMAC = self::getClass('MACAddress',$igMAC);
-            if (!$igMAC->isValid()) continue;
-            if (in_array($igMAC->__toString(),$igMACs)) continue;
-            $igMACs[] = $igMAC->__toString();
-            unset($igMAC);
-        }
-        foreach ((array)$clientIgnore AS $i => &$cgMAC) {
-            $cgMAC = self::getClass('MACAddress',$cgMAC);
-            if (!$cgMAC->isValid()) continue;
-            if (in_array($cgMAC->__toString(),$cgMACs)) continue;
-            $cgMACs[] = $cgMAC->__toString();
-            unset($cgMAC);
-        }
-        self::getClass('MACAddressAssociationManager')->update(array('mac'=>array_diff($MyMACs,$cgMACs),'hostID'=>$this->get('id')),'',array('clientIgnore'=>0));
-        self::getClass('MACAddressAssociationManager')->update(array('mac'=>array_diff($MyMACs,$igMACs),'hostID'=>$this->get('id')),'',array('imageIgnore'=>0));
+        $myMACs = $igMACs = $cgMACs = array();
+        $macaddress = function(&$item) {
+            $item = $item instanceof MACAddress ? $item : self::getClass('MACAddress',$item);
+            if (!$item->isValid()) return;
+            return trim(strtolower($item->__toString()));
+        };
+        $myMACs = array_values(array_filter(array_unique(array_map($macaddress,(array)$this->getMyMacs()))));
+        $igMACs = array_values(array_filter(array_unique(array_map($macaddress,(array)$imageIgnore))));
+        $cgMACs = array_values(array_filter(array_unique(array_map($macaddress,(array)$clientIgnore))));
+        self::getClass('MACAddressAssociationManager')->update(array('mac'=>array_diff($myMACs,$cgMACs),'hostID'=>$this->get('id')),'',array('clientIgnore'=>0));
+        self::getClass('MACAddressAssociationManager')->update(array('mac'=>array_diff($myMACs,$igMACs),'hostID'=>$this->get('id')),'',array('imageIgnore'=>0));
         if (count($cgMACs)) self::getClass('MACAddressAssociationManager')->update(array('mac'=>$cgMACs,'hostID'=>$this->get('id')),'',array('clientIgnore'=>1));
         if (count($igMACs)) self::getClass('MACAddressAssociationManager')->update(array('mac'=>$igMACs,'hostID'=>$this->get('id')),'',array('imageIgnore'=>1));
     }
@@ -735,12 +715,10 @@ class Host extends FOGController {
         return $this->removeHost($removeArray);
     }
     public function addHost($addArray) {
-        $this->set('groups',array_unique(array_merge((array)$this->get('groups'),(array)$addArray)));
-        return $this;
+        return $this->set('groups',array_unique(array_merge((array)$this->get('groups'),(array)$addArray)));
     }
     public function removeHost($removeArray) {
-        $this->set('groups',array_unique(array_diff((array)$this->get('groups'),(array)$removeArray)));
-        return $this;
+        return $this->set('groups',array_unique(array_diff((array)$this->get('groups'),(array)$removeArray)));
     }
     public function clientMacCheck($MAC = false) {
         return self::getClass('MACAddress',$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'clientIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
