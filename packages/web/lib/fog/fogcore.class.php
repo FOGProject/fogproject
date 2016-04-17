@@ -32,7 +32,7 @@ class FOGCore extends FOGBase {
         $tmp = explode(' up ',$data);
         $tmp = explode(',', end($tmp));
         $uptime = $tmp;
-        $uptime = (count($uptime) > 1 ? $uptime[0] . ', ' . $uptime[1] : 'uptime not found');
+        $uptime = (count($uptime) > 1 ? sprintf('%s, %s',$uptime[0],$uptime[1]) : 'uptime not found');
         return array('uptime'=>$uptime,'load'=>$load);
     }
     public function getBroadcast() {
@@ -55,28 +55,24 @@ class FOGCore extends FOGBase {
         $data['usedmem'] = $this->formatByteSize(trim(shell_exec("free -b | head -n2 | tail -n1 | awk '{ print \$3 }'")));
         $data['freemem'] = $this->formatByteSize(trim(shell_exec("free -b | head -n2 | tail -n1 | awk '{ print \$4 }'")));
         $data['filesys'] = '@@fs';
-        $t = shell_exec('df | grep -vE "^Filesystem|shm"');
-        $l = explode("\n",$t);
-        foreach ($l AS $i => &$n) {
-            if (!preg_match("/(\d+) +(\d+) +(\d+) +\d+%/",$n,$matches)) continue;
+        $hdtotal = 0;
+        $hdused = 0;
+        array_map(function(&$n) use (&$hdtotal,&$hdused) {
+            if (!preg_match("/(\d+) +(\d+) +(\d+) +\d+%/",$n,$matches)) return;
             $hdtotal += (int) $matches[1]*1024;
             $hdused += (int) $matches[2]*1024;
             unset($n);
-        }
-        unset($l);
+        },(array)explode("\n",shell_exec('df | grep -vE "^Filesystem|shm"')));
         $data['totalspace'] = $this->formatByteSize($hdtotal);
         $data['usedspace'] = $this->formatByteSize($hdused);
         $data['nic'] = '@@nic';
-        $NET = shell_exec('cat "/proc/net/dev"');
-        $lines = explode("\n",$NET);
-        foreach ($lines AS $i => &$line) {
-            if (!preg_match('#:#',$line)) continue;
+        array_map(function(&$line) use (&$data) {
+            if (!preg_match('#:#',$line)) return;
             list($dev_name,$stats_list) = preg_split('/:/',$line,2);
             $stats = preg_split('/\s+/', trim($stats_list));
             $data[$dev_name] = sprintf('%s$$%s$$%s$$%s$$%s',trim($dev_name),$stats[0],$stats[8],($stats[2]+$stats[10]),($stats[3]+$stats[11]));
             unset($line);
-        }
-        unset($lines);
+        },(array)explode("\n",shell_exec('cat "/proc/net/dev"')));
         $data['end'] = '@@end';
         return $data;
     }
@@ -84,12 +80,10 @@ class FOGCore extends FOGBase {
         $_SESSION['HostCount'] = self::getClass('HostManager')->count();
         self::$DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
         self::$DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
-        $tables = self::$DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
-        if (is_array($tables)) {
-            foreach ((array)$tables AS $i => &$table) self::$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
+        array_map(function(&$table) {
+            self::$DB->query(sprintf("ALTER TABLE `%s`.`%s` ENGINE=MyISAM",DATABASE_NAME,array_shift($table)));
             unset($table);
-            unset($tables,$table);
-        }
+        },(array)self::$DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME'));
         $_SESSION['PluginsInstalled'] = (array)$this->getActivePlugins();
         $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = $this->getSetting('FOG_VIEW_DEFAULT_SCREEN');
         $_SESSION['FOG_FTP_IMAGE_SIZE'] = $this->getSetting('FOG_FTP_IMAGE_SIZE');
@@ -104,7 +98,7 @@ class FOGCore extends FOGBase {
         $_SESSION['FOGPingActive'] = $this->getSetting('FOG_HOST_LOOKUP');
         $_SESSION['memory'] = $this->getSetting('FOG_MEMORY_LIMIT');
         $memorySet = preg_replace('#M#','',ini_get('memory_limit'));
-        if ((int) $memorySet < $_SESSION['memory']) ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
+        if ((int) $memorySet < $_SESSION['memory']) ini_set('memory_limit',is_numeric($_SESSION['memory']) ? sprintf('%dM',$_SESSION['memory']) : ini_get('memory_limit'));
         $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $this->getSetting('FOG_FORMAT_FLAG_IN_GUI');
         $_SESSION['FOG_SNAPINDIR'] = $this->getSetting('FOG_SNAPINDIR');
         $_SESSION['FOG_REPORT_DIR'] = $this->getSetting('FOG_REPORT_DIR');
