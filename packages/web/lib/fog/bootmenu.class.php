@@ -255,17 +255,16 @@ class BootMenu extends FOGBase {
     }
     private function printTasking($kernelArgsArray) {
         $kernelArgs = array();
-        $kernelArgs[] = 'rootfstype=ext4';
-        foreach($kernelArgsArray AS &$arg) {
-            if (empty($arg)) continue;
+        $kernelArgs = array_map(function(&$arg) use (&$kernelArgs) {
+            if (empty($arg)) return;
             if (is_array($arg)) {
-                if (!$arg['active']) continue;
-                if (!$arg['value']) continue;
-                $kernelArgs[] = preg_replace('#mode=debug|mode=onlydebug#i','isdebug=yes',$arg['value']);
-            } else $kernelArgs[] = preg_replace('#mode=debug|mode=onlydebug#i','isdebug=yes',$arg);
-            unset($arg);
-        }
-        $kernelArgs = array_unique($kernelArgs);
+                if (!(isset($arg['value']) && $arg['value'])) return;
+                if (!(isset($arg['active']) && $arg['active'])) return;
+                return preg_replace('#mode=debug|mode=onlydebug#i','isdebug=yes',$arg['value']);
+            }
+            return preg_replace('#mode=debug|mode=onlydebug#i','isdebug=yes',$arg);
+        },array_merge(array('rootfstype=ext4'),(array)$kernelArgsArray));
+        $kernelArgs = array_values(array_filter(array_unique($kernelArgs)));
         $kernelArgs = implode(' ',(array)$kernelArgs);
         $Send['task'] = array(
             "$this->kernel $kernelArgs",
@@ -444,33 +443,34 @@ class BootMenu extends FOGBase {
             $this->parseMe($Send);
             $this->chainBoot();
         } else {
-            foreach($Images AS $i => &$Image) {
-                if ($Image && $Image->isValid()) {
-                    array_push($Send['ImageListing'],"item ".$Image->get('path').' '.$Image->get('name'));
-                    if ($this->Host && $this->Host->isValid() && $this->Host->getImage() && $this->Host->getImage()->isValid() && $this->Host->getImage()->get('id') == $Image->get('id')) $defItem = 'choose --default '.$Image->get('path').' --timeout '.$this->timeout.' target && goto ${target}';
-                }
-            }
-            unset($Image);
+            $defItem = '';
+            array_map(function(&$Image) use ($defItem) {
+                if (!$Image->isValid()) return;
+                array_push($Send['ImageListing'],sprintf('item %s %s',$Image->get('path'),$Image->get('name')));
+                if (!$this->Host->isValid()) return;
+                if (!$this->Host->getImage()->isValid()) return;
+                if ((int)$this->Host->getImage()->get('id') === (int)$Image->get('id')) $defItem = sprintf('choose --default %s --timeout %d target && goto ${target}',$Image->get('path'),(int)$this->timeout);
+                unset($Image);
+            },(array)$Images);
             array_push($Send['ImageListing'],'item return Return to menu');
             array_push($Send['ImageListing'],$defItem);
-            foreach($Images AS $i => &$Image) {
-                if ($Image && $Image->isValid()) {
-                    $Send['pathofimage'.$Image->get('name')] = array(
-                        ':'.$Image->get('path'),
-                        'set imageID '.$Image->get('id'),
-                        'params',
-                        'param mac0 ${net0/mac}',
-                        'param arch ${arch}',
-                        'param imageID ${imageID}',
-                        'param qihost 1',
-                        'param username ${username}',
-                        'param password ${password}',
-                        'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
-                        'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-                    );
-                }
-            }
-            unset($Image);
+            array_map(function(&$Image) use (&$Send) {
+                if (!$Image->isValid()) return;
+                $Send[sprintf('pathofimage%s',$Image->get('name'))] = array(
+                    sprintf(':%s',$Image->get('path')),
+                    sprintf('set imageID',$Image->get('id')),
+                    'params',
+                    'param mac0 ${net0/mac}',
+                    'param arch ${arch}',
+                    'param imageID ${imageID}',
+                    'param qihost 1',
+                    'param username ${username}',
+                    'param password ${password}',
+                    'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+                    'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                );
+                unset($Image);
+            },(array)$Images);
             $Send['returnmenu'] = array(
                 ':return',
                 'params',
@@ -488,31 +488,30 @@ class BootMenu extends FOGBase {
         }
     }
     public function multijoin($msid) {
-        $MultiSess = new MulticastSessions($msid);
+        $MultiSess = self::getClass('MulticastSessions',$msid);
+        if (!$MultiSess->isValid()) return;
         $shutdown = stripos('shutdown=1',$_SESSION['extraargs']);
         $isdebug = preg_match('#isdebug=yes|mode=debug|mode=onlydebug#i',$_SESSION['extraargs']);
-        if ($MultiSess->isValid()) {
-            if ($this->Host->isValid()) {
-                $this->Host->set('imageID',$MultiSess->get('image'));
-                if ($this->Host->createImagePackage(8,$MultiSess->get('name'),$shutdown,$isdebug,-1,false,$_REQUEST['username'],'',true)) $this->chainBoot(false,true);
-            } else $this->falseTasking($MultiSess);
-        }
+        $this->Host->isValid() ? $this->Host->createImagePackage(8,$MultiSess->get('name'),$shutdown,$isdebug,-1,false,htmlentities($_REQUEST['username'],ENT_QUOTES,'utf-8')) : $this->falseTasking($MultiSess);
+        $this->Host->isValid() ? $this->chainBoot(false,true) : '';
     }
     public function keyset() {
+        if (!$this->Host->isValid()) return;
         $this->Host->set('productKey',$this->encryptpw($_REQUEST['key']));
-        if ($this->Host->save()) {
-            $Send['keychangesuccess'] = array(
-                'echo Successfully changed key',
-                'sleep 3',
-            );
-            $this->parseMe($Send);
-            $this->chainBoot();
-        }
+        if (!$this->Host->save()) return;
+        $Send['keychangesuccess'] = array(
+            'echo Successfully changed key',
+            'sleep 3',
+        );
+        $this->parseMe($Send);
+        $this->chainBoot();
     }
     private function parseMe($Send) {
         self::$HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send,'Host' => &$this->Host,'kernel' => &$this->kernel,'initrd' => &$this->initrd,'booturl' => &$this->booturl, 'memdisk' => &$this->memdisk,'memtest' => &$this->memtest, 'web' => &$this->web, 'defaultChoice' => &$this->defaultChoice, 'bootexittype' => &$this->bootexittype,'storage' => &$this->storage,'shutdown' => &$this->shutdown,'path' => &$this->path,'timeout' => &$this->timeout,'KS' => $this->ks));
-        foreach($Send AS $ipxe => &$val) echo implode("\n",$val)."\n";
-        unset($val);
+        array_map(function(&$val) {
+            printf('%s%s',implode("\n",$val),"\n");
+            unset($val);
+        },(array)$Send);
     }
     public function advLogin() {
         $Send['advancedlogin'] = array(
@@ -815,15 +814,16 @@ class BootMenu extends FOGBase {
         if (!$this->getSetting('FOG_REGISTRATION_ENABLED')) $RegArrayOfStuff = array_diff($RegArrayOfStuff,array(0));
         if ($showDebug) array_push($RegArrayOfStuff,3);
         if ($Advanced) array_push($RegArrayOfStuff,($AdvLogin ? 5 : 4));
-        foreach (self::getClass('PXEMenuOptionsManager')->find(array('regMenu'=>$RegArrayOfStuff),'','id') AS &$Menu) {
+        $Menus = (array)self::getClass('PXEMenuOptionsManager')->find(array('regMenu'=>$RegArrayOfStuff),'','id');
+        array_map(function(&$Menu) use (&$Send) {
             $Send["item-{$Menu->get(name)}"] = $this->menuItem($Menu,trim($Menu->get('description')));
             unset($Menu);
-        }
+        },(array)$Menus);
         $Send['default'] = array($this->defaultChoice);
-        foreach (self::getClass('PXEMenuOptionsManager')->find(array('regMenu'=>$RegArrayOfStuff),'','id') AS &$Menu) {
+        array_map(function(&$Menu) use (&$Send) {
             $Send["choice-{$Menu->get(name)}"] = $this->menuOpt($Menu,trim($Menu->get('args')));
             unset($Menu);
-        }
+        },(array)$Menus);
         $Send['bootme'] = array(
             ':bootme',
             "chain -ar $this->booturl/ipxe/boot.php##params ||",
