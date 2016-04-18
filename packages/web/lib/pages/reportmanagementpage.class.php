@@ -141,7 +141,7 @@ class ReportManagementPage extends FOGPage {
             $date1 = $_REQUEST['date2'];
             $date2 = $_REQUEST['date1'];
         }
-        $date2 = $this->nice_date($date2)->modify('+1 day')->format('Y-m-d');
+        $date2 = self::nice_date($date2)->modify('+1 day')->format('Y-m-d');
         $csvHead = array(
             _('Engineer'),
             _('Host ID'),
@@ -173,8 +173,8 @@ class ReportManagementPage extends FOGPage {
             $end = $ImagingLog->get('finish');
             if (!$this->validDate($start) || !$this->validDate($end)) continue;
             $diff = $this->diff($start,$end);
-            $start = $this->nice_date($start);
-            $end = $this->nice_date($end);
+            $start = self::nice_date($start);
+            $end = self::nice_date($end);
             $Host = self::getClass('Host',$ImagingLog->get('hostID'));
             if (!$Host->isValid()) continue;
             $hostName = $Host->get('name');
@@ -562,7 +562,7 @@ class ReportManagementPage extends FOGPage {
             $virusName = $Virus->get('name');
             $virusFile = $Virus->get('file');
             $virusMode = ($Virus->get('mode') == 'q' ? _('Quarantine') : _('Report'));
-            $virusDate = $this->nice_date($Virus->get('date'));
+            $virusDate = self::nice_date($Virus->get('date'));
             $this->data[] = array(
                 'host_name'=>$hostName,
                 'vir_id'=>$id,
@@ -820,7 +820,7 @@ class ReportManagementPage extends FOGPage {
             if (!$User->isValid()) continue;
             $Host = self::getClass('Host',$User->get('hostID'));
             if (!$Host->isValid()) continue;
-            $date = $this->nice_date($User->get('datetime'));
+            $date = self::nice_date($User->get('datetime'));
             $logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
             $this->data[] = array(
                 'action'=>$logintext,
@@ -949,8 +949,8 @@ class ReportManagementPage extends FOGPage {
         $this->ReportMaker->endCSVLine();
         foreach ((array)self::getClass('SnapinTaskManager')->find(array('checkin'=>null,'complete'=>null),'OR','','',"BETWEEN '$date1' AND '$date2'",'','','',false) AS $i => &$SnapinTask) {
             if (!$SnapinTask->isValid()) continue;
-            $start = $this->nice_date($SnapinTask->get('checkin'));
-            $end = $this->nice_date($SnapinTask->get('complete'));
+            $start = self::nice_date($SnapinTask->get('checkin'));
+            $end = self::nice_date($SnapinTask->get('complete'));
             if (!$this->validDate($start) || !$this->validDate($end)) continue;
             $Snapin = $SnapinTask->getSnapin();
             if (!$Snapin->isValid()) continue;

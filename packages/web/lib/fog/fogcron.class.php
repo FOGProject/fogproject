@@ -181,7 +181,8 @@ class FOGCron extends FOGBase {
      * @return (bool) if it is time to run
      */
     public static function shouldRunCron($Time) {
+        $Time = self::nice_date()->setTimestamp($Time);
         $CurrTime = self::nice_date();
-        return ($Time <= $CurrTime);
+        return (bool)($Time <= $CurrTime);
     }
 }

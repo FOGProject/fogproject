@@ -109,7 +109,7 @@ class MulticastManager extends FOGService {
                                     if (!$runningTask->killTask()) throw new Exception(sprintf(" Failed to kill task (%s) %s PID:%s!",$runningTask->getID(),$runningTask->getName(),$runningTask->getPID($runningTask->procRef)));
                                     static::outall(sprintf(" | Task (%s) %s has been cleaned as cancelled.",$runningTask->getID(),$runningTask->getName()));
                                 } else {
-                                    self::getClass('MulticastSessions',$runningTask->getID())->set('clients',0)->set('completetime',$this->nice_date()->format('Y-m-d H:i:s'))->set('name','')->set('stateID',$this->getCompleteState())->save();
+                                    self::getClass('MulticastSessions',$runningTask->getID())->set('clients',0)->set('completetime',self::nice_date()->format('Y-m-d H:i:s'))->set('name','')->set('stateID',$this->getCompleteState())->save();
                                     $KnownTasks = $this->removeFromKnownList($KnownTasks,$runningTask->getID());
                                     static::outall(sprintf(" | Task (%s) %s has been cleaned as complete.",$runningTask->getID(),$runningTask->getName()));
                                 }

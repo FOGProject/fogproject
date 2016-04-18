@@ -22,22 +22,19 @@ class Timer extends FOGCron {
         return $this->lngSingle;
     }
     public function toString() {
-        $runTime = $this->nice_date()->setTimestamp($this->lngSingle);
+        $runTime = self::nice_date()->setTimestamp($this->lngSingle);
         return $runTime->format('r');
     }
     public function setDebug($blDebug) {
         self::$debug = $blDebug;
     }
     private function shouldSingleRun() {
-        return ($this->nice_date() >= $this->nice_date()->setTimestamp($this->lngSingle));
+        $CurrTime = self::nice_date();
+        $Time = self::nice_date()->setTimestamp($this->lngSingle);
+        return (bool)($Time <= $CurrTime);
     }
     public function shouldRunNow() {
-        if ($this->blSingle) return $this->shouldSingleRun();
-        else {
-            $runTime = $this->nice_date()->setTimestamp($this->lngSingle);
-            return self::shouldRunCron($runTime);
-        }
-        return false;
+        return (bool)($this->blSingle ? $this->shouldSingleRun() : self::shouldRunCron($this->lngSingle));
     }
     private function d($s) {
         if (self::$debug) echo ($s."\n");

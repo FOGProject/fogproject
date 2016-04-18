@@ -530,7 +530,7 @@ class FOGConfigurationPage extends FOGPage {
                     $type = sprintf('<p id="${service_name}">%s</p>',$ImageName);
                     break;
                 case 'FOG_TZ_INFO':
-                    $dt = $this->nice_date('now',$utc);
+                    $dt = self::nice_date('now',$utc);
                     $tzIDs = DateTimeZone::listIdentifiers();
                     ob_start();
                     echo '<select name="${service_id}">';
