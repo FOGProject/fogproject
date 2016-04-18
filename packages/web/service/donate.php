@@ -11,7 +11,7 @@ try {
     if (!$enabled) throw new Exception(_('Donations are disabled'));
     $abortHour = array_shift($serviceSettings);
     $ignoreWeekends = array_shift($serviceSettings);
-    $date = $FOGCore->nice_date();
+    $date = FOGCore::nice_date();
     if ($ignoreWeekends && $date->format('N') > 5) throw new Exception('#!OK');
     if ($abortHour == $date->format('G')) throw new Exception(_('Restarting the client...'));
     throw new Exception('#!OK');

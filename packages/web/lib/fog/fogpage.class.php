@@ -363,7 +363,7 @@ abstract class FOGPage extends FOGBase {
         $enableShutdown = $_REQUEST['shutdown'] ? true : false;
         $enableSnapins = $TaskType->get('id') != 17 ? ($Snapin instanceof Snapin && $Snapin->isValid() ? $Snapin->get('id') : -1) : false;
         $enableDebug = (bool)((isset($_REQUEST['debug']) && $_REQUEST['debug'] == 'true') || isset($_REQUEST['isDebugTask']));
-        $scheduleDeployTime = $this->nice_date($_REQUEST['scheduleSingleTime']);
+        $scheduleDeployTime = self::nice_date($_REQUEST['scheduleSingleTime']);
         $imagingTasks = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
         $passreset = trim(htmlentities($_REQUEST['account'],ENT_QUOTES,'utf-8'));
         $wol = (int)(isset($_REQUEST['wol']) || $TaskType->get('id') == 14);
@@ -400,7 +400,7 @@ abstract class FOGPage extends FOGBase {
                         if (!is_array($success)) $success = array($success);
                         break;
                     case 'single':
-                        if ($scheduleDeployTime < $this->nice_date()) throw new Exception(sprintf('%s<br>%s: %s',_('Scheduled date is in the past'),_('Date'),$scheduleDeployTime->format('Y-m-d H:i:s')));
+                        if ($scheduleDeployTime < self::nice_date()) throw new Exception(sprintf('%s<br>%s: %s',_('Scheduled date is in the past'),_('Date'),$scheduleDeployTime->format('Y-m-d H:i:s')));
                         break;
                     }
                     if (in_array($_REQUEST['scheduleType'],array('single','cron'))) {
@@ -750,7 +750,7 @@ abstract class FOGPage extends FOGBase {
             }
             if ($Host->get('sec_tok') && !$key) throw new Exception('#!ihc');
             $Host
-                ->set('sec_time',$this->nice_date('+30 minutes')->format('Y-m-d H:i:s'))
+                ->set('sec_time',self::nice_date('+30 minutes')->format('Y-m-d H:i:s'))
                 ->set('pub_key',$key)
                 ->set('sec_tok',$this->createSecToken())
                 ->save();

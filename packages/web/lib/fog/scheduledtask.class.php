@@ -84,6 +84,6 @@ class ScheduledTask extends FOGController {
         return (bool)$this->get('isActive') > 0;
     }
     public function getTime() {
-        return $this->nice_date()->setTimestamp($this->get('type') == 'C' ? FOGCron::parse(sprintf('%s %s %s %s %s',$this->get('minute'),$this->get('hour'),$this->get('dayOfMonth'),$this->get('month'),$this->get('dayOfWeek'))) : $this->get('scheduleTime'))->format('Y-m-d H:i');
+        return self::nice_date()->setTimestamp($this->get('type') == 'C' ? FOGCron::parse(sprintf('%s %s %s %s %s',$this->get('minute'),$this->get('hour'),$this->get('dayOfMonth'),$this->get('month'),$this->get('dayOfWeek'))) : $this->get('scheduleTime'))->format('Y-m-d H:i');
     }
 }

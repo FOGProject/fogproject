@@ -195,9 +195,9 @@ class ServiceConfigurationPage extends FOGPage {
                 );
                 foreach ((array)self::getClass('GreenFogManager')->find() AS &$GreenFog) {
                     if (!$GreenFog->isValid()) continue;
-                    $gftime = $this->nice_date($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
+                    $gftime = self::nice_date($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
                     $this->data[] = array(
-                        'gf_time'=>$this->nice_date(sprintf('%s:%s',$GreenFog->get('hour'),$GreenFog->get('min')))->format('H:i'),
+                        'gf_time'=>self::nice_date(sprintf('%s:%s',$GreenFog->get('hour'),$GreenFog->get('min')))->format('H:i'),
                         'gf_action'=>($GreenFog->get('action') == 'r' ? 'Reboot' : ($GreenFog->get('action') == 's' ? _('Shutdown') : _('N/A'))),
                         'gf_id'=>$GreenFog->get('id'),
                     );

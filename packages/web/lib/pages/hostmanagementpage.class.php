@@ -842,12 +842,12 @@ class HostManagementPage extends FOGPage {
         }
     }
     public function hostlogins() {
-        $MainDate = $this->nice_date($_REQUEST['dte'])->getTimestamp();
-        $MainDate_1 = $this->nice_date($_REQUEST['dte'])->modify('+1 day')->getTimestamp();
+        $MainDate = self::nice_date($_REQUEST['dte'])->getTimestamp();
+        $MainDate_1 = self::nice_date($_REQUEST['dte'])->modify('+1 day')->getTimestamp();
         foreach ((array)self::getClass('UserTrackingManager')->find(array('hostID'=>$this->obj->get('id'),'date'=>$_REQUEST['dte'],'action'=>array(null,0,1)),'AND','date','DESC') AS $i => &$Login) {
             if (!$Login->isValid()) continue;
             if ($Login->get('username') == 'Array') continue;
-            $time = $this->nice_date($Login->get('datetime'))->format('U');
+            $time = self::nice_date($Login->get('datetime'))->format('U');
             if (!$Data[$Login->get('username')]) $Data[$Login->get('username')] = array('user'=>$Login->get('username'),'min'=>$MainDate,'max'=>$MainDate_1);
             if ($Login->get('action')) $Data[$Login->get('username')]['login'] = $time;
             if (array_key_exists('login',$Data[$Login->get('username')]) && !$Login->get('action')) $Data[$Login->get('username')]['logout'] = $time;

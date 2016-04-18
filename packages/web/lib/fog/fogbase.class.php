@@ -98,10 +98,10 @@ abstract class FOGBase {
         return $Host;
     }
     public function getAllBlamedNodes() {
-        $DateInterval = $this->nice_date()->modify('-5 minutes');
+        $DateInterval = self::nice_date()->modify('-5 minutes');
         $nodeRet = array_map(function(&$NodeFailure) use (&$nodeRet) {
             if (!$NodeFailure->isValid()) return;
-            $DateTime = $this->nice_date($NodeFailure->get('failureTime'));
+            $DateTime = self::nice_date($NodeFailure->get('failureTime'));
             if ($DateTime < $DateInterval) {
                 $NodeFailure->destroy();
                 return;
@@ -256,17 +256,17 @@ abstract class FOGBase {
         },(array)$serviceEn);
         return array_combine(array_keys($services),$serviceEn);
     }
-    public function nice_date($Date = 'now',$utc = false) {
+    public static function nice_date($Date = 'now',$utc = false) {
         $TZ = self::getClass('DateTimeZone',($utc || empty(self::$TimeZone)? 'UTC' : self::$TimeZone));
         return self::getClass('DateTime',$Date,$TZ);
     }
     public function formatTime($time, $format = false, $utc = false) {
-        if (!$time instanceof DateTime) $time = $this->nice_date($time,$utc);
+        if (!$time instanceof DateTime) $time = self::nice_date($time,$utc);
         if ($format) {
             if (!$this->validDate($time)) return _('No Data');
             return $time->format($format);
         }
-        $now = $this->nice_date('now',$utc);
+        $now = self::nice_date('now',$utc);
         // Get difference of the current to supplied.
         $diff = $now->format('U') - $time->format('U');
         $absolute = abs($diff);
@@ -292,7 +292,7 @@ abstract class FOGBase {
     }
     protected function validDate($Date, $format = '') {
         if ($format == 'N') return ($Date instanceof DateTime ? ($Date->format('N') >= 0 && $Date->format('N') <= 7) : $Date >= 0 && $Date <= 7);
-        if (!$Date instanceof DateTime) $Date = $this->nice_date($Date);
+        if (!$Date instanceof DateTime) $Date = self::nice_date($Date);
         if (!$format) $format = 'm/d/Y';
         return DateTime::createFromFormat($format,$Date->format($format),self::getClass('DateTimeZone',self::$TimeZone));
     }
@@ -300,8 +300,8 @@ abstract class FOGBase {
         return sprintf("%d %s%s%s",(int)$count,$text,(int)$count != 1 ? 's' : '',$space === true ? ' ' : '');
     }
     protected function diff($start, $end, $ago = false) {
-        if (!$start instanceof DateTime) $start = $this->nice_date($start);
-        if (!$end instanceof DateTime) $end = $this->nice_date($end);
+        if (!$start instanceof DateTime) $start = self::nice_date($start);
+        if (!$end instanceof DateTime) $end = self::nice_date($end);
         $Duration = $start->diff($end);
         $str = '';
         $suffix = '';
@@ -476,7 +476,7 @@ abstract class FOGBase {
     protected function sendData($datatosend,$service = true) {
         if ($service) {
             $Host = $this->getHostItem();
-            if ($this->nice_date() >= $this->nice_date($Host->get('sec_time'))) $Host->set('pub_key','')->save();
+            if (self::nice_date() >= self::nice_date($Host->get('sec_time'))) $Host->set('pub_key','')->save();
             if (isset($_REQUEST['newService'])) printf('#!enkey=%s',$this->certEncrypt($datatosend,$Host));
             else echo $datatosend;
             exit;
@@ -500,7 +500,7 @@ abstract class FOGBase {
         if (self::$ajax) return;
         $txt = trim(preg_replace(array("#\r#","#\n#",'#\s+#','# ,#'),array('',' ',' ',','),$txt));
         if (empty($txt)) return;
-        $txt = sprintf('[%s] %s',$this->nice_date()->format('Y-m-d H:i:s'),$txt);
+        $txt = sprintf('[%s] %s',self::nice_date()->format('Y-m-d H:i:s'),$txt);
         if ($this->logLevel >= $level) echo $txt;
         //$this->logHistory($txt);
     }
