@@ -7,7 +7,7 @@ class FOGGetSet extends FOGBase {
             unset($value,$key);
         });
     }
-    public function set(&$key,&$value) {
+    public function set($key,$value) {
         try {
             if (!array_key_exists($key,$this->data)) throw new Exception(_('Invalid key being set'));
             $this->data[$key] =& $value;

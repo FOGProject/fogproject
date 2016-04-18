@@ -36,13 +36,13 @@ class Task extends TaskType {
     );
     public function getInFrontOfHostCount() {
         $count = 0;
-        $curTime = $this->nice_date();
-        $MyCheckinTime = $this->nice_date($this->get('checkInTime'));
+        $curTime = self::nice_date();
+        $MyCheckinTime = self::nice_date($this->get('checkInTime'));
         $myLastCheckin = $curTime->getTimestamp() - $MyCheckinTime->getTimestamp();
         if ($myLastCheckin >= $this->getSetting('FOG_CHECKIN_TIMEOUT')) $this->set('checkInTime',$curTime->format('Y-m-d H:i:s'))->save();
         array_map(function(&$Task) use (&$count,$curTime,$MyCheckinTime) {
             if (!$Task->isValid()) return;
-            $TaskCheckinTime = $this->nice_date($Task->get('checkInTime'));
+            $TaskCheckinTime = self::nice_date($Task->get('checkInTime'));
             $timeOfLastCheckin = $curTime->getTimestamp() - $TaskCheckinTime->getTimestamp();
             if ($timeOfLastCheckin >= $this->getSetting('FOG_CHECKIN_TIMEOUT')) $Task->set('checkInTime',$curTime->format('Y-m-d H:i:s'))->save();
             if ($MyCheckinTime > $TaskCheckinTime) $count++;
@@ -53,7 +53,7 @@ class Task extends TaskType {
     public function cancel() {
         $SnapinJob = $this->getHost()->get('snapinjob');
         if ($SnapinJob instanceof SnapinJob && $SnapinJob->isValid()) {
-            self::getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJob->get('id')),'',array('complete'=>$this->nice_date()->format('Y-m-d H:i:s'),'stateID'=>$this->getCancelledState()));
+            self::getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJob->get('id')),'',array('complete'=>self::nice_date()->format('Y-m-d H:i:s'),'stateID'=>$this->getCancelledState()));
             $SnapinJob->set('stateID',$this->getCancelledState())->save();
         }
         if ($this->isMulticast()) self::getClass('MulticastSessionsManager')->update(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->get('id')),'jobID')),'',array('clients'=>0,'completetime'=>$this->formatTime('now','Y-m-d H:i:s'),'stateID'=>$this->getCancelledState()));
@@ -61,7 +61,7 @@ class Task extends TaskType {
         return $this;
     }
     public function set($key, $value) {
-        if ($this->key($key) == 'checkInTime' && is_numeric($value) && strlen($value) == 10) $value = $this->nice_date($value)->format('Y-m-d H:i:s');
+        if ($this->key($key) == 'checkInTime' && is_numeric($value) && strlen($value) == 10) $value = self::nice_date($value)->format('Y-m-d H:i:s');
         return parent::set($key, $value);
     }
     public function destroy($field = 'id') {

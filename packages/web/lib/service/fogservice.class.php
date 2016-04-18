@@ -84,7 +84,7 @@ abstract class FOGService extends FOGBase {
         fclose($fh);
     }
     protected function getDateTime() {
-        return $this->nice_date()->format('m-d-y g:i:s a');
+        return self::nice_date()->format('m-d-y g:i:s a');
     }
     protected function wlog($string, $path) {
         if (file_exists($path) && filesize($path) >= $this->getSetting('SERVICE_LOG_SIZE')) unlink($path);

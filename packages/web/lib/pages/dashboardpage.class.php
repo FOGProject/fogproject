@@ -68,7 +68,7 @@ class DashboardPage extends FOGPage {
         // 30 Day Usage Graph
         printf('<h3>%s</h3><div id="graph-30day" class="graph"></div>',_('Imaging Over the last 30 days'));
         ob_start();
-        $dates = iterator_to_array(self::getClass('DatePeriod',$this->nice_date()->modify('-30 days'),self::getClass('DateInterval','P1D'),$this->nice_date()->setTime(23,59,59)));
+        $dates = iterator_to_array(self::getClass('DatePeriod',self::nice_date()->modify('-30 days'),self::getClass('DateInterval','P1D'),self::nice_date()->setTime(23,59,59)));
         array_walk($dates,function(&$date,&$index) {
             printf('["%s", %s]%s',(1000 * $date->getTimestamp()),self::getClass('ImagingLogManager')->count(array('start'=>$date->format('Y-m-d%'),'finish'=>$date->format('Y-m-d%')),'OR'),($index < 30 ? ', ' : ''));
             unset($date,$index);

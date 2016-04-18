@@ -6,10 +6,10 @@ try {
     if (!$Task || !$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'),$Host->get('mac')->__toString()));
     $TaskType = FOGCore::getClass('TaskType',$Task->get('typeID'));
     if (!in_array($Task->get('typeID'),array(12,13))) $Task->set('stateID',$FOGCore->getCompleteState())->set('pct',100)->set('percent',100);
-    $Host->set('deployed',$FOGCore->nice_date()->format('Y-m-d H:i:s'))->save();
+    $Host->set('deployed',FOGCore::nice_date()->format('Y-m-d H:i:s'))->save();
     $id = @max($FOGCore->getSubObjectIDs('ImagingLog',array('hostID' => $Host->get('id'))));
     $ImageLog = FOGCore::getClass('ImagingLog',$id)
-        ->set('finish',$FOGCore->nice_date()->format('Y-m-d H:i:s'))
+        ->set('finish',FOGCore::nice_date()->format('Y-m-d H:i:s'))
         ->save();
    FOGCore::getClass('TaskLog',$Task)
         ->set('taskID',$Task->get('id'))

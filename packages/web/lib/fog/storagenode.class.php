@@ -45,8 +45,8 @@ class StorageNode extends FOGController {
     }
     public function getNodeFailure($Host) {
         $NodeFailure = array_map(function(&$Failed) {
-            $CurrTime = $this->nice_date();
-            if ($CurrTime < $this->nice_date($Failed->get('failureTime'))) return $Failed;
+            $CurrTime = self::nice_date();
+            if ($CurrTime < self::nice_date($Failed->get('failureTime'))) return $Failed;
             unset($Failed);
         },(array)self::getClass('NodeFailureManager')->find(array('storageNodeID'=>$this->get('id'),'hostID'=>$Host)));
         $NodeFailure = @array_shift($NodeFailure);
