@@ -444,7 +444,7 @@ class BootMenu extends FOGBase {
             $this->chainBoot();
         } else {
             $defItem = '';
-            array_map(function(&$Image) use ($defItem) {
+            array_map(function(&$Image) use (&$Send,&$defItem) {
                 if (!$Image->isValid()) return;
                 array_push($Send['ImageListing'],sprintf('item %s %s',$Image->get('path'),$Image->get('name')));
                 if (!$this->Host->isValid()) return;
@@ -458,7 +458,7 @@ class BootMenu extends FOGBase {
                 if (!$Image->isValid()) return;
                 $Send[sprintf('pathofimage%s',$Image->get('name'))] = array(
                     sprintf(':%s',$Image->get('path')),
-                    sprintf('set imageID',$Image->get('id')),
+                    sprintf('set imageID %d',(int)$Image->get('id')),
                     'params',
                     'param mac0 ${net0/mac}',
                     'param arch ${arch}',
