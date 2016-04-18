@@ -443,7 +443,6 @@ class BootMenu extends FOGBase {
             $this->parseMe($Send);
             $this->chainBoot();
         } else {
-            $defItem = '';
             array_map(function(&$Image) use (&$Send,&$defItem) {
                 if (!$Image->isValid()) return;
                 array_push($Send['ImageListing'],sprintf('item %s %s',$Image->get('path'),$Image->get('name')));
