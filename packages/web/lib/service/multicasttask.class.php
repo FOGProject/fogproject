@@ -12,8 +12,8 @@ class MulticastTask extends MulticastManager {
         unset($StorageNode);
         foreach ((array)self::getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$MultiSess) {
             if (!$MultiSess->isValid()) continue;
-            $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MultiSess->get('id')),'taskID');
-            $stateIDs = $this->getSubObjectIDs('Task',array('id'=>$taskIDs),'stateID');
+            $taskIDs = self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MultiSess->get('id')),'taskID');
+            $stateIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs),'stateID');
             unset($taskIDs);
             if (in_array($this->getCompleteState(),$stateIDs) || in_array($this->getCancelledState(),$stateIDs)) continue;
             unset($stateIDs);
@@ -25,7 +25,7 @@ class MulticastTask extends MulticastManager {
                 $MultiSess->get('name'),
                 $MultiSess->get('port'),
                 sprintf('%s/%s',$root,$MultiSess->get('logpath')),
-                $Interface ? $Interface : $this->getSetting('FOG_UDPCAST_INTERFACE'),
+                $Interface ? $Interface : self::getSetting('FOG_UDPCAST_INTERFACE'),
                 ($count>0?$count:($MultiSess->get('sessclients')>0?$MultiSess->get('sessclients'):self::getClass('HostManager')->count())),
                 $MultiSess->get('isDD'),
                 $Image->get('osID')
@@ -42,7 +42,7 @@ class MulticastTask extends MulticastManager {
         parent::__construct();
         $this->intID = $id;
         $this->strName = $name;
-        $this->intPort = $this->getSetting('FOG_MULTICAST_PORT_OVERRIDE')?$this->getSetting('FOG_MULTICAST_PORT_OVERRIDE'):$port;
+        $this->intPort = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')?self::getSetting('FOG_MULTICAST_PORT_OVERRIDE'):$port;
         $this->strImage = $image;
         $this->strEth = $eth;
         $this->intClients = $clients;
@@ -74,7 +74,7 @@ class MulticastTask extends MulticastManager {
         return $this->intOSID;
     }
     public function getUDPCastLogFile() {
-        return sprintf('/%s/%s.udpcast.%s',trim($this->getSetting('SERVICE_LOG_PATH'),'/'),$this->getSetting('MULTICASTLOGFILENAME'),$this->getID());
+        return sprintf('/%s/%s.udpcast.%s',trim(self::getSetting('SERVICE_LOG_PATH'),'/'),self::getSetting('MULTICASTLOGFILENAME'),$this->getID());
     }
     public function getBitrate() {
         return self::getClass('Image',self::getClass('MulticastSessions',$this->getID())->get('image'))->getStorageGroup()->getMasterStorageNode()->get('bitrate');
@@ -86,10 +86,10 @@ class MulticastTask extends MulticastManager {
             $this->getBitrate() ? sprintf(' --max-bitrate %s',$this->getBitrate()) : null,
             $this->getInterface() ? sprintf(' --interface %s',$this->getInterface()) : null,
             sprintf(' --min-receivers %d',($this->getClientCount()?$this->getClientCount():self::getClass(HostManager)->count())),
-            sprintf(' --max-wait %d',$this->getSetting('FOG_UDPCAST_MAXWAIT')?$this->getSetting('FOG_UDPCAST_MAXWAIT')*60:UDPSENDER_MAXWAIT),
-            $this->getSetting('FOG_MULTICAST_ADDRESS')?sprintf(' --mcast-data-address %s',$this->getSetting('FOG_MULTICAST_ADDRESS')):null,
+            sprintf(' --max-wait %d',self::getSetting('FOG_UDPCAST_MAXWAIT')?self::getSetting('FOG_UDPCAST_MAXWAIT')*60:UDPSENDER_MAXWAIT),
+            self::getSetting('FOG_MULTICAST_ADDRESS')?sprintf(' --mcast-data-address %s',self::getSetting('FOG_MULTICAST_ADDRESS')):null,
             sprintf(' --portbase %s',$this->getPortBase()),
-            sprintf(' %s',$this->getSetting('FOG_MULTICAST_DUPLEX')),
+            sprintf(' %s',self::getSetting('FOG_MULTICAST_DUPLEX')),
             ' --ttl 32',
             ' --nokbd',
             ' --nopointopoint;',
@@ -194,7 +194,7 @@ class MulticastTask extends MulticastManager {
     public function killTask() {
         $this->killTasking();
         @unlink($this->getUDPCastLogFile());
-        foreach ((array)self::getClass('TaskManager')->find(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->getID()),'taskID'))) AS $i => &$Task) {
+        foreach ((array)self::getClass('TaskManager')->find(array('id'=>self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->getID()),'taskID'))) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Task
                 ->set('stateID',$this->getCancelledState())
@@ -208,7 +208,7 @@ class MulticastTask extends MulticastManager {
         return true;
     }
     public function updateStats() {
-        $Tasks = self::getClass('TaskManager')->find(array('id'=>$this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->intID),'taskID')));
+        $Tasks = self::getClass('TaskManager')->find(array('id'=>self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->intID),'taskID')));
         foreach($Tasks AS $i => &$Task) {
             $TaskPercent[] = $Task->get('percent');
             unset($Task);

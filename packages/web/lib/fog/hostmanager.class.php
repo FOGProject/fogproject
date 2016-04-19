@@ -1,7 +1,7 @@
 <?php
 class HostManager extends FOGManagerController {
     public function getHostByMacAddresses($MACs) {
-        $MACHost = $this->getSubObjectIDs('MACAddressAssociation',array('pending'=>0,'mac'=>$MACs),'hostID');
+        $MACHost = self::getSubObjectIDs('MACAddressAssociation',array('pending'=>0,'mac'=>$MACs),'hostID');
         if (count($MACHost) > 1) throw new Exception(self::$foglang['ErrorMultipleHosts']);
         return self::getClass('Host',@min($MACHost));
     }
@@ -13,7 +13,7 @@ class HostManager extends FOGManagerController {
         }
         self::getClass('NodeFailureManager')->destroy($findWhere);
         self::getClass('ImagingLogManager')->destroy($findWhere);
-        self::getClass('SnapinTaskManager')->destroy(array('jobID'=>$this->getSubObjectIDs('SnapinJob',$findWhere,'id')));
+        self::getClass('SnapinTaskManager')->destroy(array('jobID'=>self::getSubObjectIDs('SnapinJob',$findWhere,'id')));
         self::getClass('SnapinJobManager')->destroy($findWhere);
         self::getClass('TaskManager')->destroy($findWhere);
         self::getClass('ScheduledTaskManager')->destroy($findWhere);

@@ -7,7 +7,7 @@ try {
     $TaskType = FOGCore::getClass('TaskType',$Task->get('typeID'));
     if (!in_array($Task->get('typeID'),array(12,13))) $Task->set('stateID',$FOGCore->getCompleteState())->set('pct',100)->set('percent',100);
     $Host->set('deployed',FOGCore::nice_date()->format('Y-m-d H:i:s'))->save();
-    $id = @max($FOGCore->getSubObjectIDs('ImagingLog',array('hostID' => $Host->get('id'))));
+    $id = @max(FOGCore::getSubObjectIDs('ImagingLog',array('hostID' => $Host->get('id'))));
     $ImageLog = FOGCore::getClass('ImagingLog',$id)
         ->set('finish',FOGCore::nice_date()->format('Y-m-d H:i:s'))
         ->save();
@@ -23,20 +23,20 @@ try {
     }
     $EventManager->notify('HOST_IMAGE_COMPLETE', array('HostName'=>$Host->get('name')));
     ////============================== Email Notification Start ==============================
-    if (!$FOGCore->getSetting('FOG_EMAIL_ACTION')) throw new Exception('##');
+    if (!FOGCore::getSetting('FOG_EMAIL_ACTION')) throw new Exception('##');
     $Inventory = $Host->get('inventory');
     if (!$Inventory->isValid()) throw new Exception('##');
     $SnapinJob = $Host->get('snapinjob'); //Get Snapin(s) Used/Queued
     if (!$SnapinJob->isValid()) $SnapinNames = array();
     else $SnapinNames = FOGCore::getSubObjectIDs('Snapin',array('id'=>FOGCore::getSubObjectIDs('SnapinTask',array('stateID'=>$FOGCore->getQueuedStates(),'jobID'=>$SnapinJob->get('id')),'snapinID')),'name');
     $StorageNode = $Task->getStorageNode();
-    $emailbinary = ($FOGCore->getSetting('FOG_EMAIL_BINARY') ? preg_replace('#\$\{server-name\}#',($StorageNode->isValid() ? $StorageNode->get('name') : 'fogserver'),$FOGCore->getSetting('FOG_EMAIL_BINARY')) : '/usr/sbin/sendmail -t -f noreply@fogserver.com -i');
+    $emailbinary = (FOGCore::getSetting('FOG_EMAIL_BINARY') ? preg_replace('#\$\{server-name\}#',($StorageNode->isValid() ? $StorageNode->get('name') : 'fogserver'),FOGCore::getSetting('FOG_EMAIL_BINARY')) : '/usr/sbin/sendmail -t -f noreply@fogserver.com -i');
     ini_set('sendmail_path',$emailbinary);
     $snpusd = implode(', ',(array)$SnapinNames); //to list snapins as 1, 2, 3,  etc
     $engineer = ucwords($Task->get('createdBy')); //ucwords purely aesthetics
     $puser = ucwords($Inventory->get('primaryUser')); //ucwords purely aesthetics
-    $to = $FOGCore->getSetting('FOG_EMAIL_ADDRESS'); //Email address(es) to be used
-    $headers = 'From: '.$FOGCore->getSetting('FOG_FROM_EMAIL')."\r\n".'X-Mailer: PHP/'.phpversion();
+    $to = FOGCore::getSetting('FOG_EMAIL_ADDRESS'); //Email address(es) to be used
+    $headers = 'From: '.FOGCore::getSetting('FOG_FROM_EMAIL')."\r\n".'X-Mailer: PHP/'.phpversion();
     $headers = preg_replace('#\$\{server-name\}#',($StorageNode->isValid() ? $StorageNode->get('name') : 'fogserver'),$headers);
     //$Email - is just the context of the email put in variable saves repeating
     $email = array(

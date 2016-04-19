@@ -7,14 +7,14 @@ class PingHosts extends FOGService {
     public static $sleeptime = 'PINGHOSTSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',static::$logpath,$this->getSetting('PINGHOSTLOGFILENAME'));
-        static::$dev = $this->getSetting('PINGHOSTDEVICEOUTPUT');
-        static::$zzz = (int)$this->getSetting(static::$sleeptime);
+        static::$log = sprintf('%s%s',static::$logpath,self::getSetting('PINGHOSTLOGFILENAME'));
+        static::$dev = self::getSetting('PINGHOSTDEVICEOUTPUT');
+        static::$zzz = (int)self::getSetting(static::$sleeptime);
     }
     private function commonOutput() {
         try {
-            if (!$this->getSetting('FOG_HOST_LOOKUP')) throw new Exception(_(' * Host Ping is not enabled'));
-            $webServerIP = self::$FOGCore->resolveHostName($this->getSetting('FOG_WEB_HOST'));
+            if (!self::getSetting('FOG_HOST_LOOKUP')) throw new Exception(_(' * Host Ping is not enabled'));
+            $webServerIP = self::$FOGCore->resolveHostName(self::getSetting('FOG_WEB_HOST'));
             static::outall(sprintf(' * FOG Web Host IP: %s',$webServerIP));
             $this->getIPAddress();
             foreach ((array)self::$ips AS $i => &$ip) {

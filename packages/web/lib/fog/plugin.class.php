@@ -44,7 +44,7 @@ class Plugin extends FOGController {
         $this->blIsInstalled = (bool)($this->get('installed'));
     }
     private function getDirs() {
-        $dir = trim($this->getSetting('FOG_PLUGINSYS_DIR'));
+        $dir = trim(self::getSetting('FOG_PLUGINSYS_DIR'));
         if ($dir != '../lib/plugins/') {
             $this->setSetting('FOG_PLUGINSYS_DIR','../lib/plugins/');
             $dir='../lib/plugins/';
@@ -59,7 +59,7 @@ class Plugin extends FOGController {
     public function getPlugins() {
         return array_map(function(&$file) {
             require(sprintf('%s/config/plugin.config.php',rtrim($file,'/')));
-            $p = self::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$fog_plugin['name']))))
+            $p = self::getClass('Plugin',@min(self::getSubObjectIDs('Plugin',array('name'=>$fog_plugin['name']))))
                 ->set('name',$fog_plugin['name'])
                 ->set('description',$fog_plugin['description']);
             $p->strPath = $file;

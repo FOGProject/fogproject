@@ -31,19 +31,19 @@ class FOGURLRequests extends FOGBase {
                 return;
             }
             $ProxyUsed = false;
-            if (self::$DB && ($ip = $this->getSetting('FOG_PROXY_IP'))) {
+            if (self::$DB && ($ip = self::getSetting('FOG_PROXY_IP'))) {
                 if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
                     unset($url,$ip);
                     return;
                 }
-                $IPs = $this->getSubObjectIDs('StorageNode','','ip');
+                $IPs = self::getSubObjectIDs('StorageNode','','ip');
                 if (!preg_match('#^(?!.*'.implode('|',(array)$IPs).')$#i',$url)) $ProxyUsed = true;
-                $username = $this->getSetting('FOG_PROXY_USERNAME');
-                $password = $this->getSetting('FOG_PROXY_PASSWORD');
+                $username = self::getSetting('FOG_PROXY_USERNAME');
+                $password = self::getSetting('FOG_PROXY_PASSWORD');
             }
             if ($ProxyUsed) {
                 $this->contextOptions[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
-                $this->contextOptions[CURLOPT_PROXYPORT] = $this->getSetting('FOG_PROXY_PORT');
+                $this->contextOptions[CURLOPT_PROXYPORT] = self::getSetting('FOG_PROXY_PORT');
                 $this->contextOptions[CURLOPT_PROXY] = $ip;
                 if ($username) $this->contextOptions[CURLOPT_PROXYUSERPWD] = $username.':'.$password;
             }

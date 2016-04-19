@@ -17,7 +17,7 @@ class ProcessLogin extends FOGBase {
         $this->langMenu = ob_get_clean();
     }
     private function defaultLang() {
-        $deflang = $this->getSetting('FOG_DEFAULT_LOCALE');
+        $deflang = self::getSetting('FOG_DEFAULT_LOCALE');
         foreach(self::$foglang['Language'] AS $lang => &$val) {
             if ($deflang == $lang) $data = array($lang,$val);
             else $data = array('en','English');

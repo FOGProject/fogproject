@@ -7,9 +7,9 @@ class TaskScheduler extends FOGService {
     public static $sleeptime = 'SCHEDULERSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',static::$logpath,$this->getSetting('SCHEDULERLOGFILENAME'));
-        static::$dev = $this->getSetting('SCHEDULERDEVICEOUTPUT');
-        static::$zzz = (int)$this->getSetting(static::$sleeptime);
+        static::$log = sprintf('%s%s',static::$logpath,self::getSetting('SCHEDULERLOGFILENAME'));
+        static::$dev = self::getSetting('SCHEDULERDEVICEOUTPUT');
+        static::$zzz = (int)self::getSetting(static::$sleeptime);
     }
     private function commonOutput() {
         try {
@@ -18,7 +18,7 @@ class TaskScheduler extends FOGService {
             static::outall(sprintf(" * %s active task%s waiting to wake up.",$taskcount,($taskcount != 1 ? 's' : '')));
             if ($taskcount) {
                 static::outall(' | Sending WOL Packet(s)');
-                foreach (self::getClass('HostManager')->find(array('id'=>$this->getSubObjectIDs('Task',$findWhere,'hostID'))) AS &$Host) {
+                foreach (self::getClass('HostManager')->find(array('id'=>self::getSubObjectIDs('Task',$findWhere,'hostID'))) AS &$Host) {
                     if (!$Host->isValid()) continue;
                     static::outall(sprintf("\t\t- Host: %s WOL sent to all macs associated",$Host->get('name')));
                     $Host->wakeOnLan();

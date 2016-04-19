@@ -290,7 +290,7 @@ class TaskManagementPage extends FOGPage {
     public function active_multicast_post() {
         if (!self::$ajax) $this->nonajax();
         $MulticastSessionIDs = (array)$_REQUEST['task'];
-        $TaskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MulticastSessionIDs),'taskID');
+        $TaskIDs = self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MulticastSessionIDs),'taskID');
         self::getClass('TaskManager')->cancel($TaskIDs);
         self::getClass('MulticastSessionsManager')->cancel($_REQUEST['task']);
         unset($MulticastSessionIDs);
@@ -351,10 +351,10 @@ class TaskManagementPage extends FOGPage {
     public function active_snapins_post() {
         if (!self::$ajax) $this->nonajax();
         $SnapinTaskIDs = (array)$_REQUEST['task'];
-        $SnapinJobIDs = $this->getSubObjectIDs('SnapinTask',array('id'=>$SnapinTaskIDs),'jobID');
-        $SnapinJobIDs = $this->getSubObjectIDs('SnapinTask',array('id'=>$SnapinTaskIDs),'jobID');
-        $HostIDs = $this->getSubObjectIDs('SnapinJob',array('id'=>(array)$SnapinJobIDs),'hostID');
-        $TaskIDs = $this->getSubObjectIDs('Task',array('hostID'=>$HostIDs));
+        $SnapinJobIDs = self::getSubObjectIDs('SnapinTask',array('id'=>$SnapinTaskIDs),'jobID');
+        $SnapinJobIDs = self::getSubObjectIDs('SnapinTask',array('id'=>$SnapinTaskIDs),'jobID');
+        $HostIDs = self::getSubObjectIDs('SnapinJob',array('id'=>(array)$SnapinJobIDs),'hostID');
+        $TaskIDs = self::getSubObjectIDs('Task',array('hostID'=>$HostIDs));
         self::getClass('TaskManager')->cancel($TaskIDs);
         self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
         if (self::getClass('SnapinTaskManager')->count(array('jobID'=>$SnapinJobIDs)) < 1) self::getClass('SnapinJobManager')->cancel($SnapinJobIDs);

@@ -45,4 +45,4 @@ if (isset($_REQUEST['username'])) {
 		unset($_REQUEST['username'],$_REQUEST['password']);
 	}
 }
-echo "#!ipxe\n{$FOGCore->getSetting(FOG_PXE_ADVANCED)}";
+printf("#!ipxe\n%s",FOGCore::getSetting('FOG_PXE_ADVANCED'));

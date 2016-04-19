@@ -14,16 +14,16 @@ class StorageGroup extends FOGController {
         'enablednodes',
     );
     protected function loadAllnodes() {
-        if ($this->get('id')) $this->set('allnodes',$this->getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id')),'id'));
+        if ($this->get('id')) $this->set('allnodes',self::getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id')),'id'));
     }
     protected function loadEnablednodes() {
-        if ($this->get('id')) $this->set('enablednodes',$this->getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id'),'id'=>$this->get('allnodes'),'isEnabled'=>1)));
+        if ($this->get('id')) $this->set('enablednodes',self::getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id'),'id'=>$this->get('allnodes'),'isEnabled'=>1)));
     }
     public function getTotalSupportedClients() {
-        return $this->getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes')),'maxClients',false,'AND','name',false,'array_sum');
+        return self::getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes')),'maxClients',false,'AND','name',false,'array_sum');
     }
     public function getMasterStorageNode() {
-        $masternode = $this->getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes'),'isMaster'=>1,'isEnabled'=>1),'id');
+        $masternode = self::getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes'),'isMaster'=>1,'isEnabled'=>1),'id');
         $masternode = array_shift($masternode);
         if (!$masternode > 0) $masternode = @min($this->get('enablednodes'));
         return self::getClass('StorageNode',$masternode);
@@ -46,7 +46,7 @@ class StorageGroup extends FOGController {
     public function getUsedSlotCount() {
         return self::getClass('TaskManager')->count(array(
             'stateID'=>$this->getProgressState(),
-            'typeID'=>explode(',',$this->getSetting('FOG_USED_TASKS')),
+            'typeID'=>explode(',',self::getSetting('FOG_USED_TASKS')),
             'NFSGroupID'=>$this->get('id'),
         ));
     }

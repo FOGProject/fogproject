@@ -177,7 +177,7 @@ class HostManagementPage extends FOGPage {
             if (!$MAC->isValid()) throw new Exception(_('MAC Format is invalid'));
             $Host = self::getClass('HostManager')->getHostByMacAddresses($MAC);
             if ($Host && $Host->isValid()) throw new Exception(sprintf(_('A host with this MAC already exists with Hostname: %s'),$Host->get('name')));
-            $ModuleIDs = $this->getSubObjectIDs('Module');
+            $ModuleIDs = self::getSubObjectIDs('Module');
             $password = $_REQUEST['domainpassword'];
             if ($_REQUEST['domainpassword']) $password = $this->encryptpw($_REQUEST['domainpassword']);
             $useAD = (int)isset($_REQUEST['domain']);
@@ -435,7 +435,7 @@ class HostManagementPage extends FOGPage {
             'span'=>''
         );
         printf('<div id="host-service"><form method="post" action="%s&tab=host-service"><h2>%s</h2><fieldset><legend>%s</legend>',$this->formAction,_('Service Configuration'),_('General'));
-        $ModOns = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('id')),'moduleID');
+        $ModOns = self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('id')),'moduleID');
         $moduleName = $this->getGlobalModuleStatus();
         array_map(function(&$Module) use ($ModOns,$moduleName) {
             if (!$Module->isValid()) return;
@@ -501,7 +501,7 @@ class HostManagementPage extends FOGPage {
             '${input}',
             '${desc}',
         );
-        $Service = self::getClass('Service',@min($this->getSubObjectIDs('Service',array('name'=>'FOG_SERVICE_AUTOLOGOFF_MIN'))));
+        $Service = self::getClass('Service',@min(self::getSubObjectIDs('Service',array('name'=>'FOG_SERVICE_AUTOLOGOFF_MIN'))));
         if ($Service->isValid()) {
             $this->data[] = array(
                 'field'=>_('Auto Log Out Time (in minutes)'),
@@ -625,7 +625,7 @@ class HostManagementPage extends FOGPage {
             '${user_name}',
             '${user_desc}',
         );
-        $Dates = array_unique((array)$this->getSubObjectIDs('UserTracking',array('id'=>$this->obj->get('users')),'date'));
+        $Dates = array_unique((array)self::getSubObjectIDs('UserTracking',array('id'=>$this->obj->get('users')),'date'));
         if ($Dates) {
             rsort($Dates);
             printf('<p>%s</p>',_('View History for'));
@@ -699,7 +699,7 @@ class HostManagementPage extends FOGPage {
             '${snapin_duration}',
             '${snapin_return}',
         );
-        foreach ((array)self::getClass('SnapinTaskManager')->find(array('jobID'=>$this->getSubObjectIDs('SnapinJob',array('hostID'=>$this->obj->get('id'))))) AS $i => &$SnapinTask) {
+        foreach ((array)self::getClass('SnapinTaskManager')->find(array('jobID'=>self::getSubObjectIDs('SnapinJob',array('hostID'=>$this->obj->get('id'))))) AS $i => &$SnapinTask) {
             if (!$SnapinTask->isValid()) continue;
             $Snapin = $SnapinTask->getSnapin();
             if (!$Snapin->isValid()) continue;
@@ -749,7 +749,7 @@ class HostManagementPage extends FOGPage {
                     ->set('productKey',$this->encryptpw($productKey));
                 if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) $this->obj->addPriMAC($mac->__toString());
                 $_REQUEST['additionalMACs'] = array_map('strtolower',(array)$_REQUEST['additionalMACs']);
-                $removeMACs = array_diff((array)$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->obj->get('id'),'primary'=>0,'pending'=>0),'mac'),(array)$_REQUEST['additionalMACs']);
+                $removeMACs = array_diff((array)self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->obj->get('id'),'primary'=>0,'pending'=>0),'mac'),(array)$_REQUEST['additionalMACs']);
                 $this->obj->addAddMAC($_REQUEST['additionalMACs'])
                     ->removeAddMAC($removeMACs);
                 break;
@@ -778,13 +778,13 @@ class HostManagementPage extends FOGPage {
                 if (isset($_REQUEST['snaprem'])) $this->obj->removeSnapin($_REQUEST['snapinRemove']);
                 break;
             case 'host-service':
-                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
-                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
-                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
-                $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $this->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
+                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
+                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
+                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
+                $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : self::getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
                 if (isset($_REQUEST['updatestatus'])) {
                     $modOn = (array)$_REQUEST['modules'];
-                    $modOff = $this->getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
+                    $modOff = self::getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
                     $this->obj->addModule($modOn);
                     $this->obj->removeModule($modOff);
                 }

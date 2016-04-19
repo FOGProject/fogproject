@@ -13,7 +13,7 @@ class Page extends FOGBase {
     public function __construct() {
         parent::__construct();
         if (!$this->theme) {
-            $this->theme = $this->getSetting('FOG_THEME');
+            $this->theme = self::getSetting('FOG_THEME');
             $this->theme = $this->theme ? $this->theme : 'default/fog.css';
             if (!file_exists("../management/css/$this->theme")) $this->theme = 'default/fog.css';
             $dispTheme = "css/$this->theme";
@@ -51,7 +51,7 @@ class Page extends FOGBase {
                     'about'=>array(self::$foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
                     'logout'=>array(self::$foglang['Logout'],'fa fa-sign-out fa-2x'),
                 );
-                if ($this->getSetting('FOG_PLUGINSYS_ENABLED')) $this->array_insert_after('about',$this->main,'plugin',array(self::$foglang['Plugin Management'],'fa fa-cog fa-2x'));
+                if (self::getSetting('FOG_PLUGINSYS_ENABLED')) $this->array_insert_after('about',$this->main,'plugin',array(self::$foglang['Plugin Management'],'fa fa-cog fa-2x'));
             } else {
                 $this->main = array(
                     'home'=>array(self::$foglang['Home'],'fa fa-home fa-2x'),

@@ -40,8 +40,8 @@ class FOGFTP extends FOGGetSet {
             self::$currentConnectionHash = password_hash(serialize($this->data),PASSWORD_BCRYPT,['cost'=>11]);
             if (self::$link && self::$currentConnectionHash == self::$lastConnectionHash) return $this;
             if (!$host) $host = $this->get('host');
-            if (!$port) $port = $this->getSetting('FOG_FTP_PORT') ? $this->getSetting('FOG_FTP_PORT') : $this->get('port');
-            if (!$timeout) $timeout = $this->getSetting('FOG_FTP_TIMEOUT') ? $this->getSetting('FOG_FTP_TIMEOUT') : $this->get('timeout');
+            if (!$port) $port = self::getSetting('FOG_FTP_PORT') ? self::getSetting('FOG_FTP_PORT') : $this->get('port');
+            if (!$timeout) $timeout = self::getSetting('FOG_FTP_TIMEOUT') ? self::getSetting('FOG_FTP_TIMEOUT') : $this->get('timeout');
             if ((self::$link = @$connectmethod($host,$port,$timeout)) === false) self::ftperror();
             if ($autologin) {
                 $this->login();
@@ -199,8 +199,8 @@ class FOGFTP extends FOGGetSet {
     public function ssl_connect($host = '',$port = 0,$timeout = 90,$autologin = true) {
         try {
             if (!$host) $host = $this->get('host');
-            if (!$port) $port = $this->getSetting('FOG_FTP_PORT') ? $this->getSetting('FOG_FTP_PORT') : $this->get('port');
-            if (!$timeout) $timeout = $this->getSetting('FOG_FTP_TIMEOUT') ? $this->getSetting('FOG_FTP_TIMEOUT') : $this->get('timeout');
+            if (!$port) $port = self::getSetting('FOG_FTP_PORT') ? self::getSetting('FOG_FTP_PORT') : $this->get('port');
+            if (!$timeout) $timeout = self::getSetting('FOG_FTP_TIMEOUT') ? self::getSetting('FOG_FTP_TIMEOUT') : $this->get('timeout');
             $this->connect($host,$port,$timeout,$autologin,'ftp_ssl_connect');
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

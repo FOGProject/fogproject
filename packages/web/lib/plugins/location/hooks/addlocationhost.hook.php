@@ -17,7 +17,7 @@ class AddLocationHost extends Hook {
         if ($_REQUEST['sub'] == 'pending') return;
         $arguments['templates'][4] = '${location}<br/><small>${deployed}</small>';
         foreach((array)$arguments['data'] AS $index => &$vals) {
-            $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['data'][$index]['id']),'locationID');
+            $locationID = self::getSubObjectIDs'LocationAssociation',array('hostID'=>$arguments['data'][$index]['id']),'locationID');
             $locID = array_shift($locationID);
             $arguments['data'][$index]['location'] = self::getClass('Location',$locID)->get('name');
             unset($vals);
@@ -26,7 +26,7 @@ class AddLocationHost extends Hook {
     public function HostFields($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         if ($_REQUEST['node'] != 'host') return;
-        $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
+        $locationID = self::getSubObjectIDs'LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
         $locID = array_shift($locationID);
         $this->array_insert_after(_('Host Product Key'),$arguments['fields'],_('Host Location'),self::getClass('LocationManager')->buildSelectBox($locID));
     }
@@ -47,7 +47,7 @@ class AddLocationHost extends Hook {
     }
     public function HostExport($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
+        $locationID = self::getSubObjectIDs'LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
         $locID = array_shift($locationID);
         $arguments['report']->addCSVCell($locID > 0 ? $locID : null);
     }
@@ -57,7 +57,7 @@ class AddLocationHost extends Hook {
     }
     public function HostEmailHook($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $locationID = $this->getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
+        $locationID = self::getSubObjectIDs'LocationAssociation',array('hostID'=>$arguments['Host']->get('id')),'locationID');
         $locID = array_shift($locationID);
         if (!self::getClass('Location',$locID)->isValid()) return;
         $this->array_insert_after("\nSnapin Used: ",$arguments['email'],"\nImaged From (Location): ",self::getClass('Location',$locID)->get('name'));

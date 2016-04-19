@@ -257,16 +257,16 @@ abstract class FOGPage extends FOGBase {
         echo '<div class="confirm-message">';
         if ($TaskType->get('id') == 13) {
             printf('<p class="c"><p>%s</p>',_('Please select the snapin you want to deploy'));
+            ob_start();
             if ($this->obj instanceof Host) {
-                foreach((array)$this->obj->get('snapins') AS $i => &$id) {
-                    $name = self::getClass('Snapin',$id)->get('name');
-                    $optionSnapin .= sprintf('<option value="%s">%s - (%s)</option>',$id,$name,$id);
-                }
-                unset($id);
-                if ($optionSnapin) printf('<select name="snapin">%s</select></p>',$optionSnapin);
-                else printf('%s</p>',_('No snapins associated'));
-            }
-            if ($this->obj instanceof Group) printf('%s</p>',self::getClass('SnapinManager')->buildSelectBox('','snapin'));
+                array_map(function(&$Snapin) {
+                    if (!$Snapin->isValid()) return;
+                    printf('<option value="%d">%s - (%d)</option>',$Snapin->get('id'),$Snapin->get('name'),$Snapin->get('id'));
+                    unset($Snapin);
+                },(array)self::getClass('SnapinManager')->find(array('id'=>$this->obj->get('snapins'))));
+                ob_get_contents() ? printf('<select name="snapin">%s</select></p>',ob_get_clean()) : printf('%s</p>',_('No snapins associated'));
+
+            } else if ($this->obj instanceof Group) printf('%s</p>',self::getClass('SnapinManager')->buildSelectBox('','snapin'));
         }
         printf('<div class="advanced-settings"><h2>%s</h2>',_('Advanced Settings'));
         if ($TaskType->isInitNeededTasking() && !$TaskType->isDebug()) printf('<p class="hideFromDebug"><input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">%s <u>%s</u> %s</label></p>',_('Schedule'),_('Shutdown'),_('after task completion'));
@@ -287,10 +287,10 @@ abstract class FOGPage extends FOGBase {
                 'hourly'=>_('Hourly'),
             );
             ob_start();
-            foreach($specialCrons AS $val => &$name) {
+            array_walk($specialCrons,function(&$name,&$val) {
                 printf('<option value="%s">%s</option>',$val,$name);
-                unset($name);
-            }
+                unset($name,$val);
+            });
             printf('<select id="specialCrons" name="specialCrons">%s</select><br/><br/>',ob_get_clean());
             echo '<input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off"/>';
             echo '<input type="text" name="scheduleCronHour" id="scheduleCronHour" placeholder="hour" autocomplete="off"/>';
@@ -328,8 +328,8 @@ abstract class FOGPage extends FOGBase {
             );
         }
         if ($this->obj instanceof Group) {
-            foreach(self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))) AS $i => &$Host) {
-                if (!$Host->isValid()) continue;
+            array_map(function(&$Host) {
+                if (!$Host->isValid()) return;
                 $this->data[] = array(
                     'host_link'=>'?node=host&sub=edit&id=${host_id}',
                     'image_link'=>'?node=image&sub=edit&id=${image_id}',
@@ -342,7 +342,7 @@ abstract class FOGPage extends FOGBase {
                     'image_title'=>_('Edit Image'),
                 );
                 unset($Host);
-            }
+            },(array)self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
         }
         self::$HookManager->processEvent(sprintf('%s_DEPLOY',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
@@ -377,17 +377,19 @@ abstract class FOGPage extends FOGBase {
                     $this->obj->checkIfExist($TaskType->get('id'));
                 } else if ($this->obj instanceof Group && $imagingTasks) {
                     if ($TaskType->isMulticast() && !$this->obj->doMembersHaveUniformImages()) throw new Exception(_('Hosts do not contain the same image assignments'));
-                    foreach(self::getClass('HostManager')->find(array('pending'=>array('',0),'id'=>$this->obj->get('hosts'))) AS &$Host) {
-                        if (!$Host->isValid()) continue;
+                    $NoImage = array();
+                    $Hosts = (array)self::getClass('HostManager')->find(array('pending'=>array('',0),'id'=>$this->obj->get('hosts')));
+                    array_map(function(&$Host) use (&$NoImage) {
+                        if (!$Host->isValid()) return;
                         $NoImage[] = (bool)!$Host->getImage()->isValid();
                         unset($Host);
-                    }
+                    },$Hosts);
                     if (in_array(true,$NoImage,true)) throw new Exception(_('One or more hosts do not have an image set'));
-                    foreach(self::getClass('HostManager')->find(array('pending'=>array('',0),'id'=>$this->obj->get('hosts'))) AS &$Host) {
-                        if (!$Host->isValid()) continue;
+                    array_map(function(&$Host) use (&$ImageExists) {
+                        if (!$Host->isValid()) return;
                         $ImageExists[] = (bool)!$Host->checkIfExist($TaskType->get('id'));
                         unset($Host);
-                    }
+                    },$Hosts);
                     if (in_array(true,$ImageExists,true)) throw new Exception(_('One or more hosts have an image that does not exist'));
                     unset($NoImage,$ImageExists,$Tasks);
                 }
@@ -424,24 +426,22 @@ abstract class FOGPage extends FOGBase {
                                 'checkMonthField' => array('month',$_REQUEST['scheduleCronMonth']),
                                 'checkDOWField' => array('dayOfWeek',$_REQUEST['scheduleCronDOW']),
                             );
-                            foreach ($valsToTest AS $func => &$val) {
+                            array_walk($valsToTest,function(&$val,&$func) use (&$ScheduledTask) {
                                 if (!FOGCron::$func($val[1])) throw new Exception(sprintf('%s %s invalid',$func,$val[1]));
-                                else $ScheduledTask->set($val[0],$val[1]);
-                                unset($val);
-                            }
+                                $ScheduledTask->set($val[0],$val[1]);
+                                unset($val,$func);
+                            });
                             unset($valsToTest);
                             $ScheduledTask->set('isActive',1);
                         }
                         if ($ScheduledTask->save()) {
                             if ($this->obj instanceof Group) {
-                                $Hosts = self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts')));
-                                foreach($Hosts AS $i => &$Host) {
-                                    if ($Host->isValid() && !$Host->get('pending')) {
-                                        if (!$imagingTasks) $success[] = sprintf('<li>%s</li>',$Host->get('name'));
-                                        else if ($imagingTasks && $Host->getImage()->get('isEnabled')) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
-                                    }
-                                }
-                                unset($Host);
+                                array_map(function (&$Host) use ($imagingTasks,&$success) {
+                                    if (!$Host->isValid()) return;
+                                    if (!$imagingTasks) $success[] = sprintf('<li>%s</li>',$Host->get('name'));
+                                    if ($imagingTasks && $Host->getImage()->get('isEnabled')) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
+                                    unset($Host);
+                                },(array)self::getClass('HostManager')->find(array('pending'=>array('',null,0),'id'=>$this->obj->get('hosts'))));
                             } else if ($this->obj instanceof Host) {
                                 if ($this->obj->isValid() && !$this->obj->get('pending')) $success[] = sprintf('<li>%s &ndash; %s</li>',$this->obj->get('name'),$this->obj->getImage()->get('name'));
                             }
@@ -476,15 +476,15 @@ abstract class FOGPage extends FOGBase {
             '<input type="hidden" value="${id}" name="remitems[]"/>',
         );
         $this->additional = array();
-        foreach ((array)self::getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[sprintf('%sIDArray',$this->node)]))))) AS $i => &$Object) {
-            if ($Object->get('protected')) continue;
+        array_map(function(&$Object) {
+            if ($Object->get('protected')) return;
             $this->data[] = array(
                 'id'=>$Object->get('id'),
                 'name'=>$Object->get('name'),
             );
-            array_push($this->additional,sprintf('<p>%s</p>',$Object->get('name')));
-            unset($Object,$name);
-        }
+            unset($Object);
+        },(array)self::getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[sprintf('%sIDArray',$this->node)]))))));
+        array_push($this->additional,sprintf('<p>%s</p>',$Object->get('name')));
         if (count($this->data)) {
             printf('<div class="confirm-message"><p>%s\'s %s:</p><form method="post" action="%s_conf">',$this->childClass,_('to be removed'),$this->formAction);
             $this->render();
@@ -565,8 +565,8 @@ abstract class FOGPage extends FOGBase {
         if (empty($ADUser)) $ADUser = ($this->obj instanceof Host ? $this->obj->get('ADUser') : $_REQUEST['domainuser']);
         if (empty($ADPass)) $ADPass = ($this->obj instanceof Host ? $this->obj->get('ADPass') : $_REQUEST['domainpassword']);
         if (empty($ADPassLegacy)) $ADPassLegacy = ($this->obj instanceof Host ? $this->obj->get('ADPassLegacy') : $_REQUEST['domainpasswordlegacy']);
-        if (empty($enforce)) $enforce = ($this->obj instanceof Host ? $this->obj->get('enforce') : (!isset($_REQUEST['enforce']) ? (int)$this->getSetting('FOG_ENFORCE_HOST_CHANGES') : $_REQUEST['enforcesel']));
-        $OUs = explode('|',$this->getSetting('FOG_AD_DEFAULT_OU'));
+        if (empty($enforce)) $enforce = ($this->obj instanceof Host ? $this->obj->get('enforce') : (!isset($_REQUEST['enforce']) ? (int)self::getSetting('FOG_ENFORCE_HOST_CHANGES') : $_REQUEST['enforcesel']));
+        $OUs = explode('|',self::getSetting('FOG_AD_DEFAULT_OU'));
         foreach((array)$OUs AS $i => &$OU) $OUOptions[] = $OU;
         unset($OU);
         $OUOPtions = array_filter($OUOptions);
@@ -628,11 +628,11 @@ abstract class FOGPage extends FOGBase {
     }
     public function adInfo() {
         $Data = array(
-            'domainname' => $this->getSetting('FOG_AD_DEFAULT_DOMAINNAME'),
-            'ou' => $this->getSetting('FOG_AD_DEFAULT_OU'),
-            'domainuser' => $this->getSetting('FOG_AD_DEFAULT_USER'),
-            'domainpass' => $this->encryptpw($this->getSetting('FOG_AD_DEFAULT_PASSWORD')),
-            'domainpasslegacy' => $this->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
+            'domainname' => self::getSetting('FOG_AD_DEFAULT_DOMAINNAME'),
+            'ou' => self::getSetting('FOG_AD_DEFAULT_OU'),
+            'domainuser' => self::getSetting('FOG_AD_DEFAULT_USER'),
+            'domainpass' => $this->encryptpw(self::getSetting('FOG_AD_DEFAULT_PASSWORD')),
+            'domainpasslegacy' => self::getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
         );
         if (self::$ajax) echo json_encode($Data);
     }
@@ -650,11 +650,11 @@ abstract class FOGPage extends FOGBase {
                     $destfile = $_SESSION['dest-kernel-file'];
                     $tmpfile = $_SESSION['tmp-kernel-file'];
                     unset($_SESSION['dest-kernel-file'],$_SESSION['tmp-kernel-file'],$_SESSION['dl-kernel-file']);
-                    self::$FOGFTP->set('host',$this->getSetting('FOG_TFTP_HOST'))
-                        ->set('username',trim($this->getSetting('FOG_TFTP_FTP_USERNAME')))
-                        ->set('password',$this->getSetting('FOG_TFTP_FTP_PASSWORD'));
+                    self::$FOGFTP->set('host',self::getSetting('FOG_TFTP_HOST'))
+                        ->set('username',trim(self::getSetting('FOG_TFTP_FTP_USERNAME')))
+                        ->set('password',self::getSetting('FOG_TFTP_FTP_PASSWORD'));
                     if (!self::$FOGFTP->connect()) throw new Exception(_('Error: Unable to connect to tftp server'));
-                    $orig = sprintf('/%s/%s',trim($this->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/'),$destfile);
+                    $orig = sprintf('/%s/%s',trim(self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/'),$destfile);
                     $backuppath = sprintf('/%s/backup/',dirname($orig));
                     $backupfile = sprintf('%s%s_%s',$backuppath,$destfile,$this->formatTime('','Ymd_His'));
                     if (self::$FOGFTP->exists($backuppath)) self::$FOGFTP->mkdir($backuppath);
@@ -731,10 +731,10 @@ abstract class FOGPage extends FOGBase {
     }
     public function configure() {
         $randTime = mt_rand(0,90);
-        $setTime = (int) $this->getSetting('FOG_SERVICE_CHECKIN_TIME');
+        $setTime = (int) self::getSetting('FOG_SERVICE_CHECKIN_TIME');
         $randTime += $setTime;
         unset($setTime);
-        echo "#!ok\n#sleep=$randTime\n#force={$this->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={$this->getSetting(FOG_GRACE_TIMEOUT)}";
+        echo "#!ok\n#sleep=$randTime\n#force={self::getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={self::getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={self::getSetting(FOG_GRACE_TIMEOUT)}";
         unset($randTime);
         exit;
     }
@@ -768,7 +768,7 @@ abstract class FOGPage extends FOGBase {
         }
         $globalModules = array_diff(array_keys(array_filter($this->getGlobalModuleStatus())),array('dircleanup','usercleanup','clientupdater','hostregister'));
         $Host = $this->getHostItem(true,false,true,false,isset($_REQUEST['newService']));
-        $hostModules = $this->getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName');
+        $hostModules = self::getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName');
         $hostModules = array_values(array_intersect($globalModules,(array)$hostModules));
         $array = array();
         foreach ($hostModules AS $i => &$key) {
@@ -1003,7 +1003,7 @@ abstract class FOGPage extends FOGBase {
                 try {
                     $Item = self::getClass($this->childClass);
                     if ($Item instanceof Host) {
-                        $ModuleIDs = $this->getSubObjectIDs('Module','','id');
+                        $ModuleIDs = self::getSubObjectIDs('Module','','id');
                         $MACs = $this->parseMacList($data[0]);
                         $Host = self::getClass('HostManager')->getHostByMacAddresses($MACs);
                         if ($Host && $Host->isValid()) throw new Exception(_('Host already exists with at least one of the listed MACs'));

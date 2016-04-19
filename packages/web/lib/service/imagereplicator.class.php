@@ -7,15 +7,15 @@ class ImageReplicator extends FOGService {
     public static $sleeptime = 'IMAGEREPSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',static::$logpath,$this->getSetting('IMAGEREPLICATORLOGFILENAME'));
-        static::$dev = $this->getSetting('IMAGEREPLICATORDEVICEOUTPUT');
-        static::$zzz = (int)$this->getSetting(static::$sleeptime);
+        static::$log = sprintf('%s%s',static::$logpath,self::getSetting('IMAGEREPLICATORLOGFILENAME'));
+        static::$dev = self::getSetting('IMAGEREPLICATORDEVICEOUTPUT');
+        static::$zzz = (int)self::getSetting(static::$sleeptime);
     }
     private function commonOutput() {
         try {
             $StorageNode = $this->checkIfNodeMaster();
             static::out(' * I am the group manager',static::$dev);
-            $this->wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
+            static::wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
             $myStorageGroupID = $StorageNode->get('storageGroupID');
             $myStorageNodeID = $StorageNode->get('id');
             static::outall(" * Starting Image Replication.");
@@ -23,15 +23,15 @@ class ImageReplicator extends FOGService {
             static::outall(sprintf(" | We are group name: %s",self::getClass('StorageGroup',$myStorageGroupID)->get('name')));
             static::outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
             static::outall(sprintf(" | We are node name: %s",self::getClass('StorageNode',$myStorageNodeID)->get('name')));
-            $ImageIDs = $this->getSubObjectIDs('Image',array('isEnabled'=>1,'toReplicate'=>1));
-            $ImageAssocs = $this->getSubObjectIDs('ImageAssociation',array('imageID'=>$ImageIDs),'imageID',true);
+            $ImageIDs = self::getSubObjectIDs('Image',array('isEnabled'=>1,'toReplicate'=>1));
+            $ImageAssocs = self::getSubObjectIDs('ImageAssociation',array('imageID'=>$ImageIDs),'imageID',true);
             if (count($ImageAssocs)) self::getClass('ImageAssociationManager')->destroy(array('imageID'=>$ImageAssocs));
             unset($ImageAssocs);
             $ImageAssocCount = self::getClass('ImageAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID,'imageID'=>$ImageIDs));
             $ImageCount = self::getClass('ImageManager')->count();
             if ($ImageAssocCount <= 0 || $ImageCount <= 0) throw new Exception(_('There is nothing to replicate'));
             unset($ImageAssocCount,$ImageCount);
-            $Images = self::getClass('ImageManager')->find(array('id'=>$this->getSubObjectIDs('ImageAssociation',array('storageGroupID'=>$myStorageGroupID,'imageID'=>$ImageIDs),'imageID')));
+            $Images = self::getClass('ImageManager')->find(array('id'=>self::getSubObjectIDs('ImageAssociation',array('storageGroupID'=>$myStorageGroupID,'imageID'=>$ImageIDs),'imageID')));
             unset($ImageIDs);
             foreach ((array)$Images AS $Image) {
                 if (!$Image->isValid()) continue;
@@ -55,7 +55,7 @@ class ImageReplicator extends FOGService {
         static::out(' ',static::$dev);
         static::out(' +---------------------------------------------------------',static::$dev);
         static::out(' * Checking if I am the group manager.',static::$dev);
-        $this->wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
+        static::wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
         $this->commonOutput();
         static::out(' +---------------------------------------------------------',static::$dev);
     }

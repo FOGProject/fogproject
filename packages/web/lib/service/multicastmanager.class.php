@@ -7,9 +7,9 @@ class MulticastManager extends FOGService {
     public static $sleeptime = 'MULTICASTSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',static::$logpath,$this->getSetting('MULTICASTLOGFILENAME'));
-        static::$dev = $this->getSetting('MULTICASTDEVICEOUTPUT');
-        static::$zzz = (int)$this->getSetting(static::$sleeptime);
+        static::$log = sprintf('%s%s',static::$logpath,self::getSetting('MULTICASTLOGFILENAME'));
+        static::$dev = self::getSetting('MULTICASTDEVICEOUTPUT');
+        static::$zzz = (int)self::getSetting(static::$sleeptime);
     }
     private function isMCTaskNew($KnownTasks, $id) {
         foreach((array)$KnownTasks AS $i => &$Known) $output[] = $Known->getID();
@@ -58,7 +58,7 @@ class MulticastManager extends FOGService {
                     foreach ((array)$RMTasks AS $i => &$RMTask) {
                         static::outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
                         $KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
-                        $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$RMTask->getID()),'taskID');
+                        $taskIDs = self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$RMTask->getID()),'taskID');
                         if (self::getClass('TaskManager')->count(array('id'=>$taskIDs,'stateID'=>$this->getCancelledState()) > 0)) $jobcancelled = true;
                         if ($jobcancelled || self::getClass('MulticastSessions',$RMTask->getID())->get('stateID') == $this->getCancelledState()) {
                             $RMTask->killTask();
@@ -97,7 +97,7 @@ class MulticastManager extends FOGService {
                             $KnownTasks[] = $curTask;
                         } else {
                             $runningTask = $this->getMCExistingTask($KnownTasks, $curTask->getID());
-                            $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$runningTask->getID()),'taskID');
+                            $taskIDs = self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$runningTask->getID()),'taskID');
                             if (self::getClass('TaskManager')->count(array('id'=>$taskIDs,'stateID'=>$this->getCancelledState()) > 0)) $jobcancelled = true;
                             if ($runningTask->isRunning($runningTask->procRef)) {
                                 static::outall(sprintf(" | Task (%s) %s is already running PID %s",$runningTask->getID(),$runningTask->getName(),$runningTask->getPID($runningTask->procRef)));
@@ -122,7 +122,7 @@ class MulticastManager extends FOGService {
                 static::outall($e->getMessage());
             }
             static::out(' +---------------------------------------------------------',static::$dev);
-            $tmpTime = (int)$this->getSetting(static::$sleeptime);
+            $tmpTime = (int)self::getSetting(static::$sleeptime);
             if (static::$zzz != $tmpTime) {
                 static::$zzz = $tmpTime;
                 static::outall(sprintf(" | Sleep time has changed to %s seconds",static::$zzz));

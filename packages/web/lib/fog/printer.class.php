@@ -39,16 +39,16 @@ class Printer extends FOGController {
             throw new Exception(_('Printer ID was not set, or unable to be created'));
             break;
         case ($this->isLoaded('hosts')):
-            $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
-            $ValidHostIDs = $this->getSubObjectIDs('Host');
+            $DBHostIDs = self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
+            $ValidHostIDs = self::getSubObjectIDs('Host');
             $notValid = array_diff((array)$DBHostIDs,(array)$ValidHostIDs);
             if (count($notValid)) self::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$notValid));
             unset($ValidHostIDs,$notValid);
-            $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
+            $DBHostIDs = self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_unique(array_diff((array)$DBHostIDs,(array)$this->get('hosts')));
             if (count($RemoveHostIDs)) {
                 self::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$RemoveHostIDs,'printerID'=>$this->get('id')));
-                $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
+                $DBHostIDs = self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
                 unset($RemoveHostIDs);
             }
             array_map(function(&$Host) {
@@ -73,12 +73,12 @@ class Printer extends FOGController {
         return $this;
     }
     protected function loadHosts() {
-        if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID'));
+        if ($this->get('id')) $this->set('hosts',self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID'));
     }
     protected function loadHostsnotinme() {
         if ($this->get('id')) {
             $find = array('id'=>$this->get('hosts'));
-            $this->set('hostsnotinme',$this->getSubObjectIDs('Host',$find,'id',true));
+            $this->set('hostsnotinme',self::getSubObjectIDs('Host',$find,'id',true));
             unset($find);
         }
         return $this;

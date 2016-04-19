@@ -110,7 +110,7 @@ class PluginManagementPage extends FOGPage {
         unset($P);
     }
     public function run() {
-        $plugin = self::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
+        $plugin = self::getClass('Plugin',@min(self::getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
         try {
             if ($plugin == null) throw new Exception(_('Unable to determine plugin details.'));
             $this->title = sprintf('%s: %s',_('Plugin'),$plugin->get('name'));
@@ -155,7 +155,7 @@ class PluginManagementPage extends FOGPage {
                     );
                     ob_start();
                     array_map(function(&$dmifield) {
-                        $checked = $this->getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? ' selected' : '';
+                        $checked = self::getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? ' selected' : '';
                         printf('<option value="%s" label="%s"%s>%s</option>',$dmifield,$dmifield,$checked,$dmifield);
                         unset($dmifield);
                     },(array)$dmiFields);
@@ -165,8 +165,8 @@ class PluginManagementPage extends FOGPage {
                         _('Shutdown after deploy'),
                     );
                     ob_start();
-                    printf('<option value="0"%s>%s</option>',(!$this->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''),_('Reboot after deploy'));
-                    printf('<option value="1"%s>%s</option>',($this->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''),_('Shutdown after deploy'));
+                    printf('<option value="0"%s>%s</option>',(!self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''),_('Reboot after deploy'));
+                    printf('<option value="1"%s>%s</option>',(self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''),_('Shutdown after deploy'));
                     $shutOpts = ob_get_clean();
                     $fields = array(
                         sprintf('%s:',_('DMI Field')) => sprintf('<select name="dmifield" size="1"><option value="">- %s -</option>%s</select>',_('Please select an option'),$dmiOpts),
@@ -241,7 +241,7 @@ class PluginManagementPage extends FOGPage {
     }
     public function install_post() {
         self::getClass('Plugin')->getRunInclude($_REQUEST['run']);
-        $Plugin = self::getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
+        $Plugin = self::getClass('Plugin',@min(self::getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
         try {
             if (!$Plugin->isValid()) throw new Exception(_('Invalid Plugin Passed'));
             if (isset($_REQUEST['install'])) {

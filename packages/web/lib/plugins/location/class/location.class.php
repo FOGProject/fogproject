@@ -35,11 +35,11 @@ class Location extends FOGController {
             throw new Exception(_('Location ID was not set, or unable to be created'));
             break;
         case ($this->isLoaded('hosts')):
-            $DBHostIDs = $this->getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id'),'hostID'));
+            $DBHostIDs = self::getSubObjectIDs'LocationAssociation',array('locationID'=>$this->get('id'),'hostID'));
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
                 self::getClass('LocationAssociationManager')->destroy(array('locationID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
-                $DBHostIDs = $this->getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id'),'hostID'));
+                $DBHostIDs = self::getSubObjectIDs'LocationAssociation',array('locationID'=>$this->get('id'),'hostID'));
                 unset($RemoveHostIDs);
             }
             foreach ((array)self::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))) AS $i => &$Host) {
@@ -69,12 +69,12 @@ class Location extends FOGController {
         return self::getClass('StorageNode',$this->get('storageNodeID'));
     }
     protected function loadHosts() {
-        if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id')),'hostID'));
+        if ($this->get('id')) $this->set('hosts',self::getSubObjectIDs'LocationAssociation',array('locationID'=>$this->get('id')),'hostID'));
     }
     protected function loadHostsnotinme() {
         if ($this->get('id')) {
             $find = array('id'=>$this->get('hosts'));
-            $this->set('hostsnotinme',$this->getSubObjectIDs('Host',$find,'id',true));
+            $this->set('hostsnotinme',self::getSubObjectIDs'Host',$find,'id',true));
             unset($find);
         }
     }

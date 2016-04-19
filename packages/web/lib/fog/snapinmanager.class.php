@@ -6,7 +6,7 @@ class SnapinManager extends FOGManagerController {
             $fieldWhere = $findWhere;
             $findWhere = array('snapinID'=>$findWhere['id']);
         }
-        self::getClass('SnapinJobManager')->cancel($this->getSubObjectIDs('SnapinTask',$findWhere,'jobID'));
+        self::getClass('SnapinJobManager')->cancel(self::getSubObjectIDs('SnapinTask',$findWhere,'jobID'));
         self::getClass('SnapinTaskManager')->cancel($findWhere['snapinID']);
         self::getClass('SnapinAssociationManager')->destroy($findWhere);
         return parent::destroy($fieldWhere);
