@@ -250,7 +250,7 @@ abstract class FOGBase {
         });
 
         if ($names) return $services;
-        $serviceEn = $this->getSubObjectIDs('Service',array('name'=>array_values($services)),'value',false,'AND','name',false,false);
+        $serviceEn = self::getSubObjectIDs('Service',array('name'=>array_values($services)),'value',false,'AND','name',false,false);
         $serviceEn = array_map(function(&$val) {
             return (int)$val;
         },(array)$serviceEn);
@@ -419,11 +419,11 @@ abstract class FOGBase {
         //$this->getIPAddress();
         if ($padding) $padding = OPENSSL_PKCS1_PADDING;
         else $padding = OPENSSL_NO_PADDING;
-        $sslfile = $this->getSubObjectIDs('StorageNode','','sslpath');
+        $sslfile = self::getSubObjectIDs('StorageNode','','sslpath');
         $tmpssl = array_map(function(&$path) {
             if (!file_exists($path) || !is_readable($path)) return null;
             return $path;
-        },(array)$this->getSubObjectIDs('StorageNode','','sslpath'));
+        },(array)self::getSubObjectIDs('StorageNode','','sslpath'));
         $tmpssl = array_values(array_filter($tmpssl));
         if (count($tmpssl) < 1) throw new Exception(_('Private key path not found'));
         $sslfile = sprintf('%s%s.srvprivate.key',preg_replace('#[\\/]#',DIRECTORY_SEPARATOR,$tmpssl[0]),DIRECTORY_SEPARATOR);
@@ -457,17 +457,17 @@ abstract class FOGBase {
         };
         if (!is_array($stringlist) && strpos($stringlist,'|')) $MACs = array_values(array_filter(array_unique(array_map($lowerAndTrim,(array)explode('|',$stringlist)))));
         if ($client) {
-            $ClientIgnoredMACs = array_map($lowerAndTrim,(array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'clientIgnore'=>1),'mac'));
+            $ClientIgnoredMACs = array_map($lowerAndTrim,(array)self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'clientIgnore'=>1),'mac'));
             $MACs = array_diff((array)$MACs,(array)$ClientIgnoredMACs);
             unset($ClientIgnoredMACs);
         }
         if ($image) {
-            $ImageIgnoredMACs = array_map($lowerAndTrim,(array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'imageIgnore'=>1),'mac'));
+            $ImageIgnoredMACs = array_map($lowerAndTrim,(array)self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'imageIgnore'=>1),'mac'));
             $MACs = array_diff((array)$MACs,(array)$ImageIgnoredMACs);
             unset($ImageIgnoredMACs);
         }
         $MACs = array_values(array_unique(array_filter((array)$MACs)));
-        $Ignore = (array)array_filter(array_map($lowerAndTrim,(array)explode(',',$this->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
+        $Ignore = (array)array_filter(array_map($lowerAndTrim,(array)explode(',',self::getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
         if (count($Ignore)) $MACs = array_values(array_unique(array_filter(array_diff((array)$MACs,preg_grep(sprintf('#%s#i',implode('|',(array)$Ignore)),$MACs)))));
         $MACs = preg_grep('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$|^([a-fA-F0-9]{2}\-){5}[a-fA-F0-9]{2}$|^[a-fA-F0-9]{12}$|^([a-fA-F0-9]{4}\.){2}[a-fA-F0-9]{4}$/',(array)$MACs);
         if (!count($MACs)) return false;
@@ -526,14 +526,14 @@ abstract class FOGBase {
             }
         }
     }
-    public function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id',$not = false,$operator = 'AND',$orderBy = 'name',$groupBy = false,$filter = 'array_unique') {
+    public static function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id',$not = false,$operator = 'AND',$orderBy = 'name',$groupBy = false,$filter = 'array_unique') {
         if (empty($object)) $object = 'Host';
         if (empty($getField)) $getField = 'id';
         if (empty($operator)) $operator = 'AND';
         return self::getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','',$groupBy,$not,$getField,'',$filter);
     }
     public function getSetting($key) {
-        $value = $this->getSubObjectIDs('Service',array('name'=>$key),'value');
+        $value = self::getSubObjectIDs('Service',array('name'=>$key),'value');
         return trim(html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",array_shift($value)),'UTF-8'),ENT_QUOTES,'UTF-8'));
     }
     public function setSetting($key, $value) {

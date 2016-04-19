@@ -19,8 +19,8 @@ class DashboardPage extends FOGPage {
         $SystemUptime = self::$FOGCore->SystemUptime();
         $fields = array(
             _('Username') => $_SESSION['FOG_USERNAME'],
-            _('Web Server') => $this->getSetting('FOG_WEB_HOST'),
-            _('TFTP Server') => $this->getSetting('FOG_TFTP_HOST'),
+            _('Web Server') => self::getSetting('FOG_WEB_HOST'),
+            _('TFTP Server') => self::getSetting('FOG_TFTP_HOST'),
             _('Load Average') => $SystemUptime['load'],
             _('System Uptime') => $SystemUptime['uptime'],
         );
@@ -75,8 +75,8 @@ class DashboardPage extends FOGPage {
         });
         printf('<div class="fog-variable" id="Graph30dayData">[%s]</div>',ob_get_clean());
         if ($StorageEnabledCount > 0) {
-            $bandwidthtime = (int) $this->getSetting('FOG_BANDWIDTH_TIME') * 1000;
-            $datapointshour = (int)(3600 / $this->getSetting('FOG_BANDWIDTH_TIME'));
+            $bandwidthtime = (int) self::getSetting('FOG_BANDWIDTH_TIME') * 1000;
+            $datapointshour = (int)(3600 / self::getSetting('FOG_BANDWIDTH_TIME'));
             $datapointshalf = (int)($datapointshour / 2);
             $datapointsten = (int)($datapointshour / 6);
             $datapointstwo = (int)($datapointshour / 30);
@@ -88,7 +88,7 @@ class DashboardPage extends FOGPage {
         $data = array();
         array_map(function(&$StorageNode) use (&$data) {
             if (!$StorageNode->isValid()) return;
-            $URL = filter_var(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface')),FILTER_SANITIZE_URL);
+            $URL = filter_var(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim(self::getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface')),FILTER_SANITIZE_URL);
             $dataSet = self::$FOGURLRequests->process($URL,'GET');
             unset($URL);
             $data[$StorageNode->get('name')] = json_decode(array_shift($dataSet));

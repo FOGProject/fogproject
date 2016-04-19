@@ -49,7 +49,7 @@ class SnapinManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Snap-ins');
-        if ($this->getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('SnapinManager')->count() > $this->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if (self::getSetting('FOG_DATA_RETURNED') > 0 && self::getClass('SnapinManager')->count() > self::getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
         array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
         self::$HookManager->processEvent('SNAPIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));

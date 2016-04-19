@@ -182,10 +182,10 @@ class ReportManagementPage extends FOGPage {
             $hostMac = $Host->get('mac');
             $hostDesc = $Host->get('description');
             unset($Host);
-            $Task = self::getClass('Task',@max($this->getSubObjectIDs('Task',array('checkInTime'=>$ImagingLog->get('start'),'hostID'=>$ImagingLog->get('hostID')))));
+            $Task = self::getClass('Task',@max(self::getSubObjectIDs('Task',array('checkInTime'=>$ImagingLog->get('start'),'hostID'=>$ImagingLog->get('hostID')))));
             $createdBy = ($ImagingLog->get('createdBy') ? $ImagingLog->get('createdBy') : $_SESSION['FOG_USERNAME']);
             unset($Task);
-            $Image = self::getClass('Image',@max($this->getSubObjectIDs('Image',array('name'=>$ImagingLog->get('image')))));
+            $Image = self::getClass('Image',@max(self::getSubObjectIDs('Image',array('name'=>$ImagingLog->get('image')))));
             if ($Image->isValid()) {
                 $imgName = $Image->get('name');
                 $imgPath = $Image->get('path');
@@ -617,8 +617,8 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
         );
-        $UserNames = $this->getSubObjectIDs('UserTracking','','username');
-        $HostNames = $this->getSubObjectIDs('Host','','name');
+        $UserNames = self::getSubObjectIDs('UserTracking','','username');
+        $HostNames = self::getSubObjectIDs('Host','','name');
         natcasesort($UserNames);
         $UserNames = array_values(array_filter(array_unique((array)$UserNames)));
         natcasesort($HostNames);
@@ -683,7 +683,7 @@ class ReportManagementPage extends FOGPage {
                 unset($Host);
             }
         } else if (!trim($_REQUEST['hostsearch']) && trim($_REQUEST['usersearch'])) {
-            $ids = $this->getSubObjectIDs('UserTracking',array('username'=>$usersearch),array('id','hostID'),false,'AND','name',false,'');
+            $ids = self::getSubObjectIDs('UserTracking',array('username'=>$usersearch),array('id','hostID'),false,'AND','name',false,'');
             $lastUser = '';
             foreach ((array)self::getClass('HostManager')->find(array('id'=>$ids['hostID'])) AS $i => &$Host) {
                 if (!$Host->isValid()) $ids['hostID'] = array_diff((array)$Host->get('id'),(array)$ids['hostID']);
@@ -707,7 +707,7 @@ class ReportManagementPage extends FOGPage {
             }
             unset($lastUser);
         } else if (trim($_REQUEST['hostsearch']) && trim($_REQUEST['usersearch'])) {
-            $HostIDs = $this->getSubObjectIDs('Host',array('name'=>$hostsearch));
+            $HostIDs = self::getSubObjectIDs('Host',array('name'=>$hostsearch));
             foreach ((array)self::getClass('UserTrackingManager')->find(array('username'=>$usersearch,'hostID'=>$HostIDs)) AS $i => &$User) {
                 if (!$User->isValid()) continue;
                 $Host = self::getClass('Host',$User->get('hostID'));
@@ -735,9 +735,9 @@ class ReportManagementPage extends FOGPage {
         );
         $_REQUEST['userID'] = trim(base64_decode($_REQUEST['userID']));
         $_REQUEST['hostID'] = trim($_REQUEST['hostID']);
-        if ($_REQUEST['userID'] && !$_REQUEST['hostID']) $UserSearchDates = $this->getSubObjectIDs('UserTracking',array('username'=>$_REQUEST['userID']),'datetime');
-        else if (!$_REQUEST['userID'] && $_REQUEST['hostID']) $UserSearchDates = $this->getSubObjectIDs('UserTracking',array('hostID'=>$_REQUEST['hostID']),'datetime');
-        else if ($_REQUEST['userID'] && $_REQUEST['hostID']) $UserSearchDates = $this->getSubObjectIDs('UserTracking',array('username'=>$_REQUEST['userID'],'hostID'=>$_REQUEST['hostID']),'datetime');
+        if ($_REQUEST['userID'] && !$_REQUEST['hostID']) $UserSearchDates = self::getSubObjectIDs('UserTracking',array('username'=>$_REQUEST['userID']),'datetime');
+        else if (!$_REQUEST['userID'] && $_REQUEST['hostID']) $UserSearchDates = self::getSubObjectIDs('UserTracking',array('hostID'=>$_REQUEST['hostID']),'datetime');
+        else if ($_REQUEST['userID'] && $_REQUEST['hostID']) $UserSearchDates = self::getSubObjectIDs('UserTracking',array('username'=>$_REQUEST['userID'],'hostID'=>$_REQUEST['hostID']),'datetime');
         foreach ((array)$UserSearchDates AS $i => &$DateTime) {
             if (!$this->validDate($DateTime)) continue;
             $Dates[] = $this->formatTime($DateTime,'Y-m-d');

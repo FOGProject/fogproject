@@ -117,15 +117,15 @@ class FOGConfigurationPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $noMenu = $this->getSetting('FOG_NO_MENU') ? ' checked' : '';
-        $hidChecked = ($this->getSetting('FOG_PXE_MENU_HIDDEN') ? ' checked' : '');
-        $hideTimeout = $this->getSetting('FOG_PXE_HIDDENMENU_TIMEOUT');
-        $timeout = $this->getSetting('FOG_PXE_MENU_TIMEOUT');
-        $bootKeys = self::getClass('KeySequenceManager')->buildSelectBox($this->getSetting('FOG_KEY_SEQUENCE'));
-        $advLogin = ($this->getSetting('FOG_ADVANCED_MENU_LOGIN') ? ' checked' : '');
-        $advanced = $this->getSetting('FOG_PXE_ADVANCED');
-        $exitNorm = Service::buildExitSelector('bootTypeExit',$this->getSetting('FOG_BOOT_EXIT_TYPE'));
-        $exitEfi = Service::buildExitSelector('efiBootTypeExit',$this->getSetting('FOG_EFI_BOOT_EXIT_TYPE'));
+        $noMenu = self::getSetting('FOG_NO_MENU') ? ' checked' : '';
+        $hidChecked = (self::getSetting('FOG_PXE_MENU_HIDDEN') ? ' checked' : '');
+        $hideTimeout = self::getSetting('FOG_PXE_HIDDENMENU_TIMEOUT');
+        $timeout = self::getSetting('FOG_PXE_MENU_TIMEOUT');
+        $bootKeys = self::getClass('KeySequenceManager')->buildSelectBox(self::getSetting('FOG_KEY_SEQUENCE'));
+        $advLogin = (self::getSetting('FOG_ADVANCED_MENU_LOGIN') ? ' checked' : '');
+        $advanced = self::getSetting('FOG_PXE_ADVANCED');
+        $exitNorm = Service::buildExitSelector('bootTypeExit',self::getSetting('FOG_BOOT_EXIT_TYPE'));
+        $exitEfi = Service::buildExitSelector('efiBootTypeExit',self::getSetting('FOG_EFI_BOOT_EXIT_TYPE'));
         $fields = array(
             _('No Menu') => sprintf('<input type="checkbox" name="nomenu" value="1"%s/><i class="icon fa fa-question hand" title="%s"></i>',$noMenu,_('Option sets if there will even be the presence of a menu to the client systems. If there is not a task set, it boots to the first device, if there is a task, it performs that task.')),
             _('Hide Menu') => sprintf('<input type="checkbox" name="hidemenu" value="1"%s/><i class="icon fa fa-question hand" title="%s"></i>',$hidChecked,_('Option below sets the key sequence. If none is specified, ESC is defaulted. Login with the FOG Credentials and you will see the menu. Otherwise it will just boot like normal.')),
@@ -219,14 +219,14 @@ class FOGConfigurationPage extends FOGPage {
         if (isset($_REQUEST['saveform']) && $_REQUEST['menu_id']) {
             self::getClass('PXEMenuOptionsManager')->update(array('id'=>$_REQUEST['menu_id']),'',array('name'=>$_REQUEST['menu_item'],'description'=>$_REQUEST['menu_description'],'params'=>$_REQUEST['menu_params'],'regMenu'=>$_REQUEST['menu_regmenu'],'args'=>$_REQUEST['menu_options'],'default'=>$_REQUEST['menu_default']));
             if ($_REQUEST['menu_default']) {
-                $MenuIDs = $this->getSubObjectIDs('PXEMenuOptions');
+                $MenuIDs = self::getSubObjectIDs('PXEMenuOptions');
                 natsort($MenuIDs);
                 $MenuIDs = array_unique(array_diff($MenuIDs,(array)$_REQUEST['menu_id']));
                 natsort($MenuIDs);
                 self::getClass('PXEMenuOptionsManager')->update(array('id'=>$MenuIDs),'',array('default'=>'0'));
             }
             unset($MenuIDs);
-            $DefMenuIDs = $this->getSubObjectIDs('PXEMenuOptions',array('default'=>1));
+            $DefMenuIDs = self::getSubObjectIDs('PXEMenuOptions',array('default'=>1));
             if (!count($DefMenuIDs)) self::getClass('PXEMenuOptions',1)->set('default',1)->save();
             unset($DefMenuIDs);
             $this->setMessage(sprintf('%s %s!',$_REQUEST['menu_item'],_('successfully updated')));
@@ -510,23 +510,23 @@ class FOGConfigurationPage extends FOGPage {
                 case 'FOG_DEFAULT_LOCALE':
                     ob_start();
                     foreach ((array)self::$foglang['Language'] AS $lang => &$humanreadable) {
-                        printf('<option value="%s"%s>%s</option>',$lang,($this->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->getSetting('FOG_DEFAULT_LOCALE') == self::$foglang['Language'][$lang] ? ' selected' : ''),$humanreadable);
+                        printf('<option value="%s"%s>%s</option>',$lang,(self::getSetting('FOG_DEFAULT_LOCALE') == $lang || self::getSetting('FOG_DEFAULT_LOCALE') == self::$foglang['Language'][$lang] ? ' selected' : ''),$humanreadable);
                         unset($humanreadable);
                     }
                     $type = sprintf('<select name="${service_id}" autocomplete="off" style="width: 220px">%s</select>',ob_get_clean());
                     break;
                 case 'FOG_QUICKREG_IMG_ID':
-                    $type = self::getClass('ImageManager')->buildSelectBox($this->getSetting('FOG_QUICKREG_IMG_ID'),sprintf('%s" id="${service_name}"',$Service->get('id')));
+                    $type = self::getClass('ImageManager')->buildSelectBox(self::getSetting('FOG_QUICKREG_IMG_ID'),sprintf('%s" id="${service_name}"',$Service->get('id')));
                     break;
                 case 'FOG_QUICKREG_GROUP_ASSOC':
-                    $type = self::getClass('GroupManager')->buildSelectBox($this->getSetting('FOG_QUICKREG_GROUP_ASSOC'),$Service->get('id'));
+                    $type = self::getClass('GroupManager')->buildSelectBox(self::getSetting('FOG_QUICKREG_GROUP_ASSOC'),$Service->get('id'));
                     break;
                 case 'FOG_KEY_SEQUENCE':
-                    $type = self::getClass('KeySequenceManager')->buildSelectBox($this->getSetting('FOG_KEY_SEQUENCE'),$Service->get('id'));
+                    $type = self::getClass('KeySequenceManager')->buildSelectBox(self::getSetting('FOG_KEY_SEQUENCE'),$Service->get('id'));
                     break;
                 case 'FOG_QUICKREG_OS_ID':
                     $ImageName = _('No image specified');
-                    if ($this->getSetting('FOG_QUICKREG_IMG_ID') > 0) $ImageName = self::getClass('Image',$this->getSetting('FOG_QUICKREG_IMG_ID'))->get('name');
+                    if (self::getSetting('FOG_QUICKREG_IMG_ID') > 0) $ImageName = self::getClass('Image',self::getSetting('FOG_QUICKREG_IMG_ID'))->get('name');
                     $type = sprintf('<p id="${service_name}">%s</p>',$ImageName);
                     break;
                 case 'FOG_TZ_INFO':
@@ -625,9 +625,9 @@ class FOGConfigurationPage extends FOGPage {
             'MULTICASESLEEPTIME' => true,
             // FOG Quick Registration
             'FOG_QUICKREG_AUTOPOP' => $checkbox,
-            'FOG_QUICKREG_IMG_ID' => array_merge((array)0,$this->getSubObjectIDs('Image')),
+            'FOG_QUICKREG_IMG_ID' => array_merge((array)0,self::getSubObjectIDs('Image')),
             'FOG_QUICKREG_SYS_NUMBER' => true,
-            'FOG_QUICKREG_GROUP_ASSOC' => array_merge((array)0,$this->getSubObjectIDs('Group')),
+            'FOG_QUICKREG_GROUP_ASSOC' => array_merge((array)0,self::getSubObjectIDs('Group')),
             // FOG Service
             'FOG_SERVICE_CHECKIN_TIME' => true,
             'FOG_CLIENT_MAXSIZE' => true,

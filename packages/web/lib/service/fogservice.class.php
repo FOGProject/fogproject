@@ -23,7 +23,7 @@ abstract class FOGService extends FOGBase {
     }
     public function __construct() {
         parent::__construct();
-        static::$logpath = sprintf('/%s/',trim($this->getSetting('SERVICE_LOG_PATH'),'/'));
+        static::$logpath = sprintf('/%s/',trim(self::getSetting('SERVICE_LOG_PATH'),'/'));
     }
     protected function checkIfNodeMaster() {
         $this->getIPAddress();
@@ -75,7 +75,7 @@ abstract class FOGService extends FOGBase {
     }
     public function outall($string) {
         static::out("$string\n",static::$dev);
-        $this->wlog("$string\n",static::$log);
+        static::wlog("$string\n",static::$log);
         return;
     }
     protected static function out($string,$device) {
@@ -86,10 +86,10 @@ abstract class FOGService extends FOGBase {
     protected function getDateTime() {
         return self::nice_date()->format('m-d-y g:i:s a');
     }
-    protected function wlog($string, $path) {
-        if (file_exists($path) && filesize($path) >= $this->getSetting('SERVICE_LOG_SIZE')) unlink($path);
+    protected static function wlog($string, $path) {
+        if (file_exists($path) && filesize($path) >= self::getSetting('SERVICE_LOG_SIZE')) unlink($path);
         if (!$fh = fopen($path,'ab')) static::out("\n * Error: Unable to open file: $path\n",static::$dev);
-        if (fwrite($fh,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) static::out("\n * Error: Unable to write to file: $path\n",static::$dev);
+        if (fwrite($fh,sprintf('[%s] %s',self::getDateTime(),$string)) === FALSE) static::out("\n * Error: Unable to write to file: $path\n",static::$dev);
         fclose($fh);
     }
     public function serviceStart() {
@@ -99,7 +99,7 @@ abstract class FOGService extends FOGBase {
         return;
     }
     public function serviceRun() {
-        $tmpTime = (int)$this->getSetting(static::$sleeptime);
+        $tmpTime = (int)self::getSetting(static::$sleeptime);
         if (static::$zzz != $tmpTime) {
             static::$zzz = $tmpTime;
             static::outall(sprintf(" | Sleep time has changed to %s seconds",static::$zzz));
@@ -136,7 +136,7 @@ abstract class FOGService extends FOGBase {
             static::outall(sprintf(" | $objType name: %s",$Obj->get('name')));
             $getPathOfItemField = $objType == 'Snapin' ? 'snapinpath' : 'ftppath';
             $getFileOfItemField = $objType == 'Snapin' ? 'file' : 'path';
-            $PotentialStorageNodes = array_diff((array)$this->getSubObjectIDs('StorageNode',$findWhere,'id'),(array)$myStorageNodeID);
+            $PotentialStorageNodes = array_diff((array)self::getSubObjectIDs('StorageNode',$findWhere,'id'),(array)$myStorageNodeID);
             $myDir = sprintf('/%s/',trim($StorageNode->get($getPathOfItemField),'/'));
             $myFile = basename($Obj->get($getFileOfItemField));
             $myAdd = "$myDir$myFile";
@@ -212,7 +212,7 @@ abstract class FOGService extends FOGBase {
                 if (!$i) static::outall(_(' * Starting Sync Actions'));
                 $this->killTasking($i,$itemType,$Obj->get('name'));
                 $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
-                if ($this->getSetting('FOG_SERVICE_DEBUG')) static::outall(" | CMD:\n\t\t\t$cmd");
+                if (self::getSetting('FOG_SERVICE_DEBUG')) static::outall(" | CMD:\n\t\t\t$cmd");
                 $this->startTasking($cmd,$logname,$i,$itemType,$Obj->get('name'));
                 static::outall(sprintf(' * %s %s %s',_('Started sync for'),$objType,$Obj->get('name')));
                 unset($PotentialStorageNode);

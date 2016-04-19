@@ -129,21 +129,21 @@ class GroupManagementPage extends FOGPage {
     }
     public function edit() {
         $HostCount = $this->obj->getHostCount();
-        $imageID = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'imageID','','','','','array_count_values');
+        $imageID = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'imageID','','','','','array_count_values');
         $imageHosts = array_values($imageID);
         $imageMatchID = false;
         if (count($imageHosts) === 1 && array_shift($imageHosts) === $HostCount) {
             $imageMatchID = array_keys($imageID);
             $imageMatchID = array_shift($imageMatchID);
         }
-        $groupKey = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'productKey','','','','','array_count_values');
-        $aduse = count($this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'useAD','','','','','array_filter'));
-        $enforcetest = count($this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'enforce','','','','','array_filter'));
-        $adDomain = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADDomain','','','','','array_count_values');
-        $adOU = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADOU','','','','','array_count_values');
-        $adUser = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADUser','','','','','array_count_values');
-        $adPass = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPass','','','','','array_count_values');
-        $adPassLegacy = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPassLegacy','','','','','array_count_values');
+        $groupKey = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'productKey','','','','','array_count_values');
+        $aduse = count(self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'useAD','','','','','array_filter'));
+        $enforcetest = count(self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'enforce','','','','','array_filter'));
+        $adDomain = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADDomain','','','','','array_count_values');
+        $adOU = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADOU','','','','','array_count_values');
+        $adUser = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADUser','','','','','array_count_values');
+        $adPass = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPass','','','','','array_count_values');
+        $adPassLegacy = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPassLegacy','','','','','array_count_values');
         $Host = self::getClass('Host',current($this->obj->get('hosts')));
         $useAD = (bool)($aduse == $HostCount);
         $enforce = (int)($enforcetest == $HostCount);
@@ -164,8 +164,8 @@ class GroupManagementPage extends FOGPage {
         //$productKey = ((count($groupKey) == 1 && $groupKey[0] == $HostCount) || count($groupKey) == $HostCount ? $Host->get('productKey') : '');
         $groupKeyMatch = $this->encryptpw($productKey);
         unset($productKey, $groupKey);
-        $biosExit = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'biosexit','','','','','array_count_values');
-        $efiExit = $this->getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'efiexit','','','','','array_count_values');
+        $biosExit = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'biosexit','','','','','array_count_values');
+        $efiExit = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'efiexit','','','','','array_count_values');
         $exitNorm = Service::buildExitSelector('bootTypeExit',(count($biosExit) == 1 && $biosExit[0] == $HostCount ? $Host->get('biosexit') : $_REQUEST['bootTypeExit']),true);
         $exitEfi = Service::buildExitSelector('efiBootTypeExit',(count($efiExit) == 1 && $efiExit[0] == $HostCount ? $Host->get('efiexit') : $_REQUEST['efiBootTypeExit']),true);
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
@@ -287,7 +287,7 @@ class GroupManagementPage extends FOGPage {
         );
         printf('<div id="group-service"><h2>%s</h2><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',_('Service Configuration'),$this->formAction,_('General'));
         $moduleName = $this->getGlobalModuleStatus();
-        $ModuleOn = array_values($this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID',false,'AND','id',false,''));
+        $ModuleOn = array_values(self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID',false,'AND','id',false,''));
         array_map(function(&$Module) use ($moduleName,$ModuleOn,$HostCount) {
             if (!$Module->isValid()) return;
             $this->data[] = array(
@@ -359,7 +359,7 @@ class GroupManagementPage extends FOGPage {
             '${input}',
             '${desc}',
         );
-        $Service = self::getClass('Service',@max($this->getSubObjectIDs('Service',array('name'=>'FOG_SERVICE_AUTOLOGOFF_MIN'))));
+        $Service = self::getClass('Service',@max(self::getSubObjectIDs('Service',array('name'=>'FOG_SERVICE_AUTOLOGOFF_MIN'))));
         $this->data[] = array(
             'field'=>_('Auto Log Out Time (in minutes)'),
             'input'=>sprintf('<input type="text" name="tme" value="%s"/>',$Service->get('value')),
@@ -480,12 +480,12 @@ class GroupManagementPage extends FOGPage {
                 $this->obj->updateDefault(isset($_REQUEST['default']) ? $_REQUEST['default'] : 0);
                 break;
                 case 'group-service';
-                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
-                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
-                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
-                $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $this->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
+                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
+                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
+                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
+                $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : self::getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
                 $modOn = (array)$_REQUEST['modules'];
-                $modOff = $this->getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
+                $modOff = self::getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
                 $this->obj->addModule($modOn)->removeModule($modOff);
                 array_map(function(&$Host) {
                     if (!$Host->isValid()) return;

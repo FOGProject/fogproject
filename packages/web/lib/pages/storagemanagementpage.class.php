@@ -196,7 +196,7 @@ class StorageManagementPage extends FOGPage {
                 ->set('pass',$_REQUEST['pass'])
                 ->set('bandwidth',$_REQUEST['bandwidth']);
             if (!$StorageNode->save()) throw new Exception(self::$foglang['DBupfailed']);
-            if ($StorageNode->get('isMaster')) self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$StorageNode->get('id'),$this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$StorageNode->get('storageGroupID'))))),'',array('isMaster'=>0));
+            if ($StorageNode->get('isMaster')) self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$StorageNode->get('id'),self::getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$StorageNode->get('storageGroupID'))))),'',array('isMaster'=>0));
             self::$HookManager->processEvent('STORAGE_NODE_ADD_SUCCESS',array('StorageNode'=>&$StorageNode));
             $this->setMessage(self::$foglang['SNCreated']);
             $this->redirect(sprintf('?node=%s&id=%s',$_REQUEST['node'],$this->id, $StorageNode->get('id')));
@@ -303,7 +303,7 @@ class StorageManagementPage extends FOGPage {
                 ->set('bandwidth',$_REQUEST['bandwidth']);
             // Save
             if (!$this->obj->save()) throw new Exception(self::$foglang['DBupfailed']);
-            if ($this->obj->get('isMaster')) self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$this->obj->get('id'),$this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$this->obj->get('storageGroupID'))))),'',array('isMaster'=>0));
+            if ($this->obj->get('isMaster')) self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$this->obj->get('id'),self::getSubObjectIDs('StorageNode',array('isMaster'=>1,'storageGroupID'=>$this->obj->get('storageGroupID'))))),'',array('isMaster'=>0));
             self::$HookManager->processEvent('STORAGE_NODE_EDIT_SUCCESS',array('StorageNode'=>&$this->obj));
             $this->setMessage(self::$foglang['SNUpdated']);
             $this->redirect($this->formAction);
