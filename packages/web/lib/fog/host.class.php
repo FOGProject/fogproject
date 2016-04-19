@@ -552,8 +552,8 @@ class Host extends FOGController {
                     $MultiSessJoin = array_values(array_filter(array_map($multicastTaskReturn,(array)self::getClass('MulticastSessionsManager')->find(array('image'=>$this->getImage()->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))))));
                 }
                 if (count($MultiSessJoin)) $MulticastSession = array_shift($MultiSessJoin);
-                if ($MulticastSession->isValid()) $assoc = true;
-                if (!$MulticastSession->isValid()) {
+                if ($MulticastSession instanceof MulticastSessions && $MulticastSession->isValid()) $assoc = true;
+                if (!($MulticastSession instanceof MulticastSessions && $MulticastSession->isValid())) {
                     $port = self::getSetting('FOG_UDPCAST_STARTINGPORT');
                     $portOverride = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
                     $MulticastSession = self::getClass('MulticastSessions')
