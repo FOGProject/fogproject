@@ -52,7 +52,7 @@ class Plugin extends FOGController {
         $patternReplacer = function($element) {
             return preg_replace('#config/plugin\.config\.php$#i','',$element[0]);
         };
-        $files = array_map($patternReplacer,(array)iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',$dir,FileSystemIterator::SKIP_DOTS)),'#^.+/config/plugin\.config\.php$#i',RecursiveRegexIterator::GET_MATCH),false));
+        $files = array_map($patternReplacer,(array)iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',$dir,FileSystemIterator::SKIP_DOTS)),'#^.+/config/plugin\.config\.php$#i',RegexIterator::GET_MATCH),false));
         natcasesort($files);
         return (array)array_values(array_unique(array_filter($files)));
     }
