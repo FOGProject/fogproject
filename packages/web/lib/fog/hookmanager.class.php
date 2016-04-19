@@ -22,7 +22,7 @@ class HookManager extends EventManager {
             $this->events[] = sprintf('%s_%s',$eventStart,$divTab);
             unset($item);
         };
-        array_map($fileRead,(array)iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),'/^.+\.php$/i',RecursiveRegexIterator::GET_MATCH)));
+        array_map($fileRead,(array)iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),'/^.+\.php$/i',RegexIterator::GET_MATCH)));
         array_map($specTabs,(array)self::getClass('ServiceManager')->getSettingCats());
         $eventStart = 'BOOT_ITEMS';
         array_map($specTabs,(array)self::getSubObjectIDs('PXEMenuOptions','','name'));

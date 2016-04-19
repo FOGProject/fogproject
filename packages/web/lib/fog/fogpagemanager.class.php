@@ -95,7 +95,7 @@ class FOGPageManager Extends FOGBase {
             preg_match("#^($plugins.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
             return $match[0];
         };
-        $files = iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RecursiveRegexIterator::GET_MATCH),false);
+        $files = iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RegexIterator::GET_MATCH),false);
         $plugins = '?!';
         $normalfiles = array_values(array_filter(array_map($fileitems,(array)$files)));
         $plugins = '?=';
