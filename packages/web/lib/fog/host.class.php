@@ -539,16 +539,21 @@ class Host extends FOGController {
                 if ($deploySnapins) $this->createSnapinTasking($deploySnapins);
             }
             if ($TaskType->isMulticast()) {
+                $multicastTaskReturn = function(&$MulticastSessions) {
+                        if (!$MulticastSessions->isValid()) return;
+                        return $MulticastSessions;
+                };
                 $assoc = false;
-                $MultiSessName = current((array)self::getClass('MulticastSessionsManager')->find(array('name'=>$taskName,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))));
-                $MultiSessAssoc = current((array)self::getClass('MulticastSessionsManager')->find(array('image'=>$this->getImage()->get('id'),'stateID'=>0)));
-                if ($sessionjoin && $MultiSessName && $MultiSessName->isValid()) {
-                    $MulticastSession = $MultiSessName;
-                    $assoc = true;
-                } else if ($MultiSessAssoc && $MultiSessAssoc->isValid()) {
-                    $MulticastSession = $MultiSessAssoc;
+                if ($sessionjoin) {
+                    $MultiSessJoin = array_values(array_filter(array_map($multicastTaskReturn,(array)self::getClass('MulticastSessionsManager')->find(array('name'=>$taskName,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))))));
+                    $MulticastSession = array_shift($MultiSessJoin);
                     $assoc = true;
                 } else {
+                    $MultiSessJoin = array_values(array_filter(array_map($multicastTaskReturn,(array)self::getClass('MulticastSessionsManager')->find(array('image'=>$this->getImage()->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))))));
+                }
+                if (count($MultiSessJoin)) $MulticastSession = array_shift($MultiSessJoin);
+                if ($MulticastSession->isValid()) $assoc = true;
+                if (!$MulticastSession->isValid()) {
                     $port = self::getSetting('FOG_UDPCAST_STARTINGPORT');
                     $portOverride = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
                     $MulticastSession = self::getClass('MulticastSessions')
@@ -563,13 +568,13 @@ class Host extends FOGController {
                         ->set('isDD',$this->getImage()->get('imageTypeID'))
                         ->set('NFSGroupID',$StorageNode->get('storageGroupID'));
                     if ($MulticastSession->save()) {
+                        $assoc = true;
                         if (!self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
                             $randomnumber = mt_rand(24576,32766)*2;
                             while ($randomnumber == $MulticastSession->get('port')) $randomnumber = mt_rand(24576,32766)*2;
                             $this->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
                         }
                     }
-                    $assoc = true;
                 }
                 if ($assoc) {
                     self::getClass('MulticastSessionsAssociation')

@@ -7,7 +7,7 @@ class AddBroadcastAddresses extends Hook {
     public $node = 'wolbroadcast';
     public function AddBCaddr($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $arguments['broadcast'] = array_merge((array)$arguments['broadcast'],(array)self::getSubObjectIDs'Wolbroadcast','','broadcast'));
+        $arguments['broadcast'] = array_merge((array)$arguments['broadcast'],(array)self::getSubObjectIDs('Wolbroadcast','','broadcast'));
     }
 }
 $AddBroadcastAddresses = new AddBroadcastAddresses();

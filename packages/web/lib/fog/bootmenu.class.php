@@ -489,9 +489,10 @@ class BootMenu extends FOGBase {
     public function multijoin($msid) {
         $MultiSess = self::getClass('MulticastSessions',$msid);
         if (!$MultiSess->isValid()) return;
+        if ($MultiSess->getImage()->get('id') != $this->Host->getImage()->get('id')) $this->Host->set('imageID',$MultiSess->getImage()->get('id'));
         $shutdown = stripos('shutdown=1',$_SESSION['extraargs']);
         $isdebug = preg_match('#isdebug=yes|mode=debug|mode=onlydebug#i',$_SESSION['extraargs']);
-        $this->Host->isValid() ? $this->Host->createImagePackage(8,$MultiSess->get('name'),$shutdown,$isdebug,-1,false,htmlentities($_REQUEST['username'],ENT_QUOTES,'utf-8')) : $this->falseTasking($MultiSess);
+        $this->Host->isValid() ? $this->Host->createImagePackage(8,$MultiSess->get('name'),$shutdown,$isdebug,-1,false,htmlentities($_REQUEST['username'],ENT_QUOTES,'utf-8'),'',true,true) : $this->falseTasking($MultiSess);
         $this->Host->isValid() ? $this->chainBoot(false,true) : '';
     }
     public function keyset() {
@@ -554,24 +555,25 @@ class BootMenu extends FOGBase {
     public function setTasking($imgID = '') {
         $shutdown = stripos('shutdown=1',$_SESSION['extraargs']);
         $isdebug = preg_match('#isdebug=yes|mode=debug|mode=onlydebug#i',$_SESSION['extraargs']);
-        if (!$imgID) $this->printImageList();
-        if ($imgID) {
-            if ($this->Host->isValid()) {
-                if ($this->Host->getImage()->get('id') != $imgID) $this->Host->set('imageID',$imgID);
-                if ($this->Host->getImage()->isValid()) {
-                    try {
-                        $this->Host->createImagePackage(1,'AutoRegTask',$shutdown,$isdebug,-1,false,$_REQUEST['username']);
-                        $this->chainBoot(false, true);
-                    } catch (Exception $e) {
-                        $Send['fail'] = array(
-                            sprintf('echo %s',$e->getMessage()),
-                            'sleep 3',
-                        );
-                        $this->parseMe($Send);
-                    }
-                }
-            } else $this->falseTasking('',self::getClass('Image',$imgID));
-            $this->chainBoot(false,true);
+        if (!$imgID) {
+            $this->printImageList();
+            return;
+        }
+        if (!$this->Host->isValid()) {
+            $this->falseTasking('',self::getClass('Image',$imgID));
+            return;
+        }
+        if ($this->Host->getImage()->get('id') != $imgID) $this->Host->set('imageID',$imgID);
+        if (!$this->Host->getImage()->isValid()) return;
+        try {
+            $this->Host->createImagePackage(1,'AutoRegTask',$shutdown,$isdebug,-1,false,$_REQUEST['username']);
+            $this->chainBoot(false, true);
+        } catch (Exception $e) {
+            $Send['fail'] = array(
+                sprintf('echo %s',$e->getMessage()),
+                'sleep 3',
+            );
+            $this->parseMe($Send);
         }
     }
     public function noMenu() {

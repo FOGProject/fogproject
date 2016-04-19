@@ -55,14 +55,14 @@ abstract class TaskingElement extends FOGBase {
             ->save();
     }
     protected function ImageLog($checkin = false) {
-        if ($checkin === true) return self::getClass('ImagingLog',@max(self::getSubObjectIDs'ImagingLog',array('hostID'=>$this->Host->get('id'),'type'=>$_REQUEST['type'],'complete'=>'0000-00-00 00:00:00'))))
+        if ($checkin === true) return self::getClass('ImagingLog',@max(self::getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id'),'type'=>$_REQUEST['type'],'complete'=>'0000-00-00 00:00:00'))))
             ->set('hostID',$this->Host->get('id'))
             ->set('start',$this->formatTime('','Y-m-d H:i:s'))
             ->set('image',$this->Image->get('name'))
             ->set('type',$_REQUEST['type'])
             ->set('createdBy',$this->Task->get('createdBy'))
             ->save();
-        return self::getClass('ImagingLog',@max(self::getSubObjectIDs'ImagingLog',array('hostID'=>$this->Host->get('id')))))
+        return self::getClass('ImagingLog',@max(self::getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id')))))
             ->set('finish',$this->formatTime('','Y-m-d H:i:s'))
             ->save();
     }

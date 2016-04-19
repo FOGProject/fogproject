@@ -27,7 +27,7 @@ try {
     $Task->set('stateID',$FOGCore->getCompleteState())->set('pct','100')->set('percent','100');
     if (!$Task->save()) throw new Exception(_('Failed to update Task'));
     $EventManager->notify('HOST_IMAGEUP_COMPLETE', array(HostName=>$Host->get('name')));
-    $id = @max(FOGCore::getSubObjectIDs'ImagingLog',array('hostID'=>$Host->get('id'))));
+    $id = @max(FOGCore::getSubObjectIDs('ImagingLog',array('hostID'=>$Host->get('id'))));
     $Image->set('deployed',$FOGCore->formatTime('now','Y-m-d H:i:s'))->save();
     FOGCore::getClass('ImagingLog',$id)
         ->set('taskID',$Task->get('id'))
