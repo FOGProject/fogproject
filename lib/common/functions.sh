@@ -861,12 +861,13 @@ configureMySql() {
     dots "Setting up and starting MySQL"
     if [[ $systemctl == yes ]]; then
         if [[ $osid -eq 3 ]]; then
-            if [[ ! -d /var/lib/mysql ]]; then
-                mkdir /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            fi
+            [[ ! -d /var/lib/mysql ]] && mkdir /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             chown -R mysql:mysql /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             mysql_install_db --user=mysql --ldata=/var/lib/mysql/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
+        for mysqlconf in `grep -E '[^#]bind-address.*=.*127.0.0.1' /etc`; do
+            sed -i 's/[^#]bind-address.*=.*127.0.0.1/#bind-address.*=.*127.0.0.1/g' $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        done
         systemctl enable mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         systemctl stop mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sleep 2
