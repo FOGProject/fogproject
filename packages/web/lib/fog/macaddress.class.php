@@ -41,18 +41,18 @@ class MACAddress extends FOGBase {
         return strlen($mac) === 12 && ctype_xdigit($mac) && (preg_match('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/', $this->MAC) || preg_match('/^([a-fA-F0-9]{2}\-){5}[a-fA-F0-9]{2}$/', $this->MAC) || preg_match('/^[a-fA-F0-9]{12}$/', $this->MAC) || preg_match('/^([a-fA-F0-9]{4}\.){2}[a-fA-F0-9]{4}$/', $this->MAC));
     }
     public function isPending() {
-        return (bool)count($this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'pending'=>1)));
+        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'pending'=>1)));
     }
     public function isClientIgnored() {
-        return (bool)count($this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'clientIgnore'=>1)));
+        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'clientIgnore'=>1)));
     }
     public function isPrimary() {
-        return (bool)count($this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'primary'=>1)));
+        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'primary'=>1)));
     }
     public function isImageIgnored() {
-        return (bool)count($this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'imageIgnore'=>1)));
+        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'imageIgnore'=>1)));
     }
     public function getHost() {
-        return self::getClass('Host',@max($this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString()),'hostID')));
+        return self::getClass('Host',@max(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString()),'hostID')));
     }
 }

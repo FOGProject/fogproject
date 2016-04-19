@@ -22,7 +22,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         if ($Snapin->getStorageGroup()->isValid() && $Snapin->isValid()) $StorageGroup = $Snapin->getStorageGroup();
         self::$HookManager->processEvent('SNAPIN_GROUP',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageGroup'=>&$StorageGroup));
         if (!($StorageGroup instanceof StorageGroup && $StorageGroup->isValid())) {
-            $SnapinFile = sprintf('%s%s',trim($this->getSetting('FOG_SNAPINDIR')),DIRECTORY_SEPARATOR);
+            $SnapinFile = sprintf('%s%s',trim(self::getSetting('FOG_SNAPINDIR')),DIRECTORY_SEPARATOR);
             if (!file_exists($SnapinFile) && !file_exists($Snapin->get('file'))) throw new Exception('Snapin file does not exist');
         } else {
             $StorageNode = $StorageGroup->getMasterStorageNode();

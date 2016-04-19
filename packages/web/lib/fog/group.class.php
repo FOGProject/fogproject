@@ -35,16 +35,16 @@ class Group extends FOGController {
             throw new Exception(_('Group ID was not set, or unable to be created'));
             break;
         case ($this->isLoaded('hosts')):
-            $DBHostIDs = $this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
-            $ValidHostIDs = $this->getSubObjectIDs('Host');
+            $DBHostIDs = self::getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
+            $ValidHostIDs = self::getSubObjectIDs('Host');
             $notValid = array_diff((array)$DBHostIDs,(array)$ValidHostIDs);
             if (count($notValid)) self::getClass('GroupAssociationManager')->destroy(array('hostID'=>$notValid));
             unset($ValidHostIDs,$DBHostIDs);
-            $DBHostIDs = $this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
+            $DBHostIDs = self::getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
                 self::getClass('GroupAssociationManager')->destroy(array('groupID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
-                $DBHostIDs = $this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
+                $DBHostIDs = self::getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
                 unset($RemoveHostIDs);
             }
             array_map(function(&$Host) {
@@ -61,8 +61,8 @@ class Group extends FOGController {
         return $this;
     }
     public function getHostCount() {
-        $GroupHostIDs = $this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
-        $ValidHostIDs = $this->getSubObjectIDs('Host','','id');
+        $GroupHostIDs = self::getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
+        $ValidHostIDs = self::getSubObjectIDs('Host','','id');
         $notValid = array_diff((array)$GroupHostIDs,(array)$ValidHostIDs);
         if (count($notValid)) self::getClass('GroupAssociationManager')->destroy(array('hostID'=>$notValid));
         return self::getClass('GroupAssociationManager')->count(array('groupID'=>$this->get('id')));
@@ -141,7 +141,7 @@ class Group extends FOGController {
         return $this;
     }
     public function doMembersHaveUniformImages() {
-        $imageID = $this->getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'imageID','','','','','array_count_values');
+        $imageID = self::getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'imageID','','','','','array_count_values');
         $imageID = count($imageID) == 1 ? array_shift($imageID) : 0;
         return $imageID == $this->getHostCount();
     }
@@ -154,12 +154,12 @@ class Group extends FOGController {
         return $this;
     }
     protected function loadHosts() {
-        if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID'));
+        if ($this->get('id')) $this->set('hosts',self::getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID'));
     }
     protected function loadHostsnotinme() {
         if ($this->get('id')) {
             $find = array('id'=>$this->get('hosts'));
-            $this->set('hostsnotinme',$this->getSubObjectIDs('Host',$find,'',true));
+            $this->set('hostsnotinme',self::getSubObjectIDs('Host',$find,'',true));
             unset($find);
         }
     }

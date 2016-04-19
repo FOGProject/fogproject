@@ -8,7 +8,7 @@ class TaskQueue extends TaskingElement {
                         ->set('checkinTime',$this->formatTime('','Y-m-d H:i:s'))
                         ->set('stateID',$this->getCheckedInState());
                     if (!$this->Task->save()) throw new Exception(_('Failed to update task'));
-                    $MulticastSession = self::getClass('MulticastSessions',@max($this->getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$this->Task->get('id')),'msID')));
+                    $MulticastSession = self::getClass('MulticastSessions',@max(self::getSubObjectIDs'MulticastSessionsAssociation',array('taskID'=>$this->Task->get('id')),'msID')));
                     if (!$MulticastSession->isValid()) throw new Exception(_('Invalid Session'));
                     $clientCount = (int)$MulticastSession->get('clients');
                     $MulticastSession->set('clients',++$clientCount);

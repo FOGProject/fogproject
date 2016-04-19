@@ -111,7 +111,7 @@ class Host extends FOGController {
         $find = array('hostID'=>$this->get('id'));
         self::getClass('NodeFailureManager')->destroy($find);
         self::getClass('ImagingLogManager')->destroy($find);
-        self::getClass('SnapinTaskManager')->destroy(array('jobID'=>$this->getSubObjectIDs('SnapinJob',$find,'id')));
+        self::getClass('SnapinTaskManager')->destroy(array('jobID'=>self::getSubObjectIDs('SnapinJob',$find,'id')));
         self::getClass('SnapinJobManager')->destroy($find);
         self::getClass('TaskManager')->destroy($find);
         self::getClass('ScheduledTaskManager')->destroy($find);
@@ -146,16 +146,16 @@ class Host extends FOGController {
         case (self::isLoaded('mac')):
             if (!(($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())) throw new Exception(self::$foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
-            $CurrPriMAC = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
+            $CurrPriMAC = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
             if (count($CurrPriMAC) === 1 && $CurrPriMAC[0] != $RealPriMAC) self::getClass('MACAddressAssociationManager')->update(array('mac'=>$CurrPriMAC[0],'hostID'=>$this->get('id'),'primary'=>1),'',array('primary'=>0));
-            $HostWithMAC = array_diff((array)$this->get('id'),(array)$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>$RealPriMAC),'hostID'));
+            $HostWithMAC = array_diff((array)$this->get('id'),(array)self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$RealPriMAC),'hostID'));
             if (count($HostWithMAC) && !in_array($this->get('id'),(array)$HostWithMAC)) throw new Exception(_('This MAC Belongs to another host'));
-            $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
+            $DBPriMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
             $RemoveMAC = array_diff((array)$RealPriMAC,(array)$DBPriMACs);
             if (count($RemoveMAC)) {
                 self::getClass('MACAddressAssociationManager')->destroy(array('mac'=>$RemoveMAC));
                 unset($RemoveMAC);
-                $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
+                $DBPriMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
             }
             if (!in_array($RealPriMAC,$DBPriMACs)) {
                 self::getClass('MACAddressAssociation')
@@ -169,20 +169,20 @@ class Host extends FOGController {
             $RealAddMACs = array_values(array_unique(array_filter(array_map(function(&$MAC) {
                 if ($MAC instanceof MACAddress && $MAC->isValid()) return $MAC->__toString();
             },(array)$this->get('additionalMACs')))));
-            $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('primary'=>1),'mac');
+            $DBPriMACs = self::getSubObjectIDs('MACAddressAssociation',array('primary'=>1),'mac');
             array_map(function(&$MAC) use ($RealAddMACs) {
                 if ($this->array_strpos($MAC,$RealAddMACs) !== false) throw new Exception(_('Cannot add Primary mac as additional mac'));
                 unset($MAC);
             },(array)$DBPriMACs);
             unset($DBPriMACs);
-            $PreOwnedMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>1),'mac',true);
+            $PreOwnedMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>1),'mac',true);
             $RealAddMACs = array_diff((array)$RealAddMACs,(array)$PreOwnedMACs);
             unset($PreOwnedMACs);
-            $DBAddMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>array(0,null)),'mac');
+            $DBAddMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>array(0,null)),'mac');
             $RemoveAddMAC = array_diff((array)$DBAddMACs,(array)$RealAddMACs);
             if (count($RemoveAddMAC)) {
                 self::getClass('MACAddressAssociationManager')->destroy(array('hostID'=>$this->get('id'),'mac'=>$RemoveAddMAC));
-                $DBAddMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>array(0,null)),'mac');
+                $DBAddMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>array(0,null)),'mac');
                 unset($RemoveAddMAC);
             }
             array_map(function(&$RealAddMAC) {
@@ -199,20 +199,20 @@ class Host extends FOGController {
             $RealPendMACs = array_map(function(&$MAC) {
                 if ($MAC instanceof MACAddress && $MAC->isValid()) return $MAC->__toString();
             },(array)$this->get('pendingMACs'));
-            $DBPriMACs = $this->getSubObjectIDs('MACAddressAssociation',array('primary'=>1),'mac');
+            $DBPriMACs = self::getSubObjectIDs('MACAddressAssociation',array('primary'=>1),'mac');
             array_map(function(&$DBPriMAC) use ($RealPendMACs) {
                 if ($this->array_strpos($DBPriMAC,$RealPendMACs) !== false) throw new Exception(_('Cannot add a pre-existing Primary MAC as a pending MAC'));
                 unset($DBPriMAC);
             },(array)$DBPriMACs);
             unset($DBPriMACs);
-            $PreOwnedMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>array(0,null)),'mac',true);
+            $PreOwnedMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>array(0,null)),'mac',true);
             $RealPendMACs = array_diff((array)$RealPendMACs,(array)$PreOwnedMACs);
             unset($PreOwnedMACs);
-            $DBPendMACs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>1),'mac');
+            $DBPendMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>1),'mac');
             $RemovePendMAC = array_diff((array)$DBPendMACs,(array)$RealPendMACs);
             if (count($RemovePendMAC)) {
                 self::getClass('MACAddressAssociationManager')->destroy(array('hostID'=>$this->get('id'),'mac'=>$RemovePendMAC));
-                $DBPendMACs = $this->getSubObjectIDs('MACAddressAssociation',array('primary'=>array(0,null),'pending'=>1),'mac');
+                $DBPendMACs = self::getSubObjectIDs('MACAddressAssociation',array('primary'=>array(0,null),'pending'=>1),'mac');
                 unset($RemovePendMAC);
             }
             array_map(function(&$RealPendMAC) {
@@ -227,16 +227,16 @@ class Host extends FOGController {
             $RealPendMACs = array_diff((array)$RealPendMACs,(array)$DBPendMACs);
             unset($DBPendMACs,$RealPendMACs,$RemovePendMAC);
         case (self::isLoaded('modules')):
-            $DBModuleIDs = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
-            $ValidModuleIDs = $this->getSubObjectIDs('Module');
+            $DBModuleIDs = self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
+            $ValidModuleIDs = self::getSubObjectIDs('Module');
             $notValid = array_diff((array)$DBModuleIDs,(array)$ValidModuleIDs);
             if (count($notValid)) self::getClass('ModuleAssociationManager')->destroy(array('moduleID'=>$notValid));
             unset($ValidModuleIDs,$DBModuleIDs);
-            $DBModuleIDs = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
+            $DBModuleIDs = self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
             $RemoveModuleIDs = array_diff((array)$DBModuleIDs,(array)$this->get('modules'));
             if (count($RemoveModuleIDs)) {
                 self::getClass('ModuleAssociationManager')->destroy(array('moduleID'=>$RemoveModuleIDs,'hostID'=>$this->get('id')));
-                $DBModuleIDs = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
+                $DBModuleIDs = self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
                 unset($RemoveModuleIDs);
             }
             $moduleName = $this->getGlobalModuleStatus();
@@ -253,36 +253,36 @@ class Host extends FOGController {
             },(array)self::getClass('ModuleManager')->find(array('id'=>array_diff((array)$this->get('modules'),(array)$DBModuleIDs))));
             unset($DBModuleIDs,$RemoveModuleIDs,$moduleName);
         case (self::isLoaded('printers')):
-            $DBPrinterIDs = $this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
-            $ValidPrinterIDs = $this->getSubObjectIDs('Printer');
+            $DBPrinterIDs = self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
+            $ValidPrinterIDs = self::getSubObjectIDs('Printer');
             $notValid = array_diff((array)$DBPrinterIDs,(array)$ValidPrinterIDs);
             if (count($notValid)) self::getClass('PrinterAssociationManager')->destroy(array('printerID'=>$notValid));
             unset($ValidPrinterIDs,$DBPrinterIDs);
-            $DBPrinterIDs = $this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
+            $DBPrinterIDs = self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
             $RemovePrinterIDs = array_diff((array)$DBPrinterIDs,(array)$this->get('printers'));
             if (count($RemovePrinterIDs)) {
                 self::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$this->get('id'),'printerID'=>$RemovePrinterIDs));
-                $DBPrinterIDs = $this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
+                $DBPrinterIDs = self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
                 unset($RemovePrinterIDs);
             }
             array_map($itemSetter,(array)self::getClass('PrinterManager')->find(array('id'=>array_diff((array)$this->get('printers'),(array)$DBPrinterIDs))));
             unset($DBPrinterIDs,$RemovePrinterIDs);
         case (self::isLoaded('snapins')):
-            $DBSnapinIDs = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
+            $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
             $RemoveSnapinIDs = array_diff((array)$DBSnapinIDs,(array)$this->get('snapins'));
             if (count($RemoveSnapinIDs)) {
                 self::getClass('SnapinAssociationManager')->destroy(array('hostID'=>$this->get('id'),'snapinID'=>$RemoveSnapinIDs));
-                $DBSnapinIDs = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
+                $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
                 unset($RemoveSnapinIDs);
             }
             array_map($itemSetter,(array)self::getClass('SnapinManager')->find(array('id'=>array_diff((array)$this->get('snapins'),(array)$DBSnapinIDs))));
             unset($DBSnapinIDs,$RemoveSnapinIDs);
         case (self::isLoaded('groups')):
-            $DBGroupIDs = $this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
+            $DBGroupIDs = self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
             $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('groups'));
             if (count($RemoveGroupIDs)) {
                 self::getClass('GroupAssociationManager')->destroy(array('hostID'=>$this->get('id'),'groupID'=>$RemoveGroupIDs));
-                $DBGroupIDs = $this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
+                $DBGroupIDs = self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
                 unset($RemoveGroupIDs);
             }
             array_map($itemSetter,(array)self::getClass('GroupManager')->find(array('id'=>array_diff((array)$this->get('groups'),(array)$DBGroupIDs))));
@@ -298,7 +298,7 @@ class Host extends FOGController {
         return (strlen($hostname) > 0 && strlen($hostname) <= 15 && preg_replace('#[\w+\-]#', '', $hostname) == '');
     }
     public function getDefault($printerid) {
-        return (bool)count($this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id'),'printerID'=>$printerid,'isDefault'=>1),'printerID'));
+        return (bool)count(self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id'),'printerID'=>$printerid,'isDefault'=>1),'printerID'));
     }
     public function updateDefault($printerid,$onoff) {
         self::getClass('PrinterAssociationManager')->update(array('printerID'=>$this->get('printers'),'hostID'=>$this->get('id')),'',array('isDefault'=>0));
@@ -313,7 +313,7 @@ class Host extends FOGController {
         );
         $HostScreen = self::getClass('HostScreenSettingsManager')->find(array('hostID'=>$this->get('id')));
         $HostScreen = @array_shift($HostScreen);
-        $gScreen = $this->getSetting($keyTran[$key]);
+        $gScreen = self::getSetting($keyTran[$key]);
         return ($HostScreen instanceof HostScreenSettings && $HostScreen->isValid() ? $HostScreen->get($key) : $gScreen);
     }
     public function setDisp($x,$y,$r) {
@@ -329,7 +329,7 @@ class Host extends FOGController {
     public function getAlo() {
         $HostALO = self::getClass('HostAutoLogoutManager')->find(array('hostID'=>$this->get('id')));
         $HostALO = @array_shift($HostALO);
-        $gTime = $this->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN');
+        $gTime = self::getSetting('FOG_SERVICE_AUTOLOGOFF_MIN');
         return ($HostALO && $HostALO->isValid() ? $HostALO->get('time') : $gTime);
     }
     public function setAlo($time) {
@@ -346,36 +346,36 @@ class Host extends FOGController {
     }
     protected function loadAdditionalMACs() {
         if (!$this->get('id')) return;
-        $this->set('additionalMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>array(null,0,'')),'mac'));
+        $this->set('additionalMACs',self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>array(null,0,'')),'mac'));
     }
     protected function loadPendingMACs() {
         if (!$this->get('id')) return;
-        $this->set('pendingMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>1),'mac'));
+        $this->set('pendingMACs',self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>1),'mac'));
     }
     protected function loadGroups() {
         if (!$this->get('id')) return;
-        $this->set('groups',$this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID'));
+        $this->set('groups',self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID'));
     }
     protected function loadGroupsnotinme() {
         if (!$this->get('id')) return;
         $find = array('id'=>$this->get('groups'));
-        $this->set('groupsnotinme',$this->getSubObjectIDs('Group',$find,'id',true));
+        $this->set('groupsnotinme',self::getSubObjectIDs('Group',$find,'id',true));
         unset($find);
     }
     protected function loadPrinters() {
         if (!$this->get('id')) return;
-        $this->set('printers',$this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID'));
+        $this->set('printers',self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID'));
     }
     protected function loadPrintersnotinme() {
         if (!$this->get('id')) return;
         $find = array('id'=>$this->get('printers'));
-        $this->set('printersnotinme',$this->getSubObjectIDs('Printer',$find,'id',true));
+        $this->set('printersnotinme',self::getSubObjectIDs('Printer',$find,'id',true));
         unset($find);
     }
     protected function loadSnapins() {
         if (!$this->get('id')) return;
-        $AssocSnapins = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
-        $ValidSnapins = $this->getSubObjectIDs('Snapin',array('id'=>$AssocSnapins));
+        $AssocSnapins = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
+        $ValidSnapins = self::getSubObjectIDs('Snapin',array('id'=>$AssocSnapins));
         $InvalidSnapins = array_unique(array_filter(array_diff((array)$AssocSnapins,(array)$ValidSnapins)));
         if (count($InvalidSnapins)) self::getClass('SnapinManager')->destroy(array('id'=>$InvalidSnapins));
         $this->set('snapins',$ValidSnapins);
@@ -383,31 +383,31 @@ class Host extends FOGController {
     protected function loadSnapinsnotinme() {
         if (!$this->get('id')) return;
         $find = array('id'=>$this->get('snapins'));
-        $this->set('snapinsnotinme',$this->getSubObjectIDs('Snapin',$find,'id',true));
+        $this->set('snapinsnotinme',self::getSubObjectIDs('Snapin',$find,'id',true));
         unset($find);
     }
     protected function loadModules() {
         if (!$this->get('id')) return;
-        $this->set('modules',$this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID'));
+        $this->set('modules',self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID'));
     }
     protected function loadUsers() {
         if (!$this->get('id')) return;
-        $this->set('users',$this->getSubObjectIDs('UserTracking',array('hostID'=>$this->get('id'))));
+        $this->set('users',self::getSubObjectIDs('UserTracking',array('hostID'=>$this->get('id'))));
     }
     protected function loadSnapinjob() {
         if (!$this->get('id')) return;
-        $this->set('snapinjob',@max($this->getSubObjectIDs('SnapinJob',array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'hostID'=>$this->get('id')),'id')));
+        $this->set('snapinjob',@max(self::getSubObjectIDs('SnapinJob',array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'hostID'=>$this->get('id')),'id')));
     }
     protected function loadInventory() {
         if (!$this->get('id')) return;
-        $this->set('inventory',@max($this->getSubObjectIDs('Inventory',array('hostID'=>$this->get('id')),'id')));
+        $this->set('inventory',@max(self::getSubObjectIDs('Inventory',array('hostID'=>$this->get('id')),'id')));
     }
     protected function loadTask() {
         if (!$this->get('id')) return;
         $find['hostID'] = $this->get('id');
         $find['stateID'] = array_merge($this->getQueuedStates(),(array)$this->getProgressState());
         if (in_array($_REQUEST['type'], array('up','down'))) $find['typeID'] = ($_REQUEST['type'] == 'up' ? array(2,16) : array(1,8,15,17,24));
-        $this->set('task',@max($this->getSubObjectIDs('Task',$find,'id')));
+        $this->set('task',@max(self::getSubObjectIDs('Task',$find,'id')));
         unset($find);
     }
     protected function loadOptimalStorageNode() {
@@ -469,7 +469,7 @@ class Host extends FOGController {
         return $Task;
     }
     private function cancelJobsSnapinsForHost() {
-        $SnapinJobs = $this->getSubObjectIDs('SnapinJob',array('hostID'=>$this->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
+        $SnapinJobs = self::getSubObjectIDs('SnapinJob',array('hostID'=>$this->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
         self::getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJobs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())),'',array('return'=>-9999,'details'=>_('Cancelled due to new tasking.')));
         self::getClass('SnapinJobManager')->update(array('id'=>$SnapinJobs),'',array('stateID'=>$this->getCancelledState()));
     }
@@ -522,8 +522,8 @@ class Host extends FOGController {
                 if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode($this->get('imageID'));
                 if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(self::$foglang['SGNotValid']);
                 $imageTaskImgID = $this->get('imageID');
-                $hostsWithImgID = $this->getSubObjectIDs('Host',array('imageID'=>$imageTaskImgID));
-                $realImageID = $this->getSubObjectIDs('Host',array('id'=>$this->get('id')),'imageID');
+                $hostsWithImgID = self::getSubObjectIDs('Host',array('imageID'=>$imageTaskImgID));
+                $realImageID = self::getSubObjectIDs('Host',array('id'=>$this->get('id')),'imageID');
                 if (!in_array($this->get('id'),(array)$hostsWithImgID)) $this->set('imageID',array_shift($realImageID))->save();
                 $this->set('imageID',$imageTaskImgID);
             }
@@ -549,8 +549,8 @@ class Host extends FOGController {
                     $MulticastSession = $MultiSessAssoc;
                     $assoc = true;
                 } else {
-                    $port = $this->getSetting('FOG_UDPCAST_STARTINGPORT');
-                    $portOverride = $this->getSetting('FOG_MULTICAST_PORT_OVERRIDE');
+                    $port = self::getSetting('FOG_UDPCAST_STARTINGPORT');
+                    $portOverride = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
                     $MulticastSession = self::getClass('MulticastSessions')
                         ->set('name',$taskName)
                         ->set('port',($portOverride ? $portOverride : $port))
@@ -563,7 +563,7 @@ class Host extends FOGController {
                         ->set('isDD',$this->getImage()->get('imageTypeID'))
                         ->set('NFSGroupID',$StorageNode->get('storageGroupID'));
                     if ($MulticastSession->save()) {
-                        if (!$this->getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
+                        if (!self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
                             $randomnumber = mt_rand(24576,32766)*2;
                             while ($randomnumber == $MulticastSession->get('port')) $randomnumber = mt_rand(24576,32766)*2;
                             $this->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
@@ -615,9 +615,9 @@ class Host extends FOGController {
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
             return sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$Node->get('ip'),$webroot,implode('|',(array)$this->getMyMacs()));
         },(array)self::getClass('StorageNodeManager')->find(array('isEnabled'=>1)));
-        $curroot = trim(trim($this->getSetting('FOG_WEB_ROOT'),'/'));
+        $curroot = trim(trim(self::getSetting('FOG_WEB_ROOT'),'/'));
         $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-        $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$this->getSetting('FOG_WEB_HOST'),$webroot,implode('|',(array)$this->getMyMacs()));
+        $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',self::getSetting('FOG_WEB_HOST'),$webroot,implode('|',(array)$this->getMyMacs()));
         $URLs = array_values(array_filter(array_unique((array)$URLs)));
         self::$FOGURLRequests->process($URLs,'GET');
         return $this;
@@ -673,7 +673,7 @@ class Host extends FOGController {
         return $this->set('printers',array_unique(array_diff((array)$this->get('printers'),(array)$removeArray)));
     }
     public function addSnapin($addArray) {
-        $limit = $this->getSetting('FOG_SNAPIN_LIMIT');
+        $limit = self::getSetting('FOG_SNAPIN_LIMIT');
         if ($limit > 0) {
             if (self::getClass('SnapinManager')->count(array('id'=>$this->get('snapins'))) >= $limit || count($addArray) > $limit) throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
         }
@@ -689,8 +689,8 @@ class Host extends FOGController {
         return $this->set('modules',array_unique(array_diff((array)$this->get('modules'),(array)$removeArray)));
     }
     public function getMyMacs($justme = true) {
-        if ($justme) return $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id')),'mac');
-        return $this->getSubObjectIDs('MACAddressAssociation','','mac');
+        if ($justme) return self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id')),'mac');
+        return self::getSubObjectIDs('MACAddressAssociation','','mac');
     }
     public function ignore($imageIgnore,$clientIgnore) {
         $MyMACs = $this->getMyMacs();
@@ -721,10 +721,10 @@ class Host extends FOGController {
         return $this->set('groups',array_unique(array_diff((array)$this->get('groups'),(array)$removeArray)));
     }
     public function clientMacCheck($MAC = false) {
-        return self::getClass('MACAddress',$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'clientIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
+        return self::getClass('MACAddress',self::getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'clientIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
     }
     public function imageMacCheck($MAC = false) {
-        return self::getClass('MACAddress',$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'imageIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
+        return self::getClass('MACAddress',self::getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'imageIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
     }
     public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false,$legacy = '',$productKey = '',$enforce = '') {
         if ($this->get('id')) {

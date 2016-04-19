@@ -8,17 +8,17 @@ class Registration extends FOGBase {
     protected $description;
     public function __construct() {
         parent::__construct();
-        if (!$this->getSetting('FOG_REGISTRATION_ENABLED')) return;
+        if (!self::getSetting('FOG_REGISTRATION_ENABLED')) return;
         try {
             $this->MACs = $this->getHostItem(false,true,true,true);
             $this->PriMAC = @array_shift($this->MACs);
             $this->Host = $this->getHostItem(false,true,true);
             $this->macsimple = strtolower(str_replace(array(':','-'),'',$this->PriMAC));
             if ($this->regExists()) return;
-            $this->modulesToJoin = $this->getSubObjectIDs('Module');
+            $this->modulesToJoin = self::getSubObjectIDs('Module');
             $this->description = sprintf('%s %s',_('Created by FOG Reg on'),$this->formatTime('now','F j, Y, g:i a'));
             if (isset($_REQUEST['advanced'])) $this->fullReg();
-            else if ($this->getSetting('FOG_QUICKREG_AUTOPOP')) $this->quickRegAuto();
+            else if (self::getSetting('FOG_QUICKREG_AUTOPOP')) $this->quickRegAuto();
             else $this->quickReg();
         } catch (Exception $e) {
             die($e->getMessage());
@@ -48,7 +48,7 @@ class Registration extends FOGBase {
             $other2 = $_REQUEST['other2'];
             $doimage = trim($_REQUEST['doimage']);
             if ($_REQUEST['doad']) {
-                $OUs = explode('|',$this->getSetting('FOG_AD_DEFAULT_OU'));
+                $OUs = explode('|',self::getSetting('FOG_AD_DEFAULT_OU'));
                 foreach ((array)$OUs AS $i => &$OU) $OUOptions[] = $OU;
                 unset($OU);
                 if ($OUOptions) {
@@ -61,12 +61,12 @@ class Registration extends FOGBase {
                     if (!$opt) $opt = $OUs[0];
                 }
                 $useAD = 1;
-                $ADDomain = $this->getSetting('FOG_AD_DEFAULT_DOMAINNAME');
+                $ADDomain = self::getSetting('FOG_AD_DEFAULT_DOMAINNAME');
                 $ADOU = $opt;
-                $ADUser = $this->getSetting('FOG_AD_DEFAULT_USER');
-                $ADPass = $this->getSetting('FOG_AD_DEFAULT_PASSWORD');
-                $ADPassLegacy = $this->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY');
-                $enforce = $this->getSetting('FOG_ENFORCE_HOST_CHANGES');
+                $ADUser = self::getSetting('FOG_AD_DEFAULT_USER');
+                $ADPass = self::getSetting('FOG_AD_DEFAULT_PASSWORD');
+                $ADPassLegacy = self::getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY');
+                $enforce = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
             }
             $groupsToJoin = explode(',',$_REQUEST['groupid']);
             $snapinsToJoin = explode(',',$_REQUEST['snapinid']);
@@ -103,9 +103,9 @@ class Registration extends FOGBase {
     }
     private function quickRegAuto() {
         try {
-            $groupsToJoin = explode(',',trim($this->getSetting('FOG_QUICKREG_GROUP_ASSOC')));
-            $autoRegSysName = trim($this->getSetting('FOG_QUICKREG_SYS_NAME'));
-            $autoRegSysNumber = (int)$this->getSetting('FOG_QUICKREG_SYS_NUMBER');
+            $groupsToJoin = explode(',',trim(self::getSetting('FOG_QUICKREG_GROUP_ASSOC')));
+            $autoRegSysName = trim(self::getSetting('FOG_QUICKREG_SYS_NAME'));
+            $autoRegSysNumber = (int)self::getSetting('FOG_QUICKREG_SYS_NUMBER');
             $hostname = trim((strtoupper($autoRegSysName) == 'MAC' ? $this->macsimple : $autoRegSysName));
             $hostname = (self::getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
             $paddingLen = substr_count($autoRegSysName,'*');
@@ -125,7 +125,7 @@ class Registration extends FOGBase {
             }
             if (!self::getClass('Host')->isHostnameSafe($hostname)) $hostname = $this->macsimple;
             $this->setSetting('FOG_QUICKREG_SYS_NUMBER',++$autoRegSysNumber);
-            $imageid = (int)$this->getSetting('FOG_QUICKREG_IMG_ID');
+            $imageid = (int)self::getSetting('FOG_QUICKREG_IMG_ID');
             $this->Host = self::getClass('Host')
                 ->set('name',$hostname)
                 ->set('description',$this->description)

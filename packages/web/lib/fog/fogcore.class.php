@@ -85,24 +85,24 @@ class FOGCore extends FOGBase {
             unset($table);
         },(array)self::$DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME'));
         $_SESSION['PluginsInstalled'] = (array)$this->getActivePlugins();
-        $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = $this->getSetting('FOG_VIEW_DEFAULT_SCREEN');
-        $_SESSION['FOG_FTP_IMAGE_SIZE'] = $this->getSetting('FOG_FTP_IMAGE_SIZE');
+        $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
+        $_SESSION['FOG_FTP_IMAGE_SIZE'] = self::getSetting('FOG_FTP_IMAGE_SIZE');
         $_SESSION['Pending-Hosts'] = self::getClass('HostManager')->count(array('pending'=>1));
         $_SESSION['Pending-MACs'] = self::getClass('MACAddressAssociationManager')->count(array('pending'=>1));
-        $_SESSION['DataReturn'] = $this->getSetting('FOG_DATA_RETURNED');
+        $_SESSION['DataReturn'] = self::getSetting('FOG_DATA_RETURNED');
         $_SESSION['UserCount'] = self::getClass('UserManager')->count();
         $_SESSION['GroupCount'] = self::getClass('GroupManager')->count();
         $_SESSION['ImageCount'] = self::getClass('ImageManager')->count();
         $_SESSION['SnapinCount'] = self::getClass('SnapinManager')->count();
         $_SESSION['PrinterCount'] = self::getClass('PrinterManager')->count();
-        $_SESSION['FOGPingActive'] = $this->getSetting('FOG_HOST_LOOKUP');
-        $_SESSION['memory'] = $this->getSetting('FOG_MEMORY_LIMIT');
+        $_SESSION['FOGPingActive'] = self::getSetting('FOG_HOST_LOOKUP');
+        $_SESSION['memory'] = self::getSetting('FOG_MEMORY_LIMIT');
         $memorySet = preg_replace('#M#','',ini_get('memory_limit'));
         if ((int) $memorySet < $_SESSION['memory']) ini_set('memory_limit',is_numeric($_SESSION['memory']) ? sprintf('%dM',$_SESSION['memory']) : ini_get('memory_limit'));
-        $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $this->getSetting('FOG_FORMAT_FLAG_IN_GUI');
-        $_SESSION['FOG_SNAPINDIR'] = $this->getSetting('FOG_SNAPINDIR');
-        $_SESSION['FOG_REPORT_DIR'] = $this->getSetting('FOG_REPORT_DIR');
-        $_SESSION['TimeZone'] = (ini_get('date.timezone') ? ini_get('date.timezone') : ($this->getSetting('FOG_TZ_INFO') ? $this->getSetting('FOG_TZ_INFO') : 'UTC'));
+        $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = self::getSetting('FOG_FORMAT_FLAG_IN_GUI');
+        $_SESSION['FOG_SNAPINDIR'] = self::getSetting('FOG_SNAPINDIR');
+        $_SESSION['FOG_REPORT_DIR'] = self::getSetting('FOG_REPORT_DIR');
+        $_SESSION['TimeZone'] = (ini_get('date.timezone') ? ini_get('date.timezone') : (self::getSetting('FOG_TZ_INFO') ? self::getSetting('FOG_TZ_INFO') : 'UTC'));
         ini_set('max_input_vars',5000);
     }
 }
