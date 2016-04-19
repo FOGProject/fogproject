@@ -1,7 +1,7 @@
 <?php
 require_once(WEBROOT.'/commons/init.php');
-$service_logpath = sprintf('/%s/%s',trim($FOGCore->getSetting('SERVICE_LOG_PATH'),'/'),$FOGCore->getSetting('SERVICEMASTERLOGFILENAME'));
-$service_sleep_time = (int)$FOGCore->getSetting('SERVICESLEEPTIME');
+$service_logpath = sprintf('/%s/%s',trim(FOGCore::getSetting('SERVICE_LOG_PATH'),'/'),FOGCore::getSetting('SERVICEMASTERLOGFILENAME'));
+$service_sleep_time = (int)FOGCore::getSetting('SERVICESLEEPTIME');
 if (!$service_sleep_time) $service_sleep_time = 10;
 $service_child_pid = 0;
 function service_log_message($logpath, $name, $msg) {

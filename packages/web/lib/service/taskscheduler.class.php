@@ -8,6 +8,7 @@ class TaskScheduler extends FOGService {
     public function __construct() {
         parent::__construct();
         static::$log = sprintf('%s%s',static::$logpath,self::getSetting('SCHEDULERLOGFILENAME'));
+        if (file_exists(static::$log)) @unlink(static::$log);
         static::$dev = self::getSetting('SCHEDULERDEVICEOUTPUT');
         static::$zzz = (int)self::getSetting(static::$sleeptime);
     }
