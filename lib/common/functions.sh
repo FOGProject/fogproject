@@ -865,8 +865,8 @@ configureMySql() {
             chown -R mysql:mysql /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             mysql_install_db --user=mysql --ldata=/var/lib/mysql/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
-        for mysqlconf in `grep -E '[^#]bind-address.*=.*127.0.0.1' /etc`; do
-            sed -i 's/[^#]bind-address.*=.*127.0.0.1/#bind-address.*=.*127.0.0.1/g' $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        for mysqlconf in `grep -rl '.*bind-address.*=.*127.0.0.1' /etc`; do
+            sed -e '/.*bind-address.*=.*127.0.0.1/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         done
         systemctl enable mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         systemctl stop mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
