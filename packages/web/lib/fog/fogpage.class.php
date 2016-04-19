@@ -385,7 +385,7 @@ abstract class FOGPage extends FOGBase {
                         unset($Host);
                     },$Hosts);
                     if (in_array(true,$NoImage,true)) throw new Exception(_('One or more hosts do not have an image set'));
-                    array_map(function(&$Host) use (&$ImageExists) {
+                    array_map(function(&$Host) use (&$ImageExists,$TaskType) {
                         if (!$Host->isValid()) return;
                         $ImageExists[] = (bool)!$Host->checkIfExist($TaskType->get('id'));
                         unset($Host);
