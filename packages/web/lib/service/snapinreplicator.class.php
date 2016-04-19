@@ -8,6 +8,7 @@ class SnapinReplicator extends FOGService {
     public function __construct() {
         parent::__construct();
         static::$log = sprintf('%s%s',static::$logpath,self::getSetting('SNAPINREPLICATORLOGFILENAME'));
+        if (file_exists(static::$log)) @unlink(static::$log);
         static::$dev = self::getSetting('SNAPINREPLICATORDEVICEOUTPUT');
         static::$zzz = (int)self::getSetting(static::$sleeptime);
     }

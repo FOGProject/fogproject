@@ -8,6 +8,7 @@ class MulticastManager extends FOGService {
     public function __construct() {
         parent::__construct();
         static::$log = sprintf('%s%s',static::$logpath,self::getSetting('MULTICASTLOGFILENAME'));
+        if (file_exists(static::$log)) @unlink(static::$log);
         static::$dev = self::getSetting('MULTICASTDEVICEOUTPUT');
         static::$zzz = (int)self::getSetting(static::$sleeptime);
     }

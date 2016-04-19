@@ -10,7 +10,6 @@ if (!file_exists(UDPSENDERPATH)) {
     $ServiceClass::outall(' * Unable to locate udp-sender!.');
     exit(1);
 }
-@unlink($ServiceClass::$log);
 $ServiceClass->getBanner();
 $ServiceClass->wait_interface_ready();
 $ServiceClass->wait_db_ready();
