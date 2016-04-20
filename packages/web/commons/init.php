@@ -105,7 +105,7 @@ class Initiator {
      * @return void
      */
     private function FOGLoader($className) {
-        if (in_array($className,get_declared_classes())) return;
+        if (class_exists($className,false)) return;
         global $EventManager;
         global $HookManager;
         spl_autoload($className);

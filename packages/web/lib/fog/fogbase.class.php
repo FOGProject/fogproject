@@ -82,9 +82,10 @@ abstract class FOGBase {
     public static function getClass($class, $data = '',$props = false) {
         $args = func_get_args();
         array_shift($args);
+        if (trim(strtolower($class)) === 'reflectionclass') return new ReflectionClass(count($args) === 1 ? $args[0] : $args);
         $obj = new ReflectionClass($class);
         if ($props === true) return $obj->getDefaultProperties();
-        return $obj->getConstructor() ? (count($args) ? $obj->newInstanceArgs($args) : $obj->newInstance($data)) : $obj->newInstanceWithoutConstructor();
+        return $obj->getConstructor() ? (count($args) === 1 ? $obj->newInstance($args[0]) : $obj->newInstanceArgs($args)) : $obj->newInstanceWithoutConstructor();
     }
     public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false) {
         $mac = $_REQUEST['mac'];
