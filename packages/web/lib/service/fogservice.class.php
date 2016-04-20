@@ -115,6 +115,7 @@ abstract class FOGService extends FOGBase {
      * auto sets to false
      */
     protected function replicate_items($myStorageGroupID,$myStorageNodeID,$Obj,$master = false) {
+        usleep(50000);
         unset($username,$password,$ip,$remItem,$myItem,$limitmain,$limitsend,$limit,$includeFile);
         $itemType = $master ? 'group' : 'node';
         $findWhere = array(
@@ -192,6 +193,7 @@ abstract class FOGService extends FOGBase {
                 sort($localfilescheck);
                 sort($remotefilescheck);
                 foreach ($localfilescheck AS $j => &$localfile) {
+                    usleep(50000);
                     if (($index = array_search($localfile,$remotefilescheck)) === false) continue;
                     static::outall(" | Local File: $localfile");
                     static::outall(" | Remote File: {$remotefilescheck[$index]}");
