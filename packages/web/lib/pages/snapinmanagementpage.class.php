@@ -132,18 +132,20 @@ class SnapinManagementPage extends FOGPage {
             if (!$snapinfile && $_FILES['snapin']['error'] > 0) throw new UploadException($_FILES['snapin']['error']);
             $src = sprintf('%s/%s',dirname($_FILES['snapin']['tmp_name']),basename($_FILES['snapin']['tmp_name']));
             $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$snapinfile);
-            self::$FOGFTP
-                ->set('host',$StorageNode->get('ip'))
-                ->set('username',$StorageNode->get('user'))
-                ->set('password',$StorageNode->get('pass'));
-            if (!self::$FOGFTP->connect()) throw new Exception(sprintf('%s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP Connection has failed')));
-            if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+            if ($uploadfile) {
+                self::$FOGFTP
+                    ->set('host',$StorageNode->get('ip'))
+                    ->set('username',$StorageNode->get('user'))
+                    ->set('password',$StorageNode->get('pass'));
+                if (!self::$FOGFTP->connect()) throw new Exception(sprintf('%s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP Connection has failed')));
+                if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                    if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+                }
+                if (is_file($dest)) self::$FOGFTP->delete($dest);
+                if (!self::$FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
+                self::$FOGFTP->chmod(0755,$dest);
+                self::$FOGFTP->close();
             }
-            if (is_file($dest)) self::$FOGFTP->delete($dest);
-            if (!self::$FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
-            self::$FOGFTP->chmod(0755,$dest);
-            self::$FOGFTP->close();
             $Snapin = self::getClass('Snapin')
                 ->set('name',$snapinName)
                 ->set('description',$_REQUEST['description'])
@@ -294,18 +296,20 @@ class SnapinManagementPage extends FOGPage {
                 if (!$snapinfile && $_FILES['snapin']['error'] > 0) throw new UploadException($_FILES['snapin']['error']);
                 $src = sprintf('%s/%s',dirname($_FILES['snapin']['tmp_name']),basename($_FILES['snapin']['tmp_name']));
                 $dest = sprintf('/%s/%s',trim($StorageNode->get('snapinpath'),'/'),$snapinfile);
-                self::$FOGFTP
-                    ->set('host',$StorageNode->get('ip'))
-                    ->set('username',$StorageNode->get('user'))
-                    ->set('password',$StorageNode->get('pass'));
-                if (!self::$FOGFTP->connect()) throw new Exception(sprintf('%s: %s: %s %s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP connection has failed')));
-                if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                    if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+                if ($uploadfile) {
+                    self::$FOGFTP
+                        ->set('host',$StorageNode->get('ip'))
+                        ->set('username',$StorageNode->get('user'))
+                        ->set('password',$StorageNode->get('pass'));
+                    if (!self::$FOGFTP->connect()) throw new Exception(sprintf('%s: %s: %s %s: %s %s',_('Storage Node'),$StorageNode->get('ip'),_('FTP connection has failed')));
+                    if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                        if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+                    }
+                    if (is_file($dest)) self::$FOGFTP->delete($dest);
+                    if (!self::$FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
+                    self::$FOGFTP->chmod(0755,$dest);
+                    self::$FOGFTP->close();
                 }
-                if (is_file($dest)) self::$FOGFTP->delete($dest);
-                if (!self::$FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
-                self::$FOGFTP->chmod(0755,$dest);
-                self::$FOGFTP->close();
                 $this->obj
                     ->set('name',$snapinName)
                     ->set('description',$_REQUEST['description'])
