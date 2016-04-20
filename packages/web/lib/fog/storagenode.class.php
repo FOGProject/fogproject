@@ -55,7 +55,7 @@ class StorageNode extends FOGController {
     public function loadLogfiles() {
         $URL = array_map(function(&$path) {
             return sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($path));
-        },array('/var/log/httpd/','/var/log/apache2/','/var/log/fog'));
+        },array('/var/log/nginx/','/var/log/httpd/','/var/log/apache2/','/var/log/fog'));
         $paths = self::$FOGURLRequests->process($URL);
         $tmppath = array();
         array_walk($paths,function(&$response,&$index) use (&$tmppath) {
