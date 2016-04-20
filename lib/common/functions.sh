@@ -1407,7 +1407,12 @@ EOF
                     sleep 2
                     service apache2 start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sleep 2
+                    service $phpfpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sleep 2
+                    service $phpfpm start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sleep 2
                     service apache2 status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    service $phpfpm status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
                     service httpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1773,10 +1778,10 @@ class Config {
     if [[ $osid -eq 2 ]]; then
         if [[ $systemctl == yes ]]; then
             systemctl enable apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            systemctl enable php${php_ver}-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            systemctl enable $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         else
             sysv-rc-conf apache2 on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sysv-rc-conf php${php_ver}-fpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            sysv-rc-conf $phpfpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
     elif [[ $systemctl == yes ]]; then
         systemctl enable httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
