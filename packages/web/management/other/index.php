@@ -67,7 +67,7 @@ unset($stylesheet); ?>
 					</div>
 					</div>
 					<!-- Footer: Be nice, give us some credit -->
-					<div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a></div>
+					<div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a>&nbsp;&nbsp;<a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_flow&SESSION=kXqYEYWlhYQzPiGFLuwJpkwxqhk940AnPXR--PNpYY4IS2WDicAFGopYjOG&dispatch=5885d80a13c0db1f8e263663d3faee8d6625bf1e8bd269586d425cc639e26c6a"><?php echo _('Donate to FOG') ?></a></div>
 					<!-- <div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> Memory Usage: <?php echo $this->formatByteSize(memory_get_usage(true)) ?></div> -->
 					<!-- <div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> Memory Usage: <?php echo $this->formatByteSize(memory_get_peak_usage()) ?></div> -->
 					<!-- Javascript -->
