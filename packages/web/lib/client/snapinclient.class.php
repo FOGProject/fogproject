@@ -89,7 +89,6 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             header("X-Sendfile: $SnapinFile");
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
-            header("Content-Length: $size");
             header("Content-Disposition: attachment; filename=$file");
             header('Expires: 0');
             header('Cache-Control: must-revalidate');

@@ -82,11 +82,9 @@ class ReportMaker {
             $cmd = sprintf("mysqldump --opt -u%s -h'$ip' %s > $filepath",escapeshellarg(DATABASE_USERNAME),escapeshellarg(DATABASE_NAME));
             if (DATABASE_PASSWORD) $cmd = sprintf("mysqldump --opt -u%s -p%s -h'$ip' %s > %s",escapeshellarg(DATABASE_USERNAME),escapeshellarg(DATABASE_PASSWORD),escapeshellarg(DATABASE_NAME),escapeshellarg($filepath));
             exec($cmd);
-            $filesize = filesize($filepath);
             if (($fh = fopen($filepath,'rb')) === false) return;
             header("X-Sendfile: $filepath");
             header('Content-Type: application/octet-stream');
-            header("Content-Length: $filesize");
             header("Content-Disposition: attachment; filename=$filename");
             while (feof($fh) === false) {
                 $line = fread($fh,4096);
