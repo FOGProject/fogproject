@@ -4,7 +4,7 @@ $vals = function($reverse,$HookManager) {
     ini_set("auto_detect_line_endings", true);
     $folder = sprintf('/%s/',trim(trim(dirname(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')),'/')));
     $pattern = sprintf('#^%s$#',$folder);
-    $folders = array('/var/log/fog/','/opt/fog/log/','/var/log/httpd/','/var/log/apache2/');
+    $folders = array('/var/log/fog/','/opt/fog/log/','/var/log/httpd/','/var/log/apache2/','var/log/nginx/');
     $HookManager->processEvent('LOG_FOLDERS',array('folders'=>&$folders));
     if (!preg_grep($pattern,$folders)) return _('Invalid Folder');
     $file = trim(basename(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')));
