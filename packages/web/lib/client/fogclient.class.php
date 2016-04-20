@@ -4,6 +4,7 @@ abstract class FOGClient extends FOGBase {
     protected $json;
     protected $Host;
     public function __construct($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false) {
+        usleep(mt_rand(10000,100000));
         try {
             parent::__construct();
             $this->newService = isset($_REQUEST['newService']);
