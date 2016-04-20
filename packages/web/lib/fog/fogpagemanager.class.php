@@ -106,7 +106,7 @@ class FOGPageManager Extends FOGBase {
             if (substr($element,$strlen) !== '.class.php') return;
             $className = substr(basename($element),0,$strlen);
             if (!$className || !isset($className)) return;
-            if (in_array($className,get_declared_classes())) return;
+            if (in_array($className,get_declared_classes()) || class_exists($className,false)) return;
             if ((self::$isMobile && !preg_match('#mobile#i',$className)) || (!self::$isMobile && preg_match('#mobile#i',$className))) return;
             $vals = get_class_vars($className);
             if ($vals['node'] !== trim(htmlentities($_REQUEST['node'],ENT_QUOTES,'utf-8'))) return;
