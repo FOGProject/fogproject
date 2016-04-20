@@ -19,7 +19,7 @@ html, body {
     height: 100%;
 }
 body {
-    margin: 0;
+    margin: 21px;
     padding: 0;
     background: #fff url('images/body-bkg.gif') repeat-x;
     font-family: Ubuntu, Arial, Helvetica, sans-serif;
