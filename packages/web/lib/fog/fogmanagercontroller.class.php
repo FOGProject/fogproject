@@ -233,13 +233,13 @@ abstract class FOGManagerController extends FOGBase {
         $this->array_remove($this->aliasedFields,$this->databaseFields);
         $findWhere = array_fill_keys(array_keys($this->databaseFields),$keyword);
         $itemIDs = self::getSubObjectIDs($this->childClass,$findWhere,'id','','OR');
-        $HostIDs = self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$mac_keyword,'description'=>$keyword),'hostID','','OR');
-        $HostIDs = array_merge($HostIDs,self::getSubObjectIDs('Inventory',array('sysserial'=>$keyword,'caseserial'=>$keyword,'mbserial'=>$keyword,'primaryUser'=>$keyword,'other1'=>$keyword,'other2'=>$keyword,'sysman'=>$keyword,'sysproduct'=>$keyword),'hostID','','OR'));
-        $HostIDs = array_merge($HostIDs,self::getSubObjectIDs('Host',array('name'=>$keyword,'description'=>$keyword,'ip'=>$keyword),'','','OR'));
+        $HostIDs = self::getSubObjectIDs('Host',array('name'=>$keyword,'description'=>$keyword,'ip'=>$keyword),'','','OR');
         switch (strtolower($this->childClass)) {
         case 'user':
             break;
         case 'host':
+            $HostIDs = self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$mac_keyword,'description'=>$keyword),'hostID','','OR');
+            $HostIDs = array_merge($HostIDs,self::getSubObjectIDs('Inventory',array('sysserial'=>$keyword,'caseserial'=>$keyword,'mbserial'=>$keyword,'primaryUser'=>$keyword,'other1'=>$keyword,'other2'=>$keyword,'sysman'=>$keyword,'sysproduct'=>$keyword),'hostID','','OR'));
             $ImageIDs = self::getSubObjectIDs('Image',array('name'=>$keyword,'description'=>$keyword),'','','OR');
             $GroupIDs = self::getSubObjectIDs('Group',array('name'=>$keyword,'description'=>$keyword),'','','OR');
             $SnapinIDs = self::getSubObjectIDs('Snapin',array('name'=>$keyword,'description'=>$keyword),'','','OR');
