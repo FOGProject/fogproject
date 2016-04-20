@@ -742,9 +742,7 @@ class FOGConfigurationPage extends FOGPage {
             $fogfiles = (array)$StorageNode->get('logfiles');
             try {
                 $apacheerrlog = preg_grep('#(error\.log$|.*error_log$)#i',$fogfiles);
-                $apacheerrlog = @array_shift($apacheerrlog);
                 $apacheacclog = preg_grep('#(access\.log$|.*access_log$)#i',$fogfiles);
-                $apacheacclog = @array_shift($apacheacclog);
                 $multicastlog = preg_grep('#(multicast.log$)#i',$fogfiles);
                 $multicastlog = @array_shift($multicastlog);
                 $schedulerlog = preg_grep('#(fogscheduler.log$)#i',$fogfiles);
@@ -766,9 +764,14 @@ class FOGConfigurationPage extends FOGPage {
                     $imgrepliclog ? _('Image Replicator') : null => $imgrepliclog ? $imgrepliclog : null,
                     $snapinreplog ? _('Snapin Replicator') : null => $snapinreplog ? $snapinreplog : null,
                     $pinghostlog ? _('Ping Hosts') : null => $pinghostlog ? $pinghostlog : null,
-                    $apacheerrlog ? _('Apache Error Log') : null  => $apacheerrlog ? $apacheerrlog : null,
-                    $apacheacclog ? _('Apache Access Log') : null  => $apacheacclog ? $apacheacclog : null,
                 );
+                $logtype = 'error';
+                $logparse = function(&$log) use (&$files,$StorageNode,&$logtype) {
+                    $files[$StorageNode->get('name')][_(sprintf('%s %s log (%s)',preg_match('#nginx#i',$log) ? 'NGINX' : 'Apache',$logtype,basename($log)))] = $log;
+                };
+                array_map($logparse,(array)$apacheerrlog);
+                $logtype = 'access';
+                array_map($logparse,(array)$apacheacclog);
                 foreach ((array)$imgtransferlogs AS &$file) {
                     $files[$StorageNode->get('name')][sprintf('%s %s',$this->string_between($file,'transfer.','.log'),_('Image Transfer Log'))] = $file;
                     unset($file);
