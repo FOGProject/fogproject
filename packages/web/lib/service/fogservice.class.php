@@ -9,7 +9,7 @@ abstract class FOGService extends FOGBase {
     public $procPipes = array();
     private static function files_are_equal($size_a,$size_b,$file_a,$file_b) {
         if ($size_a !== $size_b) return false;
-        $res = true;
+        return true;
         $fp_a = fopen($file_a,'rb');
         $fp_b = fopen($file_b,'rb');
         $a = fgets($fp_a,10240);
