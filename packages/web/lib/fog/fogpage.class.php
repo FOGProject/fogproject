@@ -739,6 +739,7 @@ abstract class FOGPage extends FOGBase {
         exit;
     }
     public function authorize() {
+        usleep(mt_rand(10000,100000));
         try {
             $Host = $this->getHostItem(true);
             $data = array_values(array_map('bin2hex',$this->certDecrypt(array($_REQUEST['sym_key'],$_REQUEST['token']))));
@@ -766,6 +767,7 @@ abstract class FOGPage extends FOGBase {
             print_r(array_keys($this->getGlobalModuleStatus()));
             exit;
         }
+        usleep(mt_rand(10000,100000));
         $globalModules = array_diff(array_keys(array_filter($this->getGlobalModuleStatus())),array('dircleanup','usercleanup','clientupdater','hostregister'));
         $Host = $this->getHostItem(true,false,true,false,isset($_REQUEST['newService']));
         $hostModules = self::getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName');
