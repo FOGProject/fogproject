@@ -767,7 +767,7 @@ class FOGConfigurationPage extends FOGPage {
                 );
                 $logtype = 'error';
                 $logparse = function(&$log) use (&$files,$StorageNode,&$logtype) {
-                    $files[$StorageNode->get('name')][_(sprintf('%s %s log (%s)',preg_match('#nginx#i',$log) ? 'NGINX' : 'Apache',$logtype,basename($log)))] = $log;
+                    $files[$StorageNode->get('name')][_(sprintf('%s %s log (%s)',preg_match('#nginx#i',$log) ? 'NGINX' : (preg_match('#apache|httpd#',$log) ? 'Apache' : (preg_match('#fpm#i',$log) ? 'PHP-FPM' : '')),$logtype,basename($log)))] = $log;
                 };
                 array_map($logparse,(array)$apacheerrlog);
                 $logtype = 'access';
