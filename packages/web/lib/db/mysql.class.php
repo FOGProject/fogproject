@@ -23,7 +23,7 @@ class MySQL extends DatabaseManager {
     private function connect() {
         try {
             if (self::$link) return $this;
-            self::$link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
+            self::$link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD,DATABASE_NAME);
             self::$link->set_charset('utf8');
             $this->current_db();
         } catch (Exception $e) {
