@@ -21,7 +21,7 @@ command -v dnf >/dev/null 2>&1
 packageQuery="rpm -q \$x"
 case $linuxReleaseName in
     *[Mm][Aa][Gg][Ee][Ii][Aa]*)
-        packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process"
+        packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process mod_fastcgi"
         packageinstaller="urpmi --auto"
         packagelist="urpmq"
         packageupdater="$packageinstaller"
@@ -31,7 +31,7 @@ case $linuxReleaseName in
         nfsexportsopts="no_subtree_check"
         ;;
     *)
-        packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process"
+        packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process mod_fastcgi"
         command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ $? -eq 0 ]]; then
             packageinstaller="dnf -y --enablerepo=$repos install"

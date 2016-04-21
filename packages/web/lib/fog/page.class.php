@@ -167,7 +167,20 @@ class Page extends FOGBase {
         $this->body = ob_get_clean();
     }
     public function render($path = '') {
-        require_once('../management/other/index.php');
-        while(ob_get_level()) ob_end_flush();
+        ignore_user_abort(true);
+        ob_start();
+        require('../management/other/index.php');
+        while (ob_get_level() > 1) {
+            $length += ob_get_length();
+            ob_end_flush();
+            ob_flush();
+            flush();
+        }
+        header('Connection: close');
+        header("Content-Length: $length");
+        ob_end_flush();
+        ob_flush();
+        flush();
+        exit;
     }
 }
