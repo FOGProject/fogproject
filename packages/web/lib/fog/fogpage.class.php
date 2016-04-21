@@ -482,9 +482,9 @@ abstract class FOGPage extends FOGBase {
                 'id'=>$Object->get('id'),
                 'name'=>$Object->get('name'),
             );
+            array_push($this->additional,sprintf('<p>%s</p>',$Object->get('name')));
             unset($Object);
         },(array)self::getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[sprintf('%sIDArray',$this->node)]))))));
-        array_push($this->additional,sprintf('<p>%s</p>',$Object->get('name')));
         if (count($this->data)) {
             printf('<div class="confirm-message"><p>%s\'s %s:</p><form method="post" action="%s_conf">',$this->childClass,_('to be removed'),$this->formAction);
             $this->render();
