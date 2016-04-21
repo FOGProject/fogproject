@@ -1033,6 +1033,10 @@ linkOptFogDir() {
         ln -s /opt/fog/service/etc /etc/fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
     fi
+    local element='httpd'
+    [[ $osid -eq 2 ]] && element='apache2'
+    chmod -R 755 /var/log/$element >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    chmod -R 755 /var/log/php*fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 }
 configureStorage() {
     dots "Setting up storage"
@@ -1688,7 +1692,8 @@ class Config {
     curl --silent -ko "${workingdir}/checksum_init/checksums" https://fogproject.org/inits/index.php -ko "${workingdir}/checksum_kernel/checksums" https://fogproject.org/kernels/index.php >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Downloading inits, kernels, and the fog client"
-    curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl >>/var/log/fog_error_${version}.log 2>&1
+    curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl
+    >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Comparing checksums of kernels and inits"
     localinitsum=$(sha512sum $webdirdest/service/ipxe/init.xz | awk '{print $1}')
