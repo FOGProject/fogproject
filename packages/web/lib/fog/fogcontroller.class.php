@@ -163,8 +163,9 @@ abstract class FOGController extends FOGBase {
     public function load($field = 'id') {
         $this->info(sprintf(_('Loading data to field %s'),$field));
         try {
-            if (!$this->get($field)) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
+            if (!is_array($field) && $field && !$this->get($field)) throw new Exception(_(sprintf(_('Operation Field not set: %s'),$field)));
             list($join, $where) = $this->buildQuery();
+            if (!is_array($field)) $field = array($field);
             array_map(function(&$key) use ($join,$where) {
                 $key = $this->key($key);
                 if (!is_array($this->get($key))) {
@@ -227,9 +228,10 @@ abstract class FOGController extends FOGBase {
     protected function key(&$key) {
         if (!is_array($key)) {
             $key = trim($key);
-            if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
+            if (array_key_exists($key,$this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
             return $key;
         }
+        return array_map(array($this,'key'),$key);
     }
     protected function loadItem($key) {
         if (!array_key_exists($key, $this->databaseFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !in_array($key, $this->additionalFields)) return $this;
