@@ -650,16 +650,19 @@ abstract class FOGPage extends FOGBase {
                     $destfile = $_SESSION['dest-kernel-file'];
                     $tmpfile = $_SESSION['tmp-kernel-file'];
                     unset($_SESSION['dest-kernel-file'],$_SESSION['tmp-kernel-file'],$_SESSION['dl-kernel-file']);
-                    self::$FOGFTP->set('host',self::getSetting('FOG_TFTP_HOST'))
-                        ->set('username',trim(self::getSetting('FOG_TFTP_FTP_USERNAME')))
-                        ->set('password',self::getSetting('FOG_TFTP_FTP_PASSWORD'));
-                    if (!self::$FOGFTP->connect()) throw new Exception(_('Error: Unable to connect to tftp server'));
                     $orig = sprintf('/%s/%s',trim(self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/'),$destfile);
                     $backuppath = sprintf('/%s/backup/',dirname($orig));
                     $backupfile = sprintf('%s%s_%s',$backuppath,$destfile,$this->formatTime('','Ymd_His'));
-                    if (self::$FOGFTP->exists($backuppath)) self::$FOGFTP->mkdir($backuppath);
-                    self::$FOGFTP->delete($orig);
-                    if (!(self::$FOGFTP->rename($orig,$backupfile) || self::$FOGFTP->put($orig,$tmpfile))) throw new Exception(_('Error: Failed to install new kernel'));
+                    self::$FOGFTP->set('host',self::getSetting('FOG_TFTP_HOST'))
+                        ->set('username',trim(self::getSetting('FOG_TFTP_FTP_USERNAME')))
+                        ->set('password',self::getSetting('FOG_TFTP_FTP_PASSWORD'))
+                        ->connect();
+                    if (!self::$FOGFTP->exists($backuppath)) self::$FOGFTP->mkdir($backuppath);
+                    if (self::$FOGFTP->exists($orig)) self::$FOGFTP->rename($orig,$backupfile);
+                    self::$FOGFTP
+                        ->delete($orig)
+                        ->rename($tmpfile,$orig)
+                        ->chmod(0655,$orig);
                     self::$FOGFTP->close();
                     @unlink($tmpfile);
                     $SendME = '##OK##';
