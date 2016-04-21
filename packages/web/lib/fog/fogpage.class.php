@@ -733,12 +733,8 @@ abstract class FOGPage extends FOGBase {
         printf('</form>');
     }
     public function configure() {
-        $randTime = mt_rand(0,90);
-        $setTime = (int) self::getSetting('FOG_SERVICE_CHECKIN_TIME');
-        $randTime += $setTime;
-        unset($setTime);
-        echo "#!ok\n#sleep=$randTime\n#force={self::getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={self::getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={self::getSetting(FOG_GRACE_TIMEOUT)}";
-        unset($randTime);
+        $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_SERVICE_CHECKIN_TIME','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
+        printf("#!ok\n#maxsize=%d\n#promptTime=%d\n#sleep=%d\nforce=%s",array_shift($Services),array_shift($Services),mt_rand(1,91) + array_shift($Services),array_shift($Services));
         usleep(mt_rand(10000,100000));
         exit;
     }
