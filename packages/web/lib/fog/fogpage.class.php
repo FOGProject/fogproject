@@ -739,10 +739,10 @@ abstract class FOGPage extends FOGBase {
         unset($setTime);
         echo "#!ok\n#sleep=$randTime\n#force={self::getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={self::getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={self::getSetting(FOG_GRACE_TIMEOUT)}";
         unset($randTime);
+        usleep(mt_rand(10000,100000));
         exit;
     }
     public function authorize() {
-        usleep(mt_rand(10000,100000));
         try {
             $Host = $this->getHostItem(true);
             $data = array_values(array_map('bin2hex',$this->certDecrypt(array($_REQUEST['sym_key'],$_REQUEST['token']))));
@@ -763,6 +763,7 @@ abstract class FOGPage extends FOGBase {
         catch (Exception $e) {
             echo  $e->getMessage();
         }
+        usleep(mt_rand(10000,100000));
         exit;
     }
     public function requestClientInfo() {
