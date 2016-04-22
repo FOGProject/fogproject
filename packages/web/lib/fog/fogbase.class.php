@@ -534,7 +534,7 @@ abstract class FOGBase {
         if (empty($operator)) $operator = 'AND';
         return self::getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','',$groupBy,$not,$getField,'',$filter);
     }
-    public function getSetting($key) {
+    public static function getSetting($key) {
         $value = self::getSubObjectIDs('Service',array('name'=>$key),'value');
         return trim(html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",array_shift($value)),'UTF-8'),ENT_QUOTES,'UTF-8'));
     }
