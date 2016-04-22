@@ -783,7 +783,7 @@ changeHostname() {
         fi
     fi
     umount /ntfs >/dev/null 2>&1
-    ntfs-3g -o remove_hiberfile,force,rw $part /ntfs >/tmp/ntfs-mount-output 2>&1
+    ntfs-3g -o remove_hiberfile,rw $part /ntfs >/tmp/ntfs-mount-output 2>&1
     case $? in
         0)
             echo "Done"
@@ -897,7 +897,7 @@ fixWin7boot() {
                 ;;
         esac
     fi
-    ntfs-3g -o remove_hiberfile,force,rw $part /bcdstore >/tmp/ntfs-mount-output 2>&1
+    ntfs-3g -o remove_hiberfile,rw $part /bcdstore >/tmp/ntfs-mount-output 2>&1
     case $? in
         0)
             echo "Done"
@@ -976,7 +976,7 @@ clearMountedDevices() {
             case $fstype in
                 ntfs)
                     dots "Clearing part ($part)"
-                    ntfs-3g -o remove_hiberfile,force,rw $part /ntfs >/tmp/ntfs-mount-output 2>&1
+                    ntfs-3g -o remove_hiberfile,rw $part /ntfs >/tmp/ntfs-mount-output 2>&1
                     case $? in
                         0)
                             ;;
@@ -1041,7 +1041,7 @@ removePageFile() {
                         esac
                     fi
                     umount /ntfs >/dev/null 2>&1
-                    ntfs-3g -o remove_hiberfile,force,rw $part /ntfs >/tmp/ntfs-mount-output 2>&1
+                    ntfs-3g -o remove_hiberfile,rw $part /ntfs >/tmp/ntfs-mount-output 2>&1
                     case $? in
                         0)
                             echo "Done"
