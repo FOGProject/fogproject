@@ -5,7 +5,7 @@ class SchemaUpdaterPage extends FOGPage {
         parent::__construct($this->name);
         $newSchema = self::getClass('SchemaManager')->find();
         $newSchema = @array_shift($newSchema);
-        if ($newSchema->get('version') >= FOG_SCHEMA) self::redirect('index.php');
+        if ($newSchema instanceof Schema && $newSchema->isValid() && $newSchema->get('version') >= FOG_SCHEMA) self::redirect('index.php');
         $this->name = 'Database Schema Installer / Updater';
         $this->menu = array();
         $this->subMenu = array();
