@@ -83,7 +83,7 @@ abstract class FOGService extends FOGBase {
         if (fwrite($fh,"$string\n") === false) return;
         fclose($fh);
     }
-    protected function getDateTime() {
+    protected static function getDateTime() {
         return self::nice_date()->format('m-d-y g:i:s a');
     }
     protected static function wlog($string, $path) {
