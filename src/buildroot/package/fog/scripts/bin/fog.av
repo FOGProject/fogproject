@@ -80,7 +80,7 @@ for disk in $disks; do
         case $fstype in
             [Nn][Tt][Ff][Ss])
                 echo " * Mounting partition $part"
-                ntfs-3g -o force,rw $part /clamavscan &> /tmp/clamavscan-mount-output
+                ntfs-3g -o remove_hiberfile,force,rw $part /clamavscan &> /tmp/clamavscan-mount-output
                 ;;
             [Ee][Xx][Tt][Ff][Ss])
                 echo " * Mounting partition $part"
