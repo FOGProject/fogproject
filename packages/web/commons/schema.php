@@ -2133,3 +2133,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`tasks` ADD COLUMN `taskWOL` ENUM('0','1')  NOT NULL AFTER `taskLastMemberID`",
 );
+// 217
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`clientUpdates` CHANGE `cuType` `cuType` VARCHAR(30) NOT NULL",
+);

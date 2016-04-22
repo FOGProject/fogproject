@@ -1,11 +1,15 @@
 <?php
-header('Strict-Transport-Security: "max-age=15768000"');
-header('X-Content-Type-Options: nosniff');
+while (ob_get_level()) {
+    flush();
+    ob_flush();
+    ob_end_flush();
+}
+header('Connection: close');
+header('X-Frame-Options: sameorigin');
 header('X-XSS-Protection: 1; mode=block');
-header('X-Robots-Tag: none');
-header('X-Frame-Options: SAMEORIGIN');
-header('Cache-Control: no-cache');
+header('X-Content-Type-Options: nosniff');
+header('Strict-Transport-Security: max-age=31536000');
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; child-src 'self'; img-src 'self'; media-src 'none'; object-src 'none'; plugin-types 'none'; style-src 'self' 'unsafe-inline';");
 require_once('text.php');
 require_once('init.php');
-while (ob_get_level()) ob_end_clean();
 ob_start(array('Initiator','sanitize_output'));
