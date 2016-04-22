@@ -97,7 +97,7 @@ class SnapinManagementPage extends FOGPage {
             _('Snapin Enabled') => '<input type="checkbox" name="isEnabled" value="1"checked/>',
             _('Replicate?') => '<input type="checkbox" name="toReplicate" value="1" checked/>',
             _('Reboot after install') => '<input class="action" type="radio" name="action" value="reboot"/>',
-            _('Shutdown after install') => '<input class="action" type="radio" name="action" value="shutdown"/>',
+            //_('Shutdown after install') => '<input class="action" type="radio" name="action" value="shutdown"/>',
             _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
             '&nbsp;' => sprintf('<input name="add" type="submit" value="%s"/>',_('Add'))
         );
@@ -152,7 +152,7 @@ class SnapinManagementPage extends FOGPage {
                 ->set('file',$snapinfile)
                 ->set('args',$_REQUEST['args'])
                 ->set('reboot',(int)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'reboot'))
-                ->set('shutdown',(int)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'shutdown'))
+                //->set('shutdown',(int)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'shutdown'))
                 ->set('runWith',$_REQUEST['rw'])
                 ->set('runWithArgs',$_REQUEST['rwa'])
                 ->set('isEnabled',(int)isset($_REQUEST['isEnabled']))
@@ -202,7 +202,7 @@ class SnapinManagementPage extends FOGPage {
             _('Snapin Arguments') => sprintf('<input class="cmdlet4" type="text" name="args" value="%s"/>',$this->obj->get('args')),
             _('Protected') => sprintf('<input type="checkbox" name="protected_snapin" value="1"%s/>',$this->obj->get('protected') ? ' checked' : ''),
             _('Reboot after install') => sprintf('<input class="action" type="radio" name="action" value="reboot"%s/>',$this->obj->get('reboot') ? ' checked' : ''),
-            _('Shutdown after install') => sprintf('<input class="action" type="radio" name="action" value="shutdown"%s/>',$this->obj->get('shutdown') ? ' checked' : ''),
+            //_('Shutdown after install') => sprintf('<input class="action" type="radio" name="action" value="shutdown"%s/>',$this->obj->get('shutdown') ? ' checked' : ''),
             _('Snapin Enabled') => sprintf('<input type="checkbox" name="isEnabled" value="1"%s/>',$this->obj->get('isEnabled') ? ' checked' : ''),
             _('Replicate?') => sprintf('<input type="checkbox" name="toReplicate" value="1"%s/>',$this->obj->get('toReplicate') ? ' checked' : ''),
             _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
@@ -316,7 +316,7 @@ class SnapinManagementPage extends FOGPage {
                     ->set('file',$snapinfile)
                     ->set('args',$_REQUEST['args'])
                     ->set('reboot',(int)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'reboot'))
-                    ->set('shutdown',(int)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'shutdown'))
+                    //->set('shutdown',(int)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'shutdown'))
                     ->set('runWith',$_REQUEST['rw'])
                     ->set('runWithArgs',$_REQUEST['rwa'])
                     ->set('protected',(int)isset($_REQUEST['protected_snapin']))
