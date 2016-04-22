@@ -168,7 +168,6 @@ class Page extends FOGBase {
     }
     public function render($path = '') {
         ignore_user_abort(true);
-        header('Connection: close');
         require('../management/other/index.php');
         while (ob_get_level()) {
             ob_end_flush();
