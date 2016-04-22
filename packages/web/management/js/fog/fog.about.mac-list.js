@@ -1,3 +1,13 @@
+$(function() {
+    $('#macButtonDel').click(function(e) {
+        e.preventDefault();
+        clearMacs();
+    });
+    $('#macButtonUp').click(function(e) {
+        e.preventDefault();
+        updateMacs();
+    });
+});
 function clearMacs() {
     $('#delete').html('Are you sure you wish to clear all mac address listings?');
     $('#delete').dialog({
