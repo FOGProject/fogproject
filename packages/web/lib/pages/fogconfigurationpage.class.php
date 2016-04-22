@@ -136,7 +136,7 @@ class FOGConfigurationPage extends FOGPage {
             sprintf('%s:*',_('Menu Timeout (in seconds)')) => sprintf('<input type="text" name="timeout" value="%s" id="timeout"/>',$timeout),
             _('Exit to Hard Drive Type') => $exitNorm,
             _('Exit to Hard Drive Type(EFI)') => $exitEfi,
-            '<a href="#" onload="$(\'#advancedTextArea\').hide();" onclick="$(\'#advancedTextArea\').toggle();" id="pxeAdvancedLink">Advanced Configuration Options</a>' => sprintf('<div id="advancedTextArea" class="hidden"><div class="lighterText tabbed">%s</div><textarea rows="5" cols="40" name="adv">%s</textarea></div>',_('Add any custom text you would like included added as a part of your <i>default</i> file.'),$advanced),
+            '<a href="#" id="pxeAdvancedLink">Advanced Configuration Options</a>' => sprintf('<div id="advancedTextArea" class="hidden"><div class="lighterText tabbed">%s</div><textarea rows="5" cols="40" name="adv">%s</textarea></div>',_('Add any custom text you would like included added as a part of your <i>default</i> file.'),$advanced),
             '&nbsp;' => sprintf('<input type="submit" value="%s"/>',_('Save PXE MENU')),
         );
         foreach ((array)$fields AS $field => &$input) {
@@ -305,7 +305,7 @@ class FOGConfigurationPage extends FOGPage {
             '<input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED" />${name}',
             '${module}',
             '${type}',
-            sprintf('<input type="checkbox" onclick="this.form.submit()" name="delcu" class="delid" id="delcuid${client_id}" value="${client_id}" /><label for="delcuid${client_id}" class="icon fa fa-minus-circle icon-hand" title="%s">&nbsp;</label>',_('Delete')),
+            sprintf('<input type="checkbox" name="delcu" class="delid" id="delcuid${client_id}" value="${client_id}" /><label for="delcuid${client_id}" class="icon fa fa-minus-circle icon-hand" title="%s">&nbsp;</label>',_('Delete')),
         );
         $this->attributes = array(
             array(),
@@ -355,24 +355,30 @@ class FOGConfigurationPage extends FOGPage {
         echo '</form>';
     }
     public function client_updater_post() {
-        if ($_REQUEST['delcu']) {
-            self::getClass('ClientUpdaterManager')->destroy(array('id'=>$_REQUEST['delcu']));
-            $this->setMessage(_('Client module update deleted!'));
-        }
         try {
-            if ($_FILES['module']['error'] > 0) throw new UploadException($_FILES['module']['error']);
-            foreach ((array)$_FILES['module']['tmp_name'] AS $index => &$tmp_name) {
-                if (!file_exists($tmp_name)) continue;
-                if (!($md5 = md5(file_get_contents($tmp_name)))) continue;
-                $filename = basename($_FILES['module']['name'][$index]);
-                self::getClass('ClientUpdater',@max(self::getClass('ClientUpdater',array('name'=>$filename),'id')))
+            if ($_REQUEST['delcu']) {
+                if (!self::getClass('ClientUpdaterManager')->destroy(array('id'=>$_REQUEST['delcu']))) throw new Exception(_('Failed to delete module'));
+                throw new Exception(_('Client module update deleted!'));
+            }
+            if (count($_FILES['module']['tmp_name']) < 1) throw new Exception(_('No file uploaded'));
+            array_map(function(&$err) {
+                if ($err > 0) throw new UploadException($err);
+                unset($err);
+            },(array)$_FILES['module']['error']);
+            array_walk($_FILES['module']['tmp_name'],function(&$tmp_name,&$index) {
+                if (!file_exists($tmp_name)) return;
+                if (!($md5 = md5_file($tmp_name))) return;
+                $filename = htmlentities(basename($_FILES['module']['name'][$index]),ENT_QUOTES,'utf-8');
+                $fp = fopen($tmp_name,'rb');
+                $content = fread($fp, filesize($tmp_name));
+                fclose($fp);
+                self::getClass('ClientUpdater',@max(self::getClass('ClientUpdater',array('name'=>$filename))))
                     ->set('name',$filename)
                     ->set('md5',$md5)
-                    ->set('type',$this->endsWith($filename,'.ini') ? 'txt' : 'bin')
-                    ->set('file',file_get_contents($tmp_name))
+                    ->set('type',self::getClass('finfo',FILEINFO_MIME)->file($tmp_name))
+                    ->set('file',$content)
                     ->save();
-                unset($tmp_name);
-            }
+            });
             $this->setMessage(_('Modules added/updated'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
@@ -381,7 +387,7 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function mac_list() {
         $this->title = _('MAC Address Manufacturer Listing');
-        printf('<div class="hostgroup">%s</div><div><p>%s: %s</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="%s" value="%s" onclick="clearMacs()"/><input class="macButtons" style="margin-left: 20px" type="button" title="%s" value="%s" onclick="updateMacs()"/></p><p>%s<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>',_('This section allows you to import known mac address makers into the FOG Database for easier identification.'),_('Current Records'),self::$FOGCore->getMACLookupCount(),_('Delete MACs'),_('Delete Current Records'),_('Update MACs'),_('Update Current Listing'),_('MAC Address listing source: '));
+        printf('<div class="hostgroup">%s</div><div class="c"><p>%s: %s</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="%s" value="%s" id="macButtonDel"/>&nbsp;&nbsp;&nbsp;&nbsp;<input class="macButtons" id="macButtonUp" type="button" title="%s" value="%s"/></p><p>%s<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>',_('This section allows you to import known mac address makers into the FOG Database for easier identification.'),_('Current Records'),self::$FOGCore->getMACLookupCount(),_('Delete MACs'),_('Delete Current Records'),_('Update MACs'),_('Update Current Listing'),_('MAC Address listing source: '));
     }
     public function mac_list_post() {
         if ($_REQUEST['update']) {
