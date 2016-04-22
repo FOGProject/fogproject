@@ -1,9 +1,4 @@
 <?php
-while (ob_get_level()) {
-    flush();
-    ob_flush();
-    ob_end_flush();
-}
 header('Connection: close');
 header('X-Frame-Options: sameorigin');
 header('X-XSS-Protection: 1; mode=block');
