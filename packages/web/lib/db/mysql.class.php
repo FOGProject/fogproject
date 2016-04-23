@@ -6,12 +6,11 @@ class MySQL extends DatabaseManager {
     private static $result;
     private static $db_name;
     public function __construct() {
-        if (self::$link) $this;
+        if (self::$link) return $this;
         try {
-            if (!class_exists('mysqli')) throw new Exception(sprintf('%s %s',__CLASS__,_('PHP Extentions not loaded')));
             if (!$this->connect()) throw new Exception(_('Failed to connect'));
         } catch (Exception $e) {
-            $this->error(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
+            $this->sqlerror(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
         }
     }
     public function __destruct() {
@@ -25,14 +24,14 @@ class MySQL extends DatabaseManager {
             if (self::$link) return $this;
             self::$link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
             self::$link->set_charset('utf8');
-            $this->current_db();
+            self::current_db();
         } catch (Exception $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
             if (self::$link->connect_error) die($e->getMessage());
         }
         return $this;
     }
-    public function current_db() {
+    public static function current_db() {
         if (!isset(self::$db_name) || !self::$db_name) self::$db_name = self::$link->select_db(DATABASE_NAME);
         return $this;
     }
@@ -43,10 +42,10 @@ class MySQL extends DatabaseManager {
             if (count($data)) $sql = vsprintf($sql,$data);
             $this->info($sql);
             self::$query = $sql;
-            $this->current_db();
+            self::current_db();
             if (!self::$query) throw new Exception(_('No query sent'));
             else if (!self::$queryResult = self::$link->query(self::$query)) throw new Exception(sprintf('%s: %s',_('Error'),$this->sqlerror()));
-            if (!self::$db_name) $this->current_db();
+            if (!self::$db_name) self::current_db();
             if (!self::$db_name) throw new Exception(_('No database to work off'));
         } catch (Exception $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
