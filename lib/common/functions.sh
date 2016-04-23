@@ -522,6 +522,8 @@ installPackages() {
     dots "Adding needed repository"
     case $osid in
         1)
+            [[ $packages != +(*'mod_evasive'*) ]] && packages="$packages mod_evasive"
+            [[ $packages != +(*'mod_fastcgi'*) ]] && packages="$packages mod_fastcgi"
             $packageinstaller epel-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             case $linuxReleaseName in
                 *[Ff][Ee][Dd][Oo][Rr][Aa]*)
@@ -546,10 +548,10 @@ installPackages() {
                 rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             fi
             [[ -n $repoenable ]] && eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-            [[ $packages != +(*'mod_evasive'*) ]] && packages="$packages mod_evasive"
-            [[ $packages != +(*'mod_fastcgi'*) ]] && packages="$packages mod_fastcgi"
             ;;
         2)
+            [[ $packages != +(*'libapache2-mod-evasive'*) ]] && packages="$packages libapache2-mod-evasive"
+            [[ $packages != +(*'libapache2-mod-fastcgi'*) ]] && packages="$packages libapache2-mod-fastcgi"
             case $linuxReleaseName in
                 *[Dd][Ee][Bb][Ii][Aa][Nn]*)
                     if [[ $OSVersion -eq 7 ]]; then
@@ -578,8 +580,6 @@ installPackages() {
                     LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
-            [[ $packages != +(*'libapache2-mod-evasive'*) ]] && packages="$packages libapache2-mod-evasive"
-            [[ $packages != +(*'libapache2-mod-fastcgi'*) ]] && packages="$packages libapache2-mod-fastcgi"
             ;;
     esac
     errorStat $?
