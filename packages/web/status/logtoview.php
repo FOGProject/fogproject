@@ -1,5 +1,7 @@
 <?php
+ob_start();
 require_once('../commons/base.inc.php');
+header('Content-Type: text/event-stream');
 $vals = function($reverse,$HookManager) {
     ini_set("auto_detect_line_endings", true);
     $folder = sprintf('/%s/',trim(trim(dirname(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')),'/')));
@@ -48,4 +50,8 @@ if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
         echo array_shift($response);
     }
 }
+header('Connection: close');
+flush();
+ob_flush();
+ob_end_flush();
 exit;

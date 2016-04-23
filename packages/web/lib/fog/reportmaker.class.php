@@ -38,6 +38,7 @@ class ReportMaker {
         $file = basename(trim(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')));
         if (!isset($_REQUEST['export'])) $this->setFileName($file);
         $intType = ($intType !== false ? (isset($_REQUEST['export']) ? 3 : $this->types[$type]) : 0);
+        ob_start();
         switch ((int) $intType) {
         case 0:
             echo implode("\n",(array)$this->strHTML);
@@ -94,5 +95,9 @@ class ReportMaker {
             $cmd = sprintf("rm -rf %s",escapeshellarg($filepath));
             exec($cmd);
         }
+        header('Connection: close');
+        flush();
+        ob_flush();
+        ob_end_flush();
     }
 }

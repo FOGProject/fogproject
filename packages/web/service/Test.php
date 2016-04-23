@@ -53,3 +53,4 @@ if (strpos($unit,'AESDecryption') !== false) {
 } else {
     $$unit();
 }
+exit;

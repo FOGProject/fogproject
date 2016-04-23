@@ -1,5 +1,4 @@
 <?php
-header('Content-Type: text/event-stream');
 $getInterface = function() {
     $dev = trim($_REQUEST['dev'] ? basename(htmlentities($_REQUEST['dev'],ENT_QUOTES,'utf-8')) : 'eth0');
     $interfaces = array_map(function(&$iface) use (&$interfaces) {
@@ -13,5 +12,11 @@ $getInterface = function() {
     $tx = trim(file_get_contents(sprintf('/sys/class/net/%s/statistics/tx_bytes',$dev)));
     return array('dev'=>$dev,'rx'=>$rx,'tx'=>$tx);
 };
+ob_start();
+header('Content-Type: text/event-stream');
 echo json_encode($getInterface());
+header('Connection: close');
+flush();
+ob_flush();
+ob_end_flush();
 exit;
