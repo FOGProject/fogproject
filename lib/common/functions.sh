@@ -546,6 +546,8 @@ installPackages() {
                 rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             fi
             [[ -n $repoenable ]] && eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+            [[ $packages != +(*'mod_evasive'*) ]] && packages="$packages mod_evasive"
+            [[ $packages != +(*'mod_fastcgi'*) ]] && packages="$packages mod_fastcgi"
             ;;
         2)
             case $linuxReleaseName in
@@ -576,6 +578,8 @@ installPackages() {
                     LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
+            [[ $packages != +(*'libapache2-mod-evasive'*) ]] && packages="$packages libapache2-mod-evasive"
+            [[ $packages != +(*'libapache2-mod-fastcgi'*) ]] && packages="$packages libapache2-mod-fastcgi"
             ;;
     esac
     errorStat $?
