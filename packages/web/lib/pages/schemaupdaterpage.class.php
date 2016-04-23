@@ -43,7 +43,7 @@ class SchemaUpdaterPage extends FOGPage {
                         unset($update);
                     }
                     unset($updates);
-                    self::$DB->current_db();
+                    self::$DB::current_db();
                     if (self::$DB->db_name()) {
                         $newSchema = self::getClass('SchemaManager')->find();
                         $newSchema = @array_shift($newSchema);
