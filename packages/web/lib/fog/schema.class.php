@@ -9,6 +9,7 @@ class Schema extends FOGController {
         $file = '/tmp/fog_backup_tmp.sql';
         if (!$backup_name) $backup_name = sprintf('fog_backup_%s.sql',$this->formatTime('','Ymd_His'));
         $dump = self::getClass('Mysqldump');
+        ob_start();
         $dump->start($file);
         if (!file_exists($file) || !is_readable($file)) throw new Exception(_('Could not read tmp file.'));
         if ($remove_file) {
@@ -25,6 +26,9 @@ class Schema extends FOGController {
             unlink($file);
             return;
         }
+        flush();
+        ob_flush();
+        ob_end_flush();
         return $file;
     }
     public function import_db($file) {

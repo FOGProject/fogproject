@@ -18,12 +18,14 @@ class UpdateClient extends FOGClient implements FOGClientSend {
                 break;
             case 'get':
                 $ClientUpdateFile = @array_shift($ClientUpdateFiles);
+                if (!($ClientUpdateFile && $ClientUpdateFile->isValid())) throw new Exception(_('Invalid data'));
                 $filename = basename($ClientUpdateFile->get('name'));
                 if (!$this->newService) {
                     header('Cache-control: must-revalidate, post-check=0, pre-check=0');
                     header('Content-Description: File Transfer');
                     header('ContentType: application/octet-stream');
                     header("Content-Disposition: attachment; filename=$filename");
+                    header('Connection: close');
                 }
                 $this->send = $ClientUpdateFile->get('file');
                 if ($this->newService) $this->send = "#!ok\n#filename=$filename\n#updatefile=".bin2hex($this->send);

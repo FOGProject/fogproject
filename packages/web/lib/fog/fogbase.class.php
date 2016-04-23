@@ -170,6 +170,7 @@ abstract class FOGBase {
         header('X-Frame-Options: SAMEORIGIN');
         header('Cache-Control: no-cache');
         header("Location: $url");
+        header('Connection: close');
         exit;
     }
     protected function array_insert_before($key, array &$array, $new_key, $new_value) {
