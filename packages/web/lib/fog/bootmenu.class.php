@@ -122,7 +122,8 @@ class BootMenu extends FOGBase {
         unset($defaultMenu);
         self::getDefaultMenu($this->timeout,$menuname,$this->defaultChoice);
         $this->ipxeLog();
-        if (trim($_REQUEST['extraargs']) && $_SESSION['extraargs'] != trim($_REQUEST['extraargs'])) $_SESSION['extraargs'] = trim($_REQUEST['extraargs']);
+        $_REQUEST['extraargs'] = trim($_REQUEST['extraargs']);
+        if ($_REQUEST['extraargs']) $_SESSION['extraargs'] = $_REQUEST['extraargs'];
         if (isset($_REQUEST['username'])) $this->verifyCreds();
         else if ($_REQUEST['qihost']) $this->setTasking($_REQUEST['imageID']);
         else if ($_REQUEST['delconf']) $this->delHost();
