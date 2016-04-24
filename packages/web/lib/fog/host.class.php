@@ -518,9 +518,9 @@ class Host extends FOGController {
                 if (!$Image->get('isEnabled')) throw new Exception(_('Image is not enabled'));
                 $StorageGroup = $Image->getStorageGroup();
                 if (!$StorageGroup->isValid()) throw new Exception(self::$foglang['ImageGroupNotValid']);
-                $StorageNode = ($TaskType->isUpload() ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
-                if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode($this->get('imageID'));
-                if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(self::$foglang['SGNotValid']);
+                $StorageNode = ($TaskType->isUpload() ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode($this->get('imageID')));
+                if (!$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode($this->get('imageID'));
+                if (!$StorageNode->isValid()) throw new Exception(_('Could not find any nodes containing this image'));
                 $imageTaskImgID = $this->get('imageID');
                 $hostsWithImgID = self::getSubObjectIDs('Host',array('imageID'=>$imageTaskImgID));
                 $realImageID = self::getSubObjectIDs('Host',array('id'=>$this->get('id')),'imageID');
