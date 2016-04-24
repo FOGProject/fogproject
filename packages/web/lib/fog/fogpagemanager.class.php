@@ -52,27 +52,27 @@ class FOGPageManager Extends FOGBase {
     }
     public function render() {
         $toRender = in_array($_REQUEST['node'],array('client','schemaupdater')) || in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo')) || (self::$FOGUser->isValid());
-        if ($toRender) {
-            $this->loadPageClasses();
-            try {
-                $class = $this->getFOGPageClass();
-                $method = $this->methodValue;
-                if ($this->classValue == 'schemaupdater') $this->methodValue = 'index';
-                if (empty($method) || !method_exists($class, $method)) $method = 'index';
-                $displayScreen = trim(strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']));
-                if (!array_key_exists($this->classValue, $this->nodes)) throw new Exception(_('No FOGPage Class found for this node'));
-                if (isset($_REQUEST[$class->id]) && $_REQUEST[$class->id]) $this->arguments = array('id'=>$_REQUEST[$class->id]);
-                if (self::$post) $this->setRequest();
-                else $this->resetRequest();
-                if ($this->classValue != 'schemaupdater' && $method == 'index' && $displayScreen != 'list' && $this->methodValue != 'list' && method_exists($class, 'search') && in_array($class->node,self::$searchPages)) $method = 'search';
-                if (self::$ajax && method_exists($class, $method.'_ajax')) $method = $this->methodValue.'_ajax';
-                if (self::$post && method_exists($class, $method.'_post')) $method = $this->methodValue.'_post';
-            } catch (Exception $e) {
-                $this->debug(_('Failed to Render Page: Node: %s, Error: %s'),array(get_class($class),$e->getMessage()));
-            }
-            $class->$method();
-            $this->resetRequest();
+        if (!$toRender) return;
+        $method = $this->methodValue;
+        if (!$_SERVER['HTTP_USER_AGENT'] && in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo'))) return self::getClass('DashboardPage')->$method();
+        $this->loadPageClasses();
+        try {
+            $class = $this->getFOGPageClass();
+            if ($this->classValue == 'schemaupdater') $this->methodValue = 'index';
+            if (empty($method) || !method_exists($class, $method)) $method = 'index';
+            $displayScreen = trim(strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']));
+            if (!array_key_exists($this->classValue, $this->nodes)) throw new Exception(_('No FOGPage Class found for this node'));
+            if (isset($_REQUEST[$class->id]) && $_REQUEST[$class->id]) $this->arguments = array('id'=>$_REQUEST[$class->id]);
+            if (self::$post) $this->setRequest();
+            else $this->resetRequest();
+            if ($this->classValue != 'schemaupdater' && $method == 'index' && $displayScreen != 'list' && $this->methodValue != 'list' && method_exists($class, 'search') && in_array($class->node,self::$searchPages)) $method = 'search';
+            if (self::$ajax && method_exists($class, $method.'_ajax')) $method = $this->methodValue.'_ajax';
+            if (self::$post && method_exists($class, $method.'_post')) $method = $this->methodValue.'_post';
+        } catch (Exception $e) {
+            $this->debug(_('Failed to Render Page: Node: %s, Error: %s'),array(get_class($class),$e->getMessage()));
         }
+        $class->$method();
+        $this->resetRequest();
     }
     private function register($class) {
         if (!$class) die(_('No class value sent'));
