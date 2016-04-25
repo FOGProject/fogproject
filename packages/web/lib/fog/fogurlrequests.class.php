@@ -21,33 +21,34 @@ class FOGURLRequests extends FOGBase {
     public function __destruct() {
         @curl_multi_close($this->handle);
     }
+    private function validURL(&$URL) {
+        $URL = filter_var($URL,FILTER_SANITIZE_URL);
+        if (filter_var($URL,FILTER_VALIDATE_URL) === false) unset($URL);
+        return $URL;
+    }
+    private function proxyInfo(&$URL) {
+        try {
+            if (!self::$DB) throw new Exception(_('Unable to connect to the DB'));
+            list($ip,$password,$port,$username) = self::getSubObjectIDs('Service',array('name'=>array('FOG_PROXY_IP','FOG_PROXY_PASSWORD','FOG_PROXY_PORT','FOG_PROXY_USERNAME')),'value',false,'AND','name',false,false);
+            if ($ip && filter_var($ip,FILTER_VALIDATE_IP) === false) throw new Exception(_('Invalid Proxy IP'));
+            $IPs = self::getSubObjectIDs('StorageNode','','ip');
+            if (preg_match(sprintf('#^(?!.*%s)#i',implode('|',(array)$IPs)),$URL)) return false;
+            $this->contextOptions[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
+            $this->contextOptions[CURLOPT_PROXY_PORT] = $port;
+            $this->contextOptions[CURLOPT_PROXY] = $ip;
+            if ($username) $this->contextOPtions[CURLOPT_PROXYUSERPWD] = sprintf('%s:%s',$username,$password);
+            return true;
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+        return false;
+    }
     public function process($urls, $method = 'GET',$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
         if (!is_array($urls)) $urls = array($urls);
         if (empty($method)) $method = 'GET';
         array_map(function(&$url) use ($urls,$method,$data,$sendAsJSON,$auth,$callback,$file,&$curl) {
-            $url = filter_var($url, FILTER_SANITIZE_URL);
-            if (filter_var($url,FILTER_VALIDATE_URL) === false) {
-                unset($url);
-                return;
-            }
-            $ProxyUsed = false;
-            if (self::$DB && ($ip = self::getSetting('FOG_PROXY_IP'))) {
-                if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
-                    unset($url,$ip);
-                    return;
-                }
-                $IPs = self::getSubObjectIDs('StorageNode','','ip');
-                if (!preg_match('#^(?!.*'.implode('|',(array)$IPs).')$#i',$url)) $ProxyUsed = true;
-                $username = self::getSetting('FOG_PROXY_USERNAME');
-                $password = self::getSetting('FOG_PROXY_PASSWORD');
-            }
-            if ($ProxyUsed) {
-                $this->contextOptions[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
-                $this->contextOptions[CURLOPT_PROXYPORT] = self::getSetting('FOG_PROXY_PORT');
-                $this->contextOptions[CURLOPT_PROXY] = $ip;
-                if ($username) $this->contextOptions[CURLOPT_PROXYUSERPWD] = $username.':'.$password;
-            }
-            unset($ProxyUsed);
+            $this->validURL($url);
+            if (!$this->isAvailable($url)) return;
             if ($method == 'GET' && $data !== null) $url = sprintf('%s?%s',$url,http_build_query((array)$data));
             $ch = @curl_init($url);
             $this->contextOptions[CURLOPT_URL] = $url;
@@ -85,5 +86,21 @@ class FOGURLRequests extends FOGBase {
         });
         if (!$file) return $response;
         @fclose($file);
+    }
+    public function isAvailable($URL) {
+        $this->validURL($URL);
+        $this->proxyInfo($URL);
+        $origContext = $this->contextOptions;
+        $ch = curl_init($URL);
+        $this->contextOptions[CURLOPT_URL] = $URL;
+        $this->contextOptions[CURLOPT_HEADER] = true;
+        $this->contextOptions[CURLOPT_NOBODY] = true;
+        $this->contextOptions[CURLOPT_RETURNTRANSFER] = true;
+        curl_setopt_array($ch,$this->contextOptions);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        $this->contextOptions = $origContext;
+        if ($response) return true;
+        return false;
     }
 }

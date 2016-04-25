@@ -56,6 +56,7 @@ class DashboardPage extends FOGPage {
                 $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
                 $URL = filter_var("http://$ip{$webroot}service/getversion.php",FILTER_SANITIZE_URL);
                 unset($curroot,$webroot,$ip);
+                if (!self::$FOGURLRequests->isAvailable($URL)) return;
                 $version = self::$FOGURLRequests->process($URL,'POST');
                 $version = array_shift($version);
                 printf('<option value="%s">%s%s (%s)</option>',$StorageNode->get('id'),$StorageNode->get('name'),($StorageNode->get('isMaster') ? ' *' : ''),$version);
@@ -90,6 +91,7 @@ class DashboardPage extends FOGPage {
             if (!$StorageNode->isValid()) return;
             $URL = filter_var(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim(self::getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface')),FILTER_SANITIZE_URL);
             $dataSet = self::$FOGURLRequests->process($URL,'GET');
+            if (!self::$FOGURLRequests->isAvailable($URL)) return;
             unset($URL);
             $data[$StorageNode->get('name')] = json_decode(array_shift($dataSet));
             unset($dataSet,$StorageNode);
@@ -105,6 +107,7 @@ class DashboardPage extends FOGPage {
             $curroot = trim(trim($this->obj->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
             $URL = filter_var(sprintf('http://%s%sstatus/freespace.php?path=%s',$this->obj->get('ip'),$webroot,base64_encode($this->obj->get('path'))),FILTER_SANITIZE_URL);
+            if (!self::$FOGURLRequests->isAvailable($URL)) return;
             unset($curroot,$webroot);
             if (!filter_var($URL,FILTER_VALIDATE_URL)) throw new Exception('%s: %s',_('Invalid URL'),$URL);
             $Response = self::$FOGURLRequests->process($URL,'GET');
@@ -126,6 +129,13 @@ class DashboardPage extends FOGPage {
         $ActivityTotalClients = $StorageGroup->getTotalSupportedClients();
         array_map(function(&$Node) use (&$ActivityActive,&$ActivityQueued,&$ActivityTotalClients) {
             if (!$Node->isValid()) return;
+            $curroot = trim(trim($Node->get('webroot'),'/'));
+            $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
+            $URL = filter_var(sprintf('http://%s%sindex.php',$Node->get('ip'),$webroot),FILTER_SANITIZE_URL);
+            if (!self::$FOGURLRequests->isAvailable($URL)) {
+                $ActivityTotalClients -= $Node->get('maxClients');
+                return;
+            }
             $ActivityActive += $Node->getUsedSlotCount();
             $ActivityQueued += $Node->getQueuedSlotCount();
             $ActivityTotalClients -= $ActivityActive;
