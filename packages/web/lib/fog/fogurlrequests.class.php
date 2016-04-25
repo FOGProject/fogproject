@@ -34,12 +34,12 @@ class FOGURLRequests extends FOGBase {
             $IPs = self::getSubObjectIDs('StorageNode','','ip');
             if (preg_match(sprintf('#^(?!.*%s)#i',implode('|',(array)$IPs)),$URL)) return false;
             $this->contextOptions[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
-            $this->contextOptions[CURLOPT_PROXY_PORT] = $port;
+            $this->contextOptions[CURLOPT_PROXYPORT] = $port;
             $this->contextOptions[CURLOPT_PROXY] = $ip;
             if ($username) $this->contextOPtions[CURLOPT_PROXYUSERPWD] = sprintf('%s:%s',$username,$password);
             return true;
         } catch (Exception $e) {
-            echo $e->getMessage();
+            die($e->getMessage());
         }
         return false;
     }
@@ -80,10 +80,10 @@ class FOGURLRequests extends FOGBase {
         do {
             curl_multi_exec($this->handle,$active);
         } while ($active > 0);
-        array_walk($curl,function(&$val,&$key) use (&$response) {
+        array_map(function(&$val) use (&$response) {
             $response[] = curl_multi_getcontent($val);
             curl_multi_remove_handle($this->handle,$val);
-        });
+        },(array)$curl);
         if (!$file) return $response;
         @fclose($file);
     }
