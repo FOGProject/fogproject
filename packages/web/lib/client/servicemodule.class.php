@@ -1,24 +1,20 @@
 <?php
 class ServiceModule extends FOGClient implements FOGClientSend {
     public function send() {
-        $moduleID = self::getClass('Module',@max(self::getSubObjectIDs('Module',array('shortName'=>$_REQUEST['moduleid']))));
-        if (!$moduleID->isValid()) {
-            switch (strtolower($_REQUEST['moduleid'])) {
-                case 'dircleaner':
-                case 'dircleanup':
-                    $_REQUEST['moduleid'] = array('dircleanup','dircleaner');
-                    break;
-                case 'snapin':
-                case 'snapinclient':
-                    $_REQUEST['moduleid'] = array('snapin','snapinclient');
-                    break;
-            }
-            $moduleID = self::getClass('Module',@max(self::getSubObjectIDs('Module',array('shortName'=>$_REQUEST['moduleid']),'','','OR')));
+        $mod = strtolower(htmlentities($_REQUEST['moduleid'],ENT_QUOTES,'utf-8'));
+        switch ($mod) {
+        case 'dircleaner':
+            $mod = 'dircleanup';
+            break;
+        case 'snapin':
+            $mod = 'snapinclient';
+            break;
         }
-        if (!$moduleID->isValid()) throw new Exception('#!um');
+        if (!in_array($mod,$this->getGlobalModuleStatus(false,true))) throw new Exception('#!um');
         $moduleName = $this->getGlobalModuleStatus();
-        if (!$moduleName[$moduleID->get('shortName')]) throw new Exception("#!ng\n");
+        if (!$moduleName[$mod]) throw new Exception("#!ng\n");
+        $modID = self::getSubObjectIDs('Module',array('shortName'=>$mod));
         $activeIDs = $this->Host->get('modules');
-        $this->send = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
+        $this->send = sprintf("%s\n",in_array(array_shift($modID),(array)$this->Host->get('modules')) ? '#!ok' : '#!nh');
     }
 }

@@ -764,40 +764,44 @@ abstract class FOGPage extends FOGBase {
     }
     public function requestClientInfo() {
         if (!isset($_REQUEST['newService'])) {
-            print_r(array_keys($this->getGlobalModuleStatus()));
+            print_r($this->getGlobalModuleStatus(false,true));
             exit;
         }
         usleep(mt_rand(10000,100000));
-        $globalModules = array_diff(array_keys(array_filter($this->getGlobalModuleStatus())),array('dircleanup','usercleanup','clientupdater','hostregister'));
-        $Host = $this->getHostItem(true,false,true,false,isset($_REQUEST['newService']));
-        $hostModules = self::getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName');
-        $hostModules = array_values(array_intersect($globalModules,(array)$hostModules));
-        $array = array();
-        foreach ($hostModules AS $i => &$key) {
-            switch ($key) {
-            case 'usertracker':
-            case 'snapinclient':
-                continue 2;
-            case 'greenfog':
-                $class='GF';
-                break;
-            case 'printermanager':
-                $class='PrinterClient';
-                break;
-            case 'taskreboot':
-                $class='Jobs';
-                break;
-            case 'usertracker':
-                $class='UserTrack';
-                break;
-            default:
-                $class=$key;
-                break;
+        try {
+            $globalModules = array_diff($this->getGlobalModuleStatus(false,true),array('dircleanup','usercleanup','clientupdater','hostregister'));
+            $Host = $this->getHostItem(true,false,false,false,isset($_REQUEST['newService']));
+            $hostModules = self::getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName');
+            $hostModules = array_values(array_intersect($globalModules,(array)$hostModules));
+            $array = array();
+            foreach ($hostModules AS $i => &$key) {
+                switch ($key) {
+                case 'usertracker':
+                case 'snapinclient':
+                    continue 2;
+                case 'greenfog':
+                    $class='GF';
+                    break;
+                case 'printermanager':
+                    $class='PrinterClient';
+                    break;
+                case 'taskreboot':
+                    $class='Jobs';
+                    break;
+                case 'usertracker':
+                    $class='UserTrack';
+                    break;
+                default:
+                    $class=$key;
+                    break;
+                }
+                $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
+                unset($key);
             }
-            $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
-            unset($key);
+            echo json_encode($array);
+        } catch (Exception $e) {
+            echo $e->getMessage();
         }
-        echo json_encode($array);
         exit;
     }
     public function clearAES() {
