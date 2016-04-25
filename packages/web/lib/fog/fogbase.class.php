@@ -233,25 +233,25 @@ abstract class FOGBase {
         $factor = floor((strlen($size) - 1)/3);
         return sprintf('%3.2f %s',$size/pow(1024,$factor),@$units[$factor]);
     }
-    protected function getGlobalModuleStatus($names = false) {
+    protected function getGlobalModuleStatus($names = false,$keys = false) {
         $services = array(
-            'autologout' => 'AUTOLOGOFF',
-            'clientupdater' => 'CLIENTUPDATER',
-            'dircleanup' => 'DIRECTORYCLEANER',
-            'displaymanager' => 'DISPLAYMANAGER',
-            'greenfog' => 'GREENFOG',
-            'hostnamechanger' => 'HOSTNAMECHANGER',
-            'hostregister' => 'HOSTREGISTER',
-            'printermanager' => 'PRINTERMANAGER',
-            'snapinclient' => 'SNAPIN',
-            'taskreboot' => 'TASKREBOOT',
-            'usercleanup' => 'USERCLEANUP',
-            'usertracker' => 'USERTRACKER',
+            'autologout' => 'autologoff',
+            'clientupdater' => true,
+            'dircleanup' => 'directorycleaner',
+            'displaymanager' => true,
+            'greenfog' => true,
+            'hostnamechanger' => true,
+            'hostregister' => true,
+            'printermanager' => true,
+            'snapinclient' => 'snapin',
+            'taskreboot' => true,
+            'usercleanup' => true,
+            'usertracker' => true,
         );
+        if ($keys) return array_values(array_filter(array_unique(array_keys($services))));
         array_walk($services,function(&$value,&$short) {
-            $value = sprintf('FOG_SERVICE_%s_ENABLED',$value);
+            $value = sprintf('FOG_SERVICE_%s_ENABLED',strtoupper($value === true ? $short : $value));
         });
-
         if ($names) return $services;
         $serviceEn = self::getSubObjectIDs('Service',array('name'=>array_values($services)),'value',false,'AND','name',false,false);
         $serviceEn = array_map(function(&$val) {
