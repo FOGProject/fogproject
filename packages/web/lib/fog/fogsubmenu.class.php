@@ -40,7 +40,7 @@ class FOGSubMenu extends FOGBase {
         if (is_callable($data)) $data = $data();
         if (is_array($data)) {
             ob_start();
-            array_walk($data,function(&$info,&$title) {
+            array_walk($data,function(&$title,&$info) {
                 printf("<h3>%s</h3>\n\t<p>%s</p>",$this->fixTitle($title),$info);
                 unset($info,$title);
             });
