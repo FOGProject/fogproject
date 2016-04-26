@@ -135,12 +135,16 @@ $Init = new Initiator();
 $Init->sanitize_items();
 /** Starts the init itself */
 $Init::startInit();
-/** $FOGFTP the FOGFTP class */
-$FOGFTP = new FOGFTP();
-/** $FOGCore the FOGCore class */
-$FOGCore = new FOGCore();
 /** $DB set's the DB class from the DatabaseManager */
 $DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
+if (in_array($sub,array('configure','authorize','requestClientInfo'))) {
+    DashboardPage::$sub();
+    exit;
+}
+/** $FOGCore the FOGCore class */
+$FOGCore = new FOGCore();
+/** $FOGFTP the FOGFTP class */
+$FOGFTP = new FOGFTP();
 /** $EventManager initiates the EventManager class */
 $EventManager = FOGCore::getClass('EventManager');
 /** $HookManager initiates the HookManager class */

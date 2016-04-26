@@ -1,13 +1,12 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 $FOGPageManager = FOGCore::getClass('FOGPageManager');
-if (!$_SERVER['HTTP_USER_AGENT'] && in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo'))) $FOGPageManager->render();
-if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'], array('deletemulti', 'deleteconf'))) unset($_SESSION['delitems']);
+if (isset($_SESSION['delitems']) && !in_array($sub,array('deletemulti','deleteconf'))) unset($_SESSION['delitems']);
 $currentUser =  FOGCore::getClass('User',(int)$_SESSION['FOG_USER']);
 if ($currentUser->isValid()) $currentUser->isLoggedIn();
 FOGCore::getClass('ProcessLogin')->processMainLogin();
 $Page = FOGCore::getClass('Page');
-if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && !in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo')) && ($node == 'logout' || !$currentUser->isValid())) {
+if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && ($node == 'logout' || !$currentUser->isValid())) {
     $currentUser->logout();
     $Page->setTitle($foglang['Login']);
     $Page->setSecTitle($foglang['ManagementLogin']);
