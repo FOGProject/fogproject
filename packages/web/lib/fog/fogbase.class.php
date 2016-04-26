@@ -112,7 +112,7 @@ abstract class FOGBase {
         },(array)self::getClass('NodeFailureManager')->find(array('taskID'=>$this->Host->get('task')->get('id'),'hostID'=>$this->Host->get('id'))));
         return array_values(array_filter(array_unique((array)$nodeRet)));
     }
-    protected function getActivePlugins() {
+    protected static function getActivePlugins() {
         return array_map('strtolower',(array)self::getSubObjectIDs('Plugin',array('installed'=>1,'state'=>1),'name'));
     }
     protected function fatalError($txt, $data = array()) {
