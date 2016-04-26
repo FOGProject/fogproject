@@ -104,6 +104,6 @@ class FOGCore extends FOGBase {
         $_SESSION['FOG_REPORT_DIR'] = self::getSetting('FOG_REPORT_DIR');
         $_SESSION['TimeZone'] = (ini_get('date.timezone') ? ini_get('date.timezone') : (self::getSetting('FOG_TZ_INFO') ? self::getSetting('FOG_TZ_INFO') : 'UTC'));
         ini_set('max_input_vars',5000);
-        return self;
+        return self::getClass(__CLASS__);
     }
 }

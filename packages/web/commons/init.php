@@ -146,7 +146,7 @@ if (in_array($sub,array('configure','authorize','requestClientInfo'))) {
 /** $FOGFTP the FOGFTP class */
 $FOGFTP = new FOGFTP();
 /** $FOGCore the FOGCore class */
-$FOGCore = FOGFTP::getClass('FOGCore')->setSessionEnv();
+$FOGCore = FOGCore::setSessionEnv();
 /** $EventManager initiates the EventManager class */
 $EventManager = FOGCore::getClass('EventManager');
 $EventManager->load();
