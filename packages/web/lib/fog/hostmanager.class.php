@@ -1,9 +1,9 @@
 <?php
 class HostManager extends FOGManagerController {
     public function getHostByMacAddresses($MACs) {
-        $MACHost = self::getSubObjectIDs('MACAddressAssociation',array('pending'=>0,'mac'=>$MACs),'hostID');
-        if (count($MACHost) > 1) throw new Exception(self::$foglang['ErrorMultipleHosts']);
-        return self::getClass('Host',@min($MACHost));
+        $MACHost = static::getSubObjectIDs('MACAddressAssociation',array('pending'=>0,'mac'=>$MACs),'hostID');
+        if (count($MACHost) > 1) throw new Exception(static::$foglang['ErrorMultipleHosts']);
+        return static::getClass('Host',@min($MACHost));
     }
     public function destroy($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false) {
         if (empty($findWhere)) return parent::destroy($field);
@@ -11,22 +11,22 @@ class HostManager extends FOGManagerController {
             $fieldWhere = $findWhere;
             $findWhere = array('hostID'=>$findWhere['id']);
         }
-        self::getClass('NodeFailureManager')->destroy($findWhere);
-        self::getClass('ImagingLogManager')->destroy($findWhere);
-        self::getClass('SnapinTaskManager')->destroy(array('jobID'=>self::getSubObjectIDs('SnapinJob',$findWhere,'id')));
-        self::getClass('SnapinJobManager')->destroy($findWhere);
-        self::getClass('TaskManager')->destroy($findWhere);
-        self::getClass('ScheduledTaskManager')->destroy($findWhere);
-        self::getClass('HostAutoLogoutManager')->destroy($findWhere);
-        self::getClass('HostScreenSettingsManager')->destroy($findWhere);
-        self::getClass('GroupAssociationManager')->destroy($findWhere);
-        self::getClass('SnapinAssociationManager')->destroy($findWhere);
-        self::getClass('PrinterAssociationManager')->destroy($findWhere);
-        self::getClass('ModuleAssociationManager')->destroy($findWhere);
-        self::getClass('GreenFogManager')->destroy($findWhere);
-        self::getClass('InventoryManager')->destroy($findWhere);
-        self::getClass('UserTrackingManager')->destroy($findWhere);
-        self::getClass('MACAddressAssociationManager')->destroy($findWhere);
+        static::getClass('NodeFailureManager')->destroy($findWhere);
+        static::getClass('ImagingLogManager')->destroy($findWhere);
+        static::getClass('SnapinTaskManager')->destroy(array('jobID'=>static::getSubObjectIDs('SnapinJob',$findWhere,'id')));
+        static::getClass('SnapinJobManager')->destroy($findWhere);
+        static::getClass('TaskManager')->destroy($findWhere);
+        static::getClass('ScheduledTaskManager')->destroy($findWhere);
+        static::getClass('HostAutoLogoutManager')->destroy($findWhere);
+        static::getClass('HostScreenSettingsManager')->destroy($findWhere);
+        static::getClass('GroupAssociationManager')->destroy($findWhere);
+        static::getClass('SnapinAssociationManager')->destroy($findWhere);
+        static::getClass('PrinterAssociationManager')->destroy($findWhere);
+        static::getClass('ModuleAssociationManager')->destroy($findWhere);
+        static::getClass('GreenFogManager')->destroy($findWhere);
+        static::getClass('InventoryManager')->destroy($findWhere);
+        static::getClass('UserTrackingManager')->destroy($findWhere);
+        static::getClass('MACAddressAssociationManager')->destroy($findWhere);
         return parent::destroy($fieldWhere);
     }
 }

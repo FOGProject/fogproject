@@ -10,8 +10,8 @@ class ImageFail_PushBullet extends PushbulletExtends {
     protected $author = 'Jbob';
     public $active = true;
     public function onEvent($event, $data) {
-        self::$message = 'This host has failed to image';
-        self::$shortdesc = 'Failed';
+        static::$message = 'This host has failed to image';
+        static::$shortdesc = 'Failed';
         parent::onEvent($event,$data);
     }
 }

@@ -149,8 +149,8 @@ class Mysqldump
         $this->user = DATABASE_USERNAME;
         $this->pass = DATABASE_PASSWORD;
         $this->parseDsn($dsn);
-        $this->pdoSettings = self::array_replace_recursive($pdoSettingsDefault, $pdoSettings);
-        $this->dumpSettings = self::array_replace_recursive($dumpSettingsDefault, $dumpSettings);
+        $this->pdoSettings = static::array_replace_recursive($pdoSettingsDefault, $pdoSettings);
+        $this->dumpSettings = static::array_replace_recursive($dumpSettingsDefault, $dumpSettings);
 
         $this->dumpSettings['init_commands'][] = "SET NAMES " . $this->dumpSettings['default-character-set'];
 
@@ -192,7 +192,7 @@ class Mysqldump
 
         foreach ($array2 as $key => $value) {
             if (is_array($value)) {
-                $array1[$key] = self::array_replace_recursive($array1[$key], $value);
+                $array1[$key] = static::array_replace_recursive($array1[$key], $value);
             } else {
                 $array1[$key] = $value;
             }
@@ -820,7 +820,7 @@ class Mysqldump
             } else {
                 $lineSize += $this->compressManager->write(",(" . implode(",", $vals) . ")");
             }
-            if (($lineSize > self::MAXLINESIZE) ||
+            if (($lineSize > static::MAXLINESIZE) ||
                     !$this->dumpSettings['extended-insert']) {
                 $onlyOnce = true;
                 $lineSize = $this->compressManager->write(";" . PHP_EOL);
@@ -967,7 +967,7 @@ abstract class CompressMethod
      */
     public static function isValid($c)
     {
-        return in_array($c, self::$enums);
+        return in_array($c, static::$enums);
     }
 }
 
@@ -1114,7 +1114,7 @@ abstract class TypeAdapter
      */
     public static function isValid($c)
     {
-        return in_array($c, self::$enums);
+        return in_array($c, static::$enums);
     }
 }
 

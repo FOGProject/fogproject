@@ -6,23 +6,23 @@ class GroupManagementPage extends FOGPage {
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                "$this->linkformat#group-general" => self::$foglang['General'],
-                "$this->linkformat#group-tasks" => self::$foglang['BasicTasks'],
-                "$this->linkformat#group-image" => self::$foglang['ImageAssoc'],
-                "$this->linkformat#group-snap-add" => sprintf('%s %s',self::$foglang['Add'],self::$foglang['Snapins']),
-                "$this->linkformat#group-snap-del" => sprintf('%s %s',self::$foglang['Remove'],self::$foglang['Snapins']),
-                "$this->linkformat#group-service" => sprintf('%s %s',self::$foglang['Service'],self::$foglang['Settings']),
-                "$this->linkformat#group-active-directory" => self::$foglang['AD'],
-                "$this->linkformat#group-printers" => self::$foglang['Printers'],
-                $this->membership => self::$foglang['Membership'],
-                $this->delformat => self::$foglang['Delete'],
+                "$this->linkformat#group-general" => static::$foglang['General'],
+                "$this->linkformat#group-tasks" => static::$foglang['BasicTasks'],
+                "$this->linkformat#group-image" => static::$foglang['ImageAssoc'],
+                "$this->linkformat#group-snap-add" => sprintf('%s %s',static::$foglang['Add'],static::$foglang['Snapins']),
+                "$this->linkformat#group-snap-del" => sprintf('%s %s',static::$foglang['Remove'],static::$foglang['Snapins']),
+                "$this->linkformat#group-service" => sprintf('%s %s',static::$foglang['Service'],static::$foglang['Settings']),
+                "$this->linkformat#group-active-directory" => static::$foglang['AD'],
+                "$this->linkformat#group-printers" => static::$foglang['Printers'],
+                $this->membership => static::$foglang['Membership'],
+                $this->delformat => static::$foglang['Delete'],
             );
             $this->notes = array(
-                self::$foglang['Group'] => $this->obj->get('name'),
-                self::$foglang['Members'] => $this->obj->getHostCount(),
+                static::$foglang['Group'] => $this->obj->get('name'),
+                static::$foglang['Members'] => $this->obj->getHostCount(),
             );
         }
-        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));
+        static::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'linkformat'=>&$this->linkformat,'delformat'=>&$this->delformat,'membership'=>&$this->membership));
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Name'),
@@ -30,8 +30,8 @@ class GroupManagementPage extends FOGPage {
             _('Tasking'),
             _('Edit/Remove'),
         );
-        $down = self::getClass('TaskType',1);
-        $mc = self::getClass('TaskType',8);
+        $down = static::getClass('TaskType',1);
+        $mc = static::getClass('TaskType',8);
         $this->templates = array(
             '<input type="checkbox" name="group[]" value="${id}" class="toggle-action" />',
             sprintf('<a href="?node=group&sub=edit&%s=${id}" title="Edit">${name}</a>', $this->id),
@@ -46,7 +46,7 @@ class GroupManagementPage extends FOGPage {
             array('width'=>90,'class'=>'c filter-false'),
             array('width'=>50,'class'=>'c filter-false'),
         );
-        self::$returnData = function(&$Group) {
+        static::$returnData = function(&$Group) {
             if (!$Group->isValid()) return;
             $this->data[] = array(
                 'id' => $Group->get('id'),
@@ -61,14 +61,14 @@ class GroupManagementPage extends FOGPage {
         $this->title = _('All Groups');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['GroupCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find());
-        self::$HookManager->processEvent('GROUP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(static::$returnData,static::getClass($this->childClass)->getManager()->find());
+        static::$HookManager->processEvent('GROUP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->search('',true));
-        self::$HookManager->processEvent('GROUP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(static::$returnData,static::getClass($this->childClass)->getManager()->search('',true));
+        static::$HookManager->processEvent('GROUP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -100,27 +100,27 @@ class GroupManagementPage extends FOGPage {
             unset($formField,$field);
         });
         unset($fields);
-        self::$HookManager->processEvent('GROUP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('GROUP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
     }
     public function add_post() {
-        self::$HookManager->processEvent('GROUP_ADD_POST');
+        static::$HookManager->processEvent('GROUP_ADD_POST');
         try {
             if (empty($_REQUEST['name'])) throw new Exception('Group Name is required');
-            if (self::getClass('GroupManager')->exists($_REQUEST['name'])) throw new Exception('Group Name already exists');
-            $Group = self::getClass('Group')
+            if (static::getClass('GroupManager')->exists($_REQUEST['name'])) throw new Exception('Group Name already exists');
+            $Group = static::getClass('Group')
                 ->set('name',$_REQUEST['name'])
                 ->set('description',$_REQUEST['description'])
                 ->set('kernel',$_REQUEST['kern'])
                 ->set('kernelArgs',$_REQUEST['args'])
                 ->set('kernelDevice',$_REQUEST['dev']);
             if (!$Group->save()) throw new Exception(_('Group create failed'));
-            self::$HookManager->processEvent('GROUP_ADD_SUCCESS', array('Group' => &$Group));
+            static::$HookManager->processEvent('GROUP_ADD_SUCCESS', array('Group' => &$Group));
             $this->setMessage(_('Group added'));
             $url = sprintf('?node=%s&sub=edit&id=%s',$_REQUEST['node'],$Group->get('id'));
         } catch (Exception $e) {
-            self::$HookManager->processEvent('GROUP_ADD_FAIL', array('Group' => &$Group));
+            static::$HookManager->processEvent('GROUP_ADD_FAIL', array('Group' => &$Group));
             $this->setMessage($e->getMessage());
             $url = $this->formAction;
         }
@@ -129,22 +129,22 @@ class GroupManagementPage extends FOGPage {
     }
     public function edit() {
         $HostCount = $this->obj->getHostCount();
-        $imageID = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'imageID','','','','','array_count_values');
+        $imageID = static::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'imageID','','','','','array_count_values');
         $imageHosts = array_values($imageID);
         $imageMatchID = false;
         if (count($imageHosts) === 1 && array_shift($imageHosts) === $HostCount) {
             $imageMatchID = array_keys($imageID);
             $imageMatchID = array_shift($imageMatchID);
         }
-        $groupKey = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'productKey','','','','','array_count_values');
-        $aduse = count(self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'useAD','','','','','array_filter'));
-        $enforcetest = count(self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'enforce','','','','','array_filter'));
-        $adDomain = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADDomain','','','','','array_count_values');
-        $adOU = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADOU','','','','','array_count_values');
-        $adUser = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADUser','','','','','array_count_values');
-        $adPass = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPass','','','','','array_count_values');
-        $adPassLegacy = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPassLegacy','','','','','array_count_values');
-        $Host = self::getClass('Host',current($this->obj->get('hosts')));
+        $groupKey = static::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'productKey','','','','','array_count_values');
+        $aduse = count(static::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'useAD','','','','','array_filter'));
+        $enforcetest = count(static::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'enforce','','','','','array_filter'));
+        $adDomain = static::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADDomain','','','','','array_count_values');
+        $adOU = static::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADOU','','','','','array_count_values');
+        $adUser = static::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADUser','','','','','array_count_values');
+        $adPass = static::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPass','','','','','array_count_values');
+        $adPassLegacy = static::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPassLegacy','','','','','array_count_values');
+        $Host = static::getClass('Host',current($this->obj->get('hosts')));
         $useAD = (bool)($aduse == $HostCount);
         $enforce = (int)($enforcetest == $HostCount);
         unset($aduse);
@@ -164,8 +164,8 @@ class GroupManagementPage extends FOGPage {
         //$productKey = ((count($groupKey) == 1 && $groupKey[0] == $HostCount) || count($groupKey) == $HostCount ? $Host->get('productKey') : '');
         $groupKeyMatch = $this->encryptpw($productKey);
         unset($productKey, $groupKey);
-        $biosExit = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'biosexit','','','','','array_count_values');
-        $efiExit = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'efiexit','','','','','array_count_values');
+        $biosExit = static::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'biosexit','','','','','array_count_values');
+        $efiExit = static::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'efiexit','','','','','array_count_values');
         $exitNorm = Service::buildExitSelector('bootTypeExit',(count($biosExit) == 1 && $biosExit[0] == $HostCount ? $Host->get('biosexit') : $_REQUEST['bootTypeExit']),true);
         $exitEfi = Service::buildExitSelector('efiBootTypeExit',(count($efiExit) == 1 && $efiExit[0] == $HostCount ? $Host->get('efiexit') : $_REQUEST['efiBootTypeExit']),true);
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
@@ -189,7 +189,7 @@ class GroupManagementPage extends FOGPage {
             _('Group EFI Exit Type') => $exitEfi,
             '&nbsp;' => sprintf('<input type="submit" name="updategroup" value="%s"/>',_('Update')),
         );
-        self::$HookManager->processEvent('GROUP_FIELDS',array('fields'=>&$fields,'Group'=>&$this->obj));
+        static::$HookManager->processEvent('GROUP_FIELDS',array('fields'=>&$fields,'Group'=>&$this->obj));
         printf('<form method="post" action="%s&tab=group-general"><div id="tab-container"><!-- General --><div id="group-general"><h2>%s: %s</h2><div id="resetSecDataBox" class="c"><input type="button" id="resetSecData"/></div><br/>',$this->formAction,_('Modify Group'),$this->obj->get('name'));
         array_walk($fields,function(&$input,&$field) {
             $this->data[] = array(
@@ -199,12 +199,12 @@ class GroupManagementPage extends FOGPage {
             unset($input,$field);
         });
         unset($fields);
-        self::$HookManager->processEvent('GROUP_DATA_GEN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('GROUP_DATA_GEN',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset ($this->data,$exitNorm,$exitEfi);
         echo '</form></div>';
         $this->basictasksOptions();
-        $imageSelector = self::getClass('ImageManager')->buildSelectBox($imageMatchID,'image');
+        $imageSelector = static::getClass('ImageManager')->buildSelectBox($imageMatchID,'image');
         printf('<!-- Image Association --><div id="group-image"><h2>%s: %s</h2><form method="post" action="%s&tab=group-image">',_('Image Association for'),$this->obj->get('name'),$this->formAction);
         unset($this->headerData);
         $this->attributes = array(
@@ -219,7 +219,7 @@ class GroupManagementPage extends FOGPage {
             'field'=>$imageSelector,
             'input'=>sprintf('<input type="submit" value="%s"/>',_('Update Images')),
         );
-        self::$HookManager->processEvent('GROUP_IMAGE',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('GROUP_IMAGE',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
         printf('</form></div><!-- Add Snap-ins --><div id="group-snap-add"><h2>%s: %s</h2><form method="post" action="%s&tab=group-snap-add">',_('Add Snapin to all hosts in'),$this->obj->get('name'),$this->formAction);
@@ -247,8 +247,8 @@ class GroupManagementPage extends FOGPage {
             );
             unset($Snapin);
         };
-        array_map($returnSnapins,self::getClass('SnapinManager')->find());
-        self::$HookManager->processEvent('GROUP_SNAP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map($returnSnapins,static::getClass('SnapinManager')->find());
+        static::$HookManager->processEvent('GROUP_SNAP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         printf('<input class="c" type="submit" value="%s"/></form></div><!-- Remove Snapins --><div id="group-snap-del"><h2>%s: %s</h2><form method="post" action="%s&tab=group-snap-del">',_('Add Snapin(s)'),_('Remove Snapin to all hosts in'),$this->obj->get('name'),$this->formAction);
         $this->headerData = array(
@@ -266,7 +266,7 @@ class GroupManagementPage extends FOGPage {
             array('width'=>90,'class'=>'l'),
             array('width'=>20,'class'=>'r'),
         );
-        self::$HookManager->processEvent('GROUP_SNAP_DEL',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('GROUP_SNAP_DEL',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->headerData,$this->data);
         printf('<input class="c" type="submit" value="%s"/></form></div><!-- Service Settings -->',_('Remove Snapin(s)'));
@@ -287,7 +287,7 @@ class GroupManagementPage extends FOGPage {
         );
         printf('<div id="group-service"><h2>%s</h2><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',_('Service Configuration'),$this->formAction,_('General'));
         $moduleName = $this->getGlobalModuleStatus();
-        $ModuleOn = array_values(self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID',false,'AND','id',false,''));
+        $ModuleOn = array_values(static::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID',false,'AND','id',false,''));
         array_map(function(&$Module) use ($moduleName,$ModuleOn,$HostCount) {
             if (!$Module->isValid()) return;
             $this->data[] = array(
@@ -296,14 +296,14 @@ class GroupManagementPage extends FOGPage {
                 'mod_name'=>$Module->get('name'),
             );
             unset($ModuleOn,$Module);
-        },(array)self::getClass('ModuleManager')->find());
+        },(array)static::getClass('ModuleManager')->find());
         unset($ModOns,$Modules,$moduleName);
         $this->data[] = array(
             'mod_name'=> '',
             'input'=>'',
             'span'=>sprintf('<input type="submit" name="updatestatus" value="%s"/>',_('Update')),
         );
-        self::$HookManager->processEvent('GROUP_MODULES',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('GROUP_MODULES',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
         printf('</fieldset></form><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',$this->formAction,_('Group Screen Resolution'));
@@ -339,13 +339,13 @@ class GroupManagementPage extends FOGPage {
                 'field'=>$field,
             );
             unset($name,$field,$Service);
-        },self::getClass('ServiceManager')->find(array('name'=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id'));
+        },static::getClass('ServiceManager')->find(array('name'=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id'));
         $this->data[] = array(
             'field'=>'',
             'input'=>'',
             'span'=>sprintf('<input type="submit" name="updatedisplay" value="%s"/>',_('Update')),
         );
-        self::$HookManager->processEvent('GROUP_DISPLAY',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('GROUP_DISPLAY',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
         printf('</fieldset></form><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',$this->formAction,_('Auto Log Out Settings'));
@@ -359,7 +359,7 @@ class GroupManagementPage extends FOGPage {
             '${input}',
             '${desc}',
         );
-        $Service = self::getClass('Service',@max(self::getSubObjectIDs('Service',array('name'=>'FOG_SERVICE_AUTOLOGOFF_MIN'))));
+        $Service = static::getClass('Service',@max(static::getSubObjectIDs('Service',array('name'=>'FOG_SERVICE_AUTOLOGOFF_MIN'))));
         $this->data[] = array(
             'field'=>_('Auto Log Out Time (in minutes)'),
             'input'=>sprintf('<input type="text" name="tme" value="%s"/>',$Service->get('value')),
@@ -371,13 +371,13 @@ class GroupManagementPage extends FOGPage {
             'input' => '',
             'desc' => sprintf('<input type="submit" name="updatealo" value="%s"/>',_('Update')),
         );
-        self::$HookManager->processEvent('GROUP_ALO',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('GROUP_ALO',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
         echo '</fieldset></form></div>';
         $this->adFieldsToDisplay($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,$ADPassLegacy,$enforce);
         echo '<!-- Printers --><div id="group-printers">';
-        if (self::getClass('PrinterManager')->count()) {
+        if (static::getClass('PrinterManager')->count()) {
             printf('<form method="post" action="%s&tab=group-printers"><h2>%s</h2><p class="l"><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="0" />%s<br/><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="1" />%s<br/><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="2" />%s<br/></p><div class="hostgroup">',$this->formAction,_('Select Management Level for all hosts in this group'),_('This setting turns off all FOG Printer Management. Although there are multiple levels already between host and global settings, this is just another to ensure safety'),_('No Printer Management'),_('This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned.'),_('FOG Managed Printers'),_('This setting will only allow FOG Assigned printers to be added to the host.  Any printer that is installed, even printers not within FOG, will be removed'),_('Add and Remove'));
             $this->headerData = array(
                 '<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprint"/>',
@@ -405,10 +405,10 @@ class GroupManagementPage extends FOGPage {
                     'printer_type'=>$Printer->get('config'),
                 );
                 unset($Printer);
-            },self::getClass('PrinterManager')->find());
+            },static::getClass('PrinterManager')->find());
             if (count($this->data) > 0) {
                 printf('<h2>%s</h2>',_('Add new printer(s) to all hosts in this group.'));
-                self::$HookManager->processEvent('GROUP_ADD_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes));
+                static::$HookManager->processEvent('GROUP_ADD_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes));
             }
             $this->render();
             $this->headerData = array(
@@ -429,7 +429,7 @@ class GroupManagementPage extends FOGPage {
             $inputupdate = '';
             if (count($this->data)) {
                 printf('<h2>%s</h2>',_('Remove printer from all hosts in this group.'));
-                self::$HookManager->processEvent('GROUP_REM_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes));
+                static::$HookManager->processEvent('GROUP_REM_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes));
                 $inputupdate = sprintf('<p class="c"><input type="submit" value="%s" name="update"/></p>',_('Update'));
 
                 $this->render();
@@ -440,7 +440,7 @@ class GroupManagementPage extends FOGPage {
         unset($imageID,$imageMatchID,$groupKey,$groupKeyMatch,$aduse,$adDomain,$adOU,$adUser,$adPass,$adPassLegacy,$useAD,$ADOU,$ADDomain,$ADUser,$adPass,$ADPass,$ADPassLegacy,$biosExit,$efiExit,$exitNorm,$exitEfi);
     }
     public function edit_post() {
-        self::$HookManager->processEvent('GROUP_EDIT_POST',array('Group'=>&$Group));
+        static::$HookManager->processEvent('GROUP_EDIT_POST',array('Group'=>&$Group));
         try {
             switch($_REQUEST['tab']) {
                 case 'group-general';
@@ -453,7 +453,7 @@ class GroupManagementPage extends FOGPage {
                         ->set('kernelDevice',$_REQUEST['dev']);
                     $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
                     $productKey = substr($productKey,0,29);
-                    self::getClass('HostManager')->update(array('id'=>$this->obj->get('hosts')),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->encryptpw(trim($_REQUEST['key']))));
+                    static::getClass('HostManager')->update(array('id'=>$this->obj->get('hosts')),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->encryptpw(trim($_REQUEST['key']))));
                 }
                 break;
                 case 'group-image';
@@ -480,26 +480,26 @@ class GroupManagementPage extends FOGPage {
                 $this->obj->updateDefault(isset($_REQUEST['default']) ? $_REQUEST['default'] : 0);
                 break;
                 case 'group-service';
-                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
-                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
-                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
-                $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : self::getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
+                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : static::getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
+                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : static::getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
+                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : static::getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
+                $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : static::getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
                 $modOn = (array)$_REQUEST['modules'];
-                $modOff = self::getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
+                $modOff = static::getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
                 $this->obj->addModule($modOn)->removeModule($modOff);
                 array_map(function(&$Host) {
                     if (!$Host->isValid()) return;
                     if (isset($_REQUEST['updatedisplay'])) $Host->setDisp($x,$y,$r);
                     if (isset($_REQUEST['updatealo'])) $Host->setAlo($time);
                     unset($Host);
-                },self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
+                },static::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
                 break;
             }
             if (!$this->obj->save()) throw new Exception(_('Database update failed'));
-            self::$HookManager->processEvent('GROUP_EDIT_SUCCESS', array('Group' => &$this->obj));
+            static::$HookManager->processEvent('GROUP_EDIT_SUCCESS', array('Group' => &$this->obj));
             $this->setMessage('Group information updated!');
         } catch (Exception $e) {
-            self::$HookManager->processEvent('GROUP_EDIT_FAIL', array('Group' => &$this->obj));
+            static::$HookManager->processEvent('GROUP_EDIT_FAIL', array('Group' => &$this->obj));
             $this->setMessage($e->getMessage());
         }
         $url = sprintf('%s#%s',$this->formAction,$_REQUEST['tab']);
@@ -528,10 +528,10 @@ class GroupManagementPage extends FOGPage {
                 'host_deployed' => $this->formatTime($Host->get('deployed'),'Y-m-d H:i:s'),
             );
             unset($Host);
-        }, self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
+        }, static::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
         printf('<p>%s</p>',_('Confirm you really want to delete the following hosts'));
         printf('<form method="post" action="?node=group&sub=delete&id=%s" class="c">',$this->obj->get('id'));
-        self::$HookManager->processEvent('GROUP_DELETE_HOST_FORM',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+        static::$HookManager->processEvent('GROUP_DELETE_HOST_FORM',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
         $this->render();
         printf('<input type="submit" name="delHostConfirm" value="%s" /></form>',_('Delete listed hosts'));
     }

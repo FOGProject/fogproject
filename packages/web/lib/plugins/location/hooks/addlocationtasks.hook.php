@@ -16,9 +16,9 @@ class AddLocationTasks extends Hook {
         $arguments['templates'][4] = '${location}';
         $arguments['attributes'][4] = array('class'=>'r');
         foreach ((array)$arguments['data'] AS $i => &$data) {
-            $locationID = self::getSubObjectIDs('LocationAssociation',array('hostID'=>$data['host_id']),'locationID');
+            $locationID = static::getSubObjectIDs('LocationAssociation',array('hostID'=>$data['host_id']),'locationID');
             $locID = array_shift($locationID);
-            $arguments['data'][$i]['location'] = self::getClass('Location',$locID)->get('name');
+            $arguments['data'][$i]['location'] = static::getClass('Location',$locID)->get('name');
             unset($data);
         }
     }

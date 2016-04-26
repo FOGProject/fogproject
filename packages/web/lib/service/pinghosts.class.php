@@ -7,26 +7,26 @@ class PingHosts extends FOGService {
     public static $sleeptime = 'PINGHOSTSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',static::$logpath,self::getSetting('PINGHOSTLOGFILENAME'));
+        static::$log = sprintf('%s%s',static::$logpath,static::getSetting('PINGHOSTLOGFILENAME'));
         if (file_exists(static::$log)) @unlink(static::$log);
-        static::$dev = self::getSetting('PINGHOSTDEVICEOUTPUT');
-        static::$zzz = (int)self::getSetting(static::$sleeptime);
+        static::$dev = static::getSetting('PINGHOSTDEVICEOUTPUT');
+        static::$zzz = (int)static::getSetting(static::$sleeptime);
     }
     private function commonOutput() {
         try {
-            if (!self::getSetting('FOG_HOST_LOOKUP')) throw new Exception(_(' * Host Ping is not enabled'));
-            $webServerIP = self::$FOGCore->resolveHostName(self::getSetting('FOG_WEB_HOST'));
+            if (!static::getSetting('FOG_HOST_LOOKUP')) throw new Exception(_(' * Host Ping is not enabled'));
+            $webServerIP = static::$FOGCore->resolveHostName(static::getSetting('FOG_WEB_HOST'));
             static::outall(sprintf(' * FOG Web Host IP: %s',$webServerIP));
             $this->getIPAddress();
-            foreach ((array)self::$ips AS $i => &$ip) {
+            foreach ((array)static::$ips AS $i => &$ip) {
                 if (!$i) static::outall(" * This server's IP Addresses");
                 static::outall(" |\t$ip");
                 unset($ip);
             }
-            if (!in_array($webServerIP,self::$ips)) throw new Exception(_('I am not the fog web server'));
-            $hostCount = self::getClass('HostManager')->count();
-            static::outall(sprintf(' * %s %s %s%s',_('Attempting to ping'),self::getClass('HostManager')->count(),_('host'),($hostCount != 1 ? 's' : '')));
-            foreach ((array)self::getClass('HostManager')->find() AS $i => &$Host) {
+            if (!in_array($webServerIP,static::$ips)) throw new Exception(_('I am not the fog web server'));
+            $hostCount = static::getClass('HostManager')->count();
+            static::outall(sprintf(' * %s %s %s%s',_('Attempting to ping'),static::getClass('HostManager')->count(),_('host'),($hostCount != 1 ? 's' : '')));
+            foreach ((array)static::getClass('HostManager')->find() AS $i => &$Host) {
                 if (!$Host->isValid()) continue;
                 $Host->setPingStatus();
                 unset($Host);

@@ -2,31 +2,31 @@
 class MulticastTask extends MulticastManager {
     public function getAllMulticastTasks($root,$myStorageNodeID) {
         $Tasks = array();
-        if (self::getClass('MulticastSessionsManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) {
-            self::outall(sprintf(' | Sleeping for %s seconds to ensure tasks are properly submitted',self::$zzz));
-            sleep(self::$zzz);
+        if (static::getClass('MulticastSessionsManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) {
+            static::outall(sprintf(' | Sleeping for %s seconds to ensure tasks are properly submitted',static::$zzz));
+            sleep(static::$zzz);
         }
-        $StorageNode = self::getClass('StorageNode',$myStorageNodeID);
+        $StorageNode = static::getClass('StorageNode',$myStorageNodeID);
         if (!$StorageNode->get('isMaster')) return;
         $Interface = $StorageNode->get('interface');
         unset($StorageNode);
-        foreach ((array)self::getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$MultiSess) {
+        foreach ((array)static::getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$MultiSess) {
             if (!$MultiSess->isValid()) continue;
-            $taskIDs = self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MultiSess->get('id')),'taskID');
-            $stateIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs),'stateID');
+            $taskIDs = static::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MultiSess->get('id')),'taskID');
+            $stateIDs = static::getSubObjectIDs('Task',array('id'=>$taskIDs),'stateID');
             unset($taskIDs);
             if (in_array($this->getCompleteState(),$stateIDs) || in_array($this->getCancelledState(),$stateIDs)) continue;
             unset($stateIDs);
-            $Image = self::getClass('Image',$MultiSess->get('image'));
+            $Image = static::getClass('Image',$MultiSess->get('image'));
             if (!$Image->isValid()) continue;
-            $count = self::getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MultiSess->get('id')));
+            $count = static::getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MultiSess->get('id')));
             $Tasks[] = new self(
                 $MultiSess->get('id'),
                 $MultiSess->get('name'),
                 $MultiSess->get('port'),
                 sprintf('%s/%s',$root,$MultiSess->get('logpath')),
-                $Interface ? $Interface : self::getSetting('FOG_UDPCAST_INTERFACE'),
-                ($count>0?$count:($MultiSess->get('sessclients')>0?$MultiSess->get('sessclients'):self::getClass('HostManager')->count())),
+                $Interface ? $Interface : static::getSetting('FOG_UDPCAST_INTERFACE'),
+                ($count>0?$count:($MultiSess->get('sessclients')>0?$MultiSess->get('sessclients'):static::getClass('HostManager')->count())),
                 $MultiSess->get('isDD'),
                 $Image->get('osID')
             );
@@ -42,7 +42,7 @@ class MulticastTask extends MulticastManager {
         parent::__construct();
         $this->intID = $id;
         $this->strName = $name;
-        $this->intPort = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')?self::getSetting('FOG_MULTICAST_PORT_OVERRIDE'):$port;
+        $this->intPort = static::getSetting('FOG_MULTICAST_PORT_OVERRIDE')?static::getSetting('FOG_MULTICAST_PORT_OVERRIDE'):$port;
         $this->strImage = $image;
         $this->strEth = $eth;
         $this->intClients = $clients;
@@ -74,10 +74,10 @@ class MulticastTask extends MulticastManager {
         return $this->intOSID;
     }
     public function getUDPCastLogFile() {
-        return sprintf('/%s/%s.udpcast.%s',trim(self::getSetting('SERVICE_LOG_PATH'),'/'),self::getSetting('MULTICASTLOGFILENAME'),$this->getID());
+        return sprintf('/%s/%s.udpcast.%s',trim(static::getSetting('SERVICE_LOG_PATH'),'/'),static::getSetting('MULTICASTLOGFILENAME'),$this->getID());
     }
     public function getBitrate() {
-        return self::getClass('Image',self::getClass('MulticastSessions',$this->getID())->get('image'))->getStorageGroup()->getMasterStorageNode()->get('bitrate');
+        return static::getClass('Image',static::getClass('MulticastSessions',$this->getID())->get('image'))->getStorageGroup()->getMasterStorageNode()->get('bitrate');
     }
     public function getCMD() {
         unset($filelist,$buildcmd,$cmd);
@@ -85,11 +85,11 @@ class MulticastTask extends MulticastManager {
             UDPSENDERPATH,
             $this->getBitrate() ? sprintf(' --max-bitrate %s',$this->getBitrate()) : null,
             $this->getInterface() ? sprintf(' --interface %s',$this->getInterface()) : null,
-            sprintf(' --min-receivers %d',($this->getClientCount()?$this->getClientCount():self::getClass(HostManager)->count())),
-            sprintf(' --max-wait %d',self::getSetting('FOG_UDPCAST_MAXWAIT')?self::getSetting('FOG_UDPCAST_MAXWAIT')*60:UDPSENDER_MAXWAIT),
-            self::getSetting('FOG_MULTICAST_ADDRESS')?sprintf(' --mcast-data-address %s',self::getSetting('FOG_MULTICAST_ADDRESS')):null,
+            sprintf(' --min-receivers %d',($this->getClientCount()?$this->getClientCount():static::getClass(HostManager)->count())),
+            sprintf(' --max-wait %d',static::getSetting('FOG_UDPCAST_MAXWAIT')?static::getSetting('FOG_UDPCAST_MAXWAIT')*60:UDPSENDER_MAXWAIT),
+            static::getSetting('FOG_MULTICAST_ADDRESS')?sprintf(' --mcast-data-address %s',static::getSetting('FOG_MULTICAST_ADDRESS')):null,
             sprintf(' --portbase %s',$this->getPortBase()),
-            sprintf(' %s',self::getSetting('FOG_MULTICAST_DUPLEX')),
+            sprintf(' %s',static::getSetting('FOG_MULTICAST_DUPLEX')),
             ' --ttl 32',
             ' --nokbd',
             ' --nopointopoint;',
@@ -102,7 +102,7 @@ class MulticastTask extends MulticastManager {
             case 2:
                 if (is_file($this->getImagePath())) $filelist[] = $this->getImagePath();
                 else {
-                    $iterator = self::getClass('DirectoryIterator',$this->getImagePath());
+                    $iterator = static::getClass('DirectoryIterator',$this->getImagePath());
                     foreach ($iterator AS $i => $fileInfo) {
                         if ($fileInfo->isDot()) continue;
                         $filelist[] = $fileInfo->getFilename();
@@ -121,7 +121,7 @@ class MulticastTask extends MulticastManager {
                     if (count($rec)) $filelist[] = 'rec.img.*';
                 } else {
                     $filename = 'd1p%d.%s';
-                    $iterator = self::getClass('DirectoryIterator',$this->getImagePath());
+                    $iterator = static::getClass('DirectoryIterator',$this->getImagePath());
                     foreach ($iterator AS $i => $fileInfo) {
                         if ($fileInfo->isDot()) continue;
                         sscanf($fileInfo->getFilename(),$filename,$part,$ext);
@@ -133,7 +133,7 @@ class MulticastTask extends MulticastManager {
                 break;
             default:
                 $filename = 'd1p%d.%s';
-                $iterator = self::getClass('DirectoryIterator',$this->getImagePath());
+                $iterator = static::getClass('DirectoryIterator',$this->getImagePath());
                 foreach ($iterator AS $i => $fileInfo) {
                     if ($fileInfo->isDot()) continue;
                     sscanf($fileInfo->getFilename(),$filename,$part,$ext);
@@ -145,7 +145,7 @@ class MulticastTask extends MulticastManager {
             break;
         case 2:
             $filename = 'd1p%d.%s';
-            $iterator = self::getClass('DirectoryIterator',$this->getImagePath());
+            $iterator = static::getClass('DirectoryIterator',$this->getImagePath());
             foreach ($iterator AS $i => $fileInfo) {
                 if ($fileInfo->isDot()) continue;
                 sscanf($fileInfo->getFilename(),$filename,$part,$ext);
@@ -155,7 +155,7 @@ class MulticastTask extends MulticastManager {
             break;
         case 3:
             $filename = 'd%dp%d.%s';
-            $iterator = self::getClass('DirectoryIterator',$this->getImagePath());
+            $iterator = static::getClass('DirectoryIterator',$this->getImagePath());
             foreach ($iterator AS $i => $fileInfo) {
                 if ($fileInfo->isDot()) continue;
                 sscanf($fileInfo->getFilename(),$filename,$device,$part,$ext);
@@ -164,7 +164,7 @@ class MulticastTask extends MulticastManager {
             }
             break;
         case 4:
-            $iterator = self::getClass('DirectoryIterator',$this->getImagePath());
+            $iterator = static::getClass('DirectoryIterator',$this->getImagePath());
             foreach ($iterator AS $i => $fileInfo) {
                 if ($fileInfo->isDot()) continue;
                 $filelist[] = $fileInfo->getFilename();
@@ -186,7 +186,7 @@ class MulticastTask extends MulticastManager {
         @unlink($this->getUDPCastLogFile());
         $this->startTasking($this->getCMD(),$this->getUDPCastLogFile());
         $this->procRef = array_shift($this->procRef);
-        self::getClass('MulticastSessions',$this->intID)
+        static::getClass('MulticastSessions',$this->intID)
             ->set('stateID',$this->getQueuedState())
             ->save();
         return $this->isRunning($this->procRef);
@@ -194,27 +194,27 @@ class MulticastTask extends MulticastManager {
     public function killTask() {
         $this->killTasking();
         @unlink($this->getUDPCastLogFile());
-        foreach ((array)self::getClass('TaskManager')->find(array('id'=>self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->getID()),'taskID'))) AS $i => &$Task) {
+        foreach ((array)static::getClass('TaskManager')->find(array('id'=>static::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->getID()),'taskID'))) AS $i => &$Task) {
             if (!$Task->isValid()) continue;
             $Task
                 ->set('stateID',$this->getCancelledState())
                 ->save();
             unset($Task);
         }
-        self::getClass('MulticastSessions',$this->intID)
+        static::getClass('MulticastSessions',$this->intID)
             ->set('name',null)
             ->set('stateID',$this->getCancelledState())
             ->save();
         return true;
     }
     public function updateStats() {
-        $Tasks = self::getClass('TaskManager')->find(array('id'=>self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->intID),'taskID')));
+        $Tasks = static::getClass('TaskManager')->find(array('id'=>static::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->intID),'taskID')));
         foreach($Tasks AS $i => &$Task) {
             $TaskPercent[] = $Task->get('percent');
             unset($Task);
         }
         unset($Tasks);
         $TaskPercent = array_unique((array)$TaskPercent);
-        self::getClass('MulticastSessions',$this->intID)->set('percent',@max((array)$TaskPercent))->save();
+        static::getClass('MulticastSessions',$this->intID)->set('percent',@max((array)$TaskPercent))->save();
     }
 }

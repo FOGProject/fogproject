@@ -30,13 +30,13 @@ class ScheduledTask extends FOGController {
         'hostID',
     );
     public function getHost() {
-        return self::getClass('Host',$this->get('hostID'));
+        return static::getClass('Host',$this->get('hostID'));
     }
     public function getGroup() {
-        return self::getClass('Group',$this->get('hostID'));
+        return static::getClass('Group',$this->get('hostID'));
     }
     public function getImage() {
-        return self::getClass('Image',$this->get('imageID'));
+        return static::getClass('Image',$this->get('imageID'));
     }
     public function getShutdownAfterTask() {
         return $this->get('shutdown');
@@ -69,13 +69,13 @@ class ScheduledTask extends FOGController {
         return new Timer($minute,$hour,$dom,$month,$dow);
     }
     public function isMulticast() {
-        return (bool)self::getClass('TaskType',$this->get('taskType'))->isMulticast();
+        return (bool)static::getClass('TaskType',$this->get('taskType'))->isMulticast();
     }
     public function getScheduledType() {
         return $this->get('type') ? _('Cron') : _('Delayed');
     }
     public function getTaskType() {
-        return self::getClass('TaskType',$this->get('taskType'));
+        return static::getClass('TaskType',$this->get('taskType'));
     }
     public function isGroupBased() {
         return (bool)$this->get('isGroupTask') > 0;
@@ -84,6 +84,6 @@ class ScheduledTask extends FOGController {
         return (bool)$this->get('isActive') > 0;
     }
     public function getTime() {
-        return self::nice_date()->setTimestamp($this->get('type') == 'C' ? FOGCron::parse(sprintf('%s %s %s %s %s',$this->get('minute'),$this->get('hour'),$this->get('dayOfMonth'),$this->get('month'),$this->get('dayOfWeek'))) : $this->get('scheduleTime'))->format('Y-m-d H:i');
+        return static::nice_date()->setTimestamp($this->get('type') == 'C' ? FOGCron::parse(sprintf('%s %s %s %s %s',$this->get('minute'),$this->get('hour'),$this->get('dayOfMonth'),$this->get('month'),$this->get('dayOfWeek'))) : $this->get('scheduleTime'))->format('Y-m-d H:i');
     }
 }

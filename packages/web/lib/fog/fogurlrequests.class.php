@@ -28,10 +28,10 @@ class FOGURLRequests extends FOGBase {
     }
     private function proxyInfo(&$URL) {
         try {
-            if (!self::$DB) throw new Exception(_('Unable to connect to the DB'));
-            list($ip,$password,$port,$username) = self::getSubObjectIDs('Service',array('name'=>array('FOG_PROXY_IP','FOG_PROXY_PASSWORD','FOG_PROXY_PORT','FOG_PROXY_USERNAME')),'value',false,'AND','name',false,false);
+            if (!static::$DB) throw new Exception(_('Unable to connect to the DB'));
+            list($ip,$password,$port,$username) = static::getSubObjectIDs('Service',array('name'=>array('FOG_PROXY_IP','FOG_PROXY_PASSWORD','FOG_PROXY_PORT','FOG_PROXY_USERNAME')),'value',false,'AND','name',false,false);
             if ($ip && filter_var($ip,FILTER_VALIDATE_IP) === false) throw new Exception(_('Invalid Proxy IP'));
-            $IPs = self::getSubObjectIDs('StorageNode','','ip');
+            $IPs = static::getSubObjectIDs('StorageNode','','ip');
             if (preg_match(sprintf('#^(?!.*%s)#i',implode('|',(array)$IPs)),$URL)) return false;
             $this->contextOptions[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
             $this->contextOptions[CURLOPT_PROXYPORT] = $port;
