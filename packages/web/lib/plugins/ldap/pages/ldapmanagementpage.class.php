@@ -6,8 +6,8 @@ class LDAPManagementPage extends FOGPage {
         parent::__construct($name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                "$this->linkformat" => static::$foglang['General'],
-                "$this->delformat" => static::$foglang['Delete'],
+                "$this->linkformat" => self::$foglang['General'],
+                "$this->delformat" => self::$foglang['Delete'],
             );
             $this->notes = array(
                 _('LDAP Server Name') => $this->obj->get('name'),
@@ -35,7 +35,7 @@ class LDAPManagementPage extends FOGPage {
             array('class' => 'l'),
             array('class' => 'l'),
         );
-        static::$returnData = function(&$LDAP) {
+        self::$returnData = function(&$LDAP) {
             if (!$LDAP->isValid()) return;
             $this->data[] = array(
                 'id' => $LDAP->get('id'),
@@ -50,16 +50,16 @@ class LDAPManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All LDAPs');
-        if (static::getSetting('FOG_DATA_RETURNED') > 0 && static::getClass($this->childClass)->getManager()->count() > static::getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if (self::getSetting('FOG_DATA_RETURNED') > 0 && self::getClass($this->childClass)->getManager()->count() > self::getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->find());
-        static::$HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
+        self::$HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->search('',true));
-        static::$HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->search('',true));
+        self::$HookManager->processEvent('LDAP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -89,7 +89,7 @@ class LDAPManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        static::$HookManager->processEvent('LDAP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('LDAP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -101,8 +101,8 @@ class LDAPManagementPage extends FOGPage {
             $address = trim($_REQUEST['address']);
             if (empty($name)) throw new Exception(_('Please enter a name for this LDAP server.'));
             if (empty($address)) throw new Exception(_('Please enter a LDAP server address'));
-            if (static::getClass('LDAPManager')->exists($name)) throw new Exception(_('LDAP server already Exists, please try again.'));
-            $LDAP = static::getClass('LDAP')
+            if (self::getClass('LDAPManager')->exists($name)) throw new Exception(_('LDAP server already Exists, please try again.'));
+            $LDAP = self::getClass('LDAP')
                 ->set('name',$name)
                 ->set('description',$_REQUEST['description'])
                 ->set('address',$address)
@@ -144,13 +144,13 @@ class LDAPManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        static::$HookManager->processEvent('LDAP_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('LDAP_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        static::$HookManager->processEvent('LDAP_EDIT_POST', array('LDAP'=> &$LDAP));
+        self::$HookManager->processEvent('LDAP_EDIT_POST', array('LDAP'=> &$LDAP));
         try {
             if (!isset($_REQUEST['update'])) throw new Exception(_('Not able to update'));
             $name = trim($_REQUEST['name']);
@@ -165,10 +165,10 @@ class LDAPManagementPage extends FOGPage {
                 ->set('DN',$_REQUEST['DN'])
                 ->set('port',$_REQUEST['port']);
             if (!$LDAP->save()) throw new Exception(_('Database update failed'));
-            static::$HookManager->processEvent('LDAP_EDIT_SUCCESS',array('LDAP'=>&$this->obj));
+            self::$HookManager->processEvent('LDAP_EDIT_SUCCESS',array('LDAP'=>&$this->obj));
             $this->setMessage(_('LDAP information updated!'));
         } catch (Exception $e) {
-            static::$HookManager->processEvent('LDAP_EDIT_FAIL',array('LDAP'=>&$this->obj));
+            self::$HookManager->processEvent('LDAP_EDIT_FAIL',array('LDAP'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
         $this->redirect($this->formAction);

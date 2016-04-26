@@ -22,10 +22,10 @@ class HookManager extends EventManager {
             $this->events[] = sprintf('%s_%s',$eventStart,$divTab);
             unset($item);
         };
-        array_map($fileRead,(array)iterator_to_array(static::getClass('RegexIterator',static::getClass('RecursiveIteratorIterator',static::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),'/^.+\.php$/i',RegexIterator::GET_MATCH)));
-        array_map($specTabs,(array)static::getClass('ServiceManager')->getSettingCats());
+        array_map($fileRead,(array)iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),'/^.+\.php$/i',RegexIterator::GET_MATCH)));
+        array_map($specTabs,(array)self::getClass('ServiceManager')->getSettingCats());
         $eventStart = 'BOOT_ITEMS';
-        array_map($specTabs,(array)static::getSubObjectIDs('PXEMenuOptions','','name'));
+        array_map($specTabs,(array)self::getSubObjectIDs('PXEMenuOptions','','name'));
         array_merge($this->events,array('HOST_DEL','HOST_DEL_POST','GROUP_DEL','GROUP_DEL_POST','IMAGE_DEL','IMAGE_DEL_POST','SNAPIN_DEL','SNAPIN_DEL_POST','PRINTER_DEL','PRINTER_DEL_POST','HOST_DEPLOY','GROUP_DEPLOY','HOST_EDIT_TASKS','GROUP_EDIT_TASKS','HOST_EDIT_ADV','GROUP_EDIT_ADV','HOST_EDIT_AD','GROUP_EDIT_AD'));
         natcasesort($this->events);
         $this->events = array_unique(array_filter($this->events));
@@ -34,7 +34,7 @@ class HookManager extends EventManager {
     public function processEvent($event, $arguments = array()) {
         if (!isset($this->data[$event])) return;
         array_map(function(&$function) use ($event,$arguments) {
-            if (stripos(static::getClass('ReflectionClass',get_class($function[0]))->getFileName(),'plugins') === false && !$function[0]->active) return;
+            if (stripos(self::getClass('ReflectionClass',get_class($function[0]))->getFileName(),'plugins') === false && !$function[0]->active) return;
             if (!method_exists($function[0],$function[1])) return;
             $function[0]->{$function[1]}(array_merge(array('event'=>$event),(array)$arguments));
             unset($function);

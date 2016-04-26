@@ -1,7 +1,7 @@
 <?php
 class UserCleaner extends FOGClient implements FOGClientSend {
     public function send() {
-        $UserCleanups = static::getClass('UserCleanupManager')->find();
+        $UserCleanups = self::getClass('UserCleanupManager')->find();
         if ($this->newService) {
             foreach ($UserCleanups AS $i => &$User) {
                 if (!$i) $this->send = "#!ok\n";

@@ -1,22 +1,22 @@
 <?php
 class FOGCore extends FOGBase {
     public function attemptLogin($username,$password) {
-        return static::getClass('User')
+        return self::getClass('User')
             ->set('name',$username)
             ->load('name')
             ->validate_pw($password);
     }
     public function stopScheduledTask($task) {
-        return static::getClass('ScheduledTask',$task->get('id'))->set('isActive',(int)false)->save();
+        return self::getClass('ScheduledTask',$task->get('id'))->set('isActive',(int)false)->save();
     }
     public function clearMACLookupTable() {
-        $OUITable = static::getClass('OUI','',true);
+        $OUITable = self::getClass('OUI','',true);
         $OUITable = $OUITable['databaseTable'];
-        static::$DB->query("TRUNCATE TABLE `$OUITable`");
-        return static::$DB->fetch()->get();
+        self::$DB->query("TRUNCATE TABLE `$OUITable`");
+        return self::$DB->fetch()->get();
     }
     public function getMACLookupCount() {
-        return static::getClass('OUIManager')->count();
+        return self::getClass('OUIManager')->count();
     }
     public function resolveHostname($host) {
         if (filter_var(trim($host),FILTER_VALIDATE_IP)) return trim($host);
@@ -77,33 +77,33 @@ class FOGCore extends FOGBase {
         return $data;
     }
     public static function setSessionEnv() {
-        $_SESSION['HostCount'] = static::getClass('HostManager')->count();
-        static::$DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
-        static::$DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
+        $_SESSION['HostCount'] = self::getClass('HostManager')->count();
+        self::$DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
+        self::$DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
         array_map(function(&$table) {
-            static::$DB->query(sprintf("ALTER TABLE `%s`.`%s` ENGINE=MyISAM",DATABASE_NAME,array_shift($table)));
+            self::$DB->query(sprintf("ALTER TABLE `%s`.`%s` ENGINE=MyISAM",DATABASE_NAME,array_shift($table)));
             unset($table);
-        },(array)static::$DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME'));
-        $_SESSION['PluginsInstalled'] = (array)static::getActivePlugins();
-        $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = static::getSetting('FOG_VIEW_DEFAULT_SCREEN');
-        $_SESSION['FOG_FTP_IMAGE_SIZE'] = static::getSetting('FOG_FTP_IMAGE_SIZE');
-        $_SESSION['Pending-Hosts'] = static::getClass('HostManager')->count(array('pending'=>1));
-        $_SESSION['Pending-MACs'] = static::getClass('MACAddressAssociationManager')->count(array('pending'=>1));
-        $_SESSION['DataReturn'] = static::getSetting('FOG_DATA_RETURNED');
-        $_SESSION['UserCount'] = static::getClass('UserManager')->count();
-        $_SESSION['GroupCount'] = static::getClass('GroupManager')->count();
-        $_SESSION['ImageCount'] = static::getClass('ImageManager')->count();
-        $_SESSION['SnapinCount'] = static::getClass('SnapinManager')->count();
-        $_SESSION['PrinterCount'] = static::getClass('PrinterManager')->count();
-        $_SESSION['FOGPingActive'] = static::getSetting('FOG_HOST_LOOKUP');
-        $_SESSION['memory'] = static::getSetting('FOG_MEMORY_LIMIT');
+        },(array)self::$DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME'));
+        $_SESSION['PluginsInstalled'] = (array)self::getActivePlugins();
+        $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
+        $_SESSION['FOG_FTP_IMAGE_SIZE'] = self::getSetting('FOG_FTP_IMAGE_SIZE');
+        $_SESSION['Pending-Hosts'] = self::getClass('HostManager')->count(array('pending'=>1));
+        $_SESSION['Pending-MACs'] = self::getClass('MACAddressAssociationManager')->count(array('pending'=>1));
+        $_SESSION['DataReturn'] = self::getSetting('FOG_DATA_RETURNED');
+        $_SESSION['UserCount'] = self::getClass('UserManager')->count();
+        $_SESSION['GroupCount'] = self::getClass('GroupManager')->count();
+        $_SESSION['ImageCount'] = self::getClass('ImageManager')->count();
+        $_SESSION['SnapinCount'] = self::getClass('SnapinManager')->count();
+        $_SESSION['PrinterCount'] = self::getClass('PrinterManager')->count();
+        $_SESSION['FOGPingActive'] = self::getSetting('FOG_HOST_LOOKUP');
+        $_SESSION['memory'] = self::getSetting('FOG_MEMORY_LIMIT');
         $memorySet = preg_replace('#M#','',ini_get('memory_limit'));
         if ((int) $memorySet < $_SESSION['memory']) ini_set('memory_limit',is_numeric($_SESSION['memory']) ? sprintf('%dM',$_SESSION['memory']) : ini_get('memory_limit'));
-        $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = static::getSetting('FOG_FORMAT_FLAG_IN_GUI');
-        $_SESSION['FOG_SNAPINDIR'] = static::getSetting('FOG_SNAPINDIR');
-        $_SESSION['FOG_REPORT_DIR'] = static::getSetting('FOG_REPORT_DIR');
-        $_SESSION['TimeZone'] = (ini_get('date.timezone') ? ini_get('date.timezone') : (static::getSetting('FOG_TZ_INFO') ? static::getSetting('FOG_TZ_INFO') : 'UTC'));
+        $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = self::getSetting('FOG_FORMAT_FLAG_IN_GUI');
+        $_SESSION['FOG_SNAPINDIR'] = self::getSetting('FOG_SNAPINDIR');
+        $_SESSION['FOG_REPORT_DIR'] = self::getSetting('FOG_REPORT_DIR');
+        $_SESSION['TimeZone'] = (ini_get('date.timezone') ? ini_get('date.timezone') : (self::getSetting('FOG_TZ_INFO') ? self::getSetting('FOG_TZ_INFO') : 'UTC'));
         ini_set('max_input_vars',5000);
-        return static::getClass(__CLASS__);
+        return self::getClass(__CLASS__);
     }
 }
