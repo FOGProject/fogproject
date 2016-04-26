@@ -5,25 +5,25 @@ class FOGConfigurationPage extends FOGPage {
         $this->name = 'FOG Configuration';
         parent::__construct($this->name);
         $this->menu = array(
-            'license'=>static::$foglang['License'],
-            'kernel-update'=>static::$foglang['KernelUpdate'],
-            'pxemenu'=>static::$foglang['PXEBootMenu'],
-            'customize-edit'=>static::$foglang['PXEConfiguration'],
-            'new-menu'=>static::$foglang['NewMenu'],
-            'client-updater'=>static::$foglang['ClientUpdater'],
-            'mac-list'=>static::$foglang['MACAddrList'],
-            'settings'=>static::$foglang['FOGSettings'],
-            'logviewer'=>static::$foglang['LogViewer'],
-            'config'=>static::$foglang['ConfigSave'],
-            'http://www.sf.net/projects/freeghost'=>static::$foglang['FOGSFPage'],
-            'https://fogproject.org'=>static::$foglang['FOGWebPage'],
+            'license'=>self::$foglang['License'],
+            'kernel-update'=>self::$foglang['KernelUpdate'],
+            'pxemenu'=>self::$foglang['PXEBootMenu'],
+            'customize-edit'=>self::$foglang['PXEConfiguration'],
+            'new-menu'=>self::$foglang['NewMenu'],
+            'client-updater'=>self::$foglang['ClientUpdater'],
+            'mac-list'=>self::$foglang['MACAddrList'],
+            'settings'=>self::$foglang['FOGSettings'],
+            'logviewer'=>self::$foglang['LogViewer'],
+            'config'=>self::$foglang['ConfigSave'],
+            'http://www.sf.net/projects/freeghost'=>self::$foglang['FOGSFPage'],
+            'https://fogproject.org'=>self::$foglang['FOGWebPage'],
             'https://github.com/fogproject/fogproject.git'=>_('FOG Project on Github'),
             'https://github.com/fogproject/fog-client.git'=>_('FOG Client on Github'),
             'https://wiki.fogproject.org/wiki/index.php'=>_('FOG Wiki'),
             'https://forums.fogproject.org'=>_('FOG Forums'),
             'https://www.paypal.com/us/cgi-bin/webscr?cmd=_flow&SESSION=kXqYEYWlhYQzPiGFLuwJpkwxqhk940AnPXR--PNpYY4IS2WDicAFGopYjOG&dispatch=5885d80a13c0db1f8e263663d3faee8d6625bf1e8bd269586d425cc639e26c6a'=>_('Donate to FOG'),
         );
-        static::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
     public function index() {
         $this->version();
@@ -34,7 +34,7 @@ class FOGConfigurationPage extends FOGPage {
         $this->title = _('FOG Version Information');
         printf('<p>%s: %s</p>',_('Version'),FOG_VERSION);
         $URLs[] = sprintf('https://fogproject.org/version/index.php?version=%s',FOG_VERSION);
-        $Nodes = (array)static::getClass('StorageNodeManager')->find(array('isEnabled'=>1));
+        $Nodes = (array)self::getClass('StorageNodeManager')->find(array('isEnabled'=>1));
         array_map(function(&$StorageNode) use (&$URLs) {
             if (!$StorageNode->isValid()) return;
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
@@ -43,7 +43,7 @@ class FOGConfigurationPage extends FOGPage {
             unset($StorageNode);
         },$Nodes);
         array_unshift($Nodes,'');
-        $Responses = static::$FOGURLRequests->process($URLs,'GET');
+        $Responses = self::$FOGURLRequests->process($URLs,'GET');
         array_walk($Responses,function(&$data,&$i) use ($Nodes) {
             if (!$i) printf('<p><div class="sub">%s</div></p><h1>Kernel Versions</h1>',$data);
             else printf('<h2>%s</h2><pre>%s</pre>',$Nodes[$i],$data);
@@ -66,7 +66,7 @@ class FOGConfigurationPage extends FOGPage {
     public function kernel_update() {
         $this->kernelselForm('pk');
         $url = filter_var(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
-        $htmlData = static::$FOGURLRequests->process($url,'GET');
+        $htmlData = self::$FOGURLRequests->process($url,'GET');
         echo $htmlData[0];
     }
     public function kernelselForm($type) {
@@ -78,19 +78,19 @@ class FOGConfigurationPage extends FOGPage {
             case 'pk':
                 $this->kernelselForm('pk');
                 $url = filter_var(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
-                $htmlData = static::$FOGURLRequests->process($url,'GET');
+                $htmlData = self::$FOGURLRequests->process($url,'GET');
                 echo $htmlData[0];
                 break;
             case 'ok':
                 $this->kernelselForm('ok');
                 $url = filter_var(sprintf('https://freeghost.sourceforge.net/kernelupdates/index.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
-                $htmlData = static::$FOGURLRequests->process($url,'GET');
+                $htmlData = self::$FOGURLRequests->process($url,'GET');
                 echo $htmlData[0];
                 break;
             default:
                 $this->kernelselForm('pk');
                 $url = filter_var(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s',FOG_VERSION),FILTER_SANITIZE_URL);
-                $htmlData = static::$FOGURLRequests->process($url,'GET');
+                $htmlData = self::$FOGURLRequests->process($url,'GET');
                 echo $htmlData[0];
                 break;
             }
@@ -118,15 +118,15 @@ class FOGConfigurationPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $noMenu = static::getSetting('FOG_NO_MENU') ? ' checked' : '';
-        $hidChecked = (static::getSetting('FOG_PXE_MENU_HIDDEN') ? ' checked' : '');
-        $hideTimeout = static::getSetting('FOG_PXE_HIDDENMENU_TIMEOUT');
-        $timeout = static::getSetting('FOG_PXE_MENU_TIMEOUT');
-        $bootKeys = static::getClass('KeySequenceManager')->buildSelectBox(static::getSetting('FOG_KEY_SEQUENCE'));
-        $advLogin = (static::getSetting('FOG_ADVANCED_MENU_LOGIN') ? ' checked' : '');
-        $advanced = static::getSetting('FOG_PXE_ADVANCED');
-        $exitNorm = Service::buildExitSelector('bootTypeExit',static::getSetting('FOG_BOOT_EXIT_TYPE'));
-        $exitEfi = Service::buildExitSelector('efiBootTypeExit',static::getSetting('FOG_EFI_BOOT_EXIT_TYPE'));
+        $noMenu = self::getSetting('FOG_NO_MENU') ? ' checked' : '';
+        $hidChecked = (self::getSetting('FOG_PXE_MENU_HIDDEN') ? ' checked' : '');
+        $hideTimeout = self::getSetting('FOG_PXE_HIDDENMENU_TIMEOUT');
+        $timeout = self::getSetting('FOG_PXE_MENU_TIMEOUT');
+        $bootKeys = self::getClass('KeySequenceManager')->buildSelectBox(self::getSetting('FOG_KEY_SEQUENCE'));
+        $advLogin = (self::getSetting('FOG_ADVANCED_MENU_LOGIN') ? ' checked' : '');
+        $advanced = self::getSetting('FOG_PXE_ADVANCED');
+        $exitNorm = Service::buildExitSelector('bootTypeExit',self::getSetting('FOG_BOOT_EXIT_TYPE'));
+        $exitEfi = Service::buildExitSelector('efiBootTypeExit',self::getSetting('FOG_EFI_BOOT_EXIT_TYPE'));
         $fields = array(
             _('No Menu') => sprintf('<input type="checkbox" name="nomenu" value="1"%s/><i class="icon fa fa-question hand" title="%s"></i>',$noMenu,_('Option sets if there will even be the presence of a menu to the client systems. If there is not a task set, it boots to the first device, if there is a task, it performs that task.')),
             _('Hide Menu') => sprintf('<input type="checkbox" name="hidemenu" value="1"%s/><i class="icon fa fa-question hand" title="%s"></i>',$hidChecked,_('Option below sets the key sequence. If none is specified, ESC is defaulted. Login with the FOG Credentials and you will see the menu. Otherwise it will just boot like normal.')),
@@ -147,7 +147,7 @@ class FOGConfigurationPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        static::$HookManager->processEvent('PXE_BOOT_MENU',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('PXE_BOOT_MENU',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -179,13 +179,13 @@ class FOGConfigurationPage extends FOGPage {
         }
     }
     public function customize_edit() {
-        $this->title = static::$foglang['PXEMenuCustomization'];
+        $this->title = self::$foglang['PXEMenuCustomization'];
         printf('<p>%s</p><div id="tab-container-1">',_('This item allows you to edit all of the PXE Menu items as you see fit.  Mind you, iPXE syntax is very finicky when it comes to edits.  If you need help understanding what items are needed, please see the forums.  You can also look at ipxe.org for syntactic usage and methods.  Some of the items here are bound to limitations.  Documentation will follow when enough time is provided.'));
         $this->templates = array(
             '${field}',
             '${input}',
         );
-        foreach ((array)static::getClass('PXEMenuOptionsManager')->find('','','id') AS $i => &$Menu) {
+        foreach ((array)self::getClass('PXEMenuOptionsManager')->find('','','id') AS $i => &$Menu) {
             if (!$Menu->isValid()) continue;
             $divTab = preg_replace('#[^\w\-]#','_',$Menu->get('name'));
             printf('<a id="%s" style="text-decoration:none;" href="#%s"><h3>%s</h3></a><div id="%s"><form method="post" action="%s">',$divTab,$divTab,$Menu->get('name'),$divTab,$this->formAction);
@@ -197,9 +197,9 @@ class FOGConfigurationPage extends FOGPage {
                 _('Parameters:') => sprintf('<textarea cols="40" rows="8" name="menu_params">%s</textarea>',$Menu->get('params')),
                 _('Boot Options:') => sprintf('<input type="text" name="menu_options" id="menu_options" value="%s"/>',$Menu->get('args')),
                 _('Default Item:') => sprintf('<input type="checkbox" name="menu_default" value="1"%s/>',$menuDefault),
-                _('Menu Show with:') => static::getClass('PXEMenuOptionsManager')->regSelect($Menu->get('regMenu')),
-                sprintf('<input type="hidden" name="menu_id" value="%s"/>',$Menu->get('id')) => sprintf('<input type="submit" name="saveform" value="%s"/>',static::$foglang['Submit']),
-                !$menuid ? sprintf('<input type="hidden" name="rmid" value="%s"/>',$Menu->get('id')) : '' => !$menuid ? sprintf('<input type="submit" name="delform" value="%s %s"/>',static::$foglang['Delete'],$Menu->get('name')) : '',
+                _('Menu Show with:') => self::getClass('PXEMenuOptionsManager')->regSelect($Menu->get('regMenu')),
+                sprintf('<input type="hidden" name="menu_id" value="%s"/>',$Menu->get('id')) => sprintf('<input type="submit" name="saveform" value="%s"/>',self::$foglang['Submit']),
+                !$menuid ? sprintf('<input type="hidden" name="rmid" value="%s"/>',$Menu->get('id')) : '' => !$menuid ? sprintf('<input type="submit" name="delform" value="%s %s"/>',self::$foglang['Delete'],$Menu->get('name')) : '',
             );
             foreach ((array)$fields AS $field => &$input) {
                 $this->data[] = array(
@@ -209,7 +209,7 @@ class FOGConfigurationPage extends FOGPage {
                 unset($input);
             }
             unset($fields);
-            static::$HookManager->processEvent(sprintf('BOOT_ITEMS_%s',$divTab),array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
+            self::$HookManager->processEvent(sprintf('BOOT_ITEMS_%s',$divTab),array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
             $this->render();
             echo '</form></div>';
             unset($this->data,$Menu);
@@ -218,26 +218,26 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function customize_edit_post() {
         if (isset($_REQUEST['saveform']) && $_REQUEST['menu_id']) {
-            static::getClass('PXEMenuOptionsManager')->update(array('id'=>$_REQUEST['menu_id']),'',array('name'=>$_REQUEST['menu_item'],'description'=>$_REQUEST['menu_description'],'params'=>$_REQUEST['menu_params'],'regMenu'=>$_REQUEST['menu_regmenu'],'args'=>$_REQUEST['menu_options'],'default'=>$_REQUEST['menu_default']));
+            self::getClass('PXEMenuOptionsManager')->update(array('id'=>$_REQUEST['menu_id']),'',array('name'=>$_REQUEST['menu_item'],'description'=>$_REQUEST['menu_description'],'params'=>$_REQUEST['menu_params'],'regMenu'=>$_REQUEST['menu_regmenu'],'args'=>$_REQUEST['menu_options'],'default'=>$_REQUEST['menu_default']));
             if ($_REQUEST['menu_default']) {
-                $MenuIDs = static::getSubObjectIDs('PXEMenuOptions');
+                $MenuIDs = self::getSubObjectIDs('PXEMenuOptions');
                 natsort($MenuIDs);
                 $MenuIDs = array_unique(array_diff($MenuIDs,(array)$_REQUEST['menu_id']));
                 natsort($MenuIDs);
-                static::getClass('PXEMenuOptionsManager')->update(array('id'=>$MenuIDs),'',array('default'=>'0'));
+                self::getClass('PXEMenuOptionsManager')->update(array('id'=>$MenuIDs),'',array('default'=>'0'));
             }
             unset($MenuIDs);
-            $DefMenuIDs = static::getSubObjectIDs('PXEMenuOptions',array('default'=>1));
-            if (!count($DefMenuIDs)) static::getClass('PXEMenuOptions',1)->set('default',1)->save();
+            $DefMenuIDs = self::getSubObjectIDs('PXEMenuOptions',array('default'=>1));
+            if (!count($DefMenuIDs)) self::getClass('PXEMenuOptions',1)->set('default',1)->save();
             unset($DefMenuIDs);
             $this->setMessage(sprintf('%s %s!',$_REQUEST['menu_item'],_('successfully updated')));
         }
         if (isset($_REQUEST['delform']) && $_REQUEST['rmid']) {
-            $menuname = static::getClass('PXEMenuOptions',$_REQUEST['rmid'])->get('name');
-            if (static::getClass('PXEMenuOptions',$_REQUEST['rmid'])->destroy()) $this->setMessage(sprintf('%s %s!',$menuname,_('successfully removed')));
+            $menuname = self::getClass('PXEMenuOptions',$_REQUEST['rmid'])->get('name');
+            if (self::getClass('PXEMenuOptions',$_REQUEST['rmid'])->destroy()) $this->setMessage(sprintf('%s %s!',$menuname,_('successfully removed')));
         }
-        $countDefault = static::getClass('PXEMenuOptionsManager')->count(array('default'=>1));
-        if ($countDefault == 0 || $countDefault > 1) static::getClass('PXEMenuOptions',1)->set('default',1)->save();
+        $countDefault = self::getClass('PXEMenuOptionsManager')->count(array('default'=>1));
+        if ($countDefault == 0 || $countDefault > 1) self::getClass('PXEMenuOptions',1)->set('default',1)->save();
         $this->redirect($this->formAction);
     }
     public function new_menu() {
@@ -253,8 +253,8 @@ class FOGConfigurationPage extends FOGPage {
             _('Parameters:') => sprintf('<textarea cols="40" rows="8" name="menu_params">%s</textarea>',$_REQUEST['menu_params']),
             _('Boot Options:') => sprintf('<input type="text" name="menu_options" id="menu_options" value="%s"/>',$_REQUEST['menu_options']),
             _('Default Item:') => sprintf('<input type="checkbox" name="menu_default" value="1"%s/>',$menudefault),
-            _('Menu Show with:') => static::getClass('PXEMenuOptionsManager')->regSelect($_REQUEST['menu_regmenu']),
-            '&nbsp;' => sprintf('<input type="submit" value="%s %s"/>',static::$foglang['Add'],_('New Menu')),
+            _('Menu Show with:') => self::getClass('PXEMenuOptionsManager')->regSelect($_REQUEST['menu_regmenu']),
+            '&nbsp;' => sprintf('<input type="submit" value="%s %s"/>',self::$foglang['Add'],_('New Menu')),
         );
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
@@ -264,7 +264,7 @@ class FOGConfigurationPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        static::$HookManager->processEvent('BOOT_ITEMS_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
+        self::$HookManager->processEvent('BOOT_ITEMS_ADD',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'headerData'=>&$this->headerData));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo "</form>";
@@ -273,8 +273,8 @@ class FOGConfigurationPage extends FOGPage {
         try {
             if (!$_REQUEST['menu_item']) throw new Exception(_('Menu Item or title cannot be blank'));
             if (!$_REQUEST['menu_description']) throw new Exception(_('A description needs to be set'));
-            if ($_REQUEST['menu_default']) static::getClass('PXEMenuOptionsManager')->update('','',array('default'=>0));
-            $Menu = static::getClass('PXEMenuOptions')
+            if ($_REQUEST['menu_default']) self::getClass('PXEMenuOptionsManager')->update('','',array('default'=>0));
+            $Menu = self::getClass('PXEMenuOptions')
                 ->set('name',$_REQUEST['menu_item'])
                 ->set('description',$_REQUEST['menu_description'])
                 ->set('params',$_REQUEST['menu_params'])
@@ -282,13 +282,13 @@ class FOGConfigurationPage extends FOGPage {
                 ->set('args',$_REQUEST['menu_options'])
                 ->set('default',$_REQUEST['menu_default']);
             if (!$Menu->save()) throw new Exception(_('Menu create failed'));
-            $countDefault = static::getClass('PXEMenuOptionsManager')->count(array('default'=>1));
-            if ($countDefault == 0 || $countDefault > 1) static::getClass('PXEMenuOptions',1)->set('default',1)->save();
-            static::$HookManager->processEvent('MENU_ADD_SUCCESS',array('Menu'=>&$Menu));
+            $countDefault = self::getClass('PXEMenuOptionsManager')->count(array('default'=>1));
+            if ($countDefault == 0 || $countDefault > 1) self::getClass('PXEMenuOptions',1)->set('default',1)->save();
+            self::$HookManager->processEvent('MENU_ADD_SUCCESS',array('Menu'=>&$Menu));
             $this->setMessage(_('Menu Added'));
             $this->redirect(sprintf('?node=%s&sub=edit&%s=%s',$this->node,$this->id,$Menu->get('id')));
         } catch (Exception $e) {
-            static::$HookManager->processEvent('MENU_ADD_FAIL',array('Menu'=>&$Menu));
+            self::$HookManager->processEvent('MENU_ADD_FAIL',array('Menu'=>&$Menu));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
@@ -314,7 +314,7 @@ class FOGConfigurationPage extends FOGPage {
             array('class'=>'filter-false'),
         );
         printf('<div class="hostgroup">%s</div>',_('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.'));
-        foreach ((array)static::getClass('ClientUpdaterManager')->find() AS $i => &$ClientUpdate) {
+        foreach ((array)self::getClass('ClientUpdaterManager')->find() AS $i => &$ClientUpdate) {
             $this->data[] = array(
                 'name'=>$ClientUpdate->get('name'),
                 'module'=>$ClientUpdate->get('md5'),
@@ -324,7 +324,7 @@ class FOGConfigurationPage extends FOGPage {
             );
             unset($ClientUpdate);
         }
-        static::$HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=clientupdater">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -349,7 +349,7 @@ class FOGConfigurationPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        static::$HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=clientupdater" enctype="multipart/form-data"><input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED"/>',$this->formAction);
         $this->render();
         echo '</form>';
@@ -357,7 +357,7 @@ class FOGConfigurationPage extends FOGPage {
     public function client_updater_post() {
         try {
             if ($_REQUEST['delcu']) {
-                if (!static::getClass('ClientUpdaterManager')->destroy(array('id'=>$_REQUEST['delcu']))) throw new Exception(_('Failed to delete module'));
+                if (!self::getClass('ClientUpdaterManager')->destroy(array('id'=>$_REQUEST['delcu']))) throw new Exception(_('Failed to delete module'));
                 throw new Exception(_('Client module update deleted!'));
             }
             if (count($_FILES['module']['tmp_name']) < 1) throw new Exception(_('No file uploaded'));
@@ -372,10 +372,10 @@ class FOGConfigurationPage extends FOGPage {
                 $fp = fopen($tmp_name,'rb');
                 $content = fread($fp, filesize($tmp_name));
                 fclose($fp);
-                static::getClass('ClientUpdater',@max(static::getClass('ClientUpdater',array('name'=>$filename))))
+                self::getClass('ClientUpdater',@max(self::getClass('ClientUpdater',array('name'=>$filename))))
                     ->set('name',$filename)
                     ->set('md5',$md5)
-                    ->set('type',static::getClass('finfo',FILEINFO_MIME)->file($tmp_name))
+                    ->set('type',self::getClass('finfo',FILEINFO_MIME)->file($tmp_name))
                     ->set('file',$content)
                     ->save();
             });
@@ -387,11 +387,11 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function mac_list() {
         $this->title = _('MAC Address Manufacturer Listing');
-        printf('<div class="hostgroup">%s</div><div class="c"><p>%s: %s</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="%s" value="%s" id="macButtonDel"/>&nbsp;&nbsp;&nbsp;&nbsp;<input class="macButtons" id="macButtonUp" type="button" title="%s" value="%s"/></p><p>%s<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>',_('This section allows you to import known mac address makers into the FOG Database for easier identification.'),_('Current Records'),static::$FOGCore->getMACLookupCount(),_('Delete MACs'),_('Delete Current Records'),_('Update MACs'),_('Update Current Listing'),_('MAC Address listing source: '));
+        printf('<div class="hostgroup">%s</div><div class="c"><p>%s: %s</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="%s" value="%s" id="macButtonDel"/>&nbsp;&nbsp;&nbsp;&nbsp;<input class="macButtons" id="macButtonUp" type="button" title="%s" value="%s"/></p><p>%s<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>',_('This section allows you to import known mac address makers into the FOG Database for easier identification.'),_('Current Records'),self::$FOGCore->getMACLookupCount(),_('Delete MACs'),_('Delete Current Records'),_('Update MACs'),_('Update Current Listing'),_('MAC Address listing source: '));
     }
     public function mac_list_post() {
         if ($_REQUEST['update']) {
-            static::$FOGCore->clearMACLookupTable();
+            self::$FOGCore->clearMACLookupTable();
             $url = 'http://linuxnet.ca/ieee/oui.txt';
             if (($fh = fopen($url,'rb')) === false) throw new Exception(_('Could not read temp file'));
             $items = array();
@@ -407,14 +407,14 @@ class FOGConfigurationPage extends FOGPage {
             }
             fclose($fh);
             if (count($items)) {
-                list($first_id,$affected_rows) = static::getClass('OUIManager')->insert_batch(array('prefix','name'),$items);
+                list($first_id,$affected_rows) = self::getClass('OUIManager')->insert_batch(array('prefix','name'),$items);
                 $imported += $affected_rows;
                 unset($items);
             }
             unset($first_id);
             $this->setMessage(sprintf('%s %s',$imported,_(' mac addresses updated!')));
         }
-        if ($_REQUEST['clear']) static::$FOGCore->clearMACLookupTable();
+        if ($_REQUEST['clear']) self::$FOGCore->clearMACLookupTable();
         $this->resetRequest();
         $this->redirect('?node=about&sub=mac-list');
     }
@@ -470,10 +470,10 @@ class FOGConfigurationPage extends FOGPage {
             '${span}',
         );
         echo '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
-        foreach ((array)static::getClass('ServiceManager')->getSettingCats() AS $i => &$ServiceCAT) {
+        foreach ((array)self::getClass('ServiceManager')->getSettingCats() AS $i => &$ServiceCAT) {
             $divTab = preg_replace('#[^\w\-]#','_',$ServiceCAT);
             printf('<a id="%s" class="expand_trigger" style="text-decoration:none;" href="#%s"><h3>%s</h3></a><div id="%s">',$divTab,$divTab,$ServiceCAT,$divTab);
-            foreach ((array)static::getClass('ServiceManager')->find(array('category'=>$ServiceCAT),'AND','id') AS $i => &$Service) {
+            foreach ((array)self::getClass('ServiceManager')->find(array('category'=>$ServiceCAT),'AND','id') AS $i => &$Service) {
                 if (!$Service->isValid()) continue;
                 switch ($Service->get('name')) {
                 case 'FOG_PIGZ_COMP':
@@ -516,33 +516,33 @@ class FOGConfigurationPage extends FOGPage {
                     break;
                 case 'FOG_DEFAULT_LOCALE':
                     ob_start();
-                    foreach ((array)static::$foglang['Language'] AS $lang => &$humanreadable) {
-                        printf('<option value="%s"%s>%s</option>',$lang,(static::getSetting('FOG_DEFAULT_LOCALE') == $lang || static::getSetting('FOG_DEFAULT_LOCALE') == static::$foglang['Language'][$lang] ? ' selected' : ''),$humanreadable);
+                    foreach ((array)self::$foglang['Language'] AS $lang => &$humanreadable) {
+                        printf('<option value="%s"%s>%s</option>',$lang,(self::getSetting('FOG_DEFAULT_LOCALE') == $lang || self::getSetting('FOG_DEFAULT_LOCALE') == self::$foglang['Language'][$lang] ? ' selected' : ''),$humanreadable);
                         unset($humanreadable);
                     }
                     $type = sprintf('<select name="${service_id}" autocomplete="off" style="width: 220px">%s</select>',ob_get_clean());
                     break;
                 case 'FOG_QUICKREG_IMG_ID':
-                    $type = static::getClass('ImageManager')->buildSelectBox(static::getSetting('FOG_QUICKREG_IMG_ID'),sprintf('%s" id="${service_name}"',$Service->get('id')));
+                    $type = self::getClass('ImageManager')->buildSelectBox(self::getSetting('FOG_QUICKREG_IMG_ID'),sprintf('%s" id="${service_name}"',$Service->get('id')));
                     break;
                 case 'FOG_QUICKREG_GROUP_ASSOC':
-                    $type = static::getClass('GroupManager')->buildSelectBox(static::getSetting('FOG_QUICKREG_GROUP_ASSOC'),$Service->get('id'));
+                    $type = self::getClass('GroupManager')->buildSelectBox(self::getSetting('FOG_QUICKREG_GROUP_ASSOC'),$Service->get('id'));
                     break;
                 case 'FOG_KEY_SEQUENCE':
-                    $type = static::getClass('KeySequenceManager')->buildSelectBox(static::getSetting('FOG_KEY_SEQUENCE'),$Service->get('id'));
+                    $type = self::getClass('KeySequenceManager')->buildSelectBox(self::getSetting('FOG_KEY_SEQUENCE'),$Service->get('id'));
                     break;
                 case 'FOG_QUICKREG_OS_ID':
                     $ImageName = _('No image specified');
-                    if (static::getSetting('FOG_QUICKREG_IMG_ID') > 0) $ImageName = static::getClass('Image',static::getSetting('FOG_QUICKREG_IMG_ID'))->get('name');
+                    if (self::getSetting('FOG_QUICKREG_IMG_ID') > 0) $ImageName = self::getClass('Image',self::getSetting('FOG_QUICKREG_IMG_ID'))->get('name');
                     $type = sprintf('<p id="${service_name}">%s</p>',$ImageName);
                     break;
                 case 'FOG_TZ_INFO':
-                    $dt = static::nice_date('now',$utc);
+                    $dt = self::nice_date('now',$utc);
                     $tzIDs = DateTimeZone::listIdentifiers();
                     ob_start();
                     echo '<select name="${service_id}">';
                     foreach ((array)$tzIDs AS $i => &$tz) {
-                        $current_tz = static::getClass('DateTimeZone',$tz);
+                        $current_tz = self::getClass('DateTimeZone',$tz);
                         $offset = $current_tz->getOffset($dt);
                         $transition = $current_tz->getTransitions($dt->getTimestamp(),$dt->getTimestamp());
                         $abbr = $transition[0]['abbr'];
@@ -583,7 +583,7 @@ class FOGConfigurationPage extends FOGPage {
                 'service_name'=>'',
                 'input_type'=>sprintf('<input name="update" type="submit" value="%s"/>',_('Save Changes')),
             );
-            static::$HookManager->processEvent(sprintf('CLIENT_UPDATE_%s',$divTab),array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+            self::$HookManager->processEvent(sprintf('CLIENT_UPDATE_%s',$divTab),array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             $this->render();
             echo '</div>';
             unset($this->data,$options,$ServiceCAT);
@@ -593,7 +593,7 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function getOSID() {
         $imageid = (int) $_REQUEST['image_id'];
-        $osname = static::getClass('Image',$imageid)->getOS()->get('name');
+        $osname = self::getClass('Image',$imageid)->getOS()->get('name');
         echo json_encode($osname ? $osname : _('No Image specified'));
         exit;
     }
@@ -632,9 +632,9 @@ class FOGConfigurationPage extends FOGPage {
             'MULTICASESLEEPTIME' => true,
             // FOG Quick Registration
             'FOG_QUICKREG_AUTOPOP' => $checkbox,
-            'FOG_QUICKREG_IMG_ID' => array_merge((array)0,static::getSubObjectIDs('Image')),
+            'FOG_QUICKREG_IMG_ID' => array_merge((array)0,self::getSubObjectIDs('Image')),
             'FOG_QUICKREG_SYS_NUMBER' => true,
-            'FOG_QUICKREG_GROUP_ASSOC' => array_merge((array)0,static::getSubObjectIDs('Group')),
+            'FOG_QUICKREG_GROUP_ASSOC' => array_merge((array)0,self::getSubObjectIDs('Group')),
             // FOG Service
             'FOG_SERVICE_CHECKIN_TIME' => true,
             'FOG_CLIENT_MAXSIZE' => true,
@@ -713,7 +713,7 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_PROXY_IP' => true,
         );
         unset($findWhere,$setWhere);
-        foreach ((array)static::getClass('ServiceManager')->find() AS $i => &$Service) {
+        foreach ((array)self::getClass('ServiceManager')->find() AS $i => &$Service) {
             $key = $Service->get('id');
             $_REQUEST[$key] = trim($_REQUEST[$key]);
             if ($_REQUEST[$key] == trim($Service->get('value'))) continue;
@@ -739,7 +739,7 @@ class FOGConfigurationPage extends FOGPage {
         $this->redirect($this->formAction);
     }
     public function logviewer() {
-        foreach ((array)static::getClass('StorageGroupManager')->find() AS $i => &$StorageGroup) {
+        foreach ((array)self::getClass('StorageGroupManager')->find() AS $i => &$StorageGroup) {
             if (!$StorageGroup->isValid()) continue;
             if (!count($StorageGroup->get('enablednodes'))) continue;
             $StorageNode = $StorageGroup->getMasterStorageNode();
@@ -793,7 +793,7 @@ class FOGConfigurationPage extends FOGPage {
                 );
             }
             $ip[$StorageNode->get('name')] = $StorageNode->get('ip');
-            static::$HookManager->processEvent('LOG_VIEWER_HOOK',array('files'=>&$files,'StorageNode'=>&$StorageNode));
+            self::$HookManager->processEvent('LOG_VIEWER_HOOK',array('files'=>&$files,'StorageNode'=>&$StorageNode));
             unset($StorageGroup);
         }
         unset($StorageGroups);
@@ -823,9 +823,9 @@ class FOGConfigurationPage extends FOGPage {
         printf('<select name="n" id="linesToView">%s</select><br/><p class="c"><label for="reverse">%s : <input type="checkbox" name="reverse" id="reverse"/></label></p></label><br/><p class="c"><input type="button" id="logpause"/></p></p></form><br/><div id="logsGoHere"></div></p>',ob_get_clean(),_('Reverse the file: (newest on top)'));
     }
     public function config() {
-        static::$HookManager->processEvent('IMPORT');
+        self::$HookManager->processEvent('IMPORT');
         $this->title='Configuration Import/Export';
-        $report = static::getClass('ReportMaker');
+        $report = self::getClass('ReportMaker');
         $_SESSION['foglastreport']=serialize($report);
         unset($this->data,$this->headerData);
         $this->attributes = array(
@@ -859,14 +859,14 @@ class FOGConfigurationPage extends FOGPage {
         unset($this->attributes,$this->templates,$this->data);
     }
     public function config_post() {
-        static::$HookManager->processEvent('IMPORT_POST');
-        $Schema = static::getClass('Schema');
+        self::$HookManager->processEvent('IMPORT_POST');
+        $Schema = self::getClass('Schema');
         try {
             if ($_FILES['dbFile']['error'] > 0) throw new UploadException($_FILES['dbFile']['error']);
             $original = $Schema->export_db('',false);
             $tmp_name = htmlentities($_FILES['dbFile']['tmp_name'],ENT_QUOTES,'utf-8');
             $filename = sprintf('%s%s%s',dirname($tmp_name),DIRECTORY_SEPARATOR,basename($tmp_name));
-            $result = static::getClass('Schema')->import_db($filename);
+            $result = self::getClass('Schema')->import_db($filename);
             if ($result === true) printf('<h2>%s</h2>',_('Database Imported and added successfully'));
             else {
                 printf('<h2>%s</h2>',_('Errors detected on import'));

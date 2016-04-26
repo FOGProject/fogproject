@@ -15,7 +15,7 @@ class FOGCron extends FOGBase {
         if (strpos($str,',')) {
             $arr = explode(',',$str);
             return (bool)in_array(true,array_map(function($element) use ($num) {
-                return (bool)static::fit($element,(int)$num);
+                return (bool)self::fit($element,(int)$num);
             },(array)$arr),true);
         }
         if (strpos($str,'-')) {
@@ -39,35 +39,35 @@ class FOGCron extends FOGBase {
     public static function parse($Cron,$lastrun = false) {
         list($min,$hour,$dom,$month,$dow) = array_map('trim',preg_split('/ +/',$Cron));
         if (is_numeric($dow) && $dow == 0) $dow = 7;
-        $Start = static::nice_date();
+        $Start = self::nice_date();
         do {
             list($nmin,$nhour,$ndom,$nmonth,$ndow) = array_map('trim',preg_split('/ +/',$Start->format('i H d n N')));
             if ($min != '*') {
-                if (!static::fit($min,(int)$nmin)) {
+                if (!self::fit($min,(int)$nmin)) {
                     $Start->modify(sprintf('%s1 minute',$lastrun ? '-' : '+'));
                     continue;
                 }
             }
             if ($hour != '*') {
-                if (!static::fit($hour,(int)$nhour)) {
+                if (!self::fit($hour,(int)$nhour)) {
                     $Start->modify(sprintf('%s1 hour',$lastrun ? '-' : '+'));
                     continue;
                 }
             }
             if ($dom != '*') {
-                if (!static::fit($dom,(int)$ndom)) {
+                if (!self::fit($dom,(int)$ndom)) {
                     $Start->modify(sprintf('%s1 day',$lastrun ? '-' : '+'));
                     continue;
                 }
             }
             if ($month != '*') {
-                if (!static::fit($month,(int)$nmonth)) {
+                if (!self::fit($month,(int)$nmonth)) {
                     $Start->modify(sprintf('%s1 month',$lastrun ? '-' : '+'));
                     continue;
                 }
             }
             if ($dow != '*') {
-                if (!static::fit($dow,(int)$ndow)) {
+                if (!self::fit($dow,(int)$ndow)) {
                     $Start->modify(sprintf('%s1 day',$lastrun ? '-' : '+'));
                     continue;
                 }
@@ -96,9 +96,9 @@ class FOGCron extends FOGBase {
             $vvvv = explode('-',$vvv[0]);
             $_min = count($vvvv) == 2 ? $vvvv[0] : ($vvv[0] == '*' ? $min : $vvv[0]);
             $_max = count($vvvv) == 2 ? $vvvv[1] : ($vvv[0] == '*' ? $max : $vvv[0]);
-            $res = static::checkIntValue($step,$min,$max,true);
-            if ($res) $res = static::checkIntValue($_min,$min,$max,true);
-            if ($res) $res = static::checkIntValue($_max,$min,$max,true);
+            $res = self::checkIntValue($step,$min,$max,true);
+            if ($res) $res = self::checkIntValue($_min,$min,$max,true);
+            if ($res) $res = self::checkIntValue($_max,$min,$max,true);
         }
         return $res;
     }
@@ -131,7 +131,7 @@ class FOGCron extends FOGBase {
      * @return (bool) is the value between the proper range
      */
     public static function checkMinutesField($minutes) {
-        return static::checkField($minutes,0,59);
+        return self::checkField($minutes,0,59);
     }
     /**
      * @method checkHoursField
@@ -141,7 +141,7 @@ class FOGCron extends FOGBase {
      * @return (bool) is the value between the proper range
      */
     public static function checkHoursField($hours) {
-        return static::checkField($hours,0,23);
+        return self::checkField($hours,0,23);
     }
     /**
      * @method checkDOMField
@@ -151,7 +151,7 @@ class FOGCron extends FOGBase {
      * @return (bool) is the value between the proper range
      */
     public static function checkDOMField($dom) {
-        return static::checkField($dom,1,31);
+        return self::checkField($dom,1,31);
     }
     /**
      * @method checkMonthField
@@ -161,7 +161,7 @@ class FOGCron extends FOGBase {
      * @return (bool) is the value between the proper range
      */
     public static function checkMonthField($month) {
-        return static::checkField($month,1,12);
+        return self::checkField($month,1,12);
     }
     /**
      * @method checkDOWField
@@ -171,7 +171,7 @@ class FOGCron extends FOGBase {
      * @return (bool) is the value between the proper range
      */
     public static function checkDOWField($dow) {
-        return static::checkField($dow,0,7);
+        return self::checkField($dow,0,7);
     }
     /**
      * @method shouldRunCron
@@ -181,8 +181,8 @@ class FOGCron extends FOGBase {
      * @return (bool) if it is time to run
      */
     public static function shouldRunCron($Time) {
-        $Time = static::nice_date()->setTimestamp($Time);
-        $CurrTime = static::nice_date();
+        $Time = self::nice_date()->setTimestamp($Time);
+        $CurrTime = self::nice_date();
         return (bool)($Time <= $CurrTime);
     }
 }

@@ -16,14 +16,14 @@ class LogViewerHook extends Hook {
     public $author = 'Tom Elliott/Lee Rowlett';
     public $active = false;
     public function LogViewerAdd($arguments) {
-        static::$FOGFTP
+        self::$FOGFTP
             ->set('host',$arguments['StorageNode']->get('ip'))
             ->set('username',$arguments['StorageNode']->get('user'))
             ->set('password',$arguments['StorageNode']->get('pass'));
-        if (!static::$FOGFTP->connect()) return;
+        if (!self::$FOGFTP->connect()) return;
         $fogfiles = array();
-        $fogfiles = static::$FOGFTP->nlist('/var/log/');
-        static::$FOGFTP->close();
+        $fogfiles = self::$FOGFTP->nlist('/var/log/');
+        self::$FOGFTP->close();
         $systemlog = preg_grep('#(syslog$|messages$)#',$fogfiles);
         $systemlog = @array_shift($systemlog);
         if ($systemlog) $arguments['files'][$arguments['StorageNode']->get('name')]['System Log'] = $systemlog;

@@ -5,13 +5,13 @@ class TaskstateeditManagementPage extends FOGPage {
         $this->name = 'Task State Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'search' => static::$foglang['NewSearch'],
-            'list' => sprintf(static::$foglang['ListAll'],_('Task States')),
-            'add' => sprintf(static::$foglang['CreateNew'],_('Task State')),
+            'search' => self::$foglang['NewSearch'],
+            'list' => sprintf(self::$foglang['ListAll'],_('Task States')),
+            'add' => sprintf(self::$foglang['CreateNew'],_('Task State')),
         );
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                $this->delformat => static::$foglang['Delete'],
+                $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
                 _('Name')=>$this->obj->get('name'),
@@ -33,7 +33,7 @@ class TaskstateeditManagementPage extends FOGPage {
             array('width'=>22,'class'=>'l filter-false'),
             array('class'=>'l'),
         );
-        static::$returnData = function(&$TaskState) {
+        self::$returnData = function(&$TaskState) {
             if (!$TaskState->isValid()) return;
             $this->data[] = array(
                 'id'=>$TaskState->get('id'),
@@ -45,16 +45,16 @@ class TaskstateeditManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Task States');
-        if (static::getSetting('FOG_DATA_RETURNED')>0 && static::getClass($this->childClass)->getManager()->count() > static::getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if (self::getSetting('FOG_DATA_RETURNED')>0 && self::getClass($this->childClass)->getManager()->count() > self::getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map(static::$returnData,static::getClass($this->childClass)->getManager()->find());
-        static::$HookManager->processEvent('TASKSTATE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find());
+        self::$HookManager->processEvent('TASKSTATE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(static::$returnData,static::getClass($this->childClass)->getManager()->search('',true));
-        static::$HookManager->processEvent('TASKSTATE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->search('',true));
+        self::$HookManager->processEvent('TASKSTATE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -71,7 +71,7 @@ class TaskstateeditManagementPage extends FOGPage {
         $fields = array(
             _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$_REQUEST['name']),
             _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
-            _('Icon') => static::getClass('TaskType')->iconlist($_REQUEST['icon']),
+            _('Icon') => self::getClass('TaskType')->iconlist($_REQUEST['icon']),
             _('Additional Icon elements') => sprintf('<input type="text" value="%s" name="additional"/>',$_REQUEST['additional']),
             '&nbsp;'=> sprintf('<input class="smaller" type="submit" value="%s"/>',_('Add'))
         );
@@ -83,7 +83,7 @@ class TaskstateeditManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        static::$HookManager->processEvent('TASKSTATE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('TASKSTATE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -94,8 +94,8 @@ class TaskstateeditManagementPage extends FOGPage {
             $description = $_REQUEST['description'];
             $icon = trim("{$_REQUEST['icon']} {$_REQUEST['additional']}");
             if (!$name) throw new Exception(_('You must enter a name'));
-            if (static::getClass('TaskStateManager')->exists($name)) throw new Exception(_('Task state already exists, please try again.'));
-            $TaskState = static::getClass('TaskState')
+            if (self::getClass('TaskStateManager')->exists($name)) throw new Exception(_('Task state already exists, please try again.'));
+            $TaskState = self::getClass('TaskState')
                 ->set('name',$name)
                 ->set('description',$description)
                 ->set('icon',$icon);
@@ -123,7 +123,7 @@ class TaskstateeditManagementPage extends FOGPage {
         $fields = array(
             _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$this->obj->get('name')),
             _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
-            _('Icon') => static::getClass('TaskType')->iconlist(@array_shift($icon)),
+            _('Icon') => self::getClass('TaskType')->iconlist(@array_shift($icon)),
             _('Additional Icon elements') => sprintf('<input type="text" value="%s" name="additional"/>',implode(' ',(array)$icon)),
             '&nbsp;' => sprintf('<input class="smaller" type="submit" value="%s"/>',_('Update')),
         );
@@ -135,19 +135,19 @@ class TaskstateeditManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        static::$HookManager->processEvent('TASKSTATE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        self::$HookManager->processEvent('TASKSTATE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        static::$HookManager->processEvent('TASKSTATE_EDIT_POST',array('TaskState'=>&$this->obj));
+        self::$HookManager->processEvent('TASKSTATE_EDIT_POST',array('TaskState'=>&$this->obj));
         try {
             $name = $_REQUEST['name'];
             $description = $_REQUEST['description'];
             $icon = trim("{$_REQUEST['icon']} {$_REQUEST['additional']}");
             if (!$name) throw new Exception(_('You must enter a name'));
-            if ($this->obj->get('name') != $name && static::getClass('TaskStateManager')->exists($name)) throw new Exception(_('Task state already exists, please try again.'));
+            if ($this->obj->get('name') != $name && self::getClass('TaskStateManager')->exists($name)) throw new Exception(_('Task state already exists, please try again.'));
             $this->obj
                 ->set('name',$name)
                 ->set('description',$description)

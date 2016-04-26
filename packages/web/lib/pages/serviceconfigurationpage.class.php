@@ -6,21 +6,21 @@ class ServiceConfigurationPage extends FOGPage {
         parent::__construct($name);
         $servicelink = "?node=$this->node&sub=edit";
         $this->menu = array(
-            "?node=$this->node#home" => static::$foglang['Home'],
-            "$servicelink#autologout" => sprintf('%s %s',static::$foglang['Auto'],static::$foglang['Logout']),
-            "$servicelink#clientupdater" => static::$foglang['ClientUpdater'],
-            "$servicelink#dircleanup" => static::$foglang['DirectoryCleaner'],
-            "$servicelink#displaymanager" => sprintf(static::$foglang['SelManager'],static::$foglang['Display']),
-            "$servicelink#greenfog" => static::$foglang['GreenFOG'],
-            "$servicelink#hostregister" => static::$foglang['HostRegistration'],
-            "$servicelink#hostnamechanger" => static::$foglang['HostnameChanger'],
-            "$servicelink#printermanager" => sprintf(static::$foglang['SelManager'],static::$foglang[Printer]),
-            "$servicelink#snapinclient" => static::$foglang['SnapinClient'],
-            "$servicelink#taskreboot" => static::$foglang['TaskReboot'],
-            "$servicelink#usercleanup" => static::$foglang['UserCleanup'],
-            "$servicelink#usertracker" => static::$foglang['UserTracker'],
+            "?node=$this->node#home" => self::$foglang['Home'],
+            "$servicelink#autologout" => sprintf('%s %s',self::$foglang['Auto'],self::$foglang['Logout']),
+            "$servicelink#clientupdater" => self::$foglang['ClientUpdater'],
+            "$servicelink#dircleanup" => self::$foglang['DirectoryCleaner'],
+            "$servicelink#displaymanager" => sprintf(self::$foglang['SelManager'],self::$foglang['Display']),
+            "$servicelink#greenfog" => self::$foglang['GreenFOG'],
+            "$servicelink#hostregister" => self::$foglang['HostRegistration'],
+            "$servicelink#hostnamechanger" => self::$foglang['HostnameChanger'],
+            "$servicelink#printermanager" => sprintf(self::$foglang['SelManager'],self::$foglang[Printer]),
+            "$servicelink#snapinclient" => self::$foglang['SnapinClient'],
+            "$servicelink#taskreboot" => self::$foglang['TaskReboot'],
+            "$servicelink#usercleanup" => self::$foglang['UserCleanup'],
+            "$servicelink#usertracker" => self::$foglang['UserTracker'],
         );
-        static::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'servicelink'=>&$servicelink));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes,'object'=>&$this->obj,'servicelink'=>&$servicelink));
         $this->headerData = array(
             _('Username'),
             _('Edit'),
@@ -52,7 +52,7 @@ class ServiceConfigurationPage extends FOGPage {
         echo '</div>';
         $moduleName = $this->getGlobalModuleStatus();
         $modNames = $this->getGlobalModuleStatus(true);
-        foreach ((array)static::getClass('ModuleManager')->find() AS &$Module) {
+        foreach ((array)self::getClass('ModuleManager')->find() AS &$Module) {
             if (!$Module->isValid()) continue;
             unset($this->data,$this->headerData,$this->attributes,$this->templates);
             $this->attributes = array(
@@ -99,13 +99,13 @@ class ServiceConfigurationPage extends FOGPage {
                     _('Default Setting'),
                     $Module->get('shortName'),
                     _('Default log out time (in minutes)'),
-                    static::getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'),
+                    self::getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'),
                     _('Update Defaults')
                 );
                 break;
             case 'clientupdater':
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
-                static::getClass('FOGConfigurationPage')->client_updater();
+                self::getClass('FOGConfigurationPage')->client_updater();
                 break;
             case 'dircleanup':
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
@@ -130,7 +130,7 @@ class ServiceConfigurationPage extends FOGPage {
                     _('Add Directory'),
                     _('Directories Cleaned')
                 );
-                foreach ((array)static::getClass('DirCleanerManager')->find() AS $i => &$DirCleaner) {
+                foreach ((array)self::getClass('DirCleanerManager')->find() AS $i => &$DirCleaner) {
                     if (!$DirCleaner->isValid()) continue;
                     $this->data[] = array(
                         'dir_path'=>$DirCleaner->get('path'),
@@ -151,9 +151,9 @@ class ServiceConfigurationPage extends FOGPage {
                     '${input}',
                 );
                 $fields = array(
-                    _('Default Width') => sprintf('<input type="text" name="width" value="%s"/>',static::getSetting('FOG_SERVICE_DISPLAYMANAGER_X')),
-                    _('Default Height') => sprintf('<input type="text" name="height" value="%s"/>',static::getSetting('FOG_SERVICE_DISPLAYMANAGER_Y')),
-                    _('Default Refresh Rate') => sprintf('<input type="text" name="refresh" value="%s"/>',static::getSetting('FOG_SERVICE_DISPLAYMANAGER_R')),
+                    _('Default Width') => sprintf('<input type="text" name="width" value="%s"/>',self::getSetting('FOG_SERVICE_DISPLAYMANAGER_X')),
+                    _('Default Height') => sprintf('<input type="text" name="height" value="%s"/>',self::getSetting('FOG_SERVICE_DISPLAYMANAGER_Y')),
+                    _('Default Refresh Rate') => sprintf('<input type="text" name="refresh" value="%s"/>',self::getSetting('FOG_SERVICE_DISPLAYMANAGER_R')),
                     sprintf('<input type="hidden" name="name" value="%s"/>',$modNames[$Module->get('shortName')]) => sprintf('<input name="updatedefaults" type="submit" value="%s"/>',_('Update Defaults')),
                 );
                 printf('<h2>%s</h2><form method="post" action="%s&tab=%s">',
@@ -193,11 +193,11 @@ class ServiceConfigurationPage extends FOGPage {
                     $modNames[$Module->get('shortName')],
                     _('Add Event')
                 );
-                foreach ((array)static::getClass('GreenFogManager')->find() AS &$GreenFog) {
+                foreach ((array)self::getClass('GreenFogManager')->find() AS &$GreenFog) {
                     if (!$GreenFog->isValid()) continue;
-                    $gftime = static::nice_date($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
+                    $gftime = self::nice_date($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
                     $this->data[] = array(
-                        'gf_time'=>static::nice_date(sprintf('%s:%s',$GreenFog->get('hour'),$GreenFog->get('min')))->format('H:i'),
+                        'gf_time'=>self::nice_date(sprintf('%s:%s',$GreenFog->get('hour'),$GreenFog->get('min')))->format('H:i'),
                         'gf_action'=>($GreenFog->get('action') == 'r' ? 'Reboot' : ($GreenFog->get('action') == 's' ? _('Shutdown') : _('N/A'))),
                         'gf_id'=>$GreenFog->get('id'),
                     );
@@ -242,7 +242,7 @@ class ServiceConfigurationPage extends FOGPage {
                 );
                 echo '<h2>'._('Current Protected User Accounts').'</h2>';
                 printf('<h2>%s</h2>',_('Current Protected User Accounts'));
-                foreach ((array)static::getClass('UserCleanupManager')->find() AS $i => &$UserCleanup) {
+                foreach ((array)self::getClass('UserCleanupManager')->find() AS $i => &$UserCleanup) {
                     if (!$UserCleanup->isValid()) continue;
                     $this->data[] = array(
                         'user_name'=>$UserCleanup->get('name'),
@@ -261,11 +261,11 @@ class ServiceConfigurationPage extends FOGPage {
         echo '</div>';
     }
     public function edit_post() {
-        $Service = static::getClass('ServiceManager')->find(array('name'=>$_REQUEST['name']));
+        $Service = self::getClass('ServiceManager')->find(array('name'=>$_REQUEST['name']));
         $Service = @array_shift($Service);
-        $Module = static::getClass('ModuleManager')->find(array('shortName'=>$_REQUEST['tab']));
+        $Module = self::getClass('ModuleManager')->find(array('shortName'=>$_REQUEST['tab']));
         $Module = @array_shift($Module);
-        static::$HookManager->processEvent('SERVICE_EDIT_POST',array('Service'=>&$Service));
+        self::$HookManager->processEvent('SERVICE_EDIT_POST',array('Service'=>&$Service));
         $onoff = (int)isset($_REQUEST['en']);
         $defen = (int)isset($_REQUEST['defen']);
         try {
@@ -297,14 +297,14 @@ class ServiceConfigurationPage extends FOGPage {
                 if(isset($_REQUEST['delid'])) $Service->remUser($_REQUEST['delid']);
                 break;
             case 'clientupdater':
-                static::getClass('FOGConfigurationPage')->client_updater_post();
+                self::getClass('FOGConfigurationPage')->client_updater_post();
                 break;
             }
             if (!$Service->save()) throw new Exception(_('Service update failed'));
-            static::$HookManager->processEvent('SERVICE_EDIT_SUCCESS',array('Service'=>&$Service));
+            self::$HookManager->processEvent('SERVICE_EDIT_SUCCESS',array('Service'=>&$Service));
             $this->setMessage(_('Service Updated!'));
         } catch (Exception $e) {
-            static::$HookManager->processEvent('SERVICE_EDIT_FAIL',array('Service'=>&$Service));
+            self::$HookManager->processEvent('SERVICE_EDIT_FAIL',array('Service'=>&$Service));
             $this->setMessage($e->getMessage());
         }
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));

@@ -1,5 +1,5 @@
 <?php
-$this->mySchema = static::$DB->getVersion();
+$this->mySchema = self::$DB->getVersion();
 // 0
 $this->schema[] = array(
     "CREATE DATABASE " . DATABASE_NAME ,
@@ -895,12 +895,12 @@ $this->schema[] = array(
 "UPDATE `" . DATABASE_NAME . "`.`schemaVersion` set vValue = '28'",
 );
 // 29
-static::$DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
-while ($Host = static::$DB->fetch()->get()) $allImageID[$Host['hostImage']] = $Host['hostOS'];
+self::$DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
+while ($Host = self::$DB->fetch()->get()) $allImageID[$Host['hostImage']] = $Host['hostOS'];
 foreach ((array)$allImageID AS $imageID => $osID) {
-    $Image = static::getClass('Image',$imageID);
+    $Image = self::getClass('Image',$imageID);
     if (!$Image->isValid()) continue;
-    $OS = static::getClass('OS',$osID);
+    $OS = self::getClass('OS',$osID);
     if (!$OS->isValid()) continue;
     if (!$Image->set('osID',$osID)->save()) $errors[] = sprintf('<div>Failed updating the osID of imageID: %s, osID: %s</div>',$imageID,$osID);
 }
@@ -1597,7 +1597,7 @@ $this->schema[] = array(
 // 133
 $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`nfsGroupMembers` ADD COLUMN `ngmSnapinPath` LONGTEXT NOT NULL AFTER `ngmRootPath`",
-    "UPDATE `".DATABASE_NAME."`.`nfsGroupMembers` SET `ngmSnapinPath`='".(static::getSetting('FOG_SNAPINDIR') ? static::getSetting('FOG_SNAPINDIR') : '/opt/fog/snapins')."'",
+    "UPDATE `".DATABASE_NAME."`.`nfsGroupMembers` SET `ngmSnapinPath`='".(self::getSetting('FOG_SNAPINDIR') ? self::getSetting('FOG_SNAPINDIR') : '/opt/fog/snapins')."'",
 );
 // 134
 $this->schema[] = array(

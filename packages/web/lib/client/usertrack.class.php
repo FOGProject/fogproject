@@ -19,11 +19,11 @@ class UserTrack extends FOGClient implements FOGClientSend {
             $user = $user[0];
         }
         if ($user == null) throw new Exception('#!us');
-        $tmpDate = static::nice_date($date);
-        $date = static::nice_date();
+        $tmpDate = self::nice_date($date);
+        $date = self::nice_date();
         if ($tmpDate < $date) $desc = _('Replay from journal: real insert time').' '.$date->format('M j, Y g:i:s a').' Login time: '.$tmpDate->format('M j, Y g:i:s a');
         if ($action == 'start') $user = '';
-        $UserTracking = static::getClass('UserTracking')
+        $UserTracking = self::getClass('UserTracking')
             ->set('hostID',$this->Host->get('id'))
             ->set('username',$user)
             ->set('action',$this->actions[$action])
