@@ -47,7 +47,8 @@ class SchemaUpdaterPage extends FOGPage {
                     if (self::$DB->db_name()) {
                         $newSchema = self::getClass('SchemaManager')->find();
                         $newSchema = @array_shift($newSchema);
-                        if ($newSchema && $newSchema->isValid()) $newSchema->set(version,$version);
+                        if (!($newSchema instanceof Schema && $newSchema->isValid())) $newSchema = self::getClass('Schema');
+                        $newSchema->set('version',$version);
                         if (!$newSchema->save() || count($this->schema) != $newSchema->get('version')) {
                             printf('<p>%s</p>',_('Install / Update Failed!'));
                             if (count($errors)) throw new Exception(sprintf('<h2>%s</h2>%s',_('The following errors occurred'),implode('<hr/>',$errors)));
