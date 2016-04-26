@@ -77,6 +77,7 @@ abstract class FOGManagerController extends FOGBase {
                 $sort
             );
         }
+        $data = array();
         if ($idField) {
             $idField = array_map(function(&$item) {
                 return trim($item);
@@ -84,7 +85,6 @@ abstract class FOGManagerController extends FOGBase {
             $htmlEntDecode = function(&$item) {
                 return html_entity_decode($item,ENT_QUOTES,'utf-8');
             };
-            $data = array();
             array_map(function(&$item) use ($query,$htmlEntDecode,&$data) {
                 $tmp = array_map($htmlEntDecode,(array)self::$DB->query($query)->fetch('',$item ? 'fetch_assoc' : 'fetch_all')->get($item ? $this->databaseFields[$item] : ''));
                 $data[$item] = count($tmp) === 1 ? array_shift($tmp) : $tmp;
@@ -97,7 +97,7 @@ abstract class FOGManagerController extends FOGBase {
         } else {
             $data = array_map(function(&$item) {
                 return self::getClass($this->childClass)->setQuery($item);
-            },(array)self::$DB->query($query)->fetch('','fetch_all')->get());
+            },(array)self::$DB->query($query)->fetch('','fetch_all')->get()); 
         }
         if ($filter) return @$filter(array_values(array_filter((array)$data)));
         return array_values(array_filter((array)$data));

@@ -5,6 +5,11 @@
 . /bin/fog.mount
 . /bin/fog.checkmount
 . /bin/fog.checkimgvar
+hd=""
+disks=""
+disk=""
+parts=""
+part=""
 imagePath="/images/$img"
 origmac=$mac
 mac=$(getMACAddresses | base64)
@@ -16,11 +21,6 @@ fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!"
 fixed_size_partitions=""
 echo " * Using Image: $img"
-disks=""
-disk=""
-hd=""
-parts=""
-part=""
 preparePartitions() {
     echo " * Preparing Partition layout"
     case $imgType in

@@ -190,8 +190,8 @@ abstract class FOGController extends FOGBase {
                         count($where) ? ' AND '.implode(' AND ',$where) : ''
                     );
                 }
-                if (!($vals = self::$DB->query($query)->fetch('','fetch_all')->get())) throw new Exception(self::$DB->sqlerror());
-                $vals = @array_shift($vals);
+                $vals = array();
+                if (!($vals = self::$DB->query($query)->fetch('','fetch_assoc')->get())) throw new Exception(self::$DB->sqlerror());
                 $this->setQuery($vals);
                 unset($vals,$key,$join,$where);
             },(array)$field);
