@@ -35,8 +35,8 @@ class Image extends FOGController {
         'storageGroupsnotinme',
     );
     public function destroy($field = 'id') {
-        self::getClass('HostManager')->update(array('imageID'=>$this->get('id')),'',array('imageID'=>0));
-        self::getClass('ImageAssociationManager')->destroy(array('imageID'=>$this->get('id')));
+        static::getClass('HostManager')->update(array('imageID'=>$this->get('id')),'',array('imageID'=>0));
+        static::getClass('ImageAssociationManager')->destroy(array('imageID'=>$this->get('id')));
         return parent::destroy($field);
     }
     public function save() {
@@ -51,31 +51,31 @@ class Image extends FOGController {
             throw new Exception(_('Image ID was not set, or unable to be created'));
             break;
         case ($this->isLoaded('hosts')):
-            $DBHostIDs = self::getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
+            $DBHostIDs = static::getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
-                self::getClass('HostManager')->update(array('imageID'=>$this->get('id')),'',array('imageID'=>0));
-                $DBHostIDs = self::getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
+                static::getClass('HostManager')->update(array('imageID'=>$this->get('id')),'',array('imageID'=>0));
+                $DBHostIDs = static::getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
                 unset($RemoveHostIDs);
             }
             $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
-            self::getClass('HostManager')->update(array('id'=>$Hosts),'',array('imageID'=>$this->get('id')));
+            static::getClass('HostManager')->update(array('id'=>$Hosts),'',array('imageID'=>$this->get('id')));
             unset($Hosts,$DBHostIDs);
         case ($this->isLoaded('storageGroups')):
-            $DBGroupIDs = self::getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
+            $DBGroupIDs = static::getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
             $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('storageGroups'));
             if (count($RemoveGroupIDs)) {
-                self::getClass('ImageAssociationManager')->destroy(array('imageID'=>$this->get('id'),'storageGroupID'=>$RemoveGroupIDs));
-                $DBGroupIDs = self::getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
+                static::getClass('ImageAssociationManager')->destroy(array('imageID'=>$this->get('id'),'storageGroupID'=>$RemoveGroupIDs));
+                $DBGroupIDs = static::getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
                 unset($RemoveGroupIDs);
             }
-            $Groups = self::getClass('StorageGroupManager')->find(array('id'=>array_diff((array)$this->get('storageGroups'),(array)$DBGroupIDs)));
+            $Groups = static::getClass('StorageGroupManager')->find(array('id'=>array_diff((array)$this->get('storageGroups'),(array)$DBGroupIDs)));
             foreach ((array)$Groups AS $i => &$Group) {
                 if (!$Group->isValid()) {
                     $Group->destroy();
                     continue;
                 }
-                self::getClass('ImageAssociation')
+                static::getClass('ImageAssociation')
                     ->set('imageID',$this->get('id'))
                     ->set('storageGroupID',$Group->get('id'))
                     ->save();
@@ -86,19 +86,19 @@ class Image extends FOGController {
         return $this;
     }
     public function deleteFile() {
-        if ($this->get('protected')) throw new Exception(self::$foglang['ProtectedImage']);
-        foreach ((array)self::getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'),'isEnabled'=>1)) AS $i => &$StorageNode) {
+        if ($this->get('protected')) throw new Exception(static::$foglang['ProtectedImage']);
+        foreach ((array)static::getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'),'isEnabled'=>1)) AS $i => &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
-            self::$FOGFTP
+            static::$FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
-            if (!self::$FOGFTP->connect()) {
-                self::$FOGFTP->close();
+            if (!static::$FOGFTP->connect()) {
+                static::$FOGFTP->close();
                 continue;
             }
             $delete = sprintf('/%s/%s',trim($StorageNode->get('ftppath'),'/'),$this->get('path'));
-            self::$FOGFTP
+            static::$FOGFTP
                 ->delete($delete)
                 ->close();
             unset($StorageNode);
@@ -121,54 +121,54 @@ class Image extends FOGController {
         return $this;
     }
     public function getStorageGroup() {
-        if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min(self::getSubObjectIDs('StorageGroup')));
+        if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min(static::getSubObjectIDs('StorageGroup')));
         foreach ((array)$this->get('storageGroups') AS $i => &$Group) {
-            if ($this->getPrimaryGroup($Group)) return self::getClass('StorageGroup',$Group);
+            if ($this->getPrimaryGroup($Group)) return static::getClass('StorageGroup',$Group);
             unset($Group);
         }
-        return self::getClass('StorageGroup',@min($this->get('storageGroups')));
+        return static::getClass('StorageGroup',@min($this->get('storageGroups')));
     }
     public function getOS() {
-        return self::getClass('OS',$this->get('osID'));
+        return static::getClass('OS',$this->get('osID'));
     }
     public function getImageType() {
-        return self::getClass('ImageType',$this->get('imageTypeID'));
+        return static::getClass('ImageType',$this->get('imageTypeID'));
     }
     public function getImagePartitionType() {
         if ((int)$this->get('imagePartitionTypeID') < 1) $this->set('imagePartitionTypeID',1)->save();
-        return self::getClass('ImagePartitionType',(int)$this->get('imagePartitionTypeID'));
+        return static::getClass('ImagePartitionType',(int)$this->get('imagePartitionTypeID'));
     }
     public function getPrimaryGroup($groupID) {
-        if (!self::getClass('ImageAssociationManager')->count(array('imageID'=>$this->get('id'),'primary'=>1)) && $groupID == @min(self::getSubObjectIDs('StorageGroup','','id'))) {
+        if (!static::getClass('ImageAssociationManager')->count(array('imageID'=>$this->get('id'),'primary'=>1)) && $groupID == @min(static::getSubObjectIDs('StorageGroup','','id'))) {
             $this->setPrimaryGroup($groupID);
             return true;
         }
-        return (bool)self::getClass('ImageAssociation',@min(self::getSubObjectIDs('ImageAssociation',array('storageGroupID'=>$groupID,'imageID'=>$this->get('id')),'id')))->getPrimary();
+        return (bool)static::getClass('ImageAssociation',@min(static::getSubObjectIDs('ImageAssociation',array('storageGroupID'=>$groupID,'imageID'=>$this->get('id')),'id')))->getPrimary();
     }
     public function setPrimaryGroup($groupID) {
-        self::getClass('ImageAssociationManager')->update(array('imageID'=>$this->get('id'),'storageGroupID'=>array_diff((array)$this->get('storageGroups'),(array)$groupID)),'',array('primary'=>0));
-        self::getClass('ImageAssociationManager')->update(array('imageID'=>$this->get('id'),'storageGroupID'=>$groupID),'',array('primary'=>1));
+        static::getClass('ImageAssociationManager')->update(array('imageID'=>$this->get('id'),'storageGroupID'=>array_diff((array)$this->get('storageGroups'),(array)$groupID)),'',array('primary'=>0));
+        static::getClass('ImageAssociationManager')->update(array('imageID'=>$this->get('id'),'storageGroupID'=>$groupID),'',array('primary'=>1));
     }
     protected function loadHosts() {
-        if ($this->get('id')) $this->set('hosts',self::getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'id'));
+        if ($this->get('id')) $this->set('hosts',static::getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'id'));
     }
     protected function loadHostsnotinme() {
         if ($this->get('id')) {
             $find = array('id'=>$this->get('hosts'));
-            $this->set('hostsnotinme',self::getSubObjectIDs('Host',$find,'',true));
+            $this->set('hostsnotinme',static::getSubObjectIDs('Host',$find,'',true));
             unset($find);
         }
     }
     protected function loadStorageGroups() {
         if ($this->get('id')) {
-            $this->set('storageGroups',self::getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID'));
-            if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min(self::getSubObjectIDs('StorageGroup','','id')));
+            $this->set('storageGroups',static::getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID'));
+            if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min(static::getSubObjectIDs('StorageGroup','','id')));
         }
     }
     protected function loadStorageGroupsnotinme() {
         if ($this->get('id')) {
             $find = array('id'=>$this->get('storageGroups'));
-            $this->set('storageGroupsnotinme',self::getSubObjectIDs('StorageGroup',$find,'',true));
+            $this->set('storageGroupsnotinme',static::getSubObjectIDs('StorageGroup',$find,'',true));
             unset($find);
         }
     }

@@ -7,19 +7,19 @@ class TaskScheduler extends FOGService {
     public static $sleeptime = 'SCHEDULERSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',static::$logpath,self::getSetting('SCHEDULERLOGFILENAME'));
+        static::$log = sprintf('%s%s',static::$logpath,static::getSetting('SCHEDULERLOGFILENAME'));
         if (file_exists(static::$log)) @unlink(static::$log);
-        static::$dev = self::getSetting('SCHEDULERDEVICEOUTPUT');
-        static::$zzz = (int)self::getSetting(static::$sleeptime);
+        static::$dev = static::getSetting('SCHEDULERDEVICEOUTPUT');
+        static::$zzz = (int)static::getSetting(static::$sleeptime);
     }
     private function commonOutput() {
         try {
             $findWhere = array('stateID'=>$this->getQueuedState(),'wol'=>1);
-            $taskcount = self::getClass('TaskManager')->count($findWhere);
+            $taskcount = static::getClass('TaskManager')->count($findWhere);
             static::outall(sprintf(" * %s active task%s waiting to wake up.",$taskcount,($taskcount != 1 ? 's' : '')));
             if ($taskcount) {
                 static::outall(' | Sending WOL Packet(s)');
-                foreach (self::getClass('HostManager')->find(array('id'=>self::getSubObjectIDs('Task',$findWhere,'hostID'))) AS &$Host) {
+                foreach (static::getClass('HostManager')->find(array('id'=>static::getSubObjectIDs('Task',$findWhere,'hostID'))) AS &$Host) {
                     if (!$Host->isValid()) continue;
                     static::outall(sprintf("\t\t- Host: %s WOL sent to all macs associated",$Host->get('name')));
                     $Host->wakeOnLan();
@@ -28,11 +28,11 @@ class TaskScheduler extends FOGService {
                 unset($Hosts,$taskcount,$findWhere);
             }
             $findWhere = array('isActive'=>1);
-            $taskCount = self::getClass('ScheduledTaskManager')->count($findWhere);
+            $taskCount = static::getClass('ScheduledTaskManager')->count($findWhere);
             if ($taskCount < 1) throw new Exception(' * No tasks found!');
             static::outall(sprintf(" * %s task%s found.",$taskCount,($taskCount != 1 ? 's' : '')));
             unset($taskCount);
-            foreach ((array)self::getClass('ScheduledTaskManager')->find($findWhere) AS $i => &$Task) {
+            foreach ((array)static::getClass('ScheduledTaskManager')->find($findWhere) AS $i => &$Task) {
                 $Timer = $Task->getTimer();
                 static::outall(sprintf(" * Task run time: %s",$Timer->toString()));
                 if (!$Timer->shouldRunNow()) continue;

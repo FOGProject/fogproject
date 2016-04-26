@@ -16,32 +16,32 @@ class TaskState extends FOGController {
     }
     public function getQueuedStates() {
         $queuedStates = range(0,2);
-        self::$HookManager->processEvent('QUEUED_STATES',array('queuedStates'=>&$queuedStates));
+        static::$HookManager->processEvent('QUEUED_STATES',array('queuedStates'=>&$queuedStates));
         return $queuedStates;
     }
     public function getQueuedState() {
         $queuedState = 1;
-        self::$HookManager->processEvent('QUEUED_STATE',array('queuedState'=>&$queuedState));
+        static::$HookManager->processEvent('QUEUED_STATE',array('queuedState'=>&$queuedState));
         return $queuedState;
     }
     public function getCheckedInState() {
         $checkedInState = 2;
-        self::$HookManager->processEvent('CHECKEDIN_STATE',array('checkedInState'=>&$checkedInState));
+        static::$HookManager->processEvent('CHECKEDIN_STATE',array('checkedInState'=>&$checkedInState));
         return $checkedInState;
     }
     public function getProgressState() {
         $progressState = 3;
-        self::$HookManager->processEvent('PROGRESS_STATE',array('progressState'=>&$progressState));
+        static::$HookManager->processEvent('PROGRESS_STATE',array('progressState'=>&$progressState));
         return $progressState;
     }
     public function getCompleteState() {
         $completeState = 4;
-        self::$HookManager->processEvent('COMPLETE_STATE',array('completeState'=>&$completeState));
+        static::$HookManager->processEvent('COMPLETE_STATE',array('completeState'=>&$completeState));
         return $completeState;
     }
     public function getCancelledState() {
         $cancelledState = 5;
-        self::$HookManager->processEvent('CANCELLED_STATE',array('cancelledState'=>&$cancelledState));
+        static::$HookManager->processEvent('CANCELLED_STATE',array('cancelledState'=>&$cancelledState));
         return $cancelledState;
     }
 }

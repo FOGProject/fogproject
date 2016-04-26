@@ -7,10 +7,10 @@ class ImageReplicator extends FOGService {
     public static $sleeptime = 'IMAGEREPSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',static::$logpath,self::getSetting('IMAGEREPLICATORLOGFILENAME'));
+        static::$log = sprintf('%s%s',static::$logpath,static::getSetting('IMAGEREPLICATORLOGFILENAME'));
         if (file_exists(static::$log)) @unlink(static::$log);
-        static::$dev = self::getSetting('IMAGEREPLICATORDEVICEOUTPUT');
-        static::$zzz = (int)self::getSetting(static::$sleeptime);
+        static::$dev = static::getSetting('IMAGEREPLICATORDEVICEOUTPUT');
+        static::$zzz = (int)static::getSetting(static::$sleeptime);
     }
     private function commonOutput() {
         try {
@@ -21,18 +21,18 @@ class ImageReplicator extends FOGService {
             $myStorageNodeID = $StorageNode->get('id');
             static::outall(" * Starting Image Replication.");
             static::outall(sprintf(" * We are group ID: #%s",$myStorageGroupID));
-            static::outall(sprintf(" | We are group name: %s",self::getClass('StorageGroup',$myStorageGroupID)->get('name')));
+            static::outall(sprintf(" | We are group name: %s",static::getClass('StorageGroup',$myStorageGroupID)->get('name')));
             static::outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
-            static::outall(sprintf(" | We are node name: %s",self::getClass('StorageNode',$myStorageNodeID)->get('name')));
-            $ImageIDs = self::getSubObjectIDs('Image',array('isEnabled'=>1,'toReplicate'=>1));
-            $ImageAssocs = self::getSubObjectIDs('ImageAssociation',array('imageID'=>$ImageIDs),'imageID',true);
-            if (count($ImageAssocs)) self::getClass('ImageAssociationManager')->destroy(array('imageID'=>$ImageAssocs));
+            static::outall(sprintf(" | We are node name: %s",static::getClass('StorageNode',$myStorageNodeID)->get('name')));
+            $ImageIDs = static::getSubObjectIDs('Image',array('isEnabled'=>1,'toReplicate'=>1));
+            $ImageAssocs = static::getSubObjectIDs('ImageAssociation',array('imageID'=>$ImageIDs),'imageID',true);
+            if (count($ImageAssocs)) static::getClass('ImageAssociationManager')->destroy(array('imageID'=>$ImageAssocs));
             unset($ImageAssocs);
-            $ImageAssocCount = self::getClass('ImageAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID,'imageID'=>$ImageIDs));
-            $ImageCount = self::getClass('ImageManager')->count();
+            $ImageAssocCount = static::getClass('ImageAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID,'imageID'=>$ImageIDs));
+            $ImageCount = static::getClass('ImageManager')->count();
             if ($ImageAssocCount <= 0 || $ImageCount <= 0) throw new Exception(_('There is nothing to replicate'));
             unset($ImageAssocCount,$ImageCount);
-            $Images = self::getClass('ImageManager')->find(array('id'=>self::getSubObjectIDs('ImageAssociation',array('storageGroupID'=>$myStorageGroupID,'imageID'=>$ImageIDs),'imageID')));
+            $Images = static::getClass('ImageManager')->find(array('id'=>static::getSubObjectIDs('ImageAssociation',array('storageGroupID'=>$myStorageGroupID,'imageID'=>$ImageIDs),'imageID')));
             unset($ImageIDs);
             foreach ((array)$Images AS $Image) {
                 if (!$Image->isValid()) continue;
