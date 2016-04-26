@@ -1,5 +1,5 @@
 <?php
-class MulticastTask extends MulticastManager {
+class MulticastTask extends FOGService {
     public function getAllMulticastTasks($root,$myStorageNodeID) {
         $Tasks = array();
         if (self::getClass('MulticastSessionsManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) {
