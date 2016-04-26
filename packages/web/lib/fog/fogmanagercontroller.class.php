@@ -30,14 +30,13 @@ abstract class FOGManagerController extends FOGBase {
         if (count($findWhere)) {
             $count = 0;
             $whereArray = array();
-            array_walk($findWhere,function(&$value,&$field) use (&$count,&$onecompare,&$compare,&$whereArray,&$not) {
+            foreach ($findWhere AS $field => $value) {
                 $field = trim($field);
                 if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN ('%s')",$this->databaseTable,$this->databaseFields[$field],$not,implode("','",$value));
                 else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? "'".(string)$value."'" : null));
                 $count++;
                 unset($value);
-                return ($whereArray);
-            });
+            }
         }
         if (!is_array($orderBy)) {
             $orderBy = sprintf('ORDER BY %s`%s`.`%s`%s',($orderBy == 'name' ? 'LOWER(' : ''),$this->databaseTable,$this->databaseFields[$orderBy],($orderBy == 'name' ? ')' : ''));
@@ -77,6 +76,7 @@ abstract class FOGManagerController extends FOGBase {
                 $sort
             );
         }
+        $data = array();
         if ($idField) {
             $idField = array_map(function(&$item) {
                 return trim($item);
@@ -84,20 +84,25 @@ abstract class FOGManagerController extends FOGBase {
             $htmlEntDecode = function(&$item) {
                 return html_entity_decode($item,ENT_QUOTES,'utf-8');
             };
-            $data = array();
-            array_map(function(&$item) use ($query,$htmlEntDecode,&$data) {
-                $tmp = array_map($htmlEntDecode,(array)self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$item]));
+            $tmp = array();
+            foreach ((array)$idField AS &$item) {
+                foreach ((array)self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$item]) AS &$temp) {
+                    $tmp[] = html_entity_decode($temp,ENT_QUOTES,'utf-8');
+                    unset($temp);
+                }
                 $data[$item] = count($tmp) === 1 ? array_shift($tmp) : $tmp;
-            },(array)$idField);
+                unset($item);
+            }
             if (count($data) === 1) {
                 if ($filter) return @$filter((array)array_shift($data));
                 return array_shift($data);
             }
             if (empty($filter)) return $data;
         } else {
-            $data = array_map(function(&$item) {
-                return FOGCore::getClass($this->childClass)->setQuery($item);
-            },(array)self::$DB->query($query)->fetch('','fetch_all')->get());
+            foreach ((array)self::$DB->query($query)->fetch('','fetch_all')->get() AS &$item) {
+                $data[] = self::getClass($this->childClass)->setQuery($item);
+                unset($item);
+            }
         }
         if ($filter) return @$filter(array_values(array_filter((array)$data)));
         return array_values(array_filter((array)$data));
