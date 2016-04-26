@@ -51,10 +51,9 @@ class FOGPageManager Extends FOGBase {
         }
     }
     public function render() {
-        if (!(in_array($_REQUEST['node'],array('client','schemaupdater')) || self::$FOGUser->isValid() || in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo')))) return;
+        if (!(in_array($_REQUEST['node'],array('client','schemaupdater')) || self::$FOGUser->isValid())) return;
         $this->loadPageClasses();
         $method = $this->methodValue;
-        if (in_array($_REQUEST['sub'],array('configure','authorize','requestClientInfo'))) return self::getClass('DashboardPage')->$method();
         try {
             $class = $this->getFOGPageClass();
             if ($this->classValue == 'schemaupdater') $this->methodValue = 'index';
