@@ -43,6 +43,7 @@ function pauseButtonPressed(e) {
     e.preventDefault();
 }
 function buttonPress() {
+    checkedIDs = getChecked();
     if (checkedIDs.length < 1) return;
     $('#canceltasks').html('Are you sure you wish to cancel these tasks?');
     $('#canceltasks').dialog({
