@@ -137,22 +137,20 @@ $Init->sanitize_items();
 $Init::startInit();
 /** $DB set's the DB class from the DatabaseManager */
 $DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
+$HookManager = FOGCore::getClass('HookManager');
+$HookManager->load();
 if (in_array($sub,array('configure','authorize','requestClientInfo'))) {
-    DashboardPage::$sub();
+    FOGCore::getClass('DashboardPage');
     exit;
 }
-/** $FOGCore the FOGCore class */
-$FOGCore = new FOGCore();
 /** $FOGFTP the FOGFTP class */
 $FOGFTP = new FOGFTP();
+/** $FOGCore the FOGCore class */
+$FOGCore = FOGFTP::getClass('FOGCore')->setSessionEnv();
 /** $EventManager initiates the EventManager class */
 $EventManager = FOGCore::getClass('EventManager');
-/** $HookManager initiates the HookManager class */
-$HookManager = FOGCore::getClass('HookManager');
-$FOGCore->setSessionEnv();
+$EventManager->load();
 /** $TimeZone the timezone setter */
 $TimeZone = $_SESSION['TimeZone'];
-$HookManager->load();
-$EventManager->load();
-/** $HookManager initiates the FOGURLRequest class */
+/** $FOGURLRequests initiates the FOGURLRequest class */
 $FOGURLRequests = FOGCore::getClass('FOGURLRequests');
