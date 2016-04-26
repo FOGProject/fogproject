@@ -24,6 +24,8 @@ abstract class FOGPage extends FOGBase {
     protected $childClass;
     public function __construct($name = '') {
         parent::__construct();
+        global $sub;
+        if (in_array($sub,array('configure','authorize','requestClientInfo'))) return $this->{$sub}();
         if (!empty($name)) $this->name = $name;
         $this->title = $this->name;
         $PagesWithObjects = array('user','host','image','group','snapin','printer');

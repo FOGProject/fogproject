@@ -76,7 +76,7 @@ class FOGCore extends FOGBase {
         $data['end'] = '@@end';
         return $data;
     }
-    public function setSessionEnv() {
+    public static function setSessionEnv() {
         $_SESSION['HostCount'] = self::getClass('HostManager')->count();
         self::$DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
         self::$DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
@@ -84,7 +84,7 @@ class FOGCore extends FOGBase {
             self::$DB->query(sprintf("ALTER TABLE `%s`.`%s` ENGINE=MyISAM",DATABASE_NAME,array_shift($table)));
             unset($table);
         },(array)self::$DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME'));
-        $_SESSION['PluginsInstalled'] = (array)$this->getActivePlugins();
+        $_SESSION['PluginsInstalled'] = (array)self::getActivePlugins();
         $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
         $_SESSION['FOG_FTP_IMAGE_SIZE'] = self::getSetting('FOG_FTP_IMAGE_SIZE');
         $_SESSION['Pending-Hosts'] = self::getClass('HostManager')->count(array('pending'=>1));
@@ -104,5 +104,6 @@ class FOGCore extends FOGBase {
         $_SESSION['FOG_REPORT_DIR'] = self::getSetting('FOG_REPORT_DIR');
         $_SESSION['TimeZone'] = (ini_get('date.timezone') ? ini_get('date.timezone') : (self::getSetting('FOG_TZ_INFO') ? self::getSetting('FOG_TZ_INFO') : 'UTC'));
         ini_set('max_input_vars',5000);
+        return self;
     }
 }
