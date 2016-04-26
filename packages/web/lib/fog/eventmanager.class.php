@@ -13,7 +13,7 @@ class EventManager extends FOGBase {
                 array_push($this->data[$event], $listener);
                 break;
             case 'HookManager':
-                if (static::$isMobile && !$listener[0]->mobile) throw new Exception(_('Not registering to mobile page'));
+                if (self::$isMobile && !$listener[0]->mobile) throw new Exception(_('Not registering to mobile page'));
                 if (!is_array($listener) || count($listener) < 2 || count($listener) > 2) throw new Exception(_('Second parameter must be in the form array(Hook class,Function to run)'));
                 if (!($listener[0] instanceof Hook)) throw new Exception(_('Class must extend hook'));
                 if (!method_exists($listener[0],$listener[1])) throw new Exception(sprintf('%s: %s->%s',_('Method does not exist'),get_class($listener[0]),$listener[1]));
@@ -60,7 +60,7 @@ class EventManager extends FOGBase {
             preg_match("#^($plugins.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
             return $match[0];
         };
-        $files = iterator_to_array(static::getClass('RegexIterator',static::getClass('RecursiveIteratorIterator',static::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RegexIterator::GET_MATCH),false);
+        $files = iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RegexIterator::GET_MATCH),false);
         $plugins = '?!';
         $normalfiles = array_values(array_filter(array_map($fileitems,(array)$files)));
         $plugins = '?=';
@@ -68,7 +68,7 @@ class EventManager extends FOGBase {
         $startClass = function($element) use ($strlen) {
             $className = preg_replace('#[[:space:]]#','_',substr(basename($element),0,$strlen));
             if (in_array($className,get_declared_classes()) || class_exists($className,false)) return;
-            static::getClass(preg_replace('#[[:space:]]#','_',$className,0,$strlen));
+            self::getClass(preg_replace('#[[:space:]]#','_',$className,0,$strlen));
         };
         array_map($startClass,(array)$pluginfiles);
         unset($pluginfiles);

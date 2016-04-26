@@ -7,38 +7,38 @@ class SnapinReplicator extends FOGService {
     public static $sleeptime = 'SNAPINREPSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',static::$logpath,static::getSetting('SNAPINREPLICATORLOGFILENAME'));
-        if (file_exists(static::$log)) @unlink(static::$log);
-        static::$dev = static::getSetting('SNAPINREPLICATORDEVICEOUTPUT');
-        static::$zzz = (int)static::getSetting(static::$sleeptime);
+        self::$log = sprintf('%s%s',self::$logpath,self::getSetting('SNAPINREPLICATORLOGFILENAME'));
+        if (file_exists(self::$log)) @unlink(self::$log);
+        self::$dev = self::getSetting('SNAPINREPLICATORDEVICEOUTPUT');
+        self::$zzz = (int)self::getSetting(self::$sleeptime);
     }
     private function commonOutput() {
         try {
             $StorageNode = $this->checkIfNodeMaster();
-            static::out(' * I am the group manager',static::$dev);
-            static::wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
+            self::out(' * I am the group manager',self::$dev);
+            self::wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
             $myStorageGroupID = $StorageNode->get('storageGroupID');
             $myStorageNodeID = $StorageNode->get('id');
-            static::outall(" * Starting Snapin Replication.");
-            static::outall(sprintf(" * We are group ID: #%s",$myStorageGroupID));
-            static::outall(sprintf(" | We are group name: %s",static::getClass('StorageGroup',$myStorageGroupID)->get('name')));
-            static::outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
-            static::outall(sprintf(" | We are node name: %s",static::getClass('StorageNode',$myStorageNodeID)->get('name')));
-            $SnapinIDs = static::getSubObjectIDs('Snapin',array('isEnabled'=>1,'toReplicate'=>1));
-            $SnapinAssocs = static::getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$SnapinIDs),'snapinID',true);
-            if (count($SnapinAssocs)) static::getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$SnapinAssocs));
+            self::outall(" * Starting Snapin Replication.");
+            self::outall(sprintf(" * We are group ID: #%s",$myStorageGroupID));
+            self::outall(sprintf(" | We are group name: %s",self::getClass('StorageGroup',$myStorageGroupID)->get('name')));
+            self::outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
+            self::outall(sprintf(" | We are node name: %s",self::getClass('StorageNode',$myStorageNodeID)->get('name')));
+            $SnapinIDs = self::getSubObjectIDs('Snapin',array('isEnabled'=>1,'toReplicate'=>1));
+            $SnapinAssocs = self::getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$SnapinIDs),'snapinID',true);
+            if (count($SnapinAssocs)) self::getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$SnapinAssocs));
             unset($SnapinAssocs);
-            $SnapinAssocCount = static::getClass('SnapinGroupAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID,'snapinID'=>$SnapinIDs));
-            $SnapinCount = static::getClass('SnapinManager')->count();
+            $SnapinAssocCount = self::getClass('SnapinGroupAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID,'snapinID'=>$SnapinIDs));
+            $SnapinCount = self::getClass('SnapinManager')->count();
             if ($SnapinAssocCount <= 0 || $SnapinCount <= 0) throw new Exception(_('There is nothing to replicate'));
             unset($SnapinAssocCount,$SnapinCount);
-            $Snapins = static::getClass('SnapinManager')->find(array('id'=>static::getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$myStorageGroupID,'snapinID'=>$SnapinIDs),'snapinID')));
+            $Snapins = self::getClass('SnapinManager')->find(array('id'=>self::getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$myStorageGroupID,'snapinID'=>$SnapinIDs),'snapinID')));
             unset($SnapinIDs);
             foreach ((array)$Snapins AS $i => &$Snapin) {
                 if (!$Snapin->isValid()) continue;
                 if (!$Snapin->getPrimaryGroup($myStorageGroupID)) {
-                    static::outall(_(" | Not syncing Snapin: {$Snapin->get(name)}"));
-                    static::outall(_(' | This is not the primary group'));
+                    self::outall(_(" | Not syncing Snapin: {$Snapin->get(name)}"));
+                    self::outall(_(' | This is not the primary group'));
                     continue;
                 }
                 $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Snapin,true);
@@ -50,15 +50,15 @@ class SnapinReplicator extends FOGService {
             }
             unset($Snapins);
         } catch (Exception $e) {
-            static::outall(' * '.$e->getMessage());
+            self::outall(' * '.$e->getMessage());
         }
     }
     public function serviceRun() {
-        static::out(' ',static::$dev);
-        static::out(' +---------------------------------------------------------',static::$dev);
-        static::out(' * Checking if I am the group manager.',static::$dev);
-        static::wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
+        self::out(' ',self::$dev);
+        self::out(' +---------------------------------------------------------',self::$dev);
+        self::out(' * Checking if I am the group manager.',self::$dev);
+        self::wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
         $this->commonOutput();
-        static::out(' +---------------------------------------------------------',static::$dev);
+        self::out(' +---------------------------------------------------------',self::$dev);
     }
 }

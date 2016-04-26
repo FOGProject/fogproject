@@ -6,11 +6,11 @@ class RemoveSlackItem extends Hook {
     public $active = true;
     public $node = 'slack';
     public function remove_multi($arguments) {
-        foreach ((array)static::getClass('SlackManager')->find(array('id'=>$arguments['removing'])) AS &$Token) {
+        foreach ((array)self::getClass('SlackManager')->find(array('id'=>$arguments['removing'])) AS &$Token) {
             if (!$Token->isValid()) continue;
             $args = array(
                 'channel' => $Token->get('name'),
-                'text' => sprintf('%s %s: %s',preg_replace('/^[@]|^[#]/','',$Token->get('name')),_('Account removed from FOG GUI at'),static::getSetting('FOG_WEB_HOST')),
+                'text' => sprintf('%s %s: %s',preg_replace('/^[@]|^[#]/','',$Token->get('name')),_('Account removed from FOG GUI at'),self::getSetting('FOG_WEB_HOST')),
             );
             $Token->call('chat.postMessage',$args);
             unset($Token);
@@ -20,7 +20,7 @@ class RemoveSlackItem extends Hook {
         if (!$arguments['Slack']->isValid()) return;
         $args = array(
             'channel' => $arguments['Slack']->get('name'),
-            'text' => sprintf('%s %s: %s',preg_replace('/^[@]|^[#]/','',$arguments['Slack']->get('name')),_('Account removed from FOG GUI at'),static::getSetting('FOG_WEB_HOST')),
+            'text' => sprintf('%s %s: %s',preg_replace('/^[@]|^[#]/','',$arguments['Slack']->get('name')),_('Account removed from FOG GUI at'),self::getSetting('FOG_WEB_HOST')),
         );
         $arguments['Slack']->call('chat.postMessage',$args);
     }

@@ -10,8 +10,8 @@ class SnapinComplete_PushBullet extends PushbulletExtends {
     protected $author = 'Tom Elliott';
     public $active = true;
     public function onEvent($event, $data) {
-        static::$message = 'This host has completed snapin tasking.';
-        static::$shortdesc = 'Snapin(s) Complete';
+        self::$message = 'This host has completed snapin tasking.';
+        self::$shortdesc = 'Snapin(s) Complete';
         parent::onEvent($event,$data);
     }
 }

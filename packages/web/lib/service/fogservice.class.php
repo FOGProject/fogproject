@@ -23,32 +23,32 @@ abstract class FOGService extends FOGBase {
     }
     public function __construct() {
         parent::__construct();
-        static::$logpath = sprintf('/%s/',trim(static::getSetting('SERVICE_LOG_PATH'),'/'));
+        self::$logpath = sprintf('/%s/',trim(self::getSetting('SERVICE_LOG_PATH'),'/'));
     }
     protected function checkIfNodeMaster() {
         $this->getIPAddress();
-        foreach ((array)static::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS &$StorageNode) {
+        foreach ((array)self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
-            if (!in_array(static::$FOGCore->resolveHostname($StorageNode->get('ip')),static::$ips)) continue;
+            if (!in_array(self::$FOGCore->resolveHostname($StorageNode->get('ip')),self::$ips)) continue;
             return $StorageNode;
         }
         throw new Exception(_(' | This is not the master node'));
     }
     public function wait_interface_ready() {
         $this->getIPAddress();
-        if (!count(static::$ips)) {
-            static::outall('Interface not ready, waiting.',static::$dev);
+        if (!count(self::$ips)) {
+            self::outall('Interface not ready, waiting.',self::$dev);
             sleep(10);
             $this->wait_interface_ready();
         }
-        foreach (static::$ips AS $i => &$ip) static::outall(_("Interface Ready with IP Address: $ip"),static::$dev);
+        foreach (self::$ips AS $i => &$ip) self::outall(_("Interface Ready with IP Address: $ip"),self::$dev);
         unset($ip);
     }
     public static function wait_db_ready() {
-        if (!static::$DB->link()->connect_errno) return;
-        static::outall(sprintf('FOGService: %s - %s',get_class($this),_('Waiting for mysql to be available')),static::$dev);
+        if (!self::$DB->link()->connect_errno) return;
+        self::outall(sprintf('FOGService: %s - %s',get_class($this),_('Waiting for mysql to be available')),self::$dev);
         sleep(10);
-        static::wait_db_ready();
+        self::wait_db_ready();
     }
     public function getBanner() {
         ob_start();
@@ -71,11 +71,11 @@ abstract class FOGService extends FOGBase {
         echo "  #     http://fogproject.org/credits       #\n";
         echo "  #     GNU GPL Version 3                   #\n";
         echo "  ###########################################\n";
-        static::outall(ob_get_clean());
+        self::outall(ob_get_clean());
     }
     public function outall($string) {
-        static::out("$string\n",static::$dev);
-        static::wlog("$string\n",static::$log);
+        self::out("$string\n",self::$dev);
+        self::wlog("$string\n",self::$log);
         return;
     }
     protected static function out($string,$device) {
@@ -84,28 +84,28 @@ abstract class FOGService extends FOGBase {
         fclose($fh);
     }
     protected static function getDateTime() {
-        return static::nice_date()->format('m-d-y g:i:s a');
+        return self::nice_date()->format('m-d-y g:i:s a');
     }
     protected static function wlog($string, $path) {
-        if (file_exists($path) && filesize($path) >= static::getSetting('SERVICE_LOG_SIZE')) unlink($path);
-        if (!$fh = fopen($path,'ab')) static::out("\n * Error: Unable to open file: $path\n",static::$dev);
-        if (fwrite($fh,sprintf('[%s] %s',static::getDateTime(),$string)) === FALSE) static::out("\n * Error: Unable to write to file: $path\n",static::$dev);
+        if (file_exists($path) && filesize($path) >= self::getSetting('SERVICE_LOG_SIZE')) unlink($path);
+        if (!$fh = fopen($path,'ab')) self::out("\n * Error: Unable to open file: $path\n",self::$dev);
+        if (fwrite($fh,sprintf('[%s] %s',self::getDateTime(),$string)) === FALSE) self::out("\n * Error: Unable to write to file: $path\n",self::$dev);
         fclose($fh);
     }
     public function serviceStart() {
-        static::outall(sprintf(' * Starting %s Service',get_class($this)));
-        static::outall(sprintf(' * Checking for new items every %s seconds',static::$zzz));
-        static::outall(' * Starting service loop');
+        self::outall(sprintf(' * Starting %s Service',get_class($this)));
+        self::outall(sprintf(' * Checking for new items every %s seconds',self::$zzz));
+        self::outall(' * Starting service loop');
         return;
     }
     public function serviceRun() {
-        $tmpTime = (int)static::getSetting(static::$sleeptime);
-        if (static::$zzz != $tmpTime) {
-            static::$zzz = $tmpTime;
-            static::outall(sprintf(" | Sleep time has changed to %s seconds",static::$zzz));
+        $tmpTime = (int)self::getSetting(self::$sleeptime);
+        if (self::$zzz != $tmpTime) {
+            self::$zzz = $tmpTime;
+            self::outall(sprintf(" | Sleep time has changed to %s seconds",self::$zzz));
         }
-        static::out('',static::$dev);
-        static::out('+---------------------------------------------------------',static::$dev);
+        self::out('',self::$dev);
+        self::out('+---------------------------------------------------------',self::$dev);
     }
     /** replicate_items() replicates data without having to keep repeating
      * @param $myStorageGroupID int this servers groupid
@@ -123,52 +123,52 @@ abstract class FOGService extends FOGBase {
             'storageGroupID' => $master ? $Obj->get('storageGroups') : $myStorageGroupID,
         );
         if ($master) $findWhere['isMaster'] = 1;
-        $StorageNode = static::getClass('StorageNode',$myStorageNodeID);
+        $StorageNode = self::getClass('StorageNode',$myStorageNodeID);
         if (!$StorageNode->isValid() || !$StorageNode->get('isMaster')) throw new Exception(_(' * I am not the master'));
         $objType = get_class($Obj);
-        $groupOrNodeCount = static::getClass('StorageNodeManager')->count($findWhere);
+        $groupOrNodeCount = self::getClass('StorageNodeManager')->count($findWhere);
         $countTest = ($master ? 1 : 0);
         if ($groupOrNodeCount <= 1) {
-            static::outall(_(" * Not syncing $objType between $itemType(s)"));
-            static::outall(_(" | $objType Name: {$Obj->get(name)}"));
-            static::outall(_(' | I am the only member'));
+            self::outall(_(" * Not syncing $objType between $itemType(s)"));
+            self::outall(_(" | $objType Name: {$Obj->get(name)}"));
+            self::outall(_(' | I am the only member'));
         } else {
-            static::outall(sprintf(" * Found $objType to transfer to %s %s(s)",$groupOrNodeCount,$itemType));
-            static::outall(sprintf(" | $objType name: %s",$Obj->get('name')));
+            self::outall(sprintf(" * Found $objType to transfer to %s %s(s)",$groupOrNodeCount,$itemType));
+            self::outall(sprintf(" | $objType name: %s",$Obj->get('name')));
             $getPathOfItemField = $objType == 'Snapin' ? 'snapinpath' : 'ftppath';
             $getFileOfItemField = $objType == 'Snapin' ? 'file' : 'path';
-            $PotentialStorageNodes = array_diff((array)static::getSubObjectIDs('StorageNode',$findWhere,'id'),(array)$myStorageNodeID);
+            $PotentialStorageNodes = array_diff((array)self::getSubObjectIDs('StorageNode',$findWhere,'id'),(array)$myStorageNodeID);
             $myDir = sprintf('/%s/',trim($StorageNode->get($getPathOfItemField),'/'));
             $myFile = basename($Obj->get($getFileOfItemField));
             $myAdd = "$myDir$myFile";
             $myAddItem = false;
-            foreach ((array)static::getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
+            foreach ((array)self::getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
                 if (!$PotentialStorageNode->isValid()) continue;
                 if ($master && $PotentialStorageNode->get('storageGroupID') == $myStorageGroupID) continue;
                 if ($this->isRunning($this->procRef[$itemType][$Obj->get('name')][$i])) {
-                    static::outall(_(' | Replication not complete'));
-                    static::outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$itemType][$Obj->get('name')][$i])));
+                    self::outall(_(' | Replication not complete'));
+                    self::outall(sprintf(_(' | PID: %d'),$this->getPID($this->procRef[$itemType][$Obj->get('name')][$i])));
                     continue;
                 }
                 if (!file_exists("$myAdd")) {
-                    static::outall(_(" * Not syncing $objType between $itemType(s)"));
-                    static::outall(_(" | $objType Name: {$Obj->get(name)}"));
-                    static::outall(_(" | File or path cannot be reached"));
+                    self::outall(_(" * Not syncing $objType between $itemType(s)"));
+                    self::outall(_(" | $objType Name: {$Obj->get(name)}"));
+                    self::outall(_(" | File or path cannot be reached"));
                     continue;
                 }
-                static::$FOGFTP
+                self::$FOGFTP
                     ->set('username',$PotentialStorageNode->get('user'))
                     ->set('password',$PotentialStorageNode->get('pass'))
                     ->set('host',$PotentialStorageNode->get('ip'));
-                if (!static::$FOGFTP->connect()) {
-                    static::outall(_(" * Cannot connect to {$PotentialStorageNode->get(name)}"));
+                if (!self::$FOGFTP->connect()) {
+                    self::outall(_(" * Cannot connect to {$PotentialStorageNode->get(name)}"));
                     continue;
                 }
                 $nodename = $PotentialStorageNode->get('name');
-                $username = static::$FOGFTP->get('username');
-                $password = static::$FOGFTP->get('password');
+                $username = self::$FOGFTP->get('username');
+                $password = self::$FOGFTP->get('password');
                 $encpassword = urlencode($password);
-                $ip = static::$FOGFTP->get('host');
+                $ip = self::$FOGFTP->get('host');
                 $removeDir = sprintf('/%s/',trim($PotentialStorageNode->get($getPathOfItemField),'/'));
                 $removeFile = $myFile;
                 $limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
@@ -186,7 +186,7 @@ abstract class FOGService extends FOGBase {
                 } else if (is_dir($myAdd)) {
                     $remItem = "$removeDir$removeFile";
                     $localfilescheck = glob("$myAdd/*");
-                    $remotefilescheck = static::$FOGFTP->nlist($remItem);
+                    $remotefilescheck = self::$FOGFTP->nlist($remItem);
                     $includeFile = '-R';
                     if (!$myAddItem) $myAddItem = $myAdd;
                 }
@@ -195,34 +195,34 @@ abstract class FOGService extends FOGBase {
                 foreach ($localfilescheck AS $j => &$localfile) {
                     usleep(50000);
                     if (($index = array_search($localfile,$remotefilescheck)) === false) continue;
-                    static::outall(" | Local File: $localfile");
-                    static::outall(" | Remote File: {$remotefilescheck[$index]}");
+                    self::outall(" | Local File: $localfile");
+                    self::outall(" | Remote File: {$remotefilescheck[$index]}");
                     $res = 'true';
                     $filesize_main = filesize($localfile);
-                    $filesize_rem = static::$FOGFTP->size($remotefilescheck[$index]);
-                    static::outall(" | Local File size: $filesize_main");
-                    static::outall(" | Remote File size: $filesize_rem");
-                    if (!static::files_are_equal($filesize_main,$filesize_rem,$localfile,$ftpstart.$remotefilescheck[$index])) {
-                        static::outall(" | Files do not match");
-                        static::outall(" * Deleting remote file: {$remotefilescheck[$index]}");
-                        static::$FOGFTP->delete($remotefilescheck[$index]);
-                    } else static::outall(" | Files match");
+                    $filesize_rem = self::$FOGFTP->size($remotefilescheck[$index]);
+                    self::outall(" | Local File size: $filesize_main");
+                    self::outall(" | Remote File size: $filesize_rem");
+                    if (!self::files_are_equal($filesize_main,$filesize_rem,$localfile,$ftpstart.$remotefilescheck[$index])) {
+                        self::outall(" | Files do not match");
+                        self::outall(" * Deleting remote file: {$remotefilescheck[$index]}");
+                        self::$FOGFTP->delete($remotefilescheck[$index]);
+                    } else self::outall(" | Files match");
                     unset($localfile);
                 }
-                static::$FOGFTP->close();
-                $logname = "static::$log.transfer.$nodename.log";
-                if (!$i) static::outall(_(' * Starting Sync Actions'));
+                self::$FOGFTP->close();
+                $logname = "self::$log.transfer.$nodename.log";
+                if (!$i) self::outall(_(' * Starting Sync Actions'));
                 $this->killTasking($i,$itemType,$Obj->get('name'));
                 $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
-                if (static::getSetting('FOG_SERVICE_DEBUG')) static::outall(" | CMD:\n\t\t\t$cmd");
+                if (self::getSetting('FOG_SERVICE_DEBUG')) self::outall(" | CMD:\n\t\t\t$cmd");
                 $this->startTasking($cmd,$logname,$i,$itemType,$Obj->get('name'));
-                static::outall(sprintf(' * %s %s %s',_('Started sync for'),$objType,$Obj->get('name')));
+                self::outall(sprintf(' * %s %s %s',_('Started sync for'),$objType,$Obj->get('name')));
                 unset($PotentialStorageNode);
             }
         }
     }
     public function startTasking($cmd,$logname,$index = 0,$itemType = false,$filename = false) {
-        $descriptor = array(0=>array('pipe','r'),1=>array('file',$logname,'a'),2=>array('file',static::$log,'a'));
+        $descriptor = array(0=>array('pipe','r'),1=>array('file',$logname,'a'),2=>array('file',self::$log,'a'));
         if ($itemType === false) {
             $this->procRef[$index] = @proc_open($cmd,$descriptor,$pipes);
             $this->procPipes[$index] = $pipes;

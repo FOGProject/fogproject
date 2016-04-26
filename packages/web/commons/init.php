@@ -8,7 +8,7 @@ class Initiator {
             session_start();
             session_cache_limiter('nocache');
         }
-        define('BASEPATH', static::DetermineBasePath());
+        define('BASEPATH', self::DetermineBasePath());
         $allpaths = array_map(function($element) {
             return dirname($element[0]);
         },iterator_to_array(new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(BASEPATH,FileSystemIterator::SKIP_DOTS)),'#^.*\.(report|event|class|hook)\.php$#',RegexIterator::GET_MATCH)));
@@ -36,8 +36,8 @@ class Initiator {
     public static function startInit() {
         @set_time_limit(0);
         @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
-        static::verCheck();
-        static::extCheck();
+        self::verCheck();
+        self::extCheck();
         $globalVars = array('node','sub','printertype','id','sub','crit','sort','confirm','tab');
         array_map(function(&$x) {
             global $$x;
@@ -50,7 +50,7 @@ class Initiator {
     public static function sanitize_items(&$value = '') {
         $sanitize_items = function(&$val,&$key) use (&$value) {
             if (is_string($val)) $value[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
-            if (is_array($val)) static::sanitize_items($value[$key]);
+            if (is_array($val)) self::sanitize_items($value[$key]);
         };
         if (!count($value)) {
             array_walk($_REQUEST,$sanitize_items);

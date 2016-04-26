@@ -8,17 +8,17 @@ class Registration extends FOGBase {
     protected $description;
     public function __construct() {
         parent::__construct();
-        if (!static::getSetting('FOG_REGISTRATION_ENABLED')) return;
+        if (!self::getSetting('FOG_REGISTRATION_ENABLED')) return;
         try {
             $this->MACs = $this->getHostItem(false,true,true,true);
             $this->PriMAC = @array_shift($this->MACs);
             $this->Host = $this->getHostItem(false,true,true);
             $this->macsimple = strtolower(str_replace(array(':','-'),'',$this->PriMAC));
             if ($this->regExists()) return;
-            $this->modulesToJoin = static::getSubObjectIDs('Module');
+            $this->modulesToJoin = self::getSubObjectIDs('Module');
             $this->description = sprintf('%s %s',_('Created by FOG Reg on'),$this->formatTime('now','F j, Y, g:i a'));
             if (isset($_REQUEST['advanced'])) $this->fullReg();
-            else if (static::getSetting('FOG_QUICKREG_AUTOPOP')) $this->quickRegAuto();
+            else if (self::getSetting('FOG_QUICKREG_AUTOPOP')) $this->quickRegAuto();
             else $this->quickReg();
         } catch (Exception $e) {
             die($e->getMessage());
@@ -35,20 +35,20 @@ class Registration extends FOGBase {
     }
     private function fullReg() {
         try {
-            static::stripAndDecode($_REQUEST);
+            self::stripAndDecode($_REQUEST);
             $productKey = $_REQUEST['productKey'];
             $username = $_REQUEST['username'];
             $host = $_REQUEST['host'];
-            $host = strtoupper((static::getClass('Host')->isHostnameSafe($host) ? $host : $this->macsimple));
+            $host = strtoupper((self::getClass('Host')->isHostnameSafe($host) ? $host : $this->macsimple));
             $ip = $_REQUEST['ip'];
             $imageid = $_REQUEST['imageid'];
-            $imageid = (static::getClass('Image',$imageid)->isValid() ? $imageid : 0);
+            $imageid = (self::getClass('Image',$imageid)->isValid() ? $imageid : 0);
             $primaryuser = $_REQUEST['primaryuser'];
             $other1 = $_REQUEST['other1'];
             $other2 = $_REQUEST['other2'];
             $doimage = trim($_REQUEST['doimage']);
             if ($_REQUEST['doad']) {
-                $OUs = explode('|',static::getSetting('FOG_AD_DEFAULT_OU'));
+                $OUs = explode('|',self::getSetting('FOG_AD_DEFAULT_OU'));
                 foreach ((array)$OUs AS $i => &$OU) $OUOptions[] = $OU;
                 unset($OU);
                 if ($OUOptions) {
@@ -61,16 +61,16 @@ class Registration extends FOGBase {
                     if (!$opt) $opt = $OUs[0];
                 }
                 $useAD = 1;
-                $ADDomain = static::getSetting('FOG_AD_DEFAULT_DOMAINNAME');
+                $ADDomain = self::getSetting('FOG_AD_DEFAULT_DOMAINNAME');
                 $ADOU = $opt;
-                $ADUser = static::getSetting('FOG_AD_DEFAULT_USER');
-                $ADPass = static::getSetting('FOG_AD_DEFAULT_PASSWORD');
-                $ADPassLegacy = static::getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY');
-                $enforce = static::getSetting('FOG_ENFORCE_HOST_CHANGES');
+                $ADUser = self::getSetting('FOG_AD_DEFAULT_USER');
+                $ADPass = self::getSetting('FOG_AD_DEFAULT_PASSWORD');
+                $ADPassLegacy = self::getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY');
+                $enforce = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
             }
             $groupsToJoin = explode(',',$_REQUEST['groupid']);
             $snapinsToJoin = explode(',',$_REQUEST['snapinid']);
-            $this->Host = static::getClass('Host')
+            $this->Host = self::getClass('Host')
                 ->set('name',$host)
                 ->set('description',$this->description)
                 ->set('imageID',$imageid)
@@ -82,7 +82,7 @@ class Registration extends FOGBase {
                 ->addAddMAC($this->MACs)
                 ->setAD($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,false,true,$ADPassLegacy,$productKey,$enforce);
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
-            static::$HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
+            self::$HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
             try {
                 if (!$doimage) throw new Exception(_('Done, without imaging!'));
                 if (!$this->Host->getImageMemberFromHostID()) throw new Exception(_('Done, No image assigned!'));
@@ -91,7 +91,7 @@ class Registration extends FOGBase {
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
-            static::getClass('Inventory')
+            self::getClass('Inventory')
                 ->set('hostID',$this->Host->get('id'))
                 ->set('primaryUser', $primaryuser)
                 ->set('other1', $other1)
@@ -103,11 +103,11 @@ class Registration extends FOGBase {
     }
     private function quickRegAuto() {
         try {
-            $groupsToJoin = explode(',',trim(static::getSetting('FOG_QUICKREG_GROUP_ASSOC')));
-            $autoRegSysName = trim(static::getSetting('FOG_QUICKREG_SYS_NAME'));
-            $autoRegSysNumber = (int)static::getSetting('FOG_QUICKREG_SYS_NUMBER');
+            $groupsToJoin = explode(',',trim(self::getSetting('FOG_QUICKREG_GROUP_ASSOC')));
+            $autoRegSysName = trim(self::getSetting('FOG_QUICKREG_SYS_NAME'));
+            $autoRegSysNumber = (int)self::getSetting('FOG_QUICKREG_SYS_NUMBER');
             $hostname = trim((strtoupper($autoRegSysName) == 'MAC' ? $this->macsimple : $autoRegSysName));
-            $hostname = (static::getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
+            $hostname = (self::getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
             $paddingLen = substr_count($autoRegSysName,'*');
             $paddingString = null;
             if ($paddingLen > 0) {
@@ -116,17 +116,17 @@ class Registration extends FOGBase {
                 if (trim(strtoupper($autoRegSysName)) == 'MAC') $hostname = $this->macsimple;
                 else {
                     $hostname = str_replace($paddingString,$paddedInsert,$autoRegSysName);
-                    while (static::getClass('HostManager')->exists($hostname)) {
+                    while (self::getClass('HostManager')->exists($hostname)) {
                         $paddingString = str_repeat('*',$paddingLen);
                         $paddedInsert = str_pad(++$autoRegSysNumber,$paddingLen,0,STR_PAD_LEFT);
                         $hostname = str_replace($paddingString,$paddedInsert,$autuRegSysName);
                     }
                 }
             }
-            if (!static::getClass('Host')->isHostnameSafe($hostname)) $hostname = $this->macsimple;
+            if (!self::getClass('Host')->isHostnameSafe($hostname)) $hostname = $this->macsimple;
             $this->setSetting('FOG_QUICKREG_SYS_NUMBER',++$autoRegSysNumber);
-            $imageid = (int)static::getSetting('FOG_QUICKREG_IMG_ID');
-            $this->Host = static::getClass('Host')
+            $imageid = (int)self::getSetting('FOG_QUICKREG_IMG_ID');
+            $this->Host = self::getClass('Host')
                 ->set('name',$hostname)
                 ->set('description',$this->description)
                 ->set('imageID',$imageid)
@@ -134,7 +134,7 @@ class Registration extends FOGBase {
                 ->addGroup($groupsToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
-            static::$HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
+            self::$HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
             if ($imageid && $this->Host->getImageMemberFromHostID()) {
                 if (!$this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$username)) throw new Exception(_('Done, Failed to create tasking'));
@@ -147,13 +147,13 @@ class Registration extends FOGBase {
     }
     private function quickReg() {
         try {
-            $this->Host = static::getClass('Host')
+            $this->Host = self::getClass('Host')
                 ->set('name',$this->macsimple)
                 ->set('description',$this->description)
                 ->addModule($this->modulesToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
-            static::$HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
+            self::$HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
             throw new Exception(_('Done'));
         } catch (Exception $e) {

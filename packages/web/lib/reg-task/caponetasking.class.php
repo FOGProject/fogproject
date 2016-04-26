@@ -6,14 +6,14 @@ class CaponeTasking extends FOGBase {
         parent::__construct();
         switch (strtolower($_REQUEST['action'])) {
         case 'dmi':
-            echo static::getSetting('FOG_PLUGIN_CAPONE_DMI');
+            echo self::getSetting('FOG_PLUGIN_CAPONE_DMI');
             break;
         case 'imagelookup':
             if (!$_REQUEST['key']) break;
             try {
                 $strSetup = "%s|%s|%s|%s|%s";
                 ob_start();
-                foreach ((array)static::getClass('CaponeManager')->find(array('key'=>trim(base64_decode($_REQUEST['key'])))) AS $i => &$Capone) {
+                foreach ((array)self::getClass('CaponeManager')->find(array('key'=>trim(base64_decode($_REQUEST['key'])))) AS $i => &$Capone) {
                     if (!$Capone->isValid()) continue;
                     printf("%s\n",
                         base64_encode(sprintf($strSetup,

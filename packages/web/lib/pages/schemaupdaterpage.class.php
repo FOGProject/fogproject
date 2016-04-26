@@ -3,9 +3,9 @@ class SchemaUpdaterPage extends FOGPage {
     public $node = 'schemaupdater';
     public function __construct($name = '') {
         parent::__construct($this->name);
-        $newSchema = static::getClass('SchemaManager')->find();
+        $newSchema = self::getClass('SchemaManager')->find();
         $newSchema = @array_shift($newSchema);
-        if ($newSchema instanceof Schema && $newSchema->isValid() && $newSchema->get('version') >= FOG_SCHEMA) static::redirect('index.php');
+        if ($newSchema instanceof Schema && $newSchema->isValid() && $newSchema->get('version') >= FOG_SCHEMA) self::redirect('index.php');
         $this->name = 'Database Schema Installer / Updater';
         $this->menu = array();
         $this->subMenu = array();
@@ -38,16 +38,16 @@ class SchemaUpdaterPage extends FOGPage {
                             if (is_callable($update)) {
                                 $result = $update();
                                 if (is_string($result)) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Function Error:</b> <pre>%s</pre></p><p><b>Function:</b> <pre>%s</pre></p>', "$version - $i",$result, print_r($update, 1));
-                            } else if (!static::$DB->query($update)->fetch()->get()) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i",static::$DB->sqlerror(),$update);
+                            } else if (!self::$DB->query($update)->fetch()->get()) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i",self::$DB->sqlerror(),$update);
                         }
                         unset($update);
                     }
                     unset($updates);
-                    static::$DB->current_db();
-                    if (static::$DB->db_name()) {
-                        $newSchema = static::getClass('SchemaManager')->find();
+                    self::$DB->current_db();
+                    if (self::$DB->db_name()) {
+                        $newSchema = self::getClass('SchemaManager')->find();
                         $newSchema = @array_shift($newSchema);
-                        if (!($newSchema instanceof Schema && $newSchema->isValid())) $newSchema = static::getClass('Schema');
+                        if (!($newSchema instanceof Schema && $newSchema->isValid())) $newSchema = self::getClass('Schema');
                         $newSchema->set('version',$version);
                         if (!$newSchema->save() || count($this->schema) != $newSchema->get('version')) {
                             printf('<p>%s</p>',_('Install / Update Failed!'));
