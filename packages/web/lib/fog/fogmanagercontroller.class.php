@@ -86,7 +86,7 @@ abstract class FOGManagerController extends FOGBase {
             };
             $data = array();
             array_map(function(&$item) use ($query,$htmlEntDecode,&$data) {
-                $tmp = array_map($htmlEntDecode,(array)self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$item]));
+                $tmp = array_map($htmlEntDecode,(array)self::$DB->query($query)->fetch('',$item ? 'fetch_assoc' : 'fetch_all')->get($item ? $this->databaseFields[$item] : ''));
                 $data[$item] = count($tmp) === 1 ? array_shift($tmp) : $tmp;
             },(array)$idField);
             if (count($data) === 1) {
