@@ -37,7 +37,7 @@ class PushbulletHandler {
         $data[type]  = 'note';
         $data[title] = $title;
         $data[body]  = $body;
-        return $this->_curlRequest(self::URL_PUSHES, 'POST', $data);
+        return $this->_curlRequest(static::URL_PUSHES, 'POST', $data);
     }
     /**
      * Push a link.
@@ -57,7 +57,7 @@ class PushbulletHandler {
         $data[title] = $title;
         $data[url]   = $url;
         $data[body]  = $body;
-        return $this->_curlRequest(self::URL_PUSHES, 'POST', $data);
+        return $this->_curlRequest(static::URL_PUSHES, 'POST', $data);
     }
     /**
      * Push an address.
@@ -75,7 +75,7 @@ class PushbulletHandler {
         $data[type]    = 'address';
         $data[name]    = $name;
         $data[address] = $address;
-        return $this->_curlRequest(self::URL_PUSHES, 'POST', $data);
+        return $this->_curlRequest(static::URL_PUSHES, 'POST', $data);
     }
     /**
      * Push a checklist.
@@ -93,7 +93,7 @@ class PushbulletHandler {
         $data[type]  = 'list';
         $data[title] = $title;
         $data[items] = $items;
-        return $this->_curlRequest(self::URL_PUSHES, 'POST', $data);
+        return $this->_curlRequest(static::URL_PUSHES, 'POST', $data);
     }
     /**
      * Push a file.
@@ -118,7 +118,7 @@ class PushbulletHandler {
         // Try to guess the MIME type if the argument is NULL
         $data[file_type] = $mimeType === null ? mime_content_type($fullFilePath) : $mimeType;
         // Request authorization to upload the file
-        $response = $this->_curlRequest(self::URL_UPLOAD_REQUEST, 'GET', $data);
+        $response = $this->_curlRequest(static::URL_UPLOAD_REQUEST, 'GET', $data);
         $data[file_url] = $response->file_url;
         if (version_compare(PHP_VERSION, '5.5.0', '>=')) $response->data->file = new CURLFile($fullFilePath);
         else $response->data->file = '@' . $fullFilePath;
@@ -128,7 +128,7 @@ class PushbulletHandler {
         $data[type]  = 'file';
         $data[title] = $title;
         $data[body]  = $body;
-        return $this->_curlRequest(self::URL_PUSHES, 'POST', $data);
+        return $this->_curlRequest(static::URL_PUSHES, 'POST', $data);
     }
     /**
      * Get push history.
@@ -146,7 +146,7 @@ class PushbulletHandler {
         $data[modified_after] = $modifiedAfter;
         if ($cursor !== null) $data[cursor] = $cursor;
         if ($limit !== null) $data[limit] = $limit;
-        return $this->_curlRequest(self::URL_PUSHES, 'GET', $data);
+        return $this->_curlRequest(static::URL_PUSHES, 'GET', $data);
     }
     /**
      * Dismiss a push.
@@ -157,7 +157,7 @@ class PushbulletHandler {
      * @throws PushbulletException
      */
     public function dismissPush($pushIden) {
-        return $this->_curlRequest(self::URL_PUSHES . '/' . $pushIden, 'POST', array('dismissed' => true));
+        return $this->_curlRequest(static::URL_PUSHES . '/' . $pushIden, 'POST', array('dismissed' => true));
     }
     /**
      * Delete a push.
@@ -168,7 +168,7 @@ class PushbulletHandler {
      * @throws PushbulletException
      */
     public function deletePush($pushIden) {
-        return $this->_curlRequest(self::URL_PUSHES . '/' . $pushIden, 'DELETE');
+        return $this->_curlRequest(static::URL_PUSHES . '/' . $pushIden, 'DELETE');
     }
     /**
      * Get a list of available devices.
@@ -186,7 +186,7 @@ class PushbulletHandler {
         $data[modified_after] = $modifiedAfter;
         if ($cursor !== null) $data[cursor] = $cursor;
         if ($limit !== null) $data[limit] = $limit;
-        return $this->_curlRequest(self::URL_DEVICES, 'GET', $data);
+        return $this->_curlRequest(static::URL_DEVICES, 'GET', $data);
     }
     /**
      * Delete a device.
@@ -197,7 +197,7 @@ class PushbulletHandler {
      * @throws PushbulletException
      */
     public function deleteDevice($deviceIden) {
-        return $this->_curlRequest(self::URL_DEVICES . '/' . $deviceIden, 'DELETE');
+        return $this->_curlRequest(static::URL_DEVICES . '/' . $deviceIden, 'DELETE');
     }
     /**
      * Create a new contact.
@@ -214,7 +214,7 @@ class PushbulletHandler {
             'name'  => $name,
             'email' => $email
         );
-        return $this->_curlRequest(self::URL_CONTACTS, 'POST', $queryData);
+        return $this->_curlRequest(static::URL_CONTACTS, 'POST', $queryData);
     }
     /**
      * Get a list of contacts.
@@ -232,7 +232,7 @@ class PushbulletHandler {
         $data[modified_after] = $modifiedAfter;
         if ($cursor !== null) $data[cursor] = $cursor;
         if ($limit !== null) $data[limit] = $limit;
-        return $this->_curlRequest(self::URL_CONTACTS, 'GET', $data);
+        return $this->_curlRequest(static::URL_CONTACTS, 'GET', $data);
     }
     /**
      * Update a contact's name.
@@ -244,7 +244,7 @@ class PushbulletHandler {
      * @throws PushbulletException
      */
     public function updateContact($contactIden, $name) {
-        return $this->_curlRequest(self::URL_CONTACTS . '/' . $contactIden, 'POST', array('name' => $name));
+        return $this->_curlRequest(static::URL_CONTACTS . '/' . $contactIden, 'POST', array('name' => $name));
     }
     /**
      * Delete a contact.
@@ -255,7 +255,7 @@ class PushbulletHandler {
      * @throws PushbulletException
      */
     public function deleteContact($contactIden) {
-        return $this->_curlRequest(self::URL_CONTACTS . '/' . $contactIden, 'DELETE');
+        return $this->_curlRequest(static::URL_CONTACTS . '/' . $contactIden, 'DELETE');
     }
     /**
      * Get information about the current user.
@@ -264,7 +264,7 @@ class PushbulletHandler {
      * @throws PushbulletException
      */
     public function getUserInformation() {
-        return $this->_curlRequest(self::URL_USERS . '/me', 'GET');
+        return $this->_curlRequest(static::URL_USERS . '/me', 'GET');
     }
     /**
      * Update preferences for the current user.
@@ -275,7 +275,7 @@ class PushbulletHandler {
      * @throws PushbulletException
      */
     public function updateUserPreferences($preferences) {
-        return $this->_curlRequest(self::URL_USERS . '/me', 'POST', array('preferences' => $preferences));
+        return $this->_curlRequest(static::URL_USERS . '/me', 'POST', array('preferences' => $preferences));
     }
     /**
      * Subscribe to a channel.
@@ -286,7 +286,7 @@ class PushbulletHandler {
      * @throws PushbulletException
      */
     public function subscribeToChannel($channelTag) {
-        return $this->_curlRequest(self::URL_SUBSCRIPTIONS, 'POST', array('channel_tag' => $channelTag));
+        return $this->_curlRequest(static::URL_SUBSCRIPTIONS, 'POST', array('channel_tag' => $channelTag));
     }
     /**
      * Get a list of the channels the current user is subscribed to.
@@ -295,7 +295,7 @@ class PushbulletHandler {
      * @throws PushbulletException
      */
     public function getSubscriptions() {
-        return $this->_curlRequest(self::URL_SUBSCRIPTIONS, 'GET');
+        return $this->_curlRequest(static::URL_SUBSCRIPTIONS, 'GET');
     }
     /**
      * Unsubscribe from a channel.
@@ -306,7 +306,7 @@ class PushbulletHandler {
      * @throws PushbulletException
      */
     public function unsubscribeFromChannel($channelIden) {
-        return $this->_curlRequest(self::URL_SUBSCRIPTIONS . '/' . $channelIden, 'DELETE');
+        return $this->_curlRequest(static::URL_SUBSCRIPTIONS . '/' . $channelIden, 'DELETE');
     }
     /**
      * Get information about a channel.
@@ -317,7 +317,7 @@ class PushbulletHandler {
      * @throws PushbulletException
      */
     public function getChannelInformation($channelTag) {
-        return $this->_curlRequest(self::URL_CHANNEL_INFO, 'GET', array('tag' => $channelTag));
+        return $this->_curlRequest(static::URL_CHANNEL_INFO, 'GET', array('tag' => $channelTag));
     }
     /**
      * Send an SMS message.
@@ -343,7 +343,7 @@ class PushbulletHandler {
                 'message'            => $message
             ));
 
-        return $this->_curlRequest(self::URL_EPHEMERALS, 'POST', $data, true, true);
+        return $this->_curlRequest(static::URL_EPHEMERALS, 'POST', $data, true, true);
     }
     /**
      * Add a callback function that will be invoked right before executing each cURL request.

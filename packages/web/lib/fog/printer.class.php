@@ -24,7 +24,7 @@ class Printer extends FOGController {
         'hostsnotinme',
     );
     public function destroy($field = 'id') {
-        self::getClass('PrinterAssociationManager')->destroy(array('printerID'=>$this->get('id')));
+        static::getClass('PrinterAssociationManager')->destroy(array('printerID'=>$this->get('id')));
         return parent::destroy($field);
     }
     public function save($mainObject = true) {
@@ -39,28 +39,28 @@ class Printer extends FOGController {
             throw new Exception(_('Printer ID was not set, or unable to be created'));
             break;
         case ($this->isLoaded('hosts')):
-            $DBHostIDs = self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
-            $ValidHostIDs = self::getSubObjectIDs('Host');
+            $DBHostIDs = static::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
+            $ValidHostIDs = static::getSubObjectIDs('Host');
             $notValid = array_diff((array)$DBHostIDs,(array)$ValidHostIDs);
-            if (count($notValid)) self::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$notValid));
+            if (count($notValid)) static::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$notValid));
             unset($ValidHostIDs,$notValid);
-            $DBHostIDs = self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
+            $DBHostIDs = static::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_unique(array_diff((array)$DBHostIDs,(array)$this->get('hosts')));
             if (count($RemoveHostIDs)) {
-                self::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$RemoveHostIDs,'printerID'=>$this->get('id')));
-                $DBHostIDs = self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
+                static::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$RemoveHostIDs,'printerID'=>$this->get('id')));
+                $DBHostIDs = static::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
                 unset($RemoveHostIDs);
             }
             array_map(function(&$Host) {
                 if (!$Host->isValid()) return;
-                $hasDefault = self::getClass('PrinterAssociationManager')->count(array('isDefault'=>1,'hostID'=>$Host->get('id')));
-                self::getClass('PrinterAssociation')
+                $hasDefault = static::getClass('PrinterAssociationManager')->count(array('isDefault'=>1,'hostID'=>$Host->get('id')));
+                static::getClass('PrinterAssociation')
                     ->set('printerID',$this->get('id'))
                     ->set('hostID',$Host->get('id'))
                     ->set('isDefault',($hasDefault != 1))
                     ->save();
                 unset($Host);
-            },(array)self::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))));
+            },(array)static::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))));
         }
         return $this;
     }
@@ -73,19 +73,19 @@ class Printer extends FOGController {
         return $this;
     }
     protected function loadHosts() {
-        if ($this->get('id')) $this->set('hosts',self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID'));
+        if ($this->get('id')) $this->set('hosts',static::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID'));
     }
     protected function loadHostsnotinme() {
         if ($this->get('id')) {
             $find = array('id'=>$this->get('hosts'));
-            $this->set('hostsnotinme',self::getSubObjectIDs('Host',$find,'id',true));
+            $this->set('hostsnotinme',static::getSubObjectIDs('Host',$find,'id',true));
             unset($find);
         }
         return $this;
     }
     public function updateDefault($hostid,$onoff) {
         array_map(function(&$id) {
-            self::getClass('Host',$id)->updateDefault($this->get('id'),in_array($id,(array)$onoff));
+            static::getClass('Host',$id)->updateDefault($this->get('id'),in_array($id,(array)$onoff));
             unset($id);
         },(array)$hostid);
         return $this;

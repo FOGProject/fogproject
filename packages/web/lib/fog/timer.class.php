@@ -11,7 +11,7 @@ class Timer extends FOGCron {
             $this->blSingle = true;
         } else {
             $this->cron = sprintf('%s %s %s %s %s',$minute,$hour,$dom,$month,$dow);
-            $this->lngSingle = self::parse($this->cron);
+            $this->lngSingle = static::parse($this->cron);
             $this->blSingle = false;
         }
     }
@@ -22,21 +22,21 @@ class Timer extends FOGCron {
         return $this->lngSingle;
     }
     public function toString() {
-        $runTime = self::nice_date()->setTimestamp($this->lngSingle);
+        $runTime = static::nice_date()->setTimestamp($this->lngSingle);
         return $runTime->format('r');
     }
     public function setDebug($blDebug) {
-        self::$debug = $blDebug;
+        static::$debug = $blDebug;
     }
     private function shouldSingleRun() {
-        $CurrTime = self::nice_date();
-        $Time = self::nice_date()->setTimestamp($this->lngSingle);
+        $CurrTime = static::nice_date();
+        $Time = static::nice_date()->setTimestamp($this->lngSingle);
         return (bool)($Time <= $CurrTime);
     }
     public function shouldRunNow() {
-        return (bool)($this->blSingle ? $this->shouldSingleRun() : self::shouldRunCron($this->lngSingle));
+        return (bool)($this->blSingle ? $this->shouldSingleRun() : static::shouldRunCron($this->lngSingle));
     }
     private function d($s) {
-        if (self::$debug) echo ($s."\n");
+        if (static::$debug) echo ($s."\n");
     }
 }

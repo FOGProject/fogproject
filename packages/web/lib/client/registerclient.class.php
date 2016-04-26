@@ -4,22 +4,22 @@ class RegisterClient extends FOGClient implements FOGClientSend {
         try {
             $maxPending = 0;
             $MACs = array();
-            $maxPending = self::getSetting('FOG_QUICKREG_MAX_PENDING_MACS');
+            $maxPending = static::getSetting('FOG_QUICKREG_MAX_PENDING_MACS');
             $MACs = $this->getHostItem(true,false,false,true);
             if ($this->newService) {
                 $_REQUEST['hostname'] = trim($_REQUEST['hostname']);
                 if (!($this->Host instanceof Host && $this->Host->isValid())) {
-                    $this->Host = self::getClass('HostManager')->find(array('name'=>$_REQUEST['hostname']));
+                    $this->Host = static::getClass('HostManager')->find(array('name'=>$_REQUEST['hostname']));
                     $this->Host = @array_shift($this->Host);
                     if (!($this->Host instanceof Host && $this->Host->isValid() && !$this->Host->get('pending'))) {
-                        if (!self::getClass('Host')->isHostnameSafe($_REQUEST['hostname'])) throw new Exception('#!ih');
+                        if (!static::getClass('Host')->isHostnameSafe($_REQUEST['hostname'])) throw new Exception('#!ih');
                         $PriMAC = @array_shift($MACs);
-                        $this->Host = self::getClass('Host')
+                        $this->Host = static::getClass('Host')
                             ->set('name',$_REQUEST['hostname'])
                             ->set('description',_('Pending Registration created by FOG_CLIENT'))
                             ->set('pending',1)
-                            ->set('enforce',(int)self::getSetting('FOG_ENFORCE_HOST_CHANGES'))
-                            ->addModule(self::getSubObjectIDs('Module',array('isDefault'=>1),'id'))
+                            ->set('enforce',(int)static::getSetting('FOG_ENFORCE_HOST_CHANGES'))
+                            ->addModule(static::getSubObjectIDs('Module',array('isDefault'=>1),'id'))
                             ->addPriMAC($PriMAC)
                             ->addAddMAC($MACs);
                         if (!$this->Host->save()) throw new Exception('#!db');

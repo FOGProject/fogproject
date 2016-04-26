@@ -16,12 +16,12 @@ class MACAddress extends FOGBase {
     }
     protected function setMAC() {
         try {
-            if ($this->tmpMAC instanceof MACAddress) $this->MAC = self::normalizeMAC($this->tmpMAC);
-            else if (is_array($this->tmpMAC)) $this->MAC = self::normalizeMAC($this->tmpMAC[0]);
-            else $this->MAC = self::normalizeMAC($this->tmpMAC);
+            if ($this->tmpMAC instanceof MACAddress) $this->MAC = static::normalizeMAC($this->tmpMAC);
+            else if (is_array($this->tmpMAC)) $this->MAC = static::normalizeMAC($this->tmpMAC[0]);
+            else $this->MAC = static::normalizeMAC($this->tmpMAC);
             if (!$this->isValid()) throw new Exception("#!im\n");
         } catch (Exception $e) {
-            if (self::$debug) self::$FOGCore->debug($e->getMessage().' MAC: %s', $this->MAC);
+            if (static::$debug) static::$FOGCore->debug($e->getMessage().' MAC: %s', $this->MAC);
         }
         return $this;
     }
@@ -41,18 +41,18 @@ class MACAddress extends FOGBase {
         return strlen($mac) === 12 && ctype_xdigit($mac) && (preg_match('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/', $this->MAC) || preg_match('/^([a-fA-F0-9]{2}\-){5}[a-fA-F0-9]{2}$/', $this->MAC) || preg_match('/^[a-fA-F0-9]{12}$/', $this->MAC) || preg_match('/^([a-fA-F0-9]{4}\.){2}[a-fA-F0-9]{4}$/', $this->MAC));
     }
     public function isPending() {
-        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'pending'=>1)));
+        return (bool)count(static::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'pending'=>1)));
     }
     public function isClientIgnored() {
-        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'clientIgnore'=>1)));
+        return (bool)count(static::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'clientIgnore'=>1)));
     }
     public function isPrimary() {
-        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'primary'=>1)));
+        return (bool)count(static::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'primary'=>1)));
     }
     public function isImageIgnored() {
-        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'imageIgnore'=>1)));
+        return (bool)count(static::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'imageIgnore'=>1)));
     }
     public function getHost() {
-        return self::getClass('Host',@max(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString()),'hostID')));
+        return static::getClass('Host',@max(static::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString()),'hostID')));
     }
 }

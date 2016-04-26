@@ -11,13 +11,13 @@ class LDAPPluginHook extends Hook {
         $password = $arguments['password'];
         $User = $arguments['User'];
         if ($User instanceof User && $User->isValid()) return;
-        foreach ((array)self::getClass('LDAPManager')->find() AS $i => &$LDAP) {
+        foreach ((array)static::getClass('LDAPManager')->find() AS $i => &$LDAP) {
             if (!$LDAP->isValid()) continue;
-            $User = self::getClass('User',@max(self::getSubObjectIDs('User',array('name'=>$username))));
+            $User = static::getClass('User',@max(static::getSubObjectIDs('User',array('name'=>$username))));
             if (!$LDAP->authLDAP($username,$password)) continue;
             if ($User->isValid()) $User->set('password',$password);
             else {
-                $User = self::getClass('User')
+                $User = static::getClass('User')
                     ->set('name',$username)
                     ->set('type',1)
                     ->set('password',md5($password));

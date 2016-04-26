@@ -5,13 +5,13 @@ class TasktypeeditManagementPage extends FOGPage {
         $this->name = 'Task Type Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'search' => self::$foglang['NewSearch'],
-            'list' => sprintf(self::$foglang['ListAll'],_('Task Types')),
-            'add' => sprintf(self::$foglang['CreateNew'],_('Task Type')),
+            'search' => static::$foglang['NewSearch'],
+            'list' => sprintf(static::$foglang['ListAll'],_('Task Types')),
+            'add' => sprintf(static::$foglang['CreateNew'],_('Task Type')),
         );
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                $this->delformat => self::$foglang['Delete'],
+                $this->delformat => static::$foglang['Delete'],
             );
             $this->notes = array(
                 _('Name')=>$this->obj->get('name'),
@@ -37,7 +37,7 @@ class TasktypeeditManagementPage extends FOGPage {
             array('class'=>'c'),
             array('class'=>'r'),
         );
-        self::$returnData = function(&$TaskType) {
+        static::$returnData = function(&$TaskType) {
             if (!$TaskType->isValid()) return;
             $this->data[] = array(
                 'icon'=>$TaskType->get('icon'),
@@ -51,16 +51,16 @@ class TasktypeeditManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('All Task Types');
-        if (self::getSetting('FOG_DATA_RETURNED')>0 && self::getClass($this->childClass)->getManager()->count() > self::getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if (static::getSetting('FOG_DATA_RETURNED')>0 && static::getClass($this->childClass)->getManager()->count() > static::getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
-        self::$HookManager->processEvent('TASKTYPE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->find());
+        static::$HookManager->processEvent('TASKTYPE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->search('',true));
-        self::$HookManager->processEvent('TASKTYPE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->search('',true));
+        static::$HookManager->processEvent('TASKTYPE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -85,7 +85,7 @@ class TasktypeeditManagementPage extends FOGPage {
         $fields = array(
             _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$_REQUEST['name']),
             _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
-            _('Icon') => self::getClass('TaskType')->iconlist($_REQUEST['icon']),
+            _('Icon') => static::getClass('TaskType')->iconlist($_REQUEST['icon']),
             _('Kernel') => sprintf('<input type="text" name="kernel" class="smaller" value="%s"/>',$_REQUEST['kernel']),
             _('Kernel Arguments') => sprintf('<input type="text" name="kernelargs" class="smaller" value="%s"/>',$_REQUEST['kernelargs']),
             _('Type') => sprintf('<input type="text" name="type" class="smaller" value="%s"/>',$_REQUEST['type']),
@@ -101,7 +101,7 @@ class TasktypeeditManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        self::$HookManager->processEvent('TASKTYPE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('TASKTYPE_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -117,8 +117,8 @@ class TasktypeeditManagementPage extends FOGPage {
             $advanced = (int)isset($_REQUEST['advanced']);
             $access = $_REQUEST['access'];
             if (!$name) throw new Exception(_('You must enter a name'));
-            if (self::getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
-            $TaskType = self::getClass('TaskType')
+            if (static::getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
+            $TaskType = static::getClass('TaskType')
                 ->set('name',$name)
                 ->set('description',$description)
                 ->set('icon',$icon)
@@ -157,7 +157,7 @@ class TasktypeeditManagementPage extends FOGPage {
             _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$this->obj->get('name')),
             _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
             _('Icon') => sprintf('<input type="text" name="icon" class="smaller" value="%s"/>',$this->obj->get('icon')),
-            _('Icon') => self::getClass('TaskType')->iconlist($this->obj->get('icon')),
+            _('Icon') => static::getClass('TaskType')->iconlist($this->obj->get('icon')),
             _('Kernel') => sprintf('<input type="text" name="kernel" class="smaller" value="%s"/>',$this->obj->get('kernel')),
             _('Kernel Arguments') => sprintf('<input type="text" name="kernelargs" class="smaller" value="%s"/>',$this->obj->get('kernelArgs')),
             _('Type') => sprintf('<input type="text" name="type" class="smaller" value="%s"/>',$this->obj->get('type')),
@@ -173,13 +173,13 @@ class TasktypeeditManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        self::$HookManager->processEvent('TASKTYPE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('TASKTYPE_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        self::$HookManager->processEvent('TASKTYPE_EDIT_POST',array('TaskType'=>&$this->obj));
+        static::$HookManager->processEvent('TASKTYPE_EDIT_POST',array('TaskType'=>&$this->obj));
         try {
             $name = $_REQUEST['name'];
             $description = $_REQUEST['description'];
@@ -190,7 +190,7 @@ class TasktypeeditManagementPage extends FOGPage {
             $advanced = (int)isset($_REQUEST['advanced']);
             $access = $_REQUEST['access'];
             if (!$name) throw new Exception(_('You must enter a name'));
-            if ($this->obj->get('name') != $name && self::getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
+            if ($this->obj->get('name') != $name && static::getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
             $this->obj
                 ->set('name',$name)
                 ->set('description',$description)

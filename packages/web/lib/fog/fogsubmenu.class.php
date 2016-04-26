@@ -23,7 +23,7 @@ class FOGSubMenu extends FOGBase {
     private static $title;
     public $defaultSubs = array('host'=>'edit','group'=>'edit');
     public function addItems($node, $items, $ifVariable = '', $ifVariableTitle = '') {
-        $variableSetter = (!$ifVariable ? self::$foglang['MainMenu'] : $ifVariableTitle);
+        $variableSetter = (!$ifVariable ? static::$foglang['MainMenu'] : $ifVariableTitle);
         if (isset($_REQUEST[$ifVariable])) {
             global $$ifVariable;
             array_walk($items,function(&$link,&$title) use ($ifVariable) {
@@ -51,8 +51,8 @@ class FOGSubMenu extends FOGBase {
         ob_start();
         if ($this->items[$node]) {
             array_walk($this->items[$node],function(&$data,&$title) use (&$node,$labelcreator) {
-                self::$title = $this->fixTitle($title);
-                printf('<div class="organic-tabs"><h2>%s</h2><ul>',self::$title);
+                static::$title = $this->fixTitle($title);
+                printf('<div class="organic-tabs"><h2>%s</h2><ul>',static::$title);
                 ob_start();
                 array_walk($data,function(&$link,&$label) use (&$node,&$title) {
                     $string = sprintf('<li><a href="%s">%s</a></li>','%s',$label);
@@ -61,7 +61,7 @@ class FOGSubMenu extends FOGBase {
                     else {
                         $string = sprintf($string,"?node=$node&sub=%s");
                         $sub = htmlentities($_REQUEST['sub'],ENT_QUOTES,'utf-8');
-                        if (!$sub || $title == self::$foglang['MainMenu']) printf($string,$link);
+                        if (!$sub || $title == static::$foglang['MainMenu']) printf($string,$link);
                         else if ($this->defaultSubs[$node]) printf($string,"{$this->defaultSubs[$node]}&tab=$link");
                         else printf($string,"$sub&tab=$link");
                     }

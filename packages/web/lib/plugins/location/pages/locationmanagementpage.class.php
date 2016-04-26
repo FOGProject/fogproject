@@ -6,15 +6,15 @@ class LocationManagementPage extends FOGPage {
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                "$this->linkformat" => self::$foglang['General'],
-                $this->membership => self::$foglang['Membership'],
-                "$this->delformat" => self::$foglang['Delete'],
+                "$this->linkformat" => static::$foglang['General'],
+                $this->membership => static::$foglang['Membership'],
+                "$this->delformat" => static::$foglang['Delete'],
             );
             $this->notes = array(
-                self::$foglang['Location'] => $this->obj->get('name'),
-                sprintf('%s %s',self::$foglang['Storage'],self::$foglang['Group']) => $this->obj->getStorageGroup(),
+                static::$foglang['Location'] => $this->obj->get('name'),
+                sprintf('%s %s',static::$foglang['Storage'],static::$foglang['Group']) => $this->obj->getStorageGroup(),
             );
-            if ($this->obj->getStorageNode()->isValid()) $this->notes[sprintf('%s %s',self::$foglang['Storage'],self::$foglang['Node'])] = $this->obj->getStorageNode();
+            if ($this->obj->getStorageNode()->isValid()) $this->notes[sprintf('%s %s',static::$foglang['Storage'],static::$foglang['Node'])] = $this->obj->getStorageNode();
         }
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
@@ -37,13 +37,13 @@ class LocationManagementPage extends FOGPage {
             array('class' => 'c'),
             array('class' => 'r'),
         );
-        self::$returnData = function(&$Location) {
+        static::$returnData = function(&$Location) {
             if (!$Location->isValid()) return;
             $this->data[] = array(
                 'id'=>$Location->get('id'),
                 'name'=>$Location->get('name'),
-                'storageGroup'=>self::getClass('StorageGroup',$Location->get('storageGroupID'))->get('name'),
-                'storageNode'=>$Location->get('storageNodeID')?self::getClass('StorageNode',$Location->get('storageNodeID'))->get('name') : _('Not Set'),
+                'storageGroup'=>static::getClass('StorageGroup',$Location->get('storageGroupID'))->get('name'),
+                'storageNode'=>$Location->get('storageNodeID')?static::getClass('StorageNode',$Location->get('storageNodeID'))->get('name') : _('Not Set'),
                 'tftp'=>$Location->get('tftp') ? _('Yes') : _('No'),
             );
             unset($Location);
@@ -51,16 +51,16 @@ class LocationManagementPage extends FOGPage {
     }
     public function index() {
         $this->title = _('Search');
-        if (self::getSetting('FOG_DATA_RETURNED')>0 && self::getClass('LocationManager')->count() > self::getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if (static::getSetting('FOG_DATA_RETURNED')>0 && static::getClass('LocationManager')->count() > static::getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->find());
-        self::$HookManager->processEvent('LOCATION_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->find());
+        static::$HookManager->processEvent('LOCATION_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function search_post() {
         $this->data = array();
-        array_map(self::$returnData,(array)self::getClass($this->childClass)->getManager()->search('',true));
-        self::$HookManager->processEvent('LOCATION_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(static::$returnData,(array)static::getClass($this->childClass)->getManager()->search('',true));
+        static::$HookManager->processEvent('LOCATION_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
     }
     public function add() {
@@ -76,14 +76,14 @@ class LocationManagementPage extends FOGPage {
         );
         $fields = array(
             _('Location Name') => '<input class="smaller" type="text" name="name" />',
-            _('Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox(),
-            _('Storage Node') => self::getClass('StorageNodeManager')->buildSelectBox(),
+            _('Storage Group') => static::getClass('StorageGroupManager')->buildSelectBox(),
+            _('Storage Node') => static::getClass('StorageNodeManager')->buildSelectBox(),
             _('Use inits and kernels from this node') => '<input type="checkbox" name="tftp" value="on"/>',
             '' => sprintf('<input name="add" class="smaller" type="submit" value="%s"/>',_('Add')),
         );
         array_walk($fields,$this->fieldsToData);
         unset($fields);
-        self::$HookManager->processEvent('LOCATION_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('LOCATION_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         echo '</form>';
@@ -91,15 +91,15 @@ class LocationManagementPage extends FOGPage {
     public function add_post() {
         try {
             $name = trim($_REQUEST['name']);
-            if (self::getClass('LocationManager')->exists(trim($_REQUEST['name']))) throw new Exception(_('Location already Exists, please try again.'));
+            if (static::getClass('LocationManager')->exists(trim($_REQUEST['name']))) throw new Exception(_('Location already Exists, please try again.'));
             if (!$name) throw new Exception(_('Please enter a name for this location.'));
             if (empty($_REQUEST['storagegroup'])) throw new Exception(_('Please select the storage group this location relates to.'));
-            $Location = self::getClass('Location')
+            $Location = static::getClass('Location')
                 ->set('name',$name)
                 ->set('storageGroupID',$_REQUEST['storagegroup'])
                 ->set('storageNodeID',$_REQUEST['storagenode'])
                 ->set('tftp',$_REQUEST['tftp']);
-            if ($_REQUEST['storagenode'] && $Location->get('storageGroupID') != self::getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID')) $Location->set('storageGroupID',self::getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID'));
+            if ($_REQUEST['storagenode'] && $Location->get('storageGroupID') != static::getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID')) $Location->set('storageGroupID',static::getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID'));
             if (!$Location->save()) throw new Exception(_('Failed to create'));
             $this->setMessage(_('Location Added, editing!'));
             $this->redirect(sprintf('?node=location&sub=edit&id=%s',$Location->get('id')));
@@ -121,8 +121,8 @@ class LocationManagementPage extends FOGPage {
         );
         $fields = array(
             _('Location Name') => sprintf('<input class="smaller" type="text" name="name" value="%s"/>',$this->obj->get('name')),
-            _('Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox($this->obj->get('storageGroupID')),
-            _('Storage Node') => self::getClass('StorageNodeManager')->buildSelectBox($this->obj->get('storageNodeID')),
+            _('Storage Group') => static::getClass('StorageGroupManager')->buildSelectBox($this->obj->get('storageGroupID')),
+            _('Storage Node') => static::getClass('StorageNodeManager')->buildSelectBox($this->obj->get('storageNodeID')),
             _('Use inits and kernels from this node') => sprintf('<input type="checkbox" name="tftp" value="on"%s/>',$this->obj->get('tftp') ? ' checked' : ''),
             '&nbsp;' => sprintf('<input type="submit" class="smaller" name="update" value="%s"/>',_('Update')),
         );
@@ -134,13 +134,13 @@ class LocationManagementPage extends FOGPage {
             unset($input);
         }
         unset($fields);
-        self::$HookManager->processEvent('LOCATION_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        static::$HookManager->processEvent('LOCATION_EDIT',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&id=%d">',$this->formAction,$this->obj->get('id'));
         $this->render();
         echo '</form>';
     }
     public function edit_post() {
-        self::$HookManager->processEvent('LOCATION_EDIT_POST',array('Location'=> &$this->obj));
+        static::$HookManager->processEvent('LOCATION_EDIT_POST',array('Location'=> &$this->obj));
         try {
             if ($_REQUEST['name'] != $this->obj->get('name') && $this->obj->getManager()->exists($_REQUEST['name'])) throw new Exception(_('A location with that name already exists.'));
             if (isset($_REQUEST['update'])) {

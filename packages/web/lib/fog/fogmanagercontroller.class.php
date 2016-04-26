@@ -11,7 +11,7 @@ abstract class FOGManagerController extends FOGBase {
     public function __construct() {
         parent::__construct();
         $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
-        $classVars = self::getClass($this->childClass,'',true);
+        $classVars = static::getClass($this->childClass,'',true);
         $this->databaseTable = $classVars['databaseTable'];
         $this->databaseFields = $classVars['databaseFields'];
         $this->databaseFieldsRequired = $classVars['databaseFieldsRequired'];
@@ -30,20 +30,21 @@ abstract class FOGManagerController extends FOGBase {
         if (count($findWhere)) {
             $count = 0;
             $whereArray = array();
-            foreach ($findWhere AS $field => $value) {
+            array_walk($findWhere,function(&$value,&$field) use (&$count,&$onecompare,&$compare,&$whereArray,&$not) {
                 $field = trim($field);
                 if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN ('%s')",$this->databaseTable,$this->databaseFields[$field],$not,implode("','",$value));
                 else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? "'".(string)$value."'" : null));
                 $count++;
                 unset($value);
-            }
+                return ($whereArray);
+            });
         }
         if (!is_array($orderBy)) {
             $orderBy = sprintf('ORDER BY %s`%s`.`%s`%s',($orderBy == 'name' ? 'LOWER(' : ''),$this->databaseTable,$this->databaseFields[$orderBy],($orderBy == 'name' ? ')' : ''));
             if ($groupBy) $groupBy = sprintf('GROUP BY `%s`.`%s`',$this->databaseTable,$this->databaseFields[$groupBy]);
             else $groupBy = '';
         } else $orderBy = '';
-        list($join, $whereArrayAnd) = self::getClass($this->childClass)->buildQuery($not, $compare);
+        list($join, $whereArrayAnd) = static::getClass($this->childClass)->buildQuery($not, $compare);
         $isEnabled = false;
         if (!in_array($this->childClass,array('Image','Snapin','StorageNode')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
         $query = sprintf(
@@ -76,7 +77,6 @@ abstract class FOGManagerController extends FOGBase {
                 $sort
             );
         }
-        $data = array();
         if ($idField) {
             $idField = array_map(function(&$item) {
                 return trim($item);
@@ -84,25 +84,20 @@ abstract class FOGManagerController extends FOGBase {
             $htmlEntDecode = function(&$item) {
                 return html_entity_decode($item,ENT_QUOTES,'utf-8');
             };
-            $tmp = array();
-            foreach ((array)$idField AS &$item) {
-                foreach ((array)self::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$item]) AS &$temp) {
-                    $tmp[] = html_entity_decode($temp,ENT_QUOTES,'utf-8');
-                    unset($temp);
-                }
+            $data = array();
+            array_map(function(&$item) use ($query,$htmlEntDecode,&$data) {
+                $tmp = array_map($htmlEntDecode,(array)static::$DB->query($query)->fetch('','fetch_all')->get($this->databaseFields[$item]));
                 $data[$item] = count($tmp) === 1 ? array_shift($tmp) : $tmp;
-                unset($item);
-            }
+            },(array)$idField);
             if (count($data) === 1) {
                 if ($filter) return @$filter((array)array_shift($data));
                 return array_shift($data);
             }
             if (empty($filter)) return $data;
         } else {
-            foreach ((array)self::$DB->query($query)->fetch('','fetch_all')->get() AS &$item) {
-                $data[] = self::getClass($this->childClass)->setQuery($item);
-                unset($item);
-            }
+            $data = array_map(function(&$item) {
+                return static::getClass($this->childClass)->setQuery($item);
+            },(array)static::$DB->query($query)->fetch('','fetch_all')->get());
         }
         if ($filter) return @$filter(array_values(array_filter((array)$data)));
         return array_values(array_filter((array)$data));
@@ -128,7 +123,7 @@ abstract class FOGManagerController extends FOGBase {
             $this->databaseTable,
             (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : ''))
         );
-        return (int)self::$DB->query($query)->fetch()->get('total');
+        return (int)static::$DB->query($query)->fetch()->get('total');
     }
     public function insert_batch($fields,$values) {
         $fieldlength = count($fields);
@@ -144,13 +139,13 @@ abstract class FOGManagerController extends FOGBase {
         },(array)$fields);
         $vals = array_map(function(&$value) {
             $value = array_map(function($value) {
-                return self::$DB->sanitize($value);
+                return static::$DB->sanitize($value);
             },(array)$value);
             return sprintf("('%s')",implode("','",(array)$value));
         },(array)$values);
         $query = sprintf($this->insertBatchTemplate,$this->databaseTable,implode('`,`',$keys),implode(',',$vals));
-        self::$DB->query($query);
-        return array(self::$DB->insert_id(),self::$DB->affected_rows());
+        static::$DB->query($query);
+        return array(static::$DB->insert_id(),static::$DB->affected_rows());
     }
     public function update($findWhere = array(), $whereOperator = 'AND', $insertData) {
         if (empty($findWhere)) $findWhere = array();
@@ -159,7 +154,7 @@ abstract class FOGManagerController extends FOGBase {
         array_walk($insertData,function(&$value,&$field) use (&$insertArray) {
             $field = trim($field);
             $insertKey = sprintf('`%s`.`%s`',$this->databaseTable,$this->databaseFields[$field]);
-            $insertVal = self::$DB->sanitize($value);
+            $insertVal = static::$DB->sanitize($value);
             $insertArray[] = sprintf("%s='%s'",$insertKey,$insertVal);
             unset($value);
         });
@@ -178,7 +173,7 @@ abstract class FOGManagerController extends FOGBase {
             implode(',',(array)$insertArray),
             (count($whereArray) ? ' WHERE '.implode(' '.$whereOperator.' ',(array)$whereArray) : '')
         );
-        return (bool)self::$DB->query($query)->fetch()->get();
+        return (bool)static::$DB->query($query)->fetch()->get();
     }
     public function destroy($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false) {
         if (empty($findWhere)) $findWhere = array();
@@ -195,7 +190,7 @@ abstract class FOGManagerController extends FOGBase {
             $this->databaseFields['id'],
             implode("','",(array)$ids)
         );
-        return self::$DB->query($query)->fetch()->get();
+        return static::$DB->query($query)->fetch()->get();
     }
     public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '', $template = false) {
         $matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
@@ -208,7 +203,7 @@ abstract class FOGManagerController extends FOGBase {
             unset($Object);
             return $listArray;
         },(array)$this->find($filter ? array('id'=>$filter):'','',$orderBy,'','','',($filter ? true : false)));
-        return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',($template ? '${selector_name}' : $elementName),"- ".self::$foglang['PleaseSelect']." -",implode($listArray)) : false);
+        return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',($template ? '${selector_name}' : $elementName),"- ".static::$foglang['PleaseSelect']." -",implode($listArray)) : false);
     }
     public function exists($name, $id = 0, $idField = 'name') {
         if (empty($id)) $id = 0;
@@ -225,65 +220,65 @@ abstract class FOGManagerController extends FOGBase {
             $this->databaseFields[$idField],
             $id
         );
-        return (bool)self::$DB->query($query)->fetch()->get('total');
+        return (bool)static::$DB->query($query)->fetch()->get('total');
     }
     public function search($keyword = '',$returnObjects = false) {
-        if (empty($keyword)) $keyword = trim(self::$isMobile ? $_REQUEST['host-search'] : $_REQUEST['crit']);
+        if (empty($keyword)) $keyword = trim(static::$isMobile ? $_REQUEST['host-search'] : $_REQUEST['crit']);
         $mac_keyword = join(':',str_split(str_replace(array('-',':'),'',$keyword),2));
         $mac_keyword = preg_replace('#[%\+\s\+]#','%',sprintf('%%%s%%',$mac_keyword));
         if (empty($keyword)) $keyword = '%';
-        if ($keyword === '%') return self::getClass($this->childClass)->getManager()->find();
+        if ($keyword === '%') return static::getClass($this->childClass)->getManager()->find();
         $keyword = preg_replace('#[%\+\s\+]#','%',sprintf('%%%s%%',$keyword));
         $_SESSION['caller'] = __FUNCTION__;
         $this->array_remove($this->aliasedFields,$this->databaseFields);
         $findWhere = array_fill_keys(array_keys($this->databaseFields),$keyword);
-        $itemIDs = self::getSubObjectIDs($this->childClass,$findWhere,'id','','OR');
-        $HostIDs = self::getSubObjectIDs('Host',array('name'=>$keyword,'description'=>$keyword,'ip'=>$keyword),'','','OR');
+        $itemIDs = static::getSubObjectIDs($this->childClass,$findWhere,'id','','OR');
+        $HostIDs = static::getSubObjectIDs('Host',array('name'=>$keyword,'description'=>$keyword,'ip'=>$keyword),'','','OR');
         switch (strtolower($this->childClass)) {
         case 'user':
             break;
         case 'host':
-            $HostIDs = self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$mac_keyword,'description'=>$keyword),'hostID','','OR');
-            $HostIDs = array_merge($HostIDs,self::getSubObjectIDs('Inventory',array('sysserial'=>$keyword,'caseserial'=>$keyword,'mbserial'=>$keyword,'primaryUser'=>$keyword,'other1'=>$keyword,'other2'=>$keyword,'sysman'=>$keyword,'sysproduct'=>$keyword),'hostID','','OR'));
-            $ImageIDs = self::getSubObjectIDs('Image',array('name'=>$keyword,'description'=>$keyword),'','','OR');
-            $GroupIDs = self::getSubObjectIDs('Group',array('name'=>$keyword,'description'=>$keyword),'','','OR');
-            $SnapinIDs = self::getSubObjectIDs('Snapin',array('name'=>$keyword,'description'=>$keyword),'','','OR');
-            $PrinterIDs = self::getSubObjectIDs('Printer',array('name'=>$keyword,'description'=>$keyword),'','','OR');
-            if (count($ImageIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('Host',array('imageID'=>$ImageIDs)));
-            if (count($GroupIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('GroupAssociation',array('groupID'=>$GroupIDs),'hostID'));
-            if (count($SnapinIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('SnapinAssociation',array('snapinID'=>$SnapinIDs),'hostID'));
-            if (count($PrinterIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$PrinterIDs),'hostID'));
+            $HostIDs = static::getSubObjectIDs('MACAddressAssociation',array('mac'=>$mac_keyword,'description'=>$keyword),'hostID','','OR');
+            $HostIDs = array_merge($HostIDs,static::getSubObjectIDs('Inventory',array('sysserial'=>$keyword,'caseserial'=>$keyword,'mbserial'=>$keyword,'primaryUser'=>$keyword,'other1'=>$keyword,'other2'=>$keyword,'sysman'=>$keyword,'sysproduct'=>$keyword),'hostID','','OR'));
+            $ImageIDs = static::getSubObjectIDs('Image',array('name'=>$keyword,'description'=>$keyword),'','','OR');
+            $GroupIDs = static::getSubObjectIDs('Group',array('name'=>$keyword,'description'=>$keyword),'','','OR');
+            $SnapinIDs = static::getSubObjectIDs('Snapin',array('name'=>$keyword,'description'=>$keyword),'','','OR');
+            $PrinterIDs = static::getSubObjectIDs('Printer',array('name'=>$keyword,'description'=>$keyword),'','','OR');
+            if (count($ImageIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('Host',array('imageID'=>$ImageIDs)));
+            if (count($GroupIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('GroupAssociation',array('groupID'=>$GroupIDs),'hostID'));
+            if (count($SnapinIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('SnapinAssociation',array('snapinID'=>$SnapinIDs),'hostID'));
+            if (count($PrinterIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('PrinterAssociation',array('printerID'=>$PrinterIDs),'hostID'));
             $itemIDs = array_merge($itemIDs,$HostIDs);
             break;
         case 'image':
-            if (count($HostIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('Host',array('id'=>$HostIDs),'imageID'));
+            if (count($HostIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('Host',array('id'=>$HostIDs),'imageID'));
             break;
         case 'task':
-            $TaskStateIDs = self::getSubObjectIDs('TaskState',array('name'=>$keyword,'description'=>$keyword),'','','OR');
-            $TaskTypeIDs = self::getSubObjectIDs('TaskType',array('name'=>$keyword,'description'=>$keyword),'','','OR');
-            $ImageIDs = self::getSubObjectIDs('Image',array('name'=>$keyword,'description'=>$keyword),'','','OR');
-            $GroupIDs = self::getSubObjectIDs('Group',array('name'=>$keyword,'description'=>$keyword),'','','OR');
-            $SnapinIDs = self::getSubObjectIDs('Snapin',array('name'=>$keyword,'description'=>$keyword),'','','OR');
-            $PrinterIDs = self::getSubObjectIDs('Printer',array('name'=>$keyword,'description'=>$keyword),'','','OR');
-            if (count($ImageIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('Host',array('imageID'=>$ImageIDs)));
-            if (count($GroupIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('GroupAssociation',array('groupID'=>$GroupIDs),'hostID'));
-            if (count($SnapinIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('SnapinAssociation',array('snapinID'=>$SnapinIDs),'hostID'));
-            if (count($PrinterIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$PrinterIDs),'hostID'));
-            if (count($TaskStateIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('Task',array('stateID'=>$TaskStateIDs)));
-            if (count($TaskTypeIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('Task',array('typeID'=>$TaskTypeIDs)));
-            if (count($HostIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('Task',array('hostID'=>$HostIDs)));
+            $TaskStateIDs = static::getSubObjectIDs('TaskState',array('name'=>$keyword,'description'=>$keyword),'','','OR');
+            $TaskTypeIDs = static::getSubObjectIDs('TaskType',array('name'=>$keyword,'description'=>$keyword),'','','OR');
+            $ImageIDs = static::getSubObjectIDs('Image',array('name'=>$keyword,'description'=>$keyword),'','','OR');
+            $GroupIDs = static::getSubObjectIDs('Group',array('name'=>$keyword,'description'=>$keyword),'','','OR');
+            $SnapinIDs = static::getSubObjectIDs('Snapin',array('name'=>$keyword,'description'=>$keyword),'','','OR');
+            $PrinterIDs = static::getSubObjectIDs('Printer',array('name'=>$keyword,'description'=>$keyword),'','','OR');
+            if (count($ImageIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('Host',array('imageID'=>$ImageIDs)));
+            if (count($GroupIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('GroupAssociation',array('groupID'=>$GroupIDs),'hostID'));
+            if (count($SnapinIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('SnapinAssociation',array('snapinID'=>$SnapinIDs),'hostID'));
+            if (count($PrinterIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('PrinterAssociation',array('printerID'=>$PrinterIDs),'hostID'));
+            if (count($TaskStateIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('Task',array('stateID'=>$TaskStateIDs)));
+            if (count($TaskTypeIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('Task',array('typeID'=>$TaskTypeIDs)));
+            if (count($HostIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs('Task',array('hostID'=>$HostIDs)));
             break;
         default:
             $assoc = sprintf('%sAssociation',$this->childClass);
             $objID = sprintf('%sID',strtolower($this->childClass));
             if (!class_exists($assoc)) break;
             if (count($itemIDs) && !count($HostIDs)) break;
-            $HostIDs = array_merge($HostIDs,self::getSubObjectIDs($assoc,array($objID=>$itemIDs),'hostID'));
-            if (count($HostIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs($assoc,array('hostID'=>$HostIDs),$objID));
+            $HostIDs = array_merge($HostIDs,static::getSubObjectIDs($assoc,array($objID=>$itemIDs),'hostID'));
+            if (count($HostIDs)) $itemIDs = array_merge($itemIDs,static::getSubObjectIDs($assoc,array('hostID'=>$HostIDs),$objID));
             break;
         }
         $itemIDs = array_values(array_filter(array_unique($itemIDs)));
-        if ($returnObjects) return self::getClass($this->childClass)->getManager()->find(array('id'=>$itemIDs));
+        if ($returnObjects) return static::getClass($this->childClass)->getManager()->find(array('id'=>$itemIDs));
         return $itemIDs;
     }
 }

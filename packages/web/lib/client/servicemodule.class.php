@@ -13,7 +13,7 @@ class ServiceModule extends FOGClient implements FOGClientSend {
         if (!in_array($mod,$this->getGlobalModuleStatus(false,true))) throw new Exception('#!um');
         $moduleName = $this->getGlobalModuleStatus();
         if (!$moduleName[$mod]) throw new Exception("#!ng\n");
-        $modID = self::getSubObjectIDs('Module',array('shortName'=>$mod));
+        $modID = static::getSubObjectIDs('Module',array('shortName'=>$mod));
         $activeIDs = $this->Host->get('modules');
         $this->send = sprintf("%s\n",in_array(array_shift($modID),(array)$this->Host->get('modules')) ? '#!ok' : '#!nh');
     }
