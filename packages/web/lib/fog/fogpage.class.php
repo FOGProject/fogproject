@@ -802,7 +802,7 @@ abstract class FOGPage extends FOGBase {
         if (isset($_REQUEST['authorize'])) $this->authorize(true);
         try {
             $globalModules = array_diff($this->getGlobalModuleStatus(false,true),array('dircleanup','usercleanup','clientupdater','hostregister'));
-            $Host = $this->getHostItem(true,false,false,false,isset($_REQUEST['newService']));
+            $this->Host = $this->getHostItem(true,false,false,false,isset($_REQUEST['newService']));
             $hostModules = self::getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName');
             $hostModules = array_values(array_intersect($globalModules,(array)$hostModules));
             $array = array();
@@ -829,7 +829,7 @@ abstract class FOGPage extends FOGBase {
                 $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
                 unset($key);
             }
-            $this->sendData(json_encode($array),$Host);
+            $this->sendData(json_encode($array),true);
         } catch (Exception $e) {
             echo $e->getMessage();
         }
