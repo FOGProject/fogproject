@@ -29,7 +29,7 @@ abstract class FOGPage extends FOGBase {
     protected $childClass;
     private static $initializedController = false;
     private static function init($class) {
-        if (in_array($class,array('Home','About','Storage','Report')) || self::$initializedController === hash('sha512',$class)) return;
+        if (in_array($class,array('Home','About','Storage','Report','SchemaUpdater')) || self::$initializedController === hash('sha512',$class)) return;
         $classVars = self::getClass($class,'',true);
         self::$databaseTable = $classVars['databaseTable'];
         self::$databaseFields = $classVars['databaseFields'];
