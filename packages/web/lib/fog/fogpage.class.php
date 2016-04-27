@@ -790,6 +790,7 @@ abstract class FOGPage extends FOGBase {
             print_r($this->getGlobalModuleStatus(false,true));
             exit;
         }
+        $this->newService = true;
         if (isset($_REQUEST['configure'])) {
             $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_SERVICE_CHECKIN_TIME','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
             $vals['maxsize'] = (int)$Services[0];
