@@ -1,6 +1,12 @@
 <?php
 abstract class FOGManagerController extends FOGBase {
-    protected $childClass;
+    protected static $childClass;
+    protected static $databaseTable;
+    protected static $databaseFields;
+    protected static $databaseFieldsRequired;
+    protected static $databaseFieldClassRelationships;
+    protected static $additionalFields;
+    private static $initializedController = false;
     protected $loadQueryTemplate = 'SELECT * FROM `%s` %s %s %s %s %s';
     protected $loadQueryGroupTemplate = 'SELECT * FROM (%s) `%s` %s %s %s %s %s';
     protected $countQueryTemplate = 'SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s`%s LIMIT 1';
@@ -8,16 +14,21 @@ abstract class FOGManagerController extends FOGBase {
     protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`.`%s` IN ('%s')";
     protected $existsQueryTemplate = "SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s` WHERE `%s`.`%s`='%s' AND `%s`.`%s` <> '%s'";
     protected $insertBatchTemplate = "INSERT INTO `%s` (`%s`) VALUES %s";
+    private static function init($class) {
+        if (self::$initializedController === hash('sha512',$class)) return;
+        self::$childClass = preg_replace('#_?Manager$#','',$class);
+        $classVars = self::getClass(self::$childClass,'',true);
+        self::$databaseTable = $classVars['databaseTable'];
+        self::$databaseFields = $classVars['databaseFields'];
+        self::$databaseFieldsRequired = $classVars['databaseFieldsRequired'];
+        self::$databaseFieldClassRelationships = $classVars['databaseFieldClassRelationships'];
+        self::$additionalFields = $classVars['additionalFields'];
+        unset($classVars);
+        self::$initializedController = hash('sha512',$class);
+    }
     public function __construct() {
         parent::__construct();
-        $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
-        $classVars = self::getClass($this->childClass,'',true);
-        $this->databaseTable = $classVars['databaseTable'];
-        $this->databaseFields = $classVars['databaseFields'];
-        $this->databaseFieldsRequired = $classVars['databaseFieldsRequired'];
-        $this->databaseFieldClassRelationships = $classVars['databaseFieldClassRelationships'];
-        $this->additionalFields = $classVars['additionalFields'];
-        unset($classVars);
+        self::init(get_class($this));
     }
     public function find($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false, $idField = false,$onecompare = true,$filter = 'array_unique') {
         // Fail safe defaults
@@ -32,24 +43,24 @@ abstract class FOGManagerController extends FOGBase {
             $whereArray = array();
             array_walk($findWhere,function(&$value,&$field) use (&$count,&$onecompare,&$compare,&$whereArray,&$not) {
                 $field = trim($field);
-                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN ('%s')",$this->databaseTable,$this->databaseFields[$field],$not,implode("','",$value));
-                else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? "'".(string)$value."'" : null));
+                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN ('%s')",self::$databaseTable,self::$databaseFields[$field],$not,implode("','",$value));
+                else $whereArray[] = sprintf("`%s`.`%s`%s%s",self::$databaseTable,self::$databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? "'".(string)$value."'" : null));
                 $count++;
                 unset($value);
                 return ($whereArray);
             });
         }
         if (!is_array($orderBy)) {
-            $orderBy = sprintf('ORDER BY %s`%s`.`%s`%s',($orderBy == 'name' ? 'LOWER(' : ''),$this->databaseTable,$this->databaseFields[$orderBy],($orderBy == 'name' ? ')' : ''));
-            if ($groupBy) $groupBy = sprintf('GROUP BY `%s`.`%s`',$this->databaseTable,$this->databaseFields[$groupBy]);
+            $orderBy = sprintf('ORDER BY %s`%s`.`%s`%s',($orderBy == 'name' ? 'LOWER(' : ''),self::$databaseTable,self::$databaseFields[$orderBy],($orderBy == 'name' ? ')' : ''));
+            if ($groupBy) $groupBy = sprintf('GROUP BY `%s`.`%s`',self::$databaseTable,self::$databaseFields[$groupBy]);
             else $groupBy = '';
         } else $orderBy = '';
-        list($join, $whereArrayAnd) = self::getClass($this->childClass)->buildQuery($not, $compare);
+        list($join, $whereArrayAnd) = self::getClass(self::$childClass)->buildQuery($not, $compare);
         $isEnabled = false;
-        if (!in_array($this->childClass,array('Image','Snapin','StorageNode')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
+        if (!in_array(self::$childClass,array('Image','Snapin','StorageNode')) && array_key_exists('isEnabled',self::$databaseFields)) $isEnabled = sprintf('`%s`=1',self::$databaseFields['isEnabled']);
         $query = sprintf(
             $this->loadQueryTemplate,
-            $this->databaseTable,
+            self::$databaseTable,
             $join,
             (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : '')),
             (count($whereArrayAnd) ? (count($whereArray) ? sprintf('AND %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd)) : sprintf('WHERE %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd))) : ''),
@@ -61,14 +72,14 @@ abstract class FOGManagerController extends FOGBase {
                 $this->loadQueryGroupTemplate,
                 sprintf(
                     $this->loadQueryTemplate,
-                    $this->databaseTable,
+                    self::$databaseTable,
                     $join,
                     (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : '')),
                     (count($whereArrayAnd) ? (count($whereArray) ? sprintf('AND %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd)) : sprintf('WHERE %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd))) : ''),
                     $orderBy,
                     $sort
                 ),
-                $this->databaseTable,
+                self::$databaseTable,
                 $join,
                 (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : '')),
                 (count($whereArrayAnd) ? (count($whereArray) ? sprintf('AND %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd)) : sprintf('WHERE %s',implode(sprintf(' %s ',$whereOperator),(array)$whereArrayAnd))) : ''),
@@ -86,7 +97,7 @@ abstract class FOGManagerController extends FOGBase {
                 return html_entity_decode($item,ENT_QUOTES,'utf-8');
             };
             array_map(function(&$item) use ($query,$htmlEntDecode,&$data) {
-                $tmp = array_map($htmlEntDecode,(array)self::$DB->query($query)->fetch('','fetch_all')->get($item ? $this->databaseFields[$item] : ''));
+                $tmp = array_map($htmlEntDecode,(array)self::$DB->query($query)->fetch('','fetch_all')->get($item ? self::$databaseFields[$item] : ''));
                 $data[$item] = count($tmp) === 1 ? array_shift($tmp) : $tmp;
             },(array)$idField);
             if (count($data) === 1) {
@@ -96,7 +107,7 @@ abstract class FOGManagerController extends FOGBase {
             if (empty($filter)) return $data;
         } else {
             $data = array_map(function(&$item) {
-                return self::getClass($this->childClass)->setQuery($item);
+                return self::getClass(self::$childClass)->setQuery($item);
             },(array)self::$DB->query($query)->fetch('','fetch_all')->get());
         }
         if ($filter) return @$filter(array_values(array_filter((array)$data)));
@@ -109,18 +120,18 @@ abstract class FOGManagerController extends FOGBase {
         if (count($findWhere)) {
             array_walk($findWhere,function(&$value,&$field) use (&$whereArray,$compare){
                 $field = trim($field);
-                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s` IN ('%s')",$this->databaseTable,$this->databaseFields[$field],implode("','",$value));
-                else $whereArray[] = sprintf("`%s`.`%s`%s'%s'",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? 'LIKE' : $compare), (string)$value);
+                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s` IN ('%s')",self::$databaseTable,self::$databaseFields[$field],implode("','",$value));
+                else $whereArray[] = sprintf("`%s`.`%s`%s'%s'",self::$databaseTable,self::$databaseFields[$field],(preg_match('#%#',(string)$value) ? 'LIKE' : $compare), (string)$value);
                 unset($value,$field);
             });
         }
         $isEnabled = false;
-        if (!in_array($this->childClass,array('Image','Snapin')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
+        if (!in_array(self::$childClass,array('Image','Snapin')) && array_key_exists('isEnabled',self::$databaseFields)) $isEnabled = sprintf('`%s`=1',self::$databaseFields['isEnabled']);
         $query = sprintf(
             $this->countQueryTemplate,
-            $this->databaseTable,
-            $this->databaseFields['id'],
-            $this->databaseTable,
+            self::$databaseTable,
+            self::$databaseFields['id'],
+            self::$databaseTable,
             (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : ''))
         );
         return (int)self::$DB->query($query)->fetch()->get('total');
@@ -135,7 +146,7 @@ abstract class FOGManagerController extends FOGBase {
             if ($fieldlength !== $valuelength) die(_('Field and values do not have equal parameters.'));
         },(array)$values);
         $keys = array_map(function(&$key) {
-            return $this->databaseFields[$key];
+            return self::$databaseFields[$key];
         },(array)$fields);
         $vals = array_map(function(&$value) {
             $value = array_map(function($value) {
@@ -143,7 +154,7 @@ abstract class FOGManagerController extends FOGBase {
             },(array)$value);
             return sprintf("('%s')",implode("','",(array)$value));
         },(array)$values);
-        $query = sprintf($this->insertBatchTemplate,$this->databaseTable,implode('`,`',$keys),implode(',',$vals));
+        $query = sprintf($this->insertBatchTemplate,self::$databaseTable,implode('`,`',$keys),implode(',',$vals));
         self::$DB->query($query);
         return array(self::$DB->insert_id(),self::$DB->affected_rows());
     }
@@ -153,7 +164,7 @@ abstract class FOGManagerController extends FOGBase {
         $insertArray = array();
         array_walk($insertData,function(&$value,&$field) use (&$insertArray) {
             $field = trim($field);
-            $insertKey = sprintf('`%s`.`%s`',$this->databaseTable,$this->databaseFields[$field]);
+            $insertKey = sprintf('`%s`.`%s`',self::$databaseTable,self::$databaseFields[$field]);
             $insertVal = self::$DB->sanitize($value);
             $insertArray[] = sprintf("%s='%s'",$insertKey,$insertVal);
             unset($value);
@@ -162,14 +173,14 @@ abstract class FOGManagerController extends FOGBase {
             $whereArray = array();
             array_walk($findWhere,function(&$value,&$field) use (&$whereArray) {
                 $field = trim($field);
-                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s` IN ('%s')",$this->databaseTable,$this->databaseFields[$field],implode("','",$value));
-                else $whereArray[] = sprintf("`%s`.`%s`%s'%s'",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? 'LIKE' : '='), (string)$value);
+                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s` IN ('%s')",self::$databaseTable,self::$databaseFields[$field],implode("','",$value));
+                else $whereArray[] = sprintf("`%s`.`%s`%s'%s'",self::$databaseTable,self::$databaseFields[$field],(preg_match('#%#',(string)$value) ? 'LIKE' : '='), (string)$value);
                 unset($value,$field);
             });
         }
         $query = sprintf(
             $this->updateQueryTemplate,
-            $this->databaseTable,
+            self::$databaseTable,
             implode(',',(array)$insertArray),
             (count($whereArray) ? ' WHERE '.implode(' '.$whereOperator.' ',(array)$whereArray) : '')
         );
@@ -185,20 +196,20 @@ abstract class FOGManagerController extends FOGBase {
         else $ids = $this->find($findWhere, $whereOperator, $orderBy, $sort, $compare, $groupBy, $not, 'id');
         $query = sprintf(
             $this->destroyQueryTemplate,
-            $this->databaseTable,
-            $this->databaseTable,
-            $this->databaseFields['id'],
+            self::$databaseTable,
+            self::$databaseTable,
+            self::$databaseFields['id'],
             implode("','",(array)$ids)
         );
         return self::$DB->query($query)->fetch()->get();
     }
     public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '', $template = false) {
         $matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
-        if (empty($elementName)) $elementName = strtolower($this->childClass);
+        if (empty($elementName)) $elementName = strtolower(self::$childClass);
         $this->orderBy($orderBy);
         $listArray = array_map(function(&$Object) use (&$matchID,&$elementName,&$orderBy,&$filter,&$template) {
             if (!$Object->isValid()) return;
-            if (array_key_exists('isEnabled',$this->databaseFields) && !$Object->get('isEnabled')) return;
+            if (array_key_exists('isEnabled',self::$databaseFields) && !$Object->get('isEnabled')) return;
             $listArray = sprintf('<option value="%s"%s>%s</option>',$Object->get('id'),($matchID == $Object->get('id') ? ' selected' : ($template ? " \${selected_item{$Object->get(id)}" : '')),"{$Object->get(name)} - ({$Object->get(id)})");
             unset($Object);
             return $listArray;
@@ -210,14 +221,14 @@ abstract class FOGManagerController extends FOGBase {
         if (empty($idField)) $idField = 'name';
         $query = sprintf(
             $this->existsQueryTemplate,
-            $this->databaseTable,
-            $this->databaseFields[$idField],
-            $this->databaseTable,
-            $this->databaseTable,
-            $this->databaseFields[$idField],
+            self::$databaseTable,
+            self::$databaseFields[$idField],
+            self::$databaseTable,
+            self::$databaseTable,
+            self::$databaseFields[$idField],
             $name,
-            $this->databaseTable,
-            $this->databaseFields[$idField],
+            self::$databaseTable,
+            self::$databaseFields[$idField],
             $id
         );
         return (bool)self::$DB->query($query)->fetch()->get('total');
@@ -227,14 +238,14 @@ abstract class FOGManagerController extends FOGBase {
         $mac_keyword = join(':',str_split(str_replace(array('-',':'),'',$keyword),2));
         $mac_keyword = preg_replace('#[%\+\s\+]#','%',sprintf('%%%s%%',$mac_keyword));
         if (empty($keyword)) $keyword = '%';
-        if ($keyword === '%') return self::getClass($this->childClass)->getManager()->find();
+        if ($keyword === '%') return self::getClass(self::$childClass)->getManager()->find();
         $keyword = preg_replace('#[%\+\s\+]#','%',sprintf('%%%s%%',$keyword));
         $_SESSION['caller'] = __FUNCTION__;
-        $this->array_remove($this->aliasedFields,$this->databaseFields);
-        $findWhere = array_fill_keys(array_keys($this->databaseFields),$keyword);
-        $itemIDs = self::getSubObjectIDs($this->childClass,$findWhere,'id','','OR');
+        $this->array_remove($this->aliasedFields,self::$databaseFields);
+        $findWhere = array_fill_keys(array_keys(self::$databaseFields),$keyword);
+        $itemIDs = self::getSubObjectIDs(self::$childClass,$findWhere,'id','','OR');
         $HostIDs = self::getSubObjectIDs('Host',array('name'=>$keyword,'description'=>$keyword,'ip'=>$keyword),'','','OR');
-        switch (strtolower($this->childClass)) {
+        switch (strtolower(self::$childClass)) {
         case 'user':
             break;
         case 'host':
@@ -269,8 +280,8 @@ abstract class FOGManagerController extends FOGBase {
             if (count($HostIDs)) $itemIDs = array_merge($itemIDs,self::getSubObjectIDs('Task',array('hostID'=>$HostIDs)));
             break;
         default:
-            $assoc = sprintf('%sAssociation',$this->childClass);
-            $objID = sprintf('%sID',strtolower($this->childClass));
+            $assoc = sprintf('%sAssociation',self::$childClass);
+            $objID = sprintf('%sID',strtolower(self::$childClass));
             if (!class_exists($assoc)) break;
             if (count($itemIDs) && !count($HostIDs)) break;
             $HostIDs = array_merge($HostIDs,self::getSubObjectIDs($assoc,array($objID=>$itemIDs),'hostID'));
@@ -278,7 +289,7 @@ abstract class FOGManagerController extends FOGBase {
             break;
         }
         $itemIDs = array_values(array_filter(array_unique($itemIDs)));
-        if ($returnObjects) return self::getClass($this->childClass)->getManager()->find(array('id'=>$itemIDs));
+        if ($returnObjects) return self::getClass(self::$childClass)->getManager()->find(array('id'=>$itemIDs));
         return $itemIDs;
     }
 }
