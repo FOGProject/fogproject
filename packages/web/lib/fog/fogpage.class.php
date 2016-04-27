@@ -1,5 +1,10 @@
 <?php
 abstract class FOGPage extends FOGBase {
+    protected static $databaseTable;
+    protected static $databaseFields;
+    protected static $databaseFieldsRequired;
+    protected static $databaseFieldClassRelationships;
+    protected static $additionalFields;
     public $name = '';
     public $node = '';
     public $id = 'id';
@@ -22,15 +27,28 @@ abstract class FOGPage extends FOGBase {
     protected $formAction;
     protected $formPostAction;
     protected $childClass;
+    private static $initializedController = false;
+    private static function init($class) {
+        if ($class === 'Home' || self::$initializedController === hash('sha512',$class)) return;
+        $classVars = self::getClass($class,'',true);
+        self::$databaseTable = $classVars['databaseTable'];
+        self::$databaseFields = $classVars['databaseFields'];
+        self::$databaseFieldsRequired = $classVars['databaseFieldsRequired'];
+        self::$databaseFieldClassRelationships = $classVars['databaseFieldClassRelationships'];
+        self::$additionalFields = $classVars['additionalFields'];
+        unset($classVars);
+        self::$initializedController = hash('sha512',$class);
+    }
     public function __construct($name = '') {
         parent::__construct();
         global $sub;
         if (in_array($sub,array('configure','authorize','requestClientInfo'))) return $this->{$sub}();
+        $this->childClass = ucfirst($this->node);
+        self::init($this->childClass);
         if (!empty($name)) $this->name = $name;
         $this->title = $this->name;
         $PagesWithObjects = array('user','host','image','group','snapin','printer');
         self::$HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
-        $this->childClass = ucfirst($this->node);
         if (in_array($this->node,$PagesWithObjects)) {
             if (isset($_REQUEST['id'])) {
                 $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
@@ -43,13 +61,6 @@ abstract class FOGPage extends FOGBase {
                     $this->redirect(sprintf('?node=%s',$this->node));
                 }
             }
-            $classVars = self::getClass($this->childClass,'',true);
-            $this->databaseTable = $classVars['databaseTable'];
-            $this->databaseFields = $classVars['databaseFields'];
-            $this->databaseFieldsRequired = $classVars['databaseFieldsRequired'];
-            $this->databaseFieldClassRelationships = $classVars['databaseFieldClassRelationships'];
-            $this->additionalFields = $classVars['additionalFields'];
-            unset($classVars);
         }
         $this->menu = array(
             'search'=>self::$foglang['NewSearch'],
@@ -962,7 +973,7 @@ abstract class FOGPage extends FOGBase {
             _(sprintf("Click the button to download the %s's table backup.",strtolower($this->childClass))) => sprintf('<input type="submit" value="%s"/>',_('Export')),
         );
         $report = self::getClass('ReportMaker');
-        $this->array_remove('id',$this->databaseFields);
+        $this->array_remove('id',self::$databaseFields);
         foreach ((array)self::getClass($this->childClass)->getManager()->find() AS $i => &$Item) {
             if (!$Item->isValid()) continue;
             if ($this->childClass == 'Host') {
@@ -977,7 +988,7 @@ abstract class FOGPage extends FOGBase {
                 $macColumn = ob_get_clean();
                 $report->addCSVCell($macColumn);
             }
-            foreach (array_keys((array)$this->databaseFields) AS $i => &$field) {
+            foreach (array_keys((array)self::$databaseFields) AS $i => &$field) {
                 $report->addCSVCell($Item->get($field));
                 unset($field);
             }
@@ -1004,7 +1015,7 @@ abstract class FOGPage extends FOGBase {
             if (!file_exists($file)) throw new Exception(_('Could not find temp filename'));
             $numSuccess = $numFailed = $numAlreadExist = 0;
             $fh = fopen($file,'rb');
-            $this->array_remove('id',$this->databaseFields);
+            $this->array_remove('id',self::$databaseFields);
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
                 $totalRows++;
                 try {
@@ -1018,7 +1029,7 @@ abstract class FOGPage extends FOGBase {
                         $iterator = 1;
                     } else $iterator = 0;
                     if ($Item->getManager()->exists($data[$iterator])) throw new Exception(sprintf('%s %s: %s',$this->childClass,_('already exists with this name'),$data[$iterator]));
-                    foreach (array_keys((array)$this->databaseFields) AS $i => $field) {
+                    foreach (array_keys((array)self::$databaseFields) AS $i => $field) {
                         if ($Item instanceof Host) $i++;
                         if (isset($field) && $field === 'productKey') {
                             $test_encryption = $this->aesdecrypt($data[$i]);
