@@ -281,8 +281,11 @@ abstract class FOGController extends FOGBase {
                 unset($obj_key,$db_key);
             });
         }
-        $classData = array_map('addslashes',(array)$classData);
-        if (count(preg_grep('#text/plain#i',headers_list())) > 0 || self::$service) $classData = array_map('stripslashes',(array)$classData);
+        $trimPlus = function(&$val,&$key) use (&$callback) {
+            $val = $callback ? $callback(trim($val)) : trim($val);
+        };
+        $callback = self::$service ? false : 'addslashes';
+        array_walk($classData,$trimPlus);
         $this->data = array_merge((array)$this->data,(array)$classData);
         array_walk($this->databaseFieldClassRelationships,function(&$fields,&$class) use (&$queryData) {
             $class = self::getClass($class);

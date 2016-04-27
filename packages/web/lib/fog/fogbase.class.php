@@ -54,7 +54,7 @@ abstract class FOGBase {
         self::$FOGUser =& $currentUser;
         self::$urlself = htmlentities($_SERVER['SCRIPT_NAME'],ENT_QUOTES,'utf-8');
         self::$isMobile = (bool)preg_match('#/mobile/#i',self::$urlself);
-        self::$service = (bool)preg_match('#/service/#i', self::$urlself);
+        self::$service = (bool)preg_match('#/service/#i', self::$urlself) || preg_match('#sub=requestClientInfo#i',htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'));
         self::$ajax = (bool)isset($_SERVER['HTTP_X_REQUESTED_WITH']) && preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);
         self::$post = (bool)preg_match('#^post$#i',isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] ? $_SERVER['REQUEST_METHOD'] : '');
         self::$FOGURLRequests = &$FOGURLRequests;
@@ -362,7 +362,7 @@ abstract class FOGBase {
         return $input;
     }
     protected function array_change_key(&$array, $old_key, $new_key) {
-        $array[$new_key] = count(preg_grep('#text/plain#i',headers_list())) > 0 || self::$service ? html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8') : $array[$old_key];
+        $array[$new_key] = !self::$service ? html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8') : $array[$old_key];
         if ($old_key != $new_key) unset($array[$old_key]);
     }
     protected function byteconvert($kilobytes) {
