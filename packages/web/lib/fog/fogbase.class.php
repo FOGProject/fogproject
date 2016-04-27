@@ -477,12 +477,15 @@ abstract class FOGBase {
         return (array)$MACs;
     }
     protected function sendData($datatosend,$service = true) {
-        if ($service) {
+        if (!$service) return;
+        try {
             $Host = $this->getHostItem();
             if (self::nice_date() >= self::nice_date($Host->get('sec_time'))) $Host->set('pub_key','')->save();
             if (isset($_REQUEST['newService'])) printf('#!enkey=%s',$this->certEncrypt($datatosend,$Host));
             else echo $datatosend;
             exit;
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
     protected function array_strpos($haystack, $needles, $case = true) {
