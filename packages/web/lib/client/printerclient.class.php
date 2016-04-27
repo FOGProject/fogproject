@@ -37,11 +37,9 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                     array_map(function(&$Printer) use ($strtosend,$mode,&$i,&$vals) {
                         if (!$Printer->isValid()) return;
                         if ($this->json) {
-                            if (!$i) {
-                                $vals['mode'] = $mode;
-                                $vals['type'] = $Printer->get('config');
-                            }
+                            if (!$i) $vals['mode'] = $mode;
                             $vals['printers'][] = array(
+                                'type'=>$Printer->get('config'),
                                 'port'=>$Printer->get('port'),
                                 'file'=>$Printer->get('file'),
                                 'model'=>$Printer->get('model'),
