@@ -752,7 +752,7 @@ abstract class FOGPage extends FOGBase {
         usleep(mt_rand(10000,100000));
         exit;
     }
-    public function authorize() {
+    public function authorize($json = false) {
         try {
             $Host = $this->getHostItem(true);
             $data = array_values(array_map('bin2hex',$this->certDecrypt(array($_REQUEST['sym_key'],$_REQUEST['token']))));
@@ -768,9 +768,18 @@ abstract class FOGPage extends FOGBase {
                 ->set('pub_key',$key)
                 ->set('sec_tok',$this->createSecToken())
                 ->save();
+            if ($json === true) {
+                $vals['token'] = $Host->get('sec_tok');
+                printf('#!en=%s',$this->certEncrypt(json_encode($vals)));
+                exit;
+            }
             printf('#!en=%s',$this->certEncrypt("#!ok\n#token={$Host->get(sec_tok)}",$Host));
         }
         catch (Exception $e) {
+            if ($json === true) {
+                echo json_encode(array('error'=>preg_replace('/^[#][!]?/','',$e->getMessage())));
+                exit;
+            }
             echo  $e->getMessage();
         }
         usleep(mt_rand(10000,100000));
@@ -783,13 +792,14 @@ abstract class FOGPage extends FOGBase {
         }
         if (isset($_REQUEST['configure'])) {
             $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_SERVICE_CHECKIN_TIME','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
-            $vals['maxsize'] = $Services[0];
-            $vals['promptTime'] = $Services[1];
-            $vals['sleep'] = $Services[2] + mt_rand(1,91);
+            $vals['maxsize'] = (int)$Services[0];
+            $vals['promptTime'] = (int)$Services[1];
+            $vals['sleep'] = (int)$Services[2] + mt_rand(1,91);
             $vals['force'] = (bool)$Services[3];
             echo json_encode($vals);
             exit;
         }
+        if (isset($_REQUEST['authorize'])) $this->authorize(true);
         try {
             $globalModules = array_diff($this->getGlobalModuleStatus(false,true),array('dircleanup','usercleanup','clientupdater','hostregister'));
             $Host = $this->getHostItem(true,false,false,false,isset($_REQUEST['newService']));
