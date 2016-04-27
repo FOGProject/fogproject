@@ -481,7 +481,7 @@ abstract class FOGBase {
         try {
             if (self::nice_date() >= self::nice_date($this->Host->get('sec_time'))) $this->Host->set('pub_key','')->save();
             global $sub;
-            if($sub !== 'requestClientInfo' && !preg_match('/^[#][!]ok/',$datatosend)) $datatosend = "#!ok\n$datatosend";
+            //if($sub !== 'requestClientInfo' && !preg_match('/^[#][!]ok/',$datatosend)) $datatosend = "#!ok\n$datatosend";
             if ($this->newService) printf('#!enkey=%s',$this->certEncrypt($datatosend,$this->Host));
             else echo $datatosend;
             exit;
