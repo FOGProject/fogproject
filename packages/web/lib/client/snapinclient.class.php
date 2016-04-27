@@ -75,9 +75,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                         $vals['jobcreation'] = $this->Host->get('snapinjob')->get('createdTime');
                         $vals['name'] = $Snapin->get('name');
                         $vals['args'] = $Snapin->get('args');
-                        $vals['reboot'] = (bool)$Snapin->get('reboot');
-                        $vals['shutdown'] = (bool)$Snapin->get('shutdown');
-                        $vals['bounce'] = ($Snapin->get('reboot') ? ($Snapin->get('shutdown') ? 'shutdown' : 'reboot') : false);
+                        $vals['action'] = $Snapin->get('reboot') ? ($Snapin->get('shutdown') ? 'shutdown' : 'reboot') : '';
                         $vals['filename'] = $Snapin->get('file');
                         $vals['runwith'] = $Snapin->get('runWith');
                         $vals['runwithargs'] = $Snapin->get('runWithArgs');

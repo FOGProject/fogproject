@@ -28,8 +28,9 @@ abstract class FOGPage extends FOGBase {
     protected $formPostAction;
     protected $childClass;
     private static $initializedController = false;
-    private static function init($class) {
-        if (in_array(strtolower($class),array_map('strtolower',array('Home','About','Storage','Report','SchemaUpdater','hwinfo'))) || self::$initializedController === hash('sha512',$class)) return;
+    private static function init($class,$pwo) {
+        global $node;
+        if (!in_array($node,$pwo) || self::$initializedController === hash('sha512',$class)) return;
         $classVars = self::getClass($class,'',true);
         self::$databaseTable = $classVars['databaseTable'];
         self::$databaseFields = $classVars['databaseFields'];
@@ -41,14 +42,14 @@ abstract class FOGPage extends FOGBase {
     }
     public function __construct($name = '') {
         parent::__construct();
+        $PagesWithObjects = array('user','host','image','group','snapin','printer');
+        self::$HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
         global $sub;
         if (in_array($sub,array('configure','authorize','requestClientInfo'))) return $this->{$sub}();
         $this->childClass = ucfirst($this->node);
-        self::init($this->childClass);
+        self::init($this->childClass,$PagesWithObjects);
         if (!empty($name)) $this->name = $name;
         $this->title = $this->name;
-        $PagesWithObjects = array('user','host','image','group','snapin','printer');
-        self::$HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
         if (in_array($this->node,$PagesWithObjects)) {
             if (isset($_REQUEST['id'])) {
                 $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
