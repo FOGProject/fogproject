@@ -1,16 +1,12 @@
 <?php
 class MulticastManager extends FOGService {
-    public static $logpath = '';
-    public static $dev = '';
-    public static $log = '';
-    public static $zzz = '';
     public static $sleeptime = 'MULTICASTSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        self::$log = sprintf('%s%s',self::$logpath,self::getSetting('MULTICASTLOGFILENAME'));
-        if (file_exists(self::$log)) @unlink(self::$log);
-        self::$dev = self::getSetting('MULTICASTDEVICEOUTPUT');
-        self::$zzz = (int)self::getSetting(self::$sleeptime);
+        static::$log = sprintf('%s%s',self::$logpath,self::getSetting('MULTICASTLOGFILENAME'));
+        if (file_exists(static::$log)) @unlink(static::$log);
+        static::$dev = self::getSetting('MULTICASTDEVICEOUTPUT');
+        static::$zzz = (int)self::getSetting(self::$sleeptime);
     }
     private function isMCTaskNew($KnownTasks, $id) {
         foreach((array)$KnownTasks AS $i => &$Known) $output[] = $Known->getID();
@@ -122,19 +118,19 @@ class MulticastManager extends FOGService {
             } catch(Exception $e) {
                 self::outall($e->getMessage());
             }
-            self::out(' +---------------------------------------------------------',self::$dev);
+            self::out(' +---------------------------------------------------------',static::$dev);
             $tmpTime = (int)self::getSetting(self::$sleeptime);
-            if (self::$zzz != $tmpTime) {
-                self::$zzz = $tmpTime;
-                self::outall(sprintf(" | Sleep time has changed to %s seconds",self::$zzz));
+            if (static::$zzz != $tmpTime) {
+                static::$zzz = $tmpTime;
+                self::outall(sprintf(" | Sleep time has changed to %s seconds",static::$zzz));
             }
-            sleep(self::$zzz);
+            sleep(static::$zzz);
             $oldCount = $taskCount;
         }
     }
     public function serviceRun() {
-        self::out(' ',self::$dev);
-        self::out(' +---------------------------------------------------------',self::$dev);
+        self::out(' ',static::$dev);
+        self::out(' +---------------------------------------------------------',static::$dev);
         self::serviceLoop();
     }
 }

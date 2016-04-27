@@ -1,16 +1,12 @@
 <?php
 class PingHosts extends FOGService {
-    public static $logpath = '';
-    public static $dev = '';
-    public static $log = '';
-    public static $zzz = '';
     public static $sleeptime = 'PINGHOSTSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        self::$log = sprintf('%s%s',self::$logpath,self::getSetting('PINGHOSTLOGFILENAME'));
-        if (file_exists(self::$log)) @unlink(self::$log);
-        self::$dev = self::getSetting('PINGHOSTDEVICEOUTPUT');
-        self::$zzz = (int)self::getSetting(self::$sleeptime);
+        static::$log = sprintf('%s%s',self::$logpath,self::getSetting('PINGHOSTLOGFILENAME'));
+        if (file_exists(static::$log)) @unlink(static::$log);
+        static::$dev = self::getSetting('PINGHOSTDEVICEOUTPUT');
+        static::$zzz = (int)self::getSetting(self::$sleeptime);
     }
     private function commonOutput() {
         try {
@@ -37,9 +33,9 @@ class PingHosts extends FOGService {
         }
     }
     public function serviceRun() {
-        self::out(' ',self::$dev);
-        self::out(' +---------------------------------------------------------',self::$dev);
+        self::out(' ',static::$dev);
+        self::out(' +---------------------------------------------------------',static::$dev);
         $this->commonOutput();
-        self::out(' +---------------------------------------------------------',self::$dev);
+        self::out(' +---------------------------------------------------------',static::$dev);
     }
 }
