@@ -37,16 +37,16 @@ abstract class FOGService extends FOGBase {
     public function wait_interface_ready() {
         $this->getIPAddress();
         if (!count(self::$ips)) {
-            self::outall('Interface not ready, waiting.',self::$dev);
+            self::outall('Interface not ready, waiting.',static::$dev);
             sleep(10);
             $this->wait_interface_ready();
         }
-        foreach (self::$ips AS $i => &$ip) self::outall(_("Interface Ready with IP Address: $ip"),self::$dev);
+        foreach (self::$ips AS $i => &$ip) self::outall(_("Interface Ready with IP Address: $ip"),static::$dev);
         unset($ip);
     }
     public static function wait_db_ready() {
         if (!self::$DB->link()->connect_errno) return;
-        self::outall(sprintf('FOGService: %s - %s',get_class($this),_('Waiting for mysql to be available')),self::$dev);
+        self::outall(sprintf('FOGService: %s - %s',get_class($this),_('Waiting for mysql to be available')),static::$dev);
         sleep(10);
         self::wait_db_ready();
     }
@@ -74,8 +74,8 @@ abstract class FOGService extends FOGBase {
         self::outall(ob_get_clean());
     }
     public function outall($string) {
-        self::out("$string\n",self::$dev);
-        self::wlog("$string\n",self::$log);
+        self::out("$string\n",static::$dev);
+        self::wlog("$string\n",static::$log);
         return;
     }
     protected static function out($string,$device) {
@@ -88,24 +88,24 @@ abstract class FOGService extends FOGBase {
     }
     protected static function wlog($string, $path) {
         if (file_exists($path) && filesize($path) >= self::getSetting('SERVICE_LOG_SIZE')) unlink($path);
-        if (!$fh = fopen($path,'ab')) self::out("\n * Error: Unable to open file: $path\n",self::$dev);
-        if (fwrite($fh,sprintf('[%s] %s',self::getDateTime(),$string)) === FALSE) self::out("\n * Error: Unable to write to file: $path\n",self::$dev);
+        if (!$fh = fopen($path,'ab')) self::out("\n * Error: Unable to open file: $path\n",static::$dev);
+        if (fwrite($fh,sprintf('[%s] %s',self::getDateTime(),$string)) === FALSE) self::out("\n * Error: Unable to write to file: $path\n",static::$dev);
         fclose($fh);
     }
     public function serviceStart() {
         self::outall(sprintf(' * Starting %s Service',get_class($this)));
-        self::outall(sprintf(' * Checking for new items every %s seconds',self::$zzz));
+        self::outall(sprintf(' * Checking for new items every %s seconds',static::$zzz));
         self::outall(' * Starting service loop');
         return;
     }
     public function serviceRun() {
         $tmpTime = (int)self::getSetting(self::$sleeptime);
-        if (self::$zzz != $tmpTime) {
-            self::$zzz = $tmpTime;
-            self::outall(sprintf(" | Sleep time has changed to %s seconds",self::$zzz));
+        if (static::$zzz != $tmpTime) {
+            static::$zzz = $tmpTime;
+            self::outall(sprintf(" | Sleep time has changed to %s seconds",static::$zzz));
         }
-        self::out('',self::$dev);
-        self::out('+---------------------------------------------------------',self::$dev);
+        self::out('',static::$dev);
+        self::out('+---------------------------------------------------------',static::$dev);
     }
     /** replicate_items() replicates data without having to keep repeating
      * @param $myStorageGroupID int this servers groupid
@@ -210,7 +210,7 @@ abstract class FOGService extends FOGBase {
                     unset($localfile);
                 }
                 self::$FOGFTP->close();
-                $logname = "self::$log.transfer.$nodename.log";
+                $logname = "static::$log.transfer.$nodename.log";
                 if (!$i) self::outall(_(' * Starting Sync Actions'));
                 $this->killTasking($i,$itemType,$Obj->get('name'));
                 $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
@@ -222,7 +222,7 @@ abstract class FOGService extends FOGBase {
         }
     }
     public function startTasking($cmd,$logname,$index = 0,$itemType = false,$filename = false) {
-        $descriptor = array(0=>array('pipe','r'),1=>array('file',$logname,'a'),2=>array('file',self::$log,'a'));
+        $descriptor = array(0=>array('pipe','r'),1=>array('file',$logname,'a'),2=>array('file',static::$log,'a'));
         if ($itemType === false) {
             $this->procRef[$index] = @proc_open($cmd,$descriptor,$pipes);
             $this->procPipes[$index] = $pipes;
