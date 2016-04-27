@@ -770,7 +770,7 @@ abstract class FOGPage extends FOGBase {
                 ->save();
             if ($json === true) {
                 $vals['token'] = $Host->get('sec_tok');
-                printf('#!en=%s',$this->certEncrypt(json_encode($vals)));
+                printf('#!en=%s',$this->certEncrypt(json_encode($vals),$Host));
                 exit;
             }
             printf('#!en=%s',$this->certEncrypt("#!ok\n#token={$Host->get(sec_tok)}",$Host));
@@ -829,7 +829,7 @@ abstract class FOGPage extends FOGBase {
                 $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
                 unset($key);
             }
-            echo json_encode($array);
+            $this->sendData(json_encode($array),$Host);
         } catch (Exception $e) {
             echo $e->getMessage();
         }
