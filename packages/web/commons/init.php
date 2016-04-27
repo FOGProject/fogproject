@@ -137,16 +137,17 @@ $Init->sanitize_items();
 $Init::startInit();
 /** $FOGFTP the FOGFTP class */
 $FOGFTP = new FOGFTP();
+/** $FOGCore the FOGCore class */
+$FOGCore = new FOGCore();
 /** $DB set's the DB class from the DatabaseManager */
 $DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
+$FOGCore::setSessionEnv();
 $HookManager = FOGCore::getClass('HookManager');
 $HookManager->load();
 if (in_array($sub,array('configure','authorize','requestClientInfo'))) {
     FOGCore::getClass('DashboardPage');
     exit;
 }
-/** $FOGCore the FOGCore class */
-$FOGCore = FOGCore::setSessionEnv();
 /** $EventManager initiates the EventManager class */
 $EventManager = FOGCore::getClass('EventManager');
 $EventManager->load();
