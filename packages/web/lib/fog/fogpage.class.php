@@ -803,7 +803,7 @@ abstract class FOGPage extends FOGBase {
         try {
             $globalModules = array_diff($this->getGlobalModuleStatus(false,true),array('dircleanup','usercleanup','clientupdater','hostregister'));
             $this->Host = $this->getHostItem(true,false,false,false,isset($_REQUEST['newService']));
-            $hostModules = self::getSubObjectIDs('Module',array('id'=>$Host->get('modules')),'shortName');
+            $hostModules = self::getSubObjectIDs('Module',array('id'=>$this->Host->get('modules')),'shortName');
             $hostModules = array_values(array_intersect($globalModules,(array)$hostModules));
             $array = array();
             foreach ($hostModules AS $i => &$key) {

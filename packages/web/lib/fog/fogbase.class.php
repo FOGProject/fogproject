@@ -479,7 +479,6 @@ abstract class FOGBase {
     protected function sendData($datatosend,$service = true) {
         if (!$service) return;
         try {
-            throw new Exception($this->Host);
             if (self::nice_date() >= self::nice_date($this->Host->get('sec_time'))) $this->Host->set('pub_key','')->save();
             if(!preg_match('/^[#][!]ok/',$datatosend)) $datatosend = "#!ok\n$datatosend";
             if ($this->newService) printf('#!enkey=%s',$this->certEncrypt($datatosend,$this->Host));
