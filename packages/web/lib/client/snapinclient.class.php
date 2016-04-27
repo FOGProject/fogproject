@@ -71,15 +71,15 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 if ($this->newService) $snapinHash = strtoupper(hash_file('sha512',$SnapinFile));
                 if ($this->json) {
                     array_map(function(&$Snapin) use (&$SnapinTask,&$vals) {
-                        $vals['jobtaskid'] = $SnapinTask->get('id');
-                        $vals['jobcreation'] = $this->Host->get('snapinjob')->get('createdTime');
-                        $vals['name'] = $Snapin->get('name');
-                        $vals['args'] = $Snapin->get('args');
-                        $vals['action'] = $Snapin->get('reboot') ? ($Snapin->get('shutdown') ? 'shutdown' : 'reboot') : '';
-                        $vals['filename'] = $Snapin->get('file');
-                        $vals['runwith'] = $Snapin->get('runWith');
-                        $vals['runwithargs'] = $Snapin->get('runWithArgs');
-                        $vals['hash'] = strtoupper(hash_file('sha512',$Snapin->get('file')));
+                        $vals['jobtaskid'][] = $SnapinTask->get('id');
+                        $vals['jobcreation'][] = $this->Host->get('snapinjob')->get('createdTime');
+                        $vals['name'][] = $Snapin->get('name');
+                        $vals['args'][] = $Snapin->get('args');
+                        $vals['action'][] = $Snapin->get('reboot') ? ($Snapin->get('shutdown') ? 'shutdown' : 'reboot') : '';
+                        $vals['filename'][] = $Snapin->get('file');
+                        $vals['runwith'][] = $Snapin->get('runWith');
+                        $vals['runwithargs'][] = $Snapin->get('runWithArgs');
+                        $vals['hash'][] = strtoupper(hash_file('sha512',$Snapin->get('file')));
                         $vals['size'] = $size;
                     },(array)self::getClass('SnapinManager')->find(array('id'=>$this->Host->get('snapins'))));
                     return array('snapins'=>$vals);
