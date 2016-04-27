@@ -520,12 +520,12 @@ abstract class FOGBase {
     public function orderBy(&$orderBy) {
         if (empty($orderBy)) {
             $orderBy = 'name';
-            if (!array_key_exists($orderBy,static::$databaseFields)) $orderBy = 'id';
+            if (!array_key_exists($orderBy,$this->databaseFields)) $orderBy = 'id';
         } else {
             if (!is_array($orderBy)) {
                 $orderBy = trim($orderBy);
-                if (!array_key_exists($orderBy,static::$databaseFields)) $orderBy = 'name';
-                if (!array_key_exists($orderBy,static::$databaseFields)) $orderBy = 'id';
+                if (!array_key_exists($orderBy,$this->databaseFields)) $orderBy = 'name';
+                if (!array_key_exists($orderBy,$this->databaseFields)) $orderBy = 'id';
             }
         }
     }
