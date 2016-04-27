@@ -164,7 +164,7 @@ abstract class FOGManagerController extends FOGBase {
         $insertArray = array();
         array_walk($insertData,function(&$value,&$field) use (&$insertArray) {
             $field = trim($field);
-            $insertKey = sprintf('`%s`.`%s`',self::$databaseTable,self::$databaseFields[$field]);
+            $insertKey = sprintf('`%s`.`%s`',static::$databaseTable,static::$databaseFields[$field]);
             $insertVal = self::$DB->sanitize($value);
             $insertArray[] = sprintf("%s='%s'",$insertKey,$insertVal);
             unset($value);
@@ -173,14 +173,14 @@ abstract class FOGManagerController extends FOGBase {
             $whereArray = array();
             array_walk($findWhere,function(&$value,&$field) use (&$whereArray) {
                 $field = trim($field);
-                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s` IN ('%s')",self::$databaseTable,self::$databaseFields[$field],implode("','",$value));
-                else $whereArray[] = sprintf("`%s`.`%s`%s'%s'",self::$databaseTable,self::$databaseFields[$field],(preg_match('#%#',(string)$value) ? 'LIKE' : '='), (string)$value);
+                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s` IN ('%s')",static::$databaseTable,static::$databaseFields[$field],implode("','",$value));
+                else $whereArray[] = sprintf("`%s`.`%s`%s'%s'",static::$databaseTable,static::$databaseFields[$field],(preg_match('#%#',(string)$value) ? 'LIKE' : '='), (string)$value);
                 unset($value,$field);
             });
         }
         $query = sprintf(
             $this->updateQueryTemplate,
-            self::$databaseTable,
+            static::$databaseTable,
             implode(',',(array)$insertArray),
             (count($whereArray) ? ' WHERE '.implode(' '.$whereOperator.' ',(array)$whereArray) : '')
         );

@@ -362,7 +362,7 @@ abstract class FOGBase {
         return $input;
     }
     protected function array_change_key(&$array, $old_key, $new_key) {
-        $array[$new_key] = !self::$service ? html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8') : $array[$old_key];
+        $array[$new_key] = is_string($array[$old_key]) && !self::$service ? html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8') : $array[$old_key];
         if ($old_key != $new_key) unset($array[$old_key]);
     }
     protected function byteconvert($kilobytes) {
