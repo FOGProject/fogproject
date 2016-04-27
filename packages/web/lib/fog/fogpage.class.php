@@ -779,7 +779,6 @@ abstract class FOGPage extends FOGBase {
             foreach ($hostModules AS $i => &$key) {
                 switch ($key) {
                 case 'usertracker':
-                case 'snapinclient':
                     continue 2;
                 case 'greenfog':
                     $class='GF';

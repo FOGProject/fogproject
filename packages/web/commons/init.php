@@ -135,6 +135,8 @@ $Init = new Initiator();
 $Init->sanitize_items();
 /** Starts the init itself */
 $Init::startInit();
+/** $FOGFTP the FOGFTP class */
+$FOGFTP = new FOGFTP();
 /** $DB set's the DB class from the DatabaseManager */
 $DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
 $HookManager = FOGCore::getClass('HookManager');
@@ -143,8 +145,6 @@ if (in_array($sub,array('configure','authorize','requestClientInfo'))) {
     FOGCore::getClass('DashboardPage');
     exit;
 }
-/** $FOGFTP the FOGFTP class */
-$FOGFTP = new FOGFTP();
 /** $FOGCore the FOGCore class */
 $FOGCore = FOGCore::setSessionEnv();
 /** $EventManager initiates the EventManager class */

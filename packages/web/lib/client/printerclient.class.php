@@ -37,8 +37,19 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                     array_map(function(&$Printer) use ($strtosend,$mode,&$i,&$vals) {
                         if (!$Printer->isValid()) return;
                         if ($this->json) {
-                            if (!$i) $vals['mode'] = $mode;
-                            $vals["printer$i"] = (int)$Printer->get('id');
+                            if (!$i) {
+                                $vals['mode'] = $mode;
+                                $vals['type'] = $Printer->get('config');
+                            }
+                            $vals['printers'][] = array(
+                                'port'=>$Printer->get('port'),
+                                'file'=>$Printer->get('file'),
+                                'model'=>$Printer->get('model'),
+                                'name'=>$Printer->get('name'),
+                                'ip'=>$Printer->get('ip'),
+                                'default'=>(bool)$this->Host->getDefault($Printer->get('id')),
+                                'configFile'=>$Printer->get('configFile'),
+                            );
                         } else {
                             if (!$i) $this->send = "#!ok\n#mode=$mode\n";
                             $this->send .= sprintf($strtosend,$i,$Printer->get('id'));
@@ -51,13 +62,12 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                 } else {
                     $Printer = self::getClass('Printer',$_REQUEST['id']);
                     if (!$Printer->isValid()) throw new Exception(_('Printer is invalid'));
-                    //$strtosend = "#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s";
                     $strtosend = "#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s\n#configFile=%s";
                     $this->send .= sprintf("#!ok\n#type=%s\n%s",$Printer->get('config'),$this->getString($strtosend,$Printer));
                 }
             }
         } catch (Exception $e) {
-            if ($this->json) return array('error'=>preg_replace('/^[#][!]\?/','',$e->getMessage()));
+            if ($this->json) return array('error'=>preg_replace('/^[#][!]?/','',$e->getMessage()));
             throw new Exception($e->getMessage());
         }
     }
