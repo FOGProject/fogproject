@@ -142,6 +142,8 @@ $FOGCore = new FOGCore();
 /** $DB set's the DB class from the DatabaseManager */
 $DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
 $FOGCore::setSessionEnv();
+/** $TimeZone the timezone setter */
+$TimeZone = $_SESSION['TimeZone'];
 $HookManager = FOGCore::getClass('HookManager');
 $HookManager->load();
 if (in_array($sub,array('configure','authorize','requestClientInfo'))) {
@@ -151,7 +153,5 @@ if (in_array($sub,array('configure','authorize','requestClientInfo'))) {
 /** $EventManager initiates the EventManager class */
 $EventManager = FOGCore::getClass('EventManager');
 $EventManager->load();
-/** $TimeZone the timezone setter */
-$TimeZone = $_SESSION['TimeZone'];
 /** $FOGURLRequests initiates the FOGURLRequest class */
 $FOGURLRequests = FOGCore::getClass('FOGURLRequests');
