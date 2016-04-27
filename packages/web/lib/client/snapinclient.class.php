@@ -82,7 +82,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                         $vals['hash'] = strtoupper(hash_file('sha512',$Snapin->get('file')));
                         $vals['size'] = $size;
                     },(array)self::getClass('SnapinManager')->find(array('id'=>$this->Host->get('snapins'))));
-                    return $vals;
+                    return array('snapins'=>$vals);
                 }
                 $goodArray = array(
                     '#!ok',
