@@ -7,10 +7,10 @@ class TaskScheduler extends FOGService {
     public static $sleeptime = 'SCHEDULERSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        self::$log = sprintf('%s%s',self::$logpath,self::getSetting('SCHEDULERLOGFILENAME'));
-        if (file_exists(self::$log)) @unlink(self::$log);
-        self::$dev = self::getSetting('SCHEDULERDEVICEOUTPUT');
-        self::$zzz = (int)self::getSetting(self::$sleeptime);
+        static::$log = sprintf('%s%s',self::$logpath,self::getSetting('SCHEDULERLOGFILENAME'));
+        if (file_exists(static::$log)) @unlink(static::$log);
+        static::$dev = self::getSetting('SCHEDULERDEVICEOUTPUT');
+        static::$zzz = (int)self::getSetting(self::$sleeptime);
     }
     private function commonOutput() {
         try {
@@ -52,9 +52,9 @@ class TaskScheduler extends FOGService {
         }
     }
     public function serviceRun() {
-        self::out(' ',self::$dev);
-        self::out(' +---------------------------------------------------------',self::$dev);
+        self::out(' ',static::$dev);
+        self::out(' +---------------------------------------------------------',static::$dev);
         $this->commonOutput();
-        self::out(' +---------------------------------------------------------',self::$dev);
+        self::out(' +---------------------------------------------------------',static::$dev);
     }
 }

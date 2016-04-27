@@ -1,21 +1,17 @@
 <?php
 class ImageReplicator extends FOGService {
-    public static $logpath = '';
-    public static $dev = '';
-    public static $log = '';
-    public static $zzz = '';
     public static $sleeptime = 'IMAGEREPSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        self::$log = sprintf('%s%s',self::$logpath,self::getSetting('IMAGEREPLICATORLOGFILENAME'));
-        if (file_exists(self::$log)) @unlink(self::$log);
-        self::$dev = self::getSetting('IMAGEREPLICATORDEVICEOUTPUT');
-        self::$zzz = (int)self::getSetting(self::$sleeptime);
+        static::$log = sprintf('%s%s',self::$logpath,self::getSetting('IMAGEREPLICATORLOGFILENAME'));
+        if (file_exists(static::$log)) @unlink(static::$log);
+        static::$dev = self::getSetting('IMAGEREPLICATORDEVICEOUTPUT');
+        static::$zzz = (int)self::getSetting(static::$sleeptime);
     }
     private function commonOutput() {
         try {
             $StorageNode = $this->checkIfNodeMaster();
-            self::out(' * I am the group manager',self::$dev);
+            self::out(' * I am the group manager',static::$dev);
             self::wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
             $myStorageGroupID = $StorageNode->get('storageGroupID');
             $myStorageNodeID = $StorageNode->get('id');
@@ -53,11 +49,11 @@ class ImageReplicator extends FOGService {
         }
     }
     public function serviceRun() {
-        self::out(' ',self::$dev);
-        self::out(' +---------------------------------------------------------',self::$dev);
-        self::out(' * Checking if I am the group manager.',self::$dev);
+        self::out(' ',static::$dev);
+        self::out(' +---------------------------------------------------------',static::$dev);
+        self::out(' * Checking if I am the group manager.',static::$dev);
         self::wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
         $this->commonOutput();
-        self::out(' +---------------------------------------------------------',self::$dev);
+        self::out(' +---------------------------------------------------------',static::$dev);
     }
 }
