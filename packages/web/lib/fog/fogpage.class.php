@@ -781,7 +781,15 @@ abstract class FOGPage extends FOGBase {
             print_r($this->getGlobalModuleStatus(false,true));
             exit;
         }
-        usleep(mt_rand(10000,100000));
+        if (isset($_REQUEST['configure'])) {
+            $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_SERVICE_CHECKIN_TIME','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
+            $vals['maxsize'] = $Services[0];
+            $vals['promptTime'] = $Services[1];
+            $vals['sleep'] = $Services[2] + mt_rand(1,91);
+            $vals['force'] = (bool)$Services[3];
+            echo json_encode($vals);
+            exit;
+        }
         try {
             $globalModules = array_diff($this->getGlobalModuleStatus(false,true),array('dircleanup','usercleanup','clientupdater','hostregister'));
             $Host = $this->getHostItem(true,false,false,false,isset($_REQUEST['newService']));
