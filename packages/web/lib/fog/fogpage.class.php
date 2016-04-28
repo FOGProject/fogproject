@@ -838,8 +838,8 @@ abstract class FOGPage extends FOGBase {
                 else $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
                 unset($key);
             }
-            //$this->sendData(json_encode($array),true);
-            echo json_encode($array);
+            $this->sendData(json_encode($array),true);
+            //echo json_encode($array);
         } catch (Exception $e) {
             echo $e->getMessage();
         }
