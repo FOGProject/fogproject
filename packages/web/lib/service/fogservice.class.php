@@ -115,7 +115,6 @@ abstract class FOGService extends FOGBase {
      * auto sets to false
      */
     protected function replicate_items($myStorageGroupID,$myStorageNodeID,$Obj,$master = false) {
-        usleep(50000);
         unset($username,$password,$ip,$remItem,$myItem,$limitmain,$limitsend,$limit,$includeFile);
         $itemType = $master ? 'group' : 'node';
         $findWhere = array(
@@ -143,6 +142,7 @@ abstract class FOGService extends FOGBase {
             $myAdd = "$myDir$myFile";
             $myAddItem = false;
             foreach ((array)self::getClass('StorageNodeManager')->find(array('id'=>$PotentialStorageNodes)) AS $i => &$PotentialStorageNode) {
+                usleep(50000);
                 if (!$PotentialStorageNode->isValid()) continue;
                 if ($master && $PotentialStorageNode->get('storageGroupID') == $myStorageGroupID) continue;
                 if ($this->isRunning($this->procRef[$itemType][$Obj->get('name')][$i])) {
