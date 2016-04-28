@@ -749,7 +749,6 @@ abstract class FOGPage extends FOGBase {
     public function configure() {
         $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_SERVICE_CHECKIN_TIME','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
         printf("#!ok\n#maxsize=%d\n#promptTime=%d\n#sleep=%d\nforce=%s",array_shift($Services),array_shift($Services),mt_rand(1,91) + array_shift($Services),array_shift($Services));
-        usleep(mt_rand(10000,100000));
         exit;
     }
     public function authorize($json = false) {
@@ -782,7 +781,6 @@ abstract class FOGPage extends FOGBase {
             }
             echo  $e->getMessage();
         }
-        usleep(mt_rand(10000,100000));
         exit;
     }
     public function requestClientInfo() {
@@ -811,13 +809,14 @@ abstract class FOGPage extends FOGBase {
             });
             $this->Host = $this->getHostItem(true,false,false,false,isset($_REQUEST['newService']));
             $hostModules = self::getSubObjectIDs('Module',array('id'=>$this->Host->get('modules')),'shortName');
-            $hostDisabled = array_diff(array_diff((array)$hostModules,$globalModules),array('dircleanup','usercleanup','clientupdater','hostregister'));
+            $hostDisabled = array_diff(array_diff((array)$hostModules,$globalDisabled),array('dircleanup','usercleanup','clientupdater','hostregister'));
             $hostModules = array_values(array_intersect($globalModules,(array)$hostModules));
             $array = array();
             foreach ($globalModules AS &$key) {
                 switch ($key) {
                 case 'usertracker':
                     continue 2;
+                    break;
                 case 'greenfog':
                     $class='GF';
                     break;
@@ -839,8 +838,8 @@ abstract class FOGPage extends FOGBase {
                 else $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
                 unset($key);
             }
-            $this->sendData(json_encode($array),true);
-            //echo json_encode($array);
+            //$this->sendData(json_encode($array),true);
+            echo json_encode($array);
         } catch (Exception $e) {
             echo $e->getMessage();
         }

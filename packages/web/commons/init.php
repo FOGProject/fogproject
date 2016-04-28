@@ -146,12 +146,10 @@ $FOGCore::setSessionEnv();
 $TimeZone = $_SESSION['TimeZone'];
 $HookManager = FOGCore::getClass('HookManager');
 $HookManager->load();
+$EventManager = FOGCore::getClass('EventManager');
+$EventManager->load();
+$FOGURLRequests = FOGCore::getClass('FOGURLRequests');
 if (in_array($sub,array('configure','authorize','requestClientInfo'))) {
     FOGCore::getClass('DashboardPage');
     exit;
 }
-/** $EventManager initiates the EventManager class */
-$EventManager = FOGCore::getClass('EventManager');
-$EventManager->load();
-/** $FOGURLRequests initiates the FOGURLRequest class */
-$FOGURLRequests = FOGCore::getClass('FOGURLRequests');
