@@ -803,11 +803,18 @@ abstract class FOGPage extends FOGBase {
         if (isset($_REQUEST['authorize'])) $this->authorize(true);
         try {
             $globalModules = array_diff($this->getGlobalModuleStatus(false,true),array('dircleanup','usercleanup','clientupdater','hostregister'));
+            $globalInfo = $this->getGlobalModuleStatus();
+            $globalDisabled = array();
+            array_walk($globalInfo,function(&$en,&$key) use (&$globalDisabled) {
+                if (in_array($key,array('dircleanup','usercleanup','clientupdater','hostregister'))) return;
+                if (!$en) $globalDisabled[] = $key;
+            });
             $this->Host = $this->getHostItem(true,false,false,false,isset($_REQUEST['newService']));
             $hostModules = self::getSubObjectIDs('Module',array('id'=>$this->Host->get('modules')),'shortName');
+            $hostDisabled = array_diff(array_diff((array)$hostModules,$globalModules),array('dircleanup','usercleanup','clientupdater','hostregister'));
             $hostModules = array_values(array_intersect($globalModules,(array)$hostModules));
             $array = array();
-            foreach ($hostModules AS $i => &$key) {
+            foreach ($globalModules AS &$key) {
                 switch ($key) {
                 case 'usertracker':
                     continue 2;
@@ -827,10 +834,13 @@ abstract class FOGPage extends FOGBase {
                     $class=$key;
                     break;
                 }
-                $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
+                if (in_array($key,$globalDisabled)) $array[$key]['error'] = 'ng';
+                else if (in_array($key,$hostDisabled)) $array[$key]['error'] = 'nh';
+                else $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
                 unset($key);
             }
             $this->sendData(json_encode($array),true);
+            //echo json_encode($array);
         } catch (Exception $e) {
             echo $e->getMessage();
         }
