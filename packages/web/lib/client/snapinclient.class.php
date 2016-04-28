@@ -3,6 +3,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
     private function jsonoutput() {
         $this->Host->get('snapinjob')->set('stateID',$this->getCheckedInState())->save();
         if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getCheckedInState())->set('checkInTime',self::nice_date()->format('Y-m-d H:i:s'))->save();
+        $HostSnapins = $this->Host->get('snapins');
         array_map(function(&$Snapin) use (&$vals) {
             if (!$Snapin->isValid()) return;
             $SnapinTask = self::getClass('SnapinTask',@min(self::getSubObjectIDs('SnapinTask',array('jobID'=>$this->Host->get('snapinjob')->get('id'),'snapinID'=>$Snapin->get('id')))));
@@ -37,7 +38,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             $vals['runwithargs'] = $Snapin->get('runWithArgs');
             $vals['hash'] = strtoupper($hash);
             $vals['size'] = $size;
-        },(array)self::getClass('SnapinManager')->find(array('id'=>$this->Host->get('snapins'))));
+        },(array)self::getClass('SnapinManager')->find(array('id'=>$HostSnapins)));
         return array('snapins'=>array($vals));
     }
     public function send() {
