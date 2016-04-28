@@ -9,7 +9,8 @@ class PrinterClient extends FOGClient implements FOGClientSend {
     public function send() {
         try {
             $level = $this->Host->get('printerLevel');
-            $Printers = self::getClass('PrinterManager')->find(array('id'=>$this->Host->get('printers')));
+            $HostPrinters = $this->Host->get('printers');
+            $Printers = self::getClass('PrinterManager')->find(array('id'=>$HostPrinters));
             if ($level > 2 || $level <= 0) $level = 0;
             if (!$this->newService && $_REQUEST['sub'] != 'requestClientInfo') {
                 $level = "#!mg=$level";
@@ -24,12 +25,12 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                 unset($Printers);
                 $this->send = sprintf("%s\n%s",base64_encode($level),$this->send);
             } else {
-                if (!self::getClass('PrinterAssociationManager')->count(array('printerID'=>$this->Host->get('printers')))) {
+                if (!self::getClass('PrinterAssociationManager')->count(array('printerID'=>$HostPrinters))) {
                     if ($this->json) return array('error'=>'np','mode'=>empty($mode) ? 0 : $mode);
                     throw new Exception("#!np\n#mode=$mode\n");
                 }
                 $modes = array(0,'a','ar');
-                $mode = $modes[$this->Host->get('printerLevel')];
+                $mode = $modes[$level];
                 if (!isset($_REQUEST['id'])) {
                     $strtosend = "#printer%s=%s\n";
                     $i = 0;
