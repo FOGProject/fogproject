@@ -100,6 +100,7 @@ class User extends FOGController {
         return true;
     }
     public function logout() {
+        if (session_status() == PHP_SESSION_NONE) return;
         $locale = $_SESSION['locale'];
         $messages = $_SESSION['FOG_MESSAGES'];
         // Destroy session

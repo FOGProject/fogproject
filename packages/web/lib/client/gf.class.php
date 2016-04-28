@@ -10,10 +10,10 @@ class GF extends FOGClient implements FOGClientSend {
             $SendMe[$i] = base64_encode($val);
             if ($this->newService) {
                 if ($this->json) {
-                    $vals["task$i"] = array(
+                    $vals['tasks'][] = array(
                         'hour' => $gf->get('hour'),
                         'min' => $gf->get('min'),
-                        'action' => $gf->get('action'),
+                        'action' => ($gf->get('action') === 'r' ? 'reboot' : ($gf->get('action') === 's' ? 'shutdown' : false)),
                     );
                     continue;
                 }
