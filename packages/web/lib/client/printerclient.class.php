@@ -38,6 +38,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                         if (!$Printer->isValid()) return;
                         if ($this->json) {
                             if (!$i) $vals['mode'] = $mode;
+                            if (!isset($vals['default']) || !$vals['default']) $vals['default'] = $this->Host->getDefault($Printer->get('id')) ? $Printer->get('name') : '';
                             $vals['printers'][] = array(
                                 'type'=>$Printer->get('config'),
                                 'port'=>$Printer->get('port'),
@@ -45,7 +46,6 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                                 'model'=>$Printer->get('model'),
                                 'name'=>$Printer->get('name'),
                                 'ip'=>$Printer->get('ip'),
-                                'default'=>(bool)$this->Host->getDefault($Printer->get('id')),
                                 'configFile'=>$Printer->get('configFile'),
                             );
                         } else {
@@ -56,7 +56,10 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                         unset($Printer);
                     },(array)$Printers);
                     unset($Printers,$count);
-                    if ($this->json) return $vals;
+                    if ($this->json) {
+                        $vals['allPrinters'] = self::getSubObjectIDs('Printer','','name');
+                        return $vals;
+                    }
                 } else {
                     $Printer = self::getClass('Printer',$_REQUEST['id']);
                     if (!$Printer->isValid()) throw new Exception(_('Printer is invalid'));
