@@ -809,8 +809,8 @@ abstract class FOGPage extends FOGBase {
             });
             $this->Host = $this->getHostItem(true,false,false,false,isset($_REQUEST['newService']));
             $hostModules = self::getSubObjectIDs('Module',array('id'=>$this->Host->get('modules')),'shortName');
-            $hostDisabled = array_diff(array_diff((array)$hostModules,$globalDisabled),array('dircleanup','usercleanup','clientupdater','hostregister'));
-            $hostModules = array_values(array_intersect($globalModules,(array)$hostModules));
+            $hostEnabled = array_diff((array)$hostModules,array('dircleanup','usercleanup','clientupdater','hostregister'));
+            $hostDisabled = array_diff((array)$globalModules,$hostEnabled);
             $array = array();
             foreach ($globalModules AS &$key) {
                 switch ($key) {
