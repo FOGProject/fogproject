@@ -9,8 +9,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 if (!$SnapinTask->isValid() || in_array($SnapinTask->get('stateID'),array_merge((array)$this->getCompleteState(),(array)$this->getCancelledState()))) throw new Exception(_('Invalid snapin tasking passed'));
             } else {
                 if (!$this->Host->get('snapinjob')->isValid()) throw new Exception('#!ns');
-                $SnapinTask = self::getClass('SnapinTaskManager')->find(array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())),'','name');
-                $SnapinTask = @array_shift($SnapinTask);
+                $SnapinTask = self::getClass('SnapinTask',@max(self::getSubObjectIDs('SnapinTask',array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))));
             }
             if (!($SnapinTask instanceof SnapinTask && $SnapinTask->isValid())) {
                 if (self::getClass('SnapinTaskManager')->count(array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) < 1) {
