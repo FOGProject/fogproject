@@ -27,42 +27,39 @@ class SchemaUpdaterPage extends FOGPage {
         vprintf('<p>%s</p><p>%s</p><br/><form method="post" action="%s"><p class="c"><input type="submit" name="confirm" value="%s"/></p></form><p>%s</p><div id="sidenotes">cd ~;mysqldump --allowkeywords -x -v fog > fogbackup.sql</div><br/><p>%s</p><form method="post" action="../management/export.php"><input type="hidden" name="type" value="sql"/><p class="c"><input type="submit" name="export" value="%s"/></p></form>',$vals);
     }
     public function index_post() {
-        if (isset($_REQUEST['confirm'])) {
-            require_once(sprintf('%s%scommons%sschema.php',BASEPATH,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR));
-            try {
-                if (count($this->schema) > $this->mySchema) {
-                    $items = array_slice($this->schema,$this->mySchema,null,true);
-                    foreach($items AS $version => &$updates) {
-                        ++$version;
-                        foreach($updates AS $i => &$update) {
-                            if (is_callable($update)) {
-                                $result = $update();
-                                if (is_string($result)) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Function Error:</b> <pre>%s</pre></p><p><b>Function:</b> <pre>%s</pre></p>', "$version - $i",$result, print_r($update, 1));
-                            } else if (!self::$DB->query($update)->fetch()->get()) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i",self::$DB->sqlerror(),$update);
-                        }
-                        unset($update);
-                    }
-                    unset($updates);
-                    self::$DB->current_db();
-                    if (self::$DB->db_name()) {
-                        $newSchema = self::getClass('SchemaManager')->find();
-                        $newSchema = @array_shift($newSchema);
-                        if (!($newSchema instanceof Schema && $newSchema->isValid())) $newSchema = self::getClass('Schema');
-                        $newSchema->set('version',$version);
-                        if (!$newSchema->save() || count($this->schema) != $newSchema->get('version')) {
-                            printf('<p>%s</p>',_('Install / Update Failed!'));
-                            if (count($errors)) throw new Exception(sprintf('<h2>%s</h2>%s',_('The following errors occurred'),implode('<hr/>',$errors)));
-                        }
-                    }
-                    printf('<p>%s</p>',_('Install/Upgrade Successful!'));
-                    if (count($errors)) throw new Exception(sprintf('<h2>%s</h2>%s',_('The following errors occured'),implode('<hr/>',$errors)));
-
-                } else printf('<p>%s</p>',_('Update not required!'));
-            } catch (Exception $e) {
-                printf('<p>%s</p>',$e->getMessage());
-                exit;
+        if (!isset($_REQUEST['confirm'])) return;
+        require_once(sprintf('%s%scommons%sschema.php',BASEPATH,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR));
+        try {
+            if (count($this->schema) <= $this->mySchema) throw new Exception(_('Update not required!'));
+            $items = array_slice($this->schema,$this->mySchema,null,true);
+            foreach($items AS $version => &$updates) {
+                ++$version;
+                foreach($updates AS $i => &$update) {
+                    if (is_callable($update)) {
+                        $result = $update();
+                        if (is_string($result)) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Function Error:</b> <pre>%s</pre></p><p><b>Function:</b> <pre>%s</pre></p>', "$version - $i",$result, print_r($update, 1));
+                    } else if (!self::$DB->query($update)->fetch()->get()) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i",self::$DB->sqlerror(),$update);
+                }
+                unset($update);
             }
-            printf('<p>%s <a href="./index.php">%s</a> %s</p>',_('Click'),_('here'),_('to login'));
+            unset($updates);
+            self::$DB->current_db();
+            if (self::$DB->db_name()) {
+                $newSchema = self::getClass('SchemaManager')->find();
+                $newSchema = @array_shift($newSchema);
+                if (!($newSchema instanceof Schema && $newSchema->isValid())) $newSchema = self::getClass('Schema');
+                $newSchema->set('version',$version);
+                if (!$newSchema->save() || count($this->schema) != $newSchema->get('version')) {
+                    printf('<p>%s</p>',_('Install / Update Failed!'));
+                    if (count($errors)) throw new Exception(sprintf('<h2>%s</h2>%s<bad>',_('The following errors occurred'),implode('<hr/>',$errors)));
+                }
+            }
+            if (count($errors)) throw new Exception(sprintf('<h2>%s</h2>%s',_('The following errors occured'),implode('<hr/>',$errors)));
+            throw new Exception(_('Install/Upgrade Successful!'));
+        } catch (Exception $e) {
+            if (strpos('<bad>',$e->getMessage())) die(str_replace('<bad>','',$e->getMessage()));
+            printf('<p>%s</p>',$e->getMessage());
         }
+        printf('<p>%s <a href="./index.php">%s</a> %s</p>',_('Click'),_('here'),_('to login'));
     }
 }

@@ -41,7 +41,7 @@ class MySQL extends DatabaseManager {
             if (isset($data) && !is_array($data)) $data = array($data);
             if (count($data)) $sql = vsprintf($sql,$data);
             $this->info($sql);
-            self::$query = sprintf('/*qc=on*/%s',$sql);
+            self::$query = $sql;
             self::current_db();
             if (!self::$query) throw new Exception(_('No query sent'));
             else if (!self::$queryResult = self::$link->query(self::$query)) throw new Exception(sprintf('%s: %s',_('Error'),$this->sqlerror()));
