@@ -1698,7 +1698,8 @@ class Config {
     curl --silent -ko "${workingdir}/checksum_init/checksums" https://fogproject.org/inits/index.php -ko "${workingdir}/checksum_kernel/checksums" https://fogproject.org/kernels/index.php >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Downloading inits, kernels, and the fog client"
-    curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl
+    curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -ko -L
+    https://github.com/FOGProject/fog-client/releases/download/0.10.0/SmartInstaller.exe
     >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Comparing checksums of kernels and inits"
