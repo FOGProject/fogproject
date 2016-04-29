@@ -29,6 +29,7 @@ class SchemaUpdaterPage extends FOGPage {
     public function index_post() {
         if (!isset($_REQUEST['confirm'])) return;
         require_once(sprintf('%s%scommons%sschema.php',BASEPATH,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR));
+        $errors = array();
         try {
             if (count($this->schema) <= $this->mySchema) throw new Exception(_('Update not required!'));
             $items = array_slice($this->schema,$this->mySchema,null,true);
@@ -38,7 +39,7 @@ class SchemaUpdaterPage extends FOGPage {
                     if (is_callable($update)) {
                         $result = $update();
                         if (is_string($result)) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Function Error:</b> <pre>%s</pre></p><p><b>Function:</b> <pre>%s</pre></p>', "$version - $i",$result, print_r($update, 1));
-                    } else if (!self::$DB->query($update)->fetch()->get()) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i",self::$DB->sqlerror(),$update);
+                    } else if (false === self::$DB->query($update)->fetch()->get()) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i",self::$DB->sqlerror(),$update);
                 }
                 unset($update);
             }
