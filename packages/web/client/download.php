@@ -3,6 +3,7 @@ if (isset($_REQUEST['legclient'])) $filename = 'FogService.zip';
 if (isset($_REQUEST['newclient'])) $filename = 'FOGService.msi';
 if (isset($_REQUEST['fogprep'])) $filename = 'FogPrep.zip';
 if (isset($_REQUEST['fogcrypt'])) $filename = 'FOGCrypt.zip';
+if (isset($_REQUEST['smartinstaller'])) $filename = 'SmartInstaller.exe';
 if (!file_exists($filename)) exit;
 $file = basename($filename);
 ob_start();
