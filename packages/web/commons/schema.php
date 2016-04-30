@@ -1408,7 +1408,8 @@ $this->schema[] = array(
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_AES_ADPASS_ENCRYPT_KEY','This setting just stores the AES Encryption ADPass encryption key. It will only work for new clients.  This is the key used for encrypting ADPass in AES format. If FOG_NEW_CLIENT is selected, to set the ADPass you simply type the plain text password and click update.  It will automatically encrypt and store the encrypted password in the database for you.','jPlUQRw5vLsrz8I1TuZdWDSiMFqXHtcm','FOG Service')",
 );
 // 119
-$this->schema[] = array(
+$column = array_filter((array)self::$DB->getColumns('default','modules'));
+$this->schema[] = count($column) > 0 ? array() : array(
     "ALTER TABLE `".DATABASE_NAME."`.`modules` ADD COLUMN `default` INT DEFAULT 1 NOT NULL AFTER `description`"
 );
 // 120
@@ -1578,7 +1579,8 @@ $this->schema[] = array(
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_DHCP_BOOTFILENAME','This setting just sets what is in use for the boot filename.  It is up to the admin to ensure this setting is correct for their database to be accurate.  Default setting is undionly.kpxe','undionly.kpxe','TFTP Server')",
 );
 // 132
-$this->schema[] = array(
+$column = array_filter((array)self::$DB->getColumns('ipxeVersion','ipxeTable'));
+$this->schema[] = count($column) ? array() : array(
     "ALTER TABLE `".DATABASE_NAME."`.`ipxeTable` ADD COLUMN `ipxeVersion` LONGTEXT NOT NULL",
 );
 // 133

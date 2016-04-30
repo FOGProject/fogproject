@@ -26,21 +26,21 @@ class Schema extends FOGController {
         if ($dropIndex) self::$DB->query("ALTER TABLE `$dbname`.`$tablename` DROP INDEX `$dropIndex`");
     }
     public function export_db($backup_name = '',$remove_file = true) {
-        $orig_exec_time = ini_get('max_execution_time');
-        ini_set('max_execution_time',300);
-        $file = '/tmp/fog_backup_tmp.sql';
-        if (!$backup_name) $backup_name = sprintf('fog_backup_%s.sql',$this->formatTime('','Ymd_His'));
-        $dump = self::getClass('Mysqldump');
         while (ob_get_level()) {
             flush();
             ob_flush();
             ob_end_flush();
         }
+        $orig_exec_time = ini_get('max_execution_time');
+        $orig_term_time = ini_get('request_terminate_timeout');
+        ini_set('max_execution_time',300);
+        ini_set('request_terminate_timeout',300);
+        $file = '/tmp/fog_backup_tmp.sql';
+        if (!$backup_name) $backup_name = sprintf('fog_backup_%s.sql',$this->formatTime('','Ymd_His'));
+        $dump = self::getClass('Mysqldump');
         ob_start();
         $dump->start($file);
-        ob_end_clean();
         if (!file_exists($file) || !is_readable($file)) throw new Exception(_('Could not read tmp file.'));
-        ob_start();
         if ($remove_file) {
             $fh = fopen($file,'rb');
             header('Content-Type: text/plain');
@@ -59,9 +59,14 @@ class Schema extends FOGController {
         ob_flush();
         ob_end_flush();
         ini_set('max_execution_time',$orig_exec_time);
+        ini_set('request_terminate_timeout',$orig_term_time);
         return $file;
     }
     public function import_db($file) {
+        $orig_exec_time = ini_get('max_execution_time');
+        $orig_term_time = ini_get('request_terminate_timeout');
+        ini_set('max_execution_time',300);
+        ini_set('request_terminate_timeout',300);
         $mysqli = self::$DB->link();
         if (false === ($fh = fopen($file,'rb'))) throw new Exception(_('Error Opening DB File'));
         while (($line = fgets($fh)) !== false) {
@@ -73,6 +78,8 @@ class Schema extends FOGController {
             }
         }
         fclose($fh);
+        ini_set('max_execution_time',$orig_exec_time);
+        ini_set('request_terminate_timeout',$orig_term_time);
         if ($error) return $error;
         return true;
     }
