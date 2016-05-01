@@ -8,6 +8,7 @@ class Schema extends FOGController {
     public function drop_duplicate_data($dbname,$table = array(),$indexNeeded = false) {
         if (empty($dbname)) return;
         if (count($table) < 1) return;
+        $queries = array();
         $tablename = $table[0];
         $indexes = (array)$table[1];
         $dropIndex = $table[2];
@@ -18,12 +19,13 @@ class Schema extends FOGController {
         } else {
             $ending = sprintf('(`%s`)',implode('`,`',$indexes));
         }
-        self::$DB->query("CREATE TABLE `$dbname`.`_$tablename` LIKE `$dbname`.`$tablename`");
-        self::$DB->query("ALTER TABLE `$dbname`.`_$tablename` ADD UNIQUE $ending");
-        self::$DB->query("INSERT IGNORE INTO `$dbname`.`_$tablename` SELECT * FROM `$dbname`.`$tablename`");
-        self::$DB->query("DROP TABLE `$dbname`.`$tablename`");
-        self::$DB->query("RENAME TABLE `$dbname`.`_$tablename` TO `$dbname`.`$tablename`");
-        if ($dropIndex) self::$DB->query("ALTER TABLE `$dbname`.`$tablename` DROP INDEX `$dropIndex`");
+        $queries[] = "CREATE TABLE `$dbname`.`_$tablename` LIKE `$dbname`.`$tablename`";
+        $queries[] = "ALTER TABLE `$dbname`.`_$tablename` ADD UNIQUE $ending";
+        $queries[] = "INSERT IGNORE INTO `$dbname`.`_$tablename` SELECT * FROM `$dbname`.`$tablename`";
+        $queries[] = "DROP TABLE `$dbname`.`$tablename`";
+        $queries[] = "RENAME TABLE `$dbname`.`_$tablename` TO `$dbname`.`$tablename`";
+        if ($dropIndex) $queries[] = "ALTER TABLE `$dbname`.`$tablename` DROP INDEX `$dropIndex`";
+        return $queries;
     }
     public function export_db($backup_name = '',$remove_file = true) {
         while (ob_get_level()) {
