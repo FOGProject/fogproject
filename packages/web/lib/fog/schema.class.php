@@ -28,11 +28,6 @@ class Schema extends FOGController {
         return $queries;
     }
     public function export_db($backup_name = '',$remove_file = true) {
-        while (ob_get_level()) {
-            flush();
-            ob_flush();
-            ob_end_flush();
-        }
         $orig_exec_time = ini_get('max_execution_time');
         $orig_term_time = ini_get('request_terminate_timeout');
         ini_set('max_execution_time',300);
@@ -44,6 +39,7 @@ class Schema extends FOGController {
         $dump->start($file);
         if (!file_exists($file) || !is_readable($file)) throw new Exception(_('Could not read tmp file.'));
         if ($remove_file) {
+            while (ob_get_level()) ob_end_flush();
             $fh = fopen($file,'rb');
             header('Content-Type: text/plain');
             header("Content-Disposition: attachment; filename=$backup_name");
@@ -51,9 +47,10 @@ class Schema extends FOGController {
             while (feof($fh) === false) {
                 echo fread($fh,4096);
                 flush();
-                ob_flush();
             }
             fclose($fh);
+            ini_set('max_execution_time',$orig_exec_time);
+            ini_set('request_terminate_timeout',$orig_term_time);
             unlink($file);
             return;
         }
