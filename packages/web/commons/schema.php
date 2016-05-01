@@ -101,7 +101,7 @@ KEY `new_index4` (`taskType`)
 KEY `new_index` (`uName`),
 KEY `new_index1` (`uPass`)
     ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`users` VALUES  ('','fog', MD5('password'),'0000-00-00 00:00:00','')",
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.`users` VALUES  ('','fog', MD5('password'),NOW(),'')",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`supportedOS` VALUES  ('','"._("Windows XP")."', '1')",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`schemaVersion` VALUES  ('','1')"
 );
@@ -1083,13 +1083,9 @@ $this->schema[] = array(
 );
 // 36
 // Blackout - 12:18 PM 4/05/2012
-$this->schema[] = array(
-    "CREATE TABLE `".DATABASE_NAME."`.`groupMembersTemp` LIKE `".DATABASE_NAME."`.`groupMembers`",
-    "INSERT `".DATABASE_NAME."`.`groupMembersTemp` SELECT * FROM `".DATABASE_NAME."`.`groupMembers`",
-    "delete from `".DATABASE_NAME."`.`groupMembers` where gmID in (select gmID from `".DATABASE_NAME."`.`groupMembersTemp` group by gmHostID, gmGroupID having count(*) > 1)",
-    "drop table `".DATABASE_NAME."`.`groupMembersTemp`",
-    "ALTER TABLE `".DATABASE_NAME."`.`groups` ADD UNIQUE ( `groupName` )",
-    "ALTER TABLE `".DATABASE_NAME."`.`groupMembers` ADD UNIQUE ( `gmHostID`, `gmGroupID` )"
+$this->schema[] = array_merge(
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('groupMembers',array('gmHostID','gmGroupID')),true),
+    array("ALTER TABLE `".DATABASE_NAME."`.`groups` ADD UNIQUE ( `groupName` )")
 );
 // 37
 // Blackout - 6:12 PM 5/05/2012
@@ -1553,7 +1549,7 @@ isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
 isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.approvehost';",
 );
 // 130
-$this->schema[] = array(
+$this->schema[] = array_merge(array(
     "ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmPrimary` INT DEFAULT 0 NOT NULL",
     "ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmPending` INT DEFAULT 0 NOT NULL",
     "ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmIgnoreClient` INT DEFAULT 0 NOT NULL",
@@ -1561,8 +1557,8 @@ $this->schema[] = array(
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.`hostMAC` (`hmHostID`,`hmMAC`,`hmIgnoreClient`,`hmIgnoreImaging`,`hmPending`,`hmPrimary`) SELECT `hostID`,`hostMAC`,'0','0','0','1' FROM `".DATABASE_NAME."`.`hosts` WHERE `hosts`.`hostMAC` IS NOT NULL",
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.`hostMAC` (`hmMAC`,`hmHostID`,`hmPending`) SELECT `pmAddress`,`pmHostID`,'1' FROM `".DATABASE_NAME."`.`pendingMACS` WHERE `pmAddress` IS NOT NULL",
     "ALTER TABLE `" . DATABASE_NAME ."`.`hosts` DROP COLUMN `hostMAC`",
-    "DROP TABLE `" . DATABASE_NAME ."`.`pendingMACS`",
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('hostMAC',array('hmHostID','hmMAC')),true),
+    "DROP TABLE `" . DATABASE_NAME ."`.`pendingMACS`"),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('hostMAC',array('hmHostID','hmMAC')),true)
 );
 // 131
 $this->schema[] = array(
@@ -1597,7 +1593,7 @@ $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`multicastSessions` ADD COLUMN `msSessClients` INT(11) NOT NULL AFTER msClients",
 );
 // 136
-$this->schema[] = array(
+$this->schema[] = array_merge(array(
     "ALTER TABLE `".DATABASE_NAME."`.`tasks` ADD COLUMN `taskImageID` INT(11) NOT NULL AFTER `taskHostID`",
     "CREATE TABLE IF NOT EXISTS `".DATABASE_NAME."`.`imageGroupAssoc` (
         `igaID` mediumint(9) NOT NULL auto_increment,
@@ -1606,8 +1602,8 @@ $this->schema[] = array(
         PRIMARY KEY  (`igaID`)
     ) ENGINE=MyISAM;",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`imageGroupAssoc` (`igaImageID`,`igaStorageGroupID`) SELECT `imageID`,`imageNFSGroupID` FROM `".DATABASE_NAME."`.`images` WHERE `imageNFSGroupID` IS NOT NULL",
-    "ALTER TABLE `".DATABASE_NAME."`.`images` DROP COLUMN `imageNFSGroupID`",
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('imageGroupAssoc',array('igaImageID','igaImageID'),'igaImageID'),true),
+    "ALTER TABLE `".DATABASE_NAME."`.`images` DROP COLUMN `imageNFSGroupID`"),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('imageGroupAssoc',array('igaImageID','igaImageID'),'igaImageID'),true)
 );
 // 137
 $this->schema[] = array(
@@ -1626,16 +1622,16 @@ $this->schema[] = array(
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_FROM_EMAIL','Email from address. Default is fogserver.  \$\{server-name\} is set to the node name.','noreply@\$\{server-name\}.com','FOG Email Settings')",
 );
 // 140
-$this->schema[] = array(
+$this->schema[] = array_merge(array(
     "CREATE TABLE IF NOT EXISTS `".DATABASE_NAME."`.`snapinGroupAssoc` (
         `sgaID` mediumint(9) NOT NULL auto_increment,
         `sgaSnapinID` mediumint(9) NOT NULL,
         `sgaStorageGroupID` mediumint(9) NOT NULL,
         PRIMARY KEY  (`sgaID`)
     ) ENGINE=MyISAM;",
-    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.`snapinGroupAssoc` (`sgaSnapinID`,`sgaStorageGroupID`) SELECT `sID`,`snapinNFSGroupID` FROM `".DATABASE_NAME."`.`snapins` WHERE `snapinNFSGroupID` IS NOT NULL",
-    "ALTER TABLE `" . DATABASE_NAME ."`.`snapins` DROP COLUMN `snapinNFSGroupID`",
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinGroupAssoc',array('sgaSnapinID','sgaSnapinID'),'sgaSnapinID'),true),
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.`snapinGroupAssoc` (`sgaSnapinID`,`sgaStorageGroupID`) SELECT `sID`,`snapinNFSGroupID` FROM `".DATABASE_NAME."`.`snapins` WHERE `snapinNFSGroupID` IS NOT NULL",
+    "ALTER TABLE `".DATABASE_NAME."`.`snapins` DROP COLUMN `snapinNFSGroupID`"),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinGroupAssoc',array('sgaSnapinID','sgaSnapinID'),'sgaSnapinID'),true)
 );
 // 141
 $this->schema[] = array(
@@ -1716,7 +1712,7 @@ $this->schema[] = array();
 // 160
 $this->schema[] = array();
 // 161
-$this->schema[] = array(
+$this->schema[] = array_merge(
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('greenFog',array('gfHostID'))),
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('groups',array('groupName'))),
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('hosts',array('hostName'))),
@@ -1745,12 +1741,10 @@ $this->schema[] = array(
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('oui',array('ouiMACPrefix','ouiMan'))),
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('printerAssoc',array('paHostID','paPrinterID'))),
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinAssoc',array('saSnapinID','saHostID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinAssoc',array('sgaStorageGroupID','sgaSnapinID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinAssoc',array('sgaStorageGroupID','sgaSnapinID')))
 );
 // 162
-$this->schema[] = array(
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinTasks',array('stJobID','stSnapinID'))),
-);
+$this->schema[] = $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinTasks',array('stJobID','stSnapinID')));
 // 163
 $this->schema[] = array(
     "DROP TABLE IF EXISTS `".DATABASE_NAME."`.`hostFingerprintAssoc`,`".DATABASE_NAME."`.`queueAssoc`,`".DATABASE_NAME."`.`nodeJSconfig`",
@@ -1821,7 +1815,7 @@ $this->schema[] = array(
 );
 // 179
 $this->schema[] = array(
-    "ALTER TABLE `" . DATABASE_NAME ."`.`hosts` ADD COLUMN `hostSecTime` TIMESTAMP NOT NULL",
+    "ALTER TABLE `" . DATABASE_NAME ."`.`hosts` ADD COLUMN `hostSecTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
 );
 // 180
 $this->schema[] = array(
@@ -1918,11 +1912,11 @@ $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.`nfsGroupMembers` SET `ngmWebroot`='/fog/'",
 );
 // 189
-$this->schema[] = array(
+$this->schema[] = array_merge(
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('globalSettings',array('settingKey'),'settingKey'),true),
-    "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_PATH'",
+    array("DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_PATH'",
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_HOST'",
-    "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_INTERFACE'",
+    "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_INTERFACE'")
 );
 // 190
 $this->schema[] = array(
