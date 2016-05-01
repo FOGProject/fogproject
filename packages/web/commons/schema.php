@@ -1741,7 +1741,7 @@ $this->schema[] = array_merge(
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('oui',array('ouiMACPrefix','ouiMan'))),
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('printerAssoc',array('paHostID','paPrinterID'))),
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinAssoc',array('saSnapinID','saHostID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinAssoc',array('sgaStorageGroupID','sgaSnapinID')))
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinGroupAssoc',array('sgaStorageGroupID','sgaSnapinID')))
 );
 // 162
 $this->schema[] = $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinTasks',array('stJobID','stSnapinID')));
