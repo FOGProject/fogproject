@@ -64,7 +64,7 @@ class AddLocationHost extends Hook {
     }
     public function HostRegister($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $locationID = trim(base64_decode($_REQUEST['location']));
+        $locationID = $_REQUEST['location'];
         $Location = self::getClass('Location',$locationID);
         if (!$Location->isValid()) return;
         $Location->addHost($arguments['Host']->get('id'))->save(false);
