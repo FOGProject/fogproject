@@ -29,9 +29,7 @@ class Schema extends FOGController {
     }
     public function export_db($backup_name = '',$remove_file = true) {
         $orig_exec_time = ini_get('max_execution_time');
-        $orig_term_time = ini_get('request_terminate_timeout');
-        ini_set('max_execution_time',300);
-        ini_set('request_terminate_timeout',300);
+        set_time_limit(0);
         $file = '/tmp/fog_backup_tmp.sql';
         if (!$backup_name) $backup_name = sprintf('fog_backup_%s.sql',$this->formatTime('','Ymd_His'));
         $dump = self::getClass('Mysqldump');
@@ -57,15 +55,12 @@ class Schema extends FOGController {
         flush();
         ob_flush();
         ob_end_flush();
-        ini_set('max_execution_time',$orig_exec_time);
-        ini_set('request_terminate_timeout',$orig_term_time);
+        set_time_limit($orig_exec_time);
         return $file;
     }
     public function import_db($file) {
         $orig_exec_time = ini_get('max_execution_time');
-        $orig_term_time = ini_get('request_terminate_timeout');
-        ini_set('max_execution_time',300);
-        ini_set('request_terminate_timeout',300);
+        set_time_limit(0);
         $mysqli = self::$DB->link();
         if (false === ($fh = fopen($file,'rb'))) throw new Exception(_('Error Opening DB File'));
         while (($line = fgets($fh)) !== false) {
@@ -77,8 +72,7 @@ class Schema extends FOGController {
             }
         }
         fclose($fh);
-        ini_set('max_execution_time',$orig_exec_time);
-        ini_set('request_terminate_timeout',$orig_term_time);
+        set_time_limit($orig_exec_time);
         if ($error) return $error;
         return true;
     }
