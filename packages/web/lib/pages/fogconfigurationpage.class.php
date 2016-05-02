@@ -118,15 +118,24 @@ class FOGConfigurationPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $noMenu = self::getSetting('FOG_NO_MENU') ? ' checked' : '';
-        $hidChecked = (self::getSetting('FOG_PXE_MENU_HIDDEN') ? ' checked' : '');
-        $hideTimeout = self::getSetting('FOG_PXE_HIDDENMENU_TIMEOUT');
-        $timeout = self::getSetting('FOG_PXE_MENU_TIMEOUT');
-        $bootKeys = self::getClass('KeySequenceManager')->buildSelectBox(self::getSetting('FOG_KEY_SEQUENCE'));
-        $advLogin = (self::getSetting('FOG_ADVANCED_MENU_LOGIN') ? ' checked' : '');
-        $advanced = self::getSetting('FOG_PXE_ADVANCED');
-        $exitNorm = Service::buildExitSelector('bootTypeExit',self::getSetting('FOG_BOOT_EXIT_TYPE'));
-        $exitEfi = Service::buildExitSelector('efiBootTypeExit',self::getSetting('FOG_EFI_BOOT_EXIT_TYPE'));
+        $ServicesToSee = array(
+            'FOG_ADVANCED_MENU_LOGIN',
+            'FOG_BOOT_EXIT_TYPE',
+            'FOG_EFI_BOOT_EXIT_TYPE',
+            'FOG_KEY_SEQUENCE',
+            'FOG_NO_MENU',
+            'FOG_PXE_ADVANCED',
+            'FOG_PXE_HIDDENMENU_TIMEOUT',
+            'FOG_PXE_MENU_HIDDEN',
+            'FOG_PXE_MENU_TIMEOUT',
+        );
+        list($advLogin,$exitNorm,$exitEfi,$bootKeys,$noMenu,$advanced,$hideTimeout,$hidChecked,$timeout) = self::getSubObjectIDs('Service',array('name'=>$ServicesToSee),'value');
+        $advLogin = $advLogin ? ' checked' : '';
+        $exitNorm = Service::buildExitSelector('bootTypeExit',$exitNorm);
+        $exitEfi = Service::buildExitSelector('efiBootTypeExit',$exitEfi);
+        $bootKeys = self::getClass('KeySequenceManager')->buildSelectBox($bootKeys);
+        $noMenu = $noMenu ? ' checked' : '';
+        $hidChecked = $hidChecked ? ' checked' : '';
         $fields = array(
             _('No Menu') => sprintf('<input type="checkbox" name="nomenu" value="1"%s/><i class="icon fa fa-question hand" title="%s"></i>',$noMenu,_('Option sets if there will even be the presence of a menu to the client systems. If there is not a task set, it boots to the first device, if there is a task, it performs that task.')),
             _('Hide Menu') => sprintf('<input type="checkbox" name="hidemenu" value="1"%s/><i class="icon fa fa-question hand" title="%s"></i>',$hidChecked,_('Option below sets the key sequence. If none is specified, ESC is defaulted. Login with the FOG Credentials and you will see the menu. Otherwise it will just boot like normal.')),
