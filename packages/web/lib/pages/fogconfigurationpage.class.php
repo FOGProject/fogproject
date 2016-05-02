@@ -532,17 +532,17 @@ class FOGConfigurationPage extends FOGPage {
                     $type = sprintf('<select name="${service_id}" autocomplete="off" style="width: 220px">%s</select>',ob_get_clean());
                     break;
                 case 'FOG_QUICKREG_IMG_ID':
-                    $type = self::getClass('ImageManager')->buildSelectBox(self::getSetting('FOG_QUICKREG_IMG_ID'),sprintf('%s" id="${service_name}"',$Service->get('id')));
+                    $type = self::getClass('ImageManager')->buildSelectBox($Service->get('value'),sprintf('%s" id="${service_name}"',$Service->get('id')));
                     break;
                 case 'FOG_QUICKREG_GROUP_ASSOC':
-                    $type = self::getClass('GroupManager')->buildSelectBox(self::getSetting('FOG_QUICKREG_GROUP_ASSOC'),$Service->get('id'));
+                    $type = self::getClass('GroupManager')->buildSelectBox($Service->get('value'),$Service->get('id'));
                     break;
                 case 'FOG_KEY_SEQUENCE':
-                    $type = self::getClass('KeySequenceManager')->buildSelectBox(self::getSetting('FOG_KEY_SEQUENCE'),$Service->get('id'));
+                    $type = self::getClass('KeySequenceManager')->buildSelectBox($Service->get('value'),$Service->get('id'));
                     break;
                 case 'FOG_QUICKREG_OS_ID':
                     $ImageName = _('No image specified');
-                    if (self::getSetting('FOG_QUICKREG_IMG_ID') > 0) $ImageName = self::getClass('Image',self::getSetting('FOG_QUICKREG_IMG_ID'))->get('name');
+                    if ($Service->get('value') > 0) $ImageName = self::getClass('Image',$Service->get('value'))->get('name');
                     $type = sprintf('<p id="${service_name}">%s</p>',$ImageName);
                     break;
                 case 'FOG_TZ_INFO':
