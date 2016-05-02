@@ -850,8 +850,12 @@ abstract class FOGPage extends FOGBase {
         exit;
     }
     public function clearAES() {
-        if (isset($_REQUEST['groupid'])) self::getClass('HostManager')->update(array('id'=>self::getClass('Group',$_REQUEST['groupid'])->get('hosts')),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
-        else if (isset($_REQUEST['id'])) self::getClass('HostManager')->update(array('id'=>$_REQUEST['id']),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
+        $groupid = (int)$_REQUEST['groupid'];
+        $id = (int)$_REQUEST['id'];
+        if (!$groupid && !$id) return;
+        if ($groupid > 0) $Hosts = self::getClass('Group',$groupid)->get('hosts');
+        else if ($id > 0) $Hosts = $id;
+        self::getClass('HostManager')->update(array('id'=>$Hosts),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
     }
     public function delete_post() {
         self::$HookManager->processEvent(sprintf('%s_DEL_POST',strtoupper($this->node)), array($this->childClass=>&$this->obj));
