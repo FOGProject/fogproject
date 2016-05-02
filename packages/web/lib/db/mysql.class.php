@@ -43,6 +43,8 @@ class MySQL extends DatabaseManager {
             $this->info($sql);
             self::$query = $sql;
             self::current_db();
+            //self::$link->query("SET SESSION sql_mode='NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES'");
+            self::$link->query("SET SESSION sql_mode=''");
             if (!self::$query) throw new Exception(_('No query sent'));
             else if (!self::$queryResult = self::$link->query(self::$query)) throw new Exception(sprintf('%s: %s',_('Error'),$this->sqlerror()));
             if (!self::$db_name) self::current_db();
