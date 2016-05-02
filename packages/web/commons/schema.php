@@ -1603,7 +1603,7 @@ $this->schema[] = array_merge(array(
     ) ENGINE=MyISAM;",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`imageGroupAssoc` (`igaImageID`,`igaStorageGroupID`) SELECT `imageID`,`imageNFSGroupID` FROM `".DATABASE_NAME."`.`images` WHERE `imageNFSGroupID` IS NOT NULL",
     "ALTER TABLE `".DATABASE_NAME."`.`images` DROP COLUMN `imageNFSGroupID`"),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('imageGroupAssoc',array('igaImageID','igaImageID'),'igaImageID'),true)
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('imageGroupAssoc',array('igaImageID','igaImageID')),true)
 );
 // 137
 $this->schema[] = array(

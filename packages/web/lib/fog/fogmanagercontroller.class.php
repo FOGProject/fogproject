@@ -13,7 +13,7 @@ abstract class FOGManagerController extends FOGBase {
     protected $updateQueryTemplate = 'UPDATE `%s` SET %s %s';
     protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`.`%s` IN ('%s')";
     protected $existsQueryTemplate = "SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s` WHERE `%s`.`%s`='%s' AND `%s`.`%s` <> '%s'";
-    protected $insertBatchTemplate = "INSERT INTO `%s` (`%s`) VALUES %s";
+    protected $insertBatchTemplate = "INSERT IGNORE INTO `%s` (`%s`) VALUES %s";
     private static function init($class) {
         if (self::$initializedController === hash('sha512',$class)) return;
         $classVars = self::getClass($class,'',true);
