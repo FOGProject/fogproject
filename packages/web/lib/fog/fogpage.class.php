@@ -835,8 +835,10 @@ abstract class FOGPage extends FOGBase {
                 }
                 if (in_array($key,$globalDisabled)) {
                     //if ($key === 'printermanager') $array[$key] = self::getClass($class,true,false,false,false,$this->newService);
+                    if ($key === 'autologout') $array[$key]['time'] = 0;
                     $array[$key]['error'] = 'ng';
                 } else if (in_array($key,$hostDisabled)) {
+                    if ($key === 'autologout') $array[$key]['time'] = 0;
                     //if ($key === 'printermanager') $array[$key] = self::getClass($class,true,false,false,false,$this->newService);
                     $array[$key]['error'] = 'nh';
                 } else $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
