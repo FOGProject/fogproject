@@ -496,13 +496,6 @@ abstract class FOGBase {
         },(array)$needles);
         return (bool)count(array_filter($mapinfo));
     }
-    /*protected function array_strpos($haystack, $needles, $case = true) {
-        $mapinfo = array_map(function(&$needle) use ($haystack,$needles,$case) {
-            if ($case) return (bool)strpos($haystack,$needle) !== false;
-            return (bool)stripos($haystack,$needle) !== false;
-        },(array)$needles);
-        return (bool)!in_array(false,$mapinfo,true);
-    }*/
     protected function log($txt, $level = 1) {
         if (self::$ajax) return;
         $txt = trim(preg_replace(array("#\r#","#\n#",'#\s+#','# ,#'),array('',' ',' ',','),$txt));
