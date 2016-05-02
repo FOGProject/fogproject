@@ -1913,7 +1913,7 @@ $this->schema[] = array(
 );
 // 189
 $this->schema[] = array_merge(
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('globalSettings',array('settingKey'),'settingKey'),true),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('globalSettings',array('settingKey','settingKey'),'settingKey'),true),
     array("DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_PATH'",
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_HOST'",
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_INTERFACE'")
