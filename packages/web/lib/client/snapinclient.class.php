@@ -131,7 +131,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 $this->send = implode("\n",$goodArray);
             } else if (isset($_REQUEST['taskid'])) {
                 // Downloads the snapin file and sets the tasking to in-progress
-                if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getProgressState())->set('checkInTime',self::nice_date()->formate('Y-m-d H:i:s'))->save();
+                if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getProgressState())->set('checkInTime',self::nice_date()->format('Y-m-d H:i:s'))->save();
                 $this->Host->get('snapinjob')->set('stateID',$this->getProgressState())->save();
                 $SnapinTask->set('stateID',$this->getProgressState())->set('return',-1)->set('details',_('Pending...'))->save();
                 while (ob_get_level()) ob_end_clean();
