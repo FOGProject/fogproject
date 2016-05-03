@@ -51,7 +51,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 self::$EventManager->notify('HOST_SNAPIN_COMPLETE',array('HostName'=>&$hostname));
                 throw new Exception('#!ns');
             }
-            if ($this->json) return $this->jsonoutput();
+            if (!isset($_REQUEST['exitcode']) && $this->json) return $this->jsonoutput();
             $SnapinTask = self::getClass('SnapinTask',isset($_REQUEST['taskid']) ? $_REQUEST['taskid'] : @min(self::getSubObjectIDs('SnapinTask',array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))));
             if (!$SnapinTask->isValid()) throw new Exception(_('Invalid Snapin Tasking'));
             $Snapin = $SnapinTask->getSnapin();
