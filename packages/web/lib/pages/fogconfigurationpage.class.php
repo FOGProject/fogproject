@@ -129,7 +129,7 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_PXE_MENU_HIDDEN',
             'FOG_PXE_MENU_TIMEOUT',
         );
-        list($advLogin,$exitNorm,$exitEfi,$bootKeys,$noMenu,$advanced,$hideTimeout,$hidChecked,$timeout) = self::getSubObjectIDs('Service',array('name'=>$ServicesToSee),'value');
+        list($advLogin,$exitNorm,$exitEfi,$bootKeys,$noMenu,$advanced,$hideTimeout,$hidChecked,$timeout) = self::getSubObjectIDs('Service',array('name'=>$ServicesToSee),'value',false,'AND','name',false,'');
         $advLogin = $advLogin ? ' checked' : '';
         $exitNorm = Service::buildExitSelector('bootTypeExit',$exitNorm);
         $exitEfi = Service::buildExitSelector('efiBootTypeExit',$exitEfi);
