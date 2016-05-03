@@ -41,8 +41,10 @@ abstract class FOGService extends FOGBase {
             sleep(10);
             $this->wait_interface_ready();
         }
-        foreach (self::$ips AS $i => &$ip) self::outall(_("Interface Ready with IP Address: $ip"),static::$dev);
-        unset($ip);
+        foreach (self::$ips AS &$ip) {
+            self::outall(_("Interface Ready with IP Address: $ip"),static::$dev);
+            unset($ip);
+        }
     }
     public static function wait_db_ready() {
         if (!self::$DB->link()->connect_errno) return;

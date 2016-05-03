@@ -1,71 +1,124 @@
 #!/bin/bash
-workingdir="$(pwd)/../../"
-. $workingdir/lib/common/functions.sh
-. $workingdir/lib/common/config.sh
-version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' $workingdir/packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
-clearScreen
-displayBanner
-echo "   Version: ${version} Backup"
-echo
-if [[ ! -r $fogprogramdir/.fogsettings ]]; then
-    IMAGEDIR="/images"
-    SNAPINDIR="/opt/fog/snapins"
-    REPORTDIR="/var/www/html/fog/management/reports"
-    MYSQL_USER="root"
-    MYSQL_PASSWORD=""
-    MYSQL_HOST="127.0.0.1"
-    MYSQL_DATABASE="fog"
-else
-    . $fogprogramdir/.fogsettings
-    [[ -n $storageLocation ]] && IMAGEDIR="$storageLocation" || IMAGEDIR="/images"
-    SNAPINDIR="/opt/fog/snapins"
-    REPORT="${docroot}${webroot}/management/reports"
-    [[ -n $snmysqluser ]] && MYSQL_USER="$snmysqluser" || MYSQL_USER="root"
-    [[ -n $snmysqlhost ]] && MYSQL_HOST="$(echo $snmysqlhost | sed 's/p[:]//g')" || MYSQL_HOST="127.0.0.1"
-    [[ -n $snmysqlpass ]] && MYSQL_PASSWORD="$snmysqlpass" || MYSQL_PASSWORD=""
-    MYSQL_DATABASE="fog"
-fi
 usage() {
-	echo "  FOG Backup Usage:"
-	echo
-	echo " $0 backuplocation"
-	echo "      backuplocation is the path where you would like to store your backup files"
-    [[ -n $1 && $1 -eq 2 ]] && echo "      Backup location must exist prior"
-    exit $1
+    echo -e "Usage: $0 [-h?] [-B </backup/path/>]"
+    echo -e "\t-h -? --help\t\t\tDisplay this info"
+    echo -e "\t-B -b --backuppath\t\tSpecify the backup path.\n\t\tIf not set will use backupPath from fog settings plus fog_backup_DATE."
 }
-clear
-[[ -z $1 ]] && usage 1
-[[ ! -d $1 ]] && usage 2
-sleep 2
-echo
-echo "  This script is only tested on Fedora!"
-echo
-sleep 1
-echo "   Using backup directory: $1"
-echo
-sleep 1
-backupdir="$1/"
-echo
+. ../../lib/common/utils.sh
+optspec="h?B:b:-:"
+while getopts "$optspec" o; do
+    case $o in
+        -)
+            case $OPTARG in
+                help)
+                    usage
+                    exit 0
+                    ;;
+                backuppath)
+                    if [[ ! -d $OPTARG ]]; then
+                        usage
+                        handleError "Path must be an existing directory" 8
+                    fi
+                    backupPath=$OPTARG
+                    ;;
+                *)
+                    if [[ $OPTERR -eq 1 && ${optspec:0:1} != : ]]; then
+                        usage
+                        handleError "Unknown option: --${OPTARG}" 9
+                    fi
+                    ;;
+            esac
+            ;;
+        [Hh]|'?')
+            usage
+            exit 0
+            ;;
+        [Bb])
+            if [[ ! -d $OPTARG ]]; then
+                usage
+                handleError "Path must be an existing directory" 8
+            fi
+            backupPath=$OPTARG
+            ;;
+        :)
+            usage
+            handleError "Option -$OPTARG requires a value" 10
+            ;;
+        *)
+            if [[ $OPTERR -eq 1 && ${optspec:0:1} != : ]]; then
+                usage
+                handleError "Unknown option: -${OPTARG}" 9
+            fi
+            ;;
+    esac
+done
+if [[ -z $backupPath ]]; then
+    usage
+    handleError "A path to backup the data must be set." 11
+fi
+if [[ ! -d $backupPath ]]; then
+    usage
+    handleError "Path must be an existing directory" 8
+fi
+backupDate=$(date +"%Y%m%d");
+backupDirO="$backupPath/$backupDate"
+backupDir="$backupPath/$backupDate"
+while [[ -d $backupDir ]]; do
+    countBackup=`ls | grep $backupDirO | wc -l`
+    backupDir="${backupDir}_$countBackup"
+done
+[[ ! -d $backupDir ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
+[[ ! -d $backupDir/images || $backupDir/mysql || $backupDir/snapins || $backupDir/reports || $backupDir/logs ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
+backupDB() {
+    dots "Backing up database"
+    wget --no-check-certificate -O $backupDir/mysql/fog.sql "http://$ipaddress/$webroot/management/export.php?type=sql" 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
+    stat=$?
+    if [[ ! $stat -eq 0 ]]; then
+        echo "Failed"
+        handleError "Could not create/download sql backup file" 12
+    fi
+    echo "Done"
+}
+backupImages() {
+    imageLocation=$storageLocation
+    [[ ! -d $imageLocation ]] && handleError "Images location:$imageLocation does not exist on this server" 15
+    dots "Backing up images"
+    cp -auv $imageLocation/ $backupDir/snapins 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
+    stat=$?
+    if [[ ! $stat -eq 0 ]]; then
+        echo "Failed"
+        handleError "Could not backup images" 13
+    fi
+    echo "Done"
+}
+backupSnapins() {
+    [[ -z $snapinLocation ]] && snapinLocation='/opt/fog/snapins'
+    [[ ! -d $snapinLocation ]] && handleError "Snapins location:$snapinLocation does not exist on this server. Please add snapinLocation='/path/to/snapins' to .fogsettings." 16
+    dots "Backing up snapins"
+    cp -auv $snapinLocation/ $backupDir/snapins 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
+    stat=$?
+    if [[ ! $stat -eq 0 ]]; then
+        echo "Failed"
+        handleError "Could not backup snapins" 14
+    fi
+    echo "Done"
+}
+backupReports() {
+    $reportLocation="$webdirdest/management/reports"
+    [[ ! -d $reportLocation ]] && handleError "Reports location: $reportLocation does not exist on this server" 18
+    cp -auv $reportLocation/ $backupDir/reports 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1 -name *.report.php
+    stat=$?
+    if [[ ! $stat -eq 0 ]]; then
+        echo "Failed"
+        handleError "Could not backup reports" 17
+    fi
+    echo "Done"
+}
 starttime=$(date +%D%t%r)
-echo "   Task started at: $starttime"
-echo
-[[ ! -d $backupdir/images || ! -d $backupdir/mysql || ! -d $backupdir/snapins || -d $backupdir/reports ]] && mkdir -p $backupdir/{images,mysql,snapins,reports} >/dev/null 2>&1
-dots " * Backing up MySQL database"
-mysqldump -h"\'$MYSQL_HOST\'" -u"\'$MYSQL_USER\'" -p"\'$MYSQL_PASSWORD\'" --allow-keywords -f $MYSQL_DATABASE > $backupdir/mysql/fog.sql
-errorStat $?
-echo "Done"
-dots " * Backing up images"
-[[ -d $IMAGEDIR/ ]] && cp -au $IMAGEDIR/ $backupdir/images/ || false
-errorStat $?
-echo "Done"
-dots " * Backing up snapins"
-[[ -d $SNAPINDIR/ ]] && cp -au $SNAPINDIR/ $backupdir/snapins/ || false
-errorStat $?
-dots " * Backup up reports"
-[[ -d $REPORTDIR/ ]] && cp -au $REPORTDIR/ $backupdir/reports/ || false
-errorStat $?
-echo
-endTime=$(date +%D%t%r)
-echo " * Task completed at: $endTime"
-echo
-exit 0
+echo "Started backup at: $starttime"
+backupDB
+backupImages
+backupSnapins
+backupReports
+endtime=$(date +%D%t%r)
+echo "Completed backup at: $endtime"
