@@ -1,4 +1,8 @@
 <?php
+if (!isset($_REQUEST['filepath'])) {
+    echo '|0';
+    exit;
+}
 $req = htmlentities($_REQUEST['filepath'],ENT_QUOTES,'utf-8');
 $dir = dirname($req);
 $name = basename($req);
