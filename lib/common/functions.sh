@@ -88,6 +88,14 @@ backupReports() {
     [[ -d $webdirdest/management/reports/ ]] && cp -a $webdirdest/management/reports/* ../rpttmp/ >>$workingdir/error_logs/fog_error_${version}.log
     echo "Done"
 }
+backupDB() {
+    dots "Backing up database"
+    if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
+        [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php?type=sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
+    errorStat $?
+}
 validip() {
     local ip=$1
     local stat=1
@@ -1110,6 +1118,7 @@ writeUpdateFile() {
     escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
     escnotpxedefaultfile=$(echo $notpxedefaultfile | sed -e $replace)
     escsslpath=$(echo $sslpath | sed -e $replace)
+    escbackupPath=$(echo $backupPath | sed -e $replace)
     if [[ -f $fogprogramdir/.fogsettings ]]; then
         grep -q "^## Start of FOG Settings" $fogprogramdir/.fogsettings || grep -q "^## Version:.*" $fogprogramdir/.fogsettings
         if [[ $? == 0 ]]; then
@@ -1219,6 +1228,9 @@ writeUpdateFile() {
             grep -q "sslpath=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslpath=.*/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
                 echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
+            grep -q "backupPath=" $fogprogramdir/.fogsettings && \
+                sed -i "s/backupPath=.*/backupPath='$esbackupPath'/g" $fogprogramdir/.fogsettings || \
+                echo "backupPath='$backupPath'" >> $fogprogramdir/.fogsettings
         else
             echo "## Start of FOG Settings" > "$fogprogramdir/.fogsettings"
             echo "## Created by the FOG Installer" >> "$fogprogramdir/.fogsettings"
@@ -1257,6 +1269,7 @@ writeUpdateFile() {
             echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
             echo "notpxedefaultfile='$notpxedefaultfile'" >> "$fogprogramdir/.fogsettings"
             echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
+            echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
             echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
         fi
     else
@@ -1297,6 +1310,7 @@ writeUpdateFile() {
         echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
         echo "notpxedefaultfile='$notpxedefaultfile'" >> "$fogprogramdir/.fogsettings"
         echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
+        echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
         echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
     fi
 }

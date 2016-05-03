@@ -29,7 +29,7 @@ esac
 . ../lib/common/config.sh
 version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
 OS=$(uname -s)
-if [[ $OS != Linux ]]; then
+if [[ $OS =~ ^[^Ll][^Ii][^Nn][^Uu][^Xx] ]]; then
     echo "We do not currently support Installation on non-Linux Operating Systems"
     exit 1
 else
@@ -326,7 +326,7 @@ while getopts "$optspec" o; do
             exit 1
             ;;
         *)
-            if [[ $OPTERR == 1 && ${optspec:0:1} != ":" ]]; then
+            if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
                 echo "Unknown option: -$OPTARG"
                 help
                 exit 1
@@ -517,12 +517,7 @@ while [[ -z $blGo ]]; do
                     configureMySql
                     backupReports
                     configureHttpd
-                    dots "Backing up database"
-                    if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
-                        [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php?type=sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    fi
-                    errorStat $?
+                    backupDB
                     case $dbupdate in
                         [Yy]|[Yy][Ee][Ss])
                             dots "Updating Database"
