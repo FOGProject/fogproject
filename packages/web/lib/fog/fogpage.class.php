@@ -814,9 +814,6 @@ abstract class FOGPage extends FOGBase {
             $array = array();
             foreach ($globalModules AS &$key) {
                 switch ($key) {
-                case 'usertracker':
-                    continue 2;
-                    break;
                 case 'greenfog':
                     $class='GF';
                     break;

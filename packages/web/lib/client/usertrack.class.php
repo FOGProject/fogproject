@@ -2,6 +2,7 @@
 class UserTrack extends FOGClient implements FOGClientSend {
     protected $actions = array('login'=>1,'start'=>99,'logout'=>0);
     public function send() {
+        if (!isset($_REQUEST['action']) && !isset($_REQUEST['user']) && !isset($_REQUEST['date']) && $this->json) return array(''=>'');
         $action = strtolower(base64_decode($_REQUEST['action']));
         $user = strtolower(base64_decode($_REQUEST['user']));
         $date = base64_decode($_REQUEST['date']);
@@ -31,6 +32,7 @@ class UserTrack extends FOGClient implements FOGClientSend {
             ->set('description',$desc)
             ->set('date',$tmpDate->format('Y-m-d'));
         if (!$UserTracking->save()) throw new Exception('#!db');
+        if ($this->json) return array(''=>'');
         throw new Exception('#!ok');
     }
 }
