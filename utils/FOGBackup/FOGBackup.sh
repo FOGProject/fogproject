@@ -83,7 +83,7 @@ backupImages() {
     imageLocation=$storageLocation
     [[ ! -d $imageLocation ]] && handleError "Images location:$imageLocation does not exist on this server" 15
     dots "Backing up images"
-    cp -auv $imageLocation/ $backupDir/snapins 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
+    cp -auv $imageLocation $backupDir/images/ 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
     stat=$?
     if [[ ! $stat -eq 0 ]]; then
         echo "Failed"
@@ -95,7 +95,7 @@ backupSnapins() {
     [[ -z $snapinLocation ]] && snapinLocation='/opt/fog/snapins'
     [[ ! -d $snapinLocation ]] && handleError "Snapins location:$snapinLocation does not exist on this server. Please add snapinLocation='/path/to/snapins' to .fogsettings." 16
     dots "Backing up snapins"
-    cp -auv $snapinLocation/ $backupDir/snapins 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
+    cp -auv $snapinLocation/ $backupDir/snapins/ 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
     stat=$?
     if [[ ! $stat -eq 0 ]]; then
         echo "Failed"
@@ -106,7 +106,7 @@ backupSnapins() {
 backupReports() {
     reportLocation="$webdirdest/management/reports"
     [[ ! -d $reportLocation ]] && handleError "Reports location: $reportLocation does not exist on this server" 18
-    cp -auv $reportLocation/ $backupDir/reports 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1 -name *.report.php
+    cp -auv $reportLocation/ $backupDir/reports/ 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
     stat=$?
     if [[ ! $stat -eq 0 ]]; then
         echo "Failed"
