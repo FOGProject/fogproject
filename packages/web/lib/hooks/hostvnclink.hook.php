@@ -6,11 +6,11 @@ class HostVNCLink extends Hook {
     public $active = false;
     public $port = 5800;
     public function HostData($arguments) {
-        $arguments['templates'][8] = sprintf('<a href="http://%s:%d" target="_blank">VNC</a>', '${host_name}', $this->port);
-        $arguments['attributes'][8] = array('class' => 'c');
+        $arguments['templates'][9] = sprintf('<a href="vnc://%s:%d" target="_blank" title="%s: ${host_name}">VNC</a>', '${host_name}', $this->port,_('Open VNC connection to'));
+        $arguments['attributes'][9] = array('class' => 'c');
     }
     public function HostTableHeader($arguments) {
-        $arguments['headerData'][8] = 'VNC';
+        $arguments['headerData'][9] = 'VNC';
     }
 }
 $HostVNCLink = new HostVNCLink();
