@@ -1815,7 +1815,7 @@ $this->schema[] = array(
 );
 // 179
 $this->schema[] = array(
-    "ALTER TABLE `" . DATABASE_NAME ."`.`hosts` ADD COLUMN `hostSecTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `" . DATABASE_NAME ."`.`hosts` ADD COLUMN `hostSecTime` TIMESTAMP NOT NULL",
 );
 // 180
 $this->schema[] = array(
