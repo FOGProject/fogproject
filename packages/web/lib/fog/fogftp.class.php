@@ -42,7 +42,7 @@ class FOGFTP extends FOGGetSet {
             if (!$host) $host = $this->get('host');
             if (!$port) $port = self::getSetting('FOG_FTP_PORT') ? self::getSetting('FOG_FTP_PORT') : $this->get('port');
             if (!$timeout) $timeout = self::getSetting('FOG_FTP_TIMEOUT') ? self::getSetting('FOG_FTP_TIMEOUT') : $this->get('timeout');
-            if ((self::$link = @$connectmethod($host,$port,$timeout)) === false) self::ftperror();
+            if ((self::$link = @$connectmethod($host,$port,$timeout)) === false) self::ftperror($this->data);
             if ($autologin) {
                 $this->login();
                 $this->pasv($this->get('passive'));
@@ -85,9 +85,9 @@ class FOGFTP extends FOGGetSet {
         if ($startpos) return @ftp_fput(self::$link,$remote_file,$handle,$mode,$startpos);
         return @ftp_fput(self::$link,$remote_file,$handle,$mode);
     }
-    private static function ftperror() {
+    private static function ftperror($data) {
         $error = error_get_last();
-        throw new Exception(sprintf('%s: %s, %s: %s, %s: %s, %s: %s',_('Type'),$error['type'],_('File'),$error['file'],_('Line'),$error['line'],_('Message'),$error['message']));
+        throw new Exception(sprintf('%s: %s, %s: %s, %s: %s, %s: %s, %s: %s, %s: %s',_('Type'),$error['type'],_('File'),$error['file'],_('Line'),$error['line'],_('Message'),$error['message'],_('Host'),$data['host'],_('Username'),$data['username']));
     }
     public function get_option($option) {
         return @ftp_get_option(self::$link,$option);
@@ -103,7 +103,7 @@ class FOGFTP extends FOGGetSet {
             if (self::$currentLoginHash == self::$lastLoginHash) return $this;
             if (!$username) $username = $this->get('username');
             if (!$password) $password = $this->get('password');
-            if (@ftp_login(self::$link,$username,$password) === false) self::ftperror();
+            if (@ftp_login(self::$link,$username,$password) === false) self::ftperror($this->data);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -164,7 +164,7 @@ class FOGFTP extends FOGGetSet {
         return @ftp_rawlist(self::$link,$directory,$recursive);
     }
     public function rename($oldname,$newname) {
-        if (!(@ftp_rename(self::$link,$oldname,$newname) || $this->put($newname,$oldname))) self::ftperror();
+        if (!(@ftp_rename(self::$link,$oldname,$newname) || $this->put($newname,$oldname))) self::ftperror($this->data);
         return $this;
     }
     public function rmdir($directory) {
