@@ -8,7 +8,4 @@ $dir = dirname($req);
 $name = basename($req);
 $file = sprintf('%s/%s',$dir,$name);
 $fileexist = file_exists($file);
-$filesize = $hashes = array();
-exec("sha512sum $file|awk '{print $1}'",$hashes);
-exec("ls -l $file|awk '{print $5}'",$filesize);
-printf('%s|%s',$fileexist ? array_shift($hashes) : '',$fileexist ? array_shift($filesize) : 0);
+printf('%s|%s',$fileexist ? hash_file('sha512',$file) : '',$fileexist ? filesize($file) : 0);
