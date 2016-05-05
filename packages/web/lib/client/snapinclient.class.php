@@ -4,7 +4,8 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         $this->Host->get('snapinjob')->set('stateID',$this->getCheckedInState())->save();
         if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getCheckedInState())->set('checkInTime',self::nice_date()->format('Y-m-d H:i:s'))->save();
         $HostSnapins = $this->Host->get('snapins');
-        array_map(function(&$Snapin) use (&$vals) {
+        $i = 0;
+        array_map(function(&$Snapin) use (&$vals,&$i) {
             if (!$Snapin->isValid()) return;
             $SnapinTask = self::getClass('SnapinTask',@min(self::getSubObjectIDs('SnapinTask',array('jobID'=>$this->Host->get('snapinjob')->get('id'),'snapinID'=>$Snapin->get('id')))));
             if (!$SnapinTask->isValid()) return;
@@ -28,18 +29,19 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             $data = explode('|',array_shift($response));
             $hash = array_shift($data);
             $size = array_shift($data);
-            $vals['jobtaskid'] = $SnapinTask->get('id');
-            $vals['jobcreation'] = $this->Host->get('snapinjob')->get('createdTime');
-            $vals['name'] = $Snapin->get('name');
-            $vals['args'] = $Snapin->get('args');
-            $vals['action'] = $Snapin->get('reboot') ? ($Snapin->get('shutdown') ? 'shutdown' : 'reboot') : '';
-            $vals['filename'] = $Snapin->get('file');
-            $vals['runwith'] = $Snapin->get('runWith');
-            $vals['runwithargs'] = $Snapin->get('runWithArgs');
-            $vals['hash'] = strtoupper($hash);
-            $vals['size'] = $size;
+            $vals[$i]['jobtaskid'] = $SnapinTask->get('id');
+            $vals[$i]['jobcreation'] = $this->Host->get('snapinjob')->get('createdTime');
+            $vals[$i]['name'] = $Snapin->get('name');
+            $vals[$i]['args'] = $Snapin->get('args');
+            $vals[$i]['action'] = $Snapin->get('reboot') ? ($Snapin->get('shutdown') ? 'shutdown' : 'reboot') : '';
+            $vals[$i]['filename'] = $Snapin->get('file');
+            $vals[$i]['runwith'] = $Snapin->get('runWith');
+            $vals[$i]['runwithargs'] = $Snapin->get('runWithArgs');
+            $vals[$i]['hash'] = strtoupper($hash);
+            $vals[$i]['size'] = $size;
+            $i++;
         },(array)self::getClass('SnapinManager')->find(array('id'=>$HostSnapins)));
-        return array('snapins'=>array($vals));
+        return array('snapins'=>$vals);
     }
     public function send() {
         try {

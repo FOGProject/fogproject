@@ -2,7 +2,8 @@
 class TaskManager extends FOGManagerController {
     public function cancel($taskids) {
         $findWhere = array('id'=>(array)$taskids);
-        $this->update($findWhere,'',array('stateID'=>$this->getCancelledState()));
+        $cancelled = $this->getCancelledState();
+        $this->update($findWhere,'',array('stateID'=>$cancelled));
         $this->array_change_key($findWhere,'id','taskID');
         $SnapinJobIDs = array_filter(self::getSubObjectIDs('SnapinTask',$findWhere,'jobID'));
         $SnapinTaskIDs = array_filter(self::getSubObjectIDs('SnapinTask',$findWhere));
