@@ -257,7 +257,7 @@ abstract class FOGPage extends FOGBase {
     }
     public function deploy() {
         try {
-            $TaskType = self::getClass('TaskType',(is_numeric($_REQUEST['type']) && (int) $_REQUEST['type'] ? (int) $_REQUEST['type'] : 1));
+            $TaskType = self::getClass('TaskType',(isset($_REQUEST['type']) && is_numeric($_REQUEST['type']) && $_REQUEST['type'] ? (int)$_REQUEST['type'] : 1));
             $imagingTypes = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
             if (($this->obj instanceof Group && !(count($this->obj->get('hosts')))) || ($this->obj instanceof Host && ($this->obj->get('pending') || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
             if ($imagingTypes && $this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
@@ -271,8 +271,8 @@ abstract class FOGPage extends FOGBase {
         echo '<div class="confirm-message">';
         if ($TaskType->get('id') == 13) {
             printf('<p class="c"><p>%s</p>',_('Please select the snapin you want to deploy'));
-            ob_start();
             if ($this->obj instanceof Host) {
+                ob_start();
                 array_map(function(&$Snapin) {
                     if (!$Snapin->isValid()) return;
                     printf('<option value="%d">%s - (%d)</option>',$Snapin->get('id'),$Snapin->get('name'),$Snapin->get('id'));
