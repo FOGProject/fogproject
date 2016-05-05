@@ -5,6 +5,8 @@ require_once('../../commons/base.inc.php');
  * @param $Send the data to be sent.
  * @return void
  */
+header("Content-type: text/plain");
+header('Connection: close');
 $parseMe = function($Send) {
 	foreach($Send AS $ipxe => &$val) {
         printf("%s\n",implode("\n",(array)$val));
