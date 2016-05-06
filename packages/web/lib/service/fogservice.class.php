@@ -212,7 +212,7 @@ abstract class FOGService extends FOGBase {
                     unset($localfile);
                 }
                 self::$FOGFTP->close();
-                $logname = "static::$log.transfer.$nodename.log";
+                $logname = sprintf('%s.transfer.%s.log',static::$log,$nodename);
                 if (!$i) self::outall(_(' * Starting Sync Actions'));
                 $this->killTasking($i,$itemType,$Obj->get('name'));
                 $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
