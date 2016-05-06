@@ -118,7 +118,7 @@ class BootMenu extends FOGBase {
             $StorageNode,
             self::$FOGCore
         );
-        $defaultMenu = self::getClass('PXEMenuOptions',self::getSubObjectIDs('PXEMenuOptions',array('default'=>1)));
+        $defaultMenu = self::getClass('PXEMenuOptions',@max(self::getSubObjectIDs('PXEMenuOptions',array('default'=>1))));
         $menuname = $defaultMenu->isValid() ? trim($defaultMenu->get('name')) : 'fog.local';
         unset($defaultMenu);
         self::getDefaultMenu($this->timeout,$menuname,$this->defaultChoice);
