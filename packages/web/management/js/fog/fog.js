@@ -21,6 +21,7 @@ var $_GET = getQueryParams(document.location.search),
     Content,
     Container,
     Loader,
+    savedFilters,
     checkedIDs;
 // Searching
 _L['PERFORMING_SEARCH'] = 'Searching...';
@@ -249,6 +250,9 @@ function showProgressBar() {
     });
 }
 function buildHeaderRow(data,attributes,wrapper) {
+    savedFilters = Container.find('.tablesorter-filter').map(function(){
+        return this.value || '';
+    }).get();
     thead.empty();
     var rows = [];
     $.each(data,function(index,value) {
@@ -301,7 +305,9 @@ function TableCheck() {
         if ($('.not-found').length > 0) $('.not-found').remove();
         callme = 'show';
     }
-    Container[callme]().fogTableInfo().trigger('updateAll');
+    Container[callme]().fogTableInfo().trigger('updateAll').find('.tablesorter-filter').each(function(i){
+        $(this).val(savedFilters[i]);
+    }).trigger('search');
     ActionBox[callme]();
     ActionBoxDel[callme]();
     thead[callme]();
