@@ -1,9 +1,5 @@
 <?php
 class TaskScheduler extends FOGService {
-    public static $logpath = '';
-    public static $dev = '';
-    public static $log = '';
-    public static $zzz = '';
     public static $sleeptime = 'SCHEDULERSLEEPTIME';
     public function __construct() {
         parent::__construct();
