@@ -146,7 +146,7 @@ class MySQL extends DatabaseManager {
         return $this->sanitize($data);
     }
     private function clean($data) {
-        return trim(mb_convert_encoding(self::$link->real_escape_string($data)),'utf-8');
+        return trim(self::$link->real_escape_string(mb_convert_encoding($data,'utf-8','html-entities')));
     }
     public function sanitize($data) {
         if (!is_array($data)) return $this->clean($data);
