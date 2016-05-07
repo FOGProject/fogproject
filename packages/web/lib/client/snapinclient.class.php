@@ -4,8 +4,8 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         $this->Host->get('snapinjob')->set('stateID',$this->getCheckedInState())->save();
         if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getCheckedInState())->set('checkInTime',self::nice_date()->format('Y-m-d H:i:s'))->save();
         $HostSnapins = $this->Host->get('snapins');
-        $vals = array();
-        array_map(function(&$Snapin) use (&$vals) {
+        $i = 0;
+        array_map(function(&$Snapin) use (&$vals,&$i) {
             if (!$Snapin->isValid()) return;
             $SnapinTask = self::getClass('SnapinTask',@min(self::getSubObjectIDs('SnapinTask',array('jobID'=>$this->Host->get('snapinjob')->get('id'),'snapinID'=>$Snapin->get('id')))));
             if (!$SnapinTask->isValid()) return;
@@ -29,18 +29,17 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             $data = explode('|',array_shift($response));
             $hash = array_shift($data);
             $size = array_shift($data);
-            $vals[] = array(
-                'jobtaskid'=>$SnapinTask->get('id'),
-                'jobcreation'=>$this->Host->get('snapinjob')->get('createdTime'),
-                'name'=>$Snapin->get('name'),
-                'args'=>$Snapin->get('args'),
-                'action'=>$Snapin->get('reboot') ? ($Snapin->get('shutdown') ? 'shutdown' : 'reboot') : '',
-                'filename'=>$Snapin->get('file'),
-                'runwith'=>$Snapin->get('runWith'),
-                'runwithargs'=>$Snapin->get('runWithArgs'),
-                'hash'=>strtoupper($hash),
-                'size'=>$size,
-            );
+            $vals[$i]['jobtaskid'] = $SnapinTask->get('id');
+            $vals[$i]['jobcreation'] = $this->Host->get('snapinjob')->get('createdTime');
+            $vals[$i]['name'] = $Snapin->get('name');
+            $vals[$i]['args'] = $Snapin->get('args');
+            $vals[$i]['action'] = $Snapin->get('reboot') ? ($Snapin->get('shutdown') ? 'shutdown' : 'reboot') : '';
+            $vals[$i]['filename'] = $Snapin->get('file');
+            $vals[$i]['runwith'] = $Snapin->get('runWith');
+            $vals[$i]['runwithargs'] = $Snapin->get('runWithArgs');
+            $vals[$i]['hash'] = strtoupper($hash);
+            $vals[$i]['size'] = $size;
+            $i++;
         },(array)self::getClass('SnapinManager')->find(array('id'=>$HostSnapins)));
         return array('snapins'=>$vals);
     }
@@ -97,8 +96,8 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             if (strlen($_REQUEST['exitcode']) > 0 && is_numeric($_REQUEST['exitcode'])) {
                 $SnapinTask
                     ->set('stateID',$this->getCompleteState())
-                    ->set('return',$_REQUEST['exitcode'])
-                    ->set('details',$_REQUEST['exitdesc'])
+                    ->set('return',htmlentities($_REQUEST['exitcode'],ENT_QUOTES,'utf-8'))
+                    ->set('details',htmlentities($_REQUEST['exitdesc'],ENT_QUOTES,'utf-8'))
                     ->set('complete',self::nice_date()->format('Y-m-d H:i:s'))
                     ->save();
                 if (self::getClass('SnapinTaskManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) < 1) {

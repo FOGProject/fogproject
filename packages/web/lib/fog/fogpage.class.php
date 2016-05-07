@@ -78,7 +78,7 @@ abstract class FOGPage extends FOGBase {
             if (is_array($this->span) && count($this->span) === 2) $this->data[count($this->data)-1][$this->span[0]] = $this->span[1];
             unset($input);
         };
-        $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(sprintf('%s?%s',self::$urlself,$_SERVER['QUERY_STRING']),FILTER_SANITIZE_URL));
+        $this->formAction = preg_replace('#(&tab.*)$#','',filter_var(html_entity_decode(sprintf('%s?%s',self::$urlself,htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))),FILTER_SANITIZE_URL));
         self::$HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&self::$searchPages));
         self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
@@ -144,8 +144,8 @@ abstract class FOGPage extends FOGBase {
                 $contentField,
                 $this->buildHeaderRow()
             );
-            $node = $_REQUEST['node'];
-            $sub = $_REQUEST['sub'];
+            $node = htmlentities($_REQUEST['node'],ENT_QUOTES,'utf-8');
+            $sub = htmlentities($_REQUEST['sub'],ENT_QUOTES,'utf-8');
             if (in_array($this->node,array('task')) && (!$sub || $sub == 'list')) $this->redirect(sprintf('?node=%s&sub=active',$this->node));
             if (!count($this->data)) {
                 $contentField = 'no-active-tasks';
@@ -379,7 +379,7 @@ abstract class FOGPage extends FOGBase {
         $enableDebug = (bool)((isset($_REQUEST['debug']) && $_REQUEST['debug'] == 'true') || isset($_REQUEST['isDebugTask']));
         $scheduleDeployTime = self::nice_date($_REQUEST['scheduleSingleTime']);
         $imagingTasks = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
-        $passreset = trim($_REQUEST['account']);
+        $passreset = trim(htmlentities($_REQUEST['account'],ENT_QUOTES,'utf-8'));
         $wol = (int)(isset($_REQUEST['wol']) || $TaskType->get('id') == 14);
         try {
             if (!$TaskType || !$TaskType->isValid()) throw new Exception(_('Task type is not valid'));
@@ -575,7 +575,7 @@ abstract class FOGPage extends FOGBase {
         unset($this->data,$this->headerData,$this->templates,$this->attributes);
         if (empty($useAD)) $useAD = ($this->obj instanceof Host ? $this->obj->get('useAD') : $_REQUEST['domain']);
         if (empty($ADDomain)) $ADDomain = ($this->obj instanceof Host ? $this->obj->get('ADDomain') : $_REQUEST['domainname']);
-        if (empty($ADOU)) $ADOU = trim(preg_replace('#;#','',($this->obj instanceof Host ? $this->obj->get('ADOU') : $_REQUEST['ou'])));
+        if (empty($ADOU)) $ADOU = trim(preg_replace('#;#','',($this->obj instanceof Host ? $this->obj->get('ADOU') : htmlentities($_REQUEST['ou'],ENT_QUOTES,'utf-8'))));
         if (empty($ADUser)) $ADUser = ($this->obj instanceof Host ? $this->obj->get('ADUser') : $_REQUEST['domainuser']);
         if (empty($ADPass)) $ADPass = ($this->obj instanceof Host ? $this->obj->get('ADPass') : $_REQUEST['domainpassword']);
         if (empty($ADPassLegacy)) $ADPassLegacy = ($this->obj instanceof Host ? $this->obj->get('ADPassLegacy') : $_REQUEST['domainpasswordlegacy']);
@@ -656,7 +656,7 @@ abstract class FOGPage extends FOGBase {
             if ($_SESSION['allow_ajax_kdl'] && $_SESSION['dest-kernel-file'] && $_SESSION['tmp-kernel-file'] && $_SESSION['dl-kernel-file']) {
                 if ($_REQUEST['msg'] == 'dl') {
                     if (($fh = fopen($_SESSION['tmp-kernel-file'],'wb')) === false) throw new Exception(_('Error: Failed to open temp file'));
-                    self::$FOGURLRequests->process($_SESSION['dl-kernel-file'],'GET',false,false,false,false,$fh);
+                    self::$FOGURLRequests->process(mb_convert_encoding($_SESSION['dl-kernel-file'],'UTF-8'),'GET',false,false,false,false,$fh);
                     if (!file_exists($_SESSION['tmp-kernel-file'])) throw new Exception(_('Error: Failed to download kernel'));
                     if (!filesize($_SESSION['tmp-kernel-file']) >  1048576) throw new Exception(sprintf('%s: %s: %s - %s',_('Error'),_('Download Failed'),_('Failed'),_('filesize'),filesize($_SESSION['tmp-kernel-file'])));
                     $SendME = '##OK##';
@@ -1070,7 +1070,7 @@ abstract class FOGPage extends FOGBase {
                         if (isset($field) && $field === 'productKey') {
                             $test_encryption = $this->aesdecrypt($data[$i]);
                             if ($test_base64 = base64_decode($data[$i])) $data[$i] = $this->aesencrypt($test_base64);
-                            else if (empty($test_encryption) || !mb_detect_encoding($test_encryption,'utf-8',true)) $data[$i] = $this->aesencrypt($data[$i]);
+                            else if (empty($test_encryption) || !mb_detect_encoding($test_encryption,'UTF-8',true)) $data[$i] = $this->aesencrypt($data[$i]);
                         }
                         $Item->set($field,$data[$i],($field == 'password'));
                     }

@@ -72,7 +72,7 @@ class SnapinManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        self::$selected = isset($_REQUEST['snapinfileexist']) ? basename($_REQUEST['snapinfileexist']) : '';
+        self::$selected = isset($_REQUEST['snapinfileexist']) ? basename(htmlentities($_REQUEST['snapinfileexist'],ENT_QUOTES,'utf-8')) : '';
         $filelist = array();
         array_map(function(&$StorageNode) use (&$filelist) {
             if (!$StorageNode->isValid()) return;
