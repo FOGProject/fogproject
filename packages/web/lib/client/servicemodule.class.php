@@ -1,7 +1,7 @@
 <?php
 class ServiceModule extends FOGClient implements FOGClientSend {
     public function send() {
-        $mod = strtolower(htmlentities($_REQUEST['moduleid'],ENT_QUOTES,'utf-8'));
+        $mod = strtolower(mb_convert_encoding($_REQUEST['moduleid'],'html-entities','utf-8'));
         switch ($mod) {
         case 'dircleaner':
             $mod = 'dircleanup';

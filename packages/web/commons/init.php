@@ -20,7 +20,7 @@ class Initiator {
      * @return null
      */
     private static function DetermineBasePath() {
-        $script_name = htmlentities($_SERVER['SCRIPT_NAME'],ENT_QUOTES,'utf-8');
+        $script_name = $_SERVER['SCRIPT_NAME'];
         define('WEB_ROOT',sprintf('/%s',(preg_match('#/fog/#',$script_name)?'fog/':'')));
         return (file_exists('/srv/http/fog') ? '/srv/http/fog' : (file_exists('/var/www/html/fog') ? '/var/www/html/fog' : (file_exists('/var/www/fog') ? '/var/www/fog' : '/'.trim($_SERVER['DOCUMENT_ROOT'],'/').'/'.WEB_ROOT)));
     }
@@ -41,7 +41,7 @@ class Initiator {
         $globalVars = array('node','sub','printertype','id','sub','crit','sort','confirm','tab');
         array_map(function(&$x) {
             global $$x;
-            if (isset($_REQUEST[$x])) $_REQUEST[$x] = $$x = trim(htmlentities(mb_convert_encoding($_REQUEST[$x],'UTF-8'),ENT_QUOTES,'UTF-8'));
+            if (isset($_REQUEST[$x])) $_REQUEST[$x] = $$x = trim($_REQUEST[$x]);
             unset($x);
         },$globalVars);
         new System();
@@ -49,7 +49,7 @@ class Initiator {
     }
     public static function sanitize_items(&$value = '') {
         $sanitize_items = function(&$val,&$key) use (&$value) {
-            if (is_string($val)) $value[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
+            if (is_string($val)) $value[$key] = mb_convert_encoding($val,'html-entities','utf-8');
             if (is_array($val)) self::sanitize_items($value[$key]);
         };
         if (!count($value)) {

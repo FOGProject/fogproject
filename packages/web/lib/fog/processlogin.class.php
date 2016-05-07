@@ -110,7 +110,7 @@ class ProcessLogin extends FOGBase {
         if (!self::$isMobile) self::$HookManager->processEvent('LoginSuccess',array('user'=>&$this->currentUser,'username'=>$this->username, 'password'=>&$this->password));
     }
     private function setRedirMode() {
-        foreach ($_REQUEST AS $key => &$value) $redirect[$key] = htmlentities($value,ENT_QUOTES,'utf-8');
+        foreach ($_REQUEST AS $key => &$value) $redirect[$key] = $value;
         unset($redirect['upass'],$redirect['uname'],$redirect['ulang']);
         if (in_array($redirect['node'],array('login','logout'))) unset($redirect['node']);
         foreach ((array)$redirect AS $key => $value) {
@@ -143,9 +143,9 @@ class ProcessLogin extends FOGBase {
             $this->redirect('index.php');
         }
         echo '<form method="post" action="" id="login-form">';
-        if (htmlentities($_REQUEST['node'],ENT_QUOTES,'utf-8') != 'logout') {
+        if ($_REQUEST['node'] != 'logout') {
             foreach ($_REQUEST AS $key => &$value) {
-                printf('<input type="hidden" name="%s" value="%s"/>',htmlentities($key,ENT_QUOTES,'utf-8'),htmlentities($value,ENT_QUOTES,'utf-8'));
+                printf('<input type="hidden" name="%s" value="%s"/>',$key,$value);
                 unset($value);
             }
         }
