@@ -102,9 +102,9 @@ class FOGConfigurationPage extends FOGPage {
             if (file_exists($_SESSION['tmp-kernel-file'])) @unlink($_SESSION['tmp-kernel-file']);
             printf('<div id="kdlRes"><p id="currentdlstate">%s</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>',_('Starting process...'));
         } else {
-            $tmpFile = basename($_REQUEST['file']);
-            $tmpArch = $_REQUEST['arch'];
-            printf('<form method="post" action="?node=%s&sub=kernel&install=1&file=%s"><p>%s: <input class="smaller" type="text" name="dstName" value="%s"/></p><p><input class="smaller" type="submit" value="%s"/></p></form>',$this->node,basename($_REQUEST['file']),_('Kernel Name'),($tmpArch == 64 || ! $tmpArch ? 'bzImage' : 'bzImage32'),_('Next'));
+            $tmpFile = basename(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8'));
+            $tmpArch = htmlentities($_REQUEST['arch'],ENT_QUOTES,'utf-8');
+            printf('<form method="post" action="?node=%s&sub=kernel&install=1&file=%s"><p>%s: <input class="smaller" type="text" name="dstName" value="%s"/></p><p><input class="smaller" type="submit" value="%s"/></p></form>',$this->node,basename(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')),_('Kernel Name'),($tmpArch == 64 || ! $tmpArch ? 'bzImage' : 'bzImage32'),_('Next'));
         }
     }
     public function pxemenu() {
@@ -377,7 +377,7 @@ class FOGConfigurationPage extends FOGPage {
             array_walk($_FILES['module']['tmp_name'],function(&$tmp_name,&$index) {
                 if (!file_exists($tmp_name)) return;
                 if (!($md5 = md5_file($tmp_name))) return;
-                $filename = basename($_FILES['module']['name'][$index]);
+                $filename = htmlentities(basename($_FILES['module']['name'][$index]),ENT_QUOTES,'utf-8');
                 $fp = fopen($tmp_name,'rb');
                 $content = fread($fp, filesize($tmp_name));
                 fclose($fp);
@@ -873,7 +873,7 @@ class FOGConfigurationPage extends FOGPage {
         try {
             if ($_FILES['dbFile']['error'] > 0) throw new UploadException($_FILES['dbFile']['error']);
             $original = $Schema->export_db('',false);
-            $tmp_name = $_FILES['dbFile']['tmp_name'];
+            $tmp_name = htmlentities($_FILES['dbFile']['tmp_name'],ENT_QUOTES,'utf-8');
             $filename = sprintf('%s%s%s',dirname($tmp_name),DIRECTORY_SEPARATOR,basename($tmp_name));
             $result = self::getClass('Schema')->import_db($filename);
             if ($result === true) printf('<h2>%s</h2>',_('Database Imported and added successfully'));

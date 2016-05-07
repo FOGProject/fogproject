@@ -1,6 +1,6 @@
 <?php
 $getInterface = function() {
-    $dev = trim($_REQUEST['dev'] ? basename($_REQUEST['dev']) : 'eth0');
+    $dev = trim($_REQUEST['dev'] ? basename(htmlentities($_REQUEST['dev'],ENT_QUOTES,'utf-8')) : 'eth0');
     $interfaces = array_map(function(&$iface) use (&$interfaces) {
         if (trim(file_get_contents(sprintf('/sys/class/net/%s/operstate',$iface))) !== 'up') return;
         return $iface;

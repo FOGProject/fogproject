@@ -492,7 +492,7 @@ class BootMenu extends FOGBase {
         if ($MultiSess->getImage()->get('id') != $this->Host->getImage()->get('id')) $this->Host->set('imageID',$MultiSess->getImage()->get('id'));
         $shutdown = stripos('shutdown=1',$_SESSION['extraargs']);
         $isdebug = preg_match('#isdebug=yes|mode=debug|mode=onlydebug#i',$_SESSION['extraargs']);
-        $this->Host->isValid() ? $this->Host->createImagePackage(8,$MultiSess->get('name'),$shutdown,$isdebug,-1,false,$_REQUEST['username'],'',true,true) : $this->falseTasking($MultiSess);
+        $this->Host->isValid() ? $this->Host->createImagePackage(8,$MultiSess->get('name'),$shutdown,$isdebug,-1,false,htmlentities($_REQUEST['username'],ENT_QUOTES,'utf-8'),'',true,true) : $this->falseTasking($MultiSess);
         $this->Host->isValid() ? $this->chainBoot(false,true) : '';
     }
     public function keyset() {

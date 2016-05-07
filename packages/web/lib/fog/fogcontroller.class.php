@@ -46,9 +46,6 @@ abstract class FOGController extends FOGBase {
             unset($this->data[$key]);
             return false;
         }
-        $convertEncoding = function(&$val,&$key) {
-            $val = is_string($val) ? mb_convert_encoding($val,'utf-8','html-entities') : $val;
-        };
         if (!$this->isLoaded($key)) $this->loadItem($key);
         if (!isset($this->data[$key])) return $this->data[$key] = '';
         if (is_object($this->data[$key])) {
@@ -58,7 +55,7 @@ abstract class FOGController extends FOGBase {
         } else {
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Value'),$this->data[$key]));
         }
-        return (is_string($this->data[$key]) ? mb_convert_encoding($this->data[$key],'utf-8','html-entities') : (is_array($this->data[$key]) ? array_walk($this->data[$key],$convertEncoding) : $this->data[$key]));
+        return $this->data[$key];
     }
     public function set($key, $value) {
         try {
@@ -97,7 +94,7 @@ abstract class FOGController extends FOGBase {
                 $this->info(sprintf('%s: %s %s',_('Adding Key'),$key,_('Array of data')));
                 $this->data[$key][] = $value;
             } else {
-                $value = $value;
+                $value = mb_convert_encoding($value,'UTF-8');
                 $this->info(sprintf('%s: %s %s: %s',_('Adding Key'),$key,_('Value'),$value));
                 $this->data[$key][] = $value;
             }

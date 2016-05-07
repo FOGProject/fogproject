@@ -52,9 +52,9 @@ abstract class FOGBase {
         self::$EventManager =& $EventManager;
         self::$HookManager =& $HookManager;
         self::$FOGUser =& $currentUser;
-        self::$urlself = $_SERVER['SCRIPT_NAME'];
+        self::$urlself = htmlentities($_SERVER['SCRIPT_NAME'],ENT_QUOTES,'utf-8');
         self::$isMobile = (bool)preg_match('#/mobile/#i',self::$urlself);
-        self::$service = (bool)preg_match('#/service/#i', self::$urlself) || preg_match('#sub=requestClientInfo#i',$_SERVER['QUERY_STRING']);
+        self::$service = (bool)preg_match('#/service/#i', self::$urlself) || preg_match('#sub=requestClientInfo#i',htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'));
         self::$ajax = (bool)isset($_SERVER['HTTP_X_REQUESTED_WITH']) && preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);
         self::$post = (bool)preg_match('#^post$#i',isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] ? $_SERVER['REQUEST_METHOD'] : '');
         self::$FOGURLRequests = &$FOGURLRequests;
@@ -362,7 +362,7 @@ abstract class FOGBase {
         return $input;
     }
     protected function array_change_key(&$array, $old_key, $new_key) {
-        $array[$new_key] = is_string($array[$old_key]) && !self::$service ? $array[$old_key] : $array[$old_key];
+        $array[$new_key] = is_string($array[$old_key]) && !self::$service ? html_entity_decode($array[$old_key],ENT_QUOTES,'UTF-8') : $array[$old_key];
         if ($old_key != $new_key) unset($array[$old_key]);
     }
     protected function byteconvert($kilobytes) {
@@ -390,7 +390,7 @@ abstract class FOGBase {
     protected function encryptpw($pass) {
         $decrypt = $this->aesdecrypt($pass);
         $newpass = $pass;
-        if ($decrypt && mb_detect_encoding($decrypt,'utf-8',true)) $newpass = $decrypt;
+        if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true)) $newpass = $decrypt;
         return ($newpass ? $this->aesencrypt($newpass) : '');
     }
     public function aesencrypt($data,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
@@ -411,7 +411,7 @@ abstract class FOGBase {
         if (!$key && $data[2]) $key = @pack('H*',$data[2]);
         if (empty($key)) return '';
         $decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
-        return $decipher;
+        return html_entity_decode($decipher,ENT_QUOTES,'UTF-8');
     }
     protected function certEncrypt($data,$Host) {
         if (!$Host || !$Host->isValid()) throw new Exception('#!ih');
@@ -505,7 +505,7 @@ abstract class FOGBase {
         //$this->logHistory($txt);
     }
     protected function logHistory($string) {
-        $string = trim($string);
+        $string = htmlentities(mb_convert_encoding($string,'UTF-8'),ENT_QUOTES,'UTF-8');
         $name = $_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog';
         if (self::$DB) {
             self::getClass('History')
@@ -534,7 +534,7 @@ abstract class FOGBase {
     }
     public static function getSetting($key) {
         $value = self::getSubObjectIDs('Service',array('name'=>$key),'value');
-        return trim(str_replace('\r\n',"\n",array_shift($value)));
+        return trim(html_entity_decode(mb_convert_encoding(str_replace('\r\n',"\n",array_shift($value)),'UTF-8'),ENT_QUOTES,'UTF-8'));
     }
     public function setSetting($key, $value) {
         self::getClass('ServiceManager')->update(array('name'=>$key),'',array('value'=>trim($value)));
@@ -572,7 +572,7 @@ abstract class FOGBase {
             $tmp = trim(base64_decode(preg_replace('# #','+',$val)));
             if (isset($tmp) && mb_detect_encoding($tmp,'utf-8',true)) $val = $tmp;
             unset($tmp);
-            $val = trim($val);
+            $val = trim(htmlentities($val,ENT_QUOTES,'utf-8'));
         });
         return $item;
     }
