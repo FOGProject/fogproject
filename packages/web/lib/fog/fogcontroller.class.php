@@ -56,6 +56,8 @@ abstract class FOGController extends FOGBase {
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Value'),$this->data[$key]));
         }
         return $this->data[$key];
+        //$retVal = is_array($this->data[$key]) || is_string($this->data[$key]) ? array_map($convertEncoding,(array)$this->data[$key]) : array($this->data[$key]);
+        //return count($retVal) === 1 ? array_shift($retVal) : $retVal;
     }
     public function set($key, $value) {
         try {
@@ -180,7 +182,7 @@ abstract class FOGController extends FOGBase {
                     $fields = $this->get($key);
                     $fieldData = array();
                     array_map(function(&$fieldValue) use ($key,&$fieldData) {
-                        $fieldData[] = sprintf("`%s`.`%s`='%s'",$this->databaseTable,$this->databaseFields[$key],self::$DB->sanitize($fieldValue));
+                        $fieldData[] = sprintf("`%s`.`%s`='%s'",$this->databaseTable,$this->databaseFields[$key],$fieldValue);
                         unset($fieldValue,$key);
                     },(array)$fields);
                     $query = sprintf($this->loadQueryTemplateMultiple,
@@ -282,6 +284,7 @@ abstract class FOGController extends FOGBase {
             });
         }
         $trimPlus = function(&$val,&$key) use (&$callback) {
+            $val = htmlspecialchars($val,ENT_QUOTES,'utf-8');
             $val = $callback ? $callback(trim($val)) : trim($val);
         };
         $callback = self::$service ? false : 'addslashes';
