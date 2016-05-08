@@ -59,7 +59,7 @@ class ReportManagementPage extends FOGPage {
     public function file() {
         array_map(function($className) {
             self::getClass($className);
-        },(array)preg_replace('#[[:space:]]#','_',base64_decode(htmlentities($_REQUEST['f'],ENT_QUOTES,'utf-8'))));
+        },(array)preg_replace('#[[:space:]]#','_',base64_decode($_REQUEST['f'])));
     }
     public function imaging_log() {
         $this->title = _('FOG Imaging Log - Select Date Range');
