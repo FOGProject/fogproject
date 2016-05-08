@@ -94,7 +94,7 @@ abstract class FOGController extends FOGBase {
                 $this->info(sprintf('%s: %s %s',_('Adding Key'),$key,_('Array of data')));
                 $this->data[$key][] = $value;
             } else {
-                $value = mb_convert_encoding($value,'UTF-8');
+                $value = $value;
                 $this->info(sprintf('%s: %s %s: %s',_('Adding Key'),$key,_('Value'),$value));
                 $this->data[$key][] = $value;
             }

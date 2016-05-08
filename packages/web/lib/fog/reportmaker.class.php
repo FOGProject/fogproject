@@ -19,7 +19,7 @@ class ReportMaker {
         return $this;
     }
     public function addCSVCell($item) {
-        $this->strCSV[] = stripslashes(html_entity_decode(htmlentities($item,ENT_QUOTES,'utf-8'),ENT_QUOTES,'utf-8'));
+        $this->strCSV[] = stripslashes($item);
         return $this;
     }
     public function endCSVLine() {
@@ -33,9 +33,9 @@ class ReportMaker {
     }
     public function outputReport($intType = 0) {
         $keys = array_keys($this->types);
-        $type = isset($_REQUEST['type']) ? $type = htmlentities($_REQUEST['type'],ENT_QUOTES,'utf-8') : $keys[$intType];
+        $type = isset($_REQUEST['type']) ? htmlspecialchars($_REQUEST['type'],ENT_QUOTES,'utf-8') : $keys[$intType];
         if (!in_array($type,$keys)) die(_('Invalid type'));
-        $file = basename(trim(htmlentities($_REQUEST['file'],ENT_QUOTES,'utf-8')));
+        $file = basename(trim(htmlspecialchars($_REQUEST['file'],ENT_QUOTES,'utf-8')));
         if (!isset($_REQUEST['export'])) $this->setFileName($file);
         $intType = ($intType !== false ? (isset($_REQUEST['export']) ? 3 : $this->types[$type]) : 0);
         ob_start();
