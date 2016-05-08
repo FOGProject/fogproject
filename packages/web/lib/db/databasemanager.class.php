@@ -15,7 +15,7 @@ class DatabaseManager extends FOGCore {
             self::$DB = FOGCore::getClass('Oracle');
             break;
         }
-        if (!isset($_POST['export']) && $this->getVersion() < FOG_SCHEMA && !preg_match('#schemaupdater#i',htmlentities($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schemaupdater');
+        if (!isset($_POST['export']) && $this->getVersion() < FOG_SCHEMA && !preg_match('#schemaupdater#i',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schemaupdater');
         return $this;
     }
     public function getDB() {
