@@ -194,16 +194,18 @@ class MulticastTask extends FOGService {
     public function killTask() {
         $this->killTasking();
         @unlink($this->getUDPCastLogFile());
-        foreach ((array)self::getClass('TaskManager')->find(array('id'=>self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->getID()),'taskID'))) AS $i => &$Task) {
-            if (!$Task->isValid()) continue;
+        $taskIDs = self::getSubObjectIDs('MulticastSessionsAssociation',array('msid'=>$this->getID()),'taskID');
+        $stateIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array($this->getCompleteState(),$this->getCancelledState())),'stateID');
+        array_map(function(&$Task) use ($stateIDs) {
+            if (!$Task->isValid()) return;
             $Task
-                ->set('stateID',$this->getCancelledState())
+                ->set('stateID',in_array($this->getCancelledState(),(array)$stateIDs) ? $this->getCancelledState() : $this->getCompleteState())
                 ->save();
             unset($Task);
-        }
+        },(array)self::getClass('TaskManager')->find(array('id'=>$taskIDs)));
         self::getClass('MulticastSessions',$this->intID)
             ->set('name',null)
-            ->set('stateID',$this->getCancelledState())
+            ->set('stateID',in_array($this->getCancelledState(),(array)$stateIDs) ? $this->getCancelledState() : $this->getCompleteState())
             ->save();
         return true;
     }
