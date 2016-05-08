@@ -284,7 +284,7 @@ abstract class FOGController extends FOGBase {
             });
         }
         $trimPlus = function(&$val,&$key) use (&$callback) {
-            $val = htmlspecialchars($val,ENT_QUOTES,'utf-8');
+            $val = htmlspecialchars($val,self::$service ? ENT_NOQUOTES : ENT_QUOTES,'utf-8');
             $val = $callback ? $callback(trim($val)) : trim($val);
         };
         $callback = self::$service ? false : 'addslashes';
