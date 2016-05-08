@@ -69,102 +69,102 @@ class Group extends FOGController {
         return self::getClass('GroupAssociationManager')->count(array('groupID'=>$this->get('id')));
     }
     public function addPrinter($printerAdd, $printerDel, $level = 0) {
-        $hostids = $this->get('hosts');
-        self::getClass('HostManager')->update(array('id'=>$hostids),'',array('printerLevel'=>$level));
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
+        self::getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('printerLevel'=>$level));
         array_map(function(&$Host) use ($printerAdd,$printerDel,$level) {
             if (!$Host->isValid()) return;
             if ($printerAdd) $Host->addPrinter($printerAdd);
             if ($printerDel) $Host->removePrinter($printerDel);
             $Host->save();
             unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$hostids)));
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     public function addSnapin($addArray) {
-        $hostids = $this->get('hosts');
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
         array_map(function(&$Host) use ($addArray) {
             if (!$Host->isValid()) return;
             $Host->addSnapin($addArray)->save();
             unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$hostids)));
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     public function removeSnapin($removeArray) {
-        $hostids = $this->get('hosts');
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
         array_map(function(&$Host) use ($removeArray) {
             if (!$Host->isValid()) return;
             $Host->removeSnapin($removeArray)->save();
             unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$hostids)));
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     public function addModule($addArray) {
-        $hostids = $this->get('hosts');
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
         array_map(function(&$Host) use ($addArray) {
             if (!$Host->isValid()) return;
             $Host->addModule($addArray)->save();
             unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$hostids)));
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     public function removeModule($removeArray) {
-        $hostids = $this->get('hosts');
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
         array_map(function(&$Host) use ($removeArray) {
             if (!$Host->isValid()) return;
             $Host->removeModule($removeArray)->save();
             unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$hostids)));
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     public function addHost($addArray) {
-        $hostids = $this->get('hosts');
-        $this->set('hosts',array_unique(array_merge((array)$hostids,(array)$addArray)));
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
+        $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
         return $this;
     }
     public function removeHost($removeArray) {
-        $hostids = $this->get('hosts');
-        $this->set('hosts',array_unique(array_diff((array)$hostids,(array)$removeArray)));
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
+        $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
         return $this;
     }
     public function addImage($imageID) {
-        $hostids = $this->get('hosts');
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
         if (!$imageID) throw new Exception(_('Select an image'));
         if (!self::getClass('Image',$imageID)->isValid()) throw new Exception(_('Select a valid image'));
-        if (self::getClass('TaskManager')->count(array('hostID'=>$hostids,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) throw new Exception(_('There is a host in a tasking'));
-        self::getClass('HostManager')->update(array('id'=>$hostids),'',array('imageID'=>$imageID));
+        if (self::getClass('TaskManager')->count(array('hostID'=>$this->get('hosts'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) throw new Exception(_('There is a host in a tasking'));
+        self::getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('imageID'=>$imageID));
         return $this;
     }
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false,$wol = false) {
-        $hostids = $this->get('hosts');
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
         if (self::getClass('TaskManager')->count(array('hostID'=>$hostids,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) throw new Exception(_('There is a host in a tasking'));
         $success = array();
         array_map(function(&$Host) use ($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$username,$passreset,$sessionjoin,$wol,&$success) {
             if (!$Host->isValid()) return;
             $success[] = $Host->createImagePackage($taskTypeID,$taskName,$shutdown, $debug,$deploySnapins,$isGroupTask,$_SESSION['FOG_USERNAME'],$passreset,$sessionjoin,$wol);
             unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$hostids)));
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $success;
     }
     public function setAD($useAD, $domain, $ou, $user, $pass, $legacy, $enforce) {
-        $hostids = $this->get('hosts');
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
         $pass = trim($this->encryptpw($pass));
-        self::getClass('HostManager')->update(array('id'=>$hostids),'',array('useAD'=>$useAD,'ADDomain'=>trim($domain),'ADOU'=>trim($ou),'ADUser'=>trim($user),'ADPass'=>$pass,'ADPassLegacy'=>$legacy,'enforce'=>$enforce));
+        self::getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('useAD'=>$useAD,'ADDomain'=>trim($domain),'ADOU'=>trim($ou),'ADUser'=>trim($user),'ADPass'=>$pass,'ADPassLegacy'=>$legacy,'enforce'=>$enforce));
         return $this;
     }
     public function doMembersHaveUniformImages() {
-        $hostids = $this->get('hosts');
-        $imageID = self::getSubObjectIDs('Host',array('id'=>$hostids),'imageID','','','','','array_count_values');
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
+        $imageID = self::getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'imageID','','','','','array_count_values');
         $imageID = count($imageID) == 1 ? array_shift($imageID) : 0;
         return $imageID == $this->getHostCount();
     }
     public function updateDefault($printerid) {
         if (!$this->get('id')) return;
-        $hostids = $this->get('hosts');
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
         array_map(function(&$Host) use ($printerid) {
             if (!$Host->isValid()) return;
             $Host->updateDefault($printerid,true);
             unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$hostids)));
+        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
     protected function loadHosts() {

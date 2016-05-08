@@ -301,6 +301,7 @@ class Host extends FOGController {
         return (bool)count(self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id'),'printerID'=>$printerid,'isDefault'=>1),'printerID'));
     }
     public function updateDefault($printerid,$onoff) {
+        if (!$this->isLoaded('printers')) $this->loadPrinters();
         self::getClass('PrinterAssociationManager')->update(array('printerID'=>$this->get('printers'),'hostID'=>$this->get('id')),'',array('isDefault'=>0));
         self::getClass('PrinterAssociationManager')->update(array('printerID'=>$printerid,'hostID'=>$this->get('id')),'',array('isDefault'=>$onoff));
         return $this;
@@ -628,6 +629,7 @@ class Host extends FOGController {
         return $this;
     }
     public function addAddMAC($addArray,$pending = false) {
+        if (!$this->isLoaded('additionalMACs')) $this->loadAdditionalMACs();
         $addArray = array_map(function(&$item) {
             return trim(strtolower($item));
         },(array)$addArray);
@@ -640,6 +642,7 @@ class Host extends FOGController {
         return $this;
     }
     public function addPendtoAdd($MACs = false) {
+        if (!$this->isLoaded('pendingMACs')) $this->loadPendingMACs();
         $lowerAndTrim = function(&$MAC) {
             return trim(strtolower($MAC));
         };
@@ -650,6 +653,7 @@ class Host extends FOGController {
         return $this->addAddMAC($matched)->removePendMAC($matched);
     }
     public function removeAddMAC($removeArray) {
+        if (!$this->isLoaded('additionalMACs')) $this->loadAdditionalMACs();
         array_map(function(&$item) {
             $item = $item instanceof MACAddress ? $item : self::getClass('MACAddress',$item);
             $this->remove('additionalMACs',$item);
@@ -658,6 +662,7 @@ class Host extends FOGController {
         return $this;
     }
     public function removePendMAC($removeArray) {
+        if (!$this->isLoaded('pendingMACs')) $this->loadPendingMACs();
         array_map(function(&$item) {
             $item = $item instanceof MACAddress ? $item : self::getClass('MACAddress',$item);
             $this->remove('pendingMACs',$item);
@@ -666,18 +671,23 @@ class Host extends FOGController {
         return $this;
     }
     public function addPriMAC($MAC) {
+        if (!$this->isLoaded('mac')) $this->loadMac();
         return $this->set('mac',$MAC);
     }
     public function addPendMAC($MAC) {
+        if (!$this->isLoaded('pendingMACs')) $this->loadPendingMACs();
         return $this->addAddMAC($MAC,true);
     }
     public function addPrinter($addArray) {
+        if (!$this->isLoaded('printers')) $this->loadPrinters();
         return $this->set('printers',array_unique(array_merge((array)$this->get('printers'),(array)$addArray)));
     }
     public function removePrinter($removeArray) {
+        if (!$this->isLoaded('printers')) $this->loadPrinters();
         return $this->set('printers',array_unique(array_diff((array)$this->get('printers'),(array)$removeArray)));
     }
     public function addSnapin($addArray) {
+        if (!$this->isLoaded('snapins')) $this->loadSnapins();
         $limit = self::getSetting('FOG_SNAPIN_LIMIT');
         if ($limit > 0) {
             if (self::getClass('SnapinManager')->count(array('id'=>$this->get('snapins'))) >= $limit || count($addArray) > $limit) throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
@@ -685,12 +695,15 @@ class Host extends FOGController {
         return $this->set('snapins',array_unique(array_merge((array)$this->get('snapins'),(array)$addArray)));
     }
     public function removeSnapin($removeArray) {
+        if (!$this->isLoaded('snapins')) $this->loadSnapins();
         return $this->set('snapins',array_unique(array_diff((array)$this->get('snapins'),(array)$removeArray)));
     }
     public function addModule($addArray) {
+        if (!$this->isLoaded('modules')) $this->loadModules();
         return $this->set('modules',array_unique(array_merge((array)$this->get('modules'),(array)$addArray)));
     }
     public function removeModule($removeArray) {
+        if (!$this->isLoaded('modules')) $this->loadModules();
         return $this->set('modules',array_unique(array_diff((array)$this->get('modules'),(array)$removeArray)));
     }
     public function getMyMacs($justme = true) {
@@ -714,21 +727,27 @@ class Host extends FOGController {
         if (count($igMACs)) self::getClass('MACAddressAssociationManager')->update(array('mac'=>$igMACs,'hostID'=>$this->get('id')),'',array('imageIgnore'=>1));
     }
     public function addGroup($addArray) {
+        if (!$this->isLoaded('groups')) $this->loadGroups();
         return $this->addHost($addArray);
     }
     public function removeGroup($removeArray) {
+        if (!$this->isLoaded('groups')) $this->loadGroups();
         return $this->removeHost($removeArray);
     }
     public function addHost($addArray) {
+        if (!$this->isLoaded('groups')) $this->loadGroups();
         return $this->set('groups',array_unique(array_merge((array)$this->get('groups'),(array)$addArray)));
     }
     public function removeHost($removeArray) {
+        if (!$this->isLoaded('groups')) $this->loadGroups();
         return $this->set('groups',array_unique(array_diff((array)$this->get('groups'),(array)$removeArray)));
     }
     public function clientMacCheck($MAC = false) {
+        if (!$this->isLoaded('mac')) $this->loadMac();
         return self::getClass('MACAddress',self::getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'clientIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
     }
     public function imageMacCheck($MAC = false) {
+        if (!$this->isLoaded('mac')) $this->loadMac();
         return self::getClass('MACAddress',self::getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'imageIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
     }
     public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false,$legacy = '',$productKey = '',$enforce = '') {
