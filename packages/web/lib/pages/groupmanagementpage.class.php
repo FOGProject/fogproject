@@ -129,22 +129,23 @@ class GroupManagementPage extends FOGPage {
     }
     public function edit() {
         $HostCount = $this->obj->getHostCount();
-        $imageID = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'imageID','','','','','array_count_values');
+        $hostids = $this->obj->get('hosts');
+        $imageID = self::getSubObjectIDs('Host',array('id'=>$hostids),'imageID','','','','','array_count_values');
         $imageHosts = array_values($imageID);
         $imageMatchID = false;
         if (count($imageHosts) === 1 && array_shift($imageHosts) === $HostCount) {
             $imageMatchID = array_keys($imageID);
             $imageMatchID = array_shift($imageMatchID);
         }
-        $groupKey = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'productKey','','','','','array_count_values');
-        $aduse = count(self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'useAD','','','','','array_filter'));
-        $enforcetest = count(self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'enforce','','','','','array_filter'));
-        $adDomain = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADDomain','','','','','array_count_values');
-        $adOU = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADOU','','','','','array_count_values');
-        $adUser = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADUser','','','','','array_count_values');
-        $adPass = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPass','','','','','array_count_values');
-        $adPassLegacy = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'ADPassLegacy','','','','','array_count_values');
-        $Host = self::getClass('Host',current($this->obj->get('hosts')));
+        $groupKey = self::getSubObjectIDs('Host',array('id'=>$hostids),'productKey','','','','','array_count_values');
+        $aduse = count(self::getSubObjectIDs('Host',array('id'=>$hostids),'useAD','','','','','array_filter'));
+        $enforcetest = count(self::getSubObjectIDs('Host',array('id'=>$hostids),'enforce','','','','','array_filter'));
+        $adDomain = self::getSubObjectIDs('Host',array('id'=>$hostids),'ADDomain','','','','','array_count_values');
+        $adOU = self::getSubObjectIDs('Host',array('id'=>$hostids),'ADOU','','','','','array_count_values');
+        $adUser = self::getSubObjectIDs('Host',array('id'=>$hostids),'ADUser','','','','','array_count_values');
+        $adPass = self::getSubObjectIDs('Host',array('id'=>$hostids),'ADPass','','','','','array_count_values');
+        $adPassLegacy = self::getSubObjectIDs('Host',array('id'=>$hostids),'ADPassLegacy','','','','','array_count_values');
+        $Host = self::getClass('Host',current($hostids));
         $useAD = (bool)($aduse == $HostCount);
         $enforce = (int)($enforcetest == $HostCount);
         unset($aduse);
@@ -164,10 +165,10 @@ class GroupManagementPage extends FOGPage {
         //$productKey = ((count($groupKey) == 1 && $groupKey[0] == $HostCount) || count($groupKey) == $HostCount ? $Host->get('productKey') : '');
         $groupKeyMatch = $this->encryptpw($productKey);
         unset($productKey, $groupKey);
-        $biosExit = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'biosexit','','','','','array_count_values');
-        $efiExit = self::getSubObjectIDs('Host',array('id'=>$this->obj->get('hosts')),'efiexit','','','','','array_count_values');
-        $exitNorm = Service::buildExitSelector('bootTypeExit',(count($biosExit) == 1 && $biosExit[0] == $HostCount ? $Host->get('biosexit') : $_REQUEST['bootTypeExit']),true);
-        $exitEfi = Service::buildExitSelector('efiBootTypeExit',(count($efiExit) == 1 && $efiExit[0] == $HostCount ? $Host->get('efiexit') : $_REQUEST['efiBootTypeExit']),true);
+        $biosExit = array_flip(self::getSubObjectIDs('Host',array('id'=>$hostids),'biosexit','','','','','array_count_values'));
+        $efiExit = array_flip(self::getSubObjectIDs('Host',array('id'=>$hostids),'efiexit','','','','','array_count_values'));
+        $exitNorm = Service::buildExitSelector('bootTypeExit',(count($biosExit) === 1 && isset($biosExit[1]) ? $Host->get('biosexit') : $_REQUEST['bootTypeExit']),true);
+        $exitEfi = Service::buildExitSelector('efiBootTypeExit',(count($efiExit) === 1 && isset($efiExit[1]) ? $Host->get('efiexit') : $_REQUEST['efiBootTypeExit']),true);
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         unset ($this->headerData);
         $this->attributes = array(
@@ -453,7 +454,8 @@ class GroupManagementPage extends FOGPage {
                         ->set('kernelDevice',$_REQUEST['dev']);
                     $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
                     $productKey = substr($productKey,0,29);
-                    self::getClass('HostManager')->update(array('id'=>$this->obj->get('hosts')),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->encryptpw(trim($_REQUEST['key']))));
+                    $hostids = $this->obj->get('hosts');
+                    self::getClass('HostManager')->update(array('id'=>$hostids),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->encryptpw(trim($_REQUEST['key']))));
                 }
                 break;
                 case 'group-image';
@@ -492,7 +494,7 @@ class GroupManagementPage extends FOGPage {
                     if (isset($_REQUEST['updatedisplay'])) $Host->setDisp($x,$y,$r);
                     if (isset($_REQUEST['updatealo'])) $Host->setAlo($time);
                     unset($Host);
-                },self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
+                },(array)self::getClass('HostManager')->find(array('id'=>$hostids)));
                 break;
             }
             if (!$this->obj->save()) throw new Exception(_('Database update failed'));
