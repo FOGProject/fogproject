@@ -311,7 +311,7 @@ class FOGConfigurationPage extends FOGPage {
             _('Delete'),
         );
         $this->templates = array(
-            '<input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED" />${name}',
+            '<input type="hidden" name="name" value="FOG_CLIENT_CLIENTUPDATER_ENABLED" />${name}',
             '${module}',
             '${type}',
             sprintf('<input type="checkbox" name="delcu" class="delid" id="delcuid${client_id}" value="${client_id}" /><label for="delcuid${client_id}" class="icon fa fa-minus-circle icon-hand" title="%s">&nbsp;</label>',_('Delete')),
@@ -359,7 +359,7 @@ class FOGConfigurationPage extends FOGPage {
         }
         unset($fields);
         self::$HookManager->processEvent('CLIENT_UPDATE',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        printf('<form method="post" action="%s&tab=clientupdater" enctype="multipart/form-data"><input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED"/>',$this->formAction);
+        printf('<form method="post" action="%s&tab=clientupdater" enctype="multipart/form-data"><input type="hidden" name="name" value="FOG_CLIENT_CLIENTUPDATER_ENABLED"/>',$this->formAction);
         $this->render();
         echo '</form>';
     }
@@ -432,18 +432,19 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_REGISTRATION_ENABLED',
             'FOG_PXE_MENU_HIDDEN',
             'FOG_QUICKREG_AUTOPOP',
-            'FOG_SERVICE_AUTOLOGOFF_ENABLED',
-            'FOG_SERVICE_CLIENTUPDATER_ENABLED',
-            'FOG_SERVICE_DIRECTORYCLEANER_ENABLED',
-            'FOG_SERVICE_DISPLAYMANAGER_ENABLED',
-            'FOG_SERVICE_GREENFOG_ENABLED',
-            'FOG_SERVICE_HOSTREGISTER_ENABLED',
-            'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
-            'FOG_SERVICE_PRINTERMANAGER_ENABLED',
-            'FOG_SERVICE_SNAPIN_ENABLED',
-            'FOG_SERVICE_TASKREBOOT_ENABLED',
-            'FOG_SERVICE_USERCLEANUP_ENABLED',
-            'FOG_SERVICE_USERTRACKER_ENABLED',
+            'FOG_CLIENT_AUTOUPDATE',
+            'FOG_CLIENT_AUTOLOGOFF_ENABLED',
+            'FOG_CLIENT_CLIENTUPDATER_ENABLED',
+            'FOG_CLIENT_DIRECTORYCLEANER_ENABLED',
+            'FOG_CLIENT_DISPLAYMANAGER_ENABLED',
+            'FOG_CLIENT_GREENFOG_ENABLED',
+            'FOG_CLIENT_HOSTREGISTER_ENABLED',
+            'FOG_CLIENT_HOSTNAMECHANGER_ENABLED',
+            'FOG_CLIENT_PRINTERMANAGER_ENABLED',
+            'FOG_CLIENT_SNAPIN_ENABLED',
+            'FOG_CLIENT_TASKREBOOT_ENABLED',
+            'FOG_CLIENT_USERCLEANUP_ENABLED',
+            'FOG_CLIENT_USERTRACKER_ENABLED',
             'FOG_ADVANCED_STATISTICS',
             'FOG_CHANGE_HOSTNAME_EARLY',
             'FOG_DISABLE_CHKDSK',
@@ -645,39 +646,40 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_QUICKREG_SYS_NUMBER' => true,
             'FOG_QUICKREG_GROUP_ASSOC' => array_merge((array)0,self::getSubObjectIDs('Group')),
             // FOG Service
-            'FOG_SERVICE_CHECKIN_TIME' => true,
+            'FOG_CLIENT_CHECKIN_TIME' => true,
             'FOG_CLIENT_MAXSIZE' => true,
             'FOG_GRACE_TIMEOUT' => true,
+            'FOG_CLIENT_AUTOUPDATE' => $checkbox,
             // FOG Service - Auto Log Off
-            'FOG_SERVICE_AUTOLOGOFF_ENABLED' => $checkbox,
-            'FOG_SERVICE_AUTOLOGOFF_MIN' => true,
+            'FOG_CLIENT_AUTOLOGOFF_ENABLED' => $checkbox,
+            'FOG_CLIENT_AUTOLOGOFF_MIN' => true,
             // FOG Service - Client Updater
-            'FOG_SERVICE_CLIENTUPDATER_ENABLED' => $checkbox,
+            'FOG_CLIENT_CLIENTUPDATER_ENABLED' => $checkbox,
             // FOG Service - Directory Cleaner
-            'FOG_SERVICE_DIRECTORYCLEANER_ENABLED' => $checkbox,
+            'FOG_CLIENT_DIRECTORYCLEANER_ENABLED' => $checkbox,
             // FOG Service - Display manager
-            'FOG_SERVICE_DISPLAYMANAGER_ENABLED' => $checkbox,
-            'FOG_SERVICE_DISPLAYMANAGER_X' => true,
-            'FOG_SERVICE_DISPLAYMANAGER_Y' => true,
-            'FOG_SERVICE_DISPLAYMANAGER_R' => true,
+            'FOG_CLIENT_DISPLAYMANAGER_ENABLED' => $checkbox,
+            'FOG_CLIENT_DISPLAYMANAGER_X' => true,
+            'FOG_CLIENT_DISPLAYMANAGER_Y' => true,
+            'FOG_CLIENT_DISPLAYMANAGER_R' => true,
             // FOG Service - Green Fog
-            'FOG_SERVICE_GREENFOG_ENABLED' => $checkbox,
+            'FOG_CLIENT_GREENFOG_ENABLED' => $checkbox,
             // FOG Service - Host Register
-            'FOG_SERVICE_HOSTREGISTER_ENABLED' => $checkbox,
+            'FOG_CLIENT_HOSTREGISTER_ENABLED' => $checkbox,
             'FOG_QUICKREG_MAX_PENDING_MACS' => true,
             // FOG Service - Hostname Changer
-            'FOG_SERVICE_HOSTNAMECHANGER_ENABLED' => $checkbox,
+            'FOG_CLIENT_HOSTNAMECHANGER_ENABLED' => $checkbox,
             // FOG Service - Printer Manager
-            'FOG_SERVICE_PRINTERMANAGER_ENABLED' => $checkbox,
+            'FOG_CLIENT_PRINTERMANAGER_ENABLED' => $checkbox,
             // FOG Service - Snapins
-            'FOG_SERVICE_SNAPIN_ENABLED' => $checkbox,
+            'FOG_CLIENT_SNAPIN_ENABLED' => $checkbox,
             // FOG Service - Task Reboot
-            'FOG_SERVICE_TASKREBOOT_ENABLED' => $checkbox,
+            'FOG_CLIENT_TASKREBOOT_ENABLED' => $checkbox,
             'FOG_TASK_FORCE_ENABLED' => $checkbox,
             // FOG Service - User Cleanup
-            'FOG_SERVICE_USERCLEANUP_ENABLED' => $checkbox,
+            'FOG_CLIENT_USERCLEANUP_ENABLED' => $checkbox,
             // FOG Service - User Tracker
-            'FOG_SERVICE_USERTRACKER_ENABLED' => $checkbox,
+            'FOG_CLIENT_USERTRACKER_ENABLED' => $checkbox,
             // FOG View Settings
             'FOG_DATA_RETURNED' => true,
             // General Settings

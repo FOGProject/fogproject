@@ -308,9 +308,9 @@ class Host extends FOGController {
     }
     public function getDispVals($key = '') {
         $keyTran = array(
-            'width'=>'FOG_SERVICE_DISPLAYMANAGER_X',
-            'height'=>'FOG_SERVICE_DISPLAYMANAGER_Y',
-            'refresh'=>'FOG_SERVICE_DISPLAYMANAGER_R',
+            'width'=>'FOG_CLIENT_DISPLAYMANAGER_X',
+            'height'=>'FOG_CLIENT_DISPLAYMANAGER_Y',
+            'refresh'=>'FOG_CLIENT_DISPLAYMANAGER_R',
         );
         $HostScreen = self::getClass('HostScreenSettingsManager')->find(array('hostID'=>$this->get('id')));
         $HostScreen = @array_shift($HostScreen);
@@ -330,7 +330,7 @@ class Host extends FOGController {
     public function getAlo() {
         $HostALO = self::getClass('HostAutoLogoutManager')->find(array('hostID'=>$this->get('id')));
         $HostALO = @array_shift($HostALO);
-        $gTime = self::getSetting('FOG_SERVICE_AUTOLOGOFF_MIN');
+        $gTime = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
         return ($HostALO && $HostALO->isValid() ? $HostALO->get('time') : $gTime);
     }
     public function setAlo($time) {
