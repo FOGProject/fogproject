@@ -65,25 +65,30 @@ class Printer extends FOGController {
         return $this;
     }
     public function addHost($addArray) {
+        if (!$this->get('id')) return;
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
         $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
         return $this;
     }
     public function removeHost($removeArray) {
+        if (!$this->get('id')) return;
+        if (!$this->isLoaded('hosts')) $this->loadHosts();
         $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
         return $this;
     }
     protected function loadHosts() {
-        if ($this->get('id')) $this->set('hosts',self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID'));
+        if (!$this->get('id')) return;
+        $this->set('hosts',self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID'));
     }
     protected function loadHostsnotinme() {
-        if ($this->get('id')) {
-            $find = array('id'=>$this->get('hosts'));
-            $this->set('hostsnotinme',self::getSubObjectIDs('Host',$find,'id',true));
-            unset($find);
-        }
+        if (!$this->get('id')) return;
+        $find = array('id'=>$this->get('hosts'));
+        $this->set('hostsnotinme',self::getSubObjectIDs('Host',$find,'id',true));
+        unset($find);
         return $this;
     }
     public function updateDefault($hostid,$onoff) {
+        if (!$this->get('id')) return;
         array_map(function(&$id) {
             self::getClass('Host',$id)->updateDefault($this->get('id'),in_array($id,(array)$onoff));
             unset($id);
