@@ -216,7 +216,7 @@ abstract class FOGService extends FOGBase {
                 if (!$i) self::outall(_(' * Starting Sync Actions'));
                 $this->killTasking($i,$itemType,$Obj->get('name'));
                 $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
-                if (self::getSetting('FOG_SERVICE_DEBUG')) self::outall(" | CMD:\n\t\t\t$cmd");
+                if (self::getSetting('FOG_CLIENT_DEBUG')) self::outall(" | CMD:\n\t\t\t$cmd");
                 $this->startTasking($cmd,$logname,$i,$itemType,$Obj->get('name'));
                 self::outall(sprintf(' * %s %s %s',_('Started sync for'),$objType,$Obj->get('name')));
                 unset($PotentialStorageNode);

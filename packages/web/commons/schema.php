@@ -417,7 +417,7 @@ INDEX `new_index`(`settingKey`)
                                                                                                                                                         "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                                                                                                                                                         values('FOG_UPLOADIGNOREPAGEHIBER', '"._("This setting defines if you would like to remove hibernate and swap files before uploading a Windows image.  ")."', '" . FOG_UPLOADIGNOREPAGEHIBER . "', 'General Settings')",
                                                                                                                                                             "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                                                            values('FOG_SERVICE_DIRECTORYCLEANER_ENABLED', '"._("This setting defines if the Windows Service module directory cleaner should be enabled on client computers. This service is clean out the contents of a directory on when a user logs out of the workstation. (Valid values: 0 or 1).")."', '1', 'FOG Service - Directory Cleaner')",
+                                                                                                                                                            values('FOG_CLIENT_DIRECTORYCLEANER_ENABLED', '"._("This setting defines if the Windows Service module directory cleaner should be enabled on client computers. This service is clean out the contents of a directory on when a user logs out of the workstation. (Valid values: 0 or 1).")."', '1', 'FOG Client - Directory Cleaner')",
                                                                                                                                                                 "CREATE TABLE `".DATABASE_NAME."`.`moduleStatusByHost` (
                                                                                                                                                                     `msID` integer  NOT NULL AUTO_INCREMENT,
                                                                                                                                                                     `msHostID` integer  NOT NULL,
@@ -437,7 +437,7 @@ INDEX `new_index2`(`msModuleID`)
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                 values('FOG_USE_ANIMATION_EFFECTS', '"._("This setting defines if the FOG management portal uses animation effects on it.  Valid values are 0 or 1")."', '1', 'General Settings')",
                     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                    values('FOG_SERVICE_USERCLEANUP_ENABLED', '"._("This setting defines if user cleanup should be enabled.  The User Cleanup module will remove all local windows users from the workstation on log off accept for users that are whitelisted.  (Valid values are 0 or 1)")."', '0', 'FOG Service - User Cleanup')",
+                    values('FOG_CLIENT_USERCLEANUP_ENABLED', '"._("This setting defines if user cleanup should be enabled.  The User Cleanup module will remove all local windows users from the workstation on log off accept for users that are whitelisted.  (Valid values are 0 or 1)")."', '0', 'FOG Client - User Cleanup')",
                         "CREATE TABLE `".DATABASE_NAME."`.`userCleanup` (
                             `ucID` integer  NOT NULL AUTO_INCREMENT,
                             `ucName` varchar(254)  NOT NULL,
@@ -449,19 +449,19 @@ INDEX `new_index2`(`msModuleID`)
                         "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'guest' )",
                         "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'HelpAssistant' )",
                         "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                        values('FOG_SERVICE_GREENFOG_ENABLED', '"._("This setting defines if the green fog module should be enabled.  The green fog module will shutdown or restart a computer at a set time.  (Valid values are 0 or 1)")."', '1', 'FOG Service - Green Fog')",
+                        values('FOG_CLIENT_GREENFOG_ENABLED', '"._("This setting defines if the green fog module should be enabled.  The green fog module will shutdown or restart a computer at a set time.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Green Fog')",
                             "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                            values('FOG_SERVICE_AUTOLOGOFF_ENABLED', '"._("This setting defines if the auto log off module should be enabled.  This module will log off any active user after X minutes of inactivity.  (Valid values are 0 or 1)")."', '1', 'FOG Service - Auto Log Off')",
+                            values('FOG_CLIENT_AUTOLOGOFF_ENABLED', '"._("This setting defines if the auto log off module should be enabled.  This module will log off any active user after X minutes of inactivity.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Auto Log Off')",
                                 "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'ASPNET' )",
                                 "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'SUPPORT_' )",
                                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                values('FOG_SERVICE_DISPLAYMANAGER_ENABLED', '"._("This setting defines if the fog display manager should be active.  The fog display manager will reset the clients screen resolution to a fixed size on log off and on computer start up.  (Valid values are 0 or 1)")."', '0', 'FOG Service - Display Manager')",
+                                values('FOG_CLIENT_DISPLAYMANAGER_ENABLED', '"._("This setting defines if the fog display manager should be active.  The fog display manager will reset the clients screen resolution to a fixed size on log off and on computer start up.  (Valid values are 0 or 1)")."', '0', 'FOG Client - Display Manager')",
                                     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                    values('FOG_SERVICE_DISPLAYMANAGER_X', '"._("This setting defines the default width in pixels to reset the computer display to with the fog display manager service.")."', '1024', 'FOG Service - Display Manager')",
+                                    values('FOG_CLIENT_DISPLAYMANAGER_X', '"._("This setting defines the default width in pixels to reset the computer display to with the fog display manager service.")."', '1024', 'FOG Client - Display Manager')",
                                         "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                        values('FOG_SERVICE_DISPLAYMANAGER_Y', '"._("This setting defines the default height in pixels to reset the computer display to with the fog display manager service.")."', '768', 'FOG Service - Display Manager')",
+                                        values('FOG_CLIENT_DISPLAYMANAGER_Y', '"._("This setting defines the default height in pixels to reset the computer display to with the fog display manager service.")."', '768', 'FOG Client - Display Manager')",
                                             "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                            values('FOG_SERVICE_DISPLAYMANAGER_R', '"._("This setting defines the default refresh rate to reset the computer display to with the fog display manager service.")."', '60', 'FOG Service - Display Manager')",
+                                            values('FOG_CLIENT_DISPLAYMANAGER_R', '"._("This setting defines the default refresh rate to reset the computer display to with the fog display manager service.")."', '60', 'FOG Client - Display Manager')",
                                                 "CREATE TABLE `".DATABASE_NAME."`.`hostScreenSettings` (
                                                     `hssID` integer  NOT NULL AUTO_INCREMENT,
                                                     `hssHostID` integer  NOT NULL,
@@ -476,7 +476,7 @@ INDEX `new_index`(`hssHostID`)
                 )
                 ENGINE = MyISAM",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_SERVICE_AUTOLOGOFF_MIN', '"._("This setting defines the number of minutes to wait before logging a user off of a PC. (Value of 0 will disable this module.)")."', '0', 'FOG Service - Auto Log Off')",
+                values('FOG_CLIENT_AUTOLOGOFF_MIN', '"._("This setting defines the number of minutes to wait before logging a user off of a PC. (Value of 0 will disable this module.)")."', '0', 'FOG Client - Auto Log Off')",
                     "CREATE TABLE `".DATABASE_NAME."`.`hostAutoLogOut` (
                         `haloID` integer  NOT NULL AUTO_INCREMENT,
                         `haloHostID` integer  NOT NULL,
@@ -486,7 +486,7 @@ INDEX `new_index`(`haloHostID`)
                 )
                 ENGINE = MyISAM",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_SERVICE_AUTOLOGOFF_BGIMAGE', '"._("This setting defines the location of the background image used in the auto log off module.  The image should be 300px x 300px.  This image can be located locally (such as c:\\\\images\\\\myimage.jpg) or on a web server (such as http://freeghost.sf.net/images/image.jpg)")."', 'c:\\\\program files\\\\fog\\\\images\\\\alo-bg.jpg', 'FOG Service - Auto Log Off')",
+                values('FOG_CLIENT_AUTOLOGOFF_BGIMAGE', '"._("This setting defines the location of the background image used in the auto log off module.  The image should be 300px x 300px.  This image can be located locally (such as c:\\\\images\\\\myimage.jpg) or on a web server (such as http://freeghost.sf.net/images/image.jpg)")."', 'c:\\\\program files\\\\fog\\\\images\\\\alo-bg.jpg', 'FOG Client - Auto Log Off')",
                     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                     values('FOG_KEYMAP', '"._("This setting defines the keymap used on the client boot image.")."', '', 'General Settings')",
                         "CREATE TABLE `".DATABASE_NAME."`.`greenFog` (
@@ -501,7 +501,7 @@ INDEX `new_index`(`gfHostID`)
                 )
                 ENGINE = MyISAM",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_SERVICE_HOSTNAMECHANGER_ENABLED', '"._("This setting defines if the fog hostname changer should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Service - Hostname Changer')",
+                values('FOG_CLIENT_HOSTNAMECHANGER_ENABLED', '"._("This setting defines if the fog hostname changer should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Hostname Changer')",
                     "CREATE TABLE `".DATABASE_NAME."`.`aloLog` (
                         `alID` integer  NOT NULL AUTO_INCREMENT,
                         `alUserName` varchar(254)  NOT NULL,
@@ -532,7 +532,7 @@ INDEX `new_index`(`ilHostID`)
                 )
                 ENGINE = MyISAM",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_SERVICE_SNAPIN_ENABLED', '"._("This setting defines if the fog snapin installer should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Service - Snapins')",
+                values('FOG_CLIENT_SNAPIN_ENABLED', '"._("This setting defines if the fog snapin installer should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Snapins')",
                     "ALTER TABLE `".DATABASE_NAME."`.`snapins` CHANGE COLUMN `sAnon1` `sRunWith` VARCHAR(245) NOT NULL",
                     "ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` ADD COLUMN `stReturnCode` integer  NOT NULL AFTER `stSnapinID`,
                     ADD COLUMN `stReturnDetails` varchar(250)  NOT NULL AFTER `stReturnCode`",
@@ -549,15 +549,15 @@ $this->schema[] = array(
 // 12
 $this->schema[] = array(
     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_SERVICE_CLIENTUPDATER_ENABLED', '"._("This setting defines if the fog client updater should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Service - Client Updater')",
+    values('FOG_CLIENT_CLIENTUPDATER_ENABLED', '"._("This setting defines if the fog client updater should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Client Updater')",
         "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-        values('FOG_SERVICE_HOSTREGISTER_ENABLED', '"._("This setting defines if the fog host register should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Service - Host Register')",
+        values('FOG_CLIENT_HOSTREGISTER_ENABLED', '"._("This setting defines if the fog host register should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Host Register')",
             "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-            values('FOG_SERVICE_PRINTERMANAGER_ENABLED', '"._("This setting defines if the fog printer maanger should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Service - Printer Manager')",
+            values('FOG_CLIENT_PRINTERMANAGER_ENABLED', '"._("This setting defines if the fog printer maanger should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Printer Manager')",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_SERVICE_TASKREBOOT_ENABLED', '"._("This setting defines if the fog task reboot should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Service - Task Reboot')",
+                values('FOG_CLIENT_TASKREBOOT_ENABLED', '"._("This setting defines if the fog task reboot should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Task Reboot')",
                     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                    values('FOG_SERVICE_USERTRACKER_ENABLED', '"._("This setting defines if the fog user tracker should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Service - User Tracker')",
+                    values('FOG_CLIENT_USERTRACKER_ENABLED', '"._("This setting defines if the fog user tracker should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - User Tracker')",
                         "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '12'",
                     );
 // 13
@@ -796,8 +796,8 @@ INDEX `idx_host`(`pmHostID`)
                     )
                     ENGINE = MyISAM;",
                     "INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings` (`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) VALUES
-                    ('FOG_QUICKREG_MAX_PENDING_MACS', 'This setting defines how many mac addresses will be stored in the pending mac address table for each host.', '4', 'FOG Service - Host Register'),
-('FOG_QUICKREG_PENDING_MAC_FILTER', 'This is a list of MAC address fragments that is used to filter out pending mac address requests.  For example, if you don\'t want to see pending mac address requests for VMWare NICs then you could filter by 00:05:69.  This filter is comma seperated, and is used like a *starts with* filter.', '', 'FOG Service - Host Register')",
+                    ('FOG_QUICKREG_MAX_PENDING_MACS', 'This setting defines how many mac addresses will be stored in the pending mac address table for each host.', '4', 'FOG Client - Host Register'),
+('FOG_QUICKREG_PENDING_MAC_FILTER', 'This is a list of MAC address fragments that is used to filter out pending mac address requests.  For example, if you don\'t want to see pending mac address requests for VMWare NICs then you could filter by 00:05:69.  This filter is comma seperated, and is used like a *starts with* filter.', '', 'FOG Client - Host Register')",
 "UPDATE `".DATABASE_NAME."`.`globalSettings` SET settingValue = '3.0.7' WHERE settingKey = 'FOG_JPGRAPH_VERSION'",
 "INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings` (`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) VALUES
 ('FOG_ADVANCED_STATISTICS', 'Enable the collection and display of advanced statistics.  This information WILL be sent to a remote server!  This information is used by the FOG team to see how FOG is being used.  The information that will be sent includes the server\'s UUID value, the number of hosts present in FOG, and number of images on your FOG server and well as total image space used. (0 = disabled, 1 = enabled).', '0', 'General Settings')",
@@ -988,8 +988,8 @@ $this->schema[] = array(
 (9, 'Virus Scan', 'Anti-Virus loads Clam AV on the client boot image, updates the scanner and then scans the Windows partition.', 'clam.png', '', 'fog', '1', 'both'),
 (10, 'Hardware Inventory', 'The hardware inventory task will boot the client computer and pull basic hardware information from it and report it back to the FOG server.', 'inventory.png', '', 'fog', '1', 'both'),
 (11, 'Password Reset', 'Password reset will blank out a Windows user password that may have been lost or forgotten.', 'winpass.png', '', 'fog', '1', 'both'),
-(12, 'All Snapins', 'This option allows you to send all the snapins to host without imaging the computer. (Requires FOG Service to be installed on client)', 'snap.png', '', 'fog', '1', 'both'),
-(13, 'Single Snapin', 'This option allows you to send a single snapin to a host. (Requires FOG Service to be installed on client)', 'snap.png', '', 'fog', '1', 'both'),
+(12, 'All Snapins', 'This option allows you to send all the snapins to host without imaging the computer. (Requires FOG Client to be installed on client)', 'snap.png', '', 'fog', '1', 'both'),
+(13, 'Single Snapin', 'This option allows you to send a single snapin to a host. (Requires FOG Client to be installed on client)', 'snap.png', '', 'fog', '1', 'both'),
 (14, 'Wake-Up', 'Wake Up will attempt to send the Wake-On-LAN packet to the computer to turn the computer on. In switched environments, you typically need to configure your hardware to allow for this (iphelper).', 'wake.png', '', 'fog', '1', 'both'),
 (15, 'Download - Debug', 'Download - Debug mode allows FOG to setup the environment to allow you send a specific image to a computer, but instead of sending the image, FOG will leave you at a prompt right before sending. If you actually wish to send the image all you need to do is type \"fog\" and hit enter.', 'senddebug.png', 'type=down mode=debug', 'fog', '1', 'host'),
 (16, 'Upload - Debug', 'mode allows FOG to setup the environment to allow you Upload a specific image to a computer, but instead of Upload the image, FOG will leave you at a prompt right before restoring. If you actually wish to Upload the image all you need to do is type \"fog\" and hit enter.', 'restoredebug.png', 'type=up mode=debug', 'fog', '1', 'host'),
@@ -1032,8 +1032,8 @@ $this->schema[] = array(
 (8, 'Multi-Cast', 'Deploy action will send an image saved on the FOG server to the client computer with all included snapins.', 'senddebug.png', '', 'type=down mc=yes', 'fog', '0', 'group'),
 (10, 'Hardware Inventory', 'The hardware inventory task will boot the client computer and pull basic hardware information from it and report it back to the FOG server.', 'inventory.png', '', 'mac_deployed=${HOST_MAC} mode=autoreg deployed=1', 'fog', '1', 'both'),
 (11, 'Password Reset', 'Password reset will blank out a Windows user password that may have been lost or forgotten.', 'winpass.png', '', 'mode=winpassreset', 'fog', '1', 'both'),
-(12, 'All Snapins', 'This option allows you to send all the snapins to host without imaging the computer. (Requires FOG Service to be installed on client)', 'snap.png', '', '', 'fog', '1', 'both'),
-(13, 'Single Snapin', 'This option allows you to send a single snapin to a host. (Requires FOG Service to be installed on client)', 'snap.png', '', '', 'fog', '1', 'both'),
+(12, 'All Snapins', 'This option allows you to send all the snapins to host without imaging the computer. (Requires FOG Client to be installed on client)', 'snap.png', '', '', 'fog', '1', 'both'),
+(13, 'Single Snapin', 'This option allows you to send a single snapin to a host. (Requires FOG Client to be installed on client)', 'snap.png', '', '', 'fog', '1', 'both'),
 (14, 'Wake-Up', 'Wake Up will attempt to send the Wake-On-LAN packet to the computer to turn the computer on. In switched environments, you typically need to configure your hardware to allow for this (iphelper).', 'wake.png', '', '', 'fog', '1', 'both'),
 (15, 'Download - Debug', 'Download - Debug mode allows FOG to setup the environment to allow you send a specific image to a computer, but instead of sending the image, FOG will leave you at a prompt right before sending. If you actually wish to send the image all you need to do is type \"fog\" and hit enter.', 'senddebug.png', '', 'type=down mode=debug', 'fog', '1', 'host'),
 (16, 'Upload - Debug', 'mode allows FOG to setup the environment to allow you Upload a specific image to a computer, but instead of Upload the image, FOG will leave you at a prompt right before restoring. If you actually wish to Upload the image all you need to do is type \"fog\" and hit enter.', 'restoredebug.png', '', 'type=up mode=debug', 'fog', '1', 'host'),
@@ -1343,11 +1343,11 @@ $this->schema[] = array(
 // 107
 $this->schema[] = array(
     "DELETE FROM `".DATABASE_NAME."`.globalSettings WHERE settingCategory='SSH Client'",
-    "UPDATE `" . DATABASE_NAME ."`.globalSettings SET settingCategory='FOG Service - Snapins' WHERE settingKey='FOG_SNAPINDIR'",
+    "UPDATE `" . DATABASE_NAME ."`.globalSettings SET settingCategory='FOG Client - Snapins' WHERE settingKey='FOG_SNAPINDIR'",
 );
 // 108
 $this->schema[] = array(
-    "UPDATE `" . DATABASE_NAME ."`.globalSettings SET settingDesc='"._("This setting defines if the fog printer manager should be globally active.  (Valid values are 0 or 1)")."' WHERE settingKey='FOG_SERVICE_PRINTERMANAGER_ENABLED'",
+    "UPDATE `" . DATABASE_NAME ."`.globalSettings SET settingDesc='"._("This setting defines if the fog printer manager should be globally active.  (Valid values are 0 or 1)")."' WHERE settingKey='FOG_CLIENT_PRINTERMANAGER_ENABLED'",
 );
 // 109
 $this->schema[] = array(
@@ -1382,12 +1382,12 @@ $this->schema[] = array(
 // 115
 $this->schema[] = array(
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_TASK_FORCE_REBOOT','This setting enables or disables the Force reboot of tasks.  This only affects if users are logged in. If users are logged in, the host will not reboot if this is disabled.','0','FOG Service - Task Reboot')",
+    values('FOG_TASK_FORCE_REBOOT','This setting enables or disables the Force reboot of tasks.  This only affects if users are logged in. If users are logged in, the host will not reboot if this is disabled.','0','FOG Client - Task Reboot')",
     );
 // 116
 $this->schema[] = array(
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_SERVICE_CHECKIN_TIME','This setting returns the client service checkin times to the server.','60','FOG Service')",
+    values('FOG_CLIENT_CHECKIN_TIME','This setting returns the client service checkin times to the server.','60','FOG Client')",
         "UPDATE `". DATABASE_NAME ."`.modules SET short_name='snapinclient' WHERE short_name='snapin'",
     );
 // 117
@@ -1397,11 +1397,11 @@ $this->schema[] = array(
     );
 // 118
 $this->schema[] = array(
-    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values ('FOG_AES_ENCRYPT','This setting turns on or off the FOG Client on the client machine to send the data encrypted with AES.  If you select this and you do not have the new FOG Client installed on your system, the old client will be broken.  This will only be relevant if you have the FOG_NEW_CLIENT enabled as well.','0','FOG Service')",
-    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_NEW_CLIENT','This setting turns on or off the new client. If this is selected, and the clients do not have the new client installed, things should still work unless you also check the FOG_AES_ENCRYPT box.','0','FOG Service')",
-    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_CLIENT_MAXSIZE','This setting specifies the MAX size of the fog.log before it rolls over. It will only work for new clients.','204800000','FOG Service')",
-    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_AES_PASS_ENCRYPT_KEY','This setting just stores the AES Encryption Key. It will only work for new clients.  This is the key used for encrypting all traffic back and forth between the client and server','7NFJUuQTYLZIoea32DsP9V6f0tbWnzMy','FOG Service')",
-    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_AES_ADPASS_ENCRYPT_KEY','This setting just stores the AES Encryption ADPass encryption key. It will only work for new clients.  This is the key used for encrypting ADPass in AES format. If FOG_NEW_CLIENT is selected, to set the ADPass you simply type the plain text password and click update.  It will automatically encrypt and store the encrypted password in the database for you.','jPlUQRw5vLsrz8I1TuZdWDSiMFqXHtcm','FOG Service')",
+    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values ('FOG_AES_ENCRYPT','This setting turns on or off the FOG Client on the client machine to send the data encrypted with AES.  If you select this and you do not have the new FOG Client installed on your system, the old client will be broken.  This will only be relevant if you have the FOG_NEW_CLIENT enabled as well.','0','FOG Client')",
+    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_NEW_CLIENT','This setting turns on or off the new client. If this is selected, and the clients do not have the new client installed, things should still work unless you also check the FOG_AES_ENCRYPT box.','0','FOG Client')",
+    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_CLIENT_MAXSIZE','This setting specifies the MAX size of the fog.log before it rolls over. It will only work for new clients.','204800000','FOG Client')",
+    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_AES_PASS_ENCRYPT_KEY','This setting just stores the AES Encryption Key. It will only work for new clients.  This is the key used for encrypting all traffic back and forth between the client and server','7NFJUuQTYLZIoea32DsP9V6f0tbWnzMy','FOG Client')",
+    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_AES_ADPASS_ENCRYPT_KEY','This setting just stores the AES Encryption ADPass encryption key. It will only work for new clients.  This is the key used for encrypting ADPass in AES format. If FOG_NEW_CLIENT is selected, to set the ADPass you simply type the plain text password and click update.  It will automatically encrypt and store the encrypted password in the database for you.','jPlUQRw5vLsrz8I1TuZdWDSiMFqXHtcm','FOG Client')",
 );
 // 119
 $column = array_filter((array)self::$DB->getColumns('default','modules'));
@@ -1643,7 +1643,7 @@ $this->schema[] = array(
 );
 // 143
 $this->schema[] = array(
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_GRACE_TIMEOUT', '"._("This setting defines the grace period for the reboots and shutdowns.  The value is specified in seconds")."', '60', 'FOG Service')",
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_GRACE_TIMEOUT', '"._("This setting defines the grace period for the reboots and shutdowns.  The value is specified in seconds")."', '60', 'FOG Client')",
 );
 // 144
 $this->schema[] = array(
@@ -2094,4 +2094,11 @@ $this->schema[] = array(
 // 217
 $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`clientUpdates` CHANGE `cuType` `cuType` VARCHAR(30) NOT NULL",
+);
+// 218
+$this->schema[] = array(
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_CLIENT_AUTOUPDATE','This setting lets the admin choose whether or not the clients on the hosts will be able to auto update. Default is enabled.',1,'FOG Client')",
+    "UPDATE `".DATABASE_NAME."`.`globalSettings` SET `settingCategory`= REPLACE(`settingCategory`,'FOG Service','FOG Client') WHERE `settingCategory` LIKE '%FOG Service%'",
+    "UPDATE `".DATABASE_NAME."`.`globalSettings` SET `settingCategory`= REPLACE(`settingCategory`,'FOG Linux Service','FOG Service') WHERE `settingCategory` LIKE '%FOG Linux Service%'",
+    "UPDATE `".DATABASE_NAME."`.`globalSettings` SET `settingKey`=REPLACE(`settingKey`,'FOG_SERVICE','FOG_CLIENT') WHERE `settingKey` LIKE '%FOG_SERVICE%'",
 );

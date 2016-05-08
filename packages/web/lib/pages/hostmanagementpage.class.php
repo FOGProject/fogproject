@@ -470,14 +470,14 @@ class HostManagementPage extends FOGPage {
             '${input}',
             '${span}',
         );
-        foreach ((array)self::getClass('ServiceManager')->find(array('name'=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR') AS $i => &$Service) {
+        foreach ((array)self::getClass('ServiceManager')->find(array('name'=>array('FOG_CLIENT_DISPLAYMANAGER_X','FOG_CLIENT_DISPLAYMANAGER_Y','FOG_CLIENT_DISPLAYMANAGER_R')),'OR') AS $i => &$Service) {
             if (!$Service->isValid()) continue;
             $this->data[] = array(
                 'input'=>'<input type="text" name="${type}" value="${disp}"/>',
                 'span'=>'<span class="icon fa fa-question fa-1x hand" title="${desc}"></span>',
-                'field'=>($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? _('Screen Width (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAY_MANAGER_Y' ? _('Screen Height (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? _('Screen Refresh Rate (in Hz)') : ''))),
-                'type'=>($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? 'x' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? 'y' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? 'r' : ''))),
-                'disp'=>($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? $this->obj->getDispVals('width') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? $this->obj->getDispVals('height') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? $this->obj->getDispVals('refresh') : ''))),
+                'field'=>($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_X' ? _('Screen Width (in pixels)') : ($Service->get('name') == 'FOG_CLIENT_DISPLAY_MANAGER_Y' ? _('Screen Height (in pixels)') : ($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_R' ? _('Screen Refresh Rate (in Hz)') : ''))),
+                'type'=>($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_X' ? 'x' : ($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_Y' ? 'y' : ($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_R' ? 'r' : ''))),
+                'disp'=>($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_X' ? $this->obj->getDispVals('width') : ($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_Y' ? $this->obj->getDispVals('height') : ($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_R' ? $this->obj->getDispVals('refresh') : ''))),
                 'desc'=>$Service->get('description'),
             );
             unset($Service);
@@ -501,7 +501,7 @@ class HostManagementPage extends FOGPage {
             '${input}',
             '${desc}',
         );
-        $Service = self::getClass('Service',@min(self::getSubObjectIDs('Service',array('name'=>'FOG_SERVICE_AUTOLOGOFF_MIN'))));
+        $Service = self::getClass('Service',@min(self::getSubObjectIDs('Service',array('name'=>'FOG_CLIENT_AUTOLOGOFF_MIN'))));
         if ($Service->isValid()) {
             $this->data[] = array(
                 'field'=>_('Auto Log Out Time (in minutes)'),
@@ -778,10 +778,10 @@ class HostManagementPage extends FOGPage {
                 if (isset($_REQUEST['snaprem'])) $this->obj->removeSnapin($_REQUEST['snapinRemove']);
                 break;
             case 'host-service':
-                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
-                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
-                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
-                $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : self::getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
+                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_X'));
+                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_Y'));
+                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_R'));
+                $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN'));
                 if (isset($_REQUEST['updatestatus'])) {
                     $modOn = (array)$_REQUEST['modules'];
                     $modOff = self::getSubObjectIDs('Module',array('id'=>$modOn),'id',true);

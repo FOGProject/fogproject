@@ -250,7 +250,7 @@ abstract class FOGBase {
         );
         if ($keys) return array_values(array_filter(array_unique(array_keys($services))));
         array_walk($services,function(&$value,&$short) {
-            $value = sprintf('FOG_SERVICE_%s_ENABLED',strtoupper($value === true ? $short : $value));
+            $value = sprintf('FOG_CLIENT_%s_ENABLED',strtoupper($value === true ? $short : $value));
         });
         if ($names) return $services;
         $serviceEn = self::getSubObjectIDs('Service',array('name'=>array_values($services)),'value',false,'AND','name',false,false);
