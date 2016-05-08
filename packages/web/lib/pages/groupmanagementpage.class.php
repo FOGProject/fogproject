@@ -443,31 +443,29 @@ class GroupManagementPage extends FOGPage {
     public function edit_post() {
         self::$HookManager->processEvent('GROUP_EDIT_POST',array('Group'=>&$Group));
         try {
+            $hostids = $this->obj->get('hosts');
             switch($_REQUEST['tab']) {
-                case 'group-general';
-                if (empty($_REQUEST['name'])) throw new Exception('Group Name is required');
-                else {
-                    $this->obj->set('name',$_REQUEST['name'])
-                        ->set('description',$_REQUEST['description'])
-                        ->set('kernel',$_REQUEST['kern'])
-                        ->set('kernelArgs',$_REQUEST['args'])
-                        ->set('kernelDevice',$_REQUEST['dev']);
-                    $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
-                    $productKey = substr($productKey,0,29);
-                    $hostids = $this->obj->get('hosts');
-                    self::getClass('HostManager')->update(array('id'=>$hostids),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->encryptpw(trim($_REQUEST['key']))));
-                }
+            case 'group-general':
+                if (empty($_REQUEST['name'])) throw new Exception(_('Group Name is required'));
+                $this->obj->set('name',$_REQUEST['name'])
+                    ->set('description',$_REQUEST['description'])
+                    ->set('kernel',$_REQUEST['kern'])
+                    ->set('kernelArgs',$_REQUEST['args'])
+                    ->set('kernelDevice',$_REQUEST['dev']);
+                $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
+                $productKey = substr($productKey,0,29);
+                self::getClass('HostManager')->update(array('id'=>$hostids),'',array('kernel'=>$_REQUEST['kern'],'kernelArgs'=>$_REQUEST['args'],'kernelDevice'=>$_REQUEST['dev'],'efiexit'=>$_REQUEST['efiBootTypeExit'],'biosexit'=>$_REQUEST['bootTypeExit'],'productKey'=>$this->encryptpw(trim($_REQUEST['key']))));
                 break;
-                case 'group-image';
+            case 'group-image':
                 $this->obj->addImage($_REQUEST['image']);
                 break;
-                case 'group-snap-add';
+            case 'group-snap-add':
                 $this->obj->addSnapin($_REQUEST['snapin']);
                 break;
-                case 'group-snap-del';
+            case 'group-snap-del':
                 $this->obj->removeSnapin($_REQUEST['snapin']);
                 break;
-                case 'group-active-directory';
+            case 'group-active-directory':
                 $useAD = (int)isset($_REQUEST['domain']);
                 $domain = $_REQUEST['domainname'];
                 $ou = $_REQUEST['ou'];
@@ -477,11 +475,11 @@ class GroupManagementPage extends FOGPage {
                 $enforce = (int)isset($_REQUEST['enforcesel']);
                 $this->obj->setAD($useAD,$domain,$ou,$user,$pass,$legacy,$enforce);
                 break;
-                case 'group-printers';
+            case 'group-printers':
                 $this->obj->addPrinter($_REQUEST['prntadd'],$_REQUEST['prntdel'],$_REQUEST['level']);
                 $this->obj->updateDefault(isset($_REQUEST['default']) ? $_REQUEST['default'] : 0);
                 break;
-                case 'group-service';
+            case 'group-service':
                 $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
                 $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
                 $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
@@ -522,6 +520,7 @@ class GroupManagementPage extends FOGPage {
             '${host_name}<br/><small>${host_mac}</small>',
             '<small>${host_deployed}</small>',
         );
+        $hostids = $this->obj->get('hosts');
         array_map(function(&$Host) {
             if (!$Host->isValid()) return;
             $this->data[] = array(
@@ -530,7 +529,7 @@ class GroupManagementPage extends FOGPage {
                 'host_deployed' => $this->formatTime($Host->get('deployed'),'Y-m-d H:i:s'),
             );
             unset($Host);
-        }, self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
+        }, self::getClass('HostManager')->find(array('id'=>$hostids)));
         printf('<p>%s</p>',_('Confirm you really want to delete the following hosts'));
         printf('<form method="post" action="?node=group&sub=delete&id=%s" class="c">',$this->obj->get('id'));
         self::$HookManager->processEvent('GROUP_DELETE_HOST_FORM',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
