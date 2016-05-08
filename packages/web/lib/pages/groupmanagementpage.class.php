@@ -321,15 +321,15 @@ class GroupManagementPage extends FOGPage {
         array_map(function(&$Service) {
             if (!$Service->isValid()) return;
             switch ($Service->get('name')) {
-            case 'FOG_SERVICE_DISPLAYMANAGER_X':
+            case 'FOG_CLIENT_DISPLAYMANAGER_X':
                 $name = 'x';
                 $field = _('Screen Width (in pixels)');
                 break;
-            case 'FOG_SERVICE_DISPLAYMANAGER_Y':
+            case 'FOG_CLIENT_DISPLAYMANAGER_Y':
                 $name = 'y';
                 $field = _('Screen Height (in pixels)');
                 break;
-            case 'FOG_SERVICE_DISPLAYMANAGER_R':
+            case 'FOG_CLIENT_DISPLAYMANAGER_R':
                 $name = 'r';
                 $field = _('Screen Refresh Rate (in Hz)');
                 break;
@@ -340,7 +340,7 @@ class GroupManagementPage extends FOGPage {
                 'field'=>$field,
             );
             unset($name,$field,$Service);
-        },self::getClass('ServiceManager')->find(array('name'=>array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id'));
+        },self::getClass('ServiceManager')->find(array('name'=>array('FOG_CLIENT_DISPLAYMANAGER_X','FOG_CLIENT_DISPLAYMANAGER_Y','FOG_CLIENT_DISPLAYMANAGER_R')),'OR','id'));
         $this->data[] = array(
             'field'=>'',
             'input'=>'',
@@ -360,7 +360,7 @@ class GroupManagementPage extends FOGPage {
             '${input}',
             '${desc}',
         );
-        $Service = self::getClass('Service',@max(self::getSubObjectIDs('Service',array('name'=>'FOG_SERVICE_AUTOLOGOFF_MIN'))));
+        $Service = self::getClass('Service',@max(self::getSubObjectIDs('Service',array('name'=>'FOG_CLIENT_AUTOLOGOFF_MIN'))));
         $this->data[] = array(
             'field'=>_('Auto Log Out Time (in minutes)'),
             'input'=>sprintf('<input type="text" name="tme" value="%s"/>',$Service->get('value')),
@@ -480,10 +480,10 @@ class GroupManagementPage extends FOGPage {
                 $this->obj->updateDefault(isset($_REQUEST['default']) ? $_REQUEST['default'] : 0);
                 break;
             case 'group-service':
-                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
-                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
-                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : self::getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
-                $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : self::getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
+                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_X'));
+                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_Y'));
+                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_R'));
+                $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN'));
                 $modOn = (array)$_REQUEST['modules'];
                 $modOff = self::getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
                 $this->obj->addModule($modOn)->removeModule($modOff);

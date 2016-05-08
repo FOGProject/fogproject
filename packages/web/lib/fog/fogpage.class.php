@@ -747,7 +747,7 @@ abstract class FOGPage extends FOGBase {
         printf('</form>');
     }
     public function configure() {
-        $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_SERVICE_CHECKIN_TIME','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
+        $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_CLIENT_CHECKIN_TIME','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
         printf("#!ok\n#maxsize=%d\n#promptTime=%d\n#sleep=%d\nforce=%s",array_shift($Services),array_shift($Services),mt_rand(1,91) + array_shift($Services),array_shift($Services));
         exit;
     }
@@ -790,7 +790,7 @@ abstract class FOGPage extends FOGBase {
         }
         $this->newService = true;
         if (isset($_REQUEST['configure'])) {
-            $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_SERVICE_CHECKIN_TIME','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
+            $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_CLIENT_CHECKIN_TIME','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
             $vals['maxsize'] = (int)$Services[0];
             $vals['promptTime'] = (int)$Services[1];
             $vals['sleep'] = (int)$Services[2] + mt_rand(1,91);

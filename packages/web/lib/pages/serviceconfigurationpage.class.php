@@ -95,11 +95,11 @@ class ServiceConfigurationPage extends FOGPage {
             echo '</form>';
             switch ($Module->get('shortName')) {
             case 'autologout':
-                printf('<h2>%s</h2><form method="post" action="?node=service&sub=edit&tab=%s"><p>%s: <input type="text" name="tme" value="%s"/></p><p><input type="hidden" name="name" value="FOG_SERVICE_AUTOLOGOFF_MIN"/><input name="updatedefaults" type="submit" value="%s"/></p></form>',
+                printf('<h2>%s</h2><form method="post" action="?node=service&sub=edit&tab=%s"><p>%s: <input type="text" name="tme" value="%s"/></p><p><input type="hidden" name="name" value="FOG_CLIENT_AUTOLOGOFF_MIN"/><input name="updatedefaults" type="submit" value="%s"/></p></form>',
                     _('Default Setting'),
                     $Module->get('shortName'),
                     _('Default log out time (in minutes)'),
-                    self::getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'),
+                    self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN'),
                     _('Update Defaults')
                 );
                 break;
@@ -151,9 +151,9 @@ class ServiceConfigurationPage extends FOGPage {
                     '${input}',
                 );
                 $fields = array(
-                    _('Default Width') => sprintf('<input type="text" name="width" value="%s"/>',self::getSetting('FOG_SERVICE_DISPLAYMANAGER_X')),
-                    _('Default Height') => sprintf('<input type="text" name="height" value="%s"/>',self::getSetting('FOG_SERVICE_DISPLAYMANAGER_Y')),
-                    _('Default Refresh Rate') => sprintf('<input type="text" name="refresh" value="%s"/>',self::getSetting('FOG_SERVICE_DISPLAYMANAGER_R')),
+                    _('Default Width') => sprintf('<input type="text" name="width" value="%s"/>',self::getSetting('FOG_CLIENT_DISPLAYMANAGER_X')),
+                    _('Default Height') => sprintf('<input type="text" name="height" value="%s"/>',self::getSetting('FOG_CLIENT_DISPLAYMANAGER_Y')),
+                    _('Default Refresh Rate') => sprintf('<input type="text" name="refresh" value="%s"/>',self::getSetting('FOG_CLIENT_DISPLAYMANAGER_R')),
                     sprintf('<input type="hidden" name="name" value="%s"/>',$modNames[$Module->get('shortName')]) => sprintf('<input name="updatedefaults" type="submit" value="%s"/>',_('Update Defaults')),
                 );
                 printf('<h2>%s</h2><form method="post" action="%s&tab=%s">',

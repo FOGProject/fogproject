@@ -22,9 +22,9 @@ class Service extends FOGController {
     }
     public function setDisplay($x,$y,$r) {
         $keySettings = array(
-            'FOG_SERVICE_DISPLAYMANAGER_X' => $x,
-            'FOG_SERVICE_DISPLAYMANAGER_Y' => $y,
-            'FOG_SERVICE_DISPLAYMANAGER_R' => $r,
+            'FOG_CLIENT_DISPLAYMANAGER_X' => $x,
+            'FOG_CLIENT_DISPLAYMANAGER_Y' => $y,
+            'FOG_CLIENT_DISPLAYMANAGER_R' => $r,
         );
         foreach($keySettings AS $name => $value) $this->setSetting($name,$value);
     }
