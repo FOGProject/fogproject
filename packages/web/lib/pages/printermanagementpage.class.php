@@ -235,7 +235,7 @@ class PrinterManagementPage extends FOGPage {
             $fields = array(
                 _('Printer Description')=>'<textarea name="description" rows="8" cols="40">${desc}</textarea>',
                 sprintf('%s*',_('Printer Alias'))=>'<input type="text" name="alias" value="${printer_name}"/>',
-                addslashes('e.g. \\\\printerserver\printername')=>'&nbsp;',
+                addslashes('e.g. \\\\printerserver\\printername')=>'&nbsp;',
             );
             break;
         case 'cups':

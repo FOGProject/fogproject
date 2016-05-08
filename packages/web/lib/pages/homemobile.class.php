@@ -11,6 +11,7 @@ class HomeMobile extends FOGPage {
         $this->templates = array(
             '${page_desc}',
         );
+        $this->data = array();
     }
     public function index() {
         printf('<h1>%s</h1>',_('Welcome to FOG Mobile'));
