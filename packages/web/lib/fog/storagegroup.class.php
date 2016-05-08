@@ -14,21 +14,30 @@ class StorageGroup extends FOGController {
         'enablednodes',
     );
     protected function loadAllnodes() {
-        if ($this->get('id')) $this->set('allnodes',self::getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id')),'id'));
+        if (!$this->get('id')) return;
+        $this->set('allnodes',self::getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id')),'id'));
     }
     protected function loadEnablednodes() {
-        if ($this->get('id')) $this->set('enablednodes',self::getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id'),'id'=>$this->get('allnodes'),'isEnabled'=>1)));
+        if (!$this->get('id')) return;
+        if (!$this->isLoaded('allnodes')) $this->loadAllnodes();
+        $this->set('enablednodes',self::getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id'),'id'=>$this->get('allnodes'),'isEnabled'=>1)));
     }
     public function getTotalSupportedClients() {
+        if (!$this->get('id')) return;
+        if (!$this->isLoaded('enablednodes')) $this->loadEnablednodes();
         return self::getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes')),'maxClients',false,'AND','name',false,'array_sum');
     }
     public function getMasterStorageNode() {
+        if (!$this->get('id')) return;
+        if (!$this->isLoaded('enablednodes')) $this->loadEnablednodes();
         $masternode = self::getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes'),'isMaster'=>1,'isEnabled'=>1),'id');
         $masternode = array_shift($masternode);
         if (!$masternode > 0) $masternode = @min($this->get('enablednodes'));
         return self::getClass('StorageNode',$masternode);
     }
     public function getOptimalStorageNode($image) {
+        if (!$this->get('id')) return;
+        if (!$this->isLoaded('enablednodes')) $this->loadEnablednodes();
         $this->winner = null;
         array_map(function(&$StorageNode) use ($image) {
             if (!$StorageNode->isValid()) return;

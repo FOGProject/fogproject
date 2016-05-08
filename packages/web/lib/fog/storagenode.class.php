@@ -44,6 +44,7 @@ class StorageNode extends FOGController {
         return self::getClass('StorageGroup',$this->get('storageGroupID'));
     }
     public function getNodeFailure($Host) {
+        if (!$this->get('id')) return;
         $NodeFailure = array_map(function(&$Failed) {
             $CurrTime = self::nice_date();
             if ($CurrTime < self::nice_date($Failed->get('failureTime'))) return $Failed;
@@ -53,6 +54,7 @@ class StorageNode extends FOGController {
         if ($NodeFailure instanceof StorageNode && $NodeFailure->isValid()) return $NodeFailure;
     }
     public function loadLogfiles() {
+        if (!$this->get('id')) return;
         $URL = array_map(function(&$path) {
             return sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($path));
         },array('/var/log/nginx/','/var/log/httpd/','/var/log/apache2/','/var/log/fog','/var/log/php7.0-fpm/','/var/log/php-fpm/','/var/log/php5-fpm/','/var/log/php5.6-fpm/'));
@@ -67,6 +69,7 @@ class StorageNode extends FOGController {
         $this->set('logfiles',array_values((array)$paths));
     }
     public function loadSnapinfiles() {
+        if (!$this->get('id')) return;
         $URL = sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($this->get('snapinpath')));
         $paths = self::$FOGURLRequests->process($URL);
         $paths = @array_shift($paths);
@@ -85,6 +88,7 @@ class StorageNode extends FOGController {
         $this->set('snapinfiles',$paths);
     }
     public function loadImages() {
+        if (!$this->get('id')) return;
         $URL = sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($this->get('path')));
         $paths = self::$FOGURLRequests->process($URL);
         $paths = @array_shift($paths);
