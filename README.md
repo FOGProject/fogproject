@@ -10,7 +10,7 @@ FOG is a free open-source cloning/imaging solution/rescue suite. FOG can be used
 
 1. Download the file(s)
 
-All that is needed to start installation is to download the files to perform the install. Choose one of the following methods you prefer;
+- All that is needed to start installation is to download the files to perform the install. Choose one of the following methods you prefer;
 
 - **tar/zip** `wget http://downloads.sourceforge.net/project/freeghost/FOG/fog_1.2.0/fog_1.2.0.tar.gz | tar -xzfC trunk/`
 - **SVN** ` svn checkout https://svn.code.sf.net/p/freeghost/code/tags/1.2.0/ fog_1.2.0/`
@@ -18,11 +18,11 @@ All that is needed to start installation is to download the files to perform the
 
 2. Go into the downloaded source/bin folder
 
-`cd trunk/bin`
+- `cd trunk/bin`
 
 3. Run the Install and follow all prompts accordingly
 
-`sudo ./installfog.sh`
+- `sudo ./installfog.sh`
 
 4. Enjoy
 
@@ -33,7 +33,7 @@ All that is needed to start installation is to download the files to perform the
 
 1. Download the file(s)
 
-All that is needed to start installation is to download the files to perform the install. Choose one of the following methods you prefer;
+- All that is needed to start installation is to download the files to perform the install. Choose one of the following methods you prefer;
 
 2. Go into the downloaded source/bin folder
 
@@ -51,11 +51,11 @@ All that is needed to start installation is to download the files to perform the
 
 - **Manual prompts** (NOTE: Recommended to run this if fresh install)
 
-`sudo ./installfog.sh`
+- `sudo ./installfog.sh`
 
 - **Auto-Accepted**
 
-`sudo ./installfog.sh -y`
+- `sudo ./installfog.sh -y`
 
 4. Enjoy
 
