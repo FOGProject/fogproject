@@ -24,16 +24,16 @@ class MySQL extends DatabaseManager {
             if (self::$link) return $this;
             self::$link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
             self::$link->set_charset('utf8');
-            self::current_db();
+            self::current_db($this);
         } catch (Exception $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
             if (self::$link->connect_error) die($e->getMessage());
         }
         return $this;
     }
-    public static function current_db() {
+    public static function current_db(&$main) {
         if (!isset(self::$db_name) || !self::$db_name) self::$db_name = self::$link->select_db(DATABASE_NAME);
-        return $this;
+        return $main;
     }
     public function query($sql, $data = array()) {
         try {
@@ -42,12 +42,12 @@ class MySQL extends DatabaseManager {
             if (count($data)) $sql = vsprintf($sql,$data);
             $this->info($sql);
             self::$query = $sql;
-            self::current_db();
+            self::current_db($this);
             //self::$link->query("SET SESSION sql_mode='NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES'");
             self::$link->query("SET SESSION sql_mode=''");
             if (!self::$query) throw new Exception(_('No query sent'));
             else if (!self::$queryResult = self::$link->query(self::$query)) throw new Exception(sprintf('%s: %s',_('Error'),$this->sqlerror()));
-            if (!self::$db_name) self::current_db();
+            if (!self::$db_name) self::current_db($this);
             if (!self::$db_name) throw new Exception(_('No database to work off'));
         } catch (Exception $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
@@ -162,5 +162,8 @@ class MySQL extends DatabaseManager {
     }
     public function link() {
         return self::$link;
+    }
+    public function returnThis() {
+        return $this;
     }
 }
