@@ -1,13 +1,14 @@
 <?php
 class SnapinClient extends FOGClient implements FOGClientSend {
     private function jsonoutput() {
-        $this->Host->get('snapinjob')->set('stateID',$this->getCheckedInState())->save();
-        if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getCheckedInState())->set('checkInTime',self::nice_date()->format('Y-m-d H:i:s'))->save();
+        $SnapinJob = $this->Host->get('snapinjob');
         $HostSnapins = $this->Host->get('snapins');
+        $SnapinJob->set('stateID',$this->getCheckedInState())->save();
+        if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getCheckedInState())->set('checkInTime',self::nice_date()->format('Y-m-d H:i:s'))->save();
         $vals = array();
-        array_map(function(&$Snapin) use (&$vals) {
+        array_map(function(&$Snapin) use (&$vals,$SnapinJob) {
             if (!$Snapin->isValid()) return;
-            $SnapinTask = self::getClass('SnapinTask',@min(self::getSubObjectIDs('SnapinTask',array('jobID'=>$this->Host->get('snapinjob')->get('id'),'snapinID'=>$Snapin->get('id')))));
+            $SnapinTask = self::getClass('SnapinTask',@min(self::getSubObjectIDs('SnapinTask',array('jobID'=>$SnapinJob->get('id'),'snapinID'=>$Snapin->get('id')))));
             if (!$SnapinTask->isValid()) return;
             $SnapinTask->set('stateID',$this->getCheckedInState())->save();
             $StorageGroup = $Snapin->getStorageGroup();
@@ -31,7 +32,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             $size = array_shift($data);
             $vals[] = array(
                 'jobtaskid'=>$SnapinTask->get('id'),
-                'jobcreation'=>$this->Host->get('snapinjob')->get('createdTime'),
+                'jobcreation'=>$SnapinJob->get('createdTime'),
                 'name'=>$Snapin->get('name'),
                 'args'=>$Snapin->get('args'),
                 'action'=>$Snapin->get('reboot') ? ($Snapin->get('shutdown') ? 'shutdown' : 'reboot') : '',
