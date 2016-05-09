@@ -3,7 +3,7 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
     public function send() {
         ob_start();
         echo '#!ok';
-        $productKey = $this->aesdecrypt($this->Host->get('productKey'));
+        $productKey = trim($this->aesdecrypt($this->Host->get('productKey')));
         if ($this->newService) {
             $password = $this->aesdecrypt($this->Host->get('ADPass'));
             printf("\n#hostname=%s\n",$this->Host->get('name'));
