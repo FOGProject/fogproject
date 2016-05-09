@@ -32,8 +32,9 @@ class FOGConfigurationPage extends FOGPage {
         $URLs = array();
         $Names = array();
         $this->title = _('FOG Version Information');
-        printf('<p>%s: %s</p>',_('Version'),FOG_VERSION);
-        $URLs[] = sprintf('https://fogproject.org/version/index.php?version=%s',FOG_VERSION);
+        printf('<p>%s: %s</p>',_('Running Version'),FOG_VERSION);
+        printf('<p id="latestInfo" vers="%s"></p>',FOG_VERSION);
+        printf('<h1>%s</h1>',_('Kernel Versions'));
         $Nodes = (array)self::getClass('StorageNodeManager')->find(array('isEnabled'=>1));
         array_map(function(&$StorageNode) use (&$URLs) {
             if (!$StorageNode->isValid()) return;
@@ -42,11 +43,9 @@ class FOGConfigurationPage extends FOGPage {
             $URLs[] = filter_var(sprintf('http://%s%sstatus/kernelvers.php',$StorageNode->get('ip'),$webroot),FILTER_SANITIZE_URL);
             unset($StorageNode);
         },$Nodes);
-        array_unshift($Nodes,'');
         $Responses = self::$FOGURLRequests->process($URLs,'GET');
         array_walk($Responses,function(&$data,&$i) use ($Nodes) {
-            if (!$i) printf('<p><div class="sub">%s</div></p><h1>Kernel Versions</h1>',$data);
-            else printf('<h2>%s</h2><pre>%s</pre>',$Nodes[$i],$data);
+            printf('<h2>%s</h2><pre>%s</pre>',$Nodes[$i]->get('name'),$data);
             unset($data,$i);
         });
         unset($Responses,$Nodes);
