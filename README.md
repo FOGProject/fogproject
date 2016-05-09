@@ -37,23 +37,23 @@ All that is needed to start installation is to download the files to perform the
 
 2. Go into the downloaded source/bin folder
 
-### Initial setup
+- ### Initial setup
 
 - **svn** `svn checkout https://svn.code.sf.net/p/freeghost/code/trunk trunk/; cd trunk/bin/`
 - **git** `git clone https://github.com/fogproject/fogproject.git trunk/; cd trunk/bin/`
 
-### Update setup
+- **Update setup**
 
 - **svn** `cd trunk/; svn up; cd bin/`
 - **git** `cd trunk/; git pull; cd bin/`
 
 3. Run the Install and follow all prompts accordingly
 
-### Manual prompts (NOTE: Recommended to run this if fresh install)
+- **Manual prompts** (NOTE: Recommended to run this if fresh install)
 
 `sudo ./installfog.sh`
 
-### Auto-Accepted
+- **Auto-Accepted**
 
 `sudo ./installfog.sh -y`
 
