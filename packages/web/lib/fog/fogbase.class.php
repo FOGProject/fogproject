@@ -411,7 +411,7 @@ abstract class FOGBase {
         if (!$key && $data[2]) $key = @pack('H*',$data[2]);
         if (empty($key)) return '';
         $decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
-        return $decipher;
+        return trim($decipher);
     }
     protected function certEncrypt($data,$Host) {
         if (!$Host || !$Host->isValid()) throw new Exception('#!ih');
