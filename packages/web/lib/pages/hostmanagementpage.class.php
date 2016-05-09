@@ -699,7 +699,8 @@ class HostManagementPage extends FOGPage {
             '${snapin_duration}',
             '${snapin_return}',
         );
-        foreach ((array)self::getClass('SnapinTaskManager')->find(array('jobID'=>self::getSubObjectIDs('SnapinJob',array('hostID'=>$this->obj->get('id'))))) AS $i => &$SnapinTask) {
+        $SnapinJobIDs = self::getSubObjectIDs('SnapinJob',array('hostID'=>$this->obj->get('id')));
+        foreach (self::getClass('SnapinTaskManager')->find(array('jobID'=>$SnapinJobIDs)) AS &$SnapinTask) {
             if (!$SnapinTask->isValid()) continue;
             $Snapin = $SnapinTask->getSnapin();
             if (!$Snapin->isValid()) continue;
