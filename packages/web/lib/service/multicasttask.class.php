@@ -100,16 +100,10 @@ class MulticastTask extends FOGService {
             switch ((int)$this->getOSID()) {
             case 1:
             case 2:
-                if (is_file($this->getImagePath())) $filelist[] = $this->getImagePath();
-                else {
-                    $iterator = self::getClass('DirectoryIterator',$this->getImagePath());
-                    foreach ($iterator AS $i => $fileInfo) {
-                        if ($fileInfo->isDot()) continue;
-                        $filelist[] = $fileInfo->getFilename();
-                    }
-                    unset($iterator);
+                if (is_file($this->getImagePath())) {
+                    $filelist[] = $this->getImagePath();
+                    break;
                 }
-                break;
             case 5:
             case 6:
             case 7:
@@ -134,7 +128,7 @@ class MulticastTask extends FOGService {
             default:
                 $filename = 'd1p%d.%s';
                 $iterator = self::getClass('DirectoryIterator',$this->getImagePath());
-                foreach ($iterator AS $i => $fileInfo) {
+                foreach ($iterator AS $fileInfo) {
                     if ($fileInfo->isDot()) continue;
                     sscanf($fileInfo->getFilename(),$filename,$part,$ext);
                     if ($ext == 'img') $filelist[] = $fileInfo->getFilename();
@@ -165,7 +159,7 @@ class MulticastTask extends FOGService {
             break;
         case 4:
             $iterator = self::getClass('DirectoryIterator',$this->getImagePath());
-            foreach ($iterator AS $i => $fileInfo) {
+            foreach ($iterator AS $fileInfo) {
                 if ($fileInfo->isDot()) continue;
                 $filelist[] = $fileInfo->getFilename();
             }
