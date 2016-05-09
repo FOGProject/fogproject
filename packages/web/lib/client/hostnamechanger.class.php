@@ -36,6 +36,7 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
                 'ADUser' => $this->Host->get('useAD') ? $adUser : '',
                 'ADPass' => $this->Host->get('useAD') ? $password : '',
             );
+            if ($productKey) $val['Key']=$productKey;
             return $val;
         }
     }
