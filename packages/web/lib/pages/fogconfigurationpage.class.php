@@ -21,7 +21,7 @@ class FOGConfigurationPage extends FOGPage {
             'https://github.com/fogproject/fog-client.git'=>_('FOG Client on Github'),
             'https://wiki.fogproject.org/wiki/index.php'=>_('FOG Wiki'),
             'https://forums.fogproject.org'=>_('FOG Forums'),
-            'https://www.paypal.com/us/cgi-bin/webscr?cmd=_flow&SESSION=kXqYEYWlhYQzPiGFLuwJpkwxqhk940AnPXR--PNpYY4IS2WDicAFGopYjOG&dispatch=5885d80a13c0db1f8e263663d3faee8d6625bf1e8bd269586d425cc639e26c6a'=>_('Donate to FOG'),
+            'https://www.paypal.com/cgi-bin/webscr?item_name=Donation+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations&business=fogproject.org%40gmail.com'=>_('Donate to FOG'),
         );
         self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
