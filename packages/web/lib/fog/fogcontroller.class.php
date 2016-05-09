@@ -56,8 +56,6 @@ abstract class FOGController extends FOGBase {
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Value'),$this->data[$key]));
         }
         return $this->data[$key];
-        //$retVal = is_array($this->data[$key]) || is_string($this->data[$key]) ? array_map($convertEncoding,(array)$this->data[$key]) : array($this->data[$key]);
-        //return count($retVal) === 1 ? array_shift($retVal) : $retVal;
     }
     public function set($key, $value) {
         try {
@@ -284,7 +282,7 @@ abstract class FOGController extends FOGBase {
             });
         }
         $trimPlus = function(&$val,&$key) use (&$callback) {
-            $val = htmlspecialchars($val,self::$service ? ENT_NOQUOTES : ENT_QUOTES,'utf-8');
+            $val = self::$service ? $val : htmlspecialchars($val,ENT_QUOTES,'utf-8');
             $val = $callback ? $callback(trim($val)) : trim($val);
         };
         $callback = self::$service ? false : 'addslashes';
