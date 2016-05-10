@@ -11,8 +11,8 @@ class FOGURLRequests extends FOGBase {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_CONNECTTIMEOUT_MS => 2000000000001,
-            CURLOPT_TIMEOUT_MS => 2000000000000,
+            CURLOPT_CONNECTTIMEOUT_MS => 20000000001,
+            CURLOPT_TIMEOUT_MS => 20000000000,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 20,
             CURLOPT_HEADER => false,
@@ -48,13 +48,14 @@ class FOGURLRequests extends FOGBase {
         if (empty($method)) $method = 'GET';
         array_map(function(&$url) use ($urls,$method,$data,$sendAsJSON,$auth,$callback,$file,&$curl) {
             $this->validURL($url);
+            if (!$this->isAvailable($url)) return;
             if ($method == 'GET' && $data !== null) $url = sprintf('%s?%s',$url,http_build_query((array)$data));
             $ch = @curl_init($url);
             $this->contextOptions[CURLOPT_URL] = $url;
             if ($auth) $this->contextOptions[CURLOPT_USERPWD] = $auth;
             if ($file) {
                 $this->contextOptions[CURLOPT_FILE] = $file;
-                $this->contextOptions[CURLOPT_TIMEOUT_MS] = 2000000000000;
+                $this->contextOptions[CURLOPT_TIMEOUT_MS] = 300000000;
             }
             if ($method == 'POST' && $data !== null) {
                 if ($sendAsJSON) {
@@ -95,6 +96,8 @@ class FOGURLRequests extends FOGBase {
         $this->contextOptions[CURLOPT_HEADER] = true;
         $this->contextOptions[CURLOPT_NOBODY] = true;
         $this->contextOptions[CURLOPT_RETURNTRANSFER] = true;
+        $this->contextOptions[CURLOPT_CONNECTTIMEOUT_MS] = 2001;
+        $this->contextOptions[CURLOPT_TIMEOUT_MS] = 2000;
         curl_setopt_array($ch,$this->contextOptions);
         $response = curl_exec($ch);
         curl_close($ch);
