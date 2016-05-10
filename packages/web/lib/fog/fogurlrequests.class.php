@@ -11,8 +11,8 @@ class FOGURLRequests extends FOGBase {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_CONNECTTIMEOUT_MS => 2001,
-            CURLOPT_TIMEOUT_MS => 2000,
+            CURLOPT_CONNECTTIMEOUT_MS => 2000000000001,
+            CURLOPT_TIMEOUT_MS => 2000000000000,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 20,
             CURLOPT_HEADER => false,
@@ -54,8 +54,7 @@ class FOGURLRequests extends FOGBase {
             if ($auth) $this->contextOptions[CURLOPT_USERPWD] = $auth;
             if ($file) {
                 $this->contextOptions[CURLOPT_FILE] = $file;
-                $this->contextOptions[CURLOPT_TIMEOUT_MS] = 0;
-                $this->contextOptions[CURLOPT_TIMEOUT] = 300;
+                $this->contextOptions[CURLOPT_TIMEOUT_MS] = 2000000000000;
             }
             if ($method == 'POST' && $data !== null) {
                 if ($sendAsJSON) {
