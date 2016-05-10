@@ -11,7 +11,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             $SnapinTask = self::getClass('SnapinTask',@min(self::getSubObjectIDs('SnapinTask',array('jobID'=>$SnapinJob->get('id'),'snapinID'=>$Snapin->get('id')))));
             if (!$SnapinTask->isValid()) return;
             $SnapinTask
-                ->set('checkin',$this->formatTime('Y-m-d H:i:s'))
+                ->set('checkin',$date)
                 ->set('stateID',$this->getCheckedInState())
                 ->save();
             $StorageGroup = $Snapin->getStorageGroup();
@@ -50,7 +50,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
     }
     public function send() {
         try {
-            $date = self::nice_date()->format('Y-m-d H:i:s');
+            $date = $this->formatTime('','Y-m-d H:i:s');
             if ($this->Host->get('task')->isValid() && !$this->Host->get('task')->isSnapinTasking()) throw new Exception('#!it');
             if (!$this->Host->get('snapinjob')->isValid()) throw new Exception('#!ns');
             if (self::getClass('SnapinTaskManager')->count(array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) < 1) {
