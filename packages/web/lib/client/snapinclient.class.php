@@ -6,7 +6,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         $SnapinJob->set('stateID',$this->getCheckedInState())->save();
         if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getCheckedInState())->set('checkInTime',$date)->save();
         $vals = array();
-        array_map(function(&$Snapin) use (&$vals,$SnapinJob) {
+        array_map(function(&$Snapin) use (&$vals,$SnapinJob,$date) {
             if (!$Snapin->isValid()) return;
             $SnapinTask = self::getClass('SnapinTask',@min(self::getSubObjectIDs('SnapinTask',array('jobID'=>$SnapinJob->get('id'),'snapinID'=>$Snapin->get('id')))));
             if (!$SnapinTask->isValid()) return;
