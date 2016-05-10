@@ -10,7 +10,10 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             if (!$Snapin->isValid()) return;
             $SnapinTask = self::getClass('SnapinTask',@min(self::getSubObjectIDs('SnapinTask',array('jobID'=>$SnapinJob->get('id'),'snapinID'=>$Snapin->get('id')))));
             if (!$SnapinTask->isValid()) return;
-            $SnapinTask->set('stateID',$this->getCheckedInState())->save();
+            $SnapinTask
+                ->set('checkin',$this->formatTime('Y-m-d H:i:s'))
+                ->set('stateID',$this->getCheckedInState())
+                ->save();
             $StorageGroup = $Snapin->getStorageGroup();
             if (!$StorageGroup->isValid()) return;
             self::$HookManager->processEvent('SNAPIN_GROUP',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageGroup'=>&$StorageGroup));
@@ -107,6 +110,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                         $this->Host->get('task')
                             ->set('stateID',$this->getCompleteState())
                             ->save();
+                        self::$EventManager->notify('HOST_SNAPINTASK_COMPLETE',array('Snapin'=>&$Snapin,'SnapinTask'=>&$SnapinTask));
                     }
                     $this->Host->get('snapinjob')->set('stateID',$this->getCompleteState())->save();
                 }
