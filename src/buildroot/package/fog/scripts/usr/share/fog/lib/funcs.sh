@@ -2015,7 +2015,7 @@ restorePartition() {
                 [1-2])
                     [[ -f $imagePath ]] && imgpart="$imagePath" || imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     ;;
-                4|50|51)
+                4|8|50|51)
                     imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     ;;
                 [5-7]|9)
