@@ -22,7 +22,7 @@ abstract class FOGClient extends FOGBase {
                 echo json_encode(array('error'=>preg_replace('/^[#][!]?/','',$e->getMessage())));
                 exit;
             }
-            return array('error'=>preg_replace('/^[#][!]\?/','',$e->getMessage()));
+            return array('error'=>preg_replace('/^[#][!]?/','',$e->getMessage()));
         }
     }
 }
