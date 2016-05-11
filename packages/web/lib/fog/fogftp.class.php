@@ -70,6 +70,7 @@ class FOGFTP extends FOGGetSet {
                 unset($file);
             },(array)$rawfilelist);
         }
+        $this->delete($path);
         return $this;
     }
     public function exec($command) {
