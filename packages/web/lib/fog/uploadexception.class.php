@@ -2,7 +2,7 @@
 class UploadException extends Exception {
     public function __construct($code) {
         $message = self::codeToMessage($code);
-        parent::__construct(self::codeToMessage($code),$code);
+        parent::__construct($message,$code);
     }
     private static function codeToMessage($code) {
         $message = '';
