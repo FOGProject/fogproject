@@ -116,25 +116,21 @@ class Snapin extends FOGController {
         },(array)self::getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'),'isEnabled'=>1)));
     }
     public function addHost($addArray) {
-        if (!$this->get('id')) return;
         if (!$this->isLoaded('hosts')) $this->LoadHosts();
         $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
         return $this;
     }
     public function removeHost($removeArray) {
-        if (!$this->get('id')) return;
         if (!$this->isLoaded('hosts')) $this->LoadHosts();
         $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
         return $this;
     }
     public function addGroup($addArray) {
-        if (!$this->get('id')) return;
         if (!$this->isLoaded('storageGroups')) $this->loadStorageGroups();
         $this->set('storageGroups',array_unique(array_merge((array)$this->get('storageGroups'),(array)$addArray)));
         return $this;
     }
     public function removeGroup($removeArray) {
-        if (!$this->get('id')) return;
         if (!$this->isLoaded('storageGroups')) $this->loadStorageGroups();
         $this->set('storageGroups',array_unique(array_diff((array)$this->get('storageGroups'),(array)$removeArray)));
         return $this;

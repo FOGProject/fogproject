@@ -156,9 +156,9 @@ class SnapinManagementPage extends FOGPage {
                 ->set('runWith',$_REQUEST['rw'])
                 ->set('runWithArgs',$_REQUEST['rwa'])
                 ->set('isEnabled',(int)isset($_REQUEST['isEnabled']))
-                ->set('toReplicate',(int)isset($_REQUEST['toReplicate']))
-                ->addGroup($_REQUEST['storagegroup']);
+                ->set('toReplicate',(int)isset($_REQUEST['toReplicate']));
             if (!$Snapin->save()) throw new Exception(_('Add snapin failed!'));
+            $Snapin->addGroup($_REQUEST['storagegroup']);
             self::$HookManager->processEvent('SNAPIN_ADD_SUCCESS',array('Snapin'=>&$Snapin));
             $this->setMessage(_('Snapin added, Editing now!'));
             $this->redirect(sprintf('?node=%s&sub=edit&%s=%s', $_REQUEST['node'],$this->id,$Snapin->get('id')));
