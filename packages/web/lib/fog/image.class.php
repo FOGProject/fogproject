@@ -167,7 +167,7 @@ class Image extends FOGController {
         if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min(self::getSubObjectIDs('StorageGroup','','id')));
     }
     protected function loadStorageGroupsnotinme() {
-        if (!$this->get('id')) return;
+        if (!$this->get('id'));
         $find = array('id'=>$this->get('storageGroups'));
         $this->set('storageGroupsnotinme',self::getSubObjectIDs('StorageGroup',$find,'',true));
         unset($find);
