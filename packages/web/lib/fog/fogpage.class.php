@@ -748,7 +748,7 @@ abstract class FOGPage extends FOGBase {
     }
     public function configure() {
         $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_CHECKIN_TIME','FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
-        printf("#!ok\n#promptTime=%d\n#maxsize=%d\n#sleep=%d\nforce=%s",array_shift($Services),array_shift($Services),mt_rand(1,91) + array_shift($Services),array_shift($Services));
+        printf("#!ok\n#sleep=%d\n#maxsize=%d\n#promptTime=%d\nforce=%s",array_shift($Services),array_shift($Services),mt_rand(1,91) + array_shift($Services),array_shift($Services));
         exit;
     }
     public function authorize($json = false) {
