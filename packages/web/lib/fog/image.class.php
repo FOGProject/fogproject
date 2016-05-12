@@ -83,22 +83,19 @@ class Image extends FOGController {
     }
     public function deleteFile() {
         if ($this->get('protected')) throw new Exception(self::$foglang['ProtectedImage']);
-        foreach ((array)self::getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'),'isEnabled'=>1)) AS $i => &$StorageNode) {
-            if (!$StorageNode->isValid()) continue;
+        array_map(function(&$StorageNode) {
+            if (!$StorageNode->isValid()) return;
+            $delete = sprintf('/%s/%s',trim($StorageNode->get('ftppath'),'/'),$this->get('path'));
             self::$FOGFTP
                 ->set('host',$StorageNode->get('ip'))
                 ->set('username',$StorageNode->get('user'))
                 ->set('password',$StorageNode->get('pass'));
-            if (!self::$FOGFTP->connect()) {
-                self::$FOGFTP->close();
-                continue;
-            }
-            $delete = sprintf('/%s/%s',trim($StorageNode->get('ftppath'),'/'),$this->get('path'));
+            if (!self::$FOGFTP->connect()) return;
             self::$FOGFTP
                 ->delete($delete)
                 ->close();
             unset($StorageNode);
-        }
+        },(array)self::getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'),'isEnabled'=>1)));
     }
     public function addHost($addArray) {
         if (!$this->isLoaded('hosts')) $this->loadHosts();
@@ -140,11 +137,10 @@ class Image extends FOGController {
         return self::getClass('ImagePartitionType',(int)$this->get('imagePartitionTypeID'));
     }
     public function getPrimaryGroup($groupID) {
-        if (!self::getClass('ImageAssociationManager')->count(array('imageID'=>$this->get('id'),'primary'=>1)) && $groupID == @min(self::getSubObjectIDs('StorageGroup','','id'))) {
-            $this->setPrimaryGroup($groupID);
-            return true;
-        }
-        return (bool)self::getClass('ImageAssociation',@min(self::getSubObjectIDs('ImageAssociation',array('storageGroupID'=>$groupID,'imageID'=>$this->get('id')),'id')))->getPrimary();
+        $primaryCount = self::getClass('ImageAssociationManager')->count(array('imageID'=>$this->get('id'),'primary'=>1));
+        if ($primaryCount < 1) $this->setPrimaryGroup(@min(self::getSubObjectIDs('StorageGroup')));
+        $groupID = @min(self::getSubObjectIDs('StorageGroup'));
+        return self::getClass('ImageAssociation',$groupID)->isPrimary();
     }
     public function setPrimaryGroup($groupID) {
         self::getClass('ImageAssociationManager')->update(array('imageID'=>$this->get('id'),'storageGroupID'=>array_diff((array)$this->get('storageGroups'),(array)$groupID)),'',array('primary'=>0));
