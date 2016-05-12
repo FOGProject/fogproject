@@ -1,6 +1,9 @@
 <?php
 class UserTrack extends FOGClient implements FOGClientSend {
     protected $actions = array('login'=>1,'start'=>99,'logout'=>0);
+    public function json() {
+        return $this->send();
+    }
     public function send() {
         if (!isset($_REQUEST['action']) && !isset($_REQUEST['user']) && !isset($_REQUEST['date']) && $this->json) return array(''=>'');
         $action = strtolower(base64_decode($_REQUEST['action']));
