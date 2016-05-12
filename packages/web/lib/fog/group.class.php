@@ -128,8 +128,7 @@ class Group extends FOGController {
     }
     public function addImage($imageID) {
         if (!$this->isLoaded('hosts')) $this->loadHosts();
-        if (!$imageID) throw new Exception(_('Select an image'));
-        if (!self::getClass('Image',$imageID)->isValid()) throw new Exception(_('Select a valid image'));
+        if ((int)$imageID > 0 && !self::getClass('Image',$imageID)->isValid()) throw new Exception(_('Select a valid image'));
         if (self::getClass('TaskManager')->count(array('hostID'=>$this->get('hosts'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) throw new Exception(_('There is a host in a tasking'));
         self::getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('imageID'=>$imageID));
         return $this;
