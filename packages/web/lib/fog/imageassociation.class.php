@@ -17,7 +17,8 @@ class ImageAssociation extends FOGController {
     public function getStorageGroup() {
         return self::getClass('StorageGroup',$this->get('storageGroupID'));
     }
-    public function getPrimary() {
-        return (bool)$this->get('primary');
+    public function isPrimary() {
+        if (!$this->isValid()) return false;
+        return (bool)$this->get('primary') > 0;
     }
 }
