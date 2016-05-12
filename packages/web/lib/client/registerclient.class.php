@@ -1,5 +1,7 @@
 <?php
 class RegisterClient extends FOGClient implements FOGClientSend {
+    public function json() {
+    }
     public function send() {
         try {
             $maxPending = 0;
