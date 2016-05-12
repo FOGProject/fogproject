@@ -748,7 +748,7 @@ abstract class FOGPage extends FOGBase {
     }
     public function configure() {
         $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_CHECKIN_TIME','FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
-        printf("#!ok\n#sleep=%d\n#maxsize=%d\n#promptTime=%d\nforce=%s",array_shift($Services),array_shift($Services),mt_rand(1,91) + array_shift($Services),array_shift($Services));
+        printf("#!ok\n#sleep=%d\n#maxsize=%d\n#promptTime=%d\n#force=%s",array_shift($Services)+mt_rand(1,91),array_shift($Services),array_shift($Services),array_shift($Services));
         exit;
     }
     public function authorize($json = false) {
@@ -791,9 +791,9 @@ abstract class FOGPage extends FOGBase {
         $this->newService = true;
         if (isset($_REQUEST['configure'])) {
             $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_CHECKIN_TIME','FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
-            $vals['promptTime'] = (int)$Services[0];
+            $vals['sleep'] = (int)$Services[0] + mt_rand(1,91);
             $vals['maxsize'] = (int)$Services[1];
-            $vals['sleep'] = (int)$Services[2] + mt_rand(1,91);
+            $vals['promptTime'] = (int)$Services[2];
             $vals['force'] = (bool)$Services[3];
             echo json_encode($vals);
             exit;
@@ -832,7 +832,7 @@ abstract class FOGPage extends FOGBase {
                 }
                 if (in_array($key,array_merge($globalDisabled,$hostDisabled)))
                     $array[$key]['error'] = in_array($key,$globalDisabled) ? 'ng' : 'nh';
-                else $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->send();
+                else $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->json();
                 unset($key);
             }
             $this->sendData(json_encode($array),true);

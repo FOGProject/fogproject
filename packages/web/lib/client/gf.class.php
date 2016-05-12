@@ -1,31 +1,33 @@
 <?php
 class GF extends FOGClient implements FOGClientSend {
+    public function json() {
+        if (self::getClass('GreenFogManager')->count() < 1) return array('error'=>'na');
+        return array('tasks'=>array_filter(array_map(function(&$gf) {
+            if (!$gf->isValid()) return;
+            $action = (trim(strtolower($gf->get('action'))) === 's' ? 'shutdown' : (trim(strtolower($gf->get('action'))) === 'r' ? 'reboot' : ''));
+            if (empty($action)) return;
+            return array(
+                'hour' => $gf->get('hour'),
+                'min' => $gf->get('min'),
+                'action' => $action,
+            );
+        },(array)self::getClass('GreenFogManager')->find())));
+    }
     public function send() {
-        $SendEnc = '';
-        $SendMe = array();
-        $this->send = '#!na';
-        foreach (self::getClass('GreenFogManager')->find() AS &$gf) {
-            if (!$gf->isValid()) continue;
-            $val = sprintf('%s@%s@%s',$gf->get('hour'),$gf->get('min'),$gf->get('action'));
-            $SendMe[$i] = base64_encode($val);
+        if (self::getClass('GreenFogManager')->count() < 1) throw new Exception('#!na');
+        $index = 0;
+        $Send = array();
+        array_map(function(&$gf) use (&$index,&$Send) {
+            if (!$gf->isValid()) return;
+            $action = (trim(strtolower($gf->get('action'))) === 's' ? 'shutdown' : (trim(strtolower($gf->get('action'))) === 'r' ? 'reboot' : ''));
+            if (empty($action)) return;
+            $val = sprintf('%d@%d@%s',(int)$gf->get('hour'),(int)$gf->get('min'),$action);
             if ($this->newService) {
-                if ($this->json) {
-                    $vals['tasks'][] = array(
-                        'hour' => $gf->get('hour'),
-                        'min' => $gf->get('min'),
-                        'action' => ($gf->get('action') === 'r' ? 'reboot' : ($gf->get('action') === 's' ? 'shutdown' : false)),
-                    );
-                    continue;
-                }
-                if (!$i) $SendMe[$i] = "#!ok\n";
-                $SendMe[$i] .= sprintf("#task%s=%s\n",$i,$val);
-            }
-            unset($gf);
-        }
-        if ($this->json) {
-            if (count($vals)) return $vals;
-            return array('error'=>'na');
-        }
-        if (count($SendMe)) $this->send = implode($SendMe);
+                if ($index === 0) $Send[(int)$index] = "#!ok\n";
+                $Send[(int)$index] .= sprintf("#task%d=%s\n",(int)$index,$val);
+            } else $Send[(int)$index] = sprintf("%s\n",base64_encode($val));
+            $index++;
+        },(array)self::getClass('GreenFogManager')->find());
+        $this->send = implode($Send);
     }
 }

@@ -2,22 +2,16 @@
 class Autologout extends FOGClient implements FOGClientSend {
     private $HostAutoLogout;
     private $time;
+    public function json() {
+        $time = (int)$this->Host->getAlo();
+        if ($time < 5) return array('error'=>'time');
+        return array('time'=>$time);
+    }
     public function send() {
-        $this->time = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
-        if ($this->Host->getAlo() > 4) $this->time = $this->Host->getAlo();
-        $this->send = base64_encode($this->time);
+        $time = (int)$this->Host->getAlo();
         if ($this->newService) {
-            if ($this->json) {
-                $this->send = null;
-                if ($this->time < 5) $this->time = 0;
-                $val = array(
-                    'time'=>$this->time * 60,
-                );
-                return $val;
-            }
-            $time = sprintf("#!ok\n#time=%s",($this->time * 60));
-            if ($this->time < 5) $time = '#!time';
+            if ($time < 5) throw new Exception('#!time');
             $this->send = $time;
-        }
+        } else $this->send = base64_encode($time);
     }
 }
