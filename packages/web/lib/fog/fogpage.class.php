@@ -830,8 +830,7 @@ abstract class FOGPage extends FOGBase {
                     $class=$key;
                     break;
                 }
-                if (in_array($key,array_merge($globalDisabled,$hostDisabled)))
-                    $array[$key]['error'] = in_array($key,$globalDisabled) ? 'ng' : 'nh';
+                if (in_array($key,array_merge($globalDisabled,$hostDisabled))) $array[$key]['error'] = in_array($key,$globalDisabled) ? 'ng' : 'nh';
                 else $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->json();
                 unset($key);
             }
