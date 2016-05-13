@@ -4,7 +4,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
     public function json() {
         $level = $this->Host->get('printerLevel');
         if (!in_array($level,self::$modes)) $level = 0;
-        if (self::getClass('PrinterAssociationManager')->count(array('printerID'=>$this->Host->get('printers'),'hostID'=>$this->Host->get('id'))) < 1) return array('error'=>'np','mode'=>self::$modes($level));
+        if (self::getClass('PrinterAssociationManager')->count(array('printerID'=>$this->Host->get('printers'),'hostID'=>$this->Host->get('id'))) < 1) return array('error'=>'np','mode'=>self::$modes[$level]);
         $Printers = (array)self::getClass('PrinterManager')->find(array('id'=>$this->Host->get('printers')));
         $default = array_filter(array_map(function(&$Printer) {
             return $this->Host->getDefault($Printer->get('id')) ? $Printer->get('name') : false;
