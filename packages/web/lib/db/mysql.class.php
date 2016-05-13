@@ -45,6 +45,8 @@ class MySQL extends DatabaseManager {
             self::current_db($this);
             //self::$link->query("SET SESSION sql_mode='NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES'");
             self::$link->query("SET SESSION sql_mode=''");
+            self::$link->query('SET SESSION max_allowed_packet=16777216');
+            self::$link->query('SET SESSION wait_timeout=10');
             if (!self::$query) throw new Exception(_('No query sent'));
             else if (!self::$queryResult = self::$link->query(self::$query)) throw new Exception(sprintf('%s: %s',_('Error'),$this->sqlerror()));
             if (!self::$db_name) self::current_db($this);
