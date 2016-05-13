@@ -24,6 +24,9 @@ class MySQL extends DatabaseManager {
             if (self::$link) return $this;
             self::$link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
             self::$link->set_charset('utf8');
+            self::$link->query('SET GLOBAL max_allowed_packet=16777216');
+            self::$link->query("SET SESSION sql_mode=''");
+            self::$link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
             self::current_db($this);
         } catch (Exception $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
@@ -43,8 +46,6 @@ class MySQL extends DatabaseManager {
             $this->info($sql);
             self::$query = $sql;
             self::current_db($this);
-            self::$link->query('SET GLOBAL max_allowed_packet=16777216');
-            self::$link->query("SET SESSION sql_mode=''");
             if (!self::$query) throw new Exception(_('No query sent'));
             else if (!self::$queryResult = self::$link->query(self::$query)) throw new Exception(sprintf('%s: %s',_('Error'),$this->sqlerror()));
             if (!self::$db_name) self::current_db($this);
