@@ -21,8 +21,8 @@ class ServiceModule extends FOGClient implements FOGClientSend {
         });
         $hostModules = self::getSubObjectIDs('Module',array('id'=>$this->Host->get('modules')),'shortName');
         $hostEnabled = ($this->newService ? array_diff((array)$hostModules,array('dircleanup','usercleanup','clientupdater')) : $hostModules);
-        $hostDisabled = array_diff((array)$globalDisabled,$hostEnabled);
-        if (in_array($mod,array_merge((array)$globalModules,(array)$hostDisabled))) throw new Exception(sprintf("#!n%s\n",in_array($mod,$globalDisabled) ? 'g' : 'h'));
+        $hostDisabled = array_diff((array)$globalModules,$hostEnabled);
+        if (in_array($mod,array_merge((array)$globalDisabled,(array)$hostDisabled))) throw new Exception(sprintf("#!n%s\n",in_array($mod,$globalDisabled) ? 'g' : 'h'));
         $this->send = "#!ok\n";
     }
 }
