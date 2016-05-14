@@ -578,7 +578,7 @@ abstract class FOGBase {
         return $item;
     }
     public static function getMasterInterface() {
-        if (count(self::$interfaces) > 0) return self::$interface;
+        if (count(self::$interface) > 0) return self::$interface;
         self::getIPAddress();
         exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $10}'",$IPs,$retVal);
         exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $4}'",$Interfaces,$retVal);
