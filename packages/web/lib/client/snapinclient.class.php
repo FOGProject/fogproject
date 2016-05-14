@@ -7,7 +7,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         if (self::getClass('SnapinTaskManager')->count(array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) < 1) {
             if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getCompleteState())->save();
             $this->Host->get('snapinjob')->set('stateID',$this->getCompleteState())->save();
-            self::$EventManager->notify('HOST_SNAPIN_COMPLETE',array('HostName'=>&$HostName));
+            self::$EventManager->notify('HOST_SNAPIN_COMPLETE',array('Host'=>&$this->Host));
             return array('error'=>'ns');
         }
         $this->Host->get('snapinjob')->set('stateID',$this->getCheckedInState())->save();
