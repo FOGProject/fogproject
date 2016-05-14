@@ -23,7 +23,7 @@ abstract class FOGBase {
     protected static $urlself;
     protected static $isMobile;
     protected static $ips = array();
-    protected static $interfaces = array();
+    protected static $interface = array();
     protected static $searchPages = array(
         'user',
         'host',
