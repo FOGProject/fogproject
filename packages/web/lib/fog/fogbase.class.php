@@ -23,6 +23,7 @@ abstract class FOGBase {
     protected static $urlself;
     protected static $isMobile;
     protected static $ips = array();
+    protected static $interfaces = array();
     protected static $searchPages = array(
         'user',
         'host',
@@ -576,10 +577,26 @@ abstract class FOGBase {
         });
         return $item;
     }
+    public static function getMasterInterface() {
+        if (count(self::$interfaces) > 0) return self::$interface;
+        self::getIPAddress();
+        exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $10}'",$IPs,$retVal);
+        exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $4}'",$Interfaces,$retVal);
+        $index = 0;
+        self::$interface = array_filter(array_map(function(&$IP) use ($IPs,$Interfaces,&$index) {
+            if (!in_array($IP,self::$ips)) return;
+            $ret = $Interfaces[$index];
+            $index++;
+            return $ret;
+        },(array)$IPs));
+        self::$interface = array_shift(self::$interface);
+        return self::$interface;
+    }
     protected function getIPAddress() {
+        if (count(self::$ips) > 0) return self::$ips;
         $output = array();
         exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
-        if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2",$IPs,$retVal);
+        if (!count($IPs)) exec("/sbin/ifconfig -a | awk -F'[ /:]+' '/(cast)/ {print $4}'",$IPs,$retVal);
         if (@fsockopen('ipinfo.io',80)) {
             $res = self::$FOGURLRequests->process('http://ipinfo.io/ip','GET');
             $IPs[] = $res[0];
