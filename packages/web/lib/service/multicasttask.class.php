@@ -8,7 +8,7 @@ class MulticastTask extends FOGService {
         }
         $StorageNode = self::getClass('StorageNode',$myStorageNodeID);
         if (!$StorageNode->get('isMaster')) return;
-        $Interface = $StorageNode->get('interface');
+        $Interface = self::getMasterInterface();
         unset($StorageNode);
         foreach ((array)self::getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$MultiSess) {
             if (!$MultiSess->isValid()) continue;
