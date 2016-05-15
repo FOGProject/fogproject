@@ -211,7 +211,7 @@ class SnapinManagementPage extends FOGPage {
             'Powershell' => array('powershell.exe','-ExecutionPolicy Bypass -NoProfile -File'),
         );
         ob_start();
-        echo '<select id="argTypes">';
+        printf('<select id="argTypes"><option>- %s -</option>',_('Please select an option'));
         array_walk($argTypes,function(&$cmd,&$type) {
             printf('<option value="%s" rwargs="%s" args="%s">%s</option>',$cmd[0],$cmd[1],$cmd[2],$type);
         });
