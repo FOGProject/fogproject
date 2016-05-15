@@ -85,9 +85,20 @@ class SnapinManagementPage extends FOGPage {
         ob_start();
         array_map(self::$buildSelectBox,$filelist);
         $selectFiles = sprintf('<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
+        $argTypes = array(
+            'MSI' => array('msiexec.exe','/i','/quiet'),
+        );
+        ob_start();
+        printf('<select id="argTypes"><option value="">- %s -</option>',_('Please select an option'));
+        array_walk($argTypes,function(&$cmd,&$type) {
+            printf('<option value="%s" rwargs="%s" args="%s">%s</option>',$cmd[0],$cmd[1],$cmd[2],$type);
+        });
+        echo '</select>';
+        $template = ob_get_clean();
         $fields = array(
             _('Snapin Name') => sprintf('<input type="text" name="name" value="%s"/>',$_REQUEST['name']),
             _('Snapin Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
+            _('Snapin Template') => $template,
             _('Snapin Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup']),
             _('Snapin Run With') => sprintf('<input class="cmdlet1" type="text" name="rw" value="%s"/>',$_REQUEST['rw']),
             _('Snapin Run With Argument') => sprintf('<input class="cmdlet2" type="text" name="rwa" value="%s"/>',$_REQUEST['rwa']),
@@ -192,9 +203,20 @@ class SnapinManagementPage extends FOGPage {
         ob_start();
         array_map(self::$buildSelectBox,$filelist);
         $selectFiles = sprintf('<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
+        $argTypes = array(
+            'MSI' => array('msiexec.exe','/i','/quiet'),
+        );
+        ob_start();
+        printf('<select id="argTypes"><option value="">- %s -</option>',_('Please select an option'));
+        array_walk($argTypes,function(&$cmd,&$type) {
+            printf('<option value="%s" rwargs="%s" args="%s">%s</option>',$cmd[0],$cmd[1],$cmd[2],$type);
+        });
+        echo '</select>';
+        $template = ob_get_clean();
         $fields = array(
             _('Snapin Name') => sprintf('<input type="text" name="name" value="%s"/>',$this->obj->get('name')),
             _('Snapin Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
+            _('Snapin Run With Template') => $template,
             _('Snapin Run With') => sprintf('<input class="cmdlet1" type="text" name="rw" value="%s"/>',$this->obj->get('runWith')),
             _('Snapin Run With Argument') => sprintf('<input class="cmdlet2" type="text" name="rwa" value="%s"/>',$this->obj->get('runWithArgs')),
             sprintf('%s <span class="lightColor">%s:%s</span>',_('Snapin File'),_('Max Size'),ini_get('post_max_size')) => sprintf('<label id="uploader" for="snapin-uploader">%s<a href="#" id="snapin-upload"> <i class="fa fa-arrow-up noBorder"></i></a></label>',basename($this->obj->get('file'))),
