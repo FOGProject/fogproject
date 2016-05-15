@@ -22,11 +22,9 @@ class MySQL extends DatabaseManager {
     private function connect() {
         try {
             if (self::$link) return $this;
-            self::$link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
-            self::$link->set_charset('utf8');
-            self::$link->query('SET GLOBAL max_allowed_packet=134217728');
-            self::$link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
+            self::$link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD,DATABASE_NAME);
             self::$link->query("SET SESSION sql_mode=''");
+            self::$link->set_charset('utf8');
             self::current_db($this);
         } catch (Exception $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));

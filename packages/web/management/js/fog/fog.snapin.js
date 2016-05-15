@@ -4,12 +4,13 @@ $(function() {
         if ($('option:selected',this).attr('value')) $("input[name=rw]").val($('option:selected',this).attr('value'));
         $("input[name=rwa]").val($('option:selected',this).attr('rwargs'));
         $("input[name=args]").val($('option:selected',this).attr('args'));
-    });
-    updateCmdStore();
-    $('.cmdlet1,.cmdlet2,.cmdlet4').keyup(function() {
         updateCmdStore();
     });
-    $('.cmdlet3').change(function() {
+    updateCmdStore();
+    $('.cmdlet1,.cmdlet2,.cmdlet4').on('change, keyup',function(e) {
+        updateCmdStore();
+    });
+    $('.cmdlet3').on('change, keyup',function(e) {
         updateCmdStore();
     });
 });
