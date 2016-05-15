@@ -1,9 +1,17 @@
 <?php
 class SnapinManagementPage extends FOGPage {
+    private static $argTypes;
     public $node = 'snapin';
     public function __construct($name = '') {
         $this->name = 'Snapin Management';
         parent::__construct($name);
+        self::$argTypes = array(
+            'MSI' => array('msiexec.exe','/i','/quiet'),
+            'Batch Script' => array('cmd.exe','/c'),
+            'Bash' => array('/bin/bash'),
+            'VB Script' => array('cscript.exe'),
+            'Powershell' => array('powershell.exe','-ExecutionPolicy Bypass -NoProfile -File'),
+        );
         if ($_REQUEST['id']) {
             $this->subMenu = array(
                 "$this->linkformat#snap-gen" => self::$foglang['General'],
@@ -90,7 +98,7 @@ class SnapinManagementPage extends FOGPage {
         );
         ob_start();
         printf('<select id="argTypes"><option value="">- %s -</option>',_('Please select an option'));
-        array_walk($argTypes,function(&$cmd,&$type) {
+        array_walk(self::$argTypes,function(&$cmd,&$type) {
             printf('<option value="%s" rwargs="%s" args="%s">%s</option>',$cmd[0],$cmd[1],$cmd[2],$type);
         });
         echo '</select>';
@@ -203,16 +211,9 @@ class SnapinManagementPage extends FOGPage {
         ob_start();
         array_map(self::$buildSelectBox,$filelist);
         $selectFiles = sprintf('<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
-        $argTypes = array(
-            'MSI' => array('msiexec.exe','/i','/quiet'),
-            'Command' => array('cmd.exe','/c'),
-            'Bash' => array('/bin/bash'),
-            'Cscript' => array('cscript.exe'),
-            'Powershell' => array('powershell.exe','-ExecutionPolicy Bypass -NoProfile -File'),
-        );
         ob_start();
         printf('<select id="argTypes"><option>- %s -</option>',_('Please select an option'));
-        array_walk($argTypes,function(&$cmd,&$type) {
+        array_walk(self::$argTypes,function(&$cmd,&$type) {
             printf('<option value="%s" rwargs="%s" args="%s">%s</option>',$cmd[0],$cmd[1],$cmd[2],$type);
         });
         echo '</select>';
