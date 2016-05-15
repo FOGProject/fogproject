@@ -1,6 +1,8 @@
 <?php
 class FOGCore extends FOGBase {
     public function attemptLogin($username,$password) {
+        var_dump(self::getClass('User')->set('name',$username)->load('name')->validate_pw($password));
+        exit;
         return self::getClass('User')
             ->set('name',$username)
             ->load('name')
