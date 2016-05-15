@@ -1,9 +1,9 @@
 $(function() {
     checkboxToggleSearchListPages();
     $('#argTypes').change(function() {
-        $("input[name=rw]").val($('option:selected',this).attr('value'));
-        if ($('option:selected',this).attr('rwargs')) $("input[name=rwa]").val($('option:selected',this).attr('rwargs'));
-        if ($('option:selected',this).attr('args')) $("input[name=args]").val($('option:selected',this).attr('args'));
+        if ($('option:selected',this).attr('value')) $("input[name=rw]").val($('option:selected',this).attr('value'));
+        $("input[name=rwa]").val($('option:selected',this).attr('rwargs'));
+        $("input[name=args]").val($('option:selected',this).attr('args'));
     });
     updateCmdStore();
     $('.cmdlet1,.cmdlet2,.cmdlet4').keyup(function() {
