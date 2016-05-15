@@ -205,9 +205,13 @@ class SnapinManagementPage extends FOGPage {
         $selectFiles = sprintf('<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
         $argTypes = array(
             'MSI' => array('msiexec.exe','/i','/quiet'),
+            'Command' => array('cmd.exe','/c'),
+            'Bash' => array('/bin/bash'),
+            'Cscript' => array('cscript.exe'),
+            'Powershell' => array('powershell.exe','-ExecutionPolicy Bypass -NoProfile -File'),
         );
         ob_start();
-        printf('<select id="argTypes"><option value="">- %s -</option>',_('Please select an option'));
+        echo '<select id="argTypes">';
         array_walk($argTypes,function(&$cmd,&$type) {
             printf('<option value="%s" rwargs="%s" args="%s">%s</option>',$cmd[0],$cmd[1],$cmd[2],$type);
         });
