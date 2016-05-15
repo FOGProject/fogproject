@@ -29,6 +29,10 @@ class User extends FOGController {
         return password_hash($password,PASSWORD_BCRYPT,['cost'=>$cost]);
     }
     public function validate_pw($password) {
+        var_dump($this->get('name'));
+        var_dump($this->get('password'));
+        $md5 = md5($password);
+        $blowfish = $this->generate_hash($password);
         $res = false;
         if (preg_match('#^[a-f0-9]{32}$#',$this->get('password'))) $this->set('password',$password)->save();
         $res = (bool)password_verify($password,$this->get('password'));

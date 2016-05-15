@@ -8,7 +8,7 @@ class SnapinManagementPage extends FOGPage {
         self::$argTypes = array(
             'MSI' => array('msiexec.exe','/i','/quiet'),
             'Batch Script' => array('cmd.exe','/c'),
-            'Bash' => array('/bin/bash'),
+            'Bash Script' => array('/bin/bash'),
             'VB Script' => array('cscript.exe'),
             'Powershell' => array('powershell.exe','-ExecutionPolicy Bypass -NoProfile -File'),
         );
