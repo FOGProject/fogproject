@@ -742,7 +742,7 @@ class FOGConfigurationPage extends FOGPage {
             default:
                 break;
             }
-            $Service->set('value',$_REQUEST[$key])->save();
+            $Service->getManager()->update(array('id'=>$key),'',array('value'=>$_REQUEST[$key]));
             unset($Service);
         }
         $this->setMessage('Settings Successfully stored!');
