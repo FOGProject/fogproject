@@ -26,7 +26,7 @@ abstract class FOGService extends FOGBase {
         self::$logpath = sprintf('/%s/',trim(self::getSetting('SERVICE_LOG_PATH'),'/'));
     }
     protected function checkIfNodeMaster() {
-        $this->getIPAddress();
+        self::getIPAddress();
         foreach ((array)self::getClass('StorageNodeManager')->find(array('isMaster'=>1,'isEnabled'=>1)) AS &$StorageNode) {
             if (!$StorageNode->isValid()) continue;
             if (!in_array(self::$FOGCore->resolveHostname($StorageNode->get('ip')),self::$ips)) continue;
@@ -35,7 +35,7 @@ abstract class FOGService extends FOGBase {
         throw new Exception(_(' | This is not the master node'));
     }
     public function wait_interface_ready() {
-        $this->getIPAddress();
+        self::getIPAddress();
         if (!count(self::$ips)) {
             self::outall('Interface not ready, waiting.',static::$dev);
             sleep(10);
