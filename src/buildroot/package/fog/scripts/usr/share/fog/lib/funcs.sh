@@ -759,21 +759,21 @@ changeHostname() {
     REG_HOSTNAME_KEY3="\ControlSet001\Services\Tcpip\Parameters\NV HostName"
     REG_HOSTNAME_KEY4="\ControlSet001\Services\Tcpip\Parameters\HostName"
     REG_HOSTNAME_KEY5="\ControlSet001\Control\ComputerName\ActiveComputerName\ComputerName"
-    REG_HOSTNAME_KEY5="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
-    REG_HOSTNAME_KEY6="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
-    REG_HOSTNAME_KEY7="\ControlSet001\services\Tcpip\Parameters\Hostname"
-    REG_HOSTNAME_KEY6="\ControlSet001\services\Tcpip\Parameters\NV HostName"
-    REG_HOSTNAME_KEY7="\ControlSet001\services\Tcpip\Parameters\HostName"
-    REG_HOSTNAME_KEY8="\CurrentControlSet\Services\Tcpip\Parameters\NV Hostname"
-    REG_HOSTNAME_KEY9="\CurrentControlSet\Services\Tcpip\Parameters\Hostname"
-    REG_HOSTNAME_KEY8="\CurrentControlSet\Services\Tcpip\Parameters\NV HostName"
-    REG_HOSTNAME_KEY9="\CurrentControlSet\Services\Tcpip\Parameters\HostName"
-    REG_HOSTNAME_KEY10="\CurrentControlSet\Control\ComputerName\ActiveComputerName\ComputerName"
-    REG_HOSTNAME_KEY10="\CurrentControlSet\Control\ComputerName\ComputerName\ComputerName"
-    REG_HOSTNAME_KEY11="\CurrentControlSet\services\Tcpip\Parameters\NV Hostname"
-    REG_HOSTNAME_KEY12="\CurrentControlSet\services\Tcpip\Parameters\Hostname"
-    REG_HOSTNAME_KEY13="\CurrentControlSet\services\Tcpip\Parameters\NV HostName"
-    REG_HOSTNAME_KEY14="\CurrentControlSet\services\Tcpip\Parameters\HostName"
+    REG_HOSTNAME_KEY6="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
+    REG_HOSTNAME_KEY7="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY8="\ControlSet001\services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY9="\ControlSet001\services\Tcpip\Parameters\NV HostName"
+    REG_HOSTNAME_KEY10="\ControlSet001\services\Tcpip\Parameters\HostName"
+    REG_HOSTNAME_KEY11="\CurrentControlSet\Services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY12="\CurrentControlSet\Services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY13="\CurrentControlSet\Services\Tcpip\Parameters\NV HostName"
+    REG_HOSTNAME_KEY14="\CurrentControlSet\Services\Tcpip\Parameters\HostName"
+    REG_HOSTNAME_KEY15="\CurrentControlSet\Control\ComputerName\ActiveComputerName\ComputerName"
+    REG_HOSTNAME_KEY16="\CurrentControlSet\Control\ComputerName\ComputerName\ComputerName"
+    REG_HOSTNAME_KEY17="\CurrentControlSet\services\Tcpip\Parameters\NV Hostname"
+    REG_HOSTNAME_KEY18="\CurrentControlSet\services\Tcpip\Parameters\Hostname"
+    REG_HOSTNAME_KEY19="\CurrentControlSet\services\Tcpip\Parameters\NV HostName"
+    REG_HOSTNAME_KEY20="\CurrentControlSet\services\Tcpip\Parameters\HostName"
     dots "Mounting directory"
     if [[ ! -d /ntfs ]]; then
         mkdir -p /ntfs >/dev/null 2>&1
@@ -813,6 +813,12 @@ changeHostname() {
         key12="$REG_HOSTNAME_KEY12"
         key13="$REG_HOSTNAME_KEY13"
         key14="$REG_HOSTNAME_KEY14"
+        key15="$REG_HOSTNAME_KEY15"
+        key16="$REG_HOSTNAME_KEY16"
+        key17="$REG_HOSTNAME_KEY17"
+        key18="$REG_HOSTNAME_KEY18"
+        key19="$REG_HOSTNAME_KEY19"
+        key20="$REG_HOSTNAME_KEY20"
         case $osid in
             1)
                 regfile="$REG_LOCAL_MACHINE_XP"
@@ -848,6 +854,18 @@ changeHostname() {
         echo "ed $key13" >>/usr/share/fog/lib/EOFREG
         echo "$hostname" >>/usr/share/fog/lib/EOFREG
         echo "ed $key14" >>/usr/share/fog/lib/EOFREG
+        echo "$hostname" >>/usr/share/fog/lib/EOFREG
+        echo "ed $key15" >>/usr/share/fog/lib/EOFREG
+        echo "$hostname" >>/usr/share/fog/lib/EOFREG
+        echo "ed $key16" >>/usr/share/fog/lib/EOFREG
+        echo "$hostname" >>/usr/share/fog/lib/EOFREG
+        echo "ed $key17" >>/usr/share/fog/lib/EOFREG
+        echo "$hostname" >>/usr/share/fog/lib/EOFREG
+        echo "ed $key18" >>/usr/share/fog/lib/EOFREG
+        echo "$hostname" >>/usr/share/fog/lib/EOFREG
+        echo "ed $key19" >>/usr/share/fog/lib/EOFREG
+        echo "$hostname" >>/usr/share/fog/lib/EOFREG
+        echo "ed $key20" >>/usr/share/fog/lib/EOFREG
         echo "$hostname" >>/usr/share/fog/lib/EOFREG
         echo "q" >> /usr/share/fog/lib/EOFREG
         echo "y" >> /usr/share/fog/lib/EOFREG
