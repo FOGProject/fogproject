@@ -9,8 +9,8 @@ class DatabaseManager extends FOGCore {
         }
         switch (strtolower(DATABASE_TYPE)) {
         case 'mysql':
-            self::$DB = FOGCore::getClass('MySQL');
-            //self::$DB = FOGCore::getClass('PDODB');
+            //self::$DB = FOGCore::getClass('MySQL');
+            self::$DB = FOGCore::getClass('PDODB');
             break;
         case 'oracle':
             self::$DB = FOGCore::getClass('Oracle');
