@@ -362,12 +362,11 @@ class FOGConfigurationPage extends FOGPage {
         $this->render();
         echo '</form>';
     }
+    public function client_updater_ajax() {
+    }
     public function client_updater_post() {
         try {
-            if ($_REQUEST['delcu']) {
-                if (!self::getClass('ClientUpdaterManager')->destroy(array('id'=>$_REQUEST['delcu']))) throw new Exception(_('Failed to delete module'));
-                throw new Exception(_('Client module update deleted!'));
-            }
+            if (!self::getClass('ClientUpdaterManager')->destroy(array('id'=>$_REQUEST['delcu']))) return _('Failed to delete updater file and definition');
             if (count($_FILES['module']['tmp_name']) < 1) throw new Exception(_('No file uploaded'));
             array_map(function(&$err) {
                 if ($err > 0) throw new UploadException($err);
