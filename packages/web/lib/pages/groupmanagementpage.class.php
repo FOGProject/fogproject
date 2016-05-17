@@ -296,9 +296,9 @@ class GroupManagementPage extends FOGPage {
                 'span'=>sprintf('<span class="icon fa fa-question fa-1x hand" title="%s"></span>',str_replace('"','\"',$Module->get('description'))),
                 'mod_name'=>$Module->get('name'),
             );
-            unset($ModuleOn,$Module);
+            unset($Module);
         },(array)self::getClass('ModuleManager')->find());
-        unset($ModOns,$Modules,$moduleName);
+        unset($moduleName,$ModuleOn);
         $this->data[] = array(
             'mod_name'=> '',
             'input'=>'',
@@ -487,7 +487,7 @@ class GroupManagementPage extends FOGPage {
                 $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $time);
                 $modOn = (array)$_REQUEST['modules'];
                 $modOff = self::getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
-                $this->obj->addModule($modOn)->removeModule($modOff)->setAD($x,$y,$r)->setAlo($time);
+                $this->obj->addModule($modOn)->removeModule($modOff)->setDisp($x,$y,$r)->setAlo($time);
                 break;
             }
             if (!$this->obj->save()) throw new Exception(_('Database update failed'));
