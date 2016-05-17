@@ -1631,7 +1631,7 @@ class Config {
     public function __construct() {
         self::db_settings();
         self::svc_setting();
-        if (\$_REQUEST['node'] == 'schemaupdater') self::init_setting();
+        if (\$_REQUEST['node'] == 'schema') self::init_setting();
     }
     /** @function db_settings() Defines the database settings for FOG
      * @return void
