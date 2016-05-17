@@ -13,7 +13,7 @@ class PingHosts extends FOGService {
             if (!self::getSetting('FOG_HOST_LOOKUP')) throw new Exception(_(' * Host Ping is not enabled'));
             $webServerIP = self::$FOGCore->resolveHostName(self::getSetting('FOG_WEB_HOST'));
             self::outall(sprintf(' * FOG Web Host IP: %s',$webServerIP));
-            $this->getIPAddress();
+            self::getIPAddress();
             foreach ((array)self::$ips AS $i => &$ip) {
                 if (!$i) self::outall(" * This server's IP Addresses");
                 self::outall(" |\t$ip");

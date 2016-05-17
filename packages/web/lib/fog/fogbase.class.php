@@ -592,7 +592,7 @@ abstract class FOGBase {
         self::$interface = array_shift(self::$interface);
         return self::$interface;
     }
-    protected function getIPAddress() {
+    protected static function getIPAddress() {
         if (count(self::$ips) > 0) return self::$ips;
         $output = array();
         exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
