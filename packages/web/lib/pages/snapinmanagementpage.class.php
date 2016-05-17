@@ -11,6 +11,7 @@ class SnapinManagementPage extends FOGPage {
             'Bash Script' => array('/bin/bash'),
             'VB Script' => array('cscript.exe'),
             'Powershell' => array('powershell.exe','-ExecutionPolicy Bypass -NoProfile -File'),
+            'Mono' => array('mono'),
         );
         if ($_REQUEST['id']) {
             $this->subMenu = array(
