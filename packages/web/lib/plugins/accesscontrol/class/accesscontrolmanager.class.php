@@ -13,9 +13,9 @@ class AccesscontrolManager extends FOGManagerController {
         INDEX new_index (`acUserID`),
         INDEX new_index2 (`acGroupID`))
         ENGINE = MyISAM";
-        return self::$DB->query($sql)->fetch()->get();
+        return self::$DB->query($sql);
     }
     public function uninstall() {
-        return self::$DB->query("DROP TABLE IF EXISTS `accessControls`")->fetch()->get();
+        return self::$DB->query("DROP TABLE IF EXISTS `accessControls`");
     }
 }

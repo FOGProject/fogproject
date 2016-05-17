@@ -15,7 +15,7 @@ class LocationManager extends FOGManagerController {
         KEY new_index (`lName`),
         KEY new_index1 (`lStorageGroupID`))
         ENGINE = MyISAM";
-        if (!self::$DB->query($sql)->fetch()->get()) return false;
+        if (!self::$DB->query($sql)) return false;
         $sql = "CREATE TABLE `locationAssoc`
             (`laID` INTEGER NOT NULL AUTO_INCREMENT,
             `laLocationID` INTEGER NOT NULL,
@@ -23,12 +23,12 @@ class LocationManager extends FOGManagerController {
             PRIMARY KEY (`laID`),
             KEY new_index (`laHostID`))
             ENGINE=MyISAM";
-        return self::$DB->query($sql)->fetch()->get();
+        return self::$DB->query($sql);
     }
     public function uninstall() {
         $res = true;
-        if (!self::$DB->query("DROP TABLE IF EXISTS `locationAssoc`")->fetch()->get()) $res = false;
-        if (!self::$DB->query("DROP TABLE IF EXISTS `location`")->fetch()->get()) $res = false;
+        if (!self::$DB->query("DROP TABLE IF EXISTS `locationAssoc`")) $res = false;
+        if (!self::$DB->query("DROP TABLE IF EXISTS `location`")) $res = false;
         return $res;
     }
 }

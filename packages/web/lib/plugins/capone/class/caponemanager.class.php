@@ -11,7 +11,7 @@ class CaponeManager extends FOGManagerController {
         INDEX new_index (`cImageID`),
         INDEX new_index2 (`cKey`))
         ENGINE = MyISAM";
-        if (self::$DB->query($sql)->fetch()->get()) {
+        if (self::$DB->query($sql)) {
             $category = sprintf('Plugin: %s',$name);
             self::getClass('Service')
                 ->set('name','FOG_PLUGIN_CAPONE_DMI')
