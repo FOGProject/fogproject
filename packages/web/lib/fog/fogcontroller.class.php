@@ -145,7 +145,7 @@ abstract class FOGController extends FOGBase {
                 implode(',',(array)$updateData)
             );
             if (!self::$DB->query($query)->fetch()->get()) throw new Exception(self::$DB->sqlerror());
-            if (!$this->get('id')) $this->set('id',self::$DB->insert_id());
+            if (!$this->get('id')) $this->set('id',self::$DB->insert_id())->load();
             if (!$this instanceof History) {
                 if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s.',get_class($this),$this->get('id'),$this->get('name'),_('has been successfully updated')));
                 else $this->log(sprintf('%s ID: %s %s.',get_class($this),$this->get('id'),_('has been successfully updated')));
