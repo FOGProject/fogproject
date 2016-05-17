@@ -434,23 +434,19 @@ class HostManagementPage extends FOGPage {
             'input'=>'<input type="checkbox" class="checkboxes" id="checkAll" name="checkAll" value="checkAll"/>',
             'span'=>''
         );
-        printf('<div id="host-service"><form method="post" action="%s&tab=host-service"><h2>%s</h2><fieldset><legend>%s</legend>',$this->formAction,_('Service Configuration'),_('General'));
-        $ModOns = self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('id')),'moduleID');
+        printf('<div id="host-service"><h2>%s</h2><form method="post" action="%s&tab=host-service"><fieldset><legend>%s</legend>',_('Service Configuration'),$this->formAction,_('General'));
         $moduleName = $this->getGlobalModuleStatus();
-        array_map(function(&$Module) use ($ModOns,$moduleName) {
+        $ModuleOn = array_values(self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('id')),'moduleID',false,'AND','id',false,''));
+        array_map(function(&$Module) use ($moduleName,$ModuleOn) {
             if (!$Module->isValid()) return;
             $this->data[] = array(
-                'input'=>sprintf('<input type="checkbox"%s name="modules[]" value="${mod_id}"${checked}%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? ' class="checkboxes"' : ''),(!$moduleName[$Module->get('shortName')] ? ' disabled' : '')),
-                'span'=>'<span class="icon fa fa-question fa-1x hand" title="${mod_desc}"></span>',
-                'checked'=>(in_array($Module->get('id'),$ModOns) ? 'checked' : ''),
+                'input' => sprintf('<input %stype="checkbox" name="modules[]" value="%s"%s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ': ''), $Module->get('id'),(in_array($Module->get('id'),$ModuleOn) ? ' checked' : ''),!$moduleName[$Module->get('shortName')] ? ' disabled' : ''),
+                'span'=>sprintf('<span class="icon fa fa-question fa-1x hand" title="%s"></span>',str_replace('"','\"',$Module->get('description'))),
                 'mod_name'=>$Module->get('name'),
-                'mod_shname'=>$Module->get('shortName'),
-                'mod_id'=>$Module->get('id'),
-                'mod_desc'=>str_replace('"','\"',$Module->get('description')),
             );
             unset($Module);
         },(array)self::getClass('ModuleManager')->find());
-        unset($ModOns);
+        unset($moduleName,$ModuleOn);
         $this->data[] = array(
             'mod_name'=>'',
             'input'=>'',
@@ -459,7 +455,7 @@ class HostManagementPage extends FOGPage {
         self::$HookManager->processEvent('HOST_EDIT_SERVICE',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
-        printf('</fieldset></form><form method="post" action="%s&tab=host-service"><fieldset><legend>%s</legend>',$this->formAction,_('Host Screen Resolution'));
+        printf('</fieldset><fieldset><legend>%s</legend>',_('Host Screen Resolution'));
         $this->attributes = array(
             array('class'=>'l','style'=>'padding-right: 25px'),
             array('class'=>'c'),
@@ -470,18 +466,29 @@ class HostManagementPage extends FOGPage {
             '${input}',
             '${span}',
         );
-        foreach ((array)self::getClass('ServiceManager')->find(array('name'=>array('FOG_CLIENT_DISPLAYMANAGER_X','FOG_CLIENT_DISPLAYMANAGER_Y','FOG_CLIENT_DISPLAYMANAGER_R')),'OR') AS $i => &$Service) {
-            if (!$Service->isValid()) continue;
+        array_map(function(&$Service) {
+            if (!$Service->isValid()) return;
+            switch ($Service->get('name')) {
+            case 'FOG_CLIENT_DISPLAYMANAGER_X':
+                $name = 'x';
+                $field = _('Screen Width (in pixels)');
+                break;
+            case 'FOG_CLIENT_DISPLAYMANAGER_Y':
+                $name = 'y';
+                $field = _('Screen Height (in pixels)');
+                break;
+            case 'FOG_CLIENT_DISPLAYMANAGER_R':
+                $name = 'r';
+                $field = _('Screen Refresh Rate (in Hz)');
+                break;
+            }
             $this->data[] = array(
-                'input'=>'<input type="text" name="${type}" value="${disp}"/>',
-                'span'=>'<span class="icon fa fa-question fa-1x hand" title="${desc}"></span>',
-                'field'=>($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_X' ? _('Screen Width (in pixels)') : ($Service->get('name') == 'FOG_CLIENT_DISPLAY_MANAGER_Y' ? _('Screen Height (in pixels)') : ($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_R' ? _('Screen Refresh Rate (in Hz)') : ''))),
-                'type'=>($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_X' ? 'x' : ($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_Y' ? 'y' : ($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_R' ? 'r' : ''))),
-                'disp'=>($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_X' ? $this->obj->getDispVals('width') : ($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_Y' ? $this->obj->getDispVals('height') : ($Service->get('name') == 'FOG_CLIENT_DISPLAYMANAGER_R' ? $this->obj->getDispVals('refresh') : ''))),
-                'desc'=>$Service->get('description'),
+                'input'=>sprintf('<input type="text" name="%s" value="%s"/>',$name,$Service->get('value')),
+                'span'=>sprintf('<span class="icon fa fa-question fa-1x hand" title="%s"></span>',$Service->get('description')),
+                'field'=>$field,
             );
-            unset($Service);
-        }
+            unset($name,$field,$Service);
+        },self::getClass('ServiceManager')->find(array('name'=>array('FOG_CLIENT_DISPLAYMANAGER_X','FOG_CLIENT_DISPLAYMANAGER_Y','FOG_CLIENT_DISPLAYMANAGER_R')),'OR','id'));
         $this->data[] = array(
             'field'=>'',
             'input'=>'',
@@ -490,7 +497,7 @@ class HostManagementPage extends FOGPage {
         self::$HookManager->processEvent('HOST_EDIT_DISPSERV',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
-        printf('</fieldset></form><form method="post" action="%s&tab=host-service"><fieldset><legend>%s</legend>',$this->formAction,_('Auto Log Out Settings'));
+        printf('</fieldset><fieldset><legend>%s</legend>',_('Auto Log Out Settings'));
         $this->attributes = array(
             array('width'=>270),
             array('class'=>'c'),

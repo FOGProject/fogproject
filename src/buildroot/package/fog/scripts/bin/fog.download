@@ -96,7 +96,7 @@ preparePartitions() {
                                 echo "Done"
                                 ;;
                             *)
-                                [[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]] && startsector="63s" || startsector="2048s"
+                                startsector="2048s"
                                 restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
                                 case $win7partcnt in
                                     1)
