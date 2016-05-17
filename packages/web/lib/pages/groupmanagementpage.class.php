@@ -307,7 +307,7 @@ class GroupManagementPage extends FOGPage {
         self::$HookManager->processEvent('GROUP_MODULES',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
-        printf('</fieldset></form><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',$this->formAction,_('Group Screen Resolution'));
+        printf('</fieldset><fieldset><legend>%s</legend>',_('Group Screen Resolution'));
         $this->attributes = array(
             array('class'=>'l','style'=>'padding-right: 25px'),
             array('class'=>'c'),
@@ -349,7 +349,7 @@ class GroupManagementPage extends FOGPage {
         self::$HookManager->processEvent('GROUP_DISPLAY',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
-        printf('</fieldset></form><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',$this->formAction,_('Auto Log Out Settings'));
+        printf('</fieldset><fieldset><legend>%s</legend>',_('Auto Log Out Settings'));
         $this->attributes = array(
             array('width'=>270),
             array('class'=>'c'),
@@ -480,19 +480,14 @@ class GroupManagementPage extends FOGPage {
                 $this->obj->updateDefault(isset($_REQUEST['default']) ? $_REQUEST['default'] : 0);
                 break;
             case 'group-service':
-                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_X'));
-                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_Y'));
-                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_R'));
-                $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN'));
+                list($r,$time,$x,$y,) = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_DISPLAYMANAGER_R','FOG_CLIENT_AUTOLOGOFF_MIN','FOG_CLIENT_DISPLAYMANAGER_X','FOG_CLIENTDISPLAYMANAGER_Y')),'value');
+                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $x);
+                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $y);
+                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $r);
+                $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $time);
                 $modOn = (array)$_REQUEST['modules'];
                 $modOff = self::getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
-                $this->obj->addModule($modOn)->removeModule($modOff);
-                array_map(function(&$Host) {
-                    if (!$Host->isValid()) return;
-                    if (isset($_REQUEST['updatedisplay'])) $Host->setDisp($x,$y,$r);
-                    if (isset($_REQUEST['updatealo'])) $Host->setAlo($time);
-                    unset($Host);
-                },(array)self::getClass('HostManager')->find(array('id'=>$hostids)));
+                $this->obj->addModule($modOn)->removeModule($modOff)->setAD($x,$y,$r)->setAlo($time);
                 break;
             }
             if (!$this->obj->save()) throw new Exception(_('Database update failed'));
