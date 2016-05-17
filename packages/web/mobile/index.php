@@ -6,7 +6,7 @@ if ($currentUser->isValid()) $currentUser->isLoggedIn();
 $FOGPageManager = FOGCore::getClass('FOGPageManager');
 FOGCore::getClass('ProcessLogin')->processMainLogin();
 $Page = FOGCore::getClass('Page');
-if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && ($node == 'logout' || !$currentUser->isValid())) {
+if (!in_array($_REQUEST['node'],array('schema','client')) && ($node == 'logout' || !$currentUser->isValid())) {
     $currentUser->logout();
     $Page->setTitle($foglang['Login']);
     $Page->setSecTitle($foglang['ManagementLogin']);
