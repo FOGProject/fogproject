@@ -12,8 +12,7 @@ class FOGCore extends FOGBase {
     public function clearMACLookupTable() {
         $OUITable = self::getClass('OUI','',true);
         $OUITable = $OUITable['databaseTable'];
-        self::$DB->query("TRUNCATE TABLE `$OUITable`");
-        return self::$DB->fetch()->get();
+        return self::$DB->query("TRUNCATE TABLE `$OUITable`");
     }
     public function getMACLookupCount() {
         return self::getClass('OUIManager')->count();

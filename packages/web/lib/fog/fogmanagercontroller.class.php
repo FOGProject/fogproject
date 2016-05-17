@@ -181,7 +181,7 @@ abstract class FOGManagerController extends FOGBase {
             implode(',',(array)$insertArray),
             (count($whereArray) ? ' WHERE '.implode(' '.$whereOperator.' ',(array)$whereArray) : '')
         );
-        return (bool)self::$DB->query($query)->fetch()->get();
+        return (bool)self::$DB->query($query);
     }
     public function destroy($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false) {
         if (empty($findWhere)) $findWhere = array();
@@ -198,7 +198,7 @@ abstract class FOGManagerController extends FOGBase {
             self::$databaseFields['id'],
             implode("','",(array)$ids)
         );
-        return self::$DB->query($query)->fetch()->get();
+        return self::$DB->query($query);
     }
     public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '', $template = false) {
         $matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
@@ -228,7 +228,7 @@ abstract class FOGManagerController extends FOGBase {
             self::$databaseFields[$idField],
             $id
         );
-        return (bool)self::$DB->query($query)->fetch()->get('total');
+        return (bool)self::$DB->query($query)->fetch()->get('total') > 0;
     }
     public function search($keyword = '',$returnObjects = false) {
         if (empty($keyword)) $keyword = trim(self::$isMobile ? $_REQUEST['host-search'] : $_REQUEST['crit']);
