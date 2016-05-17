@@ -116,6 +116,22 @@ class Group extends FOGController {
         },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
         return $this;
     }
+    public function setDisp($x,$y,$r) {
+        self::getClass('HostScreenSettingsManager')->destroy(array('hostID'=>$this->get('hosts')));
+        $items = array_map(function(&$hostID) use ($x,$y,$r) {
+            return array($hostID,$x,$y,$r);
+        },(array)$this->get('hosts'));
+        self::getClass('HostScreenSettingsManager')->insert_batch(array('hostID','width','height','refresh'),$items);
+        return $this;
+    }
+    public function setAlo($time) {
+        self::getClass('HostAutoLogoutManager')->destroy(array('hostID'=>$this->get('hosts')));
+        $items = array_map(function(&$hostID) use ($time) {
+            return array($hostID,$time);
+        },(array)$this->get('hosts'));
+        self::getClass('HostAutoLogoutManager')->insert_batch(array('hostID','time'),$items);
+        return $this;
+    }
     public function addHost($addArray) {
         if (!$this->isLoaded('hosts')) $this->loadHosts();
         $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
