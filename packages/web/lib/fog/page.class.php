@@ -33,8 +33,8 @@ class Page extends FOGBase {
         $this->addCSS('css/select2.min.css');
         $this->addCSS('css/theme.blue.css');
         if (!isset($_REQUEST['node']) || !$_REQUEST['node']) $_REQUEST['node'] = 'home';
-        $this->isHomepage = (in_array($_REQUEST['node'], array('home', 'dashboard','schema','client','logout','login')) || !self::$FOGUser->isValid());
-        if (self::$FOGUser->isValid() && strtolower($_REQUEST['node']) != 'schema') {
+        $this->isHomepage = (in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || !self::$FOGUser->isValid());
+        if (self::$FOGUser->isValid() && strtolower($_REQUEST['node']) != 'schemaupdater') {
             if (!self::$isMobile) {
                 $this->main = array(
                     'home'=>array(self::$foglang['Home'],'fa fa-home fa-2x'),
@@ -67,7 +67,7 @@ class Page extends FOGBase {
                 $links[] = $link;
                 unset($title,$link);
             });
-            if (!self::$isMobile) $links = array_merge((array)$links,array('hwinfo','client','schema'));
+            if (!self::$isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
             if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links)) $this->redirect('index.php');
             ob_start();
             echo '<nav class="menu"><ul class="nav-list">';
