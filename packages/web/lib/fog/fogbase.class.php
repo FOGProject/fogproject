@@ -583,17 +583,18 @@ abstract class FOGBase {
         if ($ip_find = false) {
             exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $10}'",$IPs,$retVal);
             exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $4}'",$Interfaces,$retVal);
+            $index = 0;
+            self::$interface = array_filter(array_map(function(&$IP) use ($IPs,$Interfaces,&$index) {
+                if (!in_array($IP,self::$ips)) return;
+                $ret = $Interfaces[$index];
+                $index++;
+                return $ret;
+            },(array)$IPs));
         } else {
             exec("/sbin/ip route | awk -F'[ /]+' '/src/ {if (\$10 ~ \"$ip_find\") print $10}'",$IPs,$retVal);
             exec("/sbin/ip route | awk -F'[ /]+' '/src/ {if (\$10 ~ \"$ip_find\") print $4}'",$Interfaces,$retVal);
+            self::$interface = array(array_shift($Interfaces));
         }
-        $index = 0;
-        self::$interface = array_filter(array_map(function(&$IP) use ($IPs,$Interfaces,&$index) {
-            if (!in_array($IP,self::$ips)) return;
-            $ret = $Interfaces[$index];
-            $index++;
-            return $ret;
-        },(array)$IPs));
         self::$interface = array_shift(self::$interface);
         return self::$interface;
     }
