@@ -42,7 +42,7 @@ class PDODB extends DatabaseManager {
             if ($dbexists) $this->connect(false);
             else {
                 $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
-                die(_('Error communicating with the database'));
+                die(_('Error communicating with the database. Error: ').$e->getMessage());
             }
         }
         return $this;

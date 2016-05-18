@@ -577,11 +577,16 @@ abstract class FOGBase {
         });
         return $item;
     }
-    public static function getMasterInterface() {
+    public static function getMasterInterface($ip_find = false) {
         if (count(self::$interface) > 0) return self::$interface;
         self::getIPAddress();
-        exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $10}'",$IPs,$retVal);
-        exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $4}'",$Interfaces,$retVal);
+        if ($ip_find = false) {
+            exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $10}'",$IPs,$retVal);
+            exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $4}'",$Interfaces,$retVal);
+        } else {
+            exec("/sbin/ip route | awk -F'[ /]+' '/src/ {if (\$10 ~ \"$ip_find\") print $10}'",$IPs,$retVal);
+            exec("/sbin/ip route | awk -F'[ /]+' '/src/ {if (\$10 ~ \"$ip_find\") print $4}'",$Interfaces,$retVal);
+        }
         $index = 0;
         self::$interface = array_filter(array_map(function(&$IP) use ($IPs,$Interfaces,&$index) {
             if (!in_array($IP,self::$ips)) return;
