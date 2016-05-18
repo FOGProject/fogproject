@@ -7,15 +7,7 @@ class DatabaseManager extends FOGCore {
         } catch (Exception $e) {
             die(sprintf('Failed: %s: Error: %s',__METHOD__,$e->getMessage()));
         }
-        switch (strtolower(DATABASE_TYPE)) {
-        case 'mysql':
-            //self::$DB = FOGCore::getClass('MySQL');
-            self::$DB = FOGCore::getClass('PDODB');
-            break;
-        case 'oracle':
-            self::$DB = FOGCore::getClass('Oracle');
-            break;
-        }
+        self::$DB = FOGCore::getClass('PDODB');
         if (!isset($_POST['export']) && $this->getVersion() < FOG_SCHEMA && !preg_match('#schema#i',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
         return $this;
     }
