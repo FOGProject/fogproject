@@ -39,7 +39,6 @@ class PDODB extends DatabaseManager {
                 $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
                 die(_('Error communicating with the database'));
             }
-            return false;
         }
         return $this;
     }
@@ -61,7 +60,6 @@ class PDODB extends DatabaseManager {
             if (!self::$db_name) throw new PDOException(_('No database to work off'));
         } catch (PDOException $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
-            return false;
         }
         return $this;
     }
@@ -84,7 +82,6 @@ class PDODB extends DatabaseManager {
             }
         } catch (PDOException $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
-            return false;
         }
         return $this;
     }
@@ -107,7 +104,6 @@ class PDODB extends DatabaseManager {
             if (count($result)) return $result;
         } catch (Exception $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
-            return false;
         }
         return self::$result;
     }
@@ -136,7 +132,8 @@ class PDODB extends DatabaseManager {
         return $this->sanitize($data);
     }
     private function clean($data) {
-        return $data ? preg_replace("#^[']|[']$#",'',trim(self::$link->quote($data))) : trim(self::$link->quote($data));
+        $data = preg_replace("#^[']|[']$#",'',trim(self::$link->quote($data)));
+        return $data ? $data : '';
     }
     public function sanitize($data) {
         if (!is_array($data)) return $this->clean($data);
