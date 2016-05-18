@@ -30,8 +30,11 @@ class PDODB extends DatabaseManager {
                 self::$link = new PDO(sprintf('%s:host=%s;dbname=%s;charset=utf8',DATABASE_TYPE,preg_replace('#^p[:]#','',DATABASE_HOST),DATABASE_NAME),DATABASE_USERNAME,DATABASE_PASSWORD,$options);
             } else {
                 self::$link = new PDO(sprintf('%s:host=%s;charset=utf8',DATABASE_TYPE,preg_replace('#^p[:]#','',DATABASE_HOST)),DATABASE_USERNAME,DATABASE_PASSWORD,$options);
-                if (!preg_match('#schema#',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
-                else self::current_db($this);
+                try {
+                    self::current_db($this);
+                } catch (PDOException $e) {
+                    if (!preg_match('#schema#',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
+                }
             }
             self::query("SET SESSION sql_mode=''");
         } catch (PDOException $e) {
