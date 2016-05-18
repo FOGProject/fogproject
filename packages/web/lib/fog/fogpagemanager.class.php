@@ -51,19 +51,19 @@ class FOGPageManager Extends FOGBase {
         }
     }
     public function render() {
-        if (!(in_array($_REQUEST['node'],array('client','schemaupdater')) || self::$FOGUser->isValid())) return;
+        if (!(in_array($_REQUEST['node'],array('client','schema')) || self::$FOGUser->isValid())) return;
         $this->loadPageClasses();
         $method = $this->methodValue;
         try {
             $class = $this->getFOGPageClass();
-            if ($this->classValue == 'schemaupdater') $this->methodValue = 'index';
+            if ($this->classValue == 'schema') $this->methodValue = 'index';
             if (empty($method) || !method_exists($class, $method)) $method = 'index';
             $displayScreen = trim(strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']));
             if (!array_key_exists($this->classValue, $this->nodes)) throw new Exception(_('No FOGPage Class found for this node'));
             if (isset($_REQUEST[$class->id]) && $_REQUEST[$class->id]) $this->arguments = array('id'=>$_REQUEST[$class->id]);
             if (self::$post) $this->setRequest();
             else $this->resetRequest();
-            if ($this->classValue != 'schemaupdater' && $method == 'index' && $displayScreen != 'list' && $this->methodValue != 'list' && method_exists($class, 'search') && in_array($class->node,self::$searchPages)) $method = 'search';
+            if ($this->classValue != 'schema' && $method == 'index' && $displayScreen != 'list' && $this->methodValue != 'list' && method_exists($class, 'search') && in_array($class->node,self::$searchPages)) $method = 'search';
             if (self::$ajax && method_exists($class, $method.'_ajax')) $method = $this->methodValue.'_ajax';
             if (self::$post && method_exists($class, $method.'_post')) $method = $this->methodValue.'_post';
         } catch (Exception $e) {
