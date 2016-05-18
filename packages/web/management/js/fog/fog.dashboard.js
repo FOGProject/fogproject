@@ -113,7 +113,7 @@ $(function() {
     if (typeof(Graph30dayData) != 'undefined') Graph30DayData = [{label: 'Computers Imaged',data: JSONParseFunction(Graph30dayData)}];
     $.plot(Graph30Day,Graph30DayData,Graph30DayOpts);
     // Start counters
-    UpdateBandwidth();
+    setInterval(UpdateBandwidth,1000);
     // Bandwidth Graph - TX/RX Filter
     GraphBandwidthFilters.click(function(e) {
         // Blur -> add active class -> remove active class from old active item
@@ -185,7 +185,6 @@ function UpdateBandwidth() {
         success: UpdateBandwidthGraph,
         complete: function() {GraphBandwidth.addClass('loaded');}
     });
-    UpdateTimeout = setTimeout(UpdateBandwidth,bandwidthtime);
 }
 function UpdateBandwidthGraph(data) {
     if (data === null || typeof(data) == 'undefined' || data.length == 0) return;
@@ -209,7 +208,7 @@ function UpdateBandwidthGraph(data) {
             GraphBandwidthData[i].tx = new Array();
             GraphBandwidthData[i].rx = new Array();
         }
-        while (GraphBandwidthData[i].dev.length >= GraphBandwidthMaxDataPoints) {
+        while (GraphBandwidthData[i].tx.length >= GraphBandwidthMaxDataPoints) {
             GraphBandwidthData[i].tx.shift();
             GraphBandwidthData[i].rx.shift();
         }
