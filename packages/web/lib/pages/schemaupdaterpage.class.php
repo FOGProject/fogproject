@@ -1,5 +1,5 @@
 <?php
-class schemaPage extends FOGPage {
+class SchemaUpdaterPage extends FOGPage {
     public $node = 'schema';
     public function __construct($name = '') {
         parent::__construct($this->name);
