@@ -87,6 +87,7 @@ class ReportMaker {
             header("X-Sendfile: $filepath");
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=$filename");
+            header('Connection: close');
             while (feof($fh) === false) {
                 $line = fread($fh,4096);
                 echo $line;
@@ -95,7 +96,6 @@ class ReportMaker {
             $cmd = sprintf("rm -rf %s",escapeshellarg($filepath));
             exec($cmd);
         }
-        header('Connection: close');
         flush();
         ob_flush();
         ob_end_flush();
