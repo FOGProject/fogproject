@@ -577,24 +577,18 @@ abstract class FOGBase {
         });
         return $item;
     }
-    public static function getMasterInterface($ip_find = false) {
+    public static function getMasterInterface($ip_find) {
         if (count(self::$interface) > 0) return self::$interface;
         self::getIPAddress();
-        if ($ip_find = false) {
-            exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $10}'",$IPs,$retVal);
-            exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $4}'",$Interfaces,$retVal);
-            $index = 0;
-            self::$interface = array_filter(array_map(function(&$IP) use ($IPs,$Interfaces,&$index) {
-                if (!in_array($IP,self::$ips)) return;
-                $ret = $Interfaces[$index];
-                $index++;
-                return $ret;
-            },(array)$IPs));
-        } else {
-            exec("/sbin/ip route | awk -F'[ /]+' '/src/ {if (\$10 ~ \"$ip_find\") print $10}'",$IPs,$retVal);
-            exec("/sbin/ip route | awk -F'[ /]+' '/src/ {if (\$10 ~ \"$ip_find\") print $4}'",$Interfaces,$retVal);
-            self::$interface = array(array_shift($Interfaces));
-        }
+        exec("/sbin/ip route | awk -F'[ /]+' '/src/ {print $4}'",$Interfaces,$retVal);
+        $index = 0;
+        self::$interface = array_filter(array_map(function(&$IP) use ($Interfaces,&$index,$ip_find) {
+            if (!in_array($IP,self::$ips)) return;
+            if (trim($ip_find) !== trim($IP)) return;
+            $ret = $Interfaces[$index];
+            $index++;
+            return $ret;
+        },(array)self::$ips));
         self::$interface = array_shift(self::$interface);
         return self::$interface;
     }
