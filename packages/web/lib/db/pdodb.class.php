@@ -136,7 +136,7 @@ class PDODB extends DatabaseManager {
         return $this->sanitize($data);
     }
     private function clean($data) {
-        return preg_replace("#^[']|[']$#",'',trim(self::$link->quote($data)));
+        return $data ? preg_replace("#^[']|[']$#",'',trim(self::$link->quote($data))) : trim(self::$link->quote($data));
     }
     public function sanitize($data) {
         if (!is_array($data)) return $this->clean($data);
