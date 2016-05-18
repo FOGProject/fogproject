@@ -1,6 +1,6 @@
 <?php
-class schemaPage extends FOGPage {
-    public $node = 'schema';
+class SchemaUpdaterPage extends FOGPage {
+    public $node = 'schemaupdater';
     public function __construct($name = '') {
         parent::__construct($this->name);
         $newSchema = self::getClass('SchemaManager')->find();
