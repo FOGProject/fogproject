@@ -35,7 +35,7 @@ class ReportMaker {
         $keys = array_keys($this->types);
         $type = isset($_REQUEST['type']) ? htmlspecialchars($_REQUEST['type'],ENT_QUOTES,'utf-8') : $keys[$intType];
         if (!in_array($type,$keys)) die(_('Invalid type'));
-        $file = basename(trim(htmlspecialchars($_REQUEST['file'],ENT_QUOTES,'utf-8')));
+        $file = basename(trim(htmlspecialchars($_REQUEST['filename'],ENT_QUOTES,'utf-8')));
         if (!isset($_REQUEST['export'])) $this->setFileName($file);
         $intType = ($intType !== false ? (isset($_REQUEST['export']) ? 3 : $this->types[$type]) : 0);
         ob_start();
