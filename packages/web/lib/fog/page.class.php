@@ -141,6 +141,7 @@ class Page extends FOGBase {
                 'js/fog/fog.js',
                 'js/fog/fog.login.js',
             );
+            if ($_REQUEST['node'] === 'schema') array_push($files,'js/fog/fog.schema.js');
         }
         $files = array_unique((array)$files);
         @array_map(function(&$path) {
