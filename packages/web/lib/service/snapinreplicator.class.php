@@ -8,9 +8,6 @@ class SnapinReplicator extends FOGService {
         static::$dev = self::getSetting('SNAPINREPLICATORDEVICEOUTPUT');
         static::$zzz = (int)self::getSetting(self::$sleeptime);
     }
-    public function getBanner() {
-        parent::getBanner();
-    }
     private function commonOutput() {
         try {
             $StorageNode = $this->checkIfNodeMaster();
