@@ -14,6 +14,7 @@ class GroupManagementPage extends FOGPage {
                 "$this->linkformat#group-service" => sprintf('%s %s',self::$foglang['Service'],self::$foglang['Settings']),
                 "$this->linkformat#group-active-directory" => self::$foglang['AD'],
                 "$this->linkformat#group-printers" => self::$foglang['Printers'],
+                "$this->linkformat#group-inventory" => self::$foglang['Inventory'],
                 $this->membership => self::$foglang['Membership'],
                 $this->delformat => self::$foglang['Delete'],
             );
@@ -438,6 +439,83 @@ class GroupManagementPage extends FOGPage {
             }
         } else echo _('There are no printers defined');
         echo "</div>$inputupdate</form></div></div>";
+        echo '<!-- Inventory -->';
+        printf('<div id="group-inventory"><h2>%s %s</h2>',_('Group'),self::$foglang['Inventory']);
+        printf('<h2><a href="export.php?type=csv&filename=Group_InventoryReport" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=Group_InventoryReport" alt="%s" title="%s" target="_blank">%s</a></h2>',
+            _('Export CSV'),
+            _('Export CSV'),
+            self::$csvfile,
+            _('Export PDF'),
+            _('Export PDF'),
+            self::$pdffile
+        );
+        $this->ReportMaker = self::getClass('ReportMaker');
+        @array_walk(self::$inventoryCsvHead,function(&$classGet,&$csvHeader) {
+            $this->ReportMaker->addCSVCell($csvHeader);
+            unset($classGet,$csvHeader);
+        });
+        $this->ReportMaker->endCSVLine();
+        $this->headerData = array(
+            _('Host name'),
+            _('Memory'),
+            _('System Product'),
+            _('System Cerial'),
+        );
+        $this->templates = array(
+            '${host_name}<br/><small>${host_mac}</small>',
+            '${memory}',
+            '${sysprod}',
+            '${sysser}',
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+            array(),
+            array(),
+        );
+        $Hosts = self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts')));
+        array_walk($Hosts, function(&$Host,&$index) {
+            if (!$Host->isValid()) return;
+            if (!$Host->get('inventory')->isValid()) return;
+            $Image = $Host->getImage();
+            $this->data[] = array(
+                'host_name' => $Host->get('name'),
+                'host_mac' => $Host->get('mac'),
+                'memory' => $Host->get('inventory')->getMem(),
+                'sysprod' => $Host->get('inventory')->get('sysproduct'),
+                'sysser' => $Host->get('inventory')->get('sysserial'),
+            );
+            array_walk(self::$inventoryCsvHead,function(&$classGet,&$csvHead) use ($Host) {
+                switch ($csvHead) {
+                case _('Host ID'):
+                    $this->ReportMaker->addCSVCell($Host->get('id'));
+                    break;
+                case _('Host name'):
+                    $this->ReportMaker->addCSVCell($Host->get('name'));
+                    break;
+                case _('Host MAC'):
+                    $this->ReportMaker->addCSVCell($Host->get('mac'));
+                    break;
+                case _('Host Desc'):
+                    $this->ReportMaker->addCSVCell($Host->get('description'));
+                    break;
+                case _('Host Memory'):
+                    $this->ReportMaker->addCSVCell($Host->get('inventory')->getMem());
+                    break;
+                default:
+                    $this->ReportMaker->addCSVCell($Host->get('inventory')->get($classGet));
+                    break;
+                }
+                unset($classGet,$csvHead);
+            });
+            $this->ReportMaker->endCSVLine();
+            unset($Host,$index);
+        });
+        unset($Hosts);
+        $this->ReportMaker->appendHTML($this->__toString());
+        $this->ReportMaker->outputReport(false);
+        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
+        echo '</div>';
         unset($imageID,$imageMatchID,$groupKey,$groupKeyMatch,$aduse,$adDomain,$adOU,$adUser,$adPass,$adPassLegacy,$useAD,$ADOU,$ADDomain,$ADUser,$adPass,$ADPass,$ADPassLegacy,$biosExit,$efiExit,$exitNorm,$exitEfi);
     }
     public function edit_post() {

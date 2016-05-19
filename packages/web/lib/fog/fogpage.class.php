@@ -27,6 +27,9 @@ abstract class FOGPage extends FOGBase {
     protected $formAction;
     protected $formPostAction;
     protected $childClass;
+    protected static $pdffile;
+    protected static $csvfile;
+    protected static $inventoryCsvHead;
     private static $initializedController = false;
     public function __construct($name = '') {
         parent::__construct();
@@ -58,6 +61,44 @@ abstract class FOGPage extends FOGBase {
                 }
             }
         }
+        self::$pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
+        self::$csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
+        self::$inventoryCsvHead = array(
+            _('Host ID')=>'id',
+            _('Host name')=>'name',
+            _('Host MAC')=>'mac',
+            _('Host Desc')=>'description',
+            _('Inventory ID')=>'id',
+            _('Inventory Desc')=>'description',
+            _('Primary User')=>'primaryUser',
+            _('Other Tag 1')=>'other1',
+            _('Other Tag 2')=>'other2',
+            _('System Manufacturer')=>'sysman',
+            _('System Product')=>'sysproduct',
+            _('System Version')=>'sysversion',
+            _('System Serial')=>'sysserial',
+            _('System Type')=>'systype',
+            _('BIOS Version')=>'biosversion',
+            _('BIOS Vendor')=>'biosvendor',
+            _('BIOS Date')=>'biosdate',
+            _('MB Manufacturer')=>'mbman',
+            _('MB Name')=>'mbproductname',
+            _('MB Version')=>'mbversion',
+            _('MB Serial')=>'mbserial',
+            _('MB Asset')=>'mbasset',
+            _('CPU Manufacturer')=>'cpuman',
+            _('CPU Version')=>'cpuversion',
+            _('CPU Speed')=>'cpucurrent',
+            _('CPU Max Speed')=>'cpumax',
+            _('Memory')=>'mem',
+            _('HD Model')=>'hdmodel',
+            _('HD Firmware')=>'hdfirmware',
+            _('HD Serial')=>'hdserial',
+            _('Chassis Manufacturer')=>'caseman',
+            _('Chassis Version')=>'casever',
+            _('Chassis Serial')=>'caseser',
+            _('Chassis Asset')=>'caseasset',
+        );
         $this->menu = array(
             'search'=>self::$foglang['NewSearch'],
             'list'=>sprintf(self::$foglang['ListAll'],_(sprintf('%ss',$this->childClass))),
