@@ -8,6 +8,9 @@ class ImageReplicator extends FOGService {
         static::$dev = self::getSetting('IMAGEREPLICATORDEVICEOUTPUT');
         static::$zzz = (int)self::getSetting(static::$sleeptime);
     }
+    public function getBanner() {
+        parent::getBanner();
+    }
     private function commonOutput() {
         try {
             $StorageNode = $this->checkIfNodeMaster();

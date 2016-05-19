@@ -8,6 +8,9 @@ class TaskScheduler extends FOGService {
         static::$dev = self::getSetting('SCHEDULERDEVICEOUTPUT');
         static::$zzz = (int)self::getSetting(self::$sleeptime);
     }
+    public function getBanner() {
+        parent::getBanner();
+    }
     private function commonOutput() {
         try {
             $findWhere = array('stateID'=>$this->getQueuedState(),'wol'=>1);
