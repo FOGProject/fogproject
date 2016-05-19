@@ -441,10 +441,12 @@ class GroupManagementPage extends FOGPage {
         echo "</div>$inputupdate</form></div></div>";
         echo '<!-- Inventory -->';
         printf('<div id="group-inventory"><h2>%s %s</h2>',_('Group'),self::$foglang['Inventory']);
-        printf('<h2><a href="export.php?type=csv&filename=Group_InventoryReport" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=Group_InventoryReport" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf('<h2><a href="export.php?type=csv&filename=Group_%s_InventoryReport" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=Group_%s_InventoryReport" alt="%s" title="%s" target="_blank">%s</a></h2>',
+            $this->obj->get('name'),
             _('Export CSV'),
             _('Export CSV'),
             self::$csvfile,
+            $this->obj->get('name'),
             _('Export PDF'),
             _('Export PDF'),
             self::$pdffile
