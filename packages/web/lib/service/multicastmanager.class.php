@@ -8,9 +8,6 @@ class MulticastManager extends FOGService {
         static::$dev = self::getSetting('MULTICASTDEVICEOUTPUT');
         static::$zzz = (int)self::getSetting(self::$sleeptime);
     }
-    public function getBanner() {
-        parent::getBanner();
-    }
     private function isMCTaskNew($KnownTasks, $id) {
         foreach((array)$KnownTasks AS $i => &$Known) $output[] = $Known->getID();
         unset($Known);

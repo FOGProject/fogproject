@@ -8,9 +8,6 @@ class PingHosts extends FOGService {
         static::$dev = self::getSetting('PINGHOSTDEVICEOUTPUT');
         static::$zzz = (int)self::getSetting(self::$sleeptime);
     }
-    public function getBanner() {
-        parent::getBanner();
-    }
     private function commonOutput() {
         try {
             if (!self::getSetting('FOG_HOST_LOOKUP')) throw new Exception(_(' * Host Ping is not enabled'));
