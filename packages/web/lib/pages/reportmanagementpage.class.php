@@ -33,8 +33,6 @@ class ReportManagementPage extends FOGPage {
         },(array)self::loadCustomReports());
         $this->menu = array_merge($this->menu,array('upload'=>self::$foglang['UploadRprts']));
         self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
-        $this->pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
-        $this->csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
         $_SESSION['foglastreport'] = null;
         $this->ReportMaker = self::getClass('ReportMaker');
     }
@@ -111,10 +109,10 @@ class ReportManagementPage extends FOGPage {
         printf('<h2><a href="export.php?type=csv&filename=ImagingLog" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=ImagingLog" alt="%s" title="%s" target="_blank">%s</a></h2>',
             _('Export CSV'),
             _('Export CSV'),
-            $this->csvfile,
+            self::$csvfile,
             _('Export PDF'),
             _('Export PDF'),
-            $this->pdffile
+            self::$pdffile
         );
         $this->headerData = array(
             _('Engineer'),
@@ -233,10 +231,10 @@ class ReportManagementPage extends FOGPage {
         printf('<h2><a href="export.php?type=csv&filename=HostList" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=HostList" alt="%s" title="%s" target="_blank">%s</a></h2>',
             _('Export CSV'),
             _('Export CSV'),
-            $this->csvfile,
+            self::$csvfile,
             _('Export PDF'),
             _('Export PDF'),
-            $this->pdffile
+            self::$pdffile
         );
         $csvHead = array(
             _('Host ID') => 'id',
@@ -313,10 +311,10 @@ class ReportManagementPage extends FOGPage {
         printf('<h2><a href="export.php?type=csv&filename=InventoryReport" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=InventoryReport" alt="%s" title="%s" target="_blank">%s</a></h2>',
             _('Export CSV'),
             _('Export CSV'),
-            $this->csvfile,
+            self::$csvfile,
             _('Export PDF'),
             _('Export PDF'),
-            $this->pdffile
+            self::$pdffile
         );
         $csvHead = array(
             _('Host ID')=>'id',
@@ -354,10 +352,10 @@ class ReportManagementPage extends FOGPage {
             _('Chassis Serial')=>'caseser',
             _('Chassis Asset')=>'caseasset',
         );
-        foreach ((array)$csvHead AS $csvHeader => &$classGet) {
+        @array_walk(self::$inventoryCsvHead,function(&$classGet,&$csvHeader) {
             $this->ReportMaker->addCSVCell($csvHeader);
-            unset($classGet);
-        }
+            unset($classGet,$csvHeader);
+        });
         $this->ReportMaker->endCSVLine();
         $this->headerData = array(
             _('Host name'),
@@ -428,10 +426,10 @@ class ReportManagementPage extends FOGPage {
         printf('<h2><a href="export.php?type=csv&filename=PendingMACsList" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=PendingMACsList" alt="%s" title="%s" target="_blank">%s</a><br/>',
             _('Export CSV'),
             _('Export CSV'),
-            $this->csvfile,
+            self::$csvfile,
             _('Export PDF'),
             _('Export PDF'),
-            $this->pdffile
+            self::$pdffile
         );
         if ($_SESSION['Pending-MACs']) printf('<a href="?node=report&sub=pend-mac&aprvall=1">%s</a>',_('Approve All Pending MACs for all hosts'));
         echo '</h2>';
@@ -508,10 +506,10 @@ class ReportManagementPage extends FOGPage {
         printf('<h2><a href="export.php?type=csv&filename=VirusHistory" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=VirusHistory" alt="%s" title="%s" target="_blank">%s</a></h2>',
             _('Export CSV'),
             _('Export CSV'),
-            $this->csvfile,
+            self::$csvfile,
             _('Export PDF'),
             _('Export PDF'),
-            $this->pdffile
+            self::$pdffile
         );
         printf('<form method="post" action="%s"><h2><a href="#"><input onclick="this.form.submit()" type="checkbox" class="delvid" name="delvall" id="delvid" value="all"/><label for="delvid">(%s)</label></a></h2></form>',
             $this->formAction,
@@ -804,10 +802,10 @@ class ReportManagementPage extends FOGPage {
         printf('<h2><a href="export.php?type=csv&filename=UserTrackingList" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=UserTrackingList" alt="%s" title="%s" target="_blank">%s</a></h2>',
             _('Export CSV'),
             _('Export CSV'),
-            $this->csvfile,
+            self::$csvfile,
             _('Export PDF'),
             _('Export PDF'),
-            $this->pdffile
+            self::$pdffile
         );
         $date1 = $_REQUEST['date1'];
         $date2 = $_REQUEST['date2'];
@@ -893,10 +891,10 @@ class ReportManagementPage extends FOGPage {
         printf('<h2><a href="export.php?type=csv&filename=SnapinLog" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=SnapinLog" alt="%s" title="%s" target="_blank">%s</a></h2>',
             _('Export CSV'),
             _('Export CSV'),
-            $this->csvfile,
+            self::$csvfile,
             _('Export PDF'),
             _('Export PDF'),
-            $this->pdffile
+            self::$pdffile
         );
         $this->headerData = array(
             _('Snapin Name'),
@@ -1034,7 +1032,7 @@ class ReportManagementPage extends FOGPage {
             $Inventory->get('primaryUser'),
             _('Export PDF'),
             _('Export PDF'),
-            $this->pdffile
+            self::$pdffile
         );
         $this->ReportMaker->appendHTML(sprintf('<!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" --><p class="c"><h3>%s</h3></p><hr/><p class="c"><h2>%s</h2></p><p class="c"><h3>%s</h3></p><p class="c"><h2><u>%s</u></h2></p><p class="c"><h4><u>%s</u></h4></p><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><p class="c"><h4><u>%s</u></h4></p><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><p class="c"><h4><b>%s / %s / %s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><br/><hr/><h4><b>%s: </b>%s</h4><p class="c"><h4>(%s %s)</h4></p><p class="c"><h4>%s</h4></p><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><!-- NEW PAGE --><!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" --><p class="c"><h3>%s</h3></p><hr/><h4>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4>',
             _('of'),
