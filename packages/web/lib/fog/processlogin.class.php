@@ -127,8 +127,8 @@ class ProcessLogin extends FOGBase {
         $this->username = trim($_REQUEST['uname']);
         $this->password = trim($_REQUEST['upass']);
         $tmpUser = self::$FOGCore->attemptLogin($this->username,$this->password);
-        if (!$tmpUser || !$tmpUser->isValid()) return;
         self::$HookManager->processEvent('USER_LOGGING_IN',array('User'=>&$tmpUser,'username'=>&$this->username,'password'=>&$this->password));
+        if (!$tmpUser || !$tmpUser->isValid()) return;
         if (!self::$isMobile && $tmpUser->get('type') == 1) {
             $this->setMessage(self::$foglang['NotAllowedHere']);
             $this->redirect('index.php?node=logout');
