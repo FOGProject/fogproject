@@ -3,9 +3,7 @@ class SchemaUpdaterPage extends FOGPage {
     public $node = 'schema';
     public function __construct($name = '') {
         parent::__construct($this->name);
-        $newSchema = self::getClass('SchemaManager')->find();
-        $newSchema = @array_shift($newSchema);
-        if ($newSchema instanceof Schema && $newSchema->isValid() && $newSchema->get('version') >= FOG_SCHEMA) self::redirect('index.php');
+        if (self::getClass('Schema',1)->get('version') >= FOG_SCHEMA) self::redirect('index.php');
         $this->name = 'Database Schema Installer / Updater';
         $this->menu = array();
         $this->subMenu = array();
@@ -14,10 +12,6 @@ class SchemaUpdaterPage extends FOGPage {
      * The first page displayed especially when a user logs in.
      */
     public function index() {
-        if (!self::$DB->link()) {
-            $this->title = _('Database Connection Invalid');
-            echo _('Your database connection appears to be invalid. FOG is unable to communicate with the database.  There are many reasons why this could be the case.  Please check your credentials in '.dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'fog/config.class.php. Also confirm that the database is indeed running. If credentials are correct, and the Database service is running, check to ensure your filesystem has enough space.');
-        } else {
             $this->title = _('Database Schema Installer / Updater');
             $vals = array(
                 _('Your FOG database schema is not up to date, either because you have updated FOG or this is a new FOG Installation. If this is an upgrade, there will be a database back stored on your FOG Server defaulting under the folder /home/fogDBbackups/. Should anything go wrong, this backup will enable you to return to the previous install if needed.'),
@@ -29,8 +23,8 @@ class SchemaUpdaterPage extends FOGPage {
                 _('Alternatively, you can use the button below to obtain a copy of your current fog database.'),
                 _('Export-Backup DB'),
             );
-            vprintf('<p>%s</p><p>%s</p><br/><form method="post" action="%s"><p class="c"><input type="submit" name="confirm" value="%s"/></p></form><p>%s</p><div id="sidenotes"><pre><code>cd%smysqldump --allow-keywords -x -v fog > fogbackup.sql</code></pre></div><br/><p>%s</p><form method="post" action="../management/export.php"><input type="hidden" name="type" value="sql"/><p class="c"><input type="submit" name="export" value="%s"/></p></form>',$vals);
-        }
+            vprintf('<div id="dbRunning" class="hidden"><p>%s</p><p>%s</p><br/><form method="post" action="%s"><p class="c"><input type="submit" name="confirm" value="%s"/></p></form><p>%s</p><div id="sidenotes"><pre><code>cd%smysqldump --allow-keywords -x -v fog > fogbackup.sql</code></pre></div><br/><p>%s</p><form method="post" action="../management/export.php"><input type="hidden" name="type" value="sql"/><p class="c"><input type="submit" name="export" value="%s"/></p></form></div>',$vals);
+            echo '<div id="dbNotRunning" class="hidden">'._('Your database connection appears to be invalid. FOG is unable to communicate with the database.  There are many reasons why this could be the case.  Please check your credentials in '.dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'fog/config.class.php. Also confirm that the database is indeed running. If credentials are correct, and the Database service is running, check to ensure your filesystem has enough space.').'</div>';
     }
     public function index_post() {
         if (!isset($_REQUEST['confirm'])) return;

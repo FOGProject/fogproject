@@ -122,7 +122,6 @@ class PDODB extends DatabaseManager {
     }
     public function sqlerror() {
         $message = self::$link ? sprintf('%s: %s, %s: %s',_('Error Code'),self::$link->errorCode() ? self::$link->errorCode() : self::$queryResult->errorCode(),_('Error Message'),self::$link->errorCode() ? self::$link->errorInfo() : self::$queryResult->errorInfo()) : _('Cannot connect to database');
-        $this->setMessage($message);
         return $message;
     }
     public function field_count() {
