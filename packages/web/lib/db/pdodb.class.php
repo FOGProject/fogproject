@@ -9,8 +9,8 @@ class PDODB extends DatabaseManager {
         if (self::$link) return $this;
         try {
             if (!$this->connect()) throw new Exception(_('Failed to connect'));
-        } catch (Exception $e) {
-            $this->sqlerror(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
+        } catch (PDOException $e) {
+            $this->sqlerror();
         }
     }
     public function __destruct() {
@@ -30,28 +30,29 @@ class PDODB extends DatabaseManager {
                 self::$link = new PDO(sprintf('%s:host=%s;dbname=%s;charset=utf8',DATABASE_TYPE,preg_replace('#^p[:]#','',DATABASE_HOST),DATABASE_NAME),DATABASE_USERNAME,DATABASE_PASSWORD,$options);
             } else {
                 self::$link = new PDO(sprintf('%s:host=%s;charset=utf8',DATABASE_TYPE,preg_replace('#^p[:]#','',DATABASE_HOST)),DATABASE_USERNAME,DATABASE_PASSWORD,$options);
-                try {
-                    self::current_db($this);
-                } catch (PDOException $e) {
-                    if (!preg_match('#schema#',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
-                }
+                if (!self::current_db($this) && !preg_match('#schema#',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
             }
             self::query("SET SESSION sql_mode=''");
         } catch (PDOException $e) {
             if ($dbexists) $this->connect(false);
             else {
                 $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
-                die(_('Error communicating with the database. Error: ').$e->getMessage());
             }
         }
         return $this;
     }
     public static function current_db(&$main) {
-        if (!isset(self::$db_name) || !self::$db_name) self::$db_name = (self::$link->query(sprintf('USE `%s`',DATABASE_NAME)) ? DATABASE_NAME : false);
+        try {
+            if (!self::$link) throw new PDOException('');
+            if (!isset(self::$db_name) || !self::$db_name) self::$db_name = (self::$link->query(sprintf('USE `%s`',DATABASE_NAME)) ? DATABASE_NAME : false);
+        } catch (PDOException $e) {
+            return false;
+        }
         return $main;
     }
     public function query($sql, $data = array()) {
         try {
+            if (!self::$link) throw new PDOException($this->sqlerror());
             self::$queryResult = null;
             if (isset($data) && !is_array($data)) $data = array($data);
             if (count($data)) $sql = vsprintf($sql,$data);
@@ -86,11 +87,13 @@ class PDODB extends DatabaseManager {
             }
         } catch (PDOException $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
+            self::$result = false;
         }
         return $this;
     }
     public function get($field = '') {
         try {
+            if (!self::$link) throw new Exception(_('No connection to the database'));
             if (self::$result === false) throw new Exception(_('No data returned'));
             if (self::$result === true) return self::$result;
             $result = array();
@@ -118,7 +121,9 @@ class PDODB extends DatabaseManager {
         return self::$queryResult;
     }
     public function sqlerror() {
-        return self::$link->connect_error ? sprintf('%s, %s: %s',self::$link->connect_error,_('Message'),_('Check that database is running')) : self::$link->error;
+        $message = self::$link ? sprintf('%s: %s, %s: %s',_('Error Code'),self::$link->errorCode() ? self::$link->errorCode() : self::$queryResult->errorCode(),_('Error Message'),self::$link->errorCode() ? self::$link->errorInfo() : self::$queryResult->errorInfo()) : _('Cannot connect to database');
+        $this->setMessage($message);
+        return $message;
     }
     public function field_count() {
         return self::$link->columnCount();
@@ -136,6 +141,7 @@ class PDODB extends DatabaseManager {
         return $this->sanitize($data);
     }
     private function clean($data) {
+        if (!self::$link) return trim(htmlentities($data,ENT_QUOTES,'utf-8'));
         $data = preg_replace("#^[']|[']$#",'',trim(self::$link->quote($data)));
         return $data ? $data : '';
     }
