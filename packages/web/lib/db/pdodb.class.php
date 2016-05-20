@@ -3,19 +3,22 @@ class PDODB extends DatabaseManager {
     private static $link;
     private static $query;
     private static $queryResult;
+    private static $queryExecute;
     private static $result;
     private static $db_name;
     public function __construct() {
         if (self::$link) return $this;
+        parent::__construct();
         try {
             if (!$this->connect()) throw new Exception(_('Failed to connect'));
         } catch (PDOException $e) {
-            $this->sqlerror();
+            $this->debug(sprintf('%s %s: %s, %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage(),_('SQL Error:'),$this->sqlerror()));
         }
     }
     public function __destruct() {
         self::$result = null;
         self::$queryResult = null;
+        self::$queryExecute = null;
         if (!self::$link) return;
         self::$link = null;
     }
@@ -50,7 +53,7 @@ class PDODB extends DatabaseManager {
         }
         return $main;
     }
-    public function query($sql, $data = array()) {
+    public function query($sql, $data = array(), $paramvals = array()) {
         try {
             if (!self::$link) throw new PDOException($this->sqlerror());
             self::$queryResult = null;
@@ -59,8 +62,8 @@ class PDODB extends DatabaseManager {
             $this->info($sql);
             self::$query = $sql;
             if (!self::$query) throw new PDOException(_('No query sent'));
-            if (!self::$queryResult = self::$link->prepare(self::$query)) throw new PDOException(sprintf('%s: %s',_('Error'),$this->sqlerror()));
-            self::$queryResult->execute();
+            self::prepare();
+            self::execute($paramvals);
             if (!self::$db_name) self::current_db($this);
             if (!self::$db_name) throw new PDOException(_('No database to work off'));
         } catch (PDOException $e) {
@@ -78,10 +81,10 @@ class PDODB extends DatabaseManager {
             else {
                 switch (strtolower($fetchType)) {
                 case 'fetch_all':
-                    self::$result = self::$queryResult->fetchAll($type);
+                    self::all($type);
                     break;
                 default:
-                    self::$result = self::$queryResult->fetch($type);
+                    self::single($type);
                     break;
                 }
             }
@@ -114,27 +117,18 @@ class PDODB extends DatabaseManager {
         }
         return self::$result;
     }
-    public function result() {
-        return self::$result;
-    }
-    public function queryResult() {
-        return self::$queryResult;
-    }
     public function sqlerror() {
         $message = self::$link ? sprintf('%s: %s, %s: %s',_('Error Code'),self::$link->errorCode() ? self::$link->errorCode() : self::$queryResult->errorCode(),_('Error Message'),self::$link->errorCode() ? self::$link->errorInfo() : self::$queryResult->errorInfo()) : _('Cannot connect to database');
         return $message;
     }
-    public function field_count() {
-        return self::$link->columnCount();
-    }
     public function insert_id() {
         return self::$link->lastInsertId();
     }
-    public function affected_rows() {
-        return self::$queryResult->rowCount();
+    public function field_count() {
+        return self::$queryResult->columnCount();
     }
-    public function num_rows() {
-        return self::$queryResult->rowCount();
+    public function affected_rows() {
+        return self::$queryExecute->rowCount();
     }
     public function escape($data) {
         return $this->sanitize($data);
@@ -161,5 +155,44 @@ class PDODB extends DatabaseManager {
     }
     public function returnThis() {
         return $this;
+    }
+    public function debug() {
+        return self::$queryResult->debugDumpParams();
+    }
+    private static function execute($paramvals = array()) {
+        if (count($paramvals) > 0) {
+            array_walk($paramvals,function(&$value,&$param) {
+                is_array($value) ? self::bind($param,$value[0],$value[1]) : self::bind($param,$value);
+            });
+        }
+        self::$queryExecute = self::$queryResult->execute();
+    }
+    private static function all($type = PDO::FETCH_ASSOC) {
+        self::$result = self::$queryResult->fetchAll($type);
+    }
+    private static function single($type = PDO::FETCH_ASSOC) {
+        self::$result = self::$queryResult->fetch($type);
+    }
+    private static function prepare() {
+        self::$queryResult = self::$link->prepare(self::$query);
+    }
+    private static function bind($param, $value, $type = null) {
+        if (is_null($type)) {
+            switch (true) {
+            case is_int($value):
+                $type = PDO::PARAM_INT;
+                break;
+            case is_bool($value):
+                $type = PDO::PARAM_BOOL;
+                break;
+            case is_null($value):
+                $type = PDO::PARAM_NULL;
+                break;
+            default:
+                $type = PDO::PARAM_STR;
+                break;
+            }
+        }
+        self::$queryResult->bindValue($param,$value,$type);
     }
 }
