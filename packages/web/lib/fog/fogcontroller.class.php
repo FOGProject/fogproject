@@ -10,10 +10,9 @@ abstract class FOGController extends FOGBase {
     protected $databaseFieldsToIgnore = array('createdBy','createdTime');
     protected $aliasedFields = array();
     protected $databaseFieldClassRelationships = array();
-    protected $loadQueryTemplateSingle = "SELECT * FROM %s %s WHERE %s='%s' %s";
-    protected $loadQueryTemplateMultiple = 'SELECT * FROM %s %s WHERE %s %s';
-    protected $insertQueryTemplate = "INSERT INTO %s (%s) VALUES ('%s') ON DUPLICATE KEY UPDATE %s";
-    protected $destroyQueryTemplate = "DELETE FROM %s WHERE %s='%s'";
+    protected $loadQueryTemplate = "SELECT * FROM `%s` %s WHERE `%s`=%s %s";
+    protected $insertQueryTemplate = "INSERT INTO `%s` (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s";
+    protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`=%s";
     public function __construct($data = '') {
         parent::__construct();
         $this->databaseTable = trim($this->databaseTable);
@@ -125,27 +124,33 @@ abstract class FOGController extends FOGBase {
     public function save() {
         $this->info(sprintf(_('Saving data for %s object'),get_class($this)));
         try {
-            $insertKeys = $insertValues = $updateData = $fieldData = array();
+            $insertKeys = $insertValKeys = $insertValues = $updateValKeys = $updateValues = $updateData = $fieldData = array();
             if (count($this->aliasedFields)) $this->array_remove($this->aliasedFields, $this->databaseFields);
-            @array_walk($this->databaseFields,function(&$field,&$name) use (&$insertKeys,&$insertValues,&$updateData) {
+            @array_walk($this->databaseFields,function(&$field,&$name) use (&$insertKeys,&$insertValKeys,&$insertValues,&$updateValKeys,&$updateValues,&$updateData) {
                 $key = sprintf('`%s`',trim($field));
-                if ($name == 'createdBy' && !$this->get($name)) $val = trim($_SESSION['FOG_USERNAME'] ? self::$DB->sanitize($_SESSION['FOG_USERNAME']) : 'fog');
+                $paramInsert = sprintf(':%s_insert',trim($field));
+                $paramUpdate = sprintf(':%s_update',trim($field));
+                if ($name == 'createdBy' && !$this->get($name)) $val = trim($_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog');
                 else if ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) $val = $this->formatTime('now','Y-m-d H:i:s');
-                else $val = self::$DB->sanitize($this->get($name));
+                else $val = $this->get($name);
                 if ($name == 'id' && (empty($val) || $val == null || $val == 0 || $val == false)) return;
                 $insertKeys[] = $key;
+                $insertValKeys[] = $paramInsert;
                 $insertValues[] = $val;
-                $updateData[] = sprintf("%s='%s'",$key,$val);
+                $updateValKeys[] = $paramUpdate;
+                $updateValues[] = $val;
+                $updateData[] = sprintf("%s=%s",$key,$paramUpdate);
                 unset($key,$val,$field,$name);
             });
             $query = sprintf($this->insertQueryTemplate,
                 $this->databaseTable,
                 implode(',',(array)$insertKeys),
-                implode("','",(array)$insertValues),
+                implode(',',(array)$insertValKeys),
                 implode(',',(array)$updateData)
             );
-            if (!self::$DB->query($query)) throw new Exception(self::$DB->sqlerror());
-            if (!$this->get('id')) $this->set('id',self::$DB->insert_id())->load();
+            $queryArray = array_combine(array_merge($insertValKeys,$updateValKeys),array_merge($insertValues,$updateValues));
+            self::$DB->query($query,array(),$queryArray);
+            if ((int)$this->get('id') < 1) $this->set('id',self::$DB->insert_id());
             if (!$this instanceof History) {
                 if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s.',get_class($this),$this->get('id'),$this->get('name'),_('has been successfully updated')));
                 else $this->log(sprintf('%s ID: %s %s.',get_class($this),$this->get('id'),_('has been successfully updated')));
@@ -166,32 +171,19 @@ abstract class FOGController extends FOGBase {
             if (!is_array($field) && $field && !$this->get($field)) throw new Exception(_(sprintf(_('Operation Field not set: %s'),$field)));
             list($join, $where) = $this->buildQuery();
             if (!is_array($field)) $field = array($field);
+            $selectValKey = $selectValue = array();
             @array_walk($field,function(&$key,&$index) use ($join,$where) {
                 $key = $this->key($key);
-                if (!is_array($this->get($key))) {
-                    $query = sprintf($this->loadQueryTemplateSingle,
-                        $this->databaseTable,
-                        $join,
-                        $this->databaseFields[$key],
-                        self::$DB->sanitize($this->get($key)),
-                        count($where) ? ' AND '.implode(' AND ',$where) : ''
-                    );
-                } else {
-                    $fields = $this->get($key);
-                    $fieldData = array();
-                    @array_walk($fields,function(&$fieldValue,&$index) use ($key,&$fieldData) {
-                        $fieldData[] = sprintf("`%s`.`%s`='%s'",$this->databaseTable,$this->databaseFields[$key],$fieldValue);
-                        unset($fieldValue,$key);
-                    });
-                    $query = sprintf($this->loadQueryTemplateMultiple,
-                        $this->databaseTable,
-                        $join,
-                        implode(' OR ', $fieldData),
-                        count($where) ? ' AND '.implode(' AND ',$where) : ''
-                    );
-                }
+                $paramKey = sprintf(':%s',$key);
+                $query = sprintf($this->loadQueryTemplate,
+                    $this->databaseTable,
+                    $join,
+                    $this->databaseFields[$key],
+                    $paramKey,
+                    count($where) ? ' AND '.implode(' AND ',$where) : ''
+                );
                 $vals = array();
-                if (!($vals = self::$DB->query($query)->fetch('','fetch_assoc')->get())) throw new Exception(self::$DB->sqlerror());
+                $vals = self::$DB->query($query,array(),array_combine((array)$paramKey,(array)$this->get($key)))->fetch('','fetch_assoc')->get();
                 $this->setQuery($vals);
                 unset($vals,$key,$join,$where);
             });
@@ -206,12 +198,14 @@ abstract class FOGController extends FOGBase {
             if (!$this->get($field)) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
             if (!array_key_exists($field, $this->databaseFields) && !array_key_exists($field, $this->databaseFieldsFlipped)) throw new Exception(_('Invalid Operation Field set'));
             if (array_key_exists($field, $this->databaseFields)) $fieldToGet = $this->databaseFields[$field];
+            $paramKey = sprintf(':%s',$fieldToGet);
+            $value = $this->get($this->key($field));
             $query = sprintf($this->destroyQueryTemplate,
                 $this->databaseTable,
                 $fieldToGet,
-                self::$DB->sanitize($this->get($this->key($field)))
+                $paramKey
             );
-            if (!self::$DB->query($query)) throw new Exception(_('Could not delete item'));
+            self::$DB->query($query,array(),array_combine((array)$paramKey,(array)$value));
             if (!$this instanceof History) {
                 if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s.',get_class($this),$this->get('id'),$this->get('name'),_('has been destroyed')));
                 else $this->log(sprintf('%s ID: %s %s.',get_class($this),$this->get('id'),_('has been destroyed')));
