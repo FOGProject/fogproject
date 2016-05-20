@@ -482,8 +482,8 @@ abstract class FOGBase {
         try {
             if (self::nice_date() >= self::nice_date($this->Host->get('sec_time'))) $this->Host->set('pub_key','')->save();
             global $sub;
-            if ($this->newService) printf('#!enkey=%s',$this->certEncrypt($datatosend,$this->Host));
-            else echo $datatosend;
+            if ($this->newService) printf('#!enkey=%s',$this->certEncrypt(trim($datatosend),$this->Host));
+            else echo trim($datatosend);
             exit;
         } catch (Exception $e) {
             if ($this->json) return array('error'=>preg_replace('/^[#][!]?/','',$e->getMessage()));

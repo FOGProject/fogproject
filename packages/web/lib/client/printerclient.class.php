@@ -4,15 +4,23 @@ class PrinterClient extends FOGClient implements FOGClientSend {
     public function json() {
         $level = $this->Host->get('printerLevel');
         if (!in_array($level,array_keys(self::$modes))) $level = 0;
-        if (self::getClass('PrinterAssociationManager')->count(array('printerID'=>$this->Host->get('printers'),'hostID'=>$this->Host->get('id'))) < 1) return array('error'=>'np','mode'=>self::$modes[$level]);
-        $Printers = (array)self::getClass('PrinterManager')->find(array('id'=>$this->Host->get('printers')));
-        $default = array_filter(array_map(function(&$Printer) {
-            return $this->Host->getDefault($Printer->get('id')) ? $Printer->get('name') : false;
-        },$Printers));
+        if (!self::$modes[$level]) return array('error'=>_('Not managing printers on this host'));
+        $allPrinters = self::getSubObjectIDs('Printer','','name');
+        if (count($this->Host->get('printers')) < 1) return array(
+            'error'=>'np',
+            'mode'=>self::$modes[$level],
+            'allPrinters'=>$allPrinters,
+            'default' => '',
+            'printers' => array(
+                array('error'=>'np'),
+            ),
+        );
+        $default = self::getClass('Printer',@max(self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->Host->get('id'),'isDefault'=>1),'printerID')));
+        $default = $default->isValid() ? $default = $default->get('name') : '';
         return array(
             'mode' => self::$modes[$level],
-            'allPrinters' => self::getSubObjectIDs('Printer','','name'),
-            'default' => array_shift($default),
+            'allPrinters' => $allPrinters,
+            'default' => $default,
             'printers' => array_map(function(&$Printer) {
                 return array(
                     'type' => $Printer->get('config'),
@@ -23,7 +31,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                     'ip' => $Printer->get('ip'),
                     'configFile' => $Printer->get('configFile'),
                 );
-            },$Printers),
+            },(array)self::getClass('PrinterManager')->find(array('id'=>$this->Host->get('printers')))),
         );
     }
     private function getString($stringsend,&$Printer) {
