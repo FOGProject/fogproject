@@ -23,11 +23,10 @@ class EventManager extends FOGBase {
                 throw new Exception(_('Register event is not from EventManager or HookManager'));
                 break;
             }
-            return true;
         } catch (Exception $e) {
-            $this->log($e->getMessage(),$this->logLevel);
+            return false;
         }
-        return false;
+        return true;
     }
     public function notify($event, $eventData=array()) {
         try {
