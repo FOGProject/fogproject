@@ -8,14 +8,15 @@ class DatabaseManager extends FOGCore {
             die(sprintf('Failed: %s: Error: %s',__METHOD__,$e->getMessage()));
         }
         self::$DB = FOGCore::getClass('PDODB');
-        if (!isset($_POST['export']) && $this->getVersion() < FOG_SCHEMA && !preg_match('#schema#i',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
+        self::getVersion();
+        if (!isset($_POST['export']) && self::$mySchema < FOG_SCHEMA && !preg_match('#schema#i',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
         return $this;
     }
     public function getDB() {
         return self::$DB;
     }
-    public function getVersion() {
-        return (int)self::$DB->query('SELECT `vValue` FROM `schemaVersion`')->fetch()->get('vValue');
+    private static function getVersion() {
+        self::$mySchema = (int)self::$DB->query('SELECT `vValue` FROM `schemaVersion`')->fetch()->get('vValue');
     }
     public function getColumns($table_name,$column_name) {
         return (array)self::$DB->query("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='".DATABASE_NAME." AND TABLE_NAME='$table_name' AND COLUMN_NAME='$column_name'")->fetch('','fetch_all')->get('COLUMN_NAME');
