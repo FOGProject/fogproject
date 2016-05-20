@@ -156,7 +156,7 @@ class PDODB extends DatabaseManager {
     public function returnThis() {
         return $this;
     }
-    public function debug() {
+    public function debugDumpParams() {
         return self::$queryResult->debugDumpParams();
     }
     private static function execute($paramvals = array()) {
