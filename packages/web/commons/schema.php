@@ -1,6 +1,5 @@
 <?php
 $tmpSchema = self::getClass('Schema');
-$this->mySchema = self::$DB->getVersion();
 // 0
 $this->schema[] = array(
     "CREATE DATABASE " . DATABASE_NAME ,
