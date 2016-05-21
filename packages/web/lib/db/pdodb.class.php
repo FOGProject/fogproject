@@ -158,12 +158,12 @@ class PDODB extends DatabaseManager {
         return self::$queryResult->debugDumpParams();
     }
     private static function execute($paramvals = array()) {
-        return self::$queryResult->execute($paramvals);
-        /*if (count($paramvals) > 0) {
+        if (count($paramvals) > 0) {
             array_walk($paramvals,function(&$value,&$param) {
                 is_array($value) ? self::bind($param,$value[0],$value[1]) : self::bind($param,$value);
             });
-        }*/
+        }
+        return self::$queryResult->execute();
     }
     private static function all($type = PDO::FETCH_ASSOC) {
         self::$result = self::$queryResult->fetchAll($type);
@@ -177,9 +177,6 @@ class PDODB extends DatabaseManager {
     private static function bind($param, $value, $type = null) {
         if (is_null($type)) {
             switch (true) {
-            case is_int($value):
-                $type = PDO::PARAM_INT;
-                break;
             case is_bool($value):
                 $type = PDO::PARAM_BOOL;
                 break;
