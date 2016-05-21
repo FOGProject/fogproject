@@ -3,7 +3,6 @@ class PDODB extends DatabaseManager {
     private static $link;
     private static $query;
     private static $queryResult;
-    private static $queryExecute;
     private static $result;
     private static $db_name;
     public function __construct() {
@@ -18,7 +17,6 @@ class PDODB extends DatabaseManager {
     public function __destruct() {
         self::$result = null;
         self::$queryResult = null;
-        self::$queryExecute = null;
         if (!self::$link) return;
         self::$link = null;
     }
@@ -128,7 +126,7 @@ class PDODB extends DatabaseManager {
         return self::$queryResult->columnCount();
     }
     public function affected_rows() {
-        return self::$queryExecute->rowCount();
+        return self::$queryResult->rowCount();
     }
     public function escape($data) {
         return $this->sanitize($data);
@@ -160,12 +158,12 @@ class PDODB extends DatabaseManager {
         return self::$queryResult->debugDumpParams();
     }
     private static function execute($paramvals = array()) {
-        if (count($paramvals) > 0) {
+        return self::$queryResult->execute($paramvals);
+        /*if (count($paramvals) > 0) {
             array_walk($paramvals,function(&$value,&$param) {
                 is_array($value) ? self::bind($param,$value[0],$value[1]) : self::bind($param,$value);
             });
-        }
-        self::$queryExecute = self::$queryResult->execute();
+        }*/
     }
     private static function all($type = PDO::FETCH_ASSOC) {
         self::$result = self::$queryResult->fetchAll($type);
@@ -193,6 +191,6 @@ class PDODB extends DatabaseManager {
                 break;
             }
         }
-        self::$queryResult->bindValue($param,$value,$type);
+        self::$queryResult->bindParam($param,$value,$type);
     }
 }

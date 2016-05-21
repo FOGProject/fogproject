@@ -144,6 +144,8 @@ $DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
 $FOGCore::setSessionEnv();
 /** $TimeZone the timezone setter */
 $TimeZone = $_SESSION['TimeZone'];
+$currentUser =  FOGCore::getClass('User',(int)$_SESSION['FOG_USER']);
+if ($currentUser->isValid()) $currentUser->isLoggedIn();
 $HookManager = FOGCore::getClass('HookManager');
 $HookManager->load();
 $EventManager = FOGCore::getClass('EventManager');

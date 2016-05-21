@@ -2,8 +2,6 @@
 require('../commons/base.inc.php');
 $FOGPageManager = FOGCore::getClass('FOGPageManager');
 if (isset($_SESSION['delitems']) && !in_array($sub,array('deletemulti','deleteconf'))) unset($_SESSION['delitems']);
-$currentUser =  FOGCore::getClass('User',(int)$_SESSION['FOG_USER']);
-if ($currentUser->isValid()) $currentUser->isLoggedIn();
 FOGCore::getClass('ProcessLogin')->processMainLogin();
 $Page = FOGCore::getClass('Page');
 if (!in_array($_REQUEST['node'],array('schema','client')) && ($node == 'logout' || !$currentUser->isValid())) {
