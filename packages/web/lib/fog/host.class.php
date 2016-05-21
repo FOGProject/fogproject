@@ -462,7 +462,7 @@ class Host extends FOGController {
             ->set('typeID',$taskTypeID)
             ->set('NFSGroupID',$groupID)
             ->set('NFSMemberID',$memID)
-            ->set('wol',(int)$wol);
+            ->set('wol',(string)$wol);
         if ($imagingTask) $Task->set('imageID',$this->getImage()->get('id'));
         if ($shutdown) $Task->set('shutdown',$shutdown);
         if ($debug) $Task->set('isDebug',$debug);
@@ -760,7 +760,7 @@ class Host extends FOGController {
                 if (empty($pass)) $pass = trim($this->encryptpw($this->get('ADPass')));
                 if (empty($legacy)) $legacy = trim($this->get('ADPassLegacy'));
                 if (empty($productKey)) $productKey = trim($this->encryptpw($this->get('productKey')));
-                if (empty($enforce)) $enforce = (int)$this->get('enforce');
+                if (empty($enforce)) $enforce = (string)$this->get('enforce');
             }
         }
         if ($pass) $pass = trim($this->encryptpw($pass));
