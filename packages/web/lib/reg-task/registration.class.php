@@ -31,7 +31,7 @@ class Registration extends FOGBase {
             echo $e->getMessage();
             return true;
         }
-        if ($check === true) throw new Exception($e->getMessage());
+        if ($check === true) throw new Exception('#!ok');
         return false;
     }
     private function fullReg() {
