@@ -6,15 +6,15 @@ class Registration extends FOGBase {
     protected $macsimple;
     protected $modulesToJoin;
     protected $description;
-    public function __construct() {
+    public function __construct($check = false) {
         parent::__construct();
         if (!self::getSetting('FOG_REGISTRATION_ENABLED')) return;
         try {
             $this->MACs = $this->getHostItem(false,true,true,true);
-            $this->PriMAC = @array_shift($this->MACs);
             $this->Host = $this->getHostItem(false,true,true);
+            $this->regExists($check);
+            $this->PriMAC = @array_shift($this->MACs);
             $this->macsimple = strtolower(str_replace(array(':','-'),'',$this->PriMAC));
-            if ($this->regExists()) return;
             $this->modulesToJoin = self::getSubObjectIDs('Module');
             $this->description = sprintf('%s %s',_('Created by FOG Reg on'),$this->formatTime('now','F j, Y, g:i a'));
             if (isset($_REQUEST['advanced'])) $this->fullReg();
@@ -24,13 +24,14 @@ class Registration extends FOGBase {
             die($e->getMessage());
         }
     }
-    private function regExists() {
+    public function regExists($check = false) {
         try {
-            if ($this->Host instanceof Host && $this->Host->isValid()) throw new Exception(sprintf('%s %s',_('Already registered as'),$this->Host->get('name')));
+            if ($this->Host->isValid()) throw new Exception(sprintf('%s %s',_('Already registered as'),$this->Host->get('name')));
         } catch (Exception $e) {
             echo $e->getMessage();
             return true;
         }
+        if ($check === true) throw new Exception($e->getMessage());
         return false;
     }
     private function fullReg() {
