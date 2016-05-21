@@ -30,7 +30,7 @@ class LDAP extends FOGController {
         $ldapconn = @ldap_connect($server,$this->get('port'));
         ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
         ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, 0);
-        if (!ldap_bind($ldapconn,$user,$pass)) return false;
+        if (!ldap_bind($ldapconn,sprintf('%s@%s',$user,$this->get('name')),$pass)) return false;
         $filter = "(sAMAccountName=$user)";
         $result = ldap_search($ldapconn,$this->get('DN'),$filter);
         ldap_sort($ldapconn,$result,'sn');
