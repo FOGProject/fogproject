@@ -10,7 +10,7 @@ abstract class FOGController extends FOGBase {
     protected $databaseFieldsToIgnore = array('createdBy','createdTime');
     protected $aliasedFields = array();
     protected $databaseFieldClassRelationships = array();
-    protected $loadQueryTemplate = "SELECT * FROM `%s` %s WHERE `%s`=%s %s";
+    protected $loadQueryTemplate = "SELECT %s FROM `%s` %s WHERE `%s`=%s %s";
     protected $insertQueryTemplate = "INSERT INTO `%s` (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s";
     protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`=%s";
     public function __construct($data = '') {
@@ -171,16 +171,28 @@ abstract class FOGController extends FOGBase {
             if (!is_array($field) && $field && !$this->get($field)) throw new Exception(_(sprintf(_('Operation Field not set: %s'),$field)));
             list($join, $where) = $this->buildQuery();
             if (!is_array($field)) $field = array($field);
-            $selectValKey = $selectValue = array();
-            @array_walk($field,function(&$key,&$index) use ($join,$where) {
+            $fields = array();
+            $getFields = function(&$dbColumn,$key) use (&$fields,$table) {
+                $fields[] = sprintf('`%s`.`%s`',$table,trim($dbColumn));
+                unset($dbColumn,$key);
+            };
+            $table = $this->databaseTable;
+            @array_walk($this->databaseFields,$getFields);
+            @array_walk($this->databaseFieldClassRelationships,function(&$stuff,$class) use (&$fields,&$table,$getFields) {
+                $class = self::getClass($class);
+                $table = $class->databaseTable;
+                @array_walk($class->databaseFields,$getFields);
+            });
+            @array_walk($field,function(&$key,&$index) use ($join,$where,$fields) {
                 $key = $this->key($key);
                 $paramKey = sprintf(':%s',$key);
                 $query = sprintf($this->loadQueryTemplate,
+                    implode(',',$fields),
                     $this->databaseTable,
                     $join,
                     $this->databaseFields[$key],
                     $paramKey,
-                    count($where) ? ' AND '.implode(' AND ',$where) : ''
+                    count($where) ? sprintf(' AND %s',implode(' AND ',$where)) : ''
                 );
                 $vals = array();
                 $vals = self::$DB->query($query,array(),array_combine((array)$paramKey,(array)$this->get($key)))->fetch('','fetch_assoc')->get();
@@ -229,8 +241,8 @@ abstract class FOGController extends FOGBase {
     }
     protected function loadItem($key) {
         if (!array_key_exists($key, $this->databaseFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !in_array($key, $this->additionalFields)) return $this;
-        $methodCall = 'load'.ucfirst($key);
-        if (method_exists($this,$methodCall)) $this->$methodCall();
+        $methodCall = sprintf('load%s',ucfirst($key));
+        if (method_exists($this,$methodCall)) $this->{$methodCall}();
         unset($methodCall);
         return $this;
     }
