@@ -416,7 +416,7 @@ abstract class FOGPage extends FOGBase {
         $scheduleDeployTime = self::nice_date($_REQUEST['scheduleSingleTime']);
         $imagingTasks = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
         $passreset = trim($_REQUEST['account']);
-        $wol = (int)(isset($_REQUEST['wol']) || $TaskType->get('id') == 14);
+        $wol = (string)(isset($_REQUEST['wol']) || $TaskType->get('id') == 14);
         try {
             if (!$TaskType || !$TaskType->isValid()) throw new Exception(_('Task type is not valid'));
             $taskName = sprintf('%s Task',$TaskType->get('name'));
@@ -588,8 +588,7 @@ abstract class FOGPage extends FOGBase {
         $this->render();
         unset($this->data);
         printf('<div id="advanced-tasks" class="hidden"><h2>%s</h2>',_('Advanced Actions'));
-        $TaskTypes = self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>1),'AND','id');
-        foreach(self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>1),'AND','id') AS $i => &$TaskType) {
+        foreach(self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>1),'AND','id') AS &$TaskType) {
             if (!$TaskType->isValid()) continue;
             $this->data[] = array(
                 'node'=>$this->node,
