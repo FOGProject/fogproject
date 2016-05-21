@@ -24,6 +24,7 @@ class PDODB extends DatabaseManager {
         $options = array(
             PDO::ATTR_PERSISTENT => true,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         );
         try {
             if (self::$link) return $this;
@@ -116,7 +117,7 @@ class PDODB extends DatabaseManager {
         return self::$result;
     }
     public function sqlerror() {
-        $message = self::$link ? sprintf('%s: %s, %s: %s',_('Error Code'),self::$link->errorCode() ? self::$link->errorCode() : self::$queryResult->errorCode(),_('Error Message'),self::$link->errorCode() ? self::$link->errorInfo() : self::$queryResult->errorInfo()) : _('Cannot connect to database');
+        $message = self::$link ? sprintf('%s: %s, %s: %s, %s: %s',_('Error Code'),self::$link->errorCode() ? self::$link->errorCode() : self::$queryResult->errorCode(),_('Error Message'),self::$link->errorCode() ? self::$link->errorInfo() : self::$queryResult->errorInfo(),_('Debug'),self::debugDumpParams()) : _('Cannot connect to database');
         return $message;
     }
     public function insert_id() {
@@ -154,8 +155,10 @@ class PDODB extends DatabaseManager {
     public function returnThis() {
         return $this;
     }
-    public function debugDumpParams() {
-        return self::$queryResult->debugDumpParams();
+    private static function debugDumpParams() {
+        ob_start();
+        self::$queryResult->debugDumpParams();
+        return ob_get_clean();
     }
     private static function execute($paramvals = array()) {
         if (count($paramvals) > 0) {
