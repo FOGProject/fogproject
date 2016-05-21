@@ -144,7 +144,7 @@ class Host extends FOGController {
             throw new Exception(_('Host ID was not set, or unable to be created'));
             break;
         case (self::isLoaded('mac')):
-            if (!(($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())) throw new Exception(self::$foglang['InvalidMAC']);
+            if (!$this->get('mac')->isValid()) throw new Exception(self::$foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
             $CurrPriMAC = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
             if (count($CurrPriMAC) === 1 && $CurrPriMAC[0] != $RealPriMAC) self::getClass('MACAddressAssociationManager')->update(array('mac'=>$CurrPriMAC[0],'hostID'=>$this->get('id'),'primary'=>1),'',array('primary'=>0));
