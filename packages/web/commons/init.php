@@ -89,17 +89,6 @@ class Initiator {
             exit;
         }
     }
-    /** endInit() Calls the params at the end of the init
-     * @return void
-     */
-    public static function endInit() {
-        if ($_SESSION['locale']) {
-            putenv("LC_ALL={$_SESSION['locale']}");
-            setlocale(LC_ALL, $_SESSION['locale']);
-        }
-        bindtextdomain('messages', 'languages');
-        textdomain('messages');
-    }
     /** FOGLoader() Loads the class files as they're needed
      * @param $className the class to include as called.
      * @return void

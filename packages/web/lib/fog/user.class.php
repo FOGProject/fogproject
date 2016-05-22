@@ -29,7 +29,6 @@ class User extends FOGController {
         return password_hash($password,PASSWORD_BCRYPT,['cost'=>$cost]);
     }
     public function validate_pw($password) {
-        $res = false;
         if (preg_match('#^[a-f0-9]{32}$#',$this->get('password'))) $this->set('password',$password)->save();
         $res = (bool)password_verify($password,$this->get('password'));
         if ($res) {
@@ -45,13 +44,14 @@ class User extends FOGController {
             $res = $this;
             $this->log(sprintf('%s %s.',$this->get('name'),_('user successfully logged in')));
         } else {
+            $this->set('id',0);
             $this->log(sprintf('%s %s.',$this->get('name'),_('user failed to login'),$this->get('name')));
             self::$EventManager->notify('LoginFail',array('Failure'=>$this->get('name')));
             self::$HookManager->processEvent('LoginFail',array('username'=>$this->get('name'),'password'=>&$password));
             $this->setMessage(self::$foglang['InvalidLogin']);
             if (!isset($_SESSION['OBSOLETE'])) $_SESSION['OBSOLETE'] = true;
         }
-        return $res;
+        return $this;
     }
     public function set($key, $value, $override = false) {
         if ($this->key($key) == 'password' && !$override) $value = $this->generate_hash($value);
