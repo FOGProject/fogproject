@@ -1,12 +1,13 @@
 <?php
 class ProcessLogin extends FOGBase {
-    private $username, $password, $currentUser, $langSet;
+    private $username, $password, $rangSet;
     private $mobileMenu, $langMenu;
     private $lang;
     private function getLanguages() {
         $translang = $this->transLang();
         ob_start();
         foreach ((array)self::$foglang['Language'] AS $i => &$lang) {
+            echo $lang;
             printf('<option value="%s"%s>%s</option>',
                 $lang,
                 ($translang == $lang ? ' selected' : ''),
@@ -18,64 +19,51 @@ class ProcessLogin extends FOGBase {
     }
     private function defaultLang() {
         $deflang = self::getSetting('FOG_DEFAULT_LOCALE');
-        foreach(self::$foglang['Language'] AS $lang => &$val) {
-            if ($deflang == $lang) $data = array($lang,$val);
-            else $data = array('en','English');
-        }
-        unset($val);
-        return $data;
+        return array($deflang,self::$foglang['Language'][$deflang]);
     }
     private function transLang() {
         switch($_SESSION['locale']) {
-        case 'en_US.UTF-8':
+        case 'en_US':
             return self::$foglang['Language']['en'];
-            break;
-        case 'it_IT.UTF-8':
+        case 'it_IT':
             return self::$foglang['Language']['it'];
-            break;
-        case 'es_ES.UTF-8':
+        case 'es_ES':
             return self::$foglang['Language']['es'];
-            break;
-        case 'fr_FR.UTF-8':
+        case 'fr_FR':
             return self::$foglang['Language']['fr'];
-            break;
-        case 'zh_CN.UTF-8':
+        case 'zh_CN':
             return self::$foglang['Language']['zh'];
-            break;
-        case 'de_DE.UTF-8':
+        case 'de_DE':
             return self::$foglang['Language']['de'];
-            break;
-        case 'pt_BR.UTF-8':
+        case 'pt_BR':
             return self::$foglang['Language']['pt'];
-            break;
         default :
             $lang = $this->defaultLang();
             return self::$foglang['Language'][$lang[0]];
-            break;
         }
     }
     private function specLang() {
         switch ($this->lang[1]) {
         case self::$foglang['Language']['en']:
-            $this->lang = 'en_US.UTF-8';
+            $this->lang = 'en_US';
             break;
         case self::$foglang['Language']['fr']:
-            $this->lang = 'fr_FR.UTF-8';
+            $this->lang = 'fr_FR';
             break;
         case self::$foglang['Language']['it']:
-            $this->lang = 'it_IT.UTF-8';
+            $this->lang = 'it_IT';
             break;
         case self::$foglang['Language']['zh']:
-            $this->lang = 'zh_CN.UTF-8';
+            $this->lang = 'zh_CN';
             break;
         case self::$foglang['Language']['es']:
-            $this->lang = 'es_ES.UTF-8';
+            $this->lang = 'es_ES';
             break;
         case self::$foglang['Language']['de']:
-            $this->lang = 'de_DE.UTF-8';
+            $this->lang = 'de_DE';
             break;
         case self::$foglang['Language']['pt']:
-            $this->lang = 'pt_BR.UTF-8';
+            $this->lang = 'pt_BR';
             break;
         default :
             $this->lang = $this->defaultLang();
@@ -85,29 +73,22 @@ class ProcessLogin extends FOGBase {
     }
     public function setLang() {
         $langs = array(
-            'en_US.UTF-8' => true,
-            'fr_FR.UTF-8' => true,
-            'it_IT.UTF-8' => true,
-            'zh_CN.UTF-8' => true,
-            'es_ES.UTF-8' => true,
-            'de_DE.UTF-8' => true,
-            'pt_BR.UTF-8' => true,
+            'en_US' => true,
+            'fr_FR' => true,
+            'it_IT' => true,
+            'zh_CN' => true,
+            'es_ES' => true,
+            'de_DE' => true,
+            'pt_BR' => true,
         );
-        if (!isset($this->lang)) {
-            $this->lang = $this->defaultLang();
-            $this->specLang();
-        }
-        if (!isset($langs[$this->lang])) die('Invalid language specification');
+        $this->lang = !isset($_REQUEST['ulang']) ? $this->defaultLang() : array('',$_REQUEST['ulang']);
         $this->specLang();
         $_SESSION['locale'] = $this->lang;
-        setlocale(LC_ALL,$_SESSION['locale']);
-        bindtextdomain('messages','languages');
-        textdomain('messages');
-    }
-    private function setCurUser($tmpUser) {
-        $this->setRedirMode();
-        $this->currentUser = $tmpUser;
-        if (!self::$isMobile) self::$HookManager->processEvent('LoginSuccess',array('user'=>&$this->currentUser,'username'=>$this->username, 'password'=>&$this->password));
+        setlocale(LC_MESSAGES,$_SESSION['locale'].'.UTF-8');
+        $domain = 'messages';
+        bindtextdomain($domain,'./languages');
+        bind_textdomain_codeset($domain,'UTF-8');
+        textdomain($domain);
     }
     private function setRedirMode() {
         foreach ($_REQUEST AS $key => &$value) $redirect[$key] = $value;
@@ -122,22 +103,25 @@ class ProcessLogin extends FOGBase {
         $this->redirect(sprintf('%s?%s','index.php',http_build_query($http_query)));
     }
     public function processMainLogin() {
-        if (!$_SESSION['locale']) $this->setLang();
+        $this->setLang();
         if (!(isset($_REQUEST['uname']) && isset($_REQUEST['upass']))) return;
         $this->username = trim($_REQUEST['uname']);
         $this->password = trim($_REQUEST['upass']);
-        $tmpUser = self::$FOGCore->attemptLogin($this->username,$this->password);
-        self::$HookManager->processEvent('USER_LOGGING_IN',array('User'=>&$tmpUser,'username'=>&$this->username,'password'=>&$this->password));
-        if (!$tmpUser || !$tmpUser->isValid()) return;
-        if (!self::$isMobile && $tmpUser->get('type') == 1) {
-            $this->setMessage(self::$foglang['NotAllowedHere']);
-            $this->redirect('index.php?node=logout');
+        if (!self::$FOGUser->isValid()) self::$FOGUser = self::$FOGCore->attemptLogin($this->username,$this->password);
+        if (!self::$FOGUser->isValid()) {
+            self::$HookManager->processEvent('USER_LOGGING_IN',array('User'=>self::$FOGUser,'username'=>$this->username));
+            return;
         }
-        $this->setCurUser($tmpUser);
-        if (!$this->currentUser->isValid()) $this->setRedirMode();
+        if (!self::$isMobile) {
+            if (self::$FOGUser->get('type')) {
+                $this->setMessage(self::$foglang['NotAllowedHere']);
+                $this->redirect('index.php?node=logout');
+            }
+            self::$HookManager->processEvent('LoginSuccess',array('user'=>self::$FOGUser,'username'=>$this->username));
+        }
     }
     public function mainLoginForm() {
-        if (!$_SESSION['locale']) $this->setLang();
+        $this->setLang();
         if (in_array($_REQUEST['node'],array('login','logout'))) {
             $this->setMessage($_SESSION['FOG_MESSAGES']);
             $this->redirect('index.php');
