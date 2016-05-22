@@ -41,6 +41,7 @@ class ProcessLogin extends FOGBase {
         }
     }
     private function specLang() {
+        if (session_status() === PHP_SESSION_NONE) return;
         $_SESSION['locale'] = isset($_REQUEST['ulang']) ? $_REQUEST['ulang'] : $this->transLang();
         switch ($_SESSION['locale']) {
         case self::$foglang['Language']['de']:
