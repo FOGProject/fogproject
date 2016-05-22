@@ -1016,8 +1016,8 @@ configureUsers() {
     fi
     dots "Setting up $username password"
     if [[ -z $password ]]; then
+        password=$(openssl rand -base64 32)
         [[ -f $webdirdest/lib/fog/config.class.php ]] && password="$(awk -F'[(")]' '/TFTP_FTP_PASSWORD/ {print $3}' $webdirdest/lib/fog/config.class.php)"
-        [[ -z $password ]] && password=$(openssl rand -base64 32)
         if [[ -z $password ]]; then
             false
             errorStat $?
