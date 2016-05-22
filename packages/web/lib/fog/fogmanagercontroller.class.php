@@ -6,8 +6,8 @@ abstract class FOGManagerController extends FOGBase {
     protected $databaseFieldsRequired;
     protected $databaseFieldClassRelationships;
     protected $additionalFields;
-    protected $loadQueryTemplate = 'SELECT %s FROM `%s` %s %s %s %s %s';
-    protected $loadQueryGroupTemplate = 'SELECT %s FROM (%s) `%s` %s %s %s %s %s';
+    protected $loadQueryTemplate = 'SELECT * FROM `%s` %s %s %s %s %s';
+    protected $loadQueryGroupTemplate = 'SELECT * FROM (%s) `%s` %s %s %s %s %s';
     protected $countQueryTemplate = 'SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s`%s LIMIT 1';
     protected $updateQueryTemplate = 'UPDATE `%s` SET %s %s';
     protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`.`%s` IN ('%s')";
@@ -52,21 +52,8 @@ abstract class FOGManagerController extends FOGBase {
         list($join, $whereArrayAnd) = self::getClass($this->childClass)->buildQuery($not, $compare);
         $isEnabled = false;
         if (!in_array($this->childClass,array('Image','Snapin','StorageNode')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
-        $fields = array();
-        $getFields = function(&$dbColumn,$key) use (&$fields,$table) {
-            $fields[] = sprintf('`%s`.`%s`',$table,trim($dbColumn));
-            unset($dbColumn,$key);
-        };
-        $table = $this->databaseTable;
-        @array_walk($this->databaseFields,$getFields);
-        @array_walk($this->databaseFieldClassRelationships,function(&$stuff,$class) use (&$fields,&$table,$getFields) {
-            $class = self::getClass($class,'',true);
-            $table = $class['databaseTable'];
-            @array_walk($class['databaseFields'],$getFields);
-        });
         $query = sprintf(
             $this->loadQueryTemplate,
-            implode(',',$fields),
             $this->databaseTable,
             $join,
             (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : '')),
@@ -77,10 +64,8 @@ abstract class FOGManagerController extends FOGBase {
         if ($groupBy) {
             $query = sprintf(
                 $this->loadQueryGroupTemplate,
-                implode(',',$fields),
                 sprintf(
                     $this->loadQueryTemplate,
-                    implode(',',$fields),
                     $this->databaseTable,
                     $join,
                     (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : '')),
