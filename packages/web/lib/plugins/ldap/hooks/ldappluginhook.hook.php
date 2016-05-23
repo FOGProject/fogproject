@@ -29,7 +29,7 @@ class LDAPPluginHook extends Hook {
         array_walk($LDAPs,$ldapSet);
         $LDAPs = (array)self::getClass('LDAPManager')->find(array('type'=>1));
         array_walk($LDAPs,$ldapSet);
-        $arguments['User'] = $User;
+        $arguments['User'] = $User->load();
     }
 }
 $LDAPPluginHook = new LDAPPluginHook();
