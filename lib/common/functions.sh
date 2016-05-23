@@ -1119,6 +1119,8 @@ writeUpdateFile() {
     escnotpxedefaultfile=$(echo $notpxedefaultfile | sed -e $replace)
     escsslpath=$(echo $sslpath | sed -e $replace)
     escbackupPath=$(echo $backupPath | sed -e $replace)
+    escphp_ver=$(echo $php_ver | sed -e $replace)
+    escphp_verAdds=$(echo $php_verAdds | sed -e $replace)
     if [[ -f $fogprogramdir/.fogsettings ]]; then
         grep -q "^## Start of FOG Settings" $fogprogramdir/.fogsettings || grep -q "^## Version:.*" $fogprogramdir/.fogsettings
         if [[ $? == 0 ]]; then
@@ -1231,6 +1233,12 @@ writeUpdateFile() {
             grep -q "backupPath=" $fogprogramdir/.fogsettings && \
                 sed -i "s/backupPath=.*/backupPath='$esbackupPath'/g" $fogprogramdir/.fogsettings || \
                 echo "backupPath='$backupPath'" >> $fogprogramdir/.fogsettings
+            grep -q "php_ver=" $fogprogramdir/.fogsettings && \
+                sed -i "s/php_ver=.*/php_ver='$php_ver'/g" $fogprogramdir/.fogsettings || \
+                echo "php_verAdds='$php_verAdds'" >> $fogprogramdir/.fogsettings
+            grep -q "php_verAdds=" $fogprogramdir/.fogsettings && \
+                sed -i "s/php_verAdds=.*/php_verAdds='$php_verAdds'/g" $fogprogramdir/.fogsettings || \
+                echo "php_verAdds='$php_verAdds'" >> $fogprogramdir/.fogsettings
         else
             echo "## Start of FOG Settings" > "$fogprogramdir/.fogsettings"
             echo "## Created by the FOG Installer" >> "$fogprogramdir/.fogsettings"
@@ -1270,6 +1278,8 @@ writeUpdateFile() {
             echo "notpxedefaultfile='$notpxedefaultfile'" >> "$fogprogramdir/.fogsettings"
             echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
             echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
+            echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
+            echo "php_verAdds='$php_verAdds'" >> "$fogprogramdir/.fogsettings"
             echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
         fi
     else
@@ -1311,6 +1321,8 @@ writeUpdateFile() {
         echo "notpxedefaultfile='$notpxedefaultfile'" >> "$fogprogramdir/.fogsettings"
         echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
         echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
+        echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
+        echo "php_verAdds='$php_verAdds'" >> "$fogprogramdir/.fogsettings"
         echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
     fi
 }
