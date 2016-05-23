@@ -109,8 +109,8 @@ class ProcessLogin extends FOGBase {
                 $this->setMessage(self::$foglang['NotAllowedHere']);
                 $this->redirect('index.php?node=logout');
             }
-            $this->setRedirMode();
             self::$HookManager->processEvent('LoginSuccess',array('user'=>&self::$FOGUser,'username'=>$this->username,'password'=>$this->password));
+            $this->setRedirMode();
         }
     }
     public function mainLoginForm() {
