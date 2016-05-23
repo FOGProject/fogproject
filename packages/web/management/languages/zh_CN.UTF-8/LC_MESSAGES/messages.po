@@ -6301,7 +6301,7 @@ msgstr "此设置定义登录 PC 用户之前等待分钟的数。（值为 0 �
 
 #: /var/www/fog/commons/schema.php:488
 msgid "This setting defines the location of the background image used in the auto log off module.  The image should be 300px x 300px.  This image can be located locally (such as c:\\\\images\\\\myimage.jpg) or on a web server (such as http://freeghost.sf.net/images/image.jpg)"
-msgstr "此设置定义了模块的自动日志中使用的背景图像的位置。 图像应该 300px x 300px。 此图像可以位于本地 （如 c:\\\images\\\myimage.jpg) 或在 web 服务器上 （例如 http://freeghost.sf.net/images/image.jpg)"
+msgstr "此设置定义了模块的自动日志中使用的背景图像的位置。 图像应该 300px x 300px。 此图像可以位于本地 （如 c:\\\\images\\\\myimage.jpg) 或在 web 服务器上 （例如 http://freeghost.sf.net/images/image.jpg)"
 
 #: /var/www/fog/commons/schema.php:490
 msgid "This setting defines the keymap used on the client boot image."
