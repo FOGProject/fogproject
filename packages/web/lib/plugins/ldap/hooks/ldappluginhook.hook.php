@@ -9,27 +9,40 @@ class LDAPPluginHook extends Hook {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         $username = $arguments['username'];
         $password = $arguments['password'];
-        if ($arguments['User']->isValid()) return;
-        $LDAPs = (array)self::getClass('LDAPManager')->find(array('admin'=>0));
         $User = $arguments['User'];
-        $ldapSet = function(&$LDAP,&$index) use($username,$password,&$User) {
-            if ($User->isValid()) return false;
-            if (!$LDAP->isValid()) return false;
-            if (!$LDAP->authLDAP($username,$password)) {
-                $User = self::getClass('User',0);
-                return false;
+        if ($arguments['User']->isValid()) return;
+        foreach ((array)self::getClass('LDAPManager')->find(array('admin'=>0)) AS &$LDAP) {
+            if (!$LDAP->isValid()) continue;
+            $User = self::getClass('User')->set('name',$username)->load('name');
+            if (!$LDAP->authLDAP($username,$password)) continue;
+            if ($User->isValid()) $User->set('password',$password);
+            else {
+                $User = self::getClass('User')
+                    ->set('name',$username)
+                    ->set('type',(int)!$LDAP->get('admin'))
+                    ->set('password',md5($password));
             }
-            $User = self::getClass('User')
-                ->set('name',$username)
-                ->set('password',$password)
-                ->set('type',(int)!$LDAP->get('admin'));
             if (!$User->save()) throw new Exception(_('User create/update failed'));
-            unset($LDAP,$index);
-        };
-        array_walk($LDAPs,$ldapSet);
-        $LDAPs = (array)self::getClass('LDAPManager')->find(array('admin'=>1));
-        array_walk($LDAPs,$ldapSet);
-        $arguments['User'] = $User;
+            $arguments['User'] = $User;
+            unset($LDAP);
+            break;
+        }
+        foreach ((array)self::getClass('LDAPManager')->find(array('admin'=>1)) AS &$LDAP) {
+            if (!$LDAP->isValid()) continue;
+            $User = self::getClass('User')->set('name',$username)->load('name');
+            if (!$LDAP->authLDAP($username,$password)) continue;
+            if ($User->isValid()) $User->set('password',$password);
+            else {
+                $User = self::getClass('User')
+                    ->set('name',$username)
+                    ->set('type',(int)!$LDAP->get('admin'))
+                    ->set('password',md5($password));
+            }
+            if (!$User->save()) throw new Exception(_('User create/update failed'));
+            $arguments['User'] = $User;
+            unset($LDAP);
+            break;
+        }
     }
 }
 $LDAPPluginHook = new LDAPPluginHook();
