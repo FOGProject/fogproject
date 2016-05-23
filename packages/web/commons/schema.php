@@ -782,7 +782,7 @@ KEY `idxMac` (`ouiMACPrefix`)
 ('FOG_QUICKREG_OS_ID', 'FOG Quick Registration OS ID.', '-1', 'FOG Quick Registration'),
 ('FOG_QUICKREG_SYS_NAME', 'FOG Quick Registration system name template.  Use * for the autonumber feature.', 'PC-*', 'FOG Quick Registration'),
 ('FOG_QUICKREG_SYS_NUMBER', 'FOG Quick Registration system name auto number.', '1', 'FOG Quick Registration'),
-('FOG_DEFAULT_LOCALE', 'Default language code to use for FOG.', 'en_US.UTF-8', 'General Settings'),
+('FOG_DEFAULT_LOCALE', 'Default language code to use for FOG.', 'en', 'General Settings'),
 ('FOG_HOST_LOCKUP', 'Should FOG attempt to see if a host is active and display it as part of the UI?', '1', 'General Settings'),
 ('FOG_UUID', 'This is a unique ID that is used to identify your installation.  In most cases you do not want to change this value.', '" . uniqid("", true) . "', 'General Settings')",
 "CREATE TABLE `".DATABASE_NAME."`.`pendingMACS` (

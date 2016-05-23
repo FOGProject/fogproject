@@ -1497,9 +1497,7 @@ configureHttpd() {
     esac
     if [[ -f $etcconf ]]; then
         dots "Removing vhost file"
-        if [[ $osid -eq 2 ]]; then
-            a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
+        [[ $osid -eq 2 ]] && a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
     fi
@@ -1535,9 +1533,7 @@ configureHttpd() {
                             fi
                         done
                     fi
-                    if [[ $snmysqlpass != $dbpass ]]; then
-                        snmysqlpass=$dbpass
-                    fi
+                    [[ $snmysqlpass != $dbpass ]] && snmysqlpass=$dbpass
                     ;;
                 *)
                     dummy=""
@@ -1634,6 +1630,17 @@ configureHttpd() {
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
+    if [[ $installlang -eq 1 ]]; then
+        dots "Creating the language binaries"
+        msgfmt -o $webdirdest/management/languages/de_DE.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/de_DE.UTF-8/LC_MESSAGES/messages.po
+        msgfmt -o $webdirdest/management/languages/en_US.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/en_US.UTF-8/LC_MESSAGES/messages.po
+        msgfmt -o $webdirdest/management/languages/es_ES.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/es_ES.UTF-8/LC_MESSAGES/messages.po
+        msgfmt -o $webdirdest/management/languages/fr_FR.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/fr_FR.UTF-8/LC_MESSAGES/messages.po
+        msgfmt -o $webdirdest/management/languages/it_IT.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/it_IT.UTF-8/LC_MESSAGES/messages.po
+        msgfmt -o $webdirdest/management/languages/pt_BR.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/pt_BR.UTF-8/LC_MESSAGES/messages.po
+        msgfmt -o $webdirdest/management/languages/zh_CN.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/zh_CN.UTF-8/LC_MESSAGES/messages.po
+        echo "Done"
+    fi
     dots "Creating config file"
     echo "<?php
 class Config {
