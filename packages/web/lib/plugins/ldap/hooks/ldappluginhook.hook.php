@@ -10,9 +10,9 @@ class LDAPPluginHook extends Hook {
         $username = $arguments['username'];
         $password = $arguments['password'];
         if ($arguments['User']->isValid()) return;
-        $LDAPs = (array)self::getClass('LDAPManager')->find();
+        $LDAPs = (array)self::getClass('LDAPManager')->find(array('type'=>0));
         $User = self::getClass('User',0);
-        array_walk($LDAPs,function(&$LDAP,&$index) use($username,$password,&$User) {
+        $ldapSet = function(&$LDAP,&$index) use($username,$password,&$User) {
             if ($User->isValid()) return false;
             if (!$LDAP->isValid()) return false;
             if (!$LDAP->authLDAP($username,$password)) {
@@ -25,7 +25,10 @@ class LDAPPluginHook extends Hook {
                 ->set('type',(int)!$LDAP->get('admin'));
             if (!$User->save()) throw new Exception(_('User create/update failed'));
             unset($LDAP,$index);
-        });
+        };
+        array_walk($LDAPs,$ldapSet);
+        $LDAPs = (array)self::getClass('LDAPManager')->find(array('type'=>1));
+        array_walk($LDAPs,$ldapSet);
         $arguments['User'] = $User;
     }
 }
