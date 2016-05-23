@@ -140,7 +140,7 @@ class LDAPManagementPage extends FOGPage {
             _('LDAP Server Address') => sprintf('<input class="smaller" type="text" name="address" value="%s"/>',$this->obj->get('address')),
             _('DN') => sprintf('<input class="smaller" type="text" name="DN" value="%s"/>',$this->obj->get('DN')),
             _('Server Port') => sprintf('<input class="smaller" type="text" name="port" value="%s"/>',$this->obj->get('port')),
-            _('Create as admin?') => sprintf('<input type="checkbox" name="admin"%s/>',$this->obj->get('port') ? ' checked' : ''),
+            _('Create as admin?') => sprintf('<input type="checkbox" name="admin"%s/>',$this->obj->get('admin') ? ' checked' : ''),
             '' => sprintf('<input name="update" type="submit" class="smaller" value="%s"/>',_('Update')),
         );
         foreach ((array)$fields AS $field => &$input) {
