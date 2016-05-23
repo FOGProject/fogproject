@@ -2101,3 +2101,7 @@ $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.`globalSettings` SET `settingCategory`= REPLACE(`settingCategory`,'FOG Linux Service','FOG Service') WHERE `settingCategory` LIKE '%FOG Linux Service%'",
     "UPDATE `".DATABASE_NAME."`.`globalSettings` SET `settingKey`=REPLACE(`settingKey`,'FOG_SERVICE','FOG_CLIENT') WHERE `settingKey` LIKE '%FOG_SERVICE%'",
 );
+// 219
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`groupMembers` ADD UNIQUE KEY `gmhostID` (`gmHostID`,`gmGroupID`)",
+);
