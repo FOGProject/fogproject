@@ -10,7 +10,7 @@ class LDAPPluginHook extends Hook {
         $username = $arguments['username'];
         $password = $arguments['password'];
         if ($arguments['User']->isValid()) return;
-        $LDAPs = (array)self::getClass('LDAPManager')->find(array('type'=>0));
+        $LDAPs = (array)self::getClass('LDAPManager')->find(array('admin'=>0));
         $User = $arguments['User'];
         $ldapSet = function(&$LDAP,&$index) use($username,$password,&$User) {
             if ($User->isValid()) return false;
@@ -27,7 +27,7 @@ class LDAPPluginHook extends Hook {
             unset($LDAP,$index);
         };
         array_walk($LDAPs,$ldapSet);
-        $LDAPs = (array)self::getClass('LDAPManager')->find(array('type'=>1));
+        $LDAPs = (array)self::getClass('LDAPManager')->find(array('admin'=>1));
         array_walk($LDAPs,$ldapSet);
         $arguments['User'] = $User;
     }
