@@ -1023,7 +1023,7 @@ configureUsers() {
             errorStat $?
         fi
     fi
-    echo -e "$password\n$password" | passwd --stdin $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    echo -e "$password\n$password" | passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ ! $? -eq 0 ]]; then
         false
         errorStat $?
