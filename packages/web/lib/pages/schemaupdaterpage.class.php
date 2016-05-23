@@ -31,8 +31,7 @@ class SchemaUpdaterPage extends FOGPage {
         require(sprintf('%s%scommons%sschema.php',BASEPATH,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR));
         $errors = array();
         try {
-            $mysqli = self::$DB->link();
-            if (!$mysqli) throw new Exception(_('No connection available'));
+            if (!self::$DB->link()) throw new Exception(_('No connection available'));
             if (count($this->schema) <= self::$mySchema) throw new Exception(_('Update not required!'));
             $items = array_slice($this->schema,self::$mySchema,null,true);
             foreach($items AS $version => &$updates) {
@@ -41,7 +40,7 @@ class SchemaUpdaterPage extends FOGPage {
                     if (is_callable($update)) {
                         $result = $update();
                         if (is_string($result)) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Function Error:</b> <pre>%s</pre></p><p><b>Function:</b> <pre>%s</pre></p>', "$version - $i",$result, print_r($update, 1));
-                    } else if (false === $mysqli->query($update)) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i",$mysqli->sqlerror(),$update);
+                    } else if (false === self::$DB->query($update)) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i",self::$DB->sqlerror(),$update);
                 }
                 unset($update);
             }
