@@ -40,6 +40,7 @@ class LDAP extends FOGController {
             if ($info['count'] > 1) break;
             if ($info['count'] < 1) return false;
         }
-        return ldap_close($ldapconn);
+        ldap_close($ldapconn);
+        return true;
     }
 }
