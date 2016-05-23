@@ -101,19 +101,16 @@ class ProcessLogin extends FOGBase {
         if (!(isset($_REQUEST['uname']) && isset($_REQUEST['upass']))) return;
         $this->username = trim($_REQUEST['uname']);
         $this->password = trim($_REQUEST['upass']);
-        if (!self::$FOGUser->isValid()) self::$FOGUser = self::$FOGCore->attemptLogin($this->username,$this->password);
-        if (!self::$FOGUser->isValid()) {
-            $this->setRedirMode();
-            self::$HookManager->processEvent('USER_LOGGING_IN',array('User'=>self::$FOGUser,'username'=>$this->username));
-            return;
-        }
+        self::$FOGUser = self::$FOGCore->attemptLogin($this->username,$this->password);
+        self::$HookManager->processEvent('USER_LOGGING_IN',array('User'=>&self::$FOGUser,'username'=>$this->username,'password'=>$this->password));
+        if (!self::$FOGUser->isValid()) $this->setRedirMode();
         if (!self::$isMobile) {
             if (self::$FOGUser->get('type')) {
                 $this->setMessage(self::$foglang['NotAllowedHere']);
                 $this->redirect('index.php?node=logout');
             }
             $this->setRedirMode();
-            self::$HookManager->processEvent('LoginSuccess',array('user'=>self::$FOGUser,'username'=>$this->username));
+            self::$HookManager->processEvent('LoginSuccess',array('user'=>&self::$FOGUser,'username'=>$this->username,'password'=>$this->password));
         }
     }
     public function mainLoginForm() {
