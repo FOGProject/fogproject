@@ -113,7 +113,8 @@ $(function() {
     if (typeof(Graph30dayData) != 'undefined') Graph30DayData = [{label: 'Computers Imaged',data: JSONParseFunction(Graph30dayData)}];
     $.plot(Graph30Day,Graph30DayData,Graph30DayOpts);
     // Start counters
-    setInterval(UpdateBandwidth,1000);
+    UpdateBandwidth();
+    setInterval(UpdateBandwidth,bandwidthtime);
     // Bandwidth Graph - TX/RX Filter
     GraphBandwidthFilters.click(function(e) {
         // Blur -> add active class -> remove active class from old active item
