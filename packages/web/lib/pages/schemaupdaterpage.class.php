@@ -28,7 +28,7 @@ class SchemaUpdaterPage extends FOGPage {
     }
     public function index_post() {
         if (!isset($_REQUEST['confirm'])) return;
-        require_once(sprintf('%s%scommons%sschema.php',BASEPATH,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR));
+        require(sprintf('%s%scommons%sschema.php',BASEPATH,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR));
         $errors = array();
         try {
             $mysqli = self::$DB->link();
