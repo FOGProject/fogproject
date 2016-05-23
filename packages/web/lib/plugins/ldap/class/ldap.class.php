@@ -10,6 +10,7 @@ class LDAP extends FOGController {
         'address' => 'lsAddress',
         'port' => 'lsPort',
         'DN' => 'lsDN',
+        'admin' => 'lsAdminCreate',
     );
     protected $databaseFieldsRequired = array(
         'name',

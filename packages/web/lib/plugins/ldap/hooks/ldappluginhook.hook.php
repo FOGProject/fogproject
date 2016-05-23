@@ -19,7 +19,7 @@ class LDAPPluginHook extends Hook {
             else {
                 $User = self::getClass('User')
                     ->set('name',$username)
-                    ->set('type',1)
+                    ->set('type',(int)!$LDAP->get('admin'))
                     ->set('password',md5($password));
             }
             if (!$User->save()) throw new Exception(_('User create/update failed'));

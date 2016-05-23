@@ -79,7 +79,7 @@ class PluginManagementPage extends FOGPage {
         if ($_REQUEST['run']) {
             $runner = $P->getRunInclude($_REQUEST['run']);
             if (file_exists($runner) && $P->isInstalled()) require_once($runner);
-            else $this->run();
+            else $this->run($P);
         }
         unset($P);
     }
@@ -105,12 +105,11 @@ class PluginManagementPage extends FOGPage {
         if ($_REQUEST['run']) {
             $runner = $P->getRunInclude($_REQUEST['run']);
             if (file_exists($runner) && $P->isInstalled()) require_once($runner);
-            else $this->run();
+            else $this->run($P);
         }
         unset($P);
     }
-    public function run() {
-        $plugin = self::getClass('Plugin',@min(self::getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
+    public function run($plugin) {
         try {
             if ($plugin == null) throw new Exception(_('Unable to determine plugin details.'));
             $this->title = sprintf('%s: %s',_('Plugin'),$plugin->get('name'));

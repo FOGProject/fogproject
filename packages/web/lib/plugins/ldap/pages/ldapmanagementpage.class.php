@@ -20,6 +20,7 @@ class LDAPManagementPage extends FOGPage {
             _('LDAP Server Description'),
             _('LDAP Server'),
             _('Port'),
+            _('Create As Admin'),
         );
         $this->templates = array(
             '<input type="checkbox" name="ldap[]" value="${id}" class="toggle-action"/>',
@@ -27,9 +28,11 @@ class LDAPManagementPage extends FOGPage {
             '${description}',
             '${address}',
             '${port}',
+            '${admin}',
         );
         $this->attributes = array(
             array('class' => 'l filter-false','width' => 16),
+            array('class' => 'l'),
             array('class' => 'l'),
             array('class' => 'l'),
             array('class' => 'l'),
@@ -44,6 +47,7 @@ class LDAPManagementPage extends FOGPage {
                 'address' => $LDAP->get('address'),
                 'DN' => $LDAP->get('DN'),
                 'port' => $LDAP->get('port'),
+                'admin' => $LDAP->get('admin') ? _('Yes') : _('No'),
             );
             unset($LDAP);
         };
@@ -79,6 +83,7 @@ class LDAPManagementPage extends FOGPage {
             _('LDAP Server Address') => '<input class="smaller" type="text" name="address"/>',
             _('DN') => '<input class="smaller" type="text" name="DN"/>',
             _('Server Port') => '<input class="smaller" type="text" name="port"/>',
+            _('Create as admin?') => sprintf('<input type="checkbox" name="admin"%s/>',isset($_REQUEST['admin']) ? ' checked' : ''),
             '' => sprintf('<input class="smaller" name="add" type="submit" value="%s"/>',_('Add')),
         );
         foreach((array)$fields AS $field => &$input) {
@@ -107,7 +112,8 @@ class LDAPManagementPage extends FOGPage {
                 ->set('description',$_REQUEST['description'])
                 ->set('address',$address)
                 ->set('DN',$_REQUEST['DN'])
-                ->set('port',$_REQUEST['port']);
+                ->set('port',$_REQUEST['port'])
+                ->set('admin',(string)isset($_REQUEST['admin']));
             if ($LDAP->save()) {
                 $this->setMessage(_('LDAP Server Added, editing!'));
                 $this->redirect(sprintf('?node=ldap&sub=edit&id=%s',$LDAP->get('id')));
@@ -134,6 +140,7 @@ class LDAPManagementPage extends FOGPage {
             _('LDAP Server Address') => sprintf('<input class="smaller" type="text" name="address" value="%s"/>',$this->obj->get('address')),
             _('DN') => sprintf('<input class="smaller" type="text" name="DN" value="%s"/>',$this->obj->get('DN')),
             _('Server Port') => sprintf('<input class="smaller" type="text" name="port" value="%s"/>',$this->obj->get('port')),
+            _('Create as admin?') => sprintf('<input type="checkbox" name="admin"%s/>',$this->obj->get('port') ? ' checked' : ''),
             '' => sprintf('<input name="update" type="submit" class="smaller" value="%s"/>',_('Update')),
         );
         foreach ((array)$fields AS $field => &$input) {
@@ -163,7 +170,8 @@ class LDAPManagementPage extends FOGPage {
                 ->set('description',$_REQUEST['description'])
                 ->set('address',$address)
                 ->set('DN',$_REQUEST['DN'])
-                ->set('port',$_REQUEST['port']);
+                ->set('port',$_REQUEST['port'])
+                ->set('admin',(string)isset($_REQUEST['admin']));
             if (!$LDAP->save()) throw new Exception(_('Database update failed'));
             self::$HookManager->processEvent('LDAP_EDIT_SUCCESS',array('LDAP'=>&$this->obj));
             $this->setMessage(_('LDAP information updated!'));

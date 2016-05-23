@@ -11,6 +11,7 @@ class LDAPManager extends FOGManagerController {
             `lsCreatedTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `lsDN` VARCHAR(100) NOT NULL,
             `lsPort` INTEGER NOT NULL,
+            `lsAdminCreate` ENUM('0','1') NOT NULL DEFAULT '0',
             PRIMARY KEY(`lsID`),
         KEY new_index (`lsName`))
         ENGINE = MyISAM";
