@@ -6301,7 +6301,7 @@ msgstr "Diese Einstellung definiert die Anzahl der Minuten zu warten, bevor ein 
 
 #: /var/www/fog/commons/schema.php:488
 msgid "This setting defines the location of the background image used in the auto log off module.  The image should be 300px x 300px.  This image can be located locally (such as c:\\\\images\\\\myimage.jpg) or on a web server (such as http://freeghost.sf.net/images/image.jpg)"
-msgstr "Diese Einstellung definiert die Position des Hintergrundbildes in Auto abmelden Modul verwendet.  Das Bild sollte 300px x 300px.  Dieses Bild lässt sich lokal (z. B. c:\\\images\\\myimage.jpg) oder auf einem Webserver (z. B. http://freeghost.sf.net/images/image.jpg)"
+msgstr "Diese Einstellung definiert die Position des Hintergrundbildes in Auto abmelden Modul verwendet.  Das Bild sollte 300px x 300px.  Dieses Bild lässt sich lokal (z. B. c:\\\\images\\\\myimage.jpg) oder auf einem Webserver (z. B. http://freeghost.sf.net/images/image.jpg)"
 
 #: /var/www/fog/commons/schema.php:490
 msgid "This setting defines the keymap used on the client boot image."
