@@ -7,7 +7,6 @@ class ProcessLogin extends FOGBase {
         $translang = $this->transLang();
         ob_start();
         foreach ((array)self::$foglang['Language'] AS $i => &$lang) {
-            echo $lang;
             printf('<option value="%s"%s>%s</option>',
                 $lang,
                 ($translang == $lang ? ' selected' : ''),
@@ -66,8 +65,6 @@ class ProcessLogin extends FOGBase {
             break;
         default :
             $_SESSION['locale'] = $this->transLang();
-            $this->specLang();
-            break;
         }
     }
     public function setLang() {
@@ -106,6 +103,7 @@ class ProcessLogin extends FOGBase {
         $this->password = trim($_REQUEST['upass']);
         if (!self::$FOGUser->isValid()) self::$FOGUser = self::$FOGCore->attemptLogin($this->username,$this->password);
         if (!self::$FOGUser->isValid()) {
+            $this->setRedirMode();
             self::$HookManager->processEvent('USER_LOGGING_IN',array('User'=>self::$FOGUser,'username'=>$this->username));
             return;
         }
@@ -114,6 +112,7 @@ class ProcessLogin extends FOGBase {
                 $this->setMessage(self::$foglang['NotAllowedHere']);
                 $this->redirect('index.php?node=logout');
             }
+            $this->setRedirMode();
             self::$HookManager->processEvent('LoginSuccess',array('user'=>self::$FOGUser,'username'=>$this->username));
         }
     }
