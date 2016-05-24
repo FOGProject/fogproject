@@ -15,8 +15,6 @@ class LDAPPluginHook extends Hook {
             if (!$LDAP->isValid()) return;
             if (!$LDAP->authLDAP($username,$password)) return;
             self::$FOGUser
-                ->set('id',0)
-                ->set('name',$username)
                 ->set('name',$username)
                 ->set('password',$password)
                 ->set('type',(int)!$LDAP->get('admin'));
@@ -27,7 +25,6 @@ class LDAPPluginHook extends Hook {
         array_walk($LDAPs,$ldapSet);
         $LDAPs = (array)self::getClass('LDAPManager')->find(array('admin'=>0));
         array_walk($LDAPs,$ldapSet);
-        self::$FOGCore->attemptLogin($username,$password);
     }
 }
 $LDAPPluginHook = new LDAPPluginHook();

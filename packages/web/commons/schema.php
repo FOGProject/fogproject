@@ -2105,3 +2105,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`groupMembers` ADD UNIQUE KEY `gmhostID` (`gmHostID`,`gmGroupID`)",
 );
+// 220
+$this->schema[] = array(
+    "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey` IN('FOG_QUEUESIZE','FOG_PXE_IMAGE_DNSADDRESS')",
+);

@@ -102,8 +102,8 @@ class ProcessLogin extends FOGBase {
         if (!(isset($_REQUEST['uname']) && isset($_REQUEST['upass']))) return;
         $this->username = trim($_REQUEST['uname']);
         $this->password = trim($_REQUEST['upass']);
-        self::$FOGUser = self::$FOGCore->attemptLogin($this->username,$this->password);
         self::$HookManager->processEvent('USER_LOGGING_IN',array('username'=>$this->username,'password'=>$this->password));
+        self::$FOGUser = self::$FOGCore->attemptLogin($this->username,$this->password);
         if (!self::$FOGUser->isValid()) $this->setRedirMode();
         if (!self::$isMobile) {
             if (self::$FOGUser->get('type')) {
