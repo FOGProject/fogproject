@@ -32,13 +32,11 @@ class LDAP extends FOGController {
         ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
         ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, 0);
         if (!ldap_bind($ldapconn,sprintf('%s\%s',$this->get('name'),$user),$pass)) return false;
-        $search = ldap_search($ldapconn,$this->get('DN'),sprintf('CN=%s',$user));
+        $filter = "(&(sAMAccountName=$user))";
+        $search = ldap_search($ldapconn,$this->get('DN'),$filter);
         $results = ldap_get_entries($ldapconn,$search);
         ldap_unbind($ldapconn);
         ldap_close($ldapconn);
-        for ($i = 0;$i<$results['count'];$i++) {
-            $userdn = $results[$i]['dn'];
-        }
-        return $userdn == $this->get('DN');
+        return (bool)$results['count'] > 0;
     }
 }
