@@ -188,7 +188,7 @@ class HostManagementPage extends FOGPage {
             $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
             $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
             $productKey = substr($productKey,0,29);
-            $enforce = (string)isset($_REQUEST['enforcesel']);
+            $enforce = (string)intval((int)isset($_REQUEST['enforcesel']));
             $Host = self::getClass('Host')
                 ->set('name',$hostName)
                 ->set('description',$_REQUEST['description'])
@@ -768,7 +768,7 @@ class HostManagementPage extends FOGPage {
                 $user = trim($_REQUEST['domainuser']);
                 $pass = trim($_REQUEST['domainpassword']);
                 $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-                $enforce = (string)isset($_REQUEST['enforcesel']);
+                $enforce = (string)intval((int)isset($_REQUEST['enforcesel']));
                 $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey,$enforce);
                 break;
             case 'host-printers':
