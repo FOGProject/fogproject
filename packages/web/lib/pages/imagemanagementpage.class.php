@@ -73,7 +73,6 @@ class ImageManagementPage extends FOGPage {
         self::$returnData = function(&$Image) use (&$servSize) {
             if (!$Image->isValid()) return;
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-            if (!$StorageNode->isValid()) return;
             $imageSize = $this->formatByteSize((double)$Image->get('size'));
             $path = $Image->get('path');
             $serverSize = $servSize($path,$StorageNode);
