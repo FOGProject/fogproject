@@ -683,7 +683,6 @@ class FOGConfigurationPage extends FOGPage {
             // General Settings
             'FOG_USE_SLOPPY_NAME_LOOKUPS' => $checkbox,
             'FOG_UPLOADRESIZEPCT' => true,
-            'FOG_QUEUESIZE' => true,
             'FOG_CHECKIN_TIMEOUT' => true,
             'FOG_UPLOADIGNOREPAGEHIBER' => $checkbox,
             'FOG_USE_ANIMATION_EFFECTS' => $checkbox,

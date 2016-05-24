@@ -2,9 +2,7 @@
 class FOGCore extends FOGBase {
     public function attemptLogin($username,$password) {
         return self::getClass('User')
-            ->set('name',$username)
-            ->load('name')
-            ->validate_pw($password);
+            ->validate_pw($username,$password);
     }
     public function stopScheduledTask($task) {
         return self::getClass('ScheduledTask',$task->get('id'))->set('isActive',(int)false)->save();

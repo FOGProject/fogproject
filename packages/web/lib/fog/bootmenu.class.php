@@ -46,10 +46,28 @@ class BootMenu extends FOGBase {
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
         $StorageNode = self::getClass('StorageNode',@min(self::getSubObjectIDs('StorageNode',array('isEnabled'=>1,'isMaster'=>1))));
+        array(
+            'FOG_EFI_BOOT_EXIT_TYPE',
+            'FOG_KERNEL_ARGS',
+            'FOG_KERNEL_DEBUG',
+            'FOG_KERNEL_LOGLEVEL',
+            'FOG_KERNEL_RAMDISK_SIZE',
+            'FOG_KEY_SEQUENCE',
+            'FOG_KEYMAP',
+            'FOG_MEMTEST_KERNEL',
+            'FOG_PLUGIN_CAPONE_DMI',
+            'FOG_PLUGIN_CAPONE_SHUTDOWN',
+            'FOG_PXE_BOOT_IMAGE',
+            'FOG_PXE_BOOT_IMAGE_32',
+            'FOG_PXE_HIDDENMENU_TIMEOUT',
+            'FOG_PXE_MENU_TIMEOUT',
+            'FOG_TFTP_PXE_KERNEL',
+            'FOG_TFTP_PXE_KERNEL_32',
+        );
+        list($exit,$kernelArgs,$kernelDebug,$kernelLogLevel,$kernelRamDisk,$keySequence,$keymap,$memtest,$caponeDMI,$caponeShutdown,$init,$init_32,$hiddenTimeout,$menuTimeout,$bzImage,$bzImage32) = range(1,16);
         $loglevel = (int)self::getSetting('FOG_KERNEL_LOGLEVEL');
         $memdisk = 'memdisk';
         $ramsize = self::getSetting('FOG_KERNEL_RAMDISK_SIZE');
-        $dns = self::getSetting('FOG_PXE_IMAGE_DNSADDRESS');
         $keymap = self::getSetting('FOG_KEYMAP');
         $memtest = self::getSetting('FOG_MEMTEST_KERNEL');
         $bzImage = self::getSetting('FOG_TFTP_PXE_KERNEL_32');
@@ -123,6 +141,10 @@ class BootMenu extends FOGBase {
         unset($defaultMenu);
         self::getDefaultMenu($this->timeout,$menuname,$this->defaultChoice);
         $this->ipxeLog();
+        if ($this->Host->get('task')->isValid()) {
+            $this->getTasking();
+            exit;
+        }
         $_REQUEST['extraargs'] = trim($_REQUEST['extraargs']);
         if ($_REQUEST['extraargs']) $_SESSION['extraargs'] = $_REQUEST['extraargs'];
         if (isset($_REQUEST['username'])) $this->verifyCreds();
@@ -132,7 +154,6 @@ class BootMenu extends FOGBase {
         else if ($_REQUEST['sessname']) $this->sesscheck();
         else if ($_REQUEST['aprvconf']) $this->approveHost();
         else if (!$this->Host->isValid()) $this->printDefault();
-        else $this->getTasking();
     }
     private static function caponeMenu(&$storage, &$path, &$shutdown,$DMISet,$Shutdown,&$StorageNode,&$FOGCore) {
         if (!in_array('capone',(array)$_SESSION['PluginsInstalled'])) return;
@@ -387,7 +408,6 @@ class BootMenu extends FOGBase {
         $chkdsk = self::getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
         $ftp = $StorageNode->get('ip');
         $port = ($mc ? $mc->get('port') : null);
-        $miningcores = self::getSetting('FOG_MINING_MAX_CORES');
         $kernelArgsArray = array(
             "mac=$mac",
             "ftp=$ftp",
@@ -411,7 +431,7 @@ class BootMenu extends FOGBase {
                 'active' => $mc,
             ),
             array(
-                'value' => "mining=1 miningcores=$miningcores",
+                'value' => vsprintf('mining=1 miningcores=%s miningpath=%s',self::getSubObjectIDs('Service',array('name'=>array('FOG_MINING_MAX_CORES','FOG_MINING_PACKAGE_PATH')),'value')),
                 'active' => self::getSetting('FOG_MINING_ENABLE'),
             ),
             array(
@@ -529,7 +549,7 @@ class BootMenu extends FOGBase {
     }
     public function verifyCreds() {
         if (self::getSetting('FOG_NO_MENU')) $this->noMenu();
-        if (self::$FOGCore->attemptLogin($_REQUEST['username'],$_REQUEST['password'])) {
+        if (self::$FOGCore->attemptLogin($_REQUEST['username'],$_REQUEST['password'])->isValid()) {
             if (self::getSetting('FOG_ADVANCED_MENU_LOGIN') && $_REQUEST['advLog']) $this->advLogin();
             if ($_REQUEST['delhost']) $this->delConf();
             else if ($_REQUEST['keyreg']) $this->keyreg();
@@ -698,20 +718,12 @@ class BootMenu extends FOGBase {
                     'active' => $TaskType->isMulticast(),
                 ),
                 array(
-                    'value' => 'mining=1',
-                    'active' => self::getSetting('FOG_MINING_ENABLE'),
-                ),
-                array(
-                    'value' => 'miningcores=' . self::getSetting('FOG_MINING_MAX_CORES'),
+                    'value' => vsprintf('mining=1 miningcores=%s miningpath=%s',self::getSubObjectIDs('Service',array('name'=>array('FOG_MINING_MAX_CORES','FOG_MINING_PACKAGE_PATH')),'value')),
                     'active' => self::getSetting('FOG_MINING_ENABLE'),
                 ),
                 array(
                     'value' => 'winuser='.$Task->get('passreset'),
                     'active' => $TaskType->get('id') == '11',
-                ),
-                array(
-                    'value' => 'miningpath=' . self::getSetting('FOG_MINING_PACKAGE_PATH'),
-                    'active' => self::getSetting('FOG_MINING_ENABLE'),
                 ),
                 array(
                     'value' => 'isdebug=yes',
