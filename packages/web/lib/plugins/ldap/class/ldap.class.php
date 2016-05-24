@@ -28,7 +28,7 @@ class LDAP extends FOGController {
     }
     public function authLDAP($user,$pass) {
         if (!$server = $this->LDAPUp()) return false;
-        $ldapconn = @ldap_connect($server,$this->get('port'));
+        $ldapconn = ldap_connect($server,$this->get('port'));
         ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
         ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, 0);
         if (!ldap_bind($ldapconn,sprintf('%s@%s',$user,$this->get('name')),$pass)) return false;

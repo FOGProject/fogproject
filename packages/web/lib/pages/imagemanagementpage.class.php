@@ -167,8 +167,8 @@ class ImageManagementPage extends FOGPage {
                 ->set('imageTypeID',$_REQUEST['imagetype'])
                 ->set('imagePartitionTypeID',$_REQUEST['imagepartitiontype'])
                 ->set('compress',$_REQUEST['compress'])
-                ->set('isEnabled',(string)isset($_REQUEST['isEnabled']))
-                ->set('toReplicate',(string)isset($_REQUEST['toReplicate']))
+                ->set('isEnabled',(string)intval((int)isset($_REQUEST['isEnabled'])))
+                ->set('toReplicate',(string)intval((int)isset($_REQUEST['toReplicate'])))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Image->save()) throw new Exception(_('Database update failed'));
             self::$HookManager->processEvent('IMAGE_ADD_SUCCESS',array('Image'=>&$Image));
@@ -300,8 +300,8 @@ class ImageManagementPage extends FOGPage {
                     ->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $this->obj->get('format'))
                     ->set('protected',(int)isset($_REQUEST['protected_image']))
                     ->set('compress',$_REQUEST['compress'])
-                    ->set('isEnabled',(string)isset($_REQUEST['isEnabled']))
-                    ->set('toReplicate',(string)isset($_REQUEST['toReplicate']));
+                    ->set('isEnabled',(string)intval((int)isset($_REQUEST['isEnabled'])))
+                    ->set('toReplicate',(string)intval((int)isset($_REQUEST['toReplicate'])));
                 break;
             case 'image-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);

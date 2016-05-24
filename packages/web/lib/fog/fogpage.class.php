@@ -417,7 +417,7 @@ abstract class FOGPage extends FOGBase {
         $scheduleDeployTime = self::nice_date($_REQUEST['scheduleSingleTime']);
         $imagingTasks = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
         $passreset = trim($_REQUEST['account']);
-        $wol = (string)(isset($_REQUEST['wol']) || $TaskType->get('id') == 14);
+        $wol = (string)intval((int)(isset($_REQUEST['wol']) || $TaskType->get('id') == 14));
         try {
             if (!$TaskType || !$TaskType->isValid()) throw new Exception(_('Task type is not valid'));
             $taskName = sprintf('%s Task',$TaskType->get('name'));

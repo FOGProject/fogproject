@@ -172,11 +172,11 @@ class SnapinManagementPage extends FOGPage {
                 ->set('file',$snapinfile)
                 ->set('args',$_REQUEST['args'])
                 ->set('reboot',(int)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'reboot'))
-                ->set('shutdown',(string)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'shutdown'))
+                ->set('shutdown',(string)intval((int)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'shutdown')))
                 ->set('runWith',$_REQUEST['rw'])
                 ->set('runWithArgs',$_REQUEST['rwa'])
-                ->set('isEnabled',(string)isset($_REQUEST['isEnabled']))
-                ->set('toReplicate',(string)isset($_REQUEST['toReplicate']))
+                ->set('isEnabled',(string)intval((int)isset($_REQUEST['isEnabled'])))
+                ->set('toReplicate',(string)intval((int)isset($_REQUEST['toReplicate'])))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Snapin->save()) throw new Exception(_('Add snapin failed!'));
             self::$HookManager->processEvent('SNAPIN_ADD_SUCCESS',array('Snapin'=>&$Snapin));
@@ -344,12 +344,12 @@ class SnapinManagementPage extends FOGPage {
                     ->set('file',$snapinfile)
                     ->set('args',$_REQUEST['args'])
                     ->set('reboot',(int)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'reboot'))
-                    ->set('shutdown',(string)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'shutdown'))
+                    ->set('shutdown',(string)intval((int)(isset($_REQUEST['action']) && $_REQUEST['action'] === 'shutdown')))
                     ->set('runWith',$_REQUEST['rw'])
                     ->set('runWithArgs',$_REQUEST['rwa'])
                     ->set('protected',(int)isset($_REQUEST['protected_snapin']))
-                    ->set('isEnabled',(string)isset($_REQUEST['isEnabled']))
-                    ->set('toReplicate',(string)isset($_REQUEST['toReplicate']));
+                    ->set('isEnabled',(string)intval((int)isset($_REQUEST['isEnabled'])))
+                    ->set('toReplicate',(string)intval((int)isset($_REQUEST['toReplicate'])));
                 break;
             case 'snap-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);
