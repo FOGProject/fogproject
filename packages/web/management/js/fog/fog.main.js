@@ -25,8 +25,11 @@ $(function() {
     // Make button
     $('#adClear').html('<br/><input type="button" id="clearAD" value="Clear Fields"></input>');
     // Clear fields
-    $('#clearAD').click(function() {
-        $('#adOU[type="text"],#adDomain,#adUsername,#adPassword,#adPasswordLegacy').val('');
+    $('#clearAD').on('click',function(event) {
+        clearDoms = ['#adOU[type="text"]','#adDomain','#adUsername','#adPassword','#adPasswordLegacy'];
+        $.each(clearDoms,function(index,value) {
+            $(value).val('');
+        });
         $('#adEnabled').prop('checked',false);
     });
     // Bind to AD Settings checkbox
@@ -39,11 +42,11 @@ $(function() {
             data: {sub: 'adInfo'},
             dataType: 'json',
             success: function(data) {
-                $("#adDomain[type=text][value='']").val(data['domainname']);
-                $("#adOU[type=text][value='']").val(data['ou']);
-                $("#adUsername[type=text][value='']").val(data['domainuser']);
-                $("#adPassword[type=password][value='']").val(data['domainpass']);
-                $("#adPasswordLegacy[type=password][value='']").val(data['domainpasslegacy']);
+                if (!$('#adDomain[type=text]').val()) $("#adDomain").val(data['domainname']);
+                if (!$('#adOU[type=text]').val()) $("#adOU").val(data['ou']);
+                if (!$('#adUsername[type=text]').val()) $("#adUsername").val(data['domainuser']);
+                if (!$('#adPassword[type=text]').val()) $("#adPassword").val(data['domainpass']);
+                if (!$('#adPasswordLegacy[type=text]').val()) $("#adPasswordLegacy").val(data['domainpasslegacy']);
             }
         });
     });
