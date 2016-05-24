@@ -194,7 +194,6 @@ abstract class FOGService extends FOGBase {
                 }
                 sort($localfilescheck);
                 sort($remotefilescheck);
-                $doSync = false;
                 foreach ($localfilescheck AS $j => &$localfile) {
                     usleep(50000);
                     if (($index = array_search($localfile,$remotefilescheck)) === false) continue;
@@ -209,21 +208,18 @@ abstract class FOGService extends FOGBase {
                         self::outall(" | Files do not match");
                         self::outall(" * Deleting remote file: {$remotefilescheck[$index]}");
                         self::$FOGFTP->delete($remotefilescheck[$index]);
-                        $doSync = true;
                     } else self::outall(" | Files match");
                     unset($localfile);
                 }
                 self::$FOGFTP->close();
-                if ($doSync) {
-                    $logname = sprintf('%s.transfer.%s.log',static::$log,$nodename);
-                    if (!$i) self::outall(_(' * Starting Sync Actions'));
-                    $this->killTasking($i,$itemType,$Obj->get('name'));
-                    $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
-                    $cmd2 = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,[Protected] $ip";
-                    self::outall(" | CMD:\n\t\t\t$cmd2");
-                    $this->startTasking($cmd,$logname,$i,$itemType,$Obj->get('name'));
-                    self::outall(sprintf(' * %s %s %s',_('Started sync for'),$objType,$Obj->get('name')));
-                }
+                $logname = sprintf('%s.transfer.%s.log',static::$log,$nodename);
+                if (!$i) self::outall(_(' * Starting Sync Actions'));
+                $this->killTasking($i,$itemType,$Obj->get('name'));
+                $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
+                $cmd2 = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,[Protected] $ip";
+                self::outall(" | CMD:\n\t\t\t$cmd2");
+                $this->startTasking($cmd,$logname,$i,$itemType,$Obj->get('name'));
+                self::outall(sprintf(' * %s %s %s',_('Started sync for'),$objType,$Obj->get('name')));
                 unset($PotentialStorageNode);
             }
         }
