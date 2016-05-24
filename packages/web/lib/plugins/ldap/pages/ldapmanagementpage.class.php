@@ -106,14 +106,13 @@ class LDAPManagementPage extends FOGPage {
             $address = trim($_REQUEST['address']);
             if (empty($name)) throw new Exception(_('Please enter a name for this LDAP server.'));
             if (empty($address)) throw new Exception(_('Please enter a LDAP server address'));
-            if (self::getClass('LDAPManager')->exists($name)) throw new Exception(_('LDAP server already Exists, please try again.'));
             $LDAP = self::getClass('LDAP')
                 ->set('name',$name)
                 ->set('description',$_REQUEST['description'])
                 ->set('address',$address)
                 ->set('DN',$_REQUEST['DN'])
                 ->set('port',$_REQUEST['port'])
-                ->set('admin',(string)isset($_REQUEST['admin']));
+                ->set('admin',(string)intval((int)isset($_REQUEST['admin'])));
             if ($LDAP->save()) {
                 $this->setMessage(_('LDAP Server Added, editing!'));
                 $this->redirect(sprintf('?node=ldap&sub=edit&id=%s',$LDAP->get('id')));
@@ -164,14 +163,13 @@ class LDAPManagementPage extends FOGPage {
             $address = trim($_REQUEST['address']);
             if (empty($name)) throw new Exception(_('Please enter a name for this LDAP server.'));
             if (empty($address)) throw new Exception(_('Please enter a LDAP server address'));
-            if ($name != $this->obj->get('name') && $this->obj->getManager()->exists($name)) throw new Exception(_('An LDAP Server with that name already exists.'));
             $LDAP = $this->obj
                 ->set('name',$name)
                 ->set('description',$_REQUEST['description'])
                 ->set('address',$address)
                 ->set('DN',$_REQUEST['DN'])
                 ->set('port',$_REQUEST['port'])
-                ->set('admin',(string)isset($_REQUEST['admin']));
+                ->set('admin',(string)intval((int)isset($_REQUEST['admin'])));
             if (!$LDAP->save()) throw new Exception(_('Database update failed'));
             self::$HookManager->processEvent('LDAP_EDIT_SUCCESS',array('LDAP'=>&$this->obj));
             $this->setMessage(_('LDAP information updated!'));

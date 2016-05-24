@@ -114,7 +114,7 @@ class TasktypeeditManagementPage extends FOGPage {
             $kernel = $_REQUEST['kernel'];
             $kernelargs = $_REQUEST['kernelargs'];
             $type = (string)$_REQUEST['type'];
-            $advanced = (string)isset($_REQUEST['advanced']);
+            $advanced = (string)intval((int)isset($_REQUEST['advanced']));
             $access = $_REQUEST['access'];
             if (!$name) throw new Exception(_('You must enter a name'));
             if (self::getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
@@ -186,8 +186,8 @@ class TasktypeeditManagementPage extends FOGPage {
             $icon = $_REQUEST['icon'];
             $kernel = $_REQUEST['kernel'];
             $kernelargs = $_REQUEST['kernelargs'];
-            $type = $_REQUEST['type'];
-            $advanced = (int)isset($_REQUEST['advanced']);
+            $type = (int)$_REQUEST['type'];
+            $advanced = (string)intval((int)isset($_REQUEST['advanced']));
             $access = $_REQUEST['access'];
             if (!$name) throw new Exception(_('You must enter a name'));
             if ($this->obj->get('name') != $name && self::getClass('TaskTypeManager')->exists($name)) throw new Exception(_('Task type already exists, please try again.'));
