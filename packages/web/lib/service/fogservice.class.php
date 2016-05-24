@@ -169,7 +169,6 @@ abstract class FOGService extends FOGBase {
                 $nodename = $PotentialStorageNode->get('name');
                 $username = self::$FOGFTP->get('username');
                 $password = self::$FOGFTP->get('password');
-                $escpassword = escapeshellcmd(self::$FOGFTP->get('password'));
                 $encpassword = urlencode($password);
                 $ip = self::$FOGFTP->get('host');
                 $removeDir = sprintf('/%s/',trim($PotentialStorageNode->get($getPathOfItemField),'/'));
@@ -219,7 +218,7 @@ abstract class FOGService extends FOGBase {
                     $logname = sprintf('%s.transfer.%s.log',static::$log,$nodename);
                     if (!$i) self::outall(_(' * Starting Sync Actions'));
                     $this->killTasking($i,$itemType,$Obj->get('name'));
-                    $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$escpassword $ip";
+                    $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,$password $ip";
                     $cmd2 = "lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -c $includeFile --ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myAddItem $remItem; exit' -u $username,[Protected] $ip";
                     self::outall(" | CMD:\n\t\t\t$cmd2");
                     $this->startTasking($cmd,$logname,$i,$itemType,$Obj->get('name'));
