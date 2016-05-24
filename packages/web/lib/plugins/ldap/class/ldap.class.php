@@ -31,7 +31,7 @@ class LDAP extends FOGController {
         $ldapconn = ldap_connect($server,$this->get('port'));
         ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
         ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, 0);
-        if (!ldap_bind($ldapconn,sprintf('%s@%s,%s',$user,$this->get('name'),$this->get('DN')),$pass)) return false;
+        if (!ldap_bind($ldapconn,sprintf('uid=%s,%s',$this->get('name'),$this->get('DN')),$pass)) return false;
         ldap_close($ldapconn);
         return true;
     }
