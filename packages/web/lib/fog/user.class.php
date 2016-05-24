@@ -28,10 +28,15 @@ class User extends FOGController {
     private function generate_hash($password, $cost = 11) {
         return password_hash($password,PASSWORD_BCRYPT,['cost'=>$cost]);
     }
-    public function validate_pw($password) {
-        if (preg_match('#^[a-f0-9]{32}$#',$this->get('password'))) $this->set('password',$password)->save();
-        $res = (bool)password_verify($password,$this->get('password'));
-        if ($res) {
+    public function validate_pw($username,$password) {
+        $tmpUser = self::getClass('User')->set('name',$username)->load('name');
+        if (preg_match('#^[a-f0-9]{32}$#',$tmpUser->get('password')) && md5($password) === $tmpUser->get('password')) $tmpUser->set('password',$password)->save();
+        if (password_verify($password,$tmpUser->get('password'))) {
+            $this
+                ->set('id',$tmpUser->get('id'))
+                ->set('name',$tmpUser->get('name'))
+                ->set('password','',true);
+            unset($tmpUser);
             if (!$this->sessionID) $this->sessionID = session_id();
             $this
                 ->set('authUserAgent',$_SERVER['HTTP_USER_AGENT'])
@@ -44,7 +49,6 @@ class User extends FOGController {
             $this->log(sprintf('%s %s.',$this->get('name'),_('user successfully logged in')));
             $this->isLoggedIn();
         } else {
-            $this->set('id',0);
             $this->log(sprintf('%s %s.',$this->get('name'),_('user failed to login'),$this->get('name')));
             self::$EventManager->notify('LoginFail',array('Failure'=>$this->get('name')));
             self::$HookManager->processEvent('LoginFail',array('username'=>$this->get('name'),'password'=>&$password));

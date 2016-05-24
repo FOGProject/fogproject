@@ -4,7 +4,7 @@ class Initiator {
      * @return void
      */
     public function __construct() {
-        if (isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] && !isset($_SESSION)) {
+        if (!preg_match('#service#i',$_SERVER['PHP_SELF']) && isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] && !isset($_SESSION)) {
             session_start();
             session_cache_limiter('nocache');
         }

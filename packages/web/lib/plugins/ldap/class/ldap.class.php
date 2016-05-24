@@ -24,7 +24,7 @@ class LDAP extends FOGController {
         $sock = pfsockopen($this->get('address'), $this->get('port'),$errno,$errstr,$timeout);
         if (!$sock) return false;
         fclose($sock);
-        return sprintf('%s%s://%s',$ldap,((int) $this->get('port') === 636 ? 's' : ''),$this->get('address'));
+        return sprintf('%s%s://%s',$ldap,((int)$this->get('port') === 636 ? 's' : ''),$this->get('address'));
     }
     public function authLDAP($user,$pass) {
         if (!$server = $this->LDAPUp()) return false;
