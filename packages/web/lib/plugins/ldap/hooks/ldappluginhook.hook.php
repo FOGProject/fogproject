@@ -7,10 +7,11 @@ class LDAPPluginHook extends Hook {
     public $node = 'ldap';
     public function check_addUser($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        if (self::$FOGUser->isValid()) return;
         $username = $arguments['username'];
         $password = $arguments['password'];
-        $ldapSet = function(&$LDAP,&$index) use($username,$password,&$currentUser) {
+        if (self::getClass('User')->password_validate($username,$password)) return;
+        if (self::$FOGUser->isValid()) return;
+        $ldapSet = function(&$LDAP,&$index) use($username,$password) {
             if (self::$FOGUser->isValid()) return;
             if (!$LDAP->isValid()) return;
             if (!$LDAP->authLDAP($username,$password)) return;

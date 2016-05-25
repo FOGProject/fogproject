@@ -28,6 +28,11 @@ class User extends FOGController {
     private function generate_hash($password, $cost = 11) {
         return password_hash($password,PASSWORD_BCRYPT,['cost'=>$cost]);
     }
+    public function password_validate($username,$password) {
+        $tmpUser = self::getClass('User')->set('name',$username)->load('name');
+        if (preg_match('#^[a-f0-9]{32}$#',$tmpUser->get('password')) && md5($password) === $tmpUser->get('password')) $tmpUser->set('password',$password)->save();
+        return password_verify($password,$tmpUser->get('password'));
+    }
     public function validate_pw($username,$password) {
         $tmpUser = self::getClass('User')->set('name',$username)->load('name');
         if (preg_match('#^[a-f0-9]{32}$#',$tmpUser->get('password')) && md5($password) === $tmpUser->get('password')) $tmpUser->set('password',$password)->save();
@@ -35,7 +40,8 @@ class User extends FOGController {
             $this
                 ->set('id',$tmpUser->get('id'))
                 ->set('name',$tmpUser->get('name'))
-                ->set('password','',true);
+                ->set('password','',true)
+                ->set('type',$tmpUser->get('type'));
             unset($tmpUser);
             if (!$this->sessionID) $this->sessionID = session_id();
             $this
