@@ -35,14 +35,24 @@ class LDAP extends FOGController {
         ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
         ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, 0);
         $userdn = sprintf('uid=%s,%s',$user,$MainDN);
-        if (!ldap_bind($ldapconn,$userdn,$pass)) return false;
+        if (!ldap_bind($ldapconn,$userdn,$pass)) {
+            if (!ldap_bind($ldapconn,sprintf('%s\%s',$this->get('name'),$user),$pass)) {
+                if (!ldap_bind($ldapconn,sprintf('%s@%s',$this->get('name')),$pass)) return false;
+            }
+            $countcheck = true;
+        }
         $searchroutes = preg_split('/[\s,.]+/',$this->get('DN'));
         $searchnonMain = preg_grep('/^[\s]?[^d][^c]/i',$searchroutes);
-        $searchdn = sprintf('(|(%s))',implode(')(',(array)$searchnonMain));
+        $searchdn = sprintf('(&(%s))',implode(')(',(array)$searchnonMain));
         $search = ldap_search($ldapconn,$MainDN,$searchdn,array('uniquemember'));
+        if (!$search) {
+            $searchdn = sprintf('(&(samaccountname=%s))',$user);
+            $search = ldap_search($ldapconn,$MainDN,$searchdn,array('uniquemember'));
+        }
         $result = ldap_get_entries($ldapconn,$search);
         ldap_unbind($ldapconn);
         if ($result['count'] < 1) return false;
+        if ($countcheck) return true;
         for ($i = 0;$i < $result['count'];$i++) {
             if ($result[$i]['uniquemember']['count'] < 1) return false;
             foreach ($result[$i]['uniquemember'] AS &$val) {
