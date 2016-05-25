@@ -141,7 +141,7 @@ class BootMenu extends FOGBase {
         unset($defaultMenu);
         self::getDefaultMenu($this->timeout,$menuname,$this->defaultChoice);
         $this->ipxeLog();
-        if ($this->Host->get('task')->isValid()) {
+        if ($this->Host->isValid() && $this->Host->get('task')->isValid()) {
             $this->getTasking();
             exit;
         }
