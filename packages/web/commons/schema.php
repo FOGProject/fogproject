@@ -2108,4 +2108,17 @@ $this->schema[] = array(
 // 220
 $this->schema[] = array(
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey` IN('FOG_QUEUESIZE','FOG_PXE_IMAGE_DNSADDRESS')",
+    "CREATE TABLE `".DATABASE_NAME."`.`groupMembers_new` (
+        `gmID` int(11) NOT NULL AUTO_INCREMENT,
+        `gmHostID` int(11) NOT NULL,
+        `gmGroupID` int(11) NOT NULL,
+        PRIMARY KEY(`gmID`),
+        UNIQUE KEY `gmHostID` (`gmHostID`,`gmGroupID`),
+        UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),
+        KEY `new_index` (`gmHostID`),
+        KEY `new_index1` (`gmGroupID`)
+    ) ENGINE=MyISAM AUTOINCREMENT=0 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC",
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.`groupMembers_new` SELECT * FROM `".DATABASE_NAME."`.`groupMembers`",
+    "DROP TABLE `".DATABASE_NAME."`.`groupMembers`",
+    "RENAME TABLE `".DATABASE_NAME."`.`groupMembers_new` TO `".DATABASE_NAME."`.`groupMembers`",
 );
