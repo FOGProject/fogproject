@@ -154,6 +154,7 @@ class BootMenu extends FOGBase {
         else if ($_REQUEST['sessname']) $this->sesscheck();
         else if ($_REQUEST['aprvconf']) $this->approveHost();
         else if (!$this->Host->isValid()) $this->printDefault();
+        else $this->getTasking();
     }
     private static function caponeMenu(&$storage, &$path, &$shutdown,$DMISet,$Shutdown,&$StorageNode,&$FOGCore) {
         if (!in_array('capone',(array)$_SESSION['PluginsInstalled'])) return;
