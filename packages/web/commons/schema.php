@@ -8,6 +8,8 @@ $this->schema[] = array(
         `gmHostID` int(11) NOT NULL,
         `gmGroupID` int(11) NOT NULL,
         PRIMARY KEY  (`gmID`),
+        UNIQUE KEY `gmHostID` (`gmHostID`,`gmGroupID`),
+        UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),
 KEY `new_index` (`gmHostID`),
 KEY `new_index1` (`gmGroupID`)
     ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC",
@@ -2117,8 +2119,10 @@ $this->schema[] = array(
         UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),
         KEY `new_index` (`gmHostID`),
         KEY `new_index1` (`gmGroupID`)
-    ) ENGINE=MyISAM AUTOINCREMENT=0 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`groupMembers_new` SELECT * FROM `".DATABASE_NAME."`.`groupMembers`",
     "DROP TABLE `".DATABASE_NAME."`.`groupMembers`",
     "RENAME TABLE `".DATABASE_NAME."`.`groupMembers_new` TO `".DATABASE_NAME."`.`groupMembers`",
 );
+// 221
+$this->schema[] = $this->schema[count($this->schema)-1];
