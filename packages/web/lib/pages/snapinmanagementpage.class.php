@@ -30,19 +30,16 @@ class SnapinManagementPage extends FOGPage {
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             _('Snapin Name'),
             _('Storage Group'),
-            '',
         );
         $this->templates = array(
             '<input type="checkbox" name="snapin[]" value="${id}" class="toggle-action" />',
             sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit')),
             '${storage_group}',
-            sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a> <a href="?node=%s&sub=delete&%s=${id}" title="%s"><i class="icon fa fa-minus-circle"></i></a>', $this->node, $this->id, _('Edit'), $this->node, $this->id, _('Delete'))
         );
         $this->attributes = array(
             array('class'=>'l filter-false','width'=>16),
             array(),
             array('class'=>'c','width'=>50),
-            array('class'=>'r filter-false'),
         );
         self::$returnData = function(&$Snapin) {
             if (!$Snapin->isValid()) return;
