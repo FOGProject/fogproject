@@ -1,4 +1,5 @@
 $(function() {
+    runDBCheck();
     setInterval(runDBCheck,1000);
 });
 function runDBCheck() {
