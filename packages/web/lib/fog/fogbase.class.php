@@ -461,7 +461,7 @@ abstract class FOGBase {
             return strtolower(trim($element));
         };
         if (!is_array($stringlist) && strpos($stringlist,'|')) $MACs = array_values(array_filter(array_unique(array_map($lowerAndTrim,(array)explode('|',$stringlist)))));
-        if (self::getClass('MACAddressAssociationManager')->count(array('mac'=>$MACs))) $MACs = array_values(array_filter(array_unique(array_map($lowerAndTrim,(array)self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'pending'=>0),'mac')))));
+        if (self::getClass('MACAddressAssociationManager')->count(array('mac'=>$MACs))) $MACs = array_unique(array_merge((array)$MACs,(array)array_values(array_filter(array_unique(array_map($lowerAndTrim,(array)self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'pending'=>0),'mac')))))));
         if ($client) {
             $ClientIgnoredMACs = array_map($lowerAndTrim,(array)self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$MACs,'clientIgnore'=>1),'mac'));
             $MACs = array_diff((array)$MACs,(array)$ClientIgnoredMACs);
