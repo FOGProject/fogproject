@@ -1035,7 +1035,7 @@ abstract class FOGPage extends FOGBase {
             '${input}',
         );
         $fields = array(
-            _(sprintf("Click the button to download the %s's table backup.",strtolower($this->childClass))) => sprintf('<input type="submit" value="%s"/>',_('Export')),
+            _(sprintf("Click the button to download the %s's table backup.",strtolower($this->childClass))) => sprintf('<div id="exportDiv"></div><input name="export" type="submit" value="%s"/>',_('Export')),
         );
         $report = self::getClass('ReportMaker');
         $this->array_remove('id',$this->databaseFields);
