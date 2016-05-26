@@ -98,14 +98,20 @@ backupDB() {
         fi
         errorStat $?
     else
-        echo "FOG has adjusted to using a login system to help protect what can/cannot be downloaded."
-        echo "We have detected that you don't have credentials defined to perform the backup."
-        echo "If you would like the database to be backed up during install please define"
-        echo "in your /opt/fog/.fogsettings file"
-        echo "fogguiuser='usernameOfFOGGUI'"
-        echo "fogguipass='passwordOfFOGGUIUser'"
-        echo "You can also re-run this installer as:"
+        echo
+        echo " ########################################################################################"
+        echo "   FOG has adjusted to using a login system to protect what can/cannot be downloaded"
+        echo "   We have detected that you don't have credentials defined to perform the backup"
+        echo "   If you would like the database to be backed up during install please define"
+        echo "   in your /opt/fog/.fogsettings file"
+        echo
+        echo "   fogguiuser='usernameOfFOGGUI'"
+        echo "   fogguipass='passwordOfFOGGUIUser'"
+        echo
+        echo "   You can also re-run this installer as:"
         echo "fogguiuser='usernameOfFOGGUI' fogguipassword='passwordOfFOGGUIUser' ./installfog.sh -y"
+        echo " ########################################################################################"
+        echo
         sleep 10
     fi
 }
