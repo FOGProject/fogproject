@@ -91,6 +91,13 @@ while :; do
                     echo "   # From the menu select:                           #"
                     echo "   # FOG Configuration->                             #"
                     echo "   #     Kernel Update                               #"
+                    echo "   #                                                 #"
+                    echo "   # Below you is some valuable information to post  #"
+                    echo "   # to the forums to get more help if needed!       #"
+                    echo "   ###################################################"
+                    lspci -nn | grep Ethernet
+                    echo "   ###################################################"
+                    lsblk
                     echo "   ###################################################"
                 fi
                 wait_enter
