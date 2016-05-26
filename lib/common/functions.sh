@@ -89,8 +89,15 @@ backupReports() {
     echo "Done"
 }
 backupDB() {
-    checkcreds=$(wget --no-check-certificate "http://$ipaddress/$webroot/service/checkcredentials.php" --post-data="username=$fogguiuser&password=$fogguipassword")
-    if [[ $checkcreds == "#!il" ]]; then
+    checkcreds=$(wget -q -O --no-check-certificate "http://$ipaddress/$webroot/service/checkcredentials.php" --post-data="username=$fogguiuser&password=$fogguipassword")
+    if [[ $checkcreds == "#!ok" ]]; then
+        dots "Backing up database"
+        if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
+            [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php" --post-data="type=sql&fogguiuser=$fogguiuser&fogguipass=$fogguipass&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
+        errorStat $?
+    else
         echo "FOG has adjusted to using a login system to help protect what can/cannot be downloaded."
         echo "We have detected that you don't have credentials defined to perform the backup."
         echo "If you would like the database to be backed up during install please define"
@@ -100,13 +107,6 @@ backupDB() {
         echo "You can also re-run this installer as:"
         echo "fogguiuser='usernameOfFOGGUI' fogguipassword='passwordOfFOGGUIUser' ./installfog.sh -y"
         sleep 10
-    elif [[ $checkcreds == "#!ok" ]]; then
-        dots "Backing up database"
-        if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
-            [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php" --post-data="type=sql&fogguiuser=$fogguiuser&fogguipass=$fogguipass&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
-        errorStat $?
     fi
 }
 updateDB() {
