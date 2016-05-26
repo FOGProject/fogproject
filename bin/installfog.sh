@@ -518,23 +518,7 @@ while [[ -z $blGo ]]; do
                     backupReports
                     configureHttpd
                     backupDB
-                    case $dbupdate in
-                        [Yy]|[Yy][Ee][Ss])
-                            dots "Updating Database"
-                            wget -qO - --post-data="confirm=1" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || wget -qO - --post-data="confirm=1" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            errorStat $?
-                            ;;
-                        *)
-                            echo
-                            echo " * You still need to install/update your database schema."
-                            echo " * This can be done by opening a web browser and going to:"
-                            echo
-                            echo "   http://${ipaddress}/fog/management"
-                            echo
-                            read -p " * Press [Enter] key when database is updated/installed."
-                            echo
-                            ;;
-                    esac
+                    updateDB
                     configureStorage
                     configureDHCP
                     configureTFTPandPXE
