@@ -424,26 +424,7 @@ function exportDialog(url) {
                 e.preventDefault();
                 username = $('[name=fogguiuser]').val();
                 password = $('[name=fogguipass]').val();
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: {
-                        fogguiuser: username,
-                        fogguipass: password
-                    },
-                    dataType: 'json',
-                    beforeSend: function() {
-                        $('#exportDiv').html('<p>Attempting to download</p>');
-                    },
-                    complete: function(data) {
-                        if (data.responseText) $('#exportDiv').html('<p>Enter valid GUI Login information</p><p>Username: <input type="text" name="fogguiuser"/></p><p>Password: <input type="password" name="fogguipass"/></p>').dialog('open');
-                        else {
-                            $('#exportDiv').html('<form id="exportform" method="post" action="'+url+'"><input type="hidden" name="fogajaxonly" value="1"/><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>');
-                            $('#exportform').submit();
-                            $('#exportDiv').dialog('close');
-                        }
-                    }
-                });
+                ajaxRun(username,password,url);
             }
         },{
             text: 'Close',
@@ -454,6 +435,37 @@ function exportDialog(url) {
         modal: true,
         resizable: false,
         draggable: false,
+        autoResize: true,
         title: 'Export Database'
+    });
+    $('[name=fogguiuser],[name=fogguipass]').keypress(function(e) {
+        if (e.keyCode == $.ui.keyCode.ENTER) {
+            $(this).parents('.ui-dialog').find('button[type=submit]').trigger('click');
+        }
+    });
+}
+function ajaxRun(username,password,url) {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: {
+            fogguiuser: username,
+            fogguipass: password
+        },
+        dataType: 'json',
+        beforeSend: function() {
+            $('#exportDiv').html('<p>Attempting to download</p>');
+        },
+        complete: function(data) {
+            if (!data.responseText) {
+                $('#exportDiv').html('<form id="exportform" method="post" action="'+url+'"><input type="hidden" name="fogajaxonly" value="1"/><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').dialog('close');
+                $('#exportform').submit();
+            } else {
+                setTimeout(function() {
+                    exportDialog(url);
+                },3000);
+                $('#exportDiv').html('<p>'+data.responseText+'</p>');
+            }
+        }
     });
 }
