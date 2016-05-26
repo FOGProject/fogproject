@@ -37,7 +37,7 @@ class LDAP extends FOGController {
         $userdn = sprintf('uid=%s,%s',$user,$MainDN);
         if (!ldap_bind($ldapconn,$userdn,$pass)) {
             if (!ldap_bind($ldapconn,sprintf('%s\%s',$this->get('name'),$user),$pass)) {
-                if (!ldap_bind($ldapconn,sprintf('%s@%s',$this->get('name')),$pass)) return false;
+                if (!ldap_bind($ldapconn,sprintf('%s@%s',$user,$this->get('name')),$pass)) return false;
             }
             $countcheck = true;
         }
@@ -46,9 +46,10 @@ class LDAP extends FOGController {
         $searchdn = sprintf('(&(%s))',implode(')(',(array)$searchnonMain));
         $search = ldap_search($ldapconn,$MainDN,$searchdn,array('uniquemember'));
         if (!$search) {
-            $searchdn = sprintf('(&(samaccountname=%s))',$user);
-            $search = ldap_search($ldapconn,$MainDN,$searchdn,array('uniquemember'));
+            $searchdn = sprintf('(memberOf=%s)',$this->get('DN'));
+            $search = ldap_search($ldapconn,$MainDN,$searchdn,array('memberOf'));
         }
+        if (!$search) return false;
         $result = ldap_get_entries($ldapconn,$search);
         ldap_unbind($ldapconn);
         if ($result['count'] < 1) return false;
