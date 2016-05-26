@@ -354,7 +354,7 @@ class TaskManagementPage extends FOGPage {
         $SnapinJobIDs = self::getSubObjectIDs('SnapinTask',array('id'=>$SnapinTaskIDs),'jobID');
         $SnapinJobIDs = self::getSubObjectIDs('SnapinTask',array('id'=>$SnapinTaskIDs),'jobID');
         $HostIDs = self::getSubObjectIDs('SnapinJob',array('id'=>(array)$SnapinJobIDs),'hostID');
-        $TaskIDs = self::getSubObjectIDs('Task',array('hostID'=>$HostIDs));
+        $TaskIDs = self::getSubObjectIDs('Task',array('hostID'=>$HostIDs,'typeID'=>array(12,13)));
         self::getClass('TaskManager')->cancel($TaskIDs);
         self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
         if (self::getClass('SnapinTaskManager')->count(array('jobID'=>$SnapinJobIDs)) < 1) self::getClass('SnapinJobManager')->cancel($SnapinJobIDs);
