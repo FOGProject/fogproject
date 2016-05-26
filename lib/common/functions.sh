@@ -91,7 +91,7 @@ backupReports() {
 backupDB() {
     local user=$(echo $fogguiuser|base64)
     local pass=$(echo $fogguipass|base64)
-    checkcreds=$(wget -q -O --no-check-certificate "http://$ipaddress/$webroot/service/checkcredentials.php" --post-data="username=$user&password=$pass")
+    checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/$webroot/service/checkcredentials.php" --post-data="username=$user&password=$pass")
     if [[ $checkcreds == "#!ok" ]]; then
         dots "Backing up database"
         if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
