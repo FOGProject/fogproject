@@ -20,10 +20,8 @@ class SchemaUpdaterPage extends FOGPage {
                 _('Install/Upgrade Now'),
                 _('If you would like to backup your FOG database you can do so using MySQL Administrator or by running the following command in a terminal window (Applications -> System Tools -> Terminal), this will save sqldump in your home directory).'),
                 "\n",
-                _('Alternatively, you can use the button below to obtain a copy of your current fog database.'),
-                _('Export-Backup DB'),
             );
-            vprintf('<div id="dbRunning" class="hidden"><p>%s</p><p>%s</p><br/><form method="post" action="%s"><p class="c"><input type="submit" name="confirm" value="%s"/></p></form><p>%s</p><div id="sidenotes"><pre><code>cd%smysqldump --allow-keywords -x -v fog > fogbackup.sql</code></pre></div><br/><p>%s</p><form method="post" action="../management/export.php"><input type="hidden" name="type" value="sql"/><p class="c"><input type="submit" name="export" value="%s"/></p></form></div>',$vals);
+            vprintf('<div id="dbRunning" class="hidden"><p>%s</p><p>%s</p><br/><form method="post" action="%s"><p class="c"><input type="submit" name="confirm" value="%s"/></p></form><p>%s</p><div id="sidenotes"><pre><code>cd%smysqldump --allow-keywords -x -v fog > fogbackup.sql</code></pre></div><br/></div>',$vals);
             echo '<div id="dbNotRunning" class="hidden">'._('Your database connection appears to be invalid. FOG is unable to communicate with the database.  There are many reasons why this could be the case.  Please check your credentials in '.dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'fog/config.class.php. Also confirm that the database is indeed running. If credentials are correct, and the Database service is running, check to ensure your filesystem has enough space.').'</div>';
     }
     public function index_post() {
