@@ -848,7 +848,7 @@ class FOGConfigurationPage extends FOGPage {
             'field' => _('Click the button to export the database.'),
             'input' => sprintf('<input type="submit" name="export" value="%s"/>',_('Export')),
         );
-        echo '<div class="hidden" id="exportDiv">here we are</div><form method="post" action="export.php?type=sql">';
+        echo '<div class="hidden" id="exportDiv"></div><form method="post" action="export.php?type=sql">';
         $this->render();
         unset($this->data);
         echo '</form>';

@@ -44,14 +44,18 @@ class ReportMaker {
             echo implode("\n",(array)$this->strHTML);
             break;
         case 1:
+            if (!isset($_REQUEST['fogajaxonly'])) return;
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=$this->filename.csv");
+            header('Connection: close');
             echo implode((array)$this->strLine);
             unset($this->filename,$this->strLine);
             break;
         case 2:
+            if (!isset($_REQUEST['fogajaxonly'])) return;
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=$this->filename.pdf");
+            header('Connection: close');
             $proc = proc_open("htmldoc --links --header . --linkstyle plain --numbered --size letter --no-localfiles -t pdf14 --quiet --jpeg --webpage --size letter --left 0.25in --right 0.25in --top 0.25in --bottom 0.25in --header ... --footer ... -", array(0 => array("pipe", "r"), 1 => array("pipe", "w")), $pipes);
             fwrite($pipes[0], sprintf('<html><body>%s</body></html>',implode("\n",(array)$this->strHTML)));
             fclose($pipes[0]);
@@ -60,6 +64,7 @@ class ReportMaker {
             unset($status,$this->strHTML);
             break;
         case 3:
+            if (!isset($_REQUEST['fogajaxonly'])) return;
             $SchemaSave = FOGCore::getClass('Schema');
             global $FOGCore;
             $backup_name = sprintf('fog_backup_%s.sql',$FOGCore->formatTime('','Ymd_His'));
@@ -67,12 +72,15 @@ class ReportMaker {
             unset($SchemaSave);
             break;
         case 4:
+            if (!isset($_REQUEST['fogajaxonly'])) return;
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename={$type}_export.csv");
+            header('Connection: close');
             echo implode((array)$this->strLine);
             unset($this->strLine);
             break;
         case 5:
+            if (!isset($_REQUEST['fogajaxonly'])) return;
             while (ob_get_level()) ob_end_clean();
             $filename = 'fog_backup.sql';
             $path = sprintf('%s/management/other/',BASEPATH);

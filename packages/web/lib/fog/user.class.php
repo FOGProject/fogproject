@@ -28,15 +28,17 @@ class User extends FOGController {
     private function generate_hash($password, $cost = 11) {
         return password_hash($password,PASSWORD_BCRYPT,['cost'=>$cost]);
     }
-    public function password_validate($username,$password) {
+    public function password_validate($username,$password,$adminTest = false) {
         $tmpUser = self::getClass('User')->set('name',$username)->load('name');
         if (preg_match('#^[a-f0-9]{32}$#',$tmpUser->get('password')) && md5($password) === $tmpUser->get('password')) $tmpUser->set('password',$password)->save();
-        return password_verify($password,$tmpUser->get('password'));
+        $passValid = (bool)password_verify($password,$tmpUser->get('password'));
+        if ($adminTest === true) $tmpUser->get('type') > 0 ? $passValid = false : null;
+        return $passValid;
     }
     public function validate_pw($username,$password) {
-        $tmpUser = self::getClass('User')->set('name',$username)->load('name');
-        if (preg_match('#^[a-f0-9]{32}$#',$tmpUser->get('password')) && md5($password) === $tmpUser->get('password')) $tmpUser->set('password',$password)->save();
-        if (password_verify($password,$tmpUser->get('password'))) {
+        if ($this->password_validate($username,$password)) {
+            $tmpUser = self::getClass('User')->set('name',$username)->load('name');
+            if (preg_match('#^[a-f0-9]{32}$#',$tmpUser->get('password')) && md5($password) === $tmpUser->get('password')) $tmpUser->set('password',$password)->save();
             $this
                 ->set('id',$tmpUser->get('id'))
                 ->set('name',$tmpUser->get('name'))
