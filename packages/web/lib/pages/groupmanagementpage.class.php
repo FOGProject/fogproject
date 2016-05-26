@@ -29,7 +29,6 @@ class GroupManagementPage extends FOGPage {
             _('Name'),
             _('Members'),
             _('Tasking'),
-            _('Edit/Remove'),
         );
         $down = self::getClass('TaskType',1);
         $mc = self::getClass('TaskType',8);
@@ -38,14 +37,12 @@ class GroupManagementPage extends FOGPage {
             sprintf('<a href="?node=group&sub=edit&%s=${id}" title="Edit">${name}</a>', $this->id),
             '${count}',
             sprintf('<a href="?node=group&sub=deploy&type=1&%s=${id}"><i class="icon fa fa-'.$down->get('icon').'" title="'.$down->get('name').'"></i></a> <a href="?node=group&sub=deploy&type=8&%s=${id}"><i class="icon fa fa-'.$mc->get('icon').'" title="'.$mc->get('name').'"></i></a> <a href="?node=group&sub=edit&%s=${id}#group-tasks"><i class="icon fa fa-arrows-alt" title="Goto Basic Tasks"></i></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
-            sprintf('<a href="?node=group&sub=edit&%s=${id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=group&sub=delete&%s=${id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
         );
         $this->attributes = array(
             array('width'=>16,'class'=>'l filter-false'),
             array(),
             array('width'=>30,'class'=>'c'),
             array('width'=>90,'class'=>'c filter-false'),
-            array('width'=>50,'class'=>'c filter-false'),
         );
         self::$returnData = function(&$Group) {
             if (!$Group->isValid()) return;

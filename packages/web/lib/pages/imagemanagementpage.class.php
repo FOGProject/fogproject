@@ -32,8 +32,7 @@ class ImageManagementPage extends FOGPage {
         array_push(
             $this->headerData,
             _('Format'),
-            _('Uploaded'),
-            _('Edit/Remove')
+            _('Uploaded')
         );
         $this->templates = array(
             '${protected}',
@@ -45,8 +44,7 @@ class ImageManagementPage extends FOGPage {
         array_push(
             $this->templates,
             '${type}',
-            '${deployed}',
-            sprintf('<a href="?node=%s&sub=edit&id=${id}" title="%s"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="?node=%s&sub=delete&id=${id}" title="%s"><i class="fa fa-minus-circle"></i></a>',$this->node,_('Edit'),$this->node,_('Delete'))
+            '${deployed}'
         );
         $this->attributes = array(
             array('width'=>5,'class'=>'l filter-false'),
@@ -57,7 +55,6 @@ class ImageManagementPage extends FOGPage {
         $SizeServer ? array_push($this->attributes,array('width'=>50,'class'=>'c')) : null;
         array_push(
             $this->attributes,
-            array('width'=>50,'class'=>'c'),
             array('width'=>50,'class'=>'c'),
             array('width'=>50,'class'=>'c')
         );

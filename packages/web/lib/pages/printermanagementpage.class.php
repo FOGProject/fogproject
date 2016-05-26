@@ -29,7 +29,6 @@ class PrinterManagementPage extends FOGPage {
             'File',
             'IP',
             'Config File',
-            'Edit'
         );
         $this->templates = array(
             '<span class="icon fa fa-question hand" title="${desc}"></span>',
@@ -41,7 +40,6 @@ class PrinterManagementPage extends FOGPage {
             '${file}',
             '${ip}',
             '${configFile}',
-            '<a href="?node=printer&sub=edit&id=${id}" title="Edit"><i class="icon fa fa-pencil"></i></a><a href="?node=printer&sub=delete&id=${id}" title="Delete"><i class="icon fa fa-minus-circle"></i></>',
         );
         $this->attributes = array(
             array('class'=>'l filter-false','width'=>16),
@@ -53,14 +51,14 @@ class PrinterManagementPage extends FOGPage {
             array(),
             array(),
             array(),
-            array('class'=>'c filter-false','width'=>55),
         );
         self::$returnData = function(&$Printer) {
             if (!$Printer->isValid()) return;
+            $config = stripos($Printer->get('config'),'local') !== false ? _('TCP/IP') : $Printer->get('config');
             $this->data[] = array(
                 'id'=>$Printer->get('id'),
                 'name'=>$Printer->get('name'),
-                'config'=>$this->config,
+                'config'=>$config,
                 'model'=>$Printer->get('model'),
                 'port'=>$Printer->get('port'),
                 'file'=>$Printer->get('file'),
