@@ -109,7 +109,8 @@ backupDB() {
         echo "   fogguipass='passwordOfFOGGUIUser'"
         echo
         echo "   You can also re-run this installer as:"
-        echo "fogguiuser='usernameOfFOGGUI' fogguipassword='passwordOfFOGGUIUser' ./installfog.sh -y"
+        echo
+        echo "   fogguiuser='usernameOfFOGGUI' fogguipassword='passwordOfFOGGUIUser' ./installfog.sh -y"
         echo " ########################################################################################"
         echo
         sleep 10
