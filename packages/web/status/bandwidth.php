@@ -18,8 +18,8 @@ else {
 ignore_user_abort(true);
 ob_start();
 header('Content-Type: text/event-stream');
-echo json_encode($ret);
 header('Connection: close');
+echo json_encode($ret);
 flush();
 ob_flush();
 ob_end_flush();

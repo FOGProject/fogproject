@@ -194,6 +194,11 @@ $(function() {
         $('#tab-container-1 div#'+$(this).attr('id')).fadeToggle('slow','swing');
         return false;
     });
+    $('input[name=export]').click(function(e) {
+        e.preventDefault();
+        url = $(this).parents('form').attr('action');
+        exportDialog(url);
+    });
 });
 function debug(txt) {
     if (console) console.log(txt);
@@ -405,5 +410,50 @@ function ProductUpdate() {
         $(this).val($(this).val().replace(/([\w+]{5})/g,'$1-'));
         $(this).val($(this).val().substring(0,29));
         e.preventDefault();
+    });
+}
+function exportDialog(url) {
+    $('#exportDiv').html('<p>Enter GUI Login</p><p>Username: <input type="text" name="fogguiuser"/></p><p>Password: <input type="password" name="fogguipass"/></p>').dialog({
+        open: function() {
+            $(this).find('[name=export]').hide();
+        },
+        buttons: [{
+            text: 'Export',
+            type: 'submit',
+            click: function(e) {
+                e.preventDefault();
+                username = $('[name=fogguiuser]').val();
+                password = $('[name=fogguipass]').val();
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: {
+                        fogguiuser: username,
+                        fogguipass: password
+                    },
+                    dataType: 'json',
+                    beforeSend: function() {
+                        $('#exportDiv').html('<p>Attempting to download</p>');
+                    },
+                    complete: function(data) {
+                        if (data.responseText) $('#exportDiv').html('<p>Enter valid GUI Login information</p><p>Username: <input type="text" name="fogguiuser"/></p><p>Password: <input type="password" name="fogguipass"/></p>').dialog('open');
+                        else {
+                            $('#exportDiv').html('<form id="exportform" method="post" action="'+url+'"><input type="hidden" name="fogajaxonly" value="1"/><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>');
+                            $('#exportform').submit();
+                            $('#exportDiv').dialog('close');
+                        }
+                    }
+                });
+            }
+        },{
+            text: 'Close',
+            click: function() {
+                $(this).dialog('close');
+            }
+        }],
+        modal: true,
+        resizable: false,
+        draggable: false,
+        title: 'Export Database'
     });
 }
