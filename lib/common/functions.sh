@@ -1270,7 +1270,7 @@ writeUpdateFile() {
                 echo "backupPath='$backupPath'" >> $fogprogramdir/.fogsettings
             grep -q "php_ver=" $fogprogramdir/.fogsettings && \
                 sed -i "s/php_ver=.*/php_ver='$php_ver'/g" $fogprogramdir/.fogsettings || \
-                echo "php_verAdds='$php_verAdds'" >> $fogprogramdir/.fogsettings
+                echo "php_ver='$php_verAdds'" >> $fogprogramdir/.fogsettings
             grep -q "php_verAdds=" $fogprogramdir/.fogsettings && \
                 sed -i "s/php_verAdds=.*/php_verAdds='$php_verAdds'/g" $fogprogramdir/.fogsettings || \
                 echo "php_verAdds='$php_verAdds'" >> $fogprogramdir/.fogsettings
