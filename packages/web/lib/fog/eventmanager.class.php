@@ -64,10 +64,11 @@ class EventManager extends FOGBase {
         $normalfiles = array_values(array_filter(array_map($fileitems,(array)$files)));
         $plugins = '?=';
         $pluginfiles = array_values(array_filter(preg_grep(sprintf('#/(%s)/#',implode('|',$_SESSION['PluginsInstalled'])),array_map($fileitems,(array)$files))));
-        $startClass = function($element) use ($strlen) {
+        $startClass = function(&$element,&$key) use ($strlen) {
             $className = preg_replace('#[[:space:]]#','_',substr(basename($element),0,$strlen));
             if (in_array($className,get_declared_classes()) || class_exists($className,false)) return;
             self::getClass(preg_replace('#[[:space:]]#','_',$className,0,$strlen));
+            unset($element,$key);
         };
         array_map($startClass,(array)$pluginfiles);
         unset($pluginfiles);
@@ -85,6 +86,6 @@ class EventManager extends FOGBase {
             }
             fclose($fh);
         };
-        array_map($checkNormalAndStart,(array)$normalfiles);
+        @array_walk($normalfiles,$checkNormalAndStart);
     }
 }
