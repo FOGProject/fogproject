@@ -772,7 +772,7 @@ class Host extends FOGController {
             ->set('ADPass',trim($this->encryptpw($pass)))
             ->set('ADPassLegacy',$legacy)
             ->set('productKey',trim($this->encryptpw($productKey)))
-            ->set('enforce',$enforce);
+            ->set('enforce',(string)intval($enforce));
         if (!$nosave) $this->save();
         return $this;
     }
