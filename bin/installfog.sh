@@ -507,8 +507,10 @@ while [[ -z $blGo ]]; do
                         echo "   http://${snmysqlhost}/fog"
                         echo
                         echo "   You will need this, write this down!"
-                        echo "   Username: $username"
-                        echo "   Password: $password"
+                        echo "   Username:  $username"
+                        echo "   Password:  $password"
+                        echo "   Interface: $interface"
+                        echo "   Address:   $ipaddress"
                         echo
                     fi
                     ;;
