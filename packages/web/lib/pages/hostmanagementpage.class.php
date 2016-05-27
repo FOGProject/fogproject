@@ -308,15 +308,17 @@ class HostManagementPage extends FOGPage {
             array('width'=>50,'class'=>'l'),
             array('width'=>50,'class'=>'r'),
         );
-        foreach ((array)self::getClass('PrinterManager')->find(array('id'=>$this->obj->get('printersnotinme'))) AS $i => &$Printer) {
-            if (!$Printer->isValid()) continue;
+        $printerIterator = function(&$Printer) {
+            if (!$Printer->isValid()) return;
             $this->data[] = array(
                 'printer_id'=>$Printer->get('id'),
+                'is_default'=>($this->obj->getDefault($Printer->get('id')) ? 'checked' : ''),
                 'printer_name'=>$Printer->get('name'),
-                'printer_type'=>$Printer->get('config'),
+                'printer_type'=>(stripos($Printer->get('config'),'local') !== false ? _('TCP/IP') : $Printer->get('config')),
             );
             unset($Printer);
-        }
+        };
+        array_map($printerIterator,(array)self::getClass('PrinterManager')->find(array('id'=>$this->obj->get('printersnotinme'))));
         $PrintersFound = false;
         if (count($this->data) > 0) {
             $PrintersFound = true;
@@ -344,16 +346,7 @@ class HostManagementPage extends FOGPage {
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
             '${printer_type}',
         );
-        foreach ((array)self::getClass('PrinterManager')->find(array('id'=>$this->obj->get('printers'))) AS $i => &$Printer) {
-            if (!$Printer->isValid()) continue;
-            $this->data[] = array(
-                'printer_id'=>$Printer->get('id'),
-                'is_default'=>($this->obj->getDefault($Printer->get('id')) ? 'checked' : ''),
-                'printer_name'=>$Printer->get('name'),
-                'printer_type'=>$Printer->get('config'),
-            );
-            unset($Printer);
-        }
+        array_map($printerIterator,(array)self::getClass('PrinterManager')->find(array('id'=>$this->obj->get('printers'))));
         self::$HookManager->processEvent('HOST_EDIT_PRINTER',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<h2>%s</h2><p>%s</p><p><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="0"%s/>%s<br/><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="1"%s/>%s<br/><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="2"%s/>%s<br/></p>',_('Host Printer Configuration'),_('Select Management Level for this Host'),_('This setting turns off all FOG Printer Management. Although there are multiple levels already between host and global settings, this is just another to ensure safety'),($this->obj->get('printerLevel') == 0 ? ' checked' : ''),_('No Printer Management'),_('This setting only adds and removes printers that are management by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unsigned host. It will add printers to the host that are assigned.'),($this->obj->get('printerLevel') == 1 ? ' checked' : ''),_('FOG Managed Printers'),_('This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers.'),($this->obj->get('printerLevel') == 2 ? ' checked': ''),_('Only Assigned Printers'));
         $this->render();
