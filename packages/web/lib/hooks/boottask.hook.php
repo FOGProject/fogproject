@@ -17,6 +17,7 @@ class BootTask extends Hook {
             'imgargs linux root=/dev/nfs boot=casper live-installer/net-image=${boot-url}${path}/install/filesystem.squashfs ks=${boot-url}/OS_IMAGES/kickstarts/precise_ks.cfg ip=dhcp splash quiet - || read void',
             'boot || read void',
         );
+        $arguments['Host']->get('task')->set('stateID',$this->getCompleteState())->save();
     }
 }
 $HookManager->register('IPXE_EDIT',array(new BootTask(),'ChangeTask'));
