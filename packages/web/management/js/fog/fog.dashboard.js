@@ -114,7 +114,6 @@ $(function() {
     $.plot(Graph30Day,Graph30DayData,Graph30DayOpts);
     // Start counters
     UpdateBandwidth();
-    setInterval(UpdateBandwidth,bandwidthtime);
     // Bandwidth Graph - TX/RX Filter
     GraphBandwidthFilters.click(function(e) {
         // Blur -> add active class -> remove active class from old active item
@@ -181,9 +180,17 @@ function UpdateBandwidth() {
     $.ajax({
         url: '?node=home',
         type: 'POST',
-        data: {sub: 'bandwidth'},
+        data: {
+            sub: 'bandwidth'
+        },
         dataType: 'json',
-        success: UpdateBandwidthGraph,
+        success: function(data) {
+            UpdateBandwidthGraph(data);
+            setTimeout(UpdateBandwidth,bandwidthtime);
+        },
+        error: function(jqXHR, textStatus) {
+            console.log(textStatus);
+        },
         complete: function() {GraphBandwidth.addClass('loaded');}
     });
 }

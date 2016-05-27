@@ -19,6 +19,7 @@ class RegisterClient extends FOGClient implements FOGClientSend {
                     ->addPriMAC($PriMAC)
                     ->addAddMAC($MACs);
                 if (!$this->Host->save()) throw new Exception('#!db');
+                throw new Exception('#!ok');
             }
         }
         if (count($MACs) > $maxPending + 1) throw new Exception(_('Too many MACs'));
@@ -56,6 +57,7 @@ class RegisterClient extends FOGClient implements FOGClientSend {
                         ->addPriMAC($PriMAC)
                         ->addAddMAC($MACs);
                     if (!$this->Host->save()) throw new Exception('#!db');
+                    throw new Exception('#!ok');
                 }
             }
         }
