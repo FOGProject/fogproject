@@ -41,6 +41,8 @@ class ChangeItems extends Hook {
         $memdisk = $arguments['memdisk'];
         $bzImage = $arguments['bzImage'];
         $initrd = $arguments['initrd'];
+        $arguments['webserver'] = $ip;
+        $arguments['webroot'] = $webroot;
         $arguments['memdisk'] = "http://${ip}${webroot}service/ipxe/$memdisk";
         $arguments['memtest'] = "http://${ip}${webroot}service/ipxe/$memtest";
         $arguments['bzImage'] = "http://${ip}${webroot}service/ipxe/$bzImage";
