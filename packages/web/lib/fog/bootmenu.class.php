@@ -94,6 +94,7 @@ class BootMenu extends FOGBase {
                 'Host' => &$this->Host,
                 'StorageGroup' => &$StorageGroup,
                 'StorageNode' => &$StorageNode,
+                'webserver' => &$webserver,
                 'webroot' => &$webroot,
                 'memtest' => &$memtest,
                 'memdisk' => &$memdisk,
