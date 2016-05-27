@@ -84,6 +84,7 @@ class BootMenu extends FOGBase {
         }
         $kernel = $bzImage;
         if ($this->Host->get('kernel')) $bzImage = trim($this->Host->get('kernel'));
+        if ($this->Host->get('init')) $imagefile = trim($this->Host->get('init'));
         $StorageGroup = $StorageNode->getStorageGroup();
         $exit = trim($this->Host->get($host_field_test) ? $this->Host->get($host_field_test) : self::getSetting($global_field_test));
         if (!$exit || !in_array($exit,array_keys(self::$exitTypes))) $exit = 'sanboot';
