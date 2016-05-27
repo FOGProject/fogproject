@@ -42,11 +42,11 @@ $(function() {
             data: {sub: 'adInfo'},
             dataType: 'json',
             success: function(data) {
-                if (!$('#adDomain[type=text]').val()) $("#adDomain").val(data['domainname']);
-                if (!$('#adOU[type=text]').val()) $("#adOU").val(data['ou']);
-                if (!$('#adUsername[type=text]').val()) $("#adUsername").val(data['domainuser']);
-                if (!$('#adPassword[type=text]').val()) $("#adPassword").val(data['domainpass']);
-                if (!$('#adPasswordLegacy[type=text]').val()) $("#adPasswordLegacy").val(data['domainpasslegacy']);
+                if (!$('#adDomain[type=text]').val()) $("#adDomain").val(data.domainname);
+                if (!$('#adOU[type=text]').val()) $("#adOU").val(data.ou);
+                if (!$('#adUsername[type=text]').val()) $("#adUsername").val(data.domainuser);
+                if (!$('#adPassword[type=text]').val()) $("#adPassword").val(data.domainpass);
+                if (!$('#adPasswordLegacy[type=text]').val()) $("#adPasswordLegacy").val(data.domainpasslegacy);
             }
         });
     });
