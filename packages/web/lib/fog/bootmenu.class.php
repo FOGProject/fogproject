@@ -292,7 +292,7 @@ class BootMenu extends FOGBase {
         },array_merge(array('rootfstype=ext4'),(array)$kernelArgsArray));
         $kernelArgs = array_values(array_filter(array_unique($kernelArgs)));
         $kernelArgs = implode(' ',(array)$kernelArgs);
-        $Send['task'] = array(
+        $Send['task'][$this->Host->get('task')->get('typeID')] = array(
             "$this->kernel $kernelArgs",
             $this->initrd,
             'boot',
@@ -531,10 +531,10 @@ class BootMenu extends FOGBase {
     }
     private function parseMe($Send) {
         self::$HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send,'Host' => &$this->Host,'kernel' => &$this->kernel,'initrd' => &$this->initrd,'booturl' => &$this->booturl, 'memdisk' => &$this->memdisk,'memtest' => &$this->memtest, 'web' => &$this->web, 'defaultChoice' => &$this->defaultChoice, 'bootexittype' => &$this->bootexittype,'storage' => &$this->storage,'shutdown' => &$this->shutdown,'path' => &$this->path,'timeout' => &$this->timeout,'KS' => $this->ks));
-        array_map(function(&$val) {
-            printf('%s%s',implode("\n",$val),"\n");
-            unset($val);
-        },(array)$Send);
+        array_walk_recursive($Send,function(&$val,&$key) {
+            printf('%s%s',implode("\n",(array)$val),"\n");
+            unset($val,$key);
+        });
     }
     public function advLogin() {
         $Send['advancedlogin'] = array(
