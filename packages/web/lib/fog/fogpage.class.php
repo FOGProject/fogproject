@@ -563,8 +563,8 @@ abstract class FOGPage extends FOGBase {
         );
         printf("<!-- Basic Tasks -->");
         printf('<!-- Basic Tasks --><div id="%s-tasks"><h2>%s %s</h2>',$this->node,$this->childClass,_('Tasks'));
-        foreach ((array)self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>0),'AND','id') AS $i => &$TaskType) {
-            if (!$TaskType->isValid()) continue;
+        $taskTypeIterator = function(&$TaskType) {
+            if (!$TaskType->isValid()) return;
             $this->data[] = array(
                 'node'=>$this->node,
                 'sub'=>'deploy',
@@ -575,7 +575,8 @@ abstract class FOGPage extends FOGBase {
                 'task_desc' => $TaskType->get('description'),
             );
             unset($TaskType);
-        }
+        };
+        array_map($taskTypeIterator,(array)self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>0),'AND','id'));
         $this->data[] = array(
             'node' => $this->node,
             'sub' => 'edit',
@@ -589,19 +590,7 @@ abstract class FOGPage extends FOGBase {
         $this->render();
         unset($this->data);
         printf('<div id="advanced-tasks" class="hidden"><h2>%s</h2>',_('Advanced Actions'));
-        foreach(self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>1),'AND','id') AS &$TaskType) {
-            if (!$TaskType->isValid()) continue;
-            $this->data[] = array(
-                'node'=>$this->node,
-                'sub'=>'deploy',
-                sprintf('%s_id',$this->node)=>$this->obj->get('id'),
-                'task_type'=>sprintf('&type=%s',$TaskType->get('id')),
-                'task_icon'=>$TaskType->get('icon'),
-                'task_name'=>$TaskType->get('name'),
-                'task_desc'=>$TaskType->get('description'),
-            );
-            unset($TaskType);
-        }
+        array_map($taskTypeIterator,(array)self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>1),'AND','id'));
         self::$HookManager->processEvent(sprintf('%s_DATA_ADV',strtoupper($this->node)), array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</div></div>';
@@ -616,33 +605,20 @@ abstract class FOGPage extends FOGBase {
         if (empty($ADPass)) $ADPass = ($this->obj instanceof Host ? $this->obj->get('ADPass') : $_REQUEST['domainpassword']);
         if (empty($ADPassLegacy)) $ADPassLegacy = ($this->obj instanceof Host ? $this->obj->get('ADPassLegacy') : $_REQUEST['domainpasswordlegacy']);
         if (empty($enforce)) $enforce = ($this->obj instanceof Host ? $this->obj->get('enforce') : (!isset($_REQUEST['enforce']) ? (int)self::getSetting('FOG_ENFORCE_HOST_CHANGES') : $_REQUEST['enforcesel']));
-        $OUs = explode('|',self::getSetting('FOG_AD_DEFAULT_OU'));
-        foreach((array)$OUs AS $i => &$OU) $OUOptions[] = $OU;
-        unset($OU);
-        $OUOPtions = array_filter($OUOptions);
-        if (count($OUOptions) > 1) {
-            $OUs = array_unique((array)$OUOptions);
-            $optFound = false;
-            foreach ($OUs AS &$OU) {
-                if (!$optFound && preg_match('#;#i',$OU)) {
-                $optFound = trim(preg_replace('#;#','',$OU));
-                unset($OU);
-                break;
-                }
-                unset($OU);
-            }
-            $OUOrig = $OUs;
-            if (!$optFound && !$ADOU) $optNotFound = trim(preg_replace('#;#','',array_pop($OUs)));
-            $OUs = $OUOrig;
+        $OUs = array_unique(array_filter(explode('|',self::getSetting('FOG_AD_DEFAULT_OU'))));
+        $objOU = trim(preg_replace('#;#','',$this->obj->get('ADOU')));
+        if (count($OUs) > 1) {
             ob_start();
-            printf('<option value="">- %s -</option>',_('Please select an option'));
-            foreach($OUs AS $i => &$OU) {
-                $OU = trim(preg_replace('#;#','',$OU));
-                printf('<option value="%s"%s>%s</option>',$OU,(($ADOU == $OU) || ($optFound && !$ADOU && $OU == $optFound) || (!$optFound && !$ADOU && $optNotFound == $OU)? 'selected' : ''),$OU);
-            }
-            unset($OUs);
+            printf('<option value="">- %s -</option>',self::$foglang['PleaseSelect']);
+            array_map(function(&$OU) use ($objOU,&$optFound) {
+                $ADOU = trim(preg_replace('#;#','',$OU));
+                if (!$optFound && $objOU === $ADOU) $optFound = $objOU;
+                if (!$optFound && preg_match('#;#',$OU)) $optFound = $objOU;
+                printf('<option value="%s"%s>%s</option>',$OU,$optFound === $ADOU ? ' selected' : '',$ADOU);
+                unset($OU);
+            },(array)$OUs);
             $OUOptions = sprintf('<select id="adOU" class="smaller" name="ou">%s</select>',ob_get_clean());
-        } else $OUOptions = sprintf('<input id="adOU" class="smaller" type="text" name="ou" value="%s" autocomplete="off"/>',$ADOU);
+        } else $OUOptions = sprintf('<input id="adOU" class="smaller" type="text" name="ou" value="%s" autocomplete="off"/>',array_shift($OUs));
         echo '<!-- Active Directory -->';
         $this->templates = array(
             '${field}',
@@ -664,27 +640,39 @@ abstract class FOGPage extends FOGBase {
             '&nbsp;' => sprintf('<input name="updatead" type="submit" value="%s"/>',($_REQUEST['sub'] == 'add' ? _('Add') : _('Update'))),
         );
         printf('<div id="%s-active-directory"><form method="post" action="%s&tab=%s-active-directory"><h2>%s<div id="adClear"></div></h2>',$this->node,$this->formAction,$this->node,_('Active Directory'));
-        foreach((array)$fields AS $field => &$input) {
+        array_walk($fields,function(&$input,&$field) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
             );
-        }
-        unset($input);
+            unset($input,$field);
+        });
         self::$HookManager->processEvent(strtoupper($this->childClass).'_EDIT_AD', array('headerData' => &$this->headerData,'data' => &$this->data,'attributes' => &$this->attributes,'templates' => &$this->templates));
         $this->render();
         unset($this->data);
         echo '</form></div>';
     }
     public function adInfo() {
-        $Data = array(
-            'domainname' => self::getSetting('FOG_AD_DEFAULT_DOMAINNAME'),
-            'ou' => self::getSetting('FOG_AD_DEFAULT_OU'),
-            'domainuser' => self::getSetting('FOG_AD_DEFAULT_USER'),
-            'domainpass' => $this->encryptpw(self::getSetting('FOG_AD_DEFAULT_PASSWORD')),
-            'domainpasslegacy' => self::getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
+        if (!self::$ajax) return;
+        $items = array(
+            'DOMAINNAME',
+            'OU',
+            'PASSWORD',
+            'PASSWORD_LEGACY',
+            'USER',
         );
-        if (self::$ajax) echo json_encode($Data);
+        $items = array_map(function(&$item) {
+            return sprintf('FOG_AD_DEFAULT_%s',$item);
+        },(array)$items);
+        list($domainname,$ou,$password,$password_legacy,$user) = self::getSubObjectIDs('Service',array('name'=>$items),'value',false,'AND','name',false,'');
+        echo json_encode(array(
+            'domainname' => $domainname,
+            'ou' => $ou,
+            'domainpass' => $password,
+            'domainpasslegacy' => $password_legacy,
+            'domainuser' => $user,
+        ));
+        exit;
     }
     public function kernelfetch() {
         try {
@@ -769,14 +757,14 @@ abstract class FOGPage extends FOGBase {
         );
         $fields = array_filter($fields);
         self::$HookManager->processEvent(sprintf('%s_DEL_FIELDS',strtoupper($this->node)),array($this->childClass=>&$this->obj));
-        foreach($fields AS $field => &$input) {
+        array_walk($fields,function(&$input,&$field) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
                 'label' => $this->title,
             );
-        }
-        unset($input);
+            unset($input,$field);
+        });
         self::$HookManager->processEvent(sprintf('%S_DEL',strtoupper($this->childClass)),array($this->childClass=>&$this->obj));
         printf('<form method="post" action="%s" class="c">',$this->formAction);
         $this->render();
