@@ -2126,3 +2126,7 @@ $this->schema[] = array(
 );
 // 221
 $this->schema[] = $this->schema[count($this->schema)-1];
+// 222
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` ADD COLUMN `hostInit` LONGTEXT AFTER `hostDevice`",
+);

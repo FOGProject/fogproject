@@ -144,6 +144,7 @@ class HostManagementPage extends FOGPage {
             _('Host Image') => self::getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','id'),
             _('Host Kernel') => sprintf('<input type="text" name="kern" value="%s"/>',$_REQUEST['kern']),
             _('Host Kernel Arguments') => sprintf('<input type="text" name="args" value="%s"/>',$_REQUEST['args']),
+            _('Host Init') => sprintf('<input type="text" name="init" value="%s"/>',$_REQUEST['init']),
             _('Host Primary Disk') => sprintf('<input type="text" name="dev" value="%s"/>',$_REQUEST['dev']),
             _('Host Bios Exit Type') => $this->exitNorm,
             _('Host EFI Exit Type') => $this->exitEfi,
@@ -193,6 +194,7 @@ class HostManagementPage extends FOGPage {
                 ->set('kernel',$_REQUEST['kern'])
                 ->set('kernelArgs',$_REQUEST['args'])
                 ->set('kernelDevice',$_REQUEST['dev'])
+                ->set('init',$_REQUEST['init'])
                 ->set('biosexit',$_REQUEST['bootTypeExit'])
                 ->set('efiexit',$_REQUEST['efiBootTypeExit'])
                 ->set('productKey',$this->encryptpw($productKey))
@@ -271,6 +273,7 @@ class HostManagementPage extends FOGPage {
             _('Host Image') => $imageSelect,
             _('Host Kernel') => sprintf('<input type="text" name="kern" value="%s"/>',$this->obj->get('kernel')),
             _('Host Kernel Arguments') => sprintf('<input type="text" name="args" value="%s"/>',$this->obj->get('kernelArgs')),
+            _('Host Init') => sprintf('<input type="text" name="init" value="%s"/>',$this->obj->get('init')),
             _('Host Primary Disk') => sprintf('<input type="text" name="dev" value="%s"/>',$this->obj->get('kernelDevice')),
             _('Host Bios Exit Type') => $this->exitNorm,
             _('Host EFI Exit Type') => $this->exitEfi,
@@ -749,6 +752,7 @@ class HostManagementPage extends FOGPage {
                     ->set('kernel',$_REQUEST['kern'])
                     ->set('kernelArgs',$_REQUEST['args'])
                     ->set('kernelDevice',$_REQUEST['dev'])
+                    ->set('init',$_REQUEST['init'])
                     ->set('biosexit',$_REQUEST['bootTypeExit'])
                     ->set('efiexit',$_REQUEST['efiBootTypeExit'])
                     ->set('productKey',$this->encryptpw($productKey));

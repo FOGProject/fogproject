@@ -22,6 +22,7 @@ class Host extends FOGController {
         'kernelArgs' => 'hostKernelArgs',
         'kernel' => 'hostKernel',
         'kernelDevice' => 'hostDevice',
+        'init' => 'hostInit',
         'pending' => 'hostPending',
         'pub_key' => 'hostPubKey',
         'sec_tok' => 'hostSecToken',
