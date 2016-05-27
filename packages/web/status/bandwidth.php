@@ -15,7 +15,6 @@ else {
     $tx = trim(file_get_contents(sprintf('/sys/class/net/%s/statistics/tx_bytes',$dev)));
     $ret = array('dev'=>$dev,'rx'=>$rx,'tx'=>$tx);
 }
-ignore_user_abort(true);
 ob_start();
 header('Content-Type: text/event-stream');
 header('Connection: close');
