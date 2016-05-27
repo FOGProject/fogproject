@@ -49,11 +49,11 @@ abstract class FOGPage extends FOGBase {
             $this->databaseFieldClassRelationships = $classVars['databaseFieldClassRelationships'];
             $this->additionalFields = $classVars['additionalFields'];
             unset($classVars);
+            $this->obj = self::getClass($this->childClass,$_REQUEST['id']);
             if (isset($_REQUEST['id'])) {
                 $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
                 $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST['id']}";
                 $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST['id']}";
-                $this->obj = self::getClass($this->childClass,$_REQUEST['id']);
                 if ((int) $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
                     unset($this->obj);
                     $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
@@ -598,27 +598,37 @@ abstract class FOGPage extends FOGBase {
     }
     public function adFieldsToDisplay($useAD = '',$ADDomain = '',$ADOU = '',$ADUser = '',$ADPass = '',$ADPassLegacy = '',$enforce = '') {
         unset($this->data,$this->headerData,$this->templates,$this->attributes);
-        if (empty($useAD)) $useAD = ($this->obj instanceof Host ? $this->obj->get('useAD') : $_REQUEST['domain']);
-        if (empty($ADDomain)) $ADDomain = ($this->obj instanceof Host ? $this->obj->get('ADDomain') : $_REQUEST['domainname']);
-        if (empty($ADOU)) $ADOU = trim(preg_replace('#;#','',($this->obj instanceof Host ? $this->obj->get('ADOU') : $_REQUEST['ou'])));
-        if (empty($ADUser)) $ADUser = ($this->obj instanceof Host ? $this->obj->get('ADUser') : $_REQUEST['domainuser']);
-        if (empty($ADPass)) $ADPass = ($this->obj instanceof Host ? $this->obj->get('ADPass') : $_REQUEST['domainpassword']);
-        if (empty($ADPassLegacy)) $ADPassLegacy = ($this->obj instanceof Host ? $this->obj->get('ADPassLegacy') : $_REQUEST['domainpasswordlegacy']);
-        if (empty($enforce)) $enforce = ($this->obj instanceof Host ? $this->obj->get('enforce') : (!isset($_REQUEST['enforce']) ? (int)self::getSetting('FOG_ENFORCE_HOST_CHANGES') : $_REQUEST['enforcesel']));
+        if (empty($useAD)) $useAD = $_REQUEST['domain'];
+        if (empty($ADDomain)) $ADDomain = $_REQUEST['domainname'];
+        if (empty($ADOU)) $ADOU = trim(preg_replace('#;#','',$_REQUEST['ou']));
+        if (empty($ADUser)) $ADUser = $_REQUEST['domainuser'];
+        if (empty($ADPass)) $ADPass = $_REQUEST['domainpassword'];
+        if (empty($ADPassLegacy)) $ADPassLegacy = $_REQUEST['domainpasswordlegacy'];
+        if (empty($enforce)) $enforce = $_REQUEST['enforce'];
+        if ($this->obj->isValid()) {
+            if (empty($useAD)) $useAD = $this->obj->get('useAD');
+            if (empty($ADDomain)) $ADDomain = $this->obj->get('ADDomain');
+            if (empty($ADOU)) $ADOU = trim(preg_replace('#;#','',$this->obj->get('ADOU')));
+            if (empty($ADUser)) $ADUser = $this->obj->get('ADUser');
+            if (empty($ADPass)) $ADPass = $this->obj->get('ADPass');
+            if (empty($ADPassLegacy)) $ADPass = $this->obj->get('ADPassLegacy');
+            if (empty($enforce)) $enforce = $this->obj->get('enforce');
+        }
+        if (empty($enforce)) $enforce = (int)self::getSetting('FOG_ENFORCE_HOST_CHANGES');
         $OUs = array_unique(array_filter(explode('|',self::getSetting('FOG_AD_DEFAULT_OU'))));
-        $objOU = trim(preg_replace('#;#','',$this->obj->get('ADOU')));
+        if ($this->obj->isValid()) $objOU = trim(preg_replace('#;#','',$this->obj->get('ADOU')));
         if (count($OUs) > 1) {
             ob_start();
             printf('<option value="">- %s -</option>',self::$foglang['PleaseSelect']);
-            array_map(function(&$OU) use ($objOU,&$optFound) {
-                $ADOU = trim(preg_replace('#;#','',$OU));
+            array_map(function(&$OU) use ($objOU,&$optFound,$ADOU) {
+                $ou = trim(preg_replace('#;#','',$OU));
                 if (!$optFound && $objOU === $ADOU) $optFound = $objOU;
                 if (!$optFound && preg_match('#;#',$OU)) $optFound = $objOU;
-                printf('<option value="%s"%s>%s</option>',$OU,$optFound === $ADOU ? ' selected' : '',$ADOU);
+                printf('<option value="%s"%s>%s</option>',$OU,$optFound === $ou ? ' selected' : '',$ou);
                 unset($OU);
             },(array)$OUs);
             $OUOptions = sprintf('<select id="adOU" class="smaller" name="ou">%s</select>',ob_get_clean());
-        } else $OUOptions = sprintf('<input id="adOU" class="smaller" type="text" name="ou" value="%s" autocomplete="off"/>',array_shift($OUs));
+        } else $OUOptions = sprintf('<input id="adOU" class="smaller" type="text" name="ou" value="%s" autocomplete="off"/>',$ADOU);
         echo '<!-- Active Directory -->';
         $this->templates = array(
             '${field}',
