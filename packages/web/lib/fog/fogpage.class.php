@@ -763,7 +763,7 @@ abstract class FOGPage extends FOGBase {
             sprintf('%s <b>%s</b>',_('Please confirm you want to delete'),$this->obj->get('name')) => '&nbsp;',
             ($this->obj instanceof Group ? _('Delete all hosts within group') : null) => ($this->obj instanceof Group ? '<input type="checkbox" name="massDelHosts" value="1" />' : null),
             ($this->obj instanceof Image || $this->obj instanceof Snapin ? _('Delete file data') : null) => ($this->obj instanceof Image || $this->obj instanceof Snapin ? '<input type="checkbox" name="andFile" id="andFile" value="1"/>' : null),
-            '&nbsp;' => '<input type="submit" value="${label}"/>',
+            '&nbsp;' => '<input type="submit" name="delete" value="${label}"/>',
         );
         $fields = array_filter($fields);
         self::$HookManager->processEvent(sprintf('%s_DEL_FIELDS',strtoupper($this->node)),array($this->childClass=>&$this->obj));
@@ -884,6 +884,7 @@ abstract class FOGPage extends FOGBase {
         self::getClass('HostManager')->update(array('id'=>$Hosts),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
     }
     public function delete_post() {
+        //if (!self::getClass('User')->password_validate($_POST['fogguiuser'],$_POST['fogguipass'])) return;
         self::$HookManager->processEvent(sprintf('%s_DEL_POST',strtoupper($this->node)), array($this->childClass=>&$this->obj));
         try {
             if ($this->obj->get('protected')) throw new Exception(sprintf('%s %s',$this->childClass,_('is protected, removal not allowed')));
