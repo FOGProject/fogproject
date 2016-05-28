@@ -412,22 +412,22 @@ function ProductUpdate() {
         e.preventDefault();
     });
 }
-function exportDialog(url) {
-    $('#exportDiv').html('<p>Enter GUI Login</p><p>Username: <input type="text" name="fogguiuser"/></p><p>Password: <input type="password" name="fogguipass"/></p>').dialog({
+function loginDialog(selector,url,submitButton,closeButton,titleText,formid,target) {
+    $(selector).html('<p>Enter GUI Login</p><p>Username: <input type="text" name="fogguiuser"/></p><p>Password: <input type="password" name="fogguipass"/></p>').dialog({
         open: function() {
             $(this).find('[name=export]').hide();
         },
         buttons: [{
-            text: 'Export',
+            text: submitButton,
             type: 'submit',
             click: function(e) {
                 e.preventDefault();
                 username = $('[name=fogguiuser]').val();
                 password = $('[name=fogguipass]').val();
-                ajaxRun(username,password,url);
+                ajaxRun(username,password,url,selector,formid,target);
             }
         },{
-            text: 'Close',
+            text: closeButton,
             click: function() {
                 $(this).dialog('close');
             }
@@ -436,15 +436,19 @@ function exportDialog(url) {
         resizable: false,
         draggable: false,
         autoResize: true,
-        title: 'Export Database'
+        title: titleText
     });
     $('[name=fogguiuser],[name=fogguipass]').keypress(function(e) {
+        console.log('here');
         if (e.keyCode == $.ui.keyCode.ENTER) {
             $(this).parents('.ui-dialog').find('button[type=submit]').trigger('click');
         }
     });
 }
-function ajaxRun(username,password,url) {
+function exportDialog(url) {
+    loginDialog('#exportDiv',url,'Export','Close','Export Database','exportform','exportDialog');
+}
+function ajaxRun(username,password,url,selector,formid,target) {
     $.ajax({
         url: url,
         type: 'POST',
@@ -454,17 +458,17 @@ function ajaxRun(username,password,url) {
         },
         dataType: 'json',
         beforeSend: function() {
-            $('#exportDiv').html('<p>Attempting to download</p>');
+            $(selector).html('<p>Attempting to perform actions.</p>');
         },
         complete: function(data) {
             if (!data.responseText) {
-                $('#exportDiv').html('<form id="exportform" method="post" action="'+url+'"><input type="hidden" name="fogajaxonly" value="1"/><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').dialog('close');
+                $(selector).html('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogajaxonly" value="1"/><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').dialog('close');
                 $('#exportform').submit();
             } else {
                 setTimeout(function() {
-                    exportDialog(url);
+                    eval(target+'(url)');
                 },3000);
-                $('#exportDiv').html('<p>'+data.responseText+'</p>');
+                $(selector).html('<p>'+data.responseText+'</p>');
             }
         }
     });
