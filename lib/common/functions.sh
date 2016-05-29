@@ -88,6 +88,12 @@ backupReports() {
     [[ -d $webdirdest/management/reports/ ]] && cp -a $webdirdest/management/reports/* ../rpttmp/ >>$workingdir/error_logs/fog_error_${version}.log
     echo "Done"
 }
+registerStorageNode() {
+#Check if the storage node exists or not.
+storageNodeExists=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser  -p$snmysqlpass -e "SELECT COUNT(*) FROM nfsGroupMembers where ngmHostname = '$ipaddress' ")
+#If the node does not exist, create it.
+[[ $storageNodeExists == 0 ]] && mysql -s -D fog -h $snmysqlhost -u $snmysqluser -p$snmysqlpass -e "INSERT INTO nfsGroupMembers (ngmMemberName,ngmMemberDescription,ngmRootPath,ngmSSLPath,ngmFTPPath,ngmSnapinPath,ngmHostname,ngmMaxClients,ngmUser,ngmPass,ngmInterface,ngmGraphEnabled,ngmWebroot) VALUES ('$ipaddress','Auto generated fog nfs group member','/images','/opt/fog/snapins/ssl','/images','/opt/fog/snapins','$ipaddress','10','$username','$password','$interface','1','/fog');"
+}
 backupDB() {
     local user=$(echo $fogguiuser|base64)
     local pass=$(echo $fogguipass|base64)
