@@ -537,15 +537,16 @@ abstract class FOGPage extends FOGBase {
             unset($Object);
         },(array)self::getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[sprintf('%sIDArray',$this->node)]))))));
         if (count($this->data)) {
-            printf('<div class="confirm-message"><p>%s\'s %s:</p><form method="post" action="%s_conf">',$this->childClass,_('to be removed'),$this->formAction);
+            printf('<div class="confirm-message"><p>%s\'s %s:</p><div id="deleteDiv"></div>',$this->childClass,_('to be removed'),$this->formAction);
             $this->render();
-            printf('<p class="c"><input type="submit" value="%s?"/></p></form></div>',_('Are you sure you wish to remove these items'));
+            printf('<p class="c"><input type="submit" name="delete" value="%s?"/></p>',_('Are you sure you wish to remove these items'));
         } else {
             $this->setMessage(sprintf('%s<br/>%s',_('No items to delete'),_('None selected or item is protected')));
             $this->redirect(sprintf('?node=%s',$this->node));
         }
     }
-    public function deletemulti_conf() {
+    public function deletemulti_ajax() {
+        if (!self::getClass('User')->password_validate($_POST['fogguiuser'],$_POST['fogguipass'])) die('###'.self::$foglang['InvalidLogin']);
         self::$HookManager->processEvent('MULTI_REMOVE',array('removing'=>&$_REQUEST['remitems']));
         self::getClass($this->childClass)->getManager()->destroy(array('id'=>$_REQUEST['remitems']));
         $this->setMessage(_('All selected items have been deleted'));
@@ -763,7 +764,7 @@ abstract class FOGPage extends FOGBase {
             sprintf('%s <b>%s</b>',_('Please confirm you want to delete'),$this->obj->get('name')) => '&nbsp;',
             ($this->obj instanceof Group ? _('Delete all hosts within group') : null) => ($this->obj instanceof Group ? '<input type="checkbox" name="massDelHosts" value="1" />' : null),
             ($this->obj instanceof Image || $this->obj instanceof Snapin ? _('Delete file data') : null) => ($this->obj instanceof Image || $this->obj instanceof Snapin ? '<input type="checkbox" name="andFile" id="andFile" value="1"/>' : null),
-            '&nbsp;' => '<input type="submit" name="delete" value="${label}"/>',
+            '&nbsp;' => sprintf('<input type="hidden" name="remitems[]" value="%s"/><input type="submit" name="delete" value="${label}"/>',$this->obj->get('id')),
         );
         $fields = array_filter($fields);
         self::$HookManager->processEvent(sprintf('%s_DEL_FIELDS',strtoupper($this->node)),array($this->childClass=>&$this->obj));
@@ -776,9 +777,8 @@ abstract class FOGPage extends FOGBase {
             unset($input,$field);
         });
         self::$HookManager->processEvent(sprintf('%S_DEL',strtoupper($this->childClass)),array($this->childClass=>&$this->obj));
-        printf('<form method="post" action="%s" class="c">',$this->formAction);
+        printf('<div id="deleteDiv"></div>',$this->formAction);
         $this->render();
-        printf('</form>');
     }
     public function configure() {
         $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_CHECKIN_TIME','FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
@@ -884,7 +884,7 @@ abstract class FOGPage extends FOGBase {
         self::getClass('HostManager')->update(array('id'=>$Hosts),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
     }
     public function delete_post() {
-        //if (!self::getClass('User')->password_validate($_POST['fogguiuser'],$_POST['fogguipass'])) return;
+        if (!self::getClass('User')->password_validate($_POST['fogguiuser'],$_POST['fogguipass'])) die('###'.self::$foglang['InvalidLogin']);
         self::$HookManager->processEvent(sprintf('%s_DEL_POST',strtoupper($this->node)), array($this->childClass=>&$this->obj));
         try {
             if ($this->obj->get('protected')) throw new Exception(sprintf('%s %s',$this->childClass,_('is protected, removal not allowed')));

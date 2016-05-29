@@ -62,13 +62,12 @@ class Schema extends FOGController {
     public function import_db($file) {
         $orig_exec_time = ini_get('max_execution_time');
         set_time_limit(0);
-        $mysqli = self::$DB->link();
         if (false === ($fh = fopen($file,'rb'))) throw new Exception(_('Error Opening DB File'));
         while (($line = fgets($fh)) !== false) {
             if (substr($line,0,2) == '--' || $line == '') continue;
             $tmpline .= $line;
             if (substr(trim($line),-1,1) == ';') {
-                if (false === $mysqli->query($tmpline)) $error .= _('Error performing query').'\'<strong>'.$line.'\': '.$mysqli->error.'</strong><br/><br/>';
+                if (false === self::$DB->query($tmpline)) $error .= _('Error performing query').'\'<strong>'.$line.'\': '.$mysqli->sqlerror().'</strong><br/><br/>';
                 $tmpline = '';
             }
         }
