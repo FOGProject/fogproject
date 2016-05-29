@@ -292,7 +292,7 @@ class BootMenu extends FOGBase {
         },array_merge(array('rootfstype=ext4'),(array)$kernelArgsArray));
         $kernelArgs = array_values(array_filter(array_unique($kernelArgs)));
         $kernelArgs = implode(' ',(array)$kernelArgs);
-        $Send['task'][$this->Host->get('task')->get('typeID')] = array(
+        $Send['task'][($this->Host->isValid() ? $this->Host->get('task')->get('typeID') : 1)] = array(
             "$this->kernel $kernelArgs",
             $this->initrd,
             'boot',
