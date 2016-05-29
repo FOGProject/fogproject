@@ -144,7 +144,7 @@ class StorageManagementPage extends FOGPage {
                 'node_name'=>$_REQUEST['name'],
                 'node_desc'=>$_REQUEST['description'],
                 'node_ip'=>$_REQUEST['ip'],
-                'node_webroot'=>$_REQUEST['webroot'],
+                'node_webroot'=>isset($_REQUEST['webroot']) ? $_REQUEST['webroot'] : '/fog',
                 'node_maxclient'=>$_REQUEST['maxClients']?$_REQUEST['maxClients']:10,
                 'span'=>'<i class="icon fa fa-question hand" title="'.self::$foglang['CautionPhrase'].'"></i>',
                 'span2'=>'<i class="icon fa fa-question hand" title="'.self::$foglang['BandwidthRepHelp'].'"></i>',
