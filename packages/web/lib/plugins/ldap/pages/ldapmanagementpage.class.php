@@ -3,6 +3,8 @@ class LDAPManagementPage extends FOGPage {
     public $node = 'ldap';
     public function __construct($name = '') {
         $this->name = 'LDAP Management';
+        self::$foglang['ExportLDAP'] = _('Export LDAPs');
+        self::$foglang['ImportLDAP'] = _('Import LDAPs');
         parent::__construct($name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
