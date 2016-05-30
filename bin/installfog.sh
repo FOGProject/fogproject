@@ -495,6 +495,7 @@ while [[ -z $blGo ]]; do
                         echo " * Upgrade complete"
                         echo
                     else
+                    registerStorageNode
                         echo
                         echo " * Setup complete"
                         echo
