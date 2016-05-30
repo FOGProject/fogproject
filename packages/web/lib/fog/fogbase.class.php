@@ -244,7 +244,7 @@ abstract class FOGBase {
             'greenfog' => true,
             'hostnamechanger' => true,
             'hostregister' => true,
-            'powermanagement' => true,
+            //'powermanagement' => true,
             'printermanager' => true,
             'snapinclient' => 'snapin',
             'taskreboot' => true,
