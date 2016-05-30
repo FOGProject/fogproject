@@ -3,6 +3,8 @@ class AccesscontrolManagementPage extends FOGPage {
     public $node = 'accesscontrol';
     public function __construct($name = '') {
         $this->name = 'Access Management';
+        self::$foglang['ExportAccesscontrol'] = _('Export Accesscontrols');
+        self::$foglang['ImportAccesscontrol'] = _('Import Accesscontrols');
         parent::__construct($this->name);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
