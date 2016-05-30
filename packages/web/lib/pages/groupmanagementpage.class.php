@@ -435,7 +435,7 @@ class GroupManagementPage extends FOGPage {
                 unset($this->data);
             }
         } else echo _('There are no printers defined');
-        echo "</div>$inputupdate</form></div></div>";
+        echo "</div>$inputupdate</form></div>";
         echo '<!-- Inventory -->';
         printf('<div id="group-inventory"><h2>%s %s</h2>',_('Group'),self::$foglang['Inventory']);
         printf('<h2><a href="export.php?type=csv&filename=Group_%s_InventoryReport" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=Group_%s_InventoryReport" alt="%s" title="%s" target="_blank">%s</a></h2>',
@@ -514,7 +514,7 @@ class GroupManagementPage extends FOGPage {
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
-        echo '</div>';
+        echo '</div></div>';
         unset($imageID,$imageMatchID,$groupKey,$groupKeyMatch,$aduse,$adDomain,$adOU,$adUser,$adPass,$adPassLegacy,$useAD,$ADOU,$ADDomain,$ADUser,$adPass,$ADPass,$ADPassLegacy,$biosExit,$efiExit,$exitNorm,$exitEfi);
     }
     public function edit_post() {
