@@ -3,6 +3,8 @@ class LocationManagementPage extends FOGPage {
     public $node = 'location';
     public function __construct($name = '') {
         $this->name = 'Location Management';
+        self::$foglang['ExportLocation'] = _('Export Locations');
+        self::$foglang['ImportLocation'] = _('Import Locations');
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(

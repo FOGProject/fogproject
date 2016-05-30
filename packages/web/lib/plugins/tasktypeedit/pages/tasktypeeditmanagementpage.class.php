@@ -3,12 +3,11 @@ class TasktypeeditManagementPage extends FOGPage {
     public $node = 'tasktypeedit';
     public function __construct($name = '') {
         $this->name = 'Task Type Management';
+        self::$foglang['ExportTasktypeedit'] = _('Export Task Types');
+        self::$foglang['ImportTasktypeedit'] = _('Import Task Types');
         parent::__construct($this->name);
-        $this->menu = array(
-            'search' => self::$foglang['NewSearch'],
-            'list' => sprintf(self::$foglang['ListAll'],_('Task Types')),
-            'add' => sprintf(self::$foglang['CreateNew'],_('Task Type')),
-        );
+        $this->menu['list'] = sprintf(self::$foglang['ListAll'],_('Task Types'));
+        $this->menu['add'] = sprintf(self::$foglang['CreateNew'],_('Task Typee'));
         if ($_REQUEST['id']) {
             $this->subMenu = array(
                 $this->delformat => self::$foglang['Delete'],

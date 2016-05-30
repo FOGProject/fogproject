@@ -2142,5 +2142,7 @@ $this->schema[] = array(
         `pmDow` VARCHAR(255) NOT NULL,
         `pmAction` ENUM('shutdown','reboot') NOT NULL,
         PRIMARY KEY (`pmID`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC"
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.`modules` (`id`, `name`, `short_name`, `description`) VALUES (13, 'Power Management', 'powermanagement', 'This setting will enable or disable the power management service module on this specific host.  If the module is globally disabled, this setting is ignored.')",
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_CLIENT_POWERMANAGEMENT_ENABLED', 'This setting defines if the Windows Service module power management should be enabled on client computers. This service allows an on demand shutdown/reboot/wol of hosts.  It also operates in a cron style setup to allow many different schedules of shutdowns, restarts, and/or wol. (Valid values: 0 or 1).','1','FOG Client - Power Management')",
 );

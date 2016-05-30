@@ -3,12 +3,11 @@ class TaskstateeditManagementPage extends FOGPage {
     public $node = 'taskstateedit';
     public function __construct($name = '') {
         $this->name = 'Task State Management';
+        self::$foglang['ExportTaskstateedit'] = _('Export Task States');
+        self::$foglang['ImportTaskstateedit'] = _('Import Task States');
         parent::__construct($this->name);
-        $this->menu = array(
-            'search' => self::$foglang['NewSearch'],
-            'list' => sprintf(self::$foglang['ListAll'],_('Task States')),
-            'add' => sprintf(self::$foglang['CreateNew'],_('Task State')),
-        );
+        $this->menu['list'] = sprintf(self::$foglang['ListAll'],_('Task States'));
+        $this->menu['add'] = sprintf(self::$foglang['CreateNew'],_('Task State'));
         if ($_REQUEST['id']) {
             $this->subMenu = array(
                 $this->delformat => self::$foglang['Delete'],
