@@ -2140,7 +2140,7 @@ $this->schema[] = array(
         `pmDom` VARCHAR(255) NOT NULL,
         `pmMonth` VARCHAR(255) NOT NULL,
         `pmDow` VARCHAR(255) NOT NULL,
-        `pmAction` ENUM('shutdown','reboot') NOT NULL,
+        `pmAction` ENUM('shutdown','reboot','wol') NOT NULL,
         PRIMARY KEY (`pmID`)
     ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`modules` (`id`, `name`, `short_name`, `description`) VALUES (13, 'Power Management', 'powermanagement', 'This setting will enable or disable the power management service module on this specific host.  If the module is globally disabled, this setting is ignored.')",
