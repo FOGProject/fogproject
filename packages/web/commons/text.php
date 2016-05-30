@@ -61,6 +61,7 @@ $foglang['Reboot']					= _('Reboot');
 $foglang['Time']					= _('Time');
 $foglang['Action']					= _('Action');
 $foglang['Printer']					= _('Printer');
+$foglang['PowerManagement']			= _('Power Management');
 $foglang['Client']					= _('Client');
 $foglang['Task']					= _('Task');
 $foglang['Username']				= _('Username');
