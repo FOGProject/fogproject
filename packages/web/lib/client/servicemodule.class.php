@@ -15,7 +15,7 @@ class ServiceModule extends FOGClient implements FOGClientSend {
         $globalModules = (!$this->newService ? $this->getGlobalModuleStatus(false,true) : array_diff($this->getGlobalModuleStatus(false,true),array('dircleanup','usercleanup','clientupdater')));
         $globalInfo = $this->getGlobalModuleStatus();
         $globalDisabled = array();
-        array_walk($globalInfo,function(&$en,&$key) use (&$globalDisabled) {
+        @array_walk($globalInfo,function(&$en,&$key) use (&$globalDisabled) {
             if ($this->newService && in_array($key,array('dircleanup','usercleanup','clientupdater'))) return;
             if (!$en) $globalDisabled[] = $key;
         });
