@@ -1,5 +1,5 @@
 <?php
-class ReportMaker {
+class ReportMaker extends FOGBase {
     private $strHTML, $strCSV, $strLine, $filename;
     public $types = array(
         'html' => 0,
@@ -14,6 +14,10 @@ class ReportMaker {
         'printer' => 4,
         'sqldump' => 5,
     );
+    public function __construct() {
+        parent::__construct();
+        self::$HookManager->processEvent('REPORT_TYPES',array('types'=>&$this->types));
+    }
     public function appendHTML($html) {
         $this->strHTML[] = $html;
         return $this;
