@@ -456,7 +456,7 @@ function exportDialog(url) {
 function deleteDialog(url) {
     loginDialog('#deleteDiv',url,'Delete','Close','Delete Item(s)','deleteform','deleteDialog');
 }
-function ajaxRun(username,password,url,selector,formid,target,fogajax = 0) {
+function ajaxRun(username,password,url,selector,formid,target,fogajax) {
     ids = new Array();
     $('input[name="remitems[]"]').each(function() {
         ids[ids.length] = $(this).val();
