@@ -122,7 +122,7 @@ class MulticastManager extends FOGService {
             self::out(' +---------------------------------------------------------',static::$dev);
             $tmpTime = (int)self::getSetting(self::$sleeptime);
             if (static::$zzz != $tmpTime) {
-                static::$zzz = $tmpTime;
+                static::$zzz = $tmpTime ? $tmpTime : 10;
                 self::outall(sprintf(" | Sleep time has changed to %s seconds",static::$zzz));
             }
             sleep(static::$zzz);

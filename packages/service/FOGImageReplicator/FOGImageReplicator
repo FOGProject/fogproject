@@ -12,7 +12,7 @@ $ServiceClass->wait_db_ready();
 $ServiceClass->serviceStart();
 while(true) {
     $ServiceClass->serviceRun();
-    sleep($ServiceClass::$zzz);
+    sleep($ServiceClass::$zzz ? $ServiceClass::$zzz : 600);
 }
 $ServiceClass::outall(sprintf(" * Service has ended."));
 exit(0);
