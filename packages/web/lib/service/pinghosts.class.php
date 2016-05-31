@@ -3,10 +3,11 @@ class PingHosts extends FOGService {
     public static $sleeptime = 'PINGHOSTSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',self::$logpath,self::getSetting('PINGHOSTLOGFILENAME'));
+        list($dev,$log,$zzz) = self::getSubObjectIDs('Service',array('name'=>array('PINGHOSTDEVICEOUTPUT','PINGHOSTLOGFILENAME',$sleeptime)),'value',false,'AND','name',false,'');
+        static::$log = sprintf('%s%s',self::$logpath ? self::$logpath : '/opt/fog/log/',$log ? $log : 'pinghost.log');
         if (file_exists(static::$log)) @unlink(static::$log);
-        static::$dev = self::getSetting('PINGHOSTDEVICEOUTPUT');
-        static::$zzz = (int)self::getSetting(self::$sleeptime);
+        static::$dev = $dev ? $dev : '/dev/tty3';
+        static::$zzz = (int)($zzz ? $zzz : 300);
     }
     private function commonOutput() {
         try {
