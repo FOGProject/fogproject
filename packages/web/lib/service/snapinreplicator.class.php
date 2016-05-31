@@ -3,10 +3,11 @@ class SnapinReplicator extends FOGService {
     public static $sleeptime = 'SNAPINREPSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',self::$logpath,self::getSetting('SNAPINREPLICATORLOGFILENAME'));
+        list($dev,$log,$zzz) = self::getSubObjectIDs('Service',array('name'=>array('SNAPINREPLICATORDEVICEOUTPUT','SNAPINREPLICATORLOGFILENAME',$sleeptime)),'value',false,'AND','name',false,'');
+        static::$log = sprintf('%s%s',self::$logpath ? self::$logpath : '/opt/fog/log/',$log ? $log : 'fogsnapinrep.log');
         if (file_exists(static::$log)) @unlink(static::$log);
-        static::$dev = self::getSetting('SNAPINREPLICATORDEVICEOUTPUT');
-        static::$zzz = (int)self::getSetting(self::$sleeptime);
+        static::$dev = $dev ? $dev : '/dev/tty4';
+        static::$zzz = (int)($zzz ? $zzz : 600);
     }
     private function commonOutput() {
         try {

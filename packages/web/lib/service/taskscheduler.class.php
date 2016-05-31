@@ -3,10 +3,11 @@ class TaskScheduler extends FOGService {
     public static $sleeptime = 'SCHEDULERSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',self::$logpath,self::getSetting('SCHEDULERLOGFILENAME'));
+        list($dev,$log,$zzz) = self::getSubObjectIDs('Service',array('name'=>array('SCHEDULERDEVICEOUTPUT','SCHEDULERLOGFILENAME',$sleeptime)),'value',false,'AND','name',false,'');
+        static::$log = sprintf('%s%s',self::$logpath ? self::$logpath : '/opt/fog/log/',$log ? $log : 'fogscheduler.log');
         if (file_exists(static::$log)) @unlink(static::$log);
-        static::$dev = self::getSetting('SCHEDULERDEVICEOUTPUT');
-        static::$zzz = (int)self::getSetting(self::$sleeptime);
+        static::$dev = $dev ? $dev : '/dev/tty5';
+        static::$zzz = (int)($zzz ? $zzz : 60);
     }
     private function commonOutput() {
         try {

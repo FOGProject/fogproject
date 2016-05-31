@@ -3,10 +3,11 @@ class ImageReplicator extends FOGService {
     public static $sleeptime = 'IMAGEREPSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',self::$logpath,self::getSetting('IMAGEREPLICATORLOGFILENAME'));
+        list($dev,$log,$zzz) = self::getSubObjectIDs('Service',array('name'=>array('IMAGEREPLICATORDEVICEOUTPUT','IMAGEREPLICATORLOGFILENAME',$sleeptime)),'value',false,'AND','name',false,'');
+        static::$log = sprintf('%s%s',self::$logpath ? self::$logpath : '/opt/fog/log/',$log ? $log : 'fogreplicator.log');
         if (file_exists(static::$log)) @unlink(static::$log);
-        static::$dev = self::getSetting('IMAGEREPLICATORDEVICEOUTPUT');
-        static::$zzz = (int)self::getSetting(static::$sleeptime);
+        static::$dev = $dev ? $dev : '/dev/tty1';
+        static::$zzz = (int)($zzz ? $zzz : 600);
     }
     private function commonOutput() {
         try {
