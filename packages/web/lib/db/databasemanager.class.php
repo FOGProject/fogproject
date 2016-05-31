@@ -14,8 +14,8 @@ class DatabaseManager extends FOGCore {
                 if ($this->json) return print json_encode(array('error'=>'db'));
                 else return print '#!db';
             }
+            if (!preg_match('#schema#i',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
         }
-        if (!preg_match('#schema#i',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
         return $this;
     }
     public function getDB() {
