@@ -10,6 +10,13 @@ abstract class FOGClient extends FOGBase {
             $this->json = (isset($_REQUEST['sub']) && $_REQUEST['sub'] == 'requestClientInfo') || isset($_REQUEST['json']);
             $method = $this->json ? 'json' : 'send';
             $this->Host = $this->getHostItem($service,$encoded,$hostnotrequired,$returnmacs,$override);
+            $validClientServiceFiles = array(
+                'snapins.checkin.php',
+                'snapins.file.php',
+                'jobs.php',
+            );
+            $scriptCheck = basename($_SERVER['SCRIPT_NAME']);
+            if (($this->json || $this->newService) && !in_array($scriptCheck,$validClientBrowserFiles)) throw new Exception(_('Not Allowed Here'));
             if ((!isset($_REQUEST['sub']) || trim(strtolower($_REQUEST['sub'])) !== 'requestclientinfo') && $this->json) throw new Exception(json_encode($this->{$method}()));
             if ($this->json) return json_encode($this->{$method}());
             $this->{$method}();
