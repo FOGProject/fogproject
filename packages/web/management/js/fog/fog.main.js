@@ -215,33 +215,21 @@ function HookTooltips() {
     }, 400);
 }
 function validateCronInputs(selector) {
+    var funcs = {
+        'scheduleCronMin': checkMinutesField,
+        'scheduleCronHour': checkHoursField,
+        'scheduleCronDOM': checkDOMField,
+        'scheduleCronMonth': checkMonthField,
+        'scheduleCronDOW': checkDOWField,
+    };
+    result = true;
     inputsToValidate = $(selector).removeClass('error');
     inputsToValidate.each(function() {
-        var min = $('#scheduleCronMin');
-        var hour = $('#scheduleCronHour');
-        var dom = $('#scheduleCronDOM');
-        var month = $('#scheduleCronMonth');
-        var dow = $('#scheduleCronDOW');
-        // Basic checks
-        if (!checkMinutesField(min.val())) {
-            result = false;
-            min.addClass('error');
-        }
-        if (!checkHoursField(hour.val())) {
-            result = false;
-            hour.addClass('error');
-        }
-        if (!checkDOMField(dom.val())) {
-            result = false;
-            dom.addClass('error');
-        }
-        if (!checkMonthField(month.val())) {
-            result = false;
-            month.addClass('error');
-        }
-        if (!checkDOWField(dow.val())) {
-            result = false;
-            dow.addClass('error');
+        var val = this.value;
+        result = funcs[this.id](val);
+        if (result === false) {
+            $(this).addClass('error');
+            return false;
         }
     });
     return result;
@@ -313,8 +301,10 @@ function DeployStuff() {
         });
     });
     // Basic validation on deployment page
-    $("[name^='scheduleCron']").on('submit blur',function() {
-        return validateCronInputs('#cronOptions > input');
+    $("[name^='scheduleCron']").each(function() {
+        validateCronInputs('#'+this.id);
+    }).blur(function() {
+        validateCronInputs('#'+this.id);
     });
     $('#deploy-container').submit(function() {
         var scheduleType = $('input[name="scheduleType"]:checked', $(this)).val();
@@ -325,7 +315,12 @@ function DeployStuff() {
                 return false;
                 validateInput.addClass('error');
             }
-        } else result = validateCronInputs('#cronOptions > input');
+        } else if (scheduleType == 'cron') {
+            $('[name^="scheduleCron"]',$(this)).each(function() {
+                result = validateCronInputs('#'+this.id);
+                if (result === false) return false;
+            });
+        }
         return result;
     });
     // Auto open the calendar when chosen

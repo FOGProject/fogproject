@@ -122,11 +122,17 @@ $(function() {
         $('#snapinNotInHost').toggle();
         e.preventDefault();
     });
-    $("[name^='scheduleCron']").blur(function() {
-        result = validateCronInputs('#cronOptions > input');
-        return result;
+    result = true;
+    $("[name^='scheduleCron']").each(function() {
+        validateCronInputs('#'+this.id);
+    }).blur(function() {
+        validateCronInputs('#'+this.id);
     });
     $('#deploy-container').submit(function() {
-        return validateCronInputs('#cronOptions > input');
+        $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+            result = validateCronInputs('#'+this.id);
+            if (result === false) return false;
+        });
+        return result;
     });
 });
