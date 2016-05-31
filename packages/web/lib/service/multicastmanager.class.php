@@ -3,10 +3,11 @@ class MulticastManager extends FOGService {
     public static $sleeptime = 'MULTICASTSLEEPTIME';
     public function __construct() {
         parent::__construct();
-        static::$log = sprintf('%s%s',self::$logpath,self::getSetting('MULTICASTLOGFILENAME'));
+        list($dev,$log,$zzz) = self::getSubObjectIDs('Service',array('name'=>array('MULTICASTDEVICEOUTPUT','MULTICASTLOGFILENAME',$sleeptime)),'value',false,'AND','name',false,'');
+        static::$log = sprintf('%s%s',self::$logpath ? self::$logpath : '/opt/fog/log/',$log ? $log : 'multicast.log');
         if (file_exists(static::$log)) @unlink(static::$log);
-        static::$dev = self::getSetting('MULTICASTDEVICEOUTPUT');
-        static::$zzz = (int)self::getSetting(self::$sleeptime);
+        static::$dev = $dev ? $dev : '/dev/tty2';
+        static::$zzz = (int)($zzz ? $zzz : 10);
     }
     private function isMCTaskNew($KnownTasks, $id) {
         foreach((array)$KnownTasks AS $i => &$Known) $output[] = $Known->getID();
