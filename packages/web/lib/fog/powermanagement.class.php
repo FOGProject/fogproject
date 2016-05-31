@@ -9,6 +9,7 @@ class PowerManagement extends FOGController {
         'dom' => 'pmDom',
         'month' => 'pmMonth',
         'dow' => 'pmDow',
+        'onDemand' => 'pmOndemand',
         'action' => 'pmAction',
     );
     protected $databaseFieldsRequired = array(

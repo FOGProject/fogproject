@@ -207,9 +207,6 @@ class ServiceConfigurationPage extends FOGPage {
                 $this->render();
                 echo '</form>';
                 break;
-            case 'powermanagement':
-                unset($this->data,$this->headerData,$this->attributes,$this->templates);
-                break;
             case 'usercleanup':
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->attributes = array(

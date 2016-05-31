@@ -214,6 +214,38 @@ function HookTooltips() {
         $('a[title],.remove-mac[title], .add-mac[title], .icon-help[title], .task-name[title], .icon[title], .icon-ping[title], .icon-ping-down[title], .icon-ping-up[title], img[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS});
     }, 400);
 }
+function validateCronInputs(selector) {
+    inputsToValidate = $(selector).removeClass('error');
+    inputsToValidate.each(function() {
+        var min = $('#scheduleCronMin');
+        var hour = $('#scheduleCronHour');
+        var dom = $('#scheduleCronDOM');
+        var month = $('#scheduleCronMonth');
+        var dow = $('#scheduleCronDOW');
+        // Basic checks
+        if (!checkMinutesField(min.val())) {
+            result = false;
+            min.addClass('error');
+        }
+        if (!checkHoursField(hour.val())) {
+            result = false;
+            hour.addClass('error');
+        }
+        if (!checkDOMField(dom.val())) {
+            result = false;
+            dom.addClass('error');
+        }
+        if (!checkMonthField(month.val())) {
+            result = false;
+            month.addClass('error');
+        }
+        if (!checkDOWField(dow.val())) {
+            result = false;
+            dow.addClass('error');
+        }
+    });
+    return result;
+}
 function DeployStuff() {
     $('#checkDebug').change(function(e) {
         $('.hideFromDebug,.hidden').each(function(e) {
@@ -281,46 +313,19 @@ function DeployStuff() {
         });
     });
     // Basic validation on deployment page
-    $('form#deploy-container').submit(function() {
-        var result = true;
+    $("[name^='scheduleCron']").on('submit blur',function() {
+        return validateCronInputs('#cronOptions > input');
+    });
+    $('#deploy-container').submit(function() {
         var scheduleType = $('input[name="scheduleType"]:checked', $(this)).val();
-        var inputsToValidate = $('#' + scheduleType + 'Options > input').removeClass('error');
-        if (scheduleType == 'cron') {
-            inputsToValidate.each(function() {
-                var $min = $('#scheduleCronMin');
-                var $hour = $('#scheduleCronHour');
-                var $dom = $('#scheduleCronDOM');
-                var $month = $('#scheduleCronMonth');
-                var $dow = $('#scheduleCronDOW');
-                // Basic checks
-                if (!checkMinutesField($min.val())) {
-                    result = false;
-                    $min.addClass('error');
-                }
-                if (!checkHoursField($hour.val())) {
-                    result = false;
-                    $hour.addClass('error');
-                }
-                if (!checkDOMField($dom.val())) {
-                    result = false;
-                    $dom.addClass('error');
-                }
-                if (!checkMonthField($month.val())) {
-                    result = false;
-                    $month.addClass('error');
-                }
-                if (!checkDOWField($dow.val())) {
-                    result = false;
-                    $dow.addClass('error');
-                }
-            });
-        } else if (scheduleType == 'single') {
+        if (scheduleType == 'single') {
             // Format check
-            if (!inputsToValidate.val().match(/\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}/)) {
-                result = false;
-                inputsToValidate.addClass('error').click();
+            validateInput = $('#'+scheduleType+'Options > input').removeClass('error');
+            if (!validateInput.val().match(/\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}/)) {
+                return false;
+                validateInput.addClass('error');
             }
-        }
+        } else result = validateCronInputs('#cronOptions > input');
         return result;
     });
     // Auto open the calendar when chosen

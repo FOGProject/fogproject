@@ -122,4 +122,11 @@ $(function() {
         $('#snapinNotInHost').toggle();
         e.preventDefault();
     });
+    $("[name^='scheduleCron']").blur(function() {
+        result = validateCronInputs('#cronOptions > input');
+        return result;
+    });
+    $('#deploy-container').submit(function() {
+        return validateCronInputs('#cronOptions > input');
+    });
 });

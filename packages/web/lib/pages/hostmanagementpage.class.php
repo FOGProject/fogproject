@@ -15,6 +15,7 @@ class HostManagementPage extends FOGPage {
                 "$this->linkformat#host-printers"=>self::$foglang['Printers'],
                 "$this->linkformat#host-snapins"=>self::$foglang['Snapins'],
                 "$this->linkformat#host-service"=>sprintf('%s %s',self::$foglang['Service'],self::$foglang['Settings']),
+                "$this->linkformat#host-powermanagement"=>self::$foglang['PowerManagement'],
                 "$this->linkformat#host-hardware-inventory"=>self::$foglang['Inventory'],
                 "$this->linkformat#host-virus-history"=>self::$foglang['VirusHistory'],
                 "$this->linkformat#host-login-history"=>self::$foglang['LoginHistory'],
@@ -520,7 +521,60 @@ class HostManagementPage extends FOGPage {
         self::$HookManager->processEvent('HOST_EDIT_ALO',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data,$fields);
-        echo '</fieldset></form></div><!-- Inventory -->';
+        echo '</fieldset></form></div>';
+        echo '<!-- Power Management Items --><div id="host-powermanagement"><p id="cronOptions">';
+        $this->headerData = array(
+            _('Cron Schedule'),
+            _('Run Now?'),
+            _('Action'),
+        );
+        $this->templates = array(
+            '<input type="checkbox" name="rempowermanagement" value=""%s/>',
+            '<div id="deploy-container"><p id="cronOptions"><input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off" value="${min}"/><input type="text" name="scheduleCronHour" id="scheduleCronHour" placeholder="hour" autocomplete="off" value="${hour}"/><input type="text" name="scheduleCronDOM" id="scheduleCronDOM" placeholder="dom" autocomplete="off" value="${dom}"/><input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" value="${month}"/><input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" value="${dow}"/></p></div>',
+            '<input type="checkbox" name="onDemand" id="scheduleOnDemand"${is_checked}/>',
+            'selectOptionsforActiontoPerform',
+        );
+        $this->attributes = array(
+            array('class'=>'filter-false'),
+            array('width'=>16,'class'=>'c filter-false'),
+            array('class'=>'filter-false'),
+        );
+        array_map(function(&$PowerManagement) {
+            if (!$PowerManagement->isValid()) return;
+            $this->data[] = array(
+                'min' => $PowerManagement->get('min'),
+                'hour' => $PowerManagement->get('hour'),
+                'dom' => $PowerManagement->get('dom'),
+                'month' => $PowerManagement->get('month'),
+                'dow' => $PowerManagement->get('dow'),
+                'is_checked' => $PowerManagement->get('onDemand') ? ' checked' : '',
+                'is_selected' => $PowerManagement->get('action') ? ' selected' : '',
+            );
+        },(array)self::getClass('PowerManagementManager')->find(array('id'=>$this->obj->get('powermanagements'))));
+        $this->render();
+        unset($this->headerData,$this->templates,$this->attributes,$this->data);
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+        );
+        $fields = array(
+            _('Schedule Power') => sprintf('<p id="cronOptions"><input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off" value="%s"/><input type="text" name="scheduleCronHour" id="scheduleCronHour" placeholder="hour" autocomplete="off" value="%s"/><input type="text" name="scheduleCronDOM" id="scheduleCronDOM" placeholder="dom" autocomplete="off" value="%s"/><input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" value="%s"/><input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" value="%s"/></p>',$_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW']),
+        );
+        array_walk($fields,function(&$input,&$field) {
+            $this->data[] = array(
+                'field' => $field,
+                'input' => $input,
+            );
+        });
+        printf('<form method="post" action="%s&tab=host-powermanagement" id="deploy-container">',$this->formAction);
+        $this->render();
+        printf('<input type="submit" name="submit" value="%s"/></form></div>',_('Add Option'));
+        unset($this->headerData,$this->templates,$this->data,$this->attributes);
+        echo '<!-- Inventory -->';
         $this->attributes = array(
             array(),
             array(),
