@@ -103,5 +103,8 @@ class ReportMaker extends FOGBase {
             $cmd = sprintf("rm -rf %s",escapeshellarg($filepath));
             exec($cmd);
         }
+        flush();
+        ob_flush();
+        ob_end_flush();
     }
 }
