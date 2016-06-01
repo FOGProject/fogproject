@@ -54,6 +54,7 @@ class Host extends FOGController {
         'snapinjob',
         'users',
         'fingerprint',
+        'powermanagementtasks',
     );
     protected $databaseFieldClassRelationships = array(
         'MACAddressAssociation' => array('hostID','id','primac',array('primary'=>1)),
@@ -64,6 +65,7 @@ class Host extends FOGController {
         'pendingMACs',
         'groups',
         'groupsnotinme',
+        'powermanagementtasks',
         'printers',
         'printersnotinme',
         'snapins',
@@ -126,12 +128,14 @@ class Host extends FOGController {
         self::getClass('InventoryManager')->destroy($find);
         self::getClass('UserTrackingManager')->destroy($find);
         self::getClass('MACAddressAssociationManager')->destroy($find);
+        self::getClass('PowerManagementManager')->destroy($find);
         return parent::destroy($field);
     }
     public function save($mainObject = true) {
         if ($mainObject) parent::save();
-        $itemSetter = function(&$item) {
-            if (!$item->isValid()) return;
+        $objNeeded = true;
+        $itemSetter = function(&$item) use (&$objNeeded) {
+            if ($objNeeded === true && !$item->isValid()) return;
             $item->addHost($this->get('id'))->save(false);
             unset($item);
         };
@@ -268,6 +272,16 @@ class Host extends FOGController {
             }
             array_map($itemSetter,(array)self::getClass('PrinterManager')->find(array('id'=>array_diff((array)$this->get('printers'),(array)$DBPrinterIDs))));
             unset($DBPrinterIDs,$RemovePrinterIDs);
+        case (self::isLoaded('powermanagementtasks')):
+            $DBPowerManagementIDs = self::getSubObjectIDs('PowerManagement',array('hostID'=>$this->get('id')));
+            $RemovePowerManagementIDs = array_diff((array)$DBPowerManagementIDs,(array)$this->get('powermanagementtasks'));
+            if (count($RemovePowerManagementIDs)) {
+                self::getClass('PowerManagementManager')->destroy(array('hostID'=>$this->get('id'),'id'=>$RemovePowerManagementIDs));
+                $DBPowerManagementIDs = self::getSubObjectIDs('PowerManagement',array('hostID'=>$this->get('id')));
+                unset($RemovePowerManagementIDs);
+            }
+            $objNeeded = false;
+            unset($DBPowerManagementIDs,$RemovePowerManagementIDs);
         case (self::isLoaded('snapins')):
             $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
             $RemoveSnapinIDs = array_diff((array)$DBSnapinIDs,(array)$this->get('snapins'));
@@ -391,6 +405,10 @@ class Host extends FOGController {
     protected function loadModules() {
         if (!$this->get('id')) return;
         $this->set('modules',self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID'));
+    }
+    protected function loadPowermanagementtasks() {
+        if (!$this->get('id')) return;
+        $this->set('powermanagementtasks',self::getSubObjectIDs('PowerManagement',array('hostID'=>$this->get('id'))));
     }
     protected function loadUsers() {
         if (!$this->get('id')) return;
@@ -706,6 +724,14 @@ class Host extends FOGController {
     public function removeModule($removeArray) {
         if (!$this->isLoaded('modules')) $this->loadModules();
         return $this->set('modules',array_unique(array_diff((array)$this->get('modules'),(array)$removeArray)));
+    }
+    public function addPowerManagement($addArray) {
+        if (!$this->isLoaded('powermanagementtasks')) $this->loadPowermanagementtasks();
+        return $this->set('powermanagementtasks',array_unique(array_merge((array)$this->get('powermanagementtasks'),(array)$addArray)));
+    }
+    public function removePowerManagement($removeArray) {
+        if (!$this->isLoaded('powermanagementtasks')) $this->loadPowermanagementtasks();
+        return $this->set('powermanagementtasks',array_unique(array_diff((array)$this->get('powermanagementtasks'),(array)$removeArray)));
     }
     public function getMyMacs($justme = true) {
         if ($justme) return self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id')),'mac');

@@ -27,6 +27,7 @@ class HostManager extends FOGManagerController {
         self::getClass('InventoryManager')->destroy($findWhere);
         self::getClass('UserTrackingManager')->destroy($findWhere);
         self::getClass('MACAddressAssociationManager')->destroy($findWhere);
+        self::getClass('PowerManagementManager')->destroy($findWhere);
         return parent::destroy($fieldWhere);
     }
 }
