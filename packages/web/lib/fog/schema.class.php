@@ -53,9 +53,6 @@ class Schema extends FOGController {
             unlink($file);
             return;
         }
-        flush();
-        ob_flush();
-        ob_end_flush();
         set_time_limit($orig_exec_time);
         return $file;
     }

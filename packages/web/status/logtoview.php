@@ -1,5 +1,4 @@
 <?php
-ob_start();
 require_once('../commons/base.inc.php');
 header('Content-Type: text/event-stream');
 header('Connection: close');
@@ -51,7 +50,4 @@ if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
         echo array_shift($response);
     }
 }
-flush();
-ob_flush();
-ob_end_flush();
 exit;
