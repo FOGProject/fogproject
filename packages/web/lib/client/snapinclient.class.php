@@ -101,6 +101,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             while (feof($fh) === false) {
                 if (($line = fread($fh,4096)) === false) break;
                 echo $line;
+                flush();
             }
             fclose($fh);
             flush();
@@ -229,6 +230,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             while (feof($fh) === false) {
                 if (($line = fread($fh,4096)) === false) break;
                 echo $line;
+                flush();
             }
             fclose($fh);
             flush();

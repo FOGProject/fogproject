@@ -168,12 +168,13 @@ class Page extends FOGBase {
         $this->body = ob_get_clean();
     }
     public function render($path = '') {
+        ob_start();
+        header('Connection: close');
         require('../management/other/index.php');
-        if (!headers_sent()) header('Connection: close');
         while (ob_get_level()) {
-            ob_end_flush();
-            ob_flush();
             flush();
+            ob_flush();
+            ob_end_flush();
         }
         exit;
     }

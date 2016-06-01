@@ -1,5 +1,4 @@
 <?php
-ob_start();
 require_once('../commons/base.inc.php');
 header('Content-Type: text/event-stream');
 header('Connection: close');
@@ -9,7 +8,4 @@ $kernelvers = function($kernel) {
 };
 printf("bzImage Version: %s\n",$kernelvers('bzImage'));
 printf("bzImage32 Version: %s\n",$kernelvers('bzImage32'));
-flush();
-ob_flush();
-ob_end_flush();
 exit;
