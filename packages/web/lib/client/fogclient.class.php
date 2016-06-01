@@ -10,7 +10,7 @@ abstract class FOGClient extends FOGBase {
             $this->json = (isset($_REQUEST['sub']) && $_REQUEST['sub'] == 'requestClientInfo') || isset($_REQUEST['json']);
             $method = $this->json ? 'json' : 'send';
             $this->Host = $this->getHostItem($service,$encoded,$hostnotrequired,$returnmacs,$override);
-            $validClientServiceFiles = array(
+            $validClientBrowserFiles = array(
                 'snapins.checkin.php',
                 'snapins.file.php',
                 'jobs.php',
