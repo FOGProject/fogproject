@@ -458,7 +458,7 @@ class GroupManagementPage extends FOGPage {
             _('Host name'),
             _('Memory'),
             _('System Product'),
-            _('System Cerial'),
+            _('System Serial'),
         );
         $this->templates = array(
             '${host_name}<br/><small>${host_mac}</small>',
