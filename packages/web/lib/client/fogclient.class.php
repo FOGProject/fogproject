@@ -11,9 +11,9 @@ abstract class FOGClient extends FOGBase {
             $method = $this->json ? 'json' : 'send';
             $this->Host = $this->getHostItem($service,$encoded,$hostnotrequired,$returnmacs,$override);
             $validClientBrowserFiles = array(
+                'jobs.php',
                 'snapins.checkin.php',
                 'snapins.file.php',
-                'jobs.php',
             );
             $scriptCheck = basename($_SERVER['SCRIPT_NAME']);
             if (($this->json || $this->newService) && !in_array($scriptCheck,$validClientBrowserFiles)) throw new Exception(_('Not Allowed Here'));
