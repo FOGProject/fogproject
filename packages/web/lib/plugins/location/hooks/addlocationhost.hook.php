@@ -71,6 +71,10 @@ class AddLocationHost extends Hook {
         $Host = $arguments['Host'];
         self::$HookManager->processEvent('HOST_REGISTER_LOCATION',array('Host'=>$Host,'Location'=>&$Location));
     }
+    public function HostInfoExpose($arguments) {
+        if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
+        $arguments['repFields']['location'] = self::getClass('Location',@min(self::getSubObjectIDs('Location',array('hostID'=>$arguments['Host']->get('id')))))->get('name');
+    }
 }
 $AddLocationHost = new AddLocationHost();
 $HookManager->register('HOST_HEADER_DATA', array($AddLocationHost, 'HostTableHeader'));
@@ -83,3 +87,4 @@ $HookManager->register('HOST_IMPORT', array($AddLocationHost, 'HostImport'));
 $HookManager->register('HOST_EXPORT_REPORT', array($AddLocationHost, 'HostExport'));
 $HookManager->register('DESTROY_HOST', array($AddLocationHost, 'HostDestroy'));
 $HookManager->register('EMAIL_ITEMS', array($AddLocationHost, 'HostEmailHook'));
+$HookManager->register('HOST_INFO_EXPOSE',array($AddLocationHost, 'HostInfoExpose'));
