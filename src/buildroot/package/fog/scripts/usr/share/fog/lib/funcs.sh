@@ -1590,11 +1590,9 @@ saveGRUB() {
 # $3 is the image path
 # $4 is the sgdisk determinator
 hasGRUB() {
-    local disk="$1"
-    local disk_number="$2"
-    local imagePath="$3"
-    local sgdisk="$4"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    local disk_number="$1"
+    local imagePath="$2"
+    local sgdisk="$3"
     [[ -z $disk_number ]] && handleError "No drive number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local hasgrubfilename=""
@@ -1733,7 +1731,9 @@ MBRFileName() {
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $varVar ]] && handleError "No variable to set passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local mbr=""
-    [[ -n $sgdisk ]] && mbr="$imagePath/d${disk_number}.grub.mbr" || mbr="$imagePath/d${disk_number}.mbr"
+    local hasGRUB=0
+    hasGRUB "$disk_number" "$imagePath" "$sgdisk"
+    [[ -n $sgdisk && $hasGRUB -eq 1 ]] && mbr="$imagePath/d${disk_number}.grub.mbr" || mbr="$imagePath/d${disk_number}.mbr"
     case $type in
         down)
             [[ ! -f $mbr && -n $mbrfile ]] && mbr="$mbrfile"
@@ -1869,7 +1869,6 @@ restorePartitionTablesAndBootLoaders() {
     [[ -z $osid ]] && handleError "No osid passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $imgPartitionType ]] && handleError "No image part type passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local tmpMBR=""
-    local hasGRUB=0
     local strdots=""
     if [[ $nombr -eq 1 ]]; then
         echo " * Skipping partition tables and MBR"
@@ -1881,7 +1880,6 @@ restorePartitionTablesAndBootLoaders() {
     majorDebugShowCurrentPartitionTable "$disk" "$disk_number"
     majorDebugPause
     MBRFileName "$imagePath" "$disk_number" "tmpMBR"
-    hasGRUB "$disk" "$disk_number" "$imagePath"
     [[ ! -f $tmpMBR ]] && handleError "Image Store Corrupt: Unable to locate MBR (${FUNCNAME[0]})\n   Args Passed: $*"
     local table_type=""
     getDesiredPartitionTableType "$imagePath" "$disk_number"
