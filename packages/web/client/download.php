@@ -18,7 +18,6 @@ if (($fh = fopen($file,'rb')) === false) exit;
 while (feof($fh) === false) {
     if (($line = fread($fh,4092)) === false) break;
     echo $line;
-    flush();
 }
 fclose($fh);
 exit;
