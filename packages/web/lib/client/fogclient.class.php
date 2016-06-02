@@ -12,6 +12,7 @@ abstract class FOGClient extends FOGBase {
             $this->Host = $this->getHostItem($service,$encoded,$hostnotrequired,$returnmacs,$override);
             $validClientBrowserFiles = array(
                 'jobs.php',
+                'servicemodule-active.php',
                 'snapins.checkin.php',
                 'snapins.file.php',
             );
