@@ -846,7 +846,7 @@ abstract class FOGPage extends FOGBase {
             $hostEnabled = array_diff((array)$hostModules,array('dircleanup','usercleanup','clientupdater','hostregister'));
             $hostDisabled = array_diff((array)$globalModules,$hostEnabled);
             $array = array();
-            foreach ($globalModules AS &$key) {
+            array_walk($globalModules,function(&$key,&$index) use (&$array,$globalDisabled,$hostDisabled) {
                 switch ($key) {
                 case 'greenfog':
                     $class='GF';
@@ -867,7 +867,7 @@ abstract class FOGPage extends FOGBase {
                 if (in_array($key,array_merge($globalDisabled,$hostDisabled))) $array[$key]['error'] = in_array($key,$globalDisabled) ? 'ng' : 'nh';
                 else $array[$key] = self::getClass($class,true,false,false,false,isset($_REQUEST['newService']))->json();
                 unset($key);
-            }
+            });
             $this->sendData(json_encode($array),true);
             //echo json_encode($array);
         } catch (Exception $e) {
@@ -931,15 +931,15 @@ abstract class FOGPage extends FOGBase {
             array('width'=>150,'class'=>'l'),
         );
         $ClassCall = ($objType ? 'Group' : 'Host');
-        foreach(self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(sprintf('%ssnotinme',strtolower($ClassCall))))) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
+        array_walk(self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(sprintf('%ssnotinme',strtolower($ClassCall))))),function (&$Host,&$index) {
+            if (!$Host->isValid()) return;
             $this->data[] = array(
                 'host_id'=>$Host->get('id'),
                 'host_name'=>$Host->get('name'),
                 'check_num'=>1,
             );
             unset ($Host);
-        }
+        });
         if (count($this->data) > 0) {
             self::$HookManager->processEvent(sprintf('OBJ_%s_NOT_IN_ME',strtoupper($ClassCall)),array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
             printf('<form method="post" action="%s"><label for="%sMeShow"><p class="c">%s %ss %s %s&nbsp;&nbsp;<input type="checkbox" name="%sMeShow" id="%sMeShow"/></p></label><div id="%sNotInMe"><h2>%s %s</h2>',
@@ -970,14 +970,14 @@ abstract class FOGPage extends FOGBase {
             '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action"/>',
             sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',strtolower($ClassCall)),
         );
-        foreach(self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(strtolower($ClassCall).'s'))) AS $i => &$Host) {
-            if (!$Host->isValid()) continue;
+        array_walk(self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(strtolower($ClassCall).'s'))),function (&$Host,&$index) {
+            if (!$Host->isValid()) return;
             $this->data[] = array(
                 'host_id'=>$Host->get('id'),
                 'host_name'=>$Host->get('name'),
             );
             unset($Host);
-        }
+        });
         self::$HookManager->processEvent('OBJ_MEMBERSHIP',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
@@ -1012,12 +1012,12 @@ abstract class FOGPage extends FOGBase {
             _('CSV File') => '<input class="smaller" type="file" name="file" />',
             '&nbsp;' => sprintf('<input class="smaller" type="submit" value="%s"/>',_('Upload CSV')),
         );
-        foreach ((array)$fields AS $field => &$input) {
+        array_walk($fields,function(&$input,&$field) {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
             );
-        }
+        });
         self::$HookManager->processEvent(sprintf('%s_IMPORT_OUT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
@@ -1038,36 +1038,36 @@ abstract class FOGPage extends FOGBase {
         );
         $report = self::getClass('ReportMaker');
         $this->array_remove('id',$this->databaseFields);
-        foreach ((array)self::getClass($this->childClass)->getManager()->find() AS $i => &$Item) {
-            if (!$Item->isValid()) continue;
+        array_walk(self::getClass($this->childClass)->getManager()->find(),function(&$Item,&$index) use(&$report) {
+            if (!$Item->isValid()) return;
             if ($this->childClass == 'Host') {
-                if (!$Item->get('mac')->isValid()) continue;
+                if (!$Item->get('mac')->isValid()) return;
                 ob_start();
                 echo $Item->get('mac')->__toString();
-                foreach ((array)$Item->get('additionalMACs') AS $i => &$AddMAC) {
-                    if (!$AddMAC->isValid()) continue;
+                array_walk($this->get('additionalMACs'),function(&$AddMAC,&$index) {
+                    if (!$AddMAC->isValid()) return;
                     printf('|%s',$AddMAC->__toString());
                     unset($AddMAC);
-                }
+                });
                 $macColumn = ob_get_clean();
                 $report->addCSVCell($macColumn);
             }
-            foreach (array_keys((array)$this->databaseFields) AS $i => &$field) {
+            array_walk(array_keys((array)$this->databaseFields),function(&$field,&$index) use (&$report,&$Item) {
                 $report->addCSVCell($Item->get($field));
                 unset($field);
-            }
+            });
             self::$HookManager->processEvent(sprintf('%s_EXPORT_REPORT',strtoupper($this->childClass)),array('report'=>&$report,$this->childClass=>&$Item));
             $report->endCSVLine();
             unset($Item);
-        }
+        });
         $_SESSION['foglastreport']=serialize($report);
         printf('<form method="post" action="export.php?type=%s">',strtolower($this->childClass));
-        foreach ((array)$fields AS $field => &$input) {
+        array_walk($fields,function(&$input,&$field) {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
             );
-        }
+        });
         self::$HookManager->processEvent(sprintf('%s_EXPORT',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</form>';
@@ -1093,15 +1093,15 @@ abstract class FOGPage extends FOGBase {
                         $iterator = 1;
                     } else $iterator = 0;
                     if ($Item->getManager()->exists($data[$iterator])) throw new Exception(sprintf('%s %s: %s',$this->childClass,_('already exists with this name'),$data[$iterator]));
-                    foreach (array_keys((array)$this->databaseFields) AS $i => $field) {
-                        if ($Item instanceof Host) $i++;
+                    array_walk(array_keys((array)$this->databaseFields),function(&$field,&$index) use (&$Item,&$data) {
+                        if ($Item instanceof Host) $index++;
                         if (isset($field) && $field === 'productKey') {
-                            $test_encryption = $this->aesdecrypt($data[$i]);
-                            if ($test_base64 = base64_decode($data[$i])) $data[$i] = $this->aesencrypt($test_base64);
-                            else if (empty($test_encryption) || !mb_detect_encoding($test_encryption,'utf-8',true)) $data[$i] = $this->aesencrypt($data[$i]);
+                            $test_encryption = $this->aesdecrypt($data[$index]);
+                            if ($test_base64 = base64_decode($data[$index])) $data[$index] = $this->aesencrypt($test_base64);
+                            else if (empty($test_encryption) || !mb_detect_encoding($test_encryption,'utf-8',true)) $data[$index] = $this->aesencrypt($data[$index]);
                         }
-                        $Item->set($field,$data[$i],($field == 'password'));
-                    }
+                        $Item->set($field,$data[$index],($field == 'password'));
+                    });
                     if ($Item instanceof Host) {
                         $Item->addModule($ModuleIDs)
                             ->addPriMAC($PriMAC)
@@ -1137,12 +1137,12 @@ abstract class FOGPage extends FOGBase {
             sprintf('%s %ss',_('Failed'),$this->childClass) => $numFailed,
             _('Errors') => $uploadErrors,
         );
-        foreach ((array)$fields AS $field => &$input) {
+        array_walk($fields,function(&$input,&$field) {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
             );
-        }
+        });
         unset($input);
         self::$HookManager->processEvent(sprintf('%s_IMPORT_FIELDS',strtoupper($this->childClass)),array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
