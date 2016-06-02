@@ -33,20 +33,16 @@ class Schema extends FOGController {
         $file = '/tmp/fog_backup_tmp.sql';
         if (!$backup_name) $backup_name = sprintf('fog_backup_%s.sql',$this->formatTime('','Ymd_His'));
         $dump = self::getClass('Mysqldump');
-        ob_start();
         $dump->start($file);
         if (!file_exists($file) || !is_readable($file)) throw new Exception(_('Could not read tmp file.'));
         if ($remove_file) {
-            while (ob_get_level()) ob_end_flush();
+            while (ob_get_level()) ob_end_clean();
             $fh = fopen($file,'rb');
             header('Content-Type: text/plain');
             header("Content-Disposition: attachment; filename=$backup_name");
             header('Cache-Control: private');
             header('Connection: close');
-            while (feof($fh) === false) {
-                echo fread($fh,4096);
-                flush();
-            }
+            while (feof($fh) === false) echo fread($fh,4096);
             fclose($fh);
             ini_set('max_execution_time',$orig_exec_time);
             ini_set('request_terminate_timeout',$orig_term_time);
