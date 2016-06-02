@@ -12,6 +12,7 @@ $repFields = array(
     'imagepath' => $Image->get('path'),
     'hostusead' => $Host->get('useAD'),
     'hostaddomain' => $Host->get('ADDomain'),
+    'hostaduser' => $Host->get('ADUser'),
     'hostadou' => $Host->get('ADOU'),
     'hostproductkey' => $Host->get('productKey'),
     'primaryuser' => $Inventory->get('primaryuser'),
