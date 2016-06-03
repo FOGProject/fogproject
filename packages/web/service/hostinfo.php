@@ -99,6 +99,6 @@ $repFields = array(
 );
 $HookManager->processEvent('HOST_INFO_EXPOSE',array('repFields'=>&$repFields,'Host'=>&$Host));
 array_walk($repFields,function(&$val,$key) {
-    printf("export %s=%s\n",$key,escapeshellarg($val));
+    printf("[[ -z $%s ]] && export %s=%s\n",$key,$key,escapeshellarg($val));
     unset($val,$key);
 });
