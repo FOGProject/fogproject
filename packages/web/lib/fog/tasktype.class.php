@@ -46,30 +46,30 @@ class TaskType extends FOGController {
     }
     public function isUpload() {
         $id = $this instanceof Task ? 'typeID' : 'id';
-        return in_array($this->get($id),array(2,16)) || preg_match('#type=(2|16|up)#i',$this->get('kernelArgs'));
+        return $this->isValid() && in_array($this->get($id),array(2,16)) || preg_match('#type=(2|16|up)#i',$this->get('kernelArgs'));
     }
     public function isInitNeededTasking() {
         $id = $this instanceof Task ? 'typeID' : 'id';
-        return !in_array($this->get($id),array(4,12,13,14));
+        return $this->isValid() && !in_array($this->get($id),array(4,12,13,14));
     }
     public function isSnapinTasking() {
         $id = $this instanceof Task ? 'typeID' : 'id';
-        return in_array($this->get($id),array(12,13));
+        return $this->isValid() && in_array($this->get($id),array(12,13));
     }
     public function isSnapinTask() {
         $id = $this instanceof Task ? 'typeID' : 'id';
-        return ($this->isDownload() && $this->get($id) != 17) || in_array($this->get($id),array(12,13));
+        return $this->isValid() && ($this->isDownload() && $this->get($id) != 17) || in_array($this->get($id),array(12,13));
     }
     public function isDownload() {
         $id = $this instanceof Task ? 'typeID' : 'id';
-        return in_array($this->get($id),array(1,8,15,17,24)) || preg_match('#type=(1|8|15|17|24|down)#i', $this->get('kernelArgs'));
+        return $this->isValid() && in_array($this->get($id),array(1,8,15,17,24)) || preg_match('#type=(1|8|15|17|24|down)#i', $this->get('kernelArgs'));
     }
     public function isMulticast() {
         $id = $this instanceof Task ? 'typeID' : 'id';
-        return $this->get($id) == 8 || preg_match('#(type=8|mc=yes)#i', $this->get('kernelArgs'));
+        return $this->isValid() && $this->get($id) == 8 || preg_match('#(type=8|mc=yes)#i', $this->get('kernelArgs'));
     }
     public function isDebug() {
         $id = $this instanceof Task ? 'typeID' : 'id';
-        return in_array($this->get($id),array(15,16)) || preg_match('#mode=debug#i', $this->get('kernelArgs')) || preg_match('#mode=onlydebug#i', $this->get('kernelArgs'));
+        return $this->isValid() && in_array($this->get($id),array(15,16)) || preg_match('#mode=debug#i', $this->get('kernelArgs')) || preg_match('#mode=onlydebug#i', $this->get('kernelArgs'));
     }
 }
