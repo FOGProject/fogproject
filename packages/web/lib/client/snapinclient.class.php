@@ -88,7 +88,6 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getProgressState())->set('checkInTime',$date)->save();
             $SnapinTask->set('stateID',$this->getProgressState())->set('return',-1)->set('details',_('Pending...'))->save();
             while (ob_get_level()) ob_end_clean();
-            ob_start();
             header("X-Sendfile: $SnapinFile");
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
@@ -103,9 +102,6 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 echo $line;
             }
             fclose($fh);
-            flush();
-            ob_flush();
-            ob_end_flush();
             exit;
         } else if (isset($_REQUEST['exitcode'])) {
             $SnapinTask = self::getClass('SnapinTask',$_REQUEST['taskid']);
@@ -216,7 +212,6 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getProgressState())->set('checkInTime',$date)->save();
             $SnapinTask->set('stateID',$this->getProgressState())->set('return',-1)->set('details',_('Pending...'))->save();
             while (ob_get_level()) ob_end_clean();
-            ob_start();
             header("X-Sendfile: $SnapinFile");
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
@@ -229,11 +224,9 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             while (feof($fh) === false) {
                 if (($line = fread($fh,4096)) === false) break;
                 echo $line;
+                flush();
             }
             fclose($fh);
-            flush();
-            ob_flush();
-            ob_end_flush();
             exit;
         } else if (isset($_REQUEST['exitcode'])) {
             $SnapinTask = self::getClass('SnapinTask',$_REQUEST['taskid']);

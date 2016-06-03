@@ -6,7 +6,6 @@ if (isset($_REQUEST['fogcrypt'])) $filename = 'FOGCrypt.zip';
 if (isset($_REQUEST['smartinstaller'])) $filename = 'SmartInstaller.exe';
 if (!file_exists($filename)) exit;
 $file = basename($filename);
-ob_start();
 header("X-Sendfile: $filename");
 header('Content-Description: File Transfer');
 header('Content-Type: application/octet-stream');
@@ -21,7 +20,4 @@ while (feof($fh) === false) {
     echo $line;
 }
 fclose($fh);
-flush();
-ob_flush();
-ob_end_flush();
 exit;

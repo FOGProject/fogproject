@@ -301,13 +301,16 @@ function DeployStuff() {
         });
     });
     // Basic validation on deployment page
-    $("[name^='scheduleCron']").each(function() {
-        validateCronInputs('#'+this.id);
-    }).blur(function() {
-        validateCronInputs('#'+this.id);
-    });
+    var scheduleType = $('input[name="scheduleType"]:checked').val();
+    if (scheduleType === 'cron') {
+        $("[name^='scheduleCron']").each(function() {
+            validateCronInputs('#'+this.id);
+        }).blur(function() {
+            validateCronInputs('#'+this.id);
+        });
+    }
     $('#deploy-container').submit(function() {
-        var scheduleType = $('input[name="scheduleType"]:checked', $(this)).val();
+        result = true;
         if (scheduleType == 'single') {
             // Format check
             validateInput = $('#'+scheduleType+'Options > input').removeClass('error');
@@ -456,7 +459,7 @@ function exportDialog(url) {
 function deleteDialog(url) {
     loginDialog('#deleteDiv',url,'Delete','Close','Delete Item(s)','deleteform','deleteDialog');
 }
-function ajaxRun(username,password,url,selector,formid,target,fogajax = 0) {
+function ajaxRun(username,password,url,selector,formid,target,fogajax) {
     ids = new Array();
     $('input[name="remitems[]"]').each(function() {
         ids[ids.length] = $(this).val();

@@ -9,7 +9,13 @@ class DatabaseManager extends FOGCore {
         }
         self::$DB = FOGCore::getClass('PDODB');
         self::getVersion();
-        if (!isset($_POST['export']) && self::$mySchema < FOG_SCHEMA && !preg_match('#schema#i',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
+        if (self::$mySchema < FOG_SCHEMA) {
+            if (preg_match('#/service/#',$_SERVER['SCRIPT_NAME']) || in_array($sub,array('configure','authorize','requestClientInfo'))) {
+                if ($this->json) return print json_encode(array('error'=>'db'));
+                else return print '#!db';
+            }
+            if (!preg_match('#schema#i',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
+        }
         return $this;
     }
     public function getDB() {
