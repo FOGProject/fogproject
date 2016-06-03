@@ -455,7 +455,7 @@ abstract class FOGBase {
         openssl_free_key($priv_key);
         return (array)$output;
     }
-    protected function parseMacList($stringlist,$image = false,$client = false) {
+    public function parseMacList($stringlist,$image = false,$client = false) {
         $MAClist = array();
         $MACs = $stringlist;
         $lowerAndTrim = function($element) {
