@@ -109,6 +109,7 @@ $(function() {
     checkboxAssociations('#snapinNotInHost:checkbox','#snapinNotInHost:checkbox');
     checkboxAssociations('.toggle-checkboxprint:checkbox','.toggle-print:checkbox');
     checkboxAssociations('.toggle-checkboxsnapin:checkbox','.toggle-snapin:checkbox');
+    checkboxAssociations('#rempowerselectors:checkbox','.rempoweritems:checkbox');
     $('#groupNotInMe,#printerNotInHost,#snapinNotInHost').hide();
     $('#groupMeShow:checkbox').change(function(e) {
         $('#groupNotInMe').toggle();
@@ -123,16 +124,17 @@ $(function() {
         e.preventDefault();
     });
     result = true;
-    $("[name^='scheduleCron']").each(function() {
-        validateCronInputs('#'+this.id);
-    }).blur(function() {
-        validateCronInputs('#'+this.id);
-    });
-    $('#deploy-container').submit(function() {
+    $("form.deploy-container,form#deploy-container").submit(function() {
         $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
-            result = validateCronInputs('#'+this.id);
+            result = validateCronInputs($(this));
             if (result === false) return false;
         });
         return result;
+    }).each(function() {
+        $("input[name^='scheduleCron']",this).each(function(id,value) {
+            if (!validateCronInputs($(this))) $(this).addClass('error');
+        }).blur(function() {
+            if (!validateCronInputs($(this))) $(this).addClass('error');
+        });
     });
 });

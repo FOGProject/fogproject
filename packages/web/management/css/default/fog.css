@@ -980,8 +980,18 @@ pre {
 #deploy-container input.error {
     border: 1px solid red;
 }
+.deploy-container input.error {
+    border: 1px solid red;
+}
+.deploy-container #cronOptions {
+    text-align: left;
+}
 #deploy-container #cronOptions {
     text-align: center;
+}
+.deploy-container #cronOptions input, .deploy-container #cronOptions input:focus {
+    width: 37px;
+    text-align: left;
 }
 #deploy-container #cronOptions input, #deploy-container #cronOptions input:focus {
     width: 37px;

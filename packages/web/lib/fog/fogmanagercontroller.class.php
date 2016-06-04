@@ -12,7 +12,7 @@ abstract class FOGManagerController extends FOGBase {
     protected $updateQueryTemplate = 'UPDATE `%s` SET %s %s';
     protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`.`%s` IN ('%s')";
     protected $existsQueryTemplate = "SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s` WHERE `%s`.`%s`='%s' AND `%s`.`%s` <> '%s'";
-    protected $insertBatchTemplate = "INSERT IGNORE INTO `%s` (`%s`) VALUES %s";
+    protected $insertBatchTemplate = "INSERT INTO `%s` (`%s`) VALUES %s ON DUPLICATE KEY UPDATE %s";
     public function __construct() {
         parent::__construct();
         $this->childClass = preg_replace('#_?Manager$#','',get_class($this));
@@ -145,7 +145,10 @@ abstract class FOGManagerController extends FOGBase {
             },(array)$value);
             return sprintf("('%s')",implode("','",(array)$value));
         },(array)$values);
-        $query = sprintf($this->insertBatchTemplate,$this->databaseTable,implode('`,`',$keys),implode(',',$vals));
+        $dups = array_map(function($value) {
+            return sprintf('`%s`.`%s`=VALUES(`%s`.`%s`)',$this->databaseTable,$value,$this->databaseTable,$value);
+        },(array)$keys);
+        $query = sprintf($this->insertBatchTemplate,$this->databaseTable,implode('`,`',$keys),implode(',',$vals),implode(',',$dups));
         self::$DB->query($query);
         return array(self::$DB->insert_id(),self::$DB->affected_rows());
     }

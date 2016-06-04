@@ -49,7 +49,7 @@ class PowerManagement extends FOGController {
             $notValid = array_diff((array)$DBHostIDs,(array)$ValidHostIDs);
             if (count($notValid)) self::getClass('PowerManagementManager')->destroy(array('hostID'=>$notValid));
             unset($ValidHostIDs,$notValid);
-            $DBHostIDs = self::getSubObjectIDs('PowerManagementManager',array('id'=>$this->get('id')),'hostID');
+            $DBHostIDs = self::getSubObjectIDs('PowerManagement',array('id'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_unique(array_diff((array)$DBHostIDs,(array)$this->get('hosts')));
             if (count($RemoveHostIDs)) {
                 self::getClass('PowerManagementManager')->destroy(array('hostID'=>$RemoveHostIDs,'id'=>$this->get('id')));

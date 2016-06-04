@@ -2135,14 +2135,15 @@ $this->schema[] = array(
     "CREATE TABLE `".DATABASE_NAME."`.`powerManagement` (
         `pmID` INT NOT NULL AUTO_INCREMENT,
         `pmHostID` INT NOT NULL,
-        `pmMin` VARCHAR(255) NOT NULL,
-        `pmHour` VARCHAR(255) NOT NULL,
-        `pmDom` VARCHAR(255) NOT NULL,
-        `pmMonth` VARCHAR(255) NOT NULL,
-        `pmDow` VARCHAR(255) NOT NULL,
+        `pmMin` VARCHAR(50) NOT NULL,
+        `pmHour` VARCHAR(50) NOT NULL,
+        `pmDom` VARCHAR(50) NOT NULL,
+        `pmMonth` VARCHAR(50) NOT NULL,
+        `pmDow` VARCHAR(50) NOT NULL,
         `pmAction` ENUM('shutdown','reboot','wol') NOT NULL,
-        'pmOndemand` ENUM('0','1') NOT NULL,
-        PRIMARY KEY (`pmID`)
+        `pmOndemand` ENUM('0','1') NOT NULL,
+        PRIMARY KEY (`pmID`),
+        UNIQUE INDEX `cron` (`pmHostID`,`pmMin`,`pmHour`,`pmDom`,`pmMonth`,`pmDow`,`pmAction`)
     ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`modules` (`id`, `name`, `short_name`, `description`) VALUES (13, 'Power Management', 'powermanagement', 'This setting will enable or disable the power management service module on this specific host.  If the module is globally disabled, this setting is ignored.')",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_CLIENT_POWERMANAGEMENT_ENABLED', 'This setting defines if the Windows Service module power management should be enabled on client computers. This service allows an on demand shutdown/reboot/wol of hosts.  It also operates in a cron style setup to allow many different schedules of shutdowns, restarts, and/or wol. (Valid values: 0 or 1).','1','FOG Client - Power Management')",
