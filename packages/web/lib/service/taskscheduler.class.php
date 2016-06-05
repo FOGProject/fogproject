@@ -12,7 +12,10 @@ class TaskScheduler extends FOGService {
     private function commonOutput() {
         try {
             $findWhere = array('stateID'=>$this->getQueuedState(),'wol'=>1);
-            $taskcount = self::getClass('TaskManager')->count($findWhere);
+            $TaskHosts = self::getSubObjectIDs('Task',$findWhere,'hostID');
+            $PMHosts = self::getSubObjectIDs('PowerManagement',array('action'=>'wol','onDemand'=>1),'hostID');
+            $WOLHosts = array_unique(array_merge($TaskHosts,$PMHosts));
+            $taskcount = count($WOLHosts);
             self::outall(sprintf(" * %s active task%s waiting to wake up.",$taskcount,($taskcount != 1 ? 's' : '')));
             if ($taskcount) {
                 self::outall(' | Sending WOL Packet(s)');
