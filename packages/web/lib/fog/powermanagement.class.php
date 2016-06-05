@@ -69,4 +69,15 @@ class PowerManagement extends FOGController {
     public function getActionSelect() {
         return $this->getManager()->getActionSelect($this->get('action'),true);
     }
+    public function getTimer() {
+        $min = trim($this->get('min'));
+        $hour = trim($this->get('hour'));
+        $dom = trim($this->get('dom'));
+        $month = trim($this->get('month'));
+        $dow = trim($this->get('dow'));
+        return self::getClass('Timer',$min,$hour,$dom,$month,$dow);
+    }
+    public function getHost() {
+        return self::getClass('Host',$this->get('hostID'));
+    }
 }

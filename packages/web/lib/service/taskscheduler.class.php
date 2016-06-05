@@ -19,23 +19,22 @@ class TaskScheduler extends FOGService {
             self::outall(sprintf(" * %s active task%s waiting to wake up.",$taskcount,($taskcount != 1 ? 's' : '')));
             if ($taskcount) {
                 self::outall(' | Sending WOL Packet(s)');
-                foreach (self::getClass('HostManager')->find(array('id'=>self::getSubObjectIDs('Task',$findWhere,'hostID'))) AS &$Host) {
-                    if (!$Host->isValid()) continue;
+                array_map(function(&$Host) {
+                    if (!$Host->isValid()) return;
                     self::outall(sprintf("\t\t- Host: %s WOL sent to all macs associated",$Host->get('name')));
                     $Host->wakeOnLan();
                     unset($Host);
-                }
-                unset($Hosts,$taskcount,$findWhere);
+                },(array)self::getClass('HostManager')->find(array('id'=>$WOLHosts)));
             }
             $findWhere = array('isActive'=>1);
             $taskCount = self::getClass('ScheduledTaskManager')->count($findWhere);
             if ($taskCount < 1) throw new Exception(' * No tasks found!');
             self::outall(sprintf(" * %s task%s found.",$taskCount,($taskCount != 1 ? 's' : '')));
             unset($taskCount);
-            foreach ((array)self::getClass('ScheduledTaskManager')->find($findWhere) AS $i => &$Task) {
+            array_map(function(&$Task) {
                 $Timer = $Task->getTimer();
                 self::outall(sprintf(" * Task run time: %s",$Timer->toString()));
-                if (!$Timer->shouldRunNow()) continue;
+                if (!$Timer->shouldRunNow()) return;
                 self::outall(" * Found a task that should run...");
                 self::outall(sprintf("\t\t - %s %s %s.",_('Is a'),$Task->isGroupBased() ? _('group') : _('host'),_('based task')));
                 $Item = $Task->isGroupBased() ? $Task->getGroup() : $Task->getHost();
@@ -43,10 +42,18 @@ class TaskScheduler extends FOGService {
                 self::outall(sprintf("\t\t - %s %s",_(get_class($Item)),$Item->get('name')));
                 $Item->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$Task->get('other2'),$Task->isGroupBased(),$Task->get('other3'),false,false,(bool)$Task->get('other4'));
                 self::outall(sprintf("\t\t - %s %s %s!",_('Tasks started for'),strtolower(get_class($Item)),$Item->get('name')));
-                if (!$Timer->isSingleRun()) continue;
+                if (!$Timer->isSingleRun()) return;
                 $Task->set('isActive',0)->save();
-            }
-            unset($Task);
+            },(array)self::getClass('ScheduledTaskManager')->find($findWhere));
+            self::outall(sprintf(' * Checking enabled WOL cron tasks'));
+            array_map(function(&$Task) {
+                if ($Task->get('onDemand')) return;
+                $Timer = $Task->getTimer();
+                self::outall(sprintf(" * Task run time: %s",$Timer->toString()));
+                if (!$Timer->shouldRunNow()) return;
+                self::outall(' * Found a wake on lan task that should run...');
+                $Task->getHost()->wakeOnLAN();
+            },(array)self::getClass('PowerManagementManager')->find());
         } catch (Exception $e) {
             self::outall($e->getMessage());
         }
