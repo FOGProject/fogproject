@@ -47,13 +47,12 @@ class TaskScheduler extends FOGService {
             },(array)self::getClass('ScheduledTaskManager')->find($findWhere));
             self::outall(sprintf(' * Checking enabled WOL cron tasks'));
             array_map(function(&$Task) {
-                if ($Task->get('onDemand')) return;
                 $Timer = $Task->getTimer();
                 self::outall(sprintf(" * Task run time: %s",$Timer->toString()));
                 if (!$Timer->shouldRunNow()) return;
                 self::outall(' * Found a wake on lan task that should run...');
                 $Task->getHost()->wakeOnLAN();
-            },(array)self::getClass('PowerManagementManager')->find());
+            },(array)self::getClass('PowerManagementManager')->find(array('action'=>'wol','onDemand'=>0)));
         } catch (Exception $e) {
             self::outall($e->getMessage());
         }
