@@ -851,6 +851,9 @@ abstract class FOGPage extends FOGBase {
                 case 'greenfog':
                     $class='GF';
                     break;
+                case 'powermanagement':
+                    $class='PM';
+                    break;
                 case 'printermanager':
                     $class='PrinterClient';
                     break;
