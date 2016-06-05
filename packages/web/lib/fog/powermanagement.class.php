@@ -66,4 +66,7 @@ class PowerManagement extends FOGController {
         }
         return $this;
     }
+    public function getActionSelect() {
+        return $this->getManager()->getActionSelect($this->get('action'),true);
+    }
 }

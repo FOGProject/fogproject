@@ -532,8 +532,8 @@ class HostManagementPage extends FOGPage {
         $this->templates = array(
             '<input type="checkbox" name="rempowermanagements[]" class="rempoweritems" value="${id}"/>',
             '<div class="deploy-container" class="l"><p id="cronOptions"><input type="hidden" name="pmid[]" value="${id}"/><input type="text" name="scheduleCronMin[]" id="scheduleCronMin" autocomplete="off" value="${min}"/><input type="text" name="scheduleCronHour[]" id="scheduleCronHour" autocomplete="off" value="${hour}"/><input type="text" name="scheduleCronDOM[]" id="scheduleCronDOM" autocomplete="off" value="${dom}"/><input type="text" name="scheduleCronMonth[]" id="scheduleCronMonth" autocomplete="off" value="${month}"/><input type="text" name="scheduleCronDOW[]" id="scheduleCronDOW" autocomplete="off" value="${dow}"/></p></div>',
-            '<input type="checkbox" name="onDemand[]" id="scheduleOnDemand"${is_checked}/>',
-            'selectOptionsforActiontoPerform',
+            '<input type="checkbox" name="onDemand[]" id="scheduleOnDemand" value="${id}"${is_checked}/>',
+            '${action}',
         );
         $this->attributes = array(
             array('width'=>16,'class'=>'l filter-false'),
@@ -552,6 +552,7 @@ class HostManagementPage extends FOGPage {
                 'dow' => $PowerManagement->get('dow'),
                 'is_checked' => $PowerManagement->get('onDemand') ? ' checked' : '',
                 'is_selected' => $PowerManagement->get('action') ? ' selected' : '',
+                'action' => $PowerManagement->getActionSelect(),
             );
         },(array)self::getClass('PowerManagementManager')->find(array('id'=>$this->obj->get('powermanagementtasks'))));
         if (count($this->data) > 0) {
@@ -571,6 +572,8 @@ class HostManagementPage extends FOGPage {
         );
         $fields = array(
             _('Schedule Power') => sprintf('<p id="cronOptions"><input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off" value="%s"/><input type="text" name="scheduleCronHour" id="scheduleCronHour" placeholder="hour" autocomplete="off" value="%s"/><input type="text" name="scheduleCronDOM" id="scheduleCronDOM" placeholder="dom" autocomplete="off" value="%s"/><input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" value="%s"/><input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" value="%s"/></p>',$_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW']),
+            _('On Demand') => sprintf('<input type="checkbox" name="onDemand" id="scheduleOnDemand"%s/>',!is_array($_REQUEST['onDemand']) && isset($_REQUEST['onDemand']) ? ' checked' : ''),
+            _('Action') => self::getClass('PowerManagementManager')->getActionSelect($_REQUEST['action']),
         );
         array_walk($fields,function(&$input,&$field) {
             $this->data[] = array(
@@ -833,15 +836,16 @@ class HostManagementPage extends FOGPage {
                 $dom = $_REQUEST['scheduleCronDOM'];
                 $month = $_REQUEST['scheduleCronMonth'];
                 $dow = $_REQUEST['scheduleCronDOW'];
-                $onDemand = (string)intval(isset($_REQUEST['onDemand']));
+                $onDemand = is_array($_REQUEST['onDemand']) ? $_REQUEST['onDemand'] : (string)intval(isset($_REQUEST['onDemand']));
                 $action = $_REQUEST['action'];
                 $items = array();
                 if (isset($_REQUEST['pmupdate'])) {
                     $pmid = $_REQUEST['pmid'];
-                    array_walk($pmid,function(&$pm,&$index) use (&$min,&$hour,&$dom,&$month,&$dow,&$onDemand,&$items) {
-                        $items[] = array($pm,$this->obj->get('id'),$min[$index],$hour[$index],$dom[$index],$month[$index],$dow[$index],$onDemand[$index]);
+                    array_walk($pmid,function(&$pm,&$index) use (&$min,&$hour,&$dom,&$month,&$dow,&$onDemand,&$action,&$items) {
+                        $onDemandItem = array_search($pm,$onDemand);
+                        $items[] = array($pm,$this->obj->get('id'),$min[$index],$hour[$index],$dom[$index],$month[$index],$dow[$index],$onDemandItem !== -1 && $onDemand[$onDemandItem] === $pm ? '1' : '0',$action[$index]);
                     });
-                    self::getClass('PowerManagementManager')->insert_batch(array('id','hostID','min','hour','dom','month','dow','onDemand'),$items);
+                    self::getClass('PowerManagementManager')->insert_batch(array('id','hostID','min','hour','dom','month','dow','onDemand','action'),$items);
                 }
                 if (isset($_REQUEST['pmsubmit'])) {
                     self::getClass('PowerManagement')
@@ -852,7 +856,7 @@ class HostManagementPage extends FOGPage {
                         ->set('month',$month)
                         ->set('dow',$dow)
                         ->set('onDemand',$onDemand)
-                        ->set('action','shutdown')
+                        ->set('action',$action)
                         ->save();
                 }
                 if (isset($_REQUEST['pmdelete'])) self::getClass('PowerManagementManager')->destroy(array('id'=>$_REQUEST['rempowermanagements']));
