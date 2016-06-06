@@ -60,13 +60,13 @@ class ScheduledTask extends FOGController {
         return $this->set('other5', $value);
     }
     public function getTimer() {
-        if($this->get('type') == 'C') $minute = trim($this->get('minute'));
+        if ($this->get('type') == 'C') $minute = trim($this->get('minute'));
         else $minute = trim($this->get('scheduleTime'));
         $hour = trim($this->get('hour'));
         $dom = trim($this->get('dayOfMonth'));
         $month = trim($this->get('month'));
         $dow = trim($this->get('dayOfWeek'));
-        return new Timer($minute,$hour,$dom,$month,$dow);
+        return self::getClass('Timer',$minute,$hour,$dom,$month,$dow);
     }
     public function isMulticast() {
         return (bool)self::getClass('TaskType',$this->get('taskType'))->isMulticast();
