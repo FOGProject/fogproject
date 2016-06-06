@@ -124,11 +124,34 @@ $(function() {
         e.preventDefault();
     });
     result = true;
-    $("form.deploy-container,form#deploy-container").submit(function() {
-        $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
-            result = validateCronInputs($(this));
-            if (result === false) return false;
-        });
+    $('#scheduleOnDemand').change(function() {
+        if ($(this).is(':checked') === true) {
+            $(this).parents('form').each(function() {
+                $("input[name^='scheduleCron']",this).each(function() {
+                    $(this).val('').prop('readonly',true).hide().parents('tr').hide();
+                });
+            });
+        } else {
+            $(this).parents('form').each(function() {
+                $("input[name^='scheduleCron']",this).each(function() {
+                    $(this).val('').prop('readonly',false).show().parents('tr').show();
+                });
+            });
+        }
+    });
+    $("form.deploy-container").submit(function() {
+        if ($('#scheduleOnDemand').is(':checked')) {
+            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+                $(this).val('').prop('disabled',true);
+                console.log('here');
+            });
+            return true;
+        } else {
+            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+                result = validateCronInputs($(this));
+                if (result === false) return false;
+            });
+        }
         return result;
     }).each(function() {
         $("input[name^='scheduleCron']",this).each(function(id,value) {

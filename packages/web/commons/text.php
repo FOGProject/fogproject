@@ -217,6 +217,8 @@ $foglang['ManagementLogin']			= _('Management Login');
 $foglang['Password']				= _('Password');
 $foglang['FOGSites']				= _('Estimated FOG Sites');
 $foglang['LatestVer']				= _('Latest Version');
+$foglang['LatestDevVer']				= _('Latest Development Version');
+$foglang['LatestSvnVer']				= _('Latest SVN Version');
 $foglang['FOGMobile']				= _('FOG Mobile Login');
 // Image class Translates
 $foglang['ProtectedImage']			= _('Image is protected and cannot be deleted');

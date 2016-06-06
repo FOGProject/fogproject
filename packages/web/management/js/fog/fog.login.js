@@ -14,10 +14,28 @@ $(function() {
         },
         dataType: 'json',
         success: function (data) {
-            for (i in ReturnIndexes) {
-                var Container = ResultContainers.eq(i);
-                data['error-'+ReturnIndexes[i]] ? Container.html(data['error-'+ReturnIndexes[i]]) : Container.html(data[ReturnIndexes[i]]);
-            }
+            console.log(data);
+            var index = 0;
+            ResultContainers.each(function(ind,val) {
+                if (index === 0) {
+                    if (!data['error-sites']) {
+                        $(this).html(data['sites']);
+                    } else {
+                        $(this).html(data['error-sites']);
+                    }
+                } else {
+                    if (!data['error-version']) {
+                        if (index === 1) $(this).html(data['version'].stable);
+                        if (index === 2) $(this).html(data['version'].dev);
+                        if (index === 3) $(this).html(data['version'].svn);
+                    } else {
+                        if (index === 1) $(this).html(data['error-version']);
+                        if (index === 2) $(this).html(data['error-version']);
+                        if (index === 3) $(this).html(data['error-version']);
+                    }
+                }
+                index++;
+            });
         },
         error: function() {
             ResultContainers.find('span').removeClass().addClass('icon icon-kill').attr('title', 'Failed to connect!');
