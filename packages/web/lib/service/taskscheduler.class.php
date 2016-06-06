@@ -28,6 +28,7 @@ class TaskScheduler extends FOGService {
             }
             $findWhere = array('isActive'=>1);
             $taskCount = self::getClass('ScheduledTaskManager')->count($findWhere);
+            $taskCount += self::getClass('PowerManagementManager')->count(array('action'=>'wol','onDemand'=>0));
             if ($taskCount < 1) throw new Exception(' * No tasks found!');
             self::outall(sprintf(" * %s task%s found.",$taskCount,($taskCount != 1 ? 's' : '')));
             unset($taskCount);

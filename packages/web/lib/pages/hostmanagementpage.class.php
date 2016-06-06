@@ -817,7 +817,6 @@ class HostManagementPage extends FOGPage {
                 $this->obj->addAddMAC($_REQUEST['additionalMACs'])
                     ->removeAddMAC($removeMACs);
                 break;
-                $this->resetRequest(true);
             case 'host-active-directory':
                 $useAD = isset($_REQUEST['domain']);
                 $domain = trim($_REQUEST['domainname']);
@@ -834,8 +833,9 @@ class HostManagementPage extends FOGPage {
                 $dom = $_REQUEST['scheduleCronDOM'];
                 $month = $_REQUEST['scheduleCronMonth'];
                 $dow = $_REQUEST['scheduleCronDOW'];
-                $onDemand = is_array($_REQUEST['onDemand']) ? $_REQUEST['onDemand'] : (string)intval(isset($_REQUEST['onDemand']));
+                $onDemand = (string)intval(isset($_REQUEST['onDemand']));
                 $action = $_REQUEST['action'];
+                if (!$action) throw new Exception(_('You must select an action to perform'));
                 $items = array();
                 if (isset($_REQUEST['pmupdate'])) {
                     $pmid = $_REQUEST['pmid'];
@@ -846,6 +846,10 @@ class HostManagementPage extends FOGPage {
                     self::getClass('PowerManagementManager')->insert_batch(array('id','hostID','min','hour','dom','month','dow','onDemand','action'),$items);
                 }
                 if (isset($_REQUEST['pmsubmit'])) {
+                    if ($onDemand && $action === 'wol'){
+                        $this->obj->wakeOnLAN();
+                        break;
+                    }
                     self::getClass('PowerManagement')
                         ->set('hostID',$this->obj->get('id'))
                         ->set('min',$min)
