@@ -109,6 +109,7 @@ $(function() {
     checkboxAssociations('#snapinNotInHost:checkbox','#snapinNotInHost:checkbox');
     checkboxAssociations('.toggle-checkboxprint:checkbox','.toggle-print:checkbox');
     checkboxAssociations('.toggle-checkboxsnapin:checkbox','.toggle-snapin:checkbox');
+    checkboxAssociations('#rempowerselectors:checkbox','.rempoweritems:checkbox');
     $('#groupNotInMe,#printerNotInHost,#snapinNotInHost').hide();
     $('#groupMeShow:checkbox').change(function(e) {
         $('#groupNotInMe').toggle();
@@ -123,16 +124,40 @@ $(function() {
         e.preventDefault();
     });
     result = true;
-    $("[name^='scheduleCron']").each(function() {
-        validateCronInputs('#'+this.id);
-    }).blur(function() {
-        validateCronInputs('#'+this.id);
+    $('#scheduleOnDemand').change(function() {
+        if ($(this).is(':checked') === true) {
+            $(this).parents('form').each(function() {
+                $("input[name^='scheduleCron']",this).each(function() {
+                    $(this).val('').prop('readonly',true).hide().parents('tr').hide();
+                });
+            });
+        } else {
+            $(this).parents('form').each(function() {
+                $("input[name^='scheduleCron']",this).each(function() {
+                    $(this).val('').prop('readonly',false).show().parents('tr').show();
+                });
+            });
+        }
     });
-    $('#deploy-container').submit(function() {
-        $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
-            result = validateCronInputs('#'+this.id);
-            if (result === false) return false;
-        });
+    $("form.deploy-container").submit(function() {
+        if ($('#scheduleOnDemand').is(':checked')) {
+            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+                $(this).val('').prop('disabled',true);
+                console.log('here');
+            });
+            return true;
+        } else {
+            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+                result = validateCronInputs($(this));
+                if (result === false) return false;
+            });
+        }
         return result;
+    }).each(function() {
+        $("input[name^='scheduleCron']",this).each(function(id,value) {
+            if (!validateCronInputs($(this))) $(this).addClass('error');
+        }).blur(function() {
+            if (!validateCronInputs($(this))) $(this).addClass('error');
+        });
     });
 });

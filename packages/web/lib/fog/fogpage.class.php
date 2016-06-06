@@ -724,11 +724,11 @@ abstract class FOGPage extends FOGBase {
         echo $SendME;
     }
     public function loginInfo() {
-        $data = self::$FOGURLRequests->process(array('http://fogproject.org/globalusers','http://fogproject.org/version/version.php'),'GET');
+        $data = self::$FOGURLRequests->process(array('http://fogproject.org/globalusers','http://fogproject.org/version/index.php?stable&dev&svn'),'GET');
         if (!$data[0]) $data['error-sites'] = _('Error contacting server');
         else $data['sites'] = $data[0];
         if (!$data[1]) $data['error-version'] = _('Error contacting server');
-        else $data['version'] = $data[1];
+        else $data['version'] = json_decode($data[1]);
         echo json_encode($data);
         exit;
     }
@@ -850,6 +850,9 @@ abstract class FOGPage extends FOGBase {
                 switch ($key) {
                 case 'greenfog':
                     $class='GF';
+                    break;
+                case 'powermanagement':
+                    $class='PM';
                     break;
                 case 'printermanager':
                     $class='PrinterClient';
