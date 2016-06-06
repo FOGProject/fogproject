@@ -14,7 +14,6 @@ $(function() {
         },
         dataType: 'json',
         success: function (data) {
-            console.log(data);
             var index = 0;
             ResultContainers.each(function(ind,val) {
                 if (index === 0) {
