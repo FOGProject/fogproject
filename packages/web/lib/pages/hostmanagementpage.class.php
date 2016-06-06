@@ -817,6 +817,7 @@ class HostManagementPage extends FOGPage {
                 $this->obj->addAddMAC($_REQUEST['additionalMACs'])
                     ->removeAddMAC($removeMACs);
                 break;
+                $this->resetRequest(true);
             case 'host-active-directory':
                 $useAD = isset($_REQUEST['domain']);
                 $domain = trim($_REQUEST['domainname']);
