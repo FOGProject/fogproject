@@ -223,7 +223,7 @@ function validateCronInputs(selector) {
         'scheduleCronDOW': checkDOWField,
     };
     result = true;
-    inputsToValidate = $(selector).removeClass('error');
+    inputsToValidate = selector.removeClass('error');
     inputsToValidate.each(function() {
         var val = this.value;
         result = funcs[this.id](val);

@@ -438,6 +438,7 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_CLIENT_GREENFOG_ENABLED',
             'FOG_CLIENT_HOSTREGISTER_ENABLED',
             'FOG_CLIENT_HOSTNAMECHANGER_ENABLED',
+            //'FOG_CLIENT_POWERMANAGEMENT_ENABLED',
             'FOG_CLIENT_PRINTERMANAGER_ENABLED',
             'FOG_CLIENT_SNAPIN_ENABLED',
             'FOG_CLIENT_TASKREBOOT_ENABLED',
@@ -667,6 +668,8 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_QUICKREG_MAX_PENDING_MACS' => true,
             // FOG Service - Hostname Changer
             'FOG_CLIENT_HOSTNAMECHANGER_ENABLED' => $checkbox,
+            // FOG Service - Power Management
+            //'FOG_CLIENT_POWERMANAGEMENT_ENABLED' => $checkbox,
             // FOG Service - Printer Manager
             'FOG_CLIENT_PRINTERMANAGER_ENABLED' => $checkbox,
             // FOG Service - Snapins

@@ -14,7 +14,8 @@ class ServiceConfigurationPage extends FOGPage {
             "$servicelink#greenfog" => self::$foglang['GreenFOG'],
             "$servicelink#hostregister" => self::$foglang['HostRegistration'],
             "$servicelink#hostnamechanger" => self::$foglang['HostnameChanger'],
-            "$servicelink#printermanager" => sprintf(self::$foglang['SelManager'],self::$foglang[Printer]),
+            //"$servicelink#powermanagement" => self::$foglang['PowerManagement'],
+            "$servicelink#printermanager" => sprintf(self::$foglang['SelManager'],self::$foglang['Printer']),
             "$servicelink#snapinclient" => self::$foglang['SnapinClient'],
             "$servicelink#taskreboot" => self::$foglang['TaskReboot'],
             "$servicelink#usercleanup" => self::$foglang['UserCleanup'],
@@ -242,15 +243,15 @@ class ServiceConfigurationPage extends FOGPage {
                 );
                 echo '<h2>'._('Current Protected User Accounts').'</h2>';
                 printf('<h2>%s</h2>',_('Current Protected User Accounts'));
-                foreach ((array)self::getClass('UserCleanupManager')->find() AS $i => &$UserCleanup) {
-                    if (!$UserCleanup->isValid()) continue;
+                array_map(function(&$UserCleanup) {
+                    if (!$UserCleanup->isValid()) return;
                     $this->data[] = array(
-                        'user_name'=>$UserCleanup->get('name'),
-                        'input'=>$UserCleanup->get('id') < 7 ? '' : sprintf('<input type="checkbox" id="rmuser${user_id}" class="delid" name="delid" onclick="this.form.submit()" value="${user_id}"/><label for="rmuser${user_id}" class="icon fa fa-minus-circle hand" title="%s"> </label>',_('Delete')),
-                        'user_id'=>$UserCleanup->get('id'),
+                        'user_name' => $UserCleanup->get('name'),
+                        'input' => $UserCleanup->get('id') < 7 ? '' : sprintf('<input type="checkbox" id="rmuser${user_id}" class="delid" name="delid" onclick="this.form.submit()" value="${user_id}"/><label for="rmuser${user_id}" class="icon fa fa-minus-circle hand" title="%s"> </label>',_('Delete')),
+                        'user_id' => $UserCleanup->get('id'),
                     );
                     unset($UserCleanup);
-                }
+                },(array)self::getClass('UserCleanupManager')->find());
                 $this->render();
                 echo '</form>';
                 break;

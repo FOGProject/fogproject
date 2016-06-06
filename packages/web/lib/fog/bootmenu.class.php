@@ -118,15 +118,16 @@ class BootMenu extends FOGBase {
         $this->booturl = "http://{$webserver}{$webroot}service";
         $this->memdisk = "kernel $memdisk";
         $this->memtest = "initrd $memtest";
-        $this->kernel = sprintf('kernel %s %s initrd=%s root=/dev/ram0 rw ramdisk_size=%s keymap=%s web=%s consoleblank=0%s rootfstype=ext4 %s',
+        $this->kernel = sprintf('kernel %s %s initrd=%s root=/dev/ram0 rw ramdisk_size=%s keymap=%s web=%s consoleblank=0%s rootfstype=ext4%s%s',
             $bzImage,
             $this->loglevel,
             basename($initrd),
             $ramsize,
             $keymap,
             $this->web,
-            self::getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '',
-            self::getSetting('FOG_KERNEL_ARGS')
+            $kernelDebug ? ' debug' : '',
+            $kernelArgs ? $kernelArgs : '',
+            $this->Host->isValid() && $this->Host->get('kernelArgs') ? sprintf(' %s',$this->Host->get('kernelArgs')) : ''
         );
         $this->initrd = "imgfetch $imagefile";
         self::caponeMenu(

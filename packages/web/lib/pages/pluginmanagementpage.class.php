@@ -242,6 +242,9 @@ class PluginManagementPage extends FOGPage {
             $this->redirect(sprintf('?node=%s&sub=%s&run=%s',$_REQUEST['node'],$_REQUEST['sub'],$_REQUEST['run']));
         }
     }
+    public function install_post() {
+        $this->installed_post();
+    }
     public function installed_post() {
         self::getClass('Plugin')->getRunInclude($_REQUEST['run']);
         $Plugin = self::getClass('Plugin',@min(self::getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));

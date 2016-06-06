@@ -113,7 +113,9 @@ beginUpload() {
                             umount /bcdstore >/dev/null 2>&1
                             echo "Yes"
                             debugPause
-                            [[ -z $parts_up_to_fixed || $parts_up_to_fixed < $part_number ]] && parts_up_to_fixed=$part_number
+                            if [[ $part_number -gt 1 ]]; then
+                                [[ -z $parts_up_to_fixed || $parts_up_to_fixed -lt $part_number ]] && parts_up_to_fixed=$part_number
+                            fi
                         fi
                     done
                     for ((increment=1; increment <= $parts_up_to_fixed; increment++)); do
