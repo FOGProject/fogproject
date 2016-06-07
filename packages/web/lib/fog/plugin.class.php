@@ -64,7 +64,7 @@ class Plugin extends FOGController {
                 ->set('description',$fog_plugin['description']);
             $p->strPath = $file;
             $p->strEntryPoint = sprintf('%s%s',$file,$fog_plugin['entrypoint']);
-            $p->strIcon = sprintf('%s%s',$file,$fog_plugin['menuicon']);
+            $p->strIcon = preg_match('#^fa[-]?#',$fog_plugin['menuicon']) ? $fog_plugin['menuicon'] : sprintf('%s%s',$file,$fog_plugin['menuicon']);
             $p->strIconHover = sprintf('%s%s',$file,$fog_plugin['menuicon_hover']);
             unset($file,$fog_plugin);
             return $p;

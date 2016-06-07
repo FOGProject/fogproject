@@ -17,7 +17,7 @@ class PluginManagementPage extends FOGPage {
             _('Location'),
         );
         $this->templates = array(
-            '<a href="?node=plugin&sub=${type}&run=${encname}&${type}=${encname}" class="icon" title="Plugin: ${name}"><img width="66" height="66" alt="${name}" src="${icon}"/><br/><small>${name}</small></a>',
+            '<a href="?node=plugin&sub=${type}&run=${encname}&${type}=${encname}" class="icon" title="Plugin: ${name}">${icon}<br/><small>${name}</small></a>',
             '${desc}',
             '${location}',
         );
@@ -45,7 +45,7 @@ class PluginManagementPage extends FOGPage {
                 'encname'=>trim(md5(trim($Plugin->get('name')))),
                 'location'=>$Plugin->getPath(),
                 'desc'=>$Plugin->get('description'),
-                'icon'=>$Plugin->getIcon(),
+                'icon'=>preg_match('#^fa[-]?#',$Plugin->getIcon()) ? sprintf('<i class="%s" height="66" width="66" alt="%s"></i>',$Plugin->getIcon(),$Plugin->get('name')) : sprintf('<img width="66" height="66" src="%s" alt="%s"/>',$Plugin->getIcon(),$Plugin->get('name')),
             );
             unset($Plugin);
         },self::getClass($this->childClass)->getPlugins());
@@ -68,7 +68,7 @@ class PluginManagementPage extends FOGPage {
                 'encname'=>sprintf('%s&plug_name=%s',trim(md5(trim($Plugin->get('name')))),$Plugin->get('name')),
                 'location'=>$Plugin->getPath(),
                 'desc'=>$Plugin->get('description'),
-                'icon'=>$Plugin->getIcon(),
+                'icon'=>preg_match('#^fa[-]?#',$Plugin->getIcon()) ? sprintf('<i class="%s" height="66" width="66" alt="%s"></i>',$Plugin->getIcon(),$Plugin->get('name')) : sprintf('<img width="66" height="66" src="%s" alt="%s"/>',$Plugin->getIcon(),$Plugin->get('name')),
                 'pluginid'=>$Plugin->get('id') ? $Plugin->get('id') : '',
             );
             $P = $Plugin;
@@ -94,7 +94,7 @@ class PluginManagementPage extends FOGPage {
                 'encname'=>trim(md5(trim($Plugin->get('name')))),
                 'location'=>$Plugin->getPath(),
                 'desc'=>$Plugin->get('description'),
-                'icon'=>$Plugin->getIcon(),
+                'icon'=>preg_match('#^fa[-]?#',$Plugin->getIcon()) ? sprintf('<i class="%s" height="66" width="66" alt="%s"></i>',$Plugin->getIcon(),$Plugin->get('name')) : sprintf('<img width="66" height="66" src="%s" alt="%s"/>',$Plugin->getIcon(),$Plugin->get('name')),
                 'pluginid'=>$Plugin->get('id') ? $Plugin->get('id') : '',
             );
             $P[] = $Plugin;
