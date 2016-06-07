@@ -70,10 +70,56 @@ beginUpload() {
             case $osid in
                 [4-7]|9|50|51)
                     echo " * Setting up any additional fixed parts"
+                    [[ $((ntfscnt + extfscnt)) -gt 1  && $part_number -eq 1 ]] && fixed_size_partitions="$fixed_size_partitions:1"
                     part_number=0
                     for part in $parts; do
                         getPartitionNumber "$part"
-                        [[ $((ntfscnt + extfscnt)) -gt 1  && $part_number -eq 1 ]] && fixed_size_partitions="$fixed_partitions:$part"
+                        fsTypeSetting "$part"
+                        [[ $fstype != ntfs ]] && continue
+                        dots "Mounting partition ($part)"
+                        if [[ ! -d /bcdstore ]]; then
+                            mkdir -p /bcdstore >/dev/null 2>&1
+                            case $? in
+                                0)
+                                    ;;
+                                *)
+                                    echo "Failed"
+                                    debugPause
+                                    echo " * Could not create mount location"
+                                    return
+                                    ;;
+                            esac
+                        fi
+                        ntfs-3g -o remove_hiberfile,rw $part /bcdstore >/tmp/ntfs-mount-output 2>&1
+                        case $? in
+                            0)
+                                echo "Done"
+                                debugPause
+                                ;;
+                            *)
+                                echo "Failed"
+                                debugPause
+                                echo " * Could not mount $part to /bcdstore"
+                                return
+                                ;;
+                        esac
+                        parts_up_to_fixed=0
+                        dots "BCD exists on $part in /bcdstore"
+                        if [[ ! -f /bcdstore/Boot/BCD ]]; then
+                            umount /bcdstore >/dev/null 2>&1
+                            echo "No"
+                            debugPause
+                        else
+                            umount /bcdstore >/dev/null 2>&1
+                            echo "Yes"
+                            debugPause
+                            if [[ $part_number -gt 1 ]]; then
+                                [[ -z $parts_up_to_fixed || $parts_up_to_fixed -lt $part_number ]] && parts_up_to_fixed=$part_number
+                            fi
+                        fi
+                    done
+                    for ((increment=1; increment <= $parts_up_to_fixed; increment++)); do
+                        fixed_size_partitions="$fixed_size_partitions:$increment"
                     done
                     ;;
             esac
