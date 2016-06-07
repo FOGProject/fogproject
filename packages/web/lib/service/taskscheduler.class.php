@@ -13,8 +13,8 @@ class TaskScheduler extends FOGService {
         try {
             $findWhere = array('stateID'=>$this->getQueuedState(),'wol'=>1);
             $TaskHosts = self::getSubObjectIDs('Task',$findWhere,'hostID');
-            //$PMHosts = self::getSubObjectIDs('PowerManagement',array('action'=>'wol','onDemand'=>1),'hostID');
-            $WOLHosts = array_unique($TaskHosts);//array_unique(array_merge($TaskHosts,$PMHosts));
+            $PMHosts = self::getSubObjectIDs('PowerManagement',array('action'=>'wol','onDemand'=>1),'hostID');
+            $WOLHosts = array_unique(array_merge($TaskHosts,$PMHosts));
             $taskcount = count($WOLHosts);
             self::outall(sprintf(" * %s active task%s waiting to wake up.",$taskcount,($taskcount != 1 ? 's' : '')));
             if ($taskcount) {
@@ -28,7 +28,7 @@ class TaskScheduler extends FOGService {
             }
             $findWhere = array('isActive'=>1);
             $taskCount = self::getClass('ScheduledTaskManager')->count($findWhere);
-            //$taskCount += self::getClass('PowerManagementManager')->count(array('action'=>'wol','onDemand'=>0));
+            $taskCount += self::getClass('PowerManagementManager')->count(array('action'=>'wol','onDemand'=>0));
             if ($taskCount < 1) throw new Exception(' * No tasks found!');
             self::outall(sprintf(" * %s task%s found.",$taskCount,($taskCount != 1 ? 's' : '')));
             unset($taskCount);
@@ -46,14 +46,14 @@ class TaskScheduler extends FOGService {
                 if (!$Timer->isSingleRun()) return;
                 $Task->set('isActive',0)->save();
             },(array)self::getClass('ScheduledTaskManager')->find($findWhere));
-            //self::outall(sprintf(' * Checking enabled WOL cron tasks'));
-            //array_map(function(&$Task) {
-            //    $Timer = $Task->getTimer();
-            //    self::outall(sprintf(" * Task run time: %s",$Timer->toString()));
-            //    if (!$Timer->shouldRunNow()) return;
-            //    self::outall(' * Found a wake on lan task that should run...');
-            //    $Task->getHost()->wakeOnLAN();
-            //},(array)self::getClass('PowerManagementManager')->find(array('action'=>'wol','onDemand'=>0)));
+            self::outall(sprintf(' * Checking enabled WOL cron tasks'));
+            array_map(function(&$Task) {
+                $Timer = $Task->getTimer();
+                self::outall(sprintf(" * Task run time: %s",$Timer->toString()));
+                if (!$Timer->shouldRunNow()) return;
+                self::outall(' * Found a wake on lan task that should run...');
+                $Task->getHost()->wakeOnLAN();
+            },(array)self::getClass('PowerManagementManager')->find(array('action'=>'wol','onDemand'=>0)));
         } catch (Exception $e) {
             self::outall($e->getMessage());
         }
