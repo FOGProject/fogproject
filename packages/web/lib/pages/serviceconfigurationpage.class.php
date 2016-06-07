@@ -14,7 +14,7 @@ class ServiceConfigurationPage extends FOGPage {
             "$servicelink#greenfog" => self::$foglang['GreenFOG'],
             "$servicelink#hostregister" => self::$foglang['HostRegistration'],
             "$servicelink#hostnamechanger" => self::$foglang['HostnameChanger'],
-            //"$servicelink#powermanagement" => self::$foglang['PowerManagement'],
+            "$servicelink#powermanagement" => self::$foglang['PowerManagement'],
             "$servicelink#printermanager" => sprintf(self::$foglang['SelManager'],self::$foglang['Printer']),
             "$servicelink#snapinclient" => self::$foglang['SnapinClient'],
             "$servicelink#taskreboot" => self::$foglang['TaskReboot'],
