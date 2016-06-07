@@ -125,7 +125,7 @@ class BootMenu extends FOGBase {
             $ramsize,
             $keymap,
             $this->web,
-            $kernelDebug ? ' debug' : '',
+            $kernelDebug ? ' debug' : ' ',
             $kernelArgs ? $kernelArgs : '',
             $this->Host->isValid() && $this->Host->get('kernelArgs') ? sprintf(' %s',$this->Host->get('kernelArgs')) : ''
         );
