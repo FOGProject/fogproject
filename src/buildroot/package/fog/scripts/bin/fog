@@ -1,5 +1,11 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
+### If USB Boot device we need a way to get the kernel args properly
+if [[ $boottype == usb && ! -z $web ]]; then
+    mac=$(getMACAddresses)
+    wget -q -O /tmp/hinfo.txt "http://${web}service/hostinfo.php?mac=$mac"
+    [[ -f /tmp/hinfo.txt ]] && . /tmp/hinfo.txt
+fi
 if [[ -n $mode && $mode != +(*debug*) ]]; then
     case $mode in
         wipe)

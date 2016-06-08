@@ -46,41 +46,56 @@ class BootMenu extends FOGBase {
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
         $StorageNode = self::getClass('StorageNode',@min(self::getSubObjectIDs('StorageNode',array('isEnabled'=>1,'isMaster'=>1))));
-        array(
+        $serviceNames = array(
             'FOG_EFI_BOOT_EXIT_TYPE',
             'FOG_KERNEL_ARGS',
             'FOG_KERNEL_DEBUG',
             'FOG_KERNEL_LOGLEVEL',
             'FOG_KERNEL_RAMDISK_SIZE',
-            'FOG_KEY_SEQUENCE',
             'FOG_KEYMAP',
+            'FOG_KEY_SEQUENCE',
             'FOG_MEMTEST_KERNEL',
             'FOG_PLUGIN_CAPONE_DMI',
             'FOG_PLUGIN_CAPONE_SHUTDOWN',
             'FOG_PXE_BOOT_IMAGE',
             'FOG_PXE_BOOT_IMAGE_32',
             'FOG_PXE_HIDDENMENU_TIMEOUT',
+            'FOG_PXE_MENU_HIDDEN',
             'FOG_PXE_MENU_TIMEOUT',
             'FOG_TFTP_PXE_KERNEL',
             'FOG_TFTP_PXE_KERNEL_32',
         );
-        list($exit,$kernelArgs,$kernelDebug,$kernelLogLevel,$kernelRamDisk,$keySequence,$keymap,$memtest,$caponeDMI,$caponeShutdown,$init,$init_32,$hiddenTimeout,$menuTimeout,$bzImage,$bzImage32) = range(1,16);
-        $loglevel = (int)self::getSetting('FOG_KERNEL_LOGLEVEL');
-        $memdisk = 'memdisk';
-        $ramsize = self::getSetting('FOG_KERNEL_RAMDISK_SIZE');
-        $keymap = self::getSetting('FOG_KEYMAP');
-        $memtest = self::getSetting('FOG_MEMTEST_KERNEL');
-        $bzImage = self::getSetting('FOG_TFTP_PXE_KERNEL_32');
-        $imagefile = self::getSetting('FOG_PXE_BOOT_IMAGE_32');
-        $timeout = self::getSetting('FOG_PXE_MENU_TIMEOUT') * 1000;
-        if (!$_REQUEST['menuAccess']) $hiddenmenu = (int)self::getSetting('FOG_PXE_MENU_HIDDEN');
-        if ($hiddenmenu) {
-            $keySequence = self::getSetting('FOG_KEY_SEQUENCE');
-            $timeout = self::getSetting('FOG_PXE_HIDDENMENU_TIMEOUT') * 1000;
+        list($exit,$kernelArgs,$kernelDebug,$kernelLogLevel,$kernelRamDisk,$keyMap,$keySequence,$memtest,$caponeDMI,$caponeShutdown,$imagefile,$init_32,$hiddenTimeout,$hiddenmenu,$menuTimeout,$bzImage,$bzImage32) = self::getSubObjectIDs('Service',array('name'=>$serviceNames),'value',false,'AND','name',false,'');
+        if (!in_array('capone',(array)$_SESSION['PluginsInstalled'])) {
+            $serviceNames = array(
+                'FOG_EFI_BOOT_EXIT_TYPE',
+                'FOG_KERNEL_ARGS',
+                'FOG_KERNEL_DEBUG',
+                'FOG_KERNEL_LOGLEVEL',
+                'FOG_KERNEL_RAMDISK_SIZE',
+                'FOG_KEYMAP',
+                'FOG_KEY_SEQUENCE',
+                'FOG_MEMTEST_KERNEL',
+                'FOG_PLUGIN_CAPONE_DMI',
+                'FOG_PLUGIN_CAPONE_SHUTDOWN',
+                'FOG_PXE_BOOT_IMAGE',
+                'FOG_PXE_BOOT_IMAGE_32',
+                'FOG_PXE_HIDDENMENU_TIMEOUT',
+                'FOG_PXE_MENU_HIDDEN',
+                'FOG_PXE_MENU_TIMEOUT',
+                'FOG_TFTP_PXE_KERNEL',
+                'FOG_TFTP_PXE_KERNEL_32',
+            );
+            list($exit,$kernelArgs,$kernelDebug,$kernelLogLevel,$kernelRamDisk,$keyMap,$keySequence,$memtest,$imagefile,$init_32,$hiddenTimeout,$hiddenmenu,$menuTimeout,$bzImage,$bzImage32) = self::getSubObjectIDs('Service',array('name'=>$serviceNames),'value',false,'AND','name',false,'');
         }
-        if ($_REQUEST['arch'] == 'x86_64') {
-            $bzImage = self::getSetting('FOG_TFTP_PXE_KERNEL');
-            $imagefile = self::getSetting('FOG_PXE_BOOT_IMAGE');
+        $memdisk = 'memdisk';
+        $loglevel = (int)$kernelLogLevel;
+        $ramsize = (int)$kernelRamDisk;
+        $timeout = ($hiddenmenu > 0 && !$_REQUEST['menuAccess'] ? (int)$hiddenTimeout : (int)$menuTimeout) * 1000;
+        $keySequence = ($hiddenmenu > 0 && !$_REQUEST['menuAccess'] ? $keySequence : '');
+        if ($_REQUEST['arch'] != 'x86_64') {
+            $bzImage = $bzImage32;
+            $imagefile = $init_32;
         }
         $kernel = $bzImage;
         if ($this->Host->get('kernel')) $bzImage = trim($this->Host->get('kernel'));
@@ -290,7 +305,7 @@ class BootMenu extends FOGBase {
                 return preg_replace('#mode=debug|mode=onlydebug#i','isdebug=yes',$arg['value']);
             }
             return preg_replace('#mode=debug|mode=onlydebug#i','isdebug=yes',$arg);
-        },array_merge(array('rootfstype=ext4'),(array)$kernelArgsArray));
+        },(array)$kernelArgsArray);
         $kernelArgs = array_values(array_filter(array_unique($kernelArgs)));
         $kernelArgs = implode(' ',(array)$kernelArgs);
         $Send['task'][($this->Host->isValid() ? $this->Host->get('task')->get('typeID') : 1)] = array(
