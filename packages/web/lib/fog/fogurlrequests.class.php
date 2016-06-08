@@ -91,7 +91,7 @@ class FOGURLRequests extends FOGBase {
         $this->validURL($URL);
         $this->proxyInfo($URL);
         $origContext = $this->contextOptions;
-        $ch = curl_init($URL);
+        $ch = curl_init();
         $this->contextOptions[CURLOPT_URL] = $URL;
         $this->contextOptions[CURLOPT_HEADER] = true;
         $this->contextOptions[CURLOPT_NOBODY] = true;
@@ -104,5 +104,34 @@ class FOGURLRequests extends FOGBase {
         $this->contextOptions = $origContext;
         if ($response) return true;
         return false;
+    }
+    public function download($file,$chunks = 2048) {
+        set_time_limit(0);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-disposition: attachment; filename='.basename($file));
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Expires: 0');
+        header('Pragma: public');
+        while ($i <= $size) {
+            $this->get_chunk($file,(($i==0) ? $i : $i+1),$i+$chunks);
+            $i += $chunks;
+        }
+    }
+    private function get_chunk($file,$start,$end) {
+        $this->proxyInfo($URL);
+        $origContext = $this->contextOptions;
+        $this->contextOptions[CURLOPT_URL] = $file;
+        $this->contextOptions[CURLOPT_RANGE] = $start.'-'.$end;
+        $this->contextOptions[CURLOPT_BINARYTRANSFER] = true;
+        $this->contextOptions[CURLOPT_WRITEFUNCTION] = array($this,'chunk');
+        curl_setopt_array($ch,$this->contextOptions);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        $this->contextOptions = $origContext;
+    }
+    private function chunk($ch, $str) {
+        echo $str;
+        return strlen($str);
     }
 }
