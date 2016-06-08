@@ -172,6 +172,9 @@ beginUpload() {
             ;;
         mps)
             echo " * Processing Hard Disk: $hd"
+            echo " * Saving original disk/parts UUIDs"
+            debugPause
+            saveUUIDInformation "$hd" "$mainuuidfilename"
             savePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
             getPartitions "$hd"
             for part in $parts; do
@@ -183,6 +186,9 @@ beginUpload() {
             for disk in $disks; do
                 debugPause
                 echo " * Processing Hard Disk: $disk"
+                echo " * Saving original disk/parts UUIDs"
+                debugPause
+                saveUUIDInformation "$disk" "$mainuuidfilename"
                 savePartitionTablesAndBootLoaders "$disk" "$disk_number" "$imagePath" "$osid" "$imgPartitionType"
                 runPartprobe "$disk"
                 getPartitions "$disk"

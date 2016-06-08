@@ -15,6 +15,8 @@ for var in $(cat /proc/cmdline); do
     printf -v "$name" -- "$value"
 done
 IFS=$oIFS
+### If USB Boot device we need a way to get the kernel args properly
+[[ $boottype == usb && -f /tmp/hinfo.txt ]] && . /tmp/hinfo.txt
 # Below Are non parameterized functions
 # These functions will run without any arguments
 #
