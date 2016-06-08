@@ -145,11 +145,10 @@ class Snapin extends FOGController {
         return self::getClass('StorageGroup',@min($this->get('storageGroups')));
     }
     public function getPrimaryGroup($groupID) {
-        if (!self::getClass('SnapinGroupAssociationManager')->count(array('snapinID'=>$this->get('id'),'primary'=>1)) && $groupID == @min(self::getSubObjectIDs('StorageGroup'))) {
-            $this->setPrimaryGroup($groupID);
-            return true;
-        }
-        return (bool)self::getClass('SnapinGroupAssociation',@min(self::getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$groupID,'snapinID'=>$this->get('id')),'id')))->getPrimary();
+        $primaryCount = self::getClass('SnapinGroupAssociationManager')->count(array('snapinID'=>$this->get('id'),'primary'=>1));
+        if ($primaryCount < 1) $this->setPrimaryGroup(@min(self::getSubObjectIDs('StorageGroup')));
+        $assocID = @min(self::getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$groupID,'snapinID'=>$this->get('id'))));
+        return self::getClass('SnapinGroupAssociation',$assocID)->isPrimary();
     }
     public function setPrimaryGroup($groupID) {
         self::getClass('SnapinGroupAssociationManager')->update(array('snapinID'=>$this->get('id'),'storageGroupID'=>array_diff((array)$this->get('storageGroups'),(array)$groupID)),'',array('primary'=>0));

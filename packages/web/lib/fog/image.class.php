@@ -139,8 +139,8 @@ class Image extends FOGController {
     public function getPrimaryGroup($groupID) {
         $primaryCount = self::getClass('ImageAssociationManager')->count(array('imageID'=>$this->get('id'),'primary'=>1));
         if ($primaryCount < 1) $this->setPrimaryGroup(@min(self::getSubObjectIDs('StorageGroup')));
-        $groupID = @min(self::getSubObjectIDs('StorageGroup'));
-        return self::getClass('ImageAssociation',$groupID)->isPrimary();
+        $assocID = @min(self::getSubObjectIDs('ImageAssociation',array('storageGroupID'=>$groupID,'imageID'=>$this->get('id'))));
+        return self::getClass('ImageAssociation',$assocID)->isPrimary();
     }
     public function setPrimaryGroup($groupID) {
         self::getClass('ImageAssociationManager')->update(array('imageID'=>$this->get('id'),'storageGroupID'=>array_diff((array)$this->get('storageGroups'),(array)$groupID)),'',array('primary'=>0));
