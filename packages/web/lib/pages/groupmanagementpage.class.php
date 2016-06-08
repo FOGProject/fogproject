@@ -12,6 +12,7 @@ class GroupManagementPage extends FOGPage {
                 "$this->linkformat#group-snap-add" => sprintf('%s %s',self::$foglang['Add'],self::$foglang['Snapins']),
                 "$this->linkformat#group-snap-del" => sprintf('%s %s',self::$foglang['Remove'],self::$foglang['Snapins']),
                 "$this->linkformat#group-service" => sprintf('%s %s',self::$foglang['Service'],self::$foglang['Settings']),
+                "$this->linkformat#group-powermanagement"=>self::$foglang['PowerManagement'],
                 "$this->linkformat#group-active-directory" => self::$foglang['AD'],
                 "$this->linkformat#group-printers" => self::$foglang['Printers'],
                 "$this->linkformat#group-inventory" => self::$foglang['Inventory'],
@@ -374,6 +375,30 @@ class GroupManagementPage extends FOGPage {
         $this->render();
         unset($this->data);
         echo '</fieldset></form></div>';
+        echo '<!-- Power Management Items --><div id="group-powermanagement">';
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+        );
+        $fields = array(
+            _('Schedule Power') => sprintf('<p id="cronOptions"><input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off" value="%s"/><input type="text" name="scheduleCronHour" id="scheduleCronHour" placeholder="hour" autocomplete="off" value="%s"/><input type="text" name="scheduleCronDOM" id="scheduleCronDOM" placeholder="dom" autocomplete="off" value="%s"/><input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" value="%s"/><input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" value="%s"/></p>',$_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW']),
+            _('Perform Immediately?') => sprintf('<input type="checkbox" name="onDemand" id="scheduleOnDemand"%s/>',!is_array($_REQUEST['onDemand']) && isset($_REQUEST['onDemand']) ? ' checked' : ''),
+            _('Action') => self::getClass('PowerManagementManager')->getActionSelect($_REQUEST['action']),
+        );
+        array_walk($fields,function(&$input,&$field) {
+            $this->data[] = array(
+                'field' => $field,
+                'input' => $input,
+            );
+        });
+        printf('<form method="post" action="%s&tab=group-powermanagement" class="deploy-container">',$this->formAction);
+        $this->render();
+        printf('<center><input type="submit" name="pmsubmit" value="%s"/></center></form></div>',_('Add Option'));
+        unset($this->headerData,$this->templates,$this->data,$this->attributes);
         $this->adFieldsToDisplay($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,$ADPassLegacy,$enforce);
         echo '<!-- Printers --><div id="group-printers">';
         if (self::getClass('PrinterManager')->count()) {
@@ -565,6 +590,30 @@ class GroupManagementPage extends FOGPage {
                 $modOn = (array)$_REQUEST['modules'];
                 $modOff = self::getSubObjectIDs('Module',array('id'=>$modOn),'id',true);
                 $this->obj->addModule($modOn)->removeModule($modOff)->setDisp($x,$y,$r)->setAlo($time);
+                break;
+            case 'group-powermanagement':
+                $min = $_REQUEST['scheduleCronMin'];
+                $hour = $_REQUEST['scheduleCronHour'];
+                $dom = $_REQUEST['scheduleCronDOM'];
+                $month = $_REQUEST['scheduleCronMonth'];
+                $dow = $_REQUEST['scheduleCronDOW'];
+                $onDemand = (string)intval(isset($_REQUEST['onDemand']));
+                $action = $_REQUEST['action'];
+                if (!$action) throw new Exception(_('You must select an action to perform'));
+                $items = array();
+                if (isset($_REQUEST['pmsubmit'])) {
+                    if ($onDemand && $action === 'wol'){
+                        array_map(function(&$Host) {
+                            $this->obj->wakeOnLAN();
+                        },(array)self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
+                        break;
+                    }
+                    $hostIDs = (array)$this->obj->get('hosts');
+                    array_map(function($hostID) use ($min,$hour,$dom,$month,$dow,$onDemand,$action,&$items) {
+                        $items[] = array($hostID,$min,$hour,$dom,$month,$dow,$onDemand,$action);
+                    },(array)$hostIDs);
+                    self::getClass('PowerManagementManager')->insert_batch(array('hostID','min','hour','dom','month','dow','onDemand','action'),$items);
+                }
                 break;
             }
             if (!$this->obj->save()) throw new Exception(_('Database update failed'));

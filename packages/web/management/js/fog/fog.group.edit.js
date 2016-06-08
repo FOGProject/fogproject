@@ -24,6 +24,7 @@ $(function() {
     checkboxAssociations('.toggle-checkboxprintrm:checkbox','.toggle-printrm:checkbox');
     checkboxAssociations('.toggle-checkboxsnapin:checkbox','.toggle-snapin:checkbox');
     checkboxAssociations('.toggle-checkboxsnapinrm:checkbox','.toggle-snapinrm:checkbox');
+    checkboxAssociations('#rempowerselectors:checkbox','.rempoweritems:checkbox');
     // Show hide based on checked state.
     $('#hostNotInMe,#hostNoGroup').hide();
     $('#hostMeShow:checkbox').change(function(e) {
@@ -33,5 +34,42 @@ $(function() {
     $('#hostNoShow:checkbox').change(function(e) {
         $('#hostNoGroup').toggle();
         e.preventDefault();
+    });
+    result = true;
+    $('#scheduleOnDemand').change(function() {
+        if ($(this).is(':checked') === true) {
+            $(this).parents('form').each(function() {
+                $("input[name^='scheduleCron']",this).each(function() {
+                    $(this).val('').prop('readonly',true).hide().parents('tr').hide();
+                });
+            });
+        } else {
+            $(this).parents('form').each(function() {
+                $("input[name^='scheduleCron']",this).each(function() {
+                    $(this).val('').prop('readonly',false).show().parents('tr').show();
+                });
+            });
+        }
+    });
+    $("form.deploy-container").submit(function() {
+        if ($('#scheduleOnDemand').is(':checked')) {
+            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+                $(this).val('').prop('disabled',true);
+                console.log('here');
+            });
+            return true;
+        } else {
+            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+                result = validateCronInputs($(this));
+                if (result === false) return false;
+            });
+        }
+        return result;
+    }).each(function() {
+        $("input[name^='scheduleCron']",this).each(function(id,value) {
+            if (!validateCronInputs($(this))) $(this).addClass('error');
+        }).blur(function() {
+            if (!validateCronInputs($(this))) $(this).addClass('error');
+        });
     });
 });
