@@ -12,7 +12,7 @@ $this->schema[] = array(
         UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),
 KEY `new_index` (`gmHostID`),
 KEY `new_index1` (`gmGroupID`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "CREATE TABLE  `".DATABASE_NAME."`.`groups` (
         `groupID` int(11) NOT NULL auto_increment,
         `groupName` varchar(50) NOT NULL,
@@ -22,7 +22,7 @@ KEY `new_index1` (`gmGroupID`)
         `groupBuilding` int(11) NOT NULL,
         PRIMARY KEY  (`groupID`),
 KEY `new_index` (`groupName`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
     "CREATE TABLE  `".DATABASE_NAME."`.`history` (
         `hID` int(11) NOT NULL auto_increment,
         `hText` longtext NOT NULL,
@@ -30,7 +30,7 @@ KEY `new_index` (`groupName`)
         `hTime` datetime NOT NULL,
         `hIP` varchar(50) NOT NULL,
         PRIMARY KEY  (`hID`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
     "CREATE TABLE  `".DATABASE_NAME."`.`hosts` (
         `hostID` int(11) NOT NULL auto_increment,
         `hostName` varchar(16) NOT NULL,
@@ -47,7 +47,7 @@ KEY `new_index` (`hostName`),
 KEY `new_index1` (`hostIP`),
 KEY `new_index2` (`hostMAC`),
 KEY `new_index3` (`hostOS`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
     "CREATE TABLE  `".DATABASE_NAME."`.`images` (
         `imageID` int(11) NOT NULL auto_increment,
         `imageName` varchar(40) NOT NULL,
@@ -60,19 +60,19 @@ KEY `new_index3` (`hostOS`)
         PRIMARY KEY  (`imageID`),
 KEY `new_index` (`imageName`),
 KEY `new_index1` (`imageBuilding`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
     "CREATE TABLE  `".DATABASE_NAME."`.`schemaVersion` (
         `vID` int(11) NOT NULL auto_increment,
         `vValue` int(11) NOT NULL,
         PRIMARY KEY  (`vID`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "CREATE TABLE  `".DATABASE_NAME."`.`supportedOS` (
         `osID` int(10) unsigned NOT NULL auto_increment,
         `osName` varchar(150) NOT NULL,
         `osValue` int(10) unsigned NOT NULL,
         PRIMARY KEY  (`osID`),
 KEY `new_index` (`osValue`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
     "CREATE TABLE  `".DATABASE_NAME."`.`tasks` (
         `taskID` int(11) NOT NULL auto_increment,
         `taskName` varchar(250) NOT NULL,
@@ -91,7 +91,7 @@ KEY `new_index1` (`taskCheckIn`),
 KEY `new_index2` (`taskState`),
 KEY `new_index3` (`taskForce`),
 KEY `new_index4` (`taskType`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
     "CREATE TABLE  `".DATABASE_NAME."`.`users` (
         `uId` int(11) NOT NULL auto_increment,
         `uName` varchar(40) NOT NULL,
@@ -101,7 +101,7 @@ KEY `new_index4` (`taskType`)
         PRIMARY KEY  (`uId`),
 KEY `new_index` (`uName`),
 KEY `new_index1` (`uPass`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`users` VALUES  ('','fog', MD5('password'),NOW(),'')",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`supportedOS` VALUES  ('','"._("Windows XP")."', '1')",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`schemaVersion` VALUES  ('','1')"
@@ -132,14 +132,14 @@ $this->schema[] = array(
         PRIMARY KEY  (`saID`),
 KEY `new_index` (`saHostID`),
 KEY `new_index1` (`saSnapinID`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
             "CREATE TABLE  `".DATABASE_NAME."`.`snapinJobs` (
                 `sjID` int(11) NOT NULL auto_increment,
                 `sjHostID` int(11) NOT NULL,
                 `sjCreateTime` datetime NOT NULL,
                 PRIMARY KEY  (`sjID`),
 KEY `new_index` (`sjHostID`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
             "CREATE TABLE  `".DATABASE_NAME."`.`snapinTasks` (
                 `stID` int(11) NOT NULL auto_increment,
                 `stJobID` int(11) NOT NULL,
@@ -151,7 +151,7 @@ KEY `new_index` (`sjHostID`)
 KEY `new_index` (`stJobID`),
 KEY `new_index1` (`stState`),
 KEY `new_index2` (`stSnapinID`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
             "CREATE TABLE  `".DATABASE_NAME."`.`snapins` (
                 `sID` int(11) NOT NULL auto_increment,
                 `sName` varchar(200) NOT NULL,
@@ -166,7 +166,7 @@ KEY `new_index2` (`stSnapinID`)
                 `sAnon3` varchar(45) NOT NULL,
                 PRIMARY KEY  (`sID`),
 KEY `new_index` (`sName`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
             "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '3'",
         );
 // 4
@@ -189,7 +189,7 @@ $this->schema[] = array(
         `msAnon4` varchar(250) NOT NULL,
         `msAnon5` varchar(250) NOT NULL,
         PRIMARY KEY  (`msID`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
     "CREATE TABLE  `".DATABASE_NAME."`.`multicastSessionsAssoc` (
         `msaID` int(11) NOT NULL auto_increment,
         `msID` int(11) NOT NULL,
@@ -197,7 +197,7 @@ $this->schema[] = array(
         PRIMARY KEY  (`msaID`),
 KEY `new_index` (`msID`),
 KEY `new_index1` (`tID`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
             "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '4'",
         );
 // 5
@@ -224,7 +224,7 @@ $this->schema[] = array(
 INDEX `new_index`(`vHostMAC`),
 INDEX `new_index2`(`vDateTime`)
             )
-            ENGINE = InnoDB",
+            ENGINE = MyISAM",
             "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '6'",
         );
 // 8
@@ -244,7 +244,7 @@ INDEX `new_index1`(`utUserName`),
 INDEX `new_index2`(`utAction`),
 INDEX `new_index3`(`utDateTime`)
             )
-            ENGINE = InnoDB",
+            ENGINE = MyISAM",
             "ALTER TABLE `".DATABASE_NAME."`.`hosts` CHANGE `hostAnon1` `hostPrinterLevel` VARCHAR(2)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
             "CREATE TABLE `".DATABASE_NAME."`.`printers` (
                 `pID` integer  NOT NULL AUTO_INCREMENT,
@@ -262,7 +262,7 @@ INDEX `new_index3`(`utDateTime`)
 INDEX `new_index1`(`pModel`),
 INDEX `new_index2`(`pAlias`)
             )
-            ENGINE = InnoDB",
+            ENGINE = MyISAM",
             "CREATE TABLE `".DATABASE_NAME."`.`printerAssoc` (
                 `paID` integer  NOT NULL AUTO_INCREMENT,
                 `paHostID` integer  NOT NULL,
@@ -277,7 +277,7 @@ INDEX `new_index2`(`pAlias`)
 INDEX `new_index1`(`paHostID`),
 INDEX `new_index2`(`paPrinterID`)
             )
-            ENGINE = InnoDB",
+            ENGINE = MyISAM",
             "CREATE TABLE  `".DATABASE_NAME."`.`inventory` (
                 `iID` int(11) NOT NULL auto_increment,
                 `iHostID` int(11) NOT NULL,
@@ -311,7 +311,7 @@ INDEX `new_index2`(`paPrinterID`)
                 `iCaseserial` varchar(250) NOT NULL,
                 `iCaseasset` varchar(250) NOT NULL,
                 PRIMARY KEY  (`iID`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
+            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
             "CREATE TABLE `".DATABASE_NAME."`.`clientUpdates` (
                 `cuID` integer  NOT NULL AUTO_INCREMENT,
                 `cuName` varchar(200)  NOT NULL,
@@ -322,7 +322,7 @@ INDEX `new_index2`(`paPrinterID`)
 INDEX `new_index`(`cuName`),
 INDEX `new_index1`(`cuType`)
             )
-            ENGINE = InnoDB",
+            ENGINE = MyISAM",
             "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '7'",
         );
 // 8
@@ -344,7 +344,7 @@ $this->schema[] = array(
         PRIMARY KEY (`settingID`),
 INDEX `new_index`(`settingKey`)
             )
-            ENGINE = InnoDB;",
+            ENGINE = MyISAM;",
             "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
             values('FOG_TFTP_HOST', '"._("Hostname or IP address of the TFTP Server.")."', '" . TFTP_HOST . "', 'TFTP Server')",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
@@ -428,13 +428,13 @@ INDEX `new_index`(`settingKey`)
 INDEX `new_index`(`msHostID`),
 INDEX `new_index2`(`msModuleID`)
                 )
-                ENGINE = InnoDB;",
+                ENGINE = MyISAM;",
                 "CREATE TABLE `".DATABASE_NAME."`.`dirCleaner` (
                     `dcID` integer  NOT NULL AUTO_INCREMENT,
                     `dcPath` longtext  NOT NULL,
                     PRIMARY KEY (`dcID`)
                 )
-                ENGINE = InnoDB;",
+                ENGINE = MyISAM;",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                 values('FOG_USE_ANIMATION_EFFECTS', '"._("This setting defines if the FOG management portal uses animation effects on it.  Valid values are 0 or 1")."', '1', 'General Settings')",
                     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
@@ -444,7 +444,7 @@ INDEX `new_index2`(`msModuleID`)
                             `ucName` varchar(254)  NOT NULL,
                             PRIMARY KEY (`ucID`)
                         )
-                        ENGINE = InnoDB",
+                        ENGINE = MyISAM",
                         "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'administrator' )",
                         "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'admin' )",
                         "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'guest' )",
@@ -475,7 +475,7 @@ INDEX `new_index2`(`msModuleID`)
                                                     PRIMARY KEY (`hssID`),
 INDEX `new_index`(`hssHostID`)
                 )
-                ENGINE = InnoDB",
+                ENGINE = MyISAM",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                 values('FOG_CLIENT_AUTOLOGOFF_MIN', '"._("This setting defines the number of minutes to wait before logging a user off of a PC. (Value of 0 will disable this module.)")."', '0', 'FOG Client - Auto Log Off')",
                     "CREATE TABLE `".DATABASE_NAME."`.`hostAutoLogOut` (
@@ -485,7 +485,7 @@ INDEX `new_index`(`hssHostID`)
                         PRIMARY KEY (`haloID`),
 INDEX `new_index`(`haloHostID`)
                 )
-                ENGINE = InnoDB",
+                ENGINE = MyISAM",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                 values('FOG_CLIENT_AUTOLOGOFF_BGIMAGE', '"._("This setting defines the location of the background image used in the auto log off module.  The image should be 300px x 300px.  This image can be located locally (such as c:\\\\images\\\\myimage.jpg) or on a web server (such as http://freeghost.sf.net/images/image.jpg)")."', 'c:\\\\program files\\\\fog\\\\images\\\\alo-bg.jpg', 'FOG Client - Auto Log Off')",
                     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
@@ -500,7 +500,7 @@ INDEX `new_index`(`haloHostID`)
                             PRIMARY KEY (`gfID`),
 INDEX `new_index`(`gfHostID`)
                 )
-                ENGINE = InnoDB",
+                ENGINE = MyISAM",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                 values('FOG_CLIENT_HOSTNAMECHANGER_ENABLED', '"._("This setting defines if the fog hostname changer should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Hostname Changer')",
                     "CREATE TABLE `".DATABASE_NAME."`.`aloLog` (
@@ -516,7 +516,7 @@ INDEX `new_index`(`alUserName`),
 INDEX `new_index2`(`alHostID`),
 INDEX `new_index3`(`alDateTime`)
                 )
-                ENGINE = InnoDB",
+                ENGINE = MyISAM",
 
                 "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '9'",
             );
@@ -531,7 +531,7 @@ $this->schema[] = array(
         PRIMARY KEY (`ilID`),
 INDEX `new_index`(`ilHostID`)
                 )
-                ENGINE = InnoDB",
+                ENGINE = MyISAM",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                 values('FOG_CLIENT_SNAPIN_ENABLED', '"._("This setting defines if the fog snapin installer should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Snapins')",
                     "ALTER TABLE `".DATABASE_NAME."`.`snapins` CHANGE `sAnon1` `sRunWith` VARCHAR(245) NOT NULL",
@@ -603,7 +603,7 @@ INDEX `new_index1`(`pState`),
 INDEX `new_index2`(`pInstalled`),
 INDEX `new_index3`(`pVersion`)
                 )
-                ENGINE = InnoDB",
+                ENGINE = MyISAM",
                 "ALTER TABLE `".DATABASE_NAME."`.`hosts` CHANGE `hostAnon3` `hostKernel` VARCHAR(250)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
                 CHANGE `hostAnon4` `hostDevice` VARCHAR(250)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
                 "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '15'",
@@ -624,7 +624,7 @@ $this->schema[] = array(
         `ngDesc` longtext  NOT NULL,
         PRIMARY KEY (`ngID`)
     )
-    ENGINE = InnoDB",
+    ENGINE = MyISAM",
     "CREATE TABLE `".DATABASE_NAME."`.`nfsGroupMembers` (
         `ngmID` integer  NOT NULL AUTO_INCREMENT,
         `ngmMemberName` varchar(250)  NOT NULL,
@@ -644,7 +644,7 @@ INDEX `new_index2`(`ngmIsMasterNode`),
 INDEX `new_index3`(`ngmGroupID`),
 INDEX `new_index4`(`ngmIsEnabled`)
             )
-            ENGINE = InnoDB",
+            ENGINE = MyISAM",
             "ALTER TABLE `".DATABASE_NAME."`.`images` ADD COLUMN `imageNFSGroupID` integer  NOT NULL AFTER `imageDD`,
             ADD INDEX `new_index3`(`imageNFSGroupID`)",
             "ALTER TABLE `".DATABASE_NAME."`.`tasks` ADD COLUMN `taskNFSGroupID` integer  NOT NULL AFTER `taskDataTotal`,
@@ -668,7 +668,7 @@ INDEX `new_index1`(`nfTaskID`),
 INDEX `new_index2`(`nfHostID`),
 INDEX `new_index3`(`nfGroupID`)
             )
-            ENGINE = InnoDB",
+            ENGINE = MyISAM",
             "ALTER TABLE `".DATABASE_NAME."`.`nfsFailures` MODIFY COLUMN `nfDateTime` datetime  NOT NULL,
             ADD INDEX `new_index4`(`nfDateTime`)",
             "ALTER TABLE `".DATABASE_NAME."`.`multicastSessions` CHANGE `msAnon2` `msNFSGroupID` integer  NOT NULL,
@@ -742,7 +742,7 @@ $this->schema[] = array(
                     `stActive` varchar(2)  NOT NULL DEFAULT 1,
                     PRIMARY KEY (`stID`)
                 )
-                ENGINE = InnoDB;",
+                ENGINE = MyISAM;",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                 values('FOG_UTIL_BASE', '"._("This setting defines the location of util base, which is typically /opt/fog/")."', '/opt/fog/', 'FOG Utils')",
                     "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '19'",
@@ -769,14 +769,14 @@ $this->schema[] = array(
 INDEX `idxHostID`(`hmHostID`),
 INDEX `idxMac`(`hmMAC`)
                     )
-                    ENGINE = InnoDB",
+                    ENGINE = MyISAM",
                     "CREATE TABLE `".DATABASE_NAME."`.`oui` (
                         `ouiID` int(11) NOT NULL AUTO_INCREMENT,
                         `ouiMACPrefix` varchar(8) NOT NULL,
                         `ouiMan` varchar(254) NOT NULL,
                         PRIMARY KEY (`ouiID`),
 KEY `idxMac` (`ouiMACPrefix`)
-                    ) ENGINE=InnoDB",
+                    ) ENGINE=MyISAM",
 
                     "INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings` (`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) VALUES
                     ('FOG_QUICKREG_AUTOPOP', 'Enable FOG Quick Registration auto population feature (0 = disabled, 1=enabled).  If this feature is enabled, FOG will auto populate the host settings and automatically image the computer without any user intervention.', '0', 'FOG Quick Registration'),
@@ -795,7 +795,7 @@ KEY `idxMac` (`ouiMACPrefix`)
 INDEX `idx_mc`(`pmAddress`),
 INDEX `idx_host`(`pmHostID`)
                     )
-                    ENGINE = InnoDB;",
+                    ENGINE = MyISAM;",
                     "INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings` (`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) VALUES
                     ('FOG_QUICKREG_MAX_PENDING_MACS', 'This setting defines how many mac addresses will be stored in the pending mac address table for each host.', '4', 'FOG Client - Host Register'),
 ('FOG_QUICKREG_PENDING_MAC_FILTER', 'This is a list of MAC address fragments that is used to filter out pending mac address requests.  For example, if you don\'t want to see pending mac address requests for VMWare NICs then you could filter by 00:05:69.  This filter is comma seperated, and is used like a *starts with* filter.', '', 'FOG Client - Host Register')",
@@ -837,7 +837,7 @@ $this->schema[] = array(
         `osName` varchar(30) NOT NULL,
         `osDescription` text NOT NULL,
         PRIMARY KEY (`osID`)
-    ) ENGINE=InnoDB  DEFAULT CHARSET=utf8",
+    ) ENGINE=MyISAM  DEFAULT CHARSET=utf8",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`os` (`osID`, `osName`, `osDescription`) VALUES
     (1, 'Windows 2000/XP', ''),
 (3, 'Windows 98', ''),
@@ -888,7 +888,7 @@ $this->schema[] = array(
         `imageTypeID` mediumint(9) NOT NULL auto_increment,
         `imageTypeName` varchar(100) NOT NULL,
         PRIMARY KEY  (`imageTypeID`)
-    ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;",
+    ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`imageTypes` (`imageTypeID`, `imageTypeName`) VALUES
     (1, 'Single Partition (NTFS Only, Resizable)'),
         (2, 'Multiple Partition Image - Single Disk (Not Resizable)'),
@@ -946,7 +946,7 @@ $this->schema[] = array(
         `tsDescription` text NOT NULL,
         `tsOrder` tinyint(4) NOT NULL DEFAULT '0',
         PRIMARY KEY (`tsID`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
+    ) ENGINE=MyISAM DEFAULT CHARSET=utf8;",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`taskStates` (`tsID`, `tsName`, `tsDescription`, `tsOrder`) VALUES
     (1, 'Queued', 'Task has been created and FOG is waiting for the Host to check-in.', '1'),
 (2, 'In-Progress', 'Host is currently Imaging.', '2'),
@@ -977,7 +977,7 @@ $this->schema[] = array(
     `ttIsAdvanced` enum('0','1') NOT NULL DEFAULT '0',
     `ttIsAccess` enum('both','host','group') NOT NULL DEFAULT 'both',
     PRIMARY KEY (`ttID`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=20 ;",
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=20 ;",
 "INSERT IGNORE INTO `".DATABASE_NAME."`.`taskTypes` (`ttID`, `ttName`, `ttDescription`, `ttIcon`, `ttKernelTemplate`, `ttType`, `ttIsAdvanced`, `ttIsAccess`) VALUES
 (1, 'Download', 'Deploy action will send an image saved on the FOG server to the client computer with all included snapins.', 'senddebug.png', 'type=down', 'fog', '0', 'both'),
 (2, 'Upload', 'Upload will pull an image from a client computer that will be saved on the server.', 'restoredebug.png', 'type=up', 'fog', '0', 'host'),
@@ -1049,7 +1049,7 @@ $this->schema[] = array(
 // Blackout - 9:00 AM 13/03/2012
 $this->schema[] = array(
     // modules: Create module table -> Insert module information
-    "CREATE TABLE IF NOT EXISTS `".DATABASE_NAME."`.`modules` ( `id` mediumint(9) NOT NULL AUTO_INCREMENT, `name` varchar(50) NOT NULL, `short_name` varchar(30) NOT NULL, `description` text NOT NULL, PRIMARY KEY (`id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=13",
+    "CREATE TABLE IF NOT EXISTS `".DATABASE_NAME."`.`modules` ( `id` mediumint(9) NOT NULL AUTO_INCREMENT, `name` varchar(50) NOT NULL, `short_name` varchar(30) NOT NULL, `description` text NOT NULL, PRIMARY KEY (`id`) ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=13",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`modules` (`id`, `name`, `short_name`, `description`) VALUES
     (1, 'Directory Cleaner', 'dircleanup', 'This setting will enable or disable the directory cleaner service module on this specific host.  If the module is globally disabled, this setting is ignored.'),
 (2, 'User Cleanup', 'usercleanup', 'This setting will enable or disable the user cleaner service module on this specific host.  If the module is globally disabled, this setting is ignored.  The user clean up service will remove all stale users on the local machine, accept for user accounts that are whitelisted.  This is typically used when dynamic local users is implemented on the workstation.'),
@@ -1099,7 +1099,7 @@ $this->schema[] = array(
         `createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
         `createdBy` VARCHAR( 30 ) NOT NULL,
         PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB  DEFAULT CHARSET=utf8"
+    ) ENGINE=MyISAM  DEFAULT CHARSET=utf8"
 );
 // 38
 // Blackout - 12:52 PM 6/05/2012
@@ -1138,7 +1138,7 @@ $this->schema[] = array(
         ksValue varchar(25) NOT NULL,
         ksAscii varchar(25) NOT NULL,
         PRIMARY KEY (ksID))
-        ENGINE = InnoDB"
+        ENGINE = MyISAM"
     );
 $keySequences = array(
     'CTRL + A' => '0x01',
@@ -1416,7 +1416,7 @@ $this->schema[] = array(
         `imagePartitionTypeName` varchar(100) NOT NULL,
         `imagePartitionTypeValue` varchar(10) NOT NULL,
         PRIMARY KEY  (`imagePartitionTypeID`)
-    ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;",
+    ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`imagePartitionTypes` (`imagePartitionTypeID`, `imagePartitionTypeName`, `imagePartitionTypeValue`) VALUES (1, 'Everything', 'all'),
 (2, 'Partition Table and MBR only', 'mbr'),
 (3, 'Partition 1 only', '1'),
@@ -1446,7 +1446,7 @@ $this->schema[] = array(
         `pxeArgs` varchar(250) NULL,
         `pxeDefault` INT DEFAULT 0 NOT NULL,
         PRIMARY KEY  (`pxeID`)
-    ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;",
+    ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;",
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.`pxeMenu` (`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) VALUES (1, 'fog.local', 'Boot from hard disk', '1','2',NULL),
 (2, 'fog.memtest', 'Run Memtest86+', '0','2',NULL),
 (3, 'fog.reginput', 'Perform Full Host Registration and Inventory','0','0','mode=manreg'),
@@ -1572,7 +1572,7 @@ $this->schema[] = array(
         `ipxeSuccess` VARCHAR(2) NOT NULL,
         `ipxeFailure` VARCHAR(2) NOT NULL,
         PRIMARY KEY  (`ipxeID`)
-    ) ENGINE=InnoDB;",
+    ) ENGINE=MyISAM;",
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_DHCP_BOOTFILENAME','This setting just sets what is in use for the boot filename.  It is up to the admin to ensure this setting is correct for their database to be accurate.  Default setting is undionly.kpxe','undionly.kpxe','TFTP Server')",
 );
 // 132
@@ -1601,7 +1601,7 @@ $this->schema[] = array_merge(array(
         `igaImageID` mediumint(9) NOT NULL,
         `igaStorageGroupID` mediumint(9) NOT NULL,
         PRIMARY KEY  (`igaID`)
-    ) ENGINE=InnoDB;",
+    ) ENGINE=MyISAM;",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`imageGroupAssoc` (`igaImageID`,`igaStorageGroupID`) SELECT `imageID`,`imageNFSGroupID` FROM `".DATABASE_NAME."`.`images` WHERE `imageNFSGroupID` IS NOT NULL",
     "ALTER TABLE `".DATABASE_NAME."`.`images` DROP COLUMN `imageNFSGroupID`"),
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('imageGroupAssoc',array('igaImageID','igaImageID')),true)
@@ -1629,7 +1629,7 @@ $this->schema[] = array_merge(array(
         `sgaSnapinID` mediumint(9) NOT NULL,
         `sgaStorageGroupID` mediumint(9) NOT NULL,
         PRIMARY KEY  (`sgaID`)
-    ) ENGINE=InnoDB;",
+    ) ENGINE=MyISAM;",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`snapinGroupAssoc` (`sgaSnapinID`,`sgaStorageGroupID`) SELECT `sID`,`snapinNFSGroupID` FROM `".DATABASE_NAME."`.`snapins` WHERE `snapinNFSGroupID` IS NOT NULL",
     "ALTER TABLE `".DATABASE_NAME."`.`snapins` DROP COLUMN `snapinNFSGroupID`"),
     $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinGroupAssoc',array('sgaSnapinID','sgaSnapinID'),'sgaSnapinID'),true)
@@ -1676,11 +1676,11 @@ $this->schema[] = array(
 );
 // 151
 $this->schema[] = array(
-    "ALTER TABLE `".DATABASE_NAME."`.`taskTypes` ENGINE=InnoDB",
-    "ALTER TABLE `".DATABASE_NAME."`.`taskStates` ENGINE=InnoDB",
-    "ALTER TABLE `".DATABASE_NAME."`.`taskLog` ENGINE=InnoDB",
-    "ALTER TABLE `".DATABASE_NAME."`.`os` ENGINE=InnoDB",
-    "ALTER TABLE `".DATABASE_NAME."`.`modules` ENGINE=InnoDB",
+    "ALTER TABLE `".DATABASE_NAME."`.`taskTypes` ENGINE=MyISAM",
+    "ALTER TABLE `".DATABASE_NAME."`.`taskStates` ENGINE=MyISAM",
+    "ALTER TABLE `".DATABASE_NAME."`.`taskLog` ENGINE=MyISAM",
+    "ALTER TABLE `".DATABASE_NAME."`.`os` ENGINE=MyISAM",
+    "ALTER TABLE `".DATABASE_NAME."`.`modules` ENGINE=MyISAM",
 );
 // 152
 $this->schema[] = array(
@@ -1704,7 +1704,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.globalSettings SET settingValue='default/fog.css' WHERE settingKey='FOG_THEME'",
 );
-// 157, doesn't do anything but ensure all currently create tables are InnoDB
+// 157, doesn't do anything but ensure all currently create tables are MyISAM
 $this->schema[] = array();
 // 158
 $this->schema[] = array();
@@ -2119,7 +2119,7 @@ $this->schema[] = array(
         UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),
         KEY `new_index` (`gmHostID`),
         KEY `new_index1` (`gmGroupID`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`groupMembers_new` SELECT * FROM `".DATABASE_NAME."`.`groupMembers`",
     "DROP TABLE `".DATABASE_NAME."`.`groupMembers`",
     "RENAME TABLE `".DATABASE_NAME."`.`groupMembers_new` TO `".DATABASE_NAME."`.`groupMembers`",
@@ -2144,7 +2144,7 @@ $this->schema[] = array(
         `pmOndemand` ENUM('0','1') NOT NULL,
         PRIMARY KEY (`pmID`),
         UNIQUE INDEX `cron` (`pmHostID`,`pmMin`,`pmHour`,`pmDom`,`pmMonth`,`pmDow`,`pmAction`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`modules` (`id`, `name`, `short_name`, `description`) VALUES (13, 'Power Management', 'powermanagement', 'This setting will enable or disable the power management service module on this specific host.  If the module is globally disabled, this setting is ignored.')",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_CLIENT_POWERMANAGEMENT_ENABLED', 'This setting defines if the Windows Service module power management should be enabled on client computers. This service allows an on demand shutdown/reboot/wol of hosts.  It also operates in a cron style setup to allow many different schedules of shutdowns, restarts, and/or wol. (Valid values: 0 or 1).','1','FOG Client - Power Management')",
 );
