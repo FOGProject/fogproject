@@ -126,7 +126,7 @@ class BootMenu extends FOGBase {
             $keymap,
             $this->web,
             $kernelDebug ? ' debug' : ' ',
-            $kernelArgs ? $kernelArgs : '',
+            $kernelArgs ? sprintf(' %s',$kernelArgs) : '',
             $this->Host->isValid() && $this->Host->get('kernelArgs') ? sprintf(' %s',$this->Host->get('kernelArgs')) : ''
         );
         $this->initrd = "imgfetch $imagefile";
