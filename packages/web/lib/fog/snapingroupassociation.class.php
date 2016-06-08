@@ -17,7 +17,8 @@ class SnapinGroupAssociation extends FOGController {
     public function getStorageGroup() {
         return self::getClass('StorageGroup',$this->get('storageGroupID'));
     }
-    public function getPrimary() {
+    public function isPrimary() {
+        if (!$this->isValid()) return;
         return (bool)$this->get('primary');
     }
 }
