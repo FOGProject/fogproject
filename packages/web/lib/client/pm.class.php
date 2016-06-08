@@ -18,7 +18,7 @@ class PM extends FOGClient {
                 'action' => $pm->get('action'),
             );
         },(array)self::getClass('PowerManagementManager')->find(array('hostID'=>$this->Host->get('id'),'onDemand'=>0)))),
-            'onDemand'=>(in_array('shutdown',$actions) ? 'shutdown' : (in_array('reboot',$actions) ? 'restart' : '')),
+            'onDemand'=>(in_array('shutdown',$actions) ? 'shutdown' : (in_array('reboot',$actions) ? 'restart' : 'none')),
         );
     }
 }
