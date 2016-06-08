@@ -6,13 +6,19 @@ class PM extends FOGClient {
         return array('tasks'=>array_filter(array_map(function(&$pm) {
             if (!$pm->isValid()) return;
             if ($pm->get('action') === 'wol') return;
-            if ($pm->get('onDemand')) return;
+            if ($pm->get('onDemand') > 0) return;
+            $min = trim($pm->get('min'));
+            $hour = trim($pm->get('hour'));
+            $dom = trim($pm->get('dom'));
+            $month = trim($pm->get('month'));
+            $dow = trim($pm->get('dow'));
+            if (!($min && $hour && $dom && $month && $dow)) return;
             return array(
-                'cron' => sprintf('%s %s %s %s %s',$pm->get('min'),$pm->get('hour'),$pm->get('dom'),$pm->get('month'),$pm->get('dow')),
+                'cron' => sprintf('%s %s %s %s %s',$min,$hour,$dom,$month,$dow),
                 'action' => $pm->get('action'),
             );
-        },(array)self::getClass('PowerManagementManager')->find(array('hostID'=>$this->Host->get('id'))))),
-            'onDemand'=>(in_array('shutdown',$actions) ? 'shutdown' : (in_array('reboot',$actions) ? 'reboot' : '')),
+        },(array)self::getClass('PowerManagementManager')->find(array('hostID'=>$this->Host->get('id'),'onDemand'=>0)))),
+            'onDemand'=>(in_array('shutdown',$actions) ? 'shutdown' : (in_array('reboot',$actions) ? 'restart' : '')),
         );
     }
 }
