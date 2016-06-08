@@ -106,10 +106,12 @@ class ReportManagementPage extends FOGPage {
     }
     public function imaging_log_post() {
         $this->title = _('FOG Imaging Log');
-        printf('<h2><a href="export.php?type=csv&filename=ImagingLog" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=ImagingLog" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf($this->reportString,
+            'ImagingLog',
             _('Export CSV'),
             _('Export CSV'),
             self::$csvfile,
+            'ImagingLog',
             _('Export PDF'),
             _('Export PDF'),
             self::$pdffile
@@ -228,10 +230,12 @@ class ReportManagementPage extends FOGPage {
     }
     public function host_list() {
         $this->title = _('Host Listing Export');
-        printf('<h2><a href="export.php?type=csv&filename=HostList" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=HostList" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf($this->reportString,
+            'HostList',
             _('Export CSV'),
             _('Export CSV'),
             self::$csvfile,
+            'HostList',
             _('Export PDF'),
             _('Export PDF'),
             self::$pdffile
@@ -308,10 +312,12 @@ class ReportManagementPage extends FOGPage {
     }
     public function inventory() {
         $this->title = _('Full Inventory Export');
-        printf('<h2><a href="export.php?type=csv&filename=InventoryReport" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=InventoryReport" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf($this->reportString,
+            'InventoryReport',
             _('Export CSV'),
             _('Export CSV'),
             self::$csvfile,
+            'InventoryReport',
             _('Export PDF'),
             _('Export PDF'),
             self::$pdffile
@@ -423,10 +429,12 @@ class ReportManagementPage extends FOGPage {
             $this->redirect('?node=report&sub=pend-mac');
         }
         $this->title = _('Pending MAC Export');
-        printf('<h2><a href="export.php?type=csv&filename=PendingMACsList" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=PendingMACsList" alt="%s" title="%s" target="_blank">%s</a><br/>',
+        printf($this->reportString,
+            'PendingMACsList',
             _('Export CSV'),
             _('Export CSV'),
             self::$csvfile,
+            'PendingMACsList',
             _('Export PDF'),
             _('Export PDF'),
             self::$pdffile
@@ -503,10 +511,12 @@ class ReportManagementPage extends FOGPage {
     }
     public function vir_hist() {
         $this->title = _('FOG Virus Summary');
-        printf('<h2><a href="export.php?type=csv&filename=VirusHistory" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=VirusHistory" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf($this->reportString,
+            'VirusHistory',
             _('Export CSV'),
             _('Export CSV'),
             self::$csvfile,
+            'VirusHistory',
             _('Export PDF'),
             _('Export PDF'),
             self::$pdffile
@@ -799,10 +809,12 @@ class ReportManagementPage extends FOGPage {
         $this->ReportMaker->addCSVCell(_('Time'));
         $this->ReportMaker->addCSVCell(_('Description'));
         $this->ReportMaker->endCSVLine();
-        printf('<h2><a href="export.php?type=csv&filename=UserTrackingList" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=UserTrackingList" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf($this->reportString,
+            'UserTrackingList',
             _('Export CSV'),
             _('Export CSV'),
             self::$csvfile,
+            'UserTrackingList',
             _('Export PDF'),
             _('Export PDF'),
             self::$pdffile
@@ -888,10 +900,12 @@ class ReportManagementPage extends FOGPage {
     }
     public function snapin_log_post() {
         $this->title = _('FOG Snapin Log');
-        printf('<h2><a href="export.php?type=csv&filename=SnapinLog" alt="%s" title="%s" target="_blank">%s</a> <a href="export.php?type=pdf&filename=SnapinLog" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf($this->reportString,
+            'SnapinLog',
             _('Export CSV'),
             _('Export CSV'),
             self::$csvfile,
+            'SnapinLog',
             _('Export PDF'),
             _('Export PDF'),
             self::$pdffile

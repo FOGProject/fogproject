@@ -27,6 +27,7 @@ abstract class FOGPage extends FOGBase {
     protected $formAction;
     protected $formPostAction;
     protected $childClass;
+    protected $reportString;
     protected static $pdffile;
     protected static $csvfile;
     protected static $inventoryCsvHead;
@@ -61,6 +62,7 @@ abstract class FOGPage extends FOGBase {
                 }
             }
         }
+        $this->reportString = '<h2><div id="exportDiv"></div><a id="csvsub" href="../management/export.php?filename=%s&type=csv" alt="%s" title="%s" target="_blank">%s</a> <a id="pdfsub" href="../management/export.php?filename=%s&type=pdf" alt="%s" title="%s" target="_blank">%s</a></h2>';
         self::$pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
         self::$csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
         self::$inventoryCsvHead = array(

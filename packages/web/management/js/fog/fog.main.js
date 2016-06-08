@@ -204,6 +204,10 @@ $(function() {
         url = $(this).parents('form').attr('action');
         deleteDialog(url);
     });
+    $('#csvsub,#pdfsub').click(function(e) {
+        e.preventDefault();
+        exportDialog($(this).prop('href'));
+    });
 });
 function debug(txt) {
     if (console) console.log(txt);
