@@ -6,8 +6,9 @@ $Host = $FOGCore->getHostItem(false);
 $Task = $Host->get('task');
 $TaskType = FOGCore::getClass('TaskType',$Task->get('typeID'));
 $walk = function ($val, $key) use (&$repFields) {
+    if (strpos($val,'=') === false) return;
     $nums = explode('=',trim($val));
-    $repFields[$nums[0]] = $nums[1];
+    if (count($nums) > 0) $repFields[$nums[0]] = $nums[1];
 };
 $Image = $Task->getImage();
 if ($TaskType->isInitNeededTasking()) {
@@ -101,7 +102,7 @@ $repFields = array(
     'caseserial' => $Inventory->get('caseserial'),
     'caseasset' => $Inventory->get('caseasset'),
 );
-$TaskArgs = preg_split('#[\s]+#',$TaskType->get('kernelArgs'));
+$TaskArgs = preg_split('#[\s]+#',trim($TaskType->get('kernelArgs')));
 array_walk($TaskArgs,$walk);
 $HookManager->processEvent('HOST_INFO_EXPOSE',array('repFields'=>&$repFields,'Host'=>&$Host));
 array_walk($repFields,function(&$val,$key) {
