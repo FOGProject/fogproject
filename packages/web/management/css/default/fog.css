@@ -327,9 +327,9 @@ header {
     display: block;
 }
 #version {
-    position: absolute;
-    top: 70px;
-    left: 35px;
+    position: relative;
+    top: -90px;
+    left: 210px;
     font-size: 10px;
     vertical-align: text-top;
 }
