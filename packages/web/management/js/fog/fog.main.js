@@ -320,6 +320,7 @@ function DeployStuff() {
             } else if (scheduleType == 'cron') {
                 $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                     result = validateCronInputs($(this));
+                    if (result === false) return false;
                 });
             }
             return result;
