@@ -771,10 +771,12 @@ class BootMenu extends FOGBase {
         }
     }
     private function menuItem($option, $desc) {
-        return array("item {$option->get(name)} $desc");
+        $name = preg_replace('#[\s]+#','_',$option->get('name'));
+        return array("item $name $desc");
     }
     private function menuOpt($option,$type) {
-        $name = trim(":{$option->get(name)}");
+        $name = preg_replace('#[\s]+#','_',$option->get('name'));
+        $name = trim(":$name");
         $type = trim($type);
         $Send = array($name);
         if (trim($option->get('params'))) {
