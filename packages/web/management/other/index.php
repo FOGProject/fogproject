@@ -42,9 +42,10 @@ unset($stylesheet); ?>
 					<div id="wrapper">
 					<!-- Header --><header>
 					<div id="header"<?php echo (!self::$FOGUser ? ' class="login"' : '') ?>>
-					<div id="logo">
-					<h1><a href="<?php echo self::$urlself ?>"><img src="<?php echo $this->imagelink ?>fog-logo.png" title="<?php echo self::$foglang['Home'] ?>" /><sup><?php echo FOG_VERSION ?></sup></a></h1>
-					<h2><?php echo self::$foglang['Slogan'] ?></h2>
+                    <div id="logo">
+                    <h1><a href="<?php echo self::$urlself ?>"><img src="<?php echo $this->imagelink ?>fog-logo.png" title="<?php echo self::$foglang['Home'] ?>" /></a></h1>
+                    <h2><?php echo self::$foglang['Slogan'] ?></h2>
+                    <div id="version"><div id="showtime"></div><?php echo _('Running Version: ').FOG_VERSION?><br/><?php echo _('SVN Revision: ').FOG_SVN_REVISION ?></div>
 					</div>
 					<?php if (self::$FOGUser) { ?><!-- Mainmenu -->
 							<?php echo $this->menu ?>
