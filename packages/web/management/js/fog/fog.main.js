@@ -306,29 +306,30 @@ function DeployStuff() {
     });
     // Basic validation on deployment page
     var scheduleType = $('input[name="scheduleType"]:checked').val();
-    if (scheduleType === 'cron') {
-        $("[name^='scheduleCron']").each(function() {
-            validateCronInputs('#'+this.id);
-        }).blur(function() {
-            validateCronInputs('#'+this.id);
-        });
-    }
-    $('#deploy-container').submit(function() {
-        result = true;
-        if (scheduleType == 'single') {
-            // Format check
-            validateInput = $('#'+scheduleType+'Options > input').removeClass('error');
-            if (!validateInput.val().match(/\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}/)) {
-                return false;
-                validateInput.addClass('error');
+    var result = true;
+    $('input[name="scheduleType"]').change(function() {
+        scheduleType = this.value;
+        $('form#deploy-container').submit(function() {
+            if (scheduleType == 'single') {
+                // Format check
+                validateInput = $('#'+scheduleType+'Options > input').removeClass('error');
+                if (!validateInput.val().match(/\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}/)) {
+                    result = false;
+                    validateInput.addClass('error');
+                }
+            } else if (scheduleType == 'cron') {
+                $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+                    result = validateCronInputs($(this));
+                });
             }
-        } else if (scheduleType == 'cron') {
-            $('[name^="scheduleCron"]',$(this)).each(function() {
-                result = validateCronInputs('#'+this.id);
-                if (result === false) return false;
+            return result;
+        }).each(function() {
+            $("input[name^='scheduleCron']",this).each(function(id,value) {
+                if (!validateCronInputs($(this))) $(this).addClass('error');
+            }).blur(function() {
+                if (!validateCronInputs($(this))) $(this).addClass('error');
             });
-        }
-        return result;
+        });
     });
     // Auto open the calendar when chosen
     $('#scheduleSingle').click(function() {
