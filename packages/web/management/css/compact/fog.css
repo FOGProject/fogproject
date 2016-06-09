@@ -311,11 +311,11 @@ header {
     text-align: left;
     margin-left: 50px;
 }
-#logo h1 sup {
-    color: #94c3d3;
+#version {
+    position: absolute;
+    top: 45px;
+    left: 35px;
     font-size: 10px;
-    margin-left: 10px;
-    margin-top: 15px;
     vertical-align: text-top;
 }
 #logo h1 a {
@@ -989,6 +989,16 @@ pre {
     text-align: center;
     display: block;
     cursor: pointer;
+}
+.deploy-container input.error {
+    border: 1px solid red;
+}
+.deploy-container #cronOptions {
+    text-align: left;
+}
+.deploy-container #cronOptions input, .deploy-container #cronOptions input:focus {
+    width: 37px;
+    text-align: left;
 }
 /* Task Start Info */
 .task-start-ok, .task-start-failed {
