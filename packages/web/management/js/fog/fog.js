@@ -64,6 +64,15 @@ function getQueryParams(qs) {
     while (tokens = re.exec(qs)) params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
     return params;
 }
+function AJAXServerTime() {
+    $.ajax({
+        url: '../status/getservertime.php',
+        type: 'post',
+        success: function(data) {
+            $('#showtime').html(data);
+        }
+    });
+}
 (function($) {
     setTipsyStuff();
     setEditFocus();
@@ -79,6 +88,8 @@ function getQueryParams(qs) {
     ActionBoxDel[callme]();
     setupParserInfo();
     setupFogTableInfoFunction();
+    AJAXServerTime();
+    setInterval(AJAXServerTime,60000);
 })(jQuery);
 function forceClick(e) {
     $(this).unbind('click').click(function(evt) {evt.preventDefault();});
