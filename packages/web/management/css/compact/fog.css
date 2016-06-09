@@ -312,10 +312,10 @@ header {
     margin-left: 50px;
 }
 #version {
-    position: absolute;
-    top: 45px;
-    left: 35px;
-    font-size: 10px;
+    position: relative;
+    top: -50px;
+    left: 150px;
+    font-size: 8px;
     vertical-align: text-top;
 }
 #logo h1 a {
