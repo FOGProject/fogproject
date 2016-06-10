@@ -126,7 +126,7 @@ class BootMenu extends FOGBase {
         $kernel = $bzImage;
         $initrd = $imagefile;
         $this->timeout = $timeout;
-        $this->hiddenmenu = $hiddenmenu;
+        $this->hiddenmenu = ($hiddenmenu && !$_REQUEST['menuAccess']);
         $this->bootexittype = self::$exitTypes[$exit];
         $this->loglevel = "loglevel=$loglevel";
         $this->KS = self::getClass('KeySequence',$keySequence);
