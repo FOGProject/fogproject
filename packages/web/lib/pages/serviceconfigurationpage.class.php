@@ -263,9 +263,9 @@ class ServiceConfigurationPage extends FOGPage {
     }
     public function edit_post() {
         $Service = self::getClass('ServiceManager')->find(array('name'=>$_REQUEST['name']));
-        $Service = @array_shift($Service);
+        $Service = array_shift($Service);
         $Module = self::getClass('ModuleManager')->find(array('shortName'=>$_REQUEST['tab']));
-        $Module = @array_shift($Module);
+        $Module = array_shift($Module);
         self::$HookManager->processEvent('SERVICE_EDIT_POST',array('Service'=>&$Service));
         $onoff = (int)isset($_REQUEST['en']);
         $defen = (int)isset($_REQUEST['defen']);

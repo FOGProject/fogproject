@@ -86,6 +86,6 @@ class EventManager extends FOGBase {
             }
             fclose($fh);
         };
-        @array_walk($normalfiles,$checkNormalAndStart);
+        array_walk($normalfiles,$checkNormalAndStart);
     }
 }

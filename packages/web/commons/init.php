@@ -34,8 +34,7 @@ class Initiator {
      * @return void
      */
     public static function startInit() {
-        @set_time_limit(0);
-        @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+        error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
         self::verCheck();
         self::extCheck();
         $globalVars = array('node','sub','printertype','id','sub','crit','sort','confirm','tab');

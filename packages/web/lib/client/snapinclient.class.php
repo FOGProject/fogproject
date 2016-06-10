@@ -17,7 +17,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             return array(
                 'snapins' => array_filter(array_map(function(&$Snapin) use ($date) {
                     if (!$Snapin->isValid()) return array('error'=>_('Invalid Snapin'));
-                    $SnapinTaskID = @min(self::getSubObjectIDs('SnapinTask',array('jobID'=>$this->Host->get('snapinjob')->get('id'),'snapinID'=>$Snapin->get('id'))));
+                    $SnapinTaskID = min(self::getSubObjectIDs('SnapinTask',array('jobID'=>$this->Host->get('snapinjob')->get('id'),'snapinID'=>$Snapin->get('id'))));
                     $SnapinTask = self::getClass('SnapinTask',$SnapinTaskID);
                     if (!$SnapinTask->isValid()) return array('error'=>_('Invalid Snapin Tasking'));
                     $StorageGroup = $Snapin->getStorageGroup();
@@ -34,13 +34,13 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                     $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
                     $url = "http://$ip{$webroot}status/getsnapinhash.php";
                     unset($curroot,$webroot,$ip);
-                    if (!self::$FOGURLRequests->isAvailable($url)) return array('error'=>_('No connection to get snapin'));
+                    $response = self::$FOGURLRequests->process($url,'POST',array('filepath'=>$filepath));
+                    $response = array_shift($response);
+                    //if (!self::$FOGURLRequests->isAvailable($url)) return array('error'=>_('No connection to get snapin'));
                     $SnapinTask
                         ->set('checkin',$date)
                         ->set('stateID',$this->getCheckedInState())
                         ->save();
-                    $response = self::$FOGURLRequests->process($url,'POST',array('filepath'=>$filepath));
-                    $response = array_shift($response);
                     $data = explode('|',$response);
                     $hash = (string)array_shift($data);
                     $size = (int)array_shift($data);
@@ -136,7 +136,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         $this->Host->get('snapinjob')->set('stateID',$this->getCheckedInState())->save();
         if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getCheckedInState())->set('checkInTime',$date)->save();
         if (!isset($_REQUEST['exitcode']) && (!isset($_REQUEST['taskid']) || !is_numeric($_REQUEST['taskid']))) {
-            $SnapinTaskID = @min(self::getSubObjectIDs('SnapinTask',array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'jobID'=>$this->Host->get('snapinjob')->get('id'),'snapinID'=>$this->Host->get('snapins'))));
+            $SnapinTaskID = min(self::getSubObjectIDs('SnapinTask',array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'jobID'=>$this->Host->get('snapinjob')->get('id'),'snapinID'=>$this->Host->get('snapins'))));
             $SnapinTask = self::getClass('SnapinTask',$SnapinTaskID);
             if (!$SnapinTask->isValid()) throw new Exception(_('Invalid Snapin Tasking'));
             $Snapin = $SnapinTask->getSnapin();

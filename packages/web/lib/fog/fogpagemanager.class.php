@@ -33,16 +33,16 @@ class FOGPageManager Extends FOGBase {
         if (self::$FOGUser->isValid()) {
             $class = $this->getFOGPageClass();
             self::$FOGSubMenu = self::getClass('FOGSubMenu');
-            @array_walk($class->menu,function(&$title,&$link) {
+            array_walk($class->menu,function(&$title,&$link) {
                 self::$FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link));
                 unset($title,$link);
             });
             if (is_object($class->obj)) {
-                @array_walk($class->subMenu,function(&$title,&$link) use ($class) {
+                array_walk($class->subMenu,function(&$title,&$link) use ($class) {
                     self::$FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link),$class->id,sprintf(self::$foglang['SelMenu'],get_class($class->obj)));
                     unset($title,$link);
                 });
-                @array_walk($class->notes,function(&$title,&$link) use ($class) {
+                array_walk($class->notes,function(&$title,&$link) use ($class) {
                     self::$FOGSubMenu->addNotes($this->classValue,array((string)$title=>(string)$link),$class->id,sprintf(self::$foglang['SelMenu'],get_class($class->obj)));
                     unset($title,$link);
                 });

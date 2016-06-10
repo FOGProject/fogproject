@@ -227,10 +227,10 @@ abstract class FOGService extends FOGBase {
     public function startTasking($cmd,$logname,$index = 0,$itemType = false,$filename = false) {
         $descriptor = array(0=>array('pipe','r'),1=>array('file',$logname,'a'),2=>array('file',static::$log,'a'));
         if ($itemType === false) {
-            $this->procRef[$index] = @proc_open($cmd,$descriptor,$pipes);
+            $this->procRef[$index] = proc_open($cmd,$descriptor,$pipes);
             $this->procPipes[$index] = $pipes;
         } else {
-            $this->procRef[$itemType][$filename][$index] = @proc_open($cmd,$descriptor,$pipes);
+            $this->procRef[$itemType][$filename][$index] = proc_open($cmd,$descriptor,$pipes);
             $this->procPipes[$itemType][$filename][$index] = $pipes;
         }
     }
@@ -240,47 +240,47 @@ abstract class FOGService extends FOGBase {
         while (list(,$t) = each($output)) {
             if ($t != $pid) $this->killAll($t,$sig);
         }
-        @posix_kill($pid,$sig);
+        posix_kill($pid,$sig);
     }
     public function killTasking($index = 0,$itemType = false,$filename = false) {
         if ($itemType === false) {
             foreach ((array)$this->procPipes[$index] AS $i => &$close) {
-                @fclose($close);
+                fclose($close);
                 unset($close);
             }
             unset($this->procPipes[$index]);
             if ($this->isRunning($this->procRef[$index])) {
                 $pid = $this->getPID($this->procRef[$index]);
                 if ($pid) $this->killAll($pid,SIGTERM);
-                @proc_terminate($this->procRef[$index],SIGTERM);
+                proc_terminate($this->procRef[$index],SIGTERM);
             }
-            @proc_close($this->procRef[$index]);
+            proc_close($this->procRef[$index]);
             unset($this->procRef[$index]);
             return (bool)$this->isRunning($this->procRef[$index]);
         } else {
             foreach ((array)$this->procPipes[$itemType][$filename][$index] AS $i => &$close) {
-                @fclose($close);
+                fclose($close);
                 unset($close);
             }
             unset($this->procPipes[$itemType][$filename][$index]);
             if ($this->isRunning($this->procRef[$itemType][$filename][$index])) {
                 $pid = $this->getPID($this->procRef[$itemType][$filename][$index]);
                 if ($pid) $this->killAll($pid,SIGTERM);
-                @proc_terminate($this->procRef[$itemType][$filename][$index],SIGTERM);
+                proc_terminate($this->procRef[$itemType][$filename][$index],SIGTERM);
             }
-            @proc_close($this->procRef[$itemType][$filename][$index]);
+            proc_close($this->procRef[$itemType][$filename][$index]);
             unset($this->procRef[$itemType][$filename][$index]);
             return (bool)$this->isRunning($this->procRef[$itemType][$filename][$index]);
         }
     }
     public function getPID($procRef) {
         if (!$procRef) return false;
-        $ar = @proc_get_status($procRef);
+        $ar = proc_get_status($procRef);
         return $ar['pid'];
     }
     public function isRunning($procRef) {
         if (!$procRef) return false;
-        $ar = @proc_get_status($procRef);
+        $ar = proc_get_status($procRef);
         return $ar['running'];
     }
 }

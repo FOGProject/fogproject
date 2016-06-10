@@ -59,7 +59,7 @@ class Plugin extends FOGController {
     public function getPlugins() {
         return array_map(function(&$file) {
             require(sprintf('%s/config/plugin.config.php',rtrim($file,'/')));
-            $p = self::getClass('Plugin',@min(self::getSubObjectIDs('Plugin',array('name'=>$fog_plugin['name']))))
+            $p = self::getClass('Plugin',min(self::getSubObjectIDs('Plugin',array('name'=>$fog_plugin['name']))))
                 ->set('name',$fog_plugin['name'])
                 ->set('description',$fog_plugin['description']);
             $p->strPath = $file;

@@ -122,7 +122,7 @@ class TaskstateeditManagementPage extends FOGPage {
         $fields = array(
             _('Name') => sprintf('<input type="text" name="name" class="smaller" value="%s"/>',$this->obj->get('name')),
             _('Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
-            _('Icon') => self::getClass('TaskType')->iconlist(@array_shift($icon)),
+            _('Icon') => self::getClass('TaskType')->iconlist(array_shift($icon)),
             _('Additional Icon elements') => sprintf('<input type="text" value="%s" name="additional"/>',implode(' ',(array)$icon)),
             '&nbsp;' => sprintf('<input class="smaller" type="submit" value="%s"/>',_('Update')),
         );
