@@ -247,7 +247,7 @@ class PluginManagementPage extends FOGPage {
     }
     public function installed_post() {
         self::getClass('Plugin')->getRunInclude($_REQUEST['run']);
-        $Plugin = self::getClass('Plugin',@min(self::getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
+        $Plugin = self::getClass('Plugin',min(self::getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
         try {
             if (!$Plugin->isValid()) throw new Exception(_('Invalid Plugin Passed'));
             if (isset($_REQUEST['install'])) {

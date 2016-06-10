@@ -45,7 +45,7 @@ class BootMenu extends FOGBase {
             $host_field_test = 'efiexit';
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
-        $StorageNode = self::getClass('StorageNode',@min(self::getSubObjectIDs('StorageNode',array('isEnabled'=>1,'isMaster'=>1))));
+        $StorageNode = self::getClass('StorageNode',min(self::getSubObjectIDs('StorageNode',array('isEnabled'=>1,'isMaster'=>1))));
         $serviceNames = array(
             'FOG_EFI_BOOT_EXIT_TYPE',
             'FOG_KERNEL_ARGS',
@@ -154,7 +154,7 @@ class BootMenu extends FOGBase {
             $StorageNode,
             self::$FOGCore
         );
-        $defaultMenu = self::getClass('PXEMenuOptions',@max(self::getSubObjectIDs('PXEMenuOptions',array('default'=>1))));
+        $defaultMenu = self::getClass('PXEMenuOptions',max(self::getSubObjectIDs('PXEMenuOptions',array('default'=>1))));
         $menuname = $defaultMenu->isValid() ? trim($defaultMenu->get('name')) : 'fog.local';
         unset($defaultMenu);
         self::getDefaultMenu($this->timeout,$menuname,$this->defaultChoice);
@@ -202,7 +202,7 @@ class BootMenu extends FOGBase {
             'manufacturer' => sprintf("'%s'",trim($_REQUEST['manufacturer'])),
             'mac' => $this->Host->isValid() ? $this->Host->get('mac')->__toString() : '',
         );
-        self::getClass('iPXE',@max(self::getSubObjectIDs('iPXE',$findWhere)))
+        self::getClass('iPXE',max(self::getSubObjectIDs('iPXE',$findWhere)))
             ->set('product',$findWhere['product'])
             ->set('manufacturer',$findWhere['manufacturer'])
             ->set('mac', $findWhere['mac'])
@@ -369,7 +369,7 @@ class BootMenu extends FOGBase {
             'name' => trim($_REQUEST['sessname']),
             'stateID' => array_merge($this->getQueuedStates(),(array)$this->getProgressState()),
         );
-        $MulticastSession = self::getClass('MulticastSessions',@max(self::getSubObjectIDs('MulticastSessions',$findWhere)));
+        $MulticastSession = self::getClass('MulticastSessions',max(self::getSubObjectIDs('MulticastSessions',$findWhere)));
         if (!$MulticastSession->isValid()) {
             $Send['checksession'] = array(
                 'echo No session found with that name.',

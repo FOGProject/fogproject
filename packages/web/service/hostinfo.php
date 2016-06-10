@@ -13,7 +13,7 @@ $walk = function ($val, $key) use (&$repFields) {
 $Image = $Task->getImage();
 if ($TaskType->isInitNeededTasking()) {
     if ($TaskType->isMulticast()) {
-        $MulticastSession = FOGCore::getClass('MulticastSessions',@max(FOGCore::getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$Task->get('id')))));
+        $MulticastSession = FOGCore::getClass('MulticastSessions',max(FOGCore::getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>$Task->get('id')))));
         if ($MulticastSession->isValid() && $Task->getImage()->get('id') != $MulticastSession->get('image')) {
             $Task->set('imageID',$MulticastSession->get('imageID'))->save();
             $Host->set('imageID',$MulticastSession->get('imageID'));

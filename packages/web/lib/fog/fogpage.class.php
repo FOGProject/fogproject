@@ -149,7 +149,7 @@ abstract class FOGPage extends FOGBase {
             $defaultScreens = array('search','list');
             if (!count($this->templates)) throw new Exception(_('Requires templates to process'));
             if (self::$ajax) {
-                echo @json_encode(array(
+                echo json_encode(array(
                     'data'=>&$this->data,
                     'templates'=>&$this->templates,
                     'headerData'=>&$this->headerData,
@@ -207,7 +207,7 @@ abstract class FOGPage extends FOGBase {
             echo '</tbody></table>';
             if (((!$sub || ($sub && in_array($sub,$defaultScreens))) && in_array($node,self::$searchPages)) && !self::$isMobile) {
                 if ($this->node == 'host') {
-                    printf('<form method="post" action="%s", id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" value="%s"/></p></form>',
+                    printf('<form method="post" action="%s" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" value="%s"/></p></form>',
                         sprintf('?node=%s&sub=save_group',$this->node),
                         _('Create new group'),
                         _('Add to group'),
@@ -715,7 +715,7 @@ abstract class FOGPage extends FOGBase {
                         ->rename($tmpfile,$orig)
                         ->chmod(0655,$orig);
                     self::$FOGFTP->close();
-                    @unlink($tmpfile);
+                    unlink($tmpfile);
                     $SendME = '##OK##';
                 }
             }
@@ -742,7 +742,7 @@ abstract class FOGPage extends FOGBase {
             $prefix = $MAC->getMACPrefix();
             if (!$MAC->isValid() || !$prefix) throw new Exception(_('Unknown'));
             $OUI = self::getClass('OUIManager')->find(array('prefix'=>$prefix));
-            $OUI = @array_shift($OUI);
+            $OUI = array_shift($OUI);
             if (!(($OUI instanceof OUI) && $OUI->isValid())) throw new Exception(_('Not found'));
             $Data = sprintf('<small>%s</small>',$OUI->get('name'));
         } catch (Exception $e) {

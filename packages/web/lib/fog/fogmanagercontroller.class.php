@@ -92,7 +92,7 @@ abstract class FOGManagerController extends FOGBase {
                 $data[$item] = count($tmp) === 1 ? array_shift($tmp) : $tmp;
             },(array)$idField);
             if (count($data) === 1) {
-                if ($filter) return @$filter((array)array_shift($data));
+                if ($filter) return $filter((array)array_shift($data));
                 return array_shift($data);
             }
             if (empty($filter)) return $data;
@@ -101,7 +101,7 @@ abstract class FOGManagerController extends FOGBase {
                 return self::getClass($this->childClass)->setQuery($item);
             },(array)self::$DB->query($query)->fetch('','fetch_all')->get());
         }
-        if ($filter) return @$filter(array_values(array_filter((array)$data)));
+        if ($filter) return $filter(array_values(array_filter((array)$data)));
         return array_values(array_filter((array)$data));
     }
     public function count($findWhere = array(), $whereOperator = 'AND', $compare = '=') {

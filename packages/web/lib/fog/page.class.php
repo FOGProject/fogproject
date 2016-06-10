@@ -63,7 +63,7 @@ class Page extends FOGBase {
             $this->main = array_unique(array_filter($this->main),SORT_REGULAR);
             self::$HookManager->processEvent('MAIN_MENU_DATA',array('main'=>&$this->main));
             $links = array();
-            @array_walk($this->main,function(&$title,&$link) use (&$links) {
+            array_walk($this->main,function(&$title,&$link) use (&$links) {
                 $links[] = $link;
                 unset($title,$link);
             });
@@ -71,7 +71,7 @@ class Page extends FOGBase {
             if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links)) $this->redirect('index.php');
             ob_start();
             echo '<nav class="menu"><ul class="nav-list">';
-            @array_walk($this->main,function(&$title,&$link) {
+            array_walk($this->main,function(&$title,&$link) {
                 if (!$_REQUEST['node'] && $link == 'home') $_REQUEST['node'] = $link;
                 $activelink = (int)($_REQUEST['node'] == $link);
                 printf('<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li>',
@@ -115,7 +115,7 @@ class Page extends FOGBase {
                 "js/fog/fog.$node.js",
                 "js/fog/fog.$node.$sub.js",
             );
-            @array_map(function(&$jsFilepath) use (&$files) {
+            array_map(function(&$jsFilepath) use (&$files) {
                 if (file_exists($jsFilepath)) array_push($files,$jsFilepath);
                 unset($jsFilepath);
             },(array)$filepaths);
@@ -125,7 +125,7 @@ class Page extends FOGBase {
                 "../lib/plugins/$node/js/fog.$node.js",
                 "../lib/plugins/$node/js/fog.$node.$sub.js",
             );
-            @array_map(function(&$pluginfilepath) use (&$files) {
+            array_map(function(&$pluginfilepath) use (&$files) {
                 if (file_exists($pluginfilepath)) array_push($files,$pluginfilepath);
                 unset($pluginfilepath);
             },(array)$pluginfilepaths);
@@ -144,7 +144,7 @@ class Page extends FOGBase {
             if ($_REQUEST['node'] === 'schema') array_push($files,'js/fog/fog.schema.js');
         }
         $files = array_unique((array)$files);
-        @array_map(function(&$path) {
+        array_map(function(&$path) {
             $this->addJavascript($path);
             unset($path);
         },(array)$files);

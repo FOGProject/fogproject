@@ -73,7 +73,7 @@ class AddLocationHost extends Hook {
     }
     public function HostInfoExpose($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $arguments['repFields']['location'] = self::getClass('Location',@min(self::getSubObjectIDs('Location',array('hostID'=>$arguments['Host']->get('id')))))->get('name');
+        $arguments['repFields']['location'] = self::getClass('Location',min(self::getSubObjectIDs('Location',array('hostID'=>$arguments['Host']->get('id')))))->get('name');
     }
 }
 $AddLocationHost = new AddLocationHost();

@@ -137,6 +137,6 @@ class SlackHandler {
     private function _curlRequest($url, $method, $data = null, $sendAsJSON = false, $auth = true) {
         $Requests = new FOGURLRequests();
         $data = $Requests->process($url,$method,$data,$sendAsJSON,($auth ? $this->_apiToken : false),$this->_curlCallback);
-        return @json_decode($data[0]);
+        return json_decode($data[0]);
     }
 }

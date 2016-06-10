@@ -9,7 +9,7 @@ class RegisterClient extends FOGClient implements FOGClientSend {
             $this->Host = self::getClass('Host')->set('name',$hostname)->load('name');
             if (!($this->Host->isValid() && !$this->Host->get('pending'))) {
                 if (!self::getClass('Host')->isHostnameSafe($hostname)) throw new Exception('#!ih');
-                $PriMAC = @array_shift($MACs);
+                $PriMAC = array_shift($MACs);
                 $this->Host = self::getClass('Host')
                     ->set('name',$hostname)
                     ->set('description',_('Pending Registration created by FOG_CLIENT'))
@@ -47,7 +47,7 @@ class RegisterClient extends FOGClient implements FOGClientSend {
                 $this->Host = self::getClass('Host')->set('name',$hostname)->load('name');
                 if (!($this->Host->isValid() && !$this->Host->get('pending'))) {
                     if (!self::getClass('Host')->isHostnameSafe($hostname)) throw new Exception('#!ih');
-                    $PriMAC = @array_shift($MACs);
+                    $PriMAC = array_shift($MACs);
                     $this->Host = self::getClass('Host')
                         ->set('name',$hostname)
                         ->set('description',_('Pending Registration created by FOG_CLIENT'))

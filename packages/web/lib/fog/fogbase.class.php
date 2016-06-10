@@ -170,7 +170,6 @@ abstract class FOGBase {
         header('X-XSS-Protection: 1; mode=block');
         header('X-Robots-Tag: none');
         header('X-Frame-Options: SAMEORIGIN');
-        header('Cache-Control: no-cache');
         header("Location: $url");
         header('Connection: close');
         exit;
@@ -231,7 +230,7 @@ abstract class FOGBase {
     protected function formatByteSize($size) {
         $units = array('iB','KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
         $factor = floor((strlen($size) - 1)/3);
-        return sprintf('%3.2f %s',$size/pow(1024,$factor),@$units[$factor]);
+        return sprintf('%3.2f %s',$size/pow(1024,$factor),$units[$factor]);
     }
     protected function getGlobalModuleStatus($names = false,$keys = false) {
         $services = array(
@@ -377,7 +376,7 @@ abstract class FOGBase {
             $sbin = '';
             while ($i<$n) {
                 $a = substr($hex,$i,2);
-                $sbin .= @pack('H*',$a);
+                $sbin .= pack('H*',$a);
                 $i += 2;
             }
             return $sbin;
@@ -407,9 +406,9 @@ abstract class FOGBase {
     public function aesdecrypt($encdata,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
         $iv_size = mcrypt_get_iv_size($enctype,$mode);
         $data = explode('|',$encdata);
-        $iv = @pack('H*',$data[0]);
-        $encoded = @pack('H*',$data[1]);
-        if (!$key && $data[2]) $key = @pack('H*',$data[2]);
+        $iv = pack('H*',$data[0]);
+        $encoded = pack('H*',$data[1]);
+        if (!$key && $data[2]) $key = pack('H*',$data[2]);
         if (empty($key)) return '';
         $decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
         return trim($decipher);
@@ -598,26 +597,26 @@ abstract class FOGBase {
         $output = array();
         exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
         if (!count($IPs)) exec("/sbin/ifconfig -a | awk -F'[ /:]+' '/(cast)/ {print $4}'",$IPs,$retVal);
-        if (@fsockopen('ipinfo.io',80)) {
+        if (fsockopen('ipinfo.io',80)) {
             $res = self::$FOGURLRequests->process('http://ipinfo.io/ip','GET');
             $IPs[] = $res[0];
         }
-        @natcasesort($IPs);
+        natcasesort($IPs);
         $retIPs = function(&$IP) {
             $IP = trim($IP);
-            if (!filter_var($IP,FILTER_VALIDATE_IP)) $IP = @gethostbyname($IP);
+            if (!filter_var($IP,FILTER_VALIDATE_IP)) $IP = gethostbyname($IP);
             if (filter_var($IP,FILTER_VALIDATE_IP)) return $IP;
         };
         $retNames = function(&$IP) {
             $IP = trim($IP);
-            if (filter_var($IP,FILTER_VALIDATE_IP)) return @gethostbyaddr($IP);
+            if (filter_var($IP,FILTER_VALIDATE_IP)) return gethostbyaddr($IP);
             return $IP;
         };
         $IPs = array_map($retIPs,(array)$IPs);
         $Names = array_map($retNames,(array)$IPs);
         $output = array_merge($IPs,$Names);
         unset($IPs,$Names);
-        @natcasesort($output);
+        natcasesort($output);
         self::$ips = array_values(array_filter(array_unique((array)$output)));
         return self::$ips;
     }
@@ -628,7 +627,7 @@ abstract class FOGBase {
         $src = preg_replace('#[\\/]#',DIRECTORY_SEPARATOR,sprintf('%s/%s',dirname($src),basename($src)));
         $dest = preg_replace('#[\\/]#',DIRECTORY_SEPARATOR,sprintf('%s/%s',dirname($dest),basename($dest)));
         if (!file_exists($src)) return false;
-        return @rename($src,$dest);
+        return rename($src,$dest);
     }
     public static function lasterror() {
         $error = error_get_last();
