@@ -126,7 +126,7 @@ abstract class FOGController extends FOGBase {
         try {
             $insertKeys = $insertValKeys = $insertValues = $updateValKeys = $updateValues = $updateData = $fieldData = array();
             if (count($this->aliasedFields)) $this->array_remove($this->aliasedFields, $this->databaseFields);
-            @array_walk($this->databaseFields,function(&$field,&$name) use (&$insertKeys,&$insertValKeys,&$insertValues,&$updateValKeys,&$updateValues,&$updateData) {
+            array_walk($this->databaseFields,function(&$field,&$name) use (&$insertKeys,&$insertValKeys,&$insertValues,&$updateValKeys,&$updateValues,&$updateData) {
                 $key = sprintf('`%s`',trim($field));
                 $paramInsert = sprintf(':%s_insert',trim($field));
                 $paramUpdate = sprintf(':%s_update',trim($field));
@@ -177,13 +177,13 @@ abstract class FOGController extends FOGBase {
                 unset($dbColumn,$key);
             };
             $table = $this->databaseTable;
-            @array_walk($this->databaseFields,$getFields);
-            @array_walk($this->databaseFieldClassRelationships,function(&$stuff,$class) use (&$fields,&$table,$getFields) {
+            array_walk($this->databaseFields,$getFields);
+            array_walk($this->databaseFieldClassRelationships,function(&$stuff,$class) use (&$fields,&$table,$getFields) {
                 $class = self::getClass($class);
                 $table = $class->databaseTable;
-                @array_walk($class->databaseFields,$getFields);
+                array_walk($class->databaseFields,$getFields);
             });
-            @array_walk($field,function(&$key,&$index) use ($join,$where,$fields) {
+            array_walk($field,function(&$key,&$index) use ($join,$where,$fields) {
                 $key = $this->key($key);
                 $paramKey = sprintf(':%s',$key);
                 $query = sprintf($this->loadQueryTemplate,
@@ -237,7 +237,7 @@ abstract class FOGController extends FOGBase {
             if (array_key_exists($key,$this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
             return $key;
         }
-        return @array_walk($key,array($this,'key'));
+        return array_walk($key,array($this,'key'));
     }
     protected function loadItem($key) {
         if (!array_key_exists($key, $this->databaseFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !in_array($key, $this->additionalFields)) return $this;
@@ -248,7 +248,7 @@ abstract class FOGController extends FOGBase {
     }
     public function isValid() {
         try {
-            @array_walk($this->databaseFieldsRequired,function(&$field,&$index) {
+            array_walk($this->databaseFieldsRequired,function(&$field,&$index) {
                 if (!$this->get($field) === 0 && !$this->get($field)) throw new Exception(self::$foglang['RequiredDB']);
                 unset($field);
             });

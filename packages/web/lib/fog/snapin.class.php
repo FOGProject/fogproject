@@ -136,18 +136,18 @@ class Snapin extends FOGController {
         return $this;
     }
     public function getStorageGroup() {
-        if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min(self::getSubObjectIDs('StorageGroup')));
+        if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)min(self::getSubObjectIDs('StorageGroup')));
         $Group = array_map(function(&$id) {
             if ($this->getPrimaryGroup($id)) return self::getClass('StorageGroup',$id);
         },(array)$this->get('storageGroups'));
         $Group = array_shift($Group);
         if ($Group instanceof StorageGroup && $Group->isValid()) return $Group;
-        return self::getClass('StorageGroup',@min($this->get('storageGroups')));
+        return self::getClass('StorageGroup',min($this->get('storageGroups')));
     }
     public function getPrimaryGroup($groupID) {
         $primaryCount = self::getClass('SnapinGroupAssociationManager')->count(array('snapinID'=>$this->get('id'),'primary'=>1));
-        if ($primaryCount < 1) $this->setPrimaryGroup(@min(self::getSubObjectIDs('StorageGroup')));
-        $assocID = @min(self::getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$groupID,'snapinID'=>$this->get('id'))));
+        if ($primaryCount < 1) $this->setPrimaryGroup(min(self::getSubObjectIDs('StorageGroup')));
+        $assocID = min(self::getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$groupID,'snapinID'=>$this->get('id'))));
         return self::getClass('SnapinGroupAssociation',$assocID)->isPrimary();
     }
     public function setPrimaryGroup($groupID) {
@@ -167,7 +167,7 @@ class Snapin extends FOGController {
     protected function loadStorageGroups() {
         if (!$this->get('id')) return;
         $this->set('storageGroups',self::getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID'));
-        if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min(self::getSubObjectIDs('StorageGroup','','id')));
+        if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)min(self::getSubObjectIDs('StorageGroup','','id')));
     }
     protected function loadStorageGroupsnotinme() {
         if (!$this->get('id')) return;

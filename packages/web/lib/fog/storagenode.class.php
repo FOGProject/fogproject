@@ -50,7 +50,7 @@ class StorageNode extends FOGController {
             if ($CurrTime < self::nice_date($Failed->get('failureTime'))) return $Failed;
             unset($Failed);
         },(array)self::getClass('NodeFailureManager')->find(array('storageNodeID'=>$this->get('id'),'hostID'=>$Host)));
-        $NodeFailure = @array_shift($NodeFailure);
+        $NodeFailure = array_shift($NodeFailure);
         if ($NodeFailure instanceof StorageNode && $NodeFailure->isValid()) return $NodeFailure;
     }
     public function loadLogfiles() {
@@ -65,14 +65,14 @@ class StorageNode extends FOGController {
         },(array)$paths);
         $paths = array_unique((array)$tmppath);
         unset($tmppath);
-        @natcasesort($paths);
+        natcasesort($paths);
         $this->set('logfiles',array_values((array)$paths));
     }
     public function loadSnapinfiles() {
         if (!$this->get('id')) return;
         $URL = sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($this->get('snapinpath')));
         $paths = self::$FOGURLRequests->process($URL);
-        $paths = @array_shift($paths);
+        $paths = array_shift($paths);
         $paths = json_decode($paths);
         $pathstring = sprintf('/%s/',trim($this->get('snapinpath'),'/'));
         if (count($paths) < 1) {
@@ -91,7 +91,7 @@ class StorageNode extends FOGController {
         if (!$this->get('id')) return;
         $URL = sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($this->get('path')));
         $paths = self::$FOGURLRequests->process($URL);
-        $paths = @array_shift($paths);
+        $paths = array_shift($paths);
         $paths = json_decode($paths);
         $pathstring = sprintf('/%s/',trim($this->get('path'),'/'));
         if (count($paths) < 1) {

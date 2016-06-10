@@ -5,7 +5,7 @@ class PingHosts extends FOGService {
         parent::__construct();
         list($dev,$log,$zzz) = self::getSubObjectIDs('Service',array('name'=>array('PINGHOSTDEVICEOUTPUT','PINGHOSTLOGFILENAME',$sleeptime)),'value',false,'AND','name',false,'');
         static::$log = sprintf('%s%s',self::$logpath ? self::$logpath : '/opt/fog/log/',$log ? $log : 'pinghost.log');
-        if (file_exists(static::$log)) @unlink(static::$log);
+        if (file_exists(static::$log)) unlink(static::$log);
         static::$dev = $dev ? $dev : '/dev/tty3';
         static::$zzz = (int)($zzz ? $zzz : 300);
     }

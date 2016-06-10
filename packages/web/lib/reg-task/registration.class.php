@@ -13,7 +13,7 @@ class Registration extends FOGBase {
             $this->MACs = $this->getHostItem(false,true,true,true);
             $this->Host = $this->getHostItem(false,true,true);
             $this->regExists($check);
-            $this->PriMAC = @array_shift($this->MACs);
+            $this->PriMAC = array_shift($this->MACs);
             $this->macsimple = strtolower(str_replace(array(':','-'),'',$this->PriMAC));
             $this->modulesToJoin = self::getSubObjectIDs('Module');
             $this->description = sprintf('%s %s',_('Created by FOG Reg on'),$this->formatTime('now','F j, Y, g:i a'));

@@ -25,7 +25,7 @@ class LogViewerHook extends Hook {
         $fogfiles = self::$FOGFTP->nlist('/var/log/');
         self::$FOGFTP->close();
         $systemlog = preg_grep('#(syslog$|messages$)#',$fogfiles);
-        $systemlog = @array_shift($systemlog);
+        $systemlog = array_shift($systemlog);
         if ($systemlog) $arguments['files'][$arguments['StorageNode']->get('name')]['System Log'] = $systemlog;
     }
     public function LogFolderAdd($arguments) {

@@ -30,7 +30,7 @@ class HostManagementPage extends FOGPage {
                 self::$foglang['Image']=>$this->obj->getImageName(),
                 self::$foglang['LastDeployed']=>$this->obj->get('deployed'),
             );
-            $Group = self::getClass('Group',@min($this->obj->get('groups')));
+            $Group = self::getClass('Group',min($this->obj->get('groups')));
             if ($Group->isValid()) {
                 $this->notes[self::$foglang['PrimaryGroup']] = $Group->get('name');
                 unset($Group);
@@ -502,7 +502,7 @@ class HostManagementPage extends FOGPage {
             '${input}',
             '${desc}',
         );
-        $Service = self::getClass('Service',@min(self::getSubObjectIDs('Service',array('name'=>'FOG_CLIENT_AUTOLOGOFF_MIN'))));
+        $Service = self::getClass('Service',min(self::getSubObjectIDs('Service',array('name'=>'FOG_CLIENT_AUTOLOGOFF_MIN'))));
         if ($Service->isValid()) {
             $this->data[] = array(
                 'field'=>_('Auto Log Out Time (in minutes)'),

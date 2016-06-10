@@ -7,7 +7,7 @@ try {
     $TaskType = FOGCore::getClass('TaskType',$Task->get('typeID'));
     if (!in_array($Task->get('typeID'),array(12,13))) $Task->set('stateID',$FOGCore->getCompleteState())->set('pct',100)->set('percent',100);
     $Host->set('deployed',FOGCore::nice_date()->format('Y-m-d H:i:s'))->save();
-    $id = @max(FOGCore::getSubObjectIDs('ImagingLog',array('hostID' => $Host->get('id'))));
+    $id = max(FOGCore::getSubObjectIDs('ImagingLog',array('hostID' => $Host->get('id'))));
     $ImageLog = FOGCore::getClass('ImagingLog',$id)
         ->set('finish',FOGCore::nice_date()->format('Y-m-d H:i:s'))
         ->save();
@@ -69,7 +69,7 @@ try {
     // If it's a multicast job, decrement the client count, though not fully needed.
     if ($Task->get('typeID') !== 8) exit;
     $MyMulticastTask = FOGCore::getClass('MulticastSessionsAssociationManager')->find(array('taskID'=>$Task->get('id')));
-    $MyMulticastTask = @array_shift($MyMulticastTask);
+    $MyMulticastTask = array_shift($MyMulticastTask);
     if (!($MyMulticastTask && $MyMulticastTask->isValid())) exit;
     $MulticastSession = FOGCore::getClass('MulticastSessions',$MyMulticastTask->get('msID'));
     $MulticastSession

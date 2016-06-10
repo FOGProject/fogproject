@@ -98,7 +98,7 @@ class FOGConfigurationPage extends FOGPage {
             $_SESSION['dest-kernel-file'] = trim(basename($_REQUEST['dstName']));
             $_SESSION['tmp-kernel-file'] = sprintf('%s%s%s%s',DIRECTORY_SEPARATOR,trim(sys_get_temp_dir(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,basename($_SESSION['dest-kernel-file']));
             $_SESSION['dl-kernel-file'] = base64_decode($_REQUEST['file']);
-            if (file_exists($_SESSION['tmp-kernel-file'])) @unlink($_SESSION['tmp-kernel-file']);
+            if (file_exists($_SESSION['tmp-kernel-file'])) unlink($_SESSION['tmp-kernel-file']);
             printf('<div id="kdlRes"><p id="currentdlstate">%s</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>',_('Starting process...'));
         } else {
             $tmpFile = basename($_REQUEST['file']);
@@ -379,7 +379,7 @@ class FOGConfigurationPage extends FOGPage {
                 $fp = fopen($tmp_name,'rb');
                 $content = fread($fp, filesize($tmp_name));
                 fclose($fp);
-                self::getClass('ClientUpdater',@max(self::getClass('ClientUpdater',array('name'=>$filename))))
+                self::getClass('ClientUpdater',max(self::getClass('ClientUpdater',array('name'=>$filename))))
                     ->set('name',$filename)
                     ->set('md5',$md5)
                     ->set('type',self::getClass('finfo',FILEINFO_MIME)->file($tmp_name))
@@ -761,17 +761,17 @@ class FOGConfigurationPage extends FOGPage {
                 $apacheerrlog = preg_grep('#(error\.log$|.*error_log$)#i',$fogfiles);
                 $apacheacclog = preg_grep('#(access\.log$|.*access_log$)#i',$fogfiles);
                 $multicastlog = preg_grep('#(multicast.log$)#i',$fogfiles);
-                $multicastlog = @array_shift($multicastlog);
+                $multicastlog = array_shift($multicastlog);
                 $schedulerlog = preg_grep('#(fogscheduler.log$)#i',$fogfiles);
-                $schedulerlog = @array_shift($schedulerlog);
+                $schedulerlog = array_shift($schedulerlog);
                 $imgrepliclog = preg_grep('#(fogreplicator.log$)#i',$fogfiles);
-                $imgrepliclog = @array_shift($imgrepliclog);
+                $imgrepliclog = array_shift($imgrepliclog);
                 $snapinreplog = preg_grep('#(fogsnapinrep.log$)#i',$fogfiles);
-                $snapinreplog = @array_shift($snapinreplog);
+                $snapinreplog = array_shift($snapinreplog);
                 $pinghostlog = preg_grep('#(pinghosts.log$)#i',$fogfiles);
-                $pinghostlog = @array_shift($pinghostlog);
+                $pinghostlog = array_shift($pinghostlog);
                 $svcmasterlog = preg_grep('#(servicemaster.log$)#i',$fogfiles);
-                $svcmasterlog = @array_shift($svcmasterlog);
+                $svcmasterlog = array_shift($svcmasterlog);
                 $imgtransferlogs = preg_grep('#(fogreplicator.log.transfer)#i',$fogfiles);
                 $snptransferlogs = preg_grep('#(fogsnapinrep.log.transfer)#i',$fogfiles);
                 $files[$StorageNode->get('name')] = array(

@@ -177,7 +177,7 @@ class MulticastTask extends FOGService {
         return ob_get_clean();
     }
     public function startTask() {
-        @unlink($this->getUDPCastLogFile());
+        unlink($this->getUDPCastLogFile());
         $this->startTasking($this->getCMD(),$this->getUDPCastLogFile());
         $this->procRef = array_shift($this->procRef);
         self::getClass('MulticastSessions',$this->intID)
@@ -187,7 +187,7 @@ class MulticastTask extends FOGService {
     }
     public function killTask() {
         $this->killTasking();
-        @unlink($this->getUDPCastLogFile());
+        unlink($this->getUDPCastLogFile());
         $taskIDs = self::getSubObjectIDs('MulticastSessionsAssociation',array('msid'=>$this->getID()),'taskID');
         $stateIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array($this->getCompleteState(),$this->getCancelledState())),'stateID');
         array_map(function(&$Task) use ($stateIDs) {
@@ -211,6 +211,6 @@ class MulticastTask extends FOGService {
         }
         unset($Tasks);
         $TaskPercent = array_unique((array)$TaskPercent);
-        self::getClass('MulticastSessions',$this->intID)->set('percent',@max((array)$TaskPercent))->save();
+        self::getClass('MulticastSessions',$this->intID)->set('percent',max((array)$TaskPercent))->save();
     }
 }

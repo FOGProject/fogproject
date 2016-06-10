@@ -12,12 +12,12 @@ class UpdateClient extends FOGClient implements FOGClientSend {
         $ClientUpdateFiles = self::getClass('ClientUpdaterManager')->find($findWhere);
         switch ($action) {
             case 'ask':
-                $ClientUpdateFile = @array_shift($ClientUpdateFiles);
+                $ClientUpdateFile = array_shift($ClientUpdateFiles);
                 $this->send = $ClientUpdateFile->get('md5');
                 if ($this->newService) $this->send = "#!ok\n#md5=$this->send";
                 break;
             case 'get':
-                $ClientUpdateFile = @array_shift($ClientUpdateFiles);
+                $ClientUpdateFile = array_shift($ClientUpdateFiles);
                 if (!($ClientUpdateFile && $ClientUpdateFile->isValid())) throw new Exception(_('Invalid data'));
                 $filename = basename($ClientUpdateFile->get('name'));
                 if (!$this->newService) {

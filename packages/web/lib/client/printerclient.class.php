@@ -14,7 +14,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                 array('error'=>'np'),
             ),
         );
-        $default = self::getClass('Printer',@max(self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->Host->get('id'),'isDefault'=>1),'printerID')));
+        $default = self::getClass('Printer',max(self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->Host->get('id'),'isDefault'=>1),'printerID')));
         $default = $default->isValid() ? $default = $default->get('name') : '';
         return array(
             'mode'=> self::$modes[$level] ? self::$modes[$level] : (int)self::$modes[$level],

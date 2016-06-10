@@ -4,7 +4,7 @@ class FOGURLRequests extends FOGBase {
     private $contextOptions;
     public function __construct() {
         parent::__construct();
-        $this->handle = @curl_multi_init();
+        $this->handle = curl_multi_init();
         $this->contextOptions = array(
             CURLOPT_HTTPGET => true,
             CURLOPT_FOLLOWLOCATION => true,
@@ -19,7 +19,7 @@ class FOGURLRequests extends FOGBase {
         );
     }
     public function __destruct() {
-        @curl_multi_close($this->handle);
+        curl_multi_close($this->handle);
     }
     private function validURL(&$URL) {
         $URL = filter_var($URL,FILTER_SANITIZE_URL);
@@ -48,9 +48,8 @@ class FOGURLRequests extends FOGBase {
         if (empty($method)) $method = 'GET';
         array_map(function(&$url) use ($urls,$method,$data,$sendAsJSON,$auth,$callback,$file,&$curl) {
             $this->validURL($url);
-            if (!$this->isAvailable($url)) return;
             if ($method == 'GET' && $data !== null) $url = sprintf('%s?%s',$url,http_build_query((array)$data));
-            $ch = @curl_init($url);
+            $ch = curl_init($url);
             $this->contextOptions[CURLOPT_URL] = $url;
             if ($auth) $this->contextOptions[CURLOPT_USERPWD] = $auth;
             if ($file) {
@@ -85,7 +84,7 @@ class FOGURLRequests extends FOGBase {
             curl_multi_remove_handle($this->handle,$val);
         },(array)$curl);
         if (!$file) return $response;
-        @fclose($file);
+        fclose($file);
     }
     public function isAvailable($URL) {
         $this->validURL($URL);
