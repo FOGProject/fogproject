@@ -897,14 +897,16 @@ $this->schema[] = array(
 "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '28'",
 );
 // 29
-self::$DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
-while ($Host = self::$DB->fetch()->get()) $allImageID[$Host['hostImage']] = $Host['hostOS'];
-foreach ((array)$allImageID AS $imageID => $osID) {
-    $Image = self::getClass('Image',$imageID);
-    if (!$Image->isValid()) continue;
-    $OS = self::getClass('OS',$osID);
-    if (!$OS->isValid()) continue;
-    if (!$Image->set('osID',$osID)->save()) $errors[] = sprintf('<div>Failed updating the osID of imageID: %s, osID: %s</div>',$imageID,$osID);
+if (FOG_SCHEMA < $tmpSchema->get('value')) {
+    self::$DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
+    while ($Host = self::$DB->fetch()->get()) $allImageID[$Host['hostImage']] = $Host['hostOS'];
+    foreach ((array)$allImageID AS $imageID => $osID) {
+        $Image = self::getClass('Image',$imageID);
+        if (!$Image->isValid()) continue;
+        $OS = self::getClass('OS',$osID);
+        if (!$OS->isValid()) continue;
+        if (!$Image->set('osID',$osID)->save()) $errors[] = sprintf('<div>Failed updating the osID of imageID: %s, osID: %s</div>',$imageID,$osID);
+    }
 }
 $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.`schemaVersion` SET `vValue`=29",
@@ -2147,4 +2149,15 @@ $this->schema[] = array(
     ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`modules` (`id`, `name`, `short_name`, `description`) VALUES (13, 'Power Management', 'powermanagement', 'This setting will enable or disable the power management service module on this specific host.  If the module is globally disabled, this setting is ignored.')",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_CLIENT_POWERMANAGEMENT_ENABLED', 'This setting defines if the Windows Service module power management should be enabled on client computers. This service allows an on demand shutdown/reboot/wol of hosts.  It also operates in a cron style setup to allow many different schedules of shutdowns, restarts, and/or wol. (Valid values: 0 or 1).','1','FOG Client - Power Management')",
+);
+// 224
+$this->schema[] = array(
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings` (`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES
+    ('FOG_IPXE_MAIN_COLOURS','This setting allows the admin to define their own color (colour) elements for the iPXE Boot Menu. Each element must have a new line as a separator for multiple items.','colour --rgb 0x00567a 1 ||\ncolour --rgb 0x00567a 2 ||\ncolour --rgb 0x00567a 4 ||','FOG Boot Settings'),
+    ('FOG_IPXE_MAIN_CPAIRS','This setting allows the admin to define their own cpair elements for the iPXE Boot Menu. Each element must have a new line as a separator for multiple items. Fallback will use FOG_IPXE_MAIN_FALLBACK_CPAIRS','cpair --foreground 7 --background 2 2 ||','FOG Boot Settings'),
+    ('FOG_IPXE_MAIN_FALLBACK_CPAIRS','This setting allows the admin to define their own cpair elements for the iPXE Boot Menu. Each element must have a new line as a separator for multiple items. This is only called in case of failure to load menu with picture.','cpair --background 0 1 ||\ncpair --background 1 2 ||','FOG Boot Settings'),
+    ('FOG_IPXE_VALID_HOST_COLOURS','This setting allows the admin to define their own color (colour) elements for the iPXE Boot Menu on how the host text will display if the host is registered. Each element must have a new line as a separator for multiple items.','colour --rgb 0x00567a 1 ||','FOG Boot Settings'),
+    ('FOG_IPXE_INVALID_HOST_COLOURS','This setting allows the admin to define their own color (colour) elements for the iPXE Boot Menu on how the host text will display if the host is not registered. Each element must have a new line as a separator for multiple items.','colour --rgb 0x00567a 0 ||','FOG Boot Settings'),
+    ('FOG_IPXE_HOST_CPAIRS','This setting allows the admin to define their own cpair elements for the iPXE Boot Menu of the host information. Each element must have a new line as a separator for multiple items.','cpair --foreground 1 1 ||\ncpair --foreground 0 3 ||\ncpair --foreground 4 4 ||','FOG Boot Settings'),
+    ('FOG_IPXE_BG_FILE','This setting allows the admin to define their own background file.  Files will need to be in the fog web root under service/ipxe. Default file is bg.png.','bg.png','FOG Boot Settings')",
 );

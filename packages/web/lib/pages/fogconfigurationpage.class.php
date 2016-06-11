@@ -379,7 +379,7 @@ class FOGConfigurationPage extends FOGPage {
                 $fp = fopen($tmp_name,'rb');
                 $content = fread($fp, filesize($tmp_name));
                 fclose($fp);
-                self::getClass('ClientUpdater',max(self::getClass('ClientUpdater',array('name'=>$filename))))
+                self::getClass('ClientUpdater',@max(self::getClass('ClientUpdater',array('name'=>$filename))))
                     ->set('name',$filename)
                     ->set('md5',$md5)
                     ->set('type',self::getClass('finfo',FILEINFO_MIME)->file($tmp_name))

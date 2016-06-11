@@ -19,7 +19,7 @@ $vals = function($reverse,$HookManager) {
     $output = '';
     $chunk = '';
     while (ftell($fh) > 0 && $lines >= 0) {
-        $seek = min(ftell($fh),$buffer);
+        $seek = @min(ftell($fh),$buffer);
         fseek($fh,-$seek,SEEK_CUR);
         $output = ($chunk = fread($fh,$seek)).$output;
         fseek($fh,-mb_strlen($chunk,'8bit'),SEEK_CUR);
