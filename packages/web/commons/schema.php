@@ -2161,3 +2161,18 @@ $this->schema[] = array(
     ('FOG_IPXE_HOST_CPAIRS','This setting allows the admin to define their own cpair elements for the iPXE Boot Menu of the host information. Each element must have a new line as a separator for multiple items.','cpair --foreground 1 1 ||\ncpair --foreground 0 3 ||\ncpair --foreground 4 4 ||','FOG Boot Settings'),
     ('FOG_IPXE_BG_FILE','This setting allows the admin to define their own background file.  Files will need to be in the fog web root under service/ipxe. Default file is bg.png.','bg.png','FOG Boot Settings')",
 );
+// 225
+$this->schema[] = array(
+    "CREATE TABLE `".DATABASE_NAME."`.`globalSettings_new` (
+        `settingID` INT NOT NULL AUTO_INCREMENT,
+        `settingKey` VARCHAR(255) NOT NULL,
+        `settingDesc` LONGTEXT NOT NULL,
+        `settingValue` LONGTEXT NOT NULL,
+        `settingCategory` LONGTEXT NOT NULL,
+        PRIMARY KEY(`settingID`),
+        UNIQUE INDEX `settingKey` (`settingKey`)
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings_new` SELECT * FROM `".DATABASE_NAME."`.`globalSettings`",
+    "DROP TABLE `".DATABASE_NAME."`.`globalSettings`",
+    "RENAME TABLE `".DATABASE_NAME."`.`globalSettings_new` TO `".DATABASE_NAME."`.`globalSettings`",
+);
