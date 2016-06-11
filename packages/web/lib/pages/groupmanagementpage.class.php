@@ -359,7 +359,7 @@ class GroupManagementPage extends FOGPage {
             '${input}',
             '${desc}',
         );
-        $Service = self::getClass('Service',max(self::getSubObjectIDs('Service',array('name'=>'FOG_CLIENT_AUTOLOGOFF_MIN'))));
+        $Service = self::getClass('Service',@max(self::getSubObjectIDs('Service',array('name'=>'FOG_CLIENT_AUTOLOGOFF_MIN'))));
         $this->data[] = array(
             'field'=>_('Auto Log Out Time (in minutes)'),
             'input'=>sprintf('<input type="text" name="tme" value="%s"/>',$Service->get('value')),

@@ -1,6 +1,10 @@
+var runInterval;
 $(function() {
     runDBCheck();
-    setInterval(runDBCheck,1000);
+    runInterval = setInterval(runDBCheck,1000);
+    $('form').submit(function(e) {
+        clearInterval(runInterval);
+    });
 });
 function runDBCheck() {
     $.ajax({
@@ -11,11 +15,8 @@ function runDBCheck() {
                 $('#dbNotRunning').show();
                 $('#dbRunning').hide();
             } else {
-                if (data.redirect) location.href = location.href;
-                else {
-                    $('#dbNotRunning').hide();
-                    $('#dbRunning').show();
-                }
+                $('#dbNotRunning').hide();
+                $('#dbRunning').show();
             }
         }
     });
