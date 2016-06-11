@@ -211,6 +211,6 @@ class MulticastTask extends FOGService {
         }
         unset($Tasks);
         $TaskPercent = array_unique((array)$TaskPercent);
-        self::getClass('MulticastSessions',$this->intID)->set('percent',max((array)$TaskPercent))->save();
+        self::getClass('MulticastSessions',$this->intID)->set('percent',@max($TaskPercent))->save();
     }
 }

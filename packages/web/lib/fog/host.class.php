@@ -416,18 +416,18 @@ class Host extends FOGController {
     }
     protected function loadSnapinjob() {
         if (!$this->get('id')) return;
-        $this->set('snapinjob',max(self::getSubObjectIDs('SnapinJob',array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'hostID'=>$this->get('id')),'id')));
+        $this->set('snapinjob',@max(self::getSubObjectIDs('SnapinJob',array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'hostID'=>$this->get('id')),'id')));
     }
     protected function loadInventory() {
         if (!$this->get('id')) return;
-        $this->set('inventory',max(self::getSubObjectIDs('Inventory',array('hostID'=>$this->get('id')),'id')));
+        $this->set('inventory',@max(self::getSubObjectIDs('Inventory',array('hostID'=>$this->get('id')),'id')));
     }
     protected function loadTask() {
         if (!$this->get('id')) return;
         $find['hostID'] = $this->get('id');
         $find['stateID'] = array_merge($this->getQueuedStates(),(array)$this->getProgressState());
         if (in_array($_REQUEST['type'], array('up','down'))) $find['typeID'] = ($_REQUEST['type'] == 'up' ? array(2,16) : array(1,8,15,17,24));
-        $this->set('task',max(self::getSubObjectIDs('Task',$find,'id')));
+        $this->set('task',@max(self::getSubObjectIDs('Task',$find,'id')));
         unset($find);
     }
     protected function loadOptimalStorageNode() {

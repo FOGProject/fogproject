@@ -182,10 +182,10 @@ class ReportManagementPage extends FOGPage {
             $hostMac = $Host->get('mac');
             $hostDesc = $Host->get('description');
             unset($Host);
-            $Task = self::getClass('Task',max(self::getSubObjectIDs('Task',array('checkInTime'=>$ImagingLog->get('start'),'hostID'=>$ImagingLog->get('hostID')))));
+            $Task = self::getClass('Task',@max(self::getSubObjectIDs('Task',array('checkInTime'=>$ImagingLog->get('start'),'hostID'=>$ImagingLog->get('hostID')))));
             $createdBy = ($ImagingLog->get('createdBy') ? $ImagingLog->get('createdBy') : $_SESSION['FOG_USERNAME']);
             unset($Task);
-            $Image = self::getClass('Image',max(self::getSubObjectIDs('Image',array('name'=>$ImagingLog->get('image')))));
+            $Image = self::getClass('Image',@max(self::getSubObjectIDs('Image',array('name'=>$ImagingLog->get('image')))));
             if ($Image->isValid()) {
                 $imgName = $Image->get('name');
                 $imgPath = $Image->get('path');

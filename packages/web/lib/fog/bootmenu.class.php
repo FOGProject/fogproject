@@ -45,7 +45,7 @@ class BootMenu extends FOGBase {
             $host_field_test = 'efiexit';
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
-        $StorageNode = self::getClass('StorageNode',min(self::getSubObjectIDs('StorageNode',array('isEnabled'=>1,'isMaster'=>1))));
+        $StorageNode = self::getClass('StorageNode',@min(self::getSubObjectIDs('StorageNode',array('isEnabled'=>1,'isMaster'=>1))));
         $serviceNames = array(
             'FOG_EFI_BOOT_EXIT_TYPE',
             'FOG_KERNEL_ARGS',
@@ -154,7 +154,7 @@ class BootMenu extends FOGBase {
             $StorageNode,
             self::$FOGCore
         );
-        $defaultMenu = self::getClass('PXEMenuOptions',max(self::getSubObjectIDs('PXEMenuOptions',array('default'=>1))));
+        $defaultMenu = self::getClass('PXEMenuOptions',@max(self::getSubObjectIDs('PXEMenuOptions',array('default'=>1))));
         $menuname = $defaultMenu->isValid() ? trim($defaultMenu->get('name')) : 'fog.local';
         unset($defaultMenu);
         self::getDefaultMenu($this->timeout,$menuname,$this->defaultChoice);
@@ -202,7 +202,7 @@ class BootMenu extends FOGBase {
             'manufacturer' => sprintf("'%s'",trim($_REQUEST['manufacturer'])),
             'mac' => $this->Host->isValid() ? $this->Host->get('mac')->__toString() : '',
         );
-        self::getClass('iPXE',max(self::getSubObjectIDs('iPXE',$findWhere)))
+        self::getClass('iPXE',@max(self::getSubObjectIDs('iPXE',$findWhere)))
             ->set('product',$findWhere['product'])
             ->set('manufacturer',$findWhere['manufacturer'])
             ->set('mac', $findWhere['mac'])
@@ -369,7 +369,7 @@ class BootMenu extends FOGBase {
             'name' => trim($_REQUEST['sessname']),
             'stateID' => array_merge($this->getQueuedStates(),(array)$this->getProgressState()),
         );
-        $MulticastSession = self::getClass('MulticastSessions',max(self::getSubObjectIDs('MulticastSessions',$findWhere)));
+        $MulticastSession = self::getClass('MulticastSessions',@max(self::getSubObjectIDs('MulticastSessions',$findWhere)));
         if (!$MulticastSession->isValid()) {
             $Send['checksession'] = array(
                 'echo No session found with that name.',
@@ -810,40 +810,56 @@ class BootMenu extends FOGBase {
             return;
         }
         $Menus = self::getClass('PXEMenuOptionsManager')->find('','','id');
-        $Send['head'] = array(
-            'cpuid --ext 29 && set arch x86_64 || set arch i386',
-            'goto get_console',
-            ':console_set',
-            'colour --rgb 0x00567a 1 ||',
-            'colour --rgb 0x00567a 2 ||',
-            'colour --rgb 0x00567a 4 ||',
-            'cpair --foreground 7 --background 2 2 ||',
-            'goto MENU',
-            ':alt_console',
-            'cpair --background 0 1 ||',
-            'cpair --background 1 2 ||',
-            'goto MENU',
-            ':get_console',
-            "console --picture $this->booturl/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console",
+        $ipxeGrabs = array(
+            'FOG_ADVANCED_MENU_LOGIN',
+            'FOG_IPXE_BG_FILE',
+            'FOG_IPXE_HOST_CPAIRS',
+            'FOG_IPXE_INVALID_HOST_COLOURS',
+            'FOG_IPXE_MAIN_COLOURS',
+            'FOG_IPXE_MAIN_CPAIRS',
+            'FOG_IPXE_MAIN_FALLBACK_CPAIRS',
+            'FOG_IPXE_VALID_HOST_COLOURS',
+            'FOG_PXE_ADVANCED',
+            'FOG_REGISTRATION_ENABLED',
+        );
+        list($AdvLogin,$bgfile,$hostCpairs,$hostInvalid,$mainColors,$mainCpairs,$mainFallback,$hostValid,$Advanced,$regEnabled) = self::getSubObjectIDs('Service',array('name'=>$ipxeGrabs),'value',false,'AND','name',false,'');
+        $Send['head'] = array_merge(
+            array(
+                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                'goto get_console',
+                ':console_set',
+            ),
+            explode("\n",$mainColors),
+            explode("\n",$mainCpairs),
+            array(
+                'goto MENU',
+                ':alt_console'
+            ),
+            explode("\n",$mainFallback),
+            array(
+                'goto MENU',
+                ':get_console',
+                "console --picture $this->booturl/ipxe/$bgfile --left 100 --right 80 && goto console_set || goto alt_console",
+            )
         );
         $showDebug = $_REQUEST['debug'] === 1;
-        $hostRegColor = $this->Host->isValid() ? '0x00567a' : '0xff0000';
+        $hostRegColor = $this->Host->isValid() ? $hostValid : $hostInvalid;
         $reg_string = 'NOT registered!';
         if ($this->Host->isValid()) $reg_string = $this->Host->get('pending') ? 'pending approval!' : "registered as {$this->Host->get(name)}!";
-        $Send['menustart'] = array(
-            ':MENU',
-            'menu',
-            "colour --rgb $hostRegColor 0 ||",
-            'cpair --foreground 1 1 ||',
-            'cpair --foreground 0 3 ||',
-            'cpair --foreground 4 4 ||',
-            "item --gap Host is $reg_string",
-            'item --gap -- -------------------------------------',
+        $Send['menustart'] = array_merge(
+            array(
+                ':MENU',
+                'menu',
+                $hostRegColor,
+            ),
+            explode("\n",$hostCpairs),
+            array(
+                "item --gap Host is $reg_string",
+                'item --gap -- -------------------------------------',
+            )
         );
-        $Advanced = self::getSetting('FOG_PXE_ADVANCED');
-        $AdvLogin = self::getSetting('FOG_ADVANCED_MENU_LOGIN');
         $RegArrayOfStuff = array(($this->Host->isValid() ? ($this->Host->get('pending') ? 6 : 1) : 0),2);
-        if (!self::getSetting('FOG_REGISTRATION_ENABLED')) $RegArrayOfStuff = array_diff($RegArrayOfStuff,array(0));
+        if (!$regEnabled) $RegArrayOfStuff = array_diff($RegArrayOfStuff,array(0));
         if ($showDebug) array_push($RegArrayOfStuff,3);
         if ($Advanced) array_push($RegArrayOfStuff,($AdvLogin ? 5 : 4));
         $Menus = (array)self::getClass('PXEMenuOptionsManager')->find(array('regMenu'=>$RegArrayOfStuff),'','id');
