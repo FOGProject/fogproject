@@ -121,6 +121,13 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_BOOT_EXIT_TYPE',
             'FOG_EFI_BOOT_EXIT_TYPE',
+            'FOG_IPXE_BG_FILE',
+            'FOG_IPXE_HOST_CPAIRS',
+            'FOG_IPXE_INVALID_HOST_COLOURS',
+            'FOG_IPXE_MAIN_COLOURS',
+            'FOG_IPXE_MAIN_CPAIRS',
+            'FOG_IPXE_MAIN_FALLBACK_CPAIRS',
+            'FOG_IPXE_VALID_HOST_COLOURS',
             'FOG_KEY_SEQUENCE',
             'FOG_NO_MENU',
             'FOG_PXE_ADVANCED',
@@ -128,7 +135,7 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_PXE_MENU_HIDDEN',
             'FOG_PXE_MENU_TIMEOUT',
         );
-        list($advLogin,$exitNorm,$exitEfi,$bootKeys,$noMenu,$advanced,$hideTimeout,$hidChecked,$timeout) = self::getSubObjectIDs('Service',array('name'=>$ServicesToSee),'value',false,'AND','name',false,'');
+        list($advLogin,$exitNorm,$exitEfi,$bgfile,$hostCpairs,$hostInvalid,$mainColors,$mainCpairs,$mainFallback,$hostValid,$bootKeys,$noMenu,$advanced,$hideTimeout,$hidChecked,$timeout) = self::getSubObjectIDs('Service',array('name'=>$ServicesToSee),'value',false,'AND','name',false,'');
         $advLogin = $advLogin ? ' checked' : '';
         $exitNorm = Service::buildExitSelector('bootTypeExit',$exitNorm);
         $exitEfi = Service::buildExitSelector('efiBootTypeExit',$exitEfi);
@@ -142,6 +149,13 @@ class FOGConfigurationPage extends FOGPage {
             _('Advanced Menu Login') => sprintf('<input type="checkbox" name="advmenulogin" value="1"%s/><i class="icon fa fa-question hand" title="%s"></i>',$advLogin,_('Option below enforces a Login system for the Advanced menu parameters. If off, no login will appear, if on, it will ony allow login to the advanced system.')),
             _('Boot Key Sequence') => $bootKeys,
             sprintf('%s:*',_('Menu Timeout (in seconds)')) => sprintf('<input type="text" name="timeout" value="%s" id="timeout"/>',$timeout),
+            _('Menu Background File') => sprintf('<input type="text" name="bgfile" value="%s"/><i class="icon fa fa-question hand" title="%s"></i>',$bgfile,_('Option specifies background file to use')),
+            _('Main Colors') => sprintf('<textarea name="mainColors">%s</textarea><i class="icon fa fa-question hand" title="%s"></i>',$mainColors,_('Option specifies the color settings of the main items')),
+            _('Valid Host Colors') => sprintf('<textarea name="hostValid">%s</textarea><i class="icon fa fa-question hand" title="%s"></i>',$hostValid,_('Option specifies the color text of a valid host')),
+            _('Invalid Host Colors') => sprintf('<textarea name="hostInvalid">%s</textarea><i class="icon fa fa-question hand" title="%s"></i>',$hostInvalid,_('Option specifies the color text of an invalid host')),
+            _('Main pairings') => sprintf('<textarea name="mainCpairs">%s</textarea><i class="icon fa fa-question hand" title="%s"></i>',$mainCpairs,_('Option specifies the pairings of colors to present and where how they need to display')),
+            _('Main fallback pairings') => sprintf('<textarea name="mainFallback">%s</textarea><i class="icon fa fa-question hand" title="%s"></i>',$mainFallback,_('Option specifies the pairings as a fallback')),
+            _('Host pairings') => sprintf('<textarea name="hostCpairs">%s</textarea><i class="icon fa fa-question hand" title="%s"></i>',$hostCpairs,_('Option specifies the pairings after host checks')),
             _('Exit to Hard Drive Type') => $exitNorm,
             _('Exit to Hard Drive Type(EFI)') => $exitEfi,
             '<a href="#" id="pxeAdvancedLink">Advanced Configuration Options</a>' => sprintf('<div id="advancedTextArea" class="hidden"><div class="lighterText tabbed">%s</div><textarea rows="5" cols="40" name="adv">%s</textarea></div>',_('Add any custom text you would like included added as a part of your <i>default</i> file.'),$advanced),
@@ -162,6 +176,7 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function pxemenu_post() {
         try {
+        array('bgfile','mainColors','hostValid','hostInvalid','mainCpairs','mainFallback','hostCpairs');
             $timeout = trim($_REQUEST['timeout']);
             $timeout = (is_numeric($timeout) || (int) $timeout >= 0 ? true : false);
             if (!$timeout) throw new Exception(_('Invalid Timeout Value'));
@@ -170,16 +185,27 @@ class FOGConfigurationPage extends FOGPage {
             $hidetimeout = (is_numeric($hidetimeout) || (int) $hidetimeout >= 0 ? true : false);
             if (!$hidetimeout) throw new Exception(_('Invalid Timeout Value'));
             else $hidetimeout = trim($_REQUEST['hidetimeout']);
-            if (!$this
-                ->setSetting('FOG_PXE_MENU_HIDDEN',$_REQUEST['hidemenu'])
-                ->setSetting('FOG_PXE_MENU_TIMEOUT',$timeout)
-                ->setSetting('FOG_PXE_ADVANCED',$_REQUEST['adv'])
-                ->setSetting('FOG_KEY_SEQUENCE',$_REQUEST['keysequence'])
-                ->setSetting('FOG_NO_MENU',$_REQUEST['nomenu'])
-                ->setSetting('FOG_BOOT_EXIT_TYPE',$_REQUEST['bootTypeExit'])
-                ->setSetting('FOG_EFI_BOOT_EXIT_TYPE',$_REQUEST['efiBootTypeExit'])
-                ->setSetting('FOG_ADVANCED_MENU_LOGIN',$_REQUEST['advmenulogin'])
-                ->setSetting('FOG_PXE_HIDDENMENU_TIMEOUT',$hidetimeout)) throw new Exception(_('PXE Menu update failed'));
+            $ServicesToEdit = array(
+                'FOG_ADVANCED_MENU_LOGIN' => $_REQUEST['advmenulogin'],
+                'FOG_BOOT_EXIT_TYPE' => $_REQUEST['bootTypeExit'],
+                'FOG_EFI_BOOT_EXIT_TYPE' => $_REQUEST['efiBootTypeExit'],
+                'FOG_IPXE_BG_FILE' => $_REQUEST['bgfile'],
+                'FOG_IPXE_HOST_CPAIRS' => $_REQUEST['hostCpairs'],
+                'FOG_IPXE_INVALID_HOST_COLOURS' => $_REQUEST['hostInvalid'],
+                'FOG_IPXE_MAIN_COLOURS' => $_REQUEST['mainColors'],
+                'FOG_IPXE_MAIN_CPAIRS' => $_REQUEST['mainCpairs'],
+                'FOG_IPXE_MAIN_FALLBACK_CPAIRS' => $_REQUEST['mainFallback'],
+                'FOG_IPXE_VALID_HOST_COLOURS' => $_REQUEST['hostValid'],
+                'FOG_KEY_SEQUENCE' => $_REQUEST['keysequence'],
+                'FOG_NO_MENU' => $_REQUEST['nomenu'],
+                'FOG_PXE_ADVANCED' => $_REQUEST['adv'],
+                'FOG_PXE_HIDDENMENU_TIMEOUT' => $hidetimeout,
+                'FOG_PXE_MENU_HIDDEN' => $_REQUEST['hidemenu'],
+                'FOG_PXE_MENU_TIMEOUT' => $timeout,
+            );
+            array_walk($ServicesToEdit,function(&$value,&$key) {
+                self::getClass('Service')->set('name',$key)->load('name')->set('value',$value)->save();
+            });
             throw new Exception(_('PXE Menu has been updated'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
