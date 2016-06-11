@@ -204,7 +204,7 @@ class FOGConfigurationPage extends FOGPage {
                 'FOG_PXE_MENU_TIMEOUT' => $timeout,
             );
             array_walk($ServicesToEdit,function(&$value,&$key) {
-                self::getClass('Service')->set('name',$key)->load('name')->set('value',$value)->save();
+                self::getClass('Service')->set('name',$key)->set('value',$value)->save();
             });
             throw new Exception(_('PXE Menu has been updated'));
         } catch (Exception $e) {
