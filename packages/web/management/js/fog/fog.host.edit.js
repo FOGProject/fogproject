@@ -7,7 +7,8 @@ var LoginData = new Array();
 var LoginDateMin = new Array();
 var LoginDateMax = new Array();
 function UpdateLoginGraph() {
-    $.post(location.href.replace('edit','hostlogins'),{dte: LoginHistoryDate.val()},function(data) {UpdateLoginGraphPlot();});
+    url = location.href.replace('edit','hostlogins');
+    $.post(url,{dte: LoginHistoryDate.val()},function(data) {UpdateLoginGraphPlot();});
 }
 function UpdateLoginGraphPlot(data) {
     if (data == null) return;
