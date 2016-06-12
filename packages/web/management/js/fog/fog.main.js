@@ -487,7 +487,7 @@ function ajaxRun(username,password,url,selector,formid,target,fogajax) {
             str = new RegExp('^[#][#][#]');
             if (!str.test(data.responseText)) {
                 if (ids.length > 0) {
-                    return ajaxRun(username,password,url,selector,formid,target,1);
+                    location.href = '?node='+node;
                 } else {
                     $(selector).html('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogajaxonly" value="1"/><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').dialog('close');
                     $('#'+formid).submit();
