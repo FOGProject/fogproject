@@ -5,9 +5,10 @@ class FileIntegrityManager extends FOGManagerController {
         $sql = "CREATE TABLE `fileChecksums` (
             `fcsID` INTEGER NOT NULL AUTO_INCREMENT,
             `fcsStorageNodeID` INTEGER NOT NULL,
-            `fcsFileModTime` INTEGER NOT NULL,
+            `fcsFileModTime` DATETIME NOT NULL,
             `fcsFileChecksum` VARCHAR(255) NOT NULL,
             `fcsFilePath` LONGTEXT NOT NULL,
+            'fcsStatus` ENUM('0','1','2') NOT NULL,
             PRIMARY KEY(`fcsID`),
             UNIQUE INDEX `nodeFiles` (`fcsStorageNodeID`,`fcsFilePath`)
         ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC";
