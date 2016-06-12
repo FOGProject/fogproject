@@ -12,7 +12,7 @@ class DatabaseManager extends FOGCore {
         if (self::$mySchema < FOG_SCHEMA) {
             global $sub;
             if (preg_match('#/service/#',$_SERVER['SCRIPT_NAME']) || in_array($sub,array('configure','authorize','requestClientInfo'))) {
-                if ($this->json) echo json_encode(array('error'=>'db'));
+                if (isset($_REQUEST['json'])) echo json_encode(array('error'=>'db'));
                 else echo '#!db';
                 exit;
             }
