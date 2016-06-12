@@ -76,11 +76,6 @@ class FOGCore extends FOGBase {
     public static function setSessionEnv() {
         $_SESSION['HostCount'] = self::getClass('HostManager')->count();
         self::$DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
-        self::$DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
-        array_map(function(&$table) {
-            self::$DB->query(sprintf("ALTER TABLE `%s`.`%s` ENGINE=MyISAM",DATABASE_NAME,$table));
-            unset($table);
-        },(array)self::$DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME'));
         $_SESSION['PluginsInstalled'] = (array)self::getActivePlugins();
         $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
         $_SESSION['FOG_FTP_IMAGE_SIZE'] = self::getSetting('FOG_FTP_IMAGE_SIZE');
