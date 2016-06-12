@@ -7,6 +7,7 @@ class FileIntegrity extends FOGController {
         'modtime' => 'fcsFileModTime',
         'checksum' => 'fcsFileChecksum',
         'path' => 'fcsFilePath',
+        'status' => 'fcsStatus',
     );
     protected $databaseFieldsRequired = array(
         'storageNodeID',
