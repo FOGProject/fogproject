@@ -23,6 +23,7 @@ class TaskScheduler extends FOGService {
                     if (!$Host->isValid()) return;
                     self::outall(sprintf("\t\t- Host: %s WOL sent to all macs associated",$Host->get('name')));
                     $Host->wakeOnLan();
+                    self::getClass('PowerManagementManager')->destroy(array('id'=>$Host->get('powermanagementtasks'),'action'=>'wol','onDemand'=>1));
                     unset($Host);
                 },(array)self::getClass('HostManager')->find(array('id'=>$WOLHosts)));
             }
