@@ -7,11 +7,12 @@ class FileIntegrityManager extends FOGManagerController {
             `fcsStorageNodeID` INTEGER NOT NULL,
             `fcsFileModTime` DATETIME NOT NULL,
             `fcsFileChecksum` VARCHAR(255) NOT NULL,
-            `fcsFilePath` LONGTEXT NOT NULL,
-            'fcsStatus` ENUM('0','1','2') NOT NULL,
+            `fcsFilePath` VARCHAR(255) NOT NULL,
+            `fcsStatus` ENUM('0','1','2') NOT NULL,
             PRIMARY KEY(`fcsID`),
             UNIQUE INDEX `nodeFiles` (`fcsStorageNodeID`,`fcsFilePath`)
         ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC";
+        die($sql);
         return self::$DB->query($sql);
     }
     public function uninstall() {
