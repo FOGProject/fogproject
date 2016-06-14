@@ -1,5 +1,6 @@
 <?php
 $tmpSchema = self::getClass('Schema');
+$pass = User::generate_hash('password');
 // Create Database if needed.
 // 0
 $this->schema[] = array(
@@ -7,15 +8,23 @@ $this->schema[] = array(
 );
 // Change Database to use the created one. Will run every time
 self::$DB->query(Schema::use_database_query());
-// Create our table layouts.
+// Create our primary item table layouts.
 // 1
 $this->schema[] = array(
+    'CREATE TABLE `users` (
+        `userID` INTEGER NOT NULL AUTO_INCREMENT,
+        `userName` VARCHAR(100) NOT NULL,
+        `userPassword` VARCHAR(255) NOT NULL,
+        `userCreateDate` DATETIME NOT NULL,
+        `userCreateBy` VARCHAR(40) NOT NULL,
+        PRIMARY KEY (`userID`),
+        UNIQUE INDEX `username` (`userName`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "CREATE TABLE IF NOT EXISTS `hosts` (
         `hostID` INTEGER NOT NULL AUTO_INCREMENT,
         `hostName` VARCHAR(16) NOT NULL,
         `hostDesc` LONGTEXT NOT NULL,
         `hostIP` INTEGER NOT NULL,
-        `hostImage` INTEGER REFERENCES `images`(`imageID`),
         `hostCreateDate` DATETIME NOT NULL,
         `hostCreateBy` VARCHAR(40) NOT NULL,
         `hostLastDeploy` DATETIME NOT NULL,
@@ -39,14 +48,15 @@ $this->schema[] = array(
         `hostExitBios` VARCHAR(255) NOT NULL,
         `hostExitEfi` VARCHAR(255) NOT NULL,
         `hostEnforce` ENUM('0','1') NOT NULL,
+        `imageID` INTEGER NOT NULL,
         PRIMARY KEY (`hostID`),
-        UNIQUE INDEX `name` (`hostName`)
+        UNIQUE INDEX `name` (`hostName`),
+        FOREIGN KEY (`imageID`) REFERENCES `images` (`imageID`)
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "CREATE TABLE IF NOT EXISTS `groups` (
         `groupID` INTEGER NOT NULL AUTO_INCREMENT,
         `groupName` VARCHAR(255) NOT NULL,
         `groupDesc` LONGTEXT NOT NULL,
-        `groupImage` INTEGER REFERENCES `images`(`imageID`),
         `groupCreateDate` DATETIME NOT NULL,
         `groupCreateBy` VARCHAR(40) NOT NULL,
         `groupLastDeploy` DATETIME NOT NULL,
@@ -65,17 +75,11 @@ $this->schema[] = array(
         `groupExitBios` VARCHAR(255) NOT NULL,
         `groupExitEfi` VARCHAR(255) NOT NULL,
         `groupEnforce` ENUM('0','1') NOT NULL,
+        `imageID` INTEGER NOT NULL,
         PRIMARY KEY (`groupID`),
-        UNIQUE INDEX `name` (`groupName`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-    'CREATE TABLE IF NOT EXISTS `groupMembers` (
-        `gmHostID` INTEGER REFERENCES `hosts`(`hostID`),
-        `gmGroupID` INTEGER REFERENCES `groups`(`groupID`),
-        PRIMARY KEY (`gmHostID`,`gmGroupID`),
-        UNIQUE INDEX `host` (`gmHostID`,`gmGroupID`),
-        FOREIGN KEY `host` (`gmHostID`) REFERENCES `hosts`(`hostID`) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY `group` (`gmGroupID`) REFERENCES `groups`(`groupID`) ON DELETE CASCADE ON UPDATE CASCADE
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+        UNIQUE INDEX `name` (`groupName`),
+        FOREIGN KEY (`imageID`) REFERENCES `images` (`imageID`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "CREATE TABLE IF NOT EXISTS `images` (
         `imageID` INTEGER NOT NULL AUTO_INCREMENT,
         `imageName` VARCHAR(255) NOT NULL,
@@ -89,23 +93,26 @@ $this->schema[] = array(
         `imageFormat` ENUM('0','1') NOT NULL,
         `imageEnable` ENUM('0','1') NOT NULL,
         `imageSize` BIGINT(20) NOT NULL,
-        `imageTypeID` INTEGER REFERENCES `imageTypes`(`imageTypeID`),
-        `imagePartitionTypeID` INTEGER REFERENCES `imagePartitionTypes`(`imagePartitionTypeID`),
-        `imageOSID` INTEGER REFERENCES `os`(`osID`),
-        `imageCompress` ENUM('0','1','2','3','4','5','6','7','8','9'),
+        `imageCompress` ENUM('0','1','2','3','4','5','6','7','8','9') NOT NULL,
+        `imageTypeID` INTEGER NOT NULL,
+        `imagePartitionTypeID` INTEGER NOT NULL,
+        `imageOSID` INTEGER NOT NULL,
         PRIMARY KEY (`imageID`),
-        UNIQUE INDEX `name` (`imageName`,`imagePath`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-    'CREATE TABLE IF NOT EXISTS `imageTypes` (
-        `imageTypeID` INTEGER NOT NULL AUTO_INCREMENT,
-        `imageTypeName` VARCHAR(255) NOT NULL,
-        `imageTypeDesc` LONGTEXT NOT NULL,
-        `imageTypeCreateDate` DATETIME NOT NULL,
-        `imageTypeCreateBy` VARCHAR(40) NOT NULL,
-        `imageTypeValue` VARCHAR(255) NOT NULL,
-        PRIMARY KEY (`imageTypeID`),
+        UNIQUE INDEX `name` (`imageName`,`imagePath`),
+        FOREIGN KEY (`imageTypeID`) REFERENCES `imageTypes` (`imageTypeID`),
+        FOREIGN KEY (`imagePartitionTypeID`) REFERENCES `imagePartitionTypes` (`imagePartitionTypeID`),
+        FOREIGN KEY (`imageOSID`) REFERENCES `os` (`osID`)
+        ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+        'CREATE TABLE IF NOT EXISTS `imageTypes` (
+            `imageTypeID` INTEGER NOT NULL AUTO_INCREMENT,
+            `imageTypeName` VARCHAR(255) NOT NULL,
+            `imageTypeDesc` LONGTEXT NOT NULL,
+            `imageTypeCreateDate` DATETIME NOT NULL,
+            `imageTypeCreateBy` VARCHAR(40) NOT NULL,
+            `imageTypeValue` VARCHAR(255) NOT NULL,
+            PRIMARY KEY (`imageTypeID`),
         UNIQUE INDEX `name` (`imageTypeName`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8',
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE IF NOT EXISTS `imagePartitionTypes` (
         `imagePartitionTypeID` INTEGER NOT NULL AUTO_INCREMENT,
         `imagePartitionTypeName` VARCHAR(255) NOT NULL,
@@ -115,7 +122,7 @@ $this->schema[] = array(
         `imagePartitionTypeValue` VARCHAR(255) NOT NULL,
         PRIMARY KEY (`imagePartitionTypeID`),
         UNIQUE INDEX `name` (`imagePartitionTypeName`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8',
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE IF NOT EXISTS `os` (
         `osID` INTEGER NOT NULL AUTO_INCREMENT,
         `osName` VARCHAR(255) NOT NULL,
@@ -125,71 +132,194 @@ $this->schema[] = array(
         `osValue` INTEGER NOT NULL,
         PRIMARY KEY (`osID`),
         UNIQUE INDEX (`osName`,`osValue`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8',
-    'CREATE TABLE `users` (
-        `uId` INTEGER NOT NULL AUTO_INCREMENT,
-        `uName` VARCHAR(100) NOT NULL,
-        `uPass` VARCHAR(255) NOT NULL,
-        `uCreateDate` DATETIME NOT NULL,
-        `uCreateBy` VARCHAR(40) NOT NULL,
-        PRIMARY KEY (`uId`),
-        UNIQUE INDEX `username` (`uName`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8',
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "CREATE TABLE IF NOT EXISTS `history` (
+        `historyID` INTEGER NOT NULL AUTO_INCREMENT,
+        `historyIP` INTEGER NOT NULL,
+        `historyText` LONGTEXT NOT NULL,
+        `historyCreateDate` DATETIME NOT NULL,
+        `historyCreateBy` VARCHAR(40) NOT NULL,
+        PRIMARY KEY (`historyID`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    'CREATE TABLE IF NOT EXISTS `schema` (
+        `schemaID` INTEGER NOT NULL AUTO_INCREMENT,
+        `schemaValue` INTEGER NOT NULL,
+        `schemaUpdateDate` DATETIME NOT NULL,
+        PRIMARY KEY (`schemaID`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "CREATE TABLE IF NOT EXISTS `tasks` (
+        `hostID` INTEGER NOT NULL,
+        `imageID` INTEGER NOT NULL,
+        `taskID` INTEGER NOT NULL AUTO_INCREMENT,
+        `taskName` VARCHAR(255) NOT NULL,
+        `taskDesc` LONGTEXT NOT NULL,
+        `taskCheckinDate` DATETIME NOT NULL,
+        `taskCreateDate` DATETIME NOT NULL,
+        `taskCreateBy` VARCHAR(40) NOT NULL,
+        `taskIsDebug` ENUM('0','1') NOT NULL,
+        `taskStateID` INTEGER NOT NULL,
+        `taskIsForced` ENUM('0','1') NOT NULL,
+        `taskTypeID` INTEGER NOT NULL,
+        `taskPercent` INTEGER NOT NULL,
+        `taskSpeed` VARCHAR(255) NOT NULL,
+        `taskTimeElapsaed` VARCHAR(255) NOT NULL,
+        `taskTimeRemaining` VARCHAR(255) NOT NULL,
+        `taskDataCopied` VARCHAR(255) NOT NULL,
+        `taskDataTotal` VARCHAR(255) NOT NULL,
+        `taskWOL` ENUM('0','1') NOT NULL,
+        `taskPassreset` VARCHAR(255) NOT NULL,
+        `taskShutdown` ENUM('0','1') NOT NULL,
+        PRIMARY KEY (`taskID`),
+        UNIQUE INDEX `hostStateTask` (`hostID`,`taskTypeID`,`taskStateID`,`taskCheckinDate`),
+        FOREIGN KEY (`hostID`) REFERENCES `hosts` (`hostID`),
+        FOREIGN KEY (`imageID`) REFERENCES `images` (`imageID`),
+        FOREIGN KEY (`taskStateID`) REFERENCES `taskStates` (`taskStateID`),
+        FOREIGN KEY (`taskTypeID`) REFERENCES `taskTypes` (`taskTypeID`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `storageGroups` (
+        `storageGroupID` INTEGER NOT NULL AUTO_INCREMENT,
+        `storageGroupName` VARCHAR(255) NOT NULL,
+        `storageGroupDesc` LONGTEXT NOT NULL,
+        `storageGroupCreateDate` DATETIME NOT NULL,
+        `storageGroupCreateBy` VARCHAR(40) NOT NULL,
+        PRIMARY KEY (`storageGroupID`),
+        UNIQUE INDEX (`storageGroupName`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `storageNodes` (
+        `storageGroupID` INTEGER NOT NULL,
+        `storageNodeID` INTEGER NOT NULL AUTO_INCREMENT,
+        `storageNodeHostName` VARCHAR(255) NOT NULL,
+        `storageNodeName` VARCHAR(255) NOT NULL,
+        `storageNodeDesc` LONGTEXT NOT NULL,
+        `storageNodeCreateDate` DATETIME NOT NULL,
+        `storageNodeCreateBy` VARCHAR(40) NOT NULL,
+        `storageNodeIsMaster` ENUM('0','1') NOT NULL,
+        `storageNodeIsEnabled` ENUM('0','1') NOT NULL,
+        `storageNodeIsGraphEnabled` ENUM('0','1') NOT NULL,
+        `storageNodeNFSPath` VARCHAR(255) NOT NULL,
+        `storageNodeFTPPath` VARCHAR(255) NOT NULL,
+        `storageNodeSSLPath` VARCHAR(255) NOT NULL,
+        `storageNodeWebPath` VARCHAR(255) NOT NULL,
+        `storageNodeSnapinPath` VARCHAR(255) NOT NULL,
+        `storageNodeFTPUsername` VARCHAR(255) NOT NULL,
+        `storageNodeFTPPassword` VARCHAR(255) NOT NULL,
+        `storageNodeInterface` VARCHAR(255) NOT NULL,
+        `storageNodeBandwidthLimit` INTEGER NOT NULL,
+        `storageNodeMaxClients` INTEGER NOT NULL,
+        PRIMARY KEY (`storageNodeID`),
+        UNIQUE INDEX (`storageNodeName`),
+        FOREIGN KEY (`storageGroupID`) REFERENCES `storageGroups` (`storageGroupID`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+);
+// Create assoc tables
+// 2
+$this->schema[] = array(
+    "CREATE TABLE IF NOT EXISTS `macAssoc` (
+        `hostID` INTEGER NOT NULL,
+        `macAddress` BIGINT NOT NULL,
+        `macIsPrimary` ENUM('0','1') NOT NULL,
+        `macIsPending` ENUM('0','1') NOT NULL,
+        `macIgnoreClient` ENUM('0','1') NOT NULL,
+        `macIgnoreImage` ENUM('0','1') NOT NULL,
+        PRIMARY KEY (`macAddress`),
+        UNIQUE INDEX `host` (`hostID`,`macAddress`),
+        FOREIGN KEY (`hostID`) REFERENCES `hosts` (`hostID`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    'CREATE TABLE IF NOT EXISTS `groupAssoc` (
+        `hostID` INTEGER NOT NULL,
+        `groupID` INTEGER NOT NULL,
+        PRIMARY KEY (`hostID`,`groupID`),
+        UNIQUE INDEX `host` (`hostID`,`groupID`),
+        FOREIGN KEY (`hostID`) REFERENCES `hosts` (`hostID`) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (`groupID`) REFERENCES `groups` (`groupID`) ON DELETE CASCADE ON UPDATE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
 );
 // INSERTS
 $this->schema[] = array(
-    "INSERT IGNORE INTO `users` (`uName`,`uPass`,`uCreateDate`) VALUES ('fog','$pass',NOW())",
+    "INSERT IGNORE INTO `users` (
+        `userName`,
+        `userPassword`,
+        `userCreateDate`
+    ) VALUES (
+        'fog',
+        '$pass',
+        NOW()
+    )",
+    "INSERT IGNORE INTO `storageGroups` (
+        `storageGroupName`,
+        `storageGroupDesc`,
+        `storageGroupCreateDate`
+    ) VALUES (
+        'default group',
+        'Automatically generated storage group',
+        NOW()
+    )",
+    sprintf(
+        "INSERT IGNORE INTO `storageNodes` (
+            `storageNodeHostName`,
+            `storageNodeNFSPath`,
+            `storageNodeFTPPath`,
+            `storageNodeSSLPath`,
+            `storageNodeWebPath`,
+            `storageNodeSnapinPath`,
+            `storageNodeName`,
+            `storageNodeDesc`,
+            `storageGroupID`,
+            `storageNodeCreateDate`,
+            `storageNodeIsMaster`,
+            `storageNodeIsEnabled`,
+            `storageNodeIsGraphEnabled`,
+            `storageNodeFTPUsername`,
+            `storageNodeFTPPassword`,
+            `storageNodeInterface`,
+            `storageNodeMaxClients`
+        ) VALUES (
+            '%s',
+            '/images',
+            '/images',
+            '/opt/fog/snapins/ssl',
+            '%s',
+            '/opt/fog/snapins',
+            'default',
+            'Automatically generated storage node',
+            1,
+            NOW(),
+            '1',
+            '1',
+            '1',
+            '%s',
+            '%s',
+            '%s',
+            10
+        )",
+        STORAGE_HOST,
+        WEB_ROOT,
+        STORAGE_FTP_USERNAME,
+        STORAGE_FTP_PASSWORD,
+        STORAGE_INTERFACE
+    ),
+    "INSERT IGNORE INTO `os` (
+        `osName`,
+        `osDesc`,
+        `osCreateDate`,
+        `osValue`
+    ) VALUES
+        ('Windows XP','Defines OSID for Windows XP',NOW(),1),
+        ('Windows Vista','Defines OSID for Windows Vista',NOW(),2),
+        ('Windows 98','Defines OSID for Windows 98',NOW(),3),
+        ('Windows Other','Defines OSID for Other Windows that are from before Windows 98',NOW(),4),
+        ('Windows 7','Defines OSID for Windows 7',NOW(),5),
+        ('Windows 8','Defines OSID for Windows 8',NOW(),6),
+        ('Windows 8.1','Defines OSID for Windows 8.1',NOW(),7),
+        ('Apple Mac OS','Defines OSID for Apple MAC OS',NOW(),8),
+        ('Windows 10','Defines OSID for Windows 8.1',NOW(),9),
+        ('Linux','Defines OSID for Linux',NOW(),50),
+        ('Chromium OS','Defines OSID for Chromium OS',NOW(),51),
+        ('Other','Defines OSID for all others',NOW(),99)
+    )",
+    sprintf("INSERT INTO `schema` (`schemaValue`,`schemaUpdateDate`) VALUES (%d,NOW())",FOG_SCHEMA_VERSION),
 );
-    /*'CREATE TABLE IF NOT EXISTS `history` (
-        `hID` int(11) NOT NULL auto_increment,
-        `hText` longtext NOT NULL,
-        `hUser` varchar(200) NOT NULL,
-        `hTime` datetime NOT NULL,
-        `hIP` varchar(50) NOT NULL,
-        PRIMARY KEY  (`hID`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8',
-    'CREATE TABLE IF NOT EXISTS `schemaVersion` (
-        `vID` int(11) NOT NULL auto_increment,
-        `vValue` int(11) NOT NULL,
-        PRIMARY KEY  (`vID`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
-    'CREATE TABLE IF NOT EXISTS `tasks` (
-        `taskID` int(11) NOT NULL auto_increment,
-        `taskName` varchar(250) NOT NULL,
-        `taskCreateTime` datetime NOT NULL,
-        `taskCheckIn` datetime NOT NULL,
-        `taskHostID` int(11) NOT NULL,
-        `taskState` int(11) NOT NULL,
-        `taskCreateBy` varchar(200) NOT NULL,
-        `taskForce` varchar(1) NOT NULL,
-        `taskScheduledStartTime` datetime NOT NULL,
-        `taskType` varchar(1) NOT NULL,
-        `taskPCT` int(10) unsigned zerofill NOT NULL,
-        PRIMARY KEY  (`taskID`),
-        UNIQUE INDEX `hostStateCheck` (`taskHostID`,`taskCreateTime`,`taskState`,`taskType`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8',
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`supportedOS` VALUES  ('','"._("Windows XP")."', '1')",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`schemaVersion` VALUES  ('','1')"
-);
-// 2
-$this->schema[] = array(
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`supportedOS` VALUES  ('','"._("Windows Vista")."', '2')",
-
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '2'",
-);
-// 3
-$this->schema[] = array(
-    "ALTER TABLE `".DATABASE_NAME."`.`hosts`
-    ADD COLUMN `hostUseAD` char  NOT NULL AFTER `hostOS`,
-    ADD COLUMN `hostADDomain` VARCHAR(250)  NOT NULL AFTER `hostUseAD`,
-    ADD COLUMN `hostADOU` longtext  NOT NULL AFTER `hostADDomain`,
-    ADD COLUMN `hostADUser` VARCHAR(250)  NOT NULL AFTER `hostADOU`,
-    ADD COLUMN `hostADPass` VARCHAR(250)  NOT NULL AFTER `hostADUser`,
-    ADD COLUMN `hostAnon1` VARCHAR(250)  NOT NULL AFTER `hostADPass`,
-    ADD COLUMN `hostAnon2` VARCHAR(250)  NOT NULL AFTER `hostAnon1`,
-    ADD COLUMN `hostAnon3` VARCHAR(250)  NOT NULL AFTER `hostAnon2`,
-    ADD COLUMN `hostAnon4` VARCHAR(250)  NOT NULL AFTER `hostAnon3`,
-    ADD INDEX `new_index4`(`hostUseAD`)",
+/*
     "CREATE TABLE  `".DATABASE_NAME."`.`snapinAssoc` (
         `saID` int(11) NOT NULL auto_increment,
         `saHostID` int(11) NOT NULL,
