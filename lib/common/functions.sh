@@ -1561,7 +1561,7 @@ configureHttpd() {
                     read -s PASSWORD2
                     echo
                     if [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; then
-                        dbpass=$PASSWORD1
+                        snmysqlpass=$PASSWORD1
                     else
                         dppass=""
                         while [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; do
@@ -1571,9 +1571,7 @@ configureHttpd() {
                             echo -n " * Re-enter the MySQL password: "
                             read -s PASSWORD2
                             echo
-                            if [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; then
-                                dbpass=$PASSWORD1
-                            fi
+                            [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]] && dbpass=$PASSWORD1
                         done
                     fi
                     [[ $snmysqlpass != $dbpass ]] && snmysqlpass=$dbpass
@@ -1585,15 +1583,9 @@ configureHttpd() {
             esac
         done
     fi
-    if [[ $installtype == S || $fogupdateloaded -eq 1 ]]; then
-        if [[ ! -z $snmysqlhost && $snmysqlhost != $dbhost ]]; then
-            dbhost=$snmysqlhost
-        elif [[ ! -z $snmysqlhost ]]; then
-            dbhost="p:127.0.0.1"
-        fi
-    fi
-    if [[ ! -z $snmysqluser && $snmysqluser != $dbuser ]]; then
-        dbuser=$snmysqluser
+    if [[ $installtype == S || $fogupdateloaded -eq 0 ]]; then
+        [[ -z $snmysqlhost ]] && snmysqlhost='127.0.0.1'
+        [[ -z $snmysqluser ]] && snmysqluser='root'
     fi
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
@@ -1700,9 +1692,9 @@ class Config {
      */
     private static function db_settings() {
         define('DATABASE_TYPE','mysql'); // mysql or oracle
-        define('DATABASE_HOST','$dbhost');
+        define('DATABASE_HOST','$snmysqlhost');
         define('DATABASE_NAME','fog');
-        define('DATABASE_USERNAME','$dbuser');
+        define('DATABASE_USERNAME','$snmysqluser');
         define('DATABASE_PASSWORD',\"${snmysqlpass}\");
     }
     /** @function svc_setting() Defines the service settings

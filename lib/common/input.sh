@@ -301,7 +301,6 @@ case $installtype in
             echo "  the fog database?  This is typically the server that also "
             echo -n "  runs the web server, dhcp, and tftp.  IP or Hostname: "
             read snmysqlhost
-            dbhost=$snmysqlhost
         done
         while [[ -z $snmysqluser ]]; do
             snmysqluser=$strSuggestedSNUser
@@ -315,10 +314,7 @@ case $installtype in
                 echo "  'FOG Storage Nodes' -> "
                 echo -n "  'FOG_STORAGENODE_MYSQLUSER'. Username [$strSuggestedSNUser]: "
                 read snmysqluser
-                if [[ -z $snmysqluser ]]; then
-                    snmysqluser=$strSuggestedSNUser
-                fi
-                dbuser=$snmysqluser
+                [[ -z $snmysqluser ]] && snmysqluser=$strSuggestedSNUser
             fi
         done
         while [[ -z $snmysqlpass ]]; do
@@ -330,7 +326,6 @@ case $installtype in
             echo "  'FOG Storage Nodes' -> "
             echo  -n "  'FOG_STORAGENODE_MYSQLPASS'.  Password: "
             read snmysqlpass
-            dbpass=$snmysqlpass
         done
         ;;
 esac
