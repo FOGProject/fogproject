@@ -5,6 +5,12 @@ class Schema extends FOGController {
         'id' => 'vID',
         'version' => 'vValue',
     );
+    public static function create_database_query() {
+        return sprintf('CREATE DATABASE IF NOT EXISTS `%s`',DATABASE_NAME);
+    }
+    public static function use_database_query() {
+        return sprintf('USE `%s`',DATABASE_NAME);
+    }
     public function drop_duplicate_data($dbname,$table = array(),$indexNeeded = false) {
         if (empty($dbname)) return;
         if (count($table) < 1) return;
