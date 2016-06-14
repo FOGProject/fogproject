@@ -25,7 +25,7 @@ class User extends FOGController {
         'authLastActivity',
         'authUserAgent',
     );
-    private function generate_hash($password, $cost = 11) {
+    public static function generate_hash($password, $cost = 11) {
         return password_hash($password,PASSWORD_BCRYPT,['cost'=>$cost]);
     }
     public function password_validate($username,$password,$adminTest = false) {
@@ -66,7 +66,7 @@ class User extends FOGController {
         return $this;
     }
     public function set($key, $value, $override = false) {
-        if ($this->key($key) == 'password' && !$override) $value = $this->generate_hash($value);
+        if ($this->key($key) == 'password' && !$override) $value = self::generate_hash($value);
         return parent::set($key, $value);
     }
     private function isLoggedIn() {
