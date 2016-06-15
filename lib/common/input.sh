@@ -106,7 +106,7 @@ while [[ -z $ipaddress ]]; do
     if [[ $(validip $ipaddress) != 0 ]]; then
         ipaddress=""
         echo "  Invalid IP Address"
-        count=$(($count + 1))
+        let count+=1
     fi
 done
 if [[ $strSuggestedIPAddress != $ipaddress ]]; then
@@ -195,14 +195,13 @@ case $installtype in
             if [[ -z $autoaccept ]]; then
                 echo
                 echo "  Would you like to setup a DNS address for"
-                echo -n "      the DHCP server and client boot image? [Y/n] "
+                echo -n "      the DHCP server? [Y/n] "
                 read blDNS
             fi
             case $blDNS in
                 [Yy]|[Yy][Ee][Ss]|"")
                     if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
-                        echo "  What is the IP address to be used for DNS on"
-                        echo -n "      the DHCP server and client boot image? [$strSuggestedDNS] "
+                        echo "  What is the DNS address to be used? [$strSuggestedDNS]"
                         read dnsaddress
                     fi
                     case $dnsaddress in
@@ -218,7 +217,6 @@ case $installtype in
                         echo "  Invalid DNS IP address!"
                         continue
                     fi
-                    dnsbootimage=$dnsaddress
                     ;;
                 [Nn]|[Nn][Oo])
                     dnsaddress="#   No dns added"
@@ -304,7 +302,6 @@ case $installtype in
         done
         while [[ -z $snmysqluser ]]; do
             snmysqluser=$strSuggestedSNUser
-            dbuser=$snmysqluser
             if [[ -z $autoaccept ]]; then
                 echo
                 echo "  What is the username to access the database?"
