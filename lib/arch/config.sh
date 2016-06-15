@@ -13,31 +13,31 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-packages="apache php-fpm php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc perl perl-crypt-passwdmd5 lftp curl openssl openssh php-mcrypt mod_fastcgi"
-packageinstaller="pacman -Sy --noconfirm"
-packagelist="pacman -Si"
-packageupdater="pacman -Syu --noconfirm"
-packmanUpdate="$packageinstaller"
-packageQuery="pacman -Q \$x"
-langPackages="iso-codes"
-dhcpname="dhcp"
-if [ -z "$docroot" ]; then
-    docroot="/srv/http/"
-    webdirdest="${docroot}fog/"
-elif [[ "$docroot" != *'fog'* ]]; then
-    webdirdest="${docroot}fog/"
-else
-    webdirdest="${docroot}/"
+[[ -z $packages ]] && packages="apache php-fpm php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc perl perl-crypt-passwdmd5 lftp curl openssl openssh php-mcrypt mod_fastcgi"
+[[ -z $packageinstaller ]] && packageinstaller="pacman -Sy --noconfirm"
+[[ -z $packagelist ]] && packagelist="pacman -Si"
+[[ -z $packageupdater ]] && packageupdater="pacman -Syu --noconfirm"
+[[ -z $packmanUpdate ]] && packmanUpdate="$packageinstaller"
+[[ -z $packageQuery ]] && packageQuery="pacman -Q \$x"
+[[ -z $langPackages ]] && langPackages="iso-codes"
+[[ -z $dhcpname ]] && dhcpname="dhcp"
+if [[ -z $webdirdest ]]; then
+    if [[ -z $docroot ]]; then
+        docroot="/srv/http/"
+        webdirdest="${docroot}fog/"
+    elif [[ "$docroot" != *'fog'* ]]; then
+        webdirdest="${docroot}fog/"
+    else
+        webdirdest="${docroot}/"
+    fi
 fi
-webredirect="${webdirdest}/index.php"
-apacheuser="http"
-apachelogdir="/var/log/httpd"
-apacheerrlog="$apachelogdir/error_log"
-apacheacclog="$apachelogdir/access_log"
-etcconf="/etc/httpd/conf/extra/fog.conf"
-phpini="/etc/php/php.ini"
-initdpath="/usr/lib/systemd/system"
-initdsrc="../packages/systemd"
+[[ -z $webredirect ]] && webredirect="${webdirdest}/index.php"
+[[ -z $apacheuser ]] && apacheuser="http"
+[[ -z $apachelogdir ]] && apachelogdir="/var/log/httpd"
+[[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error_log"
+[[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access_log"
+[[ -z $etcconf ]] && etcconf="/etc/httpd/conf/extra/fog.conf"
+[[ -z $phpini ]] && phpini="/etc/php/php.ini"
 if [[ -e /usr/lib/systemd/system/mariadb.service ]]; then
     ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -47,18 +47,13 @@ elif [[ -e /usr/lib/systemd/system/mysqld.service ]]; then
     ln -s /usr/lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 fi
-initdMCfullname="FOGMulticastManager.service"
-initdIRfullname="FOGImageReplicator.service"
-initdSDfullname="FOGScheduler.service"
-initdSRfullname="FOGSnapinReplicator.service"
-initdPHfullname="FOGPingHosts.service"
-storageLocation="/images"
-storageLocationUpload="${storageLocation}/dev"
-dhcpconfig="/etc/dhcpd.conf"
-dhcpconfigother="/etc/dhcp/dhcpd.conf"
-tftpdirdst="/srv/tftp"
-tftpconfig="/etc/xinetd.d/tftpd"
-ftpxinetd="/etc/xinetd.d/vsftpd"
-ftpconfig="/etc/vsftpd.conf"
-dhcpd="dhcpd4"
-snapindir="/opt/fog/snapins"
+[[ -z $storageLocation ]] && storageLocation="/images"
+[[ -z $storageLocationUplaod ]] && storageLocationUpload="${storageLocation}/dev"
+[[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcpd.conf"
+[[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
+[[ -z $tftpdirdst ]] && tftpdirdst="/srv/tftp"
+[[ -z $tftpconfig ]] && tftpconfig="/etc/xinetd.d/tftpd"
+[[ -z $ftpxinetd ]] && ftpxinetd="/etc/xinetd.d/vsftpd"
+[[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd.conf"
+[[ -z $dhcpd ]] && dhcpd="dhcpd4"
+[[ -z $snapindir ]] && snapindir="/opt/fog/snapins"

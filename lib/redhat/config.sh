@@ -18,43 +18,41 @@
 #
 command -v dnf >/dev/null 2>&1
 [[ $? -eq 0 ]] && repos="remi" || repos="remi,remi-php56,epel"
-packageQuery="rpm -q \$x"
+[[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
 case $linuxReleaseName in
     *[Mm][Aa][Gg][Ee][Ii][Aa]*)
-        packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process mod_fastcgi"
-        packageinstaller="urpmi --auto"
-        packagelist="urpmq"
-        packageupdater="$packageinstaller"
-        packmanUpdate="urpmi.update -a"
-        dhcpname="dhcp-server"
-        tftpdirdst="/var/lib/tftpboot"
-        nfsexportsopts="no_subtree_check"
+        [[ -z $packages ]] && packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process mod_fastcgi"
+        [[ -z $packageinstaller ]] && packageinstaller="urpmi --auto"
+        [[ -z $packagelist ]] && packagelist="urpmq"
+        [[ -z $packageupdater ]] && packageupdater="$packageinstaller"
+        [[ -z $packmanUpdate ]] && packmanUpdate="urpmi.update -a"
+        [[ -z $dhcpname ]] && dhcpname="dhcp-server"
+        [[ -z $tftpdirdst ]] && tftpdirdst="/var/lib/tftpboot"
+        [[ -z $nfsexportsopts ]] && nfsexportsopts="no_subtree_check"
         ;;
     *)
-        packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process mod_fastcgi"
+        [[ -z $packages ]] && packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process mod_fastcgi"
         command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ $? -eq 0 ]]; then
-            packageinstaller="dnf -y --enablerepo=$repos install"
-            packagelist="dnf list --enablerepo=$repos"
-            packageupdater="dnf -y --enablerepo=$repos update"
-            packmanUpdate="dnf --enablerepo=$repos check-update"
+            [[ -z $packageinstaller ]] && packageinstaller="dnf -y --enablerepo=$repos install"
+            [[ -z $packagelist ]] && packagelist="dnf list --enablerepo=$repos"
+            [[ -z $packageupdater ]] && packageupdater="dnf -y --enablerepo=$repos update"
+            [[ -z $packageUpdate ]] && packmanUpdate="dnf --enablerepo=$repos check-update"
         else
-            packageinstaller="yum -y --enablerepo=$repos install"
-            packagelist="yum --enablerepo=$repos list"
-            packageupdater="yum -y --enablerepo=$repos update"
-            packmanUpdate="yum check-update"
+            [[ -z $packageinstaller ]] && packageinstaller="yum -y --enablerepo=$repos install"
+            [[ -z $packagelist ]] && packagelist="yum --enablerepo=$repos list"
+            [[ -z $packageupdater ]] && packageupdater="yum -y --enablerepo=$repos update"
+            [[ -z $packmanUpdate ]] && packmanUpdate="yum check-update"
             command -v yum-config-manager >/dev/null 2>&1
             [[ ! $? -eq 0 ]] && $packageinstaller yum-utils >/dev/null 2>&1
             command -v yum-config-manager >/dev/null 2>&1
             [[ $? -eq 0 ]] && repoenable="yum-config-manager --enable"
         fi
-        dhcpname="dhcp"
+        [[ -z $dhcpname ]] && dhcpname="dhcp"
         ;;
 esac
-langPackages="iso-codes"
+[[ -z $langPackages ]] && langPackages="iso-codes"
 if [[ $systemctl == yes ]]; then
-    initdpath="/usr/lib/systemd/system"
-    initdsrc="../packages/systemd"
     if [[ -e /usr/lib/systemd/system/mariadb.service ]]; then
         ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -64,11 +62,6 @@ if [[ $systemctl == yes ]]; then
         ln -s /usr/lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
-    initdMCfullname="FOGMulticastManager.service"
-    initdIRfullname="FOGImageReplicator.service"
-    initdSDfullname="FOGScheduler.service"
-    initdSRfullname="FOGSnapinReplicator.service"
-    initdPHfullname="FOGPingHosts.service"
 else
     initdpath="/etc/rc.d/init.d"
     initdsrc="../packages/init.d/redhat"
@@ -78,27 +71,29 @@ else
     initdSRfullname="FOGSnapinReplicator"
     initdPHfullname="FOGPingHosts"
 fi
-if [[ -z $docroot ]]; then
-    docroot="/var/www/html/"
-    webdirdest="${docroot}fog/"
-elif [[ $docroot != *'fog'* ]]; then
-    webdirdest="${docroot}fog/"
-else
-    webdirdest="${docroot}/"
+if [[ -z $webdirdest ]]; then
+    if [[ -z $docroot ]]; then
+        docroot="/var/www/html/"
+        webdirdest="${docroot}fog/"
+    elif [[ $docroot != *'fog'* ]]; then
+        webdirdest="${docroot}fog/"
+    else
+        webdirdest="${docroot}/"
+    fi
 fi
-webredirect="${webdirdest}/index.php"
-apacheuser="apache"
-apachelogdir="/var/log/httpd"
-apacheerrlog="$apachelogdir/error_log"
-apacheacclog="$apachelogdir/access_log"
-etcconf="/etc/httpd/conf.d/fog.conf"
-phpini="/etc/php.ini"
-storageLocation="/images"
-storageLocationUpload="${storageLocation}/dev"
-dhcpconfig="/etc/dhcpd.conf"
-dhcpconfigother="/etc/dhcp/dhcpd.conf"
-tftpdirdst="/tftpboot"
-tftpconfig="/etc/xinetd.d/tftp"
-ftpconfig="/etc/vsftpd/vsftpd.conf"
-dhcpd="dhcpd"
-snapindir="/opt/fog/snapins"
+[[ -z $webredirect ]] && webredirect="${webdirdest}/index.php"
+[[ -z $apacheuser ]] && apacheuser="apache"
+[[ -z $apachelogdir ]] && apachelogdir="/var/log/httpd"
+[[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error_log"
+[[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access_log"
+[[ -z $etcconf ]] && etcconf="/etc/httpd/conf.d/fog.conf"
+[[ -z $phpini ]] && phpini="/etc/php.ini"
+[[ -z $storageLocation ]] && storageLocation="/images"
+[[ -z $storageLocationUpload ]] && storageLocationUpload="${storageLocation}/dev"
+[[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcpd.conf"
+[[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
+[[ -z $tftpdirdst ]] && tftpdirdst="/tftpboot"
+[[ -z $tftpconfig ]] && tftpconfig="/etc/xinetd.d/tftp"
+[[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd/vsftpd.conf"
+[[ -z $dhcp ]] && dhcpd="dhcpd"
+[[ -z $snapindir ]] && snapindir="/opt/fog/snapins"

@@ -82,8 +82,8 @@ while [[ -z $installtype ]]; do
             installtype="S"
             ;;
         *)
-            echo "  Invalid input, please try again."
             installtype=""
+            echo "  Invalid input, please try again."
             ;;
     esac
 done
@@ -194,14 +194,13 @@ case $installtype in
         while [[ -z $dnsaddress ]]; do
             if [[ -z $autoaccept ]]; then
                 echo
-                echo "  Would you like to setup a DNS address for"
-                echo -n "      the DHCP server? [Y/n] "
+                echo -n "  Would you like DHCP to handle DNS? [Y/n] "
                 read blDNS
             fi
             case $blDNS in
                 [Yy]|[Yy][Ee][Ss]|"")
                     if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
-                        echo "  What is the DNS address to be used? [$strSuggestedDNS]"
+                        echo -n "  What DNS address should DHCP allow? [$strSuggestedDNS] "
                         read dnsaddress
                     fi
                     case $dnsaddress in
@@ -212,10 +211,9 @@ case $installtype in
                             dnsaddress=$(echo $dnsaddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
                             ;;
                     esac
-                    if [[ $(validip $dnsaddress) != 0 ]]; then
+                    if [[ $(validip $dnsaddress) -eq 0 ]]; then
                         dnsaddress=""
                         echo "  Invalid DNS IP address!"
-                        continue
                     fi
                     ;;
                 [Nn]|[Nn][Oo])
@@ -287,6 +285,7 @@ case $installtype in
                     donate=1
                     ;;
                 *)
+                    donate=""
                     echo "  Invalid input, please try again."
                     ;;
             esac
@@ -299,6 +298,7 @@ case $installtype in
             echo "  the fog database?  This is typically the server that also "
             echo -n "  runs the web server, dhcp, and tftp.  IP or Hostname: "
             read snmysqlhost
+            [[ -z $snmysqlhost ]] && snmysqlhost="127.0.0.1"
         done
         while [[ -z $snmysqluser ]]; do
             snmysqluser=$strSuggestedSNUser
@@ -323,6 +323,7 @@ case $installtype in
             echo "  'FOG Storage Nodes' -> "
             echo  -n "  'FOG_STORAGENODE_MYSQLPASS'.  Password: "
             read snmysqlpass
+            [[ -z $snmysqlpass ]] && echo "Invalid input, please try again."
         done
         ;;
 esac
