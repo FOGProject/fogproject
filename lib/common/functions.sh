@@ -1134,7 +1134,6 @@ writeUpdateFile() {
     escrouteraddress=$(echo $routeraddress | sed -e $replace)
     escplainrouter=$(echo $plainrouter | sed -e $replace)
     escdnsaddress=$(echo $dnsaddress | sed -e $replace)
-    escdnsbootimage=$(echo $dnsbootimage | sed -e $replace)
     escpassword=$(echo $password | sed -e $replace -e "s/[']{1}/'''/g")
     escosid=$(echo $osid | sed -e $replace)
     escosname=$(echo $osname | sed -e $replace)
@@ -1188,9 +1187,6 @@ writeUpdateFile() {
             grep -q "dnsaddress=" $fogprogramdir/.fogsettings && \
                 sed -i "s/dnsaddress=.*/dnsaddress='$escdnsaddress'/g" $fogprogramdir/.fogsettings || \
                 echo "dnsaddress='$dnsaddress'" >> $fogprogramdir/.fogsettings
-            grep -q "dnsbootimage=" $fogprogramdir/.fogsettings && \
-                sed -i "s/dnsbootimage=.*/dnsbootimage='$escdnsbootimage'/g" $fogprogramdir/.fogsettings || \
-                echo "dnsbootimage='$dnsbootimage'" >> $fogprogramdir/.fogsettings
             grep -q "password=" $fogprogramdir/.fogsettings && \
                 sed -i "s/password=.*/password=\"$escpassword\"/g" $fogprogramdir/.fogsettings || \
                 echo "password=\"$escpassword\"" >> $fogprogramdir/.fogsettings
@@ -1293,7 +1289,6 @@ writeUpdateFile() {
             echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
             echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
             echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
-            echo "dnsbootimage='$dnsbootimage'" >> "$fogprogramdir/.fogsettings"
             echo "username='$username'" >> "$fogprogramdir/.fogsettings"
             echo "password='$password'" >> "$fogprogramdir/.fogsettings"
             echo "osid='$osid'" >> "$fogprogramdir/.fogsettings"
@@ -1336,7 +1331,6 @@ writeUpdateFile() {
         echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
         echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
         echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
-        echo "dnsbootimage='$dnsbootimage'" >> "$fogprogramdir/.fogsettings"
         echo "username='$username'" >> "$fogprogramdir/.fogsettings"
         echo "password='$password'" >> "$fogprogramdir/.fogsettings"
         echo "osid='$osid'" >> "$fogprogramdir/.fogsettings"
@@ -1726,7 +1720,6 @@ class Config {
         define('USE_SLOPPY_NAME_LOOKUPS',true);
         define('MEMTEST_KERNEL', 'memtest.bin');
         define('PXE_IMAGE', 'init.xz');
-        define('PXE_IMAGE_DNSADDRESS', \"${dnsbootimage}\");
         define('STORAGE_HOST', \"${ipaddress}\");
         define('STORAGE_FTP_USERNAME', \"${username}\");
         define('STORAGE_FTP_PASSWORD', \"${password}\");
