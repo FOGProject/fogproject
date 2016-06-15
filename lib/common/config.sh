@@ -28,6 +28,7 @@
 [[ -z $sqlclientlist ]] && sqlclientlist="mysql mariadb MariaDB-client"
 [[ -z $sqlserverlist ]] && sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server MariaDB-Galera-server"
 if [[ $systemctl == yes ]]; then
+    initdPHfullname="FOGPingHosts.service"
     case $linuxReleaseName in
         *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Dd][Ee][Bb][Ii][Aa][Nn]*)
             initdpath="/lib/systemd/system"
