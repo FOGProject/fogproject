@@ -3,7 +3,7 @@
 <head>
 <?php if (!self::$isMobile) {
     foreach ($this->headJavascripts AS $i => &$javascript) {
-        echo '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>';
+        echo '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" async></script>';
     }
     unset($javascript);
 ?><meta http-equiv="X-UA-Compatible" content="IE=Edge" />
@@ -75,7 +75,7 @@ unset($stylesheet); ?>
 					<?php $cnt = 0;
     self::$HookManager->processEvent('JAVASCRIPT',array('javascripts'=>&$this->javascripts));
     foreach ($this->javascripts AS $i => &$javascript) {
-        echo ($cnt++ > 0 ? "\t\t" : '') . '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>' . "\n";
+        echo ($cnt++ > 0 ? "\t\t" : '') . '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" async></script>' . "\n";
     }
     unset($javascript);
 } ?>
