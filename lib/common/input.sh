@@ -102,8 +102,7 @@ while [[ -z $ipaddress ]]; do
             ipaddress=$(echo $ipaddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
             ;;
     esac
-    test=$(validip $ipaddress)
-    if [[ $(validip $ipaddress) != 0 ]]; then
+    if [[ ! $(validip $ipaddress) -eq 0 ]]; then
         ipaddress=""
         echo "  Invalid IP Address"
         let count+=1
@@ -175,7 +174,7 @@ case $installtype in
                             routeraddress=$(echo $routeraddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
                             ;;
                     esac
-                    if [[ $(validip $routeraddress) != 0 ]]; then
+                    if [[ ! $(validip $routeraddress) -eq 0 ]]; then
                         routeraddress=""
                         echo "  Invalid router IP Address!"
                         continue
@@ -211,7 +210,7 @@ case $installtype in
                             dnsaddress=$(echo $dnsaddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
                             ;;
                     esac
-                    if [[ $(validip $dnsaddress) -eq 0 ]]; then
+                    if [[ ! $(validip $dnsaddress) -eq 0 ]]; then
                         dnsaddress=""
                         echo "  Invalid DNS IP address!"
                     fi
@@ -290,6 +289,8 @@ case $installtype in
                     ;;
             esac
         done
+	[[ -z $snmysqlhost ]] && snmysqlhost='127.0.0.1'
+	[[ -z $snmysqluser ]] && snmysqluser='root'
         ;;
     [Ss])
         while [[ -z $snmysqlhost ]]; do
@@ -298,7 +299,7 @@ case $installtype in
             echo "  the fog database?  This is typically the server that also "
             echo -n "  runs the web server, dhcp, and tftp.  IP or Hostname: "
             read snmysqlhost
-            [[ -z $snmysqlhost ]] && snmysqlhost="127.0.0.1"
+            [[ $snmysqlhost == 127.0.0.1 || ! $(validip $snmysqlhost) -eq 0 ]] && snmysqlhost=""
         done
         while [[ -z $snmysqluser ]]; do
             snmysqluser=$strSuggestedSNUser
