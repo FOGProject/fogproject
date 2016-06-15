@@ -14,9 +14,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 [[ -z $username ]] && username="fog"
+[[ -z $snmysqlhost ]] && snmysqlhost="127.0.0.1"
 [[ -z $snmysqluser ]] && snmysqluser="root"
 [[ -z $snmysqlpass ]] && snmysqlpass=""
-[[ -z $snmysqlhost ]] && snmysqlhost="127.0.0.1"
 [[ -z $webdirsrc ]] && webdirsrc="../packages/web"
 [[ -z $tftpdirsrc ]] && tftpdirsrc="../packages/tftp"
 [[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-20120424.tar.gz"
@@ -31,11 +31,6 @@
 [[ -z $sqlclientlist ]] && sqlclientlist="mysql mariadb MariaDB-client"
 [[ -z $sqlserverlist ]] && sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server MariaDB-Galera-server"
 if [[ $systemctl == yes ]]; then
-    initdsrc="../packages/systemd"
-    initdMCfullname="FOGMulticastManager.service"
-    initdIRfullname="FOGImageReplicator.service"
-    initdSDfullname="FOGScheduler.service"
-    initdSRfullname="FOGSnapinReplicator.service"
     case $linuxReleaseName in
         *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Dd][Ee][Bb][Ii][Aa][Nn]*)
             initdpath="/lib/systemd/system"
@@ -44,4 +39,10 @@ if [[ $systemctl == yes ]]; then
             initdpath="/usr/lib/systemd/system"
             ;;
     esac
+    initdsrc="../packages/systemd"
+    initdMCfullname="FOGMulticastManager.service"
+    initdIRfullname="FOGImageReplicator.service"
+    initdSDfullname="FOGScheduler.service"
+    initdSRfullname="FOGSnapinReplicator.service"
+    initdPHfullname="FOGPingHosts.service"
 fi

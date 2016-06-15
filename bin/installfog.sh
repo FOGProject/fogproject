@@ -17,14 +17,265 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 workingdir=$(pwd)
-case "$EUID" in
-    0)
-        ;;
-    *)
-        exec sudo $0 $@ || echo "FOG Installation must be run as root user"
-        exit 1 # Fail Sudo
-        ;;
-esac
+if [[ ! $EUID -eq 0 ]]; then
+    exec sudo $0 $@ || echo "FOG Installation must be run as root user"
+    exit 1 # Fail Sudo
+fi
+help() {
+    echo -e "Usage: $0 [-h?dEUuHSCKYXT] [-f <filename>]"
+    echo -e "\t\t[-D </directory/to/document/root/>] [-c <sslPath>]"
+    echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
+    echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
+    echo -e "\t-h -? --help\t\t\tDisplay this info"
+    echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
+    echo -e "\t-U    --no-upgrade\t\tDon't attempt to upgrade"
+    echo -e "\t-H    --no-htmldoc\t\tNo htmldoc, means no PDFs"
+    echo -e "\t-S    --force-https\t\tForce HTTPS redirect"
+    echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
+    echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
+    echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
+    echo -e "\t-f    --file\t\t\tUse different update file"
+    echo -e "\t-c    --ssl-file\t\tSpecify the ssl path"
+    echo -e "\t               \t\t\t\tdefaults to /opt/fog/snapins/ssl"
+    echo -e "\t-D    --docroot\t\t\tSpecify the Apache Docroot for fog"
+    echo -e "\t               \t\t\t\tdefaults to OS DocumentRoot"
+    echo -e "\t-W    --webroot\t\t\tSpecify the web root url want fog to use"
+    echo -e "\t            \t\t\t\t(E.G. http://127.0.0.1/fog,"
+    echo -e "\t            \t\t\t\t      http://127.0.0.1/)"
+    echo -e "\t            \t\t\t\tDefaults to /fog/"
+    echo -e "\t-B    --backuppath\t\tSpecify the backup path"
+    echo -e "\t      --uninstall\t\tUninstall FOG"
+    echo -e "\t-s    --startrange\t\tDHCP Start range"
+    echo -e "\t-e    --endrange\t\tDHCP End range"
+    echo -e "\t-b    --bootfile\t\tDHCP Boot file"
+    echo -e "\t-E    --no-exportbuild\t\tSkip building nfs file"
+    echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
+    echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
+    echo -e "\t-P    --no-pxedefault\t\tDo not overwrite pxe default file"
+    exit 0
+}
+optspec="h?dEUHSCKYyXxTPf:c:-:W:D:B:s:e:b:"
+while getopts "$optspec" o; do
+    case $o in
+        -)
+            case $OPTARG in
+                help)
+                    help
+                    exit 0
+                    ;;
+                uninstall)
+                    exit 0
+                    ;;
+                ssl-path)
+                    sslpath="${OPTARG}"
+                    sslpath="${sslpath#'/'}"
+                    sslpath="${sslpath%'/'}"
+                    sslpath="/${sslpath}/"
+                    ;;
+                no-defaults)
+                    guessdefaults=0
+                    ;;
+                no-upgrade)
+                    doupdate=0
+                    ;;
+                no-htmldoc)
+                    ignorehtmldoc=1
+                    ;;
+                force-https)
+                    forcehttps="yes"
+                    ;;
+                recreate-keys)
+                    recreateKeys="yes"
+                    ;;
+                recreate-[Cc][Aa])
+                    recreateCA="yes"
+                    ;;
+                autoaccept)
+                    autoaccept="yes"
+                    dbupdate="yes"
+                    ;;
+                docroot)
+                    docroot="${OPTARG}"
+                    docroot="${docroot#'/'}"
+                    docroot="${docroot%'/'}"
+                    docroot="/${docroot}/"
+                    ;;
+                webroot)
+                    if [[ $OPTARG != *('/')* ]]; then
+                        echo -e "-$OPTARG needs a url path for access either / or /fog for example.\n\n\t\tfor example if you access fog using http://127.0.0.1/ without any trail\n\t\tset the path to /"
+                        help
+                        exit 2
+                    fi
+                    webroot="${OPTARG}"
+                    webroot="${webroot#'/'}"
+                    webroot="${webroot%'/'}"
+                    ;;
+                file)
+                    if [[ -f $OPTARG ]]; then
+                        fogpriorconfig=$OPTARG
+                    else
+                        echo "--$OPTARG requires file after"
+                        help
+                        exit 3
+                    fi
+                    ;;
+                backuppath)
+                    if [[ ! -d $OPTARG ]]; then
+                        echo "Path must be an existing directory"
+                        help
+                        exit 4
+                    fi
+                    backupPath=$OPTARG
+                    ;;
+                startrange)
+                    if [[ $(validip $OPTARG) != 0 ]]; then
+                        echo "Invalid ip passed"
+                        help
+                        exit 5
+                    fi
+                    startrange=$OPTARG
+                    ;;
+                endrange)
+                    if [[ $(validip $OPTARG) != 0 ]]; then
+                        echo "Invalid ip passed"
+                        help
+                        exit 6
+                    fi
+                    endrange=$OPTARG
+                    ;;
+                bootfile)
+                    bootfilename=$OPTARG
+                    ;;
+                no-exportbuild)
+                    blexports=0
+                    ;;
+                exitFail)
+                    exitFail=1
+                    ;;
+                no-tftpbuild)
+                    noTftpBuild="true"
+                    ;;
+                no-pxedefault)
+                    notpxedefaultfile="true"
+                    ;;
+                *)
+                    if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
+                        echo "Unknown option: --${OPTARG}"
+                        help
+                        exit 7
+                    fi
+                    ;;
+            esac
+            ;;
+        h|'?')
+            help
+            exit 0
+            ;;
+        c)
+            sslpath="${OPTARG}"
+            sslpath="${sslpath#'/'}"
+            sslpath="${sslpath%'/'}"
+            sslpath="/${sslpath}/"
+            ;;
+        d)
+            guessdefaults=0
+            ;;
+        U)
+            doupdate=0
+            ;;
+        H)
+            ignorehtmldoc=1
+            ;;
+        S)
+            forcehttps="yes"
+            ;;
+        K)
+            recreateKeys="yes"
+            ;;
+        C)
+            recreateCA="yes"
+            ;;
+        [yY])
+            autoaccept="yes"
+            dbupdate="yes"
+            ;;
+        D)
+            docroot=$OPTARG
+            docroot=${docroot#'/'}
+            docroot=${docroot%'/'}
+            docroot=/${docroot}/
+            ;;
+        W)
+            if [[ $OPTARG != *('/')* ]]; then
+                echo -e "-$OPTARG needs a url path for access either / or /fog for example.\n\n\t\tfor example if you access fog using http://127.0.0.1/ without any trail\n\t\tset the path to /"
+                help
+                exit 2
+            fi
+            webroot=$OPTARG
+            webroot=${webroot#'/'}
+            webroot=${webroot%'/'}
+            ;;
+        f)
+            if [[ ! -f $OPTARG ]]; then
+                echo "-$OPTARG requires a file to follow"
+                help
+                exit 3
+            fi
+            fogpriorconfig=$OPTARG
+            ;;
+        B)
+            if [[ ! -d $OPTARG ]]; then
+                echo "Path must be an existing directory"
+                help
+                exit 4
+            fi
+            backupPath=$OPTARG
+            ;;
+        s)
+            if [[ $(validip $OPTARG) != 0 ]]; then
+                echo "Invalid ip passed"
+                help
+                exit 5
+            fi
+            startrange=$OPTARG
+            ;;
+        e)
+            if [[ $(validip $OPTARG) != 0 ]]; then
+                echo "Invalid ip passed"
+                help
+                exit 6
+            fi
+            endrange=$OPTARG
+            ;;
+        b)
+            bootfilename=$OPTARG
+            ;;
+        E)
+            blexports=0
+            ;;
+        X)
+            exitFail=1
+            ;;
+        T)
+            noTftpBuild="true"
+            ;;
+        P)
+            notpxedefaultfile="true"
+            ;;
+        :)
+            echo "Option -$OPTARG requires a value"
+            help
+            exit 8
+            ;;
+        *)
+            if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
+                echo "Unknown option: -$OPTARG"
+                help
+                exit 7
+            fi
+            ;;
+    esac
+done
 . ../lib/common/functions.sh
 . ../lib/common/config.sh
 [[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
@@ -45,29 +296,29 @@ else
     fi
 fi
 [[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
-command -v lsb_release 2>$workingdir/error_logs/fog_error_${version}.log 2>&1
+command -v lsb_release >$workingdir/error_logs/fog_error_${version}.log 2>&1
 exitcode=$?
 if [[ ! $exitcode -eq 0 ]]; then
     case $linuxReleaseName in
         *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
-            apt-get -yq install lsb-release 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            apt-get -yq install lsb-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             ;;
         *[Cc][Ee][Nn][Tt][Oo][Ss]*|*[Rr][Ee][Dd]*[Hh][Aa][Tt]*|*[Ff][Ee][Dd][Oo][Rr][Aa]*)
-            command -v dnf 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             exitcode=$?
             case $exitcode in
                 0)
-                    dnf -y install redhat-lsb-core 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    dnf -y install redhat-lsb-core >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
-                    yum -y install redhat-lsb-core 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    yum -y install redhat-lsb-core >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
             ;;
     esac
 fi
 [[ -z $OSVersion ]] && OSVersion=$(lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $2}')
-command -v systemctl 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
+command -v systemctl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 exitcode=$?
 [[ $exitcode -eq 0 ]] && systemctl="yes"
 [[ -z $dnsaddress ]] && dnsaddress=""
@@ -111,228 +362,10 @@ case $doupdate in
         fi
         ;;
     *)
-        echo "\n * FOG Installer will NOT attempt to upgrade from\n    previous version of FOG."
+        echo -e "\n * FOG Installer will NOT attempt to upgrade from\n    previous version of FOG."
         ;;
 esac
-optspec="h?dEUHSCKYyXxTPf:c:-:W:D:B:s:e:b:"
-while getopts "$optspec" o; do
-    case $o in
-        -)
-            case $OPTARG in
-                help)
-                    help
-                    exit 0
-                    ;;
-                ssl-path)
-                    sslpath="${OPTARG}"
-                    sslpath="${sslpath#'/'}"
-                    sslpath="${sslpath%'/'}"
-                    sslpath="/${sslpath}/"
-                    ;;
-                no-defaults)
-                    guessdefaults=0
-                    ;;
-                no-upgrade)
-                    doupdate=0
-                    ;;
-                no-htmldoc)
-                    ignorehtmldoc=1
-                    ;;
-                force-https)
-                    forcehttps="yes"
-                    ;;
-                recreate-keys)
-                    recreateKeys="yes"
-                    ;;
-                recreate-[Cc][Aa])
-                    recreateCA="yes"
-                    ;;
-                autoaccept)
-                    autoaccept="yes"
-                    dbupdate="yes"
-                    ;;
-                docroot)
-                    docroot="${OPTARG}"
-                    docroot="${docroot#'/'}"
-                    docroot="${docroot%'/'}"
-                    docroot="/${docroot}/"
-                    ;;
-                webroot)
-                    webroot="${OPTARG}"
-                    webroot="${webroot#'/'}"
-                    webroot="${webroot%'/'}"
-                    ;;
-                uninstall)
-                    uninstall
-                    exit
-                    ;;
-                file)
-                    if [[ -f $OPTARG ]]; then
-                        fogpriorconfig=$OPTARG
-                    else
-                        echo "--$OPTARG requires file after"
-                        help
-                        exit 1
-                    fi
-                    ;;
-                backuppath)
-                    if [[ ! -d $OPTARG ]]; then
-                        echo "Path must be an existing directory"
-                        help
-                        exit 1
-                    fi
-                    backupPath=$OPTARG
-                    ;;
-                startrange)
-                    if [[ $(validip $OPTARG) != 0 ]]; then
-                        echo "Invalid ip passed"
-                        help
-                        exit 1
-                    fi
-                    startrange=$OPTARG
-                    ;;
-                endrange)
-                    if [[ $(validip $OPTARG) != 0 ]]; then
-                        echo "Invalid ip passed"
-                        help
-                        exit 1
-                    fi
-                    endrange=$OPTARG
-                    ;;
-                bootfile)
-                    bootfilename=$OPTARG
-                    ;;
-                no-exportbuild)
-                    blexports=0
-                    ;;
-                exitFail)
-                    exitFail=1
-                    ;;
-                no-tftpbuild)
-                    noTftpBuild="true"
-                    ;;
-                no-pxedefault)
-                    notpxedefaultfile="true"
-                    ;;
-                *)
-                    if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
-                        echo "Unknown option: --${OPTARG}"
-                        help
-                        exit 1
-                    fi
-                    ;;
-            esac
-            ;;
-        h|'?')
-            help
-            exit 0
-            ;;
-        d)
-            guessdefaults=0
-            ;;
-        U)
-            doupdate=0
-            ;;
-        H)
-            ignorehtmldoc=1
-            ;;
-        S)
-            forcehttps="yes"
-            ;;
-        K)
-            recreateKeys="yes"
-            ;;
-        C)
-            recreateCA="yes"
-            ;;
-        [yY])
-            autoaccept="yes"
-            dbupdate="yes"
-            ;;
-        D)
-            docroot=$OPTARG
-            docroot=${docroot#'/'}
-            docroot=${docroot%'/'}
-            docroot=/${docroot}/
-            ;;
-        W)
-            if [[ $OPTARG != *('/')* ]]; then
-                echo -e "-$OPTARG needs a url path for access either / or /fog for example.\n\n\t\tfor example if you access fog using http://127.0.0.1/ without any trail\n\t\tset the path to /"
-                help
-                exit 1
-            fi
-            webroot=$OPTARG
-            webroot=${webroot#'/'}
-            webroot=${webroot%'/'}
-            ;;
-        f)
-            if [[ ! -f $OPTARG ]]; then
-                echo "-$OPTARG requires a file to follow"
-                help
-                exit 1
-            fi
-            fogpriorconfig=$OPTARG
-            ;;
-        B)
-            if [[ ! -d $OPTARG ]]; then
-                echo "Path must be an existing directory"
-                help
-                exit 1
-            fi
-            backupPath=$OPTARG
-            ;;
-        s)
-            if [[ $(validip $OPTARG) != 0 ]]; then
-                echo "Invalid ip passed"
-                help
-                exit 1
-            fi
-            startrange=$OPTARG
-            ;;
-        e)
-            if [[ $(validip $OPTARG) != 0 ]]; then
-                echo "Invalid ip passed"
-                help
-                exit 1
-            fi
-            endrange=$OPTARG
-            ;;
-        b)
-            bootfilename=$OPTARG
-            ;;
-        E)
-            blexports=0
-            ;;
-        X)
-            exitFail=1
-            ;;
-        T)
-            noTftpBuild="true"
-            ;;
-        P)
-            notpxedefaultfile="true"
-            ;;
-        c)
-            sslpath="${OPTARG}"
-            sslpath="${sslpath#'/'}"
-            sslpath="${sslpath%'/'}"
-            sslpath="/${sslpath}/"
-            ;;
-        :)
-            echo "Option -$OPTARG requires a value"
-            help
-            exit 1
-            ;;
-        *)
-            if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
-                echo "Unknown option: -$OPTARG"
-                help
-                exit 1
-            fi
-            ;;
-    esac
-done
-grep -l webroot /opt/fog/.fogsettings 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
+[[ -f /opt/fog/.fogsettings ]] && grep -l webroot /opt/fog/.fogsettings >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 case $? in
     0)
         if [[ -n $webroot ]]; then
