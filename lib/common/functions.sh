@@ -19,84 +19,24 @@
 dots() {
     local pad=$(printf "%0.1s" "."{1..60})
     printf " * %s%*.*s" "$1" 0 $((60-${#1})) "$pad"
-}
-uninstall() {
-    case $autoaccept in
-        yes)
-            blUninstall="Y"
-            ;;
-        *)
-            echo "You have chosen to uninstall fog."
-            echo
-            echo "Uninstalling will not delete your images or snapins folder."
-            echo "    It will delete the FOG database after backing it up"
-            echo "    It will not delete the installer"
-            echo
-            echo "The snapins folder, usually located in /opt/fog/snapins"
-            echo "    will be moved into the $storageLocation folder and"
-            echo "    the /opt/fog directory will be removed."
-            echo
-            echo -n "Are you sure you want to uninstall fog? (y/N) "
-            read blUninstall
-            ;;
-    esac
-    case $blUninstall in
-        [Yy]|[Yy][Ee][Ss])
-            echo "We are going to uninstall"
-            ;;
-        [Nn]|[Nn][Oo])
-            echo "We are not going to uninstall"
-            ;;
-    esac
-}
-help() {
-    echo -e "Usage: $0 [-h?dEUuHSCKYXT] [-f <filename>]"
-    echo -e "\t\t[-D </directory/to/document/root/>] [-c <sslPath>]"
-    echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
-    echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
-    echo -e "\t-h -? --help\t\t\tDisplay this info"
-    echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
-    echo -e "\t-U    --no-upgrade\t\tDon't attempt to upgrade"
-    echo -e "\t-H    --no-htmldoc\t\tNo htmldoc, means no PDFs"
-    echo -e "\t-S    --force-https\t\tForce HTTPS redirect"
-    echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
-    echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
-    echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
-    echo -e "\t-f    --file\t\t\tUse different update file"
-    echo -e "\t-c    --ssl-file\t\tSpecify the ssl path"
-    echo -e "\t               \t\t\t\tdefaults to /opt/fog/snapins/ssl"
-    echo -e "\t-D    --docroot\t\t\tSpecify the Apache Docroot for fog"
-    echo -e "\t               \t\t\t\tdefaults to OS DocumentRoot"
-    echo -e "\t-W    --webroot\t\t\tSpecify the web root url want fog to use"
-    echo -e "\t            \t\t\t\t(E.G. http://127.0.0.1/fog,"
-    echo -e "\t            \t\t\t\t      http://127.0.0.1/)"
-    echo -e "\t            \t\t\t\tDefaults to /fog/"
-    echo -e "\t-B    --backuppath\t\tSpecify the backup path"
-    echo -e "\t      --uninstall\t\tUninstall FOG"
-    echo -e "\t-s    --startrange\t\tDHCP Start range"
-    echo -e "\t-e    --endrange\t\tDHCP End range"
-    echo -e "\t-b    --bootfile\t\tDHCP Boot file"
-    echo -e "\t-E    --no-exportbuild\t\tSkip building nfs file"
-    echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
-    echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
-    echo -e "\t-P    --no-pxedefault\t\tDo not overwrite pxe default file"
-    exit 0
+    return 0
 }
 backupReports() {
     dots "Backing up user reports"
     [[ ! -d ../rpttmp/ ]] && mkdir ../rpttmp/ >>$workingdir/error_logs/fog_error_${version}.log
     [[ -d $webdirdest/management/reports/ ]] && cp -a $webdirdest/management/reports/* ../rpttmp/ >>$workingdir/error_logs/fog_error_${version}.log
     echo "Done"
+    return 0
 }
 registerStorageNode() {
-#Check if the storage node exists or not.
-storageNodeExists=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser  -p$snmysqlpass -e "SELECT COUNT(*) FROM nfsGroupMembers where ngmHostname = '$ipaddress' ")
-#If the node does not exist, create it.
-[[ $storageNodeExists == 0 ]] && mysql -s -D fog -h $snmysqlhost -u $snmysqluser -p$snmysqlpass -e "INSERT INTO nfsGroupMembers (ngmMemberName,ngmMemberDescription,ngmRootPath,ngmSSLPath,ngmFTPPath,ngmSnapinPath,ngmHostname,ngmMaxClients,ngmUser,ngmPass,ngmInterface,ngmGraphEnabled,ngmWebroot) VALUES ('$ipaddress','Auto generated fog nfs group member','/images','/opt/fog/snapins/ssl','/images','/opt/fog/snapins','$ipaddress','10','$username','$password','$interface','1','/fog');"
+    #Check if the storage node exists or not.
+    storageNodeExists=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser  -p$snmysqlpass -e "SELECT COUNT(*) FROM \`nfsGroupMembers\` WHERE \`ngmHostname\`='$ipaddress'")
+    #If the node does not exist, create it.
+    [[ $storageNodeExists -lt 1 ]] && mysql -s -D fog -h $snmysqlhost -u $snmysqluser -p$snmysqlpass -e "INSERT INTO \`nfsGroupMembers\` (\`ngmMemberName\`,\`ngmMemberDescription\`,\`ngmRootPath\`,\`ngmSSLPath\`,\`ngmFTPPath\`,\`ngmSnapinPath\`,\`ngmHostname\`,\`ngmMaxClients\`,\`ngmUser\`,\`ngmPass\`,\`ngmInterface\`,\`ngmGraphEnabled\`,\`ngmWebroot\`) VALUES ('$ipaddress','Auto generated fog nfs group member','/images','/opt/fog/snapins/ssl','/images','/opt/fog/snapins','$ipaddress','10','$username','$password','$interface','1','/fog');"
 }
 backupDB() {
-    local user=$(echo $fogguiuser|base64)
-    local pass=$(echo $fogguipass|base64)
+    local user=$(echo -n $fogguiuser|base64)
+    local pass=$(echo -n $fogguipass|base64)
     checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/$webroot/service/checkcredentials.php" --post-data="username=$user&password=$pass")
     if [[ $checkcreds == "#!ok" ]]; then
         dots "Backing up database"
@@ -118,7 +58,7 @@ backupDB() {
         echo
         echo "   You can also re-run this installer as:"
         echo
-        echo "   fogguiuser='usernameOfFOGGUI' fogguipass='passwordOfFOGGUIUser' ./installfog.sh -y"
+        echo "   fogguiuser='usernameOfFOGGUI' fogguipass='passwordOfFOGGUIUser' ./$0 $*"
         echo " ########################################################################################"
         echo
         sleep 10
@@ -1555,7 +1495,7 @@ configureHttpd() {
                     read -s PASSWORD2
                     echo
                     if [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; then
-                        snmysqlpass=$PASSWORD1
+                        dbpass=$PASSWORD1
                     else
                         dppass=""
                         while [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; do
@@ -1577,8 +1517,6 @@ configureHttpd() {
             esac
         done
     fi
-    [[ -z $snmysqlhost ]] && snmysqlhost='127.0.0.1'
-    [[ -z $snmysqluser ]] && snmysqluser='root'
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
         echo "Failed"
