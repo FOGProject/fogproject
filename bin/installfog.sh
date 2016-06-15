@@ -22,100 +22,98 @@ case "$EUID" in
         ;;
     *)
         exec sudo $0 $@ || echo "FOG Installation must be run as root user"
-        exit 1
+        exit 1 # Fail Sudo
         ;;
 esac
 . ../lib/common/functions.sh
 . ../lib/common/config.sh
-version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
-OS=$(uname -s)
+[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+[[ -z $OS ]] && OS=$(uname -s)
 if [[ $OS =~ ^[^Ll][^Ii][^Nn][^Uu][^Xx] ]]; then
     echo "We do not currently support Installation on non-Linux Operating Systems"
-    exit 1
+    exit 2 # Fail OS Check
 else
     if [[ -f /etc/os-release ]]; then
-        linuxReleaseName=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
-        OSVersion=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
+        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
+        [[ -z $OSVersion ]] && OSVersion=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
     elif [[ -f /etc/redhat-release ]]; then
-        linuxReleaseName=$(cat /etc/redhat-release | awk '{print $1}')
-        OSVersion=$(cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//)
+        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(cat /etc/redhat-release | awk '{print $1}')
+        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//)
     elif [[ -f /etc/debian_version ]]; then
-        linuxReleaseName='Debian'
-        OSVersion=$(cat /etc/debian_version)
+        [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
+        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
     fi
 fi
 [[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
-command -v lsb_release >$workingdir/error_logs/fog_error_${version}.log 2>&1
-if [[ ! $? -eq 0 ]]; then
+command -v lsb_release 2>$workingdir/error_logs/fog_error_${version}.log 2>&1
+exitcode=$?
+if [[ ! $exitcode -eq 0 ]]; then
     case $linuxReleaseName in
         *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
-            apt-get -yq install lsb-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            apt-get -yq install lsb-release 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
             ;;
         *[Cc][Ee][Nn][Tt][Oo][Ss]*|*[Rr][Ee][Dd]*[Hh][Aa][Tt]*|*[Ff][Ee][Dd][Oo][Rr][Aa]*)
-            command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            if [[ $? -eq 0 ]]; then
-                dnf -y install redhat-lsb-core >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            else
-                yum -y install redhat-lsb-core >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            fi
+            command -v dnf 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            exitcode=$?
+            case $exitcode in
+                0)
+                    dnf -y install redhat-lsb-core 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    ;;
+                *)
+                    yum -y install redhat-lsb-core 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    ;;
+            esac
             ;;
     esac
 fi
 [[ -z $OSVersion ]] && OSVersion=$(lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $2}')
-command -v systemctl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-[[ $? -eq 0 ]] && systemctl="yes"
-installtype=""
-ipaddress=""
-interface=""
-routeraddress=""
-plainrouter=""
-dnsaddress=""
-dnsbootimage=""
-username=""
-password=""
-osid=""
-osname=""
-dodhcp=""
-bldhcp=""
-blexports=1
-snmysqluser=""
-snmysqlpass=""
-snmysqlhost=""
-installlang=""
-bluseralreadyexists=0
-guessdefaults=1
-doupdate=1
-ignorehtmldoc=0
-forcehttps="#"
+command -v systemctl 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
+exitcode=$?
+[[ $exitcode -eq 0 ]] && systemctl="yes"
+[[ -z $dnsaddress ]] && dnsaddress=""
+[[ -z $username ]] && username=""
+[[ -z $password ]] && password=""
+[[ -z $osid ]] && osid=""
+[[ -z $osname ]] && osname=""
+[[ -z $dodhcp ]] && dodhcp=""
+[[ -z $bldhcp ]] && bldhcp=""
+[[ -z $installtype ]] && installtype=""
+[[ -z $interface ]] && interface=$(getFirstGoodInterface)
+[[ -z $ipaddress  ]] && ipaddress=$(/sbin/ip addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
+[[ -z $routeraddress ]] && routeraddress=$(/sbin/ip route | awk "/$interface/ && /via/ {print \$3}")
+[[ -z $plainrouter ]] && plainrouter=$routeraddress
+[[ -z $blexports ]] && blexports=1
+[[ -z $snmysqluser ]] && snmysqluser="root"
+[[ -z $snmysqlpass ]] && snmysqlpass=""
+[[ -z $snmysqlhost ]] && snmysqlhost="127.0.0.1"
+[[ -z $installlang ]] && installlang=0
+[[ -z $bluseralreadyexists ]] && bluseralreadyexists=0
+[[ -z $guessdefaults ]] && guessdefaults=1
+[[ -z $doupdate ]] && doupdate=1
+[[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
+[[ -z $forcehttps ]] && forcehttps="#"
+[[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
 clearScreen
-if [[ -z $* ]]; then
+if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
     echo > "$workingdir/error_logs/foginstall.log"
     exec &> >(tee -a "$workingdir/error_logs/foginstall.log")
-else
-    if [[ $* != +(-h|-?|--help|--uninstall) ]]; then
-        echo > "$workingdir/error_logs/foginstall.log"
-        exec &> >(tee -a "$workingdir/error_logs/foginstall.log")
-    fi
 fi
 displayBanner
-echo "   Version: ${version} Installer/Updater"
-echo
-fogpriorconfig="$fogprogramdir/.fogsettings"
-if [[ $doupdate -eq 1 ]]; then
-    if [[ -f $fogpriorconfig ]]; then
-        echo
-        echo " * Found FOG Settings from previous install at: $fogprogramdir/.fogsettings"
-        echo -n " * Performing upgrade using these settings"
-        . "$fogpriorconfig"
-        doOSSpecificIncludes
-        . "$fogpriorconfig"
-    fi
-else
-    echo
-    echo " * FOG Installer will NOT attempt to upgrade from"
-    echo "   previous version of FOG."
-    echo
-fi
+echo -e "   Version: $version Installer/Updater\n"
+case $doupdate in
+    1)
+        if [[ -f $fogpriorconfig ]]; then
+            echo -e "\n * Found FOG Settings from previous install at: $fogprogramdir/.fogsettings\n"
+            echo -n " * Performing upgrade using these settings"
+            . "$fogpriorconfig"
+            doOSSpecificIncludes
+            . "$fogpriorconfig"
+        fi
+        ;;
+    *)
+        echo "\n * FOG Installer will NOT attempt to upgrade from\n    previous version of FOG."
+        ;;
+esac
 optspec="h?dEUHSCKYyXxTPf:c:-:W:D:B:s:e:b:"
 while getopts "$optspec" o; do
     case $o in
@@ -334,17 +332,17 @@ while getopts "$optspec" o; do
             ;;
     esac
 done
-grep -l webroot /opt/fog/.fogsettings >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+grep -l webroot /opt/fog/.fogsettings 2>>$workingdir/error_logs/fog_error_${version}.log 2>&1
 case $? in
     0)
         if [[ -n $webroot ]]; then
             webroot=${webroot#'/'}
             webroot=${webroot%'/'}
-            webroot="${webroot}/"
+            [[ -z $webroot ]] && webroot="/" || webroot="/${webroot}/"
         fi
         ;;
     *)
-        [[ -z $webroot ]] && webroot="fog/"
+        [[ -z $webroot ]] && webroot="/fog/"
         ;;
 esac
 if [[ -z $backupPath ]]; then
@@ -396,7 +394,6 @@ case $installtype in
             1)
                 echo " * Using FOG DHCP: Yes"
                 echo " * DHCP router Address: $plainrouter"
-                echo " * DHCP DNS Address: $dnsbootimage"
                 ;;
             *)
                 echo " * Using FOG DHCP: No"
@@ -436,14 +433,14 @@ while [[ -z $blGo ]]; do
             echo " | make sure you have an active internet connection."
             echo
             if [[ $ignorehtmldoc -eq 1 ]]; then
-                newpackagelist=""
+                [[ -z $newpackagelist ]] && newpackagelist=""
                 for z in $packages; do
                     [[ $z != htmldoc ]] && newpackagelist="$newpackagelist $z"
                 done
                 packages="$(echo $newpackagelist)"
             fi
             if [[ $bldhcp == 0 ]]; then
-                newpackagelist=""
+                [[ -z $newpackagelist ]] && newpackagelist=""
                 for z in $packages; do
                     [[ $z != $dhcpname ]] && newpackagelist="$newpackagelist $z"
                 done
@@ -466,7 +463,7 @@ while [[ -z $blGo ]]; do
                         echo
                         echo -n " * What is the storage location for your images directory? (/images) "
                         read storageLocation
-                        [[ -z $storageLoction ]] && storageLocation="/images"
+                        [[ -z $storageLocation ]] && storageLocation="/images"
                         while [[ ! -d $storageLocation && $storageLocation != "/images" ]]; do
                             echo -n " * Please enter a valid directory for your storage location (/images) "
                             read storageLocation
@@ -477,7 +474,7 @@ while [[ -z $blGo ]]; do
             fi
             case $installtype in
                 [Ss])
-                    packages=$(echo $packages | sed 's/[a-zA-Z-]*dhcp[-a-zA-Z]*//g')
+                    packages=$(echo $packages | sed -e 's/[a-zA-Z-]*dhcp[-a-zA-Z]*//g' -e 's/[a-zA-Z-]*mysql[-a-zA-Z]*//g')
                     configureUsers
                     configureMinHttpd
                     configureStorage
@@ -492,10 +489,10 @@ while [[ -z $blGo ]]; do
                     linkOptFogDir
                     if [[ $bluseralreadyexists == 1 ]]; then
                         echo
-                        echo " * Upgrade complete"
+                        echo "\n * Upgrade complete\n"
                         echo
                     else
-                    registerStorageNode
+                        registerStorageNode
                         echo
                         echo " * Setup complete"
                         echo
@@ -505,7 +502,7 @@ while [[ -z $blGo ]]; do
                         echo " | below."
                         echo
                         echo " * Management Server URL:"
-                        echo "   http://${snmysqlhost}/fog"
+                        echo "   http://fog-server${webroot}"
                         echo
                         echo "   You will need this, write this down!"
                         echo "   Username:  $username"
@@ -543,7 +540,7 @@ while [[ -z $blGo ]]; do
                     echo
                     echo "   This can be done by opening a web browser and going to:"
                     echo
-                    echo "   http://${ipaddress}/${webroot}management"
+                    echo "   http://${ipaddress}${webroot}management"
                     echo
                     echo "   Default User Information"
                     echo "   Username: fog"
