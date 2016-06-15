@@ -129,6 +129,13 @@ class DashboardPage extends FOGPage {
         $ActivityTotalClients = $StorageGroup->getTotalSupportedClients();
         array_map(function(&$Node) use (&$ActivityActive,&$ActivityQueued,&$ActivityTotalClients) {
             if (!$Node->isValid()) return;
+            $curroot = trim(trim($Node->get('webroot'),'/'));
+            $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
+            $URL = filter_var(sprintf('http://%s%sindex.php',$Node->get('ip'),$webroot),FILTER_SANITIZE_URL);
+            if (!self::$FOGURLRequests->isAvailable($URL)) {
+                $ActivityTotalClients -= $Node->get('maxClients');
+                return;
+            }
             $ActivityActive += $Node->getUsedSlotCount();
             $ActivityQueued += $Node->getQueuedSlotCount();
             $ActivityTotalClients -= $ActivityActive;
