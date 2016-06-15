@@ -1577,10 +1577,8 @@ configureHttpd() {
             esac
         done
     fi
-    if [[ $installtype == S || $fogupdateloaded -eq 0 ]]; then
-        [[ -z $snmysqlhost ]] && snmysqlhost='127.0.0.1'
-        [[ -z $snmysqluser ]] && snmysqluser='root'
-    fi
+    [[ -z $snmysqlhost ]] && snmysqlhost='127.0.0.1'
+    [[ -z $snmysqluser ]] && snmysqluser='root'
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
         echo "Failed"
@@ -1689,7 +1687,7 @@ class Config {
         define('DATABASE_HOST','$snmysqlhost');
         define('DATABASE_NAME','fog');
         define('DATABASE_USERNAME','$snmysqluser');
-        define('DATABASE_PASSWORD',\"${snmysqlpass}\");
+        define('DATABASE_PASSWORD',\"$snmysqlpass\");
     }
     /** @function svc_setting() Defines the service settings
      * (e.g. FOGMulticastManager)
