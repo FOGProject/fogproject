@@ -11,10 +11,16 @@ class DatabaseManager extends FOGCore {
         self::getVersion();
         if (self::$mySchema < FOG_SCHEMA) {
             global $sub;
-            if (preg_match('#/service/#',$_SERVER['SCRIPT_NAME']) || in_array($sub,array('configure','authorize','requestClientInfo'))) {
-                if (isset($_REQUEST['json'])) echo json_encode(array('error'=>'db'));
-                else echo '#!db';
-                exit;
+            $okayFiles = array(
+                'checkcredentials.php'
+            );
+            $filename = basename($_SERVER['SCRIPT_NAME']);
+            if (!in_array($filename,$okayFiles)) {
+                if (preg_match('#/service/#',$_SERVER['SCRIPT_NAME']) || in_array($sub,array('configure','authorize','requestClientInfo'))) {
+                    if (isset($_REQUEST['json'])) echo json_encode(array('error'=>'db'));
+                    else echo '#!db';
+                    exit;
+                }
             }
             if (!preg_match('#schema#i',htmlspecialchars($_SERVER['QUERY_STRING'],ENT_QUOTES,'utf-8'))) $this->redirect('?node=schema');
         }
