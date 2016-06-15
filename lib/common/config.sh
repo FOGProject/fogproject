@@ -14,9 +14,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 [[ -z $username ]] && username="fog"
-[[ -z $snmysqlhost ]] && snmysqlhost="127.0.0.1"
-[[ -z $snmysqluser ]] && snmysqluser="root"
-[[ -z $snmysqlpass ]] && snmysqlpass=""
 [[ -z $webdirsrc ]] && webdirsrc="../packages/web"
 [[ -z $tftpdirsrc ]] && tftpdirsrc="../packages/tftp"
 [[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-20120424.tar.gz"
