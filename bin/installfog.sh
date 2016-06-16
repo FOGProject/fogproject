@@ -21,6 +21,7 @@ if [[ ! $EUID -eq 0 ]]; then
     exec sudo $0 $@ || echo "FOG Installation must be run as root user"
     exit 1 # Fail Sudo
 fi
+. ../lib/common/functions.sh
 help() {
     echo -e "Usage: $0 [-h?dEUuHSCKYXT] [-f <filename>]"
     echo -e "\t\t[-D </directory/to/document/root/>] [-c <sslPath>]"
@@ -276,8 +277,6 @@ while getopts "$optspec" o; do
             ;;
     esac
 done
-. ../lib/common/functions.sh
-. ../lib/common/config.sh
 [[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
 [[ -z $OS ]] && OS=$(uname -s)
 if [[ $OS =~ ^[^Ll][^Ii][^Nn][^Uu][^Xx] ]]; then
@@ -321,6 +320,7 @@ fi
 command -v systemctl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 exitcode=$?
 [[ $exitcode -eq 0 ]] && systemctl="yes"
+. ../lib/common/config.sh
 [[ -z $dnsaddress ]] && dnsaddress=""
 [[ -z $username ]] && username=""
 [[ -z $password ]] && password=""
