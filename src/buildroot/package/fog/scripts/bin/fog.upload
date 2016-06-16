@@ -38,7 +38,7 @@ beginUpload() {
             getPartitions "$hd"
             [[ $osid == @([1-2]|[4-7]|9) ]] && win7partcnt=$(echo $parts | wc -w)
             dots "Checking for fixed partitions"
-            part_number=""
+            part_number=0
             for part in $parts; do
                 fsTypeSetting "$part"
                 getPartitionNumber "$part"
@@ -70,7 +70,7 @@ beginUpload() {
             case $osid in
                 [4-7]|9|50|51)
                     echo " * Setting up any additional fixed parts"
-                    [[ $((ntfscnt + extfscnt)) -gt 1  && $part_number -eq 1 ]] && fixed_size_partitions="$fixed_size_partitions:1"
+                    [[ $((ntfscnt + extfscnt)) -gt 0  && $part_number -gt 1 ]] && fixed_size_partitions="$fixed_size_partitions:1"
                     part_number=0
                     for part in $parts; do
                         getPartitionNumber "$part"
@@ -103,7 +103,6 @@ beginUpload() {
                                 return
                                 ;;
                         esac
-                        parts_up_to_fixed=0
                         dots "BCD exists on $part in /bcdstore"
                         if [[ ! -f /bcdstore/Boot/BCD ]]; then
                             umount /bcdstore >/dev/null 2>&1
@@ -114,12 +113,11 @@ beginUpload() {
                             echo "Yes"
                             debugPause
                             if [[ $part_number -gt 1 ]]; then
-                                [[ -z $parts_up_to_fixed || $parts_up_to_fixed -lt $part_number ]] && parts_up_to_fixed=$part_number
+                                for ((increment=1; increment <= $part_number; increment++)); do
+                                    fixed_size_partitions="$fixed_size_partitions:$increment"
+                                done
                             fi
                         fi
-                    done
-                    for ((increment=1; increment <= $parts_up_to_fixed; increment++)); do
-                        fixed_size_partitions="$fixed_size_partitions:$increment"
                     done
                     ;;
             esac
