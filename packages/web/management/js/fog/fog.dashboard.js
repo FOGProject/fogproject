@@ -25,7 +25,7 @@ var GraphDiskUsageOpts = {
         labelFormatter: function(label, series) {
             units = [' iB',' KiB',' MiB',' GiB',' TiB',' PiB',' EiB',' ZiB',' YiB'];
             for (i =0; series.data[0][1] >= 1024 && i < units.length -1; i++) series.data[0][1] /= 1024;
-            return '<div style="font-size:8pt;padding2px;margin-top:16px;">'+label+': '+Math.round(series.percent)+'% <br />'+series.data[0][1].toFixed(2)+units[i]+'</div>';
+            return '<div style="font-size:8pt;padding:2px;">'+label+': '+Math.round(series.percent)+'% <br />'+series.data[0][1].toFixed(2)+units[i]+'</div>';
         }
     }
 };

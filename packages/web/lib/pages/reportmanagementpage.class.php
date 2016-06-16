@@ -68,6 +68,7 @@ class ReportManagementPage extends FOGPage {
         );
         $AllDates = array_merge(self::$DB->query("SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM `imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'),self::$DB->query("SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM `imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'));
         foreach ((array)$AllDates AS $i => &$Date) {
+            if (is_string($Date)) $Date = array($Date);
             $tmp = array_shift($Date);
             if (!$this->validDate($tmp)) continue;
             $Dates[] = $tmp;
