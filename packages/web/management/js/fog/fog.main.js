@@ -163,7 +163,7 @@ $(function() {
         var _icon = $('<i class="fa fa-'+icon.element.value.toLowerCase()+' fa-1x">'+icon.text+'</i>');
         return _icon;
     }
-    $('select').not('[name="storagesel"]').select2();
+    $('select').not('[name="nodesel"],[name="groupsel"]').select2();
     $('[name="icon"]').select2({
         templateResult: format,
         templateSelection: format

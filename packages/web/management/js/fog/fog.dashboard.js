@@ -4,7 +4,9 @@ var bandwidthtime = $('#bandwidthtime').val();
 var GraphDiskUsage = $('#graph-diskusage','#content-inner');
 var GraphDiskUsageAJAX;
 var GraphDiskUsageNode = $('#diskusage-selector select','#content-inner');
+var ClientCountGroup = $('#graph-activity select','#content-inner');
 var NodeID;
+var GroupID;
 var GraphDiskUsageData = [{label: 'Free',data:0},{label: 'Used',data:0}];
 var bytes, units;
 var GraphDiskUsageOpts = {
@@ -93,7 +95,7 @@ var UpdateClientCountOpts = {
     },
     legend: {
         show: true,
-        align: 'left',
+        align: 'right',
         labelColor: '#666',
         labelFormatter: function(label, series) {return '<div style="font-size:8pt;padding:2px">'+label+': '+series.datapoints.points[1]+'</div>';}
     }
@@ -104,6 +106,9 @@ $(function() {
     UpdateClientCount();
     $('#diskusage-selector select').change(function(e) {
         GraphDiskUsageUpdate();
+        e.preventDefault();
+    });
+    $('#graph-activity select').change(function(e) {
         UpdateClientCount();
         e.preventDefault();
     });
@@ -239,14 +244,14 @@ function UpdateBandwidthGraph(data) {
 }
 // Client Count Functions.
 function UpdateClientCount() {
-    NodeID = GraphDiskUsageNode.val();
-    if (NodeID === null || typeof(NodeID) == 'undefined' || NodeID.length === 0) return;
+    GroupID = ClientCountGroup.val();
+    if (GroupID === null || typeof(GroupID) == 'undefined' || GroupID.length === 0) return;
     $.ajax({
         url: '?node=home',
         type: 'POST',
         data: {
             sub: 'clientcount',
-            id: NodeID
+            id: GroupID
         },
         dataType: 'json',
         success: function(data) {
