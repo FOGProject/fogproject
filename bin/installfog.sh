@@ -355,7 +355,6 @@ case $doupdate in
             echo -n " * Performing upgrade using these settings"
             . "$fogpriorconfig"
             doOSSpecificIncludes
-            . "$fogpriorconfig"
         fi
         ;;
     *)
