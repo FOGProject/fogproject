@@ -1,12 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<?php if (!self::$isMobile) {
-    foreach ($this->headJavascripts AS $i => &$javascript) {
-        echo '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" async></script>';
-    }
-    unset($javascript);
-?><meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<?php if (!self::$isMobile) { ?>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 	<meta http-equiv="content-type" content="text/json; charset=utf-8" />
 		<title><?php echo ($this->pageTitle ?  "$this->pageTitle &gt; $this->sectionTitle &gt; FOG &gt; ".self::$foglang['Slogan'] : "$this->sectionTitle &gt; FOG &gt; ".self::$foglang['Slogan']) ?></title><?php
 } else { ?><meta name="viewport" content="width=device-width" />
