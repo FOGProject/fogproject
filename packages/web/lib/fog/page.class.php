@@ -9,7 +9,6 @@ class Page extends FOGBase {
     private $sectionTitle;
     private $stylesheets = array();
     private $javascripts = array();
-    private $headJavascripts = array();
     public function __construct() {
         parent::__construct();
         if (!$this->theme) {
