@@ -814,7 +814,7 @@ pre {
     margin-top: 3px;
 }
 /* margin-top: -22px to move the select box into the header */
-#diskusage-selector select,#graph-activity select {
+#diskusage-selector select,#graph-activity-selector select {
     font-size: 10px;
     border: 1px solid #666;
     padding: 0;

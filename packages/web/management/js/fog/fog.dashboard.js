@@ -4,7 +4,7 @@ var bandwidthtime = $('#bandwidthtime').val();
 var GraphDiskUsage = $('#graph-diskusage','#content-inner');
 var GraphDiskUsageAJAX;
 var GraphDiskUsageNode = $('#diskusage-selector select','#content-inner');
-var ClientCountGroup = $('#graph-activity select','#content-inner');
+var ClientCountGroup = $('#graph-activity-selector select','#content-inner');
 var NodeID;
 var GroupID;
 var GraphDiskUsageData = [{label: 'Free',data:0},{label: 'Used',data:0}];
@@ -86,18 +86,16 @@ var UpdateClientCountOpts = {
         pie: {
             show: true,
             radius: 1,
-            label: {
-                radius: .75,
-                formatter: function(label, series) {return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';},
-                background: {opacity: 0.5}
-            }
-        },
+        }
     },
     legend: {
         show: true,
         align: 'right',
+        position: 'se',
         labelColor: '#666',
-        labelFormatter: function(label, series) {return '<div style="font-size:8pt;padding:2px">'+label+': '+series.datapoints.points[1]+'</div>';}
+        labelFormatter: function(label, series) {
+            return '<div style="font-size:8pt;padding:2px;">'+label+': '+series.datapoints.points[1]+'</div>';
+        }
     }
 };
 $(function() {
@@ -108,7 +106,7 @@ $(function() {
         GraphDiskUsageUpdate();
         e.preventDefault();
     });
-    $('#graph-activity select').change(function(e) {
+    $('#graph-activity-selector select').change(function(e) {
         UpdateClientCount();
         e.preventDefault();
     });
@@ -180,8 +178,6 @@ function GraphDiskUsagePlots(data) {
 }
 // Bandwidth Functions
 function UpdateBandwidth() {
-    NodeID = GraphDiskUsageNode.val();
-    if (NodeID === null || typeof(NodeID) == 'undefined' || NodeID.length === 0) return;
     $.ajax({
         url: '?node=home',
         type: 'POST',
@@ -264,12 +260,9 @@ function UpdateClientCount() {
 function UpdateClientCountPlot(data) {
     if (data === null || typeof(data) == 'undefined' || data.length == 0) return;
     UpdateClientCountData = [
-    {label:'Active',data:parseInt(data.ActivityActive)},
-    {label:'Queued',data:parseInt(data.ActivityQueued)},
-    {label:'Free',data:parseInt(data.ActivitySlots)}
+        {label:'Active',data:parseInt(data.ActivityActive)},
+        {label:'Queued',data:parseInt(data.ActivityQueued)},
+        {label:'Free',data:parseInt(data.ActivitySlots)}
     ];
     $.plot(GraphClient,UpdateClientCountData,UpdateClientCountOpts);
-    $('#ActivityActive').html(data.ActivityActive);
-    $('#ActivityQueued').html(data.ActivityQueued);
-    $('#ActivitySlots').html(data.ActivitySlots);
 }
