@@ -48,6 +48,7 @@ class FOGURLRequests extends FOGBase {
         if (empty($method)) $method = 'GET';
         array_map(function(&$url) use ($urls,$method,$data,$sendAsJSON,$auth,$callback,$file,&$curl) {
             $this->validURL($url);
+            $this->proxyInfo($url);
             if ($method == 'GET' && $data !== null) $url = sprintf('%s?%s',$url,http_build_query((array)$data));
             $ch = curl_init($url);
             $this->contextOptions[CURLOPT_URL] = $url;
