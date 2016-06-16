@@ -324,8 +324,10 @@ getFirstGoodInterface() {
         break
     done
     [[ -e $workingdir/tempInterfaces.txt ]] && rm -f $workingdir/tempInterfaces.txt >/dev/null 2>&1
-    goodInterface=$(cat $workingdir/goodInterface.txt)
-    [[ -e $workingdir/goodInterface.txt ]] && rm -f $workingdir/goodInterface.txt >/dev/null 2>&1
+    if [[ -e $workingdir/goodInterface.txt ]]; then
+        goodInterface=$(cat $workingdir/goodInterface.txt)
+        rm -f $workingdir/goodInterface.txt >/dev/null 2>&1
+    fi
     [[ -n $goodInterface ]] && echo $goodInterface
     if [[ -z $goodInterface ]]; then
         echo "There was no interface with an active internet connection found." >>$workingdir/error_logs/fog_error_${version}.log
