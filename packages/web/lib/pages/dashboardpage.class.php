@@ -40,7 +40,7 @@ class DashboardPage extends FOGPage {
         echo '</li>';
         unset($this->templates,$this->attributes,$fields,$SystemUptime);
         // Activity Pane
-        printf('<li><h4 class="box" title="%s">%s</h4><div class="graph pie-graph" id="graph-activity">',_('The selected node\'s storage group slot usage'),_('Storage Group Activity'));
+        printf('<li><h4 class="box" title="%s">%s</h4><div class="graph pie-graph" id="graph-activity"></div><div id="graph-activity-selector">',_('The selected node\'s storage group slot usage'),_('Storage Group Activity'));
         ob_start();
         array_map(function(&$StorageGroup) {
             if (!$StorageGroup->isValid()) return;
@@ -48,7 +48,7 @@ class DashboardPage extends FOGPage {
             printf('<option value="%s">%s</option>',$StorageGroup->get('id'),$StorageGroup->get('name'));
             unset($StorageGroup);
         },(array)self::getClass('StorageGroupManager')->find());
-        printf('<select name="groupsel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">%s</select></div></li>',ob_get_clean());
+        printf('<select name="groupsel" style="whitespace: no-wrap; width: 100px; position: relative; top: -22px; left: 140px;">%s</select><div class="fog-variable" id="ActivityActive"></div><div class="fog-variable" id="ActivityQueued"></div><div class="fog-variable" id="ActivitySlots"></div></div></li><!-- Variables -->',ob_get_clean());
         $StorageEnabledCount = self::getClass('StorageNodeManager')->count(array('isEnabled'=>1,'isGraphEnabled'=>1));
         if ($StorageEnabledCount > 0) {
             // Disk Usage Pane
@@ -73,7 +73,6 @@ class DashboardPage extends FOGPage {
             printf('<select name="nodesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">%s</select></div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li>',ob_get_clean());
         }
         echo '</ul>';
-        echo '<div class="fog-variable" id="ActivityActive"></div><div class="fog-variable" id="ActivityQueued"></div><div class="fog-variable" id="ActivitySlots"></div><!-- Variables -->';
         // 30 Day Usage Graph
         printf('<h3>%s</h3><div id="graph-30day" class="graph"></div>',_('Imaging Over the last 30 days'));
         ob_start();
