@@ -46,7 +46,7 @@ function setTipsyStuff() {
     });
 }
 function setEditFocus() {
-    $('input,select,textarea').not('[type="checkbox"],[name="storagesel"],[name="ulang"]').change(function(e) {
+    $('input,select,textarea').not('[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"]').change(function(e) {
         e.preventDefault();
         field = $(this);
         field.not(':focus') ? field.next('i').hide() : field.append('<i class="fa fa-pencil fa-fw"></i>');
