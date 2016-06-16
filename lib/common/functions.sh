@@ -1609,6 +1609,8 @@ configureHttpd() {
         echo "Done"
     fi
     dots "Creating config file"
+    [[ -z $snmysqlhost ]] && snmysqlhost='127.0.0.1'
+    [[ -z $snmysqluser ]] && snmysqluser='root'
     echo "<?php
 class Config {
     /** @function __construct() Calls the required functions to define items
