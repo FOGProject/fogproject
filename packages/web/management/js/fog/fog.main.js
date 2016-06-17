@@ -477,6 +477,7 @@ function ajaxRun(username,password,url,selector,formid,target,fogajax) {
             fogguiuser: username,
             fogguipass: password,
             fogajaxonly: fogajax,
+            andFile: $('#andFile').is(':checked'),
             remitems: ids
         },
         dataType: 'json',
