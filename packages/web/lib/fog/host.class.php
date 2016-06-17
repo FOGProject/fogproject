@@ -284,6 +284,11 @@ class Host extends FOGController {
             unset($DBPowerManagementIDs,$RemovePowerManagementIDs);
         case (self::isLoaded('snapins')):
             $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
+            $ValidSnapinIDs = self::getSubObjectIDs('Snapin');
+            $notValid = array_diff((array)$DBSnapinIDs,(array)$ValidSnapinIDs);
+            if (count($notValid)) self::getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$notValid));
+            unset($ValidSnapinIDs,$DBSnapinIDs);
+            $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
             $RemoveSnapinIDs = array_diff((array)$DBSnapinIDs,(array)$this->get('snapins'));
             if (count($RemoveSnapinIDs)) {
                 self::getClass('SnapinAssociationManager')->destroy(array('hostID'=>$this->get('id'),'snapinID'=>$RemoveSnapinIDs));
@@ -293,6 +298,11 @@ class Host extends FOGController {
             array_map($itemSetter,(array)self::getClass('SnapinManager')->find(array('id'=>array_diff((array)$this->get('snapins'),(array)$DBSnapinIDs))));
             unset($DBSnapinIDs,$RemoveSnapinIDs);
         case (self::isLoaded('groups')):
+            $DBGroupIDs = self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
+            $ValidGroupIDs = self::getSubObjectIDs('Group');
+            $notValid = array_diff((array)$DBGroupIDs,(array)$ValidGroupIDs);
+            if (count($notValid)) self::getClass('GroupAssociationManager')->destroy(array('groupID'=>$notValid));
+            unset($ValidGroupIDs,$DBGroupIDs);
             $DBGroupIDs = self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
             $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('groups'));
             if (count($RemoveGroupIDs)) {
@@ -370,11 +380,7 @@ class Host extends FOGController {
     }
     protected function loadGroups() {
         if (!$this->get('id')) return;
-        $AssocGroups = self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
-        $ValidGroups = self::getSubObjectIDs('Group',array('id'=>$AssocSnapins));
-        $InvalidGroups = array_unique(array_filter(array_diff((array)$AssocGroups,(array)$ValidGroups)));
-        if (count($InvalidGroups)) self::getClass('GroupAssociationManager')->destroy(array('groupID'=>$InvalidGroups));
-        $this->set('groups',$ValidGroups);
+        $this->set('groups',self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID'));
     }
     protected function loadGroupsnotinme() {
         if (!$this->get('id')) return;
@@ -384,11 +390,7 @@ class Host extends FOGController {
     }
     protected function loadPrinters() {
         if (!$this->get('id')) return;
-        $AssocPrinters = self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'printerID');
-        $ValidPrinters = self::getSubObjectIDs('Printer',array('id'=>$AssocPrinters));
-        $InvalidPrinters = array_unique(array_filter(array_diff((array)$AssocPrinters,(array)$ValidPrinters)));
-        if (count($InvalidPrinters)) self::getClass('PrinterAssociationManager')->destroy(array('printerID'=>$InvalidPrinters));
-        $this->set('printers',$ValidPrinters);
+        $this->set('printers',self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID'));
     }
     protected function loadPrintersnotinme() {
         if (!$this->get('id')) return;
@@ -398,11 +400,7 @@ class Host extends FOGController {
     }
     protected function loadSnapins() {
         if (!$this->get('id')) return;
-        $AssocSnapins = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
-        $ValidSnapins = self::getSubObjectIDs('Snapin',array('id'=>$AssocSnapins));
-        $InvalidSnapins = array_unique(array_filter(array_diff((array)$AssocSnapins,(array)$ValidSnapins)));
-        if (count($InvalidSnapins)) self::getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$InvalidSnapins));
-        $this->set('snapins',$ValidSnapins);
+        $this->set('snapins',self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID'));
     }
     protected function loadSnapinsnotinme() {
         if (!$this->get('id')) return;
