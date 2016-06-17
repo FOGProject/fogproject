@@ -779,8 +779,9 @@ abstract class FOGPage extends FOGBase {
             unset($input,$field);
         });
         self::$HookManager->processEvent(sprintf('%S_DEL',strtoupper($this->childClass)),array($this->childClass=>&$this->obj));
-        printf('<div id="deleteDiv"></div>',$this->formAction);
+        printf('<div id="deleteDiv"></div><form method="post" action="%s">',$this->formAction);
         $this->render();
+        echo "</form>";
     }
     public function configure() {
         $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_CHECKIN_TIME','FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
@@ -897,7 +898,7 @@ abstract class FOGPage extends FOGBase {
                 if (isset($_REQUEST['delHostConfirm'])) self::getClass('HostManager')->destroy(array('id'=>$this->obj->get('hosts')));
                 if (isset($_REQUEST['massDelHosts'])) $this->redirect("?node=group&sub=delete_hosts&id={$this->obj->get(id)}");
             }
-            if (isset($_REQUEST['andFile'])) $this->obj->deleteFile();
+            if ($_REQUEST['andFile'] === "true") $this->obj->deleteFile();
             if (!$this->obj->destroy()) throw new Exception(_('Failed to destroy'));
             self::$HookManager->processEvent(sprintf('%s_DELETE_SUCCESS',strtoupper($this->childClass)), array($this->childClass=>&$this->obj));
             $this->setMessage(sprintf('%s %s: %s',$this->childClass,_('deleted'),$this->obj->get('name')));
