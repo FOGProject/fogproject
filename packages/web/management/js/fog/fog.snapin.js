@@ -15,6 +15,7 @@ $(function() {
     })
 });
 function updateCmdStore() {
+    if (typeof $('.cmdlet3').val() === 'undefined') return;
     test = $('[type="file"]')[0].files.length;
     if (test < 1) test = $('select.cmdlet3').val();
     else test = $('[type="file"]')[0].files[0].name;
