@@ -1,11 +1,6 @@
 <?php
 class MACAddress extends FOGBase {
-    private $patterns = array(
-        '/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/',
-        '/^([a-fA-F0-9]{2}\-){5}[a-fA-F0-9]{2}$/',
-        '/^[a-fA-F0-9]{12}$/',
-        '/^([a-fA-F0-9]{4}\.){2}[a-fA-F0-9]{4}$/',
-    );
+    private static $pattern = '/^(?:[[:xdigit:]]{2}([-:]))(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}|(?:[[:xdigit:]]{12})|(?:[[:xdigit:]]{4}([.])){2}[[:xdigit:]]{4}$/';
     protected $MAC;
     protected $tmpMAC;
     private $Host;
@@ -26,9 +21,9 @@ class MACAddress extends FOGBase {
         return $this;
     }
     protected static function normalizeMAC($MAC) {
-        $hexDigits = preg_replace('/[^[:xdigit:]]/','',$MAC);
-        if (strlen($hexDigits) !== 12) throw new Exception("#!im\n");
-        return strtolower($hexDigits);
+        $MAC = preg_grep(self::$pattern,(array)$MAC);
+        if (count($MAC) !== 1) return '';
+        return strtolower(str_replace(array('.','-',':'),'',array_shift($MAC)));
     }
     public function getMACPrefix() {
         return join('-',str_split(substr($this->MAC,0,6),2));
@@ -37,8 +32,7 @@ class MACAddress extends FOGBase {
         return join(':',str_split($this->MAC,2));
     }
     public function isValid() {
-        $mac = str_replace(array(':','-','.'),'',$this->MAC);
-        return strlen($mac) === 12 && ctype_xdigit($mac) && (preg_match('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/', $this->MAC) || preg_match('/^([a-fA-F0-9]{2}\-){5}[a-fA-F0-9]{2}$/', $this->MAC) || preg_match('/^[a-fA-F0-9]{12}$/', $this->MAC) || preg_match('/^([a-fA-F0-9]{4}\.){2}[a-fA-F0-9]{4}$/', $this->MAC));
+        return (bool)preg_match(self::$pattern,$this->MAC);
     }
     public function isPending() {
         return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'pending'=>1)));
