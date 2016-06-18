@@ -473,7 +473,11 @@ abstract class FOGBase {
         $MACs = array_values(array_unique(array_filter((array)$MACs)));
         $Ignore = (array)array_filter(array_map($lowerAndTrim,(array)explode(',',self::getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
         if (count($Ignore)) $MACs = array_values(array_unique(array_filter(array_diff((array)$MACs,preg_grep(sprintf('#%s#i',implode('|',(array)$Ignore)),$MACs)))));
-        $MACs = preg_grep('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$|^([a-fA-F0-9]{2}\-){5}[a-fA-F0-9]{2}$|^[a-fA-F0-9]{12}$|^([a-fA-F0-9]{4}\.){2}[a-fA-F0-9]{4}$/',(array)$MACs);
+        $MACs = array_filter(array_map(function(&$MAC) {
+            $MAC = self::getClass('MACAddress',$MAC);
+            if ($MAC->isValid()) return $MAC->__toString();
+        },(array)$MACs));
+        $MACs = preg_grep("/$mac_pattern/",(array)$MACs);
         if (!count($MACs)) return false;
         return (array)$MACs;
     }
