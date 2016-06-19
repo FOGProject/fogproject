@@ -36,7 +36,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                     unset($curroot,$webroot,$ip);
                     $response = self::$FOGURLRequests->process($url,'POST',array('filepath'=>$filepath));
                     $response = array_shift($response);
-                    //if (!self::$FOGURLRequests->isAvailable($url)) return array('error'=>_('No connection to get snapin'));
+                    if (!self::$FOGURLRequests->isAvailable($url)) return array('error'=>_('No connection to get snapin'));
                     $SnapinTask
                         ->set('checkin',$date)
                         ->set('stateID',$this->getCheckedInState())

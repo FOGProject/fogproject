@@ -41,7 +41,6 @@ class FOGConfigurationPage extends FOGPage {
             $curroot = trim(trim($StorageNode->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
             $url = filter_var(sprintf('http://%s%sstatus/kernelvers.php',$StorageNode->get('ip'),$webroot),FILTER_SANITIZE_URL);
-            if (!self::$FOGURLRequests->isAvailable($url)) return;
             $URLs[] = $url;
             unset($StorageNode);
         },$Nodes);
