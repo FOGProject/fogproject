@@ -47,7 +47,6 @@ class Group extends FOGController {
                 $DBHostIDs = self::getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
                 unset($RemoveHostIDs);
             }
-            $hostids = $this->get('hosts');
             array_map(function(&$Host) {
                 if (!$Host->isValid()) return;
                 self::getClass('GroupAssociation')
@@ -55,9 +54,8 @@ class Group extends FOGController {
                     ->set('groupID',$this->get('id'))
                     ->save();
                 unset($Host);
-            },(array)self::getClass('HostManager')->find(array('id'=>array_diff((array)$hostids,(array)$DBHostIDs))));
+            },(array)self::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))));
             unset($DBHostIDs,$RemoveHostIDs);
-            break;
         }
         return $this;
     }
