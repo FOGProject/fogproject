@@ -3,11 +3,12 @@ abstract class FOGManagerController extends FOGBase {
     protected $childClass;
     protected $databaseTable;
     protected $databaseFields;
+    protected $databaseFieldsFlipped = array();
     protected $databaseFieldsRequired;
     protected $databaseFieldClassRelationships;
     protected $additionalFields;
-    protected $loadQueryTemplate = 'SELECT * FROM `%s` %s %s %s %s %s';
-    protected $loadQueryGroupTemplate = 'SELECT * FROM (%s) `%s` %s %s %s %s %s';
+    protected $loadQueryTemplate = 'SELECT %s FROM `%s` %s %s %s %s %s';
+    protected $loadQueryGroupTemplate = 'SELECT %s FROM (%s) `%s` %s %s %s %s %s';
     protected $countQueryTemplate = 'SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s`%s LIMIT 1';
     protected $updateQueryTemplate = 'UPDATE `%s` SET %s %s';
     protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`.`%s` IN ('%s')";
@@ -19,6 +20,7 @@ abstract class FOGManagerController extends FOGBase {
         $classVars = self::getClass($this->childClass,'',true);
         $this->databaseTable = $classVars['databaseTable'];
         $this->databaseFields = $classVars['databaseFields'];
+        $this->databaseFieldsFlipped = array_flip($this->databaseFields);
         $this->databaseFieldsRequired = $classVars['databaseFieldsRequired'];
         $this->databaseFieldClassRelationships = $classVars['databaseFieldClassRelationships'];
         $this->additionalFields = $classVars['additionalFields'];
@@ -52,8 +54,12 @@ abstract class FOGManagerController extends FOGBase {
         list($join, $whereArrayAnd) = self::getClass($this->childClass)->buildQuery($not, $compare);
         $isEnabled = false;
         if (!in_array($this->childClass,array('Image','Snapin','StorageNode')) && array_key_exists('isEnabled',$this->databaseFields)) $isEnabled = sprintf('`%s`=1',$this->databaseFields['isEnabled']);
+        $idField = array_filter(array_map(function(&$item) {
+            return $this->databaseFields[trim($item)];
+        },(array)$idField));
         $query = sprintf(
             $this->loadQueryTemplate,
+            $idField ? sprintf('`%s`',implode('`,`',$idField)) : '*',
             $this->databaseTable,
             $join,
             (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : '')),
@@ -64,8 +70,10 @@ abstract class FOGManagerController extends FOGBase {
         if ($groupBy) {
             $query = sprintf(
                 $this->loadQueryGroupTemplate,
+                $idField ? sprintf('`%s`',implode('`,`',$idField)) : '*',
                 sprintf(
                     $this->loadQueryTemplate,
+                    $idField ? sprintf('`%s`',implode('`,`',$idField)) : '*',
                     $this->databaseTable,
                     $join,
                     (count($whereArray) ? sprintf('WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf('WHERE %s',$isEnabled) : '')),
@@ -84,13 +92,17 @@ abstract class FOGManagerController extends FOGBase {
         }
         $data = array();
         if ($idField) {
-            $idField = array_map(function(&$item) {
-                return trim($item);
-            },(array)$idField);
-            array_map(function(&$item) use ($query,&$data) {
-                $tmp = (array)self::$DB->query($query)->fetch('','fetch_all')->get($item ? $this->databaseFields[$item] : '');
-                $data[$item] = count($tmp) === 1 ? array_shift($tmp) : $tmp;
-            },(array)$idField);
+            $results = (array)self::$DB->query($query)->fetch('','fetch_all')->get();
+            array_map(function(&$value) use (&$data) {
+                return array_walk($value,function(&$val,&$key) use (&$data) {
+                    if (!isset($data[$this->databaseFieldsFlipped[$key]])) {
+                        $data[$this->databaseFieldsFlipped[$key]] = $val;
+                    } else {
+                        if (!is_array($data[$this->databaseFieldsFlipped[$key]])) $data[$this->databaseFieldsFlipped[$key]] = array($data[$this->databaseFieldsFlipped[$key]]);
+                        $data[$this->databaseFieldsFlipped[$key]][] = $val;
+                    }
+                });
+            },(array)$results);
             if (count($data) === 1) {
                 if ($filter) return $filter((array)array_shift($data));
                 return array_shift($data);
