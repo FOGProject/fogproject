@@ -47,6 +47,8 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                     if (empty($hash)) return array('error'=>_('No hash available'));
                     if ($size === 0) return array('error'=>_('No size available'));
                     return array(
+                        'hide'=>(bool)$Snapin->get('hide'),
+                        'timeout'=>(int)$Snapin->get('timeout'),
                         'jobtaskid'=>$SnapinTask->get('id'),
                         'jobcreation'=>$this->Host->get('snapinjob')->get('createdTime'),
                         'name'=>$Snapin->get('name'),

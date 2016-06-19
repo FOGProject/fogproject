@@ -2176,3 +2176,8 @@ $this->schema[] = array(
     "DROP TABLE `".DATABASE_NAME."`.`globalSettings`",
     "RENAME TABLE `".DATABASE_NAME."`.`globalSettings_new` TO `".DATABASE_NAME."`.`globalSettings`",
 );
+// 226
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sHideLog` ENUM('0','1') NOT NULL DEFAULT '0'",
+    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sTimeout` INTEGER NOT NULL DEFAULT 0",
+);

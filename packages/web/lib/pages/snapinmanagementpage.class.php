@@ -112,6 +112,8 @@ class SnapinManagementPage extends FOGPage {
             (count($filelist) > 0 ? _('Snapin File (exists)') : '') => (count($filelist) > 0 ? $selectFiles : ''),
             _('Snapin Arguments') => sprintf('<input class="cmdlet4" type="text" name="args" value="%s"/>',$_REQUEST['args']),
             _('Snapin Enabled') => '<input type="checkbox" name="isEnabled" value="1"checked/>',
+            _('Snapin Arguments Hidden?') => '<input type="checkbox" name="isHidden" value="1"/>',
+            _('Snapin Timeout (seconds)') => '<input type="text" name="timeout" value="0"/>',
             _('Replicate?') => '<input type="checkbox" name="toReplicate" value="1" checked/>',
             _('Reboot after install') => '<input class="action" type="radio" name="action" value="reboot"/>',
             _('Shutdown after install') => '<input class="action" type="radio" name="action" value="shutdown"/>',
@@ -174,6 +176,8 @@ class SnapinManagementPage extends FOGPage {
                 ->set('runWithArgs',$_REQUEST['rwa'])
                 ->set('isEnabled',(string)intval((int)isset($_REQUEST['isEnabled'])))
                 ->set('toReplicate',(string)intval((int)isset($_REQUEST['toReplicate'])))
+                ->set('hide',(string)intval(isset($_REQUEST['isHidden'])))
+                ->set('timeout',(int)$_REQUEST['timeout'])
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Snapin->save()) throw new Exception(_('Add snapin failed!'));
             self::$HookManager->processEvent('SNAPIN_ADD_SUCCESS',array('Snapin'=>&$Snapin));
@@ -230,6 +234,8 @@ class SnapinManagementPage extends FOGPage {
             _('Shutdown after install') => sprintf('<input class="action" type="radio" name="action" value="shutdown"%s/>',$this->obj->get('shutdown') ? ' checked' : ''),
             _('Snapin Enabled') => sprintf('<input type="checkbox" name="isEnabled" value="1"%s/>',$this->obj->get('isEnabled') ? ' checked' : ''),
             _('Replicate?') => sprintf('<input type="checkbox" name="toReplicate" value="1"%s/>',$this->obj->get('toReplicate') ? ' checked' : ''),
+            _('Snapin Arguments Hidden?') => sprintf('<input type="checkbox" name="isHidden" value="1"%s/>',$this->obj->get('hide') ? ' checked' : ''),
+            _('Snapin Timeout (seconds)') => sprintf('<input type="text" name="timeout" value="%s"/>',$this->obj->get('timeout')),
             _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
             '' => sprintf('<input name="update" type="submit" value="%s"/>',_('Update')),
         );
@@ -346,7 +352,9 @@ class SnapinManagementPage extends FOGPage {
                     ->set('runWithArgs',$_REQUEST['rwa'])
                     ->set('protected',(int)isset($_REQUEST['protected_snapin']))
                     ->set('isEnabled',(string)intval((int)isset($_REQUEST['isEnabled'])))
-                    ->set('toReplicate',(string)intval((int)isset($_REQUEST['toReplicate'])));
+                    ->set('toReplicate',(string)intval((int)isset($_REQUEST['toReplicate'])))
+                    ->set('hide',(string)intval(isset($_REQUEST['isHidden'])))
+                    ->set('timeout',(int)$_REQUEST['timeout']);
                 break;
             case 'snap-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);
