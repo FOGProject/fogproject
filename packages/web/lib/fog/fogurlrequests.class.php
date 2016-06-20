@@ -84,8 +84,7 @@ class FOGURLRequests extends FOGBase {
             if ($execrun != CURLM_OK) break;
             while ($done = curl_multi_info_read($this->handle)) {
                 $info = curl_getinfo($done['handle']);
-                if ($info['http_code'] != 200) continue;
-                $output = curl_multi_getcontent($done['handle']);
+                $output = $info['http_code'] != 200 ? '' : curl_multi_getcontent($done['handle']);
                 if (is_callable($callback)) $callback($output);
                 $ch = curl_init();
                 if ($method === 'GET' && $data !== null) {
