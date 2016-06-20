@@ -67,6 +67,7 @@ class PDODB extends DatabaseManager {
             if (!self::$db_name) throw new PDOException(_('No database to work off'));
         } catch (PDOException $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
+            die($e->getMessage());
         }
         return $this;
     }

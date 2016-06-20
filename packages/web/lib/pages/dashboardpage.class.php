@@ -49,7 +49,7 @@ class DashboardPage extends FOGPage {
             unset($StorageGroup);
         },(array)self::getClass('StorageGroupManager')->find());
         printf('<select name="groupsel" style="whitespace: no-wrap; width: 100px; position: relative; top: -22px; left: 140px;">%s</select><div class="fog-variable" id="ActivityActive"></div><div class="fog-variable" id="ActivityQueued"></div><div class="fog-variable" id="ActivitySlots"></div></div></li><!-- Variables -->',ob_get_clean());
-        $StorageEnabledCount = self::getClass('StorageNodeManager')->count(array('isEnabled'=>1,'isGraphEnabled'=>1));
+        $StorageEnabledCount = self::getClass('StorageNodeManager')->count(array('isEnabled'=>1,'isGraphEnabled'=>(string)1));
         if ($StorageEnabledCount > 0) {
             // Disk Usage Pane
             printf('<li><h4 class="box" title="%s">%s</h4><div id="diskusage-selector">',_('The selected node\'s image storage disk usage'),_('Storage Node Disk Usage'));
@@ -69,7 +69,7 @@ class DashboardPage extends FOGPage {
                 $version = array_shift($version);
                 printf('<option value="%s">%s%s (%s)</option>',$StorageNode->get('id'),$StorageNode->get('name'),($StorageNode->get('isMaster') ? ' *' : ''),$version);
                 unset($version,$StorageNode);
-            },self::getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>1)));
+            },self::getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>(string)1)));
             printf('<select name="nodesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">%s</select></div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li>',ob_get_clean());
         }
         echo '</ul>';
@@ -102,7 +102,7 @@ class DashboardPage extends FOGPage {
             unset($URL);
             $data[$StorageNode->get('name')] = json_decode(array_shift($dataSet));
             unset($dataSet,$StorageNode);
-        },self::getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1,'isEnabled'=>1)));
+        },self::getClass('StorageNodeManager')->find(array('isGraphEnabled'=>(string)1,'isEnabled'=>1)));
         echo json_encode((array)$data);
         unset($data);
         exit;

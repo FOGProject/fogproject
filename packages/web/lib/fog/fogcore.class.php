@@ -79,8 +79,8 @@ class FOGCore extends FOGBase {
         $_SESSION['PluginsInstalled'] = (array)self::getActivePlugins();
         $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
         $_SESSION['FOG_FTP_IMAGE_SIZE'] = self::getSetting('FOG_FTP_IMAGE_SIZE');
-        $_SESSION['Pending-Hosts'] = self::getClass('HostManager')->count(array('pending'=>1));
-        $_SESSION['Pending-MACs'] = self::getClass('MACAddressAssociationManager')->count(array('pending'=>1));
+        $_SESSION['Pending-Hosts'] = self::getClass('HostManager')->count(array('pending'=>(string)1));
+        $_SESSION['Pending-MACs'] = self::getClass('MACAddressAssociationManager')->count(array('pending'=>(string)1));
         $_SESSION['DataReturn'] = self::getSetting('FOG_DATA_RETURNED');
         $_SESSION['UserCount'] = self::getClass('UserManager')->count();
         $_SESSION['GroupCount'] = self::getClass('GroupManager')->count();
