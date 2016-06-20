@@ -19,15 +19,16 @@ fi
 echo "Done"
 debugPause
 dots "Mounting File System"
-mount -o nolock $storage /images
+mount -o nolock $storage /images >/tmp/mount-output 2>&1
 case $? in
     0)
         echo "Done"
+        debugPause
         ;;
     *)
         echo "Failed"
         debugPause
-        handleError "Failed to Mount filesystem ($0)\n   Args Passed: $*"
+        handleError " * Could not mount $storage ($0)\n    Args Passed: $*\n     Reason: $(cat /tmp/mount-output)"
         ;;
 esac
 debugPause
