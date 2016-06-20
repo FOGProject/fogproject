@@ -35,16 +35,16 @@ class MACAddress extends FOGBase {
         return (bool)preg_match(self::$pattern,$this->MAC);
     }
     public function isPending() {
-        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'pending'=>1)));
+        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'pending'=>(string)1)));
     }
     public function isClientIgnored() {
-        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'clientIgnore'=>1)));
+        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'clientIgnore'=>(string)1)));
     }
     public function isPrimary() {
-        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'primary'=>1)));
+        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'primary'=>(string)1)));
     }
     public function isImageIgnored() {
-        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'imageIgnore'=>1)));
+        return (bool)count(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString(),'imageIgnore'=>(string)1)));
     }
     public function getHost() {
         return self::getClass('Host',@max(self::getSubObjectIDs('MACAddressAssociation',array('mac'=>$this->__toString()),'hostID')));

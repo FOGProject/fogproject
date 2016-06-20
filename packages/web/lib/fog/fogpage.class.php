@@ -431,7 +431,7 @@ abstract class FOGPage extends FOGBase {
                 } else if ($this->obj instanceof Group && $imagingTasks) {
                     if ($TaskType->isMulticast() && !$this->obj->doMembersHaveUniformImages()) throw new Exception(_('Hosts do not contain the same image assignments'));
                     $NoImage = array();
-                    $Hosts = (array)self::getClass('HostManager')->find(array('pending'=>array('',0),'id'=>$this->obj->get('hosts')));
+                    $Hosts = (array)self::getClass('HostManager')->find(array('pending'=>array((string)0,(string)'',null),'id'=>$this->obj->get('hosts')));
                     array_map(function(&$Host) use (&$NoImage) {
                         if (!$Host->isValid()) return;
                         $NoImage[] = (bool)!$Host->getImage()->isValid();
@@ -494,7 +494,7 @@ abstract class FOGPage extends FOGBase {
                                     if (!$imagingTasks) $success[] = sprintf('<li>%s</li>',$Host->get('name'));
                                     if ($imagingTasks && $Host->getImage()->get('isEnabled')) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
                                     unset($Host);
-                                },(array)self::getClass('HostManager')->find(array('pending'=>array('',null,0),'id'=>$this->obj->get('hosts'))));
+                                },(array)self::getClass('HostManager')->find(array('pending'=>array((string)0,(string)'',null),'id'=>$this->obj->get('hosts'))));
                             } else if ($this->obj instanceof Host) {
                                 if ($this->obj->isValid() && !$this->obj->get('pending')) $success[] = sprintf('<li>%s &ndash; %s</li>',$this->obj->get('name'),$this->obj->getImage()->get('name'));
                             }
