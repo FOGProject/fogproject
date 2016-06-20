@@ -278,7 +278,7 @@ class BootMenu extends FOGBase {
         $this->printDefault();
     }
     private function approveHost() {
-        if ($this->Host->set('pending',null)->save()) {
+        if ($this->Host->set('pending',(string)0)->save()) {
             $Send['approvesuccess'] = array(
                 'echo Host approved successfully',
                 'sleep 3'
