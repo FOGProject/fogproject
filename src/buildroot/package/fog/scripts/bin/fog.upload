@@ -85,8 +85,7 @@ beginUpload() {
                                 *)
                                     echo "Failed"
                                     debugPause
-                                    echo " * Could not create mount location"
-                                    return
+                                    handleError " * Could not create mount location ($0->${FUNCNAME[0]})\n    Args Passed: $*"
                                     ;;
                             esac
                         fi
@@ -99,8 +98,7 @@ beginUpload() {
                             *)
                                 echo "Failed"
                                 debugPause
-                                echo " * Could not mount $part to /bcdstore"
-                                return
+                                handleError " * Could not mount $part ($0->${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output)"
                                 ;;
                         esac
                         dots "BCD exists on $part in /bcdstore"
