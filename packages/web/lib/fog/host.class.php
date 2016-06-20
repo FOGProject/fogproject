@@ -316,11 +316,12 @@ class Host extends FOGController {
         return $this;
     }
     public function isValid() {
-        return parent::isValid() && $this->isHostnameSafe() && $this->get('mac')->isValid();
+        return parent::isValid() && $this->isHostnameSafe();// && $this->get('mac')->isValid();
     }
     public function isHostnameSafe($hostname = '') {
         if (empty($hostname)) $hostname = $this->get('name');
-        return (strlen($hostname) > 0 && strlen($hostname) <= 15 && preg_replace('#[\w+\-]#', '', $hostname) == '');
+        $pattern = '/^[\\w!@#$%^()\\-\'{}\\.~]{1,15}$/';
+        return (bool)preg_match($pattern,$hostname);
     }
     public function getDefault($printerid) {
         return (bool)count(self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id'),'printerID'=>$printerid,'isDefault'=>1),'printerID'));
