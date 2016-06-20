@@ -782,8 +782,7 @@ changeHostname() {
         if [[ ! $? -eq 0 ]]; then
             echo "Failed"
             debugPause
-            echo " * Could not create mount location"
-            return
+            handleError " * Could not create mount location (${FUNCNAME[0]})\n    Args Passed: $*"
         fi
     fi
     umount /ntfs >/dev/null 2>&1
@@ -796,8 +795,7 @@ changeHostname() {
         *)
             echo "Failed"
             debugPause
-            echo " * Could not mount $part to /ntfs"
-            return
+            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output)"
             ;;
     esac
     if [[ ! -f /usr/share/fog/lib/EOFREG ]]; then
@@ -914,8 +912,7 @@ fixWin7boot() {
             *)
                 echo "Failed"
                 debugPause
-                echo " * Could not create mount location"
-                return
+                handleError " * Could not create mount location (${FUNCNAME[0]})\n    Args Passed: $*"
                 ;;
         esac
     fi
@@ -928,8 +925,7 @@ fixWin7boot() {
         *)
             echo "Failed"
             debugPause
-            echo " * Could not mount $part to /bcdstore"
-            return
+            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output)"
             ;;
     esac
     if [[ ! -f /bcdstore/Boot/BCD ]]; then
@@ -1005,8 +1001,7 @@ clearMountedDevices() {
                         *)
                             echo "Failed"
                             debugPause
-                            echo " * Failed to mount partition to clear"
-                            return
+                            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output)"
                             ;;
                     esac
                     if [[ ! -f $REG_LOCAL_MACHINE_7 ]]; then
@@ -1057,8 +1052,7 @@ removePageFile() {
                             *)
                                 echo "Failed"
                                 debugPause
-                                echo " * Could not create mount location"
-                                return
+                                handleError " * Could not create mount location (${FUNCNAME[0]})\n    Args Passed: $*"
                                 ;;
                         esac
                     fi
@@ -1072,8 +1066,7 @@ removePageFile() {
                         *)
                             echo "Failed"
                             debugPause
-                            echo " * Could not mount to location"
-                            return
+                            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output)"
                             ;;
                     esac
                     if [[ -f /ntfs/pagefile.sys ]]; then
