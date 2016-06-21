@@ -77,6 +77,8 @@ class FOGURLRequests extends FOGBase {
             }
             curl_setopt_array($ch,$this->contextOptions);
             curl_multi_add_handle($this->handle,$ch);
+            $key = (string)$ch;
+            $map[$key] = $i;
         }
         $response = array();
         do {
@@ -85,27 +87,19 @@ class FOGURLRequests extends FOGBase {
             while ($done = curl_multi_info_read($this->handle)) {
                 $info = curl_getinfo($done['handle']);
                 $output = $info['http_code'] != 200 ? '' : curl_multi_getcontent($done['handle']);
-                if (is_callable($callback)) $callback($output);
-                $ch = curl_init();
-                if ($method === 'GET' && $data !== null) {
-                    $urls[$i] = sprintf('%s?%s',$urls[$i],http_build_query((array)$data));
-                    $this->contextOptions[CURLOPT_URL] = $urls[$i];
-                } else $this->contextOptions[CURLOPT_URL] = $urls[$i];
-                if ($method === 'POST' && $data !== null) {
-                    if ($sendAsJSON) {
-                        $data = json_encode($data);
-                        $datalen = strlen($data);
-                        $this->contextOptions[CURLOPT_HTTPHEADER] = array(
-                            'Content-Type: application/json',
-                            "Content-Length: $datalen",
-                            'Expect:',
-                        );
-                    }
-                    $this->contextOptions[CURLOPT_POST] = true;
-                    $this->contextOptions[CURLOPT_POSTFIELDS] = $data;
+                if (is_callable($callback)) {
+                    $key = (string)$done['handle'];
+                    $request = $urls[$map[$key]];
+                    unset($map[$key]);
+                    $callback($output);
                 }
-                curl_setopt_array($ch,$this->contextOptions);
-                curl_multi_add_handle($this->handle,$ch);
+                if ($i < $url_count && isset($urls[$i])) {
+                    $ch = curl_init();
+                    curl_setopt_array($ch,$this->contextOptions);
+                    curl_multi_add_handle($this->handle,$ch);
+                    $key = (string)$ch;
+                    $map[$key] = $i++;
+                }
                 curl_multi_remove_handle($this->handle,$done['handle']);
                 $response[] = $output;
             }
