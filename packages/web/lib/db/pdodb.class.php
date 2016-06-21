@@ -67,6 +67,7 @@ class PDODB extends DatabaseManager {
             if (!self::$db_name) throw new PDOException(_('No database to work off'));
         } catch (PDOException $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
+            die($e->getMessage().' '.self::debugDumpParams());
         }
         return $this;
     }
@@ -162,7 +163,7 @@ class PDODB extends DatabaseManager {
     }
     private static function execute($paramvals = array()) {
         if (count($paramvals) > 0) {
-            array_walk($paramvals,function(&$value,&$param) {
+            array_walk($paramvals,function($value,$param) {
                 is_array($value) ? self::bind($param,$value[0],$value[1]) : self::bind($param,$value);
             });
         }
@@ -194,6 +195,7 @@ class PDODB extends DatabaseManager {
                 break;
             }
         }
+        $type = PDO::PARAM_STR;
         self::$queryResult->bindParam($param,$value,$type);
     }
 }
