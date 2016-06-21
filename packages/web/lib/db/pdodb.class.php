@@ -135,8 +135,7 @@ class PDODB extends DatabaseManager {
     }
     private function clean($data) {
         if (!self::$link) return trim(htmlentities($data,ENT_QUOTES,'utf-8'));
-        $data = preg_replace("#^[']|[']$#",'',trim(self::$link->quote($data)));
-        return $data ? $data : '';
+        return self::$link->quote($data);
     }
     public function sanitize($data) {
         if (!is_array($data)) return $this->clean($data);
