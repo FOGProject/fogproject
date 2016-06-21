@@ -57,7 +57,7 @@ class Host extends FOGController {
         'powermanagementtasks',
     );
     protected $databaseFieldClassRelationships = array(
-        'MACAddressAssociation' => array('hostID','id','primac',array('primary'=>'1')),
+        'MACAddressAssociation' => array('hostID','id','primac',array('primary'=>1)),
         'Image' => array('id','imageID','imagename'),
     );
     private $arrayKeys = array(

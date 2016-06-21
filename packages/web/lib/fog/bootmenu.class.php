@@ -196,10 +196,13 @@ class BootMenu extends FOGBase {
         $default = "choose --default $name --timeout $timeout target && goto \${target}";
     }
     private function ipxeLog() {
+        $filename = trim(basename($_REQUEST['filename']));
+        $product = trim($_REQUEST['product']);
+        $manufacturer = trim($_REQUEST['manufacturer']);
         $findWhere = array(
-            'file' => sprintf("%s",trim(basename($_REQUEST['filename']))),
-            'product' => sprintf("%s",trim($_REQUEST['product'])),
-            'manufacturer' => sprintf("%s",trim($_REQUEST['manufacturer'])),
+            'file' => sprintf('%s',$filename ? $filename : ''),
+            'product' => sprintf('%s',$product ? $product : ''),
+            'manufacturer' => sprintf('%s',$manufacturer ? $manufacturer : ''),
             'mac' => $this->Host->isValid() ? $this->Host->get('mac')->__toString() : '',
         );
         self::getClass('iPXE',@max(self::getSubObjectIDs('iPXE',$findWhere)))
