@@ -599,7 +599,7 @@ abstract class FOGBase {
     protected static function getIPAddress() {
         if (count(self::$ips) > 0) return self::$ips;
         $output = array();
-        exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
+        exec("/sbin/ip -4 addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
         if (!count($IPs)) exec("/sbin/ifconfig -a | awk -F'[ /:]+' '/(cast)/ {print $4}'",$IPs,$retVal);
         if (fsockopen('ipinfo.io',80)) {
             $res = self::$FOGURLRequests->process('http://ipinfo.io/ip','GET');
