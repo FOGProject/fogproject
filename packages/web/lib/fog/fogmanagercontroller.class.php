@@ -41,6 +41,11 @@ abstract class FOGManagerController extends FOGBase {
                 $field = trim($field);
                 if (is_array($value) && count($value)) {
                     $values = array_map(function(&$val) {
+                        if (is_array($val)) return array_map(function(&$v) {
+                            $v = trim(self::$DB->sanitize(trim($v)));
+                            if (empty($v)) return "''";
+                            return $v;
+                        },$val);
                         $val = trim(self::$DB->sanitize(trim($val)));
                         if (empty($val)) return "''";
                         return $val;

@@ -36,7 +36,7 @@ if [[ $guessdefaults == 1 ]]; then
         strSuggestedInterface=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $2}' | head -n2 | tail -n1)
         [[ -z $strSuggestedInterface ]] && strSuggestedInterface=$(/sbin/ifconfig -a | grep "'${strSuggestedIPAddress}'" -B1 | awk -F'[:]+' '{print $1}' | head -n1)
     fi
-    strSuggestedIPAddress=$(/sbin/ip addr show | grep $strSuggestedInterface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
+    strSuggestedIPAddress=$(/sbin/ip -4 addr show | grep $strSuggestedInterface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
     [[ -z $strSuggestedIPAddress ]] && strSuggestedIPAddress=$(/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
     strSuggestedSubMask=$(cidr2mask $(getCidr $strSuggestedInterface))
     if [[ -z $strSuggestedSubMask ]]; then
@@ -109,7 +109,7 @@ while [[ -z $ipaddress ]]; do
     fi
 done
 if [[ $strSuggestedIPAddress != $ipaddress ]]; then
-    inetIPline=$(ip addr | grep "inet $ipaddress")
+    inetIPline=$(ip -4 addr | grep "inet $ipaddress")
     numberOfFieldsInOutput=$(grep -o " " <<< "$inetIPline" | wc -l)
     let numberOfFieldsInOutput+=1 >/dev/null 2>&1
     strSuggestedInterface=$(echo $line | cut -d ' ' -f $numberOfFieldsInOutput)
