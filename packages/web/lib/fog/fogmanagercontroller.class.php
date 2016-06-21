@@ -37,19 +37,10 @@ abstract class FOGManagerController extends FOGBase {
         if (count($findWhere)) {
             $count = 0;
             $whereArray = array();
-            $params = array();
-            $values = array();
-            $i = 0;
-            array_walk($findWhere,function(&$value,&$field) use (&$count,&$onecompare,&$compare,&$whereArray,&$not,&$params,&$values,&$i) {
+            array_walk($findWhere,function(&$value,&$field) use (&$count,&$onecompare,&$compare,&$whereArray,&$not) {
                 $field = trim($field);
-                $params = array_merge($params,array_map(function(&$val) use($field,&$i) {
-                    return sprintf(':%s_%d',$field,(int)$i++);
-                },(array)$value));
-                $values = array_merge($values,array_map(function(&$val) {
-                    return $val;
-                },(array)$value));
-                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN (%s)",$this->databaseTable,$this->databaseFields[$field],$not,implode(',',$params));
-                else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), $params[$i-1]);
+                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN ('%s')",$this->databaseTable,$this->databaseFields[$field],$not,implode("','",$value));
+                else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? "'".(string)$value."'" : null));
                 $count++;
                 unset($value);
                 return ($whereArray);
@@ -101,7 +92,7 @@ abstract class FOGManagerController extends FOGBase {
         }
         $data = array();
         if ($idField) {
-            $results = (array)self::$DB->query($query,array(),array_combine((array)$params,(array)$values))->fetch('','fetch_all')->get();
+            $results = (array)self::$DB->query($query)->fetch('','fetch_all')->get();
             array_map(function(&$value) use (&$data) {
                 return array_walk($value,function(&$val,&$key) use (&$data) {
                     if (!isset($data[$this->databaseFieldsFlipped[$key]])) {
@@ -120,7 +111,7 @@ abstract class FOGManagerController extends FOGBase {
         } else {
             $data = array_map(function(&$item) {
                 return self::getClass($this->childClass)->setQuery($item);
-            },(array)self::$DB->query($query,array(),array_combine((array)$params,(array)$values))->fetch('','fetch_all')->get());
+            },(array)self::$DB->query($query)->fetch('','fetch_all')->get());
         }
         if ($filter) return $filter(array_values(array_filter((array)$data)));
         return array_values(array_filter((array)$data));
@@ -132,7 +123,7 @@ abstract class FOGManagerController extends FOGBase {
         if (count($findWhere)) {
             array_walk($findWhere,function(&$value,&$field) use (&$whereArray,$compare){
                 $field = trim($field);
-                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s` IN (%s)",$this->databaseTable,$this->databaseFields[$field],implode(",",$value));
+                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s` IN ('%s')",$this->databaseTable,$this->databaseFields[$field],implode("','",$value));
                 else $whereArray[] = sprintf("`%s`.`%s`%s'%s'",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? 'LIKE' : $compare), (string)$value);
                 unset($value,$field);
             });
