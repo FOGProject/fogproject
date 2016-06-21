@@ -425,7 +425,7 @@ class ReportManagementPage extends FOGPage {
     }
     public function pend_mac() {
         if ($_REQUEST['aprvall'] == 1) {
-            self::getClass('MACAddressAssociationManager')->update('','',array('pending'=>0));;
+            self::getClass('MACAddressAssociationManager')->update('','',array('pending'=>(string)0));
             $this->setMessage(_('All Pending MACs approved.'));
             $this->redirect('?node=report&sub=pend-mac');
         }
@@ -470,7 +470,7 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
         );
-        foreach ((array)self::getClass('MACAddressAssociationManager')->find(array('pending'=>1)) AS &$Pending) {
+        foreach ((array)self::getClass('MACAddressAssociationManager')->find(array('pending'=>(string)1)) AS &$Pending) {
             if (!$Pending->isValid()) continue;
             $PendingMAC = self::getClass('MACAddress',$Pending->get('mac'));
             if (!$PendingMAC->isValid()) continue;
@@ -504,7 +504,7 @@ class ReportManagementPage extends FOGPage {
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
     public function pend_mac_post() {
-        if (isset($_REQUEST['approvependmac'])) self::getClass('MACAddressAssociationManager')->update(array('id'=>$_REQUEST['pendmac']),'',array('pending'=>0));
+        if (isset($_REQUEST['approvependmac'])) self::getClass('MACAddressAssociationManager')->update(array('id'=>$_REQUEST['pendmac']),'',array('pending'=>(string)0));
         if (isset($_REQUEST['delpendmac'])) self::getClass('MACAddressAssociationManager')->destroy(array('id'=>$_REQUEST['pendmac']));
         $appdel = (isset($_REQUEST['approvependmac']) ? 'approved' : 'deleted');
         $this->setMessage(_("All pending macs $appdel successfully"));
