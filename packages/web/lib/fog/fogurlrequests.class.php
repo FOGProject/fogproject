@@ -104,7 +104,7 @@ class FOGURLRequests extends FOGBase {
                     $this->contextOptions[CURLOPT_POST] = true;
                     $this->contextOptions[CURLOPT_POSTFIELDS] = $data;
                 }
-                curl_setopt_array($ch);
+                curl_setopt_array($ch,$this->contextOptions);
                 curl_multi_add_handle($this->handle,$ch);
                 curl_multi_remove_handle($this->handle,$done['handle']);
                 $response[] = $output;
