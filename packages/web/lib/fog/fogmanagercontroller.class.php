@@ -39,11 +39,18 @@ abstract class FOGManagerController extends FOGBase {
             $whereArray = array();
             array_walk($findWhere,function(&$value,&$field) use (&$count,&$onecompare,&$compare,&$whereArray,&$not) {
                 $field = trim($field);
-                $values = array_map(function(&$val) {
-                    return self::$DB->sanitize($val);
-                },(array)$value);
-                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s`%sIN (%s)",$this->databaseTable,$this->databaseFields[$field],$not,implode(",",$values));
-                else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? self::$DB->sanitize($value) : null));
+                if (is_array($value) && count($value)) {
+                    $values = array_map(function(&$val) {
+                        $val = trim(self::$DB->sanitize(trim($val)));
+                        if (empty($val)) return "''";
+                        return $val;
+                    },(array)$value);
+                    $whereArray[] = sprintf("`%s`.`%s`%sIN (%s)",$this->databaseTable,$this->databaseFields[$field],$not,implode(',',$values));
+                } else {
+                    $value = trim(self::$DB->sanitize(trim($value)));
+                    if (empty($value)) $value = "''";
+                    $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? $value : null));
+                }
                 $count++;
                 unset($value);
                 return ($whereArray);
@@ -185,8 +192,18 @@ abstract class FOGManagerController extends FOGBase {
                 $values = array_map(function(&$val) {
                     return self::$DB->sanitize($val);
                 },(array)$value);
-                if (is_array($value)) $whereArray[] = sprintf("`%s`.`%s` IN (%s)",$this->databaseTable,$this->databaseFields[$field],implode(',',$values));
-                else $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? 'LIKE' : '='), self::$DB->sanitize($value));
+                if (is_array($value) && count($value)) {
+                    $values = array_map(function(&$val) {
+                        $val = trim(self::$DB->sanitize(trim($val)));
+                        if (empty($val)) return "''";
+                        return $val;
+                    },(array)$value);
+                    $whereArray[] = sprintf("`%s`.`%s` IN (%s)",$this->databaseTable,$this->databaseFields[$field],implode(',',$values));
+                } else {
+                    $value = trim(self::$DB->sanitize(trim($value)));
+                    if (empty($value)) $value = "''";
+                    $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? 'LIKE' : '='), $value);
+                }
                 unset($value,$field);
             });
         }
