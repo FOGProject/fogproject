@@ -431,7 +431,7 @@ abstract class FOGPage extends FOGBase {
                 } else if ($this->obj instanceof Group && $imagingTasks) {
                     if ($TaskType->isMulticast() && !$this->obj->doMembersHaveUniformImages()) throw new Exception(_('Hosts do not contain the same image assignments'));
                     $NoImage = array();
-                    $Hosts = (array)self::getClass('HostManager')->find(array('pending'=>array('',0),'id'=>$this->obj->get('hosts')));
+                    $Hosts = (array)self::getClass('HostManager')->find(array('pending'=>array((string)0,(string)'',null),'id'=>$this->obj->get('hosts')));
                     array_map(function(&$Host) use (&$NoImage) {
                         if (!$Host->isValid()) return;
                         $NoImage[] = (bool)!$Host->getImage()->isValid();
@@ -494,7 +494,7 @@ abstract class FOGPage extends FOGBase {
                                     if (!$imagingTasks) $success[] = sprintf('<li>%s</li>',$Host->get('name'));
                                     if ($imagingTasks && $Host->getImage()->get('isEnabled')) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
                                     unset($Host);
-                                },(array)self::getClass('HostManager')->find(array('pending'=>array('',null,0),'id'=>$this->obj->get('hosts'))));
+                                },(array)self::getClass('HostManager')->find(array('pending'=>array((string)0,(string)'',null,0),'id'=>$this->obj->get('hosts'))));
                             } else if ($this->obj instanceof Host) {
                                 if ($this->obj->isValid() && !$this->obj->get('pending')) $success[] = sprintf('<li>%s &ndash; %s</li>',$this->obj->get('name'),$this->obj->getImage()->get('name'));
                             }
@@ -579,7 +579,7 @@ abstract class FOGPage extends FOGBase {
             );
             unset($TaskType);
         };
-        array_map($taskTypeIterator,(array)self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>0),'AND','id'));
+        array_map($taskTypeIterator,(array)self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>array((string)0,(string)'',null)),'AND','id'));
         $this->data[] = array(
             'node' => $this->node,
             'sub' => 'edit',
@@ -593,7 +593,7 @@ abstract class FOGPage extends FOGBase {
         $this->render();
         unset($this->data);
         printf('<div id="advanced-tasks" class="hidden"><h2>%s</h2>',_('Advanced Actions'));
-        array_map($taskTypeIterator,(array)self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>1),'AND','id'));
+        array_map($taskTypeIterator,(array)self::getClass('TaskTypeManager')->find(array('access'=>array('both',$this->node),'isAdvanced'=>(string)1),'AND','id'));
         self::$HookManager->processEvent(sprintf('%s_DATA_ADV',strtoupper($this->node)), array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         echo '</div></div>';
