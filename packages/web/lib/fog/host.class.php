@@ -180,22 +180,22 @@ class Host extends FOGController {
                 unset($MAC);
             },(array)$DBPriMACs);
             unset($DBPriMACs);
-            $PreOwnedMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>(string)1),'mac',true);
+            $PreOwnedMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>1),'mac',true);
             $RealAddMACs = array_diff((array)$RealAddMACs,(array)$PreOwnedMACs);
             unset($PreOwnedMACs);
-            $DBAddMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array((string)0,(string)'',null),'pending'=>array((string)0,(string)'',null)),'mac');
+            $DBAddMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>array(0,null)),'mac');
             $RemoveAddMAC = array_diff((array)$DBAddMACs,(array)$RealAddMACs);
             if (count($RemoveAddMAC)) {
                 self::getClass('MACAddressAssociationManager')->destroy(array('hostID'=>$this->get('id'),'mac'=>$RemoveAddMAC));
-                $DBAddMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array((string)0,(string)'',null),'pending'=>array((string)0,(string)'',null)),'mac');
+                $DBAddMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>array(0,null)),'mac');
                 unset($RemoveAddMAC);
             }
             array_map(function(&$RealAddMAC) {
                 self::getClass('MACAddressAssociation')
                     ->set('hostID',$this->get('id'))
                     ->set('mac',$RealAddMAC)
-                    ->set('primary',(string)0)
-                    ->set('pending',(string)0)
+                    ->set('primary',0)
+                    ->set('pending',0)
                     ->save();
                 unset($RealAddMAC);
             },(array)array_diff((array)$RealAddMACs,(array)$DBAddMACs));
@@ -210,22 +210,22 @@ class Host extends FOGController {
                 unset($DBPriMAC);
             },(array)$DBPriMACs);
             unset($DBPriMACs);
-            $PreOwnedMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>array((string)0,(string)'',null)),'mac',true);
+            $PreOwnedMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'pending'=>array(0,null)),'mac',true);
             $RealPendMACs = array_diff((array)$RealPendMACs,(array)$PreOwnedMACs);
             unset($PreOwnedMACs);
-            $DBPendMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array((string)0,(string)'',null),'pending'=>(string)1),'mac');
+            $DBPendMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(0,null),'pending'=>1),'mac');
             $RemovePendMAC = array_diff((array)$DBPendMACs,(array)$RealPendMACs);
             if (count($RemovePendMAC)) {
                 self::getClass('MACAddressAssociationManager')->destroy(array('hostID'=>$this->get('id'),'mac'=>$RemovePendMAC));
-                $DBPendMACs = self::getSubObjectIDs('MACAddressAssociation',array('primary'=>array((string)0,(string)'',null),'pending'=>(string)1),'mac');
+                $DBPendMACs = self::getSubObjectIDs('MACAddressAssociation',array('primary'=>array(0,null),'pending'=>1),'mac');
                 unset($RemovePendMAC);
             }
             array_map(function(&$RealPendMAC) {
                 self::getClass('MACAddressAssociation')
                     ->set('hostID',$this->get('id'))
                     ->set('mac',$RealPendMAC)
-                    ->set('primary',(string)0)
-                    ->set('pending',(string)1)
+                    ->set('primary',0)
+                    ->set('pending',1)
                     ->save();
                 unset($RealPendMAC);
             },(array)array_diff((array)$RealPendMACs,(array)$DBPendMACs));

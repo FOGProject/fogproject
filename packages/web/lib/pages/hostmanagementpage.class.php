@@ -96,7 +96,7 @@ class HostManagementPage extends FOGPage {
         $this->title = self::$foglang['AllHosts'];
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $this->data = array();
-        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find(array('pending'=>array((string)'0',(string)'',null))));
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find(array('pending'=>array(0,null,false))));
         self::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         self::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData,'title'=>&$this->title));
         $this->render();
@@ -111,7 +111,7 @@ class HostManagementPage extends FOGPage {
     public function pending() {
         $this->title = _('Pending Host List');
         $this->data = array();
-        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find(array('pending'=>(string)1)));
+        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find(array('pending'=>1)));
         self::$HookManager->processEvent('HOST_DATA',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         self::$HookManager->processEvent('HOST_HEADER_DATA',array('headerData'=>&$this->headerData));
         if (count($this->data) > 0) printf('<form method="post" action="%s">',$this->formAction);
@@ -119,7 +119,7 @@ class HostManagementPage extends FOGPage {
         if (count($this->data) > 0) printf('<p class="c"><input name="approvependhost" type="submit" value="%s"/>&nbsp;&nbsp;<input name="delpendhost" type="submit" value="%s"/></p></form>',_('Approve selected Hosts'),_('Delete selected Hosts'));
     }
     public function pending_post() {
-        if (isset($_REQUEST['approvependhost'])) self::getClass('HostManager')->update(array('id'=>$_REQUEST['host']),'',array('pending'=>(string)0));
+        if (isset($_REQUEST['approvependhost'])) self::getClass('HostManager')->update(array('id'=>$_REQUEST['host']),'',array('pending'=>0));
         if (isset($_REQUEST['delpendhost'])) self::getClass('HostManager')->destroy(array('id'=>$_REQUEST['host']));
         $appdel = (isset($_REQUEST['approvependhost']) ? 'approved' : 'deleted');
         $this->setMessage(_("All hosts $appdel successfully"));
@@ -242,7 +242,7 @@ class HostManagementPage extends FOGPage {
             $this->redirect(sprintf('?node=%s&sub=edit&id=%s#host-general',$this->node,$_REQUEST['id']));
         }
         else if ($_REQUEST['approveAll']) {
-            self::getClass('MACAddressAssociationManager')->update(array('hostID'=>$this->obj->get('id')),'',array('pending'=>(string)0));
+            self::getClass('MACAddressAssociationManager')->update(array('hostID'=>$this->obj->get('id')),'',array('pending'=>0));
             $this->setMessage('All Pending MACs approved.');
             $this->redirect(sprintf('?node=%s&sub=edit&id=%s#host-general',$this->node,$_REQUEST['id']));
         }
@@ -813,7 +813,7 @@ class HostManagementPage extends FOGPage {
                     ->set('productKey',$this->encryptpw($productKey));
                 if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) $this->obj->addPriMAC($mac->__toString());
                 $_REQUEST['additionalMACs'] = array_map('strtolower',(array)$_REQUEST['additionalMACs']);
-                $removeMACs = array_diff((array)self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->obj->get('id'),'primary'=>array((string)0,(string)'',null),'pending'=>array((string)0,(string)'',null)),'mac'),(array)$_REQUEST['additionalMACs']);
+                $removeMACs = array_diff((array)self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->obj->get('id'),'primary'=>0,'pending'=>0),'mac'),(array)$_REQUEST['additionalMACs']);
                 $this->obj->addAddMAC($_REQUEST['additionalMACs'])
                     ->removeAddMAC($removeMACs);
                 break;

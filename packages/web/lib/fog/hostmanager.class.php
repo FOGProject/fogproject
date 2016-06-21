@@ -1,7 +1,7 @@
 <?php
 class HostManager extends FOGManagerController {
     public function getHostByMacAddresses($MACs) {
-        $MACHost = self::getSubObjectIDs('MACAddressAssociation',array('pending'=>array((string)0,(string)'',null),'mac'=>$MACs),'hostID');
+        $MACHost = self::getSubObjectIDs('MACAddressAssociation',array('pending'=>0,'mac'=>$MACs),'hostID');
         if (count($MACHost) > 1) throw new Exception(self::$foglang['ErrorMultipleHosts']);
         return self::getClass('Host',@min($MACHost));
     }

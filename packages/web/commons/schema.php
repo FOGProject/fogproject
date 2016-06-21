@@ -2181,11 +2181,3 @@ $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sHideLog` ENUM('0','1') NOT NULL DEFAULT '0'",
     "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sTimeout` INTEGER NOT NULL DEFAULT 0",
 );
-// 227
-$this->schema[] = array(
-    "ALTER TABLE `".DATABASE_NAME."`.`hosts` CHANGE `hostPending` `hostPending` ENUM('0','1') NOT NULL",
-    "ALTER TABLE `".DATABASE_NAME."`.`hostMAC` CHANGE `hmPrimary` `hmPrimary` ENUM('0','1') NOT NULL",
-    "ALTER TABLE `".DATABASE_NAME."`.`hostMAC` CHANGE `hmPending` `hmPending` ENUM('0','1') NOT NULL",
-    "ALTER TABLE `".DATABASE_NAME."`.`hostMAC` CHANGE `hmIgnoreClient` `hmIgnoreClient` ENUM('0','1') NOT NULL",
-    "ALTER TABLE `".DATABASE_NAME."`.`hostMAC` CHANGE `hmIgnoreImaging` `hmIgnoreImaging` ENUM('0','1') NOT NULL",
-);
