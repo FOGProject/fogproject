@@ -45,9 +45,9 @@ class FOGConfigurationPage extends FOGPage {
             unset($StorageNode);
         },$Nodes);
         $Responses = self::$FOGURLRequests->process($URLs,'GET');
-        array_walk($Responses,function(&$data,&$i) use ($Nodes) {
-            printf('<h2>%s</h2><pre>%s</pre>',$Nodes[$i]->get('name'),$data);
-            unset($data,$i);
+        array_walk($Nodes,function(&$StorageNode,&$index) use ($Responses) {
+            printf('<h2>%s</h2><pre>%s</pre>',$StorageNode->get('name'),$Responses[$index]);
+            unset($StorageNode,$index);
         });
         unset($Responses,$Nodes);
     }
