@@ -197,9 +197,9 @@ class BootMenu extends FOGBase {
     }
     private function ipxeLog() {
         $findWhere = array(
-            'file' => sprintf("'%s'",trim(basename($_REQUEST['filename']))),
-            'product' => sprintf("'%s'",trim($_REQUEST['product'])),
-            'manufacturer' => sprintf("'%s'",trim($_REQUEST['manufacturer'])),
+            'file' => sprintf("%s",trim(basename($_REQUEST['filename']))),
+            'product' => sprintf("%s",trim($_REQUEST['product'])),
+            'manufacturer' => sprintf("%s",trim($_REQUEST['manufacturer'])),
             'mac' => $this->Host->isValid() ? $this->Host->get('mac')->__toString() : '',
         );
         self::getClass('iPXE',@max(self::getSubObjectIDs('iPXE',$findWhere)))
