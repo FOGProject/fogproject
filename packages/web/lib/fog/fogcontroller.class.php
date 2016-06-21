@@ -172,7 +172,7 @@ abstract class FOGController extends FOGBase {
             list($join, $where) = $this->buildQuery();
             if (!is_array($field)) $field = array($field);
             $fields = array();
-            $getFields = function(&$dbColumn,$key) use (&$fields,$table) {
+            $getFields = function(&$dbColumn,$key) use (&$fields,&$table) {
                 $fields[] = sprintf('`%s`.`%s`',$table,trim($dbColumn));
                 unset($dbColumn,$key);
             };
@@ -269,7 +269,7 @@ abstract class FOGController extends FOGBase {
             else $whereArrayAnd[] = sprintf("`%s`.`%s` %s '%s'",$c->databaseTable,$c->databaseFields[$field],(preg_match('#%#',$value) ? 'LIKE' : $compare), $value);
             unset($value,$field);
         };
-        $joinInfo = function(&$fields,&$class) use (&$join,&$whereArrayAnd,&$whereInfo,&$c) {
+        $joinInfo = function(&$fields,&$class) use (&$join,&$whereArrayAnd,&$whereInfo,&$c,$not,$compare) {
             $c = self::getClass($class);
             $join[] = sprintf(' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',$c->databaseTable,$c->databaseTable,$c->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);
             if ($fields[3]) array_walk($fields[3],$whereInfo);

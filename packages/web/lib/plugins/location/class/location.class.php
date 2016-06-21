@@ -35,7 +35,7 @@ class Location extends FOGController {
             throw new Exception(_('Location ID was not set, or unable to be created'));
             break;
         case ($this->isLoaded('hosts')):
-            $DBHostIDs = self::getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id'),'hostID'));
+            $DBHostIDs = self::getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
                 self::getClass('LocationAssociationManager')->destroy(array('locationID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
