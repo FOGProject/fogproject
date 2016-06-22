@@ -214,18 +214,21 @@ abstract class FOGBase {
         return $this->isLoaded[$key];
     }
     protected function resetRequest() {
-        $reqVars = (array)$_REQUEST;
+        $reqVars = $_REQUEST;
         if (!isset($_SESSION['post_request_vals'])) $_SESSION['post_request_vals'] = array();
+        $sesVars = $_SESSION['post_request_vals'];
         unset($_REQUEST);
         $setReq = function(&$val,&$key) {
             $_REQUEST[$key] = $val;
             unset($val,$key);
         };
+        array_walk($sesVars,$setReq);
         array_walk($reqVars,$setReq);
-        unset($_SESSION['post_request_vals'], $reqVars);
+        unset($_SESSION['post_request_vals'], $sesVars, $reqVars);
     }
     protected function setRequest() {
-        if (!$_SESSION['post_request_vals'] && self::$post) $_SESSION['post_request_vals'] = $_REQUEST;
+        if (!isset($_SESSION['post_request_vals'])) $_SESSION['post_request_vals'] = array();
+        if (!$_SESSION['post_request_vals'] && self::$post) $_SESSION['post_request_vals'] = $_POST;
     }
     protected function formatByteSize($size) {
         $units = array('iB','KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
