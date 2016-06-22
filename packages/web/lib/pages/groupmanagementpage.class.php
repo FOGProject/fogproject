@@ -605,7 +605,7 @@ class GroupManagementPage extends FOGPage {
                 if (isset($_REQUEST['pmsubmit'])) {
                     if ($onDemand && $action === 'wol'){
                         array_map(function(&$Host) {
-                            $this->obj->wakeOnLAN();
+                            $Host->wakeOnLAN();
                         },(array)self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
                         break;
                     }
