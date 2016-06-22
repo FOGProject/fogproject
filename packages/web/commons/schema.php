@@ -2107,7 +2107,6 @@ $this->schema[] = array(
 );
 // 219
 $this->schema[] = array(
-    "ALTER TABLE `".DATABASE_NAME."`.`groupMembers` ADD UNIQUE KEY `gmhostID` (`gmHostID`,`gmGroupID`)",
 );
 // 220
 $this->schema[] = array(
