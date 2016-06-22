@@ -1212,7 +1212,7 @@ getPartitions() {
     local disk="$1"
     [[ -z $disk ]] && disk="$hd"
     [[ -z $disk ]] && handleError "No disk found (${FUNCNAME[0]})\n   Args Passed: $*"
-    parts=$(lsblk -I 3,8,9,179,259 -lpno KNAME,TYPE $disk | awk '{if ($2 ~ /part/) print $1}' | sort -V | uniq)
+    parts=$(lsblk -I 3,8,9,179,259 -lpno KNAME,TYPE $disk | awk '{if ($2 ~ /part/ || $2 ~ /md/) print $1}' | sort -V | uniq)
 }
 # Gets the hard drive on the host
 # Note: This function makes a best guess
@@ -1249,7 +1249,7 @@ findHDDInfo() {
                     enableWriteCache "$hd"
                     ;;
                 up)
-                    dots "Reading PartitionTables"
+                    dots "Reading Partition Tables"
                     runPartprobe "$hd"
                     getPartitions "$hd"
                     if [[ -z $parts ]]; then
