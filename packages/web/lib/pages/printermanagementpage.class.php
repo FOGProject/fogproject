@@ -216,8 +216,7 @@ class PrinterManagementPage extends FOGPage {
             '${input}',
         );
         echo '<!-- General --><div id="printer-gen">';
-        if (!$_REQUEST['printertype']) $_REQUEST['printertype'] = $this->obj->get('config');
-        if (!$_REQUEST['printertype']) $_REQUEST['printertype'] = 'Local';
+        if (!isset($_REQUEST['printertype']) || empty($_REQUEST['printertype'])) $_REQUEST['printertype'] = $this->obj->get('config');
         $printerTypes = array(
             'Local'=>_('TCP/IP Port Printer'),
             'iPrint'=>_('iPrint Printer'),
@@ -225,8 +224,10 @@ class PrinterManagementPage extends FOGPage {
             'Cups'=>_('CUPS Printer'),
         );
         ob_start();
-        foreach ((array)$printerTypes AS $short => &$long) printf('<option value="%s"%s>%s</option>',$short,($_REQUEST['printertype'] == $short ? ' selected' : ''),$long);
-        unset($long);
+        array_walk($printerTypes,function(&$long,&$short) {
+            printf('<option value="%s"%s>%s</option>',$short,($_REQUEST['printertype'] === $short ? ' selected' : ''),$long);
+            unset($short,$long);
+        });
         $optionPrinter = ob_get_clean();
         switch (strtolower($_REQUEST['printertype'])) {
         case 'network':
