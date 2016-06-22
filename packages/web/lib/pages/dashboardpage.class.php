@@ -150,7 +150,7 @@ class DashboardPage extends FOGPage {
         $data = array(
             'ActivityActive'=>$ActivityActive,
             'ActivityQueued'=>$ActivityQueued,
-            'ActivitySlots'=>$ActivityTotalClients,
+            'ActivitySlots'=>$ActivityTotalClients - ($ActivityActive + $ActivityQueued),
         );
         unset($ActivityActive,$ActivityQueued,$ActivityTotalClients);
         echo json_encode($data);
