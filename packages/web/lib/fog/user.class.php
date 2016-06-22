@@ -74,7 +74,7 @@ class User extends FOGController {
         if (!$this->checkedalready) {
             $this->inactivitySessionTimeout = self::getSetting('FOG_INACTIVITY_TIMEOUT');
             $this->regenerateSessionTimeout = self::getSetting('FOG_REGENERATE_TIMEOUT');
-            $this->alwaysloggedin = (int)self::getSetting('FOG_ALWAYS_LOGGED_IN');
+            $this->alwaysloggedin = self::getSetting('FOG_ALWAYS_LOGGED_IN');
             $this->checkedalready = true;
         }
         $_SESSION['OBSOLETE'] = false;

@@ -50,7 +50,7 @@ class StorageGroup extends FOGController {
             if ($StorageNode->getClientLoad() < $this->winner->getClientLoad()) $this->winner = $StorageNode;
             unset($StorageNode);
         },(array)self::getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes'))));
-        if (empty($this->winner) || !($this->winner instanceof StorageNode)) $this->winner = self::getClass('StorageNode',(int)@min($this->get('enablednodes')));
+        if (empty($this->winner) || !($this->winner instanceof StorageNode)) $this->winner = self::getClass('StorageNode',@min($this->get('enablednodes')));
         return $this->winner;
     }
     public function getUsedSlotCount() {

@@ -89,9 +89,9 @@ class BootMenu extends FOGBase {
             list($exit,$kernelArgs,$kernelDebug,$kernelLogLevel,$kernelRamDisk,$keyMap,$keySequence,$memtest,$imagefile,$init_32,$hiddenTimeout,$hiddenmenu,$menuTimeout,$bzImage,$bzImage32) = self::getSubObjectIDs('Service',array('name'=>$serviceNames),'value',false,'AND','name',false,'');
         }
         $memdisk = 'memdisk';
-        $loglevel = (int)$kernelLogLevel;
-        $ramsize = (int)$kernelRamDisk;
-        $timeout = ($hiddenmenu > 0 && !$_REQUEST['menuAccess'] ? (int)$hiddenTimeout : (int)$menuTimeout) * 1000;
+        $loglevel = $kernelLogLevel;
+        $ramsize = $kernelRamDisk;
+        $timeout = ($hiddenmenu > 0 && !$_REQUEST['menuAccess'] ? $hiddenTimeout : $menuTimeout) * 1000;
         $keySequence = ($hiddenmenu > 0 && !$_REQUEST['menuAccess'] ? $keySequence : '');
         if ($_REQUEST['arch'] != 'x86_64') {
             $bzImage = $bzImage32;
@@ -216,7 +216,7 @@ class BootMenu extends FOGBase {
             ->save();
     }
     private function chainBoot($debug=false, $shortCircuit=false) {
-        $debug = (int)$debug;
+        $debug = $debug;
         if (!$this->hiddenmenu || $shortCircuit) {
             $Send['chainnohide'] = array(
                 'cpuid --ext 29 && set arch x86_64 || set arch i386',
@@ -490,7 +490,7 @@ class BootMenu extends FOGBase {
                 array_push($Send['ImageListing'],sprintf('item %s %s',$Image->get('path'),$Image->get('name')));
                 if (!$this->Host->isValid()) return;
                 if (!$this->Host->getImage()->isValid()) return;
-                if ((int)$this->Host->getImage()->get('id') === (int)$Image->get('id')) $defItem = sprintf('choose --default %s --timeout %d target && goto ${target}',$Image->get('path'),(int)$this->timeout);
+                if ($this->Host->getImage()->get('id') === $Image->get('id')) $defItem = sprintf('choose --default %s --timeout %d target && goto ${target}',$Image->get('path'),$this->timeout);
                 unset($Image);
             },(array)$Images);
             array_push($Send['ImageListing'],'item return Return to menu');
@@ -499,7 +499,7 @@ class BootMenu extends FOGBase {
                 if (!$Image->isValid()) return;
                 $Send[sprintf('pathofimage%s',$Image->get('name'))] = array(
                     sprintf(':%s',$Image->get('path')),
-                    sprintf('set imageID %d',(int)$Image->get('id')),
+                    sprintf('set imageID %d',$Image->get('id')),
                     'params',
                     'param mac0 ${net0/mac}',
                     'param arch ${arch}',
@@ -792,7 +792,7 @@ class BootMenu extends FOGBase {
             $params = trim(implode("\n",(array)$params));
             $Send = array_merge($Send,array($params));
         }
-        switch ((int)$option->get('id')) {
+        switch ($option->get('id')) {
         case 1:
             $Send = array_merge($Send,array("$this->bootexittype || goto MENU"));
             break;

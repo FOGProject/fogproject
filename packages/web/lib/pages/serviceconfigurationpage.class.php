@@ -267,8 +267,8 @@ class ServiceConfigurationPage extends FOGPage {
         $Module = self::getClass('ModuleManager')->find(array('shortName'=>$_REQUEST['tab']));
         $Module = array_shift($Module);
         self::$HookManager->processEvent('SERVICE_EDIT_POST',array('Service'=>&$Service));
-        $onoff = (int)isset($_REQUEST['en']);
-        $defen = (int)isset($_REQUEST['defen']);
+        $onoff = isset($_REQUEST['en']);
+        $defen = isset($_REQUEST['defen']);
         try {
             if (isset($_REQUEST['updatestatus'])) {
                 if ($Service) $Service->set('value',$onoff)->save();

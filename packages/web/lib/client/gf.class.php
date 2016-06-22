@@ -21,11 +21,11 @@ class GF extends FOGClient implements FOGClientSend {
             if (!$gf->isValid()) return;
             $action = (trim(strtolower($gf->get('action'))) === 's' ? 'shutdown' : (trim(strtolower($gf->get('action'))) === 'r' ? 'reboot' : ''));
             if (empty($action)) return;
-            $val = sprintf('%d@%d@%s',(int)$gf->get('hour'),(int)$gf->get('min'),$action);
+            $val = sprintf('%d@%d@%s',$gf->get('hour'),$gf->get('min'),$action);
             if ($this->newService) {
-                if ($index === 0) $Send[(int)$index] = "#!ok\n";
-                $Send[(int)$index] .= sprintf("#task%d=%s\n",(int)$index,$val);
-            } else $Send[(int)$index] = sprintf("%s\n",base64_encode($val));
+                if ($index === 0) $Send[$index] = "#!ok\n";
+                $Send[$index] .= sprintf("#task%d=%s\n",$index,$val);
+            } else $Send[$index] = sprintf("%s\n",base64_encode($val));
             $index++;
         },(array)self::getClass('GreenFogManager')->find());
         $this->send = implode($Send);

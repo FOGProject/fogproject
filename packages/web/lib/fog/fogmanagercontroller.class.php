@@ -152,7 +152,7 @@ abstract class FOGManagerController extends FOGBase {
             $this->databaseTable,
             (count($whereArray) ? sprintf(' WHERE %s%s',implode(sprintf(' %s ',$whereOperator),$whereArray),($isEnabled ? sprintf(' AND %s',$isEnabled) : '')) : ($isEnabled ? sprintf(' WHERE %s',$isEnabled) : ''))
         );
-        return (int)self::$DB->query($query)->fetch()->get('total');
+        return self::$DB->query($query)->fetch()->get('total');
     }
     public function insert_batch($fields,$values) {
         $fieldlength = count($fields);

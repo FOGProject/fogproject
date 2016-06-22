@@ -20,7 +20,7 @@ abstract class FOGController extends FOGBase {
         try {
             if (!isset($this->databaseTable)) throw new Exception(_('No database table defined for this class'));
             if (!count($this->databaseFields)) throw new Exception(_('No database fields defined for this class'));
-            if (is_numeric($data) && (int) $data < 1) throw new Exception(_('Improper data passed'));
+            if (is_numeric($data) &&  $data < 1) throw new Exception(_('Improper data passed'));
             $this->databaseFieldsFlipped = array_flip($this->databaseFields);
             if (is_numeric($data)) $this->set('id',$data)->load();
             else if (is_array($data)) $this->setQuery($data);
@@ -150,7 +150,7 @@ abstract class FOGController extends FOGBase {
             );
             $queryArray = array_combine(array_merge($insertValKeys,$updateValKeys),array_merge($insertValues,$updateValues));
             self::$DB->query($query,array(),$queryArray);
-            if ((int)$this->get('id') < 1) $this->set('id',self::$DB->insert_id());
+            if ($this->get('id') < 1) $this->set('id',self::$DB->insert_id());
             if (!$this instanceof History) {
                 if ($this->get('name')) $this->log(sprintf('%s ID: %s NAME: %s %s.',get_class($this),$this->get('id'),$this->get('name'),_('has been successfully updated')));
                 else $this->log(sprintf('%s ID: %s %s.',get_class($this),$this->get('id'),_('has been successfully updated')));

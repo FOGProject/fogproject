@@ -18,7 +18,7 @@ try {
                 ->set('percent',trim($str[5]))
                 ->set('pct',trim($str[5]))
                 ->save();
-            if ($str[6] > (int)$Image->get('size')) $Image->set('size',$str[6])->save();
+            if ($str[6] > $Image->get('size')) $Image->set('size',$str[6])->save();
         }
     }
 } catch (Exception $e) {

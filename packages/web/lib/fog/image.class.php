@@ -133,8 +133,8 @@ class Image extends FOGController {
         return self::getClass('ImageType',$this->get('imageTypeID'));
     }
     public function getImagePartitionType() {
-        if ((int)$this->get('imagePartitionTypeID') < 1) $this->set('imagePartitionTypeID',1)->save();
-        return self::getClass('ImagePartitionType',(int)$this->get('imagePartitionTypeID'));
+        if ($this->get('imagePartitionTypeID') < 1) $this->set('imagePartitionTypeID',1)->save();
+        return self::getClass('ImagePartitionType',$this->get('imagePartitionTypeID'));
     }
     public function getPrimaryGroup($groupID) {
         $primaryCount = self::getClass('ImageAssociationManager')->count(array('imageID'=>$this->get('id'),'primary'=>1));

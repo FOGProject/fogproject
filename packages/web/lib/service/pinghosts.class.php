@@ -7,7 +7,7 @@ class PingHosts extends FOGService {
         static::$log = sprintf('%s%s',self::$logpath ? self::$logpath : '/opt/fog/log/',$log ? $log : 'pinghost.log');
         if (file_exists(static::$log)) unlink(static::$log);
         static::$dev = $dev ? $dev : '/dev/tty3';
-        static::$zzz = (int)($zzz ? $zzz : 300);
+        static::$zzz = ($zzz ? $zzz : 300);
     }
     private function commonOutput() {
         try {

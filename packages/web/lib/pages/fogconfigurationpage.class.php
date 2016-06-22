@@ -179,11 +179,11 @@ class FOGConfigurationPage extends FOGPage {
         try {
         array('bgfile','mainColors','hostValid','hostInvalid','mainCpairs','mainFallback','hostCpairs');
             $timeout = trim($_REQUEST['timeout']);
-            $timeout = (is_numeric($timeout) || (int) $timeout >= 0 ? true : false);
+            $timeout = (is_numeric($timeout) ||  $timeout >= 0 ? true : false);
             if (!$timeout) throw new Exception(_('Invalid Timeout Value'));
             else $timeout = trim($_REQUEST['timeout']);
             $hidetimeout = trim($_REQUEST['hidetimeout']);
-            $hidetimeout = (is_numeric($hidetimeout) || (int) $hidetimeout >= 0 ? true : false);
+            $hidetimeout = (is_numeric($hidetimeout) ||  $hidetimeout >= 0 ? true : false);
             if (!$hidetimeout) throw new Exception(_('Invalid Timeout Value'));
             else $hidetimeout = trim($_REQUEST['hidetimeout']);
             $ServicesToEdit = array(
@@ -628,7 +628,7 @@ class FOGConfigurationPage extends FOGPage {
         echo '</div></form>';
     }
     public function getOSID() {
-        $imageid = (int) $_REQUEST['image_id'];
+        $imageid =  $_REQUEST['image_id'];
         $osname = self::getClass('Image',$imageid)->getOS()->get('name');
         echo json_encode($osname ? $osname : _('No Image specified'));
         exit;

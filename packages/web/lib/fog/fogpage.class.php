@@ -55,7 +55,7 @@ abstract class FOGPage extends FOGBase {
                 $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
                 $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST['id']}";
                 $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST['id']}";
-                if ((int) $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
+                if ( $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
                     unset($this->obj);
                     $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
                     $this->redirect(sprintf('?node=%s',$this->node));
@@ -295,13 +295,13 @@ abstract class FOGPage extends FOGBase {
     }
     public function deploy() {
         try {
-            $TaskType = self::getClass('TaskType',(isset($_REQUEST['type']) && is_numeric($_REQUEST['type']) && $_REQUEST['type'] ? (int)$_REQUEST['type'] : 1));
+            $TaskType = self::getClass('TaskType',(isset($_REQUEST['type']) && is_numeric($_REQUEST['type']) && $_REQUEST['type'] ? $_REQUEST['type'] : 1));
             $imagingTypes = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
             if (($this->obj instanceof Group && !(count($this->obj->get('hosts')))) || ($this->obj instanceof Host && ($this->obj->get('pending') || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
             if ($imagingTypes && $this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
-            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && (int) $_REQUEST['id'] > 0 ? sprintf('&%s=%s',$this->id,(int) $_REQUEST['id']) : '')));
+            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) &&  $_REQUEST['id'] > 0 ? sprintf('&%s=%s',$this->id, $_REQUEST['id']) : '')));
         }
         $this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get('name'),_('task for'),$this->obj->get('name'));
         printf('<p class="c"><b>%s</b></p>',_('Are you sure you wish to deploy task to these machines'));
@@ -404,22 +404,22 @@ abstract class FOGPage extends FOGBase {
     }
     public function deploy_post() {
         try {
-            $TaskType = self::getClass('TaskType',((int) $_REQUEST['type'] ? (int) $_REQUEST['type'] : 1));
+            $TaskType = self::getClass('TaskType',( $_REQUEST['type'] ?  $_REQUEST['type'] : 1));
             $imagingTypes = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
             if (($this->obj instanceof Group && !(count($this->obj->get('hosts')))) || ($this->obj instanceof Host && ($this->obj->get('pending') || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
             if ($imagingTypes && $this->obj instanceof Host && !$this->obj->getImage()->get('isEnabled')) throw new Exception(_('Cannot set tasking as image is not enabled'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
-            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) && (int) $_REQUEST['id'] > 0 ? sprintf('&%s=%s',$this->id,(int) $_REQUEST['id']) : '')));
+            $this->redirect(sprintf('?node=%s&sub=edit%s',$this->node,(is_numeric($_REQUEST['id']) &&  $_REQUEST['id'] > 0 ? sprintf('&%s=%s',$this->id, $_REQUEST['id']) : '')));
         }
-        $Snapin = self::getClass('Snapin',(int) $_REQUEST['snapin']);
+        $Snapin = self::getClass('Snapin', $_REQUEST['snapin']);
         $enableShutdown = $_REQUEST['shutdown'] ? true : false;
         $enableSnapins = $TaskType->get('id') != 17 ? ($Snapin instanceof Snapin && $Snapin->isValid() ? $Snapin->get('id') : -1) : false;
         $enableDebug = (bool)((isset($_REQUEST['debug']) && $_REQUEST['debug'] == 'true') || isset($_REQUEST['isDebugTask']));
         $scheduleDeployTime = self::nice_date($_REQUEST['scheduleSingleTime']);
         $imagingTasks = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
         $passreset = trim($_REQUEST['account']);
-        $wol = (string)intval((int)(isset($_REQUEST['wol']) || $TaskType->get('id') == 14));
+        $wol = (string)intval((isset($_REQUEST['wol']) || $TaskType->get('id') == 14));
         try {
             if (!$TaskType || !$TaskType->isValid()) throw new Exception(_('Task type is not valid'));
             $taskName = sprintf('%s Task',$TaskType->get('name'));
@@ -469,7 +469,7 @@ abstract class FOGPage extends FOGBase {
                             ->set('isGroupTask',$groupTask)
                             ->set('other3',$_SESSION['FOG_USERNAME'])
                             ->set('isActive',1)
-                            ->set('other4',(int)$wol);
+                            ->set('other4',$wol);
                         if ($_REQUEST['scheduleType'] == 'single') $ScheduledTask->set('scheduleTime',$scheduleDeployTime->getTimestamp());
                         else if ($_REQUEST['scheduleType'] == 'cron') {
                             $valsToTest = array(
@@ -828,9 +828,9 @@ abstract class FOGPage extends FOGBase {
         $this->newService = true;
         if (isset($_REQUEST['configure'])) {
             $Services = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_CHECKIN_TIME','FOG_CLIENT_MAXSIZE','FOG_GRACE_TIMEOUT','FOG_TASK_FORCE_REBOOT')),'value',false,'AND','name',false,'');
-            $vals['sleep'] = (int)$Services[0] + mt_rand(1,91);
-            $vals['maxsize'] = (int)$Services[1];
-            $vals['promptTime'] = (int)$Services[2];
+            $vals['sleep'] = $Services[0] + mt_rand(1,91);
+            $vals['maxsize'] = $Services[1];
+            $vals['promptTime'] = $Services[2];
             $vals['force'] = (bool)$Services[3];
             echo json_encode($vals);
             exit;
@@ -882,8 +882,8 @@ abstract class FOGPage extends FOGBase {
         exit;
     }
     public function clearAES() {
-        $groupid = (int)$_REQUEST['groupid'];
-        $id = (int)$_REQUEST['id'];
+        $groupid = $_REQUEST['groupid'];
+        $id = $_REQUEST['id'];
         if (!$groupid && !$id) return;
         if ($groupid > 0) $Hosts = self::getClass('Group',$groupid)->get('hosts');
         else if ($id > 0) $Hosts = $id;

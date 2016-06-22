@@ -83,11 +83,11 @@ class DashboardPage extends FOGPage {
         });
         printf('<div class="fog-variable" id="Graph30dayData">[%s]</div>',ob_get_clean());
         if ($StorageEnabledCount > 0) {
-            $bandwidthtime = (int) self::getSetting('FOG_BANDWIDTH_TIME') * 1000;
-            $datapointshour = (int)(3600 / self::getSetting('FOG_BANDWIDTH_TIME'));
-            $datapointshalf = (int)($datapointshour / 2);
-            $datapointsten = (int)($datapointshour / 6);
-            $datapointstwo = (int)($datapointshour / 30);
+            $bandwidthtime =  self::getSetting('FOG_BANDWIDTH_TIME') * 1000;
+            $datapointshour = (3600 / self::getSetting('FOG_BANDWIDTH_TIME'));
+            $datapointshalf = ($datapointshour / 2);
+            $datapointsten = ($datapointshour / 6);
+            $datapointstwo = ($datapointshour / 30);
             // Bandwidth Graph
             printf('<input type="hidden" id="bandwidthtime" value="%s"/><h3 id="graph-bandwidth-title">%s - <span>%s</span><!-- (<span>2 Minutes</span>)--></h3><div id="graph-bandwidth-filters"><div><a href="#" id="graph-bandwidth-filters-transmit" class="l active">%s</a><a href="#" id="graph-bandwidth-filters-receive" class="l">%s</a></div><div class="spacer"></div><div><a href="#" rel="%s" class="r">%s</a><a href="#" rel="%s" class="r">%s</a><a href="#" rel="%s" class="r">%s</a><a href="#" rel="%s" class="r active">%s</a></div></div><div id="graph-bandwidth" class="graph"></div>',$bandwidthtime,self::$foglang['Bandwidth'],self::$foglang['Transmit'],self::$foglang['Transmit'],self::$foglang['Receive'],$datapointshour,_('1 hour'),$datapointshalf,_('30 Minutes'),$datapointsten,_('10 Minutes'),$datapointstwo,_('2 Minutes'));
         }

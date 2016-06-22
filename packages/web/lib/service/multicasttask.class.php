@@ -95,9 +95,9 @@ class MulticastTask extends FOGService {
             ' --nopointopoint;',
         );
         $buildcmd = array_values(array_filter($buildcmd));
-        switch ((int)$this->getImageType()) {
+        switch ($this->getImageType()) {
         case 1:
-            switch ((int)$this->getOSID()) {
+            switch ($this->getOSID()) {
             case 1:
             case 2:
                 if (is_file($this->getImagePath())) {

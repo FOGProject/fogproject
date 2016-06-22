@@ -114,7 +114,7 @@ class LDAPManagementPage extends FOGPage {
                 ->set('address',$address)
                 ->set('DN',$_REQUEST['DN'])
                 ->set('port',$_REQUEST['port'])
-                ->set('admin',(string)intval((int)isset($_REQUEST['admin'])));
+                ->set('admin',(string)intval(isset($_REQUEST['admin'])));
             if ($LDAP->save()) {
                 $this->setMessage(_('LDAP Server Added, editing!'));
                 $this->redirect(sprintf('?node=ldap&sub=edit&id=%s',$LDAP->get('id')));
@@ -171,7 +171,7 @@ class LDAPManagementPage extends FOGPage {
                 ->set('address',$address)
                 ->set('DN',$_REQUEST['DN'])
                 ->set('port',$_REQUEST['port'])
-                ->set('admin',(string)intval((int)isset($_REQUEST['admin'])));
+                ->set('admin',(string)intval(isset($_REQUEST['admin'])));
             if (!$LDAP->save()) throw new Exception(_('Database update failed'));
             self::$HookManager->processEvent('LDAP_EDIT_SUCCESS',array('LDAP'=>&$this->obj));
             $this->setMessage(_('LDAP information updated!'));

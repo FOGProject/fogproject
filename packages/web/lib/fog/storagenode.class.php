@@ -108,8 +108,8 @@ class StorageNode extends FOGController {
         $this->set('images',self::getSubObjectIDs('Image',array('path'=>$paths)));
     }
     public function getClientLoad() {
-        if ((int)$this->get('maxClients') <= 0) return (double)((int)$this->getStorageGroup()->getUsedSlotCount() + (int)$this->getStorageGroup()->getQueuedSlotCount()) / (int)$this->getTotalSupportedClients();
-        return (double)((int)$this->getUsedSlotCount() + (int)$this->getQueuedSlotCount()) / (int)$this->get('maxClients');
+        if ($this->get('maxClients') <= 0) return (double)($this->getStorageGroup()->getUsedSlotCount() + $this->getStorageGroup()->getQueuedSlotCount()) / $this->getTotalSupportedClients();
+        return (double)($this->getUsedSlotCount() + $this->getQueuedSlotCount()) / $this->get('maxClients');
     }
     public function getUsedSlotCount() {
         $UsedTasks = explode(',',self::getSetting('FOG_USED_TASKS'));

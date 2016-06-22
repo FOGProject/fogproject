@@ -7,7 +7,7 @@ class TaskScheduler extends FOGService {
         static::$log = sprintf('%s%s',self::$logpath ? self::$logpath : '/opt/fog/log/',$log ? $log : 'fogscheduler.log');
         if (file_exists(static::$log)) unlink(static::$log);
         static::$dev = $dev ? $dev : '/dev/tty5';
-        static::$zzz = (int)($zzz ? $zzz : 60);
+        static::$zzz = ($zzz ? $zzz : 60);
     }
     private function commonOutput() {
         try {
