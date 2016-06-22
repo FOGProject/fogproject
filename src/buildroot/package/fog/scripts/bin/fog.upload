@@ -111,7 +111,7 @@ beginUpload() {
                             echo "Yes"
                             debugPause
                             if [[ $part_number -gt 1 ]]; then
-                                for ((increment=1; increment <= $part_number; increment++)); do
+                                for ((increment=1; increment < $part_number; increment++)); do
                                     fixed_size_partitions="$fixed_size_partitions:$increment"
                                 done
                             fi
@@ -121,7 +121,7 @@ beginUpload() {
             esac
             # All:
             #  save the list of fixed size partitions
-            fixed_size_partitions=$(echo $fixed_size_partitions | sed -r -e 's/[^:0-9]//g' -e 's/^://g' -e 's/:$//g')
+            fixed_size_partitions=$(echo $fixed_size_partitions | tr ':' '\n' | uniq | tr '\n' ':' | sed 's/:$//g')
             echo "$fixed_size_partitions" > "$imagePath/d1.fixed_size_partitions"
             # Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
             #  Save unmodified partition table for download use
