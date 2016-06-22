@@ -5,7 +5,7 @@ class FOGCore extends FOGBase {
             ->validate_pw($username,$password);
     }
     public function stopScheduledTask($task) {
-        return self::getClass('ScheduledTask',$task->get('id'))->set('isActive',(int)false)->save();
+        return self::getClass('ScheduledTask',$task->get('id'))->set('isActive',false)->save();
     }
     public function clearMACLookupTable() {
         $OUITable = self::getClass('OUI','',true);
@@ -56,8 +56,8 @@ class FOGCore extends FOGBase {
         $hdused = 0;
         array_map(function(&$n) use (&$hdtotal,&$hdused) {
             if (!preg_match("/(\d+) +(\d+) +(\d+) +\d+%/",$n,$matches)) return;
-            $hdtotal += (int) $matches[1]*1024;
-            $hdused += (int) $matches[2]*1024;
+            $hdtotal +=  $matches[1]*1024;
+            $hdused +=  $matches[2]*1024;
             unset($n);
         },(array)explode("\n",shell_exec('df | grep -vE "^Filesystem|shm"')));
         $data['totalspace'] = $this->formatByteSize($hdtotal);
@@ -95,7 +95,7 @@ class FOGCore extends FOGBase {
         $_SESSION['FOGPingActive'] = self::getSetting('FOG_HOST_LOOKUP');
         $_SESSION['memory'] = self::getSetting('FOG_MEMORY_LIMIT');
         $memorySet = preg_replace('#M#','',ini_get('memory_limit'));
-        if ((int) $memorySet < $_SESSION['memory']) ini_set('memory_limit',is_numeric($_SESSION['memory']) ? sprintf('%dM',$_SESSION['memory']) : ini_get('memory_limit'));
+        if ( $memorySet < $_SESSION['memory']) ini_set('memory_limit',is_numeric($_SESSION['memory']) ? sprintf('%dM',$_SESSION['memory']) : ini_get('memory_limit'));
         $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = self::getSetting('FOG_FORMAT_FLAG_IN_GUI');
         $_SESSION['FOG_SNAPINDIR'] = self::getSetting('FOG_SNAPINDIR');
         $_SESSION['FOG_REPORT_DIR'] = self::getSetting('FOG_REPORT_DIR');

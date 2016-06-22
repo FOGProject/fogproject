@@ -7,7 +7,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
         $allPrinters = self::getSubObjectIDs('Printer','','name');
         if (count($this->Host->get('printers')) < 1) return array(
             'error'=>'np',
-            'mode'=> self::$modes[$level] ? self::$modes[$level] : (int)self::$modes[$level],
+            'mode'=> self::$modes[$level] ? self::$modes[$level] : self::$modes[$level],
             'allPrinters'=>$allPrinters,
             'default' => '',
             'printers' => array(
@@ -17,7 +17,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
         $default = self::getClass('Printer',@max(self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->Host->get('id'),'isDefault'=>1),'printerID')));
         $default = $default->isValid() ? $default = $default->get('name') : '';
         return array(
-            'mode'=> self::$modes[$level] ? self::$modes[$level] : (int)self::$modes[$level],
+            'mode'=> self::$modes[$level] ? self::$modes[$level] : self::$modes[$level],
             'allPrinters' => $allPrinters,
             'default' => $default,
             'printers' => array_map(function(&$Printer) {
@@ -35,18 +35,18 @@ class PrinterClient extends FOGClient implements FOGClientSend {
     }
     private function getString($stringsend,&$Printer) {
         if (!$this->newService)
-            return sprintf($stringsend,$Printer->get('port'),$Printer->get('file'),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id')));
+            return sprintf($stringsend,$Printer->get('port'),$Printer->get('file'),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),$this->Host->getDefault($Printer->get('id')));
         else
-            return sprintf($stringsend,$Printer->get('port'),$Printer->get('file'),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id')),$Printer->get('configFile'));
+            return sprintf($stringsend,$Printer->get('port'),$Printer->get('file'),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),$this->Host->getDefault($Printer->get('id')),$Printer->get('configFile'));
     }
     public function send() {
         $level = $this->Host->get('printerLevel');
         if (!in_array($level,self::$modes)) $level = 0;
-        if (!$this->newService || $level === 0) $level = (int)$level;
+        if (!$this->newService || $level === 0) $level = $level;
         if (self::getClass('PrinterAssociationManager')->count(array('printerID'=>$this->Host->get('printers'),'hostID'=>$this->Host->get('id'))) < 1) throw new Exception($this->newService ? sprintf("#!np\n#mode=%s\n",self::$modes[$level]) : sprintf("%s\n",base64_encode("#!mg=$level")));
         $Printers = (array)self::getClass('PrinterManager')->find(array('id'=>$this->Host->get('printers')));
         $default = array_filter(array_map(function(&$Printer) {
-            return (int)$this->Host->getDefault($Printer->get('id'));
+            return $this->Host->getDefault($Printer->get('id'));
         },$Printers));
         if (!$this->newService) {
             $strtosend = "%s|%s|%s|%s|%s|%s";

@@ -5,7 +5,7 @@ class FOGCron extends FOGBase {
      *     verify the fit of the string
      * @param (string) $str
      *     the string to check
-     * @param (int) $num
+     * @param  $num
      *     the number to check
      * @return (bool)
      *     Returns if the number
@@ -15,26 +15,26 @@ class FOGCron extends FOGBase {
         if (strpos($str,',')) {
             $arr = explode(',',$str);
             return (bool)in_array(true,array_map(function($element) use ($num) {
-                return (bool)self::fit($element,(int)$num);
+                return (bool)self::fit($element,$num);
             },(array)$arr),true);
         }
         if (strpos($str,'-')) {
             list($low,$high) = explode('-',$str);
-            return (bool)($num = (int)$low);
+            return (bool)($num = $low);
         }
         if (strpos($str,'/')) {
             list($pre,$pos) = explode('/',$str);
-            if ($pre == '*') return ($num % (int)$pos == 0);
-            return ($num % (int)$pos == (int)$pre);
+            if ($pre == '*') return ($num % $pos == 0);
+            return ($num % $pos == $pre);
         }
-        return (bool)((int)$str == $num);
+        return (bool)($str == $num);
     }
     /**
      * @method parse
      *     Return the next run time
      * @param (string) $Cron
      *     The string to parse
-     * @return (int) timestamp of the date parsed.
+     * @return  timestamp of the date parsed.
      */
     public static function parse($Cron,$lastrun = false) {
         list($min,$hour,$dom,$month,$dow) = array_map('trim',preg_split('/ +/',$Cron));
@@ -43,31 +43,31 @@ class FOGCron extends FOGBase {
         do {
             list($nmin,$nhour,$ndom,$nmonth,$ndow) = array_map('trim',preg_split('/ +/',$Start->format('i H d n N')));
             if ($min != '*') {
-                if (!self::fit($min,(int)$nmin)) {
+                if (!self::fit($min,$nmin)) {
                     $Start->modify(sprintf('%s1 minute',$lastrun ? '-' : '+'));
                     continue;
                 }
             }
             if ($hour != '*') {
-                if (!self::fit($hour,(int)$nhour)) {
+                if (!self::fit($hour,$nhour)) {
                     $Start->modify(sprintf('%s1 hour',$lastrun ? '-' : '+'));
                     continue;
                 }
             }
             if ($dom != '*') {
-                if (!self::fit($dom,(int)$ndom)) {
+                if (!self::fit($dom,$ndom)) {
                     $Start->modify(sprintf('%s1 day',$lastrun ? '-' : '+'));
                     continue;
                 }
             }
             if ($month != '*') {
-                if (!self::fit($month,(int)$nmonth)) {
+                if (!self::fit($month,$nmonth)) {
                     $Start->modify(sprintf('%s1 month',$lastrun ? '-' : '+'));
                     continue;
                 }
             }
             if ($dow != '*') {
-                if (!self::fit($dow,(int)$ndow)) {
+                if (!self::fit($dow,$ndow)) {
                     $Start->modify(sprintf('%s1 day',$lastrun ? '-' : '+'));
                     continue;
                 }
@@ -80,9 +80,9 @@ class FOGCron extends FOGBase {
      *     Check the fields
      * @param (string) $field
      *     The field to test
-     * @param (int) $min
+     * @param  $min
      *     The minimum the field can be integerially
-     * @param (int) $max
+     * @param  $max
      *     The maximum the field can be integerially
      * @return (bool) does the field match
      */
@@ -105,11 +105,11 @@ class FOGCron extends FOGBase {
     /**
      * @method checkIntValue
      *     The integer value to test
-     * @param (int) $value
+     * @param  $value
      *     The value to check
-     * @param (int) $min
+     * @param  $min
      *     The minimum the value can be
-     * @param (int) $max
+     * @param  $max
      *     The maximum the value can be
      * @param (bool) $extremity
      *     If true the extremity is
@@ -126,7 +126,7 @@ class FOGCron extends FOGBase {
     /**
      * @method checkMinutesField
      *     Check the minutes field
-     * @param (int) $minutes
+     * @param  $minutes
      *     The value to check
      * @return (bool) is the value between the proper range
      */
@@ -136,7 +136,7 @@ class FOGCron extends FOGBase {
     /**
      * @method checkHoursField
      *     Check the hours field
-     * @param (int) $hours
+     * @param  $hours
      *     The value to check
      * @return (bool) is the value between the proper range
      */
@@ -146,7 +146,7 @@ class FOGCron extends FOGBase {
     /**
      * @method checkDOMField
      *     Check the day of month field
-     * @param (int) $dom
+     * @param  $dom
      *     The value to check
      * @return (bool) is the value between the proper range
      */
@@ -156,7 +156,7 @@ class FOGCron extends FOGBase {
     /**
      * @method checkMonthField
      *     Check the month field
-     * @param (int) $month
+     * @param  $month
      *     The value to check
      * @return (bool) is the value between the proper range
      */
@@ -166,7 +166,7 @@ class FOGCron extends FOGBase {
     /**
      * @method checkDOWField
      *     Check the day of week field
-     * @param (int) $dow
+     * @param  $dow
      *     The value to check
      * @return (bool) is the value between the proper range
      */

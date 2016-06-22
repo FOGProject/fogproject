@@ -85,7 +85,7 @@ class UserManagementPage extends FOGPage {
             if (!self::getClass('UserManager')->isPasswordValid($_REQUEST['password'],$_REQUEST['password_confirm'])) throw new Exception(_('Password is invalid'));
             $User = self::getClass('User')
                 ->set('name',$_REQUEST['name'])
-                ->set('type',(int)isset($_REQUEST['isGuest']))
+                ->set('type',isset($_REQUEST['isGuest']))
                 ->set('password',$_REQUEST['password']);
             if (!$User->save()) throw new Exception(_('Failed to create user'));
             self::$HookManager->processEvent('USER_ADD_SUCCESS',array('User'=>&$User));
@@ -132,7 +132,7 @@ class UserManagementPage extends FOGPage {
             }
             $this->obj
                 ->set('name',$name)
-                ->set('type',(int)isset($_REQUEST['isGuest']))
+                ->set('type',isset($_REQUEST['isGuest']))
                 ->set('password',$_REQUEST['password']);
             if (!$this->obj->save()) throw new Exception(_('User update failed'));
             self::$HookManager->processEvent('USER_UPDATE_SUCCESS',array('User'=>&$this->obj));

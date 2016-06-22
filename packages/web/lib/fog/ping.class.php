@@ -38,7 +38,7 @@ class Ping {
         $fsocket = fsockopen($host,$port,$errno,$errstr,$timeout);
         fclose($fsocket);
         if ($errno === 0 && trim($errstr)) return 6;
-        return (int) $errno;
+        return  $errno;
     }
     public function execute() {
         return self::execSend($this->host,$this->timeout,$this->port);

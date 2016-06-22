@@ -42,7 +42,7 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
             $this->Host->get('ADOU'),
             $adUser,
             $password,
-            $this->newService ? sprintf("\n#enforce=%s",(int)$this->Host->get('enforce')) : ''
+            $this->newService ? sprintf("\n#enforce=%s",$this->Host->get('enforce')) : ''
         );
         if ($productKey) printf("\n#Key=%s",$productKey);
         $this->send = ob_get_clean();

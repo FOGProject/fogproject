@@ -121,7 +121,7 @@ class ImageManagementPage extends FOGPage {
         $OSs = self::getClass('OSManager')->buildSelectBox($_REQUEST['os']);
         $ImageTypes = self::getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'] ? $_REQUEST['imagetype'] : 1,'','id');
         $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'] ? $_REQUEST['imagepartitiontype'] : 1,'','id');
-        $compression = is_numeric($_REQUEST['compress']) && $_REQUEST['compress'] > -1 && $_REQUEST['compress'] < 10 ? (int)$_REQUEST['compress'] : self::getSetting('FOG_PIGZ_COMP');
+        $compression = is_numeric($_REQUEST['compress']) && $_REQUEST['compress'] > -1 && $_REQUEST['compress'] < 10 ? $_REQUEST['compress'] : self::getSetting('FOG_PIGZ_COMP');
         $fields = array(
             _('Image Name') => sprintf('<input type="text" name="name" id="iName" value="%s"/>',$_REQUEST['name']),
             _('Image Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
@@ -163,8 +163,8 @@ class ImageManagementPage extends FOGPage {
                 ->set('imageTypeID',$_REQUEST['imagetype'])
                 ->set('imagePartitionTypeID',$_REQUEST['imagepartitiontype'])
                 ->set('compress',$_REQUEST['compress'])
-                ->set('isEnabled',(string)intval((int)isset($_REQUEST['isEnabled'])))
-                ->set('toReplicate',(string)intval((int)isset($_REQUEST['toReplicate'])))
+                ->set('isEnabled',(string)intval(isset($_REQUEST['isEnabled'])))
+                ->set('toReplicate',(string)intval(isset($_REQUEST['toReplicate'])))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Image->save()) throw new Exception(_('Database update failed'));
             self::$HookManager->processEvent('IMAGE_ADD_SUCCESS',array('Image'=>&$Image));
@@ -192,7 +192,7 @@ class ImageManagementPage extends FOGPage {
         $OSs = self::getClass('OSManager')->buildSelectBox(isset($_REQUEST['os']) && $_REQUEST['os'] != $this->obj->get('osID') ? $_REQUEST['os'] : $this->obj->get('osID'));
         $ImageTypes = self::getClass('ImageTypeManager')->buildSelectBox(isset($_REQUEST['imagetype']) && $_REQUEST['imagetype'] != $this->obj->get('imageTypeID') ? $_REQUEST['imagetype'] : $this->obj->get('imageTypeID'),'','id');
         $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')->buildSelectBox(isset($_REQUEST['imagepartitiontype']) && $_REQUEST['imagepartitiontype'] != $this->obj->get('imagePartitionTypeID') ? $_REQUEST['imagepartitiontype'] : $this->obj->get('imagePartitionTypeID'),'','id');
-        $compression = isset($_REQUEST['compress']) && $_REQUEST['compress'] != $this->obj->get('compress') ? (int) $_REQUEST['compress'] : is_numeric($this->obj->get('compress')) && $this->obj->get('compress') > -1 ? $this->obj->get('compress') : self::getSetting('FOG_PIGZ_COMP');
+        $compression = isset($_REQUEST['compress']) && $_REQUEST['compress'] != $this->obj->get('compress') ?  $_REQUEST['compress'] : is_numeric($this->obj->get('compress')) && $this->obj->get('compress') > -1 ? $this->obj->get('compress') : self::getSetting('FOG_PIGZ_COMP');
         if ($_SESSION['FOG_FORMAT_FLAG_IN_GUI']) $format = sprintf('<select name="imagemanage"><option value="1"%s>%s</option><option value="0"%s>%s</option></select>',$this->obj->get('format') ? ' selected' : '',_('Partimage'),!$this->obj->get('format') ? ' selected' : '',_('Partclone'));
         $fields = array(
             _('Image Name') => sprintf('<input type="text" name="name" id="iName" value="%s"/>',isset($_REQUEST['name']) && $_REQUEST['name'] != $this->obj->get('name') ? $_REQUEST['name'] : $this->obj->get('name')),
@@ -294,10 +294,10 @@ class ImageManagementPage extends FOGPage {
                     ->set('imageTypeID',$_REQUEST['imagetype'])
                     ->set('imagePartitionTypeID',$_REQUEST['imagepartitiontype'])
                     ->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $this->obj->get('format'))
-                    ->set('protected',(int)isset($_REQUEST['protected_image']))
+                    ->set('protected',isset($_REQUEST['protected_image']))
                     ->set('compress',$_REQUEST['compress'])
-                    ->set('isEnabled',(string)intval((int)isset($_REQUEST['isEnabled'])))
-                    ->set('toReplicate',(string)intval((int)isset($_REQUEST['toReplicate'])));
+                    ->set('isEnabled',(string)intval(isset($_REQUEST['isEnabled'])))
+                    ->set('toReplicate',(string)intval(isset($_REQUEST['toReplicate'])));
                 break;
             case 'image-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);
@@ -420,7 +420,7 @@ class ImageManagementPage extends FOGPage {
         $this->redirect(sprintf('?node=%s&sub=multicast',$this->node));
     }
     public function stop() {
-        if ((int)$_REQUEST['mcid'] < 1) $this->redirect(sprintf('?node=%s&sub=multicast',$this->node));
+        if ($_REQUEST['mcid'] < 1) $this->redirect(sprintf('?node=%s&sub=multicast',$this->node));
         self::getClass('MulticastSessionsManager')->cancel($_REQUEST['mcid']);
         $this->setMessage(sprintf('%s%s',_('Cancelled task'),count($_REQUEST['mcid']) !== 1 ? 's' : ''));
         $this->redirect(sprintf('?node=%s&sub=multicast',$this->node));

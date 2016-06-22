@@ -12,7 +12,7 @@ $vals = function($reverse,$HookManager) {
     $file = trim(basename($_REQUEST['file']));
     $path = sprintf('%s%s',$folder,$file);
     if (($fh = fopen($path,'rb')) === false) return _('Unable to open file for reading');
-    $lines = (int)$_REQUEST['lines'];
+    $lines = $_REQUEST['lines'];
     $buffer = 4096;
     fseek($fh, -1, SEEK_END);
     if (fread($fh, 1) != "\n") $lines -= 1;
@@ -37,7 +37,7 @@ if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
 } else {
     if ($url != $ip) $ip = $url;
     $pat = sprintf('#%s#',$ip);
-    if (preg_match($pat,$_SERVER['HTTP_HOST'])) echo json_encode($vals((int) $_REQUEST['reverse'],$HookManager));
+    if (preg_match($pat,$_SERVER['HTTP_HOST'])) echo json_encode($vals( $_REQUEST['reverse'],$HookManager));
     else {
         $url = sprintf('http://%s/fog/status/logtoview.php',$ip);
         $url = filter_var($url,FILTER_SANITIZE_URL);
@@ -45,7 +45,7 @@ if (filter_var($ip,FILTER_VALIDATE_IP) === false) {
             'ip'=>$FOGCore->aesencrypt($ip),
             'file'=>$_REQUEST['file'],
             'lines'=>$_REQUEST['lines'],
-            'reverse'=>(int) $_REQUEST['reverse'])
+            'reverse'=> $_REQUEST['reverse'])
         );
         echo array_shift($response);
     }

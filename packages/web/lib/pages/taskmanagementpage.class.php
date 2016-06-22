@@ -162,9 +162,9 @@ class TaskManagementPage extends FOGPage {
             $types = array('host','group');
             if (!in_array($type,$types)) throw new Exception(_('Invalid object type passed'));
             $var = ucfirst($type);
-            $$var = self::getClass($var,(int)$_REQUEST['id']);
+            $$var = self::getClass($var,$_REQUEST['id']);
             if (!$$var->isValid()) throw new Exception(_(sprintf('Invalid %s',$var)));
-            $TaskType = self::getClass('TaskType',(int)$_REQUEST['type']);
+            $TaskType = self::getClass('TaskType',$_REQUEST['type']);
             if (!$TaskType->isValid()) throw new Exception(_('Invalid Task Type'));
             if ($type == 'host') {
                 $Image = $$var->getImage();
@@ -192,7 +192,7 @@ class TaskManagementPage extends FOGPage {
     }
     private function advanced($type) {
         $this->title = sprintf('%s Advanced Actions',ucfirst($type));
-        $id = (int)$_REQUEST['id'];
+        $id = $_REQUEST['id'];
         unset($this->headerData);
         $this->templates = array(
             sprintf('<a href="?node=%s&sub=%sdeploy&id=${id}&type=${type}"><i class="fa fa-${icon} fa-fw fa-2x"/></i><br/>${name}</a>',$this->node,$type),
@@ -230,7 +230,7 @@ class TaskManagementPage extends FOGPage {
     }
     public function force_task() {
         try {
-            $Task = self::getClass('Task',(int)$_REQUEST['id']);
+            $Task = self::getClass('Task',$_REQUEST['id']);
             if (!$Task->isValid()) throw new Exception(_('Invalid task'));
             self::$HookManager->processEvent('TASK_FORCE',array('Task'=>&$Task));
             $Task->set('isForced',1)->save();
