@@ -110,7 +110,7 @@ abstract class FOGBase {
                 $NodeFailure->destroy();
                 return;
             }
-            return (int)$NodeFailure->get('id');
+            return $NodeFailure->get('id');
         },(array)self::getClass('NodeFailureManager')->find(array('taskID'=>$this->Host->get('task')->get('id'),'hostID'=>$this->Host->get('id'))));
         return array_values(array_filter(array_unique((array)$nodeRet)));
     }
@@ -258,7 +258,7 @@ abstract class FOGBase {
         if ($names) return $services;
         $serviceEn = self::getSubObjectIDs('Service',array('name'=>array_values($services)),'value',false,'AND','name',false,false);
         $serviceEn = array_map(function(&$val) {
-            return (int)$val;
+            return $val;
         },(array)$serviceEn);
         return array_combine(array_keys($services),$serviceEn);
     }
@@ -303,7 +303,7 @@ abstract class FOGBase {
         return DateTime::createFromFormat($format,$Date->format($format),self::getClass('DateTimeZone',self::$TimeZone));
     }
     protected function pluralize($count,$text,$space = false) {
-        return sprintf("%d %s%s%s",(int)$count,$text,(int)$count != 1 ? 's' : '',$space === true ? ' ' : '');
+        return sprintf("%d %s%s%s",$count,$text,$count != 1 ? 's' : '',$space === true ? ' ' : '');
     }
     protected function diff($start, $end, $ago = false) {
         if (!$start instanceof DateTime) $start = self::nice_date($start);

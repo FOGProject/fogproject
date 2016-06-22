@@ -7,7 +7,7 @@ class SnapinReplicator extends FOGService {
         static::$log = sprintf('%s%s',self::$logpath ? self::$logpath : '/opt/fog/log/',$log ? $log : 'fogsnapinrep.log');
         if (file_exists(static::$log)) unlink(static::$log);
         static::$dev = $dev ? $dev : '/dev/tty4';
-        static::$zzz = (int)($zzz ? $zzz : 600);
+        static::$zzz = ($zzz ? $zzz : 600);
     }
     private function commonOutput() {
         try {

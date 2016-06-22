@@ -18,7 +18,7 @@ class LDAPPluginHook extends Hook {
             self::$FOGUser
                 ->set('name',$username)
                 ->set('password',$password)
-                ->set('type',(int)!$LDAP->get('admin'));
+                ->set('type',!$LDAP->get('admin'));
             if (!self::$FOGUser->save()) throw new Exception(_('User create/update failed'));
             unset($LDAP,$index);
         };

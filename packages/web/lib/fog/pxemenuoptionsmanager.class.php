@@ -14,7 +14,7 @@ class PXEMenuOptionsManager extends FOGManagerController {
         );
     }
     public function regSelect($request = '') {
-        self::$selected = (int)$request;
+        self::$selected = $request;
         ob_start();
         $sender = self::regText();
         array_walk($sender,self::$buildSelectBox);

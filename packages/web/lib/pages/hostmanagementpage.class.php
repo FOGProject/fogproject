@@ -179,7 +179,7 @@ class HostManagementPage extends FOGPage {
             $ModuleIDs = self::getSubObjectIDs('Module');
             $password = $_REQUEST['domainpassword'];
             if ($_REQUEST['domainpassword']) $password = $this->encryptpw($_REQUEST['domainpassword']);
-            $useAD = (int)isset($_REQUEST['domain']);
+            $useAD = isset($_REQUEST['domain']);
             $domain = trim($_REQUEST['domainname']);
             $ou = trim($_REQUEST['ou']);
             $user = trim($_REQUEST['domainuser']);
@@ -187,7 +187,7 @@ class HostManagementPage extends FOGPage {
             $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
             $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
             $productKey = substr($productKey,0,29);
-            $enforce = (string)intval((int)isset($_REQUEST['enforcesel']));
+            $enforce = (string)intval(isset($_REQUEST['enforcesel']));
             $Host = self::getClass('Host')
                 ->set('name',$hostName)
                 ->set('description',$_REQUEST['description'])
@@ -824,7 +824,7 @@ class HostManagementPage extends FOGPage {
                 $user = trim($_REQUEST['domainuser']);
                 $pass = trim($_REQUEST['domainpassword']);
                 $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-                $enforce = (string)intval((int)isset($_REQUEST['enforcesel']));
+                $enforce = (string)intval(isset($_REQUEST['enforcesel']));
                 $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey,$enforce);
                 break;
             case 'host-powermanagement':

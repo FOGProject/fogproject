@@ -14,7 +14,7 @@ class StorageManagementPage extends FOGPage {
         if (in_array($_REQUEST['sub'],array('edit','delete','delete-storage-node','delete_storage_node'))) {
             if (isset($_REQUEST['id'])) {
                 $this->obj = self::getClass('StorageNode',$_REQUEST['id']);
-                if ((int) $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
+                if ( $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
                     unset($this->obj);
                         $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
                     $this->redirect(sprintf('?node=%s',$this->node));
@@ -32,7 +32,7 @@ class StorageManagementPage extends FOGPage {
         } else if (in_array($_REQUEST['sub'],array('edit-storage-group','delete-storage-group','edit_storage_group','delete_storage_group'))) {
             if (isset($_REQUEST['id'])) {
                 $this->obj = self::getClass('StorageGroup',$_REQUEST['id']);
-                if ((int) $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
+                if ( $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
                     unset($this->obj);
                         $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
                     $this->redirect(sprintf('?node=%s',$this->node));
@@ -182,7 +182,7 @@ class StorageManagementPage extends FOGPage {
                 ->set('ip',$_REQUEST['ip'])
                 ->set('webroot',$_REQUEST['webroot'])
                 ->set('maxClients',$_REQUEST['maxClients'])
-                ->set('isMaster',(int)isset($_REQUEST['isMaster']))
+                ->set('isMaster',isset($_REQUEST['isMaster']))
                 ->set('storageGroupID',$_REQUEST['storageGroupID'])
                 ->set('path',$_REQUEST['path'])
                 ->set('ftppath',$_REQUEST['ftppath'])
@@ -190,8 +190,8 @@ class StorageManagementPage extends FOGPage {
                 ->set('sslpath',$_REQUEST['sslpath'])
                 ->set('bitrate', $_REQUEST['bitrate'])
                 ->set('interface',$_REQUEST['interface'])
-                ->set('isGraphEnabled',(string)intval((int)isset($_REQUEST['isGraphEnabled'])))
-                ->set('isEnabled',(int)isset($_REQUEST['isEnabled']))
+                ->set('isGraphEnabled',(string)intval(isset($_REQUEST['isGraphEnabled'])))
+                ->set('isEnabled',isset($_REQUEST['isEnabled']))
                 ->set('user',$_REQUEST['user'])
                 ->set('pass',$_REQUEST['pass'])
                 ->set('bandwidth',$_REQUEST['bandwidth']);
@@ -288,7 +288,7 @@ class StorageManagementPage extends FOGPage {
                 ->set('ip',$_REQUEST['ip'])
                 ->set('webroot',$_REQUEST['webroot'])
                 ->set('maxClients',$_REQUEST['maxClients'])
-                ->set('isMaster',(int)isset($_REQUEST['isMaster']))
+                ->set('isMaster',isset($_REQUEST['isMaster']))
                 ->set('storageGroupID',$_REQUEST['storageGroupID'])
                 ->set('path',$_REQUEST['path'])
                 ->set('ftppath',$_REQUEST['ftppath'])
@@ -296,8 +296,8 @@ class StorageManagementPage extends FOGPage {
                 ->set('sslpath',$_REQUEST['sslpath'])
                 ->set('bitrate',$_REQUEST['bitrate'])
                 ->set('interface',$_REQUEST['interface'])
-                ->set('isGraphEnabled',(string)intval((int)isset($_REQUEST['isGraphEnabled'])))
-                ->set('isEnabled',(int)isset($_REQUEST['isEnabled']))
+                ->set('isGraphEnabled',(string)intval(isset($_REQUEST['isGraphEnabled'])))
+                ->set('isEnabled',isset($_REQUEST['isEnabled']))
                 ->set('user',$_REQUEST['user'])
                 ->set('pass',$_REQUEST['pass'])
                 ->set('bandwidth',$_REQUEST['bandwidth']);

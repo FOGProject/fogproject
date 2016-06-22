@@ -72,7 +72,7 @@ class Page extends FOGBase {
             echo '<nav class="menu"><ul class="nav-list">';
             array_walk($this->main,function(&$title,&$link) {
                 if (!$_REQUEST['node'] && $link == 'home') $_REQUEST['node'] = $link;
-                $activelink = (int)($_REQUEST['node'] == $link);
+                $activelink = ($_REQUEST['node'] == $link);
                 printf('<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li>',
                     $link,
                     ($activelink ? ' activelink' : ''),

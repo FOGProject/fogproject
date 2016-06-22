@@ -52,7 +52,7 @@ class RegisterClient extends FOGClient implements FOGClientSend {
                         ->set('name',$hostname)
                         ->set('description',_('Pending Registration created by FOG_CLIENT'))
                         ->set('pending',(string)1)
-                        ->set('enforce',(int)$enforce)
+                        ->set('enforce',$enforce)
                         ->addModule(self::getSubObjectIDs('Module',array('isDefault'=>1)))
                         ->addPriMAC($PriMAC)
                         ->addAddMAC($MACs);

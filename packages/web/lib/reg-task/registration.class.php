@@ -106,7 +106,7 @@ class Registration extends FOGBase {
         try {
             $groupsToJoin = explode(',',trim(self::getSetting('FOG_QUICKREG_GROUP_ASSOC')));
             $autoRegSysName = trim(self::getSetting('FOG_QUICKREG_SYS_NAME'));
-            $autoRegSysNumber = (int)self::getSetting('FOG_QUICKREG_SYS_NUMBER');
+            $autoRegSysNumber = self::getSetting('FOG_QUICKREG_SYS_NUMBER');
             $hostname = trim((strtoupper($autoRegSysName) == 'MAC' ? $this->macsimple : $autoRegSysName));
             $hostname = (self::getClass('Host')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
             $paddingLen = substr_count($autoRegSysName,'*');
@@ -126,7 +126,7 @@ class Registration extends FOGBase {
             }
             if (!self::getClass('Host')->isHostnameSafe($hostname)) $hostname = $this->macsimple;
             $this->setSetting('FOG_QUICKREG_SYS_NUMBER',++$autoRegSysNumber);
-            $imageid = (int)self::getSetting('FOG_QUICKREG_IMG_ID');
+            $imageid = self::getSetting('FOG_QUICKREG_IMG_ID');
             $this->Host = self::getClass('Host')
                 ->set('name',$hostname)
                 ->set('description',$this->description)

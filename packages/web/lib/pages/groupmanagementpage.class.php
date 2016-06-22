@@ -146,7 +146,7 @@ class GroupManagementPage extends FOGPage {
         $adPassLegacy = self::getSubObjectIDs('Host',array('id'=>$hostids),'ADPassLegacy','','','','','array_count_values');
         $Host = self::getClass('Host',current($hostids));
         $useAD = (bool)($aduse == $HostCount);
-        $enforce = (int)($enforcetest == $HostCount);
+        $enforce = ($enforcetest == $HostCount);
         unset($aduse);
         $ADDomain = (count($adDomain) == 1 && $adDomain[0] == $HostCount ? $Host->get('ADDomain') : '');
         unset($adDomain);
@@ -569,13 +569,13 @@ class GroupManagementPage extends FOGPage {
                 $this->obj->removeSnapin($_REQUEST['snapin']);
                 break;
             case 'group-active-directory':
-                $useAD = (int)isset($_REQUEST['domain']);
+                $useAD = isset($_REQUEST['domain']);
                 $domain = $_REQUEST['domainname'];
                 $ou = $_REQUEST['ou'];
                 $user = $_REQUEST['domainuser'];
                 $pass = $_REQUEST['domainpassword'];
                 $legacy = $_REQUEST['domainpasswordlegacy'];
-                $enforce = (int)isset($_REQUEST['enforcesel']);
+                $enforce = isset($_REQUEST['enforcesel']);
                 $this->obj->setAD($useAD,$domain,$ou,$user,$pass,$legacy,$enforce);
                 break;
             case 'group-printers':

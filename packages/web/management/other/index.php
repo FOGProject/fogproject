@@ -17,7 +17,7 @@ unset($stylesheet); ?>
 <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
 </head>
 <body>
-<?php if (!self::$isMobile) { ?><div class="fog-variable" id="FOGPingActive"><?php echo (int) $_SESSION['FOGPingActive'] ?></div><?php
+<?php if (!self::$isMobile) { ?><div class="fog-variable" id="FOGPingActive"><?php echo  $_SESSION['FOGPingActive'] ?></div><?php
 } ?>
 <!-- Session Messages -->
 <?php !self::$isMobile ? $this->getMessages() : '' ?>
