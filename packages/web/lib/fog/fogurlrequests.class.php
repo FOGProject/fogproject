@@ -1,109 +1,167 @@
 <?php
 class FOGURLRequests extends FOGBase {
-    private $handle;
-    private $contextOptions;
-    public function __construct() {
+    private $window_size = 5;
+    private $timeout = 15;
+    private $callback;
+    private $response = array();
+    public $options = array(
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 15,
+        CURLOPT_TIMEOUT => 15,
+    );
+    private $headers = array();
+    private $requests = array();
+    private $requestMap = array();
+    public function __construct($callback = null) {
         parent::__construct();
-        $this->handle = curl_multi_init();
-        $this->contextOptions = array(
-            CURLOPT_HTTPGET => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_CONNECTTIMEOUT_MS => 10001,
-            CURLOPT_TIMEOUT_MS => 10000,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 20,
-            CURLOPT_HEADER => false,
-        );
+        $this->callback = $callback;
     }
     public function __destruct() {
-        curl_multi_close($this->handle);
+        unset($this->window_size,$this->callback,$this->options,$this->headers,$this->request);
     }
-    private function validURL(&$URL) {
+    public function __get($name) {
+        return (isset($this->{$name})) ? $this->{$name} : null;
+    }
+    public function __set($name, $value) {
+        $this->{$name} = in_array($name,array('options','headers')) ? $value + $this->{$name} : $value;
+        return true;
+    }
+    public function add($request) {
+        $this->requests[] = $request;
+        return true;
+    }
+    public function request($url, $method = 'GET', $post_data = null, $headers = null, $options = null) {
+        $this->requests[] = self::getClass('FOGRollingURL',$url,$method,$post_data,$headers,$options);
+        return true;
+    }
+    public function get($url, $headers = null, $options = null) {
+        return $this->request($url, 'GET', null, $headers, $options);
+    }
+    public function post($url, $post_data = null, $headers = null, $options = null) {
+        return $this->request($url, 'POST', $post_data, $headers, $options);
+    }
+    public function execute($window_size = null) {
+        return sizeof($this->requests) == 1 ? $this->single_curl() : $this->rolling_curl($window_size);
+    }
+    private function single_curl() {
+        $ch = curl_init();
+        $request = array_shift($this->requests);
+        $options = $this->get_options($request);
+        curl_setopt_array($ch, $options);
+        $output = curl_exec($ch);
+        $info = curl_getinfo($ch);
+        if ($this->callback && is_callable($this->callback)) $this->callback($output,$info,$request);
+        else return (array)$output;
+        return true;
+    }
+    private function rolling_curl($window_size = null) {
+        if ($window_size) $this->window_size = $window_size;
+        if (sizeof($this->requests) < $this->window_size) $this->window_size = sizeof($this->requests);
+        if ($this->window_size < 2) throw new Exception(_('Window size must be greater than 1'));
+        $master = curl_multi_init();
+        for ($i = 0; $i < $this->window_size; $i++) {
+            $ch = curl_init();
+            $options = $this->get_options($this->requests[$i]);
+            curl_setopt_array($ch,$options);
+            curl_multi_add_handle($master,$ch);
+            $key = (string)$ch;
+            $this->requestMap[$key] = $i;
+        }
+        do {
+            while (($execrun = curl_multi_exec($master,$running)) == CURLM_CALL_MULTI_PERFORM);
+            if ($execrun != CURLM_OK) break;
+            while ($done = curl_multi_info_read($master)) {
+                $info = curl_getinfo($done['handle']);
+                $output = curl_multi_getcontent($done['handle']);
+                if ($this->callback && is_callable($this->callback)) {
+                    $key = (string)$done['handle'];
+                    $request = $this->requests[$this->requestMap[$key]];
+                    unset($this->requestMap[$key]);
+                    $this->callback($output,$info,$request);
+                }
+                if ($i < sizeof($this->requests) && isset($this->requests[$i]) && $i < count($this->requests)) {
+                    $ch = curl_init();
+                    $options = $this->get_options($this->requests[$i]);
+                    curl_setopt_array($ch,$options);
+                    curl_multi_add_handle($master,$ch);
+                    $key = (string)$ch;
+                    $this->requestMap[$key] = $i;
+                    $i++;
+                }
+                $this->response[] = $output;
+                curl_multi_remove_handle($master,$done['handle']);
+            }
+            if ($running) curl_multi_select($master,$this->timeout);
+        } while ($running);
+        curl_multi_close($master);
+        return $this->response;
+    }
+    private function get_options($request) {
+        $options = $this->__get('options');
+        if (ini_get('safe_mode') == 'Off' || !ini_get('safe_mode')) {
+            $options[CURLOPT_FOLLOWLOCATION] = 1;
+            $options[CURLOPT_MAXREDIRS] = 5;
+        }
+        $url = $this->valid_url($request->url);
+        $headers = $this->__get('headers');
+        if ($request->options) $options = $request->options + $options;
+        $options[CURLOPT_URL] = $url;
+        if ($request->post_data) {
+            $options[CURLOPT_POST] = 1;
+            $options[CURLOPT_POSTFIELDS] = $request->post_data;
+        }
+        if ($headers) {
+            $options[CURLOPT_HEADER] = 0;
+            $options[CURLOPT_HTTPHEADER] = $headers;
+        }
+        list($ip,$password,$port,$username) = self::getSubObjectIDs('Service',array('name'=>array('FOG_PROXY_IP','FOG_PROXY_PASSWORD','FOG_PROXY_PORT','FOG_PROXY_USERNAME')),'value',false,'AND','name',false,false);
+        $IPs = self::getSubObjectIDs('StorageNode','','ip');
+        if (false !== stripos(implode('|',$IPs),$url)) {
+            $options[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
+            $options[CURLOPT_PROXYPORT] = $port;
+            $options[CURLOPT_PROXY] = $ip;
+            if ($username) $options[CURLOPT_PROXYUSERPWD] = sprintf('%s:%s',$username,$password);
+        }
+        return $options;
+    }
+    private function valid_url(&$URL) {
         $URL = filter_var($URL,FILTER_SANITIZE_URL);
         if (filter_var($URL,FILTER_VALIDATE_URL) === false) unset($URL);
         return $URL;
     }
-    private function proxyInfo(&$URL) {
-        try {
-            if (!self::$DB) throw new Exception(_('Unable to connect to the DB'));
-            list($ip,$password,$port,$username) = self::getSubObjectIDs('Service',array('name'=>array('FOG_PROXY_IP','FOG_PROXY_PASSWORD','FOG_PROXY_PORT','FOG_PROXY_USERNAME')),'value',false,'AND','name',false,false);
-            if ($ip && filter_var($ip,FILTER_VALIDATE_IP) === false) throw new Exception(_('Invalid Proxy IP'));
-            $IPs = self::getSubObjectIDs('StorageNode','','ip');
-            if (stripos(implode('|',$IPs),$URL) === false) return false;
-            $this->contextOptions[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
-            $this->contextOptions[CURLOPT_PROXYPORT] = $port;
-            $this->contextOptions[CURLOPT_PROXY] = $ip;
-            if ($username) $this->contextOptions[CURLOPT_PROXYUSERPWD] = sprintf('%s:%s',$username,$password);
-            return true;
-        } catch (Exception $e) {
-            die($e->getMessage());
-        }
-        return false;
-    }
     public function process($urls, $method = 'GET',$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
-        if (!is_array($urls)) $urls = array($urls);
-        if (empty($method)) $method = 'GET';
-        array_map(function(&$url) use ($urls,$method,$data,$sendAsJSON,$auth,$callback,$file,&$curl) {
-            $this->validURL($url);
-            $this->proxyInfo($url);
-            if ($method == 'GET' && $data !== null) $url = sprintf('%s?%s',$url,http_build_query((array)$data));
-            $ch = curl_init($url);
-            $this->contextOptions[CURLOPT_URL] = $url;
-            if ($auth) $this->contextOptions[CURLOPT_USERPWD] = $auth;
-            if ($file) {
-                $this->contextOptions[CURLOPT_FILE] = $file;
-                $this->contextOptions[CURLOPT_TIMEOUT_MS] = 300000000;
-            }
-            if ($method == 'POST' && $data !== null) {
-                if ($sendAsJSON) {
-                    $data = json_encode($data);
-                    $this->contextOptions[CURLOPT_HTTPHEADER] = array(
-                        'Content-Type: application/json',
-                        'Content-Length: '.strlen($data),
-                        'Expect:',
-                    );
-                }
-                $this->contextOptions[CURLOPT_POST] = true;
-                $this->contextOptions[CURLOPT_POSTFIELDS] = $data;
-            }
-            $this->contextOptions[CURLOPT_CUSTOMREQUEST] = $method;
-            curl_setopt_array($ch,$this->contextOptions);
-            $curl[] = $ch;
-            curl_multi_add_handle($this->handle,$ch);
-            unset($url);
-        },(array)$urls);
-        $active = null;
-        $response = array();
-        do {
-            curl_multi_exec($this->handle,$active);
-        } while ($active > 0);
-        array_map(function(&$val) use (&$response) {
-            $response[] = curl_multi_getcontent($val);
-            curl_multi_remove_handle($this->handle,$val);
-        },(array)$curl);
-        if (!$file) return $response;
-        fclose($file);
+        if ($callback && is_callable($callback)) $this->callback = $callback;
+        if ($auth) $this->options[CURLOPT_USERPWD] = $auth;
+        if ($sendAsJSON) {
+            $data2 = json_encode($data);
+            $datalen = strlen($data2);
+            $this->options[CURLOPT_HEADER] = true;
+            $this->options[CURLOPT_HTTPHEADER] = array(
+                'Content-Type: application/json',
+                "Content-Length: $datalen",
+                'Expect:'
+            );
+        }
+        if ($file) {
+            $this->options[CURLOPT_FILE] = $file;
+            $this->options[CURLOPT_TIMEOUT] = 300;
+        }
+        foreach ((array)$urls AS $url) {
+            $request = self::getClass('FOGRollingURL',$url);
+            if ($method === 'GET') $this->get($url);
+            else $this->post($url,$data);
+        }
+        return $this->execute();
     }
-    public function isAvailable($URL) {
-        $this->validURL($URL);
-        $this->proxyInfo($URL);
-        $origContext = $this->contextOptions;
-        $ch = curl_init();
-        $this->contextOptions[CURLOPT_URL] = $URL;
-        $this->contextOptions[CURLOPT_HEADER] = true;
-        $this->contextOptions[CURLOPT_NOBODY] = true;
-        $this->contextOptions[CURLOPT_RETURNTRANSFER] = true;
-        $this->contextOptions[CURLOPT_CONNECTTIMEOUT_MS] = 2001;
-        $this->contextOptions[CURLOPT_TIMEOUT_MS] = 2000;
-        curl_setopt_array($ch,$this->contextOptions);
-        $response = curl_exec($ch);
-        curl_close($ch);
-        $this->contextOptions = $origContext;
-        if ($response) return true;
-        return false;
+    public function isAvailable($url) {
+        $this->timeout = 2;
+        $request = self::getClass('FOGRollingURL',$url);
+        $request->options[CURLOPT_HEADER] = true;
+        $request->options[CURLOPT_NOBODY] = true;
+        $this->add($request);
+        return (bool)$this->execute();
     }
     public function download($file,$chunks = 2048) {
         set_time_limit(0);
@@ -119,16 +177,15 @@ class FOGURLRequests extends FOGBase {
         }
     }
     private function get_chunk($file,$start,$end) {
-        $this->proxyInfo($URL);
-        $origContext = $this->contextOptions;
-        $this->contextOptions[CURLOPT_URL] = $file;
-        $this->contextOptions[CURLOPT_RANGE] = $start.'-'.$end;
-        $this->contextOptions[CURLOPT_BINARYTRANSFER] = true;
-        $this->contextOptions[CURLOPT_WRITEFUNCTION] = array($this,'chunk');
-        curl_setopt_array($ch,$this->contextOptions);
+        $origContext = $this->options;
+        $this->options[CURLOPT_URL] = $file;
+        $this->options[CURLOPT_RANGE] = $start.'-'.$end;
+        $this->options[CURLOPT_BINARYTRANSFER] = true;
+        $this->options[CURLOPT_WRITEFUNCTION] = array($this,'chunk');
+        curl_setopt_array($ch,$this->options);
         $result = curl_exec($ch);
         curl_close($ch);
-        $this->contextOptions = $origContext;
+        $this->options = $origContext;
     }
     private function chunk($ch, $str) {
         echo $str;
