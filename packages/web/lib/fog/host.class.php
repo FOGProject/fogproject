@@ -651,7 +651,7 @@ class Host extends FOGController {
         $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
         $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',self::getSetting('FOG_WEB_HOST'),$webroot,implode('|',(array)$this->getMyMacs()));
         $URLs = array_values(array_filter(array_unique((array)$URLs)));
-        self::$FOGURLRequests->process($URLs,'GET');
+        self::$FOGURLRequests->process($URLs);
         return $this;
     }
     public function addAddMAC($addArray,$pending = false) {
