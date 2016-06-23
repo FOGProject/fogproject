@@ -726,7 +726,7 @@ abstract class FOGPage extends FOGBase {
         echo $SendME;
     }
     public function loginInfo() {
-        $data = self::$FOGURLRequests->process(array('http://fogproject.org/globalusers','http://fogproject.org/version/index.php?stable&dev&svn'),'GET');
+        $data = self::$FOGURLRequests->process(array('http://fogproject.org/globalusers','http://fogproject.org/version/index.php?stable&dev&svn'));
         if (!$data[0]) $data['error-sites'] = _('Error contacting server');
         else $data['sites'] = $data[0];
         if (!$data[1]) $data['error-version'] = _('Error contacting server');
