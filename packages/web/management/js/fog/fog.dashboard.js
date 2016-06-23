@@ -116,7 +116,7 @@ $(function() {
     if (typeof(Graph30dayData) != 'undefined') Graph30DayData = [{label: 'Computers Imaged',data: JSONParseFunction(Graph30dayData)}];
     $.plot(Graph30Day,Graph30DayData,Graph30DayOpts);
     // Start counters
-    UpdateBandwidth();
+    setInterval(UpdateBandwidth,bandwidthtime);
     // Bandwidth Graph - TX/RX Filter
     GraphBandwidthFilters.click(function(e) {
         // Blur -> add active class -> remove active class from old active item
@@ -125,8 +125,6 @@ $(function() {
         $('#graph-bandwidth-title > span').eq(0).html($(this).html());
         GraphBandwidthFilterTransmitActive = (GraphBandwidthFilterTransmit.hasClass('active') ? true : false);
         // On click change
-//        clearTimeout(UpdateTimeout);
-//        UpdateBandwidth();
         // Prevent default action
         e.preventDefault();
     });
@@ -139,9 +137,6 @@ $(function() {
         $('#graph-bandwidth-title > span').eq(1).html($(this).html());
         // Update max data points variable
         GraphBandwidthMaxDataPoints = this.rel;
-        // On click change
- //       clearTimeout(UpdateTimeout);
- //       UpdateBandwidth();
         // Prevent default action
         e.preventDefault();
     });
@@ -187,7 +182,6 @@ function UpdateBandwidth() {
         dataType: 'json',
         success: function(data) {
             UpdateBandwidthGraph(data);
-            setTimeout(UpdateBandwidth,bandwidthtime);
         },
         error: function(jqXHR, textStatus) {
             console.log(textStatus);
