@@ -11,8 +11,8 @@ class FOGURLRequests extends FOGBase {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_CONNECTTIMEOUT_MS => 15001,
-            CURLOPT_TIMEOUT_MS => 15000,
+            CURLOPT_CONNECTTIMEOUT_MS => 10001,
+            CURLOPT_TIMEOUT_MS => 10000,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 20,
             CURLOPT_HEADER => false,
@@ -44,67 +44,46 @@ class FOGURLRequests extends FOGBase {
         return false;
     }
     public function process($urls, $method = 'GET',$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
-        $method = trim(strtolower($method));
-        $method = !in_array($method,array('get','post'),true) ? 'GET' : strtoupper($method);
         if (!is_array($urls)) $urls = array($urls);
-        $url_count = count($urls);
-        $this->contextOptions[CURLOPT_CUSTOMREQUEST] = $method;
-        for ($i = 0; $i < $url_count; $i++) {
-            $ch = curl_init();
-            $this->validURL($urls[$i]);
-            $this->proxyInfo($urls[$i]);
-            if ($auth) $this->contextOptions[$auth];
+        if (empty($method)) $method = 'GET';
+        array_map(function(&$url) use ($urls,$method,$data,$sendAsJSON,$auth,$callback,$file,&$curl) {
+            $this->validURL($url);
+            $this->proxyInfo($url);
+            if ($method == 'GET' && $data !== null) $url = sprintf('%s?%s',$url,http_build_query((array)$data));
+            $ch = curl_init($url);
+            $this->contextOptions[CURLOPT_URL] = $url;
+            if ($auth) $this->contextOptions[CURLOPT_USERPWD] = $auth;
             if ($file) {
                 $this->contextOptions[CURLOPT_FILE] = $file;
-                $this->contextOptions[CURLOPT_TIMEOUT_MS] = 3000000000;
+                $this->contextOptions[CURLOPT_TIMEOUT_MS] = 300000000;
             }
-            if ($method === 'GET' && $data !== null) {
-                $urls[$i] = sprintf('%s?%s',$urls[$i],http_build_query((array)$data));
-                $this->contextOptions[CURLOPT_URL] = $urls[$i];
-            } else $this->contextOptions[CURLOPT_URL] = $urls[$i];
-            if ($method === 'POST' && $data !== null) {
+            if ($method == 'POST' && $data !== null) {
                 if ($sendAsJSON) {
                     $data = json_encode($data);
-                    $datalen = strlen($data);
                     $this->contextOptions[CURLOPT_HTTPHEADER] = array(
                         'Content-Type: application/json',
-                        "Content-Length: $datalen",
+                        'Content-Length: '.strlen($data),
                         'Expect:',
                     );
                 }
                 $this->contextOptions[CURLOPT_POST] = true;
                 $this->contextOptions[CURLOPT_POSTFIELDS] = $data;
             }
+            $this->contextOptions[CURLOPT_CUSTOMREQUEST] = $method;
             curl_setopt_array($ch,$this->contextOptions);
+            $curl[] = $ch;
             curl_multi_add_handle($this->handle,$ch);
-            $key = (string)$ch;
-            $map[$key] = $i;
-        }
+            unset($url);
+        },(array)$urls);
+        $active = null;
         $response = array();
         do {
-            while (($execrun = curl_multi_exec($this->handle,$running)) == CURLM_CALL_MULTI_PERFORM);
-            if ($execrun != CURLM_OK) break;
-            while ($done = curl_multi_info_read($this->handle)) {
-                $info = curl_getinfo($done['handle']);
-                $output = $info['http_code'] != 200 ? '' : curl_multi_getcontent($done['handle']);
-                if (is_callable($callback)) {
-                    $key = (string)$done['handle'];
-                    $request = $urls[$map[$key]];
-                    unset($map[$key]);
-                    $callback($output);
-                }
-                if ($i < $url_count && isset($urls[$i])) {
-                    $ch = curl_init();
-                    curl_setopt_array($ch,$this->contextOptions);
-                    curl_multi_add_handle($this->handle,$ch);
-                    $key = (string)$ch;
-                    $map[$key] = $i++;
-                }
-                curl_multi_remove_handle($this->handle,$done['handle']);
-                $response[] = $output;
-            }
-            if ($running) curl_multi_select($this->handle,30);
-        } while ($running);
+            curl_multi_exec($this->handle,$active);
+        } while ($active > 0);
+        array_map(function(&$val) use (&$response) {
+            $response[] = curl_multi_getcontent($val);
+            curl_multi_remove_handle($this->handle,$val);
+        },(array)$curl);
         if (!$file) return $response;
         fclose($file);
     }
