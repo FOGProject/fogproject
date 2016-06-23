@@ -125,8 +125,8 @@ $(function() {
         $('#graph-bandwidth-title > span').eq(0).html($(this).html());
         GraphBandwidthFilterTransmitActive = (GraphBandwidthFilterTransmit.hasClass('active') ? true : false);
         // On click change
-        clearTimeout(UpdateTimeout);
-        UpdateBandwidth();
+//        clearTimeout(UpdateTimeout);
+//        UpdateBandwidth();
         // Prevent default action
         e.preventDefault();
     });
@@ -140,8 +140,8 @@ $(function() {
         // Update max data points variable
         GraphBandwidthMaxDataPoints = this.rel;
         // On click change
-        clearTimeout(UpdateTimeout);
-        UpdateBandwidth();
+ //       clearTimeout(UpdateTimeout);
+ //       UpdateBandwidth();
         // Prevent default action
         e.preventDefault();
     });
