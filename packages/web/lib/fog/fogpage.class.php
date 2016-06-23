@@ -625,8 +625,8 @@ abstract class FOGPage extends FOGBase {
             printf('<option value="">- %s -</option>',self::$foglang['PleaseSelect']);
             array_map(function(&$OU) use ($objOU,&$optFound,$ADOU) {
                 $ou = trim(preg_replace('#;#','',$OU));
-                if (!$optFound && $objOU === $ADOU) $optFound = $objOU;
-                if (!$optFound && preg_match('#;#',$OU)) $optFound = $objOU;
+                if (!$optFound && $ou === $ADOU) $optFound = $ou;
+                if (!$optFound && preg_match('#;#',$OU)) $optFound = $ou;
                 printf('<option value="%s"%s>%s</option>',$OU,$optFound === $ou ? ' selected' : '',$ou);
                 unset($OU);
             },(array)$OUs);
