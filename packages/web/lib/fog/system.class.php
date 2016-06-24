@@ -1,12 +1,12 @@
 <?php
 class System {
     public function __construct() {
-        define('FOG_VERSION', '8247');
+        define('FOG_VERSION', '8249');
         define('FOG_SCHEMA', 227);
         define('FOG_BCACHE_VER',78);
-        define('FOG_SVN_REVISION',5751);
+        define('FOG_SVN_REVISION',5752);
         define('FOG_SVN_LAST_UPDATE', '$LastChangedDate: 2015-01-01 14:16:56 -0500 (Thu, 01 Jan 2015) $');
-        define('FOG_CLIENT_VERSION', '0.11.1');
+        define('FOG_CLIENT_VERSION', '0.11.2');
         define('PHP_VERSION_REQUIRED', '5.3.0');
         define('PHP_COMPATIBLE', version_compare(PHP_VERSION, PHP_VERSION_REQUIRED, '>='));
         define('SPACE_DEFAULT_STORAGE', '/images');
