@@ -14,6 +14,7 @@ abstract class FOGClient extends FOGBase {
                 'jobs.php',
                 'servicemodule-active.php',
                 'snapins.checkin.php',
+                'usertracking.report.php',
                 'snapins.file.php',
             );
             $scriptCheck = basename($_SERVER['SCRIPT_NAME']);
