@@ -214,16 +214,13 @@ abstract class FOGBase {
         return $this->isLoaded[$key];
     }
     protected function resetRequest() {
-        $reqVars = $_REQUEST;
         if (!isset($_SESSION['post_request_vals'])) $_SESSION['post_request_vals'] = array();
         $sesVars = $_SESSION['post_request_vals'];
-        unset($_REQUEST);
         $setReq = function(&$val,&$key) {
             $_REQUEST[$key] = $val;
             unset($val,$key);
         };
         array_walk($sesVars,$setReq);
-        array_walk($reqVars,$setReq);
         unset($_SESSION['post_request_vals'], $sesVars, $reqVars);
     }
     protected function setRequest() {

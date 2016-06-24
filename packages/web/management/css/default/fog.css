@@ -977,7 +977,7 @@ pre {
 #deploy-container input[type=checkbox] {
     vertical-align: middle;
 }
-#deploy-container input.error {
+.error {
     border: 1px solid red;
 }
 #deploy-container #cronOptions {
@@ -993,9 +993,6 @@ pre {
     text-align: center;
     display: block;
     cursor: pointer;
-}
-.deploy-container input.error {
-    border: 1px solid red;
 }
 .deploy-container #cronOptions {
     text-align: left;
