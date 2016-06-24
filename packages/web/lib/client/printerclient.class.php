@@ -2,12 +2,12 @@
 class PrinterClient extends FOGClient implements FOGClientSend {
     private static $modes = array(0,'a','ar');
     public function json() {
-        $level = intval($this->Host->get('printerLevel'));
+        $level = $this->Host->get('printerLevel') ? $this->Host->get('printerLevel') : 0;
         if (!in_array($level,array_keys(self::$modes))) $level = 0;
         $allPrinters = self::getSubObjectIDs('Printer','','name');
         if (count($this->Host->get('printers')) < 1) return array(
             'error'=>'np',
-            'mode'=> (string)self::$modes[$level],
+            'mode'=> (string)self::$modes[$level] ? self::$modes[$level] : self::$modes[$level],
             'allPrinters'=>$allPrinters,
             'default' => '',
             'printers' => array(),
