@@ -1,5 +1,5 @@
 <?php
-class ProcessLogin extends FOGBase {
+class ProcessLogin extends FOGPage {
     private $username, $password, $rangSet;
     private $mobileMenu, $langMenu;
     private $lang;
@@ -120,7 +120,6 @@ class ProcessLogin extends FOGBase {
             $this->setMessage($_SESSION['FOG_MESSAGES']);
             $this->redirect('index.php');
         }
-        echo '<form method="post" action="" id="login-form">';
         if ($_REQUEST['node'] != 'logout') {
             foreach ($_REQUEST AS $key => &$value) {
                 printf('<input type="hidden" name="%s" value="%s"/>',$key,$value);
@@ -128,7 +127,7 @@ class ProcessLogin extends FOGBase {
             }
         }
         $this->getLanguages();
-        printf('<form method="post" action="" id="login-form"><label for="username">%s</label><input type="text" class="input" name="uname" id="username"/><label for="password">%s</label><input type="password" class="input" name="upass" id="password"/><label for="language">%s</label><select name="ulang" id="language">%s</select><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form><div id="login-form-info"><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p></div>',self::$foglang['Username'],self::$foglang['Password'],self::$foglang['LanguagePhrase'],$this->langMenu,self::$foglang['Login'],self::$foglang['FOGSites'],self::$foglang['LatestVer'],self::$foglang['LatestDevVer'],self::$foglang['LatestSvnVer']);
+        printf('<form method="post" action="%s" id="login-form"><label for="username">%s</label><input type="text" class="input" name="uname" id="username"/><label for="password">%s</label><input type="password" class="input" name="upass" id="password"/><label for="language">%s</label><select name="ulang" id="language">%s</select><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form><div id="login-form-info"><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p></div>',$this->formAction,self::$foglang['Username'],self::$foglang['Password'],self::$foglang['LanguagePhrase'],$this->langMenu,self::$foglang['Login'],self::$foglang['FOGSites'],self::$foglang['LatestVer'],self::$foglang['LatestDevVer'],self::$foglang['LatestSvnVer']);
     }
     public function mobileLoginForm() {
         $this->setLang();
