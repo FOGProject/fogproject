@@ -36,7 +36,7 @@ if (!self::$isMobile) {
     echo "<h1>$this->sectionTitle</h1>";
     if (self::$FOGUser->isValid() && $this->pageTitle) echo "<h2>$this->pageTitle</h2>";
     echo "$this->body</div></div></div>";
-    printf('<div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client</a>&nbsp;&nbsp;<a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations&business=fogproject.org%40gmail.com">%s</a></div>',_('Donate to FOG'));
+    printf('<div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client</a>&nbsp;&nbsp;<a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations&business=fogproject.org@gmail.com">%s</a></div>',_('Donate to FOG'));
     printf('<!-- <div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> Memory Usage: %s</div> -->',$this->formatByteSize(memory_get_usage(true)));
     printf('<!-- <div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> Memory Usage: %s</div> -->',$this->formatByteSize(memory_get_peak_usage()));
     array_map(function($javascript) {
