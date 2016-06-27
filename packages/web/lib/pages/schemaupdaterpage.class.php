@@ -26,7 +26,7 @@ class SchemaUpdaterPage extends FOGPage {
     }
     public function index_post() {
         if (!isset($_REQUEST['confirm'])) return;
-        require(sprintf('%s%scommons%sschema.php',BASEPATH,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR));
+        require_once sprintf('%s%scommons%sschema.php',BASEPATH,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
         $errors = array();
         try {
             if (!self::$DB->link()) throw new Exception(_('No connection available'));

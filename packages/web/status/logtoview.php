@@ -1,5 +1,5 @@
 <?php
-require_once('../commons/base.inc.php');
+require_once '../commons/base.inc.php';
 header('Content-Type: text/event-stream');
 header('Connection: close');
 $vals = function($reverse,$HookManager) {

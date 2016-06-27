@@ -1,5 +1,5 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 try {
     $Host = $FOGCore->getHostItem(false);
     $Task = $Host->get('task');
