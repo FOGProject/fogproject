@@ -507,7 +507,7 @@ abstract class FOGBase {
         if (empty($txt)) return;
         $txt = sprintf('[%s] %s',self::nice_date()->format('Y-m-d H:i:s'),$txt);
         if ($this->logLevel >= $level) echo $txt;
-        //$this->logHistory($txt);
+        $this->logHistory($txt);
     }
     protected function logHistory($string) {
         $string = trim($string);
