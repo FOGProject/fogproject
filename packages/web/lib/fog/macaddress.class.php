@@ -1,6 +1,6 @@
 <?php
 class MACAddress extends FOGBase {
-    private static $pattern = '/^(?:[[:xdigit:]]{2}([-:]))(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}|(?:[[:xdigit:]]{12})|(?:[[:xdigit:]]{4}([.])){2}[[:xdigit:]]{4}$/';
+    private static $pattern = '/^(?:[[:xdigit:]]{2}([-:]))(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}$|^(?:[[:xdigit:]]{12})$|^(?:[[:xdigit:]]{4}([.])){2}[[:xdigit:]]{4}$/';
     protected $MAC;
     protected $tmpMAC;
     private $Host;
