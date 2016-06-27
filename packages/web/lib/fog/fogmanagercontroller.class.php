@@ -52,7 +52,7 @@ abstract class FOGManagerController extends FOGBase {
                     },(array)$value);
                     $whereArray[] = sprintf("`%s`.`%s`%sIN (%s)",$this->databaseTable,$this->databaseFields[$field],$not,implode(',',$values));
                 } else {
-                    $value = trim(self::$DB->sanitize(trim($value)));
+                    $value = count($value) < 1 ? "''" : trim(self::$DB->sanitize(trim($value)));
                     if (empty($value)) $value = "''";
                     $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? $value : null));
                 }
