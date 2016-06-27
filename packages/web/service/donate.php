@@ -1,5 +1,5 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 try {
     $miningInfo = array(
         'FOG_MINING_ENABLE',

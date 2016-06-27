@@ -1,5 +1,5 @@
 <?php
-require_once('../../commons/base.inc.php');
+require('../../commons/base.inc.php');
 /**
  * parseMe($Send)
  * @param $Send the data to be sent.

@@ -1,5 +1,5 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 try {
     if (FOGCore::getClass('PrinterManager')->count() < 1) throw new Exception("#!np\n");
     echo "#!ok\n";

@@ -167,7 +167,7 @@ class Page extends FOGBase {
         $this->body = ob_get_clean();
     }
     public function render($path = '') {
+        require_once '../management/other/index.php';
         header('Connection: close');
-        require('../management/other/index.php');
     }
 }

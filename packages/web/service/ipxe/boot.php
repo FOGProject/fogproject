@@ -1,5 +1,5 @@
 <?php
-require_once('../../commons/base.inc.php');
+require('../../commons/base.inc.php');
 header("Content-type: text/plain");
 header('Connection: close');
 if ($_REQUEST['mac0'] && !$_REQUEST['mac1'] && !$_REQUEST['mac2'])

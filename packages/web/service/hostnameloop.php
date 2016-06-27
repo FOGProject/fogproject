@@ -1,5 +1,5 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 try {
     $hostname = trim(base64_decode(trim($_REQUEST['host'])));
     $mac = array_filter((array)FOGCore::getSubObjectIDs('MACAddressAssociation',array('hostID'=>FOGCore::getSubObjectIDs('Host',array('name'=>$hostname))),'mac'));

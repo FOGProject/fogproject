@@ -1,5 +1,5 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 try {
     if (FOGCore::getClass('SnapinManager')->count(array('isEnabled'=>1)) < 1) throw new Exception(_('There are no snapins on this server.'));
     array_map(function(&$Snapin) {
