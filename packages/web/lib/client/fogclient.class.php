@@ -16,6 +16,7 @@ abstract class FOGClient extends FOGBase {
                 'snapins.checkin.php',
                 'usertracking.report.php',
                 'snapins.file.php',
+                'register.php',
             );
             $scriptCheck = basename($_SERVER['SCRIPT_NAME']);
             if (($this->json || $this->newService) && !in_array($scriptCheck,$validClientBrowserFiles)) throw new Exception(_('Not Allowed Here'));
