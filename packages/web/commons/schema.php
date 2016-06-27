@@ -2188,3 +2188,9 @@ $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`hostMAC` CHANGE `hmIgnoreClient` `hmIgnoreClient` ENUM('0','1') NOT NULL",
     "ALTER TABLE `".DATABASE_NAME."`.`hostMAC` CHANGE `hmIgnoreImaging` `hmIgnoreImaging` ENUM('0','1') NOT NULL",
 );
+// 228
+$this->schema[] = array(
+    "TRUNCATE TABLE `".DATABASE_NAME."`.`history`",
+    "ALTER TABLE `".DATABASE_NAME."`.`history` CHANGE `hText` `hText` VARCHAR(255) NOT NULL",
+    "ALTER TABLE `".DATABASE_NAME."`.`history` ADD UNIQUE INDEX `updateTime` (`hText`,`hTime`)",
+);
