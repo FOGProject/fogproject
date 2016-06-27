@@ -1,7 +1,7 @@
 <?php
+require_once '../commons/base.inc.php';
 header('Content-Type: text/event-stream');
 header('Connection: close');
-require('../commons/base.inc.php');
 $dev = trim($_REQUEST['dev'] ? basename($_REQUEST['dev']) : 'eth0');
 $dirints = array_diff(scandir('/sys/class/net'),array('..','.'));
 array_walk($dirints,function(&$iface,&$index) use (&$interfaces) {

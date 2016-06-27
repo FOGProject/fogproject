@@ -1,5 +1,5 @@
 <?php
-require_once('../commons/base.inc.php');
+require('../commons/base.inc.php');
 try {
     if (trim($_REQUEST['mode']) != array('q','s')) throw new Exception(_('Invalid operational mode'));
     $string = explode(':',base64_decode($_REQUEST['string']));
