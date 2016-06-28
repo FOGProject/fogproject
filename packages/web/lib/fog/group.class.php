@@ -101,7 +101,7 @@ class Group extends FOGController {
                 $insert_values[] = array($hostID,$moduleID,'1');
             }
         });
-        self::getClass('ModuleAssociationManager')->insert_batch($insert_fields,$insert_values);
+        if (count($insert_values) > 0) self::getClass('ModuleAssociationManager')->insert_batch($insert_fields,$insert_values);
         return $this;
     }
     public function removeModule($removeArray) {
