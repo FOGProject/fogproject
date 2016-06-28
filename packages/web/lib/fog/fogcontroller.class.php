@@ -45,7 +45,7 @@ abstract class FOGController extends FOGBase {
             unset($this->data[$key]);
             return false;
         }
-        $this->loadItem($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         if (!isset($this->data[$key])) return $this->data[$key] = '';
         if (is_object($this->data[$key])) {
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Object'),$this->data[$key]->__toString()));
@@ -63,7 +63,7 @@ abstract class FOGController extends FOGBase {
             else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being set'));
-            } else $this->loadItem($key);
+            } else if (!$this->isLoaded($key)) $this->loadItem($key);
             if (is_numeric($value) && $value < ($key == 'id' ? 1 : -1)) throw new Exception(_('Invalid numeric entry'));
             if (is_object($value)) {
                 $this->info(sprintf('%s: %s %s: %s',_('Setting Key'),$key,_('Object'),$value->__toString()));
@@ -85,7 +85,7 @@ abstract class FOGController extends FOGBase {
             else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being added'));
-            } else $this->loadItem($key);
+            } else if (!$this->isLoaded($key)) $this->loadItem($key);
             if (is_object($value)) {
                 $this->info(sprintf('%s: %s, %s: %s',_('Adding Key'),$key,_('Object'),$value->__toString()));
                 $this->data[$key][] = $value;
@@ -109,7 +109,7 @@ abstract class FOGController extends FOGBase {
             else if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) {
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being removed'));
-            } else $this->loadItem($key);
+            } else if (!$this->isLoaded($key)) $this->loadItem($key);
             if (!is_array($this->data[$key])) $this->data[$key] = array($this->data[$key]);
             $this->data[$key] = array_unique($this->data[$key]);
             $index = array_search($value,$this->data[$key]);
@@ -240,7 +240,6 @@ abstract class FOGController extends FOGBase {
         return array_walk($key,array($this,'key'));
     }
     protected function loadItem($key) {
-        if ($this->isLoaded($key)) return $this;
         if (!array_key_exists($key, $this->databaseFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !in_array($key, $this->additionalFields)) return $this;
         $methodCall = sprintf('load%s',ucfirst($key));
         if (method_exists($this,$methodCall)) $this->{$methodCall}();
