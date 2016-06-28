@@ -51,48 +51,40 @@ class Printer extends FOGController {
                 $DBHostIDs = self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
                 unset($RemoveHostIDs);
             }
-            array_map(function(&$Host) {
-                if (!$Host->isValid()) return;
-                $hasDefault = self::getClass('PrinterAssociationManager')->count(array('isDefault'=>1,'hostID'=>$Host->get('id')));
-                self::getClass('PrinterAssociation')
-                    ->set('printerID',$this->get('id'))
-                    ->set('hostID',$Host->get('id'))
-                    ->set('isDefault',($hasDefault != 1))
-                    ->save();
-                unset($Host);
-            },(array)self::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))));
+            $insert_fields = array('hostID','printerID','isDefault');
+            $insert_values = array();
+            $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
+            $DefHostIDs = self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$DBHostIDs,'isDefault'=>'1'),'hostID',false,'AND','hostID');
+            $DefPrinterIDs = self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$DefHostIDs,'isDefault'=>'1'),'printerID',false,'AND','hostID');
+            $DefHostIDs = array_combine((array)$DefHostIDs,(array)$DefPrinterIDs);
+            array_walk($Hosts,function(&$hostID,$index) use ($DefHostIDs,&$insert_values) {
+                $insert_values[] = array($hostID,$this->get('id'),$DefHostIDs[$hostID] == $this->get('id') ? '1' : '0');
+            });
+            if (count($insert_values) > 0) self::getClass('PrinterAssociationManager')->insert_batch($insert_fields,$insert_values);
         }
         return $this;
     }
     public function addHost($addArray) {
-        if (!$this->get('id')) return;
-        if (!$this->isLoaded('hosts')) $this->loadHosts();
         $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
         return $this;
     }
     public function removeHost($removeArray) {
-        if (!$this->get('id')) return;
-        if (!$this->isLoaded('hosts')) $this->loadHosts();
         $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
         return $this;
     }
     protected function loadHosts() {
-        if (!$this->get('id')) return;
         $this->set('hosts',self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID'));
     }
     protected function loadHostsnotinme() {
-        if (!$this->get('id')) return;
         $find = array('id'=>$this->get('hosts'));
         $this->set('hostsnotinme',self::getSubObjectIDs('Host',$find,'id',true));
         unset($find);
         return $this;
     }
     public function updateDefault($hostid,$onoff) {
-        if (!$this->get('id')) return;
-        array_map(function(&$id) {
-            self::getClass('Host',$id)->updateDefault($this->get('id'),in_array($id,(array)$onoff));
-            unset($id);
-        },(array)$hostid);
+        $AllHostsPrinter = self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')));
+        self::getSubObjectIDs('PrinterAssociationManager')->update(array('id'=>$AllHostsPrinter,'isDefault'=>'0'));
+        self::getSubObjectIDs('PrinterAssociationManager')->update(array('hostID'=>$onoff,'printerID'=>$this->get('id')),'',array('isDefault'=>'1'));
         return $this;
     }
 }
