@@ -12,6 +12,7 @@ class MACAddress extends FOGBase {
     protected function setMAC() {
         try {
             if ($this->tmpMAC instanceof MACAddress) $this->MAC = self::normalizeMAC($this->tmpMAC);
+            else if ($this->tmpMAC instanceof MACAddressAssociation) $this->MAC = self::normalizeMAC($this->tmpMAC->get('mac'));
             else if (is_array($this->tmpMAC)) $this->MAC = self::normalizeMAC($this->tmpMAC[0]);
             else $this->MAC = self::normalizeMAC($this->tmpMAC);
             if (!$this->isValid()) throw new Exception("#!im\n");
