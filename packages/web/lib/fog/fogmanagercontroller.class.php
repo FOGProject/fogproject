@@ -41,14 +41,19 @@ abstract class FOGManagerController extends FOGBase {
                 $field = trim($field);
                 if (is_array($value) && count($value)) {
                     $values = array_map(function(&$val) {
-                        if (is_string($val)) $val = trim(self::$DB->sanitize(trim($val)));
-                        if (count($val) < 1 || empty($val)) $val = "''";
+                        if (is_array($val)) return array_filter(array_map(function(&$v) {
+                            $v = trim(self::$DB->sanitize(trim($v)));
+                            if (empty($v)) return "''";
+                            return $v;
+                        },$val));
+                        $val = trim(self::$DB->sanitize(trim($val)));
+                        if (empty($val)) return "''";
                         return $val;
                     },(array)$value);
                     $whereArray[] = sprintf("`%s`.`%s`%sIN (%s)",$this->databaseTable,$this->databaseFields[$field],$not,implode(',',$values));
                 } else {
-                    if (is_string($value)) $value = trim(self::$DB->sanitize(trim($value)));
-                    if (count($value) < 1 || empty($value)) $value = "''";
+                    $value = count($value) < 1 ? '' : trim(self::$DB->sanitize(trim($value)));
+                    if (empty($value)) $value = "''";
                     $whereArray[] = sprintf("`%s`.`%s`%s%s",$this->databaseTable,$this->databaseFields[$field],(preg_match('#%#',(string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? $value : null));
                 }
                 $count++;
