@@ -600,7 +600,9 @@ abstract class FOGBase {
         $output = array();
         exec("/sbin/ip -4 addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
         if (!count($IPs)) exec("/sbin/ifconfig -a | awk -F'[ /:]+' '/(cast)/ {print $4}'",$IPs,$retVal);
-        if (fsockopen('ipinfo.io',80)) {
+        $sock = fsockopen('ipinfo.io',80);
+        if ($sock !== false) {
+            fclose($sock);
             $res = self::$FOGURLRequests->process('http://ipinfo.io/ip','GET');
             $IPs[] = $res[0];
         }
