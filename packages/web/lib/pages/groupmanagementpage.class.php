@@ -129,12 +129,11 @@ class GroupManagementPage extends FOGPage {
     public function edit() {
         $HostCount = $this->obj->getHostCount();
         $hostids = $this->obj->get('hosts');
-        $imageID = self::getSubObjectIDs('Host',array('id'=>$hostids),'imageID','','','','','array_count_values');
-        $imageHosts = array_values($imageID);
+        $imageIDCount = self::getSubObjectIDs('Host',array('id'=>$hostids),'imageID','','','','','array_count_values');
         $imageMatchID = false;
-        if (count($imageHosts) === 1 && array_shift($imageHosts) === $HostCount) {
-            $imageMatchID = array_keys($imageID);
-            $imageMatchID = array_shift($imageMatchID);
+        if (array_shift($imageIDCount) == $HostCount) {
+            $imageID = self::getSubObjectIDs('Host',array('id'=>$hostids),'imageID');
+            $imageMatchID = array_shift($imageID);
         }
         $groupKey = self::getSubObjectIDs('Host',array('id'=>$hostids),'productKey','','','','','array_count_values');
         $aduse = count(self::getSubObjectIDs('Host',array('id'=>$hostids),'useAD','','','','','array_filter'));
