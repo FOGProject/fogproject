@@ -47,15 +47,14 @@ class Group extends FOGController {
                 $DBHostIDs = self::getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID');
                 unset($RemoveHostIDs);
             }
-            array_map(function(&$Host) {
-                if (!$Host->isValid()) return;
-                self::getClass('GroupAssociation')
-                    ->set('hostID',$Host->get('id'))
-                    ->set('groupID',$this->get('id'))
-                    ->save();
-                unset($Host);
-            },(array)self::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))));
-            unset($DBHostIDs,$RemoveHostIDs);
+            $insert_fields = array('hostID','groupID');
+            $insert_values = array();
+            $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
+            array_walk($Hosts,function(&$hostID,$index) use (&$insert_values) {
+                $insert_values[] = array($hostID,$this->get('id'));
+            });
+            if (count($insert_values) > 0) self::getClass('GroupAssociationManager')->insert_batch($insert_fields,$insert_values);
+            unset($DBHostIDs,$RemoveHostIDs,$Hosts);
         }
         return $this;
     }
@@ -67,30 +66,31 @@ class Group extends FOGController {
         return self::getClass('GroupAssociationManager')->count(array('groupID'=>$this->get('id')));
     }
     public function addPrinter($printerAdd, $printerDel, $level = 0) {
+        self::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$this->get('hosts'),'printerID'=>$printerDel));
         self::getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('printerLevel'=>$level));
-        array_map(function(&$Host) use ($printerAdd,$printerDel,$level) {
-            if (!$Host->isValid()) return;
-            if ($printerAdd) $Host->addPrinter($printerAdd);
-            if ($printerDel) $Host->removePrinter($printerDel);
-            $Host->save();
-            unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
+        $insert_fields = array('hostID','printerID');
+        $insert_values = array();
+        array_walk($this->get('hosts'),function(&$hostID,$index) use (&$insert_values,$printerAdd) {
+            foreach($printerAdd AS &$printerID) {
+                $insert_values[] = array($hostID,$printerID);
+            }
+        });
+        if (count($insert_values) > 0) self::getClass('PrinterAssociationManager')->insert_batch($insert_fields,$insert_values);
         return $this;
     }
     public function addSnapin($addArray) {
-        array_map(function(&$Host) use ($addArray) {
-            if (!$Host->isValid()) return;
-            $Host->addSnapin($addArray)->save();
-            unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
+        $insert_fields = array('hostID','snapinID');
+        $insert_values = array();
+        array_walk($this->get('hosts'),function(&$hostID,$index) use (&$insert_values,$addArray) {
+            foreach ($addArray AS $snapinID) {
+                $insert_values[] = array($hostID,$snapinID);
+            }
+        });
+        if (count($insert_values) > 0) self::getClass('SnapinAssociationManager')->insert_batch($insert_fields,$insert_values);
         return $this;
     }
     public function removeSnapin($removeArray) {
-        array_map(function(&$Host) use ($removeArray) {
-            if (!$Host->isValid()) return;
-            $Host->removeSnapin($removeArray)->save();
-            unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
+        self::getClass('SnapinAssociationManager')->destroy(array('hostID'=>$this->get('hosts'),'snapinID'=>$removeArray));
         return $this;
     }
     public function addModule($addArray) {
@@ -105,11 +105,7 @@ class Group extends FOGController {
         return $this;
     }
     public function removeModule($removeArray) {
-        array_map(function(&$Host) use ($removeArray) {
-            if (!$Host->isValid()) return;
-            $Host->removeModule($removeArray)->save();
-            unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
+        self::getClass('ModuleAssociationManager')->destroy(array('hostID'=>$this->get('hosts'),'moduleID'=>$removeArray));
         return $this;
     }
     public function setDisp($x,$y,$r) {
@@ -163,20 +159,15 @@ class Group extends FOGController {
         return $imageID == $this->getHostCount();
     }
     public function updateDefault($printerid) {
-        if (!$this->get('id')) return;
-        array_map(function(&$Host) use ($printerid) {
-            if (!$Host->isValid()) return;
-            $Host->updateDefault($printerid,true);
-            unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
+        $AllGroupHostsPrinters = self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('hosts')));
+        self::getClass('PrinterAssociationManager')->update(array('id'=>$AllGroupHostsPrinters),'',array('isDefault'=>'0'));
+        self::getClass('PrinterAssociationManager')->update(array('printerID'=>$printerid,'hostID'=>$this->get('hosts')),'',array('isDefault'=>'1'));
         return $this;
     }
     protected function loadHosts() {
-        if (!$this->get('id')) return;
         $this->set('hosts',self::getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID'));
     }
     protected function loadHostsnotinme() {
-        if (!$this->get('id')) return;
         $find = array('id'=>$this->get('hosts'));
         $this->set('hostsnotinme',self::getSubObjectIDs('Host',$find,'',true));
         unset($find);
