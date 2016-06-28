@@ -149,7 +149,6 @@ class Host extends FOGController {
             throw new Exception(_('Host ID was not set, or unable to be created'));
             break;
         case (self::isLoaded('mac')):
-            $this->loadMac();
             if (!$this->get('mac')->isValid()) throw new Exception(self::$foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
             $CurrPriMAC = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
@@ -328,7 +327,6 @@ class Host extends FOGController {
         return (bool)count(self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id'),'printerID'=>$printerid,'isDefault'=>1),'printerID'));
     }
     public function updateDefault($printerid,$onoff) {
-        if (!$this->isLoaded('printers')) $this->loadPrinters();
         self::getClass('PrinterAssociationManager')->update(array('printerID'=>$this->get('printers'),'hostID'=>$this->get('id')),'',array('isDefault'=>0));
         self::getClass('PrinterAssociationManager')->update(array('printerID'=>$printerid,'hostID'=>$this->get('id')),'',array('isDefault'=>$onoff));
         return $this;
@@ -369,69 +367,54 @@ class Host extends FOGController {
         return $this;
     }
     protected function loadMac() {
-        if (!$this->get('id')) return;
-        $this->set('mac',self::getClass('MACAddress',$this->get('primac')->get('mac')));
+        $this->set('mac',self::getClass('MACAddress',$this->get('primac')));
     }
     protected function loadAdditionalMACs() {
-        if (!$this->get('id')) return;
         $this->set('additionalMACs',self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>array(null,0,'')),'mac'));
     }
     protected function loadPendingMACs() {
-        if (!$this->get('id')) return;
         $this->set('pendingMACs',self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>1),'mac'));
     }
     protected function loadGroups() {
-        if (!$this->get('id')) return;
         $this->set('groups',self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID'));
     }
     protected function loadGroupsnotinme() {
-        if (!$this->get('id')) return;
         $find = array('id'=>$this->get('groups'));
         $this->set('groupsnotinme',self::getSubObjectIDs('Group',$find,'id',true));
         unset($find);
     }
     protected function loadPrinters() {
-        if (!$this->get('id')) return;
         $this->set('printers',self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID'));
     }
     protected function loadPrintersnotinme() {
-        if (!$this->get('id')) return;
         $find = array('id'=>$this->get('printers'));
         $this->set('printersnotinme',self::getSubObjectIDs('Printer',$find,'id',true));
         unset($find);
     }
     protected function loadSnapins() {
-        if (!$this->get('id')) return;
         $this->set('snapins',self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID'));
     }
     protected function loadSnapinsnotinme() {
-        if (!$this->get('id')) return;
         $find = array('id'=>$this->get('snapins'));
         $this->set('snapinsnotinme',self::getSubObjectIDs('Snapin',$find,'id',true));
         unset($find);
     }
     protected function loadModules() {
-        if (!$this->get('id')) return;
         $this->set('modules',self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID'));
     }
     protected function loadPowermanagementtasks() {
-        if (!$this->get('id')) return;
         $this->set('powermanagementtasks',self::getSubObjectIDs('PowerManagement',array('hostID'=>$this->get('id'))));
     }
     protected function loadUsers() {
-        if (!$this->get('id')) return;
         $this->set('users',self::getSubObjectIDs('UserTracking',array('hostID'=>$this->get('id'))));
     }
     protected function loadSnapinjob() {
-        if (!$this->get('id')) return;
         $this->set('snapinjob',@max(self::getSubObjectIDs('SnapinJob',array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'hostID'=>$this->get('id')),'id')));
     }
     protected function loadInventory() {
-        if (!$this->get('id')) return;
         $this->set('inventory',@max(self::getSubObjectIDs('Inventory',array('hostID'=>$this->get('id')),'id')));
     }
     protected function loadTask() {
-        if (!$this->get('id')) return;
         $find['hostID'] = $this->get('id');
         $find['stateID'] = array_merge($this->getQueuedStates(),(array)$this->getProgressState());
         if (in_array($_REQUEST['type'], array('up','down'))) $find['typeID'] = ($_REQUEST['type'] == 'up' ? array(2,16) : array(1,8,15,17,24));
@@ -439,7 +422,6 @@ class Host extends FOGController {
         unset($find);
     }
     protected function loadOptimalStorageNode() {
-        if (!$this->get('id')) return;
         $this->set('optimalStorageNode', self::getClass('Image',$this->get('imageID'))->getStorageGroup()->getOptimalStorageNode($this->get('imageID')));
     }
     public function getActiveTaskCount() {
@@ -669,7 +651,6 @@ class Host extends FOGController {
         return $this;
     }
     public function addPendtoAdd($MACs = false) {
-        if (!$this->isLoaded('pendingMACs')) $this->loadPendingMACs();
         $lowerAndTrim = function(&$MAC) {
             return trim(strtolower($MAC));
         };
@@ -680,7 +661,6 @@ class Host extends FOGController {
         return $this->addAddMAC($matched)->removePendMAC($matched);
     }
     public function removeAddMAC($removeArray) {
-        if (!$this->isLoaded('additionalMACs')) $this->loadAdditionalMACs();
         array_map(function(&$item) {
             $item = $item instanceof MACAddress ? $item : self::getClass('MACAddress',$item);
             $this->remove('additionalMACs',$item);
@@ -689,7 +669,6 @@ class Host extends FOGController {
         return $this;
     }
     public function removePendMAC($removeArray) {
-        if (!$this->isLoaded('pendingMACs')) $this->loadPendingMACs();
         array_map(function(&$item) {
             $item = $item instanceof MACAddress ? $item : self::getClass('MACAddress',$item);
             $this->remove('pendingMACs',$item);
@@ -698,23 +677,18 @@ class Host extends FOGController {
         return $this;
     }
     public function addPriMAC($MAC) {
-        if (!$this->isLoaded('mac')) $this->loadMac();
         return $this->set('mac',$MAC);
     }
     public function addPendMAC($MAC) {
-        if (!$this->isLoaded('pendingMACs')) $this->loadPendingMACs();
         return $this->addAddMAC($MAC,true);
     }
     public function addPrinter($addArray) {
-        if (!$this->isLoaded('printers')) $this->loadPrinters();
         return $this->set('printers',array_unique(array_merge((array)$this->get('printers'),(array)$addArray)));
     }
     public function removePrinter($removeArray) {
-        if (!$this->isLoaded('printers')) $this->loadPrinters();
         return $this->set('printers',array_unique(array_diff((array)$this->get('printers'),(array)$removeArray)));
     }
     public function addSnapin($addArray) {
-        if (!$this->isLoaded('snapins')) $this->loadSnapins();
         $limit = self::getSetting('FOG_SNAPIN_LIMIT');
         if ($limit > 0) {
             if (self::getClass('SnapinManager')->count(array('id'=>$this->get('snapins'))) >= $limit || count($addArray) > $limit) throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
@@ -722,23 +696,18 @@ class Host extends FOGController {
         return $this->set('snapins',array_unique(array_merge((array)$this->get('snapins'),(array)$addArray)));
     }
     public function removeSnapin($removeArray) {
-        if (!$this->isLoaded('snapins')) $this->loadSnapins();
         return $this->set('snapins',array_unique(array_diff((array)$this->get('snapins'),(array)$removeArray)));
     }
     public function addModule($addArray) {
-        if (!$this->isLoaded('modules')) $this->loadModules();
         return $this->set('modules',array_unique(array_merge((array)$this->get('modules'),(array)$addArray)));
     }
     public function removeModule($removeArray) {
-        if (!$this->isLoaded('modules')) $this->loadModules();
         return $this->set('modules',array_unique(array_diff((array)$this->get('modules'),(array)$removeArray)));
     }
     public function addPowerManagement($addArray) {
-        if (!$this->isLoaded('powermanagementtasks')) $this->loadPowermanagementtasks();
         return $this->set('powermanagementtasks',array_unique(array_merge((array)$this->get('powermanagementtasks'),(array)$addArray)));
     }
     public function removePowerManagement($removeArray) {
-        if (!$this->isLoaded('powermanagementtasks')) $this->loadPowermanagementtasks();
         return $this->set('powermanagementtasks',array_unique(array_diff((array)$this->get('powermanagementtasks'),(array)$removeArray)));
     }
     public function getMyMacs($justme = true) {
@@ -762,27 +731,21 @@ class Host extends FOGController {
         if (count($igMACs)) self::getClass('MACAddressAssociationManager')->update(array('mac'=>$igMACs,'hostID'=>$this->get('id')),'',array('imageIgnore'=>1));
     }
     public function addGroup($addArray) {
-        if (!$this->isLoaded('groups')) $this->loadGroups();
         return $this->addHost($addArray);
     }
     public function removeGroup($removeArray) {
-        if (!$this->isLoaded('groups')) $this->loadGroups();
         return $this->removeHost($removeArray);
     }
     public function addHost($addArray) {
-        if (!$this->isLoaded('groups')) $this->loadGroups();
         return $this->set('groups',array_unique(array_merge((array)$this->get('groups'),(array)$addArray)));
     }
     public function removeHost($removeArray) {
-        if (!$this->isLoaded('groups')) $this->loadGroups();
         return $this->set('groups',array_unique(array_diff((array)$this->get('groups'),(array)$removeArray)));
     }
     public function clientMacCheck($MAC = false) {
-        if (!$this->isLoaded('mac')) $this->loadMac();
         return self::getClass('MACAddress',self::getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'clientIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
     }
     public function imageMacCheck($MAC = false) {
-        if (!$this->isLoaded('mac')) $this->loadMac();
         return self::getClass('MACAddress',self::getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'imageIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
     }
     public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false,$legacy = '',$productKey = '',$enforce = '') {
