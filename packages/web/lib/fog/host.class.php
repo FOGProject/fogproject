@@ -149,6 +149,7 @@ class Host extends FOGController {
             throw new Exception(_('Host ID was not set, or unable to be created'));
             break;
         case (self::isLoaded('mac')):
+            $this->loadMac();
             if (!$this->get('mac')->isValid()) throw new Exception(self::$foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
             $CurrPriMAC = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
@@ -171,6 +172,7 @@ class Host extends FOGController {
             }
             unset($DBPriMACs,$RealPriMAC,$RemoveMAC,$HostWithMAC);
         case (self::isLoaded('additionalMACs')):
+            $this->loadAdditionalMACs();
             $RealAddMACs = array_values(array_unique(array_filter(array_map(function(&$MAC) {
                 if ($MAC instanceof MACAddress && $MAC->isValid()) return $MAC->__toString();
             },(array)$this->get('additionalMACs')))));
@@ -201,6 +203,7 @@ class Host extends FOGController {
             },(array)array_diff((array)$RealAddMACs,(array)$DBAddMACs));
             unset($DBAddMACs,$RealAddMACs,$RemoveAddMAC);
         case (self::isLoaded('pendingMACs')):
+            $this->loadPendingMACs();
             $RealPendMACs = array_map(function(&$MAC) {
                 if ($MAC instanceof MACAddress && $MAC->isValid()) return $MAC->__toString();
             },(array)$this->get('pendingMACs'));
@@ -232,6 +235,7 @@ class Host extends FOGController {
             $RealPendMACs = array_diff((array)$RealPendMACs,(array)$DBPendMACs);
             unset($DBPendMACs,$RealPendMACs,$RemovePendMAC);
         case (self::isLoaded('modules')):
+            $this->loadModules();
             $DBModuleIDs = self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
             $ValidModuleIDs = self::getSubObjectIDs('Module');
             $notValid = array_diff((array)$DBModuleIDs,(array)$ValidModuleIDs);
@@ -258,6 +262,7 @@ class Host extends FOGController {
             },(array)self::getClass('ModuleManager')->find(array('id'=>array_diff((array)$this->get('modules'),(array)$DBModuleIDs))));
             unset($DBModuleIDs,$RemoveModuleIDs,$moduleName);
         case (self::isLoaded('printers')):
+            $this->loadPrinters();
             $DBPrinterIDs = self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
             $ValidPrinterIDs = self::getSubObjectIDs('Printer');
             $notValid = array_diff((array)$DBPrinterIDs,(array)$ValidPrinterIDs);
@@ -273,6 +278,7 @@ class Host extends FOGController {
             array_map($itemSetter,(array)self::getClass('PrinterManager')->find(array('id'=>array_diff((array)$this->get('printers'),(array)$DBPrinterIDs))));
             unset($DBPrinterIDs,$RemovePrinterIDs);
         case (self::isLoaded('powermanagementtasks')):
+            $this->loadPowermanagementtasks();
             $DBPowerManagementIDs = self::getSubObjectIDs('PowerManagement',array('hostID'=>$this->get('id')));
             $RemovePowerManagementIDs = array_diff((array)$DBPowerManagementIDs,(array)$this->get('powermanagementtasks'));
             if (count($RemovePowerManagementIDs)) {
@@ -283,6 +289,7 @@ class Host extends FOGController {
             $objNeeded = false;
             unset($DBPowerManagementIDs,$RemovePowerManagementIDs);
         case (self::isLoaded('snapins')):
+            $this->loadSnapins();
             $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
             $ValidSnapinIDs = self::getSubObjectIDs('Snapin');
             $notValid = array_diff((array)$DBSnapinIDs,(array)$ValidSnapinIDs);
@@ -298,6 +305,7 @@ class Host extends FOGController {
             array_map($itemSetter,(array)self::getClass('SnapinManager')->find(array('id'=>array_diff((array)$this->get('snapins'),(array)$DBSnapinIDs))));
             unset($DBSnapinIDs,$RemoveSnapinIDs);
         case (self::isLoaded('groups')):
+            $this->loadGroups();
             $DBGroupIDs = self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
             $ValidGroupIDs = self::getSubObjectIDs('Group');
             $notValid = array_diff((array)$DBGroupIDs,(array)$ValidGroupIDs);
