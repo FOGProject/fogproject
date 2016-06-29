@@ -41,15 +41,7 @@ class Image extends FOGController {
     }
     public function save() {
         parent::save();
-        switch ($this->get('id')) {
-        case 0:
-        case null:
-        case false:
-        case '0':
-        case '':
-            $this->destroy();
-            throw new Exception(_('Image ID was not set, or unable to be created'));
-            break;
+        switch (true) {
         case ($this->isLoaded('hosts')):
             $DBHostIDs = self::getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
@@ -98,27 +90,22 @@ class Image extends FOGController {
         },(array)self::getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'),'isEnabled'=>1)));
     }
     public function addHost($addArray) {
-        if (!$this->isLoaded('hosts')) $this->loadHosts();
         $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
         return $this;
     }
     public function removeHost($removeArray) {
-        if (!$this->isLoaded('hosts')) $this->loadHosts();
         $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
         return $this;
     }
     public function addGroup($addArray) {
-        if (!$this->isLoaded('storageGroups')) $this->loadStorageGroups();
         $this->set('storageGroups',array_unique(array_merge((array)$this->get('storageGroups'),(array)$addArray)));
         return $this;
     }
     public function removeGroup($removeArray) {
-        if (!$this->isLoaded('storageGroups')) $this->loadStorageGroups();
         $this->set('storageGroups',array_unique(array_diff((array)$this->get('storageGroups'),(array)$removeArray)));
         return $this;
     }
     public function getStorageGroup() {
-        if (!$this->isLoaded('storageGroups')) $this->loadStorageGroups();
         if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min(self::getSubObjectIDs('StorageGroup')));
         foreach ((array)$this->get('storageGroups') AS &$Group) {
             if ($this->getPrimaryGroup($Group)) return self::getClass('StorageGroup',$Group);
@@ -148,23 +135,18 @@ class Image extends FOGController {
         self::getClass('ImageAssociationManager')->update(array('imageID'=>$this->get('id'),'storageGroupID'=>$groupID),'',array('primary'=>1));
     }
     protected function loadHosts() {
-        if (!$this->get('id')) return;
         $this->set('hosts',self::getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'id'));
     }
     protected function loadHostsnotinme() {
-        if (!$this->get('id')) return;
-        if (!$this->isLoaded('hosts')) $this->loadHosts();
         $find = array('id'=>$this->get('hosts'));
         $this->set('hostsnotinme',self::getSubObjectIDs('Host',$find,'',true));
         unset($find);
     }
     protected function loadStorageGroups() {
-        if (!$this->get('id')) return;
         $this->set('storageGroups',self::getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID'));
         if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min(self::getSubObjectIDs('StorageGroup','','id')));
     }
     protected function loadStorageGroupsnotinme() {
-        if (!$this->get('id'));
         $find = array('id'=>$this->get('storageGroups'));
         $this->set('storageGroupsnotinme',self::getSubObjectIDs('StorageGroup',$find,'',true));
         unset($find);
