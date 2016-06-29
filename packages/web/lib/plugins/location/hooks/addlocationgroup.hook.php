@@ -19,7 +19,7 @@ class AddLocationGroup extends Hook {
         if (!$_REQUEST['location']) return;
         self::getClass('LocationAssociationManager')->destroy(array('hostID'=>$arguments['Group']->get('hosts')));
         $Location = self::getClass('Location',$_REQUEST['location']);
-        if ($Location->isValid()) $Location->addHost($arguments['Group']->get('hosts'))->save(false);
+        if ($Location->isValid()) $Location->addHost($arguments['Group']->get('hosts'))->save();
     }
 }
 $AddLocationGroup = new AddLocationGroup();

@@ -38,17 +38,9 @@ class Snapin extends FOGController {
         self::getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$this->get('id')));
         return parent::destroy($field);
     }
-    public function save($mainObject = true) {
-        if ($mainObject) parent::save();
-        switch ($this->get('id')) {
-        case 0:
-        case null:
-        case false:
-        case '0':
-        case '':
-            $this->destroy();
-            throw new Exception(_('Snapin ID was not set, or unable to be created'));
-            break;
+    public function save() {
+        parent::save();
+        switch (true) {
         case ($this->isLoaded('hosts')):
             $DBHostIDs = self::getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID');
             $ValidHostIDs = self::getSubObjectIDs('Host');
