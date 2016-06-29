@@ -37,13 +37,13 @@ class AddLocationHost extends Hook {
         if (str_replace('_','-',$_REQUEST['tab']) != 'host-general') return;
         self::getClass('LocationAssociationManager')->destroy(array('hostID'=>$arguments['Host']->get('id')));
         $Location = self::getClass('Location',$_REQUEST['location']);
-        if ($Location->isValid()) $Location->addHost($arguments['Host']->get('id'))->save(false);
+        if ($Location->isValid()) $Location->addHost($arguments['Host']->get('id'))->save();
     }
     public function HostImport($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         $Location = self::getClass('Location',$arguments['data'][5]);
         if (!$Location->isValid()) return;
-        $Location->addHost($arguments['Host']->get('id'))->save(false);
+        $Location->addHost($arguments['Host']->get('id'))->save();
     }
     public function HostExport($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
@@ -67,7 +67,7 @@ class AddLocationHost extends Hook {
         $locationID = $_REQUEST['location'];
         $Location = self::getClass('Location',$locationID);
         if (!$Location->isValid()) return;
-        $Location->addHost($arguments['Host']->get('id'))->save(false);
+        $Location->addHost($arguments['Host']->get('id'))->save();
         $Host = $arguments['Host'];
         self::$HookManager->processEvent('HOST_REGISTER_LOCATION',array('Host'=>$Host,'Location'=>&$Location));
     }

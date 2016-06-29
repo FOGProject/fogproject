@@ -994,7 +994,7 @@ abstract class FOGPage extends FOGBase {
         if (self::$ajax) return;
         if (isset($_REQUEST['addHosts'])) $this->obj->addHost($_REQUEST['host']);
         if (isset($_REQUEST['remhosts'])) $this->obj->removeHost($_REQUEST['hostdel']);
-        if ($this->obj->save(false)) {
+        if ($this->obj->save()) {
             $this->setMessage(sprintf('%s %s',$this->obj->get('name'),_('saved successfully')));
             $this->redirect($this->formAction);
         }

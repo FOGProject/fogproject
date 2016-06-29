@@ -75,7 +75,6 @@ class Host extends FOGController {
     );
     public function set($key, $value) {
         $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
         switch ($key) {
         case 'mac':
             if (!($value instanceof MACAddress)) $value = self::getClass('MACAddress',$value);
@@ -101,7 +100,6 @@ class Host extends FOGController {
     }
     public function add($key, $value) {
         $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
         switch ($key) {
         case 'additionalMACs':
         case 'pendingMACs':
@@ -132,9 +130,8 @@ class Host extends FOGController {
         return parent::destroy($field);
     }
     public function save() {
+        parent::save();
         switch (true) {
-        case (!$this->get('id')):
-            parent::save();
         case ($this->isLoaded('mac')):
             if (!$this->get('mac')->isValid()) throw new Exception(self::$foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
@@ -312,7 +309,7 @@ class Host extends FOGController {
         return $this;
     }
     public function isValid() {
-        return parent::isValid() && $this->isHostnameSafe();// && $this->get('mac')->isValid();
+        return parent::isValid() && $this->isHostnameSafe();
     }
     public function isHostnameSafe($hostname = '') {
         if (empty($hostname)) $hostname = $this->get('name');
@@ -634,7 +631,6 @@ class Host extends FOGController {
         return $this;
     }
     public function addAddMAC($addArray,$pending = false) {
-        if (!$this->isLoaded('additionalMACs')) $this->loadAdditionalMACs();
         $addArray = array_map(function(&$item) {
             return trim(strtolower($item));
         },(array)$addArray);

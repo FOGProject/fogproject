@@ -27,17 +27,9 @@ class Printer extends FOGController {
         self::getClass('PrinterAssociationManager')->destroy(array('printerID'=>$this->get('id')));
         return parent::destroy($field);
     }
-    public function save($mainObject = true) {
-        if ($mainObject) parent::save();
-        switch ($this->get('id')) {
-        case 0:
-        case null:
-        case false:
-        case '0':
-        case '':
-            $this->destroy();
-            throw new Exception(_('Printer ID was not set, or unable to be created'));
-            break;
+    public function save() {
+        parent::save();
+        switch (true) {
         case ($this->isLoaded('hosts')):
             $DBHostIDs = self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
             $ValidHostIDs = self::getSubObjectIDs('Host');
