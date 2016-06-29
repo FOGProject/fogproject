@@ -813,6 +813,7 @@ abstract class FOGPage extends FOGBase {
         }
         catch (Exception $e) {
             if ($json === true) {
+                if ($e->getMessage() == '#!ihc') die($e->getMessage());
                 echo json_encode(array('error'=>preg_replace('/^[#][!]?/','',$e->getMessage())));
                 exit;
             }
