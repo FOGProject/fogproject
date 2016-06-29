@@ -210,9 +210,8 @@ abstract class FOGBase {
     }
     protected function isLoaded($key) {
         $key = $this->key($key);
-        $result = (isset($this->isLoaded[$key]) ? $this->isLoaded[$key] : false);
-        $this->isLoaded[$key]++;
-        return $result;
+        $this->isLoaded[$key] = (bool)isset($this->isLoaded[$key]);
+        return $this->isLoaded[$key];
     }
     protected function resetRequest() {
         if (!isset($_SESSION['post_request_vals'])) $_SESSION['post_request_vals'] = array();
