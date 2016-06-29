@@ -663,7 +663,7 @@ class BootMenu extends FOGBase {
             $clientMacs = array_filter((array)$this->parseMacList(implode('|',(array)$MACs),false,true));
             if ($this->Host->get('useAD')) {
                 $addomain = preg_replace('#\ #','+_+',$this->Host->get('ADDomain'));
-                $adou = preg_replace('#\ #','+_+',$this->Host->get('ADOU'));
+                $adou = str_replace(';','',preg_replace('#\ #','+_+',$this->Host->get('ADOU')));
                 $aduser = preg_replace('#\ #','+_+',$this->Host->get('ADUser'));
                 $adpass = preg_replace('#\ #','+_+',$this->Host->get('ADPass'));
             }
