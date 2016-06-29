@@ -45,7 +45,7 @@ abstract class FOGController extends FOGBase {
             unset($this->data[$key]);
             return false;
         }
-        if (!$this->data[$key] || !$this->isLoaded($key)) $this->loadItem($key);
+        $this->loadItem($key);
         if (!isset($this->data[$key])) return $this->data[$key] = '';
         if (is_object($this->data[$key])) {
             $this->info(sprintf('%s: %s, %s: %s',_('Returning value of key'),$key,_('Object'),$this->data[$key]->__toString()));
