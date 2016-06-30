@@ -201,7 +201,7 @@ class HostManagementPage extends FOGPage {
                 ->set('productKey',$this->encryptpw($productKey))
                 ->addModule($ModuleIDs)
                 ->addPriMAC($MAC)
-                ->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey,$enforce);
+                ->setAD($useAD,$domain,$ou,$user,$pass,true,$passlegacy,$productKey,$enforce);
             if (!$Host->save()) throw new Exception(_('Host create failed'));
             self::$HookManager->processEvent('HOST_ADD_SUCCESS',array('Host'=>&$Host));
             $this->setMessage(_('Host added'));
@@ -825,7 +825,7 @@ class HostManagementPage extends FOGPage {
                 $pass = trim($_REQUEST['domainpassword']);
                 $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
                 $enforce = (string)intval(isset($_REQUEST['enforcesel']));
-                $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey,$enforce);
+                $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,$passlegacy,$productKey,$enforce);
                 break;
             case 'host-powermanagement':
                 $min = $_REQUEST['scheduleCronMin'];
@@ -915,7 +915,6 @@ class HostManagementPage extends FOGPage {
                 break;
             }
             if (!$this->obj->save()) throw new Exception(_('Host Update Failed'));
-            $this->obj->setAD();
             if ($_REQUEST['tab'] == 'host-general') $this->obj->ignore($_REQUEST['igimage'],$_REQUEST['igclient']);
             self::$HookManager->processEvent('HOST_EDIT_SUCCESS',array('Host'=>&$this->obj));
             $this->setMessage('Host updated!');
