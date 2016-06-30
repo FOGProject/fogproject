@@ -30,7 +30,7 @@ class Printer extends FOGController {
     public function save() {
         parent::save();
         switch (true) {
-        case ($this->get('hosts')):
+        case ($this->isLoaded('hosts')):
             $DBHostIDs = self::getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
             $ValidHostIDs = self::getSubObjectIDs('Host');
             $notValid = array_diff((array)$DBHostIDs,(array)$ValidHostIDs);
