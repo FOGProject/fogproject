@@ -142,7 +142,7 @@ class Group extends FOGController {
     }
     public function setAD($useAD, $domain, $ou, $user, $pass, $legacy, $enforce) {
         $pass = trim($this->encryptpw($pass));
-        self::getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('useAD'=>$useAD,'ADDomain'=>trim($domain),'ADOU'=>trim($ou),'ADUser'=>trim($user),'ADPass'=>$pass,'ADPassLegacy'=>$legacy,'enforce'=>(string)$enforce));
+        self::getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('useAD'=>$useAD,'ADDomain'=>trim($domain),'ADOU'=>trim($ou),'ADUser'=>trim($user),'ADPass'=>$pass,'ADPassLegacy'=>$legacy,'enforce'=>$enforce));
         return $this;
     }
     public function doMembersHaveUniformImages() {
