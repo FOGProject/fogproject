@@ -58,7 +58,7 @@ class Plugin extends FOGController {
     }
     public function getPlugins() {
         return array_map(function(&$file) {
-            require_once sprintf('%s/config/plugin.config.php',rtrim($file,'/'));
+            require sprintf('%s/config/plugin.config.php',rtrim($file,'/'));
             $p = self::getClass('Plugin',@min(self::getSubObjectIDs('Plugin',array('name'=>$fog_plugin['name']))))
                 ->set('name',$fog_plugin['name'])
                 ->set('description',$fog_plugin['description']);
@@ -76,8 +76,8 @@ class Plugin extends FOGController {
             $tmphash = trim(md5(trim($Plugin->get('name'))));
             if ($tmphash !== $hash) return;
             $Plugin
-                ->set('state',1)
-                ->set('installed',0)
+                ->set('state','1')
+                ->set('installed','0')
                 ->set('name',$Plugin->get('name'))
                 ->save();
         },(array)$this->getPlugins());
