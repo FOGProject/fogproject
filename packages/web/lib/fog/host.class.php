@@ -132,7 +132,7 @@ class Host extends FOGController {
     public function save() {
         parent::save();
         switch (true) {
-        case ($this->isLoaded('mac')):
+        case ($this->get('mac')):
             if (!$this->get('mac')->isValid()) throw new Exception(self::$foglang['InvalidMAC']);
             $RealPriMAC = $this->get('mac')->__toString();
             $CurrPriMAC = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>1),'mac');
@@ -154,7 +154,7 @@ class Host extends FOGController {
                     ->save();
             }
             unset($DBPriMACs,$RealPriMAC,$RemoveMAC,$HostWithMAC);
-        case ($this->isLoaded('additionalMACs')):
+        case ($this->get('additionalMACs')):
             $RealAddMACs = array_values(array_unique(array_filter(array_map(function(&$MAC) {
                 if ($MAC instanceof MACAddress && $MAC->isValid()) return $MAC->__toString();
             },(array)$this->get('additionalMACs')))));
@@ -182,7 +182,7 @@ class Host extends FOGController {
             });
             if (count($insert_values) > 0) self::getClass('MACAddressAssociationManager')->insert_batch($insert_fields,$insert_values);
             unset($DBAddMACs,$RealAddMACs,$RemoveAddMAC);
-        case ($this->isLoaded('pendingMACs')):
+        case ($this->get('pendingMACs')):
             $RealPendMACs = array_map(function(&$MAC) {
                 if ($MAC instanceof MACAddress && $MAC->isValid()) return $MAC->__toString();
             },(array)$this->get('pendingMACs'));
@@ -210,7 +210,7 @@ class Host extends FOGController {
             });
             if (count($insert_values) > 0) self::getClass('MACAddressAssociationManager')->insert_batch($insert_fields,$insert_values);
             unset($DBPendMACs,$RealPendMACs,$RemovePendMAC);
-        case ($this->isLoaded('modules')):
+        case ($this->get('modules')):
             $DBModuleIDs = self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
             $ValidModuleIDs = self::getSubObjectIDs('Module');
             $notValid = array_diff((array)$DBModuleIDs,(array)$ValidModuleIDs);
@@ -232,7 +232,7 @@ class Host extends FOGController {
             });
             if (count($insert_values)) self::getClass('ModuleAssociationManager')->insert_batch($insert_fields,$insert_values);
             unset($DBModuleIDs,$RemoveModuleIDs,$moduleName);
-        case ($this->isLoaded('printers')):
+        case ($this->get('printers')):
             $DBPrinterIDs = self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
             $ValidPrinterIDs = self::getSubObjectIDs('Printer');
             $notValid = array_diff((array)$DBPrinterIDs,(array)$ValidPrinterIDs);
@@ -253,7 +253,7 @@ class Host extends FOGController {
             });
             if (count($insert_values) > 0) self::getClass('PrinterAssociationManager')->insert_batch($insert_fields,$insert_values);
             unset($DBPrinterIDs,$RemovePrinterIDs);
-        case ($this->isLoaded('powermanagementtasks')):
+        case ($this->get('powermanagementtasks')):
             $DBPowerManagementIDs = self::getSubObjectIDs('PowerManagement',array('hostID'=>$this->get('id')));
             $RemovePowerManagementIDs = array_diff((array)$DBPowerManagementIDs,(array)$this->get('powermanagementtasks'));
             if (count($RemovePowerManagementIDs)) {
@@ -263,7 +263,7 @@ class Host extends FOGController {
             }
             $objNeeded = false;
             unset($DBPowerManagementIDs,$RemovePowerManagementIDs);
-        case ($this->isLoaded('snapins')):
+        case ($this->get('snapins')):
             $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
             $ValidSnapinIDs = self::getSubObjectIDs('Snapin');
             $notValid = array_diff((array)$DBSnapinIDs,(array)$ValidSnapinIDs);
@@ -284,7 +284,7 @@ class Host extends FOGController {
             });
             if (count($insert_values) > 0) self::getClass('SnapinAssociationManager')->insert_batch($insert_fields,$insert_values);
             unset($DBSnapinIDs,$RemoveSnapinIDs);
-        case ($this->isLoaded('groups')):
+        case ($this->get('groups')):
             $DBGroupIDs = self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
             $ValidGroupIDs = self::getSubObjectIDs('Group');
             $notValid = array_diff((array)$DBGroupIDs,(array)$ValidGroupIDs);
