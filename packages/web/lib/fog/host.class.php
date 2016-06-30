@@ -740,7 +740,7 @@ class Host extends FOGController {
     public function imageMacCheck($MAC = false) {
         return self::getClass('MACAddress',self::getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'imageIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
     }
-    public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false,$legacy = '',$productKey = '',$enforce = '') {
+    public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$legacy = '',$productKey = '',$enforce = '') {
         if ($this->get('id')) {
             if (!$override) {
                 if (empty($useAD)) $useAD = $this->get('useAD');

@@ -81,7 +81,7 @@ class Registration extends FOGBase {
                 ->addSnapin($snapinsToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs)
-                ->setAD($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,false,true,$ADPassLegacy,$productKey,$enforce);
+                ->setAD($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,false,$ADPassLegacy,$productKey,$enforce);
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
             self::$HookManager->processEvent('HOST_REGISTER',array('Host'=>&$this->Host));
             try {
