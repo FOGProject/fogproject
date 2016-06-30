@@ -26,7 +26,7 @@ class Location extends FOGController {
     public function save() {
         parent::save();
         switch (true) {
-        case ($this->isLoaded('hostss')):
+        case ($this->isLoaded('hosts')):
             $DBHostIDs = self::getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id')),'hostID');
             $ValidHostIDs = self::getSubObjectIDs('Host');
             $notValid = array_diff((array)$DBHostIDs,(array)$ValidHostIDs);
