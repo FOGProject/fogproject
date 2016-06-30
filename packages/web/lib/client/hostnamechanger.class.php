@@ -18,7 +18,6 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
             'ADPass' => $this->Host->get('useAD') ? (string)$password : '',
         );
         if ($productKey) $val['Key'] = $productKey;
-        $this->Host->save();
         return $val;
     }
     public function send() {
@@ -46,7 +45,6 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
             $this->newService ? sprintf("\n#enforce=%s",$this->Host->get('enforce')) : ''
         );
         if ($productKey) printf("\n#Key=%s",$productKey);
-        $this->Host->save();
         $this->send = ob_get_clean();
     }
 }
