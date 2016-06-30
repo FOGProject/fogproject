@@ -41,7 +41,7 @@ class Snapin extends FOGController {
     public function save() {
         parent::save();
         switch (true) {
-        case ($this->isLoaded('hosts')):
+        case ($this->get('hosts')):
             $DBHostIDs = self::getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID');
             $ValidHostIDs = self::getSubObjectIDs('Host');
             $notValid = array_diff((array)$DBHostIDs,(array)$ValidHostIDs);
@@ -63,7 +63,7 @@ class Snapin extends FOGController {
                 unset($Host);
             },(array)self::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'),(array)$DBHostIDs))));
             unset($DBHostIDs);
-        case ($this->isLoaded('storageGroups')):
+        case ($this->get('storageGroups')):
             $DBGroupIDs = self::getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID');
             $ValidHostIDs = self::getSubObjectIDs('StorageGroup');
             $notValid = array_diff((array)$DBGroupIDs,(array)$ValidHostIDs);
