@@ -137,7 +137,7 @@ class GroupManagementPage extends FOGPage {
         }
         $groupKey = self::getSubObjectIDs('Host',array('id'=>$hostids),'productKey','','','','','array_count_values');
         $aduse = count(self::getSubObjectIDs('Host',array('id'=>$hostids),'useAD','','','','','array_filter'));
-        $enforcetest = count(self::getSubObjectIDs('Host',array('id'=>$hostids),'enforce','','','','','array_filter'));
+        $enforcetest = count(self::getSubObjectIDs('Host',array('id'=>$hostids),'enforce','','','','','array_count_values'));
         $adDomain = self::getSubObjectIDs('Host',array('id'=>$hostids),'ADDomain','','','','','array_count_values');
         $adOU = self::getSubObjectIDs('Host',array('id'=>$hostids),'ADOU','','','','','array_count_values');
         $adUser = self::getSubObjectIDs('Host',array('id'=>$hostids),'ADUser','','','','','array_count_values');
@@ -574,7 +574,7 @@ class GroupManagementPage extends FOGPage {
                 $user = $_REQUEST['domainuser'];
                 $pass = $_REQUEST['domainpassword'];
                 $legacy = $_REQUEST['domainpasswordlegacy'];
-                $enforce = isset($_REQUEST['enforcesel']);
+                $enforce = intval(isset($_REQUEST['enforcesel']));
                 $this->obj->setAD($useAD,$domain,$ou,$user,$pass,$legacy,$enforce);
                 break;
             case 'group-printers':
