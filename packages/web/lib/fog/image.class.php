@@ -42,7 +42,7 @@ class Image extends FOGController {
     public function save() {
         parent::save();
         switch (true) {
-        case ($this->get('hosts')):
+        case ($this->isLoaded('hosts')):
             $DBHostIDs = self::getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
@@ -53,7 +53,7 @@ class Image extends FOGController {
             $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
             self::getClass('HostManager')->update(array('id'=>$Hosts),'',array('imageID'=>$this->get('id')));
             unset($Hosts,$DBHostIDs);
-        case ($this->get('storageGroups')):
+        case ($this->isLoaded('storageGroups')):
             $DBGroupIDs = self::getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
             $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('storageGroups'));
             if (count($RemoveGroupIDs)) {
