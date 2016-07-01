@@ -13,6 +13,7 @@ class SnapinManagementPage extends FOGPage {
             'Powershell' => array('powershell.exe','-ExecutionPolicy Bypass -NoProfile -File'),
             'Mono' => array('mono'),
         );
+        $this->menu['maker'] = _('SnapinPack Config');
         if ($_REQUEST['id']) {
             $this->subMenu = array(
                 "$this->linkformat#snap-gen" => self::$foglang['General'],
@@ -52,6 +53,12 @@ class SnapinManagementPage extends FOGPage {
             );
             unset($Snapin);
         };
+    }
+    public function maker() {
+        $this->title = _('SnapinPack Config Generator');
+        echo _('The following form helps define how a SnapinPack is run.');
+        echo '&nbsp;';
+        echo _('Please see').'&nbsp;<a href="https://wiki.fogproject.org/wiki/index.php">'._('here').'</a>&nbsp;'._('to learn more.');
     }
     public function index() {
         $this->title = _('All Snap-ins');
