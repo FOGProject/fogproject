@@ -189,7 +189,7 @@ class GroupManagementPage extends FOGPage {
             '&nbsp;' => sprintf('<input type="submit" name="updategroup" value="%s"/>',_('Update')),
         );
         self::$HookManager->processEvent('GROUP_FIELDS',array('fields'=>&$fields,'Group'=>&$this->obj));
-        printf('<form method="post" action="%s&tab=group-general"><div id="tab-container"><!-- General --><div id="group-general"><h2>%s: %s</h2><div id="resetSecDataBox" class="c"><input type="button" id="resetSecData"/></div><br/>',$this->formAction,_('Modify Group'),$this->obj->get('name'));
+        printf('<form method="post" action="%s&tab=group-general"><div id="tab-container"><!-- General --><div id="group-general"><h2>%s: %s</h2><div id="resetSecDataBox" class="hidden"></div><div class="c"><input type="button" id="resetSecData"/></div><br/>',$this->formAction,_('Modify Group'),$this->obj->get('name'));
         array_walk($fields,function(&$input,&$field) {
             $this->data[] = array(
                 'field'=>$field,
@@ -374,7 +374,7 @@ class GroupManagementPage extends FOGPage {
         $this->render();
         unset($this->data);
         echo '</fieldset></form></div>';
-        echo '<!-- Power Management Items --><div id="group-powermanagement">';
+        echo '<!-- Power Management Items --><div id="group-powermanagement"><div id="delAllPMBox"></div><div class="c"><input type="button" id="delAllPM"/></div><br/>';
         $this->templates = array(
             '${field}',
             '${input}',
