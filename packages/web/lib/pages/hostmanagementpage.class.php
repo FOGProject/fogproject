@@ -73,7 +73,6 @@ class HostManagementPage extends FOGPage {
         array_push($this->attributes,
             array('width'=>50),
             array('width'=>145),
-            array('width'=>80,'class'=>'r filter-false'),
             array('width'=>40,'class'=>'r filter-false'),
             array('width'=>20,'class'=>'r')
         );
