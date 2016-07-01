@@ -890,6 +890,12 @@ abstract class FOGPage extends FOGBase {
         else if ($id > 0) $Hosts = $id;
         self::getClass('HostManager')->update(array('id'=>$Hosts),'',array('pub_key'=>'','sec_tok'=>'','sec_time'=>'0000-00-00 00:00:00'));
     }
+    public function clearPMTasks() {
+        $groupid = $_REQUEST['groupid'];
+        if ($groupid < 1) return;
+        $Hosts = self::getClass('Group',$groupid)->get('hosts');
+        self::getClass('PowerManagementManager')->destroy(array('hostID'=>$Hosts));
+    }
     public function delete_post() {
         if (!self::getClass('User')->password_validate($_POST['fogguiuser'],$_POST['fogguipass'])) die('###'.self::$foglang['InvalidLogin']);
         self::$HookManager->processEvent(sprintf('%s_DEL_POST',strtoupper($this->node)), array($this->childClass=>&$this->obj));
