@@ -22,7 +22,7 @@ class PDODB extends DatabaseManager {
     }
     private function connect($dbexists = true) {
         $options = array(
-            PDO::ATTR_PERSISTENT => false,
+            PDO::ATTR_PERSISTENT => true,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         );
@@ -88,7 +88,6 @@ class PDODB extends DatabaseManager {
                     break;
                 }
             }
-            self::$queryResult->closeCursor();
         } catch (PDOException $e) {
             $this->debug(sprintf('%s %s: %s',_('Failed to'),__FUNCTION__,$e->getMessage()));
             self::$result = false;
