@@ -110,12 +110,7 @@ abstract class FOGManagerController extends FOGBase {
             $results = (array)self::$DB->query($query)->fetch('','fetch_all')->get();
             array_map(function(&$value) use (&$data) {
                 return array_walk($value,function(&$val,&$key) use (&$data) {
-                    if (!isset($data[$this->databaseFieldsFlipped[$key]])) {
-                        $data[$this->databaseFieldsFlipped[$key]] = $val;
-                    } else {
-                        if (!is_array($data[$this->databaseFieldsFlipped[$key]])) $data[$this->databaseFieldsFlipped[$key]] = array($data[$this->databaseFieldsFlipped[$key]]);
                         $data[$this->databaseFieldsFlipped[$key]][] = $val;
-                    }
                 });
             },(array)$results);
             if (count($data) === 1) {
