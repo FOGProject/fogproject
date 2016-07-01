@@ -1269,7 +1269,7 @@ findHDDInfo() {
             if [[ -z $disks ]]; then
                 echo "Failed"
                 debugPause
-                handleError "Count not find any disks ($0)\n   Args Passed: $*"
+                handleError "Could not find any disks ($0)\n   Args Passed: $*"
             fi
             echo "Done"
             debugPause
