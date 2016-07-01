@@ -1,5 +1,6 @@
 $(function() {
     $('#resetSecData').val('Reset Encryption Data');
+    $('#delAllPM').val('Delete all power management for group');
     $('#resetSecData').click(function() {
         $('#resetSecDataBox').html('Are you sure you wish to reset this groups hosts encryption data?');
         $('#resetSecDataBox').dialog({
@@ -9,6 +10,24 @@ $(function() {
             buttons: {
                 'Yes': function() {
                     $.post('../management/index.php',{sub: 'clearAES',groupid: $_GET.id});
+                    $('#resetSecData').hide();
+                    $(this).dialog('close');
+                },
+                'No': function() {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    });
+    $('#delAllPM').click(function() {
+        $('#delAllPMBox').html('Are you sure you wish to remove all power management tasks with this group?');
+        $('#delAllPMBox').dialog({
+            resizable: false,
+            modal: true,
+            title: 'Remove Power Management Tasks',
+            buttons: {
+                'Yes': function() {
+                    $.post('../management/index.php',{sub: 'clearPMTasks',groupid: $_GET.id});
                     $(this).dialog('close');
                 },
                 'No': function() {
