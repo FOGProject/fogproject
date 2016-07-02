@@ -17,9 +17,12 @@ class AddLocationGroup extends Hook {
         if ($_REQUEST['node'] != 'group') return;
         if (str_replace('_','-',$_REQUEST['tab']) != 'group-general') return;
         self::getClass('LocationAssociationManager')->destroy(array('hostID'=>$arguments['Group']->get('hosts')));
-        $Location = self::getClass('Location',$_REQUEST['location']);
-        if ($Location->isValid()) $Location->addHost($arguments['Group']->get('hosts'))->save();
-        else self::getClass('LocationAssociationManager')->destroy(array('hostID'=>$arguments['Group']->get('hosts')));
+        $insert_fields = array('locationID','hostID');
+        $insert_values = array();
+        array_walk($arguments['Group']->get('hosts'),function(&$hostID,$index) use (&$insert_values) {
+            $insert_values[] = array($_REQUEST['location'],$hostID);
+        });
+        if (count($insert_values) > 0) self::getClass('LocationAssociationManager')->insert_batch($insert_fields,$insert_values);
     }
 }
 $AddLocationGroup = new AddLocationGroup();

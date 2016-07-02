@@ -43,9 +43,10 @@ class AddLocationHost extends Hook {
     }
     public function HostImport($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $Location = self::getClass('Location',$arguments['data'][5]);
-        if (!$Location->isValid()) return;
-        $Location->addHost($arguments['Host']->get('id'))->save();
+        self::getClass('LocationAssociation')
+            ->set('hostID',$arguments['Host']->get('id'))
+            ->set('locationID',$arguments['data'][5])
+            ->save();
     }
     public function HostExport($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
@@ -66,12 +67,11 @@ class AddLocationHost extends Hook {
     }
     public function HostRegister($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        $locationID = $_REQUEST['location'];
-        $Location = self::getClass('Location',$locationID);
-        if (!$Location->isValid()) return;
-        $Location->addHost($arguments['Host']->get('id'))->save();
-        $Host = $arguments['Host'];
-        self::$HookManager->processEvent('HOST_REGISTER_LOCATION',array('Host'=>$Host,'Location'=>&$Location));
+        self::getClass('LocationAssociation')
+            ->set('hostID',$arguments['Host']->get('id'))
+            ->set('locationID',$_REQUEST['location'])
+            ->save();
+        self::$HookManager->processEvent('HOST_REGISTER_LOCATION',array('Host'=>$Host,'Location'=>&$_REQUEST['location']));
     }
     public function HostInfoExpose($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
