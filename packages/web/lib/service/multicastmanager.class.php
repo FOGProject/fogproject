@@ -1,6 +1,7 @@
 <?php
 class MulticastManager extends FOGService {
     public static $sleeptime = 'MULTICASTSLEEPTIME';
+    protected $altLog;
     public function __construct() {
         parent::__construct();
         list($dev,$log,$zzz) = self::getSubObjectIDs('Service',array('name'=>array('MULTICASTDEVICEOUTPUT','MULTICASTLOGFILENAME',$sleeptime)),'value',false,'AND','name',false,'');
