@@ -34,6 +34,41 @@ registerStorageNode() {
     #If the node does not exist, create it.
     [[ $storageNodeExists -lt 1 ]] && mysql -s -D fog -h $snmysqlhost -u $snmysqluser -p$snmysqlpass -e "INSERT INTO \`nfsGroupMembers\` (\`ngmMemberName\`,\`ngmMemberDescription\`,\`ngmRootPath\`,\`ngmSSLPath\`,\`ngmFTPPath\`,\`ngmSnapinPath\`,\`ngmHostname\`,\`ngmMaxClients\`,\`ngmUser\`,\`ngmPass\`,\`ngmInterface\`,\`ngmGraphEnabled\`,\`ngmWebroot\`) VALUES ('$ipaddress','Auto generated fog nfs group member','/images','/opt/fog/snapins/ssl','/images','/opt/fog/snapins','$ipaddress','10','$username','$password','$interface','1','/fog');"
 }
+updateStorageNodeCredentials() {
+    #If there is no password set for the DB, don't specify it, otherwise do specify it.
+    if [[ -z "$snmysqlpass" ]]; then
+        #Get stored user for node from DB.
+        storedStorageNodeUser=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser -e "SELECT \`ngmUser\` FROM \`nfsGroupMembers\` WHERE \`ngmHostname\`='$ipaddress'") >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        #Get stored pass for node from DB.
+        storedStorageNodePass=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser -e "SELECT \`ngmPass\` FROM \`nfsGroupMembers\` WHERE \`ngmHostname\`='$ipaddress'") >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    else
+        #Get stored user for node from DB.
+        storedStorageNodeUser=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser  -p$snmysqlpass -e "SELECT \`ngmUser\` FROM \`nfsGroupMembers\` WHERE \`ngmHostname\`='$ipaddress'") >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        #Get stored pass for node from DB.
+        storedStorageNodePass=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser  -p$snmysqlpass -e "SELECT \`ngmPass\` FROM \`nfsGroupMembers\` WHERE \`ngmHostname\`='$ipaddress'") >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
+    #Check if the user and pass match what's in the .fogsettings file.
+    if [[ "$storedStorageNodeUser" != "$username" || "$storedStorageNodePass" != "$password" ]]; then
+        #Either the user or pass does not match, so display a banner saying it will be corrected.
+        echo " "
+        echo " "
+        echo "***************************************************************************"
+        echo "*                                                                         *"
+        echo "* The credentials set in the fog database do not match what is stored     *"
+        echo "* inside of \"/opt/fog/.fogsettings\". This will be corrected for you, so   *"
+        echo "* fog can continue to operate. It is not advised to use the local \"fog\"   *"
+        echo "* account for back-end administration, however if you need to use this    *"
+        echo "* account, the credentials can be found here:                             *"
+        echo "* Web Interface -> Storage Management -> Storage Node -> User & Password  *"
+        echo "*                                                                         *"
+        echo "***************************************************************************"
+        if [[ -z "$snmysqlpass" ]]; then
+            mysql -s -D fog -h $snmysqlhost -u $snmysqluser -e "UPDATE \`nfsGroupMembers\` SET \`ngmUser\`='$username', \`ngmPass\`='$password' WHERE \`ngmHostname\`='$ipaddress'" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        else
+            mysql -s -D fog -h $snmysqlhost -u $snmysqluser -p$snmysqlpass -e "UPDATE \`nfsGroupMembers\` SET \`ngmUser\`='$username', \`ngmPass\`='$password' WHERE \`ngmHostname\`='$ipaddress'" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
+    fi
+}
 backupDB() {
     local user=$(echo -n $fogguiuser|base64)
     local pass=$(echo -n $fogguipass|base64)
