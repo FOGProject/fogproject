@@ -62,7 +62,7 @@ class HostManagementPage extends FOGPage {
             '<a href="?node=host&sub=edit&id=${id}" title="Edit: ${host_name}" id="host-${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
             '<small>${deployed}</small>',
             sprintf('<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&type=8&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=edit&id=${id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Goto Task List"></i></a>',$down->get('icon'),$down->get('name'),$up->get('icon'),$up->get('name'),$mc->get('icon'),$mc->get('name')),
-            '<a href="?node=image&sub=edit&id=${image_id}">${image_name}</a>'
+            '<small><a href="?node=image&sub=edit&id=${image_id}">${image_name}</a></small>'
         );
         unset($up,$down,$mc);
         $this->attributes = array(
@@ -73,7 +73,7 @@ class HostManagementPage extends FOGPage {
         array_push($this->attributes,
             array('width'=>50),
             array('width'=>145),
-            array('width'=>40,'class'=>'r filter-false'),
+            array('width'=>60,'class'=>'r filter-false'),
             array('width'=>20,'class'=>'r')
         );
         self::$returnData = function(&$Host) {

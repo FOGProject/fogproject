@@ -309,6 +309,31 @@ function buildRow(data,templates,attributes,wrapper) {
     setChecked(checkedIDs);
     HookTooltips();
 }
+function validateInputs(selector,match) {
+    $(selector).on('keyup change blur',function() {
+        content = $(selector).val().trim();
+        if (content === null) $(this).addClass('error');
+        else $(this).removeClass('error');
+        if (match !== null || match !== false) {
+            content1 = content.match(match);
+            if (content1 === null) $(this).addClass('error');
+            else $(this).removeClass('error');
+        }
+    }).parents('form').submit(function (e) {
+        content = $(selector).val().trim();
+        if (content === null) $(this).addClass('error');
+        if (match !== null || match !== false) {
+            content1 = content.match(match);
+            if (content1 === null) {
+                $(selector).addClass('error');
+                return false;
+            } else {
+                $(selector).removeClass('error');
+                return true;
+            }
+        }
+    });
+}
 function TableCheck() {
     var callme = 'hide';
     if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');

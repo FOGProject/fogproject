@@ -6,6 +6,7 @@ $(function() {
     checkboxAssociations('.toggle-checkboxgroup:checkbox','.toggle-group:checkbox');
     MACUpdate();
     ProductUpdate();
+    validateInputs('.hostname-input',/^[\w!@#$%^()\-'{}\.~]{1,15}$/);
 });
 function removeMACField() {
     $('.remove-mac').click(function(e) {
@@ -20,21 +21,7 @@ function removeMACField() {
     });
 }
 function MACChange(data) {
-    var content = data.val();
-    content1 = content.match(/^(?:[0-9A-Fa-f]{2}([-:]))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}|(?:[0-9A-Fa-f]{12})|(?:[0-9A-Fa-f]{4}([.])){2}[0-9A-Fa-f]{4}$/);
-    data.blur(function() {
-        if (content1 === null) $(this).addClass('error');
-        else $(this).removeClass('error');
-    }).parents('form').submit(function (e) {
-        if (content1 === null) {
-            data.addClass('error');
-            return false;
-        } else {
-            data.removeClass('error');
-            return true;
-        }
-    });
-    if (data.val().length > 17) data.val(data.val().substring(0,17));
+    validateInputs(data,/^(?:[0-9A-Fa-f]{2}([-:]))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}|(?:[0-9A-Fa-f]{12})|(?:[0-9A-Fa-f]{4}([.])){2}[0-9A-Fa-f]{4}$/);
     if (MACLookupTimer) clearTimeout(MACLookupTimer);
     MACLookupTimer = setTimeout(function(e) {
         $('#primaker').load('?sub=getmacman&prefix='+mac);
