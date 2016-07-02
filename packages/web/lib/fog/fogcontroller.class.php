@@ -249,7 +249,7 @@ abstract class FOGController extends FOGBase {
     protected function addRemItem(string $var, array $array,string $array_type) {
         if (!in_array($array_type,array('merge','diff'))) throw new Exception(_('Invalid type'));
         $array_type = sprintf('array_%s',$array_type);
-        $this->set($var,array_unique($array_type((array)$this->get($var),$array)));
+        return $this->set($var,array_unique($array_type((array)$this->get($var),$array)));
     }
     public function isValid() {
         try {
