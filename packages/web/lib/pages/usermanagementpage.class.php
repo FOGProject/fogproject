@@ -66,9 +66,9 @@ class UserManagementPage extends FOGPage {
         $this->data = array();
         $fields = array(
             '<input style="display:none" type="text" name="fakeusernameremembered"/>'=>'<input style="display:none" type="password" name="fakepasswordremembered"/>',
-            _('User Name') => sprintf('<input type="text" name="name" value="%s" autocomplete="off"/>',$_REQUEST['name']),
-            _('User Password') => '<input type="password" name="password" value="" autocomplete="off"/>',
-            _('User Password (confirm)') => '<input type="password" name="password_confirm" value="" autocomplete="off"/>',
+            _('User Name') => sprintf('<input type="text" class="username-input" name="name" value="%s" autocomplete="off"/>',$_REQUEST['name']),
+            _('User Password') => '<input type="password" class="password-input1" name="password" value="" autocomplete="off"/>',
+            _('User Password (confirm)') => '<input type="password" class="password-input2" name="password_confirm" value="" autocomplete="off"/>',
             sprintf('%s&nbsp;<i class="icon icon-help hand fa fa-question" title="%s"></i>',_('Mobile/Quick Image Access Only?'),_('Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future.')) => '<input type="checkbox" name="isGuest" autocomplete="off"/>',
             '&nbsp;' => sprintf('<input name="add" type="submit" value="%s"/>',_('Create User')),
         );
@@ -81,10 +81,10 @@ class UserManagementPage extends FOGPage {
     public function add_post() {
         self::$HookManager->processEvent('USER_ADD_POST');
         try {
-            if (self::getClass('UserManager')->exists($_REQUEST['name'])) throw new Exception(_('Username already exists'));
-            if (!self::getClass('UserManager')->isPasswordValid($_REQUEST['password'],$_REQUEST['password_confirm'])) throw new Exception(_('Password is invalid'));
+            $name = strtolower(trim($_REQUEST['name']));
+            if (self::getClass('UserManager')->exists($name)) throw new Exception(_('Username already exists'));
             $User = self::getClass('User')
-                ->set('name',$_REQUEST['name'])
+                ->set('name',$name)
                 ->set('type',isset($_REQUEST['isGuest']))
                 ->set('password',$_REQUEST['password']);
             if (!$User->save()) throw new Exception(_('Failed to create user'));
@@ -100,9 +100,9 @@ class UserManagementPage extends FOGPage {
     public function edit() {
         $this->title = sprintf('%s: %s',_('Edit'),$this->obj->get('name'));
         $fields = array(
-            _('User Name') => sprintf('<input type="text" name="name" value="%s"/>',$this->obj->get('name')),
-            _('New Password') => '<input type="password" name="password" value=""/>',
-            _('New Password (confirm)') => '<input type="password" name="password_confirm" value=""/>',
+            _('User Name') => sprintf('<input type="text" class="username-input" name="name" value="%s"/>',$this->obj->get('name')),
+            _('New Password') => '<input type="password" class="password-input1" name="password" value=""/>',
+            _('New Password (confirm)') => '<input type="password" class="password-input2" name="password_confirm" value=""/>',
             sprintf('%s&nbsp;<i class="icon icon-help hand fa fa-question" title="%s"></i>',_('Mobile/Quick Image Access Only?'),_('Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future.')) => sprintf('<input type="checkbox" name="isGuest" autocomplete="off"%s/>',($this->obj->get('type') == 1 ? ' checked' : '')),
             '&nbsp;' => sprintf('<input name="update" type="submit" value="%s"/>',_('Update')),
         );
@@ -125,11 +125,8 @@ class UserManagementPage extends FOGPage {
     public function edit_post() {
         self::$HookManager->processEvent('USER_EDIT_POST',array('User'=>&$this->obj));
         try {
-            $name = trim($_REQUEST['name']);
+            $name = strtolower(trim($_REQUEST['name']));
             if ($name != trim($this->obj->get('name')) && $this->obj->getManager()->exists($name,$this->obj->get('id'))) throw new Exception(_('Username already exists'));
-            if ($_REQUEST['password'] && $_REQUEST['password_confirm']) {
-                if (!$this->obj->getManager()->isPasswordValid($_REQUEST['password'],$_REQUEST['password_confirm'])) throw new Exception(_('Password is invalid'));
-            }
             $this->obj
                 ->set('name',$name)
                 ->set('type',isset($_REQUEST['isGuest']))
