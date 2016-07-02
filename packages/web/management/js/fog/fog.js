@@ -317,6 +317,8 @@ function TableCheck() {
         callme = 'show';
     }
     Container[callme]().fogTableInfo().trigger('updateAll').find('.tablesorter-filter').each(function(i){
+        if (typeof savedFilters === null || typeof savedFilters === 'undefined') return;
+        if (typeof savedFilters[i] === null || typeof savedFilters === 'undefined') return;
         $(this).val(savedFilters[i]);
     }).trigger('search');
     ActionBox[callme]();
