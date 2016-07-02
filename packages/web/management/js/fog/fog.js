@@ -311,21 +311,23 @@ function buildRow(data,templates,attributes,wrapper) {
 }
 function validateInputs(selector,match) {
     $(selector).on('keyup change blur',function() {
+        $(this).prev('.invalid').remove();
         content = $(selector).val().trim();
-        if (content === null) $(this).addClass('error');
+        if (content === null) $(this).addClass('error').before('<p class="invalid">Invalid input</p>');
         else $(this).removeClass('error');
         if (match !== null || match !== false) {
             content1 = content.match(match);
-            if (content1 === null) $(this).addClass('error');
+            if (content1 === null) $(this).addClass('error').before('<p class="invalid">Invalid input</p>');
             else $(this).removeClass('error');
         }
     }).parents('form').submit(function (e) {
+        $(selector).parents('.invalid').remove();
         content = $(selector).val().trim();
         if (content === null) $(this).addClass('error');
         if (match !== null || match !== false) {
             content1 = content.match(match);
             if (content1 === null) {
-                $(selector).addClass('error');
+                $(selector).addClass('error').before('<p class="invalid">Invalid input</p>');
                 return false;
             } else {
                 $(selector).removeClass('error');
