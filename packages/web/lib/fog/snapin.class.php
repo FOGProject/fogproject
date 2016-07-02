@@ -110,24 +110,16 @@ class Snapin extends FOGController {
         },(array)self::getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'),'isEnabled'=>1)));
     }
     public function addHost($addArray) {
-        if (!$this->isLoaded('hosts')) $this->LoadHosts();
-        $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
-        return $this;
+        return $this->addRemItem('hosts',(array)$addArray,'merge');
     }
     public function removeHost($removeArray) {
-        if (!$this->isLoaded('hosts')) $this->LoadHosts();
-        $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
-        return $this;
+        return $this->addRemItem('hosts',(array)$removeArray,'diff');
     }
     public function addGroup($addArray) {
-        if (!$this->isLoaded('storageGroups')) $this->loadStorageGroups();
-        $this->set('storageGroups',array_unique(array_merge((array)$this->get('storageGroups'),(array)$addArray)));
-        return $this;
+        return $this->addRemItem('storageGroups',(array)$addArray,'merge');
     }
     public function removeGroup($removeArray) {
-        if (!$this->isLoaded('storageGroups')) $this->loadStorageGroups();
-        $this->set('storageGroups',array_unique(array_diff((array)$this->get('storageGroups'),(array)$removeArray)));
-        return $this;
+        return $this->addRemItem('storageGroups',(array)$removeArray,'diff');
     }
     public function getStorageGroup() {
         if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min(self::getSubObjectIDs('StorageGroup')));

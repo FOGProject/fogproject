@@ -675,32 +675,32 @@ class Host extends FOGController {
         return $this->addAddMAC($MAC,true);
     }
     public function addPrinter($addArray) {
-        return $this->set('printers',array_unique(array_merge((array)$this->get('printers'),(array)$addArray)));
+        return $this->addRemItem('printers',(array)$addArray,'merge');
     }
     public function removePrinter($removeArray) {
-        return $this->set('printers',array_unique(array_diff((array)$this->get('printers'),(array)$removeArray)));
+        return $this->addRemItem('printers',(array)$addArray,'diff');
     }
     public function addSnapin($addArray) {
         $limit = self::getSetting('FOG_SNAPIN_LIMIT');
         if ($limit > 0) {
             if (self::getClass('SnapinManager')->count(array('id'=>$this->get('snapins'))) >= $limit || count($addArray) > $limit) throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
         }
-        return $this->set('snapins',array_unique(array_merge((array)$this->get('snapins'),(array)$addArray)));
+        return $this->addRemItem('snapins',(array)$addArray,'merge');
     }
     public function removeSnapin($removeArray) {
-        return $this->set('snapins',array_unique(array_diff((array)$this->get('snapins'),(array)$removeArray)));
+        return $this->addRemItem('snapins',(array)$removeArray,'diff');
     }
     public function addModule($addArray) {
-        return $this->set('modules',array_unique(array_merge((array)$this->get('modules'),(array)$addArray)));
+        return $this->addRemItem('modules',(array)$addArray,'merge');
     }
     public function removeModule($removeArray) {
-        return $this->set('modules',array_unique(array_diff((array)$this->get('modules'),(array)$removeArray)));
+        return $this->addRemItem('modules',(array)$removeArray,'diff');
     }
     public function addPowerManagement($addArray) {
-        return $this->set('powermanagementtasks',array_unique(array_merge((array)$this->get('powermanagementtasks'),(array)$addArray)));
+        return $this->addRemItem('powermanagementtasks',(array)$addArray,'merge');
     }
     public function removePowerManagement($removeArray) {
-        return $this->set('powermanagementtasks',array_unique(array_diff((array)$this->get('powermanagementtasks'),(array)$removeArray)));
+        return $this->addRemItem('powermanagementtasks',(array)$removeArray,'diff');
     }
     public function getMyMacs($justme = true) {
         if ($justme) return self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id')),'mac');
@@ -729,10 +729,10 @@ class Host extends FOGController {
         return $this->removeHost($removeArray);
     }
     public function addHost($addArray) {
-        return $this->set('groups',array_unique(array_merge((array)$this->get('groups'),(array)$addArray)));
+        return $this->addRemItem('groups',(array)$addArray,'merge');
     }
     public function removeHost($removeArray) {
-        return $this->set('groups',array_unique(array_diff((array)$this->get('groups'),(array)$removeArray)));
+        return $this->addRemItem('groups',(array)$removeArray,'diff');
     }
     public function clientMacCheck($MAC = false) {
         return self::getClass('MACAddress',self::getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'clientIgnore'=>1),'mac'))->isValid() ? 'checked' : '';

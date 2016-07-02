@@ -25,12 +25,10 @@ class PowerManagement extends FOGController {
         'hosts',
     );
     public function addHost($addArray) {
-        $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
-        return $this;
+        return $this->addRemItem('hosts',(array)$addArray,'merge');
     }
     public function removeHost($removeArray) {
-        $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
-        return $this;
+        return $this->addRemItem('hosts',(array)$removeArray,'diff');
     }
     protected function loadHosts() {
         $this->set('hosts',self::getSubObjectIDs('PowerManagement',array('id'=>$this->get('id')),'hostID'));
