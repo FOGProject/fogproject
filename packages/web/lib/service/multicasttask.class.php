@@ -74,7 +74,7 @@ class MulticastTask extends FOGService {
         return $this->intOSID;
     }
     public function getUDPCastLogFile() {
-        return sprintf('/%s/%s.udpcast.%s',trim(self::getSetting('SERVICE_LOG_PATH'),'/'),self::getSetting('MULTICASTLOGFILENAME'),$this->getID());
+        return $this->altLog = sprintf('/%s/%s.udpcast.%s',trim(self::getSetting('SERVICE_LOG_PATH'),'/'),self::getSetting('MULTICASTLOGFILENAME'),$this->getID());
     }
     public function getBitrate() {
         return self::getClass('Image',self::getClass('MulticastSessions',$this->getID())->get('image'))->getStorageGroup()->getMasterStorageNode()->get('bitrate');
