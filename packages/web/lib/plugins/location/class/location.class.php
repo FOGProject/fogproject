@@ -51,12 +51,10 @@ class Location extends FOGController {
         return $this;
     }
     public function addHost($addArray) {
-        $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
-        return $this;
+        return $this->addRemItem('hosts',(array)$addArray,'merge');
     }
     public function removeHost($removeArray) {
-        $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
-        return $this;
+        return $this->addRemItem('hosts',(array)$removeArray,'diff');
     }
     public function getStorageGroup() {
         return self::getClass('StorageGroup',$this->get('storageGroupID'));

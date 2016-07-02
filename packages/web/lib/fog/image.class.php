@@ -92,12 +92,10 @@ class Image extends FOGController {
         $this->set('hosts',self::getSubObjectIDs('Host',array('imageID'=>$this->get('id'))));
     }
     public function addHost($addArray) {
-        $this->addRemItem('hosts',(array)$addArray,'merge');
-        return $this;
+        return $this->addRemItem('hosts',(array)$addArray,'merge');
     }
     public function removeHost($removeArray) {
-        $this->addRemItem('hosts',(array)$removeArray,'diff');
-        return $this;
+        return $this->addRemItem('hosts',(array)$removeArray,'diff');
     }
     protected function loadHostsnotinme() {
         $find = array('id'=>$this->get('hosts'));
@@ -107,12 +105,10 @@ class Image extends FOGController {
         $this->set('storageGroups',(array)self::getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID'));
     }
     public function addGroup($addArray) {
-        $this->addRemItem('storageGroups',(array)$addArray,'merge');
-        return $this;
+        return $this->addRemItem('storageGroups',(array)$addArray,'merge');
     }
     public function removeGroup($removeArray) {
-        $this->addRemItem('storageGroups',(array)$removeArray,'diff');
-        return $this;
+        return $this->addRemItem('storageGroups',(array)$removeArray,'diff');
     }
     protected function loadStorageGroupsnotinme() {
         $find = array('id'=>$this->get('storageGroups'));
