@@ -944,7 +944,8 @@ abstract class FOGPage extends FOGBase {
             array('width'=>150,'class'=>'l'),
         );
         $ClassCall = ($objType ? 'Group' : 'Host');
-        array_walk(self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(sprintf('%ssnotinme',strtolower($ClassCall))))),function (&$Host,&$index) {
+        $objects = self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(sprintf('%ssnotinme',strtolower($ClassCall)))));
+        array_walk($objects,function (&$Host,&$index) {
             if (!$Host->isValid()) return;
             $this->data[] = array(
                 'host_id'=>$Host->get('id'),
@@ -983,7 +984,8 @@ abstract class FOGPage extends FOGBase {
             '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action"/>',
             sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',strtolower($ClassCall)),
         );
-        array_walk(self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(strtolower($ClassCall).'s'))),function (&$Host,&$index) {
+        $objects = self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(sprintf('%ss',strtolower($ClassCall)))));
+        array_walk($objects,function (&$Host,&$index) {
             if (!$Host->isValid()) return;
             $this->data[] = array(
                 'host_id'=>$Host->get('id'),
