@@ -36,8 +36,10 @@ class AddLocationHost extends Hook {
         if (!in_array($_REQUEST['sub'],array('add','add_post','edit','edit_post'))) return;
         if (str_replace('_','-',$_REQUEST['tab']) != 'host-general') return;
         self::getClass('LocationAssociationManager')->destroy(array('hostID'=>$arguments['Host']->get('id')));
-        $Location = self::getClass('Location',$_REQUEST['location']);
-        if ($Location->isValid()) $Location->addHost($arguments['Host']->get('id'))->save();
+        self::getClass('LocationAssociation')
+            ->set('hostID',$arguments['Host']->get('id'))
+            ->set('locationID',$_REQUEST['location'])
+            ->save();
     }
     public function HostImport($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;

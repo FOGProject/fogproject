@@ -232,14 +232,13 @@ abstract class FOGManagerController extends FOGBase {
         $matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
         if (empty($elementName)) $elementName = strtolower($this->childClass);
         $this->orderBy($orderBy);
-        $ids = self::getSubObjectIDs($this->childClass,'','id',false,'AND','name',false,'');
-        $names = self::getSubObjectIDs($this->childClass,'','name',false,'AND','name',false,'');
-        $isenabled = self::getSubObjectIDs($this->childClass,'','isEnabled',false,'AND','name',false,'');
-        $listArray = array();
-        array_walk($ids,function($id,$index) use ($names,&$listArray,$isenabled,$matchID,$template) {
-            if (!$isenabled[$index]) return;
-            $listArray[] = sprintf('<option value="%s"%s>%s</option>',$id,($matchID == $id ? ' selected' : ($template ? " \${selected_item{$id}" : '')),"{$names[$index]} - ($id)");
-        });
+        $listArray = array_map(function(&$Object) use (&$matchID,&$elementName,&$orderBy,&$filter,&$template) {
+            if (!$Object->isValid()) return;
+            if (array_key_exists('isEnabled',$this->databaseFields) && !$Object->get('isEnabled')) return;
+            $listArray = sprintf('<option value="%s"%s>%s</option>',$Object->get('id'),($matchID == $Object->get('id') ? ' selected' : ($template ? " \${selected_item{$Object->get(id)}" : '')),"{$Object->get(name)} - ({$Object->get(id)})");
+            unset($Object);
+            return $listArray;
+        },(array)$this->find($filter ? array('id'=>$filter):'','',$orderBy,'','','',($filter ? true : false)));
         return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',($template ? '${selector_name}' : $elementName),"- ".self::$foglang['PleaseSelect']." -",implode($listArray)) : false);
     }
     public function exists($name, $id = 0, $idField = 'name') {
