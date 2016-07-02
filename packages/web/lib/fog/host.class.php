@@ -211,18 +211,7 @@ class Host extends FOGController {
             if (count($insert_values) > 0) self::getClass('MACAddressAssociationManager')->insert_batch($insert_fields,$insert_values);
             unset($DBPendMACs,$RealPendMACs,$RemovePendMAC);
         case ($this->isLoaded('modules')):
-            $DBModuleIDs = self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
-            $ValidModuleIDs = self::getSubObjectIDs('Module');
-            $notValid = array_diff((array)$DBModuleIDs,(array)$ValidModuleIDs);
-            if (count($notValid)) self::getClass('ModuleAssociationManager')->destroy(array('moduleID'=>$notValid));
-            unset($ValidModuleIDs,$DBModuleIDs);
-            $DBModuleIDs = self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
-            $RemoveModuleIDs = array_diff((array)$DBModuleIDs,(array)$this->get('modules'));
-            if (count($RemoveModuleIDs)) {
-                self::getClass('ModuleAssociationManager')->destroy(array('moduleID'=>$RemoveModuleIDs,'hostID'=>$this->get('id')));
-                $DBModuleIDs = self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
-                unset($RemoveModuleIDs);
-            }
+            self::getClass('ModuleAssociationManager')->destroy(array('hostID'=>$this->get('id')));
             $moduleName = $this->getGlobalModuleStatus();
             $insert_fields = array('hostID','moduleID','state');
             $insert_values = array();
@@ -233,18 +222,7 @@ class Host extends FOGController {
             if (count($insert_values)) self::getClass('ModuleAssociationManager')->insert_batch($insert_fields,$insert_values);
             unset($DBModuleIDs,$RemoveModuleIDs,$moduleName);
         case ($this->isLoaded('printers')):
-            $DBPrinterIDs = self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
-            $ValidPrinterIDs = self::getSubObjectIDs('Printer');
-            $notValid = array_diff((array)$DBPrinterIDs,(array)$ValidPrinterIDs);
-            if (count($notValid)) self::getClass('PrinterAssociationManager')->destroy(array('printerID'=>$notValid));
-            unset($ValidPrinterIDs,$DBPrinterIDs);
-            $DBPrinterIDs = self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
-            $RemovePrinterIDs = array_diff((array)$DBPrinterIDs,(array)$this->get('printers'));
-            if (count($RemovePrinterIDs)) {
-                self::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$this->get('id'),'printerID'=>$RemovePrinterIDs));
-                $DBPrinterIDs = self::getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
-                unset($RemovePrinterIDs);
-            }
+            self::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$this->get('id')));
             $insert_fields = array('hostID','printerID');
             $insert_values = array();
             $DBPrinterIDs = array_diff((array)$this->get('printers'),(array)$DBPrinterIDs);
@@ -264,18 +242,7 @@ class Host extends FOGController {
             $objNeeded = false;
             unset($DBPowerManagementIDs,$RemovePowerManagementIDs);
         case ($this->isLoaded('snapins')):
-            $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
-            $ValidSnapinIDs = self::getSubObjectIDs('Snapin');
-            $notValid = array_diff((array)$DBSnapinIDs,(array)$ValidSnapinIDs);
-            if (count($notValid)) self::getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$notValid));
-            unset($ValidSnapinIDs,$DBSnapinIDs);
-            $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
-            $RemoveSnapinIDs = array_diff((array)$DBSnapinIDs,(array)$this->get('snapins'));
-            if (count($RemoveSnapinIDs)) {
-                self::getClass('SnapinAssociationManager')->destroy(array('hostID'=>$this->get('id'),'snapinID'=>$RemoveSnapinIDs));
-                $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
-                unset($RemoveSnapinIDs);
-            }
+            self::getClass('SnapinAssociationManager')->destroy(array('hostID'=>$this->get('id')));
             $insert_fields = array('hostID','snapinID');
             $insert_values = array();
             $DBSnapinIDs = array_diff((array)$this->get('snapins'),(array)$DBSnapinIDs);
@@ -285,18 +252,7 @@ class Host extends FOGController {
             if (count($insert_values) > 0) self::getClass('SnapinAssociationManager')->insert_batch($insert_fields,$insert_values);
             unset($DBSnapinIDs,$RemoveSnapinIDs);
         case ($this->isLoaded('groups')):
-            $DBGroupIDs = self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
-            $ValidGroupIDs = self::getSubObjectIDs('Group');
-            $notValid = array_diff((array)$DBGroupIDs,(array)$ValidGroupIDs);
-            if (count($notValid)) self::getClass('GroupAssociationManager')->destroy(array('groupID'=>$notValid));
-            unset($ValidGroupIDs,$DBGroupIDs);
-            $DBGroupIDs = self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
-            $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('groups'));
-            if (count($RemoveGroupIDs)) {
-                self::getClass('GroupAssociationManager')->destroy(array('hostID'=>$this->get('id'),'groupID'=>$RemoveGroupIDs));
-                $DBGroupIDs = self::getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
-                unset($RemoveGroupIDs);
-            }
+            self::getClass('GroupAssociationManager')->destroy(array('hostID'=>$this->get('id')));
             $insert_fields = array('hostID','groupID');
             $insert_values = array();
             $DBGroupIDs = array_diff((array)$this->get('groups'),(array)$DBGroupIDs);
