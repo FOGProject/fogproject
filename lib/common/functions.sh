@@ -1104,43 +1104,43 @@ clearScreen() {
 writeUpdateFile() {
     tmpDte=$(date +%c)
     replace='s/[]\/$*.^|[]/\\&/g';
-    printf -v escversion "%q" "$version"
-    printf -v esctmpDte "%q" "$tmpDte"
-    printf -v escipaddress "%q" "$ipaddress"
-    printf -v escinterface "%q" "$interface"
-    printf -v escsubmask "%q" "$submask"
-    printf -v escrouteraddress "%q" "$routeraddress"
-    printf -v escplainrouter "%q" "$plainrouter"
-    printf -v escdnsaddress "%q" "$dnsaddress"
-    printf -v escusername "%s" "$username"
-    printf -v escpassword "%q" "$password"
-    printf -v escosid "%q" "$osid"
-    printf -v escosname "%q" "$osname"
-    printf -v escdodhcp "%q" "$dodhcp"
-    printf -v escbldhcp "%q" "$bldhcp"
-    printf -v escdhcpd "%q" "$dhcpd"
-    printf -v escblexports "%q" "$blexports"
-    printf -v escinstalltype "%q" "$installtype"
-    printf -v escsnmysqluser "%q" "$snmysqluser"
-    printf -v escsnmysqlpass "%q" "$snmysqlpass"
-    printf -v escsnmysqlhost "%q" "$snmysqlhost"
-    printf -v escinstalllang "%q" "$installlang"
-    printf -v escdonate "%q" "$donate"
-    printf -v escstorageLocation "%q" "$storageLocation"
-    printf -v escfogupdateloaded "%q" "$fogupdateloaded"
-    printf -v escdocroot "%q" "$docroot"
-    printf -v escwebroot "%q" "$webroot"
-    printf -v esccaCreated "%q" "$caCreated"
-    printf -v escsslpath "%q" "$sslpath"
-    printf -v escstartrange "%q" "$startrange"
-    printf -v escendrange "%q" "$endrange"
-    printf -v escbootfilename "%q" "$bootfilename"
-    printf -v escpackages "%q" "$packages"
-    printf -v escnoTftpBuild "%q" "$noTftpBuild"
-    printf -v escnotpxedefaultfile "%q" "$notpxedefaultfile"
-    printf -v escbackupPath "%q" "$backupPath"
-    printf -v escphp_ver "%q" "$php_ver"
-    printf -v escphp_verAdds "%q" "$php_verAdds"
+    printf -v version "%q" "$version"
+    printf -v tmpDte "%q" "$tmpDte"
+    printf -v ipaddress "%q" "$ipaddress"
+    printf -v interface "%q" "$interface"
+    printf -v submask "%q" "$submask"
+    printf -v routeraddress "%q" "$routeraddress"
+    printf -v plainrouter "%q" "$plainrouter"
+    printf -v dnsaddress "%q" "$dnsaddress"
+    printf -v username "%s" "$username"
+    printf -v password "%q" "$password"
+    printf -v osid "%q" "$osid"
+    printf -v osname "%q" "$osname"
+    printf -v dodhcp "%q" "$dodhcp"
+    printf -v bldhcp "%q" "$bldhcp"
+    printf -v dhcpd "%q" "$dhcpd"
+    printf -v blexports "%q" "$blexports"
+    printf -v installtype "%q" "$installtype"
+    printf -v snmysqluser "%q" "$snmysqluser"
+    printf -v snmysqlpass "%q" "$snmysqlpass"
+    printf -v snmysqlhost "%q" "$snmysqlhost"
+    printf -v installlang "%q" "$installlang"
+    printf -v donate "%q" "$donate"
+    printf -v storageLocation "%q" "$storageLocation"
+    printf -v fogupdateloaded "%q" "$fogupdateloaded"
+    printf -v docroot "%q" "$docroot"
+    printf -v webroot "%q" "$webroot"
+    printf -v caCreated "%q" "$caCreated"
+    printf -v sslpath "%q" "$sslpath"
+    printf -v startrange "%q" "$startrange"
+    printf -v endrange "%q" "$endrange"
+    printf -v bootfilename "%q" "$bootfilename"
+    printf -v packages "%q" "$packages"
+    printf -v noTftpBuild "%q" "$noTftpBuild"
+    printf -v notpxedefaultfile "%q" "$notpxedefaultfile"
+    printf -v backupPath "%q" "$backupPath"
+    printf -v php_ver "%q" "$php_ver"
+    printf -v php_verAdds "%q" "$php_verAdds"
     #esctmpDte=$(echo $tmpDate | sed -e $replace)
     #escipaddress=$(echo $ipaddress | sed -e $replace)
     #escinterface=$(echo $interface | sed -e $replace)
@@ -1181,107 +1181,107 @@ writeUpdateFile() {
         grep -q "^## Start of FOG Settings" $fogprogramdir/.fogsettings || grep -q "^## Version:.*" $fogprogramdir/.fogsettings
         if [[ $? == 0 ]]; then
             grep -q "^## Version:.*$" $fogprogramdir/.fogsettings && \
-                sed -i "s/^## Version:.*/## Version: $escversion/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/^## Version:.*/## Version: $version/g" $fogprogramdir/.fogsettings || \
                 echo "## Version: $version" >> $fogprogramdir/.fogsettings
             grep -q "ipaddress=" $fogprogramdir/.fogsettings && \
-                sed -i "s/ipaddress=.*/ipaddress='$escipaddress'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/ipaddress=.*/ipaddress='$ipaddress'/g" $fogprogramdir/.fogsettings || \
                 echo "ipaddress='$ipaddress'" >> $fogprogramdir/.fogsettings
             grep -q "interface=" $fogprogramdir/.fogsettings && \
-                sed -i "s/interface=.*/interface='$escinterface'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/interface=.*/interface='$interface'/g" $fogprogramdir/.fogsettings || \
                 echo "interface='$interface'" >> $fogprogramdir/.fogsettings
             grep -q "submask=" $fogprogramdir/.fogsettings && \
-                sed -i "s/submask=.*/submask='$escsubmask'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/submask=.*/submask='$submask'/g" $fogprogramdir/.fogsettings || \
                 echo "submask='$submask'" >> $fogprogramdir/.fogsettings
             grep -q "routeraddress=" $fogprogramdir/.fogsettings && \
-                sed -i "s/routeraddress=.*/routeraddress='$escrouteraddress'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/routeraddress=.*/routeraddress='$routeraddress'/g" $fogprogramdir/.fogsettings || \
                 echo "routeraddress='$routeraddress'" >> $fogprogramdir/.fogsettings
             grep -q "plainrouter=" $fogprogramdir/.fogsettings && \
-                sed -i "s/plainrouter=.*/plainrouter='$escplainrouter'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/plainrouter=.*/plainrouter='$plainrouter'/g" $fogprogramdir/.fogsettings || \
                 echo "plainrouter='$plainrouter'" >> $fogprogramdir/.fogsettings
             grep -q "dnsaddress=" $fogprogramdir/.fogsettings && \
-                sed -i "s/dnsaddress=.*/dnsaddress='$escdnsaddress'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/dnsaddress=.*/dnsaddress='$dnsaddress'/g" $fogprogramdir/.fogsettings || \
                 echo "dnsaddress='$dnsaddress'" >> $fogprogramdir/.fogsettings
             grep -q "password=" $fogprogramdir/.fogsettings && \
-                sed -i "s/password=.*/password=\"$escpassword\"/g" $fogprogramdir/.fogsettings || \
-                echo "password=\"$escpassword\"" >> $fogprogramdir/.fogsettings
+                sed -i "s/password=.*/password=\"$password\"/g" $fogprogramdir/.fogsettings || \
+                echo "password=\"$password\"" >> $fogprogramdir/.fogsettings
             grep -q "osid=" $fogprogramdir/.fogsettings && \
                 sed -i "s/osid=.*/osid='$osid'/g" $fogprogramdir/.fogsettings || \
                 echo "osid='$osid'" >> $fogprogramdir/.fogsettings
             grep -q "osname=" $fogprogramdir/.fogsettings && \
-                sed -i "s/osname=.*/osname='$escosname'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/osname=.*/osname='$osname'/g" $fogprogramdir/.fogsettings || \
                 echo "osname='$osname'" >> $fogprogramdir/.fogsettings
             grep -q "dodhcp=" $fogprogramdir/.fogsettings && \
-                sed -i "s/dodhcp=.*/dodhcp='$escdodhcp'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/dodhcp=.*/dodhcp='$dodhcp'/g" $fogprogramdir/.fogsettings || \
                 echo "dodhcp='$dodhcp'" >> $fogprogramdir/.fogsettings
             grep -q "bldhcp=" $fogprogramdir/.fogsettings && \
-                sed -i "s/bldhcp=.*/bldhcp='$escbldhcp'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/bldhcp=.*/bldhcp='$bldhcp'/g" $fogprogramdir/.fogsettings || \
                 echo "bldhcp='$bldhcp'" >> $fogprogramdir/.fogsettings
             grep -q "dhcpd=" $fogprogramdir/.fogsettings && \
-                sed -i "s/dhcpd=.*/dhcpd='$escdhcpd'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/dhcpd=.*/dhcpd='$dhcpd'/g" $fogprogramdir/.fogsettings || \
                 echo "dhcpd='$dhcpd'" >> $fogprogramdir/.fogsettings
             grep -q "blexports=" $fogprogramdir/.fogsettings && \
-                sed -i "s/blexports=.*/blexports='$escblexports'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/blexports=.*/blexports='$blexports'/g" $fogprogramdir/.fogsettings || \
                 echo "blexports='$blexports'" >> $fogprogramdir/.fogsettings
             grep -q "installtype=" $fogprogramdir/.fogsettings && \
-                sed -i "s/installtype=.*/installtype='$escinstalltype'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/installtype=.*/installtype='$installtype'/g" $fogprogramdir/.fogsettings || \
                 echo "installtype='$installtype'" >> $fogprogramdir/.fogsettings
             grep -q "snmysqluser=" $fogprogramdir/.fogsettings && \
-                sed -i "s/snmysqluser=.*/snmysqluser='$escsnmysqluser'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/snmysqluser=.*/snmysqluser='$snmysqluser'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqluser='$snmysqluser'" >> $fogprogramdir/.fogsettings
             grep -q "snmysqlpass=" $fogprogramdir/.fogsettings && \
-                sed -i "s/snmysqlpass=.*/snmysqlpass=\"$escsnmysqlpass\"/g" $fogprogramdir/.fogsettings || \
-                echo "snmysqlpass=\"$escsnmysqlpass\"" >> $fogprogramdir/.fogsettings
+                sed -i "s/snmysqlpass=.*/snmysqlpass=\"$snmysqlpass\"/g" $fogprogramdir/.fogsettings || \
+                echo "snmysqlpass=\"$snmysqlpass\"" >> $fogprogramdir/.fogsettings
             grep -q "snmysqlhost=" $fogprogramdir/.fogsettings && \
-                sed -i "s/snmysqlhost=.*/snmysqlhost='$escsnmysqlhost'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/snmysqlhost=.*/snmysqlhost='$snmysqlhost'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqlhost='$snmysqlhost'" >> $fogprogramdir/.fogsettings
             grep -q "installlang=" $fogprogramdir/.fogsettings && \
-                sed -i "s/installlang=.*/installlang='$escinstalllang'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/installlang=.*/installlang='$installlang'/g" $fogprogramdir/.fogsettings || \
                 echo "installlang='$installlang'" >> $fogprogramdir/.fogsettings
             grep -q "donate=" $fogprogramdir/.fogsettings && \
-                sed -i "s/donate=.*/donate='$escdonate'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/donate=.*/donate='$donate'/g" $fogprogramdir/.fogsettings || \
                 echo "donate='$donate'" >> $fogprogramdir/.fogsettings
             grep -q "storageLocation=" $fogprogramdir/.fogsettings && \
-                sed -i "s/storageLocation=.*/storageLocation='$escstorageLocation'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/storageLocation=.*/storageLocation='$storageLocation'/g" $fogprogramdir/.fogsettings || \
                 echo "storageLocation='$storageLocation'" >> $fogprogramdir/.fogsettings
             grep -q "fogupdateloaded=" $fogprogramdir/.fogsettings && \
-                sed -i "s/fogupdateloaded=.*/fogupdateloaded=$escfogupdateloaded/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/fogupdateloaded=.*/fogupdateloaded=$fogupdateloaded/g" $fogprogramdir/.fogsettings || \
                 echo "fogupdateloaded=$fogupdateloaded" >> $fogprogramdir/.fogsettings
             grep -q "storageftpuser=" $fogprogramdir/.fogsettings && \
                 sed -i "/storageftpuser=/d" $fogprogramdir/.fogsettings
             grep -q "storageftppass=" $fogprogramdir/.fogsettings && \
                 sed -i "/storageftppass=/d" $fogprogramdir/.fogsettings
             grep -q "username=" $fogprogramdir/.fogsettings && \
-                sed -i "s/username=.*/username='$escusername'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/username=.*/username='$username'/g" $fogprogramdir/.fogsettings || \
                 echo "username='$username'" >> $fogprogramdir/.fogsettings
             grep -q "docroot=" $fogprogramdir/.fogsettings && \
-                sed -i "s/docroot=.*/docroot='$escdocroot'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/docroot=.*/docroot='$docroot'/g" $fogprogramdir/.fogsettings || \
                 echo "docroot='$docroot'" >> $fogprogramdir/.fogsettings
             grep -q "webroot=" $fogprogramdir/.fogsettings && \
-                sed -i "s/webroot=.*/webroot='$escwebroot'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/webroot=.*/webroot='$webroot'/g" $fogprogramdir/.fogsettings || \
                 echo "webroot='$webroot'" >> $fogprogramdir/.fogsettings
             grep -q "caCreated=" $fogprogramdir/.fogsettings && \
-                sed -i "s/caCreated=.*/caCreated='$esccaCreated'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/caCreated=.*/caCreated='$caCreated'/g" $fogprogramdir/.fogsettings || \
                 echo "caCreated='$caCreated'" >> $fogprogramdir/.fogsettings
             grep -q "startrange=" $fogprogramdir/.fogsettings && \
-                sed -i "s/startrange=.*/startrange='$escstartrange'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/startrange=.*/startrange='$startrange'/g" $fogprogramdir/.fogsettings || \
                 echo "startrange='$startrange'" >> $fogprogramdir/.fogsettings
             grep -q "endrange=" $fogprogramdir/.fogsettings && \
-                sed -i "s/endrange=.*/endrange='$escendrange'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/endrange=.*/endrange='$endrange'/g" $fogprogramdir/.fogsettings || \
                 echo "endrange='$endrange'" >> $fogprogramdir/.fogsettings
             grep -q "bootfilename=" $fogprogramdir/.fogsettings && \
-                sed -i "s/bootfilename=.*/bootfilename='$escbootfilename'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/bootfilename=.*/bootfilename='$bootfilename'/g" $fogprogramdir/.fogsettings || \
                 echo "bootfilename='$bootfilename'" >> $fogprogramdir/.fogsettings
             grep -q "packages=" $fogprogramdir/.fogsettings && \
-                sed -i "s/packages=.*/packages='$escpackages'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/packages=.*/packages='$packages'/g" $fogprogramdir/.fogsettings || \
                 echo "packages='$packages'" >> $fogprogramdir/.fogsettings
             grep -q "noTftpBuild=" $fogprogramdir/.fogsettings && \
-                sed -i "s/noTftpBuild=.*/noTftpBuild='$escnoTftpBuild'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/noTftpBuild=.*/noTftpBuild='$noTftpBuild'/g" $fogprogramdir/.fogsettings || \
                 echo "noTftpBuild='$noTftpBuild'" >> $fogprogramdir/.fogsettings
             grep -q "notpxedefaultfile=" $fogprogramdir/.fogsettings && \
                 sed -i "s/notpxedefaultfile=.*/notpxedefaultfile='$notpxedefaultfile'/g" $fogprogramdir/.fogsettings || \
-                echo "notpxedefaultfile='$escnotpxedefaultfile'" >> $fogprogramdir/.fogsettings
+                echo "notpxedefaultfile='$notpxedefaultfile'" >> $fogprogramdir/.fogsettings
             grep -q "sslpath=" $fogprogramdir/.fogsettings && \
-                sed -i "s/sslpath=.*/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/sslpath=.*/sslpath='$sslpath'/g" $fogprogramdir/.fogsettings || \
                 echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
             grep -q "backupPath=" $fogprogramdir/.fogsettings && \
                 sed -i "s/backupPath=.*/backupPath='$esbackupPath'/g" $fogprogramdir/.fogsettings || \
@@ -1701,7 +1701,7 @@ class Config {
         define('DATABASE_HOST','$snmysqlhost');
         define('DATABASE_NAME','fog');
         define('DATABASE_USERNAME','$snmysqluser');
-        define('DATABASE_PASSWORD','$escsnmysqlpass');
+        define('DATABASE_PASSWORD','$snmysqlpass');
     }
     /** @function svc_setting() Defines the service settings
      * (e.g. FOGMulticastManager)
