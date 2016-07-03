@@ -522,6 +522,7 @@ while [[ -z $blGo ]]; do
                         echo
                     else
                         registerStorageNode
+                        updateStorageNodeCredentials
                         echo
                         echo " * Setup complete"
                         echo
@@ -560,6 +561,7 @@ while [[ -z $blGo ]]; do
                     configureNFS
                     writeUpdateFile
                     linkOptFogDir
+                    updateStorageNodeCredentials
                     echo
                     echo " * Setup complete"
                     echo
