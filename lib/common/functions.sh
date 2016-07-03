@@ -615,6 +615,7 @@ installPackages() {
             ;;
     esac
     errorStat $?
+    packages=$(echo "${packages[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
     dots "Preparing Package Manager"
     $packmanUpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ $osid -eq 2 ]]; then
@@ -690,7 +691,7 @@ installPackages() {
         DEBIAN_FRONTEND=noninteractive $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
     done
-    packages=$(echo $newPackList)
+    packages=$(echo "${newPackList[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
     dots "Updating packages as needed"
     DEBIAN_FRONTEND=noninteractive $packageupdater $packages >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     echo "OK"
@@ -1103,43 +1104,79 @@ clearScreen() {
 writeUpdateFile() {
     tmpDte=$(date +%c)
     replace='s/[]\/$*.^|[]/\\&/g';
-    escversion=$(echo $version | sed -e $replace)
-    esctmpDte=$(echo $tmpDate | sed -e $replace)
-    escipaddress=$(echo $ipaddress | sed -e $replace)
-    escinterface=$(echo $interface | sed -e $replace)
-    escsubmask=$(echo $submask | sed -e $replace)
-    escrouteraddress=$(echo $routeraddress | sed -e $replace)
-    escplainrouter=$(echo $plainrouter | sed -e $replace)
-    escdnsaddress=$(echo $dnsaddress | sed -e $replace)
-    escpassword=$(echo $password | sed -e $replace -e "s/[']{1}/'''/g")
-    escosid=$(echo $osid | sed -e $replace)
-    escosname=$(echo $osname | sed -e $replace)
-    escdodhcp=$(echo $dodhcp | sed -e $replace)
-    escbldhcp=$(echo $bldhcp | sed -e $replace)
-    escdhcpd=$(echo $dhcpd | sed -e $replace)
-    escblexports=$(echo $blexports | sed -e $replace)
-    escinstalltype=$(echo $installtype | sed -e $replace)
-    escsnmysqluser=$(echo $snmysqluser | sed -e $replace)
-    escsnmysqlpass=$(echo $snmysqlpass | sed -e $replace -e "s/[']{1}/'''/g")
-    escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
-    escinstalllange=$(echo $installlang | sed -e $replace)
-    escdonate=$(echo $donate | sed -e $replace)
-    escstorageLocation=$(echo $storageLocation | sed -e $replace)
-    escfogupdateloaded=$(echo $fogupdateloaded | sed -e $replace)
-    escusername=$(echo $username | sed -e $replace)
-    escdocroot=$(echo $docroot | sed -e $replace)
-    escwebroot=$(echo $webroot | sed -e $replace)
-    esccaCreated=$(echo $caCreated | sed -e $replace)
-    escstartrange=$(echo $startrange | sed -e $replace)
-    escendrange=$(echo $endrange | sed -e $replace)
-    escbootfilename=$(echo $bootfilename | sed -e $replace)
-    escpackages=$(echo "$packages" | sed -e $replace)
-    escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
-    escnotpxedefaultfile=$(echo $notpxedefaultfile | sed -e $replace)
-    escsslpath=$(echo $sslpath | sed -e $replace)
-    escbackupPath=$(echo $backupPath | sed -e $replace)
-    escphp_ver=$(echo $php_ver | sed -e $replace)
-    escphp_verAdds=$(echo $php_verAdds | sed -e $replace)
+    printf -v escversion "%q" "$version"
+    printf -v esctmpDte "%q" "$tmpDte"
+    printf -v escipaddress "%q" "$ipaddress"
+    printf -v escinterface "%q" "$interface"
+    printf -v escsubmask "%q" "$submask"
+    printf -v escrouteraddress "%q" "$routeraddress"
+    printf -v escplainrouter "%q" "$plainrouter"
+    printf -v escdnsaddress "%q" "$dnsaddress"
+    printf -v escusername "%s" "$username"
+    printf -v escpassword "%q" "$password"
+    printf -v escosid "%q" "$osid"
+    printf -v escosname "%q" "$osname"
+    printf -v escdodhcp "%q" "$dodhcp"
+    printf -v escbldhcp "%q" "$bldhcp"
+    printf -v escdhcpd "%q" "$dhcpd"
+    printf -v escblexports "%q" "$blexports"
+    printf -v escinstalltype "%q" "$installtype"
+    printf -v escsnmysqluser "%q" "$snmysqluser"
+    printf -v escsnmysqlpass "%q" "$snmysqlpass"
+    printf -v escsnmysqlhost "%q" "$snmysqlhost"
+    printf -v escinstalllang "%q" "$installlang"
+    printf -v escdonate "%q" "$donate"
+    printf -v escstorageLocation "%q" "$storageLocation"
+    printf -v escfogupdateloaded "%q" "$fogupdateloaded"
+    printf -v escdocroot "%q" "$docroot"
+    printf -v escwebroot "%q" "$webroot"
+    printf -v esccaCreated "%q" "$caCreated"
+    printf -v escsslpath "%q" "$sslpath"
+    printf -v escstartrange "%q" "$startrange"
+    printf -v escendrange "%q" "$endrange"
+    printf -v escbootfilename "%q" "$bootfilename"
+    printf -v escpackages "%q" "$packages"
+    printf -v escnoTftpBuild "%q" "$noTftpBuild"
+    printf -v escnotpxedefaultfile "%q" "$notpxedefaultfile"
+    printf -v escbackupPath "%q" "$backupPath"
+    printf -v escphp_ver "%q" "$php_ver"
+    printf -v escphp_verAdds "%q" "$php_verAdds"
+    #esctmpDte=$(echo $tmpDate | sed -e $replace)
+    #escipaddress=$(echo $ipaddress | sed -e $replace)
+    #escinterface=$(echo $interface | sed -e $replace)
+    #escsubmask=$(echo $submask | sed -e $replace)
+    #escrouteraddress=$(echo $routeraddress | sed -e $replace)
+    #escplainrouter=$(echo $plainrouter | sed -e $replace)
+    #escdnsaddress=$(echo $dnsaddress | sed -e $replace)
+    #escusername=$(echo $username | sed -e $replace)
+    #escpassword=$(echo $password | sed -e $replace -e "s/[']{1}/'''/g" -e "s/[\"]{1}/\"\"\"/g" -e "s/[$]{1}/[\\$]/g")
+    #escosid=$(echo $osid | sed -e $replace)
+    #escosname=$(echo $osname | sed -e $replace)
+    #escdodhcp=$(echo $dodhcp | sed -e $replace)
+    #escbldhcp=$(echo $bldhcp | sed -e $replace)
+    #escdhcpd=$(echo $dhcpd | sed -e $replace)
+    #escblexports=$(echo $blexports | sed -e $replace)
+    #escinstalltype=$(echo $installtype | sed -e $replace)
+    #escsnmysqluser=$(echo $snmysqluser | sed -e $replace)
+    #escsnmysqlpass=$(echo $snmysqlpass | sed -e $replace -e "s/[']{1}/'''/g" -e "s/[\"]{1}/\"\"\"/g" -e "s/[$]{1}/[\\$]/g")
+    #escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
+    #escinstalllange=$(echo $installlang | sed -e $replace)
+    #escdonate=$(echo $donate | sed -e $replace)
+    #escstorageLocation=$(echo $storageLocation | sed -e $replace)
+    #escfogupdateloaded=$(echo $fogupdateloaded | sed -e $replace)
+    #escdocroot=$(echo $docroot | sed -e $replace)
+    #escwebroot=$(echo $webroot | sed -e $replace)
+    #esccaCreated=$(echo $caCreated | sed -e $replace)
+    #escsslpath=$(echo $sslpath | sed -e $replace)
+    #escstartrange=$(echo $startrange | sed -e $replace)
+    #escendrange=$(echo $endrange | sed -e $replace)
+    #escbootfilename=$(echo $bootfilename | sed -e $replace)
+    #escpackages=$(echo $packages | sed -e $replace)
+    #escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
+    #escnotpxedefaultfile=$(echo $notpxedefaultfile | sed -e $replace)
+    #escbackupPath=$(echo $backupPath | sed -e $replace)
+    #escphp_ver=$(echo $php_ver | sed -e $replace)
+    #escphp_verAdds=$(echo $php_verAdds | sed -e $replace)
     if [[ -f $fogprogramdir/.fogsettings ]]; then
         grep -q "^## Start of FOG Settings" $fogprogramdir/.fogsettings || grep -q "^## Version:.*" $fogprogramdir/.fogsettings
         if [[ $? == 0 ]]; then
@@ -1664,7 +1701,7 @@ class Config {
         define('DATABASE_HOST','$snmysqlhost');
         define('DATABASE_NAME','fog');
         define('DATABASE_USERNAME','$snmysqluser');
-        define('DATABASE_PASSWORD',\"$snmysqlpass\");
+        define('DATABASE_PASSWORD','$escsnmysqlpass');
     }
     /** @function svc_setting() Defines the service settings
      * (e.g. FOGMulticastManager)
