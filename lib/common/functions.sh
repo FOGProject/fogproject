@@ -853,7 +853,7 @@ enableInitScript() {
                 ;;
             *)
                 dots "Setting $serviceItem script executable"
-                chmod 755 $initdpath/$serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                chmod +x $initdpath/$serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 errorStat $?
                 case $osid in
                     1)
