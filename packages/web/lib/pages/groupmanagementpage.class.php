@@ -83,7 +83,7 @@ class GroupManagementPage extends FOGPage {
             '${formField}',
         );
         $fields = array(
-            _('Group Name') => sprintf('<input type="text" name="name" value="%s"/>',$_REQUEST['name']),
+            _('Group Name') => sprintf('<input type="text" class="groupname-input" name="name" value="%s"/>',$_REQUEST['name']),
             _('Group Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
             _('Group Kernel') => sprintf('<input type="text" name="kern" value="%s"/>',$_REQUEST['kern']),
             _('Group Kernel Arguments') => sprintf('<input type="text" name="args" name="%s"/>',$_REQUEST['args']),
@@ -178,7 +178,7 @@ class GroupManagementPage extends FOGPage {
             '${input}',
         );
         $fields = array(
-            _('Group Name') => sprintf('<input type="text" name="name" value="%s"/>',$this->obj->get('name')),
+            _('Group Name') => sprintf('<input type="text" class="groupname-input" name="name" value="%s"/>',$this->obj->get('name')),
             _('Group Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
             _('Group Product Key') => sprintf('<input id="productKey" type="text" name="key" value="%s"/>',$this->aesdecrypt($groupKeyMatch)),
             _('Group Kernel') => sprintf('<input type="text" name="kern" value="%s"/>',$this->obj->get('kernel')),

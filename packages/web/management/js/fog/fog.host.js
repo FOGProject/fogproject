@@ -21,7 +21,7 @@ function removeMACField() {
     });
 }
 function MACChange(data) {
-    validateInputs(data,/^(?:[0-9A-Fa-f]{2}([-:]))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}|(?:[0-9A-Fa-f]{12})|(?:[0-9A-Fa-f]{4}([.])){2}[0-9A-Fa-f]{4}$/);
+    validateInputs(data,/^(?:[0-9A-Fa-f]{2}([-:]))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^(?:[0-9A-Fa-f]{12})$|^(?:[0-9A-Fa-f]{4}([.])){2}[0-9A-Fa-f]{4}$/);
     if (MACLookupTimer) clearTimeout(MACLookupTimer);
     MACLookupTimer = setTimeout(function(e) {
         $('#primaker').load('?sub=getmacman&prefix='+mac);
