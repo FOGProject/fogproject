@@ -18,8 +18,8 @@ try {
                 ->set('percent',trim($str[5]))
                 ->set('pct',trim($str[5]))
                 ->save();
-            if ($str[6] > $Image->get('size')) $Image->set('size',$str[6])->save();
         }
+        if (floatval($str[6]) > floatval($Image->set('size'))) $Image->set('size',floatval($str[6])+floatval($Image->get('size')))->save();
     }
 } catch (Exception $e) {
     echo $e->getMessage();
