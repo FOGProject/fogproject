@@ -134,7 +134,7 @@ class Page extends FOGBase {
             }
         } else if (!self::$isMobile) {
             $files = array(
-                'js/jquery-latest.js',
+                'js/jquery-latest.min.js',
                 'js/jquery.tipsy.js',
                 'js/jquery.progressbar.js',
                 'js/fog/fog.js',
