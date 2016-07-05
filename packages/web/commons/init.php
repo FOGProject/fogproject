@@ -48,7 +48,7 @@ class Initiator {
     }
     public static function sanitize_items(&$value = '') {
         $sanitize_items = function(&$val,&$key) use (&$value) {
-            if (is_string($val)) $value[$key] = htmlspecialchars($val,ENT_QUOTES,'utf-8');
+            if (is_string($val)) $value[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
             if (is_array($val)) self::sanitize_items($value[$key]);
         };
         if (!count($value)) {

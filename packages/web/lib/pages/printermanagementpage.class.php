@@ -13,7 +13,7 @@ class PrinterManagementPage extends FOGPage {
                 $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
-                self::$foglang['Printer'] => stripslashes($this->obj->get('name')),
+                self::$foglang['Printer'] => $this->obj->get('name'),
                 self::$foglang['Type'] => $this->config,
             );
         }
@@ -57,7 +57,7 @@ class PrinterManagementPage extends FOGPage {
             $config = stripos($Printer->get('config'),'local') !== false ? _('TCP/IP') : $Printer->get('config');
             $this->data[] = array(
                 'id'=>$Printer->get('id'),
-                'name'=>$Printer->get('name'),
+                'name'=>str_replace('\\','\\\\',$Printer->get('name')),
                 'config'=>$config,
                 'model'=>$Printer->get('model'),
                 'port'=>$Printer->get('port'),
@@ -114,7 +114,7 @@ class PrinterManagementPage extends FOGPage {
         );
         switch (strtolower($_REQUEST['printertype'])) {
         case 'network':
-            $fields[addslashes('e.g. \\\\printerserver\printername')] = '&nbsp;';
+            $fields['e.g. \\\\\\\\printerserver\\\\printername'] = '&nbsp;';
             break;
         case 'cups':
             $fields = array_merge($fields, array(sprintf('%s*',_('Printer INF File')) => '<input type="text" name="inf" value="${printer_inf}"/>',sprintf('%s*',_('Printer IP')) => '<input type="text" name="ip" value="${printer_ip}"/>'));
@@ -204,7 +204,7 @@ class PrinterManagementPage extends FOGPage {
         }
     }
     public function edit() {
-        $this->title = sprintf('%s: %s', _('Edit'), stripslashes($this->obj->get('name')));
+        $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         echo '<div id="tab-container">';
         unset($this->headerData);
         $this->attributes = array(
@@ -234,7 +234,7 @@ class PrinterManagementPage extends FOGPage {
             $fields = array(
                 _('Printer Description')=>'<textarea name="description" rows="8" cols="40">${desc}</textarea>',
                 sprintf('%s*',_('Printer Alias'))=>'<input type="text" name="alias" value="${printer_name}"/>',
-                addslashes('e.g. \\\\printerserver\\printername')=>'&nbsp;',
+                'e.g. \\\\\\\\printerserver\\\\printername'=>'&nbsp;',
             );
             break;
         case 'cups':
@@ -269,13 +269,13 @@ class PrinterManagementPage extends FOGPage {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
-                'printer_name'=>$this->obj->get('name'),
-                'printer_port'=>$this->obj->get('port'),
-                'printer_model'=>$this->obj->get('model'),
-                'printer_inf'=>$this->obj->get('file'),
-                'printer_ip'=>$this->obj->get('ip'),
-                'printer_configFile'=>$this->obj->get('configFile'),
-                'desc'=>$this->obj->get('description'),
+                'printer_name'=>str_replace('\\','\\\\',$this->obj->get('name')),
+                'printer_port'=>str_replace('\\','\\\\',$this->obj->get('port')),
+                'printer_model'=>str_replace('\\','\\\\',$this->obj->get('model')),
+                'printer_inf'=>str_replace('\\','\\\\',$this->obj->get('file')),
+                'printer_ip'=>str_replace('\\','\\\\',$this->obj->get('ip')),
+                'printer_configFile'=>str_replace('\\','\\\\',$this->obj->get('configFile')),
+                'desc'=>str_replace('\\','\\\\',$this->obj->get('description')),
             );
         }
         unset($input);
