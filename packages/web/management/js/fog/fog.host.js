@@ -7,6 +7,30 @@ $(function() {
     MACUpdate();
     ProductUpdate();
     validateInputs('.hostname-input',/^[\w!@#$%^()\-'{}\.~]{1,15}$/);
+    $('#processgroup').click(function(e) {
+        e.preventDefault();
+        checkedIDs = getChecked();
+        group_new = $('#group_new').val().trim();
+        group_sel = $('select[name="group"]').val().trim();
+        console.log(group_sel);
+        if (checkedIDs.length < 1) {
+            Loader.fogStatusUpdate('No hosts selected to join to a group');
+            return;
+        }
+        if (group_new.length < 1 && group_sel.length < 1) {
+            Loader.fogStatusUpdate('No group name and no selected group to join.');
+            return;
+        }
+        url = $(this).parents('form').attr('action');
+        postdata = {
+            hostIDArray: checkedIDs,
+            group: group_sel,
+            group_new: group_new
+        };
+        $.post(url,postdata,function(data) {
+            Loader.fogStatusUpdate(data);
+        });
+    });
 });
 function removeMACField() {
     $('.remove-mac').click(function(e) {

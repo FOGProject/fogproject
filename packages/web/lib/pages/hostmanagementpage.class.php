@@ -924,20 +924,15 @@ class HostManagementPage extends FOGPage {
         }
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
     }
-    public function save_group() {
+    public function save_group_ajax() {
         try {
-            if (empty($_REQUEST['hostIDArray'])) throw new Exception(_('No Hosts were selected'));
-            if (empty($_REQUEST['group_new']) && empty($_REQUEST['group'])) throw new Exception(_('No Group selected and no new Group name entered'));
-            if (!empty($_REQUEST['group_new'])) {
-                $Group = self::getClass('Group')
-                    ->set('name',$_REQUEST['group_new']);
-                if (!$Group->save()) throw new Exception(_('Failed to create new Group'));
-            } else $Group = self::getClass('Group',$_REQUEST['group']);
-            if (!$Group->isValid()) throw new Exception(_('Group is Invalid'));
-            $Group->addHost(explode(',',$_REQUEST['hostIDArray']))->save();
-            printf('<div class="task-start-ok"><p>%s</p></div>',_('Successfully associated Hosts with the Group '));
+            $Group = self::getClass('Group',$_REQUEST['group']);
+            if (!empty($_REQUEST['group_new'])) $Group->set('name',$_REQUEST['group_new']);
+            $Group->addHost($_REQUEST['hostIDArray']);
+            if (!$Group->save()) throw new Exception(_('Failed to create new Group'));
+            return print _('Successfully associated Hosts with the Group ');
         } catch (Exception $e) {
-            printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>', _('Failed to Associate Hosts with Group'), $e->getMessage());
+            die(sprintf('%s<br/>%s', _('Failed to Associate Hosts with Group'), $e->getMessage()));
         }
     }
     public function hostlogins() {

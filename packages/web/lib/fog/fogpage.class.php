@@ -207,7 +207,7 @@ abstract class FOGPage extends FOGBase {
             echo '</tbody></table>';
             if (((!$sub || ($sub && in_array($sub,$defaultScreens))) && in_array($node,self::$searchPages)) && !self::$isMobile) {
                 if ($this->node == 'host') {
-                    printf('<form method="post" action="%s" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" value="%s"/></p></form>',
+                    printf('<form method="post" action="%s" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" id="processgroup" value="%s"/></p></form>',
                         sprintf('?node=%s&sub=save_group',$this->node),
                         _('Create new group'),
                         _('Add to group'),
