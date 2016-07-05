@@ -924,7 +924,7 @@ class HostManagementPage extends FOGPage {
         }
         $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
     }
-    public function save_group_ajax() {
+    public function save_group() {
         try {
             $Group = self::getClass('Group',$_REQUEST['group']);
             if (!empty($_REQUEST['group_new'])) $Group->set('name',$_REQUEST['group_new']);

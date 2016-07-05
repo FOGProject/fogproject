@@ -3,6 +3,7 @@ class TaskQueue extends TaskingElement {
     public function checkIn() {
         try {
             if ($this->imagingTask) {
+                $this->Task->getImage()->set('size','')->save();
                 if ($this->Task->isMulticast()) {
                     $this->Task
                         ->set('checkinTime',$this->formatTime('','Y-m-d H:i:s'))

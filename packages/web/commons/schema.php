@@ -2194,3 +2194,7 @@ $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`history` CHANGE `hText` `hText` VARCHAR(255) NOT NULL",
     "ALTER TABLE `".DATABASE_NAME."`.`history` ADD UNIQUE INDEX `updateTime` (`hText`,`hTime`)",
 );
+// 229
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`images` CHANGE `imageSize` `imageSize` VARCHAR(255) NOT NULL",
+);
