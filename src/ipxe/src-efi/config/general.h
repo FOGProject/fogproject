@@ -38,7 +38,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #undef	NET_PROTO_IPV6		/* IPv6 protocol */
 #undef	NET_PROTO_FCOE		/* Fibre Channel over Ethernet protocol */
 #define	NET_PROTO_STP		/* Spanning Tree protocol */
-#define	NET_PROTO_LACP          /* Link Aggregation control protocol */
+#define	NET_PROTO_LACP		/* Link Aggregation control protocol */
 
 /*
  * PXE support
@@ -58,7 +58,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define	DOWNLOAD_PROTO_FTP	/* File Transfer Protocol */
 #undef	DOWNLOAD_PROTO_SLAM	/* Scalable Local Area Multicast */
 #define	DOWNLOAD_PROTO_NFS	/* Network File System Protocol */
-#define	DOWNLOAD_PROTO_FILE	/* Local filesystem access */
+//#undef DOWNLOAD_PROTO_FILE	/* Local filesystem access */
 
 /*
  * SAN boot protocols
@@ -104,11 +104,11 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 //#define	IMAGE_NBI		/* NBI image support */
 //#define	IMAGE_ELF		/* ELF image support */
 //#define	IMAGE_MULTIBOOT		/* MultiBoot image support */
-//#define	IMAGE_PXE		/* PXE image support */
-//#define	IMAGE_SCRIPT		/* iPXE script image support */
-//#define	IMAGE_BZIMAGE		/* Linux bzImage image support */
+#define	IMAGE_PXE		/* PXE image support */
+#define	IMAGE_SCRIPT		/* iPXE script image support */
+#define	IMAGE_BZIMAGE		/* Linux bzImage image support */
 //#define	IMAGE_COMBOOT		/* SYSLINUX COMBOOT image support */
-//#define	IMAGE_EFI		/* EFI image support */
+#define	IMAGE_EFI		/* EFI image support */
 //#define	IMAGE_SDI		/* SDI image support */
 //#define	IMAGE_PNM		/* PNM image support */
 #define	IMAGE_PNG		/* PNG image support */
@@ -121,7 +121,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define	NVO_CMD			/* Non-volatile option storage commands */
 #define	CONFIG_CMD		/* Option configuration console */
 #define	IFMGMT_CMD		/* Interface management commands */
-#define	IWMGMT_CMD		/* Wireless interface management commands */
+//#define	IWMGMT_CMD		/* Wireless interface management commands */
 #define IBMGMT_CMD		/* Infiniband management commands */
 #define FCMGMT_CMD		/* Fibre Channel management commands */
 #define	ROUTE_CMD		/* Routing table management commands */
@@ -136,7 +136,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define DIGEST_CMD		/* Image crypto digest commands */
 #define LOTEST_CMD		/* Loopback testing commands */
 #define VLAN_CMD		/* VLAN commands */
-//#define PXE_CMD		/* PXE commands */
+#define PXE_CMD		/* PXE commands */
 #define REBOOT_CMD		/* Reboot command */
 #define POWEROFF_CMD		/* Power off command */
 #define IMAGE_TRUST_CMD	/* Image trust management commands */
@@ -147,6 +147,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define CONSOLE_CMD		/* Console command */
 #define IPSTAT_CMD		/* IP statistics commands */
 //#define PROFSTAT_CMD		/* Profiling commands */
+//#define NTP_CMD		/* NTP commands */
 
 /*
  * ROM-specific options
