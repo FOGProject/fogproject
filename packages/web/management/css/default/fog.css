@@ -16,7 +16,7 @@
     font-style: normal;
 }
 html, body {
-    height: 100%;
+    min-height: 440px;
 }
 body {
     margin: 21px;
