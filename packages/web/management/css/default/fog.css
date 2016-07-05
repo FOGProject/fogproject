@@ -226,6 +226,10 @@ fieldset table tbody td select {
 /* Menu */
 .menu {
     text-align: center;
+	padding:0;
+}
+.menu .nav-list{
+	padding:0;	
 }
 .nav-list .nav-item {
     text-align: center;
@@ -301,10 +305,13 @@ fieldset table tbody td select {
 /* Header */
 header {
     width: 850px;
-    padding-top: 30px;
+    padding-top: 5px;
     border-bottom: 1px solid #efefef;
 }
 /* Logo */
+#logo {
+	height:100px
+}
 #logo h1 {
     font-size: 38px;
     color: #494949;
