@@ -38,7 +38,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #undef	NET_PROTO_IPV6		/* IPv6 protocol */
 #undef	NET_PROTO_FCOE		/* Fibre Channel over Ethernet protocol */
 #define	NET_PROTO_STP		/* Spanning Tree protocol */
-#define	NET_PROTO_LACP          /* Link Aggregation control protocol */
+#define	NET_PROTO_LACP		/* Link Aggregation control protocol */
 
 /*
  * PXE support
@@ -58,7 +58,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define	DOWNLOAD_PROTO_FTP	/* File Transfer Protocol */
 #undef	DOWNLOAD_PROTO_SLAM	/* Scalable Local Area Multicast */
 #define	DOWNLOAD_PROTO_NFS	/* Network File System Protocol */
-#define	DOWNLOAD_PROTO_FILE	/* Local filesystem access */
+//#undef DOWNLOAD_PROTO_FILE	/* Local filesystem access */
 
 /*
  * SAN boot protocols
@@ -147,6 +147,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define CONSOLE_CMD		/* Console command */
 #define IPSTAT_CMD		/* IP statistics commands */
 //#define PROFSTAT_CMD		/* Profiling commands */
+//#define NTP_CMD		/* NTP commands */
 
 /*
  * ROM-specific options
