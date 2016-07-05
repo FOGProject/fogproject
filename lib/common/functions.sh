@@ -387,6 +387,7 @@ installFOGServices() {
     dots "Setting up FOG Services"
     mkdir -p $servicedst
     cp -Rf $servicesrc/* $servicedst/
+    chmod +x -R $servicedst/
     mkdir -p $servicelogs
     errorStat $?
 }
