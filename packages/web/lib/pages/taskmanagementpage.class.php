@@ -170,7 +170,7 @@ class TaskManagementPage extends FOGPage {
                 $Image = $$var->getImage();
                 if (!$Image->isValid()) throw new Exception(_('Invalid image assigned to host'));
                 if ($TaskType->isUpload() && $Image->get('protected')) throw new Exception(sprintf('%s: %s %s',_('Image'),$Image->get('name'),_('is protected')));
-                $taskName = _('Quick Deploy');
+                $taskName = sprintf('%s %s',_('Quick'),$TaskType->get('name'));
             } else if ($type == 'group') {
                 if ($TaskType->isMulticast() && !$$var->doMembersHaveUniformImages()) throw new Exception(_('Hosts do not have the same image assigned'));
                 $taskName = _($TaskType->isMulticast() ? 'Multicast Quick Deploy' : 'Group Quick Deploy');
