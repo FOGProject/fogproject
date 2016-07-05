@@ -12,7 +12,6 @@ $(function() {
         checkedIDs = getChecked();
         group_new = $('#group_new').val().trim();
         group_sel = $('select[name="group"]').val().trim();
-        console.log(group_sel);
         if (checkedIDs.length < 1) {
             Loader.fogStatusUpdate('No hosts selected to join to a group');
             return;
@@ -30,6 +29,9 @@ $(function() {
         $.post(url,postdata,function(data) {
             Loader.fogStatusUpdate(data);
         });
+        setTimeout(function() {
+            Loader.fadeOut();
+        },5000);
     });
 });
 function removeMACField() {
