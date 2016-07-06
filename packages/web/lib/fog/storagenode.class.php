@@ -44,7 +44,6 @@ class StorageNode extends FOGController {
         return self::getClass('StorageGroup',$this->get('storageGroupID'));
     }
     public function getNodeFailure($Host) {
-        if (!$this->get('id')) return;
         $NodeFailure = array_map(function(&$Failed) {
             $CurrTime = self::nice_date();
             if ($CurrTime < self::nice_date($Failed->get('failureTime'))) return $Failed;
@@ -54,7 +53,6 @@ class StorageNode extends FOGController {
         if ($NodeFailure instanceof StorageNode && $NodeFailure->isValid()) return $NodeFailure;
     }
     public function loadLogfiles() {
-        if (!$this->get('id')) return;
         $URL = array_map(function(&$path) {
             return sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($path));
         },array('/var/log/nginx/','/var/log/httpd/','/var/log/apache2/','/var/log/fog','/var/log/php7.0-fpm/','/var/log/php-fpm/','/var/log/php5-fpm/','/var/log/php5.6-fpm/'));
@@ -69,7 +67,6 @@ class StorageNode extends FOGController {
         $this->set('logfiles',array_values((array)$paths));
     }
     public function loadSnapinfiles() {
-        if (!$this->get('id')) return;
         $URL = sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($this->get('snapinpath')));
         $paths = self::$FOGURLRequests->process($URL);
         $paths = array_shift($paths);
@@ -88,7 +85,6 @@ class StorageNode extends FOGController {
         $this->set('snapinfiles',$paths);
     }
     public function loadImages() {
-        if (!$this->get('id')) return;
         $URL = sprintf('http://%s/fog/status/getfiles.php?path=%s',$this->get('ip'),urlencode($this->get('path')));
         $paths = self::$FOGURLRequests->process($URL);
         $paths = array_shift($paths);
@@ -108,25 +104,39 @@ class StorageNode extends FOGController {
         $this->set('images',self::getSubObjectIDs('Image',array('path'=>$paths)));
     }
     public function getClientLoad() {
-        if ($this->get('maxClients') <= 0) return (double)($this->getStorageGroup()->getUsedSlotCount() + $this->getStorageGroup()->getQueuedSlotCount()) / $this->getTotalSupportedClients();
         return (double)($this->getUsedSlotCount() + $this->getQueuedSlotCount()) / $this->get('maxClients');
     }
     public function getUsedSlotCount() {
-        $UsedTasks = explode(',',self::getSetting('FOG_USED_TASKS'));
+        $UsedTasks = array_unique(explode(',',self::getSetting('FOG_USED_TASKS')));
         $countTasks = 0;
-        if (($index = array_search(8,$UsedTasks)) === false) return ($countTasks + self::getClass('TaskManager')->count(array('stateID'=>$this->getProgressState(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
+        $findTasks = array(
+            'stateID' => $this->getProgressState(),
+            'typeID' => $UsedTasks,
+            'NFSMemberID' => $this->get('id'),
+        );
+        $countTasks = self::getClass('TaskManager')->count($findTasks);
+        $index = array_search(8,$UsedTasks);
+        if ($index === false) return $countTasks;
         unset($UsedTasks[$index]);
         $UsedTasks = array_values(array_filter((array)$UsedTasks));
-        $countTasks = count(array_unique(self::getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>self::getSubObjectIDs('Task',array('stateID'=>$this->getProgressState(),'typeID'=>8))),'msID')));
-        return ($countTasks + self::getClass('TaskManager')->count(array('stateID'=>$this->getProgressState(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
+        $MulticastCount = self::getSubObjectIDs('MulticastSessionsAssoc',array('taskID'=>self::getSubObjectIDs('Task',array('stateID'=>$this->getProgressState(),'typeID'=>8))),'msID');
+        $countTasks += count($MulticastCount);
+        return $countTasks;
     }
     public function getQueuedSlotCount() {
-        $UsedTasks = explode(',',self::getSetting('FOG_USED_TASKS'));
+        $UsedTasks = array_unique(explode(',',self::getSetting('FOG_USED_TASKS')));
         $countTasks = 0;
-        if (($index = array_search(8,$UsedTasks)) === false) return ($countTasks + self::getClass('TaskManager')->count(array('stateID'=>$this->getQueuedStates(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
-        unset($UsedTasks[$index]);
+        $findTasks = array(
+            'stateID' => $this->getQueuedStates(),
+            'typeID' => $UsedTasks,
+            'NFSMemberID' => $this->get('id'),
+        );
+        $countTasks = self::getClass('TaskManager')->count($findTasks);
+        $index = array_search(8,$UsedTasks);
+        if ($index === false) return $countTasks;
         $UsedTasks = array_values(array_filter((array)$UsedTasks));
-        $countTasks = count(array_unique(self::getSubObjectIDs('MulticastSessionsAssociation',array('taskID'=>self::getSubObjectIDs('Task',array('stateID'=>$this->getQueuedStates(),'typeID'=>8))),'msID')));
-        return ($countTasks + self::getClass('TaskManager')->count(array('stateID'=>$this->getQueuedStates(),'typeID'=>$UsedTasks,'NFSMemberID'=>$this->get('id'))));
+        $MulticastCount = self::getSubObjectIDs('MulticastSessionsAssoc',array('taskID'=>self::getSubObjectIDs('Task',array('stateID'=>$this->getQueuedStates(),'typeID'=>8))),'msID');
+        $countTasks += count($MulticastCount);
+        return $countTasks;
     }
 }
