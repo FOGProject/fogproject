@@ -108,7 +108,7 @@ abstract class FOGManagerController extends FOGBase {
         $data = array();
         if ($idField) {
             $data = (array)self::$DB->query($query)->fetch('','fetch_all')->get($idField);
-            if ($filter) $data = $filter($data);
+            if ($filter) return $filter($data);
             if (!is_array($data)) return $data;
             if (count($data) === 1) $data = array_shift($data);
             if (empty($filter)) return $data;
