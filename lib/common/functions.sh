@@ -631,7 +631,7 @@ installPackages() {
         fi
     fi
     errorStat $?
-    packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr ' ' '\n')
+    packages=$(echo "${packages[@]}" | tr ' ' '\n' | sort -u | tr ' ' '\n')
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
     newPackList=""
     for x in $packages; do
@@ -693,7 +693,7 @@ installPackages() {
         errorStat $?
     done
     packages=$(echo $newPackList)
-    packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr ' ' '\n')
+    packages=$(echo "${packages[@]}" | tr ' ' '\n' | sort -u | tr ' ' '\n')
     dots "Updating packages as needed"
     DEBIAN_FRONTEND=noninteractive $packageupdater $packages >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     echo "OK"
