@@ -616,7 +616,8 @@ abstract class FOGPage extends FOGBase {
             if (empty($ADUser)) $ADUser = $this->obj->get('ADUser');
             if (empty($ADPass)) $ADPass = $this->obj->get('ADPass');
             if (empty($ADPassLegacy)) $ADPassLegacy = $this->obj->get('ADPassLegacy');
-            $enforce = (string)intval($this->obj->get('enforce'));
+            if (empty($enforce)) $enforce = (string)intval($_REQUEST['enforce']);
+            if (empty($enforce)) $enforce = (string)intval(self::getSetting('FOG_ENFORCE_HOST_CHANGES'));
         }
         $OUs = array_unique(array_filter(explode('|',self::getSetting('FOG_AD_DEFAULT_OU'))));
         if ($this->obj->isValid()) $objOU = trim(preg_replace('#;#','',$this->obj->get('ADOU')));
