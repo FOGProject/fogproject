@@ -678,7 +678,7 @@ class Host extends FOGController {
         return $this->addRemItem('printers',(array)$addArray,'merge');
     }
     public function removePrinter($removeArray) {
-        return $this->addRemItem('printers',(array)$addArray,'diff');
+        return $this->addRemItem('printers',(array)$removeArray,'diff');
     }
     public function addSnapin($addArray) {
         $limit = self::getSetting('FOG_SNAPIN_LIMIT');
