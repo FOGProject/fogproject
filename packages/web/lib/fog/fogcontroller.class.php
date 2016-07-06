@@ -292,10 +292,7 @@ abstract class FOGController extends FOGBase {
                 unset($obj_key,$db_key);
             });
         }
-        $trimPlus = function(&$val,&$key) {
-            return $val = trim(!self::$service ? htmlentities($val,ENT_QUOTES,'utf-8') : $val);
-        };
-        array_walk($classData,$trimPlus);
+        array_walk($classData,'trim');
         $this->data = array_merge((array)$this->data,(array)$classData);
         array_walk($this->databaseFieldClassRelationships,function(&$fields,&$class) use (&$queryData) {
             $class = self::getClass($class);
