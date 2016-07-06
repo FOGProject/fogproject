@@ -131,7 +131,7 @@ class DashboardPage extends FOGPage {
     public function clientcount() {
         if (!($this->obj->isValid() && count($this->obj->get('enablednodes') > 1))) return;
         $ActivityActive = $ActivityQueued = $ActivityTotalClients = 0;
-        $ActivityTotalClients = $this->obj->getTotalSupportedClients();
+        $ActivityTotalClients = $this->obj->getTotalAvailableSlots();
         array_map(function(&$Node) use (&$ActivityActive,&$ActivityQueued,&$ActivityTotalClients) {
             if (!$Node->isValid()) return;
             $curroot = trim(trim($Node->get('webroot'),'/'));
@@ -143,7 +143,6 @@ class DashboardPage extends FOGPage {
             }
             $ActivityActive += $Node->getUsedSlotCount();
             $ActivityQueued += $Node->getQueuedSlotCount();
-            $ActivityTotalClients -= $ActivityActive;
             if ($ActivityTotalClients <= 0) $ActivityTotalClients = 0;
             unset($Node);
         },self::getClass('StorageNodeManager')->find(array('id'=>$this->obj->get('enablednodes'))));
