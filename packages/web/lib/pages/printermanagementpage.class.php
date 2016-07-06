@@ -57,7 +57,7 @@ class PrinterManagementPage extends FOGPage {
             $config = stripos($Printer->get('config'),'local') !== false ? _('TCP/IP') : $Printer->get('config');
             $this->data[] = array(
                 'id'=>$Printer->get('id'),
-                'name'=>str_replace('\\','\\\\',$Printer->get('name')),
+                'name'=>$Printer->get('name'),
                 'config'=>$config,
                 'model'=>$Printer->get('model'),
                 'port'=>$Printer->get('port'),
@@ -269,13 +269,13 @@ class PrinterManagementPage extends FOGPage {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
-                'printer_name'=>str_replace('\\','\\\\',$this->obj->get('name')),
-                'printer_port'=>str_replace('\\','\\\\',$this->obj->get('port')),
-                'printer_model'=>str_replace('\\','\\\\',$this->obj->get('model')),
-                'printer_inf'=>str_replace('\\','\\\\',$this->obj->get('file')),
-                'printer_ip'=>str_replace('\\','\\\\',$this->obj->get('ip')),
-                'printer_configFile'=>str_replace('\\','\\\\',$this->obj->get('configFile')),
-                'desc'=>str_replace('\\','\\\\',$this->obj->get('description')),
+                'printer_name'=>$this->obj->get('name'),
+                'printer_port'=>$this->obj->get('port'),
+                'printer_model'=>$this->obj->get('model'),
+                'printer_inf'=>$this->obj->get('file'),
+                'printer_ip'=>$this->obj->get('ip'),
+                'printer_configFile'=>$this->obj->get('configFile'),
+                'desc'=>$this->obj->get('description'),
             );
         }
         unset($input);

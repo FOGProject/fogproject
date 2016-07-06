@@ -266,16 +266,15 @@ abstract class FOGPage extends FOGBase {
         global $sub;
         global $tab;
         $urlvars = array('node'=>$node,'sub'=>$sub,'tab'=>$tab);
-        preg_match_all('#\$\{(.+?)\}#',implode($this->templates),$foundchanges);
+        preg_match_all('#\$\{(?:.+?)\}#',implode((array)$this->templates),$foundchanges);
         $arrayReplace = array_merge($urlvars,(array)$data);
-        $foundchanges = $foundchanges[1];
-        array_map(function(&$name) use ($arrayReplace) {
+        array_map(function(&$name) use (&$arrayReplace) {
             $this->dataFind[] = sprintf('#\$\{%s\}#',$name);
             $this->dataReplace[] = isset($arrayReplace[$name]) ? $arrayReplace[$name] : '';
-        },(array)$foundchanges);
+        },(array)$foundchanges[1]);
         array_walk($arrayReplace,function(&$val,$name) {
             $this->dataFind[] = sprintf('#\$\{%s\}#',$name);
-            $this->dataReplace[] = isset($val) ? $val : '';
+            $this->dataReplace[] = isset($val) ? str_replace('\\','\\\\',$val) : '';
         });
     }
     public function buildRow($data) {
