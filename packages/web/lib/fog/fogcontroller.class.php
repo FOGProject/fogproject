@@ -293,7 +293,7 @@ abstract class FOGController extends FOGBase {
             });
         }
         $trimPlus = function(&$val,&$key) {
-            return $val = trim(htmlentities($val,ENT_QUOTES,'utf-8'));
+            return $val = trim(!self::$service ? htmlentities($val,ENT_QUOTES,'utf-8') : $val);
         };
         array_walk($classData,$trimPlus);
         $this->data = array_merge((array)$this->data,(array)$classData);
