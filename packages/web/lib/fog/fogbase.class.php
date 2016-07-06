@@ -29,6 +29,7 @@ abstract class FOGBase {
         'host',
         'group',
         'image',
+        'storage',
         'snapin',
         'printer',
         'task',
@@ -86,6 +87,7 @@ abstract class FOGBase {
         $args = func_get_args();
         array_shift($args);
         if (trim(strtolower($class)) === 'reflectionclass') return new ReflectionClass(count($args) === 1 ? $args[0] : $args);
+        if ($class === 'Storage') $class = $_REQUEST['sub'] === 'storage-group' ? 'StorageGroup' : 'StorageNode';
         $obj = new ReflectionClass($class);
         if ($props === true) return $obj->getDefaultProperties();
         return $obj->getConstructor() ? (count($args) === 1 ? $obj->newInstance($args[0]) : $obj->newInstanceArgs($args)) : $obj->newInstanceWithoutConstructor();
@@ -363,7 +365,7 @@ abstract class FOGBase {
         return $input;
     }
     protected function array_change_key(&$array, $old_key, $new_key) {
-        $array[$new_key] = !is_string($array[$old_key]) || self::$service ? $array[$old_key] : htmlentities($array[$old_key],ENT_QUOTES,'utf-8');
+        $array[$new_key] = !self::$service && is_string($array[$old_key]) ? htmlentities($array[$old_key],ENT_QUOTES,'utf-8') :$array[$old_key];
         if ($old_key != $new_key) unset($array[$old_key]);
     }
     protected function byteconvert($kilobytes) {
@@ -540,7 +542,7 @@ abstract class FOGBase {
     }
     public static function getSetting($key) {
         $value = self::getSubObjectIDs('Service',array('name'=>$key),'value');
-        return trim(str_replace('\r\n',"\n",array_shift($value)));
+        return trim(str_replace('\r\n',"\n",is_array($value) ? array_shift($value) : $value));
     }
     public function setSetting($key, $value) {
         self::getClass('ServiceManager')->update(array('name'=>$key),'',array('value'=>trim($value)));

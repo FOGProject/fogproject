@@ -11,10 +11,15 @@ class StorageManagementPage extends FOGPage {
             'storage-group' => self::$foglang['AllSG'],
             'add-storage-group' => self::$foglang['AddSG'],
         );
-        if (in_array($_REQUEST['sub'],array('edit','delete','delete-storage-node','delete_storage_node'))) {
+        global $sub;
+        switch (strtolower($sub)) {
+        case 'edit':
+        case 'delete':
+        case 'delete_storage_node':
+        case 'delete-storage-node':
             if (isset($_REQUEST['id'])) {
                 $this->obj = self::getClass('StorageNode',$_REQUEST['id']);
-                if ( $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
+                if (empty($_REQUEST['id']) || $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
                     unset($this->obj);
                         $this->setMessage(sprintf(_('%s ID %s is not valid'),$this->childClass,$_REQUEST['id']));
                     $this->redirect(sprintf('?node=%s',$this->node));
@@ -29,7 +34,11 @@ class StorageManagementPage extends FOGPage {
                     self::$foglang['FTPPath'] => $this->obj->get('ftppath'),
                 );
             }
-        } else if (in_array($_REQUEST['sub'],array('edit-storage-group','delete-storage-group','edit_storage_group','delete_storage_group'))) {
+            break;
+        case 'edit-storage-group':
+        case 'edit_storage_group':
+        case 'delete-storage-group':
+        case 'delete_storage_group':
             if (isset($_REQUEST['id'])) {
                 $this->obj = self::getClass('StorageGroup',$_REQUEST['id']);
                 if ( $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
@@ -45,6 +54,7 @@ class StorageManagementPage extends FOGPage {
                     sprintf('%s %s',self::$foglang['Storage'],self::$foglang['Group']) => $this->obj->get('name'),
                 );
             }
+            break;
         }
     }
     public function search() {
@@ -69,35 +79,35 @@ class StorageManagementPage extends FOGPage {
             $this->data[] = array_merge((array)$StorageNode->get(),array(
                 'isMasterText'=>($StorageNode->get('isMaster')?'Yes':'No'),
                 'isEnabledText'=>($StorageNode->get('isEnabled')?'Yes':'No'),
-                'isGraphEnabledText'=>($StorageNode->get('isGraphEnabled') ? 'Yes' : 'No'),
                 'storage_group'=>$StorageGroup->get('name'),
+                'max_clients'=>$StorageNode->get('maxClients'),
             ));
         }
         unset($StorageNode);
         $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             self::$foglang['SN'],
             self::$foglang['SG'],
             self::$foglang['Enabled'],
-            self::$foglang['GraphEnabled'],
             self::$foglang['MasterNode'],
-            ''
+            _('Max Clients'),
         );
         // Row templates
         $this->templates = array(
+            '<input type="checkbox" name="node[]" value="${id}" class="toggle-action"/>',
             sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, self::$foglang['Edit']),
-            sprintf('${storage_group}',$this->node,$this->id),
-            sprintf('${isEnabledText}',$this->node,$this->id),
-            sprintf('${isGraphEnabledText}',$this->node,$this->id),
-            sprintf('${isMasterText}',$this->node,$this->id),
-            sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a> <a href="?node=%s&sub=delete&%s=${id}" title="%s"><i class="icon fa fa-minus-circle"></i></a>',$this->node,$this->id,self::$foglang['Edit'],$this->node,$this->id,self::$foglang['Delete'])
+            '${storage_group}',
+            '${isEnabledText}',
+            '${isMasterText}',
+            '${max_clients}',
         );
         $this->attributes = array(
+            array('class'=>'l filter-false','width'=>22),
             array(),
-            array(),
             array('class'=>'c','width'=>90),
             array('class'=>'c','width'=>90),
             array('class'=>'c','width'=>90),
-            array('class'=>'c filter-false','width'=>50),
+            array('class'=>'c'),
         );
         self::$HookManager->processEvent('STORAGE_NODE_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
 
@@ -355,37 +365,39 @@ class StorageManagementPage extends FOGPage {
     }
     public function storage_group() {
         $this->title = self::$foglang['AllSG'];
-        foreach ((array)self::getClass('StorageGroupManager')->find() AS $i => &$StorageGroup) {
-            $this->data[] = $StorageGroup->get();
-            unset($StorageGroup);
-        }
+        array_map(function(&$StorageGroup) {
+            if (!$StorageGroup->isValid()) return;
+            $this->data[] = array(
+                'name' => $StorageGroup->get('name'),
+                'id' => $StorageGroup->get('id'),
+                'max_clients' => $StorageGroup->getTotalSupportedClients(),
+            );
+        },(array)self::getClass('StorageGroupManager')->find());
         $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             self::$foglang['SG'],
-            '',
+            _('Max'),
         );
         $this->templates = array(
-            sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s">${name}</a>',$this->node,$this->id,self::$foglang[Edit]),
-            sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a> <a href="?node=%s&sub=delete-storage-group&%s=${id}" title="%s"><i class="icon fa fa-minus-circle"></i></a>',$this->node,$this->id,self::$foglang[Edit],$this->node,$this->id,self::$foglang[Delete])
+            '<input type="checkbox" name="group[]" value="${id}" class="toggle-action"/>',
+            sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s">${name}</a>',$this->node,$this->id,self::$foglang['Edit']),
+            '${max_clients}',
         );
         // Row attributes
         $this->attributes = array(
+            array('class'=>'l filter-false','width'=>22),
             array(),
-            array('class'=>'c filter-false','width'=>50),
+            array('class'=>'c','width'=>20),
         );
-        unset($this->data);
-        $StorageGroups = self::getClass(StorageGroup)->getManager()->find();
-        foreach ($StorageGroups AS $i => &$StorageGroup) {
-            $this->data[] = $StorageGroup->get();
-        }
-        unset($StorageGroup);
         // Hook
-        self::$HookManager->processEvent(STORAGE_GROUP_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        self::$HookManager->processEvent('STORAGE_GROUP_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         // Output
         $this->render();
+        $this->data = array();
     }
     public function add_storage_group() {
         // Set title
-        $this->title = self::$foglang[AddSG];
+        $this->title = self::$foglang['AddSG'];
         // Header Data
         unset($this->headerData);
         // Attributes
