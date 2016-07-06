@@ -97,8 +97,8 @@ class DashboardPage extends FOGPage {
         array_map(function(&$StorageNode) use (&$data) {
             if (!$StorageNode->isValid()) return;
             $URL = filter_var(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim(self::getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface')),FILTER_SANITIZE_URL);
-            $dataSet = self::$FOGURLRequests->process($URL,'GET');
             if (!self::$FOGURLRequests->isAvailable($URL)) return;
+            $dataSet = self::$FOGURLRequests->process($URL,'GET');
             unset($URL);
             $data[$StorageNode->get('name')] = json_decode(array_shift($dataSet));
             unset($dataSet,$StorageNode);
