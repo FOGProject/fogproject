@@ -93,18 +93,21 @@ class DashboardPage extends FOGPage {
         }
     }
     public function bandwidth() {
-        $data = array();
-        array_map(function(&$StorageNode) use (&$data) {
+        $URLs = $StorageName = array();
+        $Nodes = self::getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1,'isEnabled'=>1));
+        array_map(function(&$StorageNode) use (&$URLs,&$StorageName) {
             if (!$StorageNode->isValid()) return;
+            if (!self::$FOGURLRequests->isAvailable($URL)) return;
             $URL = filter_var(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim(self::getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface')),FILTER_SANITIZE_URL);
             if (!self::$FOGURLRequests->isAvailable($URL)) return;
-            $dataSet = self::$FOGURLRequests->process($URL,'GET');
-            unset($URL);
-            $data[$StorageNode->get('name')] = json_decode(array_shift($dataSet));
-            unset($dataSet,$StorageNode);
-        },self::getClass('StorageNodeManager')->find(array('isGraphEnabled'=>(string)1,'isEnabled'=>1)));
-        echo json_encode((array)$data);
-        unset($data);
+            $URLs[] = $URL;
+            $StorageName[] = $StorageNode->get('name');
+        },(array)$Nodes);
+        $dataSet = array_reverse(self::$FOGURLRequests->process($URLs));
+        $dataSet = array_map(function(&$data) {
+            return json_decode($data,true);
+        },$dataSet);
+        echo json_encode(array_combine($StorageName,$dataSet));
         exit;
     }
     public function diskusage() {
