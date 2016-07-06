@@ -19,6 +19,14 @@ class StorageGroup extends FOGController {
     protected function loadEnablednodes() {
         $this->set('enablednodes',self::getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id'),'id'=>$this->get('allnodes'),'isEnabled'=>1)));
     }
+    public function getTotalAvailableSlots() {
+        $usedSlotCount = array_sum(array_filter(array_map(function(&$StorageNode) {
+            if (!$StorageNode->isValid()) return 0;
+            return $StorageNode->getUsedSlotCount()+$StorageNode->getQueuedSlotCount();
+        },(array)self::getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes'))))));
+        if ($usedSlotCount >= $this->getTotalSupportedClients()) return 0;
+        return $this->getTotalSupportedClients() - $usedSlotCount;
+    }
     public function getTotalSupportedClients() {
         return self::getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes')),'maxClients',false,'AND','name',false,'array_sum');
     }
