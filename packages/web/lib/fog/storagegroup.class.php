@@ -14,17 +14,12 @@ class StorageGroup extends FOGController {
         'enablednodes',
     );
     protected function loadAllnodes() {
-        if (!$this->get('id')) return;
         $this->set('allnodes',self::getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id')),'id'));
     }
     protected function loadEnablednodes() {
-        if (!$this->get('id')) return;
-        if (!$this->isLoaded('allnodes')) $this->loadAllnodes();
         $this->set('enablednodes',self::getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id'),'id'=>$this->get('allnodes'),'isEnabled'=>1)));
     }
     public function getTotalSupportedClients() {
-        if (!$this->get('id')) return;
-        if (!$this->isLoaded('enablednodes')) $this->loadEnablednodes();
         return self::getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes')),'maxClients',false,'AND','name',false,'array_sum');
     }
     public function getMasterStorageNode() {

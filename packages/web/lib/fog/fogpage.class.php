@@ -205,7 +205,7 @@ abstract class FOGPage extends FOGBase {
                 },(array)$this->data);
             }
             echo '</tbody></table>';
-            if (((!$sub || ($sub && in_array($sub,$defaultScreens))) && in_array($node,self::$searchPages)) && !self::$isMobile) {
+            if ((!$sub || $sub === 'storage_group' || (in_array($sub,$defaultScreens)) && in_array($node,self::$searchPages)) && !self::$isMobile) {
                 if ($this->node == 'host') {
                     printf('<form method="post" action="%s" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" id="processgroup" value="%s"/></p></form>',
                         sprintf('?node=%s&sub=save_group',$this->node),
@@ -220,7 +220,7 @@ abstract class FOGPage extends FOGBase {
                         sprintf('?node=%s&sub=deletemulti',$this->node),
                         _('Delete all selected items'),
                         strtolower($this->node),
-                        sprintf(_('Delete all selected %ss'),strtolower($this->node))
+                        sprintf(_('Delete all selected %ss'),strtolower($this->node) !== 'storage' ? strtolower($this->node) : ($sub === 'storage_group' ? strtolower($this->node).' group' : strtolower($this->node).' node'))
                     );
                 }
             }
@@ -519,7 +519,7 @@ abstract class FOGPage extends FOGBase {
         }
     }
     public function deletemulti() {
-        $this->title = _(sprintf("%s's to remove",$this->childClass));
+        $this->title = _(sprintf("%s's to remove",($this->childClass !== 'Storage' ? $this->childClass : sprintf('%s %s',$this->childClass,($_REQUEST['sub'] !== 'storage-group' ? 'Node' : 'Group')))));
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -539,7 +539,7 @@ abstract class FOGPage extends FOGBase {
             unset($Object);
         },(array)self::getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[sprintf('%sIDArray',$this->node)]))))));
         if (count($this->data)) {
-            printf('<div class="confirm-message"><p>%s\'s %s:</p><div id="deleteDiv"></div>',$this->childClass,_('to be removed'),$this->formAction);
+            printf('<div class="confirm-message"><p>%s:</p><div id="deleteDiv"></div>',$this->title,$this->formAction);
             $this->render();
             printf('<p class="c"><input type="submit" name="delete" value="%s?"/></p>',_('Are you sure you wish to remove these items'));
         } else {

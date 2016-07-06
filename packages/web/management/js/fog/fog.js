@@ -83,7 +83,7 @@ function AJAXServerTime() {
     ActionBox = $('#action-box');
     ActionBoxDel = $('#action-boxdel');
     var callme = 'hide';
-    if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
+    if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search','storage-group']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
     ActionBox[callme]();
     ActionBoxDel[callme]();
     setupParserInfo();
