@@ -121,7 +121,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             if (self::getClass('SnapinTaskManager')->count(array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) < 1) {
                 $this->Host->get('snapinjob')->set('stateID',$this->getCompleteState())->save();
                 if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getCompleteState())->save();
-                self::$EventManager->notify('HOST_SNAPIN_COMPLETE',array('HostName'=>&$HostName));
+                self::$EventManager->notify('HOST_SNAPIN_COMPLETE',array('HostName'=>&$HostName,'Host'=>&$this->Host));
             }
         }
     }
@@ -132,7 +132,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         if (self::getClass('SnapinTaskManager')->count(array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) < 1) {
             if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getCompleteState())->save();
             $this->Host->get('snapinjob')->set('stateID',$this->getCompleteState())->save();
-            self::$EventManager->notify('HOST_SNAPIN_COMPLETE',array('HostName'=>&$HostName));
+            self::$EventManager->notify('HOST_SNAPIN_COMPLETE',array('HostName'=>&$HostName,'Host'=>&$this->Host));
             throw new Exception('#!ns');
         }
         $this->Host->get('snapinjob')->set('stateID',$this->getCheckedInState())->save();
@@ -246,7 +246,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             if (self::getClass('SnapinTaskManager')->count(array('jobID'=>$this->Host->get('snapinjob')->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) < 1) {
                 $this->Host->get('snapinjob')->set('stateID',$this->getCompleteState())->save();
                 if ($this->Host->get('task')->isValid()) $this->Host->get('task')->set('stateID',$this->getCompleteState())->save();
-                self::$EventManager->notify('HOST_SNAPIN_COMPLETE',array('HostName'=>&$HostName));
+                self::$EventManager->notify('HOST_SNAPIN_COMPLETE',array('HostName'=>&$HostName,'Host'=>&$this->Host));
             }
         }
     }
