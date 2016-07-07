@@ -3,6 +3,7 @@ $(function() {
     $.ajax({
         url: '../status/mainversion.php',
         dataType: 'json',
+        timeout: 1000,
         success: function(data) {
             $('#latestInfo').append(data);
         },
