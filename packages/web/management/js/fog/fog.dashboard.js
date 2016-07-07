@@ -181,7 +181,7 @@ function UpdateBandwidth() {
         },
         dataType: 'json',
         success: function(data) {
-            setTimeout(UpdateBandwidthGraph,500);
+            setTimeout(UpdateBandwidthGraph(data),500);
         },
         error: function(jqXHR, textStatus) {
             console.log(textStatus);
