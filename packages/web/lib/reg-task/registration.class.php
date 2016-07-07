@@ -40,7 +40,7 @@ class Registration extends FOGBase {
             $productKey = $_REQUEST['productKey'];
             $username = $_REQUEST['username'];
             $host = $_REQUEST['host'];
-            $host = strtoupper((self::getClass('Host')->isHostnameSafe($host) ? $host : $this->macsimple));
+            $host = self::getClass('Host')->isHostnameSafe($host) ? $host : $this->macsimple;
             $ip = $_REQUEST['ip'];
             $imageid = $_REQUEST['imageid'];
             $imageid = (self::getClass('Image',$imageid)->isValid() ? $imageid : 0);
