@@ -10,13 +10,12 @@ class ImageReplicator extends FOGService {
         static::$zzz = ($zzz ? $zzz : 600);
     }
     private function commonOutput() {
-        try {
-            $StorageNodes = $this->checkIfNodeMaster();
-            foreach ((array)$StorageNodes AS $StorageNode) {
+        $StorageNodes = $this->checkIfNodeMaster();
+        foreach ((array)$StorageNodes AS $StorageNode) {
+            try {
                 $myStorageGroupID = $StorageNode->get('storageGroupID');
                 self::out(' * I am the group manager',static::$dev);
                 self::wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
-                if (count($myStorageGroupID) === 1) $myStorageGroupID = array_shift($myStorageGroupID);
                 $myStorageNodeID = $StorageNode->get('id');
                 self::outall(" * Starting Image Replication.");
                 self::outall(sprintf(" * We are group ID: #%s",$myStorageGroupID));
@@ -47,12 +46,12 @@ class ImageReplicator extends FOGService {
                     unset($Image);
                 }
                 unset($Images);
-                unset($StorageNode);
+            } catch (Exception $e) {
+                self::outall(' * '.$e->getMessage());
             }
-            unset($StorageNodes);
-        } catch (Exception $e) {
-            self::outall(' * '.$e->getMessage());
+            unset($StorageNode);
         }
+        unset($StorageNodes);
     }
     public function serviceRun() {
         self::out(' ',static::$dev);
