@@ -56,7 +56,7 @@ abstract class TaskingElement extends FOGBase {
     }
     protected function ImageLog($checkin = false) {
         if ($checkin === true) {
-            self::getClass('ImagingLogManager')->destroy(array('finish'=>'0000-00-00 00:00:00'));
+            self::getClass('ImagingLogManager')->destroy(array('hostID'=>$this->Host->get('id'),'finish'=>'0000-00-00 00:00:00'));
             return self::getClass('ImagingLog')
             ->set('hostID',$this->Host->get('id'))
             ->set('start',$this->formatTime('','Y-m-d H:i:s'))
