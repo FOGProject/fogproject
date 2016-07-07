@@ -36,6 +36,7 @@ class TaskQueue extends TaskingElement {
                         $totalSlots = $this->StorageGroup->getTotalSupportedClients();
                         $usedSlots = $this->StorageGroup->getUsedSlotCount();
                         $inFront = $this->Task->getInFrontOfHostCount();
+                        self::$HookManager->processEvent('TASK_LIMIT',array('StorageNode'=>&$this->StorageNode,'Host'=>&$this->Host,'totalSlots'=>&$totalSlots,'usedSlots'=>&$usedSlots,'inFront'=>&$inFront,'Host'=>&$this->Host));
                         $groupOpenSlots = $totalSlots - $usedSlots;
                         if ($groupOpenSlots < 1) throw new Exception(sprintf('%s, %s %d %s',_('No open slots'),_('There are'),$inFront,_('before me.')));
                         if ($groupOpenSlots <= $inFront) throw new Exception(sprintf('%s %d %s',_('There are open slots, but'),$inFront,_('before me')));

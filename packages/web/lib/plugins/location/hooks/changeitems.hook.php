@@ -48,6 +48,13 @@ class ChangeItems extends Hook {
         $arguments['bzImage'] = "http://${ip}${webroot}service/ipxe/$bzImage";
         $arguments['imagefile'] = "http://${ip}${webroot}service/ipxe/$initrd";
     }
+    public function SlotCount($arguments) {
+        if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
+        if (!$StorageNode->isValid()) return;
+        $arguments['totalSlots'] = $arguments['StorageNode']->get('maxClients');
+        $arguments['usedSlots'] = $arguments['StorageNode']->getUsedSlotCount();
+        $arguments['inFront'] = self::getClass('TaskManager')->count(array('stateID'=>array_merge((array)$this->getQueuedStates(),(array)$this->getProgressState()),'NFSMemberID'=>$arguments['StorageNode']->get('id'),'typeID'=>array(1,15,17))) - 1;
+    }
 }
 $ChangeItems = new ChangeItems();
 $HookManager->register('SNAPIN_NODE',array($ChangeItems,'StorageNodeSetting'));
@@ -57,4 +64,5 @@ $HookManager->register('BOOT_TASK_NEW_SETTINGS',array($ChangeItems,'StorageGroup
 $HookManager->register('HOST_NEW_SETTINGS',array($ChangeItems,'StorageNodeSetting'));
 $HookManager->register('HOST_NEW_SETTINGS',array($ChangeItems,'StorageGroupSetting'));
 $HookManager->register('BOOT_TASK_NEW_SETTINGS',array($ChangeItems,'StorageNodeSetting'));
+$HookManager->register('TASK_LIMIT',array($ChangeItems,'SlotCount'));
 //$HookManager->register('HOST_EDIT_AFTER_SAVE',array($ChangeItems,'HostEditAfterSave'));
