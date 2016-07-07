@@ -44,8 +44,8 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
  * PXE support
  *
  */
-//#undef	PXE_STACK		/* PXE stack in iPXE - you want this! */
-//#undef	PXE_MENU		/* PXE menu booting */
+#undef	PXE_STACK		/* PXE stack in iPXE - you want this! */
+#undef	PXE_MENU		/* PXE menu booting */
 
 /*
  * Download protocols
@@ -104,7 +104,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 //#define	IMAGE_NBI		/* NBI image support */
 //#define	IMAGE_ELF		/* ELF image support */
 //#define	IMAGE_MULTIBOOT		/* MultiBoot image support */
-#define	IMAGE_PXE		/* PXE image support */
+#undef	IMAGE_PXE		/* PXE image support */
 #define	IMAGE_SCRIPT		/* iPXE script image support */
 #define	IMAGE_BZIMAGE		/* Linux bzImage image support */
 //#define	IMAGE_COMBOOT		/* SYSLINUX COMBOOT image support */
@@ -136,7 +136,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define DIGEST_CMD		/* Image crypto digest commands */
 #define LOTEST_CMD		/* Loopback testing commands */
 #define VLAN_CMD		/* VLAN commands */
-#define PXE_CMD		/* PXE commands */
+#undef PXE_CMD		/* PXE commands */
 #define REBOOT_CMD		/* Reboot command */
 #define POWEROFF_CMD		/* Power off command */
 #define IMAGE_TRUST_CMD	/* Image trust management commands */
