@@ -17,15 +17,11 @@ class LocationAssociation extends FOGController {
         return self::getClass('Host',$this->get('hostID'));
     }
     public function getStorageGroup() {
-        $Location = $this->getLocation();
-        if (!$Location->isValid()) return;
-        return self::getClass('StorageGroup',$Location->get('storageGroupID'));
+        return $this->getLocation()->getStorageGroup();
     }
     public function getStorageNode() {
         $Location = $this->getLocation();
-        if (!$Location->isValid()) return;
-        if ($Location->get('storageNodeID')) return self::getClass('StorageNode',$Location->get('storageNodeID'));
-        return $this->getStorageGroup()->getOptimalStorageNode($this->getHost()->get('imageID'));
+        return $this->getLocation()->getStorageNode();
     }
     public function isTFTP() {
         $Location = $this->getLocation();

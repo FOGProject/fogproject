@@ -217,13 +217,15 @@ function UpdateBandwidthGraph(data) {
             GraphBandwidthData[i].rx.shift();
         }
         if (data[i] === null) data[i] = {dev: 'Unknown',tx:0,rx:0};
+        data[i].tx = (data[i].tx > 0 ? data[i].tx / bandwidthtime : 0);
+        data[i].rx = (data[i].rx > 0 ? data[i].rx / bandwidthtime : 0);
         // Set the old values and wait one second.
         if (GraphBandwidthData[i].tx_old > 0 && data[i].tx > 0) {
-            tx_rate = Math.round(((data[i].tx - GraphBandwidthData[i].tx_old)) / bandwidthtime);
+            tx_rate = Math.round(((data[i].tx - GraphBandwidthData[i].tx_old)));
             GraphBandwidthData[i].tx.push([Now,tx_rate]);
         } else GraphBandwidthData[i].tx.push([Now,0]);
         if (GraphBandwidthData[i].rx_old > 0 && data[i].rx > 0) {
-            rx_rate = Math.round(((data[i].rx - GraphBandwidthData[i].rx_old)) / bandwidthtime);
+            rx_rate = Math.round(((data[i].rx - GraphBandwidthData[i].rx_old)));
             GraphBandwidthData[i].rx.push([Now,rx_rate]);
         } else  GraphBandwidthData[i].rx.push([Now,0]);
         // Reset the old and new values for the next iteration.
