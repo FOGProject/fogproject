@@ -536,7 +536,7 @@ abstract class FOGPage extends FOGBase {
             );
             array_push($this->additional,sprintf('<p>%s</p>',$Object->get('name')));
             unset($Object);
-        },(array)self::getClass($this->childClass)->getManager()->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[sprintf('%sIDArray',$this->node)]))))));
+        },(array)self::getClass(sprintf('%sManager',$this->childClass))->find(array('id'=>array_filter(array_unique(explode(',',$_REQUEST[sprintf('%sIDArray',$this->node)]))))));
         if (count($this->data)) {
             printf('<div class="confirm-message"><p>%s:</p><div id="deleteDiv"></div>',$this->title,$this->formAction);
             $this->render();
@@ -549,7 +549,7 @@ abstract class FOGPage extends FOGBase {
     public function deletemulti_ajax() {
         if (!self::getClass('User')->password_validate($_POST['fogguiuser'],$_POST['fogguipass'])) die('###'.self::$foglang['InvalidLogin']);
         self::$HookManager->processEvent('MULTI_REMOVE',array('removing'=>&$_REQUEST['remitems']));
-        self::getClass($this->childClass)->getManager()->destroy(array('id'=>$_REQUEST['remitems']));
+        self::getClass(sprintf('%sManager',$this->childClass))->destroy(array('id'=>$_REQUEST['remitems']));
         $this->setMessage(_('All selected items have been deleted'));
         $this->redirect(sprintf('?node=%s',$this->node));
     }
@@ -944,7 +944,7 @@ abstract class FOGPage extends FOGBase {
             array('width'=>150,'class'=>'l'),
         );
         $ClassCall = ($objType ? 'Group' : 'Host');
-        $objects = self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(sprintf('%ssnotinme',strtolower($ClassCall)))));
+        $objects = self::getClass(sprintf('%sManager',$ClassCall))->find(array('id'=>$this->obj->get(sprintf('%ssnotinme',strtolower($ClassCall)))));
         array_walk($objects,function (&$Host,&$index) {
             if (!$Host->isValid()) return;
             $this->data[] = array(
@@ -984,7 +984,7 @@ abstract class FOGPage extends FOGBase {
             '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action"/>',
             sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',strtolower($ClassCall)),
         );
-        $objects = self::getClass($ClassCall)->getManager()->find(array('id'=>$this->obj->get(sprintf('%ss',strtolower($ClassCall)))));
+        $objects = self::getClass(sprintf('%sManager',$ClassCall))->find(array('id'=>$this->obj->get(sprintf('%ss',strtolower($ClassCall)))));
         array_walk($objects,function (&$Host,&$index) {
             if (!$Host->isValid()) return;
             $this->data[] = array(
@@ -1053,7 +1053,8 @@ abstract class FOGPage extends FOGBase {
         );
         $report = self::getClass('ReportMaker');
         $this->array_remove('id',$this->databaseFields);
-        array_walk(self::getClass($this->childClass)->getManager()->find(),function(&$Item,&$index) use(&$report) {
+        $objects = self::getClass(sprintf('%sManager',$this->childClass))->find();
+        array_walk($objects,function(&$Item,&$index) use(&$report) {
             if (!$Item->isValid()) return;
             if ($this->childClass == 'Host') {
                 if (!$Item->get('mac')->isValid()) return;
