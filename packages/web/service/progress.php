@@ -19,7 +19,10 @@ try {
                 ->set('pct',trim($str[5]))
                 ->save();
         }
-        if (strpos($Image->get('size'),trim($str[6])) === false) $Image->set('size',sprintf('%s%s:',trim($Image->get('size')),trim($str[6])))->save();
+        $str[6] = trim($str[6]);
+        if (empty($str[6])) return;
+        if (strpos($Image->get('size'),$str[6]) !== false) return;
+        $Image->set('size',sprintf('%s%s:',trim($Image->get('size')),$str[6]))->save();
     }
 } catch (Exception $e) {
     echo $e->getMessage();
