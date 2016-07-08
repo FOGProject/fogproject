@@ -210,7 +210,7 @@ beginUpload() {
     esac
 }
 findHDDInfo
-echo " * Now FOG will attempt to upload the image using Partclone"
+echo " * Now FOG will attempt to capture the image using Partclone"
 debugPause
 beginUpload
 completeTasking

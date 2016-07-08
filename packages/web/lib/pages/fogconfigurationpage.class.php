@@ -389,8 +389,6 @@ class FOGConfigurationPage extends FOGPage {
         $this->render();
         echo '</form>';
     }
-    public function client_updater_ajax() {
-    }
     public function client_updater_post() {
         try {
             if (!self::getClass('ClientUpdaterManager')->destroy(array('id'=>$_REQUEST['delcu']))) return _('Failed to delete updater file and definition');
@@ -475,7 +473,7 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_CHANGE_HOSTNAME_EARLY',
             'FOG_DISABLE_CHKDSK',
             'FOG_HOST_LOOKUP',
-            'FOG_UPLOADIGNOREPAGEHIBER',
+            'FOG_CAPTUREIGNOREPAGEHIBER',
             'FOG_USE_ANIMATION_EFFECTS',
             'FOG_USE_LEGACY_TASKLIST',
             'FOG_USE_SLOPPY_NAME_LOOKUPS',
@@ -712,9 +710,9 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_DATA_RETURNED' => true,
             // General Settings
             'FOG_USE_SLOPPY_NAME_LOOKUPS' => $checkbox,
-            'FOG_UPLOADRESIZEPCT' => true,
+            'FOG_CAPTURERESIZEPCT' => true,
             'FOG_CHECKIN_TIMEOUT' => true,
-            'FOG_UPLOADIGNOREPAGEHIBER' => $checkbox,
+            'FOG_CAPTUREIGNOREPAGEHIBER' => $checkbox,
             'FOG_USE_ANIMATION_EFFECTS' => $checkbox,
             'FOG_USE_LEGACY_TASKLIST' => $checkbox,
             'FOG_HOST_LOOKUP' => $checkbox,

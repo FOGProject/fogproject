@@ -271,7 +271,7 @@ other2=$(echo $other2 | base64)
 echo " * You entered all required information, "
 askme=""
 while [[ -z $askme ]]; do
-    echo -n "    Would you like to image this computer now? (y/N) "
+    echo -n "    Would you like to deploy image to this computer now? (y/N) "
     read askme
     case $askme in
         [Nn]|[Nn][Oo]|"")
@@ -292,12 +292,14 @@ while [[ -z $askme ]]; do
                 ret=$(wget --post-data="mac=$mac&username=$user64&password=$pass64" -qO - http://${web}service/checkcredentials.php 2>/dev/null)
                 case $ret in
                     '#!ok')
-                        echo " * This host will reboot and imaging will start!"
+                        echo
+                        echo " * This host will reboot and deployment will start!"
                         ret=$tmp
                         realdoimage=$(echo -n 1 | base64)
                         break
                         ;;
                     '#!il')
+                        echo
                         echo " * Error: Invalid Login! ($retry remaining)"
                         let retry-=1
                         ;;

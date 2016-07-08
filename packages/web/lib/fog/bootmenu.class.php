@@ -646,9 +646,9 @@ class BootMenu extends FOGBase {
                 if ($Task->get('NFSMemberID') != $StorageNode->get('id')) $Task->set('NFSMemberID',$StorageNode->get('id'));
                 if ($Task->get('NFSGroupID') != $StorageGroup->get('id')) $Task->set('NFSGroupID',$StorageGroup->get('id'));
                 $Task->save();
-                if ($TaskType->isUpload() || $TaskType->isMulticast()) $StorageNode = $StorageGroup->getMasterStorageNode();
+                if ($TaskType->isCapture() || $TaskType->isMulticast()) $StorageNode = $StorageGroup->getMasterStorageNode();
                 $osid = $Image->get('osID');
-                $storage = escapeshellcmd(in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null);
+                $storage = escapeshellcmd(in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isCapture() ? 'dev/' : '')) : null);
             }
             if ($this->Host && $this->Host->isValid()) $mac = $this->Host->get('mac');
             else $mac = $_REQUEST['mac'];
@@ -731,12 +731,12 @@ class BootMenu extends FOGBase {
                     'active' => self::getSetting('FOG_CHANGE_HOSTNAME_EARLY') && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
                 ),
                 array(
-                    'value' => 'pct='.(is_numeric(self::getSetting('FOG_UPLOADRESIZEPCT')) && self::getSetting('FOG_UPLOADRESIZEPCT') >= 5 && self::getSetting('FOG_UPLOADRESIZEPCT') < 100 ? self::getSetting('FOG_UPLOADRESIZEPCT') : '5'),
-                    'active' => $TaskType->isUpload() && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
+                    'value' => 'pct='.(is_numeric(self::getSetting('FOG_CAPTURERESIZEPCT')) && self::getSetting('FOG_CAPTURERESIZEPCT') >= 5 && self::getSetting('FOG_CAPTURERESIZEPCT') < 100 ? self::getSetting('FOG_CAPTURERESIZEPCT') : '5'),
+                    'active' => $TaskType->isCapture() && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
                 ),
                 array(
-                    'value' => 'ignorepg='.(self::getSetting('FOG_UPLOADIGNOREPAGEHIBER') ? 1 : 0),
-                    'active' => $TaskType->isUpload() && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
+                    'value' => 'ignorepg='.(self::getSetting('FOG_CAPTUREIGNOREPAGEHIBER') ? 1 : 0),
+                    'active' => $TaskType->isCapture() && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
                 ),
                 array(
                     'value' => 'port='.($TaskType->isMulticast() ? $MulticastSession->get('port') : null),

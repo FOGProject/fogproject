@@ -15,7 +15,7 @@ class ImageManagementPage extends FOGPage {
             );
             $this->notes = array(
                 self::$foglang['Images'] => $this->obj->get('name'),
-                self::$foglang['LastUploaded'] => $this->obj->get('deployed'),
+                self::$foglang['LastCaptured'] => $this->obj->get('deployed'),
                 self::$foglang['DeployMethod'] => $this->obj->get('format') ? _('Partimage') : _('Partclone'),
                 self::$foglang['ImageType'] => $this->obj->getImageType() ? $this->obj->getImageType() : self::$foglang['NoAvail'],
                 _('Primary Storage Group') => $this->obj->getStorageGroup()->get('name'),
@@ -32,12 +32,12 @@ class ImageManagementPage extends FOGPage {
         array_push(
             $this->headerData,
             _('Format'),
-            _('Uploaded')
+            _('Captured')
         );
         $this->templates = array(
             '${protected}',
             '<input type="checkbox" name="image[]" value="${id}" class="toggle-action"/>',
-            sprintf('<a href="?node=%s&sub=edit&id=${id}" title="%s: ${name} Last uploaded: ${deployed}">${name} - ${id}</a><br/><small>${storageGroup}: ${os}</small><br/><small>${image_type}</small><br/><small>${image_partition_type}</small>',$this->node,_('Edit')),
+            sprintf('<a href="?node=%s&sub=edit&id=${id}" title="%s: ${name} Last captured: ${deployed}">${name} - ${id}</a><br/><small>${storageGroup}: ${os}</small><br/><small>${image_type}</small><br/><small>${image_partition_type}</small>',$this->node,_('Edit')),
             '${size}',
         );
         $SizeServer ? array_push($this->templates,'${serv_size}') : null;

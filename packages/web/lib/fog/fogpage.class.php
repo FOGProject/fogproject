@@ -425,7 +425,7 @@ abstract class FOGPage extends FOGBase {
             if ($this->obj->isValid()) {
                 if ($this->obj instanceof Host && $imagingTasks) {
                     if(!$this->obj->getImage() || !$this->obj->getImage()->isValid()) throw new Exception(_('You need to assign an image to the host'));
-                    if ($TaskType->isUpload() && $this->obj->getImage()->get('protected')) throw new Exception(_('You cannot upload to this image as it is currently protected'));
+                    if ($TaskType->isCapture() && $this->obj->getImage()->get('protected')) throw new Exception(_('You cannot capture to this image as it is currently protected'));
                     $this->obj->checkIfExist($TaskType->get('id'));
                 } else if ($this->obj instanceof Group && $imagingTasks) {
                     if ($TaskType->isMulticast() && !$this->obj->doMembersHaveUniformImages()) throw new Exception(_('Hosts do not contain the same image assignments'));

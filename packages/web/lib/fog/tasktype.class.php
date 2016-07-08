@@ -44,7 +44,7 @@ class TaskType extends FOGController {
     public function getIcon() {
         return $this instanceof Task ? $this->getTaskType()->get('icon') : $this->get('icon');
     }
-    public function isUpload() {
+    public function isCapture() {
         $id = $this instanceof Task ? 'typeID' : 'id';
         return $this->isValid() && in_array($this->get($id),array(2,16)) || preg_match('#type=(2|16|up)#i',$this->get('kernelArgs'));
     }
@@ -58,9 +58,9 @@ class TaskType extends FOGController {
     }
     public function isSnapinTask() {
         $id = $this instanceof Task ? 'typeID' : 'id';
-        return $this->isValid() && ($this->isDownload() && $this->get($id) != 17) || in_array($this->get($id),array(12,13));
+        return $this->isValid() && ($this->isDeploy() && $this->get($id) != 17) || in_array($this->get($id),array(12,13));
     }
-    public function isDownload() {
+    public function isDeploy() {
         $id = $this instanceof Task ? 'typeID' : 'id';
         return $this->isValid() && in_array($this->get($id),array(1,8,15,17,24)) || preg_match('#type=(1|8|15|17|24|down)#i', $this->get('kernelArgs'));
     }

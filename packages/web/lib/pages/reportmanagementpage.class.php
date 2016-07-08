@@ -156,11 +156,11 @@ class ReportManagementPage extends FOGPage {
             _('End Date'),
             _('End Time'),
             _('Duration'),
-            _('Download/Upload'),
+            _('Deploy/Capture'),
         );
         $imgTypes = array(
-            'up' => _('Upload'),
-            'down' => _('Download'),
+            'up' => _('Capture'),
+            'down' => _('Deploy'),
         );
         foreach ((array)$csvHead AS $i => &$csvHeader) {
             $this->ReportMaker->addCSVCell($csvHeader);
