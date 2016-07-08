@@ -428,7 +428,7 @@ class GroupManagementPage extends FOGPage {
                 $printerLevel == 2 ? ' checked' : '',
                 _('Only FOG Printers')
             );
-            echo '</p>';
+            echo '</p><div class="hostgroup">';
             $this->headerData = array(
                 '<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprint"/>',
                 '',
