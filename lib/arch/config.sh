@@ -48,7 +48,7 @@ elif [[ -e /usr/lib/systemd/system/mysqld.service ]]; then
     ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 fi
 [[ -z $storageLocation ]] && storageLocation="/images"
-[[ -z $storageLocationUplaod ]] && storageLocationUpload="${storageLocation}/dev"
+[[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcpd.conf"
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
 [[ -z $tftpdirdst ]] && tftpdirdst="/srv/tftp"

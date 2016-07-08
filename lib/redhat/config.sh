@@ -89,7 +89,7 @@ fi
 [[ -z $etcconf ]] && etcconf="/etc/httpd/conf.d/fog.conf"
 [[ -z $phpini ]] && phpini="/etc/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
-[[ -z $storageLocationUpload ]] && storageLocationUpload="${storageLocation}/dev"
+[[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcpd.conf"
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
 [[ -z $tftpdirdst ]] && tftpdirdst="/tftpboot"

@@ -428,7 +428,7 @@ class Host extends FOGController {
     }
     public function checkIfExist($taskTypeID) {
         $TaskType = self::getClass('TaskType',$taskTypeID);
-        $isUpload = $TaskType->isUpload();
+        $isCapture = $TaskType->isCapture();
         $Image = $this->getImage();
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = $StorageGroup->getMasterStorageNode();
@@ -521,7 +521,7 @@ class Host extends FOGController {
                 if (!$Image->get('isEnabled')) throw new Exception(_('Image is not enabled'));
                 $StorageGroup = $Image->getStorageGroup();
                 if (!$StorageGroup->isValid()) throw new Exception(self::$foglang['ImageGroupNotValid']);
-                $StorageNode = ($TaskType->isUpload() ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode($this->get('imageID')));
+                $StorageNode = ($TaskType->isCapture() ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode($this->get('imageID')));
                 if (!$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode($this->get('imageID'));
                 if (!$StorageNode->isValid()) throw new Exception(_('Could not find any nodes containing this image'));
                 $imageTaskImgID = $this->get('imageID');
@@ -530,7 +530,7 @@ class Host extends FOGController {
                 if (!in_array($this->get('id'),(array)$hostsWithImgID)) $this->set('imageID',array_shift($realImageID))->save();
                 $this->set('imageID',$imageTaskImgID);
             }
-            $isUpload = $TaskType->isUpload();
+            $isCapture = $TaskType->isCapture();
             $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
             $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageNode->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug,$wol);
             $Task->set('imageID',$this->get('imageID'));

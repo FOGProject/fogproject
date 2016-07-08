@@ -25,7 +25,7 @@ class TaskQueue extends TaskingElement {
                 } else if ($this->Task->isForced()) {
                     self::$HookManager->processEvent('TASK_GROUP',array('StorageGroup'=>&$this->StorageGroup,'Host'=>&$this->Host));
                     $this->StorageNode = $this->Image->getStorageGroup()->getOptimalStorageNode($this->Host->get('imageID'));
-                    if ($this->Task->isUpload()) $this->StorageNode = $this->Image->StorageGroup->getMasterStorageNode();
+                    if ($this->Task->isCapture()) $this->StorageNode = $this->Image->StorageGroup->getMasterStorageNode();
                     self::$HookManager->processEvent('TASK_NODE',array('StorageNode'=>&$this->StorageNode,'Host'=>&$this->Host));
                 } else {
                     if (in_array($this->Task->get('stateID'),array_merge((array)$this->getQueuedState(),(array)$this->getCheckedInState()))) {

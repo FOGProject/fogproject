@@ -11,7 +11,7 @@ class ChangeItems extends Hook {
         $LA = self::getClass('LocationAssociation',@max(self::getSubObjectIDs('LocationAssociation',array('hostID'=>$arguments['Host']->get('id')))));
         if (!$LA->isValid()) return;
         $method = false;
-        if ($arguments['Host']->get('task')->isValid() && ($arguments['Host']->get('task')->isUpload() || $arguments['Host']->get('task')->isMulticast())) $method = 'getMasterStorageNode';
+        if ($arguments['Host']->get('task')->isValid() && ($arguments['Host']->get('task')->isCapture() || $arguments['Host']->get('task')->isMulticast())) $method = 'getMasterStorageNode';
         $arguments['StorageNode'] = $LA->getStorageNode();
         if (!$method) return;
         $arguments['StorageNode'] = $LA->getStorageGroup()->$method();

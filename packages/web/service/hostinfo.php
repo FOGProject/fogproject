@@ -25,7 +25,7 @@ if ($TaskType->isInitNeededTasking()) {
     $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
     $HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
     $osid = $Image->get('osID');
-    $storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : ''));
+    $storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isCapture() ? 'dev/' : ''));
     $ftp = $StorageNode->isValid() ? $StorageNode->get('ip') : self::getSetting('FOG_TFTP_HOST');
     $storageip = $FOGCore->resolveHostname($StorageNode->get('ip'));
     $img = $Image->get('path');
@@ -36,9 +36,9 @@ if ($TaskType->isInitNeededTasking()) {
     $PIGZ_COMP = $Image->get('compress');
     $shutdown = intval((bool)$Task->get('shutdown'));
     $hostearly = intval((bool)FOGCore::getSetting('FOG_CHANGE_HOSTNAME_EARLY'));
-    $pct = FOGCore::getSetting('FOG_UPLOADRESIZEPCT');
+    $pct = FOGCore::getSetting('FOG_CAPTURERESIZEPCT');
     if (!($pct < 100 && $pct > 4)) $pct = 5;
-    $ignorepg = intval((bool)FOGCore::getSetting('FOG_UPLOADIGNOREPAGEHIBER'));
+    $ignorepg = intval((bool)FOGCore::getSetting('FOG_CAPTUREIGNOREPAGEHIBER'));
     list($mining,$miningcores,$miningpath) = FOGCore::getSubObjectIDs('Service',array('name' => array('FOG_MINING_ENABLE','FOG_MINING_MAX_CORES','FOG_MINING_PACKAGE_PATH')),'value',false,'AND','name',false,'');
     if ($TaskType->get('id') === 11) $winuser = $Task->get('passreset');
 }

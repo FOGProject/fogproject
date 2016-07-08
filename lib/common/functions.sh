@@ -1090,13 +1090,13 @@ configureStorage() {
         fi
         chmod -R 777 $storageLocation >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
-    if [[ ! -d $storageLocationUpload ]]; then
-        mkdir $storageLocationUpload >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        chmod -R 777 $storageLocationUpload >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ ! -d $storageLocationCapture ]]; then
+        mkdir $storageLocationCapture >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        chmod -R 777 $storageLocationCapture >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
-    if [[ ! -f $storageLocationUpload/.mntcheck ]]; then
-        touch $storageLocationUpload/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        chmod 777 $storageLocationUpload/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ ! -f $storageLocationCapture/.mntcheck ]]; then
+        touch $storageLocationCapture/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        chmod 777 $storageLocationCapture/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     errorStat $?
 }
@@ -1702,10 +1702,10 @@ class Config {
         define('STORAGE_FTP_USERNAME', \"${username}\");
         define('STORAGE_FTP_PASSWORD', \"${password}\");
         define('STORAGE_DATADIR', '${storageLocation}/');
-        define('STORAGE_DATADIR_UPLOAD', '${storageLocationUpload}');
+        define('STORAGE_DATADIR_CAPTURE', '${storageLocationCapture}');
         define('STORAGE_BANDWIDTHPATH', '/${webroot}status/bandwidth.php');
         define('STORAGE_INTERFACE','${interface}');
-        define('UPLOADRESIZEPCT',5);
+        define('CAPTURERESIZEPCT',5);
         define('WEB_HOST', \"${ipaddress}\");
         define('WOL_HOST', \"${ipaddress}\");
         define('WOL_PATH', '/${webroot}wol/wol.php');
@@ -1721,7 +1721,7 @@ class Config {
         define('FOG_MULTICAST_MAX_SESSIONS',64);
         define('FOG_JPGRAPH_VERSION', '2.3');
         define('FOG_REPORT_DIR', './reports/');
-        define('FOG_UPLOADIGNOREPAGEHIBER',true);
+        define('FOG_CAPTUREIGNOREPAGEHIBER',true);
         define('FOG_DONATE_MINING', \"${donate}\");
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
