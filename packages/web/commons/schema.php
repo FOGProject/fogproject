@@ -1067,6 +1067,7 @@ $this->schema[] = array(
 (12, 'User Tracker', 'usertracker', 'This setting will enable or disable the user tracker service module on this specific host.  If the module is globally disabled, this setting is ignored.');",
 // modulestatusbyhost: Create unique with Host ID and Module ID - this prevents duplicate modules per host
 // TODO: Create function to first remove dups, if not done this query will fail!!
+"DELETE FROM `".DATABASE_NAME."`.`moduleStatusByHost` WHERE `msState`='0'",
 "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='1' WHERE `msModuleID`='dircleanup'",
 "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='2' WHERE `msModuleID`='usercleanup'",
 "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='3' WHERE `msModuleID`='displaymanager'",
@@ -1079,7 +1080,7 @@ $this->schema[] = array(
 "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='10' WHERE `msModuleID`='printermanager'",
 "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='11' WHERE `msModuleID`='taskreboot'",
 "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='12' WHERE `msModuleID`='usertracker'",
-"DELETE FROM `".DATABASE_NAME."`.`moduleStatusByHost` WHERE `msState`='0'",
+"ALTER TABLE `".DATABASE_NAME."`.`moduleStatusByHost` CHANGE `msModuleID` `msModuleID` INT NOT NULL",
 "ALTER TABLE `".DATABASE_NAME."`.`moduleStatusByHost` ADD UNIQUE ( `msHostID` , `msModuleID`)",
 // snapinassoc: Create unique with Host ID and Snapin ID - this prevents duplicate snapins per host
 // TODO: Create function to first remove dups, if not done this query will fail!!
@@ -2215,4 +2216,21 @@ $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttDescription`='Capture - Debug mode allows FOG to setup the environment to allow you capture a specific image from a computer, but instead of capturing the image, FOG will leave you at a prompt right before restoring. If you actually wish to capture the image all you need to do is type \"fog\" and hit enter.' WHERE `ttID`=16",
     "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttDescription`='Deploy without snapins allows FOG to image the workstation, but after the task is complete any snapins linked to the host or group will NOT be sent.' WHERE `ttID`=17",
     "UPDATE `".DATABASE_NAME."`.`pxeMenu` SET `pxeName`='fog.deployimage',`pxeDesc`='Deploy Image' WHERE `pxeName`='fog.quickimage'"
+);
+// 231
+$this->schema[] = array(
+    "DELETE FROM `".DATABASE_NAME."`.`moduleStatusByHost` WHERE `msState`='0'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='1' WHERE `msModuleID`='dircleanup'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='2' WHERE `msModuleID`='usercleanup'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='3' WHERE `msModuleID`='displaymanager'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='4' WHERE `msModuleID`='autologout'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='5' WHERE `msModuleID`='greenfog'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='6' WHERE `msModuleID`='snapin'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='7' WHERE `msModuleID`='clientupdater'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='8' WHERE `msModuleID`='hostregister'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='9' WHERE `msModuleID`='hostnamechanger'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='10' WHERE `msModuleID`='printermanager'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='11' WHERE `msModuleID`='taskreboot'",
+    "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='12' WHERE `msModuleID`='usertracker'",
+    "ALTER TABLE `".DATABASE_NAME."`.`moduleStatusByHost` CHANGE `msModuleID` `msModuleID` INT NOT NULL",
 );
