@@ -376,11 +376,11 @@ INDEX `new_index`(`settingKey`)
                                                                     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                                                                     values('FOG_NFS_DATADIR', '"._("This setting defines the directory on the NFS server where images are stored.  ")."', '" . STORAGE_DATADIR . "', 'NFS Server')",
                                                                         "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                        values('FOG_NFS_DATADIR_UPLOAD', '"._("This setting defines the directory on the NFS server where images are uploaded too.")."', '" . STORAGE_DATADIR_UPLOAD . "', 'NFS Server')",
+                                                                        values('FOG_NFS_DATADIR_CAPTURE', '"._("This setting defines the directory on the NFS server where images are captured too.")."', '" . STORAGE_DATADIR_CAPTURE . "', 'NFS Server')",
                                                                             "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                                                                             values('FOG_NFS_BANDWIDTHPATH', '"._("This setting defines the web page used to acquire the bandwidth used by the nfs server.")."', '" . STORAGE_BANDWIDTHPATH . "', 'NFS Server')",
                                                                                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                values('FOG_UPLOADRESIZEPCT', '"._("This setting defines the amount of padding applied to a partition before attempting resize the ntfs volume and upload it.")."', '" . UPLOADRESIZEPCT . "', 'General Settings')",
+                                                                                values('FOG_CAPTURERESIZEPCT', '"._("This setting defines the amount of padding applied to a partition before attempting resize the ntfs volume and capturing it.")."', '" . CAPTURERESIZEPCT . "', 'General Settings')",
                                                                                     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                                                                                     values('FOG_WEB_HOST', '"._("This setting defines the hostname or ip address of the web server used with fog.")."', '" . WEB_HOST . "', 'Web Server')",
                                                                                         "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
@@ -416,7 +416,7 @@ INDEX `new_index`(`settingKey`)
                                                                                                                                                     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                                                                                                                                                     values('FOG_THEME', '"._("This setting defines what css style sheet and theme to use for FOG.")."', '" . FOG_THEME . "', 'Web Server')",
                                                                                                                                                         "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                                                        values('FOG_UPLOADIGNOREPAGEHIBER', '"._("This setting defines if you would like to remove hibernate and swap files before uploading a Windows image.  ")."', '" . FOG_UPLOADIGNOREPAGEHIBER . "', 'General Settings')",
+                                                                                                                                                        values('FOG_CAPTUREIGNOREPAGEHIBER', '"._("This setting defines if you would like to remove hibernate and swap files before capturing a Windows image.  ")."', '" . FOG_CAPTUREIGNOREPAGEHIBER . "', 'General Settings')",
                                                                                                                                                             "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                                                                                                                                                             values('FOG_CLIENT_DIRECTORYCLEANER_ENABLED', '"._("This setting defines if the Windows Service module directory cleaner should be enabled on client computers. This service is clean out the contents of a directory on when a user logs out of the workstation. (Valid values: 0 or 1).")."', '1', 'FOG Client - Directory Cleaner')",
                                                                                                                                                                 "CREATE TABLE `".DATABASE_NAME."`.`moduleStatusByHost` (
@@ -684,7 +684,7 @@ INDEX `new_index3`(`nfGroupID`)
                 "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_FTP_USERNAME'",
                 "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_FTP_PASSWORD'",
                 "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_DATADIR'",
-                "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_DATADIR_UPLOAD'",
+                "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_DATADIR_CAPTURE'",
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                 values('FOG_STORAGENODE_MYSQLUSER', '"._("This setting defines the username the storage nodes should use to connect to the fog server.")."', '$fogstoragenodeuser', 'FOG Storage Nodes')",
                     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
@@ -981,8 +981,8 @@ $this->schema[] = array(
     PRIMARY KEY (`ttID`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=20 ;",
 "INSERT IGNORE INTO `".DATABASE_NAME."`.`taskTypes` (`ttID`, `ttName`, `ttDescription`, `ttIcon`, `ttKernelTemplate`, `ttType`, `ttIsAdvanced`, `ttIsAccess`) VALUES
-(1, 'Download', 'Deploy action will send an image saved on the FOG server to the client computer with all included snapins.', 'senddebug.png', 'type=down', 'fog', '0', 'both'),
-(2, 'Upload', 'Upload will pull an image from a client computer that will be saved on the server.', 'restoredebug.png', 'type=up', 'fog', '0', 'host'),
+(1, 'Deploy', 'Deploy action will send an image saved on the FOG server to the client computer with all included snapins.', 'senddebug.png', 'type=down', 'fog', '0', 'both'),
+(2, 'Capture', 'Capture will pull an image from a client computer that will be saved on the server.', 'restoredebug.png', 'type=up', 'fog', '0', 'host'),
 (3, 'Debug', 'Debug mode will load the boot image and load a prompt so you can run any commands you wish. When you are done, you must remember to remove the PXE file, by clicking on \"Active Tasks\" and clicking on the \"Kill Task\" button.', 'debug.png', 'type=down mode=debug', 'fog', '1', 'host'),
 (5, 'Memtest86+', 'Memtest86+ loads Memtest86+ on the client computer and will have it continue to run until stopped. When you are done, you must remember to remove the PXE file, by clicking on \"Active Tasks\" and clicking on the \"Kill Task\" button.', 'memtest.png', '', 'fog', '1', 'both'),
 (6, 'Disk Surface Test', 'Disk Surface Test checks the hard drive''s surface sector by sector for any errors and reports back if errors are present.', 'surfacetest.png', '', 'fog', '1', 'both'),
@@ -994,9 +994,9 @@ $this->schema[] = array(
 (12, 'All Snapins', 'This option allows you to send all the snapins to host without imaging the computer. (Requires FOG Client to be installed on client)', 'snap.png', '', 'fog', '1', 'both'),
 (13, 'Single Snapin', 'This option allows you to send a single snapin to a host. (Requires FOG Client to be installed on client)', 'snap.png', '', 'fog', '1', 'both'),
 (14, 'Wake-Up', 'Wake Up will attempt to send the Wake-On-LAN packet to the computer to turn the computer on. In switched environments, you typically need to configure your hardware to allow for this (iphelper).', 'wake.png', '', 'fog', '1', 'both'),
-(15, 'Download - Debug', 'Download - Debug mode allows FOG to setup the environment to allow you send a specific image to a computer, but instead of sending the image, FOG will leave you at a prompt right before sending. If you actually wish to send the image all you need to do is type \"fog\" and hit enter.', 'senddebug.png', 'type=down mode=debug', 'fog', '1', 'host'),
-(16, 'Upload - Debug', 'mode allows FOG to setup the environment to allow you Upload a specific image to a computer, but instead of Upload the image, FOG will leave you at a prompt right before restoring. If you actually wish to Upload the image all you need to do is type \"fog\" and hit enter.', 'restoredebug.png', 'type=up mode=debug', 'fog', '1', 'host'),
-(17, 'Download without Snapins', 'Deploy without snapins allows FOG to image the workstation, but after the task is complete any snapins linked to the host or group will NOT be sent.', 'sendnosnapin.png', '', 'fog', '1', 'both'),
+(15, 'Deploy - Debug', 'Deploy - Debug mode allows FOG to setup the environment to allow you send a specific image to a computer, but instead of sending the image, FOG will leave you at a prompt right before sending. If you actually wish to send the image all you need to do is type \"fog\" and hit enter.', 'senddebug.png', 'type=down mode=debug', 'fog', '1', 'host'),
+(16, 'Capture - Debug', 'mode allows FOG to setup the environment to allow you capture a specific image to a computer, but instead of capturing the image, FOG will leave you at a prompt right before restoring. If you actually wish to capture the image all you need to do is type \"fog\" and hit enter.', 'restoredebug.png', 'type=up mode=debug', 'fog', '1', 'host'),
+(17, 'Deploy without Snapins', 'Deploy without snapins allows FOG to image the workstation, but after the task is complete any snapins linked to the host or group will NOT be sent.', 'sendnosnapin.png', '', 'fog', '1', 'both'),
 (18, 'Fast Wipe', 'Full Wipe will boot the client computer and perform a full disk wipe. This method writes a few passes of random data to the hard disk.', 'veryfastwipe.png', '', 'fog', '1', 'both'),
 (19, 'Normal Wipe', 'Normal Wipe will boot the client computer and perform a simple disk wipe. This method writes one pass of zero''s to the hard disk.', 'quickwipe.png', '', 'fog', '1', 'both'),
 (20, 'Full Wipe', 'Full Wipe will boot the client computer and perform a full disk wipe. This method writes a few passes of random data to the hard disk.', 'fullwipe.png', '', 'fog', '1', 'both');",
@@ -1025,8 +1025,8 @@ $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`taskTypes` ADD `ttKernel` VARCHAR( 100 ) NOT NULL AFTER `ttIcon`",
     "TRUNCATE `".DATABASE_NAME."`.`taskTypes`",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`taskTypes` (`ttID`, `ttName`, `ttDescription`, `ttIcon`, `ttKernel`, `ttKernelArgs`, `ttType`, `ttIsAdvanced`, `ttIsAccess`) VALUES
-    (1, 'Download', 'Deploy action will send an image saved on the FOG server to the client computer with all included snapins.', 'senddebug.png', '', 'type=down', 'fog', '0', 'both'),
-(2, 'Upload', 'Upload will pull an image from a client computer that will be saved on the server.', 'restoredebug.png', '', 'type=up', 'fog', '0', 'host'),
+    (1, 'Deploy', 'Deploy action will send an image saved on the FOG server to the client computer with all included snapins.', 'senddebug.png', '', 'type=down', 'fog', '0', 'both'),
+(2, 'Capture', 'Capture will pull an image from a client computer that will be saved on the server.', 'restoredebug.png', '', 'type=up', 'fog', '0', 'host'),
 (3, 'Debug', 'Debug mode will load the boot image and load a prompt so you can run any commands you wish. When you are done, you must remember to remove the PXE file, by clicking on \"Active Tasks\" and clicking on the \"Kill Task\" button.', 'debug.png', '', 'mode=onlydebug', 'fog', '1', 'host'),
 (4, 'Memtest86+', 'Memtest86+ loads Memtest86+ on the client computer and will have it continue to run until stopped. When you are done, you must remember to remove the PXE file, by clicking on \"Active Tasks\" and clicking on the \"Kill Task\" button.', 'memtest.png', 'fog/memtest/memtest', '', 'fog', '1', 'both'),
 (5, 'Test Disk', 'Test Disk loads the testdisk utility that can be used to check a hard disk and recover lost partitions.', 'testdisk.png', '', 'mode=checkdisk', 'fog', '1', 'both'),
@@ -1038,9 +1038,9 @@ $this->schema[] = array(
 (12, 'All Snapins', 'This option allows you to send all the snapins to host without imaging the computer. (Requires FOG Client to be installed on client)', 'snap.png', '', '', 'fog', '1', 'both'),
 (13, 'Single Snapin', 'This option allows you to send a single snapin to a host. (Requires FOG Client to be installed on client)', 'snap.png', '', '', 'fog', '1', 'both'),
 (14, 'Wake-Up', 'Wake Up will attempt to send the Wake-On-LAN packet to the computer to turn the computer on. In switched environments, you typically need to configure your hardware to allow for this (iphelper).', 'wake.png', '', '', 'fog', '1', 'both'),
-(15, 'Download - Debug', 'Download - Debug mode allows FOG to setup the environment to allow you send a specific image to a computer, but instead of sending the image, FOG will leave you at a prompt right before sending. If you actually wish to send the image all you need to do is type \"fog\" and hit enter.', 'senddebug.png', '', 'type=down mode=debug', 'fog', '1', 'host'),
-(16, 'Upload - Debug', 'mode allows FOG to setup the environment to allow you Upload a specific image to a computer, but instead of Upload the image, FOG will leave you at a prompt right before restoring. If you actually wish to Upload the image all you need to do is type \"fog\" and hit enter.', 'restoredebug.png', '', 'type=up mode=debug', 'fog', '1', 'host'),
-(17, 'Download without Snapins', 'Deploy without snapins allows FOG to image the workstation, but after the task is complete any snapins linked to the host or group will NOT be sent.', 'sendnosnapin.png', '', '', 'fog', '1', 'both'),
+(15, 'Deploy - Debug', 'Deploy - Debug mode allows FOG to setup the environment to allow you send a specific image to a computer, but instead of sending the image, FOG will leave you at a prompt right before sending. If you actually wish to send the image all you need to do is type \"fog\" and hit enter.', 'senddebug.png', '', 'type=down mode=debug', 'fog', '1', 'host'),
+(16, 'Capture - Debug', 'mode allows FOG to setup the environment to allow you capture a specific image to a computer, but instead of capturing the image, FOG will leave you at a prompt right before restoring. If you actually wish to capture the image all you need to do is type \"fog\" and hit enter.', 'restoredebug.png', '', 'type=up mode=debug', 'fog', '1', 'host'),
+(17, 'Deploy without Snapins', 'Deploy without snapins allows FOG to image the workstation, but after the task is complete any snapins linked to the host or group will NOT be sent.', 'sendnosnapin.png', '', '', 'fog', '1', 'both'),
 (18, 'Fast Wipe', 'Full Wipe will boot the client computer and perform a full disk wipe. This method writes a few passes of random data to the hard disk.', 'veryfastwipe.png', '', 'mode=wipe wipemode=fast', 'fog', '1', 'both'),
 (19, 'Normal Wipe', 'Normal Wipe will boot the client computer and perform a simple disk wipe. This method writes one pass of zero''s to the hard disk.', 'quickwipe.png', '', 'mode=wipe wipemode=normal', 'fog', '1', 'both'),
 (20, 'Full Wipe', 'Full Wipe will boot the client computer and perform a full disk wipe. This method writes a few passes of random data to the hard disk.', 'fullwipe.png', '', 'mode=wipe wipemode=full', 'fog', '1', 'both'),
@@ -1454,7 +1454,7 @@ $this->schema[] = array(
 (3, 'fog.reginput', 'Perform Full Host Registration and Inventory','0','0','mode=manreg'),
 (4, 'fog.keyreg', 'Update Product Key', '0','1',NULL),
 (5, 'fog.reg', 'Quick Registration and Inventory', '0','0','mode=autoreg'),
-(6, 'fog.quickimage', 'Quick Image', '0', '1',NULL),
+(6, 'fog.deployimage', 'Deploy Image', '0', '1',NULL),
 (7, 'fog.multijoin', 'Join Multicast Session', '0','1',NULL),
 (8, 'fog.quickdel', 'Quick Host Deletion','0','1',NULL),
 (9, 'fog.sysinfo', 'Client System Information (Compatibility)','0','2','mode=sysinfo'),
@@ -1469,7 +1469,7 @@ param username \${username}
 param password \${password}
 param qihost 1
 isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.quickimage';",
+isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.deployimage';",
 "UPDATE `". DATABASE_NAME ."`.`pxeMenu` SET `pxeParams`='login
 params
 param mac0 \${net0/mac}
@@ -1754,8 +1754,6 @@ $this->schema[] = array(
 );
 // 164
 $this->schema[] = array(
-    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_MAX_UPLOADSIZE','Default setting is the upload size set in php.ini.','2','General Settings')",
-    "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_POST_MAXSIZE','Default setting is the upload size set in php.ini.','8','General Settings')",
 );
 // 165
 $this->schema[] = array(
@@ -1784,7 +1782,6 @@ $this->schema[] = array(
 );
 // 171
 $this->schema[] = array(
-    "DELETE FROM `" . DATABASE_NAME ."`.globalSettings WHERE settingKey IN ('FOG_MAX_UPLOADSIZE','FOG_POST_MAXSIZE')",
 );
 // 172
 $this->schema[] = array(
@@ -1838,7 +1835,7 @@ param username \${username}
 param password \${password}
 param qihost 1
 isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.quickimage';",
+isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.deployimage';",
 "UPDATE `". DATABASE_NAME ."`.`pxeMenu` SET `pxeParams`='login
 params
 param mac0 \${net0/mac}
@@ -2197,4 +2194,13 @@ $this->schema[] = array(
 // 229
 $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`images` CHANGE `imageSize` `imageSize` VARCHAR(255) NOT NULL",
+);
+// 230
+$this->schema[] = array(
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttDescription`='Deploy action will send an image saved on the FOG server to the client computer with all included snapins.' WHERE `ttID`=1",
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttDescription`='Capture will pull an image from a client computer that will be saved on the server.' WHERE `ttID`=2",
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttDescription`='Deploy - Debug mode allows FOG to setup the environment to allow you send a specific image to a computer, but instead of sending the image, FOG will leave you at a prompt right before sending. If you actually wish to send the image all you need to do is type \"fog\" and hit enter.' WHERE `ttID`=15",
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttDescription`='Capture - Debug mode allows FOG to setup the environment to allow you capture a specific image from a computer, but instead of capturing the image, FOG will leave you at a prompt right before restoring. If you actually wish to capture the image all you need to do is type \"fog\" and hit enter.' WHERE `ttID`=16",
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttDescription`='Deploy without snapins allows FOG to image the workstation, but after the task is complete any snapins linked to the host or group will NOT be sent.' WHERE `ttID`=17",
+    "UPDATE `".DATABASE_NAME."`.`pxeMenu` SET `pxeName`='fog.deployimage',`pxeDesc`='Deploy Image' WHERE `pxeName`='fog.quickimage'"
 );

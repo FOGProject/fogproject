@@ -376,7 +376,7 @@ prepareUploadLocation() {
             *)
                 echo "Failed"
                 debugPause
-                handleError "Failed to create image upload path (${FUNCNAME[0]})\n   Args Passed: $*"
+                handleError "Failed to create image capture path (${FUNCNAME[0]})\n   Args Passed: $*"
                 ;;
         esac
     fi
@@ -1971,7 +1971,7 @@ savePartition() {
         *)
             case $parttype in
                 0x5|0xf)
-                    echo " * Not uploading content of extended partition"
+                    echo " * Not capturing content of extended partition"
                     debugPause
                     EBRFileName "$imagePath" "$disk_number" "$part_number"
                     touch "$ebrfilename"
@@ -1985,10 +1985,10 @@ savePartition() {
                     case $? in
                         0)
                             mv ${imgpart}.000 $imgpart >/dev/null 2>&1
-                            echo " * Image Uploaded"
+                            echo " * Image Captured"
                             ;;
                         *)
-                            handleError "Failed to complete upload (${FUNCNAME[0]})\n   Args Passed: $*"
+                            handleError "Failed to complete capture (${FUNCNAME[0]})\n   Args Passed: $*"
                             ;;
                     esac
                     ;;
@@ -2073,7 +2073,7 @@ restorePartition() {
     ls $imgpart >/dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         EBRFileName "$imagePath" "$disk_number" "$part_number"
-        [[ -e $ebrfilename ]] && echo " * Not downloading content of extended partition" || echo " * Partition File Missing: $imgpart"
+        [[ -e $ebrfilename ]] && echo " * Not deploying content of extended partition" || echo " * Partition File Missing: $imgpart"
         runPartprobe "$disk"
         return
     fi

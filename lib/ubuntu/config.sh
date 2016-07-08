@@ -76,7 +76,7 @@ fi
 [[ -z $etcconf ]] && etcconf="/etc/apache2/sites-available/001-fog.conf"
 [[ $php_ver != 5 ]] && phpini="/etc/$phpcmd/$php_ver/apache2/php.ini" || phpini="/etc/$phpcmd/apache2/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
-[[ -z $storageLocationUpload ]] && storageLocationUpload="${storageLocation}/dev"
+[[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcp3/dhcpd.conf"
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
 [[ -z $tftpdirdst ]] && tftpdirdst="/tftpboot"
