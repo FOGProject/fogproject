@@ -34,7 +34,7 @@ class TaskQueue extends TaskingElement {
                         if (!$this->validDate($this->Task->get('checkInTime'))) $this->Task->set('checkInTime',$this->formatTime('now','Y-m-d H:i:s'));
                         $this->Task->save();
                         $this->StorageNode = self::getClass('StorageNode',$this->Task->get('NFSMemberID'));
-                        self::$HookManager->processEvent('HOST_NEW_SETTINGS',array('StorageNode'=>&$this->StorageNode));
+                        self::$HookManager->processEvent('HOST_NEW_SETTINGS',array('StorageNode'=>&$this->StorageNode,'Host'=>&$this->Host));
                         $this->StorageNode = self::nodeFail($this->StorageNode,$this->Host->get('id'));
                         $totalSlots = $this->StorageNode->get('maxClients');
                         $usedSlots = $this->StorageNode->getUsedSlotCount();
