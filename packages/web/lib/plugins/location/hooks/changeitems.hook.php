@@ -48,13 +48,6 @@ class ChangeItems extends Hook {
         $arguments['bzImage'] = "http://${ip}${webroot}service/ipxe/$bzImage";
         $arguments['imagefile'] = "http://${ip}${webroot}service/ipxe/$initrd";
     }
-    public function SlotCount($arguments) {
-        if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        if (!$StorageNode->isValid()) return;
-        $arguments['totalSlots'] = $arguments['StorageNode']->get('maxClients');
-        $arguments['usedSlots'] = $arguments['StorageNode']->getUsedSlotCount();
-        $arguments['inFront'] = self::getClass('TaskManager')->count(array('stateID'=>array_merge((array)$this->getQueuedStates(),(array)$this->getProgressState()),'NFSMemberID'=>$arguments['StorageNode']->get('id'),'typeID'=>array(1,15,17))) - 1;
-    }
 }
 $ChangeItems = new ChangeItems();
 $HookManager->register('SNAPIN_NODE',array($ChangeItems,'StorageNodeSetting'));

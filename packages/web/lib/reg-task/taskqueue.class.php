@@ -33,30 +33,16 @@ class TaskQueue extends TaskingElement {
                             ->set('stateID',$this->getCheckedInState());
                         if (!$this->validDate($this->Task->get('checkInTime'))) $this->Task->set('checkInTime',$this->formatTime('now','Y-m-d H:i:s'));
                         $this->Task->save();
-                        $totalSlots = $this->StorageGroup->getTotalSupportedClients();
-                        $usedSlots = $this->StorageGroup->getUsedSlotCount();
+                        $this->StorageNode = self::nodeFail(self::getClass('StorageNode',$this->Task->get('NFSMemberID')),$this->Host->get('id'));
+                        self::$HookManager->processEvent('HOST_NEW_SETTINGS',array('StorageNode'=>&$this->StorageNode));
+                        $totalSlots = $this->StorageNode->get('maxClients');
+                        $usedSlots = $this->StorageNode->getUsedSlotCount();
                         $inFront = $this->Task->getInFrontOfHostCount();
-                        self::$HookManager->processEvent('TASK_LIMIT',array('StorageNode'=>&$this->StorageNode,'Host'=>&$this->Host,'totalSlots'=>&$totalSlots,'usedSlots'=>&$usedSlots,'inFront'=>&$inFront,'Host'=>&$this->Host));
                         $groupOpenSlots = $totalSlots - $usedSlots;
                         if ($groupOpenSlots < 1) throw new Exception(sprintf('%s, %s %d %s',_('No open slots'),_('There are'),$inFront,_('before me.')));
-                        if ($groupOpenSlots <= $inFront) throw new Exception(sprintf('%s %d %s',_('There are open slots, but'),$inFront,_('before me')));
-                        $method = ($this->Task->isUpload() ? 'getMasterStorageNode' : 'getOptimalStorageNode');
-                        $this->StorageNode = self::nodeFail($this->Image->getStorageGroup()->$method($this->Task->get('imageID')),$this->Host->get('id'));
-                        foreach ($this->StorageNodes AS &$StorageNode) {
-                            if (!$StorageNode->isValid()) continue;
-                            if ($StorageNode->get('maxClients') < 1) continue;
-                            $nodeAvailableSlots = $StorageNode->get('maxClients') - $StorageNode->getUsedSlotCount();
-                            if ($nodeAvailableSlots < 1) continue;
-                            if (!isset($tmpStorageNode)) {
-                                $tmpStorageNode = self::nodeFail($StorageNode,$this->Host->get('id'));
-                                continue;
-                            }
-                            if ($StorageNode->getClientLoad() < $tmpStorageNode->getClientLoad()) $tmpStorageNode = self::nodeFail($StorageNode,$this->Host->get('id'));
-                            unset($StorageNode);
-                        }
+                        if ($groupOpenSlots <= $inFront) throw new Exception(sprintf('%s %d %s',_('There are open slots, but'),$inFront,_('before me on this node')));
                     }
-                    if ($tmpStorageNode instanceof StorageNode && $tmpStorageNode->get('id') != $this->StorageNode->get('id')) $this->StorageNode = $tmpStorageNode;
-                    if (!$this->StorageNode->isValid()) throw new Exception(_('Unable to find a auitable Storage Node for imaging!'));
+                    if (!$this->StorageNode instanceof StorageNode || !$this->StorageNode->isValid()) throw new Exception(_('Unable to find a auitable Storage Node for imaging!'));
                 }
                 $this->Task
                     ->set('NFSMemberID',$this->StorageNode->get('id'));
