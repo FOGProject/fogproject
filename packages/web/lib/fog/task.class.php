@@ -47,7 +47,7 @@ class Task extends TaskType {
             if ($timeOfLastCheckin >= self::getSetting('FOG_CHECKIN_TIMEOUT')) $Task->set('checkInTime',$curTime->format('Y-m-d H:i:s'))->save();
             if ($MyCheckinTime > $TaskCheckinTime) $count++;
             unset($Task);
-        },(array)self::getClass('TaskManager')->find(array('stateID'=>array_merge((array)$this->getQueuedStates(),(array)$this->getProgressState()),'typeID'=>array(1,15,17),'NFSGroupID'=>$this->get('NFSGroupID'))));
+        },(array)self::getClass('TaskManager')->find(array('stateID'=>array_merge((array)$this->getQueuedStates(),(array)$this->getProgressState()),'typeID'=>array(1,15,17),'NFSGroupID'=>$this->get('NFSGroupID'),'NFSMemberID'=>$this->get('NFSMemberID'))));
         return $count;
     }
     public function cancel() {
