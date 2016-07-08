@@ -1067,6 +1067,19 @@ $this->schema[] = array(
 (12, 'User Tracker', 'usertracker', 'This setting will enable or disable the user tracker service module on this specific host.  If the module is globally disabled, this setting is ignored.');",
 // modulestatusbyhost: Create unique with Host ID and Module ID - this prevents duplicate modules per host
 // TODO: Create function to first remove dups, if not done this query will fail!!
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='1' WHERE `msModuleID`='dircleanup'",
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='2' WHERE `msModuleID`='usercleanup'",
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='3' WHERE `msModuleID`='displaymanager'",
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='4' WHERE `msModuleID`='autologout'",
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='5' WHERE `msModuleID`='greenfog'",
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='6' WHERE `msModuleID`='snapin'",
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='7' WHERE `msModuleID`='clientupdater'",
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='8' WHERE `msModuleID`='hostregister'",
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='9' WHERE `msModuleID`='hostnamechanger'",
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='10' WHERE `msModuleID`='printermanager'",
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='11' WHERE `msModuleID`='taskreboot'",
+"UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='12' WHERE `msModuleID`='usertracker'",
+"DELETE FROM `".DATABASE_NAME."`.`moduleStatusByHost` WHERE `msState`='0'",
 "ALTER TABLE `".DATABASE_NAME."`.`moduleStatusByHost` ADD UNIQUE ( `msHostID` , `msModuleID`)",
 // snapinassoc: Create unique with Host ID and Snapin ID - this prevents duplicate snapins per host
 // TODO: Create function to first remove dups, if not done this query will fail!!
@@ -1086,9 +1099,8 @@ $this->schema[] = array(
 );
 // 36
 // Blackout - 12:18 PM 4/05/2012
-$this->schema[] = array_merge(
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('groupMembers',array('gmHostID','gmGroupID')),true),
-    array("ALTER TABLE `".DATABASE_NAME."`.`groups` ADD UNIQUE ( `groupName` )")
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`groups` ADD UNIQUE ( `groupName` )",
 );
 // 37
 // Blackout - 6:12 PM 5/05/2012
