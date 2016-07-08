@@ -58,16 +58,18 @@ class Group extends FOGController {
         return self::getClass('GroupAssociationManager')->count(array('groupID'=>$this->get('id')));
     }
     public function addPrinter($printerAdd, $printerDel, $level = 0) {
-        self::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$this->get('hosts'),'printerID'=>$printerDel));
         self::getClass('HostManager')->update(array('id'=>$this->get('hosts')),'',array('printerLevel'=>$level));
-        $insert_fields = array('hostID','printerID');
-        $insert_values = array();
-        array_walk($this->get('hosts'),function(&$hostID,$index) use (&$insert_values,$printerAdd) {
-            foreach($printerAdd AS &$printerID) {
-                $insert_values[] = array($hostID,$printerID);
-            }
-        });
-        if (count($insert_values) > 0) self::getClass('PrinterAssociationManager')->insert_batch($insert_fields,$insert_values);
+        if (count($printerDel) > 0) self::getClass('PrinterAssociationManager')->destroy(array('hostID'=>$this->get('hosts'),'printerID'=>$printerDel));
+        if (count($printerAdd) > 0) {
+            $insert_fields = array('hostID','printerID');
+            $insert_values = array();
+            array_walk($this->get('hosts'),function(&$hostID,$index) use (&$insert_values,$printerAdd) {
+                foreach((array)$printerAdd AS &$printerID) {
+                    $insert_values[] = array($hostID,$printerID);
+                }
+            });
+            if (count($insert_values) > 0) self::getClass('PrinterAssociationManager')->insert_batch($insert_fields,$insert_values);
+        }
         return $this;
     }
     public function addSnapin($addArray) {

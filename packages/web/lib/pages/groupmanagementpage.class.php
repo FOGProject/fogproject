@@ -129,13 +129,13 @@ class GroupManagementPage extends FOGPage {
     public function edit() {
         $HostCount = $this->obj->getHostCount();
         $hostids = $this->obj->get('hosts');
-        $imageIDCount = self::getSubObjectIDs('Host',array('id'=>$hostids),'imageID','','','','','array_count_values');
-        $imageMatchID = false;
-        if (array_shift($imageIDCount) == $HostCount) {
-            $imageID = self::getSubObjectIDs('Host',array('id'=>$hostids),'imageID');
-            $imageMatchID = array_shift($imageID);
-        }
+        $Host = self::getClass('Host',current((array)$hostids));
+        $imageIDs = self::getSubObjectIDs('Host',array('id'=>$hostids),'imageID','','','','','array_count_values');
+        $imageIDs = array_shift($imageIDs);
         $groupKey = self::getSubObjectIDs('Host',array('id'=>$hostids),'productKey','','','','','array_count_values');
+        $groupKey = array_shift($groupKey);
+        $printerLevel = self::getSubObjectIDs('Host',array('id'=>$hostids),'printerLevel','','','','','array_count_values');
+        $printerLevel = array_shift($printerLevel);
         // Collect AD Information
         $aduse = self::getSubObjectIDs('Host',array('id'=>$hostids),'useAD','','','','','array_count_values');
         $aduse = in_array(0,array_keys($aduse)) ? 0 : array_shift($aduse);
@@ -151,8 +151,9 @@ class GroupManagementPage extends FOGPage {
         $adPass = array_shift($adPass);
         $adPassLegacy = self::getSubObjectIDs('Host',array('id'=>$hostids),'ADPassLegacy','','','','','array_count_values');
         $adPassLegacy = array_shift($adPassLegacy);
-        // Set AD Information
-        $Host = self::getClass('Host',current((array)$hostids));
+        // Set Field Information
+        $printerLevel = ($printerLevel == $HostCount ? $Host->get('printerLevel') : '');
+        $imageMatchID = ($imageIDs == $HostCount ? $Host->get('imageID') : '');
         $useAD = ($aduse == $HostCount ? $Host->get('useAD') : '');
         $enforce = ($enforcetest == $HostCount ? $Host->get('enforce') : '');
         $ADDomain = ($adDomain == $HostCount ? $Host->get('ADDomain') : '');
@@ -161,7 +162,7 @@ class GroupManagementPage extends FOGPage {
         $adPass = ($adPass == $HostCount ? $Host->get('ADPass') : '');
         $ADPass = $this->encryptpw($Host->get('ADPass'));
         $ADPassLegacy = ($adPassLegacy == $HostCount ? $Host->get('ADPassLegacy') : '');
-        $productKey = ($groupKey == $this->obj->getHostCount() ? $Host->get('productKey') : '');
+        $productKey = ($groupKey == $HostCount ? $Host->get('productKey') : '');
         $groupKeyMatch = $this->encryptpw($productKey);
         unset($productKey, $groupKey);
         $biosExit = array_flip(self::getSubObjectIDs('Host',array('id'=>$hostids),'biosexit','','','','','array_count_values'));
@@ -402,7 +403,32 @@ class GroupManagementPage extends FOGPage {
         $this->adFieldsToDisplay($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,$ADPassLegacy,$enforce);
         echo '<!-- Printers --><div id="group-printers">';
         if (self::getClass('PrinterManager')->count()) {
-            printf('<form method="post" action="%s&tab=group-printers"><h2>%s</h2><p class="l"><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="0" />%s<br/><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="1" />%s<br/><span class="icon fa fa-question hand" title="%s"></span><input type="radio" name="level" value="2" />%s<br/></p><div class="hostgroup">',$this->formAction,_('Select Management Level for all hosts in this group'),_('This setting turns off all FOG Printer Management. Although there are multiple levels already between host and global settings, this is just another to ensure safety'),_('No Printer Management'),_('This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned.'),_('FOG Managed Printers'),_('This setting will only allow FOG Assigned printers to be added to the host.  Any printer that is installed, even printers not within FOG, will be removed'),_('Add and Remove'));
+            printf('<form method="post" action="%s&tab=group-printers"><h2>%s</h2>',
+                $this->formAction,
+                _('Select ManagementLevel for all hosts in this group')
+            );
+            printf('<p class="l"><span class="icon fa fa-question hand" title="%s"></span>',
+                _('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety')
+            );
+            printf('<input type="radio" name="level" value="0"%s/>%s<br/>',
+                $printerLevel == 0 ? ' checked' : '',
+                _('No Printer Management')
+            );
+            printf('<span class="icon fa fa-question hand" title="%s"></span>',
+                _('This setting only adds and removes printers that FOG is aware of. Printers that are associated to the host will have those printers added.  Printers that are defined in FOG but not associated to the host will be removed')
+            );
+            printf('<input type="radio" name="level" value="1"%s/>%s<br/>',
+                $printerLevel == 1 ? ' checked' : '',
+                _('FOG Managed Printers')
+            );
+            printf('<span class="icon fa fa-question hand" title="%s"></span>',
+                _('This setting only allows the host to have printers associated that are assigned through FOG. Any printer on the host that is not associated to the host through FOG will be removed')
+            );
+            printf('<input type="radio" name="level" value="2"%s/>%s<br/>',
+                $printerLevel == 2 ? ' checked' : '',
+                _('Only FOG Printers')
+            );
+            echo '</p>';
             $this->headerData = array(
                 '<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprint"/>',
                 '',
@@ -410,7 +436,7 @@ class GroupManagementPage extends FOGPage {
                 _('Configuration'),
             );
             $this->templates = array(
-                '<input type="checkbox" name="prntadd[]" value="${printer_id}" class="toggle-print" />',
+                '<input type="checkbox" name="printers[]" value="${printer_id}" class="toggle-print" />',
                 '<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}" /><label for="printer${printer_id}" class="icon icon-hand" title="'._('Default Printer Selector').'">&nbsp;</label><input type="hidden" name="printerid[]" />',
                 '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
                 '${printer_type}',
@@ -418,7 +444,7 @@ class GroupManagementPage extends FOGPage {
             $this->attributes = array(
                 array('width'=>16,'class'=>'l filter-false'),
                 array('width'=>16,'class'=>'l filter-false'),
-                array('width'=>50,'class'=>'l'),
+                array(),
                 array('width'=>50,'class'=>'r'),
             );
             array_map(function(&$Printer) {
@@ -430,35 +456,13 @@ class GroupManagementPage extends FOGPage {
                 );
                 unset($Printer);
             },self::getClass('PrinterManager')->find());
+            $inputupdate = '';
             if (count($this->data) > 0) {
-                printf('<h2>%s</h2>',_('Add new printer(s) to all hosts in this group.'));
-                self::$HookManager->processEvent('GROUP_ADD_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes));
+                printf('<h2>%s</h2>',_('Printer association(s)'));
+                $inputupdate = sprintf('<p class="c"><input type="submit" value="%s" name="add"/>&nbsp<input type="submit" value="%s" name="remove"/><br/><br/><input type="submit" value="%s" name="update"/></p>',self::$foglang['Add'],self::$foglang['Remove'],_('Update'));
+                self::$HookManager->processEvent('GROUP_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes,'inputupdate'=>&$inputupdate));
             }
             $this->render();
-            $this->headerData = array(
-                '<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprintrm"/>',
-                _('Printer Name'),
-                _('Configuration'),
-            );
-            $this->templates = array(
-                '<input type="checkbox" name="prntdel[]" value="${printer_id}" class="toggle-printrm" />',
-                '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
-                '${printer_type}',
-            );
-            $this->attributes = array(
-                array('width'=>16,'class'=>'l filter-false'),
-                array('width'=>50,'class'=>'l'),
-                array('width'=>50,'class'=>'r'),
-            );
-            $inputupdate = '';
-            if (count($this->data)) {
-                printf('<h2>%s</h2>',_('Remove printer from all hosts in this group.'));
-                self::$HookManager->processEvent('GROUP_REM_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes));
-                $inputupdate = sprintf('<p class="c"><input type="submit" value="%s" name="update"/></p>',_('Update'));
-
-                $this->render();
-                unset($this->data);
-            }
         } else echo _('There are no printers defined');
         echo "</div>$inputupdate</form></div>";
         echo '<!-- Inventory -->';
@@ -579,8 +583,16 @@ class GroupManagementPage extends FOGPage {
                 $this->obj->setAD($useAD,$domain,$ou,$user,$pass,$legacy,$enforce);
                 break;
             case 'group-printers':
-                $this->obj->addPrinter($_REQUEST['prntadd'],$_REQUEST['prntdel'],$_REQUEST['level']);
-                $this->obj->updateDefault(isset($_REQUEST['default']) ? $_REQUEST['default'] : 0);
+                if (isset($_REQUEST['add'])) {
+                    $this->obj->addPrinter($_REQUEST['printers'],array(),$_REQUEST['level']);
+                    if (in_array($_REQUEST['default'],(array)$_REQUEST['printers'])) $this->obj->updateDefault($_REQUEST['default']);
+                }
+                if (isset($_REQUEST['remove'])) $this->obj->addPrinter(array(),$_REQUEST['printers'],$_REQUEST['level']);
+                if (isset($_REQUEST['update'])) {
+                    $this->obj->addPrinter(array(),array(),$_REQUEST['level']);
+                    $this->obj->addPrinter($_REQUEST['default']);
+                    $this->obj->updateDefault($_REQUEST['default']);
+                }
                 break;
             case 'group-service':
                 list($r,$time,$x,$y,) = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_DISPLAYMANAGER_R','FOG_CLIENT_AUTOLOGOFF_MIN','FOG_CLIENT_DISPLAYMANAGER_X','FOG_CLIENTDISPLAYMANAGER_Y')),'value');
