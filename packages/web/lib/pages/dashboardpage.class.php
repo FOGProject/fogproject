@@ -93,6 +93,9 @@ class DashboardPage extends FOGPage {
         }
     }
     public function bandwidth() {
+        session_write_close();
+        ignore_user_abort(true);
+        set_time_limit(0);
         $URLs = $StorageName = array();
         $Nodes = self::getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1,'isEnabled'=>1));
         array_map(function(&$StorageNode) use (&$URLs,&$StorageName) {
@@ -111,6 +114,9 @@ class DashboardPage extends FOGPage {
         exit;
     }
     public function diskusage() {
+        session_write_close();
+        ignore_user_abort(true);
+        set_time_limit(0);
         try {
             if (!$this->obj->isValid()) throw new Exception(_('Invalid storage node'));
             if ($this->obj->get('isGraphEnabled') < 1) throw new Exception(_('Graph is disabled for this node'));
@@ -132,6 +138,9 @@ class DashboardPage extends FOGPage {
         exit;
     }
     public function clientcount() {
+        session_write_close();
+        ignore_user_abort(true);
+        set_time_limit(0);
         if (!($this->obj->isValid() && count($this->obj->get('enablednodes') > 1))) return;
         $ActivityActive = $ActivityQueued = $ActivityTotalClients = 0;
         $ActivityTotalClients = $this->obj->getTotalAvailableSlots();

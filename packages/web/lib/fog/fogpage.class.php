@@ -34,6 +34,11 @@ abstract class FOGPage extends FOGBase {
     private static $initializedController = false;
     public function __construct($name = '') {
         parent::__construct();
+        if (self::$ajax) {
+            session_write_close();
+            ignore_user_abort(true);
+            set_time_limit(0);
+        }
         $PagesWithObjects = array('user','host','image','group','snapin','printer');
         self::$HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
         global $node;
@@ -316,8 +321,6 @@ abstract class FOGPage extends FOGBase {
                     unset($Snapin);
                 },(array)self::getClass('SnapinManager')->find(array('id'=>$this->obj->get('snapins'))));
                 ob_get_contents() ? printf('<select name="snapin">%s</select></p>',ob_get_clean()) : printf('%s</p>',_('No snapins associated'));
-                ob_end_flush();
-
             } else if ($this->obj instanceof Group) printf('%s</p>',self::getClass('SnapinManager')->buildSelectBox('','snapin'));
         }
         printf('<div class="advanced-settings"><h2>%s</h2>',_('Advanced Settings'));
