@@ -1,4 +1,7 @@
 <?php
+session_write_close();
+ignore_user_abort(true);
+set_time_limit(0);
 header('Content-Type: text/event-stream');
 header('Connection: close');
 $path = escapeshellarg(base64_decode($_REQUEST['path']));
