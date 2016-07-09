@@ -1,4 +1,7 @@
 <?php
+session_write_close();
+ignore_user_abort(true);
+set_time_limit(0);
 if (!isset($_REQUEST['filepath'])) {
     echo '|0';
     exit;
