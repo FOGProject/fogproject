@@ -20,7 +20,6 @@ class LocationAssociation extends FOGController {
         return $this->getLocation()->getStorageGroup();
     }
     public function getStorageNode() {
-        $Location = $this->getLocation();
         return $this->getLocation()->getStorageNode();
     }
     public function isTFTP() {
