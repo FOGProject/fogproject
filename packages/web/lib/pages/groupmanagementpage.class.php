@@ -203,8 +203,10 @@ class GroupManagementPage extends FOGPage {
         $this->render();
         unset ($this->data,$exitNorm,$exitEfi);
         echo '</form></div>';
+        unset($this->data);
         $imageSelector = self::getClass('ImageManager')->buildSelectBox($imageMatchID,'image');
-        printf('<!-- Image Association --><div id="group-image"><h2>%s: %s</h2><form method="post" action="%s&tab=group-image">',_('Image Association for'),$this->obj->get('name'),$this->formAction);
+        echo '<!-- Image Association --><div id="group-image">';
+        printf('<h2>%s: %s</h2><form method="post" action="%s&tab=group-image">',_('Image Association for'),$this->obj->get('name'),$this->formAction);
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -220,8 +222,10 @@ class GroupManagementPage extends FOGPage {
         );
         self::$HookManager->processEvent('GROUP_IMAGE',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
-        unset($this->data);
         echo '</form></div>';
+        unset($this->data);
+        self::$HookManager->processEvent('GROUP_GENERAL_EXTRA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'Group'=>&$this->obj,'formAction'=>&$this->formAction,'render'=>&$this));
+        unset($this->data);
         $this->basictasksOptions();
         $this->adFieldsToDisplay($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,$ADPassLegacy,$enforce);
         echo '<!-- Printers --><div id="group-printers">';
