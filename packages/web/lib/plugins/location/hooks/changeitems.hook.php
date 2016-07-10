@@ -12,9 +12,12 @@ class ChangeItems extends Hook {
         if (!$LA->isValid()) return;
         $method = false;
         if ($arguments['Host']->get('task')->isValid() && ($arguments['Host']->get('task')->isCapture() || $arguments['Host']->get('task')->isMulticast())) $method = 'getMasterStorageNode';
-        $arguments['StorageNode'] = $LA->getStorageNode();
-        if (!$method) return;
-        $arguments['StorageNode'] = $LA->getStorageGroup()->$method();
+        else if ($arguments['TaskType'] instanceof TaskType && $arguments['TaskType']->isValid() && ($arguments['TaskType']->isCapture() || $arguments['TaskType']->isMulticast())) $method = 'getMasterStorageNode';
+        if ($LA->getStorageGroup()->isValid()) {
+            $arguments['StorageNode'] = $LA->getStorageNode();
+            if (!$method) return;
+            $arguments['StorageNode'] = $LA->getStorageGroup()->{$method}();
+        }
     }
     public function StorageGroupSetting($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
