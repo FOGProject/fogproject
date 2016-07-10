@@ -124,7 +124,7 @@ $.fn.fogAjaxSearch = function(opts) {
     var Defaults = {
         URL: $('#search-wrapper').prop('action'),
         Container: '#search-content,#active-tasks',
-        SearchDelay: 300,
+        SearchDelay: 600,
         SearchMinLength: 1,
     };
     var SearchAJAX = null;
