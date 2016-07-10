@@ -31,6 +31,7 @@ abstract class FOGPage extends FOGBase {
     protected static $pdffile;
     protected static $csvfile;
     protected static $inventoryCsvHead;
+    protected $PagesWithObjects;
     private static $initializedController = false;
     public function __construct($name = '') {
         parent::__construct();
@@ -39,15 +40,15 @@ abstract class FOGPage extends FOGBase {
             ignore_user_abort(true);
             set_time_limit(0);
         }
-        $PagesWithObjects = array('user','host','image','group','snapin','printer');
-        self::$HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$PagesWithObjects));
+        $this->PagesWithObjects = array('user','host','image','group','snapin','printer');
+        self::$HookManager->processEvent('PAGES_WITH_OBJECTS',array('PagesWithObjects'=>&$this->PagesWithObjects));
         global $node;
         global $sub;
         if (in_array($sub,array('configure','authorize','requestClientInfo'))) return $this->{$sub}();
         $this->childClass = ucfirst($this->node);
         if (!empty($name)) $this->name = $name;
         $this->title = $this->name;
-        if (in_array($this->node,$PagesWithObjects)) {
+        if (in_array($this->node,$this->PagesWithObjects)) {
             $classVars = self::getClass($this->childClass,'',true);
             $this->databaseTable = $classVars['databaseTable'];
             $this->databaseFields = $classVars['databaseFields'];
@@ -210,7 +211,7 @@ abstract class FOGPage extends FOGBase {
                 },(array)$this->data);
             }
             echo '</tbody></table>';
-            if ((!$sub || $sub === 'storage_group' || (in_array($sub,$defaultScreens)) && in_array($node,self::$searchPages)) && !self::$isMobile) {
+            if ((!$sub || $sub === 'storage_group' || (in_array($sub,$defaultScreens)) && in_array($node,self::$searchPages)) && !self::$isMobile && in_array($node,$this->PagesWithObjects)) {
                 if ($this->node == 'host') {
                     printf('<form method="post" action="%s" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" id="processgroup" value="%s"/></p></form>',
                         sprintf('?node=%s&sub=save_group',$this->node),
