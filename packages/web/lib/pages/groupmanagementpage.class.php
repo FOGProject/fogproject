@@ -7,14 +7,13 @@ class GroupManagementPage extends FOGPage {
         if ($_REQUEST['id']) {
             $this->subMenu = array(
                 "$this->linkformat#group-general" => self::$foglang['General'],
-                "$this->linkformat#group-tasks" => self::$foglang['BasicTasks'],
                 "$this->linkformat#group-image" => self::$foglang['ImageAssoc'],
-                "$this->linkformat#group-snap-add" => sprintf('%s %s',self::$foglang['Add'],self::$foglang['Snapins']),
-                "$this->linkformat#group-snap-del" => sprintf('%s %s',self::$foglang['Remove'],self::$foglang['Snapins']),
-                "$this->linkformat#group-service" => sprintf('%s %s',self::$foglang['Service'],self::$foglang['Settings']),
-                "$this->linkformat#group-powermanagement"=>self::$foglang['PowerManagement'],
+                "$this->linkformat#group-tasks" => self::$foglang['BasicTasks'],
                 "$this->linkformat#group-active-directory" => self::$foglang['AD'],
                 "$this->linkformat#group-printers" => self::$foglang['Printers'],
+                "$this->linkformat#group-snapins" => self::$foglang['Snapins'],
+                "$this->linkformat#group-service" => sprintf('%s %s',self::$foglang['Service'],self::$foglang['Settings']),
+                "$this->linkformat#group-powermanagement"=>self::$foglang['PowerManagement'],
                 "$this->linkformat#group-inventory" => self::$foglang['Inventory'],
                 $this->membership => self::$foglang['Membership'],
                 $this->delformat => self::$foglang['Delete'],
@@ -204,7 +203,6 @@ class GroupManagementPage extends FOGPage {
         $this->render();
         unset ($this->data,$exitNorm,$exitEfi);
         echo '</form></div>';
-        $this->basictasksOptions();
         $imageSelector = self::getClass('ImageManager')->buildSelectBox($imageMatchID,'image');
         printf('<!-- Image Association --><div id="group-image"><h2>%s: %s</h2><form method="post" action="%s&tab=group-image">',_('Image Association for'),$this->obj->get('name'),$this->formAction);
         unset($this->headerData);
@@ -223,7 +221,74 @@ class GroupManagementPage extends FOGPage {
         self::$HookManager->processEvent('GROUP_IMAGE',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);
-        printf('</form></div><!-- Add Snap-ins --><div id="group-snap-add"><h2>%s: %s</h2><form method="post" action="%s&tab=group-snap-add">',_('Add Snapin to all hosts in'),$this->obj->get('name'),$this->formAction);
+        echo '</form></div>';
+        $this->basictasksOptions();
+        $this->adFieldsToDisplay($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,$ADPassLegacy,$enforce);
+        echo '<!-- Printers --><div id="group-printers">';
+        printf('<form method="post" action="%s&tab=group-printers"><h2>%s</h2>',
+            $this->formAction,
+            _('Printer Management Level')
+        );
+        printf('<p class="l"><span class="icon fa fa-question hand" title="%s"></span>',
+            _('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety')
+        );
+        printf('<input type="radio" name="level" value="0"%s/>%s<br/>',
+            $printerLevel == 0 ? ' checked' : '',
+            _('No Printer Management')
+        );
+        printf('<span class="icon fa fa-question hand" title="%s"></span>',
+            _('This setting only adds and removes printers that FOG is aware of. Printers that are associated to the host will have those printers added.  Printers that are defined in FOG but not associated to the host will be removed')
+        );
+        printf('<input type="radio" name="level" value="1"%s/>%s<br/>',
+            $printerLevel == 1 ? ' checked' : '',
+            _('FOG Managed Printers')
+        );
+        printf('<span class="icon fa fa-question hand" title="%s"></span>',
+            _('This setting only allows the host to have printers associated that are assigned through FOG. Any printer on the host that is not associated to the host through FOG will be removed')
+        );
+        printf('<input type="radio" name="level" value="2"%s/>%s<br/>',
+            $printerLevel == 2 ? ' checked' : '',
+            _('Only FOG Printers')
+        );
+        echo '</p>';
+        $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprint"/>',
+            '',
+            _('Printer Name'),
+            _('Configuration'),
+        );
+        $this->templates = array(
+            '<input type="checkbox" name="printers[]" value="${printer_id}" class="toggle-print" />',
+            '<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}" /><label for="printer${printer_id}" class="icon icon-hand" title="'._('Default Printer Selector').'">&nbsp;</label><input type="hidden" name="printerid[]" />',
+            '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
+            '${printer_type}',
+        );
+        $this->attributes = array(
+            array('width'=>16,'class'=>'l filter-false'),
+            array('width'=>16,'class'=>'l filter-false'),
+            array(),
+            array('width'=>50,'class'=>'r'),
+        );
+        array_map(function(&$Printer) {
+            if (!$Printer->isValid()) return;
+            $this->data[] = array(
+                'printer_id'=>$Printer->get('id'),
+                'printer_name'=>$Printer->get('name'),
+                'printer_type'=>$Printer->get('config'),
+            );
+            unset($Printer);
+        },self::getClass('PrinterManager')->find());
+        $inputupdate = '';
+        if (count($this->data) > 0) {
+            printf('<h2>%s</h2>',_('Printer association(s)'));
+            $inputupdate = sprintf('<p class="c"><input type="submit" value="%s" name="add"/>&nbsp<input type="submit" value="%s" name="remove"/><br/><br/><input type="submit" value="%s" name="update"/></p>',self::$foglang['Add'],self::$foglang['Remove'],_('Update'));
+        }
+        self::$HookManager->processEvent('GROUP_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes,'inputupdate'=>&$inputupdate));
+        $this->render();
+        unset($this->data);
+        echo "$inputupdate</form></div>";
+        echo '<!-- Snapins --><div id="group-snapins">';
+        printf('<h2>%s</h2>',_('Snapins'));
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin" class="toggle-checkboxsnapin" />',
             _('Snapin Name'),
@@ -236,8 +301,8 @@ class GroupManagementPage extends FOGPage {
         );
         $this->attributes = array(
             array('width'=>16,'class'=>'l filter-false'),
-            array('width'=>90,'class'=>'l'),
-            array('width'=>20,'class'=>'r'),
+            array(),
+            array('width'=>107,'class'=>'r'),
         );
         $returnSnapins = function(&$Snapin) {
             if (!$Snapin->isValid()) return;
@@ -249,28 +314,15 @@ class GroupManagementPage extends FOGPage {
             unset($Snapin);
         };
         array_map($returnSnapins,self::getClass('SnapinManager')->find());
-        self::$HookManager->processEvent('GROUP_SNAP_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        $this->render();
-        printf('<input class="c" type="submit" value="%s"/></form></div><!-- Remove Snapins --><div id="group-snap-del"><h2>%s: %s</h2><form method="post" action="%s&tab=group-snap-del">',_('Add Snapin(s)'),_('Remove Snapin to all hosts in'),$this->obj->get('name'),$this->formAction);
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkboxsnapinrm" class="toggle-checkboxsnapinrm" />',
-            _('Snapin Name'),
-            _('Created'),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="snapin[]" value="${snapin_id}" class="toggle-snapinrm" />',
-            sprintf('<a href="?node=snapin&sub=edit&id=${snapin_id}" title="%s">${snapin_name}</a>',_('Edit')),
-            '${snapin_created}',
-        );
-        $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
-            array('width'=>90,'class'=>'l'),
-            array('width'=>20,'class'=>'r'),
-        );
-        self::$HookManager->processEvent('GROUP_SNAP_DEL',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        $this->render();
+        self::$HookManager->processEvent('GROUP_SNAPINS',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes,'inputupdate'=>&$inputupdate));
+        if (count($this->data)) {
+            printf('<form method="post" action="%s&tab=group-snapins">',$this->formAction);
+            $this->render();
+            printf('<p class="c"><input type="submit" value="%s" name="add"/>&nbsp<input type="submit" value="%s" name="remove"/></p></form>',self::$foglang['Add'],self::$foglang['Remove']);
+        }
         unset($this->headerData,$this->data);
-        printf('<input class="c" type="submit" value="%s"/></form></div><!-- Service Settings -->',_('Remove Snapin(s)'));
+        echo '</div>';
+        echo '<!-- Service Settings --><div id="group-service">';
         $this->attributes = array(
             array('width'=>270),
             array('class'=>'c'),
@@ -286,7 +338,7 @@ class GroupManagementPage extends FOGPage {
             'input'=>'<input type="checkbox" class="checkboxes" id="checkAll" name="checkAll" value="checkAll"/>',
             'span'=>'',
         );
-        printf('<div id="group-service"><h2>%s</h2><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',_('Service Configuration'),$this->formAction,_('General'));
+        printf('<h2>%s</h2><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',_('Service Configuration'),$this->formAction,_('General'));
         $moduleName = $this->getGlobalModuleStatus();
         $ModuleOn = array_values(self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID',false,'AND','id',false,''));
         array_map(function(&$Module) use ($moduleName,$ModuleOn,$HostCount) {
@@ -400,71 +452,6 @@ class GroupManagementPage extends FOGPage {
         $this->render();
         printf('<center><input type="submit" name="pmsubmit" value="%s"/></center></form></div>',_('Add Option'));
         unset($this->headerData,$this->templates,$this->data,$this->attributes);
-        $this->adFieldsToDisplay($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,$ADPassLegacy,$enforce);
-        echo '<!-- Printers --><div id="group-printers">';
-        if (self::getClass('PrinterManager')->count()) {
-            printf('<form method="post" action="%s&tab=group-printers"><h2>%s</h2>',
-                $this->formAction,
-                _('Select ManagementLevel for all hosts in this group')
-            );
-            printf('<p class="l"><span class="icon fa fa-question hand" title="%s"></span>',
-                _('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety')
-            );
-            printf('<input type="radio" name="level" value="0"%s/>%s<br/>',
-                $printerLevel == 0 ? ' checked' : '',
-                _('No Printer Management')
-            );
-            printf('<span class="icon fa fa-question hand" title="%s"></span>',
-                _('This setting only adds and removes printers that FOG is aware of. Printers that are associated to the host will have those printers added.  Printers that are defined in FOG but not associated to the host will be removed')
-            );
-            printf('<input type="radio" name="level" value="1"%s/>%s<br/>',
-                $printerLevel == 1 ? ' checked' : '',
-                _('FOG Managed Printers')
-            );
-            printf('<span class="icon fa fa-question hand" title="%s"></span>',
-                _('This setting only allows the host to have printers associated that are assigned through FOG. Any printer on the host that is not associated to the host through FOG will be removed')
-            );
-            printf('<input type="radio" name="level" value="2"%s/>%s<br/>',
-                $printerLevel == 2 ? ' checked' : '',
-                _('Only FOG Printers')
-            );
-            echo '</p><div class="hostgroup">';
-            $this->headerData = array(
-                '<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprint"/>',
-                '',
-                _('Printer Name'),
-                _('Configuration'),
-            );
-            $this->templates = array(
-                '<input type="checkbox" name="printers[]" value="${printer_id}" class="toggle-print" />',
-                '<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}" /><label for="printer${printer_id}" class="icon icon-hand" title="'._('Default Printer Selector').'">&nbsp;</label><input type="hidden" name="printerid[]" />',
-                '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
-                '${printer_type}',
-            );
-            $this->attributes = array(
-                array('width'=>16,'class'=>'l filter-false'),
-                array('width'=>16,'class'=>'l filter-false'),
-                array(),
-                array('width'=>50,'class'=>'r'),
-            );
-            array_map(function(&$Printer) {
-                if (!$Printer->isValid()) return;
-                $this->data[] = array(
-                    'printer_id'=>$Printer->get('id'),
-                    'printer_name'=>$Printer->get('name'),
-                    'printer_type'=>$Printer->get('config'),
-                );
-                unset($Printer);
-            },self::getClass('PrinterManager')->find());
-            $inputupdate = '';
-            if (count($this->data) > 0) {
-                printf('<h2>%s</h2>',_('Printer association(s)'));
-                $inputupdate = sprintf('<p class="c"><input type="submit" value="%s" name="add"/>&nbsp<input type="submit" value="%s" name="remove"/><br/><br/><input type="submit" value="%s" name="update"/></p>',self::$foglang['Add'],self::$foglang['Remove'],_('Update'));
-                self::$HookManager->processEvent('GROUP_PRINTER',array('data'=>&$this->data,'templates'=>&$this->templates,'headerData'=>&$this->headerData,'attributes'=>&$this->attributes,'inputupdate'=>&$inputupdate));
-            }
-            $this->render();
-        } else echo _('There are no printers defined');
-        echo "</div>$inputupdate</form></div>";
         echo '<!-- Inventory -->';
         printf('<div id="group-inventory"><h2>%s %s</h2>',_('Group'),self::$foglang['Inventory']);
         printf(
@@ -566,12 +553,6 @@ class GroupManagementPage extends FOGPage {
             case 'group-image':
                 $this->obj->addImage($_REQUEST['image']);
                 break;
-            case 'group-snap-add':
-                $this->obj->addSnapin($_REQUEST['snapin']);
-                break;
-            case 'group-snap-del':
-                $this->obj->removeSnapin($_REQUEST['snapin']);
-                break;
             case 'group-active-directory':
                 $useAD = isset($_REQUEST['domain']);
                 $domain = $_REQUEST['domainname'];
@@ -593,6 +574,10 @@ class GroupManagementPage extends FOGPage {
                     $this->obj->addPrinter($_REQUEST['default']);
                     $this->obj->updateDefault($_REQUEST['default']);
                 }
+                break;
+            case 'group-snapins':
+                if (isset($_REQUEST['add'])) $this->obj->addSnapin($_REQUEST['snapin']);
+                if (isset($_REQUEST['remove'])) $this->obj->removeSnapin($_REQUEST['snapin']);
                 break;
             case 'group-service':
                 list($r,$time,$x,$y,) = self::getSubObjectIDs('Service',array('name'=>array('FOG_CLIENT_DISPLAYMANAGER_R','FOG_CLIENT_AUTOLOGOFF_MIN','FOG_CLIENT_DISPLAYMANAGER_X','FOG_CLIENTDISPLAYMANAGER_Y')),'value');
