@@ -257,23 +257,26 @@ fsTypeSetting() {
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local blk_fs=$(blkid -po udev $part | awk -F= /FS_TYPE=/'{print $2}')
     case $blk_fs in
+        btrfs)
+            fstype="btrfs"
+            ;;
         ext[2-4])
             fstype="extfs"
-            ;;
-        ntfs)
-            fstype="ntfs"
-            ;;
-        vfat)
-            fstype="fat"
             ;;
         hfsplus)
             fstype="hfsp"
             ;;
-        btrfs)
-            fstype="btrfs"
+        ntfs)
+            fstype="ntfs"
             ;;
         swap)
             fstype="swap"
+            ;;
+        vfat)
+            fstype="fat"
+            ;;
+        xfs)
+            fstype="xfs"
             ;;
         *)
             fstype="imager"
