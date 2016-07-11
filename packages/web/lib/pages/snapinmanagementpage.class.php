@@ -12,6 +12,7 @@ class SnapinManagementPage extends FOGPage {
             'VB Script' => array('cscript.exe'),
             'Powershell' => array('powershell.exe','-ExecutionPolicy Bypass -NoProfile -File'),
             'Mono' => array('mono'),
+            'SnapinPack' => array(),
         );
         $this->menu['maker'] = _('SnapinPack Config');
         if ($_REQUEST['id']) {
@@ -66,13 +67,14 @@ class SnapinManagementPage extends FOGPage {
             '${input}',
         );
         printf('<p>%s ',_('The following form helps define how a SnapinPack is run.'));
-        printf('%s <a href="https://wiki.fogproject.org/wiki/index.php">%s</a> %s</p><br/>',_('Please see'),_('here'),_('to learn more.'));
+        printf('%s <a href="https://wiki.fogproject.org/wiki/index.php?title=SnapinPacks">%s</a> %s</p><br/>',_('Please see'),_('here'),_('to learn more.'));
+        echo '<div id="snapintemplate">';
         $args = array(
             'MSI'=>array('msiexec.exe','/i &quot;[FOG_SNAPIN_PATH]\MyMSI.msi&quot;'),
             'MSI + MST'=>array('msiexec.exe','/i &quot;[FOG_SNAPIN_PATH]\MyMST.mst&quot;'),
             'Batch Script'=>array('cmd.exe','/c &quot;[FOG_SNAPIN_PATH]\MyScript.bat&quot;'),
             'Bash Script'=>array('/bin/bash','&quot;[FOG_SNAPIN_PATH]/MyScript.sh&quot;'),
-            'VB Script'=>array('cscript.exe','&quot;[FOG_SNAPIN_PATH]/MyScript.vbs&quot;'),
+            'VB Script'=>array('cscript.exe','&quot;[FOG_SNAPIN_PATH]\MyScript.vbs&quot;'),
             'PowerShell Script'=>array('powershell.exe','-ExecutionPolicy Bypass -File &quot;[FOG_SNAPIN_PATH]\MyScript.ps1&quot;'),
             'EXE'=>array('[FOG_SNAPIN_PATH]\MyFile.exe'),
             'Mono'=>array('mono','&quot;[FOG_SNAPIN_PATH]/MyFile.exe&quot;'),
@@ -103,6 +105,7 @@ class SnapinManagementPage extends FOGPage {
         self::$HookManager->processEvent('SNAPINPACK_GENERATOR',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data,$this->templates,$this->attributes,$this->headerData);
+        echo '</div>';
     }
     public function index() {
         $this->title = _('All Snap-ins');
