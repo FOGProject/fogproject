@@ -67,12 +67,29 @@ class SnapinManagementPage extends FOGPage {
         );
         printf('<p>%s ',_('The following form helps define how a SnapinPack is run.'));
         printf('%s <a href="https://wiki.fogproject.org/wiki/index.php">%s</a> %s</p><br/>',_('Please see'),_('here'),_('to learn more.'));
+        $args = array(
+            'MSI'=>array('msiexec.exe','/i &quot;[FOG_SNAPIN_PATH]\MyMSI.msi&quot;'),
+            'MSI + MST'=>array('msiexec.exe','/i &quot;[FOG_SNAPIN_PATH]\MyMST.mst&quot;'),
+            'Batch Script'=>array('cmd.exe','/c &quot;[FOG_SNAPIN_PATH]\MyScript.bat&quot;'),
+            'Bash Script'=>array('/bin/bash','&quot;[FOG_SNAPIN_PATH]/MyScript.sh&quot;'),
+            'VB Script'=>array('cscript.exe','&quot;[FOG_SNAPIN_PATH]/MyScript.vbs&quot;'),
+            'PowerShell Script'=>array('powershell.exe','-ExecutionPolicy Bypass -File &quot;[FOG_SNAPIN_PATH]\MyScript.ps1&quot;'),
+            'EXE'=>array('[FOG_SNAPIN_PATH]\MyFile.exe'),
+            'Mono'=>array('mono','&quot;[FOG_SNAPIN_PATH]/MyFile.exe&quot;'),
+        );
+        ob_start();
+        printf('<select id="argTypes"><option value="">- %s -</option>',_('Please select an option'));
+        array_walk($args,function(&$cmd,&$type) {
+            printf('<option file="%s" args="%s">%s</option>',$cmd[0],isset($cmd[1]) ? $cmd[1] : '',$type);
+        });
+        echo '</select>';
+        $template = ob_get_clean();
         $fields = array(
-            //_('SnapinPack Template') => $template,
-            _('SnapinPack Name') => sprintf('<input type="text" placeholder="Name" id="snapinpack-name" value="%s" name="snapinpack-name"/>',$_REQUEST['snapinpack-name']),
-            _('SnapinPack Version') => sprintf('<input type="text" placeholder="v1.0.0" id="snapinpack-version" value="%s" name="snapinpack-version"/>',$_REQUEST['snapinpack-version']),
-            _('SnapinPack File') => sprintf('<input type="text" placeholder="cmd.exe" id="snapinpack-file" value="%s" name="snapinpack-file"/>',$_REQUEST['snapinpack-file']),
-            _('SnapinPack Arguments') => sprintf('<input type="text" placeholder="/c &quot;[FOG_SNAPIN_PATH]\script.bat&quot;" id="snapinpack-arguments" value="%s" name="snapinpack-arguments"/>',$_REQUEST['snapinpack-arguments']),
+            _('SnapinPack Template') => $template,
+            _('SnapinPack Name') => sprintf('<input type="text" id="snapinpack-name" value="%s" name="snapinpack-name"/>',$_REQUEST['snapinpack-name']),
+            _('SnapinPack Version') => sprintf('<input type="text" id="snapinpack-version" value="%s" name="snapinpack-version"/>',$_REQUEST['snapinpack-version']),
+            _('SnapinPack File') => sprintf('<input type="text" id="snapinpack-file" value="%s" name="snapinpack-file"/>',$_REQUEST['snapinpack-file']),
+            _('SnapinPack Arguments') => sprintf('<input type="text" id="snapinpack-arguments" value="%s" name="snapinpack-arguments"/>',$_REQUEST['snapinpack-arguments']),
             '&nbsp;' => sprintf('<input type="submit" class="snapinpack-generate" value="%s"/>',_('Generate')),
         );
         foreach ((array)$fields AS $field => &$input) {
