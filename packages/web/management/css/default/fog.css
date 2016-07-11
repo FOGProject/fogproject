@@ -6,7 +6,7 @@
  *	Last Update:	$LastChangedDate: 2014-12-03 08:04:29 -0500 (Wed, 03 Dec 2014) $
  ***/
 @font-face {
-	font-family: 'Ubuntu';
+    font-family: 'Ubuntu';
     src: url('ubuntu-regular-webfont.eot');
     src: url('ubuntu-regular-webfont.eot?#iefix') format('embedded-opentype'),
     url('ubuntu-regular-webfont.woff') format('woff'),
@@ -151,7 +151,7 @@ input[type=text]:hover, textarea:hover, select:hover {
     border-color: #5372af;
 }
 input[type=submit], input[type=button] {
-	padding-bottom: 22px;
+    padding-bottom: 22px;
     border: 1px solid #eee;
     border-radius: 5px 5px 5px 5px;
     -moz-border-radius: 5px 5px 5px 5px;
@@ -188,6 +188,9 @@ input[type=radio], input[type=checkbox] {
 }
 input.short {
     width: 30px;
+}
+#snapintemplate input:not([type="submit"]), #snapintemplate select {
+    width: 375px;
 }
 .placeholder {
     font-style: italic;
@@ -226,10 +229,10 @@ fieldset table tbody td select {
 /* Menu */
 .menu {
     text-align: center;
-	padding:0;
+    padding:0;
 }
 .menu .nav-list{
-	padding:0;	
+    padding:0;
 }
 .nav-list .nav-item {
     text-align: center;
@@ -310,7 +313,7 @@ header {
 }
 /* Logo */
 #logo {
-	height:100px
+    height:100px
 }
 #logo h1 {
     font-size: 38px;
@@ -1074,7 +1077,7 @@ tbody td.small {
     font-size: 10px;
 }
 .ui-dialog-titlebar-close {
-	visibility: hidden;
+    visibility: hidden;
 }
 /* Timepicker */
 .ui-timepicker-div .ui-widget-header {
