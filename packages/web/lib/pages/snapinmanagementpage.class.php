@@ -55,10 +55,37 @@ class SnapinManagementPage extends FOGPage {
         };
     }
     public function maker() {
-        $this->title = _('SnapinPack Config Generator');
-        echo _('The following form helps define how a SnapinPack is run.');
-        echo '&nbsp;';
-        echo _('Please see').'&nbsp;<a href="https://wiki.fogproject.org/wiki/index.php">'._('here').'</a>&nbsp;'._('to learn more.');
+        $this->title = _('SnapinPack Configuration Generator');
+        unset($this->headerData);
+        $this->attributes = array(
+            array(),
+            array(),
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        printf('<p>%s ',_('The following form helps define how a SnapinPack is run.'));
+        printf('%s <a href="https://wiki.fogproject.org/wiki/index.php">%s</a> %s</p><br/>',_('Please see'),_('here'),_('to learn more.'));
+        $fields = array(
+            //_('SnapinPack Template') => $template,
+            _('SnapinPack Name') => sprintf('<input type="text" placeholder="Name" id="snapinpack-name" value="%s" name="snapinpack-name"/>',$_REQUEST['snapinpack-name']),
+            _('SnapinPack Version') => sprintf('<input type="text" placeholder="v1.0.0" id="snapinpack-version" value="%s" name="snapinpack-version"/>',$_REQUEST['snapinpack-version']),
+            _('SnapinPack File') => sprintf('<input type="text" placeholder="cmd.exe" id="snapinpack-file" value="%s" name="snapinpack-file"/>',$_REQUEST['snapinpack-file']),
+            _('SnapinPack Arguments') => sprintf('<input type="text" placeholder="/c &quot;[FOG_SNAPIN_PATH]\script.bat&quot;" id="snapinpack-arguments" value="%s" name="snapinpack-arguments"/>',$_REQUEST['snapinpack-arguments']),
+            '&nbsp;' => sprintf('<input type="submit" class="snapinpack-generate" value="%s"/>',_('Generate')),
+        );
+        foreach ((array)$fields AS $field => &$input) {
+            $this->data[] = array(
+                'field' => $field,
+                'input' => $input,
+            );
+            unset($input);
+        }
+        unset($fields);
+        self::$HookManager->processEvent('SNAPINPACK_GENERATOR',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        $this->render();
+        unset($this->data,$this->templates,$this->attributes,$this->headerData);
     }
     public function index() {
         $this->title = _('All Snap-ins');
