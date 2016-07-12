@@ -854,10 +854,14 @@ pre {
     background: #888;
 }
 #graph-bandwidth-filters .l {
+    position: relative;
     float: left;
+    left: 2px;
 }
 #graph-bandwidth-filters .r {
+    position: relative;
     float: right;
+    right: 10px;
 }
 /* Tipsy tooltips */
 .tipsy {
