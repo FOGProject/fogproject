@@ -5,16 +5,6 @@
  *	Revision:	$Revision: 2734 $
  *	Last Update:	$LastChangedDate: 2014-12-03 08:04:29 -0500 (Wed, 03 Dec 2014) $
  ***/
-@font-face {
-    font-family: 'Ubuntu';
-    src: url('ubuntu-regular-webfont.eot');
-    src: url('ubuntu-regular-webfont.eot?#iefix') format('embedded-opentype'),
-    url('ubuntu-regular-webfont.woff') format('woff'),
-    url('ubuntu-regular-webfont.ttf') format('truetype'),
-    url('ubuntu-regular-webfont.svg#UbuntuRegular') format('svg');
-    font-weight: normal;
-    font-style: normal;
-}
 html, body {
     min-height: 440px;
 }
@@ -22,7 +12,7 @@ body {
     margin: 21px;
     padding: 0;
     background: #fff url('images/body-bkg.gif') repeat-x;
-    font-family: Ubuntu, Arial, Helvetica, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-size: 13px;
     color: #555;
 }
@@ -116,7 +106,7 @@ fieldset {
 }
 /* Form elements */
 input, textarea, select {
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-size: 13px;
     color: #333;
     border: 1px solid #94c3d3;
