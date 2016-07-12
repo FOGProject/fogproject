@@ -216,7 +216,10 @@ function UpdateBandwidthGraph(data) {
             GraphBandwidthData[i].tx.shift();
             GraphBandwidthData[i].rx.shift();
         }
-        if (data[i] === null) data[i] = {dev: 'Unknown',tx:0,rx:0};
+        if (data[i] === null) {
+            data[i] = {dev: 'Unknown',tx:0,rx:0};
+            continue;
+        }
         data[i].tx = (data[i].tx > 0 ? data[i].tx / bandwidthtime : 0);
         data[i].rx = (data[i].rx > 0 ? data[i].rx / bandwidthtime : 0);
         // Set the old values and wait one second.
