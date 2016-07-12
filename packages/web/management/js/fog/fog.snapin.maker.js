@@ -1,7 +1,7 @@
 $(function() {
     name = 'Name';
     version = 'v1.0.0';
-    file = 'cscript';
+    file = 'cmd.exe';
     argument = '/c "[FOG_SNAPIN_PATH]\\script.bat"';
     if ($('#snapinpack-name').val().length < 1) $('#snapinpack-name').attr('placeholder',name);
     if ($('#snapinpack-version').val().length < 1) $('#snapinpack-version').attr('placeholder',version);
