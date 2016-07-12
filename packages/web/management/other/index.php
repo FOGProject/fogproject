@@ -1,11 +1,10 @@
 <?php
 //ob_start();
 echo '<!DOCTYPE html><html><head>';
+echo '<meta http-equiv="X-UA-Compatible" content="IE=Edge"/><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>';
 if (!self::$isMobile) {
-    echo '<meta http-equiv="X-UA-Compatible" content="IE=Edge"/><meta http-equiv="content-type" content="text/html; charset=utf-8"/><title>';
     printf('%s%s &gt; FOG &gt; %s</title>',($this->pageTitle ? "$this->pageTitle &gt; " : ''),$this->sectionTitle,self::$foglang['Slogan']);
 } else {
-    echo '<meta name="viewport" content="width-device-width"/><meta http-equiv="viewport" content="initial-scale=1.0"/><title>';
     printf('FOG :: %s :: %s %s</title>',_('Mobile Manager'),_('Version'),FOG_VERSION);
 }
 $cnt = 0;
