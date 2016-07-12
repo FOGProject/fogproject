@@ -785,9 +785,8 @@ class BootMenu extends FOGBase {
         $name = trim(":$name");
         $type = trim($type);
         $Send = array($name);
-        if (trim($option->get('params'))) {
-            $params = explode("\n",$option->get('params'));
-            $params = array_map('trim',(array)$params);
+        $params = array_filter(array_map('trim',explode("\n",$option->get('params'))));
+        if (count($params)) {
             if ($type) {
                 $index = array_search('params',$params);
                 if ($index != false && is_numeric($index)) $this->array_insert_after($index,$params,'extra',"param extraargs \"$type\"");
@@ -806,7 +805,7 @@ class BootMenu extends FOGBase {
             $Send = array_merge($Send,array("chain -ar $this->booturl/ipxe/advanced.php || goto MENU"));
             break;
         }
-        if (!$params && $type) $Send = array_merge($Send,array("$this->kernel $this->loglevel $type",$this->initrd,'boot || goto MENU'));
+        if (!$params) $Send = array_merge($Send,array("$this->kernel $this->loglevel $type",$this->initrd,'boot || goto MENU'));
         return $Send;
     }
     public function printDefault() {
