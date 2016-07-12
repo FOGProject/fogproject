@@ -75,8 +75,9 @@ class FOGURLRequests extends FOGBase {
             while ($done = curl_multi_info_read($master)) {
                 $info = curl_getinfo($done['handle']);
                 $output = curl_multi_getcontent($done['handle']);
+                $key = (string)$done['handle'];
+                $this->response[$this->requestMap[$key]] = $output;
                 if ($this->callback && is_callable($this->callback)) {
-                    $key = (string)$done['handle'];
                     $request = $this->requests[$this->requestMap[$key]];
                     unset($this->requestMap[$key]);
                     $this->callback($output,$info,$request);
@@ -90,11 +91,11 @@ class FOGURLRequests extends FOGBase {
                     $this->requestMap[$key] = $i;
                     $i++;
                 }
-                $this->response[] = $output;
                 curl_multi_remove_handle($master,$done['handle']);
             }
             if ($running) curl_multi_select($master,$this->timeout);
         } while ($running);
+        asort($this->response);
         curl_multi_close($master);
         return $this->response;
     }
