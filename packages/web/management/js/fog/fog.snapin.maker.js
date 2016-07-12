@@ -3,10 +3,10 @@ $(function() {
     version = 'v1.0.0';
     file = 'cscript';
     argument = '/c "[FOG_SNAPIN_PATH]\\script.bat"';
-    if ($('#snapinpack-name').val().length < 1) $('#snapinpack-name').val(name);
-    if ($('#snapinpack-version').val().length < 1) $('#snapinpack-version').val(version);
-    if ($('#snapinpack-file').val().length < 1) $('#snapinpack-file').val(file);
-    if ($('#snapinpack-arguments').val().length < 1) $('#snapinpack-arguments').val(argument);
+    if ($('#snapinpack-name').val().length < 1) $('#snapinpack-name').attr('placeholder',name);
+    if ($('#snapinpack-version').val().length < 1) $('#snapinpack-version').attr('placeholder',version);
+    if ($('#snapinpack-file').val().length < 1) $('#snapinpack-file').attr('placeholder',file);
+    if ($('#snapinpack-arguments').val().length < 1) $('#snapinpack-arguments').attr('placeholder',argument);
     $('#argTypes').change(function() {
         $('#snapinpack-file').val($('option:selected',this).attr('file'));
         $('#snapinpack-arguments').val($('option:selected',this).attr('args'));
