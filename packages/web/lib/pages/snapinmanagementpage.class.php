@@ -31,17 +31,20 @@ class SnapinManagementPage extends FOGPage {
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             _('Snapin Name'),
+            _('Is Pack'),
             _('Storage Group'),
         );
         $this->templates = array(
             '<input type="checkbox" name="snapin[]" value="${id}" class="toggle-action" />',
             sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit')),
+            '${packtype}',
             '${storage_group}',
         );
         $this->attributes = array(
             array('class'=>'l filter-false','width'=>16),
             array(),
             array('class'=>'c','width'=>50),
+            array('class'=>'r'),
         );
         self::$returnData = function(&$Snapin) {
             if (!$Snapin->isValid()) return;
@@ -51,6 +54,7 @@ class SnapinManagementPage extends FOGPage {
                 'storage_group' => $Snapin->getStorageGroup()->get('name'),
                 'description' => $Snapin->get('description'),
                 'file' => $Snapin->get('file'),
+                'packtype' => $Snapin->get('packtype') ? _('Yes') : _('No'),
             );
             unset($Snapin);
         };
@@ -157,6 +161,7 @@ class SnapinManagementPage extends FOGPage {
         $template = ob_get_clean();
         $fields = array(
             _('Snapin Name') => sprintf('<input type="text" name="name" value="%s"/>',$_REQUEST['name']),
+            _('Snapin Type')=> sprintf('<select name="packtype" id="snapinpack"><option value="0"%s>%s</option><option value="1"%s>%s</option></select>',!$_REQUEST['packtype'] ? ' selected' : '',_('Normal Snapin'),$_REQUEST['packtype'] ? ' selected' : '',_('Snapin Pack')),
             _('Snapin Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
             _('Snapin Template') => $template,
             _('Snapin Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup']),
@@ -221,6 +226,7 @@ class SnapinManagementPage extends FOGPage {
             }
             $Snapin = self::getClass('Snapin')
                 ->set('name',$snapinName)
+                ->set('packtype',$_REQUEST['packtype'])
                 ->set('description',$_REQUEST['description'])
                 ->set('file',$snapinfile)
                 ->set('args',$_REQUEST['args'])
@@ -276,6 +282,7 @@ class SnapinManagementPage extends FOGPage {
         $template = ob_get_clean();
         $fields = array(
             _('Snapin Name') => sprintf('<input type="text" name="name" value="%s"/>',$this->obj->get('name')),
+            _('Snapin Type')=> sprintf('<select name="packtype" id="snapinpack"><option value="0"%s>%s</option><option value="1"%s>%s</option></select>',!$this->obj->get('packtype') ? ' selected' : '',_('Normal Snapin'),$this->obj->get('packtype') ? ' selected' : '',_('Snapin Pack')),
             _('Snapin Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
             _('Snapin Run With Template') => $template,
             _('Snapin Run With') => sprintf('<input class="cmdlet1" type="text" name="rw" value="%s"/>',$this->obj->get('runWith')),
@@ -397,6 +404,7 @@ class SnapinManagementPage extends FOGPage {
                 }
                 $this->obj
                     ->set('name',$snapinName)
+                    ->set('packtype',$_REQUEST['packtype'])
                     ->set('description',$_REQUEST['description'])
                     ->set('file',$snapinfile)
                     ->set('args',$_REQUEST['args'])
