@@ -124,7 +124,7 @@ $.fn.fogAjaxSearch = function(opts) {
     var Defaults = {
         URL: $('#search-wrapper').prop('action'),
         Container: '#search-content,#active-tasks',
-        SearchDelay: 600,
+        SearchDelay: 400,
         SearchMinLength: 1,
     };
     var SearchAJAX = null;
@@ -325,6 +325,7 @@ function validateInputs(selector,match) {
         });
     }).parents('form').submit(function (e) {
         $(selector).each(function() {
+            $(this).val(this.value);
             $(this).parents('.invalid').remove();
             content = $(this).val().trim();
             if (content === null) $(this).addClass('error');

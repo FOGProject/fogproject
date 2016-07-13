@@ -104,113 +104,153 @@ class PrinterManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        echo '<!-- General --><div id="printer-gen">';
-        if(!isset($_REQUEST['printertype'])) $_REQUEST['printertype'] = "Local";
-        printf('<form method="post" id="printerform" action="%s&tab=printer-type">',$this->formAction);
+        if (!isset($_REQUEST['printertype']) || empty($_REQUEST['printertype'])) $_REQUEST['printertype'] = $this->obj->get('config');
         $printerTypes = array(
-            'Local'=>_('TCP/IP Printer'),
+            'Local'=>_('TCP/IP Port Printer'),
             'iPrint'=>_('iPrint Printer'),
             'Network'=>_('Network Printer'),
             'Cups'=>_('CUPS Printer'),
         );
         ob_start();
-        foreach ((array)$printerTypes AS $short => &$long) printf('<option value="%s"%s>%s</option>',$short,($_REQUEST['printertype'] == $short ? ' selected' : ''),$long);
-        unset($long);
+        array_walk($printerTypes,function(&$long,&$short) {
+            printf('<option value="%s"%s>%s</option>',$short,($_REQUEST['printertype'] === $short ? ' selected' : ''),$long);
+            unset($short,$long);
+        });
         $optionPrinter = ob_get_clean();
-        printf('<p class="c"><select name="printertype">%s</select></p></form><br/>',$optionPrinter);
+        echo '<div id="printer-copy">';
         $fields = array(
-            _('Printer Description') => '<textarea name="description">${desc}</textarea>',
-            sprintf('%s*',_('Printer Alias')) => '<input class="printername-input" type="text" name="alias" value="${printer_name}"/>',
+            sprintf('%s',_('Copy from existing printer'))=>sprintf('%s',self::getClass('PrinterManager')->buildSelectBox($this->obj->get('id'))),
+            _('Printer Type')=>sprintf('<select name="printertype">%s</select>',$optionPrinter),
         );
-        switch (strtolower($_REQUEST['printertype'])) {
-        case 'network':
-            $fields['e.g. \\\\\\\\printerserver\\\\printername'] = '&nbsp;';
-            break;
-        case 'cups':
-            $fields = array_merge($fields, array(sprintf('%s*',_('Printer INF File')) => '<input class="printerinf-input" type="text" name="inf" value="${printer_inf}"/>',sprintf('%s*',_('Printer IP')) => '<input type="text" name="ip" value="${printer_ip}"/>'));
-            break;
-        case 'iprint':
-            $fields = array(
-                _('Printer Description') => '<textarea name="description" rows="8" cols="40">${desc}</textarea>',
-                sprintf('%s*',_('Printer Alias')) => '<input type="text" name="alias" value="${printer_name}"/>',
-                sprintf('%s*',_('Printer Port')) => '<input type="text" name="port" value="${printer_port}"/>',
-            );
-            break;
-        case 'local':
-            $fields = array(
-                _('Printer Description') => '<textarea name="description" rows="8" cols="40">${desc}</textarea>',
-                _('Printer Alias') => '<input type="text" name="alias" value="${printer_name}"/>',
-                _('Printer Port') => '<input type="text" name="port" value="${printer_port}"/>',
-                _('Printer Model') => '<input type="text" name="model" value="${printer_model}"/>',
-                _('Printer INF File') => '<input class="printerinf-input" type="text" name="inf" value="${printer_inf}"/>',
-                _('Printer Config File') => '<input type="text" name="configFile" value="${printer_configFile}"/>',
-                _('Printer IP') => '<input type="text" name="ip" value="${printer_ip}"/>',
-            );
-            break;
-        }
-        $fields['&nbsp;'] = sprintf('<input name="%s" type="submit" value="%s"/>',strtolower($_REQUEST['printertype']),_('Update Printer'));
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
                 'input'=>$input,
-                'printer_name'=>$_REQUEST['alias'],
-                'printer_port'=>$_REQUEST['port'],
-                'printer_model'=>$_REQUEST['model'],
-                'printer_inf'=>$_REQUEST['inf'],
-                'printer_ip'=>$_REQUEST['ip'],
-                'printer_configFile'=>$_REQUEST['configFile'],
-                'desc'=>$_REQUEST['description'],
             );
         }
-        unset($input,$fields);
-        self::$HookManager->processEvent('PRINTER_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        printf('<form method="post" action="%s&tab=printer-gen">',$this->formAction);
+        $this->render();
+        echo '</div>';
+        unset($this->data);
+        printf('<form method="post" action="%s">',$this->formAction);
+        $fields = array(
+            _('Printer Description')=>sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
+            sprintf('%s*',_('Printer Alias'))=>sprintf('<input class="printername-input" type="text" name="alias" value="%s"/>',$_REQUEST['alias']),
+            '&nbsp;'=>'e.g. \\\\printerserver\\printername',
+        );
+        echo '<div id="network" class="hidden">';
+        foreach((array)$fields AS $field => &$input) {
+            $this->data[] = array(
+                'field'=>$field,
+                'input'=>$input,
+            );
+        }
+        $this->render();
+        echo '</div>';
+        unset($this->data);
+        unset($fields['&nbsp;']);
+        $fields = array_merge($fields,array(
+            sprintf('%s*',_('Printer Port'))=>sprintf('<input class="printerport-input" type="text" name="port" value="%s"/>',$_REQUEST['port']),
+        ));
+        echo '<div id="iprint" class="hidden">';
+        foreach((array)$fields AS $field => &$input) {
+            $this->data[] = array(
+                'field'=>$field,
+                'input'=>$input,
+            );
+        }
+        $this->render();
+        echo '</div>';
+        unset($this->data);
+        $fields = array(
+            _('Printer Description')=>sprintf('<textarea class="printerdescription-input" name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
+            sprintf('%s*',_('Printer Alias'))=>sprintf('<input class="printername-input" type="text" name="alias" value="%s"/>',$_REQUEST['alias']),
+            sprintf('%s*',_('Printer INF File'))=>sprintf('<input class="printerinf-input" type="text" name="inf" value="%s"/>',$_REQUEST['inf']),
+            sprintf('%s*',_('Printer IP'))=>sprintf('<input class="printerip-input" type="text" name="ip" value="%s"/>',$_REQUEST['ip']),
+        );
+        echo '<div id="cups" class="hidden">';
+        foreach((array)$fields AS $field => &$input) {
+            $this->data[] = array(
+                'field'=>$field,
+                'input'=>$input,
+            );
+        }
+        $this->render();
+        echo '</div>';
+        unset($this->data);
+        $fields = array_merge($fields,array(
+            _('Printer Port')=>sprintf('<input class="printerport-input" type="text" name="port" value="%s"/>',$_REQUEST['port']),
+            _('Printer Model')=>sprintf('<input class="printermodel-input" type="text" name="model" value="%s"/>',$_REQUEST['model']),
+            _('Printer Config File')=>sprintf('<input class="printerconfigFile-input" type="text" name="configFile" value="%s"/>',$_REQUEST['configFile']),
+        ));
+        echo '<div id="local" class="hidden">';
+        foreach((array)$fields AS $field => &$input) {
+            $this->data[] = array(
+                'field'=>$field,
+                'input'=>$input,
+            );
+        }
+        $this->render();
+        echo '</div>';
+        unset($this->data);
+        $fields = array('&nbsp;'=>sprintf('<input class="c" name="addprinter" type="submit" value="%s"/>',_('Add Printer')));
+        foreach((array)$fields AS $field => &$input) {
+            $this->data[] = array(
+                'field'=>$field,
+                'input'=>$input,
+            );
+            unset($input);
+        }
         $this->render();
         echo '</form>';
+        unset($this->data);
+        self::$HookManager->processEvent('PRINTER_ADD',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
     }
     public function add_post() {
+        self::$HookManager->processEvent('PRINTER_ADD_POST');
         try {
-            self::$HookManager->processEvent('PRINTER_ADD_POST');
-            switch ($_REQUEST['tab']) {
-            case 'printer-type':
-                $this->setMessage(sprintf('%s: %s',_('Printer type changed to'),$_REQUEST['printertype']));
-                $this->redirect('?node=printer&sub=add');
+            $_REQUEST['alias'] = trim($_REQUEST['alias']);
+            $_REQUEST['port'] = trim($_REQUEST['port']);
+            $_REQUEST['inf'] = trim($_REQUEST['inf']);
+            $_REQUEST['model'] = trim($_REQUEST['model']);
+            $_REQUEST['ip'] = trim($_REQUEST['ip']);
+            $_REQUEST['configFile'] = trim($_REQUEST['configFile']);
+            $_REQUEST['description'] = trim($_REQUEST['description']);
+            $_REQUEST['printertype'] = trim($_REQUEST['printertype']);
+            if (empty($_REQUEST['alias'])) throw new Exception(_('All printer definitions must have an alias/name associated with it. Unable to create!'));
+            if (self::getClass('PrinterManager')->exists($_REQUEST['alias'])) throw new Exception(_('Printer name already exists. Unable to create!'));
+            switch ($_REQUEST['printertype']) {
+            case 'local':
+                if (empty($_REQUEST['port']) || empty($_REQUEST['inf']) || empty($_REQUEST['model']) || empty($_REQUEST['ip'])) throw new Exception(_('You must specify the port, model, ip, and file.  Unable to create!'));
+                $printertype = 'Local';
                 break;
-            case 'printer-gen':
-                $_REQUEST['alias'] = trim($_REQUEST['alias']);
-                $_REQUEST['port'] = trim($_REQUEST['port']);
-                $_REQUEST['inf'] = trim($_REQUEST['inf']);
-                $_REQUEST['configFile'] = trim($_REQUEST['configFile']);
-                $_REQUEST['model'] = trim($_REQUEST['model']);
-                $_REQUEST['ip'] = trim($_REQUEST['ip']);
-                $_REQUEST['description'] = trim($_REQUEST['description']);
-                if (isset($_REQUEST['local'])) $printertype = 'Local';
-                else if (isset($_REQUEST['network'])) $printertype = 'Network';
-                else if (isset($_REQUEST['iprint'])) $printertype = 'iPrint';
-                else if (isset($_REQUEST['cups'])) $printertype = 'Cups';
-                if (isset($_REQUEST['local']) && (empty($_REQUEST['alias']) || empty($_REQUEST['port']) || empty($_REQUEST['inf']) || empty($_REQUEST['model']))) throw new Exception(_('You must specify the alias, port, model, and inf. Unable to create!'));
-                else if (isset($_REQUEST['iprint']) && (empty($_REQUEST['alias']) || empty($_REQUEST['port']))) throw new Exception(_('You must specify the alias and port. Unable to create!'));
-                else if (isset($_REQUEST['network']) && empty($_REQUEST['alias'])) throw new Exception(_('You must specify the alias. Unable to create!'));
-                else if (isset($_REQUEST['cups']) && (!$_REQUEST['alias'] || !$_REQUEST['ip'] || !$_REQUEST['inf'])) throw new Exception(_('You must specify the alias, inf and ip'));
-                if (self::getClass('PrinterManager')->exists($_REQUEST['alias'])) throw new Exception(_('Printer already exists'));
-                $Printer = self::getClass('Printer')
-                    ->set('description',$_REQUEST['description'])
-                    ->set('name',$_REQUEST['alias'])
-                    ->set('config',$printertype)
-                    ->set('model',$_REQUEST['model'])
-                    ->set('file',$_REQUEST['inf'])
-                    ->set('port',$_REQUEST['port'])
-                    ->set('configFile',$_REQUEST['configFile'])
-                    ->set('ip',$_REQUEST['ip']);
-                if (!$Printer->save()) throw new Exception(_('Could not create printer'));
-                self::$HookManager->processEvent('PRINTER_ADD_SUCCESS',array('Printer'=>&$Printer));
-                $this->setMessage(_('Printer was created! Editing now!'));
-                $this->redirect(sprintf('?node=printer&sub=edit&id=%s',$Printer->get('id')));
+            case 'cups':
+                if (empty($_REQUEST['inf'])) throw new Exception(_('You must specify the file to use. Unable to create!'));
+                $printertype = 'Cups';
+                break;
+            case 'iprint':
+                if (empty($_REQUEST['port'])) throw new Exception(_('You must specify the port. Unable to create!'));
+                $printertype = 'iPrint';
+                break;
+            case 'network':
+                $printertype = 'Network';
+                break;
             }
+            $Printer = self::getClass('Printer')
+                ->set('description',$_REQUEST['description'])
+                ->set('name',$_REQUEST['alias'])
+                ->set('config',$printertype)
+                ->set('model',$_REQUEST['model'])
+                ->set('port',$_REQUEST['port'])
+                ->set('file',$_REQUEST['inf'])
+                ->set('configFile',$_REQUEST['configFile'])
+                ->set('ip',$_REQUEST['ip']);
+            if (!$Printer->save()) throw new Exception(_('Printer create failed!'));
+            self::$HookManager->processEvent('PRINTER_ADD_SUCCESS',array('Printer'=>&$Printer));
+
+            die(json_encode(array('msg'=>_('Printer Added, you may create another!'))));
         } catch (Exception $e) {
             self::$HookManager->processEvent('PRINTER_ADD_FAIL',array('Printer'=>&$Printer));
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            die(json_encode(array('error'=>$e->getMessage())));
         }
     }
     public function edit() {
@@ -344,18 +384,18 @@ class PrinterManagementPage extends FOGPage {
                 $_REQUEST['configFile'] = trim($_REQUEST['configFile']);
                 $_REQUEST['description'] = trim($_REQUEST['description']);
                 $_REQUEST['printertype'] = trim($_REQUEST['printertype']);
-                if (empty($_REQUEST['alias'])) throw new Exception(_('All printer definitions must have an alias/name associated with it. Unable to create!'));
+                if (empty($_REQUEST['alias'])) throw new Exception(_('All printer definitions must have an alias/name associated with it. Unable to update!'));
                 switch ($_REQUEST['printertype']) {
                 case 'local':
-                    if (empty($_REQUEST['port']) || empty($_REQUEST['inf']) || empty($_REQUEST['model']) || empty($_REQUEST['ip'])) throw new Exception(_('You must specify the port, model, ip, and file.  Unable to create!'));
+                    if (empty($_REQUEST['port']) || empty($_REQUEST['inf']) || empty($_REQUEST['model']) || empty($_REQUEST['ip'])) throw new Exception(_('You must specify the port, model, ip, and file.  Unable to update!'));
                     $printertype = 'Local';
                     break;
                 case 'cups':
-                    if (empty($_REQUEST['inf'])) throw new Exception(_('You must specify the file to use. Unable to create!'));
+                    if (empty($_REQUEST['inf'])) throw new Exception(_('You must specify the file to use. Unable to update!'));
                     $printertype = 'Cups';
                     break;
                 case 'iprint':
-                    if (empty($_REQUEST['port'])) throw new Exception(_('You must specify the port. Unable to create!'));
+                    if (empty($_REQUEST['port'])) throw new Exception(_('You must specify the port. Unable to update!'));
                     $printertype = 'iPrint';
                     break;
                 case 'network':
