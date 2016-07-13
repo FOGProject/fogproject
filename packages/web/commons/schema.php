@@ -2234,3 +2234,7 @@ $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.`moduleStatusByHost` SET `msModuleID`='12' WHERE `msModuleID`='usertracker'",
     "ALTER TABLE `".DATABASE_NAME."`.`moduleStatusByHost` CHANGE `msModuleID` `msModuleID` INT NOT NULL",
 );
+// 232
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sPackType` ENUM('0','1') NOT NULL DEFAULT '0'",
+);
