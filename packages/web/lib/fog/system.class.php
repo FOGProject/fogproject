@@ -5,11 +5,6 @@ class System {
         define('FOG_VERSION', '8540');
         define('FOG_SCHEMA', 231);
         define('FOG_BCACHE_VER',89);
-=======
-        define('FOG_VERSION', '');
-        define('FOG_SCHEMA', 231);
-        define('FOG_BCACHE_VER',88);
->>>>>>> 
         define('FOG_SVN_REVISION',5892);
         define('FOG_SVN_LAST_UPDATE', '$LastChangedDate: 2015-01-01 14:16:56 -0500 (Thu, 01 Jan 2015) $');
         define('FOG_SVN_LAST_UPDATE', '$LastChangedDate: 2015-01-01 14:16:56 -0500 (Thu, 01 Jan 2015) $');
