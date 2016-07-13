@@ -931,6 +931,9 @@ abstract class FOGPage extends FOGBase {
         $this->render();
     }
     public function membership() {
+        session_write_close();
+        ignore_user_abort(true);
+        set_time_limit(0);
         $objType = ($this->obj instanceof Host);
         $this->data = array();
         echo '<!-- Membership -->';
@@ -1001,6 +1004,7 @@ abstract class FOGPage extends FOGBase {
         printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
         if (count($this->data)) printf('<p class="c"><input type="submit" value="%s %ss %s %s" name="remhosts"/></p>',_('Delete Selected'),$ClassCall,_('From'),$this->node);
+        session_start();
     }
     public function membership_post() {
         if (self::$ajax) return;

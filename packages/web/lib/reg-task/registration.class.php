@@ -36,6 +36,7 @@ class Registration extends FOGBase {
     }
     private function fullReg() {
         try {
+            if ($this->Host->isValid()) return;
             self::stripAndDecode($_REQUEST);
             $productKey = $_REQUEST['productKey'];
             $username = $_REQUEST['username'];
@@ -104,6 +105,7 @@ class Registration extends FOGBase {
     }
     private function quickRegAuto() {
         try {
+            if ($this->Host->isValid()) return;
             $groupsToJoin = explode(',',trim(self::getSetting('FOG_QUICKREG_GROUP_ASSOC')));
             $autoRegSysName = trim(self::getSetting('FOG_QUICKREG_SYS_NAME'));
             $autoRegSysNumber = self::getSetting('FOG_QUICKREG_SYS_NUMBER');
@@ -148,6 +150,7 @@ class Registration extends FOGBase {
     }
     private function quickReg() {
         try {
+            if ($this->Host->isValid()) return;
             $this->Host = self::getClass('Host')
                 ->set('name',$this->macsimple)
                 ->set('description',$this->description)
