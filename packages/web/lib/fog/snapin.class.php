@@ -18,6 +18,7 @@ class Snapin extends FOGController {
         'toReplicate' => 'sReplicate',
         'hide' => 'sHideLog',
         'timeout' => 'sTimeout',
+        'packtype' => 'sPackType',
         'anon3' => 'sAnon3',
     );
     protected $databaseFieldsRequired = array(
