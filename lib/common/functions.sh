@@ -41,7 +41,7 @@ registerStorageNode() {
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
-        wget -qO - http://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$ipaddress&path=$storageLocation&ftppath=$storageLocation&snapinpath=$snapindir&sslpath=$sslpath&ip=$ipaddress&maxClients=$maxClients&user=$username&pass=$password&interface=$interface&bandwidth=$interface&webroot=${webroot}&fogverfied"
+        wget -qO - http://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverfied"
         echo "Done"
     fi
 }
@@ -52,7 +52,7 @@ updateStorageNodeCredentials() {
     checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/${webroot}/service/checkcredentials.php" --post-data="username=$user&password=$pass")
     [[ $checkcreds != '#!ok' ]] && return
     dots "Ensuring node username and passwords match"
-    wget -qO - http://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=${ipaddress}&user=$username&pass=$password&fogverified"
+    wget -qO - http://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
     echo "Done"
 }
 backupDB() {
