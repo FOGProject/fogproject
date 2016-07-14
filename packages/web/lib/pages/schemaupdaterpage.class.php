@@ -21,11 +21,12 @@ class SchemaUpdaterPage extends FOGPage {
                 _('If you would like to backup your FOG database you can do so using MySQL Administrator or by running the following command in a terminal window (Applications -> System Tools -> Terminal), this will save sqldump in your home directory).'),
                 "\n",
             );
-            vprintf('<div id="dbRunning" class="hidden"><p>%s</p><p>%s</p><br/><form method="post" action="%s"><p class="c"><input type="submit" name="confirm" value="%s"/></p></form><p>%s</p><div id="sidenotes"><pre><code>cd%smysqldump --allow-keywords -x -v fog > fogbackup.sql</code></pre></div><br/></div>',$vals);
+            vprintf('<div id="dbRunning" class="hidden"><p>%s</p><p>%s</p><br/><form method="post" action="%s"><p class="c"><input type="hidden" name="fogverified"/><input type="submit" name="confirm" value="%s"/></p></form><p>%s</p><div id="sidenotes"><pre><code>cd%smysqldump --allow-keywords -x -v fog > fogbackup.sql</code></pre></div><br/></div>',$vals);
             echo '<div id="dbNotRunning" class="hidden">'._('Your database connection appears to be invalid. FOG is unable to communicate with the database.  There are many reasons why this could be the case.  Please check your credentials in '.dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'fog/config.class.php. Also confirm that the database is indeed running. If credentials are correct, and the Database service is running, check to ensure your filesystem has enough space.').'</div>';
     }
     public function index_post() {
-        if (!isset($_REQUEST['confirm'])) return;
+        if (!isset($_POST['fogverified'])) return;
+        if (!isset($_POST['confirm'])) return;
         require_once sprintf('%s%scommons%sschema.php',BASEPATH,DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR);
         $errors = array();
         try {
