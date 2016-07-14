@@ -583,6 +583,7 @@ while [[ -z $blGo ]]; do
                     echo
                     ;;
             esac
+            [[ -d $webdirdest/maintenance ]] && rm -rf $webdirdest/maintenance
             ;;
         [Nn]|[Nn][Oo])
             echo " * FOG installer exited by user request"
