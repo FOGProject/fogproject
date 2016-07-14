@@ -1,5 +1,8 @@
 <?php
 require '../commons/base.inc.php';
+array_walk($_POST,function(&$val,&$key) {
+    if (isset($val)) $val = trim(base64_decode($val));
+});
 if (!isset($_POST['fogverified'])) return;
 if (isset($_POST['newNode'])) {
     if (FOGCore::getClass('StorageNodeManager')->count(array('ip'=>$_POST['ip'])) > 0) return;
