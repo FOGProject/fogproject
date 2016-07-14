@@ -505,10 +505,13 @@ while [[ -z $blGo ]]; do
                 [Ss])
                     packages=$(echo $packages | sed -e 's/[a-zA-Z-]*dhcp[-a-zA-Z]*//g' -e 's/[a-zA-Z-]*mysql[-a-zA-Z]*//g')
                     configureUsers
+                    backupReports
                     configureMinHttpd
                     configureStorage
+                    configureDHCP
                     configureTFTPandPXE
                     configureFTP
+                    configureSnapins
                     configureUDPCast
                     installInitScript
                     installFOGServices
@@ -562,6 +565,7 @@ while [[ -z $blGo ]]; do
                     writeUpdateFile
                     linkOptFogDir
                     updateStorageNodeCredentials
+                    #
                     echo
                     echo " * Setup complete"
                     echo
