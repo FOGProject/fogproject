@@ -95,7 +95,7 @@ class FOGURLRequests extends FOGBase {
             }
             if ($running) curl_multi_select($master,$this->timeout);
         } while ($running);
-        asort($this->response);
+        ksort($this->response);
         curl_multi_close($master);
         return $this->response;
     }
