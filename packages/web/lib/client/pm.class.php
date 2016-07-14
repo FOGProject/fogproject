@@ -17,9 +17,9 @@ class PM extends FOGClient {
                     $dom = trim($pm->get('dom'));
                     $month = trim($pm->get('month'));
                     $dow = trim($pm->get('dow'));
-                    if (!($min && $hour && $dom && $month && $dow)) return;
+                    $cron = sprintf('%s %s %s %s %s',$min,$hour,$dom,$month,$dow);
                     return array(
-                        'cron' => sprintf('%s %s %s %s %s',$min,$hour,$dom,$month,$dow),
+                        'cron' => $cron,
                         'action' => $pm->get('action'),
                     );
                 },(array)self::getClass('PowerManagementManager')->find(array('hostID'=>$this->Host->get('id'))))
