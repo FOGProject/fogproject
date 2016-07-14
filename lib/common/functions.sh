@@ -39,6 +39,7 @@ registerStorageNode() {
     echo "Done"
     echo " * Node is registered"
     if [[ $storageNodeExists != exists ]]; then
+        [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
         wget -qO - http://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$ipaddress&path=$storageLocation&ftppath=$storageLocation&snapinpath=$snapindir&sslpath=$sslpath&ip=$ipaddress&maxClients=$maxClients&user=$username&pass=$password&interface=$interface&bandwidth=$interface&webroot=${webroot}&fogverfied"
         echo "Done"
