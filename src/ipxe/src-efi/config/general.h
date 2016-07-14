@@ -44,8 +44,8 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
  * PXE support
  *
  */
-#undef	PXE_STACK		/* PXE stack in iPXE - you want this! */
-#undef	PXE_MENU		/* PXE menu booting */
+//#undef	PXE_STACK		/* PXE stack in iPXE - you want this! */
+//#undef	PXE_MENU		/* PXE menu booting */
 
 /*
  * Download protocols
@@ -104,9 +104,9 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 //#define	IMAGE_NBI		/* NBI image support */
 //#define	IMAGE_ELF		/* ELF image support */
 //#define	IMAGE_MULTIBOOT		/* MultiBoot image support */
-#undef	IMAGE_PXE		/* PXE image support */
+//#define	IMAGE_PXE		/* PXE image support */
 #define	IMAGE_SCRIPT		/* iPXE script image support */
-#define	IMAGE_BZIMAGE		/* Linux bzImage image support */
+//#define	IMAGE_BZIMAGE		/* Linux bzImage image support */
 //#define	IMAGE_COMBOOT		/* SYSLINUX COMBOOT image support */
 #define	IMAGE_EFI		/* EFI image support */
 //#define	IMAGE_SDI		/* SDI image support */
@@ -186,7 +186,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #undef	GDBSERIAL		/* Remote GDB debugging over serial */
 #undef	GDBUDP			/* Remote GDB debugging over UDP
 				 * (both may be set) */
-//#define EFI_DOWNGRADE_UX	/* Downgrade UEFI user experience */
+#define EFI_DOWNGRADE_UX	/* Downgrade UEFI user experience */
 
 #include <config/named.h>
 #include NAMED_CONFIG(general.h)
