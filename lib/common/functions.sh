@@ -29,45 +29,30 @@ backupReports() {
     return 0
 }
 registerStorageNode() {
-    #Check if the storage node exists or not.
-    storageNodeExists=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser  -p$snmysqlpass -e "SELECT COUNT(*) FROM \`nfsGroupMembers\` WHERE \`ngmHostname\`='$ipaddress'")
-    #If the node does not exist, create it.
-    [[ $storageNodeExists -lt 1 ]] && mysql -s -D fog -h $snmysqlhost -u $snmysqluser -p$snmysqlpass -e "INSERT INTO \`nfsGroupMembers\` (\`ngmMemberName\`,\`ngmMemberDescription\`,\`ngmRootPath\`,\`ngmSSLPath\`,\`ngmFTPPath\`,\`ngmSnapinPath\`,\`ngmHostname\`,\`ngmMaxClients\`,\`ngmUser\`,\`ngmPass\`,\`ngmInterface\`,\`ngmGraphEnabled\`,\`ngmWebroot\`) VALUES ('$ipaddress','Auto generated fog nfs group member','/images','/opt/fog/snapins/ssl','/images','/opt/fog/snapins','$ipaddress','10','$username','$password','$interface','1','/fog');"
+    [[ -z $webroot ]] && webroot="/"
+    local user=$(echo -n $fogguiuser|base64)
+    local pass=$(echo -n $fogguipass|base64)
+    checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/${webroot}/service/checkcredentials.php" --post-data="username=$user&password=$pass")
+    [[ $checkcreds != '#!ok' ]] && return
+    dots "Checking if this node is registered"
+    storageNodeExists=$(wget -qO - http://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
+    echo "Done"
+    echo " * Node is registered"
+    if [[ $storageNodeExists != exists ]]; then
+        dots "Node being registered"
+        wget -qO - http://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$ipaddress&path=$storageLocation&ftppath=$storageLocation&snapinpath=$snapindir&sslpath=$sslpath&ip=$ipaddress&maxClients=$maxClients&user=$username&pass=$password&interface=$interface&bandwidth=$interface&webroot=${webroot}&fogverfied"
+        echo "Done"
+    fi
 }
 updateStorageNodeCredentials() {
-    #If there is no password set for the DB, don't specify it, otherwise do specify it.
-    if [[ -z "$snmysqlpass" ]]; then
-        #Get stored user for node from DB.
-        storedStorageNodeUser=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser -e "SELECT \`ngmUser\` FROM \`nfsGroupMembers\` WHERE \`ngmHostname\`='$ipaddress'") >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        #Get stored pass for node from DB.
-        storedStorageNodePass=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser -e "SELECT \`ngmPass\` FROM \`nfsGroupMembers\` WHERE \`ngmHostname\`='$ipaddress'") >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    else
-        #Get stored user for node from DB.
-        storedStorageNodeUser=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser  -p$snmysqlpass -e "SELECT \`ngmUser\` FROM \`nfsGroupMembers\` WHERE \`ngmHostname\`='$ipaddress'") >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        #Get stored pass for node from DB.
-        storedStorageNodePass=$(mysql -s -D fog -h $snmysqlhost -u $snmysqluser  -p$snmysqlpass -e "SELECT \`ngmPass\` FROM \`nfsGroupMembers\` WHERE \`ngmHostname\`='$ipaddress'") >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
-    #Check if the user and pass match what's in the .fogsettings file.
-    if [[ "$storedStorageNodeUser" != "$username" || "$storedStorageNodePass" != "$password" ]]; then
-        #Either the user or pass does not match, so display a banner saying it will be corrected.
-        echo " "
-        echo " "
-        echo "***************************************************************************"
-        echo "*                                                                         *"
-        echo "* The credentials set in the fog database do not match what is stored     *"
-        echo "* inside of \"/opt/fog/.fogsettings\". This will be corrected for you, so   *"
-        echo "* fog can continue to operate. It is not advised to use the local \"fog\"   *"
-        echo "* account for back-end administration, however if you need to use this    *"
-        echo "* account, the credentials can be found here:                             *"
-        echo "* Web Interface -> Storage Management -> Storage Node -> User & Password  *"
-        echo "*                                                                         *"
-        echo "***************************************************************************"
-        if [[ -z "$snmysqlpass" ]]; then
-            mysql -s -D fog -h $snmysqlhost -u $snmysqluser -e "UPDATE \`nfsGroupMembers\` SET \`ngmUser\`='$username', \`ngmPass\`='$password' WHERE \`ngmHostname\`='$ipaddress'" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        else
-            mysql -s -D fog -h $snmysqlhost -u $snmysqluser -p$snmysqlpass -e "UPDATE \`nfsGroupMembers\` SET \`ngmUser\`='$username', \`ngmPass\`='$password' WHERE \`ngmHostname\`='$ipaddress'" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
-    fi
+    [[ -z $webroot ]] && webroot="/"
+    local user=$(echo -n $fogguiuser|base64)
+    local pass=$(echo -n $fogguipass|base64)
+    checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/${webroot}/service/checkcredentials.php" --post-data="username=$user&password=$pass")
+    [[ $checkcreds != '#!ok' ]] && return
+    dots "Ensuring node username and passwords match"
+    wget -qO - http://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=${ipaddress}&user=$username&pass=$password&fogverified"
+    echo "Done"
 }
 backupDB() {
     local user=$(echo -n $fogguiuser|base64)
@@ -100,11 +85,19 @@ backupDB() {
     fi
 }
 updateDB() {
+    local user=$(echo -n $fogguiuser|base64)
+    local pass=$(echo -n $fogguipass|base64)
+    checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/$webroot/service/checkcredentials.php" --post-data="username=$user&password=$pass")
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            wget -qO - --post-data="confirm=1" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || wget -qO - --post-data="confirm=1" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            errorStat $?
+            if [[ $checkcreds != '#!ok' ]]; then
+                echo "No"
+                echo " * FOG GUI Username and Password pair could not be verified"
+            else
+                wget -qO - --post-data="confirm&fogverified" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || wget -qO - --post-data="confirm&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                errorStat $?
+            fi
             ;;
         *)
             echo
