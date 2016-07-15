@@ -148,7 +148,7 @@ class SnapinManagementPage extends FOGPage {
         $filelist = array_values(array_unique(array_filter((array)$filelist)));
         ob_start();
         array_map(self::$buildSelectBox,$filelist);
-        $selectFiles = sprintf('<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
+        $selectFiles = sprintf('<select class="snapinfileexist-input cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
         $argTypes = array(
             'MSI' => array('msiexec.exe','/i','/quiet'),
         );
@@ -160,22 +160,22 @@ class SnapinManagementPage extends FOGPage {
         echo '</select>';
         $template = ob_get_clean();
         $fields = array(
-            _('Snapin Name') => sprintf('<input type="text" name="name" value="%s"/>',$_REQUEST['name']),
-            _('Snapin Type')=> sprintf('<select name="packtype" id="snapinpack"><option value="0"%s>%s</option><option value="1"%s>%s</option></select>',!$_REQUEST['packtype'] ? ' selected' : '',_('Normal Snapin'),$_REQUEST['packtype'] ? ' selected' : '',_('Snapin Pack')),
-            _('Snapin Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
+            _('Snapin Name') => sprintf('<input class="snapinname-input" type="text" name="name" value="%s"/>',$_REQUEST['name']),
+            _('Snapin Type')=> sprintf('<select class="snapinpack-input" name="packtype" id="snapinpack"><option value="0"%s>%s</option><option value="1"%s>%s</option></select>',!$_REQUEST['packtype'] ? ' selected' : '',_('Normal Snapin'),$_REQUEST['packtype'] ? ' selected' : '',_('Snapin Pack')),
+            _('Snapin Description') => sprintf('<textarea class="snapindescription-input" name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
             _('Snapin Template') => $template,
-            _('Snapin Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup']),
-            _('Snapin Run With') => sprintf('<input class="cmdlet1" type="text" name="rw" value="%s"/>',$_REQUEST['rw']),
-            _('Snapin Run With Argument') => sprintf('<input class="cmdlet2" type="text" name="rwa" value="%s"/>',$_REQUEST['rwa']),
-            sprintf('%s <span class="lightColor">%s:%s</span>',_('Snapin File'),_('Max Size'),ini_get('post_max_size')) => sprintf('<input class="cmdlet3" name="snapin" value="%s" type="file"/>',$_FILES['snapin']['name']),
+            _('Snapin Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup'],'snapin" class="snapingroup-input'),
+            _('Snapin Run With') => sprintf('<input class="snapinrw-input cmdlet1" type="text" name="rw" value="%s"/>',$_REQUEST['rw']),
+            _('Snapin Run With Argument') => sprintf('<input class="snapinrwa-input cmdlet2" type="text" name="rwa" value="%s"/>',$_REQUEST['rwa']),
+            sprintf('%s <span class="lightColor">%s:%s</span>',_('Snapin File'),_('Max Size'),ini_get('post_max_size')) => sprintf('<input class="snapinfile-input cmdlet3" name="snapin" value="%s" type="file"/>',$_FILES['snapin']['name']),
             (count($filelist) > 0 ? _('Snapin File (exists)') : '') => (count($filelist) > 0 ? $selectFiles : ''),
-            _('Snapin Arguments') => sprintf('<input class="cmdlet4" type="text" name="args" value="%s"/>',$_REQUEST['args']),
-            _('Snapin Enabled') => '<input type="checkbox" name="isEnabled" value="1"checked/>',
-            _('Snapin Arguments Hidden?') => '<input type="checkbox" name="isHidden" value="1"/>',
-            _('Snapin Timeout (seconds)') => '<input type="text" name="timeout" value="0"/>',
-            _('Replicate?') => '<input type="checkbox" name="toReplicate" value="1" checked/>',
-            _('Reboot after install') => '<input class="action" type="radio" name="action" value="reboot"/>',
-            _('Shutdown after install') => '<input class="action" type="radio" name="action" value="shutdown"/>',
+            _('Snapin Arguments') => sprintf('<input class="snapinargs-input cmdlet4" type="text" name="args" value="%s"/>',$_REQUEST['args']),
+            _('Snapin Enabled') => '<input class="snapinenabled-input" type="checkbox" name="isEnabled" value="1" checked/>',
+            _('Snapin Arguments Hidden?') => '<input class="snapinhidden-input" type="checkbox" name="isHidden" value="1"/>',
+            _('Snapin Timeout (seconds)') => '<input class="snapintimeout-input" type="text" name="timeout" value="0"/>',
+            _('Replicate?') => '<input class="snapinreplicate-input" type="checkbox" name="toReplicate" value="1" checked/>',
+            _('Reboot after install') => '<input class="snapinreboot-input action" type="radio" name="action" value="reboot"/>',
+            _('Shutdown after install') => '<input class="snapinshutdown-input action" type="radio" name="action" value="shutdown"/>',
             _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
             '&nbsp;' => sprintf('<input name="add" type="submit" value="%s"/>',_('Add'))
         );
@@ -272,7 +272,7 @@ class SnapinManagementPage extends FOGPage {
         $filelist = array_values(array_filter(array_unique((array)$filelist)));
         ob_start();
         array_map(self::$buildSelectBox,$filelist);
-        $selectFiles = sprintf('<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
+        $selectFiles = sprintf('<select class="snapinfileexist-input cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
         ob_start();
         printf('<select id="argTypes"><option>- %s -</option>',_('Please select an option'));
         array_walk(self::$argTypes,function(&$cmd,&$type) {
@@ -281,22 +281,22 @@ class SnapinManagementPage extends FOGPage {
         echo '</select>';
         $template = ob_get_clean();
         $fields = array(
-            _('Snapin Name') => sprintf('<input type="text" name="name" value="%s"/>',$this->obj->get('name')),
-            _('Snapin Type')=> sprintf('<select name="packtype" id="snapinpack"><option value="0"%s>%s</option><option value="1"%s>%s</option></select>',!$this->obj->get('packtype') ? ' selected' : '',_('Normal Snapin'),$this->obj->get('packtype') ? ' selected' : '',_('Snapin Pack')),
-            _('Snapin Description') => sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
+            _('Snapin Name') => sprintf('<input class="snapinname-input" type="text" name="name" value="%s"/>',$this->obj->get('name')),
+            _('Snapin Type')=> sprintf('<select class="snapinpack-input" name="packtype" id="snapinpack"><option value="0"%s>%s</option><option value="1"%s>%s</option></select>',!$this->obj->get('packtype') ? ' selected' : '',_('Normal Snapin'),$this->obj->get('packtype') ? ' selected' : '',_('Snapin Pack')),
+            _('Snapin Description') => sprintf('<textarea class="snapindescription-input" name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
             _('Snapin Run With Template') => $template,
-            _('Snapin Run With') => sprintf('<input class="cmdlet1" type="text" name="rw" value="%s"/>',$this->obj->get('runWith')),
-            _('Snapin Run With Argument') => sprintf('<input class="cmdlet2" type="text" name="rwa" value="%s"/>',$this->obj->get('runWithArgs')),
+            _('Snapin Run With') => sprintf('<input class="snapinrw-input cmdlet1" type="text" name="rw" value="%s"/>',$this->obj->get('runWith')),
+            _('Snapin Run With Argument') => sprintf('<input class="snapinrwa-input cmdlet2" type="text" name="rwa" value="%s"/>',$this->obj->get('runWithArgs')),
             sprintf('%s <span class="lightColor">%s:%s</span>',_('Snapin File'),_('Max Size'),ini_get('post_max_size')) => sprintf('<label id="uploader" for="snapin-uploader">%s<a href="#" id="snapin-upload"> <i class="fa fa-arrow-up noBorder"></i></a></label>',basename($this->obj->get('file'))),
             (count($filelist) > 0 ? _('Snapin File (exists)') : '') => (count($filelist) > 0 ? $selectFiles : ''),
-            _('Snapin Arguments') => sprintf('<input class="cmdlet4" type="text" name="args" value="%s"/>',$this->obj->get('args')),
-            _('Protected') => sprintf('<input type="checkbox" name="protected_snapin" value="1"%s/>',$this->obj->get('protected') ? ' checked' : ''),
-            _('Reboot after install') => sprintf('<input class="action" type="radio" name="action" value="reboot"%s/>',$this->obj->get('reboot') ? ' checked' : ''),
-            _('Shutdown after install') => sprintf('<input class="action" type="radio" name="action" value="shutdown"%s/>',$this->obj->get('shutdown') ? ' checked' : ''),
-            _('Snapin Enabled') => sprintf('<input type="checkbox" name="isEnabled" value="1"%s/>',$this->obj->get('isEnabled') ? ' checked' : ''),
-            _('Replicate?') => sprintf('<input type="checkbox" name="toReplicate" value="1"%s/>',$this->obj->get('toReplicate') ? ' checked' : ''),
-            _('Snapin Arguments Hidden?') => sprintf('<input type="checkbox" name="isHidden" value="1"%s/>',$this->obj->get('hide') ? ' checked' : ''),
-            _('Snapin Timeout (seconds)') => sprintf('<input type="text" name="timeout" value="%s"/>',$this->obj->get('timeout')),
+            _('Snapin Arguments') => sprintf('<input class="snapinargs-input cmdlet4" type="text" name="args" value="%s"/>',$this->obj->get('args')),
+            _('Protected') => sprintf('<input class="snapinprotected-input" type="checkbox" name="protected_snapin" value="1"%s/>',$this->obj->get('protected') ? ' checked' : ''),
+            _('Reboot after install') => sprintf('<input class="snapinreboot-input action" type="radio" name="action" value="reboot"%s/>',$this->obj->get('reboot') ? ' checked' : ''),
+            _('Shutdown after install') => sprintf('<input class="snapinreboot-input action" type="radio" name="action" value="shutdown"%s/>',$this->obj->get('shutdown') ? ' checked' : ''),
+            _('Snapin Enabled') => sprintf('<input class="snapinenabled-input" type="checkbox" name="isEnabled" value="1"%s/>',$this->obj->get('isEnabled') ? ' checked' : ''),
+            _('Replicate?') => sprintf('<input class="snapinreplicate-input" type="checkbox" name="toReplicate" value="1"%s/>',$this->obj->get('toReplicate') ? ' checked' : ''),
+            _('Snapin Arguments Hidden?') => sprintf('<input class="snapinhidden-input" type="checkbox" name="isHidden" value="1"%s/>',$this->obj->get('hide') ? ' checked' : ''),
+            _('Snapin Timeout (seconds)') => sprintf('<input class="snapintimeout-input" type="text" name="timeout" value="%s"/>',$this->obj->get('timeout')),
             _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
             '' => sprintf('<input name="update" type="submit" value="%s"/>',_('Update')),
         );
