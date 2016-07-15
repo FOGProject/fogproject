@@ -503,19 +503,20 @@ abstract class FOGPage extends FOGBase {
                         $ScheduledTask->set('isActive',1);
                     }
                     if (!$ScheduledTask->save()) throw new Exception(_('Failed to create scheduled tasking'));
-                    $success[] = _('Scheduled tasks successfully setup');
+                    $success[] = _('Scheduled tasks successfully created');
                 }
             } catch (Exception $e) {
                 $error[] = sprintf('%s %s %s<br/>%s',$this->obj->get('name'),_('Failed to start tasking type'),$TaskType->get('name'),$e->getMessage());
             }
             if (count($error)) throw new Exception(sprintf('<ul><li>%s</li></ul>',implode('</li><li>',$error)));
         } catch (Exception $e) {
-            printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>',_('Failed to create deployment tasking to some or all'),$e->getMessage());
+            printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>',_('Failed to create tasking to some or all'),$e->getMessage());
         }
         if (count($success)) {
             if ($_REQUEST['scheduleType'] == 'cron') $time = sprintf('%s: %s',_('Cron Schedule'),implode(' ',array($_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW'])));
             else if ($_REQUEST['scheduleType'] == 'single') $time = sprintf('%s: %s',_('Delayed Start'), $scheduleDeployTime->format('Y-m-d H:i:s'));
-            printf('<div class="task-start-ok"><p>%s</p><p>%s%s</p></div>',
+            printf('<div class="task-start-ok"><p>%s: %s</p><p>%s%s</p></div>',
+                $TaskType->get('name'),
                 _('Successfully created tasks for'),
                 $time,
                 (count($success) ? sprintf('<ul>%s</ul>',implode('',$success)) : '')
