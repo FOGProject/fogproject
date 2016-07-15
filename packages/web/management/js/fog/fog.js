@@ -310,36 +310,31 @@ function buildRow(data,templates,attributes,wrapper) {
     HookTooltips();
 }
 function validateInputs(selector,match) {
-    $(selector).each(function() {
-        $(this).on('keyup change blur',function() {
-            $(this).val(this.value);
-            $(this).prev('.invalid').remove();
-            content = $(this).val().trim();
-            if (content === null) $(this).addClass('error').before('<p class="invalid">Invalid input</p>');
+    $(selector).on('keyup change blur',function() {
+        $(this).prev('.invalid').remove();
+        content = $(this).val().trim();
+        if (content === null) $(this).addClass('error').before('<p class="invalid">Invalid input</p>');
+        else $(this).removeClass('error');
+        if (match !== null || match !== false) {
+            content1 = content.match(match);
+            if (content1 === null) $(this).addClass('error').before('<p class="invalid">Invalid input</p>');
             else $(this).removeClass('error');
-            if (match !== null || match !== false) {
-                content1 = content.match(match);
-                if (content1 === null) $(this).addClass('error').before('<p class="invalid">Invalid input</p>');
-                else $(this).removeClass('error');
-            }
-        });
-    }).parents('form').submit(function (e) {
-        $(selector).each(function() {
-            $(this).val(this.value);
-            $(this).parents('.invalid').remove();
-            content = $(this).val().trim();
-            if (content === null) $(this).addClass('error');
-            if (match !== null || match !== false) {
-                content1 = content.match(match);
-                if (content1 === null) {
-                    $(this).addClass('error').before('<p class="invalid">Invalid input</p>');
-                    return false;
-                } else {
-                    $(this).removeClass('error');
-                    return true;
-                }
-            }
-        });
+        }
+    }).parents('form').submit(function(e) {
+        $(selector).prev('.invalid').remove();
+        content = $(selector).val().trim();
+        if (content === null) {
+            $(selector).addClass('error').before('<p class="invalid">Invalid input</p>');
+            return false;
+        } else $(selector).removeClass('error');
+        if (match !== null || match !== false) {
+            content1 = content.match(match);
+            if (content1 === null) {
+                $(selector).addClass('error').before('<p class="invalid">Invalid input</p>');
+                return false;
+            } else $(selector).removeClass('error');
+        }
+        return true;
     });
 }
 function TableCheck() {
