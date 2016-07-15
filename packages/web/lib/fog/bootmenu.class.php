@@ -138,7 +138,7 @@ class BootMenu extends FOGBase {
             $this->loglevel,
             basename($initrd),
             $ramsize,
-            strlen($keymap) ? sprintf(' keymap=%s ',$keymap) : '',
+            strlen($keymap) ? sprintf(' keymap=%s ',$keymap) : ' ',
             $this->web,
             $kernelDebug ? ' debug' : ' ',
             $kernelArgs ? sprintf(' %s',$kernelArgs) : '',
