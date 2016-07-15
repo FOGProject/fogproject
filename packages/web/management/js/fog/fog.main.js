@@ -174,7 +174,7 @@ $(function() {
     });
     // Snapin uploader for existing snapins
     $('#snapin-upload').click(function() {
-        $('#uploader').html('<input type="file" name="snapin"/>').find('input').click();
+        $('#uploader').html('<input class="snapinfile-input" type="file" name="snapin"/>').find('input').click();
     });
     // Host Management - Select all checkbox
     $('.header input[type="checkbox"][name="no"]').click(function() {
