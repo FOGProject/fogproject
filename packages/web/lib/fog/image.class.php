@@ -35,7 +35,7 @@ class Image extends FOGController {
         'storageGroupsnotinme',
     );
     public function destroy($field = 'id') {
-        self::getClass('HostManager')->update(array('imageID'=>$this-get('id')),'',array('imageID'=>'0'));
+        self::getClass('HostManager')->update(array('imageID'=>$this->get('id')),'',array('imageID'=>'0'));
         self::getClass('ImageAssociationManager')->destroy(array('imageID'=>$this->get('id')));
         return parent::destroy($field);
     }
