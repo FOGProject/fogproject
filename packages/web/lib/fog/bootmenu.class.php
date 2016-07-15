@@ -166,11 +166,6 @@ class BootMenu extends FOGBase {
         $_REQUEST['extraargs'] = trim($_REQUEST['extraargs']);
         if ($_REQUEST['extraargs']) $_SESSION['extraargs'] = $_REQUEST['extraargs'];
         if (isset($_REQUEST['username'])) $this->verifyCreds();
-        else if ($_REQUEST['qihost']) {
-            if (!isset($_REQUEST['username'])) die($this->verifyCreds());
-            if (!isset($_REQUEST['password'])) die($this->verifyCreds());
-            $this->setTasking($_REQUEST['imageID']);
-        }
         else if ($_REQUEST['delconf']) $this->delHost();
         else if ($_REQUEST['key']) $this->keyset();
         else if ($_REQUEST['sessname']) $this->sesscheck();
