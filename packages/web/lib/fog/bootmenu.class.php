@@ -65,7 +65,7 @@ class BootMenu extends FOGBase {
             'FOG_TFTP_PXE_KERNEL',
             'FOG_TFTP_PXE_KERNEL_32',
         );
-        list($exit,$kernelArgs,$kernelDebug,$kernelLogLevel,$kernelRamDisk,$keyMap,$keySequence,$memtest,$caponeDMI,$caponeShutdown,$imagefile,$init_32,$hiddenTimeout,$hiddenmenu,$menuTimeout,$bzImage,$bzImage32) = self::getSubObjectIDs('Service',array('name'=>$serviceNames),'value',false,'AND','name',false,'');
+        list($exit,$kernelArgs,$kernelDebug,$kernelLogLevel,$kernelRamDisk,$keymap,$keySequence,$memtest,$caponeDMI,$caponeShutdown,$imagefile,$init_32,$hiddenTimeout,$hiddenmenu,$menuTimeout,$bzImage,$bzImage32) = self::getSubObjectIDs('Service',array('name'=>$serviceNames),'value',false,'AND','name',false,'');
         if (!in_array('capone',(array)$_SESSION['PluginsInstalled'])) {
             $serviceNames = array(
                 'FOG_EFI_BOOT_EXIT_TYPE',
@@ -86,7 +86,7 @@ class BootMenu extends FOGBase {
                 'FOG_TFTP_PXE_KERNEL',
                 'FOG_TFTP_PXE_KERNEL_32',
             );
-            list($exit,$kernelArgs,$kernelDebug,$kernelLogLevel,$kernelRamDisk,$keyMap,$keySequence,$memtest,$imagefile,$init_32,$hiddenTimeout,$hiddenmenu,$menuTimeout,$bzImage,$bzImage32) = self::getSubObjectIDs('Service',array('name'=>$serviceNames),'value',false,'AND','name',false,'');
+            list($exit,$kernelArgs,$kernelDebug,$kernelLogLevel,$kernelRamDisk,$keymap,$keySequence,$memtest,$imagefile,$init_32,$hiddenTimeout,$hiddenmenu,$menuTimeout,$bzImage,$bzImage32) = self::getSubObjectIDs('Service',array('name'=>$serviceNames),'value',false,'AND','name',false,'');
         }
         $memdisk = 'memdisk';
         $loglevel = $kernelLogLevel;
@@ -133,12 +133,12 @@ class BootMenu extends FOGBase {
         $this->booturl = "http://{$webserver}{$webroot}service";
         $this->memdisk = "kernel $memdisk";
         $this->memtest = "initrd $memtest";
-        $this->kernel = sprintf('kernel %s %s initrd=%s root=/dev/ram0 rw ramdisk_size=%s keymap=%s web=%s consoleblank=0%s rootfstype=ext4%s%s',
+        $this->kernel = sprintf('kernel %s %s initrd=%s root=/dev/ram0 rw ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s',
             $bzImage,
             $this->loglevel,
             basename($initrd),
             $ramsize,
-            $keymap,
+            strlen($keymap) ? sprintf(' keymap=%s ',$keymap) : '',
             $this->web,
             $kernelDebug ? ' debug' : ' ',
             $kernelArgs ? sprintf(' %s',$kernelArgs) : '',
