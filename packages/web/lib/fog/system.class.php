@@ -1,10 +1,10 @@
 <?php
 class System {
     public function __construct() {
-        define('FOG_VERSION', '8625');
+        define('FOG_VERSION', '8627');
         define('FOG_SCHEMA', 232);
         define('FOG_BCACHE_VER',90);
-        define('FOG_SVN_REVISION',5917);
+        define('FOG_SVN_REVISION',5918);
         define('FOG_SVN_LAST_UPDATE', '$LastChangedDate: 2015-01-01 14:16:56 -0500 (Thu, 01 Jan 2015) $');
         define('FOG_CLIENT_VERSION', '0.11.3');
         define('PHP_VERSION_REQUIRED', '5.3.0');
