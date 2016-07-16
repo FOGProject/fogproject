@@ -159,7 +159,7 @@ class Group extends FOGController {
                 self::getClass('MulticastSessionsAssociationManager')->destroy(array('hostID'=>$this->get('hosts')));
                 $randomnumber = mt_rand(24576,32766) * 2;
                 while ($randomnumber == $MulticastSession->get('port')) $randomnumber = mt_rand(24576,32766) * 2;
-                $this->setSetting('FOG_UDPCAST_STARTINGPOINT',$randomnumber);
+                $this->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
             }
             $hostCount = count($this->get('hosts'));
             $hostIDs = $this->get('hosts');
