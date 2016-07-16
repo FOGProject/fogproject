@@ -18,7 +18,7 @@ class TaskManagementPage extends FOGPage {
             '<input type="checkbox" class="toggle-checkboxAction"/>',
             _('Started By:'),
             sprintf('%s<br/><small>%s</small>',_('Hostname'),_('MAC')),
-            '',
+            _('Image Name'),
             _('Start Time'),
             _('Status'),
         );
@@ -26,7 +26,7 @@ class TaskManagementPage extends FOGPage {
             '<input type="checkbox" class="toggle-action" name="task[]" value="${id}"/>',
             '${startedby}',
             sprintf('<p><a href="?node=host&sub=edit&id=${host_id}" title="%s">${host_name}</a></p><small>${host_mac}</small>',_('Edit Host')),
-            '${details_taskname}',
+            sprintf('<p><a href="?node=image&sub=edit&id=${image_id}" title="%s">${image_name}</a></p>',_('Edit Image')),
             '<small>${time}</small>',
             '${details_taskforce} <i class="fa fa-${icon_state} fa-1x icon" title="${state}"></i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
         );
@@ -65,6 +65,8 @@ class TaskManagementPage extends FOGPage {
                 'host_mac' => $Host->get('mac')->__toString(),
                 'icon_state' => $Task->getTaskState()->getIcon(),
                 'icon_type' => $Task->getIcon(),
+                'image_name' => $Task->getImage()->get('name'),
+                'image_id' => $Task->getImage()->get('id'),
             );
             unset($Task,$Host);
         };

@@ -179,41 +179,50 @@ class Group extends FOGController {
                 if (count($multicastsessionassocs) > 0) self::getClass('MulticastSessionsAssociationManager')->insert_batch(array('msID','taskID'),$multicastsessionassocs);
             }
             unset($hostCount,$hostIDs,$batchTask,$first_id,$affected_rows,$ids,$multicastsessionassocs);
-            $hostIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('hosts')),'hostID');
-            $hostCount = count($hostIDs);
-            $snapinJobs = array();
-            for ($i = 0;$i < $hostCount;$i++) {
-                $hostID = $hostIDs[$i];
-                $snapins[$hostID] = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$hostID),'snapinID');
-                if (count($snapins[$hostID]) < 1) continue;
-                $snapinJobs[] = array($hostID,$this->getQueuedState(),$now->format('Y-m-d H:i:s'));
-            }
-            if (count($snapinJobs) > 0) {
-                list($first_id,$affected_rows) = self::getClass('SnapinJobManager')->insert_batch(array('hostID','stateID','createdTime'),$snapinJobs);
-                $ids = range($first_id,($first_id + $affected_rows - 1));
-                for ($i = 0;$i < $hostCount;$i++) {
-                    $hostID = $hostIDs[$i];
-                    $jobID = $ids[$i];
-                    $snapinCount = count($snapins[$hostID]);
-                    for ($j = 0;$j < $snapinCount;$j++) {
-                        $snapinTasks[] = array($jobID,$this->getQueuedState(),$snapins[$hostID][$j]);
-                    }
-                }
-                if (count($snapinTasks) > 0) self::getClass('SnapinTaskManager')->insert_batch(array('jobID','stateID','snapinID'),$snapinTasks);
-            }
+            $this->createSnapinTasking(-1,$now);
             return array('All hosts successfully tasked');
         } else {
-            session_write_close();
-            ignore_user_abort(true);
-            set_time_limit(0);
-            $success = array();
-            array_map(function(&$Host) use ($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$username,$passreset,$sessionjoin,$wol,&$success) {
-                if (!$Host->isValid()) return;
-                $success[] = $Host->createImagePackage($taskTypeID,$taskName,$shutdown, $debug,$deploySnapins,$isGroupTask,$_SESSION['FOG_USERNAME'],$passreset,$sessionjoin,$wol);
-                unset($Host);
-            },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
-            session_start();
-            return $success;
+            $hostIDs = $this->get('hosts');
+            $imageIDs = self::getSubObjectIDs('Host',array('id'=>$hostIDs),'imageID',false,'AND','name',false,'');
+            $batchTask = array();
+            for ($i = 0;$i < $hostCount;$i++) {
+                $Image = self::getClass('Image',$imageIDs[$i]);
+                if (!$Image->isValid()) continue;
+                $StorageGroup = $Image->getStorageGroup();
+                if (!$StorageGroup->isValid()) continue;
+                $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
+                if (!$StorageNode->isValid()) continue;
+                $batchTask[] = array($taskName,$username,$hostIDs[$i],0,$this->getQueuedState(),$TaskType->get('id'),$StorageGroup->get('id'),$StorageNode->get('id'),$wol,$Image->get('id'),$shutdown,$debug,$passreset);
+            }
+            if (count($batchTask) > 0) self::getClass('TaskManager')->insert_batch(array('name','createdBy','hostID','isForced','stateID','typeID','NFSGroupID','NFSMemberID','wol','imageID','shutdown','isDebug','passreset'),$batchTask);
+            unset($hostCount,$hostIDs,$batchTask,$first_id,$affected_rows,$ids,$multicastsessionassocs);
+            $this->createSnapinTasking($deploySnapins,$now);
+            return array('All hosts successfully tasked');
+        }
+    }
+    private function createSnapinTasking($snapin = -1,$now) {
+        if ($snapin === false) return;
+        $hostIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('hosts')),'hostID');
+        $hostCount = count($hostIDs);
+        $snapinJobs = array();
+        for ($i = 0;$i < $hostCount;$i++) {
+            $hostID = $hostIDs[$i];
+            $snapins[$hostID] = $snapin === -1 ? self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$hostID),'snapinID') : array($snapin);
+            if (count($snapins[$hostID]) < 1) continue;
+            $snapinJobs[] = array($hostID,$this->getQueuedState(),$now->format('Y-m-d H:i:s'));
+        }
+        if (count($snapinJobs) > 0) {
+            list($first_id,$affected_rows) = self::getClass('SnapinJobManager')->insert_batch(array('hostID','stateID','createdTime'),$snapinJobs);
+            $ids = range($first_id,($first_id + $affected_rows - 1));
+            for ($i = 0;$i < $hostCount;$i++) {
+                $hostID = $hostIDs[$i];
+                $jobID = $ids[$i];
+                $snapinCount = count($snapins[$hostID]);
+                for ($j = 0;$j < $snapinCount;$j++) {
+                    $snapinTasks[] = array($jobID,$this->getQueuedState(),$snapins[$hostID][$j]);
+                }
+            }
+            if (count($snapinTasks) > 0) self::getClass('SnapinTaskManager')->insert_batch(array('jobID','stateID','snapinID'),$snapinTasks);
         }
     }
     public function setAD($useAD, $domain, $ou, $user, $pass, $legacy, $enforce) {
