@@ -131,10 +131,13 @@ class Group extends FOGController {
         return $this;
     }
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false,$wol = false) {
+        $hostCount = count($this->get('hosts'));
+        if ($hostCount < 1) throw new Exception(_('No hosts to task'));
         if (self::getClass('TaskManager')->count(array('hostID'=>$hostids,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) throw new Exception(_('There is a host in a tasking'));
         $TaskType = self::getClass('TaskType',$taskTypeID);
         if (!$TaskType->isValid()) throw new Exception(self::$foglang['TaskTypeNotValid']);
         $imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17,24));
+        $now = $this->nice_date();
         if ($TaskType->isMulticast()) {
             $Image = self::getClass('Image',@min(self::getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'imageID')));
             if (!$Image->isValid()) throw new Exception(self::$foglang['ImageNotValid']);
@@ -151,7 +154,7 @@ class Group extends FOGController {
                 ->set('image',$Image->get('id'))
                 ->set('interface',$StorageNode->get('interface'))
                 ->set('stateID',0)
-                ->set('starttime',self::nice_date()->format('Y-m-d H:i:s'))
+                ->set('starttime',$now->format('Y-m-d H:i:s'))
                 ->set('percent',0)
                 ->set('isDD',$Image->get('imageTypeID'))
                 ->set('NFSGroupID',$StorageGroup->get('id'));
@@ -161,19 +164,43 @@ class Group extends FOGController {
                 while ($randomnumber == $MulticastSession->get('port')) $randomnumber = mt_rand(24576,32766) * 2;
                 $this->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
             }
-            $hostCount = count($this->get('hosts'));
             $hostIDs = $this->get('hosts');
             $batchTask = array();
             for ($i = 0;$i < $hostCount; $i++) {
                 $batchTask[] = array($taskName,$username,$hostIDs[$i],0,$this->getQueuedState(),$TaskType->get('id'),$StorageGroup->get('id'),$StorageNode->get('id'),$wol,$Image->get('id'),$shutdown,$debug,$passreset);
             }
-            list($first_id,$affected_rows) = self::getClass('TaskManager')->insert_batch(array('name','createdBy','hostID','isForced','stateID','typeID','NFSGroupID','NFSMemberID','wol','imageID','shutdown','isDebug','passreset'),$batchTask);
-            $ids = range($first_id,($first_id + $affected_rows - 1));
-            $assocs = array();
-            array_walk($batchTask,function(&$val,&$index) use (&$ids,$MulticastSession,&$assocs) {
-                $assocs[] = array($MulticastSession->get('id'),$ids[$index]);
-            });
-            self::getClass('MulticastSessionsAssociationManager')->insert_batch(array('msID','taskID'),$assocs);
+            if (count($batchTask) > 0) {
+                list($first_id,$affected_rows) = self::getClass('TaskManager')->insert_batch(array('name','createdBy','hostID','isForced','stateID','typeID','NFSGroupID','NFSMemberID','wol','imageID','shutdown','isDebug','passreset'),$batchTask);
+                $ids = range($first_id,($first_id + $affected_rows - 1));
+                $multicastsessionassocs = array();
+                array_walk($batchTask,function(&$val,&$index) use (&$ids,$MulticastSession,&$multicastsessionassocs) {
+                    $multicastsessionassocs[] = array($MulticastSession->get('id'),$ids[$index]);
+                });
+                if (count($multicastsessionassocs) > 0) self::getClass('MulticastSessionsAssociationManager')->insert_batch(array('msID','taskID'),$multicastsessionassocs);
+            }
+            unset($hostCount,$hostIDs,$batchTask,$first_id,$affected_rows,$ids,$multicastsessionassocs);
+            $hostIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('hosts')),'hostID');
+            $hostCount = count($hostIDs);
+            $snapinJobs = array();
+            for ($i = 0;$i < $hostCount;$i++) {
+                $hostID = $hostIDs[$i];
+                $snapins[$hostID] = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$hostID),'snapinID');
+                if (count($snapins[$hostID]) < 1) continue;
+                $snapinJobs[] = array($hostID,$this->getQueuedState(),$now->format('Y-m-d H:i:s'));
+            }
+            if (count($snapinJobs) > 0) {
+                list($first_id,$affected_rows) = self::getClass('SnapinJobManager')->insert_batch(array('hostID','stateID','createdTime'),$snapinJobs);
+                $ids = range($first_id,($first_id + $affected_rows - 1));
+                for ($i = 0;$i < $hostCount;$i++) {
+                    $hostID = $hostIDs[$i];
+                    $jobID = $ids[$i];
+                    $snapinCount = count($snapins[$hostID]);
+                    for ($j = 0;$j < $snapinCount;$j++) {
+                        $snapinTasks[] = array($jobID,$this->getQueuedState(),$snapins[$hostID][$j]);
+                    }
+                }
+                if (count($snapinTasks) > 0) self::getClass('SnapinTaskManager')->insert_batch(array('jobID','stateID','snapinID'),$snapinTasks);
+            }
             return array('All hosts successfully tasked');
         } else {
             session_write_close();
