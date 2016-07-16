@@ -158,13 +158,17 @@ class SnapinManagementPage extends FOGPage {
             printf('<option value="%s" rwargs="%s" args="%s">%s</option>',$cmd[0],$cmd[1],$cmd[2],$type);
         });
         echo '</select>';
+        $GroupCount = self::getSubObjectIDs('StorageGroup');
+        unset($groupselect);
+        if (count($GroupCount) === 1) $groupselect = array_shift($GroupCount);
+        $StorageGroups = self::getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup'] ? $_REQUEST['storagegroup'] : (isset($groupselect) ? $groupselect : ''));
         $template = ob_get_clean();
         $fields = array(
             _('Snapin Name') => sprintf('<input class="snapinname-input" type="text" name="name" value="%s"/>',$_REQUEST['name']),
             _('Snapin Type')=> sprintf('<select class="snapinpack-input" name="packtype" id="snapinpack"><option value="0"%s>%s</option><option value="1"%s>%s</option></select>',!$_REQUEST['packtype'] ? ' selected' : '',_('Normal Snapin'),$_REQUEST['packtype'] ? ' selected' : '',_('Snapin Pack')),
             _('Snapin Description') => sprintf('<textarea class="snapindescription-input" name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
             _('Snapin Template') => $template,
-            _('Snapin Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup'],'snapin" class="snapingroup-input'),
+            _('Snapin Storage Group') => $StorageGroups,
             _('Snapin Run With') => sprintf('<input class="snapinrw-input cmdlet1" type="text" name="rw" value="%s"/>',$_REQUEST['rw']),
             _('Snapin Run With Argument') => sprintf('<input class="snapinrwa-input cmdlet2" type="text" name="rwa" value="%s"/>',$_REQUEST['rwa']),
             sprintf('%s <span class="lightColor">%s:%s</span>',_('Snapin File'),_('Max Size'),ini_get('post_max_size')) => sprintf('<input class="snapinfile-input cmdlet3" name="snapin" value="%s" type="file"/>',$_FILES['snapin']['name']),

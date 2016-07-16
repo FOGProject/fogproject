@@ -551,6 +551,7 @@ installPackages() {
     case $osid in
         1)
             $packageinstaller epel-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            packages="$packages php-bcmath"
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
             case $linuxReleaseName in
@@ -580,6 +581,7 @@ installPackages() {
         2)
             packages="${packages// libapache2-mod-fastcgi/}"
             packages="${packages// libapache2-mod-evasive/}"
+            packages="$packages php$php_ver-bcmath"
             case $linuxReleaseName in
                 *[Dd][Ee][Bb][Ii][Aa][Nn]*)
                     if [[ $OSVersion -eq 7 ]]; then
