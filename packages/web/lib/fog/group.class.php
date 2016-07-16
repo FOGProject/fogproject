@@ -132,13 +132,62 @@ class Group extends FOGController {
     }
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false,$wol = false) {
         if (self::getClass('TaskManager')->count(array('hostID'=>$hostids,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) throw new Exception(_('There is a host in a tasking'));
-        $success = array();
-        array_map(function(&$Host) use ($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$username,$passreset,$sessionjoin,$wol,&$success) {
-            if (!$Host->isValid()) return;
-            $success[] = $Host->createImagePackage($taskTypeID,$taskName,$shutdown, $debug,$deploySnapins,$isGroupTask,$_SESSION['FOG_USERNAME'],$passreset,$sessionjoin,$wol);
-            unset($Host);
-        },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
-        return $success;
+        $TaskType = self::getClass('TaskType',$taskTypeID);
+        if (!$TaskType->isValid()) throw new Exception(self::$foglang['TaskTypeNotValid']);
+        $imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17,24));
+        if ($TaskType->isMulticast()) {
+            $Image = self::getClass('Image',@min(self::getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'imageID')));
+            if (!$Image->isValid()) throw new Exception(self::$foglang['ImageNotValid']);
+            if (!$Image->get('isEnabled')) throw new Exception(_('Image is not enabled'));
+            $StorageGroup = $Image->getStorageGroup();
+            if (!$StorageGroup->isValid()) throw new Exception(self::$foglang['ImageGroupNotValid']);
+            $StorageNode = $StorageGroup->getMasterStorageNode();
+            if (!$StorageNode->isValid()) throw new Exception(_('Unable to find master Storage Node'));
+            $port = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE') ? self::getSetting('FOG_MULTICAST_PORT_OVERRIDE') : self::getSetting('FOG_UDPCAST_STARTINGPORT');
+            $MulticastSession = self::getClass('MulticastSessions')
+                ->set('name',$taskName)
+                ->set('port',$port)
+                ->set('logpath',$Image->get('path'))
+                ->set('image',$Image->get('id'))
+                ->set('interface',$StorageNode->get('interface'))
+                ->set('stateID',0)
+                ->set('starttime',self::nice_date()->format('Y-m-d H:i:s'))
+                ->set('percent',0)
+                ->set('isDD',$Image->get('imageTypeID'))
+                ->set('NFSGroupID',$StorageGroup->get('id'));
+            if ($MulticastSession->save()) {
+                self::getClass('MulticastSessionsAssociationManager')->destroy(array('hostID'=>$this->get('hosts')));
+                $randomnumber = mt_rand(24576,32766) * 2;
+                while ($randomnumber == $MulticastSession->get('port')) $randomnumber = mt_rand(24576,32766) * 2;
+                $this->setSetting('FOG_UDPCAST_STARTINGPOINT',$randomnumber);
+            }
+            $hostCount = count($this->get('hosts'));
+            $hostIDs = $this->get('hosts');
+            $batchTask = array();
+            for ($i = 0;$i < $hostCount; $i++) {
+                $batchTask[] = array($taskName,$username,$hostIDs[$i],0,$this->getQueuedState(),$TaskType->get('id'),$StorageGroup->get('id'),$StorageNode->get('id'),$wol,$Image->get('id'),$shutdown,$debug,$passreset);
+            }
+            list($first_id,$affected_rows) = self::getClass('TaskManager')->insert_batch(array('name','createdBy','hostID','isForced','stateID','typeID','NFSGroupID','NFSMemberID','wol','imageID','shutdown','isDebug','passreset'),$batchTask);
+            $ids = range($first_id,($first_id + $affected_rows - 1));
+            $assocs = array();
+            array_walk($batchTask,function(&$val,&$index) use (&$ids,$MulticastSession,&$assocs) {
+                $assocs[] = array($MulticastSession->get('id'),$ids[$index]);
+            });
+            self::getClass('MulticastSessionsAssociationManager')->insert_batch(array('msID','taskID'),$assocs);
+            return array('All hosts successfully tasked');
+        } else {
+            session_write_close();
+            ignore_user_abort(true);
+            set_time_limit(0);
+            $success = array();
+            array_map(function(&$Host) use ($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$username,$passreset,$sessionjoin,$wol,&$success) {
+                if (!$Host->isValid()) return;
+                $success[] = $Host->createImagePackage($taskTypeID,$taskName,$shutdown, $debug,$deploySnapins,$isGroupTask,$_SESSION['FOG_USERNAME'],$passreset,$sessionjoin,$wol);
+                unset($Host);
+            },(array)self::getClass('HostManager')->find(array('id'=>$this->get('hosts'))));
+            session_start();
+            return $success;
+        }
     }
     public function setAD($useAD, $domain, $ou, $user, $pass, $legacy, $enforce) {
         $pass = trim($this->encryptpw($pass));
