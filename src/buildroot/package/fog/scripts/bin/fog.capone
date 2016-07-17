@@ -14,31 +14,18 @@ export capone=1
 clearScreen
 displayBanner
 echo " * Starting Capone"
-dots "Looking up DMI field"
-count=0
-dmi=""
-while [[ -z $dmi ]]; do
-    dmi=$(wget --post-data="action=dmi" -qO - http://${web}service/capone.php 2>/dev/null)
-    if [[ $count -ge 10 ]]; then
-        echo "Failed"
-        debugPause
-        handleError "Could not find DMI Value ($0)\n   Args Passed: $*"
-    fi
-    let count+=1
-    usleep 5000000
-done
-echo "Done"
 debugPause
 dots "Using Key Value:"
 dmivalue=$(dmidecode -s $dmi)
 echo "$dmivalue"
-usleep 1000000
-dmi64=$(echo $dmivalue | base64)
+debugPause
+dmi64=$(echo -n $dmivalue | base64)
 dots "Looking for images"
 count=0
-img=""
-while [[ -z $img ]]; do
-    img=$(wget --post-data="action=imagelookup&key=${dmi64}" -qO - http://${web}service/capone.php 2>/dev/null)
+imgret=""
+while [[ -z $imgret ]]; do
+    imgret=$(wget --post-data="action=imagelookup&key=${dmi64}" -qO - http://${web}service/capone.php 2>/dev/null)
+    [[ -n $imgret ]] && continue
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
@@ -49,19 +36,22 @@ while [[ -z $img ]]; do
 done
 echo "Done"
 debugPause
-oIFS=$IFS
-IFS=$'\n'
 cnt=0
 linedecode=""
 osname=""
 mbrfile=""
 defaultpart2start=""
-for line in $img; do
+img=""
+osid=""
+imgType=""
+imgPartitionType=""
+imgFormat=""
+for line in $imgret; do
     linedecode=$(echo $line | base64 -d)
     [[ -z $linedecode ]] && handleError "No image definition was found for $dmivalue ($0)\n   Args Passed: $*"
     let cnt+=1
-    awk_returned_vars=$(echo $linedecode | awk -F"|" "{printf(\"%s\n%s\n%s\n%s\n%s\",\$1,\$2,\$3,\$4,\$5)}")
-    read img osid imgType imgPartitionType imgFormat <<< $awk_returned_vars
+    awk_returned_vars=$(echo $linedecode | awk -F'|' "{printf(\"%s\n%s\n%s\n%s\n%s\n%s\n%s\",\$1,\$2,\$3,\$4,\$5,\$6,\$7)}")
+    read img osid imgType imgPartitionType imgFormat storage storageip <<< $awk_returned_vars
     determineOS "$osid"
     echo -n " ID $cnt) "
     echo -n " OS: $osname"
@@ -100,23 +90,23 @@ case $cnt in
             linedecode=$(echo $line | base64 -d)
             let cnt+=1
             if [[ $cnt -eq $imgchoice ]]; then
-                awk_returned_vars=$(echo $linedecode | awk -F'|' '{printf("%s\n%s\n%s\n%s\n%s",$1,$2,$3,$4,$5)}')
-                read img osid imgType imgPartitionType imgFormat <<< $awk_returned_vars
+                awk_returned_vars=$(echo $linedecode | awk -F'|' "{printf(\"%s\n%s\n%s\n%s\n%s\n%s\n%s\",\$1,\$2,\$3,\$4,\$5,\$6,\$7)}")
+                read img osid imgType imgPartitionType imgFormat storage storageip <<< $awk_returned_vars
                 determineOS "$osid"
                 break
             fi
         done
         ;;
 esac
-IFS=$oIFS
 dots "Setting up environment to deploy image"
 export type="down"
-export mac="00:00:00:00:00:00"
+export mac=$(getMACAddresses)
 export img
 export osid
 export imgType
 export imgPartitionType
 export imgFormat
-usleep 2000000
+export storage
+export storageip
 clearScreen
 fog

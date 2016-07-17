@@ -179,8 +179,9 @@ class BootMenu extends FOGBase {
         $storage = $StorageNode->get('ip');
         $path = $StorageNode->get('path');
         $shutdown = $Shutdown;
-        $args = trim("mode=capone shutdown=$shutdown storage=$storage:$path");
-        $CaponeMenu = self::getClass('PXEMenuOptions',FOGCore::getSubObjectIDs('PXEMenuOptions',array('name'=>'fog.capone')));
+        $dmi = self::getSetting('FOG_PLUGIN_CAPONE_DMI');
+        $args = trim("mode=capone shutdown=$shutdown dmi=$dmi");
+        $CaponeMenu = self::getClass('PXEMenuOptions',@min(FOGCore::getSubObjectIDs('PXEMenuOptions',array('name'=>'fog.capone'))));
         if (!$CaponeMenu->isValid()) {
             $CaponeMenu->set('name','fog.capone')
                 ->set('description',_('Capone Deploy'))
@@ -188,8 +189,13 @@ class BootMenu extends FOGBase {
                 ->set('params',null)
                 ->set('default',0)
                 ->set('regMenu',2);
-        } else if (trim($CaponeMenu->get('args')) !== $args) $CaponeMenu->set('args',$args);
-        $CaponeMenu->save();
+        }
+        $setArgs = explode(' ',trim($CaponeMenu->get('args')));
+        $neededArgs = explode(' ',trim($args));
+        array_walk($needArgs,function(&$arg,&$index) use (&$setArgs) {
+            if (!in_array($arg,$setArgs)) $setArgs[] = $arg;
+        });
+        $CaponeMenu->set('args',implode(' ',$setArgs))->save();
     }
     private static function getDefaultMenu($timeout,$name,&$default) {
         $default = "choose --default $name --timeout $timeout target && goto \${target}";
