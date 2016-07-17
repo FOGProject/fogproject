@@ -76,8 +76,6 @@ class BootMenu extends FOGBase {
                 'FOG_KEYMAP',
                 'FOG_KEY_SEQUENCE',
                 'FOG_MEMTEST_KERNEL',
-                'FOG_PLUGIN_CAPONE_DMI',
-                'FOG_PLUGIN_CAPONE_SHUTDOWN',
                 'FOG_PXE_BOOT_IMAGE',
                 'FOG_PXE_BOOT_IMAGE_32',
                 'FOG_PXE_HIDDENMENU_TIMEOUT',
@@ -149,8 +147,8 @@ class BootMenu extends FOGBase {
             $this->storage,
             $this->path,
             $this->shutdown,
-            self::getSetting('FOG_PLUGIN_CAPONE_DMI'),
-            self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN'),
+            $caponeDMI,
+            $caponeShutdown,
             $StorageNode,
             self::$FOGCore
         );
@@ -179,8 +177,8 @@ class BootMenu extends FOGBase {
         $storage = $StorageNode->get('ip');
         $path = $StorageNode->get('path');
         $shutdown = $Shutdown;
-        $dmi = self::getSetting('FOG_PLUGIN_CAPONE_DMI');
-        $args = trim("mode=capone shutdown=$shutdown dmi=$dmi");
+        $dmi = $DMISet;
+        $args = trim("mode=capone shutdown=$shutdown");
         $CaponeMenu = self::getClass('PXEMenuOptions',@min(FOGCore::getSubObjectIDs('PXEMenuOptions',array('name'=>'fog.capone'))));
         if (!$CaponeMenu->isValid()) {
             $CaponeMenu->set('name','fog.capone')
@@ -192,9 +190,15 @@ class BootMenu extends FOGBase {
         }
         $setArgs = explode(' ',trim($CaponeMenu->get('args')));
         $neededArgs = explode(' ',trim($args));
-        array_walk($needArgs,function(&$arg,&$index) use (&$setArgs) {
+        $sureArgs = array();
+        array_walk($setArgs,function(&$arg,&$index) use (&$sureArgs) {
+            if (!preg_match('#^dmi=#',$arg)) $sureArgs[] = $arg;
+        });
+        $setArgs = $sureArgs;
+        array_walk($neededArgs,function(&$arg,&$index) use (&$setArgs) {
             if (!in_array($arg,$setArgs)) $setArgs[] = $arg;
         });
+        $setArgs[] = sprintf('dmi=%s',$dmi);
         $CaponeMenu->set('args',implode(' ',$setArgs))->save();
     }
     private static function getDefaultMenu($timeout,$name,&$default) {
