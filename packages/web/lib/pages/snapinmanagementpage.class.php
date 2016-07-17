@@ -261,7 +261,7 @@ class SnapinManagementPage extends FOGPage {
             sprintf('<span class="packnochangerwa">%s</span><span class="packchangerwa">%s</span>',_('Snapin Run With Argument'),_('Snapin Pack Arguments')) => sprintf('<input class="snapinrwa-input cmdlet2" type="text" name="rwa" value="%s"/>',$this->obj->get('runWithArgs')),
             sprintf('%s <span class="lightColor">%s:%s</span>',_('Snapin File'),_('Max Size'),ini_get('post_max_size')) => sprintf('<label id="uploader" for="snapin-uploader">%s<a href="#" id="snapin-upload"> <i class="fa fa-arrow-up noBorder"></i></a></label>',basename($this->obj->get('file'))),
             (count($filelist) > 0 ? _('Snapin File (exists)') : '') => (count($filelist) > 0 ? $selectFiles : ''),
-            _('Snapin Arguments') => sprintf('<input class="snapinargs-input cmdlet4" type="text" name="args" value="%s"/>',$this->obj->get('args')),
+            sprintf('<span class="packhide">%s</span>',_('Snapin Arguments')) => sprintf('<span class="packhide"><input class="snapinargs-input cmdlet4" type="text" name="args" value="%s"/></span>',$this->obj->get('args')),
             _('Protected') => sprintf('<input class="snapinprotected-input" type="checkbox" name="protected_snapin" value="1"%s/>',$this->obj->get('protected') ? ' checked' : ''),
             _('Reboot after install') => sprintf('<input class="snapinreboot-input action" type="radio" name="action" value="reboot"%s/>',$this->obj->get('reboot') ? ' checked' : ''),
             _('Shutdown after install') => sprintf('<input class="snapinreboot-input action" type="radio" name="action" value="shutdown"%s/>',$this->obj->get('shutdown') ? ' checked' : ''),
