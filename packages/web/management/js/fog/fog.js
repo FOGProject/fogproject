@@ -361,6 +361,21 @@ function TableCheck() {
 function setupParserInfo() {
     if (typeof $.tablesorter == 'undefined') return;
     $.tablesorter.addParser({
+        id: 'statusParser',
+        is: function(s) {
+            return false;
+        },
+        format: function (s, table, cell, cellIndex) {
+            var tdField = $(cell);
+            var i = tdField.find('i.state');
+            var val = i.attr('data-state');
+            if (val == 3) return 0;
+            if (val == 2) return 1;
+            if (val == 1) return 2;
+        },
+        type: 'numeric'
+    });
+    $.tablesorter.addParser({
         id: 'checkboxParser',
         is: function(s) {
             return false;
@@ -437,9 +452,11 @@ function setupFogTableInfoFunction() {
         switch (node) {
             case 'task':
                 if (typeof(sub) == 'undefined' || sub.indexOf('list') > -1) {
-                    headParser = {};
-                    break;
+                    headParser = {5: {sorter: 'statusParser'}};
+                } else {
+                    headParser = {5: {sorter: 'statusParser'}};
                 }
+                break;
             case 'user':
             case 'group':
             case 'snapin':
