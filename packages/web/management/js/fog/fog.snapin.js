@@ -7,6 +7,10 @@ $(function() {
         $("input[name=args]").val($('option:selected',this).attr('args'));
         updateCmdStore();
     });
+    $('#packTypes').change(function() {
+        $("input[name=rw]").val($('option:selected',this).attr('file'));
+        $("input[name=rwa]").val($('option:selected',this).attr('args'));
+    });
     updateCmdStore();
     $('.cmdlet1,.cmdlet2,.cmdlet3,.cmdlet4').on('change, keyup',function(e) {
         updateCmdStore();
@@ -14,6 +18,26 @@ $(function() {
     $('.cmdlet3').change(function(e) {
         updateCmdStore();
     })
+    $('.snapinpack-input').on('change blur',function(e) {
+        if (this.value == 1) {
+            $('.packnotemplate').hide();
+            $('.packtemplate').show();
+            $('.packnochangerw').hide();
+            $('.packchangerw').show();
+            $('.packnochangerwa').hide();
+            $('.packchangerwa').show();
+            $('.packhide').hide();
+        } else {
+            $('.packnotemplate').show();
+            $('.packtemplate').hide();
+            $('.packnochangerw').show();
+            $('.packchangerw').hide();
+            $('.packnochangerwa').show();
+            $('.packchangerwa').hide();
+            $('.packhide').show();
+        }
+    });
+    $('.snapinpack-input').trigger('change');
 });
 function updateCmdStore() {
     if (typeof $('.cmdlet3').val() === 'undefined') return;

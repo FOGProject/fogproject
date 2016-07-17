@@ -12,9 +12,8 @@ class SnapinManagementPage extends FOGPage {
             'VB Script' => array('cscript.exe'),
             'Powershell' => array('powershell.exe','-ExecutionPolicy Bypass -NoProfile -File'),
             'Mono' => array('mono'),
-            'SnapinPack' => array(),
         );
-        $this->menu['maker'] = _('SnapinPack Config');
+        //$this->menu['maker'] = _('SnapinPack Config');
         if ($_REQUEST['id']) {
             $this->subMenu = array(
                 "$this->linkformat#snap-gen" => self::$foglang['General'],
@@ -59,20 +58,7 @@ class SnapinManagementPage extends FOGPage {
             unset($Snapin);
         };
     }
-    public function maker() {
-        $this->title = _('SnapinPack Configuration Generator');
-        unset($this->headerData);
-        $this->attributes = array(
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        printf('<p>%s ',_('The following form helps define how a SnapinPack is run.'));
-        printf('%s <a href="https://wiki.fogproject.org/wiki/index.php?title=SnapinPacks">%s</a> %s</p><br/>',_('Please see'),_('here'),_('to learn more.'));
-        echo '<div id="snapintemplate">';
+    private function maker() {
         $args = array(
             'MSI'=>array('msiexec.exe','/i &quot;[FOG_SNAPIN_PATH]\MyMSI.msi&quot;'),
             'MSI + MST'=>array('msiexec.exe','/i &quot;[FOG_SNAPIN_PATH]\MyMST.mst&quot;'),
@@ -84,32 +70,12 @@ class SnapinManagementPage extends FOGPage {
             'Mono'=>array('mono','&quot;[FOG_SNAPIN_PATH]/MyFile.exe&quot;'),
         );
         ob_start();
-        printf('<select id="argTypes"><option value="">- %s -</option>',_('Please select an option'));
+        printf('<select id="packTypes"><option value="">- %s -</option>',_('Please select an option'));
         array_walk($args,function(&$cmd,&$type) {
             printf('<option file="%s" args="%s">%s</option>',$cmd[0],isset($cmd[1]) ? $cmd[1] : '',$type);
         });
         echo '</select>';
-        $template = ob_get_clean();
-        $fields = array(
-            _('SnapinPack Template') => $template,
-            _('SnapinPack Name') => sprintf('<input type="text" id="snapinpack-name" value="%s" name="snapinpack-name"/>',$_REQUEST['snapinpack-name']),
-            _('SnapinPack Version') => sprintf('<input type="text" id="snapinpack-version" value="%s" name="snapinpack-version"/>',$_REQUEST['snapinpack-version']),
-            _('SnapinPack File') => sprintf('<input type="text" id="snapinpack-file" value="%s" name="snapinpack-file"/>',$_REQUEST['snapinpack-file']),
-            _('SnapinPack Arguments') => sprintf('<input type="text" id="snapinpack-arguments" value="%s" name="snapinpack-arguments"/>',$_REQUEST['snapinpack-arguments']),
-            '&nbsp;' => sprintf('<input type="submit" class="snapinpack-generate" value="%s"/>',_('Generate')),
-        );
-        foreach ((array)$fields AS $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            unset($input);
-        }
-        unset($fields);
-        self::$HookManager->processEvent('SNAPINPACK_GENERATOR',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
-        $this->render();
-        unset($this->data,$this->templates,$this->attributes,$this->headerData);
-        echo '</div>';
+        return ob_get_clean();
     }
     public function index() {
         $this->title = _('All Snap-ins');
@@ -162,15 +128,16 @@ class SnapinManagementPage extends FOGPage {
         unset($groupselect);
         if (count($GroupCount) === 1) $groupselect = array_shift($GroupCount);
         $StorageGroups = self::getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup'] ? $_REQUEST['storagegroup'] : (isset($groupselect) ? $groupselect : ''));
-        $template = ob_get_clean();
+        $template1 = ob_get_clean();
+        $template2 = $this->maker();
         $fields = array(
             _('Snapin Name') => sprintf('<input class="snapinname-input" type="text" name="name" value="%s"/>',$_REQUEST['name']),
+            _('Snapin Storage Group') => $StorageGroups,
             _('Snapin Type')=> sprintf('<select class="snapinpack-input" name="packtype" id="snapinpack"><option value="0"%s>%s</option><option value="1"%s>%s</option></select>',!$_REQUEST['packtype'] ? ' selected' : '',_('Normal Snapin'),$_REQUEST['packtype'] ? ' selected' : '',_('Snapin Pack')),
             _('Snapin Description') => sprintf('<textarea class="snapindescription-input" name="description" rows="8" cols="40">%s</textarea>',$_REQUEST['description']),
-            _('Snapin Template') => $template,
-            _('Snapin Storage Group') => $StorageGroups,
-            sprintf('<span class="packchangerw">%s</span>',_('Snapin Run With')) => sprintf('<input class="snapinrw-input cmdlet1" type="text" name="rw" value="%s"/>',$_REQUEST['rw']),
-            sprintf('<span class="packchangerwa">%s</span>',_('Snapin Run With Argument')) => sprintf('<input class="snapinrwa-input cmdlet2" type="text" name="rwa" value="%s"/>',$_REQUEST['rwa']),
+            sprintf('<span class="packnotemplate">%s</span><span class="packtemplate">%s</span>',_('Snapin Template'),_('Snapin Pack Template')) => sprintf('<span class="packnotemplate">%s</span><span class="packtemplate">%s</span>',$template1,$template2),
+            sprintf('<span class="packnochangerw">%s</span><span class="packchangerw">%s</span>',_('Snapin Run With'),_('Snapin Pack File')) => sprintf('<input class="snapinrw-input cmdlet1" type="text" name="rw" value="%s"/>',$_REQUEST['rw']),
+            sprintf('<span class="packnochangerwa">%s</span><span class="packchangerwa">%s</span>',_('Snapin Run With Argument'),_('Snapin Pack Arguments')) => sprintf('<input class="snapinrwa-input cmdlet2" type="text" name="rwa" value="%s"/>',$_REQUEST['rwa']),
             sprintf('%s <span class="lightColor">%s:%s</span>',_('Snapin File'),_('Max Size'),ini_get('post_max_size')) => sprintf('<input class="snapinfile-input cmdlet3" name="snapin" value="%s" type="file"/>',$_FILES['snapin']['name']),
             (count($filelist) > 0 ? _('Snapin File (exists)') : '') => (count($filelist) > 0 ? $selectFiles : ''),
             sprintf('<span class="packhide">%s</span>',_('Snapin Arguments')) => sprintf('<span class="packhide"><input class="snapinargs-input cmdlet4" type="text" name="args" value="%s"/></span>',$_REQUEST['args']),
@@ -283,14 +250,15 @@ class SnapinManagementPage extends FOGPage {
             printf('<option value="%s" rwargs="%s" args="%s">%s</option>',$cmd[0],$cmd[1],$cmd[2],$type);
         });
         echo '</select>';
-        $template = ob_get_clean();
+        $template1 = ob_get_clean();
+        $template2 = $this->maker();
         $fields = array(
             _('Snapin Name') => sprintf('<input class="snapinname-input" type="text" name="name" value="%s"/>',$this->obj->get('name')),
             _('Snapin Type')=> sprintf('<select class="snapinpack-input" name="packtype" id="snapinpack"><option value="0"%s>%s</option><option value="1"%s>%s</option></select>',!$this->obj->get('packtype') ? ' selected' : '',_('Normal Snapin'),$this->obj->get('packtype') ? ' selected' : '',_('Snapin Pack')),
             _('Snapin Description') => sprintf('<textarea class="snapindescription-input" name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
-            _('Snapin Run With Template') => $template,
-            _('Snapin Run With') => sprintf('<input class="snapinrw-input cmdlet1" type="text" name="rw" value="%s"/>',$this->obj->get('runWith')),
-            _('Snapin Run With Argument') => sprintf('<input class="snapinrwa-input cmdlet2" type="text" name="rwa" value="%s"/>',$this->obj->get('runWithArgs')),
+            sprintf('<span class="packnotemplate">%s</span><span class="packtemplate">%s</span>',_('Snapin Template'),_('Snapin Pack Template')) => sprintf('<span class="packnotemplate">%s</span><span class="packtemplate">%s</span>',$template1,$template2),
+            sprintf('<span class="packnochangerw">%s</span><span class="packchangerw">%s</span>',_('Snapin Run With'),_('Snapin Pack File')) => sprintf('<input class="snapinrw-input cmdlet1" type="text" name="rw" value="%s"/>',$this->obj->get('runWith')),
+            sprintf('<span class="packnochangerwa">%s</span><span class="packchangerwa">%s</span>',_('Snapin Run With Argument'),_('Snapin Pack Arguments')) => sprintf('<input class="snapinrwa-input cmdlet2" type="text" name="rwa" value="%s"/>',$this->obj->get('runWithArgs')),
             sprintf('%s <span class="lightColor">%s:%s</span>',_('Snapin File'),_('Max Size'),ini_get('post_max_size')) => sprintf('<label id="uploader" for="snapin-uploader">%s<a href="#" id="snapin-upload"> <i class="fa fa-arrow-up noBorder"></i></a></label>',basename($this->obj->get('file'))),
             (count($filelist) > 0 ? _('Snapin File (exists)') : '') => (count($filelist) > 0 ? $selectFiles : ''),
             _('Snapin Arguments') => sprintf('<input class="snapinargs-input cmdlet4" type="text" name="args" value="%s"/>',$this->obj->get('args')),
