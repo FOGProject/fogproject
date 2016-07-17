@@ -71,7 +71,6 @@ for line in $imgret; do
             echo "Partclone"
             ;;
     esac
-    usleep 1000000
 done
 case $cnt in
     0)
@@ -86,7 +85,7 @@ case $cnt in
             read imgchoice
         done
         cnt=0
-        for line in $img; do
+        for line in $imgret; do
             linedecode=$(echo $line | base64 -d)
             let cnt+=1
             if [[ $cnt -eq $imgchoice ]]; then
@@ -98,7 +97,7 @@ case $cnt in
         done
         ;;
 esac
-dots "Setting up environment to deploy image"
+echo " * Setting up environment to deploy image"
 export type="down"
 export mac=$(getMACAddresses)
 export img
@@ -108,5 +107,6 @@ export imgPartitionType
 export imgFormat
 export storage
 export storageip
-clearScreen
+debugPause
+clear
 fog
