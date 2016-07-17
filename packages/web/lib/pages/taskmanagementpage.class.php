@@ -28,7 +28,7 @@ class TaskManagementPage extends FOGPage {
             sprintf('<p><a href="?node=host&sub=edit&id=${host_id}" title="%s">${host_name}</a></p><small>${host_mac}</small>',_('Edit Host')),
             sprintf('<p><a href="?node=image&sub=edit&id=${image_id}" title="%s">${image_name}</a></p>',_('Edit Image')),
             '<small>${time}</small>',
-            '${details_taskforce} <i class="fa fa-${icon_state} fa-1x icon" title="${state}"></i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
+            '${details_taskforce} <i data-state="${state_id}" class="state fa fa-${icon_state} fa-1x icon" title="${state}"></i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
         );
         $this->attributes = array(
             array('width'=>16,'class'=>'l filter-false','task-id'=>'${id}'),
@@ -65,6 +65,7 @@ class TaskManagementPage extends FOGPage {
                 'host_mac' => $Host->get('mac')->__toString(),
                 'icon_state' => $Task->getTaskState()->getIcon(),
                 'icon_type' => $Task->getIcon(),
+                'state_id' => $Task->getTaskState()->get('id'),
                 'image_name' => $Task->getImage()->get('name'),
                 'image_id' => $Task->getImage()->get('id'),
             );
