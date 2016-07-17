@@ -61,7 +61,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                         'runwithargs'=>$Snapin->get('runWithArgs'),
                         'hash'=>strtoupper($hash),
                         'size'=>$size,
-                        'url'=>$location,
+                        'url'=>rtrim($location,'/'),
                     );
                 },(array)self::getClass('SnapinManager')->find(array('id'=>$SnapinIDs)))),
             );
