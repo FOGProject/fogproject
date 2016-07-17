@@ -256,7 +256,8 @@ class PluginManagementPage extends FOGPage {
                     ->set('installed',1)
                     ->set('version',1);
                 if (!$Plugin->save()) throw new Exception(sprintf('%s %s',_('Failed to save plugin'),$Plugin->get('name')));
-                $this->formAction = preg_replace('#sub=install&#','sub=installed&',$this->formAction);
+                $this->formAction = sprintf('?node=plugin&sub=installed&run=%s',$_REQUEST['run']);
+                //preg_replace('#sub=install&#','sub=installed&',$this->formAction);
                 throw new Exception(_('Plugin Installed!'));
             }
             if (isset($_REQUEST['basics'])) {

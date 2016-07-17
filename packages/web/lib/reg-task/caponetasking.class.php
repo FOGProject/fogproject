@@ -9,19 +9,27 @@ class CaponeTasking extends FOGBase {
             echo self::getSetting('FOG_PLUGIN_CAPONE_DMI');
             break;
         case 'imagelookup':
-            if (!$_REQUEST['key']) break;
+            if (!isset($_REQUEST['key']) || empty($_REQUEST['key'])) break;
             try {
-                $strSetup = "%s|%s|%s|%s|%s";
+                $strSetup = "%s|%s|%s|%s|%s|%s|%s";
                 ob_start();
                 foreach ((array)self::getClass('CaponeManager')->find(array('key'=>trim(base64_decode($_REQUEST['key'])))) AS $i => &$Capone) {
                     if (!$Capone->isValid()) continue;
+                    $Image = $Capone->getImage();
+                    if (!$Image->isValid()) continue;
+                    $OS = $Image->getOS();
+                    if (!$OS->isValid()) continue;
+                    $StorageNode = $Image->getStorageGroup()->getOptimalStorageNode();
+                    if (!$StorageNode->isValid()) continue;
                     printf("%s\n",
                         base64_encode(sprintf($strSetup,
                         $Capone->getImage()->get('path'),
                         $Capone->getOS()->get('id'),
                         $this->imgTypes[$Capone->getImage()->get('imageTypeID')],
                         $Capone->getImage()->getImagePartitionType()->get('type'),
-                        $Capone->get('format')
+                        $Capone->get('format') ? '1' : '0',
+                        sprintf('%s:%s',$StorageNode->get('ip'),$StorageNode->get('path')),
+                        $StorageNode->get('ip')
                     )));
                     unset($Capone);
                 }

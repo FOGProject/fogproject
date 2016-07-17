@@ -6,7 +6,7 @@ if [[ $boottype == usb && ! -z $web ]]; then
     wget -q -O /tmp/hinfo.txt "http://${web}service/hostinfo.php?mac=$mac"
     [[ -f /tmp/hinfo.txt ]] && . /tmp/hinfo.txt
 fi
-if [[ -n $mode && $mode != +(*debug*) ]]; then
+if [[ -n $mode && $mode != +(*debug*) && -z $type ]]; then
     case $mode in
         wipe)
             fog.wipe

@@ -1,4 +1,5 @@
 #!/bin/bash
+[[ $mode == +(*capone*) ]] && return
 . /usr/share/fog/lib/funcs.sh
 [[ $deployed -eq 1 ]] && . /bin/fog.checkin
 getHardDisk
