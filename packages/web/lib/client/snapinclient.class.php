@@ -32,7 +32,8 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                     $ip = $StorageNode->get('ip');
                     $curroot = trim(trim($StorageNode->get('webroot'),'/'));
                     $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-                    $url = "http://$ip{$webroot}status/getsnapinhash.php";
+                    $location = "http://$ip{$webroot}";
+                    $url = "{$location}status/getsnapinhash.php";
                     unset($curroot,$webroot,$ip);
                     $response = self::$FOGURLRequests->process($url,'POST',array('filepath'=>$filepath));
                     $response = array_shift($response);
@@ -60,6 +61,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                         'runwithargs'=>$Snapin->get('runWithArgs'),
                         'hash'=>strtoupper($hash),
                         'size'=>$size,
+                        'url'=>$location,
                     );
                 },(array)self::getClass('SnapinManager')->find(array('id'=>$SnapinIDs)))),
             );
