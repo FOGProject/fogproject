@@ -349,7 +349,7 @@ class Host extends FOGController {
         $HostALO = self::getClass('HostAutoLogoutManager')->find(array('hostID'=>$this->get('id')));
         $HostALO = array_shift($HostALO);
         $gTime = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
-        return ($HostALO && $HostALO->isValid() ? $HostALO->get('time') : $gTime);
+        return ($HostALO && $HostALO->isValid() ? $HostALO->get('time'): $gTime) * 60;
     }
     public function setAlo($time) {
         self::getClass('HostAutoLogoutManager')->destroy(array('hostID'=>$this->get('id')));
