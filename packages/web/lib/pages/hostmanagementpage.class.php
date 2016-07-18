@@ -927,7 +927,7 @@ class HostManagementPage extends FOGPage {
     public function save_group() {
         try {
             $Group = self::getClass('Group',$_REQUEST['group']);
-            if (!empty($_REQUEST['group_new'])) $Group->set('name',$_REQUEST['group_new']);
+            if (!empty($_REQUEST['group_new'])) $Group->set('name',$_REQUEST['group_new'])->load('name');
             $Group->addHost($_REQUEST['hostIDArray']);
             if (!$Group->save()) throw new Exception(_('Failed to create new Group'));
             return print _('Successfully associated Hosts with the Group ');

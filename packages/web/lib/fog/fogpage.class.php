@@ -154,18 +154,6 @@ abstract class FOGPage extends FOGBase {
             $defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
             $defaultScreens = array('search','list');
             if (!count($this->templates)) throw new Exception(_('Requires templates to process'));
-            if (self::$ajax) {
-                echo json_encode(array(
-                    'data'=>&$this->data,
-                    'templates'=>&$this->templates,
-                    'headerData'=>&$this->headerData,
-                    'title'=>&$this->title,
-                    'attributes'=>&$this->attributes,
-                    'form'=>&$this->form,
-                    'searchFormURL'=>&$this->searchFormURL,
-                ));
-                exit;
-            }
             ob_start();
             $contentField = 'active-tasks';
             if ($this->searchFormURL) {
@@ -213,7 +201,7 @@ abstract class FOGPage extends FOGBase {
             echo '</tbody></table>';
             if ((!$sub || $sub === 'storage_group' || (in_array($sub,$defaultScreens)) && in_array($node,self::$searchPages)) && !self::$isMobile && in_array($node,$this->PagesWithObjects)) {
                 if ($this->node == 'host') {
-                    printf('<form method="post" action="%s" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" id="processgroup" value="%s"/></p></form>',
+                    $actionbox = sprintf('<form method="post" action="%s" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" id="processgroup" value="%s"/></p></form>',
                         sprintf('?node=%s&sub=save_group',$this->node),
                         _('Create new group'),
                         _('Add to group'),
@@ -222,7 +210,7 @@ abstract class FOGPage extends FOGBase {
                     );
                 }
                 if ($this->node != 'task') {
-                    printf('<form method="post" class="c" id="action-boxdel" action="%s"><p>%s</p><input type="hidden" name="%sIDArray" value="" autocomplete="off"/><input type="submit" value="%s?"/></form>',
+                   $actionboxdel = sprintf('<form method="post" class="c" id="action-boxdel" action="%s"><p>%s</p><input type="hidden" name="%sIDArray" value="" autocomplete="off"/><input type="submit" value="%s?"/></form>',
                         sprintf('?node=%s&sub=deletemulti',$this->node),
                         _('Delete all selected items'),
                         strtolower($this->node),
@@ -230,7 +218,23 @@ abstract class FOGPage extends FOGBase {
                     );
                 }
             }
-            self::$HookManager->processEvent('ACTIONBOX',array('actionbox'=>&$actionbox));
+            self::$HookManager->processEvent('ACTIONBOX',array('actionbox'=>&$actionbox,'actionboxdel'=>&$actionboxdel));
+            if (self::$ajax) {
+                echo json_encode(array(
+                    'data'=>&$this->data,
+                    'templates'=>&$this->templates,
+                    'headerData'=>&$this->headerData,
+                    'title'=>&$this->title,
+                    'attributes'=>&$this->attributes,
+                    'form'=>&$this->form,
+                    'searchFormURL'=>&$this->searchFormURL,
+                    'actionbox'=>&$actionbox,
+                    'actionboxdel'=>&$actionboxdel,
+                ));
+                exit;
+            }
+            echo $actionbox;
+            echo $actionboxdel;
             return ob_get_clean();
         } catch (Exception $e) {
             return $e->getMessage();
