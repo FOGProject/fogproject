@@ -1,6 +1,6 @@
 $(function() {
     checkboxToggleSearchListPages();
-    validateInputs('.snapinname-input:not(:hidden)',/^[\w!@#$%^()\-'{}\\\.~]{1,255}$/);
+    validateInputs('.snapinname-input:not(:hidden)',/^[\w!@#$%^()\-'{}\\\.~\ ]{1,255}$/);
     $('#argTypes').change(function() {
         if ($('option:selected',this).attr('value')) $("input[name=rw]").val($('option:selected',this).attr('value'));
         $("input[name=rwa]").val($('option:selected',this).attr('rwargs'));
