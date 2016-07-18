@@ -81,15 +81,16 @@ class MulticastTask extends FOGService {
     }
     public function getCMD() {
         unset($filelist,$buildcmd,$cmd);
+        list($address,$duplex,$maxwait) = self::getSubObjectIDs('Service',array('name'=>array('FOG_MULTICAST_ADDRESS','FOG_MULTICAST_DUPLEX','FOG_UDPCAST_MAXWAIT')),'value');
         $buildcmd = array(
             UDPSENDERPATH,
             $this->getBitrate() ? sprintf(' --max-bitrate %s',$this->getBitrate()) : null,
             $this->getInterface() ? sprintf(' --interface %s',$this->getInterface()) : null,
             sprintf(' --min-receivers %d',($this->getClientCount()?$this->getClientCount():self::getClass(HostManager)->count())),
-            sprintf(' --max-wait %d',self::getSetting('FOG_UDPCAST_MAXWAIT')?self::getSetting('FOG_UDPCAST_MAXWAIT')*60:UDPSENDER_MAXWAIT),
-            self::getSetting('FOG_MULTICAST_ADDRESS')?sprintf(' --mcast-data-address %s',self::getSetting('FOG_MULTICAST_ADDRESS')):null,
+            sprintf(' --max-wait %d',$maxwait?$maxwait*60:UDPSENDER_MAXWAIT),
+            $address?sprintf(' --mcast-data-address %s',$address):null,
             sprintf(' --portbase %s',$this->getPortBase()),
-            sprintf(' %s',self::getSetting('FOG_MULTICAST_DUPLEX')),
+            sprintf(' %s',$duplex),
             ' --ttl 32',
             ' --nokbd',
             ' --nopointopoint;',
