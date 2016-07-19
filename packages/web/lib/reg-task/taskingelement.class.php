@@ -58,12 +58,12 @@ abstract class TaskingElement extends FOGBase {
         if ($checkin === true) {
             self::getClass('ImagingLogManager')->destroy(array('hostID'=>$this->Host->get('id'),'finish'=>'0000-00-00 00:00:00'));
             return self::getClass('ImagingLog')
-            ->set('hostID',$this->Host->get('id'))
-            ->set('start',$this->formatTime('','Y-m-d H:i:s'))
-            ->set('image',$this->Image->get('name'))
-            ->set('type',$_REQUEST['type'])
-            ->set('createdBy',$this->Task->get('createdBy'))
-            ->save();
+                ->set('hostID',$this->Host->get('id'))
+                ->set('start',$this->formatTime('','Y-m-d H:i:s'))
+                ->set('image',$this->Image->get('name'))
+                ->set('type',$_REQUEST['type'])
+                ->set('createdBy',$this->Task->get('createdBy'))
+                ->save();
         }
         return self::getClass('ImagingLog',@max(self::getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id')))))
             ->set('finish',$this->formatTime('','Y-m-d H:i:s'))

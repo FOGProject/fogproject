@@ -128,7 +128,7 @@ class ReportManagementPage extends FOGPage {
         );
         $this->templates = array(
             '${createdBy}',
-            '${host_name}',
+            '${host_name}<br/><small>Storage Group: ${group_name}</small><br/><small>Storage Node: ${node_name}</small>',
             '<small>${start_date}<br/>${start_time}</small>',
             '<small>${end_date}<br/>${end_time}</small>',
             '${duration}',
@@ -145,6 +145,8 @@ class ReportManagementPage extends FOGPage {
         $date2 = self::nice_date($date2)->modify('+1 day')->format('Y-m-d');
         $csvHead = array(
             _('Engineer'),
+            _('Storage Group'),
+            _('Storage Node'),
             _('Host ID'),
             _('Host Name'),
             _('Host MAC'),
@@ -184,9 +186,16 @@ class ReportManagementPage extends FOGPage {
             $hostDesc = $Host->get('description');
             unset($Host);
             $Task = self::getClass('Task',@max(self::getSubObjectIDs('Task',array('checkInTime'=>$ImagingLog->get('start'),'hostID'=>$ImagingLog->get('hostID')))));
-            $createdBy = ($ImagingLog->get('createdBy') ? $ImagingLog->get('createdBy') : $_SESSION['FOG_USERNAME']);
+            $groupName = $Task->getStorageGroup()->get('name');
+            $nodeName = $Task->getStorageNode()->get('name');
+            $typeName = $Task->getTaskType()->get('name');
             unset($Task);
-            $Image = self::getClass('Image',@max(self::getSubObjectIDs('Image',array('name'=>$ImagingLog->get('image')))));
+            if (!$groupName) $groupName = $ImagingLog->get('groupname');
+            if (!$nodeName) $nodeName = $ImagingLog->get('nodename');
+            if (!$typeName) $typeName = $ImagingLog->get('type');
+            if (in_array($typeName,array('up','down'))) $typeName = $imgTypes[$typeName];
+            $createdBy = ($ImagingLog->get('createdBy') ? $ImagingLog->get('createdBy') : $_SESSION['FOG_USERNAME']);
+            $Image = self::getClass('Image')->set('name',$ImagingLog->get('image'))->load('name');
             if ($Image->isValid()) {
                 $imgName = $Image->get('name');
                 $imgPath = $Image->get('path');
@@ -195,11 +204,11 @@ class ReportManagementPage extends FOGPage {
                 $imgPath = 'N/A';
             }
             unset($Image);
-            $imgType = $imgTypes[$ImagingLog->get('type')];
-            if (!$imgType) $imgType = $ImagingLog->get('type');
             unset($ImagingLog);
             $this->data[] = array(
                 'createdBy'=>$createdBy,
+                'group_name'=>$groupName,
+                'node_name'=>$nodeName,
                 'host_name'=>$hostName,
                 'start_date'=>$start->format('Y-m-d'),
                 'start_time'=>$start->format('H:i:s'),
@@ -207,22 +216,25 @@ class ReportManagementPage extends FOGPage {
                 'end_time'=>$end->format('H:i:s'),
                 'duration'=>$diff,
                 'image_name'=>$imgName,
-                'type'=>$imgType,
+                'type'=>$typeName,
             );
-            $this->ReportMaker->addCSVCell($createdBy);
-            $this->ReportMaker->addCSVCell($hostId);
-            $this->ReportMaker->addCSVCell($hostName);
-            $this->ReportMaker->addCSVCell($hostMac);
-            $this->ReportMaker->addCSVCell($hostDesc);
-            $this->ReportMaker->addCSVCell($imgName);
-            $this->ReportMaker->addCSVCell($imgPath);
-            $this->ReportMaker->addCSVCell($start->format('Y-m-d'));
-            $this->ReportMaker->addCSVCell($start->format('H:i:s'));
-            $this->ReportMaker->addCSVCell($end->format('Y-m-d'));
-            $this->ReportMaker->addCSVCell($end->format('H:i:s'));
-            $this->ReportMaker->addCSVCell($diff);
-            $this->ReportMaker->addCSVCell($imgType);
-            $this->ReportMaker->endCSVLine();
+            $this->ReportMaker
+                ->addCSVCell($createdBy)
+                ->addCSVCell($groupName)
+                ->addCSVCell($nodeName)
+                ->addCSVCell($hostId)
+                ->addCSVCell($hostName)
+                ->addCSVCell($hostMac)
+                ->addCSVCell($hostDesc)
+                ->addCSVCell($imgName)
+                ->addCSVCell($imgPath)
+                ->addCSVCell($start->format('Y-m-d'))
+                ->addCSVCell($start->format('H:i:s'))
+                ->addCSVCell($end->format('Y-m-d'))
+                ->addCSVCell($end->format('H:i:s'))
+                ->addCSVCell($diff)
+                ->addCSVCell($typeName)
+                ->endCSVLine();
         }
         unset($ImagingLogIDs,$id);
         $this->ReportMaker->appendHTML($this->__toString());
