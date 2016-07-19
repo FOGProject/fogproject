@@ -190,8 +190,6 @@ class ReportManagementPage extends FOGPage {
             $nodeName = $Task->getStorageNode()->get('name');
             $typeName = $Task->getTaskType()->get('name');
             unset($Task);
-            if (!$groupName) $groupName = $ImagingLog->get('groupname');
-            if (!$nodeName) $nodeName = $ImagingLog->get('nodename');
             if (!$typeName) $typeName = $ImagingLog->get('type');
             if (in_array($typeName,array('up','down'))) $typeName = $imgTypes[$typeName];
             $createdBy = ($ImagingLog->get('createdBy') ? $ImagingLog->get('createdBy') : $_SESSION['FOG_USERNAME']);
@@ -874,8 +872,8 @@ class ReportManagementPage extends FOGPage {
             '${input}',
         );
         $AllDates = array_merge(self::$DB->query("SELECT DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') start FROM `snapinTasks` WHERE DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'),self::$DB->query("SELECT DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') finish FROM `snapinTasks` WHERE DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'));
-        foreach ((array)$AllDates AS $i => &$Date) {
-            $tmp = array_shift($Date);
+        foreach ((array)$AllDates AS &$Date) {
+            $tmp = !is_array($Date) ? $Date : array_shift($Date);
             if (!$this->validDate($tmp)) continue;
             $Dates[] = $tmp;
             unset($Date,$tmp);
