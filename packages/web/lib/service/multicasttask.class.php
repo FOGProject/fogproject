@@ -87,7 +87,7 @@ class MulticastTask extends FOGService {
             $this->getBitrate() ? sprintf(' --max-bitrate %s',$this->getBitrate()) : null,
             $this->getInterface() ? sprintf(' --interface %s',$this->getInterface()) : null,
             sprintf(' --min-receivers %d',($this->getClientCount()?$this->getClientCount():self::getClass(HostManager)->count())),
-            sprintf(' --max-wait %d',$maxwait?$maxwait*60:UDPSENDER_MAXWAIT),
+            sprintf(' --max-wait %s','%d'),
             $address?sprintf(' --mcast-data-address %s',$address):null,
             sprintf(' --portbase %s',$this->getPortBase()),
             sprintf(' %s',$duplex),
@@ -171,7 +171,7 @@ class MulticastTask extends FOGService {
         $filelist = array_values((array)$filelist);
         ob_start();
         foreach ($filelist AS $i => &$file) {
-            printf('cat %s%s%s | %s',rtrim($this->getImagePath(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,$file,implode($buildcmd));
+            printf('cat %s%s%s | %s',rtrim($this->getImagePath(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,$file,sprintf(implode($buildcmd),$i == 0 ? $maxwait : 10));
             unset($file);
         }
         unset($filelist,$buildcmd);
