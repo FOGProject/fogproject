@@ -210,7 +210,7 @@ abstract class FOGPage extends FOGBase {
                     );
                 }
                 if ($this->node != 'task') {
-                   $actionboxdel = sprintf('<form method="post" class="c" id="action-boxdel" action="%s"><p>%s</p><input type="hidden" name="%sIDArray" value="" autocomplete="off"/><input type="submit" value="%s?"/></form>',
+                   $actionbox .= sprintf('<form method="post" class="c" id="action-boxdel" action="%s"><p>%s</p><input type="hidden" name="%sIDArray" value="" autocomplete="off"/><input type="submit" value="%s?"/></form>',
                         sprintf('?node=%s&sub=deletemulti',$this->node),
                         _('Delete all selected items'),
                         strtolower($this->node),
@@ -218,7 +218,8 @@ abstract class FOGPage extends FOGBase {
                     );
                 }
             }
-            self::$HookManager->processEvent('ACTIONBOX',array('actionbox'=>&$actionbox,'actionboxdel'=>&$actionboxdel));
+            self::$HookManager->processEvent('ACTIONBOX',array('actionbox'=>&$actionbox));
+            $text = ob_get_clean();
             if (self::$ajax) {
                 echo json_encode(array(
                     'data'=>&$this->data,
@@ -229,13 +230,11 @@ abstract class FOGPage extends FOGBase {
                     'form'=>&$this->form,
                     'searchFormURL'=>&$this->searchFormURL,
                     'actionbox'=>&$actionbox,
-                    'actionboxdel'=>&$actionboxdel,
                 ));
                 exit;
             }
-            echo $actionbox;
-            echo $actionboxdel;
-            return ob_get_clean();
+            $text .= $actionbox;
+            return $text;
         } catch (Exception $e) {
             return $e->getMessage();
         }
