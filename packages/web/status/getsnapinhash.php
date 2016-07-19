@@ -37,6 +37,7 @@ $file = sprintf('%s/%s',$dir,$name);
 $fileexist = file_exists($file);
 if ($fileexist) {
     $filesize = getfilesize($file);
+    $file = escapeshellarg($file);
     $filehash = exec("sha512sum $file|awk '{print $1}'");
 } else {
     $filesize = 0;

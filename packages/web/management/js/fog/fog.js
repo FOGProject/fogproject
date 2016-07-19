@@ -296,6 +296,7 @@ function buildRow(data,templates,attributes,wrapper) {
     rows = [];
     if (node == 'task' && (typeof(sub) == 'undefined' || sub == 'active')) {
         for (var h in data) {
+            $('#progress-'+data[h].host_id).remove();
             var percentRow = '';
             if (data[h].percent > 0 && data[h].percent < 100) {
                 percentRow = '<tr id="progress-'+data[h].host_id+'" class="with-progress"><td colspan="'+colspan+'" class="task-progress-td min"><div class="task-progress-fill min" style="width: '+data[h].width+'px"></div><div class="task-progress min"><ul><li>'+data[h].elapsed+'/'+data[h].remains+'</li><li>'+parseInt(data[h].percent)+'%</li><li>'+data[h].copied+' of '+data[h].total+' ('+data[h].bpm+'/min)</li></ul></div></td></tr>';
