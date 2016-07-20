@@ -768,7 +768,7 @@ class FOGConfigurationPage extends FOGPage {
             default:
                 break;
             }
-            $Service->getManager()->update(array('id'=>$key),'',array('value'=>$_REQUEST[$key]));
+            $Service->set('value',$_REQUEST[$key])->save();
             unset($Service);
         }
         $this->setMessage('Settings Successfully stored!');
