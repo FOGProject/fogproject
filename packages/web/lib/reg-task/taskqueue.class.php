@@ -99,7 +99,6 @@ class TaskQueue extends TaskingElement {
             $MCTask = self::getClass('MulticastSessionsAssociation')->set('taskID',$this->Task->get('id'))->load('taskID');
             $MulticastSession = $MCTask->getMulticastSession();
             $MulticastSession->set('clients',$MulticastSession->get('clients') - 1)->save();
-            $MCTask->destroy();
         }
         $this->Host->set('deployed',self::nice_date()->format('Y-m-d H:i:s'));
         $this->Task

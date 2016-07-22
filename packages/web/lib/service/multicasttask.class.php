@@ -1,44 +1,40 @@
 <?php
 class MulticastTask extends FOGService {
     public function getAllMulticastTasks($root,$myStorageNodeID) {
-        $Tasks = array();
-        if (self::getClass('MulticastSessionsManager')->count(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())))) {
-            self::outall(sprintf(' | Sleeping for %s seconds to ensure tasks are properly submitted',self::$zzz));
-            sleep(self::$zzz);
-        }
+
         $StorageNode = self::getClass('StorageNode',$myStorageNodeID);
         if (!$StorageNode->get('isMaster')) return;
         $Interface = self::getMasterInterface(self::$FOGCore->resolveHostname($StorageNode->get('ip')));
         unset($StorageNode);
-        foreach ((array)self::getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()))) AS $i => &$MultiSess) {
-            if (!$MultiSess->isValid()) continue;
+        $Tasks = array();
+        $MulticastSessions = self::getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
+        array_walk($MulticastSessions,function(&$MultiSess,&$index) use (&$Tasks,$root,$Interface) {
+            if (!$MultiSess->isValid()) return;
             $taskIDs = self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MultiSess->get('id')),'taskID');
-            $stateIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs),'stateID');
-            unset($taskIDs);
-            if (in_array($this->getCompleteState(),$stateIDs) || in_array($this->getCancelledState(),$stateIDs)) continue;
-            unset($stateIDs);
-            $Image = self::getClass('Image',$MultiSess->get('image'));
-            if (!$Image->isValid()) continue;
+            $taskIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
+            $stateIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())),'stateID');
             $count = self::getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MultiSess->get('id')));
+            $Image = self::getClass('Image',$MultiSess->get('image'));
             $Tasks[] = new self(
                 $MultiSess->get('id'),
                 $MultiSess->get('name'),
                 $MultiSess->get('port'),
                 sprintf('%s/%s',$root,$MultiSess->get('logpath')),
-                $Interface ? $Interface : self::getSetting('FOG_UDPCAST_INTERFACE'),
-                ($count>0?$count:($MultiSess->get('sessclients')>0?$MultiSess->get('sessclients'):self::getClass('HostManager')->count())),
+                $Interface,
+                ($count > 0 ? $count : ($MultiSess->get('sessclients') > 0 ? $MultiSess->get('sessclients') : self::getClass('HostManager')->count())),
                 $MultiSess->get('isDD'),
-                $Image->get('osID')
+                $Image->get('osID'),
+                $taskIDs
             );
-            unset($MultiSess);
-        }
+            unset($MultiSess,$index);
+        });
         return array_filter($Tasks);
     }
-    private $intID, $strName, $intPort, $strImage, $strEth, $intClients;
+    private $intID, $strName, $intPort, $strImage, $strEth, $intClients, $taskIDs;
     private $intImageType, $intOSID;
     public $procRef;
     public $procPipes;
-    public function __construct($id = '',$name = '',$port = '',$image = '',$eth = '',$clients = '',$imagetype = '',$osid = '') {
+    public function __construct($id = '',$name = '',$port = '',$image = '',$eth = '',$clients = '',$imagetype = '',$osid = '',$taskIDs = '') {
         parent::__construct();
         $this->intID = $id;
         $this->strName = $name;
@@ -48,6 +44,10 @@ class MulticastTask extends FOGService {
         $this->intClients = $clients;
         $this->intImageType = $imagetype;
         $this->intOSID = $osid;
+        $this->taskIDs = $taskIDs;
+    }
+    public function getTaskIDs() {
+        return $this->taskIDs;
     }
     public function getID() {
         return $this->intID;
@@ -189,19 +189,6 @@ class MulticastTask extends FOGService {
     public function killTask() {
         $this->killTasking();
         unlink($this->getUDPCastLogFile());
-        $taskIDs = self::getSubObjectIDs('MulticastSessionsAssociation',array('msid'=>$this->getID()),'taskID');
-        $stateIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array($this->getCompleteState(),$this->getCancelledState())),'stateID');
-        array_map(function(&$Task) use ($stateIDs) {
-            if (!$Task->isValid()) return;
-            $Task
-                ->set('stateID',in_array($this->getCancelledState(),(array)$stateIDs) ? $this->getCancelledState() : $this->getCompleteState())
-                ->save();
-            unset($Task);
-        },(array)self::getClass('TaskManager')->find(array('id'=>$taskIDs)));
-        self::getClass('MulticastSessions',$this->intID)
-            ->set('name',null)
-            ->set('stateID',in_array($this->getCancelledState(),(array)$stateIDs) ? $this->getCancelledState() : $this->getCompleteState())
-            ->save();
         return true;
     }
     public function updateStats() {
