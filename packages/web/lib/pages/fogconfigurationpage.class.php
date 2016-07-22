@@ -749,28 +749,32 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_PROXY_IP' => true,
         );
         unset($findWhere,$setWhere);
-        foreach ((array)self::getClass('ServiceManager')->find() AS $i => &$Service) {
+        $Services = self::getClass('ServiceManager')->find();
+        $items = array();
+        array_walk($Services,function(&$Service,&$index) use (&$items,$needstobenumeric,$needstobeip) {
             $key = $Service->get('id');
-            $_REQUEST[$key] = trim($_REQUEST[$key]);
-            if ($_REQUEST[$key] == trim($Service->get('value'))) continue;
-            if (isset($needstobenumeric[$Service->get('name')])) {
-                if ($needstobenumeric[$Service->get('name')] === true && !is_numeric($_REQUEST[$key])) $_REQUEST[$key] = 0;
-                if ($needstobenumeric[$Service->get('name')] !== true && !in_array($_REQUEST[$key],$needstobenumeric[$Service->get('name')])) $_REQUEST[$key] = 0;
+            $val = trim($Service->get('value'));
+            $name = trim($Service->get('name'));
+            $set = trim($_REQUEST[$key]);
+            if (isset($needstobenumeric[$name])) {
+                if ($needstobenumeric[$name] === true && !is_numeric($set)) $set = 0;
+                if ($needstobenumeric[$name] !== true && !in_array($set,$needstobenumeric[$name])) $set = 0;
             }
-            if (isset($needstobeip[$Service->get('name')]) && !filter_var($_REQUEST[$key],FILTER_VALIDATE_IP)) $_REQUEST[$key] = 0;
-            switch ($Service->get('name')) {
+            if (isset($needstobeip[$name]) && !filter_var($set,FILTER_VALIDATE_IP)) $set = 0;
+            switch ($name) {
             case 'FOG_MEMORY_LIMIT':
-                if ($_REQUEST[$key] < 128) $_REQUEST[$key] = 128;
+                if ($set < 128) $set = 128;
                 break;
             case 'FOG_AD_DEFAULT_PASSWORD':
-                $_REQUEST[$key] = $this->encryptpw($_REQUEST[$key]);
+                $set = $this->encryptpw($set);
                 break;
             default:
                 break;
             }
-            $Service->set('value',$_REQUEST[$key])->save();
-            unset($Service);
-        }
+            $items[] = array($key,$name,$set);
+            unset($Service,$index);
+        });
+        self::getClass('ServiceManager')->insert_batch(array('id','name','value'),$items);
         $this->setMessage('Settings Successfully stored!');
         $this->redirect($this->formAction);
     }

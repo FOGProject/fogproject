@@ -81,7 +81,7 @@ class MulticastTask extends FOGService {
     }
     public function getCMD() {
         unset($filelist,$buildcmd,$cmd);
-        list($address,$duplex,$maxwait) = self::getSubObjectIDs('Service',array('name'=>array('FOG_MULTICAST_ADDRESS','FOG_MULTICAST_DUPLEX','FOG_UDPCAST_MAXWAIT')),'value');
+        list($address,$duplex,$maxwait) = self::getSubObjectIDs('Service',array('name'=>array('FOG_MULTICAST_ADDRESS','FOG_MULTICAST_DUPLEX','FOG_UDPCAST_MAXWAIT')),'value',false,'AND','name',false,'');
         $buildcmd = array(
             UDPSENDERPATH,
             $this->getBitrate() ? sprintf(' --max-bitrate %s',$this->getBitrate()) : null,
