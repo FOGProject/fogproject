@@ -389,6 +389,20 @@ function setupParserInfo() {
         type: 'text'
     });
     $.tablesorter.addParser({
+        id: 'dateParser',
+        is: function(s, table, cell, cellIndex) {
+            return /\d{1,4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}\.\d+/.test(s);
+        },
+        format: function(s, table, cell, cellIndex) {
+            s = s.replace(/\-/g,' ');
+            s = s.replace(/:/g,' ');
+            s = s.replace(/\./g,' ');
+            s = split(' ');
+            return $.tablesorter.formatFloat(new Date(s[0], s[1]-1, s[2], s[3], s[4], s[5]).getTime()+parseInt(s[6]));
+        },
+        type: 'numeric'
+    });
+    $.tablesorter.addParser({
         id: 'questionParser',
         is: function(s) {
             return false;
@@ -458,12 +472,6 @@ function setupFogTableInfoFunction() {
                     headParser = {5: {sorter: 'statusParser'}};
                 }
                 break;
-            case 'user':
-            case 'group':
-            case 'snapin':
-            default:
-                headParser = {0: {sorter: 'checkboxParser'}};
-                break;
             case 'host':
                 headParser = {0: {sorter: 'questionParser'},1: {sorter: 'checkboxParser'},2: {sorter: 'iParser'}};
                 break;
@@ -477,6 +485,20 @@ function setupFogTableInfoFunction() {
                 break;
             case 'storage':
                 headParser = {};
+                break;
+            case 'report':
+                console.log(typeof(sub));
+                if (typeof(sub) != 'undefined' && sub == 'imaging-log') {
+                    headParser = {
+                        2: {sorter: 'dateParser'},
+                        3: {sorter: 'dateParser'}
+                    };
+                }
+            case 'user':
+            case 'group':
+            case 'snapin':
+            default:
+                headParser = {0: {sorter: 'checkboxParser'}};
                 break;
         }
         table = $('table',this);

@@ -1,9 +1,9 @@
 <?php
 class System {
     public function __construct() {
-        define('FOG_VERSION', 'working-RC-2 11');
+        define('FOG_VERSION', 'working-RC-2 12');
         define('FOG_SCHEMA', 232);
-        define('FOG_BCACHE_VER',91);
+        define('FOG_BCACHE_VER',92);
         define('FOG_SVN_REVISION',5937);
         define('FOG_SVN_LAST_UPDATE', '$LastChangedDate: 2015-01-01 14:16:56 -0500 (Thu, 01 Jan 2015) $');
         define('FOG_CLIENT_VERSION', '0.11.4');

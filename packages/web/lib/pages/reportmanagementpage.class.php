@@ -129,8 +129,8 @@ class ReportManagementPage extends FOGPage {
         $this->templates = array(
             '${createdBy}',
             '${host_name}<br/><small>Storage Group: ${group_name}</small><br/><small>Storage Node: ${node_name}</small>',
-            '<small>${start_date}<br/>${start_time}</small>',
-            '<small>${end_date}<br/>${end_time}</small>',
+            '<small>${start_date} ${start_time}</small>',
+            '<small>${end_date} ${end_time}</small>',
             '${duration}',
             '${image_name}',
             '${type}',
