@@ -93,6 +93,22 @@ class TaskQueue extends TaskingElement {
         }
         mail($emailAddress,$stat,$emailMe,$headers);
     }
+    private function move_upload() {
+        if (!$this->Task->isCapture()) return;
+        $macftp = strtolower(str_replace(array(':','-','.'),'',$_REQUEST['mac']));
+        $src = sprintf('%s/dev/%s',$this->StorageNode->get('ftppath'),$macftp);
+        $dest = sprintf('%s/%s',$this->StorageNode->get('ftppath'),$this->Image->get('path'));
+        self::$FOGFTP
+            ->set('host',$this->StorageNode->get('ip'))
+            ->set('username',$this->StorageNode->get('user'))
+            ->set('password',$this->StorageNode->get('pass'))
+            ->connect()
+            ->delete($dest)
+            ->rename($src,$dest)
+            ->chmod(0755,$dest)
+            ->close();
+        if ($this->Image->get('format') == 1) $this->Image->set('format',0)->save();
+    }
     public function checkout() {
         if ($this->Task->isSnapinTasking()) die('##');
         if ($this->Task->isMulticast()) {
@@ -100,7 +116,11 @@ class TaskQueue extends TaskingElement {
             $MulticastSession = $MCTask->getMulticastSession();
             $MulticastSession->set('clients',$MulticastSession->get('clients') - 1)->save();
         }
-        $this->Host->set('deployed',self::nice_date()->format('Y-m-d H:i:s'));
+        if ($this->Task->isDeploy()) {
+            $this->Host->set('deployed',self::nice_date()->format('Y-m-d H:i:s'));
+            $this->email();
+        }
+        $this->move_upload();
         $this->Task
             ->set('pct',100)
             ->set('percent',100)
@@ -110,6 +130,5 @@ class TaskQueue extends TaskingElement {
         if (!$this->ImageLog(false)) throw new Exception(_('Failed to update imaging log'));
         self::$EventManager->notify('HOST_IMAGE_COMPLETE',array('HostName'=>$this->Host->get('name')));
         echo '##';
-        $this->email();
     }
 }

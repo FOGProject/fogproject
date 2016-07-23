@@ -24,7 +24,7 @@ abstract class TaskingElement extends FOGBase {
                 $this->Image = $this->Task->getImage();
                 $this->StorageNodes = self::getClass('StorageNodeManager')->find(array('id'=>$this->StorageGroup->get('enablednodes')));
                 $this->Host->set('sec_tok',null)->set('pub_key',null)->save();
-                if ($this->Task->isCapture() || $this->Task->isMulticast()) $this->StorageNode = $this->Image->getStorageGroup()->getMasterStorageNode();
+                if ($this->Task->isCapture() || $this->Task->isMulticast()) $this->StorageNode = $this->StorageGroup->getMasterStorageNode();
             }
         } catch (Exception $e) {
             echo $e->getMessage();

@@ -390,15 +390,14 @@ function setupParserInfo() {
     });
     $.tablesorter.addParser({
         id: 'dateParser',
-        is: function(s, table, cell, cellIndex) {
-            return /\d{1,4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}\.\d+/.test(s);
+        is: function(s) {
+            return /\d{1,4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}/.test(s);
         },
-        format: function(s, table, cell, cellIndex) {
+        format: function(s) {
             s = s.replace(/\-/g,' ');
             s = s.replace(/:/g,' ');
-            s = s.replace(/\./g,' ');
             s = split(' ');
-            return $.tablesorter.formatFloat(new Date(s[0], s[1]-1, s[2], s[3], s[4], s[5]).getTime()+parseInt(s[6]));
+            return $.tablesorter.formatFloat(new Date(s[0], s[1], s[2], s[3], s[4], s[5]).getTime());
         },
         type: 'numeric'
     });
@@ -435,8 +434,8 @@ function setupParserInfo() {
             if (s.length < 1) return;
             var suf = s.match(new RegExp(/(iB|KiB|MiB|GiB|TiB|EiB|ZiB|YiB)$/));
             if (typeof suf == 'null' || typeof suf == 'undefined') return;
-            var num = parseFloat(s.match(new RegExp(/^[0-9]+(\.[0-9]+)?/))[0]);
-            switch(suf) {
+            var num = parseFloat(suf.input.match(new RegExp(/^[0-9]+(\.[0-9]+)?/))[0]);
+            switch(suf[0]) {
                 case 'iB':
                     return num;
                 case 'KiB':
@@ -472,6 +471,30 @@ function setupFogTableInfoFunction() {
                     headParser = {5: {sorter: 'statusParser'}};
                 }
                 break;
+            case 'report':
+                if (typeof(sub) != 'undefined') {
+                    switch (sub) {
+                        case 'imaging-log':
+                            headParser = {
+                                2: {sorter: 'dateParser'},
+                                3: {sorter: 'dateParser'}
+                            };
+                            break;
+                    }
+                    if (sub == 'inventory') {
+                        headParser = {
+                            1: {sorter: 'sizeParser'}
+                        };
+                        break;
+                    }
+                }
+                break;
+            case 'user':
+            case 'group':
+            case 'snapin':
+            default:
+                headParser = {0: {sorter: 'checkboxParser'}};
+                break;
             case 'host':
                 headParser = {0: {sorter: 'questionParser'},1: {sorter: 'checkboxParser'},2: {sorter: 'iParser'}};
                 break;
@@ -485,20 +508,6 @@ function setupFogTableInfoFunction() {
                 break;
             case 'storage':
                 headParser = {};
-                break;
-            case 'report':
-                console.log(typeof(sub));
-                if (typeof(sub) != 'undefined' && sub == 'imaging-log') {
-                    headParser = {
-                        2: {sorter: 'dateParser'},
-                        3: {sorter: 'dateParser'}
-                    };
-                }
-            case 'user':
-            case 'group':
-            case 'snapin':
-            default:
-                headParser = {0: {sorter: 'checkboxParser'}};
                 break;
         }
         table = $('table',this);
