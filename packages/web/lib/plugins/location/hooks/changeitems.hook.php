@@ -51,6 +51,12 @@ class ChangeItems extends Hook {
         $arguments['bzImage'] = "http://${ip}${webroot}service/ipxe/$bzImage";
         $arguments['imagefile'] = "http://${ip}${webroot}service/ipxe/$initrd";
     }
+    public function AlterMasters($arguments) {
+        if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
+        if (!$arguments['FOGServiceClass'] instanceof MulticastManager) return;
+        $IDs = array_unique(array_filter(array_merge((array)$arguments['MasterIDs'],(array)self::getSubObjectIDs('Location','','storageNodeID'))));
+        $arguments['StorageNodes'] = self::getClass('StorageNodeManager')->find(array('id'=>$IDs));
+    }
 }
 $ChangeItems = new ChangeItems();
 $HookManager->register('SNAPIN_NODE',array($ChangeItems,'StorageNodeSetting'));
@@ -61,4 +67,5 @@ $HookManager->register('HOST_NEW_SETTINGS',array($ChangeItems,'StorageNodeSettin
 $HookManager->register('HOST_NEW_SETTINGS',array($ChangeItems,'StorageGroupSetting'));
 $HookManager->register('BOOT_TASK_NEW_SETTINGS',array($ChangeItems,'StorageNodeSetting'));
 $HookManager->register('TASK_LIMIT',array($ChangeItems,'SlotCount'));
+$HookManager->register('CHECK_NODE_MASTERS',array($ChangeItems,'AlterMasters'));
 //$HookManager->register('HOST_EDIT_AFTER_SAVE',array($ChangeItems,'HostEditAfterSave'));

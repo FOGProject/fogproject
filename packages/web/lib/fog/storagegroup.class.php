@@ -44,7 +44,8 @@ class StorageGroup extends FOGController {
         if (!$this->get('id')) return;
         if (!$this->isLoaded('enablednodes')) $this->loadEnablednodes();
         $this->winner = null;
-        array_map(function(&$StorageNode) use ($image) {
+        $Nodes = self::getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes')));
+        array_walk($Nodes,function(&$StorageNode,&$index) use ($image) {
             if (!$StorageNode->isValid()) return;
             if (!in_array($image,$StorageNode->get('images'))) return;
             if ($StorageNode->get('maxClients') < 1) return;
@@ -53,8 +54,8 @@ class StorageGroup extends FOGController {
                 return;
             }
             if ($StorageNode->getClientLoad() < $this->winner->getClientLoad()) $this->winner = $StorageNode;
-            unset($StorageNode);
-        },(array)self::getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes'))));
+            unset($StorageNode,$index);
+        });
         if (empty($this->winner) || !($this->winner instanceof StorageNode)) $this->winner = self::getClass('StorageNode',@min($this->get('enablednodes')));
         return $this->winner;
     }

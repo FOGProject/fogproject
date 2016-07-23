@@ -10,9 +10,9 @@ class SnapinReplicator extends FOGService {
         static::$zzz = ($zzz ? $zzz : 600);
     }
     private function commonOutput() {
-        $StorageNodes = $this->checkIfNodeMaster();
-        foreach ((array)$StorageNodes AS &$StorageNode) {
-            try {
+        try {
+            $StorageNodes = $this->checkIfNodeMaster();
+            foreach ((array)$StorageNodes AS &$StorageNode) {
                 self::out(' * I am the group manager',static::$dev);
                 self::wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
                 $myStorageGroupID = $StorageNode->get('storageGroupID');
@@ -46,10 +46,11 @@ class SnapinReplicator extends FOGService {
                     $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Snapin,false);
                     unset($Snapin);
                 }
-                unset($Snapins);
-            } catch (Exception $e) {
-                self::outall(' * '.$e->getMessage());
+                unset($Snapins,$StorageNode);
             }
+            unset($StorageNodes);
+        } catch (Exception $e) {
+            self::outall(' * '.$e->getMessage());
         }
     }
     public function serviceRun() {

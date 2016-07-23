@@ -14,16 +14,17 @@ abstract class TaskingElement extends FOGBase {
             $this->Task = $this->Host->get('task');
             self::checkTasking($this->Task,$this->Host->get('name'),$this->Host->get('mac'));
             $this->imagingTask = in_array($this->Task->get('typeID'),array(1,2,8,15,16,17,24));
-            $this->StorageGroup = $this->Task->getStorageGroup();
+            $this->StorageGroup = $this->StorageNode = null;
+            self::$HookManager->processEvent('HOST_NEW_SETTINGS',array('Host'=>&$this->Host,'StorageNode'=>&$this->StorageNode,'StorageGroup'=>&$this->StorageGroup));
+            if (!$this->StorageGroup || !$this->StorageGroup->isValid()) $this->StorageGroup = $this->Task->getStorageGroup();
             if ($this->imagingTask) {
-                $this->StorageNode = $this->Task->isCapture() || $this->Task->isMulticast() ? $this->StorageGroup->getMasterStorageNode() : $this->StorageGroup->getOptimalStorageNode($this->Host->get('imageID'));
-                self::$HookManager->processEvent('HOST_NEW_SETTINGS',array('Host'=>&$this->Host,'StorageNode'=>&$this->StorageNode,'StorageGroup'=>&$this->StorageGroup));
+                if (!$this->StorageNode || !$this->StorageNode->isValid()) $this->StorageNode = $this->Task->isCapture() || $this->Task->isMulticast() ? $this->StorageGroup->getMasterStorageNode() : $this->StorageGroup->getOptimalStorageNode($this->Host->get('imageID'));
                 self::checkStorageGroup($this->StorageGroup);
                 self::checkStorageNodes($this->StorageGroup);
                 $this->Image = $this->Task->getImage();
                 $this->StorageNodes = self::getClass('StorageNodeManager')->find(array('id'=>$this->StorageGroup->get('enablednodes')));
                 $this->Host->set('sec_tok',null)->set('pub_key',null)->save();
-                if ($this->Task->isCapture() || $this->Task->isMulticast()) $this->StorageNode = $this->Image->getStorageGroup()->getMasterStorageNode();
+                if ($this->Task->isCapture() || $this->Task->isMulticast()) $this->StorageNode = $this->StorageGroup->getMasterStorageNode();
             }
         } catch (Exception $e) {
             echo $e->getMessage();
@@ -58,12 +59,12 @@ abstract class TaskingElement extends FOGBase {
         if ($checkin === true) {
             self::getClass('ImagingLogManager')->destroy(array('hostID'=>$this->Host->get('id'),'finish'=>'0000-00-00 00:00:00'));
             return self::getClass('ImagingLog')
-            ->set('hostID',$this->Host->get('id'))
-            ->set('start',$this->formatTime('','Y-m-d H:i:s'))
-            ->set('image',$this->Image->get('name'))
-            ->set('type',$_REQUEST['type'])
-            ->set('createdBy',$this->Task->get('createdBy'))
-            ->save();
+                ->set('hostID',$this->Host->get('id'))
+                ->set('start',$this->formatTime('','Y-m-d H:i:s'))
+                ->set('image',$this->Image->get('name'))
+                ->set('type',$_REQUEST['type'])
+                ->set('createdBy',$this->Task->get('createdBy'))
+                ->save();
         }
         return self::getClass('ImagingLog',@max(self::getSubObjectIDs('ImagingLog',array('hostID'=>$this->Host->get('id')))))
             ->set('finish',$this->formatTime('','Y-m-d H:i:s'))
