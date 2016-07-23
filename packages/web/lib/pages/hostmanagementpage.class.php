@@ -716,32 +716,80 @@ class HostManagementPage extends FOGPage {
         unset($this->data,$this->headerData);
         printf('<div id="login-history" style="width:575px;height:200px;"/></div></form></div><div id="host-image-history"><h2>%s</h2>',_('Host Imaging History'));
         $this->headerData = array(
-            _('Image Name'),
-            _('Imaging Type'),
-            sprintf('<small>%s</small><br/>%s',_('Completed'),_('Duration')),
+            _('Engineer'),
+            _('Imaged From'),
+            _('Start'),
+            _('End'),
+            _('Duration'),
+            _('Image'),
+            _('Type'),
+            _('State'),
         );
         $this->templates = array(
+            '${createdBy}',
+            sprintf('<small>%s: ${group_name}</small><br/><small>%s: ${node_name}</small>',_('Storage Group'),_('Storage Node')),
+            '<small>${start_date}</small><br/><small>${start_time}</small>',
+            '<small>${end_date}</small><br/><small>${end_time}</small>',
+            '${duration}',
             '${image_name}',
-            '${image_type}',
-            '<small>${completed}</small><br/>${duration}',
+            '${type}',
+            '${state}',
         );
         $this->attributes = array(
             array(),
             array(),
             array(),
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
         );
-        foreach ((array)self::getClass('ImagingLogManager')->find(array('hostID'=>$this->obj->get('id'))) AS $i => &$ImageLog) {
-            if (!$ImageLog->isValid()) continue;
-            $Start = $ImageLog->get('start');
-            $End = $ImageLog->get('finish');
+        $imagingLogs = self::getClass('ImagingLogManager')->find(array('hostID'=>$this->obj->get('id')));
+        $imgTypes = array(
+            'up' => _('Capture'),
+            'down' => _('Deploy'),
+        );
+        array_walk($imagingLogs,function(&$log,&$index) {
+            if (!$log->isValid()) return;
+            $start = $log->get('start');
+            $end = $log->get('finish');
+            if (!$this->validDate($start) || !$this->validDate($end)) return;
+            $diff = $this->diff($start,$end);
+            $start = self::nice_date($start);
+            $end = self::nice_date($end);
+            $Task = self::getClass('Task',@max(self::getSubObjectIDs('Task',array('checkInTime'=>$log->get('start'),'hostID'=>$this->obj->get('id')))));
+            $groupName = $Task->getStorageGroup()->get('name');
+            $nodeName = $Task->getStorageNode()->get('name');
+            $typeName = $Task->getTaskType()->get('name');
+            $stateName = $Task->getTaskState()->get('name');
+            unset($Task);
+            if (!$typeName) $typeName = $log->get('type');
+            if (in_array($typeName,array('up','downl'))) $typeName = $imgTypes[$typeName];
+            $createdBy = $log->get('createdBy') ? $log->get('createdBy') : $_SESSION['FOG_USERNAME'];
+            $Image = self::getClass('Image')->set('name',$log->get('image'))->load('name');
+            if ($Image->isValid()) {
+                $imgName = $Image->get('name');
+                $imgPath = $Image->get('path');
+            } else {
+                $imgName = $log->get('image');
+                $imgPath = 'N/A';
+            }
+            unset($Image,$log);
             $this->data[] = array(
-                'completed'=>$this->formatTime($End,'Y-m-d H:i:s'),
-                'duration'=>$this->diff($Start,$End),
-                'image_name'=>$ImageLog->get('image'),
-                'image_type'=>$ImageLog->get('type'),
+                'createdBy' => $createdBy,
+                'group_name' => $groupName,
+                'node_name' => $nodeName,
+                'start_date' => $start->format('Y-m-d'),
+                'start_time' => $start->format('H:i:s'),
+                'end_date' => $end->format('Y-m-d'),
+                'end_time' => $end->format('H:i:s'),
+                'duration' => $diff,
+                'image_name' => $imgName,
+                'type' => $typeName,
+                'state' => $stateName,
             );
-            unset($ImageLog,$Start,$End);
-        }
+        });
         self::$HookManager->processEvent('HOST_IMAGE_HIST',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
         $this->render();
         unset($this->data);

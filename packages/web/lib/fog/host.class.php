@@ -430,9 +430,11 @@ class Host extends FOGController {
         $TaskType = self::getClass('TaskType',$taskTypeID);
         $isCapture = $TaskType->isCapture();
         $Image = $this->getImage();
-        $StorageGroup = $Image->getStorageGroup();
-        $StorageNode = $StorageGroup->getMasterStorageNode();
+        $StorageGroup = null;
+        $StorageNode = null;
         self::$HookManager->processEvent('HOST_NEW_SETTINGS',array('Host'=>&$this,'StorageNode'=>&$StorageNode,'StorageGroup'=>&$StorageGroup,'TaskType'=>&$TaskType));
+        if (!$StorageGroup || !$StorageGroup->isValid()) $StorageGroup = $Image->getStorageGroup();
+        if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getMasterStorageNode();
         if (!$StorageGroup || !$StorageGroup->isValid()) throw new Exception(_('No Storage Group found for this image'));
         if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('No Storage Node found for this image'));
         if (!in_array($TaskType->get('id'),array(1,8,15,17,24))) return true;

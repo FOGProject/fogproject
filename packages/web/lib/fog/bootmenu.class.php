@@ -649,13 +649,16 @@ class BootMenu extends FOGBase {
             }
             if (in_array($TaskType->get('id'),$imagingTasks)) {
                 $Image = $Task->getImage();
-                $StorageGroup = $Image->getStorageGroup();
-                $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
+                $StorageGroup = null;
+                $StorageNode = null;
                 self::$HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
+                if (!$StorageGroup || !$StorageGroup->isValid()) $StorageGroup = $Image->getStorageGroup();
+                if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
                 if ($Task->get('NFSMemberID') != $StorageNode->get('id')) $Task->set('NFSMemberID',$StorageNode->get('id'));
                 if ($Task->get('NFSGroupID') != $StorageGroup->get('id')) $Task->set('NFSGroupID',$StorageGroup->get('id'));
                 $Task->save();
                 if ($TaskType->isCapture() || $TaskType->isMulticast()) $StorageNode = $StorageGroup->getMasterStorageNode();
+                self::$HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
                 $osid = $Image->get('osID');
                 $storage = escapeshellcmd(in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isCapture() ? 'dev/' : '')) : null);
             }
@@ -668,9 +671,9 @@ class BootMenu extends FOGBase {
             $imgType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImageType()->get('type') : null;
             $imgPartitionType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImagePartitionType()->get('type') : null;
             $imgid = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('id') : null;
-            $ftp = $StorageNode instanceof StorageNode && $StorageNode->isValid() ? $StorageNode->get('ip') : self::getSetting(FOG_TFTP_HOST);
-            $chkdsk = self::getSetting(FOG_DISABLE_CHKDSK) == 1 ? 0 : 1;
-            $PIGZ_COMP = in_array($TaskType->get(id),$imagingTasks) ? ($Image->get(compress) > -1 && is_numeric($Image->get(compress)) ? $Image->get(compress) : self::getSetting(FOG_PIGZ_COMP)) : self::getSetting(FOG_PIGZ_COMP);
+            $ftp = $StorageNode instanceof StorageNode && $StorageNode->isValid() ? $StorageNode->get('ip') : self::getSetting('FOG_TFTP_HOST');
+            $chkdsk = self::getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
+            $PIGZ_COMP = in_array($TaskType->get('id'),$imagingTasks) ? ($Image->get('compress') > -1 && is_numeric($Image->get('compress')) ? $Image->get('compress') : self::getSetting('FOG_PIGZ_COMP')) : self::getSetting('FOG_PIGZ_COMP');
             $MACs = $this->Host->getMyMacs();
             $clientMacs = array_filter((array)$this->parseMacList(implode('|',(array)$MACs),false,true));
             if ($this->Host->get('useAD')) {
