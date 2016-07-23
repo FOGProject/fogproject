@@ -43,9 +43,9 @@ class MulticastManager extends FOGService {
     }
     private function serviceLoop() {
         while(true) {
-            $StorageNodes = $this->checkIfNodeMaster();
-            foreach((array)$StorageNodes AS &$StorageNode) {
-                try {
+            try {
+                $StorageNodes = $this->checkIfNodeMaster();
+                foreach((array)$StorageNodes AS &$StorageNode) {
                     $myroot = $StorageNode->get('path');
                     $allTasks = self::getClass('MulticastTask')->getAllMulticastTasks($myroot,$StorageNode->get('id'));
                     $RMTasks = array();
@@ -126,12 +126,12 @@ class MulticastManager extends FOGService {
                         }
                         unset($curTask);
                     }
-                } catch(Exception $e) {
-                    self::outall($e->getMessage());
+                    unset($StorageNode);
                 }
-                unset($StorageNode);
+                unset($StorageNodes);
+            } catch(Exception $e) {
+                self::outall($e->getMessage());
             }
-            unset($StorageNodes);
             self::out(' +---------------------------------------------------------',static::$dev);
             $tmpTime = self::getSetting(self::$sleeptime);
             if (static::$zzz != $tmpTime) {
