@@ -28,7 +28,8 @@ class FOGFTP extends FOGGetSet {
     }
     public function chmod($mode = 0,$filename) {
         if (!$mode) $mode = $this->get('mode');
-        return ftp_chmod(self::$link,$mode,$filename);
+        ftp_chmod(self::$link,$mode,$filename);
+        return $this;
     }
     public function close() {
         if (self::$link) ftp_close(self::$link);

@@ -13,7 +13,7 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
             'hostname' => (string)$this->Host->get('name'),
             'AD' => (bool)$this->Host->get('useAD'),
             'ADDom' => $this->Host->get('useAD') ? (string)$this->Host->get('ADDomain') : '',
-            'ADOU' => $this->Host->get('useAD') ? (string)$this->Host->get('ADOU') : '',
+            'ADOU' => $this->Host->get('useAD') ? str_replace(';','',$this->Host->get('ADOU')) : '',
             'ADUser' => $this->Host->get('useAD') ? (string)$adUser : '',
             'ADPass' => $this->Host->get('useAD') ? (string)$password : '',
         );
@@ -39,7 +39,7 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
         printf("#AD=%s\n#ADDom=%s\n#ADOU=%s\n#ADUser=%s\n#ADPass=%s%s",
             $this->Host->get('useAD'),
             $this->Host->get('ADDomain'),
-            $this->Host->get('ADOU'),
+            str_replace(';','',$this->Host->get('ADOU')),
             $adUser,
             $password,
             $this->newService ? sprintf("\n#enforce=%s",$this->Host->get('enforce')) : ''

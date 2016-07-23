@@ -575,7 +575,7 @@ class GroupManagementPage extends FOGPage {
                 if (isset($_REQUEST['remove'])) $this->obj->addPrinter(array(),$_REQUEST['printers'],$_REQUEST['level']);
                 if (isset($_REQUEST['update'])) {
                     $this->obj->addPrinter(array(),array(),$_REQUEST['level']);
-                    $this->obj->addPrinter($_REQUEST['default']);
+                    $this->obj->addPrinter($_REQUEST['default'],array(),$_REQUEST['level']);
                     $this->obj->updateDefault($_REQUEST['default']);
                 }
                 break;

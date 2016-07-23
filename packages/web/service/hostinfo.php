@@ -21,9 +21,10 @@ if ($TaskType->isInitNeededTasking()) {
         }
         $port = $MulticastSession->get('port');
     }
-    $StorageGroup = $Image->getStorageGroup();
-    $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
+    $StorageGroup = $StorageNode = null;
     $HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
+    if (!$StorageGroup || !$StorageGroup->isValid()) $StorageGroup = $Image->getStorageGroup();
+    if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
     $osid = $Image->get('osID');
     $storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isCapture() ? 'dev/' : ''));
     $ftp = $StorageNode->isValid() ? $StorageNode->get('ip') : self::getSetting('FOG_TFTP_HOST');

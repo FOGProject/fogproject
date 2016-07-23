@@ -32,7 +32,9 @@ abstract class FOGService extends FOGBase {
             if (!$StorageNode->isValid()) continue;
             if (!in_array(self::$FOGCore->resolveHostname($StorageNode->get('ip')),self::$ips)) continue;
             $StorageNodes[] = $StorageNode;
+            $MasterIDs[] = $StorageNode->get('id');
         }
+        self::$HookManager->processEvent('CHECK_NODE_MASTERS',array('StorageNodes'=>&$StorageNodes,'FOGServiceClass'=>&$this,'MasterIDs'=>&$MasterIDs));
         if (count($StorageNodes) > 0) return $StorageNodes;
         throw new Exception(_(' | This is not the master node'));
     }
