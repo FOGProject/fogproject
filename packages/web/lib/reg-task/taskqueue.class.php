@@ -107,7 +107,8 @@ class TaskQueue extends TaskingElement {
             ->rename($src,$dest)
             ->chmod(0755,$dest)
             ->close();
-        if ($this->Image->get('format') == 1) $this->Image->set('format',0)->save();
+        if ($this->Image->get('format') == 1) $this->Image->set('format',0);
+        $this->Image->set('deployed',self::nice_date()->format('Y-m-d H:i:s'))->save();
     }
     public function checkout() {
         if ($this->Task->isSnapinTasking()) die('##');
