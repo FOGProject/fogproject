@@ -396,7 +396,7 @@ function setupParserInfo() {
         format: function(s) {
             s = s.replace(/\-/g,' ');
             s = s.replace(/:/g,' ');
-            s = split(' ');
+            s = s.split(' ');
             return $.tablesorter.formatFloat(new Date(s[0], s[1], s[2], s[3], s[4], s[5]).getTime());
         },
         type: 'numeric'
