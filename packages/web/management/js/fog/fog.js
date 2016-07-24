@@ -433,7 +433,7 @@ function setupParserInfo() {
         format: function(s) {
             if (s.length < 1) return;
             var suf = s.match(new RegExp(/(iB|KiB|MiB|GiB|TiB|EiB|ZiB|YiB)$/));
-            if (typeof suf == 'null' || typeof suf == 'undefined') return;
+            if (typeof suf == 'null' || typeof suf == 'undefined' || suf == null) return;
             var num = parseFloat(suf.input.match(new RegExp(/^[0-9]+(\.[0-9]+)?/))[0]);
             switch(suf[0]) {
                 case 'iB':
