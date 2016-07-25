@@ -1601,6 +1601,7 @@ configureHttpd() {
     fi
     if [[ -d $webdirdest ]]; then
         cp -RT "$webdirdest" "${backupPath}/fog_web_${version}.BACKUP" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        rm -rf ${backupPath}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol
         rm -rf "$webdirdest" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     if [[ $osid -eq 2 ]]; then
