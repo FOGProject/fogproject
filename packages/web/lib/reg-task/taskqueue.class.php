@@ -55,7 +55,7 @@ class TaskQueue extends TaskingElement {
         list($emailAction,$emailAddress,$emailBinary,$fromEmail) = self::getSubObjectIDs('Service',array('name'=>array('FOG_EMAIL_ACTION','FOG_EMAIL_ADDRESS','FOG_EMAIL_BINARY','FOG_FROM_EMAIL')),'value',false,'AND','name',false,'');
         if (!$emailAction || !$emailAddress) return;
         if (!$this->Host->get('inventory')->isValid()) return;
-        $SnapinJob = $this->Host->get('sanpinjob');
+        $SnapinJob = $this->Host->get('snapinjob');
         $SnapinTasks = self::getSubObjectIDs('SnapinTask',array('stateID'=>$this->getQueuedStates(),'jobID'=>$SnapinJob->get('id')),'snapinID');
         $SnapinNames = $SnapinJob->isValid() ? self::getSubObjectIDs('Snapin',array('id'=>$SnapinTasks),'name') : array();
         if (!$emailBinary) $emailBinary = '/usr/sbin/sendmail -t -f noreply@fogserver.com -i';
