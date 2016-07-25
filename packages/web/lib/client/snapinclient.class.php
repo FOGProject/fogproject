@@ -39,7 +39,8 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                     unset($curroot,$webroot,$ip);
                     $response = self::$FOGURLRequests->process($url,'POST',array('filepath'=>$filepath));
                     $response = array_shift($response);
-                    if (!self::$FOGURLRequests->isAvailable($url)) return array('error'=>_('No connection to get snapin'));
+                    $avail = self::$FOGURLRequests->isAvailable($url);
+                    if (!$avail[0]) return array('error'=>_('No connection to get snapin'));
                     $SnapinTask
                         ->set('checkin',$date)
                         ->set('stateID',$this->getCheckedInState())
@@ -167,7 +168,8 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
                 $url = "http://$ip{$webroot}status/getsnapinhash.php";
                 unset($curroot,$webroot,$ip);
-                if (!self::$FOGURLRequests->isAvailable($url)) throw new Exception(_('Cannot connect to the Storage Node'));
+                $avail = self::$FOGURLRequests->isAvailable($url);
+                if (!$avail[0]) throw new Exception(_('Cannot connect to the Storage Node'));
                 $response = self::$FOGURLRequests->process($url,'POST',array('filepath'=>$filepath));
                 $data = explode('|',array_shift($response));
                 $hash = array_shift($data);
