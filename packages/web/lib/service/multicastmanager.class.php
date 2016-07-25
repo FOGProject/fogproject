@@ -46,12 +46,13 @@ class MulticastManager extends FOGService {
             try {
                 $StorageNodes = $this->checkIfNodeMaster();
                 foreach((array)$StorageNodes AS &$StorageNode) {
+                    if (!$StorageNode->isValid()) continue;
                     $myroot = $StorageNode->get('path');
                     $allTasks = self::getClass('MulticastTask')->getAllMulticastTasks($myroot,$StorageNode->get('id'));
                     $RMTasks = array();
                     foreach ((array)$allTasks AS &$mcTask) {
                         $activeCount = self::getClass('TaskManager')->count(array('id'=>$mcTask->getTaskIDs(),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
-                        if ($activeCount < 1) $RMTasks[] = $mcTask;
+                        if ($activeCount < 1 && ($mcTask->getClientCount() < 1 || in_array(self::getClass('MulticastSessions',$mcTask->getID())->get('stateID'),array($this->getCompleteState(),$this->getCancelledState())))) $RMTasks[] = $mcTask;
                         unset($mcTask);
                     }
                     $jobcancelled = false;

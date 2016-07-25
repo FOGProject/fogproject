@@ -171,7 +171,7 @@ class MulticastTask extends FOGService {
         $filelist = array_values((array)$filelist);
         ob_start();
         foreach ($filelist AS $i => &$file) {
-            printf('cat %s%s%s | %s',rtrim($this->getImagePath(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,$file,sprintf(implode($buildcmd),$i == 0 ? $maxwait : 10));
+            printf('cat %s%s%s | %s',rtrim($this->getImagePath(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,$file,sprintf(implode($buildcmd),$i == 0 ? $maxwait * 60 : 10));
             unset($file);
         }
         unset($filelist,$buildcmd);
