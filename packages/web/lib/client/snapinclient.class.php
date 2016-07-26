@@ -21,11 +21,11 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                     $SnapinTask = self::getClass('SnapinTask',$SnapinTaskID);
                     if (!$SnapinTask->isValid()) return array('error'=>_('Invalid Snapin Tasking'));
                     $StorageGroup = null;
-                    self::$HookManager->processEvent('SNAPIN_GROUP',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageGroup'=>&$StorageGroup));
+                    self::$HookManager->processEvent('SNAPIN_GROUP',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageGroup'=>&$StorageGroup,'snapin'=>true));
                     if (!$StorageGroup || !$StorageGroup->isValid()) $StorageGroup = $Snapin->getStorageGroup();
                     if (!$StorageGroup->isValid()) return array ('error'=>_('Invalid Storage Group'));
                     $StorageNode = null;
-                    self::$HookManager->processEvent('SNAPIN_NODE',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageNode'=>&$StorageNode));
+                    self::$HookManager->processEvent('SNAPIN_NODE',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageNode'=>&$StorageNode,'snapin'=>true));
                     if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getMasterStorageNode();
                     if (!$StorageNode->isValid()) return array('error'=>_('Invalid Storage Node'));
                     $path = sprintf('/%s',trim($StorageNode->get('snapinpath'),'/'));
@@ -39,7 +39,8 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                     unset($curroot,$webroot,$ip);
                     $response = self::$FOGURLRequests->process($url,'POST',array('filepath'=>$filepath));
                     $response = array_shift($response);
-                    if (!self::$FOGURLRequests->isAvailable($url)) return array('error'=>_('No connection to get snapin'));
+                    $avail = self::$FOGURLRequests->isAvailable($url);
+                    if (!$avail[0]) return array('error'=>_('No connection to get snapin'));
                     $SnapinTask
                         ->set('checkin',$date)
                         ->set('stateID',$this->getCheckedInState())
@@ -167,7 +168,8 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
                 $url = "http://$ip{$webroot}status/getsnapinhash.php";
                 unset($curroot,$webroot,$ip);
-                if (!self::$FOGURLRequests->isAvailable($url)) throw new Exception(_('Cannot connect to the Storage Node'));
+                $avail = self::$FOGURLRequests->isAvailable($url);
+                if (!$avail[0]) throw new Exception(_('Cannot connect to the Storage Node'));
                 $response = self::$FOGURLRequests->process($url,'POST',array('filepath'=>$filepath));
                 $data = explode('|',array_shift($response));
                 $hash = array_shift($data);

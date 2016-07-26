@@ -27,6 +27,7 @@ class LocationManager extends FOGManagerController {
     }
     public function uninstall() {
         $res = true;
+        self::getClass('Service')->set('name','FOG_SNAPIN_LOCATION_SEND_ENABLED')->load('name')->destroy();
         if (!self::$DB->query("DROP TABLE IF EXISTS `locationAssoc`")) $res = false;
         if (!self::$DB->query("DROP TABLE IF EXISTS `location`")) $res = false;
         return $res;

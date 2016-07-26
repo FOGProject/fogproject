@@ -8,6 +8,14 @@ class AddLocationMenuItem extends Hook {
     public function MenuData($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
         $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('Location Management'),'fa fa-globe fa-2x'));
+        $Service = self::getClass('Service')->set('name','FOG_SNAPIN_LOCATION_SEND_ENABLED')->load('name');
+        if (!$Service->isValid()) {
+            $Service
+                ->set('description',_('This setting defines sending the location url based on the host that checks in.  It tells the client to download snapins from the host defined location where available. Default is disabled.'))
+                ->set('value',0)
+                ->set('category','FOG Client - Snapins')
+                ->save();
+        }
     }
     public function addSearch($arguments) {
         if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;

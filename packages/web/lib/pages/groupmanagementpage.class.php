@@ -343,13 +343,35 @@ class GroupManagementPage extends FOGPage {
             'span'=>'',
         );
         printf('<h2>%s</h2><form method="post" action="%s&tab=group-service"><fieldset><legend>%s</legend>',_('Service Configuration'),$this->formAction,_('General'));
+        $dcnote = _('This module is only used on the old client. The old client is what was distributed with FOG 1.2.0 and earlier. This module did not work past Windows XP due to UAC introduced in Vista and up.');
+        $gfnote = _('This module is only used on the old client. The old client is what was distributed with FOG 1.2.0 and earlier. This module has been replaced in the new client and the equivalent module for what Green FOG did is now called Power Management. This is only here to maintain old client operations.');
+        $ucnote = _('This module is only used on the old client. The old client is what was distributed with FOG 1.2.0 and earlier. This module did not work past Windows XP due to UAC introduced in Vista and up.');
+        $cunote = _('This module is only used (with modules) on the old client.  The new client only uses the module to tell it to allow updating automatically or not.');
         $moduleName = $this->getGlobalModuleStatus();
         $ModuleOn = array_values(self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID',false,'AND','id',false,''));
-        array_map(function(&$Module) use ($moduleName,$ModuleOn,$HostCount) {
+        array_map(function(&$Module) use ($moduleName,$ModuleOn,$HostCount,$dcnote,$gfnote,$ucnote,$cunote) {
             if (!$Module->isValid()) return;
+            $note = '';
+            switch($Module->get('shortName')) {
+            case 'dircleanup':
+                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>',$dcnote);
+                break;
+            case 'greenfog':
+                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>',$gfnote);
+                break;
+            case 'usercleanup':
+                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>',$ucnote);
+                break;
+            case 'clientupdater':
+                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>',$cunote);
+                break;
+            default:
+                $note = '';
+                break;
+            }
             $this->data[] = array(
                 'input' => sprintf('<input %stype="checkbox" name="modules[]" value="%s"%s%s/>',($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ': ''), $Module->get('id'),(count(array_keys($ModuleOn,$Module->get('id'))) == $HostCount ? ' checked' : ''),!$moduleName[$Module->get('shortName')] ? ' disabled' : ''),
-                'span'=>sprintf('<span class="icon fa fa-question fa-1x hand" title="%s"></span>',str_replace('"','\"',$Module->get('description'))),
+                'span'=>sprintf('%s<span class="icon fa fa-question fa-1x hand" title="%s"></span>',$note,str_replace('"','\"',$Module->get('description'))),
                 'mod_name'=>$Module->get('name'),
             );
             unset($Module);
