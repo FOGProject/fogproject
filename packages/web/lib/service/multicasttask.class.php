@@ -14,6 +14,13 @@ class MulticastTask extends FOGService {
             $taskIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
             $stateIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())),'stateID');
             $count = self::getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MultiSess->get('id')));
+            if ($count < 1) $count = $MultiSess->get('sessclients');
+            if ($count < 1) {
+                $MultiSess->set('stateID',$this->getCancelledState())->save();
+                self::outall(_('Task not created as there are no associated Tasks'));
+                self::outall(_('Or there was no number defined for joining session'));
+                return;
+            }
             $Image = self::getClass('Image',$MultiSess->get('image'));
             $fullPath = sprintf('%s/%s',$root,$MultiSess->get('logpath'));
             if (!file_exists($fullPath)) return;
@@ -23,7 +30,7 @@ class MulticastTask extends FOGService {
                 $MultiSess->get('port'),
                 $fullPath,
                 $Interface,
-                ($count > 0 ? $count : ($MultiSess->get('sessclients') > 0 ? $MultiSess->get('sessclients') : self::getClass('HostManager')->count())),
+                $count,
                 $MultiSess->get('isDD'),
                 $Image->get('osID'),
                 $taskIDs
