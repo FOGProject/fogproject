@@ -148,6 +148,7 @@ function GraphDiskUsageUpdate() {
     if (GraphDiskUsageAJAX) GraphDiskUsageAJAX.abort();
     NodeID = GraphDiskUsageNode.val();
     if (NodeID === null || typeof(NodeID) == 'undefined' || NodeID.length === 0) return;
+    URL = $('[name="nodesel"] option:selected').attr('urlcall');
     GraphDiskUsageAJAX = $.ajax({
         url: '?node=home',
         type: 'POST',
@@ -159,6 +160,14 @@ function GraphDiskUsageUpdate() {
         beforeSend: function() {GraphDiskUsage.html('').removeClass('loaded').parents('a').prop('href','?node=hwinfo&id='+NodeID);},
         success: GraphDiskUsagePlots,
         complete: function() {setTimeout(GraphDiskUsageUpdate,120000);}
+    });
+    $.ajax({
+        url: URL,
+        success: function(data) {
+            var sel = $('[name="nodesel"] option:selected');
+            var text = sel.text();
+            sel.text(text.replace(/\(\)/,'('+data+')'));
+        }
     });
 }
 function GraphDiskUsagePlots(data) {

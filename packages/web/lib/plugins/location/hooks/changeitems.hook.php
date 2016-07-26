@@ -14,7 +14,7 @@ class ChangeItems extends Hook {
         if ($arguments['Host']->get('task')->isValid() && ($arguments['Host']->get('task')->isCapture() || $arguments['Host']->get('task')->isMulticast())) $method = 'getMasterStorageNode';
         else if ($arguments['TaskType'] instanceof TaskType && $arguments['TaskType']->isValid() && ($arguments['TaskType']->isCapture() || $arguments['TaskType']->isMulticast())) $method = 'getMasterStorageNode';
         if ($LA->getStorageGroup()->isValid()) {
-            $arguments['StorageNode'] = $LA->getStorageNode();
+            if (!isset($arguments['snapin']) || ($arguments['snapin'] === true && self::getSetting('FOG_SNAPIN_LOCATION_SEND_ENABLED') > 0)) $arguments['StorageNode'] = $LA->getStorageNode();
             if (!$method) return;
             $arguments['StorageNode'] = $LA->getStorageGroup()->{$method}();
         }

@@ -14,10 +14,10 @@ abstract class FOGPage extends FOGBase {
     public $notes = array();
     protected $searchFormURL = '';
     protected $titleEnabled = true;
-    protected $headerData = array();
-    protected $data = array();
-    protected $templates = array();
-    protected $attributes = array();
+    public $headerData = array();
+    public $data = array();
+    public $templates = array();
+    public $attributes = array();
     protected static $returnData;
     protected $fieldsToData;
     private $wrapper = 'td';

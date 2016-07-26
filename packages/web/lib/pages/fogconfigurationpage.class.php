@@ -44,9 +44,8 @@ class FOGConfigurationPage extends FOGPage {
             $URLs[] = $url;
             unset($StorageNode);
         },$Nodes);
-        $Responses = self::$FOGURLRequests->process($URLs,'GET');
-        array_walk($Nodes,function(&$StorageNode,&$index) use ($Responses) {
-            printf('<h2>%s</h2><pre>%s</pre>',$StorageNode->get('name'),$Responses[$index]);
+        array_walk($Nodes,function(&$StorageNode,&$index) use ($URLs) {
+            printf('<h2>%s</h2><pre class="kernvers" urlcall="%s"></pre>',$StorageNode->get('name'),$URLs[$index]);
             unset($StorageNode,$index);
         });
         unset($Responses,$Nodes);
@@ -348,6 +347,8 @@ class FOGConfigurationPage extends FOGPage {
             array(),
             array('class'=>'filter-false'),
         );
+        printf('<br/><br/>%s: %s<br/><br/>',_('NOTICE'),_('The below items are only used for the old client.  The new client only uses the above settings as a means to determine whether the client should automatically update or not. Old clients are the clients that came with FOG Version 1.2.0 and earlier.'));
+        echo '<hr/>';
         printf('<div class="hostgroup">%s</div>',_('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.'));
         foreach ((array)self::getClass('ClientUpdaterManager')->find() AS $i => &$ClientUpdate) {
             $this->data[] = array(
@@ -490,6 +491,7 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_KERNEL_DEBUG',
             'FOG_ENFORCE_HOST_CHANGES',
         );
+        self::$HookManager->processEvent('SERVICE_NAMES',array('ServiceNames'=>&$ServiceNames));
         $this->title = _('FOG System Settings');
         printf('<p class="hostgroup">%s</p><form method="post" action="%s"><div id="tab-container-1">',_('This section allows you to customize or alter the way in which FOG operates. Please be very careful changing any of the following settings, as they can cause issues that are difficult to troubleshoot.'),$this->formAction);
         unset($this->headerData);
