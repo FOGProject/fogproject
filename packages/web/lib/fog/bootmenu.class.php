@@ -381,7 +381,17 @@ class BootMenu extends FOGBase {
             'name' => trim($_REQUEST['sessname']),
             'stateID' => array_merge($this->getQueuedStates(),(array)$this->getProgressState()),
         );
-        $MulticastSession = self::getClass('MulticastSessions',@max(self::getSubObjectIDs('MulticastSessions',$findWhere)));
+        foreach(self::getClass('MulticastSessionsManager')->find($findWhere) AS &$MulticastSession) {
+            if (!$MulticastSession->isValid() || $MulticastSession->get('sessclients') < 1) {
+                $MulticastSessionID = 0;
+                unset($MulticastSession);
+                continue;
+            }
+            $MulticastSessionID = $MulticastSession->get('id');
+            unset($MulticastSession);
+            break;
+        }
+        $MulticastSession = self::getClass('MulticastSessions',$MulticastSessionID);
         if (!$MulticastSession->isValid()) {
             $Send['checksession'] = array(
                 'echo No session found with that name.',

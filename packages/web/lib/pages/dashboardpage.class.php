@@ -53,23 +53,18 @@ class DashboardPage extends FOGPage {
         if ($StorageEnabledCount > 0) {
             // Disk Usage Pane
             printf('<li><h4 class="box" title="%s">%s</h4><div id="diskusage-selector">',_('The selected node\'s image storage disk usage'),_('Storage Node Disk Usage'));
+            $StorageNodes = self::getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>1));
             ob_start();
-            array_map(function(&$StorageNode) {
-                if (!$StorageNode->isValid()) {
-                    unset($StorageNode);
-                    return;
-                }
+            array_walk($StorageNodes,function(&$StorageNode,&$index) use ($data) {
+                if (!$StorageNode->isValid()) return;
                 $ip = $StorageNode->get('ip');
                 $curroot = trim(trim($StorageNode->get('webroot'),'/'));
-                $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
-                $URL = filter_var("http://$ip{$webroot}service/getversion.php",FILTER_SANITIZE_URL);
-                unset($curroot,$webroot,$ip);
-                if (!self::$FOGURLRequests->isAvailable($URL)) return;
-                $version = self::$FOGURLRequests->process($URL,'POST');
-                $version = array_shift($version);
-                printf('<option value="%s">%s%s (%s)</option>',$StorageNode->get('id'),$StorageNode->get('name'),($StorageNode->get('isMaster') ? ' *' : ''),$version);
+                $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : '/'));
+                $URL = filter_var(sprintf('http://%s%sservice/getversion.php',$ip,$webroot),FILTER_SANITIZE_URL);
+                unset($ip,$curroot,$webroot);
+                printf('<option value="%s" urlcall="%s">%s%s ()</option>',$StorageNode->get('id'),$URL,$StorageNode->get('name'),($StorageNode->get('isMaster') ? ' *' : ''));
                 unset($version,$StorageNode);
-            },self::getClass('StorageNodeManager')->find(array('isEnabled'=>1,'isGraphEnabled'=>(string)1)));
+            });
             printf('<select name="nodesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">%s</select></div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li>',ob_get_clean());
         }
         echo '</ul>';
@@ -100,9 +95,12 @@ class DashboardPage extends FOGPage {
         $Nodes = self::getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1,'isEnabled'=>1));
         array_map(function(&$StorageNode) use (&$URLs,&$StorageName) {
             if (!$StorageNode->isValid()) return;
-            if (!self::$FOGURLRequests->isAvailable($URL)) return;
             $URL = filter_var(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim(self::getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface')),FILTER_SANITIZE_URL);
-            if (!self::$FOGURLRequests->isAvailable($URL)) return;
+            $avail = self::$FOGURLRequests->isAvailable($URL);
+            if (!$avail[0]) {
+                unset($StorageNodes[$index],$StorageNode,$index);
+                return;
+            }
             $URLs[] = $URL;
             $StorageName[] = $StorageNode->get('name');
         },(array)$Nodes);
@@ -122,10 +120,14 @@ class DashboardPage extends FOGPage {
             $curroot = trim(trim($this->obj->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
             $URL = filter_var(sprintf('http://%s%sstatus/freespace.php?path=%s',$this->obj->get('ip'),$webroot,base64_encode($this->obj->get('path'))),FILTER_SANITIZE_URL);
-            if (!self::$FOGURLRequests->isAvailable($URL)) return;
             unset($curroot,$webroot);
+            $avail = self::$FOGURLRequests->isAvailable($URL);
+            if (!$avail[0]) {
+                unset($StorageNodes[$index],$StorageNode,$index);
+                return;
+            }
             if (!filter_var($URL,FILTER_VALIDATE_URL)) throw new Exception('%s: %s',_('Invalid URL'),$URL);
-            $Response = self::$FOGURLRequests->process($URL,'GET');
+            $Response = self::$FOGURLRequests->process($URL);
             $Response = json_decode(array_shift($Response), true);
             $Data = array('free'=>$Response['free'],'used'=>$Response['used']);
             unset($Response);
@@ -148,8 +150,10 @@ class DashboardPage extends FOGPage {
             $curroot = trim(trim($Node->get('webroot'),'/'));
             $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
             $URL = filter_var(sprintf('http://%s%sindex.php',$Node->get('ip'),$webroot),FILTER_SANITIZE_URL);
-            if (!self::$FOGURLRequests->isAvailable($URL)) {
+            $avail = self::$FOGURLRequests->isAvailable($URL);
+            if (!$avail[0]) {
                 $ActivityTotalClients -= $Node->get('maxClients');
+                unset($StorageNodes[$index],$StorageNode,$index);
                 return;
             }
             $ActivityActive += $Node->getUsedSlotCount();

@@ -1,5 +1,6 @@
 $(function() {
     checkboxToggleSearchListPages();
+    if ($_GET['sub'] == 'membership') return;
     $('select[name="printertype"]').change(function(e) {
         e.preventDefault();
         printertype = this.value.toLowerCase();

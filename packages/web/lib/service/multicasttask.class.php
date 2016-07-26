@@ -14,14 +14,23 @@ class MulticastTask extends FOGService {
             $taskIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
             $stateIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())),'stateID');
             $count = self::getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MultiSess->get('id')));
+            if ($count < 1) $count = $MultiSess->get('sessclients');
+            if ($count < 1) {
+                $MultiSess->set('stateID',$this->getCancelledState())->save();
+                self::outall(_('Task not created as there are no associated Tasks'));
+                self::outall(_('Or there was no number defined for joining session'));
+                return;
+            }
             $Image = self::getClass('Image',$MultiSess->get('image'));
+            $fullPath = sprintf('%s/%s',$root,$MultiSess->get('logpath'));
+            if (!file_exists($fullPath)) return;
             $Tasks[] = new self(
                 $MultiSess->get('id'),
                 $MultiSess->get('name'),
                 $MultiSess->get('port'),
-                sprintf('%s/%s',$root,$MultiSess->get('logpath')),
+                $fullPath,
                 $Interface,
-                ($count > 0 ? $count : ($MultiSess->get('sessclients') > 0 ? $MultiSess->get('sessclients') : self::getClass('HostManager')->count())),
+                $count,
                 $MultiSess->get('isDD'),
                 $Image->get('osID'),
                 $taskIDs
@@ -171,7 +180,7 @@ class MulticastTask extends FOGService {
         $filelist = array_values((array)$filelist);
         ob_start();
         foreach ($filelist AS $i => &$file) {
-            printf('cat %s%s%s | %s',rtrim($this->getImagePath(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,$file,sprintf(implode($buildcmd),$i == 0 ? $maxwait : 10));
+            printf('cat %s%s%s | %s',rtrim($this->getImagePath(),DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR,$file,sprintf(implode($buildcmd),$i == 0 ? $maxwait * 60 : 10));
             unset($file);
         }
         unset($filelist,$buildcmd);

@@ -42,7 +42,7 @@ function getChecked() {
 }
 function setTipsyStuff() {
     $('.box,.icon,.icon-ping-up,.icon-ping-down,#logo > h1 > a > img').tipsy({
-        gravity: $.fn.tipsy.autoNS
+        gravity: $.fn.tipsy.autoNS,
     });
 }
 function setEditFocus() {
@@ -299,7 +299,7 @@ function buildRow(data,templates,attributes,wrapper) {
             $('#progress-'+data[h].host_id).remove();
             var percentRow = '';
             if (data[h].percent > 0 && data[h].percent < 100) {
-                percentRow = '<tr id="progress-'+data[h].host_id+'" class="with-progress"><td colspan="'+colspan+'" class="task-progress-td min"><div class="task-progress-fill min" style="width: '+data[h].width+'px"></div><div class="task-progress min"><ul><li>'+data[h].elapsed+'/'+data[h].remains+'</li><li>'+parseInt(data[h].percent)+'%</li><li>'+data[h].copied+' of '+data[h].total+' ('+data[h].bpm+'/min)</li></ul></div></td></tr>';
+                percentRow = '<tr id="progress-'+data[h].host_id+'" class="tablesorter-childRow with-progress"><td colspan="'+colspan+'" class="task-progress-td min"><div class="task-progress-fill min" style="width: '+data[h].width+'px"></div><div class="task-progress min"><ul><li>'+data[h].elapsed+'/'+data[h].remains+'</li><li>'+parseInt(data[h].percent)+'%</li><li>'+data[h].copied+' of '+data[h].total+' ('+data[h].bpm+'/min)</li></ul></div></td></tr>';
                 $('#'+node+'-'+data[h].id).addClass('with-progress').after(percentRow);
             }
         }
@@ -396,7 +396,7 @@ function setupParserInfo() {
         format: function(s) {
             s = s.replace(/\-/g,' ');
             s = s.replace(/:/g,' ');
-            s = split(' ');
+            s = s.split(' ');
             return $.tablesorter.formatFloat(new Date(s[0], s[1], s[2], s[3], s[4], s[5]).getTime());
         },
         type: 'numeric'
@@ -433,7 +433,7 @@ function setupParserInfo() {
         format: function(s) {
             if (s.length < 1) return;
             var suf = s.match(new RegExp(/(iB|KiB|MiB|GiB|TiB|EiB|ZiB|YiB)$/));
-            if (typeof suf == 'null' || typeof suf == 'undefined') return;
+            if (typeof suf == 'null' || typeof suf == 'undefined' || suf == null) return;
             var num = parseFloat(suf.input.match(new RegExp(/^[0-9]+(\.[0-9]+)?/))[0]);
             switch(suf[0]) {
                 case 'iB':

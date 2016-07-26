@@ -104,11 +104,16 @@ class ServiceConfigurationPage extends FOGPage {
                     _('Update Defaults')
                 );
                 break;
+            case 'snapinclient':
+                self::$HookManager->processEvent('SNAPIN_CLIENT_SERVICE',array('page'=>&$this));
+                break;
             case 'clientupdater':
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 self::getClass('FOGConfigurationPage')->client_updater();
                 break;
             case 'dircleanup':
+                printf('%s: %s',_('NOTICE'),_('This module is only used on the old client.  The old client is what was distributed with FOG 1.2.0 and earlier.  This module did not work past Windows XP due to UAC introduced in Vista and up.'));
+                echo '<hr/>';
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->headerData = array(
                     _('Path'),
@@ -167,6 +172,8 @@ class ServiceConfigurationPage extends FOGPage {
                 echo '</form>';
                 break;
             case 'greenfog':
+                printf('%s: %s',_('NOTICE'),_('This module is only used on the old client.  The old client is what was distributed with FOG 1.2.0 and earlier.  This module has been replaced in the new client and the equivalent module for what Green FOG did is now called Power Management.  This is only here to maintain old client operations.'));
+                echo '<hr/>';
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->headerData = array(
                     _('Time'),
@@ -208,6 +215,8 @@ class ServiceConfigurationPage extends FOGPage {
                 echo '</form>';
                 break;
             case 'usercleanup':
+                printf('%s: %s',_('NOTICE'),_('This module is only used on the old client.  The old client is what was distributed with FOG 1.2.0 and earlier.  This module did not work past Windows XP due to UAC introduced in Vista and up.'));
+                echo '<hr/>';
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->attributes = array(
                     array(),
@@ -275,6 +284,9 @@ class ServiceConfigurationPage extends FOGPage {
             switch ($_REQUEST['tab']) {
             case 'autologout':
                 if (isset($_REQUEST['updatedefaults']) && is_numeric($_REQUEST['tme'])) $Service->set('value',$_REQUEST['tme']);
+                break;
+            case 'snapinclient':
+                self::$HookManager->processEvent('SNAPIN_CLIENT_SERVICE_POST');
                 break;
             case 'dircleanup':
                 if(trim($_REQUEST['adddir'])) $Service->addDir($_REQUEST['adddir']);
