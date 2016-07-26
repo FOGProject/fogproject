@@ -21,7 +21,7 @@ class MulticastTask extends FOGService {
                 $MultiSess->get('id'),
                 $MultiSess->get('name'),
                 $MultiSess->get('port'),
-                sprintf('%s/%s',$root,$MultiSess->get('logpath')),
+                $fullPath,
                 $Interface,
                 ($count > 0 ? $count : ($MultiSess->get('sessclients') > 0 ? $MultiSess->get('sessclients') : self::getClass('HostManager')->count())),
                 $MultiSess->get('isDD'),
