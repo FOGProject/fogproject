@@ -21,11 +21,11 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                     $SnapinTask = self::getClass('SnapinTask',$SnapinTaskID);
                     if (!$SnapinTask->isValid()) return array('error'=>_('Invalid Snapin Tasking'));
                     $StorageGroup = null;
-                    self::$HookManager->processEvent('SNAPIN_GROUP',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageGroup'=>&$StorageGroup));
+                    self::$HookManager->processEvent('SNAPIN_GROUP',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageGroup'=>&$StorageGroup,'snapin'=>true));
                     if (!$StorageGroup || !$StorageGroup->isValid()) $StorageGroup = $Snapin->getStorageGroup();
                     if (!$StorageGroup->isValid()) return array ('error'=>_('Invalid Storage Group'));
                     $StorageNode = null;
-                    self::$HookManager->processEvent('SNAPIN_NODE',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageNode'=>&$StorageNode));
+                    self::$HookManager->processEvent('SNAPIN_NODE',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageNode'=>&$StorageNode,'snapin'=>true));
                     if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getMasterStorageNode();
                     if (!$StorageNode->isValid()) return array('error'=>_('Invalid Storage Node'));
                     $path = sprintf('/%s',trim($StorageNode->get('snapinpath'),'/'));
