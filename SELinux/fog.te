@@ -47,4 +47,4 @@ allow httpd_t unreserved_port_t:tcp_socket name_connect;
 allow tftpd_t default_t:file { read lock getattr open };
 
 #============= unconfined_t ==============
-#allow unconfined_t init_t:service enable;
+allow unconfined_t init_t:service enable;
