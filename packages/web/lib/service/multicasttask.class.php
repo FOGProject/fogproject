@@ -15,6 +15,8 @@ class MulticastTask extends FOGService {
             $stateIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())),'stateID');
             $count = self::getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MultiSess->get('id')));
             $Image = self::getClass('Image',$MultiSess->get('image'));
+            $fullPath = sprintf('%s/%s',$root,$MultiSess->get('logpath'));
+            if (!file_exists($fullPath)) return;
             $Tasks[] = new self(
                 $MultiSess->get('id'),
                 $MultiSess->get('name'),

@@ -85,9 +85,18 @@ class MulticastManager extends FOGService {
                     foreach ((array)$allTasks AS &$curTask) {
                         if ($this->isMCTaskNew($KnownTasks, $curTask->getID())) {
                             self::outall(sprintf(" | Task (%s) %s is new!",$curTask->getID(),$curTask->getName()));
-                            if(!file_exists($curTask->getImagePath())) throw new Exception(sprintf(" Task (%s) %s failed to execute, image file:%s not found!",$curTask->getID(),$curTask->getName(),$curTask->getImagePath()));
-                            if (!$curTask->getClientCount()) throw new Exception(sprintf(" Task (%s) %s failed to execute, no clients are included!",$curTask->getID(),$curTask->getName()));
-                            if (!is_numeric($curTask->getPortBase()) || !($curTask->getPortBase() % 2 == 0)) throw new Exception(sprintf(" Task (%s) %s failed to execute, port must be even and numeric.",$curTask->getID(),$curTask->getName()));
+                            if(!file_exists($curTask->getImagePath())) {
+                                $this->outall(sprintf(" Task (%s) %s failed to execute, image file:%s not found on this node!",$curTask->getID(),$curTask->getName(),$curTask->getImagePath()));
+                                continue;
+                            }
+                            if (!$curTask->getClientCount()) {
+                                $this->outall(sprintf(" Task (%s) %s failed to execute, no clients are included!",$curTask->getID(),$curTask->getName()));
+                                continue;
+                            }
+                            if (!is_numeric($curTask->getPortBase()) || !($curTask->getPortBase() % 2 == 0)) {
+                                $this->outall(sprintf(" Task (%s) %s failed to execute, port must be even and numeric.",$curTask->getID(),$curTask->getName()));
+                                continue;
+                            }
                             if (!$curTask->startTask()) {
                                 self::outall(sprintf(" | Task (%s) %s failed to start!",$curTask->getID(),$curTask->getName()));
                                 self::outall(sprintf(" | * Don't panic, check all your settings!"));
@@ -95,7 +104,8 @@ class MulticastManager extends FOGService {
                                 self::outall(sprintf(" |       If all else fails run the following command and see what it says:"));
                                 self::outall(sprintf(" |  %s",$curTask->getCMD()));
                                 $curTask->killTask();
-                                throw new Exception(" Task (%s) %s has been cleaned.");
+                                $this->outall(" Task (%s) %s has been cleaned.");
+                                continue;
                             }
                             self::outall(sprintf(" | Task (%s) %s has been cleaned.",$curTask->getID(),$curTask->getName()));
                             self::outall(sprintf(" | Task (%s) %s image file found.",$curTask->getID(),$curTask->getImagePath()));
@@ -116,7 +126,10 @@ class MulticastManager extends FOGService {
                                 self::outall(sprintf(" | Task (%s) %s is no longer running.",$runningTask->getID(),$runningTask->getName()));
                                 if ($jobcancelled || self::getClass('MulticastSessions',$runningTask->getID())->get('stateID') == $this->getCancelledState()) {
                                     $KnownTasks = $this->removeFromKnownList($KnownTasks,$runningTask->getID());
-                                    if (!$runningTask->killTask()) throw new Exception(sprintf(" Failed to kill task (%s) %s PID:%s!",$runningTask->getID(),$runningTask->getName(),$runningTask->getPID($runningTask->procRef)));
+                                    if (!$runningTask->killTask()) {
+                                        $this->outall(sprintf(" Failed to kill task (%s) %s PID:%s!",$runningTask->getID(),$runningTask->getName(),$runningTask->getPID($runningTask->procRef)));
+                                        continue;
+                                    }
                                     self::outall(sprintf(" | Task (%s) %s has been cancelled.",$runningTask->getID(),$runningTask->getName()));
                                 } else {
                                     self::getClass('MulticastSessions',$runningTask->getID())->set('clients',0)->set('completetime',self::nice_date()->format('Y-m-d H:i:s'))->set('name','')->set('stateID',$this->getCompleteState())->save();
