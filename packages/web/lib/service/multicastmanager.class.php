@@ -81,7 +81,10 @@ class MulticastManager extends FOGService {
                         $allTasks = self::getClass('MulticastTask')->getAllMulticastTasks($myroot,$StorageNode->get('id'));
                     }
                     $taskCount = count($allTasks);
-                    if ($taskCount < 1 || !$taskCount) throw new Exception(sprintf(' * %s!',_('No tasks found')));
+                    if ($taskCount < 1 || !$taskCount) {
+                        self::outall(sprintf(' * %s!',_('No tasks found')));
+                        continue;
+                    }
                     foreach ((array)$allTasks AS &$curTask) {
                         if ($this->isMCTaskNew($KnownTasks, $curTask->getID())) {
                             self::outall(sprintf(" | Task (%s) %s is new!",$curTask->getID(),$curTask->getName()));
