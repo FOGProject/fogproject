@@ -10,8 +10,9 @@ class TaskManager extends FOGManagerController {
         $SnapinJobIDs = array_filter(self::getSubObjectIDs('SnapinJob',$findWhere));
         $findWhere = array('stateID'=>$notComplete,'jobID'=>$SnapinJobIDs);
         $SnapinTaskIDs = array_filter(self::getSubObjectIDs('SnapinTask',$findWhere));
-        $findWhere = array('stateID'=>$notComplete,'taskID'=>$taskids);
+        $findWhere = array('taskID'=>$taskids);
         $MulticastSessionIDs = array_filter(self::getSubObjectIDs('MulticastSessionsAssociation',$findWhere,'msID'));
+        $MulticastSessionIDs = array_filter(self::getSubObjectIDs('MulticastSessions',array('stateID'=>$notComplete,'id'=>$MulticastSessionIDs)));
         if (count($SnapinTaskIDs)) self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
         if (count($SnapinJobIDs)) self::getClass('SnapinJobManager')->cancel($SnapinJobIDs);
         if (count($MulticastSessionIDs)) self::getClass('MulticastSessionsManager')->cancel($MulticastSessionIDs);
