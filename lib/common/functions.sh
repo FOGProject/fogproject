@@ -1929,6 +1929,28 @@ configureDHCP() {
             echo "        match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00009\";" >> "$dhcptouse"
             echo "        filename \"ipxe.efi\";" >> "$dhcptouse"
             echo "    }" >> "$dhcptouse"
+            echo "    class \"SURFACE-PRO-4\" {" >> "$dhcptouse"
+            echo "        match if substring(option vendor-class-identifier, 0, 32) = \"PXEClient:Arch:00007:UNDI:003016\";" >> "$dhcptouse"
+            echo "        filename \"ipxe7156.efi\";" >> "$dhcptouse"
+            echo "    }" >> "$dhcptouse"
+            echo "    class \"Apple-Intel-Netboot\" {" >> "$dhcptouse"
+            echo "        match if substring (option vendor-class-identifier, 0, 14) = \"AAPLBSDPC/i386\";" >> "$dhcptouse"
+            echo "        option dhcp-parameter-request-list 1,3,17,43,60;" >> "$dhcptouse"
+            echo "        if (option dhcp-message-type = 8) {" >> "$dhcptouse"
+            echo "            option vendor-class-identifier \"AAPLBSDPC\";" >> "$dhcptouse"
+            echo "            if (substring(option vendor-encapsulated-options, 0, 3) = 01:01:01) {" >> "$dhcptouse"
+            echo "                # BSDP List" >> "$dhcptouse"
+            echo "                option vendor-encapsulated-options 01:01:01:04:02:80:00:07:04:81:00:05:2a:09:0D:81:00:05:2a:08:69:50:58:45:2d:46:4f:47;" >> "$dhcptouse"
+            echo "            }" >> "$dhcptouse"
+            echo "        elsif (substring(option vendor-encapsulated-options, 0, 3) = 01:01:02) {" >> "$dhcptouse"
+            echo "            # BSDP Select" >> "$dhcptouse"
+            echo "            option vendor-encapsulated-options 01:01:02:08:04:81:00:05:2a:82:0a:4e:65:74:42:6f:6f:74:30:30:31;" >> "$dhcptouse"
+            echo "            filename \"ipxe.efi\";" >> "$dhcptouse"
+            echo "            }" >> "$dhcptouse"
+            echo "        }" >> "$dhcptouse"
+            echo "    }" >> "$dhcptouse"
+
+
             echo "}" >> "$dhcptouse"
             case $systemctl in
                 yes)
