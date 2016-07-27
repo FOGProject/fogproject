@@ -5,7 +5,8 @@
 ################################################################################
 
 GPTFDISK_VERSION = 1.0.0
-GPTFDISK_SITE = http://downloads.sourceforge.net/sourceforge/gptfdisk
+GPTFDISK_SOURCE = gptfdisk-$(GPTFDISK_VERSION).tar.gz
+GPTFDISK_SITE = http://sourceforge.net/projects/gptfdisk/files/gptfdisk/$(GPTFDISK_VERSION)
 GPTFDISK_LICENSE = GPLv2+
 GPTFDISK_LICENSE_FILES = COPYING
 
