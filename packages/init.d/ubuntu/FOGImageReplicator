@@ -1,0 +1,67 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides: FOGImageReplicator
+# Required-Start: $local_fs $remote_fs $network $syslog $network $inetd $apache2 $mysql
+# Required-Stop: $local_fs $remote_fs $network $syslog $network $inetd
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# X-Interactive: true
+# Short-Description: Start/Stop FOGImageReplicator
+# Long-Description: Created by Chuck Syperski
+# Used to stop and start the FOGImageReplicator Service.
+# FOGImageReplicator enacts upon the FOG System to replicate
+# Images to nodes.  It only replicates if it is the master node.
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/bin:/usr/sbin
+DAEMON=/opt/fog/service/FOGImageReplicator/FOGImageReplicator
+NAME=FOGImageReplicator
+PIDFILE=/var/run/fog/$NAME.pid
+DESC="FOG Computer Imaging Solution"
+
+test -f $DAEMON || exit 1
+
+. /lib/lsb/init-functions
+
+case "$1" in
+	start)
+		log_begin_msg "Starting $DESC: $NAME"
+		mkdir -p `dirname "$PIDFILE"`
+		if [ ! -f "$PIDFILE" ]; then
+			start-stop-daemon --start --quiet --pidfile "$PIDFILE" --make-pidfile -b --exec "$DAEMON"
+			log_end_msg $?
+		else
+			log_end_msg 1;
+		fi
+		;;
+	stop)
+		log_begin_msg "Stopping $DESC: $NAME"
+		start-stop-daemon --stop --quiet --retry 5 --oknodo --pidfile "$PIDFILE" && success=1
+		rm "$PIDFILE" 2>/dev/null >/dev/null
+		killall $DAEMON 2>/dev/null >/dev/null
+		log_end_msg 0
+		;;
+	restart)
+		log_begin_msg "Restarting $DESC: $NAME"
+		start-stop-daemon --stop --quiet --retry 5 --oknodo --pidfile "$PIDFILE" && success=1
+		rm "$PIDFILE" 2>/dev/null >/dev/null
+		killall $DAEMON 2>/dev/null >/dev/null
+		mkdir -p `dirname "$PIDFILE"`
+		if [ ! -f "$PIDFILE" ]; then
+			start-stop-daemon --start --quiet --pidfile "$PIDFILE" --make-pidfile -b --exec "$DAEMON"
+			log_end_msg $?
+		else
+			log_end_msg 1;
+		fi
+		;;
+	status)
+		status_of_proc ${DAEMON} ${NAME}
+		;;
+	*)
+		echo "Usage FOGImageReplicator {start|stop|restart|status}" >&2
+		exit 1;
+		;;
+esac
+
+exit 0;
+

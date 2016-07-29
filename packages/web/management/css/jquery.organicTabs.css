@@ -1,0 +1,20 @@
+/* Default tab container */
+.organic-tabs { overflow: hidden; }
+.organic-tabs > div { }
+.organic-tabs ul { list-style: none; }
+
+/* Default tab header styles */
+.organic-tabs > ul { overflow: hidden; }
+.organic-tabs > ul > li { }
+.organic-tabs > ul > li:last-child { }
+.organic-tabs > ul > li a { }
+.organic-tabs > ul > li a:hover { }
+
+/* Default content styles */
+.organic-tabs > div > ul > li a { }
+.organic-tabs > div > ul > li a:hover { }
+.organic-tabs > div > ul > li:last-child a { border: none; }
+
+/* State classes */
+.organic-tabs-hidden { display: none; }
+.organic-tabs-current { }+.organic-tabs-current { }

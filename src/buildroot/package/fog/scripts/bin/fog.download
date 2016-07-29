@@ -1,0 +1,259 @@
+#!/bin/bash
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.donate
+. /bin/fog.checkin
+. /bin/fog.mount
+. /bin/fog.checkmount
+. /bin/fog.checkimgvar
+hd=""
+disks=""
+disk=""
+parts=""
+part=""
+imagePath="/images/$img"
+origmac=$mac
+mac=$(getMACAddresses | base64)
+. /bin/fog.inventory "true"
+mac="$origmac"
+origmac=""
+layPartSize="-1s"
+fog.statusreporter "$mac" "$web" & disown
+statusReporter="$!"
+fixed_size_partitions=""
+echo " * Using Image: $img"
+preparePartitions() {
+    echo " * Preparing Partition layout"
+    case $imgType in
+        [Nn])
+            case $osid in
+                4|50|51)
+                    [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
+                    prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
+                    ;;
+                [1-2])
+                    [[ ! -f $imagePath && ! -f $imagePath/$img && ! -d $imagePath ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
+                    [[ -d $imagePath && -f $imagePath/$img ]] && imagePath="$imagePath/$img"
+                    if [[ -d $imagePath ]]; then
+                        prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
+                    else
+                        dots "Removing partition"
+                        parted -s $hd rm 1 >/dev/null 2>&1
+                        if [[ ! $? -eq 0 ]]; then
+                            echo "Failed"
+                            debugPause
+                            handleError "Fatal Error: Could not remove old partition ($0)\n   Args Passed: $*"
+                        fi
+                        echo "Done"
+                        debugPause
+                        echo " * Attempting to expand/fill partitions"
+                        dots "Recreating partition"
+                        parted -s $hd mkpart primary ntfs 63s -- $layPartSize >/dev/null 2>&1
+                        if [[ ! $? -eq 0 ]]; then
+                            echo "Failed"
+                            debugPause
+                            handleError "Could not create partition to fill disk ($0)\n   Args Passed: $*"
+                        fi
+                        echo "Done"
+                        debugPause
+                        dots "Setting boot partition"
+                        parted -s $hd set 1 boot on >/dev/null 2>&1
+                        if [[ ! $? -eq 0 ]]; then
+                            echo "Failed"
+                            debugPause
+                            handleError "Fatal Error: Could not make partition bootable ($0)\n   Args Passed: $*"
+                        fi
+                        runPartprobe "$hd"
+                        echo "Done"
+                        debugPause
+                        getPartitions "$hd"
+                        for part in $parts; do
+                            [[ -e $part ]] && break
+                        done
+                    fi
+                    ;;
+                [5-7]|9)
+                    [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
+                    if [[ ! -f $imagePath/sys.img.000 ]]; then
+                        prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
+                    else
+                        echo " * Using legacy style partition setup"
+                        win7partcnt=1
+                        dots "Windows Boot Partition Exists"
+                        if [[ ! -f $imagePath/gpt.bak && ! -f $imagePath/rec1.img.000 && ! -f $imagePath/rec.img.000 ]]; then
+                            echo "No"
+                        else
+                            echo "Yes"
+                            [[ -f $imagePath/rec.img.000 ]] && win7partcnt=2
+                            [[ -f $imagePath/rec.img.001 || -f $imagePath/gpt.bak ]] && win7partcnt=3
+                        fi
+                        debugPause
+                        echo " * Attempting to expand/fill partitions"
+                        do_fill=0
+                        fillDiskWithPartitionsIsOK "$hd" "$imagePath" 1
+                        case $do_fill in
+                            1)
+                                fillDiskWithPartitions "$hd" "$imagePath" 1
+                                echo "Done"
+                                ;;
+                            *)
+                                startsector="2048s"
+                                restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
+                                case $win7partcnt in
+                                    1)
+                                        dots "Removing partition"
+                                        parted -s $hd rm 1 >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not remove old partition ($0)\n   Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        debugPause
+                                        dots "Creating main partition"
+                                        parted -s $hd mkpart primary ntfs $startsector -- $layPartSize >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not recreate first partition ($0)\n   Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        debugPause
+                                        dots "Setting boot partition"
+                                        parted -s $hd set 1 boot on >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not make partition bootable ($0)\n   Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        ;;
+                                    2)
+                                        dots "Removing main partition"
+                                        parted -s $hd rm 1 >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not remove old main partition ($0)\n    Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        debugPause
+                                        dots "Recreating recovery partition"
+                                        parted -s $hd mkpart primary ntfs $startsector 206847s >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not create recovery partition ($0)\n    Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        debugPause
+                                        dots "Recreating main partition"
+                                        parted -s $hd mkpart primary ntfs $defaultpart2start -- $layPartSize >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not recreate main partition ($0)\n   Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        debugPause
+                                        dots "Setting boot partition"
+                                        parted -s $hd set 1 boot on >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not make partition bootable ($0)\nArgsPassed: $*"
+                                        fi
+                                        echo "Done"
+                                        ;;
+                                    3)
+                                        dots "Removing partition data"
+                                        sgdisk -Z $hd >/dev/null 2>&1
+                                        sgdisk -gel $imagePath/gpt.bak $hd >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not recreate partitions ($0)\n   Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        debugPause
+                                        dots "Recreating sized out partitions"
+                                        sgdisk -x 3:$(sgdisk -E $hd) $hd >/dev/null 2>&1
+                                        if [[ ! $? -eq 0 ]]; then
+                                            echo "Failed"
+                                            debugPause
+                                            handleError "Fatal Error: Could not resize partitions ($0)\n   Args Passed: $*"
+                                        fi
+                                        echo "Done"
+                                        ;;
+                                esac
+                                ;;
+                        esac
+                        debugPause
+                        runPartprobe "$hd"
+                        dots "Setting up partition variables"
+                        getPartitions "$hd"
+                        restoreparts=""
+                        part_number=0
+                        for part in $parts; do
+                            getPartitionNumber "$part"
+                            [[ $part_number -le $win7partcnt ]] && restoreparts="$restoreparts $part"
+                        done
+                        echo "Done"
+                        debugPause
+                    fi
+                    ;;
+            esac
+            ;;
+        mps)
+            [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
+            restorePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
+            runPartprobe "$hd"
+            gptcheck="$global_gptcheck"
+            ;;
+        mpa)
+            [[ ! -d $imagePath ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
+            getHardDisk "true"
+            disk_number=1
+            for disk in $disks; do
+                restorePartitionTablesAndBootLoaders "$disk" "$disk_number" "$imagePath" "$osid" "$imgPartitionType"
+                runPartprobe "$disk"
+                gptcheck="$global_gptcheck"
+                let disk_number+=1
+            done
+            ;;
+    esac
+}
+putDataBack() {
+    runPartprobe "$hd"
+    getPartitions "$hd"
+    [[ -z $parts ]] && echo -e " * Seems like you are trying to restore to an empty disk. Be aware this will most probably cause trouble.\n"
+    echo "   +--------------------------------+"
+    echo "   |   Attempting to deploy image   |"
+    echo "   +--------------------------------+"
+    [[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]] && echo "   |         Using Partimage        |" || echo "   |         Using Partclone        |"
+    echo "   +--------------------------------+"
+    [[ $mc == yes ]] && usleep 10000000 || usleep 3000000
+    case $imgType in
+        dd)
+            restorePartition "$hd" 1 "$imagePath/$img" "$mc"
+            ;;
+        n|mps|mpa)
+            [[ $imgType == +(n|mps) ]] && disks="$hd"
+            case $osid in
+                [1-2])
+                    [[ ! -f $imagePath && ! -d $imagePath ]] && handleError "Fatal Error: Could not locate file ($0)\n   Args Passed: $*"
+                    ;;
+                [5-7]|9)
+                    [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Fatal Error: Could not locate file ($0)\n   Args Passed: $*"
+                    ;;
+                4|50|51)
+                    [[ ! -d $imagePath ]] && handleError "Fatal Error: could not locate file ($0)\n   Args Passed: $*"
+                    ;;
+            esac
+            performRestore "$disks" "$imagePath" "$imgPartitionType" "$mc"
+            ;;
+    esac
+}
+findHDDInfo
+[[ $nombr -eq 1 ]] && echo " * Skipping partition layout (Single Partition restore)" || preparePartitions
+[[ $imgPartitionType != mbr ]] && putDataBack || echo " * Skipping partition restore (MBR Only)"
+completeTasking

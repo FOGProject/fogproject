@@ -1,0 +1,49 @@
+#!/bin/bash
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.donate
+clearScreen
+displayBanner
+dots "Location disks"
+disks=""
+disk=""
+hd=""
+getHardDisk "true"
+if [[ -z $disks ]]; then
+    echo "Failed"
+    debugPause
+    handleError "No hard disks found! ($0)\n   Args Passed: $*"
+fi
+echo "Done"
+debugPause
+dots "Attempting to checkin"
+res=""
+count=0
+while [[ $res != "##@GO" ]]; do
+    res=$(wget --post-data="mac=$mac" -qO - http://${web}service/Pre_Stage1.php 2>/dev/null)
+    if [[ $count -ge 10 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Could not checkin. ($0)\n   Args Passed: $*"
+    fi
+    let count+=1
+    usleep 5000000
+done
+echo "Done"
+debugPause
+for disk in $disks; do
+    dots " * Disk Surface test for $disk"
+    usleep 2000000
+    badblocks -sv $disk >/dev/null 2>&1
+    case $? in
+        0)
+            echo "Done"
+            ;;
+        *)
+            echo "Failed"
+            debugPause
+            handleError "Could not perform surface scan on $disk ($0)\n   Args Passed: $*"
+            ;;
+    esac
+    debugPause
+done
+. /bin/fog.nonimgcomplete

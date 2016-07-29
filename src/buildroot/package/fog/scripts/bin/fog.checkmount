@@ -1,0 +1,24 @@
+#!/bin/bash
+dots "Checking Mounted File System"
+if [[ ! -f /images/.mntcheck ]]; then
+    count=0
+    while [[ $blame != '##' ]]; do
+        blame=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/blame.php 2>/dev/null)
+        case $count in
+            [0-8])
+                let count+=1
+                usleep 5000000
+                ;;
+            9)
+                echo "Failed"
+                debugPause
+                handleError "Error during failure notification: $blame ($0)\n   Args Passed: $*"
+                ;;
+        esac
+    done
+    echo "Failed"
+    debugPause
+    handleError "Could not verify mount point, check if .mntcheck exists ($0)\n   Args Passed: $*"
+fi
+echo "Done"
+debugPause

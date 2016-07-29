@@ -1,0 +1,40 @@
+diff -pruN partimage-0.6.7/fogbuild.txt partimage-0.6.7.fog/fogbuild.txt
+--- partimage-0.6.7/fogbuild.txt	1969-12-31 18:00:00.000000000 -0600
++++ partimage-0.6.7.fog/fogbuild.txt	2009-06-12 16:27:11.000000000 -0500
+@@ -0,0 +1 @@
++./configure --with-log-dir=/dev/null --disable-cheuid  --disable-login --disable-ssl --disable-nls  && make && make install
+diff -pruN partimage-0.6.7/src/client/gui_text.cpp partimage-0.6.7.fog/src/client/gui_text.cpp
+--- partimage-0.6.7/src/client/gui_text.cpp	2008-02-03 15:58:00.000000000 -0600
++++ partimage-0.6.7.fog/src/client/gui_text.cpp	2009-06-12 16:27:05.000000000 -0500
+@@ -554,6 +554,15 @@ void CSavingWindow::showStats(const time
+       SNPRINTF(szTemp, i18n("Data copied:.................%s / %s"), formatSize(qwDone, szTemp2), formatSize(qwTotal, szTemp3));
+       newtLabelSetText(m_labelStatsSpace, szTemp);
+ 
++      if ( getenv("FOGSTATS") != NULL && strlen(getenv("FOGSTATS")) )
++      {
++      fprintf(stderr,"%s@",formatSize(qwBytesPerMin, szTemp2));
++      fprintf(stderr,"%s@",formatTime((DWORD)timeElapsed, szTemp2));
++      fprintf(stderr,"%s@",formatTime((DWORD)timeRemaining, szTemp2));
++      fprintf(stderr,"%s@",formatSize(qwDone, szTemp2));         
++      fprintf(stderr,"%s@",formatSize(qwTotal, szTemp3)); 
++      fprintf(stderr,"%d\n", (int)qwPercent);    
++      }
+       //option  -B gui=no show stats
+       if ((szFullyBatchMode) && (strlen(szFullyBatchMode)>0))
+       {
+@@ -831,6 +840,15 @@ void CRestoringWindow::showStats(const t
+       
+       SNPRINTF(szTemp, i18n("Data copied:......................%s / %s"), formatSize(qwDone, szTemp2), formatSize(qwTotal, szTemp3));
+       newtLabelSetText(m_labelStatsSpace, szTemp);
++      if ( getenv("FOGSTATS") != NULL && strlen(getenv("FOGSTATS")) )
++      {      
++      fprintf(stderr,"%s@",formatSize(qwBytesPerMin, szTemp2));
++      fprintf(stderr,"%s@",formatTime((DWORD)timeElapsed, szTemp2));
++      fprintf(stderr,"%s@",formatTime((DWORD)timeRemaining, szTemp2));
++      fprintf(stderr,"%s@",formatSize(qwDone, szTemp2));         
++      fprintf(stderr,"%s@",formatSize(qwTotal, szTemp3)); 
++      fprintf(stderr,"%d\n", (int)qwPercent);              
++      }
+       //option  -B gui=no show stats
+       if ((szFullyBatchMode) && (strlen(szFullyBatchMode)>0))
+       {

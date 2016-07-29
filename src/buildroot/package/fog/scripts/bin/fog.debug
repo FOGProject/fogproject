@@ -1,0 +1,50 @@
+#!/bin/bash
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.donate
+clearScreen
+displayBanner
+echo " You have entered into FOG debug"
+echo " mode.  Below is a list of common"
+echo " commands you may wish to run"
+echo -e "\nfog"
+echo "    * This is the main script that"
+echo "      is used to image a computer"
+echo -e "\nifconfig or ip addr";
+echo "    * This command will show you the"
+echo "       network interface on this machine."
+echo -e "\ngdisk -l <device>";
+echo "    * GPT fdisk (aka gdisk) is a text-mode"
+echo "      menu-driven program for creation and"
+echo "      manipulation of partition tables."
+echo -e "\nfdisk <device>"
+echo "    * Fdisk is a text-mode menu-driven"
+echo "      program for creation and manipulation"
+echo "      of partition tables."
+echo -e "\nfixparts <device>"
+echo "    * This is used to correct GPT/MBR"
+echo "      partition problems on the device"
+echo "      Specifically to make a disk fully"
+echo "      MBR but GPT was not wiped properly."
+echo -e "\nreboot"
+echo "    * This will restart the computer"
+debugPause
+echo -e "\n\nBelow is a variable dump from FOG"
+osname=""
+mbrfile=""
+defaultpart2start=""
+disks=""
+hd=""
+[[ -n $osid ]] && determineOS "$osid"
+[[ -n $osid ]] && echo "osid=$osid"
+echo "osname=$osname"
+echo "mbrfile=$mbrfile"
+echo "type=$type"
+echo "storage=$storage"
+echo "img=$img"
+echo "imgType=$imgType"
+echo "imgFormat=$imgFormat"
+echo "imgPartitionType=$imgPartitionType"
+getHardDisk
+echo "disks=$disks"
+echo "hd=$hd"
+debugPause

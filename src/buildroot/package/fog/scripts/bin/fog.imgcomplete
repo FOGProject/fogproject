@@ -1,0 +1,38 @@
+#!/bin/bash
+echo " * Task Complete"
+case $type in
+    [Dd][Oo][Ww][Nn])
+        php_post="Post_Stage3.php"
+        poststring="mac=$mac&type=$type"
+        ;;
+    [Uu][Pp])
+        php_post="Post_Stage2.php"
+        poststring="mac=$mac&type=$type&osid=$osid"
+        ;;
+    *)
+        handleError "Wrong type for this completetion script ($0)\n   Args Passed: $*"
+        ;;
+esac
+count=0
+res=""
+dots "Updating Database"
+while [[ $res != "##" ]]; do
+    res=$(wget --post-data="$poststring" -qO - http://${web}service/$php_post 2>/dev/null)
+    if [[ $res != "##" && $count -lt 10 ]]; then
+        echo "Failed"
+        debugPause
+        printf " * Error returned: %s" "$res"
+        debugPause
+        dots "Reattempting to update database"
+    fi
+    if [[ $count -ge 10 ]]; then
+        echo "Failed"
+        debugPause
+        printf " * Error returned: %s" "$res"
+        debugPause
+        handleError "Could not complete tasking ($0)\n   Args Passed: $*"
+    fi
+    let count+=1
+done
+echo "Done"
+debugPause

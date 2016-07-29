@@ -1,0 +1,773 @@
+Version 1.3.X
+-------------
+* Move multicast interface setter to the storage nodes rather than a single
+global value that may not be accurate.
+* Use new awk setup thats cleaner and integrated with sfdisk that supports gpt
+* Fix bug where snapintasks if generated after main tasking and before that
+tasking is created, get closed and not properly closing the actual deployed
+task.
+* Fix servicemodule-active so it properly supports the new names and the old
+names.
+* Fix proxy information to NOT proxy storage node internalized Storage Node
+information.
+* Fix multicast issues for all relevant systems. Thank you Curtis.
+* Fix snapins operate only if the host has snapins.
+* Fix size display of images on server to display proper sizes through the use
+of rawlist.
+* Fix multicast session joining feature so the registered host will work with
+non assigned images.
+* Fix resizable imaging to take start sector from the file rather than making
+assumptions of the start sector.
+* Fix compatibility issues of Windows XP/Vista imaging in 1.2.0.
+* Fix compatibility issues of 0.32 Images particularly in the re-uploading to
+operate with partclone.  Most of this is related to the start sector of 63 but
+assumed start sectors were starting at 2048.  Hopefully this is all good now.
+* Move clamav off of server to static binaries.  Bumps size of installer
+folder from 80MB to 277MB.  However clamav is not loaded in the initrd file
+and this same clamav can operate on the fog server.
+* Move kernels and inits out of SVN and download during installer.
+* Init's should initialize any disk now.
+* All resizable images will now upload with a common means of d1px.img rather
+than sys.img.000 or imagename as a file.
+* Make compatibility checks to allow older named images to still download.
+* Change mac address and associations so they are all stored in a single
+table.
+* Change resizable images to all use the same principle of Linux resizable.
+This should allow OEM built systems to be imaged even with resizable.
+* Change the version in inits banner to come from the GUI.
+* Init's are now truly native with dns pulling.
+* Added to inits to check for has_usb_nic flag which simply tells the system
+to wait for the user to unplug and replug their usb nics.
+* Update init.xz/init_32.xz to 2015.05 and update kernel infos to 4.0.4
+within the inits
+* Add memory limit, timezone setting, and post_max_size, max_upload_size to be
+pulled from the database rather than from the php.ini setting
+* Add multicast port override, as needed.  Add capability to specify the
+multicast address as well.
+* Add FTP enable/disable for server sizes of images.
+* Add elements to allow mass deletion of items from relevant management pages.
+* Add jquery to read log files.
+* Add Apache error and access logs to the log viewer elements.
+* Add capability to only filter logs if they exist.
+* Add jquery script to allow quickreg_img_id to dynamically update the os for
+the selected image.
+* Add protection flag to image files.
+* Add installer files from David Fear to fog to allow FOG Installation on
+Arch Linux.
+* Add partition imaging selection options into GUI and fog to operate within.
+* Add ipxe support for Apple EFI and better generalized EFI support.  Special
+thanks to Michael Brown, the iPXE team, and Curtis Larsen for taking the time
+to debug and correct and make this work.
+* Add ipxeTable element to read the ipxe file and information to let us get
+some kind of database of known working/troublesome systems.
+* Add support for Apple Mac OS support in our systems.
+* Add initial support for torrent casting.  Only works for resizable.
+* Adjust bootmenu to store to variables.  This can then allow hooks to
+interact with the boot menu setup for customizations as needed.
+* Adjust the menu items to go into database to allow adding own custom
+options that stay even if updated.
+* Add ability to customize iPXE Menu items besides our main defaults. May
+think about allowing editing but for now we'll just try the adding custom
+entries.  The first twelve items are only editable to be adjusted by default
+item or what menu they display in.
+* Inject the Boot Items into HookManager by means of array push.  This should
+allow the items to be edited using variables for each menu item as a hook to
+the event of: BOOT_ITEMS_<titlename>  Replacing titlename to stuff like:
+fog_local or fog_advanced.  The period is replaced with an _ to ensure
+compatibility.
+* Add example hook for BootItem information adjustments in a hook format.
+* Add imageid to task table.  Will be useful for quick, multicast join, etc.
+* Add imageGroupAssoc table to allow images to be assigned to multiple groups.
+This is useful to assign images across groups and have replicator handle them.
+* Move many of the location plugin in the core code to work from hooks
+directly purely from the plugin.
+* Add WOL broadcast address plugin.  This simply tells the fog server where to
+send wol broadcasts and is useful in the case of vlans where you don't control
+your own network.
+* Add snapin/image replication to work group->group as well as the normal.
+* Add replication to allow multiple processes at the same time.
+* Add bandwidth limitations on replication.
+* Add capability to tell the system which tasks you want to take slots.
+* Add multicast session joining even with non-registered hosts.
+* Change names of PXE Menu stuff to iPXE stuff.
+* Make a strong move for async methodologies.
+* Ultimately make the Host class a little more in line with DRY.
+
+Version 1.2.0
+-------------
+* Fix GUI not loading if no nodes are in storage group.
+* Fix FOGPageManager loading plugin class files properly.
+* Fix foglang variable to be loaded before init so entire FOG system has
+access to them.
+* Fix multicast tasks to close through FOGMulticastManager rather than
+Post_Stage3.php
+* Fix configureNFS line to only update exports if it's not an update.
+* Fix installer/upgrader to use values stored in .fogsettings if set.
+Post_Stage3.php
+* Fix client page so you don't have to be logged in to view it.
+* Fix hwinfo and client node= links to operate properly.
+* Fix installer to check for msyql-galera-server as is used for mysql-server
+in CentOS 7.0
+* Fix donate tasking completetion elements so systems reboot/shutdown as
+needed when the time is met.
+* Fix 100% usage of the disk in resizable images.  Percentages should not be
+used and should never have been used to getin with.  It now uses the -1s
+method to specify to the end of the disk.
+* Add ftp file size checking.  All sizes are done through ftp now.
+* Add size of byte filtering to get pretty size.
+* Add $this->FOGUser to FOGPageManager and Hook to check if its set. This is
+needed because FOGBase is loaded before FOGUser is actually established.
+* Add postdownloadscripts to allow custom init scripts to be run after imaged.
+* Add Windows 8/8.1 ability to image with resizable. BCD works with them too.
+* Add SnapinJob to Host class.
+* Add libtorrent and rtorrent to inits.
+* Add beginning stages to allow split file images.
+* Add hostname to kernel args as default.  Use hostearly variable sent if
+HOSTNAME_EARLY is enabled and check against this to change hostname.
+* Add ability for resizable image with Linux.  Thanks Curtis
+* Add ability for resizable Multiboot systems, assuming Windows Parts are at
+the start of the hard-drive. Thanks Curtis
+* Add cabextract and libmspack to inits and source code for buildroot.
+* Add product key changer to FOG.  NEEDS: client installer recompile.
+* Add the ability to have "login" entries on items of the advanced menu.
+* Update plugin hooks with system to check if they are enabled or not to
+display their relevant menu/submenu items or other actions.
+* Update ipxe/undionly tftp files to latest available.
+* Update pigz operations to their own function in init.xz files and in
+/usr/share/fog/lib/funcs.sh
+* Remove IMAGE_TRUST_CMD from ipxe/undionly to hopefully remove console
+issues.
+* Remove htmldoc/clamav from fedora/centos installer.  Reinserted after adding
+Mageia support.
+* Remove hooking from Mobile pages as it's already a limited section.
+* Schema update to remove ssh client setting stuff and move FOG_SNAPINDIR to
+FOG Snapin - Service category.
+* Refine session closing/opening/regenerating data on GUI side.
+* Refine service files particularly for snapins.
+* Redirect users to index.php if they attempt to go to a node that doesn't
+have a relevant class to work with.
+
+Version 1.1.2
+-------------
+
+* Fix client updater so hash is returned properly.
+* Fix client updater so files are downloaded properly.
+* Fix installer functions so they upgrade/install properly.
+* Fix bug in imageid setting for full host registration.
+* Fix installer issues from moving commons/config.php to
+* Fix Storage Node/Image Replicator so it only replicates to enabled nodes.
+lib/fog/Config.class.php
+* Fix issue where invalid mac would still create Host with 0 ID in DB.
+* Fix scheduled tasks so styles of 4,5,6 will work properly.
+* Fix Group Host add so they are in their own forms.
+* Fix BUG where redirect was in use to form element and having bad side
+effects.
+* Tweak/fix Mainmenu links so the calls can set multiple menu items.
+* Change imageLegacy to imageFormat for future adjustments where needed.
+* Adjust all 'legacy' image calls to 'format' and change db class for this.
+* Group deployment only cares if uniform image for multicast not for all
+tasks.
+* Add basic element for Access Control as plugin elements. (WIP)
+* Add ability to adjust timeout values on login system or remove them
+completely.
+* Add Mageia to installer system.  ****THANKS CHUCK SITES****
+* OU system is now a select box.  Documentation will follow, but in beta atm.
+* Only Imaging Tasks require Images, not all tasks now.
+* Hosts within group can now have image set within group from membership
+field.
+* Schema and update of schema is it's own class.
+
+Version 1.1.1
+-------------
+
+* Add xfs filesystem imaging support.
+* Fix bug in Post_Stage3.php so task completetion happens properly.
+* All MAC's are now objects of the MACAddress class.
+* Add Win 8.1 OSID as drivers and such can be different from Win 8.
+* Added snapcheck.php for hopeful transition to using init to stage snapins.
+* Add multiple NIC MACs sent to find host.
+* SVN Trunk versions now have SVN Rev for Version for better support.
+* Fix Multicast Group issues.
+* Fix changing image default group if there is no master node in the group.
+
+Version 1.1.0
+-------------
+
+* Hooks and Plugins are now able to work together.
+* Hooks are autoloaded properly now.
+* Plugins are autoloaded as well as their pages.
+* All pages are now auto registered rather than being registered
+** within their files.
+* Added ability to QUICKREG elements to add system to a group.
+* Added ability to add host to group during full registration.
+* Moved Plugins from management/plugins to lib/plugins.
+* Fixes for Printer Management and Client Updater
+* Adds ability to image logical/extended partitions now.
+* Fixes the location plugin.
+* Install script now asks for mysql password.
+* Install script waits for schema update to be performed.
+* Kernel Updater from GUI fixed.
+* undionly still in use, but provides multiple choices.
+** undionly.kpxe, undionly.kkpxe, ipxe.pxe, ipxe.kpxe, ipxe.kkpxe
+** If one isn't working try another.  Most should have success with
+** undionly.kpxe.  VirtualBox will work with any of the ipxe. files.
+* Database backend no longer requires init.database.php.  Used modern
+** methods to keep compatibility into the future.
+* Change php required version.  We now require 5.3.0 or higher.
+* Fix ReportManagementPage if image isn't set.
+* Remove theh recoverReports part as commented on installer script.
+** This because default reports are managed directly within the report page.
+* Hooks are now fixed as they were broken in 1.0.1
+* Fix group page so setting of kernel, kernelArgs, kernelDevice actually
+** happens.
+* Fix capone so strings sent for search operate as expected.
+* Add's awaiting check wol to task scheduler.
+* Fix grub hopefully.
+* Updated init.xz/init_32.xz to buildroot-2014.05
+* Fix image deletion to go off of pathname not imagename.
+* Should have working undionly.kpxe now!
+* Fix QUICKREG_SYS_NUM problem on auto/quick registration.
+
+Version 1.0.1
+-------------
+
+* Fixed issue with image 'engine' being changed to partclone after updating the OS settings
+* Improved the update process for the settings from version 0.32
+
+Version 1.0.0 
+------------
+*Operating system was moved from the Host object to the Image object.
+*****All images created on previous versions will need to be updated!
+*IP Address has been removed from the hosts section.
+*Fixed issue with 2TB+ (with 4K sectors) devices not being able to be imaged
+*Added support for Windows 8
+*Added support for GUID Partitioned disks.
+*NOTE: FOG now requires the use of sysprep with Window 7 sp1 and higher
+*NOTE: With Partclone in use, it seems sysprep is only needed for ntfsresize,
+*	otherwise all is fine.
+*NOTE: As partclone is now in use, you will have to re-upload all images
+*	so things conform with partclone versus partimage.  They aren't
+*	compatible.
+*Added ability to add new groups from the group management.
+*Added detection of the type of printer in print management for editing to.
+*Corrected auto.register.php to not require hostOS as it was moved.
+*Added checking of mysql, mysql-server, php-mysql in case using mariadb and php-mysqlnd during install.
+*Updated udpcast to 20120424
+*TE Updated buildroot to 2014.02 actually supports name resolving.
+*init.gz and bzImage kernel infos are set for 3.13.5.
+*	They are both 64 bit now natively.
+*	There are 32 bit init.xz and bzImage within names as init_32.xz and bzImage32
+*Fixed autopopulating Active Directory information.
+*Default printer selected through checkbox.  Modules added into Host class.
+*Host inventory changes also moved into Host class.
+*Group can add hosts to itself.
+*Host can join to group.
+*Host has all groups is associated with it for ease and recognition.
+*Added Unpublished kernel's so we have more than just sourceforge for the
+*published kernels.  We can add users if needed.
+*	My kernels have a arch check to it for the FOG Page.
+*Hostname checks in init.xz now truncate and verify if host already
+*	exists.  Loops until the hostname chosen is unique/and or the old
+*	host is deleted.
+
+Version 0.32
+------------
+*Added ability to disable chkdsk after imaging (doesn't function with scheduled jobs)
+*Added ability to change the computer's hostname from init.gz
+*Remoted need for fogprep
+*Installer now will attempt to install dhcp3-server if isc-dhcp-server doesn't exist
+*Extended use of OO classes
+*Fixed imaging listing overflow on manual registration
+*Init now mounts NFS using TCP.
+*Fixed issue: 3324065 - typo on snap in page
+*Fixed issue: 3367423 - AD auto population issue with '/'
+
+Version 0.31
+------------
+
+*New web UI (All thanks to Peter Gilchrist)
+*Updated kernel version 2.6.39.1
+*Added Spanish translation (Thanks Pablo J. Mayordomo García)
+*Updated chntpw to version 110511
+*Updated clamav to 0.97.1
+*Fixed spelling error in Inventory report
+*Fixed issue: 3157703 - disk space reporting (thanks Corey Edwards)
+*Fixed issue: 3194588 - Spelling error in help dialog (thanks Nathan Lock)
+
+Version 0.30
+------------
+
+*Rebuilt init image (ALL Thanks to Aaron Bergz!!!!) details below
+**Converted to Busy Box
+**Added detection for number of CPUs
+**Parallel upload image compression 
+**Added drive write cache check.
+
+*Update memtest from 4.0 to 4.2
+*Updated kernel to version 2.6.37 (core)
+*Added kernel branch - core
+*Added additional search fields to the host search from the inventory table
+*Updated chntpass support to scan partitions looking for sam file
+
+
+Version 0.29
+------------
+
+*Removed the need for etherwake, implemented WOL in php code.
+*Fixed issue with upstart vs sysvinit with tftpd-hpa
+*Fixed issue with scheduled tasks and Windows 7 failing
+*Fixed program files path issue on FOG Service installer
+*Updated AV Scan to check for a two partition setup with Windows 7
+*Added Follow page to about
+*Added silient install option for the FOG service
+*Added Pending MAC address report
+*Added DMI Information to the Client System Information pxe menu item
+*Updated pxelinux.0 to version 3.86 and added memdisk
+*Got Capone ready for production use.
+*Updated dmidecode from 2.7 to 2.9
+*Updated Memtest86+ to 4.0
+*Updated device IDS (pci.ids)
+*Updated ClamAV to version 0.96-exp
+*Added ability for ClamAV to scan rars
+*ClamAV now caches virus defs. on the server.
+*Updated photorec and testdisk to 6.11.3
+*Added Host Status (basic ping)
+*Fixed background image streching issue on Login History Image.
+*Added Chinese (Simplified) translation
+*Added FOG Prep for Windows 7 image upload
+*Added Italian translations
+*Added internationalization support (Thanks Luca Berton!)
+*Changed to a sprite for the menu bar (Thanks John Deery!)
+*Removed dependency "libmd5-perl" from installation as it is not needed.
+*Upgraded jpggraph to version 3.0.7
+*Removed ereg functions and replaced with preg_match as they are deprecated in php 5.3.x+
+*Fixed bug (2882606) spelling error on Loan Form. Thanks neodawg
+*Applied patch (2886212) to allow Quick registration to set default values. Thanks Andrew Single
+*Fixed mkswap issue (2962069) Thanks Acacha
+*Cleaned up the Kernel Updater
+*Updated kernel to 2.6.33.3
+*Added ability to search for hosts by additional macs
+*Added MAC Manufacturer Lookup
+*Multiple MAC address support
+*changed hostname changer to use unmanaged code to (un)join domain
+*Network bandwidth graph should no longer flicker
+*Started migration to OO API
+
+Version 0.28
+------------
+
+*Updated Kernel to version 2.6.31.1
+*Fixed issue with multicasting a mutli-part image for windows 7
+*Added ajax based active task listing
+*Added nombr kernel option which will not blow away mbr (Thanks Line Noise)
+*If storage node MAX_CLIENTS is set to 0, it is no longer a random candidate.
+*Updated syslinux to version 3.82
+*Added client information to pxe menu.
+*Installation script checks if it is being run as root.
+*Fixed tftp installation to NOT overwrite customizations.
+*Fixed HD information on hardware info page (2857507).
+*Added ability to add custom PXE menu items.
+*Decreased loading time for login page.
+*Fixed typo in tasks.advanced.include.php
+*Replaced append argument "quiet" with loglevel=4
+*Added Hidden Menu option to PXE Menu builder
+*Added primary group to host quick info section. (Thanks sam wilson)
+
+
+Version 0.27
+------------
+
+*Added support for Windows 7
+*Added Scheduled Task Support
+*Fixed Fedora 11 issue where apache would fail to start.
+*Fixed to support Fedora 11 change of dhcpd configuration file
+*Fixed Ubuntu services to terminate more gracefully.
+*Fixed issue with installer not configuring services correctly
+*Updated syslinux tools 3.81
+*Added web based log viewer
+*Updated Kernel to version 2.6.30.1
+*Allowed Kernel updater to specifiy a alternate file name.
+*Changed default username for password reset to "Administrator" from "administrator" thanks schmalenegger
+*Fixed spelling error in fog script (2629489)
+*Fixed bug (2669367) for use of mysql_real_escape_string before a connection was defined, thanks schmalenegger
+*Applied patch (2654529) , thanks schmalenegger
+*Applied patch (2767897), thanks Matthew Fusaro
+*Set PXE timeout value to save in db (2654680), thanks schmalenegger
+*Added proxy support to web UI (2716741), thanks schmalenegger
+*Added pci.ids so lspci will give usefull description.
+*Changed ascii logo.
+*Added auto-populate of image file name for new image files.
+
+Version 0.26
+------------
+
+*Added Quick Image Function
+*Added advanced tasks to host -> basic tasks page
+*Updated kernel to 2.6.28.7
+*Applied patch (2616743) from schmalenegger adding keymap to default pxe boot file
+*Applied patch (2537449) from schmalenegger fixing the getIPAddress for non-english installs.
+*Applied patch (2512766) from schmalenegger fixing spelling errors in hosts.edit.include.php
+*Added Windows 7 to supported OS List (Do not yet use, not functional!)
+*Added Windows Password reset tool.
+*Added Windows Password reset script for debug mode (no task needed)
+
+Version 0.25
+------------
+
+* Updated capone to (hopefully) work with storage nodes.
+* Updated kernel to 2.6.28
+* Changed Image tmp directory to no longer include colons.
+* Slight improvements to mutliple partition support
+* Fixed possible premature exit of loop in service functions file. (Thanks Pierre Rognant)
+* Added default page display option.
+* Added config setting for ssh username.
+* Added config setting for ssh port number.
+* Fixed Disk Information on Dashboard.
+* Allow for viewing disk information of storage nodes
+* Fixed Image Log/Report
+* Fixed ??? forcing of a task.
+
+Version 0.24
+------------
+
+* Added Storage Group framework.
+* Added SSH Java Client
+* Added task stats for unicast transfers to the active tasks page.
+* Added Image ID to image listing
+* Upgraded memtest86+ to 2.10
+* Used modifed partimage to allow printing status to stderr.
+* Fixed error thrown when partition is already resized to correct size during upload.
+* Fixed issue with blank hard disk detection
+* Updated functions.include.php to include better error message for upload task creation failures.
+
+Known Issues
+* Capone not yet updated, if you are using admin plugin, *capone*, DON'T UPDATE TO THIS VERSION!
+
+Version 0.23
+------------
+
+* Fixed wipe tasks' kernel argument issue
+* (2076993) Added option to add computer to domain from fog.reginput
+* (2089168) Fixed quotes in snapin args.
+* Added nicer error on IE's failing to display disk information.
+* Added icon on task page to signify is task is active on host
+* Minor Updates to Module capone (Thanks: Peter Sykes)
+* Updated Kernel to 2.6.27
+
+Version 0.22
+------------
+
+* Change client modules to unmanaged shutdown/reboot methods: TaskReboot, AutoLogout, GreenFog
+* Update PrinterManager to support Windows Shared Style Printers (Thanks: elishughes)
+* Updated ClamAv to version 0.94
+* Updated MemTest86+ to Version 2.01
+* Added option to force device for hard disk per host.
+* Added option to specify alternative kernel per host.
+* (2078165) Improved ajax script that displays remaining disk space.
+* Added option to set timeout on pxe menu builder.
+* (2085281) Incorrect error message on PXEMENU page.
+* (2100818) Fixed default populations of AD information.
+* Improved MulticastTask.class.php added --max-wait param (Thanks: mikrorechner)
+* Improved MulticastTask.class.php to support missing part (Thanks: mikrorechner)
+* Updated Kernel to 2.6.26.5
+* Added Equipment Loan Report
+* Added Capone (client specific extension)
+* Added Plugin System
+* (2078618) Fixed wol.php to function on ubuntu (thanks: Phil G)
+* (2063135) Fixed Stale tasks after removal of host. (thanks: Mark Featherston)
+
+Version 0.21
+------------
+
+* Added FOG Mobile Portal
+* modified user to include mobile account type
+* Changed mac address field in new host screen to parse mac address
+* Added graphical pxe boot as default
+* Added PXE Boot Menu configuration options
+
+Version 0.20
+------------
+
+* Added default values for AD support in fog settings section.
+* Changed service installer image
+* Removed brownbark theme
+* Added ability to delete large number of hosts via groups.
+* (2043261) PXELinux.0 updated to version 3.71
+* Add ability to sort tables a few sections.
+* Added retry to set default printer in printer manager
+* Updated remaining modules to now check server for status.
+* Fixed: On host service module update, screen resolution would be set to disabled (0,0,0)
+* Changed login form to track logins on new server as well as current server.
+* Updated kernel 2.6.26
+* (2025167) Fixed update process when default md5 sum is not used.
+* Added very basic update script.
+
+Version 0.19
+------------
+
+* (2002771) Fixed installtion of dhcp, when user selects not to use fog for dhcpd.
+* Improved installer for faster upgrades.
+* Added redirect page in web root, if a file doesn't exist.
+* (2021536) Fixed force task issue.
+* (1992895) Added Date/Time to image listing
+* Modified service modules to handle delayed connections.
+* Added kernel argument per host.
+* Added global kernel argument setting.
+* Minor interface improvements.
+* Fixed: PrinterManager user state error, where new user logins not detected.
+
+Version 0.18
+------------
+
+* Fixed: Image IDs not showing up in IE7
+* (1991304) Fixed: Turned off Magic Quotes at runtime.
+* Removed shutdown option from wake on lan task, for obvious reasons.
+* (2001844) Fixed: Fixed PhotoRec
+* (1998697) Added: --no-htmldoc option to fog installer
+* (1997803) Fixed dd error during file upload. (Patched by Elis Hughes)
+* Added grub/swap support to Linux multiple partition support (Patched by elishughes)
+
+Version 0.17
+------------
+
+* Updated installer to remove tftpboot.fogbackup if it exists
+* Added image listing and os listing to for.reginput
+* Added Snapin Log Report
+* Added return code on snapin installations. (Patched by Stonekeeper)
+* Added ability to deploy msi/headless executables snapins.
+* Added logging/reporting of unicast image tasks (Patched by Stonekeeper)
+* Added delay to PrinterManager, DisplayManager & UserTracker to account for slow logins
+* (1990265) Fixed race conditions with multicast manager; starting invalid number of clients (Patched by Dan Fego)
+* Fixed Post_Wipe.php to user new database settings (Patched by Stonekeeper)
+      
+
+Version 0.16
+------------
+
+* Fixed problem with restarting of FOG service installer when a module is disabled.
+* Fixed CSS on Floating Alert Box for IE7 to position the OK button correctly on the form
+* (1977697)Fixed Inability to link a printer to a host/group under ie7.
+* Fixed Floating Alert Box to now move above menu bar in Firefox 3.0
+* Added make to package list to better support fedora 9
+* Added Poweroff support to kernel via ACPI and APM
+* Update Kernel to 2.6.25-4
+* Added keymap support for alt. keyboard layouts
+* Added debug module to output various information to the log
+* Added User Cleanup Module
+* Added Directory Cleaning module
+* Added Auto Log Off module
+* (1967052) Added work around for schema installer when database already exists.
+* Added table globalSettings, moduleStatusByHost, and a few others
+* Updated schema version to 9
+* Updated FOG_Printer_Manager module to allow access to the named pipes from non-admin users.
+* Added "--no-upgrade" option to fog installer
+* Added Easy Update to make upgrading from version to version easier in the future.
+* Added FOG Settings page to the "other information" section of fog management.
+* Added option to make page animations optional.
+* (1940447) Fixed Password validation issue.
+* Cleaned up the task confirmation page.
+
+Version 0.15
+------------
+
+* Fixed - Deploy all snapins to group.
+* Added FTP connection information for NFS server
+* Fixed user tracker report to include host.
+* Updated kernel with atl2 patch 2.04
+* Fixed dd issue introduced in version 0.14
+
+Version 0.14
+------------
+
+* Added basic multiple partition support
+* Improved installer with default values
+* (1920830) After host removal, all tasks linked with host are deleted.
+* Modified S01reboot in boot image to disable saving of random seed
+* Added fogpartinfo binary to boot image for better disk detection
+* Added 3 new operating systems to the support OS table.
+* Added basic backup utility.
+* Added ability to replace an existing snapin file.
+
+Known/Outstanding Issues
+* Percentage reported by multipartition multicast session is incorrect.
+* Multipartition has issues with grub.  
+* Multipartition will not work with extended partitions.
+
+Version 0.13
+------------
+
+* Made installer language independent
+* Made DHCP startup optional
+* Added build-essential to the ubuntu install list
+* Added FOG Tray Icon
+* Changed TaskReboot to optionally reboot with user logged in
+
+Version 0.12
+------------
+
+* Added Hardware Inventory Task
+* Added Printer Installation Service Module
+* Added User Tracking Service Module
+* Added FOG Reporting
+* Added Enhanced Registration Method
+* Added Client FOG Service Updater
+* Feature Request #1902517 - Change FOG upload behavior to include removal of Page File and Hibernate file.
+* Added Basic Tasks to Host management screen
+* Added Login History to the Host management screen
+* Added Hardware Inventory to host management screen
+* Added printer management to host management screen
+* Updated Kernel to 2.6.25-rc3
+* Fix # 1901545 - Add insecure option to all exports
+* Fix # 1892693 - New user passwords only characters
+* Added HTMLDoc to list of install packages
+* Added 3 sec pause to pxe boot
+* Added pxe boot option fog.memtest
+* Added pxe boot option fog.reg
+* Added pxe boot option fog.reginput
+* Updated Partprobe to 1.8.6
+* Put a freeze on changes to AbstartFOGService.dll
+* Put a freeze on changes to FOGService.exe
+
+  Known Issues
+* Setting of default printer is currently not functional.
+
+
+Version 0.11
+------------
+
+* Cleaned up group removal page.
+* Cleaned up user removal page.
+* Fixed CSS on footer
+* Moved delete button to the bottom of the group edit page to keep a consistant look and feel.
+* Added FUSE to the kernel
+* Added ClamAV to the boot image
+* Added Virus History to the Host Edit pages
+* Added Virus Summary to Information Section
+* Feature Request #1886328: Added insecure option to exports
+
+Version 0.10
+------------
+
+* Fix #1881264: GPT/MSDOS MBR Error
+* Added client kernel updater 
+* Branched to two kernel types: kitchensink and skinny
+* Added FOG version and estimated users to login screen.
+* Added DNS and router configuration to the installation script.
+* Added interface configuration to the installation script.
+* Added DD disk imaging support.
+* Updated schema to version 5.
+
+Version 0.09
+------------
+
+* Added Multicast support using UDPCast
+* Added FOGMulticastManager service
+* Feature Request #1860234: Added "List all Hosts" to hosts section
+* Feature Request #1860774: Added ability to modify all the oses for a group
+	- Thanks bjornan
+* Added unmanaged api call to reboot client in FOG service
+* Added Search to Groups section of FOG Management
+* Added Search to Images section of FOG Management
+
+
+
+Version 0.08
+------------
+* Fix #1843328: changed constant()'s to define()'s in functions.include.php
+	- Thanks Gabor Halasz
+* Fix #1845874: fixed image by group problem.
+	- Thanks Gabor Halasz
+* Fix #1848708: Replaced hardcoded image directory with STORAGE_DATADIR
+	- Thanks Gabor Halasz
+* Fix #1850687: WOL enhancement merged.
+	- Thanks Gabor Halasz
+* Fix #1850700: Hardcoded webroot in dashboard.include.php
+	- Thanks Gabor Halasz
+* Fix #1850854: hardcoded dns server in intrd & tmp cleanup
+	- Thanks Gabor Halasz
+* Fix #N/A:     Fixed capital Y/N response in installer returning: "Invalid repsonse"
+
+* Added Ubuntu installer support
+* Added Snapin support
+* Added Snapin subservice
+* Added domain registration
+* Added patition resize percent to config.php
+* Added advanced option Send without Snapins
+* Added advanced option Deploy Snapins
+* Added advanced option Deploy sinlge snapin
+* Changed function getNumberOfTasks to not include orphaned tasks
+* Updated jpgraph to version 2.3
+* updated db schema to version 3
+
+
+Version 0.07
+------------
+* Changed default theme from BrownBark to BlackEye.
+* Added theme option to config file.
+* Added Fast Disk wipe.
+* Added Disk Surface test.
+* Updated Linux Kernel to 2.6.23.8.
+* Removed Kernel module support.
+* Removed Kernel swap disk support.
+* Added ramdisk size option to config file.
+* Added GUI support to the FOG Service.
+* Added graphical config to the FOG Service.
+* Added Task Reboot sub service.
+* Changed IP address from a mandatory to optional field.
+* Modified host upload making IP address optional here too.
+* Added ability to delete image files from web GUI.
+
+Version 0.06
+------------
+* Fixed Upload Resize Bug.
+* Added CSV host import
+* Added Vista support to hostname change module.
+* Added Host Registration module with XP and Vista support
+* Corrected join in Active Tasks page
+
+Version 0.05
+------------
+* Added memtest86+
+* Added testdisk
+* Added photorec
+* Cleaned up GUI a little
+* Added AJAX bandwidth monitor
+* Added AJAX HD monitor
+
+Version 0.04
+------------
+* Added advanced boot options
+
+Version 0.03
+------------
+* Added Windows Vista Support^
+* Added vista MBR to boot image
+* Added FOGVistaMbr Fix application to image
+* Added xxd to the image
+* updated ntfsutils to version 2.0
+* updated db schema to version 2
+* Added url to download the client installation package
+
+Bug Fixes
+* Added alternate method to detect hard disks, which
+  will detect a disk that has not partition on it.
+* Fixed sudo to allow apache to run etherwake.
+  
+^  In order for vista to work, the following commands
+   must be run as administrator BEFORE uploading the image.
+   
+bcdedit /set {bootmgr} device boot
+bcdedit /set {default} device boot
+bcdedit /set {default} osdevice boot   
+
+Version 0.02
+------------
+* Moved user config settings from the main install script to lib/config.sh
+* Cleaned up Kernel and included new .config file
+* added installation notification
+* added fog service with hostname changer
+* minor bug fixes
+
+Version 0.01
+------------
+Initial Product Release

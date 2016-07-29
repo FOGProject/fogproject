@@ -1,0 +1,104 @@
+#!/bin/bash
+. /usr/share/fog/lib/funcs.sh
+RUN_CHKDSK=""
+HOSTNAME_EARLY=0
+OS_ID_WIN7=5
+OS_ID_WIN8=6
+for arg in $(cat /proc/cmdline); do
+    case $arg in
+        initsh)
+            ash -i
+            ;;
+        nombr)
+            nombr=1
+            ;;
+        *)
+            [[ $imgPartitionType != all && $imgPartitionType != mbr ]] && nombr=1
+            ;;
+    esac
+done
+clearScreen
+displayBanner
+osname=""
+mbrfile=""
+macWinSafe=$(echo $mac|sed 's/://g')
+sockets=$(grep "physical id" /proc/cpuinfo|sort -u|wc -l)
+arch=$(uname -m)
+[[ $chkdsk -eq 1 ]] && RUN_CHKDSK="-x"
+[[ $hostearly -eq 1 ]] && HOSTNAME_EARLY=1
+case $mc in
+    yes)
+        method="UDPCAST"
+        ;;
+    bt)
+        method="Torrent-CAST"
+        ;;
+    *)
+        method="NFS"
+        ;;
+esac
+debugPause
+verifyNetworkConnection
+dots "Checking Operating System"
+[[ -z $deployed ]] && determineOS "$osid"
+echo "$osname"
+dots "Checking CPU Cores"
+cores=$(nproc)
+echo "$cores"
+dots "Send method"
+echo "$method"
+blGo=0
+nfsServerName=""
+checkin() {
+    local poststring="$1"
+    local php_post="$2"
+    dots "Attempting to check in"
+    local count=0
+    local res=""
+    local waittime=0
+    while [[ $res != "##@GO" ]]; do
+        res=$(wget --post-data="$poststring" -qO - http://${web}service/$php_post 2>/dev/null)
+        if [[ $res != "##@GO" ]]; then
+            echo "Failed"
+            debugPause
+            echo -n " * $res (In line for "
+            sec2string "$waittime"
+            echo ")"
+            let waittime+=5
+            usleep 5000000
+            dots "Attempting to check in"
+        fi
+    done
+    echo "Done"
+    debugPause
+    directive="${res:3}"
+    if [[ $directive != GO ]]; then
+        tmpStorageIp=$(echo $queueinfo|cut -d'@' -f2 2>/dev/null)
+        tmpStorage=$(echo $queueinfo|cut -d'@' -f3 2>/dev/null)
+        tmpName=$(echo $queueinfo|cut -d'@' -f4 2>/dev/null)
+        [[ -z $tmpStorage || -z $tmpStorageIp ]] && handleError "Error determining storage server! ($0)\n   Args Passed: $*"
+        storage="$tmpStorage"
+        storageip="$tmpStorageIp"
+        nfsServerName="$tmpName"
+        dots "Using Storage Node"
+        echo "$nfsServerName"
+        debugPause
+    fi
+}
+case $mc in
+    [Yy][Ee][Ss])
+        php_post="mc_checkin.php"
+        ;;
+    *)
+        php_post="Pre_Stage1.php"
+        ;;
+esac
+case $mode in
+    clamav)
+        poststring="mac=$mac&avmode=$avmode"
+        ;;
+    ""|*)
+        poststring="mac=$mac&type=$type"
+        ;;
+esac
+[[ ! $capone -eq 1 ]] && checkin "$poststring" "$php_post"

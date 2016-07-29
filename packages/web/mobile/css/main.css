@@ -1,0 +1,76 @@
+* {
+    font-family: arial;
+    font-size: 11px;
+}
+html,body {
+    position: relative;
+}
+#mainContainer {
+    width: 100%;
+    height: 100%;
+}
+#header {
+    background: url('images/mobile.png') no-repeat center;
+    height: 28px;
+}
+/* Menu */
+.menu {
+    text-align: center;
+}
+.nav-list .nav-item {
+    text-align: center;
+    display: inline-block;
+}
+.nav-item .nav-link {
+    display: block;
+    padding: 2px;
+}
+.nav-item .nav-link, a > i {
+    color: #00567a;
+}
+.nav-link:hover, .activelink > i, a:hover > i, .notifier, .notifier:hover {
+    color: orange;
+}
+.nav-link > i {
+    margin: 2px;
+}
+h1, h2{
+    text-align: center;
+}
+#mobile_content {
+    text-align: center;
+}
+#mainContent {
+    height: 100%;
+    background-color: #e8e8e8;
+    border-width: 1px;
+    border-color: #828282;
+    border-style: solid;
+    margin-top: 4px;
+    text-align: center;
+}
+#contentTitle {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    border-width: 0px 0px 1px 0px;
+    border-color: #828282;
+    border-style: solid;
+    background-color: #c3c3c3;
+    padding-left: 3px;
+}
+.task {
+    margin-top: 7px;
+    margin-bottom: 7px;
+    border-width: 0px;
+}
+.link {
+    margin-right: 10px;
+    margin-left: 10px;
+    border-width: 0px;
+}
+.padded {
+    padding: 3px;
+}
+.center {
+    text-align: center;
+}
