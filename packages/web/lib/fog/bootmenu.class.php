@@ -662,7 +662,6 @@ class BootMenu extends FOGBase {
                 $StorageGroup = null;
                 $StorageNode = null;
                 self::$HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
-                if ($Task->isCapture()) $StorageGroup = $Image->get('storageGroupID');
                 if (!$StorageGroup || !$StorageGroup->isValid()) $StorageGroup = $Image->getStorageGroup();
                 if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
                 if ($Task->get('NFSMemberID') != $StorageNode->get('id')) $Task->set('NFSMemberID',$StorageNode->get('id'));

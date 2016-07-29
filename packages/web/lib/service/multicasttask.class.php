@@ -3,7 +3,6 @@ class MulticastTask extends FOGService {
     public function getAllMulticastTasks($root,$myStorageNodeID) {
 
         $StorageNode = self::getClass('StorageNode',$myStorageNodeID);
-        self::$HookManager->processEvent('CHECK_NODE_MASTER',array('StorageNode'=>&$StorageNode,'FOGServiceClass'=>&$this));
         if (!$StorageNode->get('isMaster')) return;
         $Interface = self::getMasterInterface(self::$FOGCore->resolveHostname($StorageNode->get('ip')));
         unset($StorageNode);
@@ -12,6 +11,8 @@ class MulticastTask extends FOGService {
         array_walk($MulticastSessions,function(&$MultiSess,&$index) use (&$Tasks,$root,$Interface) {
             if (!$MultiSess->isValid()) return;
             $taskIDs = self::getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$MultiSess->get('id')),'taskID');
+            $taskIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
+            $stateIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())),'stateID');
             $count = self::getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MultiSess->get('id')));
             if ($count < 1) $count = $MultiSess->get('sessclients');
             if ($count < 1) {
@@ -32,7 +33,6 @@ class MulticastTask extends FOGService {
                 $count,
                 $MultiSess->get('isDD'),
                 $Image->get('osID'),
-                $MultiSess->get('clients') == -2 ? 1 : 0,
                 $taskIDs
             );
             unset($MultiSess,$index);
@@ -43,7 +43,7 @@ class MulticastTask extends FOGService {
     private $intImageType, $intOSID;
     public $procRef;
     public $procPipes;
-    public function __construct($id = '',$name = '',$port = '',$image = '',$eth = '',$clients = '',$imagetype = '',$osid = '',$nameSess = '',$taskIDs = '') {
+    public function __construct($id = '',$name = '',$port = '',$image = '',$eth = '',$clients = '',$imagetype = '',$osid = '',$taskIDs = '') {
         parent::__construct();
         $this->intID = $id;
         $this->strName = $name;
@@ -53,14 +53,7 @@ class MulticastTask extends FOGService {
         $this->intClients = $clients;
         $this->intImageType = $imagetype;
         $this->intOSID = $osid;
-        $this->isNameSess = $nameSess;
         $this->taskIDs = $taskIDs;
-    }
-    public function getSessClients() {
-        return self::getClass('MulticastSessions',$this->getID())->get('clients') == 0;
-    }
-    public function isNamedSession() {
-        return (bool)$this->isNameSess;
     }
     public function getTaskIDs() {
         return $this->taskIDs;

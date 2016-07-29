@@ -56,15 +56,6 @@ class ChangeItems extends Hook {
         if (!$arguments['FOGServiceClass'] instanceof MulticastManager) return;
         $IDs = array_unique(array_filter(array_merge((array)$arguments['MasterIDs'],(array)self::getSubObjectIDs('Location','','storageNodeID'))));
         $arguments['StorageNodes'] = self::getClass('StorageNodeManager')->find(array('id'=>$IDs));
-        foreach ($arguments['StorageNodes'] AS &$StorageNode) {
-            if (!$StorageNode->isValid()) continue;
-            if (!$StorageNode->get('isMaster')) $StorageNode->set('isMaster',1);
-        }
-    }
-    public function MakeMaster($arguments) {
-        if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
-        if (!$arguments['FOGServiceClass'] instanceof MulticastTask) return;
-        $arguments['StorageNode']->set('isMaster',1);
     }
 }
 $ChangeItems = new ChangeItems();
@@ -77,5 +68,4 @@ $HookManager->register('HOST_NEW_SETTINGS',array($ChangeItems,'StorageGroupSetti
 $HookManager->register('BOOT_TASK_NEW_SETTINGS',array($ChangeItems,'StorageNodeSetting'));
 $HookManager->register('TASK_LIMIT',array($ChangeItems,'SlotCount'));
 $HookManager->register('CHECK_NODE_MASTERS',array($ChangeItems,'AlterMasters'));
-$HookManager->register('CHECK_NODE_MASTER',array($ChangeItems,'MakeMaster'));
 //$HookManager->register('HOST_EDIT_AFTER_SAVE',array($ChangeItems,'HostEditAfterSave'));

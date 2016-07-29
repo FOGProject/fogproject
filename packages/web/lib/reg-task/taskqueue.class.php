@@ -16,10 +16,10 @@ class TaskQueue extends TaskingElement {
                     $MulticastSession = self::getClass('MulticastSessions',$msID);
                     if (!$MulticastSession->isValid()) throw new Exception(_('Invalid Multicast Session'));
                     $MulticastSession
-                        ->set('clients',$MulticastSession->get('clients') < 0 ? 1 : $MulticastSession->get('clients')+1)
+                        ->set('clients',$MulticastSession->get('clients')+1)
                         ->set('stateID',$this->getProgressState());
                     if (!$MulticastSession->save()) throw new Exception(_('Failed to update Session'));
-                    if ($this->Host->isValid()) $this->Host->set('imageID',$MulticastSession->get('image'));
+                    $this->Host->set('imageID',$MulticastSession->get('image'));
                 } else if ($this->Task->isForced()) {
                     self::$HookManager->processEvent('TASK_GROUP',array('StorageGroup'=>&$this->StorageGroup,'Host'=>&$this->Host));
                     $this->StorageNode = null;
@@ -115,9 +115,8 @@ class TaskQueue extends TaskingElement {
         if ($this->Task->isMulticast()) {
             $MCTask = self::getClass('MulticastSessionsAssociation')->set('taskID',$this->Task->get('id'))->load('taskID');
             $MulticastSession = $MCTask->getMulticastSession();
-            $MulticastSession->set('clients',($MulticastSession->get('clients') < 1 ? 0 : $MulticastSession->get('clients') - 1))->save();
+            $MulticastSession->set('clients',$MulticastSession->get('clients') - 1)->save();
         }
-        $this->Host->set('pub_key','')->set('sec_tok','');
         if ($this->Task->isDeploy()) {
             $this->Host->set('deployed',self::nice_date()->format('Y-m-d H:i:s'));
             $this->email();
@@ -127,7 +126,6 @@ class TaskQueue extends TaskingElement {
             ->set('pct',100)
             ->set('percent',100)
             ->set('stateID',$this->getCompleteState());
-        if (!$this->Host->save()) throw new Exception(_('Failed to update Host'));
         if (!$this->Task->save()) throw new Exception(_('Failed to update Task'));
         if (!$this->TaskLog()) throw new Exception(_('Failed to update task log'));
         if (!$this->ImageLog(false)) throw new Exception(_('Failed to update imaging log'));

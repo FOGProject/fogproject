@@ -34,10 +34,9 @@ abstract class FOGManagerController extends FOGBase {
         $this->orderBy($orderBy);
         if (empty($compare)) $compare = '=';
         $not = ($not ? ' NOT ' : ' ');
-        $whereArray = array();
-        $whereArrayAnd = array();
         if (count($findWhere)) {
             $count = 0;
+            $whereArray = array();
             array_walk($findWhere,function(&$value,&$field) use (&$count,&$onecompare,&$compare,&$whereArray,&$not) {
                 $field = trim($field);
                 if (is_array($value) && count($value)) {
@@ -173,7 +172,6 @@ abstract class FOGManagerController extends FOGBase {
         if (empty($findWhere)) $findWhere = array();
         if (empty($whereOperator)) $whereOperator = 'AND';
         $insertArray = array();
-        $whereArray = array();
         array_walk($insertData,function(&$value,&$field) use (&$insertArray) {
             $field = trim($field);
             $insertKey = sprintf('`%s`.`%s`',$this->databaseTable,$this->databaseFields[$field]);
@@ -182,6 +180,7 @@ abstract class FOGManagerController extends FOGBase {
             unset($value);
         });
         if (count($findWhere)) {
+            $whereArray = array();
             array_walk($findWhere,function(&$value,&$field) use (&$whereArray) {
                 $field = trim($field);
                 $values = array_map(function(&$val) {

@@ -27,6 +27,6 @@ class MulticastSessions extends FOGController {
         return self::getClass('TaskState',$this->get('stateID'));
     }
     public function cancel() {
-        return $this->set('stateID',$this->getCancelledState())->set('name','')->save();
+        return $this->set('stateID',$this->getCancelledState());
     }
 }

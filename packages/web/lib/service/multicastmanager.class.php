@@ -4,7 +4,7 @@ class MulticastManager extends FOGService {
     protected $altLog;
     public function __construct() {
         parent::__construct();
-        list($dev,$log,$zzz) = self::getSubObjectIDs('Service',array('name'=>array('MULTICASTDEVICEOUTPUT','MULTICASTLOGFILENAME',self::$sleeptime)),'value',false,'AND','name',false,'');
+        list($dev,$log,$zzz) = self::getSubObjectIDs('Service',array('name'=>array('MULTICASTDEVICEOUTPUT','MULTICASTLOGFILENAME',$sleeptime)),'value',false,'AND','name',false,'');
         static::$log = sprintf('%s%s',self::$logpath ? self::$logpath : '/opt/fog/log/',$log ? $log : 'multicast.log');
         if (file_exists(static::$log)) unlink(static::$log);
         static::$dev = $dev ? $dev : '/dev/tty2';
@@ -48,10 +48,11 @@ class MulticastManager extends FOGService {
                 foreach((array)$StorageNodes AS &$StorageNode) {
                     if (!$StorageNode->isValid()) continue;
                     $myroot = $StorageNode->get('path');
+                    $allTasks = self::getClass('MulticastTask')->getAllMulticastTasks($myroot,$StorageNode->get('id'));
                     $RMTasks = array();
-                    foreach ((array)$KnownTasks AS &$mcTask) {
+                    foreach ((array)$allTasks AS &$mcTask) {
                         $activeCount = self::getClass('TaskManager')->count(array('id'=>$mcTask->getTaskIDs(),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
-                        if ($activeCount < 1 && ($mcTask->getSessClients() == 0 || in_array(self::getClass('MulticastSessions',$mcTask->getID())->get('stateID'),array($this->getCompleteState(),$this->getCancelledState())))) $RMTasks[] =& $mcTask;
+                        if ($activeCount < 1 && ($mcTask->getClientCount() < 1 || in_array(self::getClass('MulticastSessions',$mcTask->getID())->get('stateID'),array($this->getCompleteState(),$this->getCancelledState())))) $RMTasks[] = $mcTask;
                         unset($mcTask);
                     }
                     $jobcancelled = false;
@@ -60,30 +61,30 @@ class MulticastManager extends FOGService {
                         self::outall(sprintf(" | %d task%s to be cleaned",$RMCount,$RMCount != 1 ? 's' : ''));
                         self::outall(sprintf(" | Cleaning %s task(s) removed from FOG Database.",$RMCount));
                         foreach ((array)$RMTasks AS &$RMTask) {
-                            $RTask = $this->getMCExistingTask($KnownTasks, $RMTask->getID());
-                            self::outall(sprintf(" | Cleaning Task (%s) %s",$RTask->getID(),$RTask->getName()));
+                            self::outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
+                            $KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
                             $taskIDs = $RMTask->getTaskIDs();
-                            $inTaskIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>$this->getCancelledState()));
-                            if (self::getClass('MulticastSessions',$RMTask->getID())->get('stateID') == $this->getCancelledState()) $jobcancelled = true;
-                            if (count($inTaskIDs) > 0) $jobcancelled = true;
-                            if ($jobcancelled || self::getClass('MulticastSessions',$RTask->getID())->get('stateID') == $this->getCancelledState()) {
+                            if (self::getClass('TaskManager')->count(array('id'=>$taskIDs,'stateID'=>$this->getCancelledState())) > 0) $jobcancelled = true;
+                            if ($jobcancelled || self::getClass('MulticastSessions',$RMTask->getID())->get('stateID') == $this->getCancelledState()) {
                                 self::getClass('TaskManager')->update(array('id'=>$taskIDs),'',array('stateID'=>$this->getCancelledState()));
-                                self::getClass('MulticastSessions',$RTask->getID())->set('stateID',$this->getCancelledState())->set('name','')->save();
+                                self::getClass('MulticastSessions',$RMTask->getID())->set('stateID',$this->getCancelledState())->save();
+                                $RMTask->killTask();
                                 self::outall(sprintf(" | Task (%s) %s has been cancelled.",$RMTask->getID(),$RMTask->getName()));
                             } else {
                                 self::getClass('TaskManager')->update(array('id'=>$taskIDs),'',array('stateID'=>$this->getCompleteState()));
                                 self::getClass('MulticastSessions',$RMTask->getID())->set('stateID',$this->getCompleteState())->save();
                                 self::outall(sprintf(" | Task (%s) %s has been completed.",$RMTask->getID(),$RMTask->getName()));
                             }
-                            $RTask->killTask();
-                            $KnownTasks = $this->removeFromKnownList($KnownTasks,$RTask->getID());
-                            self::getClass('MulticastSessionsAssociationManager')->destroy(array('msID'=>$RTask->getID()));
-                            unset($RMTask,$RTask);
+                            self::getClass('MulticastSessionsAssociationManager')->destroy(array('msID'=>$RMTask->getID()));
+                            unset($RMTask);
                         }
+                        $allTasks = self::getClass('MulticastTask')->getAllMulticastTasks($myroot,$StorageNode->get('id'));
                     }
-                    $allTasks = self::getClass('MulticastTask')->getAllMulticastTasks($myroot,$StorageNode->get('id'));
                     $taskCount = count($allTasks);
-                    if ($taskCount < 1 || !$taskCount) self::outall(sprintf(' * %s!',_('No tasks found')));
+                    if ($taskCount < 1 || !$taskCount) {
+                        self::outall(sprintf(' * %s!',_('No tasks found')));
+                        continue;
+                    }
                     foreach ((array)$allTasks AS &$curTask) {
                         if ($this->isMCTaskNew($KnownTasks, $curTask->getID())) {
                             self::outall(sprintf(" | Task (%s) %s is new!",$curTask->getID(),$curTask->getName()));
@@ -111,22 +112,17 @@ class MulticastManager extends FOGService {
                             }
                             self::outall(sprintf(" | Task (%s) %s has been cleaned.",$curTask->getID(),$curTask->getName()));
                             self::outall(sprintf(" | Task (%s) %s image file found.",$curTask->getID(),$curTask->getImagePath()));
-                            self::outall(sprintf(" | Task (%s) %s client(s) found or to receive.",$curTask->getID(),$curTask->getClientCount()));
+                            self::outall(sprintf(" | Task (%s) %s client(s) found.",$curTask->getID(),$curTask->getClientCount()));
                             self::outall(sprintf(" | Task (%s) %s sending on base port: %s",$curTask->getID(),$curTask->getName(),$curTask->getPortBase()));
                             self::outall(sprintf(" | CMD: %s",$curTask->getCMD()));
                             self::outall(sprintf(" | Task (%s) %s has started.",$curTask->getID(),$curTask->getName()));
                             $KnownTasks[] = $curTask;
                         } else {
-                            $jobcancelled = $jobcompleted = false;
+                            $jobcancelled = false;
                             $runningTask = $this->getMCExistingTask($KnownTasks, $curTask->getID());
                             $taskIDs = $curTask->getTaskIDs();
-                            $inTaskCancelledIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>$this->getCancelledState()));
-                            $inTaskIDs = self::getSubObjectIDs('Task',array('id'=>$taskIDs,'stateID'=>$this->getCompleteState()));
-                            if (count($inTaskCancelledIDs) > 0) $jobcancelled = true;
-                            if (count($inTaskIDs) > 0) $jobcompleted = true;
-                            if (self::getClass('MulticastSessions',$runningTask->getID())->get('stateID') == $this->getCancelledState()) $jobcancelled = true;
-                            if ($runningTask->isNamedSession && $runningTask->getSessClients() == 0) $jobcompleted = true;
-                            if (!$jobcompleted && !$jobcancelled && $runningTask->isRunning($runningTask->procRef)) {
+                            if (self::getClass('TaskManager')->count(array('id'=>$taskIDs,'stateID'=>$this->getCancelledState()) > 0)) $jobcancelled = true;
+                            if ($runningTask->isRunning($runningTask->procRef)) {
                                 self::outall(sprintf(' | Task (%s) %s is already running PID %s',$runningTask->getID(),$runningTask->getName(),$runningTask->getPID($runningTask->procRef)));
                                 $runningTask->updateStats();
                             } else {
