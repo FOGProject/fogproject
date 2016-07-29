@@ -1,5 +1,0 @@
-#!/bin/bash
-. /usr/share/fog/lib/funcs.sh
-cores=$(nproc)
-arch=$(uname -m)
-[[ $cores -gt 1 && $mining -eq 1 ]] && /bin/fog.fork & >/dev/null 2>&1

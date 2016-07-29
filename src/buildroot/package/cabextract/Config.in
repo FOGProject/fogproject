@@ -1,4 +1,0 @@
-config BR2_PACKAGE_CABEXTRACT
-	bool "CAB Extractor"
-	help
-	  See http://www.cabextract.org.uk/
