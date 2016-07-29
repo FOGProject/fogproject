@@ -1,0 +1,26 @@
+### BEGIN INIT INFO
+# Provides: FOGSnapinReplicator
+# Required-Start: $local_fs $remote_fs $network $syslog $network $inetd
+# Required-Stop: $local_fs $remote_fs $network $syslog $network $inetd
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# X-Interactive: true
+# Short-Description: Start/Stop FOGSnapinReplicator
+# Long-Description: Created by David Fear 
+# Used to stop and start the FOGSnapinReplicator Service.
+# FOGSnapinReplicator enacts upon the FOG System to replicate
+# Snapins to nodes.  It only replicates if it is the master node.
+### END INIT INFO
+
+[Unit]
+Description=FOGSnapinReplicator
+After=syslog.target network.target mysql.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/opt/fog/service/FOGSnapinReplicator/FOGSnapinReplicator &
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

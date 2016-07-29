@@ -1,0 +1,50 @@
+#!/bin/bash
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.donate
+clearScreen
+displayBanner
+disks=""
+disk=""
+hd=""
+getHardDisk
+[[ -z $winuser ]] && handleError "Invalid User Account ($0)\n   Args Passed: $*"
+blCont=0
+blStop=0
+[[ ! -d /ntfs ]] && mkdir -p /ntfs >/dev/null 2>&1
+sam=""
+parts=""
+part=""
+getPartitions "$hd"
+for part in $parts; do
+    while [[ $blCont -eq 0 && $blStop -eq 0 ]]; do
+        umount /ntfs 2>/dev/null >/dev/null
+        mount -o rw "$part" /ntfs >/tmp/mount-output 2>&1
+        [[ ! $? -eq 0 ]] && handleError " * Could not mount $part ($0)\n    Args Passed: $*\n     Reason: $(cat /tmp/mount-output)"
+        getSAMLoc
+        [[ -f $sam ]] && blCont=1 || blStop=1
+    done
+    umount /ntfs >/dev/null 2>&1
+    if [[ ! $blCont -eq 1 ]]; then
+        echo " * Unable to locate SAM File"
+        continue
+    fi
+    dots "Mounting Windows File System"
+    mount -o rw "$part" /ntfs >/tmp/mount-output 2>&1
+    if [[ ! $? -eq 0 ]]; then
+        echo "Failed"
+        debugPause
+        handleError " * Could not mount $part ($0)\n    Args Passed: $*\n     Reason: $(cat /tmp/mount-output)"
+    fi
+    echo "Done"
+    debugPause
+    dots "Attempting to change password"
+    chntpw -u "$winuser" "$sam"  >/dev/null 2>&1 </usr/share/fog/lib/EOFCHNTPW
+    if [[ ! $? -eq 0 ]]; then
+        echo "Failed"
+        debugPause
+        handleError "Failed to perform password change task ($0)\n   Args Passed: $*"
+    fi
+    echo "Done"
+    debugPause
+done
+. /bin/fog.nonimgcomplete

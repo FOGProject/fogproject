@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LIBMSPACK
+	bool "Non-liscensed Cab extractor/compresser"
+	help
+	  See http://www.cabextract.org.uk/libmspack/

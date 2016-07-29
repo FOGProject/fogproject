@@ -1,0 +1,102 @@
+#!/bin/bash
+[[ $mode == +(*capone*) ]] && return
+. /usr/share/fog/lib/funcs.sh
+[[ $deployed -eq 1 ]] && . /bin/fog.checkin
+getHardDisk
+doInventory
+if [[ -z $1 ]]; then
+    echo -e "\n\n\n"
+    echo "   +---------------------------+"
+    echo "   |     System Information    |"
+    echo "   +---------------------------+"
+    dots "System Manufacturer:"
+    echo "$sysman"
+    dots "System Product Name:"
+    echo "$sysproduct"
+    dots "System Version:"
+    echo "$sysversion"
+    dots "System Serial Number:"
+    echo "$sysserial"
+    dots "Computer Form Factor:"
+    echo "$systype"
+    usleep 1000000
+    echo "   +---------------------------+"
+    echo "   |      BIOS Information     |"
+    echo "   +---------------------------+"
+    dots "BIOS Version:"
+    echo "$biosversion"
+    dots "BIOS Vendor:"
+    echo "$biosvendor"
+    dots "BIOS Date:"
+    echo "$biosdate"
+    usleep 1000000
+    echo "   +---------------------------+"
+    echo "   |  Motherboard Information  |"
+    echo "   +---------------------------+"
+    dots "Motherboard Manufacturer:"
+    echo "$mbman"
+    dots "Motherboard Product Name:"
+    echo "$mbproductname"
+    dots "Motherboard Product Version:"
+    echo "$mbversion"
+    dots "Motherboard Serial Number:"
+    echo "$mbserial"
+    dots "Motherboard Asset Tag:"
+    echo "$mbasset"
+    usleep 1000000
+    echo "   +---------------------------+"
+    echo "   |      CPU Information      |"
+    echo "   +---------------------------+"
+    dots "CPU Manufacturer:"
+    echo "$cpuman"
+    dots "CPU Version:"
+    echo "$cpuversion"
+    dots "CPU Current Speed:"
+    echo "$cpucurrent"
+    dots "CPU Max Speed:"
+    echo "$cpumax"
+    usleep 1000000
+    echo "   +---------------------------+"
+    echo "   |     Memory Information    |"
+    echo "   +---------------------------+"
+    dots "Memory:"
+    echo "$mem"
+    usleep 1000000
+    echo "   +---------------------------+"
+    echo "   |   Hard Disk Information   |"
+    echo "   +---------------------------+"
+    dots "Hard Disk:"
+    echo "$hdinfo"
+    usleep 1000000
+    echo "   +---------------------------+"
+    echo "   |      Case Information     |"
+    echo "   +---------------------------+"
+    dots "Case Manufacturer:"
+    echo "$caseman"
+    dots "Case Version:"
+    echo "$casever"
+    dots "Case Serial Number:"
+    echo "$caseserial"
+    dots "Case Asset Number:"
+    echo "$caseasset"
+    echo -e "\n\n\n"
+fi
+poststring="mac=${mac}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}"
+count=0
+res=""
+while [[ -z $res ]]; do
+    dots "Attempting to send inventory"
+    res=$(wget --post-data="$poststring" -qO - http://${web}service/inventory.php 2>/dev/null)
+    if [[ $count -ge 10 ]]; then
+        echo "Failed"
+        debugPause
+        break
+    fi
+    if [[ -z $res ]]; then
+        let count+=1
+        usleep 2000000
+    fi
+done
+echo "Done"
+debugPause
+[[ $deployed -eq 1 ]] && . /bin/fog.nonimgcomplete $mac

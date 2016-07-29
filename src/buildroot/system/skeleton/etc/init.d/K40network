@@ -1,0 +1,12 @@
+#!/bin/bash
+ifaces=$(ls -1 /sys/class/net | tr -d '@')
+for iface in $ifaces; do
+    if [[ x$iface == xlo ]]; then
+        /sbin/ip link set lo down
+        continue
+    fi
+    echo "Stopping $iface interface"
+    /sbin/udhcpc -i $iface -R
+    /sbin/ip link set $iface down
+done
+exit $?

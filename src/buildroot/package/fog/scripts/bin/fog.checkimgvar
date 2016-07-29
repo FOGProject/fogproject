@@ -1,0 +1,9 @@
+#!/bin/bash
+dots "Checking img variable is set"
+if [[ -z $img ]]; then
+    echo "Failed"
+    debugPause
+    handleError "Fatal Error: img variable not set. ($0)\n   Args Passed: $*"
+fi
+echo "Done"
+debugPause

@@ -1,0 +1,33 @@
+diff -rupN partimage-0.6.9/src/client/imagefile.cpp partimage-0.6.9-new/src/client/imagefile.cpp
+--- partimage-0.6.9/src/client/imagefile.cpp	2010-07-25 11:30:31.000000000 -0400
++++ partimage-0.6.9-new/src/client/imagefile.cpp	2013-11-30 18:51:49.724381366 -0500
+@@ -783,7 +783,7 @@ void CImage::openWriting()
+   else if (m_options.dwCompression == COMPRESS_GZIP) // Gzip compression
+     {
+       showDebug(1, "open gzip\n");
+-      m_gzImageFile = (gzFile *) gzdopen(m_nFdImage, "wb"); //"wb1h");
++      m_gzImageFile = gzdopen(m_nFdImage, "wb"); //"wb1h");
+       if (m_gzImageFile == NULL)
+ 	{
+ 	  showDebug(1, "error:%d %s\n", errno, strerror(errno));
+@@ -1098,7 +1098,7 @@ void CImage::openReading(CVolumeHeader *
+     }
+   else if (m_options.dwCompression == COMPRESS_GZIP) // Gzip compression
+     {
+-      m_gzImageFile = (gzFile *) gzdopen(m_nFdImage, "rb");
++      m_gzImageFile = gzdopen(m_nFdImage, "rb");
+       if (m_gzImageFile == NULL)
+         THROW(ERR_ERRNO, errno);
+       else
+diff -rupN partimage-0.6.9/src/client/imagefile.h partimage-0.6.9-new/src/client/imagefile.h
+--- partimage-0.6.9/src/client/imagefile.h	2010-07-25 11:30:31.000000000 -0400
++++ partimage-0.6.9-new/src/client/imagefile.h	2013-11-30 18:51:20.357380577 -0500
+@@ -41,7 +41,7 @@ class CImage
+   COptions m_options;
+ 
+   FILE *m_fImageFile;
+-  gzFile *m_gzImageFile;
++  gzFile m_gzImageFile;
+   BZFILE *m_bzImageFile;
+ 
+   int m_nFdImage;

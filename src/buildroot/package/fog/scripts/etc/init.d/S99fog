@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+#
+# rc.single     This file is executed by init when it goes into runlevel
+#               1, which is the administrative state. It kills all
+#               deamons and then puts the system into single user mode.
+#               Note that the file systems are kept mounted.
+#
+# Author:       Miquel van Smoorenburg, <miquels@drinkel.nl.mugnet.org>
+#               Modified for RHS Linux by Damien Neil
+#               Modified for FOG by Chuck Syperski
+#
+ln -s /proc/self/fd /dev/fd
+ln -s /proc/self/fd/0 /dev/stdin
+ln -s /proc/self/fd/1 /dev/stdout
+ln -s /proc/self/fd/2 /dev/stderr
+if [[ $mdraid == true ]]; then
+    mdadm --assemble --scan
+    mdadm --incremental --run --scan
+fi
+[[ -n $keymap ]] && loadkeys $keymap
+case $isdebug in
+    [Yy][Ee][Ss]|[Yy])
+        fog.debug
+        ;;
+    *)
+        fog
+        echo " * Rebooting system as task is complete"
+        [[ $shutdown -eq 1 ]] && poweroff || reboot -f
+        ;;
+esac

@@ -1,0 +1,216 @@
+#!/bin/bash
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.checkin
+. /bin/fog.mount
+. /bin/fog.checkmount
+. /bin/fog.checkimgvar
+imagePath="/images/$macWinSafe"
+parts=""
+part=""
+disks=""
+disk=""
+hd=""
+echo " * Preparing to send image file to server"
+percent="$pct"
+[[ $pct -lt 5 || $pct -ge 100 ]] && percent=5
+[[ $pct -lt 10 ]] && percent="0$pct"
+fog.statusreporter "$mac" "$web" & disown
+statusReporter="$!"
+prepareUploadLocation "$imagePath"
+echo " * Using Image: $img"
+# resizable image type
+#  discover windows partitions
+#  remove pagefile and hibernate file
+#  validate XP partition location
+#  save original partition table
+#  save MBR
+#  shrink filesystems and partitions
+#  save GRUB
+#  save shrunken partition table
+#  clone filesystems
+#  restore original MBR and partition table
+#  expand filesystems
+beginUpload() {
+    case $imgType in
+        [Nn])
+            validResizeOS
+            runPartprobe "$hd"
+            getPartitions "$hd"
+            [[ $osid == @([1-2]|[4-7]|9) ]] && win7partcnt=$(echo $parts | wc -w)
+            dots "Checking for fixed partitions"
+            part_number=0
+            for part in $parts; do
+                fsTypeSetting "$part"
+                getPartitionNumber "$part"
+                case $fstype in
+                    ntfs|extfs)
+                        continue
+                        ;;
+                    *)
+                        fixed_size_partitions="$fixed_size_partitions:$part_number"
+                        ;;
+                esac
+            done
+            echo "Done"
+            debugPause
+            dots "Getting Windows/Linux Partition Count"
+            countPartTypes "$hd" "ntfs" "ntfscnt"
+            countPartTypes "$hd" "extfs" "extfscnt"
+            if [[ $ntfscnt -eq 0 && $extfscnt -eq 0 ]]; then
+                echo "Failed"
+                debugPause
+                handleError "No resizable partitions found ($0)\n   Args Passed: $*"
+            fi
+            echo "Done"
+            debugPause
+            echo " * NTFS Partition count of: $ntfscnt"
+            debugPause
+            echo " * EXTFS Partition count of: $extfscnt"
+            debugPause
+            case $osid in
+                [4-7]|9|50|51)
+                    echo " * Setting up any additional fixed parts"
+                    [[ $((ntfscnt + extfscnt)) -gt 0  && $part_number -gt 1 ]] && fixed_size_partitions="$fixed_size_partitions:1"
+                    part_number=0
+                    for part in $parts; do
+                        getPartitionNumber "$part"
+                        fsTypeSetting "$part"
+                        [[ $fstype != ntfs ]] && continue
+                        dots "Mounting partition ($part)"
+                        if [[ ! -d /bcdstore ]]; then
+                            mkdir -p /bcdstore >/dev/null 2>&1
+                            case $? in
+                                0)
+                                    ;;
+                                *)
+                                    echo "Failed"
+                                    debugPause
+                                    handleError " * Could not create mount location ($0->${FUNCNAME[0]})\n    Args Passed: $*"
+                                    ;;
+                            esac
+                        fi
+                        ntfs-3g -o remove_hiberfile,rw $part /bcdstore >/tmp/ntfs-mount-output 2>&1
+                        case $? in
+                            0)
+                                echo "Done"
+                                debugPause
+                                ;;
+                            *)
+                                echo "Failed"
+                                debugPause
+                                handleError " * Could not mount $part ($0->${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output)"
+                                ;;
+                        esac
+                        dots "BCD exists on $part in /bcdstore"
+                        if [[ ! -f /bcdstore/Boot/BCD ]]; then
+                            umount /bcdstore >/dev/null 2>&1
+                            echo "No"
+                            debugPause
+                        else
+                            umount /bcdstore >/dev/null 2>&1
+                            echo "Yes"
+                            debugPause
+                            if [[ $part_number -gt 1 ]]; then
+                                for ((increment=1; increment < $part_number; increment++)); do
+                                    fixed_size_partitions="$fixed_size_partitions:$increment"
+                                done
+                            fi
+                        fi
+                    done
+                    ;;
+            esac
+            # All:
+            #  save the list of fixed size partitions
+            fixed_size_partitions=$(echo $fixed_size_partitions | tr ':' '\n' | uniq | tr '\n' ':' | sed 's/:$//g')
+            echo "$fixed_size_partitions" > "$imagePath/d1.fixed_size_partitions"
+            # Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
+            #  Save unmodified partition table for download use
+            #  Start filesytem type record
+            dots "Saving original partition table"
+            saveOriginalPartitions "$hd" "$imagePath" 1
+            swapuuidfilename=""
+            swapUUIDFileName "$imagePath" 1
+            mainuuidfilename=""
+            mainUUIDFileName "$imagePath" 1
+            echo -n "" > "$imagePath/d1.original.fstypes"
+            echo -n "" > $swapuuidfilename
+            echo "Done"
+            debugPause
+            echo " * Saving original disk/parts UUIDs"
+            debugPause
+            saveUUIDInformation "$hd" "$mainuuidfilename"
+            echo " * Shrinking Partitions on disk"
+            debugPause
+            for part in $parts; do
+                clearMountedDevices "$part"
+                removePageFile "$part"
+                shrinkPartition "$part" "$imagePath/d1.original.fstypes" "$fixed_size_partitions"
+            done
+            echo " * Saving shrunken partition table"
+            debugPause
+            sfdiskminimumpartitionfilename=""
+            sfdiskMinimumPartitionFileName "$imagePath" 1
+            savePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType" "$sfdiskminimumpartitionfilename"
+            echo " * Processing Hard Disk: $hd"
+            for part in $parts; do
+                savePartition "$part" 1 "$imagePath" "$imgPartitionType"
+            done
+            dots "Restoring Original Partition Layout"
+            restoreOriginalPartitions "$hd" "$imagePath" 1
+            runPartprobe "$hd"
+            echo "Done"
+            debugPause
+            [[ $osid -eq 2 ]] && correctVistaMBR "$hd"
+            getPartitions "$hd"
+            for part in $parts; do
+                expandPartition "$part" "$fixed_size_partitions"
+            done
+            ;;
+        mps)
+            echo " * Processing Hard Disk: $hd"
+            echo " * Saving original disk/parts UUIDs"
+            debugPause
+            mainuuidfilename=""
+            mainUUIDFileName "$imagePath" 1
+            saveUUIDInformation "$hd" "$mainuuidfilename"
+            savePartitionTablesAndBootLoaders "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
+            getPartitions "$hd"
+            for part in $parts; do
+                savePartition "$part" 1 "$imagePath" "$imgPartitionType"
+            done
+            ;;
+        mpa)
+            disk_number=1
+            for disk in $disks; do
+                debugPause
+                echo " * Processing Hard Disk: $disk"
+                echo " * Saving original disk/parts UUIDs"
+                debugPause
+                mainuuidfilename=""
+                mainUUIDFileName "$imagePath" $disk_number
+                saveUUIDInformation "$disk" "$mainuuidfilename"
+                savePartitionTablesAndBootLoaders "$disk" "$disk_number" "$imagePath" "$osid" "$imgPartitionType"
+                runPartprobe "$disk"
+                getPartitions "$disk"
+                for part in $parts; do
+                    savePartition "$part" "$disk_number" "$imagePath" "$imgPartitionType"
+                done
+                echo " * Disk $disk complete"
+                let disk_number+=1
+            done
+            ;;
+        dd)
+            imgpart="$imagePath/$img"
+            mkfifo /tmp/pigz1 >/dev/null 2>&1
+            uploadFormat "/tmp/pigz1" "$imgpart"
+            partclone.imager -c -s "$hd" -O /tmp/pigz1 -N -f 1
+            rm /tmp/pigz1 >/dev/null 2>&1
+            clearScreen
+            ;;
+    esac
+}
+findHDDInfo
+echo " * Now FOG will attempt to capture the image using Partclone"
+debugPause
+beginUpload
+completeTasking

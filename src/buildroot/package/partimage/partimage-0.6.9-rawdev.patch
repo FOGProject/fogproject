@@ -1,0 +1,297 @@
+diff -NruBb partimage-0.6.9/src/client/fs/fs_raw.cpp partimage-0.6.9.raw/src/client/fs/fs_raw.cpp
+--- partimage-0.6.9/src/client/fs/fs_raw.cpp	1969-12-31 18:00:00.000000000 -0600
++++ partimage-0.6.9.raw/src/client/fs/fs_raw.cpp	2010-11-30 01:22:48.919751608 -0600
+@@ -0,0 +1,83 @@
++/***************************************************************************
++     cfatpart.cpp  -  RAW File System Support
++                             -------------------
++    begin                : Tues Nov 30 2010
++ ***************************************************************************/
++
++/***************************************************************************
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation; either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ ***************************************************************************/
++
++#include "fs_raw.h"
++#include "partimage.h"
++
++#include <string.h>
++
++
++// =======================================================
++CRawPart::CRawPart(char *szDevice, FILE *fDeviceFile, QWORD qwPartSize): CFSBase(szDevice, fDeviceFile, qwPartSize)
++{
++  BEGIN;
++  RETURN;
++}
++
++// =======================================================
++CRawPart::~CRawPart()
++{
++  BEGIN;
++  RETURN;
++}
++
++// =======================================================
++void CRawPart::fsck()
++{
++  BEGIN;
++  RETURN;
++}
++// =======================================================
++void CRawPart::printfInformations()
++{
++  char szText[8192];
++
++  getStdInfos(szText, sizeof(szText), false);
++  g_interface->msgBoxOk(i18n("RAW informations"), szText);
++}			
++
++// =======================================================
++void CRawPart::readBitmap(COptions *options)
++{
++  BEGIN;
++	QWORD j;
++
++	m_bitmap.init(m_header.qwBitmapSize+1024);
++  	for (j=0; j < m_header.qwBlocksCount; j++)
++		m_bitmap.setBit(j, true);
++
++	calculateSpaceFromBitmap();
++  RETURN;
++}
++
++// =======================================================
++void CRawPart::readSuperBlock()
++{
++  BEGIN;
++	memset(m_header.szLabel, 0, 11);
++	m_header.qwBlockSize = 512;
++	m_header.qwBlocksCount = m_qwPartSize / m_header.qwBlockSize;
++	m_header.qwBitmapSize = (m_header.qwBlocksCount+7)/8;
++
++  RETURN;
++}
++
++// =======================================================
++int CRawPart::readFSInfo(WORD wFsInfoSector)
++{
++  BEGIN;
++  RETURN_int(0);
++}
++
+diff -NruBb partimage-0.6.9/src/client/fs/fs_raw.h partimage-0.6.9.raw/src/client/fs/fs_raw.h
+--- partimage-0.6.9/src/client/fs/fs_raw.h	1969-12-31 18:00:00.000000000 -0600
++++ partimage-0.6.9.raw/src/client/fs/fs_raw.h	2010-11-30 01:22:53.628751771 -0600
+@@ -0,0 +1,48 @@
++/***************************************************************************
++                          fs_raw.h  -  description
++                             -------------------
++    begin                : Tue Nov 30 2010
++ ***************************************************************************/
++
++/***************************************************************************
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation; either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ ***************************************************************************/
++
++#ifndef FS_RAW_H
++#define FS_RAW_H
++
++#include "partimage.h"
++#include "common.h"
++#include "cbitmap.h"
++
++#include "fs_base.h"
++
++struct CInfoRawHeader // size must be 16384 (adjust the reserved data)
++{
++  BYTE cReserved[16384]; // Adjust to fit with total header size
++};
++
++// ================================================
++class CRawPart: public CFSBase
++{
++ public:
++  CRawPart(char *szDevice, FILE *fDeviceFile, QWORD qwPartSize);
++  ~CRawPart();
++
++  virtual void printfInformations();
++  virtual void readBitmap(COptions *options);
++  virtual void readSuperBlock();
++  virtual void fsck();
++  virtual void* getInfos() {return (void*)&m_info;}
++  int readFSInfo(WORD wFsInfoSector);
++
++ private:
++  CInfoRawHeader m_info;
++};
++
++#endif // FS_RAW_H
+diff -NruBb partimage-0.6.9/src/client/fs/Makefile.am partimage-0.6.9.raw/src/client/fs/Makefile.am
+--- partimage-0.6.9/src/client/fs/Makefile.am	2010-07-25 10:30:31.000000000 -0500
++++ partimage-0.6.9.raw/src/client/fs/Makefile.am	2010-11-30 00:53:09.699751900 -0600
+@@ -8,7 +8,8 @@
+ 
+ noinst_LIBRARIES = libfs.a
+ noinst_HEADERS = fs_base.h fs_ext2.h fs_fat.h fs_hpfs.h fs_jfs.h fs_ntfs.h \
+-                 fs_reiser.h fs_ufs.h fs_xfs.h fs_afs.h fs_hfs.h fs_be.h
++                 fs_reiser.h fs_ufs.h fs_xfs.h fs_afs.h fs_hfs.h fs_be.h  \
++		 fs_raw.h
+ 
+ libfs_a_SOURCES = \
+ 	fs_base.cpp \
+@@ -21,7 +22,8 @@
+ 	fs_reiser.cpp \
+ 	fs_hfs.cpp \
+ 	fs_ufs.cpp \
+-	fs_xfs.cpp
++	fs_xfs.cpp \
++	fs_raw.cpp 
+ 	
+ DEFS=@DEFS@ -DLOCALEDIR=\"${localedir}\" -D_REENTRANT -D_FILE_OFFSET_BITS=64
+ CPPFLAGS=@CPPFLAGS@ -Wall
+diff -NruBb partimage-0.6.9/src/client/fs/Makefile.in partimage-0.6.9.raw/src/client/fs/Makefile.in
+--- partimage-0.6.9/src/client/fs/Makefile.in	2010-07-25 10:31:54.000000000 -0500
++++ partimage-0.6.9.raw/src/client/fs/Makefile.in	2010-11-30 00:53:09.700751928 -0600
+@@ -67,7 +67,8 @@
+ am_libfs_a_OBJECTS = fs_base.$(OBJEXT) fs_afs.$(OBJEXT) \
+ 	fs_ext2.$(OBJEXT) fs_fat.$(OBJEXT) fs_hpfs.$(OBJEXT) \
+ 	fs_jfs.$(OBJEXT) fs_ntfs.$(OBJEXT) fs_reiser.$(OBJEXT) \
+-	fs_hfs.$(OBJEXT) fs_ufs.$(OBJEXT) fs_xfs.$(OBJEXT)
++	fs_hfs.$(OBJEXT) fs_ufs.$(OBJEXT) fs_xfs.$(OBJEXT)  \
++	fs_raw.$(OBJEXT)
+ libfs_a_OBJECTS = $(am_libfs_a_OBJECTS)
+ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+ depcomp = $(SHELL) $(top_srcdir)/depcomp
+@@ -249,7 +250,8 @@
+ 
+ noinst_LIBRARIES = libfs.a
+ noinst_HEADERS = fs_base.h fs_ext2.h fs_fat.h fs_hpfs.h fs_jfs.h fs_ntfs.h \
+-                 fs_reiser.h fs_ufs.h fs_xfs.h fs_afs.h fs_hfs.h fs_be.h
++                 fs_reiser.h fs_ufs.h fs_xfs.h fs_afs.h fs_hfs.h fs_be.h \
++		 fs_raw.h
+ 
+ libfs_a_SOURCES = \
+ 	fs_base.cpp \
+@@ -262,7 +264,8 @@
+ 	fs_reiser.cpp \
+ 	fs_hfs.cpp \
+ 	fs_ufs.cpp \
+-	fs_xfs.cpp
++	fs_xfs.cpp \
++	fs_raw.cpp
+ 
+ MAINTAINERCLEANFILES = Makefile.in
+ all: all-am
+@@ -324,6 +327,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fs_reiser.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fs_ufs.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fs_xfs.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fs_raw.Po@am__quote@
+ 
+ .cpp.o:
+ @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+diff -NruBb partimage-0.6.9/src/client/gui_text.cpp partimage-0.6.9.raw/src/client/gui_text.cpp
+--- partimage-0.6.9/src/client/gui_text.cpp	2010-07-25 10:30:31.000000000 -0500
++++ partimage-0.6.9.raw/src/client/gui_text.cpp	2010-11-30 01:16:23.549626690 -0600
+@@ -262,7 +262,7 @@
+ 
+       showDebug(9, "device %s\n", szDevice);     
+  
+-      if (nRes != -1) // if a removable media
++      if (nRes != FS_RAW && nRes != -1) // if a removable media
+ 	{
+           showDebug(9, "removable media found: %s\n", szTemp);
+ 	  // add media
+diff -NruBb partimage-0.6.9/src/client/misc.cpp partimage-0.6.9.raw/src/client/misc.cpp
+--- partimage-0.6.9/src/client/misc.cpp	2010-07-25 10:30:31.000000000 -0500
++++ partimage-0.6.9.raw/src/client/misc.cpp	2010-11-30 00:54:50.385626838 -0600
+@@ -65,6 +65,7 @@
+ #include "fs/fs_hfs.h"
+ #include "fs/fs_afs.h"
+ #include "fs/fs_be.h"
++#include "fs/fs_raw.h"
+ 
+ DWORD g_dwCrcTable[256];
+ 
+@@ -682,6 +683,12 @@
+         g_interface -> WarnFS("NTFS");
+       FS = new CNtfsPart(szDevice, fDeviceFile, headMain.qwPartSize);
+     }
++  else if (strcmp(szFileSystem, i18n("raw")) == 0) // if RAW
++    {
++      if (!options->bBatchMode)
++        g_interface -> WarnFS("RAW");
++      FS = new CRawPart(szDevice, fDeviceFile, headMain.qwPartSize);
++    }
+   else // if UNKNOWN
+     THROW( ERR_WRONG_FS);
+ 
+@@ -1023,6 +1030,12 @@
+ 	g_interface -> WarnFsBeta("UFS");
+       FS = new CUfsPart(szDevice, fDeviceFile, headMain.qwPartSize);
+     }
++  else if (strcmp(headMain.szFileSystem, i18n("raw")) == 0) // if RAW
++    {
++      if (!options->bBatchMode)
++	g_interface -> WarnFsBeta("RAW");
++      FS = new CRawPart(szDevice, fDeviceFile, headMain.qwPartSize);
++    }
+   else // if UNKNOWN
+     THROW(ERR_WRONG_FS);
+ 
+@@ -1478,7 +1491,7 @@
+   BEGIN;
+ 
+   // init
+-  strcpy(szFileSys, i18n("-unknown-"));
++  strcpy(szFileSys, i18n("raw"));
+ 
+   // 0. Open device
+   fDeviceFile = fopen(szDevice, "rb");
+@@ -1605,7 +1618,7 @@
+   showDebug(4, "014 = after FAT\n");
+ 
+   // end on error
+-  RETURN_int(-1);
++  RETURN_int(FS_RAW);
+ }
+ 
+ // =======================================================
+diff -NruBb partimage-0.6.9/src/client/partimage.h partimage-0.6.9.raw/src/client/partimage.h
+--- partimage-0.6.9/src/client/partimage.h	2010-07-25 10:30:31.000000000 -0500
++++ partimage-0.6.9.raw/src/client/partimage.h	2010-11-30 00:53:09.702751994 -0600
+@@ -133,9 +133,11 @@
+ #define FS_BEFS        20 // BeFS (BeOS file system)
+ #define FS_REISER_4_0  21 // kernel-2.6 versions
+ #define FS_LVM2	       22 // not supported by GUI (must be pass on cmdline)
++#define FS_RAW	       23 // RAW FS processing
+ 
+ #define MAX_DESCRIPTION         4096
+ #define MAX_HOSTNAMESIZE	128
++#define MAX_COMPRESSEXTLEN	256
+ #define MAX_DEVICENAMELEN       512
+ 
+ #define MAX_USERNAMELEN		32
+diff -NruBb partimage-0.6.9/src/shared/common.cpp partimage-0.6.9.raw/src/shared/common.cpp
+--- partimage-0.6.9/src/shared/common.cpp	2010-07-25 10:30:31.000000000 -0500
++++ partimage-0.6.9.raw/src/shared/common.cpp	2010-11-30 00:53:09.702751994 -0600
+@@ -58,7 +58,7 @@
+ pthread_mutex_t g_mutexDebug; // lock the buffer while working inside it
+ pthread_mutexattr_t g_mutexDebugAttr;
+ 
+-const char *g_szSupportedFileSystems = "ext2fs,ext3fs,reiserfs-3.5,reiserfs-3.6,reiserfs,fat,fat16,fat32,ntfs,hpfs,xfs,jfs,hfs,ufs";
++const char *g_szSupportedFileSystems = "ext2fs,ext3fs,reiserfs-3.5,reiserfs-3.6,reiserfs,fat,fat16,fat32,ntfs,hpfs,xfs,jfs,hfs,ufs,raw";
+ 
+ // =======================================================
+ #define addText(format, args...) \
