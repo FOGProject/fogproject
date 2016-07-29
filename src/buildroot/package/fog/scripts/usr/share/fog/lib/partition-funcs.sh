@@ -536,7 +536,6 @@ processSfdisk() {
 #
 # $1 : device name of drive
 getPartitionTableType() {
-<<<<<<< HEAD
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local mbr=$(gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
@@ -592,60 +591,16 @@ getDesiredPartitionTableType() {
     touch $tmpfile
     local gptsig=$(cat $tmpfile)
     [[ $gptsig == "EFI PART" ]] && table_type="GPT"
-=======
-	local disk="$1";
-	local mbr=`gdisk -l $disk | awk '/^\ *MBR:/{print $2}'`;
-	local gpt=`gdisk -l $disk | awk '/^\ *GPT:/{print $2}'`;
-	local type="";
-	local mbrtype="";
-	local gpttype="";
-	if [ "$mbr" == "present" ]; then
-		mbrtype="MBR";
-	elif [ "$mbr" == "hybrid" ]; then
-		mbrtype="HYBRID";
-	elif [ "$mbr" == "protective" ]; then
-		mbrtype="";
-	elif [ "$mbr" == "not" ]; then
-		mbrtype="";
-	fi
-
-	if [ "$gpt" == "present" ]; then
-		gpttype="GPT";
-	elif [ "$gpt" == "not" ]; then
-		gpttype="";
-	fi
-	if [ -n "$gpttype" -a -n "$mbrtype" ]; then
-		type="${gpttype}-${mbrtype}"
-	elif [ -n "$gpttype" ]; then
-		type="${gpttype}"
-	elif [ -n "$mbrtype" ]; then
-		type="${gpttype}"
-	else
-		type="";
-	fi
-	echo "$type"
->>>>>>> Fix awk statements without terminated spaces
 }
 # $1 : device name of drive
 hasHybridMBR() {
-<<<<<<< HEAD
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local mbr=$(gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
     [[ $mbr == hybrid ]] && echo 1 || echo 0
-=======
-	local disk="$1";
-	local mbr=`gdisk -l $disk | awk '/^\ *MBR:/{print $2}'`;
-	if [ "$mbr" == "hybrid" ]; then
-		echo "1";
-	else
-		echo "0";
-	fi
->>>>>>> Fix awk statements without terminated spaces
 }
 # $1 : device name of drive
 hasGPT() {
-<<<<<<< HEAD
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local gpt=$(gdisk -l $disk | awk -F'[(: )]' '/GPT:/ {print $5}')
@@ -853,13 +808,4 @@ majorDebugShowCurrentPartitionTable() {
             sfdisk -d $disk
             ;;
     esac
-=======
-	local disk="$1";
-	local gpt=`gdisk -l $disk | awk '/^\ *GPT:/{print $2}'`;
-	if [ "$gpt" == "present" ]; then
-		echo "1";
-	elif [ "$gpt" == "not" ]; then
-		echo "0";
-	fi
->>>>>>> Fix awk statements without terminated spaces
 }
