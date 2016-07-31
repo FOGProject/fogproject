@@ -1955,7 +1955,7 @@ configureDHCP() {
             echo "            if (substring(option vendor-encapsulated-options, 0, 3) = 01:01:01) {" >> "$dhcptouse"
             echo "                # BSDP List" >> "$dhcptouse"
             echo "                option vendor-encapsulated-options 01:01:01:04:02:80:00:07:04:81:00:05:2a:09:0D:81:00:05:2a:08:69:50:58:45:2d:46:4f:47;" >> "$dhcptouse"
-            echo "                filename \"ipxe7156.efi\";" >> "$dhcptouse"
+            echo "                filename \"ipxe.efi\";" >> "$dhcptouse"
             echo "            }" >> "$dhcptouse"
             echo "        }" >> "$dhcptouse"
             echo "    }" >> "$dhcptouse"
