@@ -32,7 +32,6 @@ registerStorageNode() {
     [[ -z $webroot ]] && webroot="/"
     local user=$(echo -n $fogguiuser|base64)
     local pass=$(echo -n $fogguipass|base64)
-    checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/${webroot}/service/checkcredentials.php" --post-data="username=$user&password=$pass")
     [[ $checkcreds != '#!ok' ]] && return
     dots "Checking if this node is registered"
     storageNodeExists=$(wget -qO - http://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
@@ -41,7 +40,7 @@ registerStorageNode() {
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
-        wget -qO - http://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverfied"
+        wget -qO - http://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
         echo "Done"
     fi
 }
@@ -49,7 +48,6 @@ updateStorageNodeCredentials() {
     [[ -z $webroot ]] && webroot="/"
     local user=$(echo -n $fogguiuser|base64)
     local pass=$(echo -n $fogguipass|base64)
-    checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/${webroot}/service/checkcredentials.php" --post-data="username=$user&password=$pass")
     [[ $checkcreds != '#!ok' ]] && return
     dots "Ensuring node username and passwords match"
     wget -qO - http://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
@@ -58,7 +56,6 @@ updateStorageNodeCredentials() {
 backupDB() {
     local user=$(echo -n $fogguiuser|base64)
     local pass=$(echo -n $fogguipass|base64)
-    checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/$webroot/service/checkcredentials.php" --post-data="username=$user&password=$pass")
     if [[ $checkcreds == "#!ok" ]]; then
         dots "Backing up database"
         if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
@@ -66,20 +63,38 @@ backupDB() {
             wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php" --post-data="type=sql&fogguiuser=$fogguiuser&fogguipass=$fogguipass&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
         errorStat $?
-    else
+    fi
+}
+guiWarningBanner() {
+    user=$(echo -n ${fogguiuser}|base64)
+    pass=$(echo -n ${fogguipass}|base64)
+    checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/$webroot/service/checkcredentials.php" --post-data="username=$user&password=$pass")
+    if [[ $checkcreds != "#!ok" ]]; then
         echo
         echo " ########################################################################################"
         echo "   FOG has adjusted to using a login system to protect what can/cannot be downloaded"
-        echo "   We have detected that you don't have credentials defined to perform the backup"
+        echo "   We have detected that you don't have credentials defined to perform cursory actions."
+        echo "   These actions include updating/registering nodes, and automated database backup."
+        echo "   They are not required, but will help you ensure your systems reliability and"
+        echo "      and usability.  It is highly recommended to add these settings."
+        echo
         echo "   If you would like the database to be backed up during install please define"
         echo "   in your /opt/fog/.fogsettings file"
+        echo "   How you edit this file is entirely up to you.  You could, for simplicities sake"
+        echo "      run:"
+        echo "      echo -e \"fogguiuser='fog'\"\\nfogguipass='password' >> /opt/fog/.fogsettings"
         echo
-        echo "   fogguiuser='usernameOfFOGGUI'"
-        echo "   fogguipass='passwordOfFOGGUIUser'"
+        echo "   You will need to adjust the 'fog' and 'password' to be those of valid"
+        echo "      web gui user/password pair for how you login to the management system."
+        echo "   This information is not stored in the settings file, automatically, but"
+        echo "      will be used if it is defined."
+        echo
+        echo "   fogguiuser='fog'"
+        echo "   fogguipass='password'"
         echo
         echo "   You can also re-run this installer as:"
         echo
-        echo "   fogguiuser='usernameOfFOGGUI' fogguipass='passwordOfFOGGUIUser' ./$0 $*"
+        echo "   fogguiuser='fog' fogguipass='password' $0 $*"
         echo " ########################################################################################"
         echo
         sleep 10
@@ -88,7 +103,6 @@ backupDB() {
 updateDB() {
     local user=$(echo -n $fogguiuser|base64)
     local pass=$(echo -n $fogguipass|base64)
-    checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/$webroot/service/checkcredentials.php" --post-data="username=$user&password=$pass")
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
@@ -1928,6 +1942,22 @@ configureDHCP() {
             echo "    class \"UEFI-64-3\" {" >> "$dhcptouse"
             echo "        match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00009\";" >> "$dhcptouse"
             echo "        filename \"ipxe.efi\";" >> "$dhcptouse"
+            echo "    }" >> "$dhcptouse"
+            echo "    class \"SURFACE-PRO-4\" {" >> "$dhcptouse"
+            echo "        match if substring(option vendor-class-identifier, 0, 32) = \"PXEClient:Arch:00007:UNDI:003016\";" >> "$dhcptouse"
+            echo "        filename \"ipxe7156.efi\";" >> "$dhcptouse"
+            echo "    }" >> "$dhcptouse"
+            echo "    class \"Apple-Intel-Netboot\" {" >> "$dhcptouse"
+            echo "        match if substring(option vendor-class-identifier, 0, 14) = \"AAPLBSDPC/i386\";" >> "$dhcptouse"
+            echo "        option dhcp-parameter-request-list 1,3,17,43,60;" >> "$dhcptouse"
+            echo "        if (option dhcp-message-type = 8) {" >> "$dhcptouse"
+            echo "            option vendor-class-identifier \"AAPLBSDPC\";" >> "$dhcptouse"
+            echo "            if (substring(option vendor-encapsulated-options, 0, 3) = 01:01:01) {" >> "$dhcptouse"
+            echo "                # BSDP List" >> "$dhcptouse"
+            echo "                option vendor-encapsulated-options 01:01:01:04:02:80:00:07:04:81:00:05:2a:09:0D:81:00:05:2a:08:69:50:58:45:2d:46:4f:47;" >> "$dhcptouse"
+            echo "                filename \"ipxe7156.efi\";" >> "$dhcptouse"
+            echo "            }" >> "$dhcptouse"
+            echo "        }" >> "$dhcptouse"
             echo "    }" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             case $systemctl in

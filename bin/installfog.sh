@@ -501,10 +501,11 @@ while [[ -z $blGo ]]; do
                         ;;
                 esac
             fi
+            guiWarningBanner
+            configureUsers
             case $installtype in
                 [Ss])
                     packages=$(echo $packages | sed -e 's/[a-zA-Z-]*dhcp[-a-zA-Z]*//g' -e 's/[a-zA-Z-]*mysql[-a-zA-Z]*//g')
-                    configureUsers
                     backupReports
                     configureMinHttpd
                     configureStorage
@@ -546,7 +547,6 @@ while [[ -z $blGo ]]; do
                     fi
                     ;;
                 [Nn])
-                    configureUsers
                     configureMySql
                     backupReports
                     configureHttpd
