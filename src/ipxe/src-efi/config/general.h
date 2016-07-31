@@ -112,6 +112,8 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 //#define	IMAGE_SDI		/* SDI image support */
 //#define	IMAGE_PNM		/* PNM image support */
 #define	IMAGE_PNG		/* PNG image support */
+#define	IMAGE_DER		/* DER image support */
+#define	IMAGE_PEM		/* PEM image support */
 
 /*
  * Command-line commands to include
@@ -136,7 +138,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define DIGEST_CMD		/* Image crypto digest commands */
 #define LOTEST_CMD		/* Loopback testing commands */
 #define VLAN_CMD		/* VLAN commands */
-#undef PXE_CMD		/* PXE commands */
+//#define PXE_CMD		/* PXE commands */
 #define REBOOT_CMD		/* Reboot command */
 #define POWEROFF_CMD		/* Power off command */
 #define IMAGE_TRUST_CMD	/* Image trust management commands */
@@ -186,7 +188,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #undef	GDBSERIAL		/* Remote GDB debugging over serial */
 #undef	GDBUDP			/* Remote GDB debugging over UDP
 				 * (both may be set) */
-#define EFI_DOWNGRADE_UX	/* Downgrade UEFI user experience */
+//#define EFI_DOWNGRADE_UX	/* Downgrade UEFI user experience */
 
 #include <config/named.h>
 #include NAMED_CONFIG(general.h)

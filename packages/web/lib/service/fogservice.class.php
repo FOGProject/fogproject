@@ -248,31 +248,36 @@ abstract class FOGService extends FOGBase {
     }
     public function killTasking($index = 0,$itemType = false,$filename = false) {
         if ($itemType === false) {
-            foreach ((array)$this->procPipes[$index] AS $i => &$close) {
-                fclose($close);
-                unset($close);
-            }
-            unset($this->procPipes[$index]);
+                foreach ((array)$this->procPipes[$index] AS $i => &$close) {
+                    fclose($close);
+                    unset($close);
+                }
+                unset($this->procPipes[$index]);
             if ($this->isRunning($this->procRef[$index])) {
                 $pid = $this->getPID($this->procRef[$index]);
                 if ($pid) $this->killAll($pid,SIGTERM);
                 proc_terminate($this->procRef[$index],SIGTERM);
+                proc_close($this->procRef[$index]);
+                return (bool)$this->isRunning($this->procRef[$index]);
+            } else if ($this->isRunning($this->procRef)) {
+                $pid = $this->getPID($this->procRef);
+                if ($pid) $this->killAll($pid,SIGTERM);
+                proc_terminate($this->procRef,SIGTERM);
+                proc_close($this->procRef);
+                return (bool)$this->isRunning($this->procRef);
             }
-            proc_close($this->procRef[$index]);
-            unset($this->procRef[$index]);
-            return (bool)$this->isRunning($this->procRef[$index]);
         } else {
-            foreach ((array)$this->procPipes[$itemType][$filename][$index] AS $i => &$close) {
-                fclose($close);
-                unset($close);
-            }
-            unset($this->procPipes[$itemType][$filename][$index]);
             if ($this->isRunning($this->procRef[$itemType][$filename][$index])) {
                 $pid = $this->getPID($this->procRef[$itemType][$filename][$index]);
                 if ($pid) $this->killAll($pid,SIGTERM);
                 proc_terminate($this->procRef[$itemType][$filename][$index],SIGTERM);
             }
             proc_close($this->procRef[$itemType][$filename][$index]);
+            foreach ((array)$this->procPipes[$itemType][$filename][$index] AS $i => &$close) {
+                fclose($close);
+                unset($close);
+            }
+            unset($this->procPipes[$itemType][$filename][$index]);
             unset($this->procRef[$itemType][$filename][$index]);
             return (bool)$this->isRunning($this->procRef[$itemType][$filename][$index]);
         }

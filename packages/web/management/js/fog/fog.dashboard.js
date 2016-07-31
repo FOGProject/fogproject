@@ -161,13 +161,17 @@ function GraphDiskUsageUpdate() {
         success: GraphDiskUsagePlots,
         complete: function() {setTimeout(GraphDiskUsageUpdate,120000);}
     });
-    $.ajax({
-        url: URL,
-        success: function(data) {
-            var sel = $('[name="nodesel"] option:selected');
-            var text = sel.text();
-            sel.text(text.replace(/\(\)/,'('+data+')'));
-        }
+    $('[name="nodesel"] option').each(function(e) {
+        URL = $(this).attr('urlcall');
+        $.ajax({
+            context: this,
+            url: URL,
+            success: function(data) {
+                var sel = $(this);
+                var text = sel.text();
+                sel.text(text.replace(/\(.*\)/,'('+data+')'));
+            }
+        });
     });
 }
 function GraphDiskUsagePlots(data) {

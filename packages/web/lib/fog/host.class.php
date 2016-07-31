@@ -571,7 +571,8 @@ class Host extends FOGController {
                         ->set('starttime',self::nice_date()->format('Y-m-d H:i:s'))
                         ->set('percent',0)
                         ->set('isDD',$this->getImage()->get('imageTypeID'))
-                        ->set('NFSGroupID',$StorageNode->get('storageGroupID'));
+                        ->set('NFSGroupID',$StorageNode->get('storageGroupID'))
+                        ->set('clients',-1);
                     if ($MulticastSession->save()) {
                         $assoc = true;
                         if (!self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {

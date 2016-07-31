@@ -408,7 +408,8 @@ class ImageManagementPage extends FOGPage {
                 ->set('starttime',$this->formatTime('now','Y-m-d H:i:s'))
                 ->set('interface',$StorageNode->get('interface'))
                 ->set('logpath',$Image->get('path'))
-                ->set('NFSGroupID',$StorageNode->get('id'));
+                ->set('NFSGroupID',$StorageNode->get('id'))
+                ->set('clients',-2);
             if (!$MulticastSession->save()) $this->setMessage(_('Failed to create Session'));
             $randomnumber = mt_rand(24576,32766)*2;
             while ($randomnumber == $MulticastSession->get('port')) $randomnumber = mt_rand(24576,32766)*2;

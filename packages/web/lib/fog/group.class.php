@@ -165,12 +165,13 @@ class Group extends FOGController {
                 $this->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
             }
             $hostIDs = $this->get('hosts');
+            $batchFields = array('name','createdBy','hostID','isForced','stateID','typeID','NFSGroupID','NFSMemberID','wol','imageID','shutdown','isDebug','passreset');
             $batchTask = array();
             for ($i = 0;$i < $hostCount; $i++) {
                 $batchTask[] = array($taskName,$username,$hostIDs[$i],0,$this->getQueuedState(),$TaskType->get('id'),$StorageGroup->get('id'),$StorageNode->get('id'),$wol,$Image->get('id'),$shutdown,$debug,$passreset);
             }
             if (count($batchTask) > 0) {
-                list($first_id,$affected_rows) = self::getClass('TaskManager')->insert_batch(array('name','createdBy','hostID','isForced','stateID','typeID','NFSGroupID','NFSMemberID','wol','imageID','shutdown','isDebug','passreset'),$batchTask);
+                list($first_id,$affected_rows) = self::getClass('TaskManager')->insert_batch($batchFields,$batchTask);
                 $ids = range($first_id,($first_id + $affected_rows - 1));
                 $multicastsessionassocs = array();
                 array_walk($batchTask,function(&$val,&$index) use (&$ids,$MulticastSession,&$multicastsessionassocs) {
@@ -180,10 +181,10 @@ class Group extends FOGController {
             }
             unset($hostCount,$hostIDs,$batchTask,$first_id,$affected_rows,$ids,$multicastsessionassocs);
             $this->createSnapinTasking(-1,$now);
-            return array('All hosts successfully tasked');
-        } else {
+        } else if ($TaskType->isDeploy()) {
             $hostIDs = $this->get('hosts');
             $imageIDs = self::getSubObjectIDs('Host',array('id'=>$hostIDs),'imageID',false,'AND','name',false,'');
+            $batchFields = array('name','createdBy','hostID','isForced','stateID','typeID','NFSGroupID','NFSMemberID','wol','imageID','shutdown','isDebug','passreset');
             $batchTask = array();
             for ($i = 0;$i < $hostCount;$i++) {
                 $Image = self::getClass('Image',$imageIDs[$i]);
@@ -194,15 +195,24 @@ class Group extends FOGController {
                 if (!$StorageNode->isValid()) continue;
                 $batchTask[] = array($taskName,$username,$hostIDs[$i],0,$this->getQueuedState(),$TaskType->get('id'),$StorageGroup->get('id'),$StorageNode->get('id'),$wol,$Image->get('id'),$shutdown,$debug,$passreset);
             }
-            if (count($batchTask) > 0) self::getClass('TaskManager')->insert_batch(array('name','createdBy','hostID','isForced','stateID','typeID','NFSGroupID','NFSMemberID','wol','imageID','shutdown','isDebug','passreset'),$batchTask);
+            if (count($batchTask) > 0) self::getClass('TaskManager')->insert_batch($batchFields,$batchTask);
             unset($hostCount,$hostIDs,$batchTask,$first_id,$affected_rows,$ids,$multicastsessionassocs);
             $this->createSnapinTasking($deploySnapins,$now);
-            return array('All hosts successfully tasked');
+        } else if ($TaskType->isSnapinTasking()) {
+            $hostIDs = $this->createSnapinTasking($deploySnapins,$now);
+            $hostCount = count($hostIDs);
+            $batchFields = array('name','createdBy','hostID','stateID','typeID','wol');
+            $batchTask = array();
+            for ($i = 0; $i < $hostCount; $i++) {
+                $batchTask[] = array($taskName,$username,$hostIDs[$i],$this->getQueuedState(),$TaskType->get('id'),$wol);
+            }
+            if (count($batchTask) > 0) self::getClass('TaskManager')->insert_batch($batchFields,$batchTask);
         }
+        return array('All hosts successfully tasked');
     }
     private function createSnapinTasking($snapin = -1,$now) {
         if ($snapin === false) return;
-        $hostIDs = self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('hosts')),'hostID');
+        $hostIDs = array_values(self::getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('hosts')),'hostID'));
         $hostCount = count($hostIDs);
         $snapinJobs = array();
         for ($i = 0;$i < $hostCount;$i++) {
@@ -224,6 +234,7 @@ class Group extends FOGController {
             }
             if (count($snapinTasks) > 0) self::getClass('SnapinTaskManager')->insert_batch(array('jobID','stateID','snapinID'),$snapinTasks);
         }
+        return $hostIDs;
     }
     public function setAD($useAD, $domain, $ou, $user, $pass, $legacy, $enforce) {
         $pass = trim($this->encryptpw($pass));
