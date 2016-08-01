@@ -20,7 +20,7 @@ abstract class FOGManagerController extends FOGBase {
         $classVars = self::getClass($this->childClass,'',true);
         $this->databaseTable =& $classVars['databaseTable'];
         $this->databaseFields =& $classVars['databaseFields'];
-        $this->databaseFieldsFlipped =& array_flip($this->databaseFields);
+        $this->databaseFieldsFlipped = array_flip($this->databaseFields);
         $this->databaseFieldsRequired =& $classVars['databaseFieldsRequired'];
         $this->databaseFieldClassRelationships =& $classVars['databaseFieldClassRelationships'];
         $this->additionalFields =& $classVars['additionalFields'];
