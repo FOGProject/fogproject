@@ -1047,10 +1047,19 @@ configureUsers() {
         userexists=1
     fi
     if [[ $userexists -eq 0 ]]; then
-        useradd -s "/bin/bash" -d "/home/${username}" $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        useradd -s "/bin/bash" -d "/home/${username}" -m ${username} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
-        mkdir -p /home/$username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        chown -R $username /home/$username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
+    if [[ ! -d /home/$username ]]; then
+        echo "# It has been noticed that your $username home folder is missing, #"
+        echo "#   has been deleted, or has been moved.                          #"
+        echo "# This may cause issues with capturing images and snapin uploads. #"
+        echo "# If you this move/delete was unintentional you can run:          #"
+        echo " userdel $username"
+        echo " useradd -s \"/bin/bash\" -d \"/home/$username\" -m \"$username\""
+        #userdel $username
+        #useradd -s "/bin/bash" -d "/home/${username}" -m ${username} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        #errorStat $?
     fi
     dots "Setting up $username password"
     if [[ -z $password ]]; then
