@@ -387,7 +387,8 @@ abstract class FOGPage extends FOGBase {
             );
         }
         if ($this->obj instanceof Group) {
-            array_walk($this->obj->get('hosts'),function(&$id,&$index) {
+            $hostIDs = $this->obj->get('hosts');
+            array_walk($hostIDs,function(&$id,&$index) {
                 $Host = self::getClass('Host',$id);
                 if (!$Host->isValid()) return;
                 $Image = $Host->getImage();
