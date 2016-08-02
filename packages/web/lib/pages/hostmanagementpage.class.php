@@ -160,7 +160,7 @@ class HostManagementPage extends FOGPage {
         });
         self::$HookManager->processEvent('HOST_ADD_GEN',array('data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes,'fields'=>&$fields));
         $this->render();
-        echo $this->adFieldsToDisplay();
+        echo $this->adFieldsToDisplay($_REQUEST['domain'],$_REQUEST['domainname'],$_REQUEST['ou'],$_REQUEST['domainuser'],$_REQUEST['domainpassword'],$_REQUEST['domainpasswordlegacy'],intval(isset($_REQUEST['enforcesel'])));
         echo '</form>';
     }
     public function add_post() {
@@ -186,7 +186,7 @@ class HostManagementPage extends FOGPage {
             $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
             $productKey = preg_replace('/([\w+]{5})/','$1-',str_replace('-','',strtoupper(trim($_REQUEST['key']))));
             $productKey = substr($productKey,0,29);
-            $enforce = (string)intval(isset($_REQUEST['enforcesel']));
+            $enforce = intval(isset($_REQUEST['enforcesel']));
             $Host = self::getClass('Host')
                 ->set('name',$hostName)
                 ->set('description',$_REQUEST['description'])
@@ -291,7 +291,7 @@ class HostManagementPage extends FOGPage {
         unset($this->data,$this->form);
         unset($this->data,$this->headerData,$this->attributes);
         if (!$this->obj->get('pending')) $this->basictasksOptions();
-        $this->adFieldsToDisplay();
+        $this->adFieldsToDisplay($this->obj->get('useAD'),$this->obj->get('ADDomain'),$this->obj->get('ADOU'),$this->obj->get('ADUser'),$this->obj->get('ADPass'),$this->obj->get('ADPassLegacy'),$this->obj->get('enforce'));
         printf('<!-- Printers --><div id="host-printers"><form method="post" action="%s&tab=host-printers">',$this->formAction);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprint" />',
@@ -892,7 +892,7 @@ class HostManagementPage extends FOGPage {
                 $user = trim($_REQUEST['domainuser']);
                 $pass = trim($_REQUEST['domainpassword']);
                 $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-                $enforce = (string)intval(isset($_REQUEST['enforcesel']));
+                $enforce = intval(isset($_REQUEST['enforcesel']));
                 $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy,$productKey,$enforce);
                 break;
             case 'host-powermanagement':
