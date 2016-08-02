@@ -30,11 +30,8 @@ backupReports() {
 }
 registerStorageNode() {
     [[ -z $webroot ]] && webroot="/"
-    local user=$(echo -n $fogguiuser|base64)
-    local pass=$(echo -n $fogguipass|base64)
-    [[ $checkcreds != '#!ok' ]] && return
     dots "Checking if this node is registered"
-    storageNodeExists=$(wget -qO - http://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
+    storageNodeExists=$(wget -qO -- http://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
     echo "Done"
     echo " * Node is registered"
     if [[ $storageNodeExists != exists ]]; then
@@ -46,73 +43,24 @@ registerStorageNode() {
 }
 updateStorageNodeCredentials() {
     [[ -z $webroot ]] && webroot="/"
-    local user=$(echo -n $fogguiuser|base64)
-    local pass=$(echo -n $fogguipass|base64)
-    [[ $checkcreds != '#!ok' ]] && return
     dots "Ensuring node username and passwords match"
-    wget -qO - http://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
+    wget -qO -- http://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
     echo "Done"
 }
 backupDB() {
-    local user=$(echo -n $fogguiuser|base64)
-    local pass=$(echo -n $fogguipass|base64)
-    if [[ $checkcreds == "#!ok" ]]; then
-        dots "Backing up database"
-        if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
-            [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/management/export.php" --post-data="type=sql&fogguiuser=$fogguiuser&fogguipass=$fogguipass&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
-        errorStat $?
+    dots "Backing up database"
+    if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
+        [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
-}
-guiWarningBanner() {
-    user=$(echo -n ${fogguiuser}|base64)
-    pass=$(echo -n ${fogguipass}|base64)
-    checkcreds=$(wget -q -O - --no-check-certificate "http://$ipaddress/$webroot/service/checkcredentials.php" --post-data="username=$user&password=$pass")
-    if [[ $checkcreds != "#!ok" ]]; then
-        echo
-        echo " ########################################################################################"
-        echo "   FOG has adjusted to using a login system to protect what can/cannot be downloaded"
-        echo "   We have detected that you don't have credentials defined to perform cursory actions."
-        echo "   These actions include updating/registering nodes, and automated database backup."
-        echo "   They are not required, but will help you ensure your systems reliability and"
-        echo "      and usability.  It is highly recommended to add these settings."
-        echo
-        echo "   If you would like the database to be backed up during install please define"
-        echo "   in your /opt/fog/.fogsettings file"
-        echo "   How you edit this file is entirely up to you.  You could, for simplicities sake"
-        echo "      run:"
-        echo "      echo -e \"fogguiuser='fog'\"\\nfogguipass='password' >> /opt/fog/.fogsettings"
-        echo
-        echo "   You will need to adjust the 'fog' and 'password' to be those of valid"
-        echo "      web gui user/password pair for how you login to the management system."
-        echo "   This information is not stored in the settings file, automatically, but"
-        echo "      will be used if it is defined."
-        echo
-        echo "   fogguiuser='fog'"
-        echo "   fogguipass='password'"
-        echo
-        echo "   You can also re-run this installer as:"
-        echo
-        echo "   fogguiuser='fog' fogguipass='password' $0 $*"
-        echo " ########################################################################################"
-        echo
-        sleep 10
-    fi
+    errorStat $?
 }
 updateDB() {
-    local user=$(echo -n $fogguiuser|base64)
-    local pass=$(echo -n $fogguipass|base64)
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            if [[ $checkcreds != '#!ok' ]]; then
-                echo "No"
-                echo " * FOG GUI Username and Password pair could not be verified"
-            else
-                wget -qO - --post-data="confirm&fogverified" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || wget -qO - --post-data="confirm&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                errorStat $?
-            fi
+            wget -qO - --post-data="confirm&fogverified" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || wget -qO - --post-data="confirm&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            errorStat $?
             ;;
         *)
             echo
