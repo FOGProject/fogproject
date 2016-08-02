@@ -208,6 +208,11 @@ class Group extends FOGController {
             }
             if (count($batchTask) > 0) self::getClass('TaskManager')->insert_batch($batchFields,$batchTask);
         }
+        if ($wol) {
+            array_walk($hostIDs,function(&$hostID,&$index) {
+                return self::getClass('Host',$hostID)->wakeOnLAN();
+            });
+        }
         return array('All hosts successfully tasked');
     }
     private function createSnapinTasking($snapin = -1,$now) {
