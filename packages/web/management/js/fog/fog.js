@@ -419,9 +419,9 @@ function setupParserInfo() {
             return false;
         },
         format: function(s, table, cell, cellIndex) {
-            if (s.length < 1) return;
             i = $(cell).find('i');
-            if (i.length > -1) return i.prop('original-title');
+            title = i.prop('original-title');
+            return title;
         },
         type: 'text'
     });
