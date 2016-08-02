@@ -501,7 +501,6 @@ while [[ -z $blGo ]]; do
                         ;;
                 esac
             fi
-            guiWarningBanner
             configureUsers
             case $installtype in
                 [Ss])
