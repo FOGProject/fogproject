@@ -111,19 +111,24 @@ $(function() {
     checkboxAssociations('.toggle-checkboxprint:checkbox','.toggle-print:checkbox');
     checkboxAssociations('.toggle-checkboxsnapin:checkbox','.toggle-snapin:checkbox');
     checkboxAssociations('#rempowerselectors:checkbox','.rempoweritems:checkbox');
-    $('#groupNotInMe,#printerNotInHost,#snapinNotInHost').hide();
     $('#groupMeShow:checkbox').change(function(e) {
-        $('#groupNotInMe').toggle();
+        if ($(this).is(':checked')) $('#groupNotInMe').show();
+        else $('#groupNotInMe').hide();
         e.preventDefault();
     });
+    $('#groupMeShow:checkbox').trigger('change');
     $('#hostPrinterShow:checkbox').change(function(e) {
-        $('#printerNotInHost').toggle();
+        if ($(this).is(':checked')) $('#printerNotInHost').show();
+        else $('#printerNotInHost').hide();
         e.preventDefault();
     });
+    $('#hostPrinterShow:checkbox').trigger('change');
     $('#hostSnapinShow:checkbox').change(function(e) {
-        $('#snapinNotInHost').toggle();
+        if ($(this).is(':checked')) $('#snapinNotInHost').show();
+        else $('#snapinNotInHost').hide();
         e.preventDefault();
     });
+    $('hostSnapinShow:checkbox').trigger('change');
     result = true;
     $('#scheduleOnDemand').change(function() {
         if ($(this).is(':checked') === true) {

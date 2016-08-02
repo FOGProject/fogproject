@@ -45,15 +45,18 @@ $(function() {
     checkboxAssociations('.toggle-checkboxsnapinrm:checkbox','.toggle-snapinrm:checkbox');
     checkboxAssociations('#rempowerselectors:checkbox','.rempoweritems:checkbox');
     // Show hide based on checked state.
-    $('#hostNotInMe,#hostNoGroup').hide();
     $('#hostMeShow:checkbox').change(function(e) {
-        $('#hostNotInMe').toggle();
+        if ($(this).is(':checked')) $('#hostNotInMe').show();
+        else $('#hostNotInMe').hide();
         e.preventDefault();
     });
+    $('#hostMeShow:checkbox').trigger('change');
     $('#hostNoShow:checkbox').change(function(e) {
-        $('#hostNoGroup').toggle();
+        if ($(this).is(':checked')) $('#hostNoGroup').show();
+        else $('#hostNoGroup').hide();
         e.preventDefault();
     });
+    $('#hostNoShow:checkbox').trigger('change');
     result = true;
     $('#scheduleOnDemand').change(function() {
         if ($(this).is(':checked') === true) {
