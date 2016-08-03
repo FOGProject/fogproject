@@ -146,6 +146,7 @@ class LocationManagementPage extends FOGPage {
         try {
             if ($_REQUEST['name'] != $this->obj->get('name') && $this->obj->getManager()->exists($_REQUEST['name'])) throw new Exception(_('A location with that name already exists.'));
             if (isset($_REQUEST['update'])) {
+                if (empty($_REQUEST['storagegroup'])) throw new Exception(_('Please select the storage group this location relates to.'));
                 $NodeID = intval($_REQUEST['storagenode']);
                 $this->obj
                     ->set('name',$_REQUEST['name'])

@@ -61,7 +61,7 @@ class Location extends FOGController {
     }
     public function getStorageNode() {
         if ($this->get('storageNodeID')) return self::getClass('StorageNode',$this->get('storageNodeID'));
-        return $this->getStorageGroup()->getOptimalStorageNode();
+        return $this->getStorageGroup()->getOptimalStorageNode(0);
     }
     protected function loadHosts() {
         $this->set('hosts',self::getSubObjectIDs('LocationAssociation',array('locationID'=>$this->get('id')),'hostID'));
