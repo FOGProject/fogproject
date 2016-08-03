@@ -710,9 +710,10 @@ abstract class FOGPage extends FOGBase {
                     $orig = sprintf('/%s/%s',trim(self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/'),$destfile);
                     $backuppath = sprintf('/%s/backup/',dirname($orig));
                     $backupfile = sprintf('%s%s_%s',$backuppath,$destfile,$this->formatTime('','Ymd_His'));
-                    self::$FOGFTP->set('host',self::getSetting('FOG_TFTP_HOST'))
-                        ->set('username',trim(self::getSetting('FOG_TFTP_FTP_USERNAME')))
-                        ->set('password',self::getSetting('FOG_TFTP_FTP_PASSWORD'))
+                    list($tftpPass,$tftpUser,$tftpHost) = self::getSubObjectIDs('Service',array('name'=>array('FOG_TFTP_FTP_PASSWORD','FOG_TFTP_FTP_USERNAME','FOG_TFTP_HOST')),'value',false,'AND','name',false,'');
+                    self::$FOGFTP->set('host',$tftpHost)
+                        ->set('username',$tftpUser)
+                        ->set('password',$tftpPass)
                         ->connect();
                     if (!self::$FOGFTP->exists($backuppath)) self::$FOGFTP->mkdir($backuppath);
                     if (self::$FOGFTP->exists($orig)) self::$FOGFTP->rename($orig,$backupfile);

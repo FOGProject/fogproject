@@ -541,8 +541,7 @@ abstract class FOGBase {
         return self::getClass($object)->getManager()->find($findWhere,$operator,$orderBy,'','',$groupBy,$not,$getField,'',$filter);
     }
     public static function getSetting($key) {
-        $value = self::getSubObjectIDs('Service',array('name'=>$key),'value');
-        return trim(str_replace('\r\n',"\n",is_array($value) ? array_shift($value) : $value));
+        return trim(str_replace('\r\n',"\n",self::getClass('Service')->set('name',$key)->load('name')->get('value')));
     }
     public function setSetting($key, $value) {
         self::getClass('ServiceManager')->update(array('name'=>$key),'',array('value'=>trim($value)));
