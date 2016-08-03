@@ -146,14 +146,12 @@ class LocationManagementPage extends FOGPage {
         try {
             if ($_REQUEST['name'] != $this->obj->get('name') && $this->obj->getManager()->exists($_REQUEST['name'])) throw new Exception(_('A location with that name already exists.'));
             if (isset($_REQUEST['update'])) {
-                if ($_REQUEST['storagegroup']) {
-                    $this->obj
-                        ->set('name',$_REQUEST['name'])
-                        ->set('storageGroupID',$_REQUEST['storagegroup']);
-                }
+                $NodeID = intval($_REQUEST['storagenode']);
                 $this->obj
-                    ->set('storageNodeID',$_REQUEST['storagenode'])
-                    ->set('tftp',$_REQUEST['tftp']);
+                    ->set('name',$_REQUEST['name'])
+                    ->set('storageGroupID',$NodeID ? self::getClass('StorageNode',$NodeID)->get('storageGroupID') : $_REQUEST['storagegroup'])
+                    ->set('storageNodeID',$NodeID)
+                    ->set('tftp',intval($_REQUEST['tftp']));
                 if (!$this->obj->save()) throw new Exception(_('Failed to update'));
                 $this->setMessage(_('Location Updated'));
                 $this->redirect(sprintf('?node=location&sub=edit&id=%d',$this->obj->get('id')));
