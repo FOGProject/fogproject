@@ -113,7 +113,7 @@ class PushbulletHandler {
         $data = array();
         $fullFilePath = realpath($filePath);
         if (!is_readable($fullFilePath)) throw new PushbulletException('File: File does not exist or is unreadable.');
-        if (filesize($fullFilePath) > 25 * 1024 * 1024) throw new PushbulletException('File: File size exceeds 25 MB.');
+        if (self::getFilesize($fullFilePath) > 25 * 1024 * 1024) throw new PushbulletException('File: File size exceeds 25 MB.');
         $data[file_name] = $altFileName === null ? basename($fullFilePath) : $altFileName;
         // Try to guess the MIME type if the argument is NULL
         $data[file_type] = $mimeType === null ? mime_content_type($fullFilePath) : $mimeType;

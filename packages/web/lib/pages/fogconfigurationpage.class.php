@@ -403,7 +403,7 @@ class FOGConfigurationPage extends FOGPage {
                 if (!($md5 = md5_file($tmp_name))) return;
                 $filename = basename($_FILES['module']['name'][$index]);
                 $fp = fopen($tmp_name,'rb');
-                $content = fread($fp, filesize($tmp_name));
+                $content = fread($fp, self::getFilesize($tmp_name));
                 fclose($fp);
                 self::getClass('ClientUpdater',@max(self::getClass('ClientUpdater',array('name'=>$filename))))
                     ->set('name',$filename)

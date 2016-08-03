@@ -701,7 +701,7 @@ abstract class FOGPage extends FOGBase {
                     if (($fh = fopen($_SESSION['tmp-kernel-file'],'wb')) === false) throw new Exception(_('Error: Failed to open temp file'));
                     self::$FOGURLRequests->process($_SESSION['dl-kernel-file'],'GET',false,false,false,false,$fh);
                     if (!file_exists($_SESSION['tmp-kernel-file'])) throw new Exception(_('Error: Failed to download kernel'));
-                    if (!filesize($_SESSION['tmp-kernel-file']) >  1048576) throw new Exception(sprintf('%s: %s: %s - %s',_('Error'),_('Download Failed'),_('Failed'),_('filesize'),filesize($_SESSION['tmp-kernel-file'])));
+                    if (!self::getFilesize($_SESSION['tmp-kernel-file']) >  1048576) throw new Exception(sprintf('%s: %s: %s - %s',_('Error'),_('Download Failed'),_('Failed'),_('filesize'),self::getFilesize($_SESSION['tmp-kernel-file'])));
                     $SendME = '##OK##';
                 } else if ($_REQUEST['msg'] == 'tftp') {
                     $destfile = $_SESSION['dest-kernel-file'];

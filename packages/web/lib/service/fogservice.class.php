@@ -93,7 +93,7 @@ abstract class FOGService extends FOGBase {
         return self::nice_date()->format('m-d-y g:i:s a');
     }
     protected static function wlog($string, $path) {
-        if (file_exists($path) && filesize($path) >= self::getSetting('SERVICE_LOG_SIZE')) unlink($path);
+        if (file_exists($path) && self::getFilesize($path) >= self::getSetting('SERVICE_LOG_SIZE')) unlink($path);
         if (!$fh = fopen($path,'ab')) self::out("\n * Error: Unable to open file: $path\n",static::$dev);
         if (fwrite($fh,sprintf('[%s] %s',self::getDateTime(),$string)) === FALSE) self::out("\n * Error: Unable to write to file: $path\n",static::$dev);
         fclose($fh);
@@ -204,7 +204,7 @@ abstract class FOGService extends FOGBase {
                     self::outall(" | Local File: $localfile");
                     self::outall(" | Remote File: {$remotefilescheck[$index]}");
                     $res = 'true';
-                    $filesize_main = filesize($localfile);
+                    $filesize_main = $this->getFilesize($localfile);
                     $filesize_rem = self::$FOGFTP->size($remotefilescheck[$index]);
                     self::outall(" | Local File size: $filesize_main");
                     self::outall(" | Remote File size: $filesize_rem");

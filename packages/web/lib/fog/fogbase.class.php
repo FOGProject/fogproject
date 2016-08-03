@@ -642,4 +642,28 @@ abstract class FOGBase {
         $error = error_get_last();
         return sprintf('%s: %s, %s: %s, %s: %s, %s: %s',_('Type'),$error['type'],_('File'),$error['file'],_('Line'),$error['line'],_('Message'),$error['message']);
     }
+    public static function getFilesize($file) {
+        $fh = fopen($file,'rb');
+        $size = '0';
+        $char = '';
+        fseek($fh,8,SEEK_SET);
+        $count = 0;
+        while (true) {
+            fseek($fh,1048576,SEEK_CUR);
+            if (($char = fgetc($fh)) !== false) {
+                $count ++;
+            } else {
+                fseek($fh,-1048576,SEEK_CUR);
+                break;
+            }
+        }
+        $size = bcmul('1048577',$count);
+        $fine = 0;
+        while (false !== ($char = fgetc($fh))) {
+            $fine++;
+        }
+        $size = bcadd($size,$fine);
+        fclose($fh);
+        return $size;
+    }
 }
