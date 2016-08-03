@@ -65,9 +65,7 @@ $(function() {
             description: $('.printerdescription-input:not(:hidden)').val(),
         };
         $.extend(someData,{printertype});
-        console.log(someData);
         $.post(submiturl,someData,function(data) {
-            console.log(data);
             data = $.parseJSON(data);
             if (data.error) Loader.fogStatusUpdate(data.error);
             else Loader.fogStatusUpdate(data.msg);

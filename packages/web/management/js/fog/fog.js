@@ -323,7 +323,9 @@ function validateInputs(selector,match) {
         }
     }).parents('form').submit(function(e) {
         $(selector).prev('.invalid').remove();
-        content = $(selector).val().trim();
+        content = $(selector).val();
+        if (typeof(content) == 'undefined') return false;
+        content = content.trim();
         if (content === null) {
             $(selector).addClass('error').before('<p class="invalid">Invalid input</p>');
             return false;
@@ -335,7 +337,6 @@ function validateInputs(selector,match) {
                 return false;
             } else $(selector).removeClass('error');
         }
-        return true;
     });
 }
 function TableCheck() {
