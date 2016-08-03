@@ -719,8 +719,8 @@ abstract class FOGPage extends FOGBase {
                     self::$FOGFTP
                         ->delete($orig)
                         ->rename($tmpfile,$orig)
-                        ->chmod(0655,$orig);
-                    self::$FOGFTP->close();
+                        ->chmod(0755,$orig)
+                        ->close();
                     unlink($tmpfile);
                     $SendME = '##OK##';
                 }

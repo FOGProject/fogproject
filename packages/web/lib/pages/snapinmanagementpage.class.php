@@ -193,8 +193,9 @@ class SnapinManagementPage extends FOGPage {
                 }
                 if (is_file($dest)) self::$FOGFTP->delete($dest);
                 if (!self::$FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
-                self::$FOGFTP->chmod(0755,$dest);
-                self::$FOGFTP->close();
+                self::$FOGFTP
+                    ->chmod(0755,$dest)
+                    ->close();
             }
             $Snapin = self::getClass('Snapin')
                 ->set('name',$snapinName)
@@ -373,8 +374,9 @@ class SnapinManagementPage extends FOGPage {
                     }
                     if (is_file($dest)) self::$FOGFTP->delete($dest);
                     if (!self::$FOGFTP->put($dest,$src)) throw new Exception(_('Failed to add/update snapin file'));
-                    self::$FOGFTP->chmod(0755,$dest);
-                    self::$FOGFTP->close();
+                    self::$FOGFTP
+                        ->chmod(0755,$dest)
+                        ->close();
                 }
                 $this->obj
                     ->set('name',$snapinName)
