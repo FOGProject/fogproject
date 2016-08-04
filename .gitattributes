@@ -1,2 +1,2 @@
-* binary
-*.sh text eol=lf
+text=auto
+* text eol=lf
