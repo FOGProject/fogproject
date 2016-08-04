@@ -1,4 +1,5 @@
 <?php
+require '../commons/base.inc.php';
 if (!isset($_REQUEST['filepath'])) {
     echo '|0';
     exit;
