@@ -732,7 +732,6 @@ class ReportManagementPage extends FOGPage {
                 $Host = self::getClass('Host',$User->get('hostID'));
                 if (!$Host->isValid()) continue;
                 $userName = $User->get('name');
-                unset($Host,$User);
                 $this->data[] = array(
                     'host_id'=>$Host->get('id'),
                     'hostuser_name'=>$Host->get('name'),
