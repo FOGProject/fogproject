@@ -645,7 +645,7 @@ abstract class FOGBase {
         $fh = fopen($file,'rb');
         $size = '0';
         $char = '';
-        fseek($fh,8,SEEK_SET);
+        fseek($fh,0,SEEK_SET);
         $count = 0;
         while (true) {
             fseek($fh,1048576,SEEK_CUR);
