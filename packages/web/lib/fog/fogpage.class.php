@@ -324,7 +324,9 @@ abstract class FOGPage extends FOGBase {
                     printf('<option value="%d">%s - (%d)</option>',$Snapin->get('id'),$Snapin->get('name'),$Snapin->get('id'));
                     unset($Snapin);
                 },(array)self::getClass('SnapinManager')->find(array('id'=>$this->obj->get('snapins'))));
-                ob_get_contents() ? printf('<select name="snapin">%s</select></p>',ob_get_clean()) : printf('%s</p>',_('No snapins associated'));
+                $options = ob_get_clean();
+                $options ? printf('<select name="snapin">%s</select></p>',$options) : printf('%s</p>',_('No snapins associated'));
+
             } else if ($this->obj instanceof Group) printf('%s</p>',self::getClass('SnapinManager')->buildSelectBox('','snapin'));
         }
         printf('<div class="advanced-settings"><h2>%s</h2>',_('Advanced Settings'));
