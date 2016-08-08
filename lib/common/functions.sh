@@ -543,7 +543,6 @@ installPackages() {
         2)
             packages="${packages// libapache2-mod-fastcgi/}"
             packages="${packages// libapache2-mod-evasive/}"
-            packages="$packages php$php_ver-bcmath"
             case $linuxReleaseName in
                 *[Dd][Ee][Bb][Ii][Aa][Nn]*)
                     if [[ $OSVersion -eq 7 ]]; then
@@ -556,6 +555,7 @@ installPackages() {
                     ;;
                 *)
                     if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
+                        packages="$packages php$php_ver-bcmath"
                         addUbuntuRepo
                         if [[ $? != 0 ]]; then
                             apt-get update >>$workingdir/error_logs/fog_error_${version}.log 2>&1
