@@ -24,6 +24,12 @@
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 case $linuxReleaseName in
     *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
+        if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
+            if [[ $OSVersion -ge 16  && -z $php_ver ]]; then
+                php_ver='7.0'
+                php_verAdds='-7.0'
+            fi
+        fi
         [[ -z $packages ]] && packages="apache2 php${php_ver} php${php_ver}-json php${php_ver}-gd php${php_ver}-cli php${php_ver}-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php-gettext php${php_ver}-mcrypt php${php_ver}-mysqlnd curl libc6 libcurl3 zlib1g $phpfpm libapache2-mod-php${php_ver} libapache2-mod-fastcgi"
         [[ -z $packageinstaller ]] && packageinstaller="apt-get -yq install -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
         [[ -z $packagelist ]] && packagelist="apt-cache pkgnames | grep"

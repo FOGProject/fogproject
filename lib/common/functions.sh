@@ -1517,6 +1517,12 @@ configureHttpd() {
                         done
                     fi
                     [[ $snmysqlpass != $dbpass ]] && snmysqlpass=$dbpass
+                    sql="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';"
+                    options="-sN"
+                    [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
+                    [[ -n $snmysqluser ]] && options="$options -u$snmysqluser"
+                    [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
+                    mysql $options $sql
                     ;;
                 *)
                     dummy=""
