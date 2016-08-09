@@ -346,7 +346,7 @@ class GroupManagementPage extends FOGPage {
         $dcnote = _('This module is only used on the old client. The old client is what was distributed with FOG 1.2.0 and earlier. This module did not work past Windows XP due to UAC introduced in Vista and up.');
         $gfnote = _('This module is only used on the old client. The old client is what was distributed with FOG 1.2.0 and earlier. This module has been replaced in the new client and the equivalent module for what Green FOG did is now called Power Management. This is only here to maintain old client operations.');
         $ucnote = _('This module is only used on the old client. The old client is what was distributed with FOG 1.2.0 and earlier. This module did not work past Windows XP due to UAC introduced in Vista and up.');
-        $cunote = _('This module is only used (with modules) on the old client.  The new client only uses the module to tell it to allow updating automatically or not.');
+        $cunote = _('This module is only used (with modules and config) on the old client.');
         $moduleName = $this->getGlobalModuleStatus();
         $ModuleOn = array_values(self::getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->obj->get('hosts')),'moduleID',false,'AND','id',false,''));
         array_map(function(&$Module) use ($moduleName,$ModuleOn,$HostCount,$dcnote,$gfnote,$ucnote,$cunote) {
