@@ -8,23 +8,23 @@ $(function() {
             case 'network':
                 $('#iprint,#cups,#local').hide();
                 $('#network').show();
-                validateInputs('.printername-input:not(:hidden)',/^[\w!@#$%^()\-'{}\\\.~]{1,255}$/);
+                validateInputs('.printername-input:not(:hidden)',/^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/);
                 break;
             case 'iprint':
                 $('#network,#cups,#local').hide();
                 $('#iprint').show();
-                validateInputs('.printername-input:not(:hidden),.printerinf-input:not(:hidden),.printerport-input:not(:hidden)',/^[\w!@#$%^()\-'{}\\\.~]{1,255}$/);
+                validateInputs('.printername-input:not(:hidden),.printerinf-input:not(:hidden),.printerport-input:not(:hidden)',/^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/);
                 break;
             case 'cups':
                 $('#network,#iprint,#local').hide();
                 $('#cups').show();
-                validateInputs('.printername-input:not(:hidden),.printerinf-input:not(:hidden)',/^[\w!@#$%^()\-'{}\\\.~]{1,255}$/);
+                validateInputs('.printername-input:not(:hidden),.printerinf-input:not(:hidden)',/^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/);
                 validateInputs('.printerip-input:not(:hidden)',/^(([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)\.){3}([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)$/);
                 break;
             case 'local':
                 $('#network,#iprint,#cups').hide();
                 $('#local').show();
-                validateInputs('.printername-input:not(:hidden),.printerinf-input:not(:hidden),.printerport-input:not(:hidden)',/^[\w!@#$%^()\-'{}\\\.~]{1,255}$/);
+                validateInputs('.printername-input:not(:hidden),.printerinf-input:not(:hidden),.printerport-input:not(:hidden)',/^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/);
                 validateInputs('.printermodel-input:not(:hidden)',/^.{1,255}$/);
                 validateInputs('.printerip-input:not(:hidden)',/^(([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)\.){3}([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)$/);
                 break;
