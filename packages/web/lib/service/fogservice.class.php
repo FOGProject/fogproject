@@ -198,12 +198,12 @@ abstract class FOGService extends FOGBase {
                 }
                 sort($localfilescheck);
                 sort($remotefilescheck);
+                $test = -1;
                 foreach ($localfilescheck AS $j => &$localfile) {
                     usleep(50000);
-                    if (($index = array_search($localfile,$remotefilescheck)) === false) continue;
+                    if (false === ($index = $this->array_find(basename($localfile),$remotefilescheck))) continue;
                     self::outall(" | Local File: $localfile");
                     self::outall(" | Remote File: {$remotefilescheck[$index]}");
-                    $res = 'true';
                     $filesize_main = $this->getFilesize($localfile);
                     $filesize_rem = self::$FOGFTP->size($remotefilescheck[$index]);
                     self::outall(" | Local File size: $filesize_main");
@@ -212,10 +212,15 @@ abstract class FOGService extends FOGBase {
                         self::outall(" | Files do not match");
                         self::outall(" * Deleting remote file: {$remotefilescheck[$index]}");
                         self::$FOGFTP->delete($remotefilescheck[$index]);
-                    } else self::outall(" | Files match");
+                        $test = false;
+                    } else {
+                        self::outall(" | Files match");
+                        if ($test !== false) $test = true;
+                    }
                     unset($localfile);
                 }
                 self::$FOGFTP->close();
+                if ($test === true) continue;
                 $logname = sprintf('%s.transfer.%s.log',static::$log,$nodename);
                 if (!$i) self::outall(_(' * Starting Sync Actions'));
                 $this->killTasking($i,$itemType,$Obj->get('name'));
@@ -271,7 +276,7 @@ abstract class FOGService extends FOGBase {
                 $pid = $this->getPID($this->procRef[$itemType][$filename][$index]);
                 if ($pid) $this->killAll($pid,SIGTERM);
                 proc_terminate($this->procRef[$itemType][$filename][$index],SIGTERM);
-            }
+            } else return true;
             proc_close($this->procRef[$itemType][$filename][$index]);
             foreach ((array)$this->procPipes[$itemType][$filename][$index] AS $i => &$close) {
                 fclose($close);

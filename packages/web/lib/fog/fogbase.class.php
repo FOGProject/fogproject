@@ -210,6 +210,13 @@ abstract class FOGBase {
             },(array)$array);
         }
     }
+    protected function array_find($needle, array $haystack,$ignorecase = false) {
+        $cmd = $ignorecase !== false ? 'stripos' : 'strpos';
+        foreach ($haystack AS $key => $value) {
+            if (false !== $cmd($value, $needle)) return $key;
+        }
+        return false;
+    }
     protected function isLoaded($key) {
         $key = $this->key($key);
         $result = isset($this->isLoaded[$key]) ? $this->isLoaded[$key] : 0;
