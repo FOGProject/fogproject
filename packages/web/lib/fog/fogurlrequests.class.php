@@ -43,6 +43,7 @@ class FOGURLRequests extends FOGBase {
         return $this->request($url, 'POST', $post_data, $headers, $options);
     }
     public function execute($window_size = null) {
+        if (sizeof($this->requests) < 1) return;
         return sizeof($this->requests) == 1 ? $this->single_curl() : $this->rolling_curl($window_size);
     }
     private function single_curl() {
