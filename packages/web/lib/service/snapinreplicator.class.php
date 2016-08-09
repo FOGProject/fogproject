@@ -60,5 +60,6 @@ class SnapinReplicator extends FOGService {
         self::wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
         $this->commonOutput();
         self::out(' +---------------------------------------------------------',static::$dev);
+        parent::serviceRun();
     }
 }

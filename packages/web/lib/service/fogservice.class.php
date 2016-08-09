@@ -105,7 +105,7 @@ abstract class FOGService extends FOGBase {
         return;
     }
     public function serviceRun() {
-        $tmpTime = self::getSetting(self::$sleeptime);
+        $tmpTime = self::getSetting(static::$sleeptime);
         if (static::$zzz != $tmpTime) {
             static::$zzz = $tmpTime;
             self::outall(sprintf(" | Sleep time has changed to %s seconds",static::$zzz));
