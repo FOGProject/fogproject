@@ -209,6 +209,7 @@ class Group extends FOGController {
             if (count($batchTask) > 0) self::getClass('TaskManager')->insert_batch($batchFields,$batchTask);
         }
         if ($wol) {
+            $hostIDs = $this->get('hosts');
             array_walk($hostIDs,function(&$hostID,&$index) {
                 return self::getClass('Host',$hostID)->wakeOnLAN();
             });
