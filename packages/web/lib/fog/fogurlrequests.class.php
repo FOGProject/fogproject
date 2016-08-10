@@ -1,7 +1,7 @@
 <?php
 class FOGURLRequests extends FOGBase {
     private $window_size = 5;
-    private $timeout = 15;
+    private $timeout = 86400;
     private $callback;
     private $response = array();
     public $options = array(
@@ -9,7 +9,7 @@ class FOGURLRequests extends FOGBase {
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CONNECTTIMEOUT => 15,
-        CURLOPT_TIMEOUT => 15,
+        CURLOPT_TIMEOUT => 86400,
     );
     private $headers = array();
     private $requests = array();
@@ -146,10 +146,7 @@ class FOGURLRequests extends FOGBase {
                 'Expect:'
             );
         }
-        if ($file) {
-            $this->options[CURLOPT_FILE] = $file;
-            $this->options[CURLOPT_TIMEOUT] = 300;
-        }
+        if ($file) $this->options[CURLOPT_FILE] = $file;
         foreach ((array)$urls AS $url) {
             $request = self::getClass('FOGRollingURL',$url);
             if ($method === 'GET') $this->get($url);
