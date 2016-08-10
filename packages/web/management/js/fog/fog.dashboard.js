@@ -163,9 +163,15 @@ function GraphDiskUsageUpdate() {
     });
     $('[name="nodesel"] option').each(function(e) {
         URL = $(this).attr('urlcall');
+        test = document.createElement('a');
+        test.href = URL;
+        test2 = test.pathname+test.search;
         $.ajax({
             context: this,
-            url: URL,
+            url: test.pathname+test.search,
+            data: {
+                url: URL
+            },
             success: function(data) {
                 var sel = $(this);
                 var text = sel.text();
