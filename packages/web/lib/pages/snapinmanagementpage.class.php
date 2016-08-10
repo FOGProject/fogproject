@@ -295,7 +295,7 @@ class SnapinManagementPage extends FOGPage {
             _('Storage Group Name'),
         );
         $this->templates = array(
-            '<input type="checkbox" name="storagegroup[]" value="${storageGroup_id}" class="toggle-snapin${check_num}"/>',
+            '<input type="checkbox" name="storagegroup[]" value="${storageGroup_id}" class="toggle-snapin1"/>',
             '${storageGroup_name}',
         );
         $this->attributes = array(
