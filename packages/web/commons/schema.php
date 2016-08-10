@@ -2238,3 +2238,8 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sPackType` ENUM('0','1') NOT NULL DEFAULT '0'",
 );
+// 233
+$this->schema[] = array(
+    "UPDATE `".DATABASE_NAME."`.`globalSettings` SET `settingKey`='FOG_CAPTUREIGNOREPAGEHIBER' WHERE `settingKey`='FOG_UPLOADIGNOREPAGEHIBER'",
+    "UPDATE `".DATABASE_NAME."`.`globalSettings` SET `settingKey`='FOG_CAPTURERESIZEPCT' WHERE `settingKey`='FOG_UPLOADRESIZEPCT'",
+);
