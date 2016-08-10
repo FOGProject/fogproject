@@ -182,6 +182,7 @@ abstract class FOGService extends FOGBase {
                 if ($limitmain > 0) $limitset = "set net:limit-total-rate 0:$limitmain;";
                 if ($limitsend > 0) $limitset .= "set net:limit-rate 0:$limitsend;";
                 $limit = $limitset;
+                unset($limitset);
                 $ftpstart = "ftp://$username:$encpassword@$ip";
                 if (is_file($myAdd)) {
                     $remItem = dirname("$removeDir$removeFile");
