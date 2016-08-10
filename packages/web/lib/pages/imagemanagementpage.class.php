@@ -219,7 +219,7 @@ class ImageManagementPage extends FOGPage {
             _('Storage Group Name'),
         );
         $this->templates = array(
-            '<input type="checkbox" name="storagegroup[]" value="${storageGroup_id}" class="toggle-group${check_num}"/>',
+            '<input type="checkbox" name="storagegroup[]" value="${storageGroup_id}" class="toggle-group"/>',
             '${storageGroup_name}',
         );
         $this->attributes = array(
@@ -238,7 +238,7 @@ class ImageManagementPage extends FOGPage {
             $GroupDataExists = true;
             self::$HookManager->processEvent('IMAGE_GROUP_ASSOC',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
             printf('<p class="c"><label for="groupMeShow">%s&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow"/></label>',_('Check here to see groups not assigned this image'));
-            printf('<form method="post" action="%s&tab=image-storage"><div id="groupNotInMe"><h2>%s %s</h2><p>%s %s</p>',$this->formAction,_('Modify group association for'),$this->obj->get('name'),_('Add image to groups'),$this->obj->get('name'));
+            printf('<form method="post" action="%s&tab=image-storage"><div class="c" id="groupNotInMe"><h2>%s %s</h2><p>%s %s</p>',$this->formAction,_('Modify group association for'),$this->obj->get('name'),_('Add image to groups'),$this->obj->get('name'));
             $this->render();
             echo '</div>';
         }
