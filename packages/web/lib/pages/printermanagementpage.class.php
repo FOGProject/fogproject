@@ -117,6 +117,7 @@ class PrinterManagementPage extends FOGPage {
             unset($short,$long);
         });
         $optionPrinter = ob_get_clean();
+        printf('<form method="post" action="%s">',$this->formAction);
         echo '<div id="printer-copy">';
         $fields = array(
             sprintf('%s',_('Copy from existing printer'))=>sprintf('%s',self::getClass('PrinterManager')->buildSelectBox($this->obj->get('id'))),
@@ -131,7 +132,6 @@ class PrinterManagementPage extends FOGPage {
         $this->render();
         echo '</div>';
         unset($this->data);
-        printf('<form method="post" action="%s">',$this->formAction);
         $fields = array(
             _('Printer Description')=>sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
             sprintf('%s*',_('Printer Alias'))=>sprintf('<input class="printername-input" type="text" name="alias" value="%s"/>',$_REQUEST['alias']),
@@ -279,6 +279,7 @@ class PrinterManagementPage extends FOGPage {
             unset($short,$long);
         });
         $optionPrinter = ob_get_clean();
+        printf('<form method="post" action="%s&tab=printer-gen"><br/>',$this->formAction);
         echo '<div id="printer-copy">';
         $fields = array(
             sprintf('%s',_('Copy from existing printer'))=>sprintf('%s',self::getClass('PrinterManager')->buildSelectBox($this->obj->get('id'))),
@@ -293,7 +294,6 @@ class PrinterManagementPage extends FOGPage {
         $this->render();
         echo '</div>';
         unset($this->data);
-        printf('<form method="post" action="%s&tab=printer-gen"><br/>',$this->formAction);
         $fields = array(
             _('Printer Description')=>sprintf('<textarea name="description" rows="8" cols="40">%s</textarea>',$this->obj->get('description')),
             sprintf('%s*',_('Printer Alias'))=>sprintf('<input class="printername-input" type="text" name="alias" value="%s"/>',$this->obj->get('name')),
@@ -383,7 +383,7 @@ class PrinterManagementPage extends FOGPage {
                 $_REQUEST['ip'] = trim($_REQUEST['ip']);
                 $_REQUEST['configFile'] = trim($_REQUEST['configFile']);
                 $_REQUEST['description'] = trim($_REQUEST['description']);
-                $_REQUEST['printertype'] = trim($_REQUEST['printertype']);
+                $_REQUEST['printertype'] = trim(strtolower($_REQUEST['printertype']));
                 if (empty($_REQUEST['alias'])) throw new Exception(_('All printer definitions must have an alias/name associated with it. Unable to update!'));
                 switch ($_REQUEST['printertype']) {
                 case 'local':

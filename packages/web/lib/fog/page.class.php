@@ -87,6 +87,8 @@ class Page extends FOGBase {
         if (self::$FOGUser->isValid() && !self::$isMobile) {
             $files = array(
                 'js/jquery-latest.min.js',
+                'js/jquery.validate.min.js',
+                'js/additional-methods.min.js',
                 'js/jquery.tablesorter.combined.js',
                 'js/select2.min.js',
                 'js/jquery-migrate-latest.min.js',

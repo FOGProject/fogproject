@@ -119,7 +119,7 @@ class SnapinManagementPage extends FOGPage {
             'MSI' => array('msiexec.exe','/i','/quiet'),
         );
         ob_start();
-        printf('<select id="argTypes"><option value="">- %s -</option>',_('Please select an option'));
+        printf('<select name="argTypes" id="argTypes"><option value="">- %s -</option>',_('Please select an option'));
         array_walk(self::$argTypes,function(&$cmd,&$type) {
             printf('<option value="%s" rwargs="%s" args="%s">%s</option>',$cmd[0],$cmd[1],$cmd[2],$type);
         });
@@ -247,7 +247,7 @@ class SnapinManagementPage extends FOGPage {
         array_map(self::$buildSelectBox,$filelist);
         $selectFiles = sprintf('<select class="snapinfileexist-input cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>',_('Please select an option'),ob_get_clean());
         ob_start();
-        printf('<select id="argTypes"><option>- %s -</option>',_('Please select an option'));
+        printf('<select name="argTypes" id="argTypes"><option value="">- %s -</option>',_('Please select an option'));
         array_walk(self::$argTypes,function(&$cmd,&$type) {
             printf('<option value="%s" rwargs="%s" args="%s">%s</option>',$cmd[0],$cmd[1],$cmd[2],$type);
         });

@@ -1,19 +1,27 @@
 $(function() {
     checkboxToggleSearchListPages();
-    validateInputs('.username-input',/^[a-zA-Z0-9_-]{3,40}$/);
-    validateInputs('.password-input1',/^.{4,255}$/);
-    $('.password-input2').on('change blur keyup',function() {
-        $('.password-input1,.password-input2').prev('.pmatch').remove();
-        if ($(this).val() !== $('.password-input1').val()) $('.password-input1,.password-input2').addClass('error').before('<p class="pmatch">Passwords Do Not Match</p>');
-        else $('.password-input1,.password-input2').removeClass('error');
-    }).parents('form').submit(function (e) {
-        $('.password-input1,.password-input2').prev('.pmatch').remove();
-        if ($('.password-input2').val() !== $('.password-input1').val()) {
-            $('.password-input1,.password-input2').addClass('error').before('<p class="pmatch">Passwords Do Not Match</p>');
-            return false;
-        } else {
-            $('.password-input1,.password-input2').removeClass('error');
-            return true;
+    form = $('.username-input').parents('form');
+    validator = form.validate({
+        rules: {
+            name: 'required',
+            password: {
+                required: true,
+                minlength: 4
+            },
+            password_confirm: {
+                minlength: 4,
+                equalTo: '#password'
+            }
+        },
+        messages: {
+            password_confirm: {
+                minlength: 'Password must be at least 4 characters long',
+                equalTo: 'Passwords do not match',
+            }
         }
+    });
+    $('.username-input').rules('add', {regex: /^[a-zA-Z0-9_-]{3,40}$/});
+    $('.username-input,.password-input1,.password-input2').on('keyup change blur',function() {
+        return validator.element(this);
     });
 });

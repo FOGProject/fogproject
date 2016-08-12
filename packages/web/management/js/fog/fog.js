@@ -5,6 +5,7 @@
  *	Revision:	$Revision: 2430 $
  *	Last Update:	$LastChangedDate: 2014-10-16 11:55:06 -0400 (Thu, 16 Oct 2014) $
  ***/
+var validatoropts;
 var $_GET = getQueryParams(document.location.search),
     node = $_GET['node'],
     sub = $_GET['sub'],
@@ -74,6 +75,14 @@ function AJAXServerTime() {
     });
 }
 (function($) {
+    $.validator.addMethod(
+        'regex',
+        function(value, element,regexp) {
+            var re = new RegExp(regexp);
+            return this.optional(element) || re.test(value);
+        },
+        "Invalid Input"
+    );
     setTipsyStuff();
     setEditFocus();
     Content = $('#content');
@@ -309,35 +318,6 @@ function buildRow(data,templates,attributes,wrapper) {
     $('.toggle-action:checkbox,.toggle-checkboxAction:checkbox').change(function() {checkedIDs = getChecked();});
     setChecked(checkedIDs);
     HookTooltips();
-}
-function validateInputs(selector,match) {
-    $(selector).on('keyup change blur',function() {
-        $(this).prev('.invalid').remove();
-        content = $(this).val().trim();
-        if (content === null) $(this).addClass('error').before('<p class="invalid">Invalid input</p>');
-        else $(this).removeClass('error');
-        if (match !== null || match !== false) {
-            content1 = content.match(match);
-            if (content1 === null) $(this).addClass('error').before('<p class="invalid">Invalid input</p>');
-            else $(this).removeClass('error');
-        }
-    }).parents('form').submit(function(e) {
-        $(selector).prev('.invalid').remove();
-        content = $(selector).val();
-        if (typeof(content) == 'undefined') return false;
-        content = content.trim();
-        if (content === null) {
-            $(selector).addClass('error').before('<p class="invalid">Invalid input</p>');
-            return false;
-        } else $(selector).removeClass('error');
-        if (match !== null || match !== false) {
-            content1 = content.match(match);
-            if (content1 === null) {
-                $(selector).addClass('error').before('<p class="invalid">Invalid input</p>');
-                return false;
-            } else $(selector).removeClass('error');
-        }
-    });
 }
 function TableCheck() {
     var callme = 'hide';

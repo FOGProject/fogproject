@@ -1,6 +1,20 @@
 $(function() {
     checkboxToggleSearchListPages();
-    validateInputs('.snapinname-input:not(:hidden)',/^[\w!@#$%^()\-'{}\\\.~\ \+]{1,255}$/);
+    form = $('.snapinname-input:not(:hidden)').parents('form');
+    validator = form.validate({
+        rules: {
+            name: {
+                required: true,
+                minlength: 1,
+                maxlength: 255
+            }
+        }
+    });
+    $('.snapinname-input:not(:hidden)').rules('add', {regex: /^[-\w!@#$%^()'{}\\\.~\+ ]{1,255}$/});
+    $('.snapinname-input:not(:hidden)').on('keyup change blur',function() {
+        return validator.element(this);
+    });
+    $('.snapinname-input:not(:hidden)').trigger('change');
     $('#argTypes').change(function() {
         if ($('option:selected',this).attr('value')) $("input[name=rw]").val($('option:selected',this).attr('value'));
         $("input[name=rwa]").val($('option:selected',this).attr('rwargs'));

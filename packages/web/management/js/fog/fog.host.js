@@ -6,7 +6,23 @@ $(function() {
     checkboxAssociations('.toggle-checkboxgroup:checkbox','.toggle-group:checkbox');
     MACUpdate();
     ProductUpdate();
-    validateInputs('.hostname-input',/^[\w!@#$%^()\-'{}\.~]{1,15}$/);
+    form = $('.hostname-input').parents('form');
+    validator = form.validate({
+        rules: {
+            host: {
+                required: true,
+                minlength: 1,
+                maxlength: 15
+            },
+            mac: {
+                required: true,
+                minlength: 12,
+                maxlength: 17
+            }
+        }
+    });
+    $('.hostname-input').rules('add', {regex: /^[\w!@#$%^()\-'{}\.~]{1,15}$/});
+    $('#mac,.additionalMAC').rules('add', {regex: /^(?:[0-9A-Fa-f]{2}([-:]))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^(?:[0-9A-Fa-f]{12})$|^(?:[0-9A-Fa-f]{4}([.])){2}[0-9A-Fa-f]{4}$/});
     $('#processgroup').click(function(e) {
         e.preventDefault();
         checkedIDs = getChecked();
@@ -47,14 +63,13 @@ function removeMACField() {
     });
 }
 function MACChange(data) {
-    validateInputs(data,/^(?:[0-9A-Fa-f]{2}([-:]))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^(?:[0-9A-Fa-f]{12})$|^(?:[0-9A-Fa-f]{4}([.])){2}[0-9A-Fa-f]{4}$/);
     if (MACLookupTimer) clearTimeout(MACLookupTimer);
     MACLookupTimer = setTimeout(function(e) {
         $('#primaker').load('?sub=getmacman&prefix='+mac);
     }, MACLookupTimeout);
 }
 function MACUpdate() {
-    $('#mac,.additionalMAC').on('change keyup',function(e) {
+    $('#mac,.additionalMAC').on('change keyup blur',function(e) {
         MACChange($(this));
         e.preventDefault();
     });
