@@ -120,36 +120,35 @@ abstract class FOGBase {
         return array_map('strtolower',(array)self::getSubObjectIDs('Plugin',array('installed'=>1,'state'=>1),'name'));
     }
     protected function fatalError($txt, $data = array()) {
-        if (!self::$service && !self::$ajax) {
-            echo sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>',
-                get_class($this),
-                (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
-            );
-        }
+        $string = sprintf('FOG FATAL ERROR: %s: %s',get_class($this),count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
+        if (self::$service) return;
+        if (self::$ajax) return;
+        $this->logHistory($string);
+        printf('<div class="debug-error">%s</div>',$string);
     }
     protected function error($txt, $data = array()) {
-        if (self::$debug && !self::$service && !self::$ajax) {
-            echo sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>',
-                get_class($this),
-                (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
-            );
-        }
+        $string = sprintf('FOG ERROR: %s: %s',get_class($this),count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
+        if (!self::$debug) return;
+        if (self::$service) return;
+        if (self::$ajax) return;
+        $this->logHistory($string);
+        printf('<div class="debug-error">%s</div>',$string);
     }
     protected function debug($txt, $data = array()) {
-        if (self::$debug && !self::$service && !self::$ajax) {
-            echo sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>',
-                get_class($this),
-                (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
-            );
-        }
+        $string = sprintf('FOG DEBUG: %s: %s',get_class($this),count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
+        if (!self::$debug) return;
+        if (self::$service) return;
+        if (self::$ajax) return;
+        $this->logHistory($string);
+        printf('<div class="debug-error">%s</div>',$string);
     }
     protected function info($txt, $data = array()) {
-        if (self::$info && !self::$service && !self::$ajax) {
-            echo sprintf('<div class="debug-info">FOG INFO: %s: %s</div>',
-                get_class($this),
-                (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
-            );
-        }
+        $string = sprintf('FOG INFO: %s: %s',get_class($this),count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
+        if (!self::$info) return;
+        if (self::$service) return;
+        if (self::$ajax) return;
+        $this->logHistory($string);
+        printf('<div class="debug-info">%s</div>',$string);
     }
     protected function setMessage($txt, $data = array()) {
         $_SESSION['FOG_MESSAGES'] = (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
@@ -517,11 +516,14 @@ abstract class FOGBase {
         if (empty($txt)) return;
         $txt = sprintf('[%s] %s',self::nice_date()->format('Y-m-d H:i:s'),$txt);
         if ($this->logLevel >= $level) echo $txt;
-        //$this->logHistory($txt);
+        $this->logHistory($txt);
     }
     protected function logHistory($string) {
+        if (!self::$FOGUser->isValid()) return;
         $string = trim($string);
+        if (!$string) return;
         $name = $_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog';
+        if ($_SESSION['FOG_USER'] < 1) return;
         if (self::$DB) {
             self::getClass('History')
                 ->set('info',$string)

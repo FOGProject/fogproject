@@ -1095,6 +1095,11 @@ abstract class FOGPage extends FOGBase {
     }
     public function import_post() {
         try {
+            $mimes = array('application/vnd.ms-excel','text/plain','text/csv','text/tsv');
+            if (!in_array($_FILES['file']['type'],$mimes)) {
+                $this->setMessage(_('File must be a csv'));
+                $this->redirect($this->formAction);
+            }
             if ($_FILES['file']['error'] > 0) throw new UploadException($_FILES['file']['error']);
             $file = sprintf('%s%s%s',dirname($_FILES['file']['tmp_name']),DIRECTORY_SEPARATOR,basename($_FILES['file']['tmp_name']));
             if (!file_exists($file)) throw new Exception(_('Could not find temp filename'));
