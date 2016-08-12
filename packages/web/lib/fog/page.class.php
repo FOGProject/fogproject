@@ -138,6 +138,9 @@ class Page extends FOGBase {
             $files = array(
                 'js/jquery-latest.min.js',
                 'js/jquery.tipsy.js',
+                'js/jquery.validate.min.js',
+                'js/additional-methods.min.js',
+                'js/jquery-migrate-latest.min.js',
                 'js/jquery.progressbar.js',
                 'js/fog/fog.js',
                 'js/fog/fog.login.js',
