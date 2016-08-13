@@ -209,10 +209,17 @@ class Group extends FOGController {
             if (count($batchTask) > 0) self::getClass('TaskManager')->insert_batch($batchFields,$batchTask);
         }
         if ($wol) {
-            $hostIDs = $this->get('hosts');
-            array_walk($hostIDs,function(&$hostID,&$index) {
-                return self::getClass('Host',$hostID)->wakeOnLAN();
-            });
+            $url = 'http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s';
+            $hostMACs = self::getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('hosts')),'mac');
+            $nodeURLs = array_map(function(&$Node) use ($url,$hostMACs) {
+                $curroot = trim(trim($Node->get('webroot'),'/'));
+                $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
+                return sprintf($url,$Node->get('ip'),$webroot,implode('|',$hostMACs));
+            },(array)self::getClass('StorageNodeManager')->find(array('isEnabled'=>1)));
+            $curroot = trim(trim(self::getSetting('FOG_WEB_ROOT')));
+            $webroot = sprintf('/%s',(strlen($curroot) > 1 ? sprintf('%s/',$curroot) : ''));
+            $nodeURLs[] = sprintf($url,self::getSetting('FOG_WEB_HOST'),$webroot,implode('|',$hostMACs));
+            self::$FOGURLRequests->process($nodeURLs);
         }
         return array('All hosts successfully tasked');
     }
