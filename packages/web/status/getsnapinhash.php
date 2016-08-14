@@ -10,4 +10,4 @@ $dir = dirname($req);
 $name = basename($req);
 $file = sprintf('%s/%s',$dir,$name);
 $fileexist = file_exists($file);
-printf('%s|%s',$fileexist ? exec("sha512sum $file | awk '{print $1}'") : '',$fileexist ? FOGCore::getFilesize($file) : 0);
+die(sprintf('%s|%s',$fileexist ? hash_file('sha512',$file) : '',$fileexist ? FOGCore::getFilesize($file) : 0));

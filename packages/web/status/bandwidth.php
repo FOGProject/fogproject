@@ -1,5 +1,5 @@
 <?php
-require_once '../commons/base.inc.php';
+require '../commons/base.inc.php';
 session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
@@ -14,9 +14,10 @@ array_walk($dirints,function(&$iface,&$index) use (&$interfaces) {
 $interface = preg_grep("#$dev#",(array)$interfaces);
 $dev = array_shift($interface);
 if (empty($dev)) $dev = FOGCore::getMasterInterface($FOGCore->resolveHostname($_SERVER['SERVER_ADDR']));
-$rx = trim(file_get_contents(sprintf('/sys/class/net/%s/statistics/rx_bytes',$dev))) * 8 / 1024;
-$tx = trim(file_get_contents(sprintf('/sys/class/net/%s/statistics/tx_bytes',$dev))) * 8 / 1024;
+$rx_data = trim(file_get_contents("/sys/class/net/$dev/statistics/rx_bytes"));
+$tx_data = trim(file_get_contents("/sys/class/net/$dev/statistics/tx_bytes"));
+$rx = is_numeric($rx_data) && $rx_data > 0 ? $rx_data * 8 / 1024 : 0;
+$tx = is_numeric($tx_data) && $tx_data > 0 ? $tx_data * 8 / 1024 : 0;
 $ret = array('dev'=>$dev,'rx'=>$rx,'tx'=>$tx);
 if (empty($dev)) $ret = array('dev'=>'Unknown','rx'=>0,'tx'=>0);
-echo json_encode($ret);
-exit;
+die(json_encode($ret));

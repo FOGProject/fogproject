@@ -15,5 +15,4 @@ array_walk($freeArray,function(&$n,&$index) use (&$hdtotal,&$hdused) {
     unset($n);
 });
 $Data = array('free' => $hdtotal, 'used' => $hdused);
-echo json_encode($Data);
-exit;
+die(json_encode($Data));
