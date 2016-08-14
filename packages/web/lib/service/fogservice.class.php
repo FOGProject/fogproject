@@ -189,7 +189,7 @@ abstract class FOGService extends FOGBase {
                     $includeFile = sprintf('-R -i %s',$myFile);
                     if (!$myAddItem) $myAddItem = dirname($myAdd);
                     $localfilescheck[0] = $myAdd;
-                    $remotefilescheck[0] = $remItem;
+                    $remotefilescheck[0] = sprintf('%s/%s',$remItem,$removeFile);
                 } else if (is_dir($myAdd)) {
                     $remItem = "$removeDir$removeFile";
                     $localfilescheck = glob("$myAdd/*");
@@ -200,7 +200,7 @@ abstract class FOGService extends FOGBase {
                 sort($localfilescheck);
                 sort($remotefilescheck);
                 $test = -1;
-                foreach ($localfilescheck AS $j => &$localfile) {
+                foreach ((array)$localfilescheck AS $j => &$localfile) {
                     usleep(50000);
                     if (false === ($index = $this->array_find(basename($localfile),$remotefilescheck))) continue;
                     self::outall(" | Local File: $localfile");
