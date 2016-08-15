@@ -1523,8 +1523,12 @@ configureHttpd() {
                         [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
                         [[ -n $snmysqluser ]] && options="$options -u$snmysqluser"
                         [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
-                        mysqlver=$(mysql -V | awk 'match($0,/Distrib[ ](.*)[,]/,a) {print a[1]}'|awk -F'([.])' '{print $1"."$2}')
-                        [[ $mysqlver -gt 5.6 ]] && mysql ${options} "$sql"
+                        mysqlver=$(mysql -V | awk 'match($0,/Distrib[ ](.*)[,]/,a) {print a[1]}')
+                        mariadb=$(echo $mysqlver | grep -oi mariadb)
+                        mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
+                        [[ -n $mariadb && $mysqlver -ge 10.2 ]] && mysql ${options} "$sql"
+                        [[ -z $mariadb && $mysqlver -ge 5.7 ]] && mysql ${options} "$sql"
+
                     fi
                     ;;
                 *)
