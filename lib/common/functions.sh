@@ -1517,12 +1517,15 @@ configureHttpd() {
                         done
                     fi
                     [[ $snmysqlpass != $dbpass ]] && snmysqlpass=$dbpass
-                    sql="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';"
-                    options="-sN"
-                    [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
-                    [[ -n $snmysqluser ]] && options="$options -u$snmysqluser"
-                    [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
-                    mysql $options $sql
+                    if [[ -z $snmysqlpass ]]; then
+                        sql="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';"
+                        options="-sN"
+                        [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
+                        [[ -n $snmysqluser ]] && options="$options -u$snmysqluser"
+                        [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
+                        mysqlver=$(mysql -V | awk 'match($0,/Distrib[ ](.*)[,]/,a) {print a[1]}'|awk -F'([.])' '{print $1"."$2}')
+                        [[ $mysqlver -gt 5.6 ]] && mysql ${options} "$sql"
+                    fi
                     ;;
                 *)
                     dummy=""
