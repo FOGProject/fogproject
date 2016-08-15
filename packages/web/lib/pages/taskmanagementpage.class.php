@@ -52,7 +52,7 @@ class TaskManagementPage extends FOGPage {
                 'state' => $Task->getTaskStateText(),
                 'forced' => $Task->get('isForced'),
                 'type' => $Task->getTaskTypeText(),
-                'width' => 600 * $Task->get('percent') / 100,
+                'width' => 600 * intval($Task->get('percent')) / 100,
                 'elapsed' => $Task->get('timeElapsed'),
                 'remains' => $Task->get('timeRemaining'),
                 'percent' => $Task->get('pct'),

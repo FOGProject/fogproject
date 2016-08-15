@@ -477,34 +477,26 @@ class Host extends FOGController {
         $SnapinJobs = self::getSubObjectIDs('SnapinJob',array('hostID'=>$this->get('id'),'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())));
         self::getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJobs,'stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState())),'',array('return'=>-9999,'details'=>_('Cancelled due to new tasking.'),'stateID'=>$this->getCancelledState()));
         self::getClass('SnapinJobManager')->update(array('id'=>$SnapinJobs),'',array('stateID'=>$this->getCancelledState()));
+        $AllTasks = self::getSubObjectIDs('Task',array('stateID'=>array_merge($this->getQueuedStates(),(array)$this->getProgressState()),'hostID'=>$this->get('id')));
+        $MyTask = $this->get('task')->get('id');
+        self::getClass('TaskManager')->update(array('id'=>array_diff((array)$AllTasks,(array)$MyTask)),'',array('stateID'=>$this->getCancelledState()));
     }
     private function createSnapinTasking($snapin = -1) {
         try {
             if (count($this->get('snapins')) < 1) return $this;
-            $SnapinJob = self::getClass('SnapinJob')
-                ->set('hostID',$this->get('id'))
-                ->set('stateID',$this->getQueuedState())
-                ->set('createdTime',self::nice_date()->format('Y-m-d H:i:s'));
-            if (!$SnapinJob->save()) throw new Exception(_('Failed to create Snapin Job'));
-            if ($snapin == -1) {
-                array_map(function(&$Snapin) {
-                    self::getClass('SnapinTask')
-                        ->set('jobID',$this->get('snapinjob')->get('id'))
-                        ->set('stateID',$this->getQueuedState())
-                        ->set('snapinID',$Snapin)
-                        ->save();
-                    unset($Snapin);
-                },(array)$this->get('snapins'));
-                return $this;
+            $SnapinJob = $this->get('snapinjob');
+            if (!$SnapinJob->isValid()) {
+                $SnapinJob
+                    ->set('hostID',$this->get('id'))
+                    ->set('stateID',$this->getQueuedState())
+                    ->set('createdTime',self::nice_date()->format('Y-m-d H:i:s'));
+                if (!$SnapinJob->save()) throw new Exception(_('Failed to create Snapin Job'));
             }
-            $Snapin = self::getClass('Snapin',$snapin);
-            if (!$Snapin->isValid()) throw new Exception(_('Snapin is not valid'));
-            self::getClass('SnapinTask')
-                ->set('jobID',$SnapinJob->get('id'))
-                ->set('stateID',$this->getQueuedState())
-                ->set('snapinID',$snapin)
-                ->save();
-            unset($Snapin);
+            $insert_fields = array('jobID','stateID','snapinID');
+            $insert_values = array_map(function(&$snapinID) use ($SnapinJob) {
+                return array($SnapinJob->get('id'),$this->getQueuedState(),$snapinID);
+            },$snapin == -1 ? (array)$this->get('snapins') : (array)$snapin);
+            if (count($insert_values) > 0) self::getClass('SnapinTaskManager')->insert_batch($insert_fields,$insert_values);
         } catch (Exception $e) {
             echo $e->getMessage();
         }
@@ -534,12 +526,20 @@ class Host extends FOGController {
             }
             $isCapture = $TaskType->isCapture();
             $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
-            $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageNode->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug,$wol);
-            $Task->set('imageID',$this->get('imageID'));
-            if (!$Task->save()) throw new Exception(self::$foglang['FailedTask']);
+            $TaskExistsFirst = false;
+            if (in_array($TaskType->get('id'),array(12,13,'12','13'))) {
+                $Task = $this->get('task');
+                $TaskExistsFirst = true;
+            }
+            if (!$Task->isValid()) {
+                $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageNode->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug,$wol);
+                $Task->set('imageID',$this->get('imageID'));
+                if (!$Task->save()) throw new Exception(self::$foglang['FailedTask']);
+            }
             if ($TaskType->isSnapinTask()) {
                 if ($deploySnapins === true) $deploySnapins = -1;
-                $this->cancelJobsSnapinsForHost();
+                if ($TaskType->get('id') != '13') $this->cancelJobsSnapinsForHost();
+                else if ($TaskExistsFirst) $Task->set('name','Multiple Snapin task -- Altered after single')->set('typeID',12)->save();
                 $mac = $this->get('mac');
                 if ($deploySnapins) $this->createSnapinTasking($deploySnapins);
             }

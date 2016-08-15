@@ -128,7 +128,7 @@ $(function() {
         else $('#snapinNotInHost').hide();
         e.preventDefault();
     });
-    $('hostSnapinShow:checkbox').trigger('change');
+    $('#hostSnapinShow:checkbox').trigger('change');
     result = true;
     $('#scheduleOnDemand').change(function() {
         if ($(this).is(':checked') === true) {
