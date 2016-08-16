@@ -21,7 +21,7 @@ command -v dnf >/dev/null 2>&1
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
 case $linuxReleaseName in
     *[Mm][Aa][Gg][Ee][Ii][Aa]*)
-        [[ -z $packages ]] && packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process mod_fastcgi"
+        [[ -z $packages ]] && packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring apache-mod_ssl php-fpm php-pcntl mod_fastcgi php-pdo_mysql php-pdo"
         [[ -z $packageinstaller ]] && packageinstaller="urpmi --auto"
         [[ -z $packagelist ]] && packagelist="urpmq"
         [[ -z $packageupdater ]] && packageupdater="$packageinstaller"
@@ -29,8 +29,10 @@ case $linuxReleaseName in
         [[ -z $dhcpname ]] && dhcpname="dhcp-server"
         [[ -z $tftpdirdst ]] && tftpdirdst="/var/lib/tftpboot"
         [[ -z $nfsexportsopts ]] && nfsexportsopts="no_subtree_check"
+        [[ -z $etcconf ]] && etcconf="/etc/httpd/conf/conf.d/fog.conf"
         ;;
     *)
+        [[ -z $etcconf ]] && etcconf="/etc/httpd/conf.d/fog.conf"
         [[ -z $packages ]] && packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm php-process mod_fastcgi"
         command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ $? -eq 0 ]]; then
@@ -86,7 +88,6 @@ fi
 [[ -z $apachelogdir ]] && apachelogdir="/var/log/httpd"
 [[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error_log"
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access_log"
-[[ -z $etcconf ]] && etcconf="/etc/httpd/conf.d/fog.conf"
 [[ -z $phpini ]] && phpini="/etc/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
 [[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"

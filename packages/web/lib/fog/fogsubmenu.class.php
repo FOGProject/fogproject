@@ -20,15 +20,36 @@
  * $FOGSubMenu->addNotes('node', create_function('','return array('banana' => 'chicken');'), 'id variable');
  */
 class FOGSubMenu extends FOGBase {
+    /**
+     * @var string
+     */
     private static $title;
+
+    /**
+     * @var array
+     */
     public $defaultSubs = array(
         'host' => 'edit',
         'group' => 'edit'
     );
+    /**
+     * @param string $node
+     * @param array $items
+     * @param string $ifVariable
+     * @param string $ifVariableTitle
+     * @throws exception
+     * @return void
+     */
     public function addItems($node, $items, $ifVariable = '', $ifVariableTitle = '') {
+        if (!is_string($node)) {
+            throw new Exception(_('Node must be a string'));
+        }
+        if (!is_array($items)) {
+            throw new Exception(_('Items must be an array'));
+        }
         $variableSetter = (!$ifVariable ? self::$foglang['MainMenu'] : $ifVariableTitle);
+        if (!$ifVariable) return;
         if (isset($_REQUEST[$ifVariable])) {
-            global $$ifVariable;
             array_walk(
                 $items,
                 function(&$link, &$title) use ($ifVariable) {
