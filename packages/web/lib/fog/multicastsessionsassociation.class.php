@@ -1,5 +1,6 @@
 <?php
-class MulticastSessionsAssociation extends FOGController {
+class MulticastSessionsAssociation extends FOGController
+{
     protected $databaseTable = 'multicastSessionsAssoc';
     protected $databaseFields = array(
         'id' => 'msaID',
@@ -10,10 +11,12 @@ class MulticastSessionsAssociation extends FOGController {
         'msID',
         'taskID',
     );
-    public function getMulticastSession() {
-        return self::getClass('MulticastSessions',$this->get('msID'));
+    public function getMulticastSession()
+    {
+        return self::getClass('MulticastSessions', $this->get('msID'));
     }
-    public function getTask() {
-        return self::getClass('Task',$this->get('taskID'));
+    public function getTask()
+    {
+        return self::getClass('Task', $this->get('taskID'));
     }
 }

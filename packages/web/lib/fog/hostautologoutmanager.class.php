@@ -1,2 +1,4 @@
 <?php
-class HostAutoLogoutManager extends FOGManagerController {}
+class HostAutoLogoutManager extends FOGManagerController
+{
+}

@@ -1,5 +1,6 @@
 <?php
-class ScheduledTask extends FOGController {
+class ScheduledTask extends FOGController
+{
     protected $databaseTable = 'scheduledTasks';
     protected $databaseFields = array(
         'id' => 'stID',
@@ -29,61 +30,81 @@ class ScheduledTask extends FOGController {
         'taskType',
         'hostID',
     );
-    public function getHost() {
-        return self::getClass('Host',$this->get('hostID'));
+    public function getHost()
+    {
+        return self::getClass('Host', $this->get('hostID'));
     }
-    public function getGroup() {
-        return self::getClass('Group',$this->get('hostID'));
+    public function getGroup()
+    {
+        return self::getClass('Group', $this->get('hostID'));
     }
-    public function getImage() {
-        return self::getClass('Image',$this->get('imageID'));
+    public function getImage()
+    {
+        return self::getClass('Image', $this->get('imageID'));
     }
-    public function getShutdownAfterTask() {
+    public function getShutdownAfterTask()
+    {
         return $this->get('shutdown');
     }
-    public function setShutdownAfterTask($value) {
+    public function setShutdownAfterTask($value)
+    {
         return $this->set('shutdown', $value);
     }
-    public function setOther1($value) {
+    public function setOther1($value)
+    {
         return $this->set('other1', $value);
     }
-    public function setOther2($value) {
+    public function setOther2($value)
+    {
         return $this->set('other2', $value);
     }
-    public function setOther3($value) {
+    public function setOther3($value)
+    {
         return $this->set('other3', $value);
     }
-    public function setOther4($value) {
+    public function setOther4($value)
+    {
         return $this->set('other4', $value);
     }
-    public function setOther5($value) {
+    public function setOther5($value)
+    {
         return $this->set('other5', $value);
     }
-    public function getTimer() {
-        if ($this->get('type') == 'C') $minute = trim($this->get('minute'));
-        else $minute = trim($this->get('scheduleTime'));
+    public function getTimer()
+    {
+        if ($this->get('type') == 'C') {
+            $minute = trim($this->get('minute'));
+        } else {
+            $minute = trim($this->get('scheduleTime'));
+        }
         $hour = trim($this->get('hour'));
         $dom = trim($this->get('dayOfMonth'));
         $month = trim($this->get('month'));
         $dow = trim($this->get('dayOfWeek'));
-        return self::getClass('Timer',$minute,$hour,$dom,$month,$dow);
+        return self::getClass('Timer', $minute, $hour, $dom, $month, $dow);
     }
-    public function isMulticast() {
-        return (bool)self::getClass('TaskType',$this->get('taskType'))->isMulticast();
+    public function isMulticast()
+    {
+        return (bool)self::getClass('TaskType', $this->get('taskType'))->isMulticast();
     }
-    public function getScheduledType() {
+    public function getScheduledType()
+    {
         return $this->get('type') ? _('Cron') : _('Delayed');
     }
-    public function getTaskType() {
-        return self::getClass('TaskType',$this->get('taskType'));
+    public function getTaskType()
+    {
+        return self::getClass('TaskType', $this->get('taskType'));
     }
-    public function isGroupBased() {
+    public function isGroupBased()
+    {
         return (bool)$this->get('isGroupTask') > 0;
     }
-    public function isActive() {
+    public function isActive()
+    {
         return (bool)$this->get('isActive') > 0;
     }
-    public function getTime() {
-        return self::nice_date()->setTimestamp($this->get('type') == 'C' ? FOGCron::parse(sprintf('%s %s %s %s %s',$this->get('minute'),$this->get('hour'),$this->get('dayOfMonth'),$this->get('month'),$this->get('dayOfWeek'))) : $this->get('scheduleTime'))->format('Y-m-d H:i');
+    public function getTime()
+    {
+        return self::nice_date()->setTimestamp($this->get('type') == 'C' ? FOGCron::parse(sprintf('%s %s %s %s %s', $this->get('minute'), $this->get('hour'), $this->get('dayOfMonth'), $this->get('month'), $this->get('dayOfWeek'))) : $this->get('scheduleTime'))->format('Y-m-d H:i');
     }
 }

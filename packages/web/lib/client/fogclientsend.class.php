@@ -1,4 +1,5 @@
 <?php
-interface FOGClientSend {
+interface FOGClientSend
+{
     public function send();
 }

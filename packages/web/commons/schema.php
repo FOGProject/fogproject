@@ -610,7 +610,7 @@ INDEX `new_index3`(`pVersion`)
             );
 // 16
 $fogstoragenodeuser = "fogstorage";
-$fogstoragenodepass = "fs" . rand(1000, 100000000000 );
+$fogstoragenodepass = "fs" . rand(1000, 100000000000);
 $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`tasks` ADD COLUMN `taskBPM` varchar(250)  NOT NULL AFTER `taskPCT`,
     ADD COLUMN `taskTimeElapsed` varchar(250)  NOT NULL AFTER `taskBPM`,
@@ -899,13 +899,21 @@ $this->schema[] = array(
 // 29
 if (FOG_SCHEMA < $tmpSchema->get('value')) {
     self::$DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
-    while ($Host = self::$DB->fetch()->get()) $allImageID[$Host['hostImage']] = $Host['hostOS'];
-    foreach ((array)$allImageID AS $imageID => $osID) {
-        $Image = self::getClass('Image',$imageID);
-        if (!$Image->isValid()) continue;
-        $OS = self::getClass('OS',$osID);
-        if (!$OS->isValid()) continue;
-        if (!$Image->set('osID',$osID)->save()) $errors[] = sprintf('<div>Failed updating the osID of imageID: %s, osID: %s</div>',$imageID,$osID);
+    while ($Host = self::$DB->fetch()->get()) {
+        $allImageID[$Host['hostImage']] = $Host['hostOS'];
+    }
+    foreach ((array)$allImageID as $imageID => $osID) {
+        $Image = self::getClass('Image', $imageID);
+        if (!$Image->isValid()) {
+            continue;
+        }
+        $OS = self::getClass('OS', $osID);
+        if (!$OS->isValid()) {
+            continue;
+        }
+        if (!$Image->set('osID', $osID)->save()) {
+            $errors[] = sprintf('<div>Failed updating the osID of imageID: %s, osID: %s</div>', $imageID, $osID);
+        }
     }
 }
 $this->schema[] = array(
@@ -1193,7 +1201,7 @@ $keySequences = array(
     'ESC' => '0x1b',
 );
 // 45 - 79
-foreach ($keySequences AS $value => $ascii) {
+foreach ($keySequences as $value => $ascii) {
     $this->schema[] = array(
         "INSERT IGNORE INTO `" . DATABASE_NAME."`.`keySequence` (`ksValue`,`ksAscii`)
         VALUES ( '".$value."','".$ascii."' )"
@@ -1420,7 +1428,7 @@ $this->schema[] = array(
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_AES_ADPASS_ENCRYPT_KEY','This setting just stores the AES Encryption ADPass encryption key. It will only work for new clients.  This is the key used for encrypting ADPass in AES format. If FOG_NEW_CLIENT is selected, to set the ADPass you simply type the plain text password and click update.  It will automatically encrypt and store the encrypted password in the database for you.','jPlUQRw5vLsrz8I1TuZdWDSiMFqXHtcm','FOG Client')",
 );
 // 119
-$column = array_filter((array)self::$DB->getColumns('default','modules'));
+$column = array_filter((array)self::$DB->getColumns('default', 'modules'));
 $this->schema[] = count($column) > 0 ? array() : array(
     "ALTER TABLE `".DATABASE_NAME."`.`modules` ADD COLUMN `default` INT DEFAULT 1 NOT NULL AFTER `description`"
 );
@@ -1574,7 +1582,7 @@ $this->schema[] = array_merge(array(
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.`hostMAC` (`hmMAC`,`hmHostID`,`hmPending`) SELECT `pmAddress`,`pmHostID`,'1' FROM `".DATABASE_NAME."`.`pendingMACS` WHERE `pmAddress` IS NOT NULL",
     "ALTER TABLE `" . DATABASE_NAME ."`.`hosts` DROP COLUMN `hostMAC`",
     "DROP TABLE `" . DATABASE_NAME ."`.`pendingMACS`"),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('hostMAC',array('hmHostID','hmMAC')),true)
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('hostMAC', array('hmHostID', 'hmMAC')), true)
 );
 // 131
 $this->schema[] = array(
@@ -1591,7 +1599,7 @@ $this->schema[] = array(
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_DHCP_BOOTFILENAME','This setting just sets what is in use for the boot filename.  It is up to the admin to ensure this setting is correct for their database to be accurate.  Default setting is undionly.kpxe','undionly.kpxe','TFTP Server')",
 );
 // 132
-$column = array_filter((array)self::$DB->getColumns('ipxeVersion','ipxeTable'));
+$column = array_filter((array)self::$DB->getColumns('ipxeVersion', 'ipxeTable'));
 $this->schema[] = count($column) ? array() : array(
     "ALTER TABLE `".DATABASE_NAME."`.`ipxeTable` ADD COLUMN `ipxeVersion` LONGTEXT NOT NULL",
 );
@@ -1619,7 +1627,7 @@ $this->schema[] = array_merge(array(
     ) ENGINE=MyISAM;",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`imageGroupAssoc` (`igaImageID`,`igaStorageGroupID`) SELECT `imageID`,`imageNFSGroupID` FROM `".DATABASE_NAME."`.`images` WHERE `imageNFSGroupID` IS NOT NULL",
     "ALTER TABLE `".DATABASE_NAME."`.`images` DROP COLUMN `imageNFSGroupID`"),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('imageGroupAssoc',array('igaImageID','igaImageID')),true)
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('imageGroupAssoc', array('igaImageID', 'igaImageID')), true)
 );
 // 137
 $this->schema[] = array(
@@ -1647,7 +1655,7 @@ $this->schema[] = array_merge(array(
     ) ENGINE=MyISAM;",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`snapinGroupAssoc` (`sgaSnapinID`,`sgaStorageGroupID`) SELECT `sID`,`snapinNFSGroupID` FROM `".DATABASE_NAME."`.`snapins` WHERE `snapinNFSGroupID` IS NOT NULL",
     "ALTER TABLE `".DATABASE_NAME."`.`snapins` DROP COLUMN `snapinNFSGroupID`"),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinGroupAssoc',array('sgaSnapinID','sgaSnapinID'),'sgaSnapinID'),true)
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('snapinGroupAssoc', array('sgaSnapinID', 'sgaSnapinID'), 'sgaSnapinID'), true)
 );
 // 141
 $this->schema[] = array(
@@ -1729,38 +1737,38 @@ $this->schema[] = array();
 $this->schema[] = array();
 // 161
 $this->schema[] = array_merge(
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('greenFog',array('gfHostID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('groups',array('groupName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('hosts',array('hostName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('hostScreenSettings',array('hssHostID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('imagePartitionTypes',array('imagePartitionTypeName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('imageTypes',array('imageTypeValue'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('images',array('imageName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('inventory',array('iHostID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('modules',array('short_name'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('nfsGroups',array('ngName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('os',array('osName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('plugins',array('pName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('printers',array('pAlias'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapins',array('sName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('supportedOS',array('osName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('taskStates',array('tsName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('taskTypes',array('ttName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('groupMembers',array('gmHostID','gmGroupID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('hostAutoLogOut',array('haloHostID','haloTime'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('hostMAC',array('hmHostID','hmMAC'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('imageGroupAssoc',array('igaImageID','igaStorageGroupID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('moduleStatusByHost',array('msHostID','msModuleID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('multicastSessionsAssoc',array('msID','tID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('nfsFailures',array('nfNodeID','nfHostID','nfTaskID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('nfsGroupMembers',array('ngmMemberName','ngmGroupID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('oui',array('ouiMACPrefix','ouiMan'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('printerAssoc',array('paHostID','paPrinterID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinAssoc',array('saSnapinID','saHostID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinGroupAssoc',array('sgaStorageGroupID','sgaSnapinID')))
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('greenFog', array('gfHostID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('groups', array('groupName'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('hosts', array('hostName'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('hostScreenSettings', array('hssHostID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('imagePartitionTypes', array('imagePartitionTypeName'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('imageTypes', array('imageTypeValue'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('images', array('imageName'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('inventory', array('iHostID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('modules', array('short_name'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('nfsGroups', array('ngName'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('os', array('osName'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('plugins', array('pName'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('printers', array('pAlias'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('snapins', array('sName'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('supportedOS', array('osName'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('taskStates', array('tsName'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('taskTypes', array('ttName'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('groupMembers', array('gmHostID', 'gmGroupID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('hostAutoLogOut', array('haloHostID', 'haloTime'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('hostMAC', array('hmHostID', 'hmMAC'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('imageGroupAssoc', array('igaImageID', 'igaStorageGroupID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('moduleStatusByHost', array('msHostID', 'msModuleID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('multicastSessionsAssoc', array('msID', 'tID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('nfsFailures', array('nfNodeID', 'nfHostID', 'nfTaskID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('nfsGroupMembers', array('ngmMemberName', 'ngmGroupID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('oui', array('ouiMACPrefix', 'ouiMan'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('printerAssoc', array('paHostID', 'paPrinterID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('snapinAssoc', array('saSnapinID', 'saHostID'))),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('snapinGroupAssoc', array('sgaStorageGroupID', 'sgaSnapinID')))
 );
 // 162
-$this->schema[] = $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('snapinTasks',array('stJobID','stSnapinID')));
+$this->schema[] = $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('snapinTasks', array('stJobID', 'stSnapinID')));
 // 163
 $this->schema[] = array(
     "DROP TABLE IF EXISTS `".DATABASE_NAME."`.`hostFingerprintAssoc`,`".DATABASE_NAME."`.`queueAssoc`,`".DATABASE_NAME."`.`nodeJSconfig`",
@@ -1926,7 +1934,7 @@ $this->schema[] = array(
 );
 // 189
 $this->schema[] = array_merge(
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME,array('globalSettings',array('settingKey','settingKey'),'settingKey'),true),
+    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('globalSettings', array('settingKey', 'settingKey'), 'settingKey'), true),
     array("DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_PATH'",
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_HOST'",
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_INTERFACE'")

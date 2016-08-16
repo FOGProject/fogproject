@@ -6,7 +6,7 @@ set_time_limit(0);
 header('Content-Type: text/event-stream');
 header('Connection: close');
 $dev = trim($_REQUEST['dev'] ? basename($_REQUEST['dev']) : 'eth0');
-$dirints = array_diff(scandir('/sys/class/net'), array('..','.'));
+$dirints = array_diff(scandir('/sys/class/net'), array('..', '.'));
 array_walk(
     $dirints,
     function (&$iface, &$index) use (&$interfaces) {

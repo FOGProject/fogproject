@@ -1,11 +1,13 @@
 <?php
 require('../commons/base.inc.php');
-if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'], array('deletemulti', 'deleteconf'))) unset($_SESSION['delitems']);
+if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'], array('deletemulti', 'deleteconf'))) {
+    unset($_SESSION['delitems']);
+}
 $FOGPageManager = FOGCore::getClass('FOGPageManager');
 FOGCore::getClass('ProcessLogin')->processMainLogin();
 require('../commons/text.php');
 $Page = FOGCore::getClass('Page');
-if (!in_array($_REQUEST['node'],array('schema','client')) && ($node == 'logout' || !$currentUser->isValid())) {
+if (!in_array($_REQUEST['node'], array('schema', 'client')) && ($node == 'logout' || !$currentUser->isValid())) {
     $currentUser->logout();
     $Page->setTitle($foglang['Login']);
     $Page->setSecTitle($foglang['ManagementLogin']);

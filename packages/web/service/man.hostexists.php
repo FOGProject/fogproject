@@ -1,3 +1,3 @@
 <?php
 require('../commons/base.inc.php');
-FOGCore::getClass('Registration',true);
+FOGCore::getClass('Registration', true);

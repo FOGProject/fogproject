@@ -1,5 +1,6 @@
 <?php
-class TaskLog extends FOGController {
+class TaskLog extends FOGController
+{
     protected $databaseTable = 'taskLog';
     protected $databaseFields = array(
         'id' => 'id',
@@ -9,17 +10,21 @@ class TaskLog extends FOGController {
         'createdTime' => 'createTime',
         'createdBy' => 'createdBy'
     );
-    public function __construct($data = '') {
+    public function __construct($data = '')
+    {
         parent::__construct($data);
         return $this->set('ip', $_SERVER['REMOTE_ADDR']);
     }
-    public function getTask() {
-        return self::getClass('Task',$this->get('taskID'));
+    public function getTask()
+    {
+        return self::getClass('Task', $this->get('taskID'));
     }
-    public function getTaskState() {
-        return self::getClass('TaskState',$this->get('taskStateID'));
+    public function getTaskState()
+    {
+        return self::getClass('TaskState', $this->get('taskStateID'));
     }
-    public function getHost() {
+    public function getHost()
+    {
         return $this->getTask()->getHost();
     }
 }

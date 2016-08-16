@@ -1,5 +1,6 @@
 <?php
-class SnapinAssociation extends FOGController {
+class SnapinAssociation extends FOGController
+{
     protected $databaseTable = 'snapinAssoc';
     protected $databaseFields = array(
         'id' => 'saID',
@@ -10,10 +11,12 @@ class SnapinAssociation extends FOGController {
         'hostID',
         'snapinID',
     );
-    public function getHost() {
-        return self::getClass('Host',$this->get('hostID'));
+    public function getHost()
+    {
+        return self::getClass('Host', $this->get('hostID'));
     }
-    public function getSnapin() {
-        return self::getClass('Snapin',$this->get('snapinID'));
+    public function getSnapin()
+    {
+        return self::getClass('Snapin', $this->get('snapinID'));
     }
 }

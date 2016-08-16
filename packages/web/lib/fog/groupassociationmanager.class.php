@@ -1,2 +1,4 @@
 <?php
-class GroupAssociationManager extends FOGManagerController {}
+class GroupAssociationManager extends FOGManagerController
+{
+}

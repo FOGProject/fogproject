@@ -1,5 +1,6 @@
 <?php
-class MulticastSessions extends FOGController {
+class MulticastSessions extends FOGController
+{
     protected $databaseTable = 'multicastSessions';
     protected $databaseFields = array(
         'id' => 'msID',
@@ -20,13 +21,16 @@ class MulticastSessions extends FOGController {
         'anon4' => 'msAnon4',
         'anon5' => 'msAnon5',
     );
-    public function getImage() {
-        return self::getClass('Image',$this->get('image'));
+    public function getImage()
+    {
+        return self::getClass('Image', $this->get('image'));
     }
-    public function getTaskState() {
-        return self::getClass('TaskState',$this->get('stateID'));
+    public function getTaskState()
+    {
+        return self::getClass('TaskState', $this->get('stateID'));
     }
-    public function cancel() {
-        return $this->set('stateID',$this->getCancelledState())->set('name','')->save();
+    public function cancel()
+    {
+        return $this->set('stateID', $this->getCancelledState())->set('name', '')->save();
     }
 }

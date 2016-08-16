@@ -317,7 +317,7 @@ $this->schema[] = array(
         ('Chromium OS','Defines OSID for Chromium OS',NOW(),51),
         ('Other','Defines OSID for all others',NOW(),99)
     )",
-    sprintf("INSERT INTO `schema` (`schemaValue`,`schemaUpdateDate`) VALUES (%d,NOW())",FOG_SCHEMA_VERSION),
+    sprintf("INSERT INTO `schema` (`schemaValue`,`schemaUpdateDate`) VALUES (%d,NOW())", FOG_SCHEMA_VERSION),
 );
 /*
     "CREATE TABLE  `".DATABASE_NAME."`.`snapinAssoc` (
@@ -2366,3 +2366,4 @@ $this->schema[] = array(
     "DROP TABLE `".DATABASE_NAME."`.`globalSettings`",
     "RENAME TABLE `".DATABASE_NAME."`.`globalSettings_new` TO `".DATABASE_NAME."`.`globalSettings`",
 );
+

@@ -1,19 +1,26 @@
 <?php
-class HostManager extends FOGManagerController {
-    public function getHostByMacAddresses($MACs) {
-        $MACHost = self::getSubObjectIDs('MACAddressAssociation',array('pending'=>array((string)0,(string)'',null),'mac'=>$MACs),'hostID');
-        if (count($MACHost) > 1) throw new Exception(self::$foglang['ErrorMultipleHosts']);
-        return self::getClass('Host',@min($MACHost));
+class HostManager extends FOGManagerController
+{
+    public function getHostByMacAddresses($MACs)
+    {
+        $MACHost = self::getSubObjectIDs('MACAddressAssociation', array('pending'=>array((string)0, (string)'', null), 'mac'=>$MACs), 'hostID');
+        if (count($MACHost) > 1) {
+            throw new Exception(self::$foglang['ErrorMultipleHosts']);
+        }
+        return self::getClass('Host', @min($MACHost));
     }
-    public function destroy($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false) {
-        if (empty($findWhere)) return parent::destroy($field);
+    public function destroy($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false)
+    {
+        if (empty($findWhere)) {
+            return parent::destroy($field);
+        }
         if (isset($findWhere['id'])) {
             $fieldWhere = $findWhere;
             $findWhere = array('hostID'=>$findWhere['id']);
         }
         self::getClass('NodeFailureManager')->destroy($findWhere);
         self::getClass('ImagingLogManager')->destroy($findWhere);
-        self::getClass('SnapinTaskManager')->destroy(array('jobID'=>self::getSubObjectIDs('SnapinJob',$findWhere,'id')));
+        self::getClass('SnapinTaskManager')->destroy(array('jobID'=>self::getSubObjectIDs('SnapinJob', $findWhere, 'id')));
         self::getClass('SnapinJobManager')->destroy($findWhere);
         self::getClass('TaskManager')->destroy($findWhere);
         self::getClass('ScheduledTaskManager')->destroy($findWhere);

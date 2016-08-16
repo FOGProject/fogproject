@@ -1,2 +1,4 @@
 <?php
-class Tasktypeedit extends TaskType {}
+class Tasktypeedit extends TaskType
+{
+}

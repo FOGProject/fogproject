@@ -1,12 +1,13 @@
 <?php
-class GreenFog extends FOGController {
+class GreenFog extends FOGController
+{
     public $databaseTable = 'greenFog';
     public $databaseFields = array(
-        'id'	=> 'gfID',
+        'id'    => 'gfID',
         'hostID' => 'gfHostID',
-        'hour'	=> 'gfHour',
-        'min'	=> 'gfMin',
+        'hour'    => 'gfHour',
+        'min'    => 'gfMin',
         'action' => 'gfAction',
-        'days'	=> 'gfDays',
+        'days'    => 'gfDays',
     );
 }

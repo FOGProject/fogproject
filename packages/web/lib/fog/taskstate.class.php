@@ -1,5 +1,6 @@
 <?php
-class TaskState extends FOGController {
+class TaskState extends FOGController
+{
     protected $databaseTable = 'taskStates';
     protected $databaseFields = array(
         'id' => 'tsID',
@@ -11,37 +12,44 @@ class TaskState extends FOGController {
     protected $databaseFieldsRequired = array(
         'name',
     );
-    public function getIcon() {
+    public function getIcon()
+    {
         return $this->get('icon');
     }
-    public function getQueuedStates() {
-        $queuedStates = range(0,2);
-        self::$HookManager->processEvent('QUEUED_STATES',array('queuedStates'=>&$queuedStates));
+    public function getQueuedStates()
+    {
+        $queuedStates = range(0, 2);
+        self::$HookManager->processEvent('QUEUED_STATES', array('queuedStates'=>&$queuedStates));
         return $queuedStates;
     }
-    public function getQueuedState() {
+    public function getQueuedState()
+    {
         $queuedState = 1;
-        self::$HookManager->processEvent('QUEUED_STATE',array('queuedState'=>&$queuedState));
+        self::$HookManager->processEvent('QUEUED_STATE', array('queuedState'=>&$queuedState));
         return $queuedState;
     }
-    public function getCheckedInState() {
+    public function getCheckedInState()
+    {
         $checkedInState = 2;
-        self::$HookManager->processEvent('CHECKEDIN_STATE',array('checkedInState'=>&$checkedInState));
+        self::$HookManager->processEvent('CHECKEDIN_STATE', array('checkedInState'=>&$checkedInState));
         return $checkedInState;
     }
-    public function getProgressState() {
+    public function getProgressState()
+    {
         $progressState = 3;
-        self::$HookManager->processEvent('PROGRESS_STATE',array('progressState'=>&$progressState));
+        self::$HookManager->processEvent('PROGRESS_STATE', array('progressState'=>&$progressState));
         return $progressState;
     }
-    public function getCompleteState() {
+    public function getCompleteState()
+    {
         $completeState = 4;
-        self::$HookManager->processEvent('COMPLETE_STATE',array('completeState'=>&$completeState));
+        self::$HookManager->processEvent('COMPLETE_STATE', array('completeState'=>&$completeState));
         return $completeState;
     }
-    public function getCancelledState() {
+    public function getCancelledState()
+    {
         $cancelledState = 5;
-        self::$HookManager->processEvent('CANCELLED_STATE',array('cancelledState'=>&$cancelledState));
+        self::$HookManager->processEvent('CANCELLED_STATE', array('cancelledState'=>&$cancelledState));
         return $cancelledState;
     }
 }

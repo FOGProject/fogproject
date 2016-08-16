@@ -1,5 +1,6 @@
 <?php
-class SlackHandler {
+class SlackHandler
+{
     private $_apiToken;
     private static $_apiEndpoint = 'https://slack.com/api/<method>';
     private $_curlCallback;
@@ -114,14 +115,20 @@ class SlackHandler {
         'users.setActive',
         'users.setPresence',
     );
-    public function __construct($apiToken) {
+    public function __construct($apiToken)
+    {
         $this->_apiToken = $apiToken;
-        if (!function_exists('curl_init')) throw new SlackException('cURL library is not loaded.');
+        if (!function_exists('curl_init')) {
+            throw new SlackException('cURL library is not loaded.');
+        }
     }
-    public function call($method,$args = array()) {
-        if (array_search($method,self::$_methods,true) === false) throw new SlackException(_('Invalid method called'));
+    public function call($method, $args = array())
+    {
+        if (array_search($method, self::$_methods, true) === false) {
+            throw new SlackException(_('Invalid method called'));
+        }
         $args['token'] = $this->_apiToken;
-        return json_decode(json_encode($this->_curlRequest(str_replace('<method>',$method,self::$_apiEndpoint),'POST',$args)),true);
+        return json_decode(json_encode($this->_curlRequest(str_replace('<method>', $method, self::$_apiEndpoint), 'POST', $args)), true);
     }
     /**
      * Send a request to a remote server using cURL.
@@ -134,9 +141,10 @@ class SlackHandler {
      *
      * @return object Response.
      */
-    private function _curlRequest($url, $method, $data = null, $sendAsJSON = false, $auth = true) {
+    private function _curlRequest($url, $method, $data = null, $sendAsJSON = false, $auth = true)
+    {
         $Requests = new FOGURLRequests();
-        $data = $Requests->process($url,$method,$data,$sendAsJSON,($auth ? $this->_apiToken : false),$this->_curlCallback);
+        $data = $Requests->process($url, $method, $data, $sendAsJSON, ($auth ? $this->_apiToken : false), $this->_curlCallback);
         return json_decode($data[0]);
     }
 }

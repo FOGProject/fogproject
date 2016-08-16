@@ -1,5 +1,6 @@
 <?php
-class MACAddressAssociation extends FOGController {
+class MACAddressAssociation extends FOGController
+{
     protected $databaseTable = 'hostMAC';
     protected $databaseFields = array(
         'id' => 'hmID',
@@ -15,7 +16,8 @@ class MACAddressAssociation extends FOGController {
         'hostID',
         'mac',
     );
-    public function getHost() {
-        return self::getClass(Host,$this->get(hostID));
+    public function getHost()
+    {
+        return self::getClass(Host, $this->get(hostID));
     }
 }

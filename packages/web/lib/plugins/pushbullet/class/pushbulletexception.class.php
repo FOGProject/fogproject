@@ -2,4 +2,6 @@
 /**
  * Class PushbulletException
  */
-class PushbulletException extends Exception {}
+class PushbulletException extends Exception
+{
+}

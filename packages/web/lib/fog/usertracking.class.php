@@ -1,5 +1,6 @@
 <?php
-class UserTracking extends FOGController {
+class UserTracking extends FOGController
+{
     protected $databaseTable = 'userTracking';
     protected $databaseFields = array(
         'id' => 'utID',

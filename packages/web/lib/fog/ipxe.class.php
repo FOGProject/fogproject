@@ -1,5 +1,6 @@
 <?php
-class iPXE extends FOGController {
+class iPXE extends FOGController
+{
     protected $databaseTable = 'ipxeTable';
     protected $databaseFields = array(
         'id' => 'ipxeID',

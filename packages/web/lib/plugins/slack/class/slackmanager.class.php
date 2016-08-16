@@ -1,6 +1,8 @@
 <?php
-class SlackManager extends FOGManagerController {
-    public function install($name) {
+class SlackManager extends FOGManagerController
+{
+    public function install($name)
+    {
         $this->uninstall();
         $sql = "CREATE TABLE `slack`
             (`sID` INTEGER NOT NULL AUTO_INCREMENT,
@@ -11,7 +13,8 @@ class SlackManager extends FOGManagerController {
         ENGINE = MyISAM";
         return self::$DB->query($sql);
     }
-    public function uninstall() {
+    public function uninstall()
+    {
         return self::$DB->query("DROP TABLE IF EXISTS `slack`");
     }
 }

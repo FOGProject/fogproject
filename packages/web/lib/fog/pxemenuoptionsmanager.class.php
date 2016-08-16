@@ -1,7 +1,9 @@
 <?php
-class PXEMenuOptionsManager extends FOGManagerController {
+class PXEMenuOptionsManager extends FOGManagerController
+{
     private static $regVals;
-    private static function regText() {
+    private static function regText()
+    {
         return self::$regVals = array(
             0 => self::$foglang['NotRegHost'],
             1 => self::$foglang['RegHost'],
@@ -13,11 +15,12 @@ class PXEMenuOptionsManager extends FOGManagerController {
             7 => self::$foglang['DoNotList'],
         );
     }
-    public function regSelect($request = '') {
+    public function regSelect($request = '')
+    {
         self::$selected = $request;
         ob_start();
         $sender = self::regText();
-        array_walk($sender,self::$buildSelectBox);
-        return sprintf('<select name="menu_regmenu">%s</select>',ob_get_clean());
+        array_walk($sender, self::$buildSelectBox);
+        return sprintf('<select name="menu_regmenu">%s</select>', ob_get_clean());
     }
 }

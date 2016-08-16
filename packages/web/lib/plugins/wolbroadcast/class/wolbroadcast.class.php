@@ -1,5 +1,6 @@
 <?php
-class Wolbroadcast extends FOGController {
+class Wolbroadcast extends FOGController
+{
     protected $databaseTable = 'wolbroadcast';
     protected $databaseFields = array(
         'id' => 'wbID',

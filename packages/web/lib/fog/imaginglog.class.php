@@ -1,5 +1,6 @@
 <?php
-class ImagingLog extends FOGController {
+class ImagingLog extends FOGController
+{
     protected $databaseTable = 'imagingLog';
     protected $databaseFields = array(
         'id' => 'ilID',

@@ -1,13 +1,16 @@
 <?php
-class DisplayManager extends FOGClient implements FOGClientSend {
-    public function json() {
+class DisplayManager extends FOGClient implements FOGClientSend
+{
+    public function json()
+    {
         return array(
             'x'=>$this->Host->getDispVals('width'),
             'y'=>$this->Host->getDispVals('height'),
             'r'=>$this->Host->getDispVals('refresh'),
         );
     }
-    public function send() {
+    public function send()
+    {
         if ($this->newService) {
             $this->send = sprintf("#!ok\n#x=%d\n#y=%d\n#r=%d",
                 $this->Host->getDispVals('width'),

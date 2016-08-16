@@ -1,6 +1,8 @@
 <?php
-class ExampleManager extends FOGManagerController {
-    public function install($name) {
+class ExampleManager extends FOGManagerController
+{
+    public function install($name)
+    {
         /** Add the information into the database.
             This is commented out so we don't actually
             create anything.
@@ -29,7 +31,8 @@ class ExampleManager extends FOGManagerController {
          */
         return true;
     }
-    public function uninstall() {
+    public function uninstall()
+    {
         return true;
     }
 }

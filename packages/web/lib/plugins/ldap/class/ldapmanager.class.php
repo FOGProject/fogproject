@@ -1,6 +1,8 @@
 <?php
-class LDAPManager extends FOGManagerController {
-    public function install($name) {
+class LDAPManager extends FOGManagerController
+{
+    public function install($name)
+    {
         $this->uninstall();
         $sql = "CREATE TABLE `LDAPServers`
             (`lsID` INTEGER NOT NULL AUTO_INCREMENT,
@@ -17,7 +19,8 @@ class LDAPManager extends FOGManagerController {
         ENGINE = MyISAM";
         return self::$DB->query($sql);
     }
-    public function uninstall() {
+    public function uninstall()
+    {
         return self::$DB->query("DROP TABLE IF EXISTS `LDAPServers`");
     }
 }

@@ -1,2 +1,4 @@
 <?php
-class ImagingLogManager extends FOGManagerController {}
+class ImagingLogManager extends FOGManagerController
+{
+}

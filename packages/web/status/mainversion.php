@@ -7,5 +7,5 @@ $url = 'https://fogproject.org/version/index.php';
 $data = array(
     'version' => FOG_VERSION,
 );
-$res = $FOGURLRequests->process($url,'POST',$data);
+$res = $FOGURLRequests->process($url, 'POST', $data);
 die(json_encode(array_shift($res)));

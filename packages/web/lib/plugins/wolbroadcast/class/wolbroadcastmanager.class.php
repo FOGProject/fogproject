@@ -1,6 +1,8 @@
 <?php
-class WolbroadcastManager extends FOGManagerController {
-    public function install($name) {
+class WolbroadcastManager extends FOGManagerController
+{
+    public function install($name)
+    {
         $this->uninstall();
         $sql = "CREATE TABLE wolbroadcast
             (`wbID` INTEGER NOT NULL AUTO_INCREMENT,
@@ -12,7 +14,8 @@ class WolbroadcastManager extends FOGManagerController {
         ENGINE = MyISAM";
         return self::$DB->query($sql);
     }
-    public function uninstall() {
+    public function uninstall()
+    {
         return self::$DB->query("DROP TABLE IF EXISTS `wolbroadcast`");
     }
 }

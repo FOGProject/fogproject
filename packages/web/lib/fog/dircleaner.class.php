@@ -1,5 +1,6 @@
 <?php
-class DirCleaner extends FOGController {
+class DirCleaner extends FOGController
+{
     protected $databaseTable = 'dirCleaner';
     protected $databaseFields = array(
         'id' => 'dcID',

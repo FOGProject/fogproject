@@ -1,6 +1,8 @@
 <?php
-class LocationManager extends FOGManagerController {
-    public function install($name) {
+class LocationManager extends FOGManagerController
+{
+    public function install($name)
+    {
         $this->uninstall();
         $sql = "CREATE TABLE `location`
             (`lID` INTEGER NOT NULL AUTO_INCREMENT,
@@ -15,7 +17,9 @@ class LocationManager extends FOGManagerController {
         KEY new_index (`lName`),
         KEY new_index1 (`lStorageGroupID`))
         ENGINE = MyISAM";
-        if (!self::$DB->query($sql)) return false;
+        if (!self::$DB->query($sql)) {
+            return false;
+        }
         $sql = "CREATE TABLE `locationAssoc`
             (`laID` INTEGER NOT NULL AUTO_INCREMENT,
             `laLocationID` INTEGER NOT NULL,
@@ -25,11 +29,16 @@ class LocationManager extends FOGManagerController {
             ENGINE=MyISAM";
         return self::$DB->query($sql);
     }
-    public function uninstall() {
+    public function uninstall()
+    {
         $res = true;
-        self::getClass('Service')->set('name','FOG_SNAPIN_LOCATION_SEND_ENABLED')->load('name')->destroy();
-        if (!self::$DB->query("DROP TABLE IF EXISTS `locationAssoc`")) $res = false;
-        if (!self::$DB->query("DROP TABLE IF EXISTS `location`")) $res = false;
+        self::getClass('Service')->set('name', 'FOG_SNAPIN_LOCATION_SEND_ENABLED')->load('name')->destroy();
+        if (!self::$DB->query("DROP TABLE IF EXISTS `locationAssoc`")) {
+            $res = false;
+        }
+        if (!self::$DB->query("DROP TABLE IF EXISTS `location`")) {
+            $res = false;
+        }
         return $res;
     }
 }

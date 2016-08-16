@@ -1,5 +1,6 @@
 <?php
-class SnapinTask extends FOGController {
+class SnapinTask extends FOGController
+{
     protected $databaseTable = 'snapinTasks';
     protected $databaseFields = array(
         'id' => 'stID',
@@ -15,10 +16,12 @@ class SnapinTask extends FOGController {
         'jobID',
         'snapinID',
     );
-    public function getSnapinJob() {
-        return self::getClass('SnapinJob',$this->get('jobID'));
+    public function getSnapinJob()
+    {
+        return self::getClass('SnapinJob', $this->get('jobID'));
     }
-    public function getSnapin() {
-        return self::getClass('Snapin',$this->get('snapinID'));
+    public function getSnapin()
+    {
+        return self::getClass('Snapin', $this->get('snapinID'));
     }
 }

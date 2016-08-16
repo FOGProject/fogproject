@@ -1,5 +1,6 @@
 <?php
-class ClientUpdater extends FOGController {
+class ClientUpdater extends FOGController
+{
     protected $databaseTable = 'clientUpdates';
     protected $databaseFields = array(
         'id' => 'cuID',

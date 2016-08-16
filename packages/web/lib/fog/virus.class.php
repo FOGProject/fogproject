@@ -1,5 +1,6 @@
 <?php
-class Virus extends FOGController {
+class Virus extends FOGController
+{
     protected $databaseTable = 'virus';
     protected $databaseFields = array(
         'id' => 'vID',

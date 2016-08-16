@@ -1,5 +1,6 @@
 <?php
-class Module extends FOGController {
+class Module extends FOGController
+{
     protected $databaseTable = 'modules';
     protected $databaseFields = array(
         'id' => 'id',
@@ -12,10 +13,12 @@ class Module extends FOGController {
         'name',
         'shortName',
     );
-    public function isValid() {
+    public function isValid()
+    {
         return (bool)parent::isValid() && $this->get('shortName');
     }
-    public function destroy($field = 'id') {
+    public function destroy($field = 'id')
+    {
         self::getClass('ModuleAssociationManager')->destroy(array('moduleID' => $this->get('id')));
         return parent::destroy($field);
     }

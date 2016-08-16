@@ -1,5 +1,6 @@
 <?php
-class SnapinGroupAssociation extends FOGController {
+class SnapinGroupAssociation extends FOGController
+{
     protected $databaseTable = 'snapinGroupAssoc';
     protected $databaseFields = array(
         'id' => 'sgaID',
@@ -11,14 +12,19 @@ class SnapinGroupAssociation extends FOGController {
         'snapinID',
         'storageGroupID',
     );
-    public function getSnapin() {
-        return self::getClass('Snapin',$this->get('snapinID'));
+    public function getSnapin()
+    {
+        return self::getClass('Snapin', $this->get('snapinID'));
     }
-    public function getStorageGroup() {
-        return self::getClass('StorageGroup',$this->get('storageGroupID'));
+    public function getStorageGroup()
+    {
+        return self::getClass('StorageGroup', $this->get('storageGroupID'));
     }
-    public function isPrimary() {
-        if (!$this->isValid()) return;
+    public function isPrimary()
+    {
+        if (!$this->isValid()) {
+            return;
+        }
         return (bool)$this->get('primary');
     }
 }

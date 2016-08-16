@@ -1,2 +1,4 @@
 <?php
-class KeySequenceManager extends FOGManagerController {}
+class KeySequenceManager extends FOGManagerController
+{
+}

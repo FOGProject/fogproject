@@ -1,2 +1,4 @@
 <?php
-class Taskstateedit extends TaskState {}
+class Taskstateedit extends TaskState
+{
+}

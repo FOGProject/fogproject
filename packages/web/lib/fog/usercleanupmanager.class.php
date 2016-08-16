@@ -1,2 +1,4 @@
 <?php
-class UserCleanupManager extends FOGManagerController {}
+class UserCleanupManager extends FOGManagerController
+{
+}

@@ -1,73 +1,88 @@
 <?php
-class Initiator {
+class Initiator
+{
     /** __construct() Initiates to load the rest of FOG
      * @return void
      */
-    public function __construct() {
-        if (!preg_match('#service#i',$_SERVER['PHP_SELF']) && isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] && !isset($_SESSION)) {
+    public function __construct()
+    {
+        if (!preg_match('#service#i', $_SERVER['PHP_SELF']) && isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] && !isset($_SESSION)) {
             session_start();
             session_cache_limiter('nocache');
         }
         define('BASEPATH', self::DetermineBasePath());
-        $allpaths = array_map(function($element) {
+        $allpaths = array_map(function ($element) {
             return dirname($element[0]);
-        },iterator_to_array(new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(BASEPATH,FileSystemIterator::SKIP_DOTS)),'#^.*\.(report|event|class|hook)\.php$#',RegexIterator::GET_MATCH)));
-        set_include_path(sprintf('%s%s%s',implode(PATH_SEPARATOR,$allpaths),PATH_SEPARATOR,get_include_path()));
+        }, iterator_to_array(new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(BASEPATH, FileSystemIterator::SKIP_DOTS)), '#^.*\.(report|event|class|hook)\.php$#', RegexIterator::GET_MATCH)));
+        set_include_path(sprintf('%s%s%s', implode(PATH_SEPARATOR, $allpaths), PATH_SEPARATOR, get_include_path()));
         spl_autoload_extensions('.class.php,.event.php,.hook.php,.report.php');
-        spl_autoload_register(array($this,'FOGLoader'));
+        spl_autoload_register(array($this, 'FOGLoader'));
     }
     /** DetermineBasePath() Gets the base path and sets WEB_ROOT constant
      * @return null
      */
-    private static function DetermineBasePath() {
+    private static function DetermineBasePath()
+    {
         $script_name = $_SERVER['SCRIPT_NAME'];
-        define('WEB_ROOT',sprintf('/%s',(preg_match('#/fog/#',$script_name)?'fog/':'')));
-        return (file_exists('/srv/http/fog') ? '/srv/http/fog' : (file_exists('/var/www/html/fog') ? '/var/www/html/fog' : (file_exists('/var/www/fog') ? '/var/www/fog' : '/'.trim($_SERVER['DOCUMENT_ROOT'],'/').'/'.WEB_ROOT)));
+        define('WEB_ROOT', sprintf('/%s', (preg_match('#/fog/#', $script_name)?'fog/':'')));
+        return (file_exists('/srv/http/fog') ? '/srv/http/fog' : (file_exists('/var/www/html/fog') ? '/var/www/html/fog' : (file_exists('/var/www/fog') ? '/var/www/fog' : '/'.trim($_SERVER['DOCUMENT_ROOT'], '/').'/'.WEB_ROOT)));
     }
     /** __destruct() Cleanup after no longer needed
      * @return void
      */
-    public function __destruct() {
-        spl_autoload_unregister(array($this,'FOGLoader'));
+    public function __destruct()
+    {
+        spl_autoload_unregister(array($this, 'FOGLoader'));
     }
     /** startInit() initiates the environment
      * @return void
      */
-    public static function startInit() {
+    public static function startInit()
+    {
         error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
         self::verCheck();
         self::extCheck();
         $globalVars = array('node','sub','printertype','id','sub','crit','sort','confirm','tab');
-        array_map(function(&$x) {
+        array_map(function (&$x) {
             global $$x;
-            if (isset($_REQUEST[$x])) $_REQUEST[$x] = $$x = trim($_REQUEST[$x]);
+            if (isset($_REQUEST[$x])) {
+                $_REQUEST[$x] = $$x = trim($_REQUEST[$x]);
+            }
             unset($x);
-        },$globalVars);
+        }, $globalVars);
         new System();
         new Config();
     }
-    public static function sanitize_items(&$value = '') {
-        $sanitize_items = function(&$val,&$key) use (&$value) {
-            if (is_string($val)) $value[$key] = htmlentities($val,ENT_QUOTES,'utf-8');
-            if (is_array($val)) self::sanitize_items($value[$key]);
+    public static function sanitize_items(&$value = '')
+    {
+        $sanitize_items = function (&$val, &$key) use (&$value) {
+            if (is_string($val)) {
+                $value[$key] = htmlentities($val, ENT_QUOTES, 'utf-8');
+            }
+            if (is_array($val)) {
+                self::sanitize_items($value[$key]);
+            }
         };
         if (!count($value)) {
-            array_walk($_REQUEST,$sanitize_items);
-            array_walk($_COOKIE,$sanitize_items);
-            array_walk($_POST,$sanitize_items);
-            array_walk($_GET,$sanitize_items);
+            array_walk($_REQUEST, $sanitize_items);
+            array_walk($_COOKIE, $sanitize_items);
+            array_walk($_POST, $sanitize_items);
+            array_walk($_GET, $sanitize_items);
         } else {
             $value = array_values(array_filter(array_unique((array)$value)));
-            array_walk($value,$sanitize_items);
+            array_walk($value, $sanitize_items);
         }
         return $value;
     }
     /** verCheck() Checks the php version is good with current system
      * @return void
      */
-    private static function verCheck() {
+    private static function verCheck()
+    {
         try {
-            if (!version_compare(phpversion(),'5.5.0','>=')) throw new Exception('FOG Requires PHP v5.5.0 or higher. You have PHP v'.phpversion());
+            if (!version_compare(phpversion(), '5.5.0', '>=')) {
+                throw new Exception('FOG Requires PHP v5.5.0 or higher. You have PHP v'.phpversion());
+            }
         } catch (Exception $e) {
             echo $e->getMessage();
             exit;
@@ -76,13 +91,18 @@ class Initiator {
     /** extCheck() Checks required extentions are installed
      * @return void
      */
-    private static function extCheck() {
+    private static function extCheck()
+    {
         $requiredExtensions = array('gettext','mysqli');
-        $missingExtensions = array_values(array_unique(array_filter(array_map(function(&$ext) {
-            if (!in_array($ext,get_loaded_extensions())) return $ext;
-        },$requiredExtensions))));
+        $missingExtensions = array_values(array_unique(array_filter(array_map(function (&$ext) {
+            if (!in_array($ext, get_loaded_extensions())) {
+                return $ext;
+            }
+        }, $requiredExtensions))));
         try {
-            if (count($missingExtensions)) throw new Exception(sprintf('%s: %s',_('Missing Extensions'),implode(', ',(array)$missingExtensions)));
+            if (count($missingExtensions)) {
+                throw new Exception(sprintf('%s: %s', _('Missing Extensions'), implode(', ', (array)$missingExtensions)));
+            }
         } catch (Exception $e) {
             echo $e->getMessage();
             exit;
@@ -92,8 +112,11 @@ class Initiator {
      * @param $className the class to include as called.
      * @return void
      */
-    private function FOGLoader($className) {
-        if (class_exists($className,false)) return;
+    private function FOGLoader($className)
+    {
+        if (class_exists($className, false)) {
+            return;
+        }
         global $EventManager;
         global $HookManager;
         spl_autoload($className);
@@ -102,7 +125,8 @@ class Initiator {
      * @param $buffer the buffer to clean
      * @return the cleaned up buffer
      */
-    public static function sanitize_output($buffer) {
+    public static function sanitize_output($buffer)
+    {
         $search = array(
             '/\>[^\S ]+/s', //strip whitespaces after tags, except space
             '/[^\S ]+\</s', //strip whitespaces before tags, except space
@@ -113,7 +137,7 @@ class Initiator {
             '<',
             '\\1',
         );
-        $buffer = preg_replace($search,$replace,$buffer);
+        $buffer = preg_replace($search, $replace, $buffer);
         return $buffer;
     }
 }
@@ -132,13 +156,13 @@ $DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
 $FOGCore::setSessionEnv();
 /** $TimeZone the timezone setter */
 $TimeZone = $_SESSION['TimeZone'];
-$currentUser = FOGCore::getClass('User',(isset($_SESSION['FOG_USER']) ? $_SESSION['FOG_USER'] : 0));
+$currentUser = FOGCore::getClass('User', (isset($_SESSION['FOG_USER']) ? $_SESSION['FOG_USER'] : 0));
 $HookManager = FOGCore::getClass('HookManager');
 $HookManager->load();
 $EventManager = FOGCore::getClass('EventManager');
 $EventManager->load();
 $FOGURLRequests = FOGCore::getClass('FOGURLRequests');
-if (in_array($sub,array('configure','authorize','requestClientInfo'))) {
+if (in_array($sub, array('configure', 'authorize', 'requestClientInfo'))) {
     FOGCore::getClass('DashboardPage');
     exit;
 }

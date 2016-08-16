@@ -1,2 +1,4 @@
 <?php
-class HostScreenSettingsManager extends FOGManagerController {}
+class HostScreenSettingsManager extends FOGManagerController
+{
+}

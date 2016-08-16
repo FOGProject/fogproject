@@ -1,5 +1,6 @@
 <?php
-class AddTaskStateType extends Hook {
+class AddTaskStateType extends Hook
+{
     public $name = 'AddTaskStateType';
     public $description = 'Add Report Management Type';
     public $author = 'Tom Elliott';
@@ -7,4 +8,4 @@ class AddTaskStateType extends Hook {
     public $node = 'taskstateedit';
 }
 $AddTaskStateType = new AddTaskStateType();
-$HookManager->register('REPORT_TYPES',array($AddTaskStateType,'reportTypes'));
+$HookManager->register('REPORT_TYPES', array($AddTaskStateType, 'reportTypes'));

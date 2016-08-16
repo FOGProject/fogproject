@@ -1,11 +1,13 @@
 <?php
-class FileIntegrityManagementPage extends FOGPage {
+class FileIntegrityManagementPage extends FOGPage
+{
     public $node = 'fileintegrity';
-    public function __construct($name = '') {
+    public function __construct($name = '')
+    {
         $this->name = 'File Integrity Management';
         self::$foglang['ExportFileintegrity'] = _('Export Checksums');
         parent::__construct($this->name);
-        $this->menu['list'] = sprintf(self::$foglang['ListAll'],_('Checksums'));
+        $this->menu['list'] = sprintf(self::$foglang['ListAll'], _('Checksums'));
         unset($this->menu['add']);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
@@ -13,7 +15,7 @@ class FileIntegrityManagementPage extends FOGPage {
             );
             $this->notes = array(
                 _('Name')=>$this->obj->get('name'),
-                _('Icon')=>sprintf('<i class="fa fa-%s fa-fw fa-2x"></i>',$this->obj->get('icon')),
+                _('Icon')=>sprintf('<i class="fa fa-%s fa-fw fa-2x"></i>', $this->obj->get('icon')),
             );
         }
         $this->headerData = array(
@@ -34,8 +36,10 @@ class FileIntegrityManagementPage extends FOGPage {
             array(),
             array(),
         );
-        self::$returnData = function(&$FileIntegrity) {
-            if (!$FileIntegrity->isValid()) return;
+        self::$returnData = function (&$FileIntegrity) {
+            if (!$FileIntegrity->isValid()) {
+                return;
+            }
             $FileIntegrity->load();
             $this->data[] = array(
                 'checksum'=>$FileIntegrity->get('checksum'),
@@ -47,19 +51,23 @@ class FileIntegrityManagementPage extends FOGPage {
             unset($FileIntegrity);
         };
     }
-    public function index() {
+    public function index()
+    {
         $this->title = _('All Recorded Integrities');
         $dataRet = self::getSetting('FOG_DATA_RETURNED');
-        if ($dataRet > 0 && self::getClass($this->childClass)->getManager()->count() > $dataRet && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if ($dataRet > 0 && self::getClass($this->childClass)->getManager()->count() > $dataRet && $_REQUEST['sub'] != 'list') {
+            $this->redirect(sprintf('?node=%s&sub=search', $this->node));
+        }
         $this->data = array();
-        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->find());
-        self::$HookManager->processEvent('FILE_INTEGRITY_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(self::$returnData, self::getClass($this->childClass)->getManager()->find());
+        self::$HookManager->processEvent('FILE_INTEGRITY_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function search_post() {
+    public function search_post()
+    {
         $this->data = array();
-        array_map(self::$returnData,self::getClass($this->childClass)->getManager()->search('',true));
-        self::$HookManager->processEvent('FILE_INTEGRITY_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        array_map(self::$returnData, self::getClass($this->childClass)->getManager()->search('', true));
+        self::$HookManager->processEvent('FILE_INTEGRITY_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
 }

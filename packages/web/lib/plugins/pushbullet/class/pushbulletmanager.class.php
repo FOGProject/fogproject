@@ -1,6 +1,8 @@
 <?php
-class PushbulletManager extends FOGManagerController {
-    public function install($name) {
+class PushbulletManager extends FOGManagerController
+{
+    public function install($name)
+    {
         $this->uninstall();
         $sql = "CREATE TABLE `pushbullet`
             (`pID` INTEGER NOT NULL AUTO_INCREMENT,
@@ -12,7 +14,8 @@ class PushbulletManager extends FOGManagerController {
         ENGINE = MyISAM";
         return self::$DB->query($sql);
     }
-    public function uninstall() {
+    public function uninstall()
+    {
         return self::$DB->query("DROP TABLE IF EXISTS `pushbullet`");
     }
 }

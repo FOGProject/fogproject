@@ -8,4 +8,4 @@ header('Access-Control-Allow-Origin: *');
 header('Connection: close');
 require('text.php');
 require('init.php');
-ob_start(array('Initiator','sanitize_output'));
+ob_start(array('Initiator', 'sanitize_output'));

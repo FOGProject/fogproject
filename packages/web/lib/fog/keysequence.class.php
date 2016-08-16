@@ -1,5 +1,6 @@
 <?php
-class KeySequence extends FOGController {
+class KeySequence extends FOGController
+{
     protected $databaseTable = 'keySequence';
     protected $databaseFields = array(
         'id' => 'ksID',

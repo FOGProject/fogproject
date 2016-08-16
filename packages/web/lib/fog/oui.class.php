@@ -1,5 +1,6 @@
 <?php
-class OUI extends FOGController {
+class OUI extends FOGController
+{
     protected $databaseTable = 'oui';
     protected $databaseFields = array(
         'id' => 'ouiID',

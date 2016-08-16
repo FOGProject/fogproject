@@ -1,2 +1,4 @@
 <?php
-class SnapinGroupAssociationManager extends FOGManagerController {}
+class SnapinGroupAssociationManager extends FOGManagerController
+{
+}

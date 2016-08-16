@@ -9,7 +9,7 @@ $hwinfo = $FOGCore->getHWInfo();
 ob_start();
 array_walk(
     $hwinfo,
-    function(&$val,&$index) {
+    function (&$val, &$index) {
         echo "$val\n";
         unset($val);
     }

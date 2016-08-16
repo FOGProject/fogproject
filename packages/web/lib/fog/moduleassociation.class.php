@@ -1,5 +1,6 @@
 <?php
-class ModuleAssociation extends FOGController {
+class ModuleAssociation extends FOGController
+{
     protected $databaseTable = 'moduleStatusByHost';
     protected $databaseFields = array(
         'id' => 'msID',
@@ -11,10 +12,12 @@ class ModuleAssociation extends FOGController {
         'hostID',
         'moduleID',
     );
-    public function getModule() {
-        return self::getClass('Module',$this->get('moduleID'));
+    public function getModule()
+    {
+        return self::getClass('Module', $this->get('moduleID'));
     }
-    public function getHost() {
-        return self::getClass('Host',$this->get('hostID'));
+    public function getHost()
+    {
+        return self::getClass('Host', $this->get('hostID'));
     }
 }

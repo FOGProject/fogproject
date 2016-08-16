@@ -1,5 +1,6 @@
 <?php
-class LocationAssociation extends FOGController {
+class LocationAssociation extends FOGController
+{
     protected $databaseTable = 'locationAssoc';
     protected $databaseFields = array(
         'id' => 'laID',
@@ -10,21 +11,28 @@ class LocationAssociation extends FOGController {
         'locationID',
         'hostID',
     );
-    public function getLocation() {
-        return self::getClass('Location',$this->get('locationID'));
+    public function getLocation()
+    {
+        return self::getClass('Location', $this->get('locationID'));
     }
-    public function getHost() {
-        return self::getClass('Host',$this->get('hostID'));
+    public function getHost()
+    {
+        return self::getClass('Host', $this->get('hostID'));
     }
-    public function getStorageGroup() {
+    public function getStorageGroup()
+    {
         return $this->getLocation()->getStorageGroup();
     }
-    public function getStorageNode() {
+    public function getStorageNode()
+    {
         return $this->getLocation()->getStorageNode();
     }
-    public function isTFTP() {
+    public function isTFTP()
+    {
         $Location = $this->getLocation();
-        if (!$Location->isValid()) return;
+        if (!$Location->isValid()) {
+            return;
+        }
         return (bool)$Location->get('tftp');
     }
 }

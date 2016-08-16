@@ -1,2 +1,4 @@
 <?php
-class VirusManager extends FOGManagerController {}
+class VirusManager extends FOGManagerController
+{
+}

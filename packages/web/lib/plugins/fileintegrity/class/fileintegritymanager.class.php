@@ -1,6 +1,8 @@
 <?php
-class FileIntegrityManager extends FOGManagerController {
-    public function install($name) {
+class FileIntegrityManager extends FOGManagerController
+{
+    public function install($name)
+    {
         $this->uninstall();
         $sql = "CREATE TABLE `fileChecksums` (
             `fcsID` INTEGER NOT NULL AUTO_INCREMENT,
@@ -14,7 +16,8 @@ class FileIntegrityManager extends FOGManagerController {
         ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC";
         return self::$DB->query($sql);
     }
-    public function uninstall() {
+    public function uninstall()
+    {
         return self::$DB->query("DROP TABLE IF EXISTS `fileChecksums`");
     }
 }

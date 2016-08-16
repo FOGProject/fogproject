@@ -1,5 +1,6 @@
 <?php
-class Inventory extends FOGController {
+class Inventory extends FOGController
+{
     protected $databaseTable = 'inventory';
     protected $databaseFields = array(
         'id' => 'iID',
@@ -38,9 +39,13 @@ class Inventory extends FOGController {
     protected $databaseFieldsRequired = array(
         'hostID',
     );
-    public function getHost() {return self::getClass(Host,$this->get(hostID));}
-    public function getMem() {
-        $memar = explode(' ',$this->get('mem'));
+    public function getHost()
+    {
+        return self::getClass(Host, $this->get(hostID));
+    }
+    public function getMem()
+    {
+        $memar = explode(' ', $this->get('mem'));
         return $this->formatByteSize(($memar[1] * 1024));
     }
 }

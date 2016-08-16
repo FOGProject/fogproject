@@ -1,5 +1,6 @@
 <?php
-class Pushbullet extends FOGController {
+class Pushbullet extends FOGController
+{
     protected $databaseTable = 'pushbullet';
     protected $databaseFields = array(
         'id'     => 'pID',

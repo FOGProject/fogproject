@@ -1,5 +1,6 @@
 <?php
-class GroupAssociation extends FOGController {
+class GroupAssociation extends FOGController
+{
     protected $databaseTable = 'groupMembers';
     protected $databaseFields = array(
         'id' => 'gmID',
@@ -10,10 +11,12 @@ class GroupAssociation extends FOGController {
         'hostID',
         'groupID',
     );
-    public function getGroup() {
-        return self::getClass('Group',$this->get('groupID'));
+    public function getGroup()
+    {
+        return self::getClass('Group', $this->get('groupID'));
     }
-    public function getHost() {
-        return self::getClass('Host',$this->get('hostID'));
+    public function getHost()
+    {
+        return self::getClass('Host', $this->get('hostID'));
     }
 }

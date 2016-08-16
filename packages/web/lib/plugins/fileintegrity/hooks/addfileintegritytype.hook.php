@@ -1,5 +1,6 @@
 <?php
-class AddFileIntegrityType extends Hook {
+class AddFileIntegrityType extends Hook
+{
     public $name = 'AddFileIntegrityType';
     public $description = 'Add Report Management Type';
     public $author = 'Tom Elliott';
@@ -7,4 +8,4 @@ class AddFileIntegrityType extends Hook {
     public $node = 'fileintegrity';
 }
 $AddFileIntegrityType = new AddFileIntegrityType();
-$HookManager->register('REPORT_TYPES',array($AddFileIntegrityType,'reportTypes'));
+$HookManager->register('REPORT_TYPES', array($AddFileIntegrityType, 'reportTypes'));

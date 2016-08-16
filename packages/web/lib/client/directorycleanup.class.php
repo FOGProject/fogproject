@@ -1,14 +1,20 @@
 <?php
-class DirectoryCleanup extends FOGClient implements FOGClientSend {
+class DirectoryCleanup extends FOGClient implements FOGClientSend
+{
     protected $send;
-    public function send() {
+    public function send()
+    {
         $DirectoryCleanups = self::getClass('DirCleanerManager')->find();
-        foreach ($DirectoryCleanups AS $i => &$DirectoryCleanup) {
-            if (!$DirectoryCleanup->isValid()) continue;
+        foreach ($DirectoryCleanups as $i => &$DirectoryCleanup) {
+            if (!$DirectoryCleanup->isValid()) {
+                continue;
+            }
             $SendEnc = base64_encode($DirectoryCleanup->get('path'))."\n";
             $Send[$i] = $SendEnc;
             if ($this->newService) {
-                if (!$i) $Send[$i] = "#!ok\n";
+                if (!$i) {
+                    $Send[$i] = "#!ok\n";
+                }
                 $Send[$i] .= "#dir$i=$SendEnc";
             }
             unset($DirectoryCleanup);

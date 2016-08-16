@@ -1,2 +1,4 @@
 <?php
-class ImageAssociationManager extends FOGManagerController {}
+class ImageAssociationManager extends FOGManagerController
+{
+}

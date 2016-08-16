@@ -1,22 +1,33 @@
 <?php
-class AddHostModel extends Hook {
+class AddHostModel extends Hook
+{
     public $name = 'AddHostModel';
     public $description = 'Adds host model to the host lists';
     public $author = 'Rowlett/TomElliott';
     public $active = false;
-    public function HostData($arguments) {
-        if ($_REQUEST['node'] != 'host') return;
-        foreach((array)$arguments['data'] AS $i => &$data) {
-            $Host = self::getClass('Host',@max(self::getSubObjectIDs('Host',array('name'=>$data['host_name']),'id')));
-            if (!$Host->isValid()) continue;
-            if (!$Host->get('inventory')->isValid()) continue;
+    public function HostData($arguments)
+    {
+        if ($_REQUEST['node'] != 'host') {
+            return;
+        }
+        foreach ((array)$arguments['data'] as $i => &$data) {
+            $Host = self::getClass('Host', @max(self::getSubObjectIDs('Host', array('name'=>$data['host_name']), 'id')));
+            if (!$Host->isValid()) {
+                continue;
+            }
+            if (!$Host->get('inventory')->isValid()) {
+                continue;
+            }
             $arguments['templates'][5] = '${model}';
             $arguments['data'][$i]['model'] = $Host->get('inventory')->get('sysproduct');
             $arguments['attributes'][5] = array('width'=>20,'class'=>'c');
         }
     }
-    public function HostTableHeader($arguments) {
-        if ($_REQUEST['node'] != 'host') return;
+    public function HostTableHeader($arguments)
+    {
+        if ($_REQUEST['node'] != 'host') {
+            return;
+        }
         $arguments['headerData'][5] = _('Model');
     }
 }

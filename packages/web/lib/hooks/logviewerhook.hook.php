@@ -10,28 +10,35 @@
  * Also the file will need to be readable by everybody:
  * chmod +r <filename>
  */
-class LogViewerHook extends Hook {
+class LogViewerHook extends Hook
+{
     public $name = 'LogViewerHook';
     public $description = 'Allows adding/removing log viewer files to the system';
     public $author = 'Tom Elliott/Lee Rowlett';
     public $active = false;
-    public function LogViewerAdd($arguments) {
+    public function LogViewerAdd($arguments)
+    {
         self::$FOGFTP
-            ->set('host',$arguments['StorageNode']->get('ip'))
-            ->set('username',$arguments['StorageNode']->get('user'))
-            ->set('password',$arguments['StorageNode']->get('pass'));
-        if (!self::$FOGFTP->connect()) return;
+            ->set('host', $arguments['StorageNode']->get('ip'))
+            ->set('username', $arguments['StorageNode']->get('user'))
+            ->set('password', $arguments['StorageNode']->get('pass'));
+        if (!self::$FOGFTP->connect()) {
+            return;
+        }
         $fogfiles = array();
         $fogfiles = self::$FOGFTP->nlist('/var/log/');
         self::$FOGFTP->close();
-        $systemlog = preg_grep('#(syslog$|messages$)#',$fogfiles);
+        $systemlog = preg_grep('#(syslog$|messages$)#', $fogfiles);
         $systemlog = array_shift($systemlog);
-        if ($systemlog) $arguments['files'][$arguments['StorageNode']->get('name')]['System Log'] = $systemlog;
+        if ($systemlog) {
+            $arguments['files'][$arguments['StorageNode']->get('name')]['System Log'] = $systemlog;
+        }
     }
-    public function LogFolderAdd($arguments) {
+    public function LogFolderAdd($arguments)
+    {
         $arguments['folders'][] = '/var/log/';
     }
 }
 $LogViewerHook = new LogViewerHook();
-$HookManager->register('LOG_VIEWER_HOOK',array($LogViewerHook,'LogViewerAdd'));
-$HookManager->register('LOG_FOLDERS',array($LogViewerHook,'LogFolderAdd'));
+$HookManager->register('LOG_VIEWER_HOOK', array($LogViewerHook, 'LogViewerAdd'));
+$HookManager->register('LOG_FOLDERS', array($LogViewerHook, 'LogFolderAdd'));

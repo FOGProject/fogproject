@@ -1,2 +1,4 @@
 <?php
-class SlackException extends Exception {}
+class SlackException extends Exception
+{
+}

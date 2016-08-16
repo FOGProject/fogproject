@@ -1,7 +1,9 @@
 <?php
-class PluginManagementPage extends FOGPage {
+class PluginManagementPage extends FOGPage
+{
     public $node = 'plugin';
-    public function __construct($name = '') {
+    public function __construct($name = '')
+    {
         $this->name = 'Plugin Management';
         parent::__construct($this->name);
         $this->menu = array(
@@ -10,7 +12,7 @@ class PluginManagementPage extends FOGPage {
             'install'=>self::$foglang['InstallPlugins'],
             'installed'=>self::$foglang['InstalledPlugins'],
         );
-        self::$HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
+        self::$HookManager->processEvent('SUB_MENULINK_DATA', array('menu'=>&$this->menu, 'submenu'=>&$this->subMenu, 'id'=>&$this->id, 'notes'=>&$this->notes));
         $this->headerData = array(
             _('Plugin Name'),
             _('Description'),
@@ -26,98 +28,116 @@ class PluginManagementPage extends FOGPage {
             array(),
             array(),
         );
-        if (in_array($_REQUEST['sub'],array('installed','install'))) {
-            array_push($this->headerData,_('Remove'));
-            array_push($this->templates,'<a href="?node=plugin&sub=removeplugin&rmid=${pluginid}"><i class="icon fa fa-minus-circle" title="Remove Plugin"></i></a>');
-            array_push($this->attributes,array('class'=>'l filter-false'));
+        if (in_array($_REQUEST['sub'], array('installed', 'install'))) {
+            array_push($this->headerData, _('Remove'));
+            array_push($this->templates, '<a href="?node=plugin&sub=removeplugin&rmid=${pluginid}"><i class="icon fa fa-minus-circle" title="Remove Plugin"></i></a>');
+            array_push($this->attributes, array('class'=>'l filter-false'));
         }
     }
-    public function index() {
+    public function index()
+    {
         $this->activate();
     }
-    public function activate() {
+    public function activate()
+    {
         $this->title = _('Activate Plugins');
-        array_map(function(&$Plugin) {
-            if ($Plugin->get('state')) return;
+        array_map(function (&$Plugin) {
+            if ($Plugin->get('state')) {
+                return;
+            }
             $this->data[] = array(
                 'name'=>$Plugin->get('name'),
                 'type'=>'activate',
                 'encname'=>trim(md5(trim($Plugin->get('name')))),
                 'location'=>$Plugin->getPath(),
                 'desc'=>$Plugin->get('description'),
-                'icon'=>preg_match('#^fa[-]?#',$Plugin->getIcon()) ? sprintf('<i class="%s" height="66" width="66" alt="%s"></i>',$Plugin->getIcon(),$Plugin->get('name')) : sprintf('<img width="66" height="66" src="%s" alt="%s"/>',$Plugin->getIcon(),$Plugin->get('name')),
+                'icon'=>preg_match('#^fa[-]?#', $Plugin->getIcon()) ? sprintf('<i class="%s" height="66" width="66" alt="%s"></i>', $Plugin->getIcon(), $Plugin->get('name')) : sprintf('<img width="66" height="66" src="%s" alt="%s"/>', $Plugin->getIcon(), $Plugin->get('name')),
             );
             unset($Plugin);
-        },self::getClass($this->childClass)->getPlugins());
-        self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        }, self::getClass($this->childClass)->getPlugins());
+        self::$HookManager->processEvent('PLUGIN_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
         if (!empty($_REQUEST['activate']) && $_REQUEST['sub'] == 'activate') {
             self::getClass($this->childClass)->activatePlugin($_REQUEST['activate']);
             $this->setMessage(_('Successfully activated Plugin!'));
-            $this->redirect(preg_replace('#&activate=.*&?#','',$this->formAction));
+            $this->redirect(preg_replace('#&activate=.*&?#', '', $this->formAction));
         }
     }
-    public function install() {
+    public function install()
+    {
         $this->title = 'Install Plugins';
         $P = null;
-        array_map(function(&$Plugin) use (&$P) {
-            if (!$Plugin->isActive() || $Plugin->isInstalled() || isset($_REQUEST['plug_name']) && $_REQUEST['plug_name'] != $Plugin->get('name')) return;
+        array_map(function (&$Plugin) use (&$P) {
+            if (!$Plugin->isActive() || $Plugin->isInstalled() || isset($_REQUEST['plug_name']) && $_REQUEST['plug_name'] != $Plugin->get('name')) {
+                return;
+            }
             $this->data[] = array(
                 'name'=>$Plugin->get('name'),
                 'type'=>'install',
-                'encname'=>sprintf('%s&plug_name=%s',trim(md5(trim($Plugin->get('name')))),$Plugin->get('name')),
+                'encname'=>sprintf('%s&plug_name=%s', trim(md5(trim($Plugin->get('name')))), $Plugin->get('name')),
                 'location'=>$Plugin->getPath(),
                 'desc'=>$Plugin->get('description'),
-                'icon'=>preg_match('#^fa[-]?#',$Plugin->getIcon()) ? sprintf('<i class="%s" height="66" width="66" alt="%s"></i>',$Plugin->getIcon(),$Plugin->get('name')) : sprintf('<img width="66" height="66" src="%s" alt="%s"/>',$Plugin->getIcon(),$Plugin->get('name')),
+                'icon'=>preg_match('#^fa[-]?#', $Plugin->getIcon()) ? sprintf('<i class="%s" height="66" width="66" alt="%s"></i>', $Plugin->getIcon(), $Plugin->get('name')) : sprintf('<img width="66" height="66" src="%s" alt="%s"/>', $Plugin->getIcon(), $Plugin->get('name')),
                 'pluginid'=>$Plugin->get('id') ? $Plugin->get('id') : '',
             );
             $P = $Plugin;
             unset($Plugin);
-        },self::getClass($this->childClass)->getPlugins());
-        self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        }, self::getClass($this->childClass)->getPlugins());
+        self::$HookManager->processEvent('PLUGIN_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
         if ($_REQUEST['run']) {
             $runner = $P->getRunInclude($_REQUEST['run']);
-            if (file_exists($runner) && $P->isInstalled()) require $runner;
-            else $this->run($P);
+            if (file_exists($runner) && $P->isInstalled()) {
+                require $runner;
+            } else {
+                $this->run($P);
+            }
         }
         unset($P);
     }
-    public function installed() {
+    public function installed()
+    {
         $this->title = _('Installed Plugins');
         $P = array();
-        array_map(function(&$Plugin) use (&$P) {
-            if (!$Plugin->isActive() || !$Plugin->isInstalled()) return;
+        array_map(function (&$Plugin) use (&$P) {
+            if (!$Plugin->isActive() || !$Plugin->isInstalled()) {
+                return;
+            }
             $this->data[] = array(
                 'name'=>$Plugin->get('name'),
                 'type'=>'installed',
                 'encname'=>trim(md5(trim($Plugin->get('name')))),
                 'location'=>$Plugin->getPath(),
                 'desc'=>$Plugin->get('description'),
-                'icon'=>preg_match('#^fa[-]?#',$Plugin->getIcon()) ? sprintf('<i class="%s" height="66" width="66" alt="%s"></i>',$Plugin->getIcon(),$Plugin->get('name')) : sprintf('<img width="66" height="66" src="%s" alt="%s"/>',$Plugin->getIcon(),$Plugin->get('name')),
+                'icon'=>preg_match('#^fa[-]?#', $Plugin->getIcon()) ? sprintf('<i class="%s" height="66" width="66" alt="%s"></i>', $Plugin->getIcon(), $Plugin->get('name')) : sprintf('<img width="66" height="66" src="%s" alt="%s"/>', $Plugin->getIcon(), $Plugin->get('name')),
                 'pluginid'=>$Plugin->get('id') ? $Plugin->get('id') : '',
             );
             $P[] = $Plugin;
             unset($Plugin);
-        },self::getClass($this->childClass)->getPlugins());
-        self::$HookManager->processEvent('PLUGIN_DATA',array('headerData'=>&$this->headerData,'data'=>&$this->data,'templates'=>&$this->templates,'attributes'=>&$this->attributes));
+        }, self::getClass($this->childClass)->getPlugins());
+        self::$HookManager->processEvent('PLUGIN_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
         if ($_REQUEST['run']) {
-            $P = array_filter($P,function(&$plugin) {
+            $P = array_filter($P, function (&$plugin) {
                 return ($plugin->isValid() && $plugin->isInstalled() && trim(md5(trim($plugin->get('name')))) === trim($_REQUEST['run']));
             });
             $P = array_shift($P);
             $runner = $P->getRunInclude($_REQUEST['run']);
-            if (!file_exists($runner)) return $this->run($P);
+            if (!file_exists($runner)) {
+                return $this->run($P);
+            }
             require $runner;
         }
         unset($P);
     }
-    public function run($plugin) {
+    public function run($plugin)
+    {
         try {
-            if ($plugin == null) throw new Exception(_('Unable to determine plugin details.'));
-            $this->title = sprintf('%s: %s',_('Plugin'),$plugin->get('name'));
-            printf('<p>%s: %s</p>',_('Plugin Description'),$plugin->get('description'));
+            if ($plugin == null) {
+                throw new Exception(_('Unable to determine plugin details.'));
+            }
+            $this->title = sprintf('%s: %s', _('Plugin'), $plugin->get('name'));
+            printf('<p>%s: %s</p>', _('Plugin Description'), $plugin->get('description'));
             switch ($plugin->isInstalled()) {
             case true:
                 switch (strtolower($plugin->get('name'))) {
@@ -146,8 +166,8 @@ class PluginManagementPage extends FOGPage {
                         'processor-version',
                         'processor-frequency',
                     );
-                    printf('<p class="titleBottomLeft">%s</p>',_('Settings'));
-                    unset($this->headerData,$this->data);
+                    printf('<p class="titleBottomLeft">%s</p>', _('Settings'));
+                    unset($this->headerData, $this->data);
                     $this->templates = array(
                         '${field}',
                         '${input}',
@@ -157,42 +177,42 @@ class PluginManagementPage extends FOGPage {
                         array(),
                     );
                     ob_start();
-                    array_map(function(&$dmifield) {
+                    array_map(function (&$dmifield) {
                         $checked = self::getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? ' selected' : '';
-                        printf('<option value="%s" label="%s"%s>%s</option>',$dmifield,$dmifield,$checked,$dmifield);
+                        printf('<option value="%s" label="%s"%s>%s</option>', $dmifield, $dmifield, $checked, $dmifield);
                         unset($dmifield);
-                    },(array)$dmiFields);
+                    }, (array)$dmiFields);
                     $dmiOpts = ob_get_clean();
                     $ShutdownFields = array(
                         _('Reboot after deploy'),
                         _('Shutdown after deploy'),
                     );
                     ob_start();
-                    printf('<option value="0"%s>%s</option>',(!self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''),_('Reboot after deploy'));
-                    printf('<option value="1"%s>%s</option>',(self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''),_('Shutdown after deploy'));
+                    printf('<option value="0"%s>%s</option>', (!self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''), _('Reboot after deploy'));
+                    printf('<option value="1"%s>%s</option>', (self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''), _('Shutdown after deploy'));
                     $shutOpts = ob_get_clean();
                     $fields = array(
-                        sprintf('%s:',_('DMI Field')) => sprintf('<select name="dmifield" size="1"><option value="">- %s -</option>%s</select>',_('Please select an option'),$dmiOpts),
-                        sprintf('%s:',_('Shutdown')) => sprintf('<select name="shutdown" size="1"><option value="">- %s -</option>%s</select>',_('Please select an option'),$shutOpts),
-                        '&nbsp;' => sprintf('<input style="margin-top: 7px;" type="submit" name="basics" value="%s"/>',_('Update Settings')),
+                        sprintf('%s:', _('DMI Field')) => sprintf('<select name="dmifield" size="1"><option value="">- %s -</option>%s</select>', _('Please select an option'), $dmiOpts),
+                        sprintf('%s:', _('Shutdown')) => sprintf('<select name="shutdown" size="1"><option value="">- %s -</option>%s</select>', _('Please select an option'), $shutOpts),
+                        '&nbsp;' => sprintf('<input style="margin-top: 7px;" type="submit" name="basics" value="%s"/>', _('Update Settings')),
                     );
-                    array_walk($fields,$this->fieldsToData);
-                    printf('<form method="post" action="%s">',$this->formAction);
+                    array_walk($fields, $this->fieldsToData);
+                    printf('<form method="post" action="%s">', $this->formAction);
                     $this->render();
                     echo '</form>';
-                    unset($this->headerData,$this->data,$fields);
-                    printf('<p class="titleBottomLeft">%s</p>',_('Add Image to DMI Associations'));
+                    unset($this->headerData, $this->data, $fields);
+                    printf('<p class="titleBottomLeft">%s</p>', _('Add Image to DMI Associations'));
                     $fields = array(
-                        sprintf('%s:',_('Image Definition')) => self::getClass('ImageManager')->buildSelectBox(),
-                        sprintf('%s:',_('DMI Result')) => '<input type="text" name="key"/>',
-                        '' => sprintf('<input type="submit" style="margin-top: 7px;" name="addass" value="%s"/>',_('Add Association')),
+                        sprintf('%s:', _('Image Definition')) => self::getClass('ImageManager')->buildSelectBox(),
+                        sprintf('%s:', _('DMI Result')) => '<input type="text" name="key"/>',
+                        '' => sprintf('<input type="submit" style="margin-top: 7px;" name="addass" value="%s"/>', _('Add Association')),
                     );
-                    array_walk($fields,$this->fieldsToData);
-                    printf('<form method="post" action="%s">',$this->formAction);
+                    array_walk($fields, $this->fieldsToData);
+                    printf('<form method="post" action="%s">', $this->formAction);
                     $this->render();
                     echo '</form>';
-                    unset($this->headerData,$this->data,$fields);
-                    printf('<p class="titleBottomLeft">%s</p>',_('Current Image to DMI Associations'));
+                    unset($this->headerData, $this->data, $fields);
+                    printf('<p class="titleBottomLeft">%s</p>', _('Current Image to DMI Associations'));
                     $this->headerData = array(
                         _('Image Name'),
                         _('OS Name'),
@@ -203,7 +223,7 @@ class PluginManagementPage extends FOGPage {
                         '${image_name}',
                         '${os_name}',
                         '${capone_key}',
-                        sprintf('<input type="checkbox" name="kill" value="${capone_id}" class="delid" onclick="this.form.submit()" id="rmcap${capone_id}" /><label for="rmcap${capone_id}"><i class="icon icon-hand fa fa-minus-circle fa-1x" title="%s"></i></label>',_('Delete')),
+                        sprintf('<input type="checkbox" name="kill" value="${capone_id}" class="delid" onclick="this.form.submit()" id="rmcap${capone_id}" /><label for="rmcap${capone_id}"><i class="icon icon-hand fa fa-minus-circle fa-1x" title="%s"></i></label>', _('Delete')),
                     );
                     $this->attributes = array(
                         array(),
@@ -211,70 +231,86 @@ class PluginManagementPage extends FOGPage {
                         array(),
                         array('class'=>'l filter-false'),
                     );
-                    array_map(function(&$Capone) {
-                        if (!$Capone->isValid()) return;
-                        $Image = self::getClass('Image',$Capone->get('imageID'));
-                        if (!$Image->isValid()) return;
+                    array_map(function (&$Capone) {
+                        if (!$Capone->isValid()) {
+                            return;
+                        }
+                        $Image = self::getClass('Image', $Capone->get('imageID'));
+                        if (!$Image->isValid()) {
+                            return;
+                        }
                         $OS = $Image->getOS();
-                        if (!$OS->isValid()) return;
+                        if (!$OS->isValid()) {
+                            return;
+                        }
                         $this->data[] = array(
                             'image_name'=>$Image->get('name'),
                             'os_name'=>$OS->get('name'),
                             'capone_key'=>$Capone->get('key'),
-                            'link'=>sprintf('%s&kill=${capone_id}',$this->formAction),
+                            'link'=>sprintf('%s&kill=${capone_id}', $this->formAction),
                             'capone_id'=>$Capone->get('id'),
                         );
-                        unset($Capone,$Image,$OS);
-                    },self::getClass('CaponeManager')->find());
-                    printf('<form method="post" action="%s">',$this->formAction);
+                        unset($Capone, $Image, $OS);
+                    }, self::getClass('CaponeManager')->find());
+                    printf('<form method="post" action="%s">', $this->formAction);
                     $this->render();
                     echo '</form>';
-                    unset($this->headerData,$this->data,$fields);
+                    unset($this->headerData, $this->data, $fields);
                     break;
                 }
                 break;
                 case false:
-                    printf('<p class="titleBottomLeft">%s</p><p>%s</p><div><form method="post" action="%s"><input type="submit" value="Install Plugin" name="install"/></form></div>',_('Plugin Installation'),_('This plugin is currently not installed, would you like to install it now?'),$this->formAction);
+                    printf('<p class="titleBottomLeft">%s</p><p>%s</p><div><form method="post" action="%s"><input type="submit" value="Install Plugin" name="install"/></form></div>', _('Plugin Installation'), _('This plugin is currently not installed, would you like to install it now?'), $this->formAction);
                     break;
             }
         } catch (Exception $e) {
             echo $this->setMessage($e->getMessage());
-            $this->redirect(sprintf('?node=%s&sub=%s&run=%s',$_REQUEST['node'],$_REQUEST['sub'],$_REQUEST['run']));
+            $this->redirect(sprintf('?node=%s&sub=%s&run=%s', $_REQUEST['node'], $_REQUEST['sub'], $_REQUEST['run']));
         }
     }
-    public function install_post() {
+    public function install_post()
+    {
         $this->installed_post();
     }
-    public function installed_post() {
+    public function installed_post()
+    {
         self::getClass('Plugin')->getRunInclude($_REQUEST['run']);
-        $Plugin = self::getClass('Plugin',@min(self::getSubObjectIDs('Plugin',array('name'=>$_SESSION['fogactiveplugin']))));
+        $Plugin = self::getClass('Plugin', @min(self::getSubObjectIDs('Plugin', array('name'=>$_SESSION['fogactiveplugin']))));
         try {
-            if (!$Plugin->isValid()) throw new Exception(_('Invalid Plugin Passed'));
+            if (!$Plugin->isValid()) {
+                throw new Exception(_('Invalid Plugin Passed'));
+            }
             if (isset($_REQUEST['install'])) {
-                if (!$Plugin->getManager()->install($Plugin->get('name'))) throw new Exception(sprintf('%s %s',_('Failed to install plugin'),$Plugin->get('name')));
+                if (!$Plugin->getManager()->install($Plugin->get('name'))) {
+                    throw new Exception(sprintf('%s %s', _('Failed to install plugin'), $Plugin->get('name')));
+                }
                 $Plugin
-                    ->set('installed',1)
-                    ->set('version',1);
-                if (!$Plugin->save()) throw new Exception(sprintf('%s %s',_('Failed to save plugin'),$Plugin->get('name')));
-                $this->formAction = sprintf('?node=plugin&sub=installed&run=%s',$_REQUEST['run']);
+                    ->set('installed', 1)
+                    ->set('version', 1);
+                if (!$Plugin->save()) {
+                    throw new Exception(sprintf('%s %s', _('Failed to save plugin'), $Plugin->get('name')));
+                }
+                $this->formAction = sprintf('?node=plugin&sub=installed&run=%s', $_REQUEST['run']);
                 //preg_replace('#sub=install&#','sub=installed&',$this->formAction);
                 throw new Exception(_('Plugin Installed!'));
             }
             if (isset($_REQUEST['basics'])) {
-                $this->setSetting('FOG_PLUGIN_CAPONE_DMI',$_REQUEST['dmifield']);
-                $this->setSetting('FOG_PLUGIN_CAPONE_SHUTDOWN',$_REQUEST['shutdown']);
+                $this->setSetting('FOG_PLUGIN_CAPONE_DMI', $_REQUEST['dmifield']);
+                $this->setSetting('FOG_PLUGIN_CAPONE_SHUTDOWN', $_REQUEST['shutdown']);
                 throw new Exception(_('Settings Updated'));
             }
             if (isset($_REQUEST['addass'])) {
                 $Capone = self::getClass('Capone')
-                    ->set('imageID',$_REQUEST['image'])
-                    ->set('osID',self::getClass('Image',$_REQUEST['image'])->getOS()->get('id'))
-                    ->set('key',$_REQUEST['key']);
-                if (!$Capone->save()) throw new Exception(_('Failed to save assignment'));
+                    ->set('imageID', $_REQUEST['image'])
+                    ->set('osID', self::getClass('Image', $_REQUEST['image'])->getOS()->get('id'))
+                    ->set('key', $_REQUEST['key']);
+                if (!$Capone->save()) {
+                    throw new Exception(_('Failed to save assignment'));
+                }
                 throw new Exception(_('Assignment saved successfully'));
             }
             if ($_REQUEST['kill']) {
-                self::getClass('Capone',$_REQUEST['kill'])->destroy();
+                self::getClass('Capone', $_REQUEST['kill'])->destroy();
                 throw new Exception(_('Destroyed assignment'));
             }
         } catch (Exception $e) {
@@ -282,12 +318,15 @@ class PluginManagementPage extends FOGPage {
         }
         $this->redirect($this->formAction);
     }
-    public function removeplugin() {
-        if ($_REQUEST['rmid']) $Plugin = self::getClass('Plugin',$_REQUEST['rmid']);
+    public function removeplugin()
+    {
+        if ($_REQUEST['rmid']) {
+            $Plugin = self::getClass('Plugin', $_REQUEST['rmid']);
+        }
         $Plugin->getManager()->uninstall();
         if ($Plugin->destroy()) {
             $this->setMessage('Plugin Removed');
-            $this->redirect(sprintf('?node=%s&sub=activate',$_REQUEST['node']));
+            $this->redirect(sprintf('?node=%s&sub=activate', $_REQUEST['node']));
         }
     }
 }

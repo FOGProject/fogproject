@@ -1,2 +1,4 @@
 <?php
-class StorageGroupManager extends FOGManagerController {}
+class StorageGroupManager extends FOGManagerController
+{
+}

@@ -1,9 +1,12 @@
 <?php
-class TasktypeeditManager extends TaskTypeManager {
-    public function install($name) {
+class TasktypeeditManager extends TaskTypeManager
+{
+    public function install($name)
+    {
         return true;
     }
-    public function uninstall() {
+    public function uninstall()
+    {
         return true;
     }
 }

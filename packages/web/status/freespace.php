@@ -10,7 +10,7 @@ $hdused = 0;
 $freeArray = explode("\n", shell_exec("df -B 1 $path | grep -vE '^Filesystem|shm'"));
 array_walk(
     $freeArray,
-    function(&$n, &$index) use (&$hdtotal,&$hdused) {
+    function (&$n, &$index) use (&$hdtotal, &$hdused) {
         if (!preg_match('/(\d+) +(\d+) +(\d+) +\d+%/', $n, $matches)) {
             return;
         }

@@ -1,2 +1,4 @@
 <?php
-class TaskStateManager extends FOGManagerController {}
+class TaskStateManager extends FOGManagerController
+{
+}

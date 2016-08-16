@@ -1,5 +1,6 @@
 <?php
-class Capone extends FOGController {
+class Capone extends FOGController
+{
     protected $databaseTable = 'capone';
     protected $databaseFields = array(
         'id' => 'cID',
@@ -7,16 +8,20 @@ class Capone extends FOGController {
         'osID' => 'cOSID',
         'key' => 'cKey',
     );
-    public function getImage() {
-        return self::getClass('Image',$this->get('imageID'));
+    public function getImage()
+    {
+        return self::getClass('Image', $this->get('imageID'));
     }
-    public function getOS() {
-        return self::getClass('OS',$this->get('osID'));
+    public function getOS()
+    {
+        return self::getClass('OS', $this->get('osID'));
     }
-    public function getStorageGroup() {
+    public function getStorageGroup()
+    {
         return $this->getImage()->getStorageGroup();
     }
-    public function getStorageNode() {
+    public function getStorageNode()
+    {
         return $this->getStorageGroup()->getOptimalStorageNode($this->get('imageID'));
     }
 }

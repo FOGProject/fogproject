@@ -1,5 +1,6 @@
 <?php
-class OS extends FOGController {
+class OS extends FOGController
+{
     protected $databaseTable = 'os';
     protected $databaseFields = array(
         'id' => 'osID',

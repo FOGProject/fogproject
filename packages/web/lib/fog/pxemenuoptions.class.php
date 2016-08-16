@@ -1,5 +1,6 @@
 <?php
-class PXEMenuOptions extends FOGController {
+class PXEMenuOptions extends FOGController
+{
     protected $databaseTable = 'pxeMenu';
     protected $databaseFields = array(
         'id' => 'pxeID',

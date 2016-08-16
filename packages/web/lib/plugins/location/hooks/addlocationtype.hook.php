@@ -1,5 +1,6 @@
 <?php
-class AddLocationType extends Hook {
+class AddLocationType extends Hook
+{
     public $name = 'AddLocationType';
     public $description = 'Add Report Management Type';
     public $author = 'Tom Elliott';
@@ -7,4 +8,4 @@ class AddLocationType extends Hook {
     public $node = 'location';
 }
 $AddLocationType = new AddLocationType();
-$HookManager->register('REPORT_TYPES',array($AddLocationType,'reportTypes'));
+$HookManager->register('REPORT_TYPES', array($AddLocationType, 'reportTypes'));

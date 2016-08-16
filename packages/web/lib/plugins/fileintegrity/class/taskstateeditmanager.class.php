@@ -1,9 +1,12 @@
 <?php
-class TaskstateeditManager extends TaskStateManager {
-    public function install($name) {
+class TaskstateeditManager extends TaskStateManager
+{
+    public function install($name)
+    {
         return true;
     }
-    public function uninstall() {
+    public function uninstall()
+    {
         return true;
     }
 }

@@ -1,5 +1,6 @@
 <?php
-class HostScreenSettings extends FOGController {
+class HostScreenSettings extends FOGController
+{
     protected $databaseTable = 'hostScreenSettings';
     protected $databaseFields = array(
         'id' => 'hssID',

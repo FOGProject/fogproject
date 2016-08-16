@@ -1,5 +1,6 @@
 <?php
-class PrinterAssociation extends FOGController {
+class PrinterAssociation extends FOGController
+{
     protected $databaseTable = 'printerAssoc';
     protected $databaseFields = array(
         'id' => 'paID',
@@ -16,13 +17,16 @@ class PrinterAssociation extends FOGController {
         'hostID',
         'printerID',
     );
-    public function getHost() {
+    public function getHost()
+    {
         return new Host($this->get('hostID'));
     }
-    public function getPrinter() {
+    public function getPrinter()
+    {
         return new Printer($this->get('printerID'));
     }
-    public function isDefault() {
+    public function isDefault()
+    {
         return (bool)($this->get('isDefault') === 1);
     }
 }

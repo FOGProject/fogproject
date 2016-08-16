@@ -1,5 +1,6 @@
 <?php
-class ReportMaker extends FOGBase {
+class ReportMaker extends FOGBase
+{
     private $strHTML, $strCSV, $strLine, $filename;
     public $types = array(
         'html' => 0,
@@ -14,60 +15,70 @@ class ReportMaker extends FOGBase {
         'printer' => 4,
         'sqldump' => 5,
     );
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
-        self::$HookManager->processEvent('REPORT_TYPES',array('types'=>&$this->types));
+        self::$HookManager->processEvent('REPORT_TYPES', array('types'=>&$this->types));
     }
-    public function appendHTML($html) {
+    public function appendHTML($html)
+    {
         $this->strHTML[] = $html;
         return $this;
     }
-    public function addCSVCell($item) {
+    public function addCSVCell($item)
+    {
         $this->strCSV[] = stripslashes($item);
         return $this;
     }
-    public function endCSVLine() {
-        $this->strLine[] = sprintf('"%s"%s',implode('","',$this->strCSV),"\n");
+    public function endCSVLine()
+    {
+        $this->strLine[] = sprintf('"%s"%s', implode('","', $this->strCSV), "\n");
         unset($this->strCSV);
         return $this;
     }
-    public function setFileName($filename) {
+    public function setFileName($filename)
+    {
         $this->filename = $filename;
         return $this;
     }
-    public function outputReport($intType = 0) {
+    public function outputReport($intType = 0)
+    {
         $keys = array_keys($this->types);
-        $type = isset($_REQUEST['type']) ? htmlspecialchars($_REQUEST['type'],ENT_QUOTES,'utf-8') : $keys[$intType];
-        if (!in_array($type,$keys)) die(_('Invalid type'));
-        $file = basename(trim(htmlspecialchars($_REQUEST['filename'],ENT_QUOTES,'utf-8')));
-        if (!isset($_REQUEST['export'])) $this->setFileName($file);
+        $type = isset($_REQUEST['type']) ? htmlspecialchars($_REQUEST['type'], ENT_QUOTES, 'utf-8') : $keys[$intType];
+        if (!in_array($type, $keys)) {
+            die(_('Invalid type'));
+        }
+        $file = basename(trim(htmlspecialchars($_REQUEST['filename'], ENT_QUOTES, 'utf-8')));
+        if (!isset($_REQUEST['export'])) {
+            $this->setFileName($file);
+        }
         $intType = ($intType !== false ? (isset($_REQUEST['export']) ? 3 : $this->types[$type]) : 0);
-        switch ( $intType) {
+        switch ($intType) {
         case 0:
-            echo implode("\n",(array)$this->strHTML);
+            echo implode("\n", (array)$this->strHTML);
             break;
         case 1:
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=$this->filename.csv");
             header('Connection: close');
             echo implode((array)$this->strLine);
-            unset($this->filename,$this->strLine);
+            unset($this->filename, $this->strLine);
             break;
         case 2:
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=$this->filename.pdf");
             header('Connection: close');
             $proc = proc_open("htmldoc --links --header . --linkstyle plain --numbered --size letter --no-localfiles -t pdf14 --quiet --jpeg --webpage --size letter --left 0.25in --right 0.25in --top 0.25in --bottom 0.25in --header ... --footer ... -", array(0 => array("pipe", "r"), 1 => array("pipe", "w")), $pipes);
-            fwrite($pipes[0], sprintf('<html><body>%s</body></html>',implode("\n",(array)$this->strHTML)));
+            fwrite($pipes[0], sprintf('<html><body>%s</body></html>', implode("\n", (array)$this->strHTML)));
             fclose($pipes[0]);
             fpassthru($pipes[1]);
             $status = proc_close($proc);
-            unset($status,$this->strHTML);
+            unset($status, $this->strHTML);
             break;
         case 3:
             $SchemaSave = FOGCore::getClass('Schema');
             global $FOGCore;
-            $backup_name = sprintf('fog_backup_%s.sql',$FOGCore->formatTime('','Ymd_His'));
+            $backup_name = sprintf('fog_backup_%s.sql', $FOGCore->formatTime('', 'Ymd_His'));
             $SchemaSave->export_db($backup_name);
             unset($SchemaSave);
             break;
@@ -79,27 +90,37 @@ class ReportMaker extends FOGBase {
             unset($this->strLine);
             break;
         case 5:
-            while (ob_get_level()) ob_end_clean();
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
             $filename = 'fog_backup.sql';
-            $path = sprintf('%s/management/other/',BASEPATH);
+            $path = sprintf('%s/management/other/', BASEPATH);
             $filepath = "{$path}{$filename}";
-            $ip = preg_replace('#p:#','',DATABASE_HOST);
-            if (false === filter_var($ip,FILTER_VALIDATE_IP)) $ip = gethostbyname($ip);
-            if (filter_var($ip,FILTER_VALIDATE_IP) === false) return;
-            $cmd = sprintf("mysqldump --opt -u%s -h'$ip' %s > $filepath",escapeshellarg(DATABASE_USERNAME),escapeshellarg(DATABASE_NAME));
-            if (DATABASE_PASSWORD) $cmd = sprintf("mysqldump --opt -u%s -p%s -h'$ip' %s > %s",escapeshellarg(DATABASE_USERNAME),escapeshellarg(DATABASE_PASSWORD),escapeshellarg(DATABASE_NAME),escapeshellarg($filepath));
+            $ip = preg_replace('#p:#', '', DATABASE_HOST);
+            if (false === filter_var($ip, FILTER_VALIDATE_IP)) {
+                $ip = gethostbyname($ip);
+            }
+            if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+                return;
+            }
+            $cmd = sprintf("mysqldump --opt -u%s -h'$ip' %s > $filepath", escapeshellarg(DATABASE_USERNAME), escapeshellarg(DATABASE_NAME));
+            if (DATABASE_PASSWORD) {
+                $cmd = sprintf("mysqldump --opt -u%s -p%s -h'$ip' %s > %s", escapeshellarg(DATABASE_USERNAME), escapeshellarg(DATABASE_PASSWORD), escapeshellarg(DATABASE_NAME), escapeshellarg($filepath));
+            }
             exec($cmd);
-            if (($fh = fopen($filepath,'rb')) === false) return;
+            if (($fh = fopen($filepath, 'rb')) === false) {
+                return;
+            }
             header("X-Sendfile: $filepath");
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=$filename");
             header('Connection: close');
             while (feof($fh) === false) {
-                $line = fread($fh,4096);
+                $line = fread($fh, 4096);
                 echo $line;
             }
             fclose($fh);
-            $cmd = sprintf("rm -rf %s",escapeshellarg($filepath));
+            $cmd = sprintf("rm -rf %s", escapeshellarg($filepath));
             exec($cmd);
         }
     }
