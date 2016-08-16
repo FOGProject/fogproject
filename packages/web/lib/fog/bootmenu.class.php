@@ -631,6 +631,7 @@ class BootMenu extends FOGBase {
             $this->chainBoot(false, true);
         } catch (Exception $e) {
             $Send['fail'] = array(
+                '#!ipxe',
                 sprintf('echo %s',$e->getMessage()),
                 'sleep 3',
             );
