@@ -1065,7 +1065,8 @@ abstract class FOGPage extends FOGBase {
                 if (!$Item->get('mac')->isValid()) return;
                 ob_start();
                 echo $Item->get('mac')->__toString();
-                array_walk($this->get('additionalMACs'),function(&$AddMAC,&$index) {
+                $addMACs = $this->get('additionalMACs');
+                array_walk($addMACs, function(&$AddMAC, &$index) {
                     if (!$AddMAC->isValid()) return;
                     printf('|%s',$AddMAC->__toString());
                     unset($AddMAC);
@@ -1073,7 +1074,8 @@ abstract class FOGPage extends FOGBase {
                 $macColumn = ob_get_clean();
                 $report->addCSVCell($macColumn);
             }
-            array_walk(array_keys((array)$this->databaseFields),function(&$field,&$index) use (&$report,&$Item) {
+            $keys = array_keys((array)$this->databaseFields);
+            array_walk($keys, function(&$field, &$index) use (&$report, &$Item) {
                 $report->addCSVCell($Item->get($field));
                 unset($field);
             });

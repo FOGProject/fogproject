@@ -1,49 +1,134 @@
 <?php
+/**
+ * EventManager extended from HookManager for simplicity
+ *
+ * This allows events to be handled/managed as needed.
+ */
 class EventManager extends FOGBase {
+
+    /**
+     * @var int
+     */
     public $logLevel = 0;
+    /**
+     * @var array
+     */
     public $data = array();
+    /**
+     * @var mixed
+     */
     public $events;
+
+    /**
+     * Registers events and listeners within the system.
+     *
+     * @param string $event
+     * @param array|object $listener
+     * @throws Exception
+     * @return bool
+     */
     public function register($event, $listener) {
         try {
-            if (!is_string($event)) throw new Exception(_('Event must be a string'));
+            if (!is_string($event)) {
+                throw new Exception(_('Event must be a string'));
+            }
+            if (!is_array($listener) && !is_object($listener)) {
+                throw new Exception(_('Listener must be an array or an object'));
+            }
             switch (get_class($this)) {
-            case 'EventManager':
-                if (!($listener instanceof Event)) throw new Exception(_('Class must extend event'));
-                if(!isset($this->data[$event])) $this->data[$event] = array();
-                array_push($this->data[$event], $listener);
-                break;
-            case 'HookManager':
-                if (self::$isMobile && !$listener[0]->mobile) throw new Exception(_('Not registering to mobile page'));
-                if (!is_array($listener) || count($listener) < 2 || count($listener) > 2) throw new Exception(_('Second parameter must be in the form array(Hook class,Function to run)'));
-                if (!($listener[0] instanceof Hook)) throw new Exception(_('Class must extend hook'));
-                if (!method_exists($listener[0],$listener[1])) throw new Exception(sprintf('%s: %s->%s',_('Method does not exist'),get_class($listener[0]),$listener[1]));
-                $this->data[$event][] = $listener;
-                break;
-            default:
-                throw new Exception(_('Register event is not from EventManager or HookManager'));
-                break;
+                case 'EventManager' :
+                    if (!($listener instanceof Event)) {
+                        throw new Exception(_('Class must extend event'));
+                    }
+                    if(!isset($this->data[$event])) {
+                        $this->data[$event] = array();
+                    }
+                    array_push($this->data[$event], $listener);
+                    break;
+                case 'HookManager' :
+                    if (self::$isMobile && !$listener[0]->mobile) {
+                        throw new Exception(_('Not registering to mobile page'));
+                    }
+                    if (!is_array($listener) || count($listener) < 2 || count($listener) > 2) {
+                        throw new Exception(_('Second parameter must be in the form array(Hook class,Function to run)'));
+                    }
+                    if (!($listener[0] instanceof Hook)) {
+                        throw new Exception(_('Class must extend hook'));
+                    }
+                    if (!method_exists($listener[0], $listener[1])) {
+                        throw new Exception(sprintf('%s: %s->%s',_('Method does not exist'),get_class($listener[0]),$listener[1]));
+                    }
+                    $this->data[$event][] = $listener;
+                    break;
+                default :
+                    throw new Exception(_('Register event is not from EventManager or HookManager'));
+                    break;
             }
         } catch (Exception $e) {
+            $string = sprintf('%s: %s: %s, $s: %s, %s: %s',
+                _('Could not register'),
+                _('Error'),
+                $e->getMessage(),
+                _('Event'),
+                $event,
+                _('Class'),
+                $listener[0]
+            );
+            $this->log($string);
             return false;
         }
         return true;
     }
+
+    /**
+     * Notifies the system of events
+     *
+     * @param string $event
+     * @param array $eventData
+     * @throws Exception
+     * @return bool
+     */
     public function notify($event, $eventData=array()) {
         try {
-            if  (!is_array($eventData)) throw new Exception(_('Data is invalid'));
-            if (!isset($this->data[$event])) return;
-            $runEvent = function($element) use ($event,$eventData){
-                if (!$element->active) return;
+            if (!is_string($event)) {
+                throw new Exception(_('Event must be a string'));
+            }
+            if (!is_array($eventData)) {
+                throw new Exception(_('Event Data must be an array'));
+            }
+            if (!isset($this->data[$event])) {
+                throw new Exception(_('Event and data are not set'));
+            }
+            $runEvent = function($element) use ($event, $eventData) {
+                if (!$element->active) {
+                    return;
+                }
                 $element->onEvent($event,$eventData);
             };
-            array_map($runEvent,(array)$this->data[$event]);
+            array_map(
+                $runEvent,
+                (array)$this->data[$event]
+            );
         } catch (Exception $e) {
-            $this->log(sprintf('Could not register: Error: %s, Event: %s, Class: %s', $e->getMessage(), $event, $class[1]));
+            $string = sprintf('%s: %s: %s, $s: %s',
+                _('Could not notify'),
+                _('Error'),
+                $e->getMessage(),
+                _('Event'),
+                $event
+            );
+            $this->log($string);
             return false;
         }
         return true;
     }
+    /**
+     * Loads the events or hooks
+     *
+     * @return void
+     */
     public function load() {
+        // Sets up regex and paths to scan for
         if ($this instanceof EventManager) {
             $regext = '#^.+/events/.*\.event\.php$#';
             $dirpath = '/events/';
@@ -54,38 +139,93 @@ class EventManager extends FOGBase {
             $dirpath = '/hooks/';
             $strlen = -strlen('.hook.php');
         }
+        // Initiates plugins used in fileitems function
         $plugins = '';
-        $fileitems = function($element) use ($dirpath,&$plugins) {
-            preg_match("#^($plugins.+/plugins/)(?=.*$dirpath).*$#",$element[0],$match);
+        // Function simply returns the files based on the regex and data passed.
+        $fileitems = function($element) use ($dirpath, &$plugins) {
+            preg_match("#^($plugins.+/plugins/)(?=.*$dirpath).*$#", $element[0], $match);
             return $match[0];
         };
-        $files = iterator_to_array(self::getClass('RegexIterator',self::getClass('RecursiveIteratorIterator',self::getClass('RecursiveDirectoryIterator',BASEPATH,FileSystemIterator::SKIP_DOTS)),$regext,RegexIterator::GET_MATCH),false);
+
+        // Instantiates our items to get all files based on our regext info.
+        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(BASEPATH, FileSystemIterator::SKIP_DOTS);
+        $RecursiveIteratorIterator = new RecursiveIteratorIterator($RecursiveDirectoryIterator);
+        $RegexIterator = new RegexIterator($RecursiveIteratorIterator,$regext,RegexIterator::GET_MATCH);
+
+        // Makes all the returned items into an iteratable array
+        $files = iterator_to_array($RegexIterator,false);
+
+        // First pass we don't care about plugins, only based files
         $plugins = '?!';
-        $normalfiles = array_values(array_filter(array_map($fileitems,(array)$files)));
+        $tFiles = array_map($fileitems, (array)$files);
+        $fFiles = array_filter($tFiles);
+        $normalfiles = array_values($fFiles);
+        unset($tFiles,$fFiles);
+
+        // Second pass we only care about plugins.
         $plugins = '?=';
-        $pluginfiles = array_values(array_filter(preg_grep(sprintf('#/(%s)/#',implode('|',$_SESSION['PluginsInstalled'])),array_map($fileitems,(array)$files))));
+        $grepString = sprintf('#/(%s)/#',implode('|',$_SESSION['PluginsInstalled']));
+        $tFiles = array_map($fileitems, (array)$files);
+        $fFiles = preg_grep($grepString, $tFiles);
+        $fFiles = array_filter($fFiles);
+        $pluginfiles = array_values($fFiles);
+        unset($tFiles,$fFiles,$files);
+
+        // All Data is now set, we have normal and plugin files.
+        // startClass simply iterates the passed data and starts the needed
+        // hooks or events.
+        // Plugins don't need to know if the active flag is set either
         $startClass = function(&$element) use ($strlen) {
-            $className = preg_replace('#[[:space:]]#','_',substr(basename($element),0,$strlen));
-            if (in_array($className,get_declared_classes()) || class_exists($className,false)) return;
-            self::getClass(preg_replace('#[[:space:]]#','_',$className,0,$strlen));
-            unset($element,$key);
+            $className = preg_replace('#[[:space:]]#', '_', substr(basename($element), 0, $strlen));
+            if (in_array($className,get_declared_classes()) || class_exists($className,false)) {
+                return;
+            }
+            self::getClass(preg_replace('#[[:space:]]#', '_', $className, 0, $strlen));
+            unset($element, $key);
         };
-        array_map($startClass,(array)$pluginfiles);
+        // Plugins should be established first so menus and what not are setup.
+        array_map(
+            $startClass,
+            (array)$pluginfiles
+        );
+        // Cleanup the plugin files
         unset($pluginfiles);
+        // This function is a secondary to start class and only used on
+        // non plugin files.  We have to find out if the class has the active
+        // flag set or not.
         $checkNormalAndStart = function($element) use ($strlen,$startClass) {
-            if (($fh = fopen($element,'rb')) === false) return;
+            // If we can't open the file just return
+            if (($fh = fopen($element,'rb')) === false) {
+                return;
+            }
+            // Start processing to find the active variable
             while (feof($fh) === false) {
+                // reset loop active flag just in case
                 unset($active);
-                $line = fgets($fh, 4096);
-                if ($line === false) continue;
+                // get the line
+                $line = fgets($fh, 8192);
+                if ($line === false) {
+                    continue;
+                }
+                // We get the value and pop the line off and make it set as
+                // a part of the code.
                 preg_match('#(\$active\s?=\s?.*;)#',$line,$linefound);
                 eval(array_pop($linefound));
-                if (!isset($active) || $active === false) continue;
+                // If the active is not set or is false start over.
+                if (!isset($active) || $active === false) {
+                    continue;
+                }
+                // We are set and active start the class and break from the loop.
                 $startClass($element);
                 break;
             }
+            // Close the file.
             fclose($fh);
         };
-        array_walk($normalfiles,$checkNormalAndStart);
+        // Perform the checks.
+        array_walk(
+            $normalfiles,
+            $checkNormalAndStart
+        );
     }
 }

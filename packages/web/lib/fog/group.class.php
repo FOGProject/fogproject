@@ -63,7 +63,8 @@ class Group extends FOGController {
         if (count($printerAdd) > 0) {
             $insert_fields = array('hostID','printerID');
             $insert_values = array();
-            array_walk($this->get('hosts'),function(&$hostID,$index) use (&$insert_values,$printerAdd) {
+            $hosts = $this->get('hosts');
+            array_walk($hosts,function(&$hostID,$index) use (&$insert_values,$printerAdd) {
                 foreach((array)$printerAdd AS &$printerID) {
                     $insert_values[] = array($hostID,$printerID);
                 }
