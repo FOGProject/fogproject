@@ -12,4 +12,4 @@ $kernelvers = function ($kernel) {
 ob_start();
 printf("bzImage Version: %s\n", $kernelvers('bzImage'));
 printf("bzImage32 Version: %s\n", $kernelvers('bzImage32'));
-die(ob_end_flush());
+ob_end_flush();
