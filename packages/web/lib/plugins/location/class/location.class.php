@@ -29,31 +29,31 @@ class Location extends FOGController
     {
         parent::save();
         switch (true) {
-        case ($this->isLoaded('hosts')):
-            $DBHostIDs = self::getSubObjectIDs('LocationAssociation', array('locationID'=>$this->get('id')), 'hostID');
-            $ValidHostIDs = self::getSubObjectIDs('Host');
-            $notValid = array_diff((array)$DBHostIDs, (array)$ValidHostIDs);
-            if (count($notValid)) {
-                self::getClass('LocationAssociationManager')->destroy(array('hostID'=>$notValid));
-            }
-            unset($ValidHostIDs, $DBHostIDs);
-            $DBHostIDs = self::getSubObjectIDs('LocationAssociation', array('locationID'=>$this->get('id')), 'hostID');
-            $RemoveHostIDs = array_diff((array)$DBHostIDs, (array)$this->get('hosts'));
-            if (count($RemoveHostIDs)) {
-                self::getClass('LocationAssociationManager')->destroy(array('locationID'=>$this->get('id'), 'hostID'=>$RemoveHostIDs));
+            case ($this->isLoaded('hosts')):
                 $DBHostIDs = self::getSubObjectIDs('LocationAssociation', array('locationID'=>$this->get('id')), 'hostID');
-                unset($RemoveHostIDs);
-            }
-            $insert_fields = array('locationID','hostID');
-            $insert_values = array();
-            $DBHostIDs = array_diff((array)$this->get('hosts'), (array)$DBHostIDs);
-            array_walk($DBHostIDs, function (&$hostID, $index) use (&$insert_values) {
-                $insert_values[] = array($this->get('id'), $hostID);
-            });
-            if (count($insert_values) > 0) {
-                self::getClass('LocationAssociationManager')->insert_batch($insert_fields, $insert_values);
-            }
-            unset($DBHostIDs, $RemoveHostIDs);
+                $ValidHostIDs = self::getSubObjectIDs('Host');
+                $notValid = array_diff((array)$DBHostIDs, (array)$ValidHostIDs);
+                if (count($notValid)) {
+                    self::getClass('LocationAssociationManager')->destroy(array('hostID'=>$notValid));
+                }
+                unset($ValidHostIDs, $DBHostIDs);
+                $DBHostIDs = self::getSubObjectIDs('LocationAssociation', array('locationID'=>$this->get('id')), 'hostID');
+                $RemoveHostIDs = array_diff((array)$DBHostIDs, (array)$this->get('hosts'));
+                if (count($RemoveHostIDs)) {
+                    self::getClass('LocationAssociationManager')->destroy(array('locationID'=>$this->get('id'), 'hostID'=>$RemoveHostIDs));
+                    $DBHostIDs = self::getSubObjectIDs('LocationAssociation', array('locationID'=>$this->get('id')), 'hostID');
+                    unset($RemoveHostIDs);
+                }
+                $insert_fields = array('locationID','hostID');
+                $insert_values = array();
+                $DBHostIDs = array_diff((array)$this->get('hosts'), (array)$DBHostIDs);
+                array_walk($DBHostIDs, function (&$hostID, $index) use (&$insert_values) {
+                    $insert_values[] = array($this->get('id'), $hostID);
+                });
+                if (count($insert_values) > 0) {
+                    self::getClass('LocationAssociationManager')->insert_batch($insert_fields, $insert_values);
+                }
+                unset($DBHostIDs, $RemoveHostIDs);
         }
         return $this;
     }

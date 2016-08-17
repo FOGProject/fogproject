@@ -91,7 +91,8 @@ class Page extends FOGBase
                     $_REQUEST['node'] = $link;
                 }
                 $activelink = ($_REQUEST['node'] == $link);
-                printf('<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li>',
+                printf(
+                    '<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li>',
                     $link,
                     ($activelink ? ' activelink' : ''),
                     array_shift($title),

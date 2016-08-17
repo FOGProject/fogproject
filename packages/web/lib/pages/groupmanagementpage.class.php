@@ -246,28 +246,35 @@ class GroupManagementPage extends FOGPage
         $this->basictasksOptions();
         $this->adFieldsToDisplay($useAD, $ADDomain, $ADOU, $ADUser, $ADPass, $ADPassLegacy, $enforce);
         echo '<!-- Printers --><div id="group-printers">';
-        printf('<form method="post" action="%s&tab=group-printers"><h2>%s</h2>',
+        printf(
+            '<form method="post" action="%s&tab=group-printers"><h2>%s</h2>',
             $this->formAction,
             _('Printer Management Level')
         );
-        printf('<p class="l"><span class="icon fa fa-question hand" title="%s"></span>',
+        printf(
+            '<p class="l"><span class="icon fa fa-question hand" title="%s"></span>',
             _('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety')
         );
-        printf('<input type="radio" name="level" value="0"%s/>%s<br/>',
+        printf(
+            '<input type="radio" name="level" value="0"%s/>%s<br/>',
             $printerLevel == 0 ? ' checked' : '',
             _('No Printer Management')
         );
-        printf('<span class="icon fa fa-question hand" title="%s"></span>',
+        printf(
+            '<span class="icon fa fa-question hand" title="%s"></span>',
             _('This setting only adds and removes printers that FOG is aware of. Printers that are associated to the host will have those printers added.  Printers that are defined in FOG but not associated to the host will be removed')
         );
-        printf('<input type="radio" name="level" value="1"%s/>%s<br/>',
+        printf(
+            '<input type="radio" name="level" value="1"%s/>%s<br/>',
             $printerLevel == 1 ? ' checked' : '',
             _('FOG Managed Printers')
         );
-        printf('<span class="icon fa fa-question hand" title="%s"></span>',
+        printf(
+            '<span class="icon fa fa-question hand" title="%s"></span>',
             _('This setting only allows the host to have printers associated that are assigned through FOG. Any printer on the host that is not associated to the host through FOG will be removed')
         );
-        printf('<input type="radio" name="level" value="2"%s/>%s<br/>',
+        printf(
+            '<input type="radio" name="level" value="2"%s/>%s<br/>',
             $printerLevel == 2 ? ' checked' : '',
             _('Only FOG Printers')
         );
@@ -376,21 +383,21 @@ class GroupManagementPage extends FOGPage
             }
             $note = '';
             switch ($Module->get('shortName')) {
-            case 'dircleanup':
-                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $dcnote);
-                break;
-            case 'greenfog':
-                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $gfnote);
-                break;
-            case 'usercleanup':
-                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $ucnote);
-                break;
-            case 'clientupdater':
-                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $cunote);
-                break;
-            default:
-                $note = '';
-                break;
+                case 'dircleanup':
+                    $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $dcnote);
+                    break;
+                case 'greenfog':
+                    $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $gfnote);
+                    break;
+                case 'usercleanup':
+                    $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $ucnote);
+                    break;
+                case 'clientupdater':
+                    $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $cunote);
+                    break;
+                default:
+                    $note = '';
+                    break;
             }
             $this->data[] = array(
                 'input' => sprintf('<input %stype="checkbox" name="modules[]" value="%s"%s%s/>', ($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ': ''), $Module->get('id'), (count(array_keys($ModuleOn, $Module->get('id'))) == $HostCount ? ' checked' : ''), !$moduleName[$Module->get('shortName')] ? ' disabled' : ''),
@@ -424,18 +431,18 @@ class GroupManagementPage extends FOGPage
                 return;
             }
             switch ($Service->get('name')) {
-            case 'FOG_CLIENT_DISPLAYMANAGER_X':
-                $name = 'x';
-                $field = _('Screen Width (in pixels)');
-                break;
-            case 'FOG_CLIENT_DISPLAYMANAGER_Y':
-                $name = 'y';
-                $field = _('Screen Height (in pixels)');
-                break;
-            case 'FOG_CLIENT_DISPLAYMANAGER_R':
-                $name = 'r';
-                $field = _('Screen Refresh Rate (in Hz)');
-                break;
+                case 'FOG_CLIENT_DISPLAYMANAGER_X':
+                    $name = 'x';
+                    $field = _('Screen Width (in pixels)');
+                    break;
+                case 'FOG_CLIENT_DISPLAYMANAGER_Y':
+                    $name = 'y';
+                    $field = _('Screen Height (in pixels)');
+                    break;
+                case 'FOG_CLIENT_DISPLAYMANAGER_R':
+                    $name = 'r';
+                    $field = _('Screen Refresh Rate (in Hz)');
+                    break;
             }
             $this->data[] = array(
                 'input'=>sprintf('<input type="text" name="%s" value="%s"/>', $name, $Service->get('value')),
@@ -558,24 +565,24 @@ class GroupManagementPage extends FOGPage
             );
             array_walk(self::$inventoryCsvHead, function (&$classGet, &$csvHead) use ($Host) {
                 switch ($csvHead) {
-                case _('Host ID'):
-                    $this->ReportMaker->addCSVCell($Host->get('id'));
-                    break;
-                case _('Host name'):
-                    $this->ReportMaker->addCSVCell($Host->get('name'));
-                    break;
-                case _('Host MAC'):
-                    $this->ReportMaker->addCSVCell($Host->get('mac'));
-                    break;
-                case _('Host Desc'):
-                    $this->ReportMaker->addCSVCell($Host->get('description'));
-                    break;
-                case _('Host Memory'):
-                    $this->ReportMaker->addCSVCell($Host->get('inventory')->getMem());
-                    break;
-                default:
-                    $this->ReportMaker->addCSVCell($Host->get('inventory')->get($classGet));
-                    break;
+                    case _('Host ID'):
+                        $this->ReportMaker->addCSVCell($Host->get('id'));
+                        break;
+                    case _('Host name'):
+                        $this->ReportMaker->addCSVCell($Host->get('name'));
+                        break;
+                    case _('Host MAC'):
+                        $this->ReportMaker->addCSVCell($Host->get('mac'));
+                        break;
+                    case _('Host Desc'):
+                        $this->ReportMaker->addCSVCell($Host->get('description'));
+                        break;
+                    case _('Host Memory'):
+                        $this->ReportMaker->addCSVCell($Host->get('inventory')->getMem());
+                        break;
+                    default:
+                        $this->ReportMaker->addCSVCell($Host->get('inventory')->get($classGet));
+                        break;
                 }
                 unset($classGet, $csvHead);
             });
@@ -595,92 +602,92 @@ class GroupManagementPage extends FOGPage
         try {
             $hostids = $this->obj->get('hosts');
             switch ($_REQUEST['tab']) {
-            case 'group-general':
-                if (empty($_REQUEST['name'])) {
-                    throw new Exception(_('Group Name is required'));
-                }
-                $this->obj->set('name', $_REQUEST['name'])
+                case 'group-general':
+                    if (empty($_REQUEST['name'])) {
+                        throw new Exception(_('Group Name is required'));
+                    }
+                    $this->obj->set('name', $_REQUEST['name'])
                     ->set('description', $_REQUEST['description'])
                     ->set('kernel', $_REQUEST['kern'])
                     ->set('kernelArgs', $_REQUEST['args'])
                     ->set('kernelDevice', $_REQUEST['dev']);
-                $productKey = preg_replace('/([\w+]{5})/', '$1-', str_replace('-', '', strtoupper(trim($_REQUEST['key']))));
-                $productKey = substr($productKey, 0, 29);
-                self::getClass('HostManager')->update(array('id'=>$hostids), '', array('kernel'=>$_REQUEST['kern'], 'kernelArgs'=>$_REQUEST['args'], 'kernelDevice'=>$_REQUEST['dev'], 'efiexit'=>$_REQUEST['efiBootTypeExit'], 'biosexit'=>$_REQUEST['bootTypeExit'], 'productKey'=>$this->encryptpw(trim($_REQUEST['key']))));
-                break;
-            case 'group-image':
-                $this->obj->addImage($_REQUEST['image']);
-                break;
-            case 'group-active-directory':
-                $useAD = isset($_REQUEST['domain']);
-                $domain = $_REQUEST['domainname'];
-                $ou = $_REQUEST['ou'];
-                $user = $_REQUEST['domainuser'];
-                $pass = $_REQUEST['domainpassword'];
-                $legacy = $_REQUEST['domainpasswordlegacy'];
-                $enforce = isset($_REQUEST['enforcesel']);
-                $this->obj->setAD($useAD, $domain, $ou, $user, $pass, $legacy, $enforce);
-                break;
-            case 'group-printers':
-                if (isset($_REQUEST['add'])) {
-                    $this->obj->addPrinter($_REQUEST['printers'], array(), $_REQUEST['level']);
-                    if (in_array($_REQUEST['default'], (array)$_REQUEST['printers'])) {
+                    $productKey = preg_replace('/([\w+]{5})/', '$1-', str_replace('-', '', strtoupper(trim($_REQUEST['key']))));
+                    $productKey = substr($productKey, 0, 29);
+                    self::getClass('HostManager')->update(array('id'=>$hostids), '', array('kernel'=>$_REQUEST['kern'], 'kernelArgs'=>$_REQUEST['args'], 'kernelDevice'=>$_REQUEST['dev'], 'efiexit'=>$_REQUEST['efiBootTypeExit'], 'biosexit'=>$_REQUEST['bootTypeExit'], 'productKey'=>$this->encryptpw(trim($_REQUEST['key']))));
+                    break;
+                case 'group-image':
+                    $this->obj->addImage($_REQUEST['image']);
+                    break;
+                case 'group-active-directory':
+                    $useAD = isset($_REQUEST['domain']);
+                    $domain = $_REQUEST['domainname'];
+                    $ou = $_REQUEST['ou'];
+                    $user = $_REQUEST['domainuser'];
+                    $pass = $_REQUEST['domainpassword'];
+                    $legacy = $_REQUEST['domainpasswordlegacy'];
+                    $enforce = isset($_REQUEST['enforcesel']);
+                    $this->obj->setAD($useAD, $domain, $ou, $user, $pass, $legacy, $enforce);
+                    break;
+                case 'group-printers':
+                    if (isset($_REQUEST['add'])) {
+                        $this->obj->addPrinter($_REQUEST['printers'], array(), $_REQUEST['level']);
+                        if (in_array($_REQUEST['default'], (array)$_REQUEST['printers'])) {
+                            $this->obj->updateDefault($_REQUEST['default']);
+                        }
+                    }
+                    if (isset($_REQUEST['remove'])) {
+                        $this->obj->addPrinter(array(), $_REQUEST['printers'], $_REQUEST['level']);
+                    }
+                    if (isset($_REQUEST['update'])) {
+                        $this->obj->addPrinter(array(), array(), $_REQUEST['level']);
+                        $this->obj->addPrinter($_REQUEST['default'], array(), $_REQUEST['level']);
                         $this->obj->updateDefault($_REQUEST['default']);
                     }
-                }
-                if (isset($_REQUEST['remove'])) {
-                    $this->obj->addPrinter(array(), $_REQUEST['printers'], $_REQUEST['level']);
-                }
-                if (isset($_REQUEST['update'])) {
-                    $this->obj->addPrinter(array(), array(), $_REQUEST['level']);
-                    $this->obj->addPrinter($_REQUEST['default'], array(), $_REQUEST['level']);
-                    $this->obj->updateDefault($_REQUEST['default']);
-                }
-                break;
-            case 'group-snapins':
-                if (isset($_REQUEST['add'])) {
-                    $this->obj->addSnapin($_REQUEST['snapin']);
-                }
-                if (isset($_REQUEST['remove'])) {
-                    $this->obj->removeSnapin($_REQUEST['snapin']);
-                }
-                break;
-            case 'group-service':
-                list($r, $time, $x, $y, ) = self::getSubObjectIDs('Service', array('name'=>array('FOG_CLIENT_DISPLAYMANAGER_R', 'FOG_CLIENT_AUTOLOGOFF_MIN', 'FOG_CLIENT_DISPLAYMANAGER_X', 'FOG_CLIENTDISPLAYMANAGER_Y')), 'value');
-                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $x);
-                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $y);
-                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $r);
-                $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $time);
-                $modOn = (array)$_REQUEST['modules'];
-                $modOff = self::getSubObjectIDs('Module', array('id'=>$modOn), 'id', true);
-                $this->obj->addModule($modOn)->removeModule($modOff)->setDisp($x, $y, $r)->setAlo($time);
-                break;
-            case 'group-powermanagement':
-                $min = $_REQUEST['scheduleCronMin'];
-                $hour = $_REQUEST['scheduleCronHour'];
-                $dom = $_REQUEST['scheduleCronDOM'];
-                $month = $_REQUEST['scheduleCronMonth'];
-                $dow = $_REQUEST['scheduleCronDOW'];
-                $onDemand = (string)intval(isset($_REQUEST['onDemand']));
-                $action = $_REQUEST['action'];
-                if (!$action) {
-                    throw new Exception(_('You must select an action to perform'));
-                }
-                $items = array();
-                if (isset($_REQUEST['pmsubmit'])) {
-                    if ($onDemand && $action === 'wol') {
-                        array_map(function (&$Host) {
-                            $Host->wakeOnLAN();
-                        }, (array)self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
-                        break;
+                    break;
+                case 'group-snapins':
+                    if (isset($_REQUEST['add'])) {
+                        $this->obj->addSnapin($_REQUEST['snapin']);
                     }
-                    $hostIDs = (array)$this->obj->get('hosts');
-                    array_map(function ($hostID) use ($min, $hour, $dom, $month, $dow, $onDemand, $action, &$items) {
-                        $items[] = array($hostID, $min, $hour, $dom, $month, $dow, $onDemand, $action);
-                    }, (array)$hostIDs);
-                    self::getClass('PowerManagementManager')->insert_batch(array('hostID', 'min', 'hour', 'dom', 'month', 'dow', 'onDemand', 'action'), $items);
-                }
-                break;
+                    if (isset($_REQUEST['remove'])) {
+                        $this->obj->removeSnapin($_REQUEST['snapin']);
+                    }
+                    break;
+                case 'group-service':
+                    list($r, $time, $x, $y, ) = self::getSubObjectIDs('Service', array('name'=>array('FOG_CLIENT_DISPLAYMANAGER_R', 'FOG_CLIENT_AUTOLOGOFF_MIN', 'FOG_CLIENT_DISPLAYMANAGER_X', 'FOG_CLIENTDISPLAYMANAGER_Y')), 'value');
+                    $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $x);
+                    $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $y);
+                    $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $r);
+                    $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $time);
+                    $modOn = (array)$_REQUEST['modules'];
+                    $modOff = self::getSubObjectIDs('Module', array('id'=>$modOn), 'id', true);
+                    $this->obj->addModule($modOn)->removeModule($modOff)->setDisp($x, $y, $r)->setAlo($time);
+                    break;
+                case 'group-powermanagement':
+                    $min = $_REQUEST['scheduleCronMin'];
+                    $hour = $_REQUEST['scheduleCronHour'];
+                    $dom = $_REQUEST['scheduleCronDOM'];
+                    $month = $_REQUEST['scheduleCronMonth'];
+                    $dow = $_REQUEST['scheduleCronDOW'];
+                    $onDemand = (string)intval(isset($_REQUEST['onDemand']));
+                    $action = $_REQUEST['action'];
+                    if (!$action) {
+                        throw new Exception(_('You must select an action to perform'));
+                    }
+                    $items = array();
+                    if (isset($_REQUEST['pmsubmit'])) {
+                        if ($onDemand && $action === 'wol') {
+                            array_map(function (&$Host) {
+                                $Host->wakeOnLAN();
+                            }, (array)self::getClass('HostManager')->find(array('id'=>$this->obj->get('hosts'))));
+                            break;
+                        }
+                        $hostIDs = (array)$this->obj->get('hosts');
+                        array_map(function ($hostID) use ($min, $hour, $dom, $month, $dow, $onDemand, $action, &$items) {
+                            $items[] = array($hostID, $min, $hour, $dom, $month, $dow, $onDemand, $action);
+                        }, (array)$hostIDs);
+                        self::getClass('PowerManagementManager')->insert_batch(array('hostID', 'min', 'hour', 'dom', 'month', 'dow', 'onDemand', 'action'), $items);
+                    }
+                    break;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Database update failed'));

@@ -319,30 +319,30 @@ class ImageManagementPage extends FOGPage
         self::$HookManager->processEvent('IMAGE_EDIT_POST', array('Image'=>&$this->obj));
         try {
             switch ($_REQUEST['tab']) {
-            case 'image-gen':
-                $name = trim($_REQUEST['name']);
-                if (!$name) {
-                    throw new Exception(_('An image name is required!'));
-                }
-                if ($this->obj->get('name') != $_REQUEST['name'] && self::getClass('ImageManager')->exists($name, $this->obj->get('id'))) {
-                    throw new Exception(_('An image already exists with this name!'));
-                }
-                if ($_REQUEST['file'] == 'postdownloadscripts' || $_REQUEST['file'] == 'dev') {
-                    throw new Exception(_('Please choose a different name, this one is reserved for FOG.'));
-                }
-                if (empty($_REQUEST['file'])) {
-                    throw new Exception(_('An image file name is required!'));
-                }
-                if (empty($_REQUEST['os'])) {
-                    throw new Exception(_('An Operating System is required!'));
-                }
-                if (empty($_REQUEST['imagetype']) && $_REQUEST['imagetype'] != 0) {
-                    throw new Exception(_('An image type is required!'));
-                }
-                if (empty($_REQUEST['imagepartitiontype']) && $_REQUEST['imagepartitiontype'] != '0') {
-                    throw new Exception(_('An image partition type is required!'));
-                }
-                $this->obj
+                case 'image-gen':
+                    $name = trim($_REQUEST['name']);
+                    if (!$name) {
+                        throw new Exception(_('An image name is required!'));
+                    }
+                    if ($this->obj->get('name') != $_REQUEST['name'] && self::getClass('ImageManager')->exists($name, $this->obj->get('id'))) {
+                        throw new Exception(_('An image already exists with this name!'));
+                    }
+                    if ($_REQUEST['file'] == 'postdownloadscripts' || $_REQUEST['file'] == 'dev') {
+                        throw new Exception(_('Please choose a different name, this one is reserved for FOG.'));
+                    }
+                    if (empty($_REQUEST['file'])) {
+                        throw new Exception(_('An image file name is required!'));
+                    }
+                    if (empty($_REQUEST['os'])) {
+                        throw new Exception(_('An Operating System is required!'));
+                    }
+                    if (empty($_REQUEST['imagetype']) && $_REQUEST['imagetype'] != 0) {
+                        throw new Exception(_('An image type is required!'));
+                    }
+                    if (empty($_REQUEST['imagepartitiontype']) && $_REQUEST['imagepartitiontype'] != '0') {
+                        throw new Exception(_('An image partition type is required!'));
+                    }
+                    $this->obj
                     ->set('name', $_REQUEST['name'])
                     ->set('description', $_REQUEST['description'])
                     ->set('osID', $_REQUEST['os'])
@@ -354,19 +354,19 @@ class ImageManagementPage extends FOGPage
                     ->set('compress', $_REQUEST['compress'])
                     ->set('isEnabled', (string)intval(isset($_REQUEST['isEnabled'])))
                     ->set('toReplicate', (string)intval(isset($_REQUEST['toReplicate'])));
-                break;
-            case 'image-storage':
-                $this->obj->addGroup($_REQUEST['storagegroup']);
-                if (isset($_REQUEST['update'])) {
-                    $this->obj->setPrimaryGroup($_REQUEST['primary']);
-                }
-                if (isset($_REQUEST['deleteGroup'])) {
-                    if (count($this->obj->get('storageGroups')) < 2) {
-                        throw new Exception(_('Image must be assigned to one Storage Group'));
+                    break;
+                case 'image-storage':
+                    $this->obj->addGroup($_REQUEST['storagegroup']);
+                    if (isset($_REQUEST['update'])) {
+                        $this->obj->setPrimaryGroup($_REQUEST['primary']);
                     }
-                    $this->obj->removeGroup($_REQUEST['storagegroup-rm']);
-                }
-                break;
+                    if (isset($_REQUEST['deleteGroup'])) {
+                        if (count($this->obj->get('storageGroups')) < 2) {
+                            throw new Exception(_('Image must be assigned to one Storage Group'));
+                        }
+                        $this->obj->removeGroup($_REQUEST['storagegroup-rm']);
+                    }
+                    break;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Database update failed'));

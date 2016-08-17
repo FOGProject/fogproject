@@ -188,7 +188,7 @@ class FOGFTP extends FOGGetSet
         }
         return ftp_nb_fget(self::$link, $handle, $remote_file, $mode);
     }
-    public function nb_fput($remote_file, $handle, $mode =0, $startpos = 0)
+    public function nb_fput($remote_file, $handle, $mode = 0, $startpos = 0)
     {
         if (!$mode) {
             $mode = $this->get('mode');
@@ -208,7 +208,7 @@ class FOGFTP extends FOGGetSet
         }
         return ftp_nb_get(self::$link, $local_file, $remote_file, $mode);
     }
-    public function nb_put($remote_file, $local_file, $mode =0, $startpos = 0)
+    public function nb_put($remote_file, $local_file, $mode = 0, $startpos = 0)
     {
         if (!$mode) {
             $mode = $this->get('mode');

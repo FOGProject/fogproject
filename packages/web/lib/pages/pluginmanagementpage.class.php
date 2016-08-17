@@ -139,126 +139,126 @@ class PluginManagementPage extends FOGPage
             $this->title = sprintf('%s: %s', _('Plugin'), $plugin->get('name'));
             printf('<p>%s: %s</p>', _('Plugin Description'), $plugin->get('description'));
             switch ($plugin->isInstalled()) {
-            case true:
-                switch (strtolower($plugin->get('name'))) {
-                case 'capone':
-                    $dmiFields = array(
-                        'bios-vendor',
-                        'bios-version',
-                        'bios-release-date',
-                        'system-manufacturer',
-                        'system-product-name',
-                        'system-version',
-                        'system-serial-number',
-                        'system-uuid',
-                        'baseboard-manufacturer',
-                        'baseboard-product-name',
-                        'baseboard-version',
-                        'baseboard-serial-number',
-                        'baseboard-asset-tag',
-                        'chassis-manufacturer',
-                        'chassis-type',
-                        'chassis-version',
-                        'chassis-serial-number',
-                        'chassis-asset-tag',
-                        'processor-family',
-                        'processor-manufacturer',
-                        'processor-version',
-                        'processor-frequency',
-                    );
-                    printf('<p class="titleBottomLeft">%s</p>', _('Settings'));
-                    unset($this->headerData, $this->data);
-                    $this->templates = array(
-                        '${field}',
-                        '${input}',
-                    );
-                    $this->attributes = array(
-                        array(),
-                        array(),
-                    );
-                    ob_start();
-                    array_map(function (&$dmifield) {
-                        $checked = self::getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? ' selected' : '';
-                        printf('<option value="%s" label="%s"%s>%s</option>', $dmifield, $dmifield, $checked, $dmifield);
-                        unset($dmifield);
-                    }, (array)$dmiFields);
-                    $dmiOpts = ob_get_clean();
-                    $ShutdownFields = array(
-                        _('Reboot after deploy'),
-                        _('Shutdown after deploy'),
-                    );
-                    ob_start();
-                    printf('<option value="0"%s>%s</option>', (!self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''), _('Reboot after deploy'));
-                    printf('<option value="1"%s>%s</option>', (self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''), _('Shutdown after deploy'));
-                    $shutOpts = ob_get_clean();
-                    $fields = array(
-                        sprintf('%s:', _('DMI Field')) => sprintf('<select name="dmifield" size="1"><option value="">- %s -</option>%s</select>', _('Please select an option'), $dmiOpts),
-                        sprintf('%s:', _('Shutdown')) => sprintf('<select name="shutdown" size="1"><option value="">- %s -</option>%s</select>', _('Please select an option'), $shutOpts),
-                        '&nbsp;' => sprintf('<input style="margin-top: 7px;" type="submit" name="basics" value="%s"/>', _('Update Settings')),
-                    );
-                    array_walk($fields, $this->fieldsToData);
-                    printf('<form method="post" action="%s">', $this->formAction);
-                    $this->render();
-                    echo '</form>';
-                    unset($this->headerData, $this->data, $fields);
-                    printf('<p class="titleBottomLeft">%s</p>', _('Add Image to DMI Associations'));
-                    $fields = array(
-                        sprintf('%s:', _('Image Definition')) => self::getClass('ImageManager')->buildSelectBox(),
-                        sprintf('%s:', _('DMI Result')) => '<input type="text" name="key"/>',
-                        '' => sprintf('<input type="submit" style="margin-top: 7px;" name="addass" value="%s"/>', _('Add Association')),
-                    );
-                    array_walk($fields, $this->fieldsToData);
-                    printf('<form method="post" action="%s">', $this->formAction);
-                    $this->render();
-                    echo '</form>';
-                    unset($this->headerData, $this->data, $fields);
-                    printf('<p class="titleBottomLeft">%s</p>', _('Current Image to DMI Associations'));
-                    $this->headerData = array(
-                        _('Image Name'),
-                        _('OS Name'),
-                        _('DMI Key'),
-                        _('Clear'),
-                    );
-                    $this->templates = array(
-                        '${image_name}',
-                        '${os_name}',
-                        '${capone_key}',
-                        sprintf('<input type="checkbox" name="kill" value="${capone_id}" class="delid" onclick="this.form.submit()" id="rmcap${capone_id}" /><label for="rmcap${capone_id}"><i class="icon icon-hand fa fa-minus-circle fa-1x" title="%s"></i></label>', _('Delete')),
-                    );
-                    $this->attributes = array(
-                        array(),
-                        array(),
-                        array(),
-                        array('class'=>'l filter-false'),
-                    );
-                    array_map(function (&$Capone) {
-                        if (!$Capone->isValid()) {
-                            return;
-                        }
-                        $Image = self::getClass('Image', $Capone->get('imageID'));
-                        if (!$Image->isValid()) {
-                            return;
-                        }
-                        $OS = $Image->getOS();
-                        if (!$OS->isValid()) {
-                            return;
-                        }
-                        $this->data[] = array(
-                            'image_name'=>$Image->get('name'),
-                            'os_name'=>$OS->get('name'),
-                            'capone_key'=>$Capone->get('key'),
-                            'link'=>sprintf('%s&kill=${capone_id}', $this->formAction),
-                            'capone_id'=>$Capone->get('id'),
-                        );
-                        unset($Capone, $Image, $OS);
-                    }, self::getClass('CaponeManager')->find());
-                    printf('<form method="post" action="%s">', $this->formAction);
-                    $this->render();
-                    echo '</form>';
-                    unset($this->headerData, $this->data, $fields);
+                case true:
+                    switch (strtolower($plugin->get('name'))) {
+                        case 'capone':
+                            $dmiFields = array(
+                                'bios-vendor',
+                                'bios-version',
+                                'bios-release-date',
+                                'system-manufacturer',
+                                'system-product-name',
+                                'system-version',
+                                'system-serial-number',
+                                'system-uuid',
+                                'baseboard-manufacturer',
+                                'baseboard-product-name',
+                                'baseboard-version',
+                                'baseboard-serial-number',
+                                'baseboard-asset-tag',
+                                'chassis-manufacturer',
+                                'chassis-type',
+                                'chassis-version',
+                                'chassis-serial-number',
+                                'chassis-asset-tag',
+                                'processor-family',
+                                'processor-manufacturer',
+                                'processor-version',
+                                'processor-frequency',
+                                );
+                                printf('<p class="titleBottomLeft">%s</p>', _('Settings'));
+                                unset($this->headerData, $this->data);
+                                $this->templates = array(
+                                '${field}',
+                                '${input}',
+                                );
+                                $this->attributes = array(
+                                array(),
+                                array(),
+                                );
+                                ob_start();
+                                array_map(function (&$dmifield) {
+                                        $checked = self::getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? ' selected' : '';
+                                        printf('<option value="%s" label="%s"%s>%s</option>', $dmifield, $dmifield, $checked, $dmifield);
+                                        unset($dmifield);
+                                }, (array)$dmiFields);
+                                $dmiOpts = ob_get_clean();
+                                $ShutdownFields = array(
+                                _('Reboot after deploy'),
+                                _('Shutdown after deploy'),
+                                );
+                                ob_start();
+                                printf('<option value="0"%s>%s</option>', (!self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''), _('Reboot after deploy'));
+                                printf('<option value="1"%s>%s</option>', (self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? ' selected' : ''), _('Shutdown after deploy'));
+                                $shutOpts = ob_get_clean();
+                                $fields = array(
+                                sprintf('%s:', _('DMI Field')) => sprintf('<select name="dmifield" size="1"><option value="">- %s -</option>%s</select>', _('Please select an option'), $dmiOpts),
+                                sprintf('%s:', _('Shutdown')) => sprintf('<select name="shutdown" size="1"><option value="">- %s -</option>%s</select>', _('Please select an option'), $shutOpts),
+                                '&nbsp;' => sprintf('<input style="margin-top: 7px;" type="submit" name="basics" value="%s"/>', _('Update Settings')),
+                                );
+                                array_walk($fields, $this->fieldsToData);
+                                printf('<form method="post" action="%s">', $this->formAction);
+                                $this->render();
+                                echo '</form>';
+                                unset($this->headerData, $this->data, $fields);
+                                printf('<p class="titleBottomLeft">%s</p>', _('Add Image to DMI Associations'));
+                                $fields = array(
+                                sprintf('%s:', _('Image Definition')) => self::getClass('ImageManager')->buildSelectBox(),
+                                sprintf('%s:', _('DMI Result')) => '<input type="text" name="key"/>',
+                                '' => sprintf('<input type="submit" style="margin-top: 7px;" name="addass" value="%s"/>', _('Add Association')),
+                                );
+                                array_walk($fields, $this->fieldsToData);
+                                printf('<form method="post" action="%s">', $this->formAction);
+                                $this->render();
+                                echo '</form>';
+                                unset($this->headerData, $this->data, $fields);
+                                printf('<p class="titleBottomLeft">%s</p>', _('Current Image to DMI Associations'));
+                                $this->headerData = array(
+                                _('Image Name'),
+                                _('OS Name'),
+                                _('DMI Key'),
+                                _('Clear'),
+                                );
+                                $this->templates = array(
+                                '${image_name}',
+                                '${os_name}',
+                                '${capone_key}',
+                                sprintf('<input type="checkbox" name="kill" value="${capone_id}" class="delid" onclick="this.form.submit()" id="rmcap${capone_id}" /><label for="rmcap${capone_id}"><i class="icon icon-hand fa fa-minus-circle fa-1x" title="%s"></i></label>', _('Delete')),
+                                );
+                                $this->attributes = array(
+                                array(),
+                                array(),
+                                array(),
+                                array('class'=>'l filter-false'),
+                                );
+                                array_map(function (&$Capone) {
+                                    if (!$Capone->isValid()) {
+                                        return;
+                                    }
+                                        $Image = self::getClass('Image', $Capone->get('imageID'));
+                                    if (!$Image->isValid()) {
+                                        return;
+                                    }
+                                        $OS = $Image->getOS();
+                                    if (!$OS->isValid()) {
+                                        return;
+                                    }
+                                        $this->data[] = array(
+                                            'image_name'=>$Image->get('name'),
+                                            'os_name'=>$OS->get('name'),
+                                            'capone_key'=>$Capone->get('key'),
+                                            'link'=>sprintf('%s&kill=${capone_id}', $this->formAction),
+                                            'capone_id'=>$Capone->get('id'),
+                                        );
+                                        unset($Capone, $Image, $OS);
+                                }, self::getClass('CaponeManager')->find());
+                                printf('<form method="post" action="%s">', $this->formAction);
+                                $this->render();
+                                echo '</form>';
+                                unset($this->headerData, $this->data, $fields);
+                            break;
+                    }
                     break;
-                }
-                break;
                 case false:
                     printf('<p class="titleBottomLeft">%s</p><p>%s</p><div><form method="post" action="%s"><input type="submit" value="Install Plugin" name="install"/></form></div>', _('Plugin Installation'), _('This plugin is currently not installed, would you like to install it now?'), $this->formAction);
                     break;

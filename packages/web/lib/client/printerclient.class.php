@@ -16,7 +16,7 @@ class PrinterClient extends FOGClient implements FOGClientSend
             'allPrinters'=>$allPrinters,
             'default' => '',
             'printers' => array(),
-        );
+            );
         }
         $default = self::getClass('Printer', @max(self::getSubObjectIDs('PrinterAssociation', array('hostID'=>$this->Host->get('id'), 'isDefault'=>1), 'printerID')));
         $default = $default->isValid() ? $default = $default->get('name') : '';

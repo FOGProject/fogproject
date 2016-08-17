@@ -191,7 +191,8 @@ abstract class FOGController extends FOGBase
                 $updateData[] = sprintf("%s=%s", $key, $paramUpdate);
                 unset($key, $val, $field, $name);
             });
-            $query = sprintf($this->insertQueryTemplate,
+            $query = sprintf(
+                $this->insertQueryTemplate,
                 $this->databaseTable,
                 implode(',', (array)$insertKeys),
                 implode(',', (array)$insertValKeys),
@@ -248,7 +249,8 @@ abstract class FOGController extends FOGBase
             array_walk($field, function (&$key, &$index) use ($join, $where, $fields) {
                 $key = $this->key($key);
                 $paramKey = sprintf(':%s', $key);
-                $query = sprintf($this->loadQueryTemplate,
+                $query = sprintf(
+                    $this->loadQueryTemplate,
                     implode(',', $fields),
                     $this->databaseTable,
                     $join,
@@ -281,7 +283,8 @@ abstract class FOGController extends FOGBase
             }
             $paramKey = sprintf(':%s', $fieldToGet);
             $value = $this->get($this->key($field));
-            $query = sprintf($this->destroyQueryTemplate,
+            $query = sprintf(
+                $this->destroyQueryTemplate,
                 $this->databaseTable,
                 $fieldToGet,
                 $paramKey

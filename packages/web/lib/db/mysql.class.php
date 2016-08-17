@@ -98,45 +98,45 @@ class MySQL extends DatabaseManager
                 throw new Exception(_('No query result, use query() first'));
             } else {
                 switch (strtolower($fetchType)) {
-                case 'fetch_all':
-                    if (method_exists('mysqli_result', 'fetch_all')) {
-                        self::$result = self::$queryResult->fetch_all($type);
-                    } else {
-                        for (self::$result=array();$tmp = self::$queryResult->fetch_array($type);) {
-                            self::$result[] = $tmp;
+                    case 'fetch_all':
+                        if (method_exists('mysqli_result', 'fetch_all')) {
+                            self::$result = self::$queryResult->fetch_all($type);
+                        } else {
+                            for (self::$result=array(); $tmp = self::$queryResult->fetch_array($type);) {
+                                self::$result[] = $tmp;
+                            }
                         }
-                    }
-                    break;
-                case 'fetch_assoc':
-                case 'fetch_row':
-                case 'fetch_field':
-                case 'fetch_fields':
-                case 'free':
-                    self::$result = self::$queryResult->$fetchType();
-                    break;
-                case 'fetch_object':
-                    if (isset($type) && !class_exists($type)) {
-                        throw new Exception(_('No valid class sent'));
-                    } else {
+                        break;
+                    case 'fetch_assoc':
+                    case 'fetch_row':
+                    case 'fetch_field':
+                    case 'fetch_fields':
+                    case 'free':
                         self::$result = self::$queryResult->$fetchType();
-                    }
-                    if (isset($type) && count($params) && !is_array($params)) {
-                        self::$result = self::$queryResult->$fetchType($type, array($params));
-                    } elseif (isset($type) && $params == false) {
-                        self::$result = self::$queryResult->$fetchType($type, array(null));
-                    } else {
-                        self::$result = self::$queryResult->$fetchType($type, $params);
-                    }
-                    break;
-                case 'data_seek':
-                case 'fetch_field_direct':
-                case 'field_seek':
-                    if (!is_numeric($type)) {
-                        throw new Exception(_('Row number not set properly'));
-                    }
-                default:
-                    self::$result = self::$queryResult->$fetchType($type);
-                    break;
+                        break;
+                    case 'fetch_object':
+                        if (isset($type) && !class_exists($type)) {
+                            throw new Exception(_('No valid class sent'));
+                        } else {
+                            self::$result = self::$queryResult->$fetchType();
+                        }
+                        if (isset($type) && count($params) && !is_array($params)) {
+                            self::$result = self::$queryResult->$fetchType($type, array($params));
+                        } elseif (isset($type) && $params == false) {
+                            self::$result = self::$queryResult->$fetchType($type, array(null));
+                        } else {
+                            self::$result = self::$queryResult->$fetchType($type, $params);
+                        }
+                        break;
+                    case 'data_seek':
+                    case 'fetch_field_direct':
+                    case 'field_seek':
+                        if (!is_numeric($type)) {
+                            throw new Exception(_('Row number not set properly'));
+                        }
+                    default:
+                        self::$result = self::$queryResult->$fetchType($type);
+                        break;
                 }
             }
         } catch (Exception $e) {

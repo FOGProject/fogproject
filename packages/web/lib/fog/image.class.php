@@ -45,35 +45,35 @@ class Image extends FOGController
     {
         parent::save();
         switch (true) {
-        case ($this->isLoaded('hosts')):
-            $DBHostIDs = self::getSubObjectIDs('Host', array('imageID'=>$this->get('id')), 'hostID');
-            $RemoveHostIDs = array_diff((array)$DBHostIDs, (array)$this->get('hosts'));
-            if (count($RemoveHostIDs)) {
-                self::getClass('HostManager')->update(array('imageID'=>$this->get('id'), 'id'=>$RemoveHostIDs), '', array('imageID'=>'0'));
+            case ($this->isLoaded('hosts')):
                 $DBHostIDs = self::getSubObjectIDs('Host', array('imageID'=>$this->get('id')), 'hostID');
-                unset($RemoveHostIDs);
-            }
-            $DBHostIDs = array_diff((array)$this->get('hosts'), (array)$DBHostIDs);
-            self::getClass('HostManager')->update(array('id'=>$DBHostIDs), '', array('imageID'=>$this->get('id')));
-            unset($DBHostIDs, $RemoveHostIDs);
-        case ($this->isLoaded('storageGroups')):
-            $DBGroupIDs = self::getSubObjectIDs('ImageAssociation', array('imageID'=>$this->get('id')), 'storageGroupID');
-            $RemoveGroupIDs = array_diff((array)$DBGroupIDs, (array)$this->get('storageGroups'));
-            if (count($RemoveGroupIDs)) {
-                self::getClass('ImageAssociationManager')->destroy(array('imageID'=>$this->get('id'), 'storageGroupID'=>$RemoveGroupIDs));
+                $RemoveHostIDs = array_diff((array)$DBHostIDs, (array)$this->get('hosts'));
+                if (count($RemoveHostIDs)) {
+                    self::getClass('HostManager')->update(array('imageID'=>$this->get('id'), 'id'=>$RemoveHostIDs), '', array('imageID'=>'0'));
+                    $DBHostIDs = self::getSubObjectIDs('Host', array('imageID'=>$this->get('id')), 'hostID');
+                    unset($RemoveHostIDs);
+                }
+                $DBHostIDs = array_diff((array)$this->get('hosts'), (array)$DBHostIDs);
+                self::getClass('HostManager')->update(array('id'=>$DBHostIDs), '', array('imageID'=>$this->get('id')));
+                unset($DBHostIDs, $RemoveHostIDs);
+            case ($this->isLoaded('storageGroups')):
                 $DBGroupIDs = self::getSubObjectIDs('ImageAssociation', array('imageID'=>$this->get('id')), 'storageGroupID');
-                unset($RemoveGroupIDs);
-            }
-            $primaryGroupIDs = self::getSubObjectIDs('ImageAssociation', array('imageID'=>$this->get('id'), 'primary'=>'1'));
-            $insert_fields = array('imageID','storageGroupID','primary');
-            $insert_values = array();
-            $DBGroupIDs = array_diff((array)$this->get('storageGroups'), (array)$DBGroupIDs);
-            array_walk($DBGroupIDs, function (&$groupID, $index) use (&$insert_values, $primaryGroupIDs) {
-                $insert_values[] = array($this->get('id'), $groupID, in_array($groupID, $primaryGroupIDs) ? '1' : '0');
-            });
-            if (count($insert_values) > 0) {
-                self::getClass('ImageAssociationManager')->insert_batch($insert_fields, $insert_values);
-            }
+                $RemoveGroupIDs = array_diff((array)$DBGroupIDs, (array)$this->get('storageGroups'));
+                if (count($RemoveGroupIDs)) {
+                    self::getClass('ImageAssociationManager')->destroy(array('imageID'=>$this->get('id'), 'storageGroupID'=>$RemoveGroupIDs));
+                    $DBGroupIDs = self::getSubObjectIDs('ImageAssociation', array('imageID'=>$this->get('id')), 'storageGroupID');
+                    unset($RemoveGroupIDs);
+                }
+                $primaryGroupIDs = self::getSubObjectIDs('ImageAssociation', array('imageID'=>$this->get('id'), 'primary'=>'1'));
+                $insert_fields = array('imageID','storageGroupID','primary');
+                $insert_values = array();
+                $DBGroupIDs = array_diff((array)$this->get('storageGroups'), (array)$DBGroupIDs);
+                array_walk($DBGroupIDs, function (&$groupID, $index) use (&$insert_values, $primaryGroupIDs) {
+                    $insert_values[] = array($this->get('id'), $groupID, in_array($groupID, $primaryGroupIDs) ? '1' : '0');
+                });
+                if (count($insert_values) > 0) {
+                    self::getClass('ImageAssociationManager')->insert_batch($insert_fields, $insert_values);
+                }
         }
         return $this;
     }

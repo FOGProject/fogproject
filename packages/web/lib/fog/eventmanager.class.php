@@ -38,7 +38,7 @@ class EventManager extends FOGBase
                 throw new Exception(_('Listener must be an array or an object'));
             }
             switch (get_class($this)) {
-                case 'EventManager' :
+                case 'EventManager':
                     if (!($listener instanceof Event)) {
                         throw new Exception(_('Class must extend event'));
                     }
@@ -47,7 +47,7 @@ class EventManager extends FOGBase
                     }
                     array_push($this->data[$event], $listener);
                     break;
-                case 'HookManager' :
+                case 'HookManager':
                     if (self::$isMobile && !$listener[0]->mobile) {
                         throw new Exception(_('Not registering to mobile page'));
                     }
@@ -62,12 +62,13 @@ class EventManager extends FOGBase
                     }
                     $this->data[$event][] = $listener;
                     break;
-                default :
+                default:
                     throw new Exception(_('Register event is not from EventManager or HookManager'));
                     break;
             }
         } catch (Exception $e) {
-            $string = sprintf('%s: %s: %s, $s: %s, %s: %s',
+            $string = sprintf(
+                '%s: %s: %s, $s: %s, %s: %s',
                 _('Could not register'),
                 _('Error'),
                 $e->getMessage(),
@@ -90,7 +91,7 @@ class EventManager extends FOGBase
      * @throws Exception
      * @return bool
      */
-    public function notify($event, $eventData=array())
+    public function notify($event, $eventData = array())
     {
         try {
             if (!is_string($event)) {
@@ -113,7 +114,8 @@ class EventManager extends FOGBase
                 (array)$this->data[$event]
             );
         } catch (Exception $e) {
-            $string = sprintf('%s: %s: %s, $s: %s',
+            $string = sprintf(
+                '%s: %s: %s, $s: %s',
                 _('Could not notify'),
                 _('Error'),
                 $e->getMessage(),

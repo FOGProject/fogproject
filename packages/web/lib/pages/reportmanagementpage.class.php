@@ -46,7 +46,8 @@ class ReportManagementPage extends FOGPage
     public function upload()
     {
         $this->title = _('Upload FOG Reports');
-        printf('<div class="hostgroup">%s</div><p class="titleBottomLeft">%s</p><form method="post" action="%s" enctype="multipart/form-data"><input type="file" name="report"/><span class="lightColor">%s: %s</span><p><input type="submit" value="%s"/></p></form>',
+        printf(
+            '<div class="hostgroup">%s</div><p class="titleBottomLeft">%s</p><form method="post" action="%s" enctype="multipart/form-data"><input type="file" name="report"/><span class="lightColor">%s: %s</span><p><input type="submit" value="%s"/></p></form>',
             _('This section allows you to upload user defined reports that may not be part of the base FOG package. The report files should end in .php'),
             _('Upload a FOG Report'),
             $this->formAction,
@@ -122,7 +123,8 @@ class ReportManagementPage extends FOGPage
     public function imaging_log_post()
     {
         $this->title = _('FOG Imaging Log');
-        printf($this->reportString,
+        printf(
+            $this->reportString,
             'ImagingLog',
             _('Export CSV'),
             _('Export CSV'),
@@ -267,7 +269,8 @@ class ReportManagementPage extends FOGPage
     public function host_list()
     {
         $this->title = _('Host Listing Export');
-        printf($this->reportString,
+        printf(
+            $this->reportString,
             'HostList',
             _('Export CSV'),
             _('Export CSV'),
@@ -324,21 +327,21 @@ class ReportManagementPage extends FOGPage
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
-                case _('Image ID'):
-                    $this->ReportMaker->addCSVCell($imgID);
-                    break;
-                case _('Image Name'):
-                    $this->ReportMaker->addCSVCell($imgName);
-                    break;
-                case _('Image Desc'):
-                    $this->ReportMaker->addCSVCell($imgDesc);
-                    break;
-                case _('AD Join'):
-                    $this->ReportMaker->addCSVCell(($Host->get('useAD') == 1 ? _('Yes') : _('No')));
-                    break;
-                default:
-                    $this->ReportMaker->addCSVCell($Host->get($classGet));
-                    break;
+                    case _('Image ID'):
+                        $this->ReportMaker->addCSVCell($imgID);
+                        break;
+                    case _('Image Name'):
+                        $this->ReportMaker->addCSVCell($imgName);
+                        break;
+                    case _('Image Desc'):
+                        $this->ReportMaker->addCSVCell($imgDesc);
+                        break;
+                    case _('AD Join'):
+                        $this->ReportMaker->addCSVCell(($Host->get('useAD') == 1 ? _('Yes') : _('No')));
+                        break;
+                    default:
+                        $this->ReportMaker->addCSVCell($Host->get($classGet));
+                        break;
                 }
                 unset($classGet);
             }
@@ -352,7 +355,8 @@ class ReportManagementPage extends FOGPage
     public function inventory()
     {
         $this->title = _('Full Inventory Export');
-        printf($this->reportString,
+        printf(
+            $this->reportString,
             'InventoryReport',
             _('Export CSV'),
             _('Export CSV'),
@@ -438,24 +442,24 @@ class ReportManagementPage extends FOGPage
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
-                case _('Host ID'):
-                    $this->ReportMaker->addCSVCell($Host->get('id'));
-                    break;
-                case _('Host name'):
-                    $this->ReportMaker->addCSVCell($Host->get('name'));
-                    break;
-                case _('Host MAC'):
-                    $this->ReportMaker->addCSVCell($Host->get('mac'));
-                    break;
-                case _('Host Desc'):
-                    $this->ReportMaker->addCSVCell($Host->get('description'));
-                    break;
-                case _('Memory'):
-                    $this->ReportMaker->addCSVCell($Host->get('inventory')->getMem());
-                    break;
-                default:
-                    $this->ReportMaker->addCSVCell($Host->get('inventory')->get($classGet));
-                    break;
+                    case _('Host ID'):
+                        $this->ReportMaker->addCSVCell($Host->get('id'));
+                        break;
+                    case _('Host name'):
+                        $this->ReportMaker->addCSVCell($Host->get('name'));
+                        break;
+                    case _('Host MAC'):
+                        $this->ReportMaker->addCSVCell($Host->get('mac'));
+                        break;
+                    case _('Host Desc'):
+                        $this->ReportMaker->addCSVCell($Host->get('description'));
+                        break;
+                    case _('Memory'):
+                        $this->ReportMaker->addCSVCell($Host->get('inventory')->getMem());
+                        break;
+                    default:
+                        $this->ReportMaker->addCSVCell($Host->get('inventory')->get($classGet));
+                        break;
                 }
             }
             unset($classGet);
@@ -474,7 +478,8 @@ class ReportManagementPage extends FOGPage
             $this->redirect('?node=report&sub=pend-mac');
         }
         $this->title = _('Pending MAC Export');
-        printf($this->reportString,
+        printf(
+            $this->reportString,
             'PendingMACsList',
             _('Export CSV'),
             _('Export CSV'),
@@ -576,7 +581,8 @@ class ReportManagementPage extends FOGPage
     public function vir_hist()
     {
         $this->title = _('FOG Virus Summary');
-        printf($this->reportString,
+        printf(
+            $this->reportString,
             'VirusHistory',
             _('Export CSV'),
             _('Export CSV'),
@@ -586,7 +592,8 @@ class ReportManagementPage extends FOGPage
             _('Export PDF'),
             self::$pdffile
         );
-        printf('<form method="post" action="%s"><h2><a href="#"><input onclick="this.form.submit()" type="checkbox" class="delvid" name="delvall" id="delvid" value="all"/><label for="delvid">(%s)</label></a></h2></form>',
+        printf(
+            '<form method="post" action="%s"><h2><a href="#"><input onclick="this.form.submit()" type="checkbox" class="delvid" name="delvall" id="delvid" value="all"/><label for="delvid">(%s)</label></a></h2></form>',
             $this->formAction,
             _('clear all history')
         );
@@ -650,15 +657,15 @@ class ReportManagementPage extends FOGPage
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
-                case _('Host name'):
-                    $this->ReportMaker->addCSVCell($hostName);
-                    break;
-                case _('Mode'):
-                    $this->ReportMaker->addCSVCell($virusMode);
-                    break;
-                default:
-                    $this->ReportMaker->addCSVCell($Virus->get($classGet));
-                    break;
+                    case _('Host name'):
+                        $this->ReportMaker->addCSVCell($hostName);
+                        break;
+                    case _('Mode'):
+                        $this->ReportMaker->addCSVCell($virusMode);
+                        break;
+                    default:
+                        $this->ReportMaker->addCSVCell($Virus->get($classGet));
+                        break;
                 }
                 unset($classGet);
             }
@@ -908,7 +915,8 @@ class ReportManagementPage extends FOGPage
         $this->ReportMaker->addCSVCell(_('Time'));
         $this->ReportMaker->addCSVCell(_('Description'));
         $this->ReportMaker->endCSVLine();
-        printf($this->reportString,
+        printf(
+            $this->reportString,
             'UserTrackingList',
             _('Export CSV'),
             _('Export CSV'),
@@ -1009,7 +1017,8 @@ class ReportManagementPage extends FOGPage
     public function snapin_log_post()
     {
         $this->title = _('FOG Snapin Log');
-        printf($this->reportString,
+        printf(
+            $this->reportString,
             'SnapinLog',
             _('Export CSV'),
             _('Export CSV'),
@@ -1171,13 +1180,15 @@ class ReportManagementPage extends FOGPage
             return;
         }
         $this->title = _('FOG Equipment Loan Form');
-        printf('<h2><a href="export.php?type=pdf&filename=%sEquipmentLoanForm" alt="%s" title="%s" target="_blank">%s</a></h2>',
+        printf(
+            '<h2><a href="export.php?type=pdf&filename=%sEquipmentLoanForm" alt="%s" title="%s" target="_blank">%s</a></h2>',
             $Inventory->get('primaryUser'),
             _('Export PDF'),
             _('Export PDF'),
             self::$pdffile
         );
-        $this->ReportMaker->appendHTML(sprintf('<!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" --><p class="c"><h3>%s</h3></p><hr/><p class="c"><h2>%s</h2></p><p class="c"><h3>%s</h3></p><p class="c"><h2><u>%s</u></h2></p><p class="c"><h4><u>%s</u></h4></p><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><p class="c"><h4><u>%s</u></h4></p><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><p class="c"><h4><b>%s / %s / %s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><br/><hr/><h4><b>%s: </b>%s</h4><p class="c"><h4>(%s %s)</h4></p><p class="c"><h4>%s</h4></p><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><!-- NEW PAGE --><!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" --><p class="c"><h3>%s</h3></p><hr/><h4>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4>',
+        $this->ReportMaker->appendHTML(sprintf(
+            '<!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" --><p class="c"><h3>%s</h3></p><hr/><p class="c"><h2>%s</h2></p><p class="c"><h3>%s</h3></p><p class="c"><h2><u>%s</u></h2></p><p class="c"><h4><u>%s</u></h4></p><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><p class="c"><h4><u>%s</u></h4></p><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><p class="c"><h4><b>%s / %s / %s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><br/><hr/><h4><b>%s: </b>%s</h4><p class="c"><h4>(%s %s)</h4></p><p class="c"><h4>%s</h4></p><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><!-- NEW PAGE --><!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" --><p class="c"><h3>%s</h3></p><hr/><h4>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4>',
             _('of'),
             _('Printed'),
             $this->formatTime('', 'D M j G:i:s T Y'),

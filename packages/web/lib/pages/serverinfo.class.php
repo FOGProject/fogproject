@@ -52,31 +52,31 @@ class ServerInfo extends FOGPage
         array_map(function (&$line) use (&$section, &$arGeneral, &$arFS, &$arNIC) {
             $line = trim($line);
             switch ($line) {
-            case '@@start':
-            case '@@end':
-                break;
-            case '@@general':
-                $section = 0;
-                break;
-            case '@@fs':
-                $section = 1;
-                break;
-            case '@@nic':
-                $section = 2;
-                break;
-            default:
-                switch ($section) {
-                case 0:
-                    $arGeneral[] = $line;
+                case '@@start':
+                case '@@end':
                     break;
-                case 1:
-                    $arFS[] = $line;
+                case '@@general':
+                    $section = 0;
                     break;
-                case 2:
-                    $arNIC[] = $line;
+                case '@@fs':
+                    $section = 1;
                     break;
-                }
-                break;
+                case '@@nic':
+                    $section = 2;
+                    break;
+                default:
+                    switch ($section) {
+                        case 0:
+                            $arGeneral[] = $line;
+                            break;
+                        case 1:
+                            $arFS[] = $line;
+                            break;
+                        case 2:
+                            $arNIC[] = $line;
+                            break;
+                    }
+                    break;
             }
             unset($line);
         }, (array)explode("\n", $ret));

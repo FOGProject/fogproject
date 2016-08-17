@@ -236,27 +236,27 @@ class PrinterManagementPage extends FOGPage
                 throw new Exception(_('Printer name already exists. Unable to create!'));
             }
             switch ($_REQUEST['printertype']) {
-            case 'local':
-                if (empty($_REQUEST['port']) || empty($_REQUEST['inf']) || empty($_REQUEST['model']) || empty($_REQUEST['ip'])) {
-                    throw new Exception(_('You must specify the port, model, ip, and file.  Unable to create!'));
-                }
-                $printertype = 'Local';
-                break;
-            case 'cups':
-                if (empty($_REQUEST['inf'])) {
-                    throw new Exception(_('You must specify the file to use. Unable to create!'));
-                }
-                $printertype = 'Cups';
-                break;
-            case 'iprint':
-                if (empty($_REQUEST['port'])) {
-                    throw new Exception(_('You must specify the port. Unable to create!'));
-                }
-                $printertype = 'iPrint';
-                break;
-            case 'network':
-                $printertype = 'Network';
-                break;
+                case 'local':
+                    if (empty($_REQUEST['port']) || empty($_REQUEST['inf']) || empty($_REQUEST['model']) || empty($_REQUEST['ip'])) {
+                        throw new Exception(_('You must specify the port, model, ip, and file.  Unable to create!'));
+                    }
+                    $printertype = 'Local';
+                    break;
+                case 'cups':
+                    if (empty($_REQUEST['inf'])) {
+                        throw new Exception(_('You must specify the file to use. Unable to create!'));
+                    }
+                    $printertype = 'Cups';
+                    break;
+                case 'iprint':
+                    if (empty($_REQUEST['port'])) {
+                        throw new Exception(_('You must specify the port. Unable to create!'));
+                    }
+                    $printertype = 'iPrint';
+                    break;
+                case 'network':
+                    $printertype = 'Network';
+                    break;
             }
             $Printer = self::getClass('Printer')
                 ->set('description', $_REQUEST['description'])
@@ -400,49 +400,49 @@ class PrinterManagementPage extends FOGPage
         self::$HookManager->processEvent('PRINTER_EDIT_POST', array('Printer'=>&$this->obj));
         try {
             switch ($_REQUEST['tab']) {
-            case 'printer-type':
-                $this->setMessage(sprintf('%s: %s', _('Printer type changed to'), $_REQUEST['printertype']));
-                $this->redirect($this->formAction);
-                break;
-            case 'printer-gen':
-                $_REQUEST['alias'] = trim($_REQUEST['alias']);
-                $_REQUEST['port'] = trim($_REQUEST['port']);
-                $_REQUEST['inf'] = trim($_REQUEST['inf']);
-                $_REQUEST['model'] = trim($_REQUEST['model']);
-                $_REQUEST['ip'] = trim($_REQUEST['ip']);
-                $_REQUEST['configFile'] = trim($_REQUEST['configFile']);
-                $_REQUEST['description'] = trim($_REQUEST['description']);
-                $_REQUEST['printertype'] = trim(strtolower($_REQUEST['printertype']));
-                if (empty($_REQUEST['alias'])) {
-                    throw new Exception(_('All printer definitions must have an alias/name associated with it. Unable to update!'));
-                }
-                switch ($_REQUEST['printertype']) {
-                case 'local':
-                    if (empty($_REQUEST['port']) || empty($_REQUEST['inf']) || empty($_REQUEST['model']) || empty($_REQUEST['ip'])) {
-                        throw new Exception(_('You must specify the port, model, ip, and file.  Unable to update!'));
+                case 'printer-type':
+                    $this->setMessage(sprintf('%s: %s', _('Printer type changed to'), $_REQUEST['printertype']));
+                    $this->redirect($this->formAction);
+                    break;
+                case 'printer-gen':
+                    $_REQUEST['alias'] = trim($_REQUEST['alias']);
+                    $_REQUEST['port'] = trim($_REQUEST['port']);
+                    $_REQUEST['inf'] = trim($_REQUEST['inf']);
+                    $_REQUEST['model'] = trim($_REQUEST['model']);
+                    $_REQUEST['ip'] = trim($_REQUEST['ip']);
+                    $_REQUEST['configFile'] = trim($_REQUEST['configFile']);
+                    $_REQUEST['description'] = trim($_REQUEST['description']);
+                    $_REQUEST['printertype'] = trim(strtolower($_REQUEST['printertype']));
+                    if (empty($_REQUEST['alias'])) {
+                        throw new Exception(_('All printer definitions must have an alias/name associated with it. Unable to update!'));
                     }
-                    $printertype = 'Local';
-                    break;
-                case 'cups':
-                    if (empty($_REQUEST['inf'])) {
-                        throw new Exception(_('You must specify the file to use. Unable to update!'));
+                    switch ($_REQUEST['printertype']) {
+                        case 'local':
+                            if (empty($_REQUEST['port']) || empty($_REQUEST['inf']) || empty($_REQUEST['model']) || empty($_REQUEST['ip'])) {
+                                throw new Exception(_('You must specify the port, model, ip, and file.  Unable to update!'));
+                            }
+                            $printertype = 'Local';
+                            break;
+                        case 'cups':
+                            if (empty($_REQUEST['inf'])) {
+                                throw new Exception(_('You must specify the file to use. Unable to update!'));
+                            }
+                            $printertype = 'Cups';
+                            break;
+                        case 'iprint':
+                            if (empty($_REQUEST['port'])) {
+                                throw new Exception(_('You must specify the port. Unable to update!'));
+                            }
+                            $printertype = 'iPrint';
+                            break;
+                        case 'network':
+                            $printertype = 'Network';
+                            break;
                     }
-                    $printertype = 'Cups';
-                    break;
-                case 'iprint':
-                    if (empty($_REQUEST['port'])) {
-                        throw new Exception(_('You must specify the port. Unable to update!'));
+                    if ($this->obj->get('name') != $_REQUEST['alias'] && $this->obj->getManager()->exists($_REQUEST['alias'])) {
+                        throw new Exception(_('Printer name already exists, please choose another'));
                     }
-                    $printertype = 'iPrint';
-                    break;
-                case 'network':
-                    $printertype = 'Network';
-                    break;
-                }
-                if ($this->obj->get('name') != $_REQUEST['alias'] && $this->obj->getManager()->exists($_REQUEST['alias'])) {
-                    throw new Exception(_('Printer name already exists, please choose another'));
-                }
-                $this->obj
+                    $this->obj
                     ->set('description', $_REQUEST['description'])
                     ->set('name', $_REQUEST['alias'])
                     ->set('config', $printertype)
@@ -451,7 +451,7 @@ class PrinterManagementPage extends FOGPage
                     ->set('file', $_REQUEST['inf'])
                     ->set('configFile', $_REQUEST['configFile'])
                     ->set('ip', $_REQUEST['ip']);
-                break;
+                    break;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Printer update failed!'));

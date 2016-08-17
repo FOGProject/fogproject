@@ -72,7 +72,8 @@ abstract class FOGBase
             if ($index) {
                 $value = $index;
             }
-            printf('<option value="%s"%s>%s</option>',
+            printf(
+                '<option value="%s"%s>%s</option>',
                 $value,
                 (self::$selected == $value ? ' selected' : ''),
                 $option

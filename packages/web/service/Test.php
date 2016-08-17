@@ -5,7 +5,9 @@ $Response = function () {
 $ResponseArray = function () {
     echo "#!ok\n#obj0=Foo\n#obj1=bar\n#obj2=22!";
 };
-$BadResponse = function () {echo "#!er";};
+$BadResponse = function () {
+    echo "#!er";
+};
 $Download = function () {
     header('Content-Disposition: attachment; filename=test.txt');
     header('Content-Type: application/force-download');

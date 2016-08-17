@@ -49,7 +49,8 @@ if (!self::$isMobile) {
 } else {
     echo '<div id="header"></div>';
     if (self::$FOGUser->isValid()) {
-        printf('<div id="mainContainer"><div class="mainContent">%s%s<div id="mobile_content">%s</div></div></div>',
+        printf(
+            '<div id="mainContainer"><div class="mainContent">%s%s<div id="mobile_content">%s</div></div></div>',
             $this->menu,
             $this->pageTitle ? "<h2>$this->pageTitle</h2>" : '',
             $this->body

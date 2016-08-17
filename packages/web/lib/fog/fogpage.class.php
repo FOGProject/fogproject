@@ -139,7 +139,8 @@ abstract class FOGPage extends FOGBase
         $vals = function (&$value, $key) {
             return sprintf('%s : %s', $key, $value);
         };
-        printf('Index page of: %s%s',
+        printf(
+            'Index page of: %s%s',
             get_class($this),
             (count($args) ? sprintf(', Arguments = %s', implode(', ', array_walk($args, $vals))) : '')
         );
@@ -173,7 +174,8 @@ abstract class FOGPage extends FOGBase
             ob_start();
             $contentField = 'active-tasks';
             if ($this->searchFormURL) {
-                printf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><%s id="%s-search-submit" class="search-submit" type="%s" value="%s"></form>%s',
+                printf(
+                    '<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><%s id="%s-search-submit" class="search-submit" type="%s" value="%s"></form>%s',
                     $this->searchFormURL,
                     (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
                     sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), self::$foglang['Search']),
@@ -189,7 +191,8 @@ abstract class FOGPage extends FOGBase
             if (isset($this->form)) {
                 printf($this->form);
             }
-            printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<tbody>',
+            printf(
+                '<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<tbody>',
                 '100%',
                 $contentField,
                 $this->buildHeaderRow()
@@ -201,7 +204,8 @@ abstract class FOGPage extends FOGBase
             }
             if (!count($this->data)) {
                 $contentField = 'no-active-tasks';
-                printf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
+                printf(
+                    '<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
                     count($this->templates),
                     $contentField,
                     ($this->data['error'] ? (is_array($this->data['error']) ? sprintf('<p>%s</p>', implode('</p><p>', $this->data['error'])) : $this->data['error']) : ($this->node != 'task' ? (!self::$isMobile ? self::$foglang['NoResults'] : '') : self::$foglang['NoResults']))
@@ -214,7 +218,8 @@ abstract class FOGPage extends FOGBase
                 }
                 $id_field = "{$node}_id";
                 array_map(function (&$rowData) use ($id_field) {
-                    printf('<tr id="%s-%s">%s</tr>',
+                    printf(
+                        '<tr id="%s-%s">%s</tr>',
                         strtolower($this->childClass),
                         (isset($rowData['id']) ? $rowData['id'] : (isset($rowData[$id_field]) ? $rowData[$id_field] : '')),
                         $this->buildRow($rowData)
@@ -224,7 +229,8 @@ abstract class FOGPage extends FOGBase
             echo '</tbody></table>';
             if ((!$sub || $sub === 'storage_group' || (in_array($sub, $defaultScreens)) && in_array($node, self::$searchPages)) && !self::$isMobile && in_array($node, $this->PagesWithObjects)) {
                 if ($this->node == 'host') {
-                    $actionbox = sprintf('<form method="post" action="%s" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" id="processgroup" value="%s"/></p></form>',
+                    $actionbox = sprintf(
+                        '<form method="post" action="%s" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off"/><p><label for="group_new">%s</label><input type="text" name="group_new" id="group_new" autocomplete="off"/></p><p class="c">OR</p><p><label for="group">%s</label>%s</p><p class="c"><input type="submit" id="processgroup" value="%s"/></p></form>',
                         sprintf('?node=%s&sub=save_group', $this->node),
                         _('Create new group'),
                         _('Add to group'),
@@ -233,7 +239,8 @@ abstract class FOGPage extends FOGBase
                     );
                 }
                 if ($this->node != 'task') {
-                    $actionbox .= sprintf('<form method="post" class="c" id="action-boxdel" action="%s"><p>%s</p><input type="hidden" name="%sIDArray" value="" autocomplete="off"/><input type="submit" value="%s?"/></form>',
+                    $actionbox .= sprintf(
+                        '<form method="post" class="c" id="action-boxdel" action="%s"><p>%s</p><input type="hidden" name="%sIDArray" value="" autocomplete="off"/><input type="submit" value="%s?"/></form>',
                         sprintf('?node=%s&sub=deletemulti', $this->node),
                         _('Delete all selected items'),
                         strtolower($this->node),
@@ -267,7 +274,8 @@ abstract class FOGPage extends FOGBase
     {
         array_walk($this->attributes, function (&$attribute, $index) {
             array_walk($attribute, function (&$val, $name) use ($index) {
-                $this->atts[$index] .= sprintf(' %s="%s" ',
+                $this->atts[$index] .= sprintf(
+                    ' %s="%s" ',
                     $name,
                     ($this->dataFind ? preg_replace($this->dataFind, $this->dataReplace, $val) : $val)
                 );
@@ -282,7 +290,8 @@ abstract class FOGPage extends FOGBase
             return;
         }
         $setHeaderData = function (&$content, $index) {
-            printf('<%s%s data-column="%s">%s</%s>',
+            printf(
+                '<%s%s data-column="%s">%s</%s>',
                 $this->headerWrap,
                 ($this->atts[$index] ? $this->atts[$index] : ''),
                 $index,
@@ -321,7 +330,8 @@ abstract class FOGPage extends FOGBase
         $this->setAtts();
         ob_start();
         array_walk($this->templates, function (&$template, $index) {
-            printf('<%s%s>%s</%s>',
+            printf(
+                '<%s%s>%s</%s>',
                 $this->wrapper,
                 $this->atts[$index] ? $this->atts[$index] : '',
                 preg_replace($this->dataFind, $this->dataReplace, $template),
@@ -499,8 +509,7 @@ abstract class FOGPage extends FOGBase
             // Time is in the past
             if ($scheduleType == 'single' && $scheduleDeployTime < self::nice_date()) {
                 throw new Exception(sprintf('%s<br>%s: %s', _('Scheduled date is in the past'), _('Date'), $scheduleDeployTime->format('Y-m-d H:i:s')));
-            }
-            // Cron doesn't validate properly
+            } // Cron doesn't validate properly
             elseif ($scheduleType == 'cron') {
                 $valsToTest = array(
                     'checkMinutesField' => array('minute',$_REQUEST['scheduleCronMin']),
@@ -610,7 +619,8 @@ abstract class FOGPage extends FOGBase
             } elseif ($_REQUEST['scheduleType'] == 'single') {
                 $time = sprintf('%s: %s', _('Delayed Start'), $scheduleDeployTime->format('Y-m-d H:i:s'));
             }
-            printf('<div class="task-start-ok"><p>%s: %s</p><p>%s%s</p></div>',
+            printf(
+                '<div class="task-start-ok"><p>%s: %s</p><p>%s%s</p></div>',
                 $TaskType->get('name'),
                 _('Successfully created tasks for'),
                 $time,
@@ -1037,24 +1047,24 @@ abstract class FOGPage extends FOGBase
             $array = array();
             array_walk($globalModules, function (&$key, &$index) use (&$array, $globalDisabled, $hostDisabled) {
                 switch ($key) {
-                case 'greenfog':
-                    $class='GF';
-                    break;
-                case 'powermanagement':
-                    $class='PM';
-                    break;
-                case 'printermanager':
-                    $class='PrinterClient';
-                    break;
-                case 'taskreboot':
-                    $class='Jobs';
-                    break;
-                case 'usertracker':
-                    $class='UserTrack';
-                    break;
-                default:
-                    $class=$key;
-                    break;
+                    case 'greenfog':
+                        $class='GF';
+                        break;
+                    case 'powermanagement':
+                        $class='PM';
+                        break;
+                    case 'printermanager':
+                        $class='PrinterClient';
+                        break;
+                    case 'taskreboot':
+                        $class='Jobs';
+                        break;
+                    case 'usertracker':
+                        $class='UserTrack';
+                        break;
+                    default:
+                        $class=$key;
+                        break;
                 }
                 if (in_array($key, array_merge($globalDisabled, $hostDisabled))) {
                     $array[$key]['error'] = in_array($key, $globalDisabled) ? 'ng' : 'nh';
@@ -1173,7 +1183,8 @@ abstract class FOGPage extends FOGBase
         array_walk($names, $itemParser);
         if (count($this->data) > 0) {
             self::$HookManager->processEvent(sprintf('OBJ_%s_NOT_IN_ME', strtoupper($ClassCall)), array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-            printf('<form method="post" action="%s"><label for="%sMeShow"><p class="c">%s %ss %s %s&nbsp;&nbsp;<input type="checkbox" name="%sMeShow" id="%sMeShow"/></p></label><div id="%sNotInMe"><h2>%s %s</h2>',
+            printf(
+                '<form method="post" action="%s"><label for="%sMeShow"><p class="c">%s %ss %s %s&nbsp;&nbsp;<input type="checkbox" name="%sMeShow" id="%sMeShow"/></p></label><div id="%sNotInMe"><h2>%s %s</h2>',
                 $this->formAction,
                 strtolower($ClassCall),
                 _('Check here to see'),
@@ -1183,10 +1194,12 @@ abstract class FOGPage extends FOGBase
                 strtolower($ClassCall),
                 strtolower($ClassCall),
                 strtolower($ClassCall),
-                _('Modify Membership for'), $this->obj->get('name')
+                _('Modify Membership for'),
+                $this->obj->get('name')
             );
             $this->render();
-            printf('</div><br/><p class="c"><input type="submit" value="%s %s(s) to %s" name="addHosts"/></p><br/>',
+            printf(
+                '</div><br/><p class="c"><input type="submit" value="%s %s(s) to %s" name="addHosts"/></p><br/>',
                 _('Add'),
                 ($objType ? _('Group') : _('Host')),
                 $this->node

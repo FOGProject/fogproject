@@ -39,7 +39,8 @@ class TaskType extends FOGController
         ob_start();
         echo '<select name="icon" class="fa">';
         array_walk($icons, function (&$unicode, &$name) use ($selected) {
-            printf('<option value="%s"%s> %s</option>',
+            printf(
+                '<option value="%s"%s> %s</option>',
                 $name,
                 $selected == $name ? ' selected' : '',
                 $name

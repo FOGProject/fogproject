@@ -11,7 +11,8 @@ class Hosts_and_Users extends ReportManagementPage
     public function index()
     {
         $this->title =_('FOG Hosts and Users Login');
-        printf($this->reportString,
+        printf(
+            $this->reportString,
             'Hosts_and_Users',
             _('Export CSV'),
             _('Export CSV'),

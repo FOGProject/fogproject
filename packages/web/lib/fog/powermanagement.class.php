@@ -41,31 +41,31 @@ class PowerManagement extends FOGController
     {
         parent::save();
         switch (true) {
-        case ($this->isLoaded('hosts')):
-            $DBHostIDs = self::getSubObjectIDs('PowerManagement', array('id'=>$this->get('id')), 'hostID');
-            $ValidHostIDs = self::getSubObjectIDs('Host');
-            $notValid = array_diff((array)$DBHostIDs, (array)$ValidHostIDs);
-            if (count($notValid)) {
-                self::getClass('PowerManagementManager')->destroy(array('hostID'=>$notValid));
-            }
-            unset($ValidHostIDs, $DBHostIDs);
-            $DBHostIDs = self::getSubObjectIDs('PowerManagement', array('id'=>$this->get('id')), 'hostID');
-            $RemoveHostIDs = array_diff((array)$DBHostIDs, (array)$this->get('hosts'));
-            if (count($RemoveHostIDs)) {
-                self::getClass('PowerManagementManager')->destroy(array('id'=>$this->get('id'), 'hostID'=>$RemoveHostIDs));
+            case ($this->isLoaded('hosts')):
                 $DBHostIDs = self::getSubObjectIDs('PowerManagement', array('id'=>$this->get('id')), 'hostID');
-                unset($RemoveHostIDs);
-            }
-            $insert_fields = array('hostID');
-            $insert_values = array();
-            $DBHostIDs = array_diff((array)$this->get('hosts'), (array)$DBHostIDs);
-            array_walk($DBHostIDs, function (&$hostID, $index) use (&$insert_values) {
-                $insert_values[] = array($hostID);
-            });
-            if (count($insert_values) > 0) {
-                self::getClass('PowerManagementManager')->insert_batch($insert_fields, $insert_values);
-            }
-            unset($DBHostIDs, $RemoveHostIDs);
+                $ValidHostIDs = self::getSubObjectIDs('Host');
+                $notValid = array_diff((array)$DBHostIDs, (array)$ValidHostIDs);
+                if (count($notValid)) {
+                    self::getClass('PowerManagementManager')->destroy(array('hostID'=>$notValid));
+                }
+                unset($ValidHostIDs, $DBHostIDs);
+                $DBHostIDs = self::getSubObjectIDs('PowerManagement', array('id'=>$this->get('id')), 'hostID');
+                $RemoveHostIDs = array_diff((array)$DBHostIDs, (array)$this->get('hosts'));
+                if (count($RemoveHostIDs)) {
+                    self::getClass('PowerManagementManager')->destroy(array('id'=>$this->get('id'), 'hostID'=>$RemoveHostIDs));
+                    $DBHostIDs = self::getSubObjectIDs('PowerManagement', array('id'=>$this->get('id')), 'hostID');
+                    unset($RemoveHostIDs);
+                }
+                $insert_fields = array('hostID');
+                $insert_values = array();
+                $DBHostIDs = array_diff((array)$this->get('hosts'), (array)$DBHostIDs);
+                array_walk($DBHostIDs, function (&$hostID, $index) use (&$insert_values) {
+                    $insert_values[] = array($hostID);
+                });
+                if (count($insert_values) > 0) {
+                    self::getClass('PowerManagementManager')->insert_batch($insert_fields, $insert_values);
+                }
+                unset($DBHostIDs, $RemoveHostIDs);
         }
         return $this;
     }

@@ -94,7 +94,8 @@ class FOGURLRequests extends FOGBase
             $this->requestMap[$key] = $i;
         }
         do {
-            while (($execrun = curl_multi_exec($master, $running)) == CURLM_CALL_MULTI_PERFORM);
+            while (($execrun = curl_multi_exec($master, $running)) == CURLM_CALL_MULTI_PERFORM) {
+            }
             if ($execrun != CURLM_OK) {
                 break;
             }

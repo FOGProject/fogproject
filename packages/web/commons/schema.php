@@ -1573,7 +1573,8 @@ isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
 isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.approvehost';",
 );
 // 130
-$this->schema[] = array_merge(array(
+$this->schema[] = array_merge(
+    array(
     "ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmPrimary` INT DEFAULT 0 NOT NULL",
     "ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmPending` INT DEFAULT 0 NOT NULL",
     "ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmIgnoreClient` INT DEFAULT 0 NOT NULL",
@@ -1617,7 +1618,8 @@ $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`multicastSessions` ADD COLUMN `msSessClients` INT(11) NOT NULL AFTER msClients",
 );
 // 136
-$this->schema[] = array_merge(array(
+$this->schema[] = array_merge(
+    array(
     "ALTER TABLE `".DATABASE_NAME."`.`tasks` ADD COLUMN `taskImageID` INT(11) NOT NULL AFTER `taskHostID`",
     "CREATE TABLE IF NOT EXISTS `".DATABASE_NAME."`.`imageGroupAssoc` (
         `igaID` mediumint(9) NOT NULL auto_increment,
@@ -1646,7 +1648,8 @@ $this->schema[] = array(
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_FROM_EMAIL','Email from address. Default is fogserver.  \$\{server-name\} is set to the node name.','noreply@\$\{server-name\}.com','FOG Email Settings')",
 );
 // 140
-$this->schema[] = array_merge(array(
+$this->schema[] = array_merge(
+    array(
     "CREATE TABLE IF NOT EXISTS `".DATABASE_NAME."`.`snapinGroupAssoc` (
         `sgaID` mediumint(9) NOT NULL auto_increment,
         `sgaSnapinID` mediumint(9) NOT NULL,

@@ -6,12 +6,12 @@ class ServiceModule extends FOGClient implements FOGClientSend
         $mods = $this->getGlobalModuleStatus(false, true);
         $mod = strtolower(htmlspecialchars($_REQUEST['moduleid'], ENT_QUOTES, 'utf-8'));
         switch ($mod) {
-        case 'dircleaner':
-            $mod = 'dircleanup';
-            break;
-        case 'snapin':
-            $mod = 'snapinclient';
-            break;
+            case 'dircleaner':
+                $mod = 'dircleanup';
+                break;
+            case 'snapin':
+                $mod = 'snapinclient';
+                break;
         }
         if (!in_array($mod, $mods)) {
             throw new Exception('#!um');

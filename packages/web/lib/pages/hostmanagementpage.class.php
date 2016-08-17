@@ -50,7 +50,8 @@ class HostManagementPage extends FOGPage
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
         );
         $_SESSION['FOGPingActive'] ? array_push($this->headerData, '') : null;
-        array_push($this->headerData,
+        array_push(
+            $this->headerData,
             _('Host'),
             _('Imaged'),
             _('Task'),
@@ -64,7 +65,8 @@ class HostManagementPage extends FOGPage
         $up = self::getClass('TaskType', 2);
         $down = self::getClass('TaskType', 1);
         $mc = self::getClass('TaskType', 8);
-        array_push($this->templates,
+        array_push(
+            $this->templates,
             '<a href="?node=host&sub=edit&id=${id}" title="Edit: ${host_name}" id="host-${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
             '<small>${deployed}</small>',
             sprintf('<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&type=8&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=edit&id=${id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Goto Task List"></i></a>', $down->get('icon'), $down->get('name'), $up->get('icon'), $up->get('name'), $mc->get('icon'), $mc->get('name')),
@@ -76,7 +78,8 @@ class HostManagementPage extends FOGPage
             array('class'=>'l filter-false','width'=>16),
         );
         $_SESSION['FOGPingActive'] ? array_push($this->attributes, array('width'=>16, 'class'=>'l filter-false')) : null;
-        array_push($this->attributes,
+        array_push(
+            $this->attributes,
             array('width'=>50),
             array('width'=>145),
             array('width'=>60, 'class'=>'r filter-false'),
@@ -506,21 +509,21 @@ class HostManagementPage extends FOGPage
                 return;
             }
             switch ($Module->get('shortName')) {
-            case 'dircleanup':
-                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $dcnote);
-                break;
-            case 'greenfog':
-                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $gfnote);
-                break;
-            case 'usercleanup':
-                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $ucnote);
-                break;
-            case 'clientupdater':
-                $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $cunote);
-                break;
-            default:
-                $note = '';
-                break;
+                case 'dircleanup':
+                    $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $dcnote);
+                    break;
+                case 'greenfog':
+                    $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $gfnote);
+                    break;
+                case 'usercleanup':
+                    $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $ucnote);
+                    break;
+                case 'clientupdater':
+                    $note = sprintf('<i class="icon fa fa-exclamation-triangle fa-1x hand" title="%s"></i>', $cunote);
+                    break;
+                default:
+                    $note = '';
+                    break;
             }
             $this->data[] = array(
                 'input' => sprintf('<input %stype="checkbox" name="modules[]" value="%s"%s%s/>', ($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes" ': ''), $Module->get('id'), (in_array($Module->get('id'), $ModuleOn) ? ' checked' : ''), !$moduleName[$Module->get('shortName')] ? ' disabled' : ''),
@@ -554,18 +557,18 @@ class HostManagementPage extends FOGPage
                 return;
             }
             switch ($Service->get('name')) {
-            case 'FOG_CLIENT_DISPLAYMANAGER_X':
-                $name = 'x';
-                $field = _('Screen Width (in pixels)');
-                break;
-            case 'FOG_CLIENT_DISPLAYMANAGER_Y':
-                $name = 'y';
-                $field = _('Screen Height (in pixels)');
-                break;
-            case 'FOG_CLIENT_DISPLAYMANAGER_R':
-                $name = 'r';
-                $field = _('Screen Refresh Rate (in Hz)');
-                break;
+                case 'FOG_CLIENT_DISPLAYMANAGER_X':
+                    $name = 'x';
+                    $field = _('Screen Width (in pixels)');
+                    break;
+                case 'FOG_CLIENT_DISPLAYMANAGER_Y':
+                    $name = 'y';
+                    $field = _('Screen Height (in pixels)');
+                    break;
+                case 'FOG_CLIENT_DISPLAYMANAGER_R':
+                    $name = 'r';
+                    $field = _('Screen Refresh Rate (in Hz)');
+                    break;
             }
             $this->data[] = array(
                 'input'=>sprintf('<input type="text" name="%s" value="%s"/>', $name, $Service->get('value')),
@@ -955,31 +958,31 @@ class HostManagementPage extends FOGPage
         self::$HookManager->processEvent('HOST_EDIT_POST', array('Host'=>&$this->obj));
         try {
             switch ($_REQUEST['tab']) {
-            case 'host-general':
-                $hostName = trim($_REQUEST['host']);
-                if (empty($hostName)) {
-                    throw new Exception('Please enter a hostname');
-                }
-                if ($this->obj->get('name') != $hostName && !$this->obj->isHostnameSafe($hostName)) {
-                    throw new Exception(_('Please enter a valid hostname'));
-                }
-                if ($this->obj->get('name') != $hostName && $this->obj->getManager()->exists($hostName)) {
-                    throw new Exception('Hostname Exists already');
-                }
-                if (empty($_REQUEST['mac'])) {
-                    throw new Exception('MAC Address is required');
-                }
-                $mac = self::getClass('MACAddress', $_REQUEST['mac']);
-                $Task = $this->obj->get('task');
-                if (!$mac->isValid()) {
-                    throw new Exception(_('MAC Address is not valid'));
-                }
-                if ((!$_REQUEST['image'] && $Task->isValid()) || ($_REQUEST['image'] && $_REQUEST['image'] != $this->obj->get('imageID') && $Task->isValid())) {
-                    throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
-                }
-                $productKey = preg_replace('/([\w+]{5})/', '$1-', str_replace('-', '', strtoupper(trim($_REQUEST['key']))));
-                $productKey = substr($productKey, 0, 29);
-                $this->obj
+                case 'host-general':
+                    $hostName = trim($_REQUEST['host']);
+                    if (empty($hostName)) {
+                        throw new Exception('Please enter a hostname');
+                    }
+                    if ($this->obj->get('name') != $hostName && !$this->obj->isHostnameSafe($hostName)) {
+                        throw new Exception(_('Please enter a valid hostname'));
+                    }
+                    if ($this->obj->get('name') != $hostName && $this->obj->getManager()->exists($hostName)) {
+                        throw new Exception('Hostname Exists already');
+                    }
+                    if (empty($_REQUEST['mac'])) {
+                        throw new Exception('MAC Address is required');
+                    }
+                    $mac = self::getClass('MACAddress', $_REQUEST['mac']);
+                    $Task = $this->obj->get('task');
+                    if (!$mac->isValid()) {
+                        throw new Exception(_('MAC Address is not valid'));
+                    }
+                    if ((!$_REQUEST['image'] && $Task->isValid()) || ($_REQUEST['image'] && $_REQUEST['image'] != $this->obj->get('imageID') && $Task->isValid())) {
+                        throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
+                    }
+                    $productKey = preg_replace('/([\w+]{5})/', '$1-', str_replace('-', '', strtoupper(trim($_REQUEST['key']))));
+                    $productKey = substr($productKey, 0, 29);
+                    $this->obj
                     ->set('name', $hostName)
                     ->set('description', $_REQUEST['description'])
                     ->set('imageID', $_REQUEST['image'])
@@ -990,50 +993,50 @@ class HostManagementPage extends FOGPage
                     ->set('biosexit', $_REQUEST['bootTypeExit'])
                     ->set('efiexit', $_REQUEST['efiBootTypeExit'])
                     ->set('productKey', $this->encryptpw($productKey));
-                if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) {
-                    $this->obj->addPriMAC($mac->__toString());
-                }
-                $_REQUEST['additionalMACs'] = array_map('strtolower', (array)$_REQUEST['additionalMACs']);
-                $removeMACs = array_diff((array)self::getSubObjectIDs('MACAddressAssociation', array('hostID'=>$this->obj->get('id'), 'primary'=>array((string)0, (string)'', null), 'pending'=>array((string)0, (string)'', null)), 'mac'), (array)$_REQUEST['additionalMACs']);
-                $this->obj->addAddMAC($_REQUEST['additionalMACs'])
-                    ->removeAddMAC($removeMACs);
-                break;
-            case 'host-active-directory':
-                $useAD = isset($_REQUEST['domain']);
-                $domain = trim($_REQUEST['domainname']);
-                $ou = trim($_REQUEST['ou']);
-                $user = trim($_REQUEST['domainuser']);
-                $pass = trim($_REQUEST['domainpassword']);
-                $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-                $enforce = intval(isset($_REQUEST['enforcesel']));
-                $this->obj->setAD($useAD, $domain, $ou, $user, $pass, true, true, $passlegacy, $productKey, $enforce);
-                break;
-            case 'host-powermanagement':
-                $min = $_REQUEST['scheduleCronMin'];
-                $hour = $_REQUEST['scheduleCronHour'];
-                $dom = $_REQUEST['scheduleCronDOM'];
-                $month = $_REQUEST['scheduleCronMonth'];
-                $dow = $_REQUEST['scheduleCronDOW'];
-                $onDemand = (string)intval(isset($_REQUEST['onDemand']));
-                $action = $_REQUEST['action'];
-                if (!$action) {
-                    throw new Exception(_('You must select an action to perform'));
-                }
-                $items = array();
-                if (isset($_REQUEST['pmupdate'])) {
-                    $pmid = $_REQUEST['pmid'];
-                    array_walk($pmid, function (&$pm, &$index) use (&$min, &$hour, &$dom, &$month, &$dow, &$onDemand, &$action, &$items) {
-                        $onDemandItem = array_search($pm, $onDemand);
-                        $items[] = array($pm, $this->obj->get('id'), $min[$index], $hour[$index], $dom[$index], $month[$index], $dow[$index], $onDemandItem !== -1 && $onDemand[$onDemandItem] === $pm ? '1' : '0', $action[$index]);
-                    });
-                    self::getClass('PowerManagementManager')->insert_batch(array('id', 'hostID', 'min', 'hour', 'dom', 'month', 'dow', 'onDemand', 'action'), $items);
-                }
-                if (isset($_REQUEST['pmsubmit'])) {
-                    if ($onDemand && $action === 'wol') {
-                        $this->obj->wakeOnLAN();
-                        break;
+                    if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) {
+                        $this->obj->addPriMAC($mac->__toString());
                     }
-                    self::getClass('PowerManagement')
+                    $_REQUEST['additionalMACs'] = array_map('strtolower', (array)$_REQUEST['additionalMACs']);
+                    $removeMACs = array_diff((array)self::getSubObjectIDs('MACAddressAssociation', array('hostID'=>$this->obj->get('id'), 'primary'=>array((string)0, (string)'', null), 'pending'=>array((string)0, (string)'', null)), 'mac'), (array)$_REQUEST['additionalMACs']);
+                    $this->obj->addAddMAC($_REQUEST['additionalMACs'])
+                    ->removeAddMAC($removeMACs);
+                    break;
+                case 'host-active-directory':
+                    $useAD = isset($_REQUEST['domain']);
+                    $domain = trim($_REQUEST['domainname']);
+                    $ou = trim($_REQUEST['ou']);
+                    $user = trim($_REQUEST['domainuser']);
+                    $pass = trim($_REQUEST['domainpassword']);
+                    $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
+                    $enforce = intval(isset($_REQUEST['enforcesel']));
+                    $this->obj->setAD($useAD, $domain, $ou, $user, $pass, true, true, $passlegacy, $productKey, $enforce);
+                    break;
+                case 'host-powermanagement':
+                    $min = $_REQUEST['scheduleCronMin'];
+                    $hour = $_REQUEST['scheduleCronHour'];
+                    $dom = $_REQUEST['scheduleCronDOM'];
+                    $month = $_REQUEST['scheduleCronMonth'];
+                    $dow = $_REQUEST['scheduleCronDOW'];
+                    $onDemand = (string)intval(isset($_REQUEST['onDemand']));
+                    $action = $_REQUEST['action'];
+                    if (!$action) {
+                        throw new Exception(_('You must select an action to perform'));
+                    }
+                    $items = array();
+                    if (isset($_REQUEST['pmupdate'])) {
+                        $pmid = $_REQUEST['pmid'];
+                        array_walk($pmid, function (&$pm, &$index) use (&$min, &$hour, &$dom, &$month, &$dow, &$onDemand, &$action, &$items) {
+                            $onDemandItem = array_search($pm, $onDemand);
+                            $items[] = array($pm, $this->obj->get('id'), $min[$index], $hour[$index], $dom[$index], $month[$index], $dow[$index], $onDemandItem !== -1 && $onDemand[$onDemandItem] === $pm ? '1' : '0', $action[$index]);
+                        });
+                        self::getClass('PowerManagementManager')->insert_batch(array('id', 'hostID', 'min', 'hour', 'dom', 'month', 'dow', 'onDemand', 'action'), $items);
+                    }
+                    if (isset($_REQUEST['pmsubmit'])) {
+                        if ($onDemand && $action === 'wol') {
+                            $this->obj->wakeOnLAN();
+                            break;
+                        }
+                        self::getClass('PowerManagement')
                         ->set('hostID', $this->obj->get('id'))
                         ->set('min', $min)
                         ->set('hour', $hour)
@@ -1043,77 +1046,77 @@ class HostManagementPage extends FOGPage
                         ->set('onDemand', $onDemand)
                         ->set('action', $action)
                         ->save();
-                }
-                if (isset($_REQUEST['pmdelete'])) {
-                    self::getClass('PowerManagementManager')->destroy(array('id'=>$_REQUEST['rempowermanagements']));
-                }
-                break;
-            case 'host-printers':
-                $PrinterManager = self::getClass('PrinterAssociationManager');
-                if (isset($_REQUEST['level'])) {
-                    $this->obj->set('printerLevel', $_REQUEST['level']);
-                }
-                if (isset($_REQUEST['updateprinters'])) {
-                    if (isset($_REQUEST['printer'])) {
-                        $this->obj->addPrinter($_REQUEST['printer']);
                     }
-                    $this->obj->updateDefault($_REQUEST['default'], isset($_REQUEST['default']));
-                    unset($printerid);
-                }
-                if (isset($_REQUEST['printdel'])) {
-                    $this->obj->removePrinter($_REQUEST['printerRemove']);
-                }
-                break;
-            case 'host-snapins':
-                if (!isset($_REQUEST['snapinRemove'])) {
-                    $this->obj->addSnapin($_REQUEST['snapin']);
-                }
-                if (isset($_REQUEST['snaprem'])) {
-                    $this->obj->removeSnapin($_REQUEST['snapinRemove']);
-                }
-                break;
-            case 'host-service':
-                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_X'));
-                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_Y'));
-                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_R'));
-                $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN'));
-                if (isset($_REQUEST['updatestatus'])) {
-                    $modOn = (array)$_REQUEST['modules'];
-                    $modOff = self::getSubObjectIDs('Module', array('id'=>$modOn), 'id', true);
-                    $this->obj->addModule($modOn);
-                    $this->obj->removeModule($modOff);
-                }
-                if (isset($_REQUEST['updatedisplay'])) {
-                    $this->obj->setDisp($x, $y, $r);
-                }
-                if (isset($_REQUEST['updatealo'])) {
-                    $this->obj->setAlo($tme);
-                }
-                break;
-            case 'host-hardware-inventory':
-                $pu = trim($_REQUEST['pu']);
-                $other1 = trim($_REQUEST['other1']);
-                $other2 = trim($_REQUEST['other2']);
-                if (isset($_REQUEST['update'])) {
-                    $this->obj
+                    if (isset($_REQUEST['pmdelete'])) {
+                        self::getClass('PowerManagementManager')->destroy(array('id'=>$_REQUEST['rempowermanagements']));
+                    }
+                    break;
+                case 'host-printers':
+                    $PrinterManager = self::getClass('PrinterAssociationManager');
+                    if (isset($_REQUEST['level'])) {
+                        $this->obj->set('printerLevel', $_REQUEST['level']);
+                    }
+                    if (isset($_REQUEST['updateprinters'])) {
+                        if (isset($_REQUEST['printer'])) {
+                            $this->obj->addPrinter($_REQUEST['printer']);
+                        }
+                        $this->obj->updateDefault($_REQUEST['default'], isset($_REQUEST['default']));
+                        unset($printerid);
+                    }
+                    if (isset($_REQUEST['printdel'])) {
+                        $this->obj->removePrinter($_REQUEST['printerRemove']);
+                    }
+                    break;
+                case 'host-snapins':
+                    if (!isset($_REQUEST['snapinRemove'])) {
+                        $this->obj->addSnapin($_REQUEST['snapin']);
+                    }
+                    if (isset($_REQUEST['snaprem'])) {
+                        $this->obj->removeSnapin($_REQUEST['snapinRemove']);
+                    }
+                    break;
+                case 'host-service':
+                    $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_X'));
+                    $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_Y'));
+                    $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : self::getSetting('FOG_CLIENT_DISPLAYMANAGER_R'));
+                    $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN'));
+                    if (isset($_REQUEST['updatestatus'])) {
+                        $modOn = (array)$_REQUEST['modules'];
+                        $modOff = self::getSubObjectIDs('Module', array('id'=>$modOn), 'id', true);
+                        $this->obj->addModule($modOn);
+                        $this->obj->removeModule($modOff);
+                    }
+                    if (isset($_REQUEST['updatedisplay'])) {
+                        $this->obj->setDisp($x, $y, $r);
+                    }
+                    if (isset($_REQUEST['updatealo'])) {
+                        $this->obj->setAlo($tme);
+                    }
+                    break;
+                case 'host-hardware-inventory':
+                    $pu = trim($_REQUEST['pu']);
+                    $other1 = trim($_REQUEST['other1']);
+                    $other2 = trim($_REQUEST['other2']);
+                    if (isset($_REQUEST['update'])) {
+                        $this->obj
                         ->get('inventory')
                         ->set('primaryUser', $pu)
                         ->set('other1', $other1)
                         ->set('other2', $other2)
                         ->save();
-                }
-                break;
-            case 'host-login-history':
-                $this->redirect(sprintf('?node=host&sub=edit&id=%s&dte=%s#%s', $this->obj->get('id'), $_REQUEST['dte'], $_REQUEST['tab']));
-                break;
-            case 'host-virus-history':
-                if (isset($_REQUEST['delvid']) && $_REQUEST['delvid'] == 'all') {
-                    $this->obj->clearAVRecordsForHost();
-                    $this->redirect(sprintf('?node=host&sub=edit&id=%s#%s', $this->obj->get('id'), $_REQUEST['tab']));
-                } elseif (isset($_REQUEST['delvid'])) {
-                    self::getClass('VirusManager')->destroy(array('id' => $_REQUEST['delvid']));
-                }
-                break;
+                    }
+                    break;
+                case 'host-login-history':
+                    $this->redirect(sprintf('?node=host&sub=edit&id=%s&dte=%s#%s', $this->obj->get('id'), $_REQUEST['dte'], $_REQUEST['tab']));
+                    break;
+                case 'host-virus-history':
+                    if (isset($_REQUEST['delvid']) && $_REQUEST['delvid'] == 'all') {
+                        $this->obj->clearAVRecordsForHost();
+                        $this->redirect(sprintf('?node=host&sub=edit&id=%s#%s', $this->obj->get('id'), $_REQUEST['tab']));
+                    } elseif (isset($_REQUEST['delvid'])) {
+                        self::getClass('VirusManager')->destroy(array('id' => $_REQUEST['delvid']));
+                    }
+                    break;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Host Update Failed'));

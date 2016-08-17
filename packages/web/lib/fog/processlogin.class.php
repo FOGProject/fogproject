@@ -9,7 +9,8 @@ class ProcessLogin extends FOGPage
         $translang = $this->transLang();
         ob_start();
         foreach ((array)self::$foglang['Language'] as $i => &$lang) {
-            printf('<option value="%s"%s>%s</option>',
+            printf(
+                '<option value="%s"%s>%s</option>',
                 $lang,
                 ($translang == $lang ? ' selected' : ''),
                 $lang
@@ -25,51 +26,51 @@ class ProcessLogin extends FOGPage
     private function transLang()
     {
         switch ($_SESSION['locale']) {
-        case 'de_DE':
-            return self::$foglang['Language']['de'];
-        case 'en_US':
-            return self::$foglang['Language']['en'];
-        case 'es_ES':
-            return self::$foglang['Language']['es'];
-        case 'fr_FR':
-            return self::$foglang['Language']['fr'];
-        case 'it_IT':
-            return self::$foglang['Language']['it'];
-        case 'pt_BR':
-            return self::$foglang['Language']['pt'];
-        case 'zh_CN':
-            return self::$foglang['Language']['zh'];
-        default :
-            return self::$foglang['Language'][$this->defaultLang()];
+            case 'de_DE':
+                return self::$foglang['Language']['de'];
+            case 'en_US':
+                return self::$foglang['Language']['en'];
+            case 'es_ES':
+                return self::$foglang['Language']['es'];
+            case 'fr_FR':
+                return self::$foglang['Language']['fr'];
+            case 'it_IT':
+                return self::$foglang['Language']['it'];
+            case 'pt_BR':
+                return self::$foglang['Language']['pt'];
+            case 'zh_CN':
+                return self::$foglang['Language']['zh'];
+            default:
+                return self::$foglang['Language'][$this->defaultLang()];
         }
     }
     private function specLang()
     {
         $_SESSION['locale'] = isset($_REQUEST['ulang']) ? $_REQUEST['ulang'] : $this->transLang();
         switch ($_SESSION['locale']) {
-        case self::$foglang['Language']['de']:
-            $_SESSION['locale'] = 'de_DE';
-            break;
-        case self::$foglang['Language']['en']:
-            $_SESSION['locale'] = 'en_US';
-            break;
-        case self::$foglang['Language']['es']:
-            $_SESSION['locale'] = 'es_ES';
-            break;
-        case self::$foglang['Language']['fr']:
-            $_SESSION['locale'] = 'fr_FR';
-            break;
-        case self::$foglang['Language']['it']:
-            $_SESSION['locale'] = 'it_IT';
-            break;
-        case self::$foglang['Language']['pt']:
-            $_SESSION['locale'] = 'pt_BR';
-            break;
-        case self::$foglang['Language']['zh']:
-            $_SESSION['locale'] = 'zh_CN';
-            break;
-        default :
-            $_SESSION['locale'] = $this->transLang();
+            case self::$foglang['Language']['de']:
+                $_SESSION['locale'] = 'de_DE';
+                break;
+            case self::$foglang['Language']['en']:
+                $_SESSION['locale'] = 'en_US';
+                break;
+            case self::$foglang['Language']['es']:
+                $_SESSION['locale'] = 'es_ES';
+                break;
+            case self::$foglang['Language']['fr']:
+                $_SESSION['locale'] = 'fr_FR';
+                break;
+            case self::$foglang['Language']['it']:
+                $_SESSION['locale'] = 'it_IT';
+                break;
+            case self::$foglang['Language']['pt']:
+                $_SESSION['locale'] = 'pt_BR';
+                break;
+            case self::$foglang['Language']['zh']:
+                $_SESSION['locale'] = 'zh_CN';
+                break;
+            default:
+                $_SESSION['locale'] = $this->transLang();
         }
     }
     public function setLang()

@@ -71,7 +71,7 @@ class LDAP extends FOGController
         if ($countcheck) {
             return true;
         }
-        for ($i = 0;$i < $result['count'];$i++) {
+        for ($i = 0; $i < $result['count']; $i++) {
             if ($result[$i]['uniquemember']['count'] < 1) {
                 return false;
             }

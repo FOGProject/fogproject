@@ -4,7 +4,7 @@ class Timer extends FOGCron
     private $blSingle;
     private $cron;
     private $lngSingle;
-    public function __construct($minute, $hour=null, $dom=null, $month=null, $dow=null)
+    public function __construct($minute, $hour = null, $dom = null, $month = null, $dow = null)
     {
         parent::__construct();
         if ($minute != null && $hour == null && $dom == null && $month == null && $dow == null) {

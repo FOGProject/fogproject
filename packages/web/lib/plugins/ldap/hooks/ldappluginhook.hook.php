@@ -19,7 +19,7 @@ class LDAPPluginHook extends Hook
         if (self::$FOGUser->isValid()) {
             return;
         }
-        $ldapSet = function (&$LDAP, &$index) use ($username,$password) {
+        $ldapSet = function (&$LDAP, &$index) use ($username, $password) {
             if (self::$FOGUser->isValid()) {
                 return;
             }

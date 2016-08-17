@@ -122,12 +122,12 @@ class PDODB extends DatabaseManager
                 throw new PDOException(_('No query result, use query() first'));
             } else {
                 switch (strtolower($fetchType)) {
-                case 'fetch_all':
-                    self::all($type);
-                    break;
-                default:
-                    self::single($type);
-                    break;
+                    case 'fetch_all':
+                        self::all($type);
+                        break;
+                    default:
+                        self::single($type);
+                        break;
                 }
             }
         } catch (PDOException $e) {
@@ -257,18 +257,18 @@ class PDODB extends DatabaseManager
     {
         if (is_null($type)) {
             switch (true) {
-            case is_int($value):
-                $type = PDO::PARAM_INT;
-                break;
-            case is_bool($value):
-                $type = PDO::PARAM_BOOL;
-                break;
-            case is_null($value):
-                $type = PDO::PARAM_NULL;
-                break;
-            default:
-                $type = PDO::PARAM_STR;
-                break;
+                case is_int($value):
+                    $type = PDO::PARAM_INT;
+                    break;
+                case is_bool($value):
+                    $type = PDO::PARAM_BOOL;
+                    break;
+                case is_null($value):
+                    $type = PDO::PARAM_NULL;
+                    break;
+                default:
+                    $type = PDO::PARAM_STR;
+                    break;
             }
         }
         $type = PDO::PARAM_STR;

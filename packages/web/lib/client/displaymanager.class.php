@@ -12,13 +12,15 @@ class DisplayManager extends FOGClient implements FOGClientSend
     public function send()
     {
         if ($this->newService) {
-            $this->send = sprintf("#!ok\n#x=%d\n#y=%d\n#r=%d",
+            $this->send = sprintf(
+                "#!ok\n#x=%d\n#y=%d\n#r=%d",
                 $this->Host->getDispVals('width'),
                 $this->Host->getDispVals('height'),
                 $this->Host->getDispVals('refresh')
             );
         } else {
-            $this->send = base64_encode(sprintf('%dx%dx%d',
+            $this->send = base64_encode(sprintf(
+                '%dx%dx%d',
                 $this->Host->getDispVals('width'),
                 $this->Host->getDispVals('height'),
                 $this->Host->getDispVals('refresh')

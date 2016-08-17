@@ -49,7 +49,8 @@ class HostnameChanger extends FOGClient implements FOGClientSend
         } else {
             $adUser = '';
         }
-        printf("#AD=%s\n#ADDom=%s\n#ADOU=%s\n#ADUser=%s\n#ADPass=%s%s",
+        printf(
+            "#AD=%s\n#ADDom=%s\n#ADOU=%s\n#ADUser=%s\n#ADPass=%s%s",
             $this->Host->get('useAD'),
             $this->Host->get('ADDomain'),
             str_replace(';', '', $this->Host->get('ADOU')),

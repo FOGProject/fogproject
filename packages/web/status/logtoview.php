@@ -61,8 +61,7 @@ if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
             'ip'=>$FOGCore->aesencrypt($ip),
             'file'=>$_REQUEST['file'],
             'lines'=>$_REQUEST['lines'],
-            'reverse'=> $_REQUEST['reverse'])
-        );
+            'reverse'=> $_REQUEST['reverse']));
         echo array_shift($response);
     }
 }

@@ -29,31 +29,31 @@ class Group extends FOGController
     {
         parent::save();
         switch (true) {
-        case ($this->isLoaded('hosts')):
-            $DBHostIDs = self::getSubObjectIDs('GroupAssociation', array('groupID'=>$this->get('id')), 'hostID');
-            $ValidHostIDs = self::getSubObjectIDs('Host');
-            $notValid = array_diff((array)$DBHostIDs, (array)$ValidHostIDs);
-            if (count($notValid)) {
-                self::getClass('GroupAssociationManager')->destroy(array('hostID'=>$notValid));
-            }
-            unset($ValidHostIDs, $DBHostIDs);
-            $DBHostIDs = self::getSubObjectIDs('GroupAssociation', array('groupID'=>$this->get('id')), 'hostID');
-            $RemoveHostIDs = array_diff((array)$DBHostIDs, (array)$this->get('hosts'));
-            if (count($RemoveHostIDs)) {
-                self::getClass('GroupAssociationManager')->destroy(array('groupID'=>$this->get('id'), 'hostID'=>$RemoveHostIDs));
+            case ($this->isLoaded('hosts')):
                 $DBHostIDs = self::getSubObjectIDs('GroupAssociation', array('groupID'=>$this->get('id')), 'hostID');
-                unset($RemoveHostIDs);
-            }
-            $insert_fields = array('hostID','groupID');
-            $insert_values = array();
-            $Hosts = array_diff((array)$this->get('hosts'), (array)$DBHostIDs);
-            array_walk($Hosts, function (&$hostID, $index) use (&$insert_values) {
-                $insert_values[] = array($hostID, $this->get('id'));
-            });
-            if (count($insert_values) > 0) {
-                self::getClass('GroupAssociationManager')->insert_batch($insert_fields, $insert_values);
-            }
-            unset($DBHostIDs, $RemoveHostIDs, $Hosts);
+                $ValidHostIDs = self::getSubObjectIDs('Host');
+                $notValid = array_diff((array)$DBHostIDs, (array)$ValidHostIDs);
+                if (count($notValid)) {
+                    self::getClass('GroupAssociationManager')->destroy(array('hostID'=>$notValid));
+                }
+                unset($ValidHostIDs, $DBHostIDs);
+                $DBHostIDs = self::getSubObjectIDs('GroupAssociation', array('groupID'=>$this->get('id')), 'hostID');
+                $RemoveHostIDs = array_diff((array)$DBHostIDs, (array)$this->get('hosts'));
+                if (count($RemoveHostIDs)) {
+                    self::getClass('GroupAssociationManager')->destroy(array('groupID'=>$this->get('id'), 'hostID'=>$RemoveHostIDs));
+                    $DBHostIDs = self::getSubObjectIDs('GroupAssociation', array('groupID'=>$this->get('id')), 'hostID');
+                    unset($RemoveHostIDs);
+                }
+                $insert_fields = array('hostID','groupID');
+                $insert_values = array();
+                $Hosts = array_diff((array)$this->get('hosts'), (array)$DBHostIDs);
+                array_walk($Hosts, function (&$hostID, $index) use (&$insert_values) {
+                    $insert_values[] = array($hostID, $this->get('id'));
+                });
+                if (count($insert_values) > 0) {
+                    self::getClass('GroupAssociationManager')->insert_batch($insert_fields, $insert_values);
+                }
+                unset($DBHostIDs, $RemoveHostIDs, $Hosts);
         }
         return $this;
     }
@@ -217,7 +217,7 @@ class Group extends FOGController
             $hostIDs = $this->get('hosts');
             $batchFields = array('name','createdBy','hostID','isForced','stateID','typeID','NFSGroupID','NFSMemberID','wol','imageID','shutdown','isDebug','passreset');
             $batchTask = array();
-            for ($i = 0;$i < $hostCount; $i++) {
+            for ($i = 0; $i < $hostCount; $i++) {
                 $batchTask[] = array($taskName,$username,$hostIDs[$i],0,$this->getQueuedState(),$TaskType->get('id'),$StorageGroup->get('id'),$StorageNode->get('id'),$wol,$Image->get('id'),$shutdown,$debug,$passreset);
             }
             if (count($batchTask) > 0) {
@@ -238,7 +238,7 @@ class Group extends FOGController
             $imageIDs = self::getSubObjectIDs('Host', array('id'=>$hostIDs), 'imageID', false, 'AND', 'name', false, '');
             $batchFields = array('name','createdBy','hostID','isForced','stateID','typeID','NFSGroupID','NFSMemberID','wol','imageID','shutdown','isDebug','passreset');
             $batchTask = array();
-            for ($i = 0;$i < $hostCount;$i++) {
+            for ($i = 0; $i < $hostCount; $i++) {
                 $Image = self::getClass('Image', $imageIDs[$i]);
                 if (!$Image->isValid()) {
                     continue;
@@ -293,7 +293,7 @@ class Group extends FOGController
         $hostIDs = array_values(self::getSubObjectIDs('SnapinAssociation', array('hostID'=>$this->get('hosts')), 'hostID'));
         $hostCount = count($hostIDs);
         $snapinJobs = array();
-        for ($i = 0;$i < $hostCount;$i++) {
+        for ($i = 0; $i < $hostCount; $i++) {
             $hostID = $hostIDs[$i];
             $snapins[$hostID] = $snapin === -1 ? self::getSubObjectIDs('SnapinAssociation', array('hostID'=>$hostID), 'snapinID') : array($snapin);
             if (count($snapins[$hostID]) < 1) {
@@ -304,11 +304,11 @@ class Group extends FOGController
         if (count($snapinJobs) > 0) {
             list($first_id, $affected_rows) = self::getClass('SnapinJobManager')->insert_batch(array('hostID', 'stateID', 'createdTime'), $snapinJobs);
             $ids = range($first_id, ($first_id + $affected_rows - 1));
-            for ($i = 0;$i < $hostCount;$i++) {
+            for ($i = 0; $i < $hostCount; $i++) {
                 $hostID = $hostIDs[$i];
                 $jobID = $ids[$i];
                 $snapinCount = count($snapins[$hostID]);
-                for ($j = 0;$j < $snapinCount;$j++) {
+                for ($j = 0; $j < $snapinCount; $j++) {
                     $snapinTasks[] = array($jobID,$this->getQueuedState(),$snapins[$hostID][$j]);
                 }
             }

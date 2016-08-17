@@ -29,6 +29,6 @@ class PM extends FOGClient
                         'action' => $pm->get('action'),
                     );
                 }, (array)self::getClass('PowerManagementManager')->find(array('hostID'=>$this->Host->get('id'))))
-        ));
+            ));
     }
 }

@@ -139,7 +139,8 @@ class BootMenu extends FOGBase
         $this->booturl = "http://{$webserver}{$webroot}service";
         $this->memdisk = "kernel $memdisk";
         $this->memtest = "initrd $memtest";
-        $this->kernel = sprintf('kernel %s %s initrd=%s root=/dev/ram0 rw ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s',
+        $this->kernel = sprintf(
+            'kernel %s %s initrd=%s root=/dev/ram0 rw ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s',
             $bzImage,
             $this->loglevel,
             basename($initrd),
@@ -253,7 +254,7 @@ class BootMenu extends FOGBase
             ->set('version', trim($_REQUEST['ipxever']))
             ->save();
     }
-    private function chainBoot($debug=false, $shortCircuit=false)
+    private function chainBoot($debug = false, $shortCircuit = false)
     {
         $debug = $debug;
         if (!$this->hiddenmenu || $shortCircuit) {
@@ -935,15 +936,15 @@ class BootMenu extends FOGBase
             $Send = array_merge($Send, array($params));
         }
         switch ($option->get('id')) {
-        case 1:
-            $Send = array_merge($Send, array("$this->bootexittype || goto MENU"));
-            break;
-        case 2:
-            $Send = array_merge($Send, array("$this->memdisk iso raw", $this->memtest, 'boot || goto MENU'));
-            break;
-        case 11:
-            $Send = array_merge($Send, array("chain -ar $this->booturl/ipxe/advanced.php || goto MENU"));
-            break;
+            case 1:
+                $Send = array_merge($Send, array("$this->bootexittype || goto MENU"));
+                break;
+            case 2:
+                $Send = array_merge($Send, array("$this->memdisk iso raw", $this->memtest, 'boot || goto MENU'));
+                break;
+            case 11:
+                $Send = array_merge($Send, array("chain -ar $this->booturl/ipxe/advanced.php || goto MENU"));
+                break;
         }
         if (!$params) {
             $Send = array_merge($Send, array("$this->kernel $this->loglevel $type", $this->initrd, 'boot || goto MENU'));
