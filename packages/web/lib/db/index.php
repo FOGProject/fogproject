@@ -1,6 +1,6 @@
 <?php
 /**
- * Redirects calls to client/index.php to main page.
+ * Redirects calls to lib/db/index.php to main page.
  *
  * PHP version 5
  *
@@ -10,5 +10,5 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-header('Location: ../management/index.php');
+header('Location: ../../management/index.php');
 exit;

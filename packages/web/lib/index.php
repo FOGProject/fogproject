@@ -1,6 +1,6 @@
 <?php
 /**
- * Redirects calls to client/index.php to main page.
+ * Redirects calls to lib/index.php to main page.
  *
  * PHP version 5
  *

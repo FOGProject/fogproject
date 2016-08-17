@@ -1,4 +1,15 @@
 <?php
+/**
+ * Schema layout for creating the database.
+ *
+ * PHP version 5
+ *
+ * @category Redirect
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 $tmpSchema = self::getClass('Schema');
 // 0
 $this->schema[] = array(

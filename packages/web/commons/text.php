@@ -1,5 +1,6 @@
 <?php
-/** This is a starter file.  It's purpose, in my eyes, is to contain
+/**
+ * This is a starter file.  It's purpose, in my eyes, is to contain
  * all the text within fog that needs to be translated for other
  * languages.  The idea is to make the translations needed all
  * in one file.  You just call the variable and array you need.
@@ -8,6 +9,14 @@
  * only need to be called as %s updated.  The word updated, could
  * then be translated just the one time for all the languages.
  * Then the element Host or Printer could be translated later.
+ *
+ * PHP version 5
+ *
+ * @category Redirect
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
  */
 //Singular, status words to translate.
 $foglang['Display']                    = _('Display');

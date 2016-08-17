@@ -1,6 +1,19 @@
 <?php
-require('../commons/base.inc.php');
-if (!FOGCore::getClass('User')->password_validate($_POST['fogguiuser'], $_POST['fogguipass'], true)) {
+/**
+ * Handles exporting of csv, pdf, or DB after verification
+ *
+ * PHP version 5
+ *
+ * @category Export
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+require '../commons/base.inc.php';
+$user = $_POST['fogguiuser'];
+$pass = $_POST['fogguipass'];
+if (!$currentUser->password_validate($user, $pass, true)) {
     die('###'.$foglang['InvalidLogin']);
 }
 $report = unserialize($_SESSION['foglastreport']);
