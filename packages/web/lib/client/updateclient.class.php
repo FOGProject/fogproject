@@ -37,7 +37,6 @@ class UpdateClient extends FOGClient implements FOGClientSend
                     header('Content-Description: File Transfer');
                     header('ContentType: application/octet-stream');
                     header("Content-Disposition: attachment; filename=$filename");
-                    header('Connection: close');
                 }
                 $this->send = $ClientUpdateFile->get('file');
                 if ($this->newService) {

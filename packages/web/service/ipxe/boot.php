@@ -1,7 +1,6 @@
 <?php
 require('../../commons/base.inc.php');
 header("Content-type: text/plain");
-header('Connection: close');
 if ($_REQUEST['mac0'] && !$_REQUEST['mac1'] && !$_REQUEST['mac2']) {
     $_REQUEST['mac'] = $_REQUEST['mac0'];
 } elseif ($_REQUEST['mac0'] && $_REQUEST['mac1'] && !$_REQUEST['mac2']) {

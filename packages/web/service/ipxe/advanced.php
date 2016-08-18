@@ -6,7 +6,6 @@ require('../../commons/base.inc.php');
  * @return void
  */
 header("Content-type: text/plain");
-header('Connection: close');
 $parseMe = function ($Send) {
     foreach ($Send as $ipxe => &$val) {
         printf("%s\n", implode("\n", (array)$val));

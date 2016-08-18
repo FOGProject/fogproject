@@ -151,7 +151,6 @@ class SnapinClient extends FOGClient implements FOGClientSend
             header('Expires: 0');
             header('Cache-Control: must-revalidate');
             header('Pragma: public');
-            header('Connection: close');
             if (($fh = fopen($SnapinFile, 'rb')) === false) {
                 return;
             }
@@ -332,7 +331,6 @@ class SnapinClient extends FOGClient implements FOGClientSend
             header('Expires: 0');
             header('Cache-Control: must-revalidate');
             header('Pragma: public');
-            header('Connection: close');
             if (($fh = fopen($SnapinFile, 'rb')) === false) {
                 return;
             }

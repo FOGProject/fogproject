@@ -1,23 +1,29 @@
 <?php
+/**
+ * Gets free space of disk/partition holding images from server
+ *
+ * PHP version 5
+ *
+ * @category Freespace
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
-header('Connection: close');
-$path = escapeshellarg(base64_decode($_REQUEST['path']));
-$hdtotal = 0;
-$hdused = 0;
-$freeArray = explode("\n", shell_exec("df -B 1 $path | grep -vE '^Filesystem|shm'"));
-array_walk(
-    $freeArray,
-    function (&$n, &$index) use (&$hdtotal, &$hdused) {
-        if (!preg_match('/(\d+) +(\d+) +(\d+) +\d+%/', $n, $matches)) {
-            return;
-        }
-        $hdtotal += $matches[3];
-        $hdused += $matches[2];
-        unset($n);
-    }
+$decodePath = base64_decode($_REQUEST['path']);
+if (!(file_exists($decodePath) && is_readable($decodePath))) {
+    return;
+}
+$hdtotal = disk_total_space($decodePath);
+$hdfree = disk_free_space($decodePath);
+$hdused = $hdtotal - $hdfree;
+$data = array(
+    'free' => $hdfree,
+    'used' => $hdused,
 );
-$Data = array('free' => $hdtotal, 'used' => $hdused);
-die(json_encode($Data));
+echo json_encode($data);
+exit;

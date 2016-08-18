@@ -238,7 +238,6 @@ abstract class FOGBase
         header('X-Robots-Tag: none');
         header('X-Frame-Options: SAMEORIGIN');
         header("Location: $url");
-        header('Connection: close');
         exit;
     }
     protected function array_insert_before($key, array &$array, $new_key, $new_value)

@@ -1,7 +1,6 @@
 <?php
 require('../commons/base.inc.php');
 header('Content-Type: text/plain');
-header('Connection: close');
 $Host = $FOGCore->getHostItem(false);
 $Task = $Host->get('task');
 $TaskType = FOGCore::getClass('TaskType', $Task->get('typeID'));

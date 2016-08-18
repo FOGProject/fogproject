@@ -68,7 +68,6 @@ class Schema extends FOGController
             header('Content-Type: text/plain');
             header("Content-Disposition: attachment; filename=$backup_name");
             header('Cache-Control: private');
-            header('Connection: close');
             while (feof($fh) === false) {
                 echo fread($fh, 4096);
             }

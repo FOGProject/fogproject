@@ -12,7 +12,6 @@ $Download = function () {
     header('Content-Disposition: attachment; filename=test.txt');
     header('Content-Type: application/force-download');
     header('Content-Length: '.strlen('Foobar22!'));
-    header('Connection: close');
     echo 'Foobar22!';
 };
 $AESDecryptionResponse1 = function ($key, $iv, $data) {

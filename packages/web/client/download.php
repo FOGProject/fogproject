@@ -1,4 +1,15 @@
 <?php
+/**
+ * Downloads fog client and utilitie files.
+ *
+ * PHP version 5
+ *
+ * @category Download
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 if (isset($_REQUEST['legclient'])) {
     $filename = 'FogService.zip';
 }
@@ -25,7 +36,6 @@ header("Content-Disposition: attachment; filename=$file");
 header('Expires: 0');
 header('Cache-Control: must-revalidate');
 header('Pragma: public');
-header('Connection: close');
 if (($fh = fopen($file, 'rb')) === false) {
     exit;
 }
