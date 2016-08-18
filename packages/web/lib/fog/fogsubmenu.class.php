@@ -1,32 +1,103 @@
 <?php
-/* How-To: addItems
- * ----------------
- * Add "Main Menu" items for node
- * $FOGSubMenu->addItems('node', array('Title' => 'link'));
- * Add "Node Menu" items for node, if ($_REQUEST['node'] and $_REQUEST['id'] is set)
- * $FOGSubMenu->addItems('node', array('Title' => 'link'), 'nodeid', 'Node Menu');
- * Add "Node Menu" items for node, if ($_REQUEST['node'] and $_REQUEST['id'] is set, custom external link
- * $FOGSubMenu->addItems('node', array('Title' => 'http://www.example.com'),'nodeid','Node Menu');
- * Add "Node Menu" items for node, if ($_REQUEST['node'] and $_REQUEST['id'] is set, custom node link (nodeid is appended)
- * $FOGSubMenu->addItems('node', array('Title' => '?node=blah'), 'nodeid', 'Node Menu');
- * Add "Node Menu" items for node, if ($_REQUEST['node'] and $_REQUEST['id'] is set, custom node link (nodeid is appended)
- * $FOGSubMenu->addItems('node', array('Title' => '/blah/index.php'), 'nodeid', 'Node Menu');
+/**
+ * FOGSubMenu
  *
- * How-To: addNotes
- * ----------------
- * Add static note
- * $FOGSubMenu->addNotes('node', array('Title' => 'Information'), 'id variable');
- * Add note with callback
- * $FOGSubMenu->addNotes('node', create_function('','return array('banana' => 'chicken');'), 'id variable');
+ * PHP version 5
+ *
+ * This file enables side menus and notes.
+ *
+ * @category FOGSubMenu
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * FOGSubMenu
+ *
+ * This file enables the Side menus and notes.
+ * To add:
+ *
+ * How-to: addItems
+ *
+ * Add "Main Menu" items for node:
+ * self::$FOGSubMenu->addItems(
+ *     'node',
+ *     array('Title' => 'link')
+ * );
+ *
+ * Add "Node Menu" items for node:
+ * Local Node node and id url vars are set.
+ * self::$FOGSubMenu->addItems(
+ *     'node',
+ *     array('Title' => 'link'),
+ *     'nodeid',
+ *     'Node Menu'
+ * );
+ *
+ * Add "Node Menu" items for node:
+ * Node and ID url vars are set, custom external link.
+ * self::$FOGSubMenu->addItems(
+ *     'node',
+ *     array('Title' => 'http://www.example.com'),
+ *     'nodeid',
+ *     'Node Menu'
+ * );
+ *
+ * Add "Node Menu" items for node:
+ * Node and ID set, custom node link, nodeid appended.
+ * self::$FOGSubMenu->addItems(
+ *     'node',
+ *     array('Title' => '?node=blah'),
+ *     'nodeid',
+ *     'Node Menu'
+ * );
+ *
+ * Add "Node Menu" items for node:
+ * Node ID set, custom internal link, nodeid is appended.
+ * self::$FOGSubMenu->addItems(
+ *     'node',
+ *     array('Title' => '/blah/index.php'),
+ *     'nodeid',
+ *     'Node Menu'
+ * );
+ *
+ *
+ * How-to: addNotes
+ *
+ * Add static note:
+ * self::$FOGSubMenu->addNotes(
+ *     'node',
+ *     array('Title' => 'Information'),
+ *     'id variable'
+ * );
+ *
+ * Add note with callback:
+ * self::$FOGSubMenu->addNotes(
+ *     'node',
+ *     function() {
+ *         return array('banana' => 'chicken');
+ *     },
+ *     'id variable'
+ * );
+ *
+ * @category FOGSubMenu
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
  */
 class FOGSubMenu extends FOGBase
 {
     /**
+     * Stores the title.
+     *
      * @var string
      */
-    private static $title;
-
+    private static $_title;
     /**
+     * Default sub items.
+     *
      * @var array
      */
     public $defaultSubs = array(
@@ -34,10 +105,13 @@ class FOGSubMenu extends FOGBase
         'group' => 'edit'
     );
     /**
-     * @param string $node
-     * @param array $items
-     * @param string $ifVariable
-     * @param string $ifVariableTitle
+     * Add items into the side menu stuff
+     *
+     * @param string $node            node to work on.
+     * @param array  $items           items to add
+     * @param string $ifVariable      tester variable
+     * @param string $ifVariableTitle tester variable title setter.
+     *
      * @throws exception
      * @return void
      */
@@ -49,14 +123,23 @@ class FOGSubMenu extends FOGBase
         if (!is_array($items)) {
             throw new Exception(_('Items must be an array'));
         }
-        $variableSetter = (!$ifVariable ? self::$foglang['MainMenu'] : $ifVariableTitle);
+        if (!$ifVariable) {
+            $variableSetter = self::$foglang['MainMenu'];
+        } else {
+            $variableSetter = $ifVariableTitle;
+        }
         if (isset($_REQUEST[$ifVariable])) {
             array_walk(
                 $items,
                 function (&$link, &$title) use ($ifVariable) {
                     global $$ifVariable;
                     if (!$this->isExternalLink($link)) {
-                        $link = sprintf('%s&%s=%s', $link, $ifVariable, $$ifVariable);
+                        $link = sprintf(
+                            '%s&%s=%s',
+                            $link,
+                            $ifVariable,
+                            $$ifVariable
+                        );
                     }
                     unset($link, $title);
                 }
@@ -71,10 +154,23 @@ class FOGSubMenu extends FOGBase
             $this->items[$node][$variableSetter] = $items;
         }
     }
+    /**
+     * Add nodes to the sub menu.
+     *
+     * @param string         $node       The node to work for
+     * @param callable|array $data       The data can be a callback or array.
+     * @param string         $ifVariable The variable to test.
+     *
+     * @throws Exception
+     * @return void
+     */
     public function addNotes($node, $data, $ifVariable = '')
     {
-        if ($ifVariable && !$_REQUEST[$ifVariable]) {
-            return;
+        if (!is_string($node)) {
+            throw new Exception(_('Node must be a string'));
+        }
+        if (!is_callable($data) && !is_array($data)) {
+            throw new Exception(_('Data must be an array or a callable item.'));
         }
         if (is_callable($data)) {
             $data = $data();
@@ -84,13 +180,25 @@ class FOGSubMenu extends FOGBase
             array_walk(
                 $data,
                 function (&$title, &$info) {
-                    printf("<h3>%s</h3>\n\t<p>%s</p>", $this->fixTitle($title), $info);
+                    printf(
+                        '<h3>%s</h3><p>%s</p>',
+                        $this->fixTitle($title),
+                        $info
+                    );
                     unset($info, $title);
                 }
             );
         }
         $this->notes[$node][] = ob_get_clean();
     }
+    /**
+     * Gets the data as setup.
+     *
+     * @param string $node The node to get menu for.
+     *
+     * @throws Exception
+     * @return string
+     */
     public function get($node)
     {
         ob_start();
@@ -98,32 +206,60 @@ class FOGSubMenu extends FOGBase
             array_walk(
                 $this->items[$node],
                 function (&$data, &$title) use (&$node, $labelcreator) {
-                    self::$title = $this->fixTitle($title);
-                    printf('<div class="organic-tabs"><h2>%s</h2><ul>', self::$title);
+                    self::$_title = $this->fixTitle($title);
                     ob_start();
+                    printf(
+                        '<div class="organic-tabs"><h2>%s</h2><ul>',
+                        self::$_title
+                    );
                     array_walk(
                         $data,
                         function (&$link, &$label) use (&$node, &$title) {
-                            $string = sprintf('<li><a href="%s">%s</a></li>', '%s', $label);
+                            $string = sprintf(
+                                '<li><a href="%s">%s</a></li>',
+                                '%s',
+                                $label
+                            );
                             if ($this->isExternalLink($link)) {
-                                printf($string, $link);
+                                printf(
+                                    $string,
+                                    $link
+                                );
                             } elseif (!$link) {
-                                printf($string, "?node=$node");
+                                printf(
+                                    $string,
+                                    "?node=$node"
+                                );
                             } else {
-                                $string = sprintf($string, "?node=$node&sub=%s");
-                            }
-                            global $sub;
-                            if (!$sub || $title == self::$foglang['MainMenu']) {
-                                printf($string, $link);
-                            } elseif ($this->defaultSubs[$node]) {
-                                printf($string, "{$this->defaultSubs[$node]}&tab=$link");
-                            } else {
-                                printf($string, "$sub&tab=$link");
+                                global $sub;
+                                $string = sprintf(
+                                    $string,
+                                    "?node=$node&sub=%s"
+                                );
+                                if (!$sub || $title == self::$foglang['MainMenu']) {
+                                    printf(
+                                        $string,
+                                        $link
+                                    );
+                                } else if ($this->defaultSubs[$node]) {
+                                    printf(
+                                        $string,
+                                        "{$this->defaultSubs[$node]}&tab=$link"
+                                    );
+                                } else {
+                                    printf(
+                                        $string,
+                                        "$sub&tab=$link"
+                                    );
+                                }
                             }
                             unset($link, $label);
                         }
                     );
-                    printf('%s</ul></div>', ob_get_clean());
+                    printf(
+                        '%s</ul></div>',
+                        ob_get_clean()
+                    );
                     unset($data, $title);
                 }
             );
@@ -133,15 +269,37 @@ class FOGSubMenu extends FOGBase
         }
         return ob_get_clean();
     }
+    /**
+     * Fixes the title displayed for side menus.
+     *
+     * @param string $title the title to fix
+     *
+     * @throws Exception
+     * @return string
+     */
     public function fixTitle($title)
     {
+        if (!is_string($title)) {
+            throw new Exception(_('Title must be a string'));
+        }
         $dash = strpos('-', $title) ? '-' : ' ';
         $e = preg_split('#[\s|-]#', $title, null, PREG_SPLIT_NO_EMPTY);
         $e[0] = "<b>$e[0]</b>";
         return implode($dash, $e);
     }
+    /**
+     * Test if the link passed is for an external source.
+     *
+     * @param string $link The link to test against.
+     *
+     * @throws Exception
+     * @return bool
+     */
     public function isExternalLink($link)
     {
+        if (!is_string($link)) {
+            throw new Exception(_('Link must be a string'));
+        }
         $https = (bool)(substr($link, 0, 5) == 'https');
         $http = (bool)(substr($link, 0, 4) == 'http');
         $extlink = (bool)in_array($link{0}, array('/', '?', '#'));
