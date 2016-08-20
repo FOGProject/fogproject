@@ -147,7 +147,7 @@ class TaskQueue extends TaskingElement
         if ($this->Image->get('format') == 1) {
             $this->Image->set('format', 0);
         }
-        $this->Image->set('deployed', self::nice_date()->format('Y-m-d H:i:s'))->save();
+        $this->Image->set('deployed', self::niceDate()->format('Y-m-d H:i:s'))->save();
     }
     public function checkout()
     {
@@ -161,7 +161,7 @@ class TaskQueue extends TaskingElement
         }
         $this->Host->set('pub_key', '')->set('sec_tok', '');
         if ($this->Task->isDeploy()) {
-            $this->Host->set('deployed', self::nice_date()->format('Y-m-d H:i:s'));
+            $this->Host->set('deployed', self::niceDate()->format('Y-m-d H:i:s'));
             $this->email();
         }
         $this->move_upload();

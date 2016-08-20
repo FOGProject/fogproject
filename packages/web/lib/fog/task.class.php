@@ -38,8 +38,8 @@ class Task extends TaskType
     public function getInFrontOfHostCount()
     {
         $count = 0;
-        $curTime = self::nice_date();
-        $MyCheckinTime = self::nice_date($this->get('checkInTime'));
+        $curTime = self::niceDate();
+        $MyCheckinTime = self::niceDate($this->get('checkInTime'));
         $myLastCheckin = $curTime->getTimestamp() - $MyCheckinTime->getTimestamp();
         if ($myLastCheckin >= self::getSetting('FOG_CHECKIN_TIMEOUT')) {
             $this->set('checkInTime', $curTime->format('Y-m-d H:i:s'))->save();
@@ -48,7 +48,7 @@ class Task extends TaskType
             if (!$Task->isValid()) {
                 return;
             }
-            $TaskCheckinTime = self::nice_date($Task->get('checkInTime'));
+            $TaskCheckinTime = self::niceDate($Task->get('checkInTime'));
             $timeOfLastCheckin = $curTime->getTimestamp() - $TaskCheckinTime->getTimestamp();
             if ($timeOfLastCheckin >= self::getSetting('FOG_CHECKIN_TIMEOUT')) {
                 $Task->set('checkInTime', $curTime->format('Y-m-d H:i:s'))->save();
@@ -64,7 +64,7 @@ class Task extends TaskType
     {
         $SnapinJob = $this->getHost()->get('snapinjob');
         if ($SnapinJob instanceof SnapinJob && $SnapinJob->isValid()) {
-            self::getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJob->get('id')), '', array('complete'=>self::nice_date()->format('Y-m-d H:i:s'), 'stateID'=>$this->getCancelledState()));
+            self::getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJob->get('id')), '', array('complete'=>self::niceDate()->format('Y-m-d H:i:s'), 'stateID'=>$this->getCancelledState()));
             $SnapinJob->set('stateID', $this->getCancelledState())->save();
         }
         if ($this->isMulticast()) {
@@ -76,7 +76,7 @@ class Task extends TaskType
     public function set($key, $value)
     {
         if ($this->key($key) == 'checkInTime' && is_numeric($value) && strlen($value) == 10) {
-            $value = self::nice_date($value)->format('Y-m-d H:i:s');
+            $value = self::niceDate($value)->format('Y-m-d H:i:s');
         }
         return parent::set($key, $value);
     }

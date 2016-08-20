@@ -130,7 +130,7 @@ abstract class FOGPage extends FOGBase
             }
             unset($input);
         };
-        $this->formAction = preg_replace('#(&tab.*)$#', '', filter_var(sprintf('%s?%s', self::$urlself, $_SERVER['QUERY_STRING']), FILTER_SANITIZE_URL));
+        $this->formAction = preg_replace('#(&tab.*)$#', '', filter_var(sprintf('%s?%s', self::$scriptname, $_SERVER['QUERY_STRING']), FILTER_SANITIZE_URL));
         self::$HookManager->processEvent('SEARCH_PAGES', array('searchPages'=>&self::$searchPages));
         self::$HookManager->processEvent('SUB_MENULINK_DATA', array('menu'=>&$this->menu, 'submenu'=>&$this->subMenu, 'id'=>&$this->id, 'notes'=>&$this->notes));
     }
@@ -488,7 +488,7 @@ abstract class FOGPage extends FOGBase
             $enableShutdown = $_REQUEST['shutdown'] ? true : false;
             $enableSnapins = $TaskType->get('id') != 17 ? ($Snapin instanceof Snapin && $Snapin->isValid() ? $Snapin->get('id') : -1) : false;
             $enableDebug = (bool)((isset($_REQUEST['debug']) && $_REQUEST['debug'] == 'true') || isset($_REQUEST['isDebugTask']));
-            $scheduleDeployTime = self::nice_date($_REQUEST['scheduleSingleTime']);
+            $scheduleDeployTime = self::niceDate($_REQUEST['scheduleSingleTime']);
             $imagingTasks = in_array($TaskType->get('id'), array(1, 2, 8, 15, 16, 17, 24));
             $wol = (string)intval((isset($_REQUEST['wol']) || $TaskType->get('id') == 14));
             $taskName = sprintf('%s Task', $TaskType->get('name'));
@@ -507,7 +507,7 @@ abstract class FOGPage extends FOGBase
                 throw new Exception(_('Invalid scheduling type'));
             }
             // Time is in the past
-            if ($scheduleType == 'single' && $scheduleDeployTime < self::nice_date()) {
+            if ($scheduleType == 'single' && $scheduleDeployTime < self::niceDate()) {
                 throw new Exception(sprintf('%s<br>%s: %s', _('Scheduled date is in the past'), _('Date'), $scheduleDeployTime->format('Y-m-d H:i:s')));
             } // Cron doesn't validate properly
             elseif ($scheduleType == 'cron') {
@@ -987,7 +987,7 @@ abstract class FOGPage extends FOGBase
                 throw new Exception('#!ihc');
             }
             $Host
-                ->set('sec_time', self::nice_date('+30 minutes')->format('Y-m-d H:i:s'))
+                ->set('sec_time', self::niceDate('+30 minutes')->format('Y-m-d H:i:s'))
                 ->set('pub_key', $key)
                 ->set('sec_tok', $this->createSecToken())
                 ->save();
@@ -1289,7 +1289,7 @@ abstract class FOGPage extends FOGBase
             _(sprintf("Click the button to download the %s's table backup.", strtolower($this->childClass))) => sprintf('<div id="exportDiv"></div><input name="export" type="submit" value="%s"/>', _('Export')),
         );
         $report = self::getClass('ReportMaker');
-        $this->array_remove('id', $this->databaseFields);
+        $this->arrayRemove('id', $this->databaseFields);
         $objects = self::getClass(sprintf('%sManager', $this->childClass))->find();
         array_walk($objects, function (&$Item, &$index) use (&$report) {
             if (!$Item->isValid()) {
@@ -1350,7 +1350,7 @@ abstract class FOGPage extends FOGBase
             }
             $numSuccess = $numFailed = $numAlreadExist = 0;
             $fh = fopen($file, 'rb');
-            $this->array_remove('id', $this->databaseFields);
+            $this->arrayRemove('id', $this->databaseFields);
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
                 $totalRows++;
                 try {

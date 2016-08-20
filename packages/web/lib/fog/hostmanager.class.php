@@ -1,13 +1,38 @@
 <?php
 class HostManager extends FOGManagerController
 {
+    /**
+     * Returns a single host object based on the passed MACs.
+     *
+     * @param array $MACs the macs to search for the host.
+     *
+     * @throws Exception
+     * @return object
+     */
     public function getHostByMacAddresses($MACs)
     {
-        $MACHost = self::getSubObjectIDs('MACAddressAssociation', array('pending'=>array((string)0, (string)'', null), 'mac'=>$MACs), 'hostID');
+        if (!is_array($MACs)) {
+            throw new Exception(self::$foglang['InvalidMAC']);
+        }
+        $MACHost = self::getSubObjectIDs(
+            'MACAddressAssociation',
+            array(
+                'pending' => array(
+                    0,
+                    '',
+                    null
+                ),
+                'mac' => $MACs
+            ),
+            'hostID'
+        );
         if (count($MACHost) > 1) {
             throw new Exception(self::$foglang['ErrorMultipleHosts']);
         }
-        return self::getClass('Host', @min($MACHost));
+        if (count($MACHost) < 1) {
+            throw new Exception(_('Host not found'));
+        }
+        return new Host(@max($MACHost));
     }
     public function destroy($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false)
     {

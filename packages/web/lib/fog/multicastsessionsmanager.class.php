@@ -6,7 +6,7 @@ class MulticastSessionsManager extends FOGManagerController
         $findWhere = array('id'=>(array)$multicastsessionids);
         $cancelled = $this->getCancelledState();
         $this->update($findWhere, '', array('stateID'=>$cancelled, 'name'=>''));
-        $this->array_change_key($findWhere, 'id', 'msID');
+        $this->arrayChangeKey($findWhere, 'id', 'msID');
         self::getClass('MulticastSessionsAssociationManager')->destroy($findWhere);
     }
 }

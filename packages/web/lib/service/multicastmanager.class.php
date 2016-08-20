@@ -176,7 +176,7 @@ class MulticastManager extends FOGService
                                     }
                                     self::outall(sprintf(" | Task (%s) %s has been cancelled.", $runningTask->getID(), $runningTask->getName()));
                                 } else {
-                                    self::getClass('MulticastSessions', $runningTask->getID())->set('clients', 0)->set('completetime', self::nice_date()->format('Y-m-d H:i:s'))->set('name', '')->set('stateID', $this->getCompleteState())->save();
+                                    self::getClass('MulticastSessions', $runningTask->getID())->set('clients', 0)->set('completetime', self::niceDate()->format('Y-m-d H:i:s'))->set('name', '')->set('stateID', $this->getCompleteState())->save();
                                     $KnownTasks = $this->removeFromKnownList($KnownTasks, $runningTask->getID());
                                     self::outall(sprintf(" | Task (%s) %s has been completed.", $runningTask->getID(), $runningTask->getName()));
                                 }

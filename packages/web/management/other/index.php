@@ -22,7 +22,7 @@ if (!self::$isMobile) {
     echo '<header>';
     printf('<div id="header"%s>', !self::$FOGUser->isValid() ? ' class="login"' : '');
     echo '<div id="logo">';
-    printf('<h1><a href="%s"><img src="%s/fog-logo.png" alt="%s" title="%s"/></a></h1><h2>%s</h2>', self::$urlself, $this->imagelink, self::$foglang['Home'], self::$foglang['Home'], self::$foglang['Slogan']);
+    printf('<h1><a href="%s"><img src="%s/fog-logo.png" alt="%s" title="%s"/></a></h1><h2>%s</h2>', self::$scriptname, $this->imagelink, self::$foglang['Home'], self::$foglang['Home'], self::$foglang['Slogan']);
     printf('<div id="version"><div id="showtime"></div>%s %s<br/>%s: %d</div></div>', _('Running Version'), FOG_VERSION, _('SVN Revision'), FOG_SVN_REVISION); // # #
     if (self::$FOGUser) {
         echo $this->menu;

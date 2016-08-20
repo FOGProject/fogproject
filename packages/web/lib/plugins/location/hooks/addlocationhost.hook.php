@@ -48,7 +48,7 @@ class AddLocationHost extends Hook
         }
         $locationID = self::getSubObjectIDs('LocationAssociation', array('hostID'=>$arguments['Host']->get('id')), 'locationID');
         $locID = array_shift($locationID);
-        $this->array_insert_after(_('Host Product Key'), $arguments['fields'], _('Host Location'), self::getClass('LocationManager')->buildSelectBox($locID));
+        $this->arrayInsertAfter(_('Host Product Key'), $arguments['fields'], _('Host Location'), self::getClass('LocationManager')->buildSelectBox($locID));
     }
     public function HostAddLocation($arguments)
     {
@@ -106,7 +106,7 @@ class AddLocationHost extends Hook
         if (!self::getClass('Location', $locID)->isValid()) {
             return;
         }
-        $this->array_insert_after("\nSnapin Used: ", $arguments['email'], "\nImaged From (Location): ", self::getClass('Location', $locID)->get('name'));
+        $this->arrayInsertAfter("\nSnapin Used: ", $arguments['email'], "\nImaged From (Location): ", self::getClass('Location', $locID)->get('name'));
     }
     public function HostRegister($arguments)
     {

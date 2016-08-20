@@ -13,7 +13,7 @@ try {
     }
     $abortHour = array_shift($serviceSettings);
     $ignoreWeekends = array_shift($serviceSettings);
-    $date = FOGCore::nice_date();
+    $date = FOGCore::niceDate();
     if ($ignoreWeekends && $date->format('N') > 5) {
         throw new Exception('#!OK');
     }

@@ -46,7 +46,7 @@ class FOGCron extends FOGBase
         if (is_numeric($dow) && $dow == 0) {
             $dow = 7;
         }
-        $Start = self::nice_date();
+        $Start = self::niceDate();
         do {
             list($nmin, $nhour, $ndom, $nmonth, $ndow) = array_map('trim', preg_split('/ +/', $Start->format('i H d n N')));
             if ($min != '*') {
@@ -208,8 +208,8 @@ class FOGCron extends FOGBase
      */
     public static function shouldRunCron($Time)
     {
-        $Time = self::nice_date()->setTimestamp($Time);
-        $CurrTime = self::nice_date();
+        $Time = self::niceDate()->setTimestamp($Time);
+        $CurrTime = self::niceDate();
         return (bool)($Time <= $CurrTime);
     }
 }

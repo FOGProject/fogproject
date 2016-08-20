@@ -593,7 +593,7 @@ class Host extends FOGController
                 $SnapinJob
                     ->set('hostID', $this->get('id'))
                     ->set('stateID', $this->getQueuedState())
-                    ->set('createdTime', self::nice_date()->format('Y-m-d H:i:s'));
+                    ->set('createdTime', self::niceDate()->format('Y-m-d H:i:s'));
                 if (!$SnapinJob->save()) {
                     throw new Exception(_('Failed to create Snapin Job'));
                 }
@@ -710,7 +710,7 @@ class Host extends FOGController
                         ->set('image', $this->getImage()->get('id'))
                         ->set('interface', $StorageNode->get('interface'))
                         ->set('stateID', 0)
-                        ->set('starttime', self::nice_date()->format('Y-m-d H:i:s'))
+                        ->set('starttime', self::niceDate()->format('Y-m-d H:i:s'))
                         ->set('percent', 0)
                         ->set('isDD', $this->getImage()->get('imageTypeID'))
                         ->set('NFSGroupID', $StorageNode->get('storageGroupID'))

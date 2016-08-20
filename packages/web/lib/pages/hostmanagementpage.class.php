@@ -869,8 +869,8 @@ class HostManagementPage extends FOGPage
                 return;
             }
             $diff = $this->diff($start, $end);
-            $start = self::nice_date($start);
-            $end = self::nice_date($end);
+            $start = self::niceDate($start);
+            $end = self::niceDate($end);
             $Task = self::getClass('Task', @max(self::getSubObjectIDs('Task', array('checkInTime'=>$log->get('start'), 'hostID'=>$this->obj->get('id')))));
             $groupName = $Task->getStorageGroup()->get('name');
             $nodeName = $Task->getStorageNode()->get('name');
@@ -1151,8 +1151,8 @@ class HostManagementPage extends FOGPage
     }
     public function hostlogins()
     {
-        $MainDate = self::nice_date($_REQUEST['dte'])->getTimestamp();
-        $MainDate_1 = self::nice_date($_REQUEST['dte'])->modify('+1 day')->getTimestamp();
+        $MainDate = self::niceDate($_REQUEST['dte'])->getTimestamp();
+        $MainDate_1 = self::niceDate($_REQUEST['dte'])->modify('+1 day')->getTimestamp();
         foreach ((array)self::getClass('UserTrackingManager')->find(array('hostID'=>$this->obj->get('id'), 'date'=>$_REQUEST['dte'], 'action'=>array(null, 0, 1)), 'AND', 'date', 'DESC') as $i => &$Login) {
             if (!$Login->isValid()) {
                 continue;
@@ -1160,7 +1160,7 @@ class HostManagementPage extends FOGPage
             if ($Login->get('username') == 'Array') {
                 continue;
             }
-            $time = self::nice_date($Login->get('datetime'))->format('U');
+            $time = self::niceDate($Login->get('datetime'))->format('U');
             if (!$Data[$Login->get('username')]) {
                 $Data[$Login->get('username')] = array('user'=>$Login->get('username'),'min'=>$MainDate,'max'=>$MainDate_1);
             }

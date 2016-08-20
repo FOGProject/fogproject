@@ -15,7 +15,7 @@ class AddLocationGroup extends Hook
             return;
         }
         $link = $arguments['linkformat'];
-        $this->array_insert_after("$link#group-image", $arguments['submenu'], "$link#group-location", _('Location Association'));
+        $this->arrayInsertAfter("$link#group-image", $arguments['submenu'], "$link#group-location", _('Location Association'));
     }
     public function GroupFields($arguments)
     {

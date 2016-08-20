@@ -1,30 +1,195 @@
 <?php
+/**
+ * FOGBase, the base class for pretty much all of fog.
+ *
+ * PHP version 5
+ *
+ * This gives all the rest of the classes a common frame to work from.
+ *
+ * @category FOGBase
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * FOGBase, the base class for pretty much all of fog.
+ *
+ * @category FOGBase
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 abstract class FOGBase
 {
+    /**
+     * Language variables brought in from text.php
+     *
+     * @var array
+     */
     public static $foglang;
+    /**
+     * Sets if the requesting call is ajax requested.
+     *
+     * @var bool
+     */
     public static $ajax = false;
+    /**
+     * Sets if this is a form submit.
+     *
+     * @var bool
+     */
     public static $post = false;
+    /**
+     * Tells whether or not its a fog/service request.
+     *
+     * @var bool
+     */
     public static $service = false;
+    /**
+     * Tests/sets if a given key is loaded already.
+     *
+     * @var array
+     */
     protected $isLoaded = array();
+    /**
+     * The length of a given string item.
+     *
+     * @var int
+     */
     protected static $strlen;
+    /**
+     * Display debug information.
+     *
+     * @var bool
+     */
     protected static $debug = false;
+    /**
+     * Display extra information about items.
+     *
+     * @var bool
+     */
     protected static $info = false;
+    /**
+     * Select box creator function stored in variable.
+     *
+     * @var callable
+     */
     protected static $buildSelectBox;
+    /**
+     * Sets what's selected for the select box.
+     *
+     * @var bool|int
+     */
     protected static $selected;
+    /**
+     * The database handler.
+     *
+     * @var object
+     */
     protected static $DB;
+    /**
+     * FTP Handler.
+     *
+     * @var object
+     */
     protected static $FOGFTP;
+    /**
+     * Core usage elements as FOGBase is abstract
+     *
+     * @var object
+     */
     protected static $FOGCore;
+    /**
+     * Event handling.
+     *
+     * @var object
+     */
     protected static $EventManager;
+    /**
+     * Hook handling.
+     *
+     * @var object
+     */
     protected static $HookManager;
+    /**
+     * The default timezone for all of fog to use.
+     *
+     * @var object
+     */
     protected static $TimeZone;
+    /**
+     * The logged in user.
+     *
+     * @var object
+     */
     protected static $FOGUser;
+    /**
+     * View/Page Controller-Manager
+     *
+     * @var object
+     */
     protected static $FOGPageManager;
+    /**
+     * URL Manager | mainly for ajax, and externel getters.
+     *
+     * @var object
+     */
     protected static $FOGURLRequests;
+    /**
+     * Side/Sub menu manager.
+     *
+     * @var object
+     */
     protected static $FOGSubMenu;
-    protected static $urlself;
+    /**
+     * Current requests script name.
+     *
+     * @var string
+     */
+    protected static $scriptname;
+    /**
+     * Current requests query string.
+     *
+     * @var string
+     */
+    protected static $querystring;
+    /**
+     * Current requests http requested with string.
+     *
+     * @var string
+     */
+    protected static $httpreqwith;
+    /**
+     * Current request method
+     *
+     * @var string
+     */
+    protected static $reqmethod;
+    /**
+     * Is this a mobile request?
+     *
+     * @var int|bool
+     */
     protected static $isMobile;
+    /**
+     * The current server's IP information.
+     *
+     * @var array
+     */
     protected static $ips = array();
+    /**
+     * The current server's Interface information.
+     *
+     * @var array
+     */
     protected static $interface = array();
+    /**
+     * The current base pages requiring search functionality.
+     *
+     * @var array
+     */
     protected static $searchPages = array(
         'user',
         'host',
@@ -35,11 +200,26 @@ abstract class FOGBase
         'printer',
         'task',
     );
-    private static $initialized = false;
+    /**
+     * Is our current element already initialized?
+     *
+     * @var bool
+     */
+    private static $_initialized = false;
+    /**
+     * The current running schema information.
+     *
+     * @var int
+     */
     public static $mySchema = 0;
-    private static function init()
+    /**
+     * Initializes the FOG System if needed.
+     *
+     * @return void
+     */
+    private static function _init()
     {
-        if (self::$initialized === true) {
+        if (self::$_initialized === true) {
             return;
         }
         global $foglang;
@@ -59,15 +239,42 @@ abstract class FOGBase
         self::$EventManager =& $EventManager;
         self::$HookManager =& $HookManager;
         self::$FOGUser =& $currentUser;
-        self::$urlself = $_SERVER['SCRIPT_NAME'];
-        self::$isMobile = (bool)preg_match('#/mobile/#i', self::$urlself);
-        self::$service = (bool)preg_match('#/service/#i', self::$urlself) || preg_match('#sub=requestClientInfo#i', $_SERVER['QUERY_STRING']);
-        self::$ajax = (bool)isset($_SERVER['HTTP_X_REQUESTED_WITH']) && preg_match('#^xmlhttprequest$#i', $_SERVER['HTTP_X_REQUESTED_WITH']);
-        self::$post = (bool)preg_match('#^post$#i', isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] ? $_SERVER['REQUEST_METHOD'] : '');
+        $scriptPattern = '#/service/#i';
+        $queryPattern = '#sub=requestClientInfo#i';
+        if (isset($_SERVER['SCRIPT_NAME'])) {
+            self::$scriptname = $_SERVER['SCRIPT_NAME'];
+        }
+        if (isset($_SERVER['QUERY_STRING'])) {
+            self::$querystring = $_SERVER['QUERY_STRING'];
+        }
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+            self::$httpreqwith = $_SERVER['HTTP_X_REQUESTED_WITH'];
+        }
+        if (isset($_SERVER['REQUEST_METHOD'])) {
+            self::$reqmethod = $_SERVER['REQUEST_METHOD'];
+        }
+        if (preg_match('#/mobile/#i', self::$scriptname)) {
+            self::$isMobile = true;
+        }
+        if (preg_match($scriptPattern, self::$scriptname)) {
+            self::$service = true;
+        } else if (preg_match($queryPattern, self::$querystring)) {
+            self::$service = true;
+        }
+        self::$ajax = preg_match('#^xmlhttprequest$#i', self::$httpreqwith);
+        self::$post = preg_match('#^post$#i', self::$reqmethod);
         self::$FOGURLRequests = &$FOGURLRequests;
         self::$FOGPageManager = &$FOGPageManager;
         self::$TimeZone = &$TimeZone;
-        self::$buildSelectBox = function (&$option, &$index = false) {
+        /**
+         * Lambda function to allow building of select boxes.
+         *
+         * @param string $option the option to iterate
+         * @param bool|int $index the index to operate on if needed.
+         *
+         * @return void
+         */
+        self::$buildSelectBox = function ($option, $index = false) {
             $value = $option;
             if ($index) {
                 $value = $index;
@@ -78,137 +285,333 @@ abstract class FOGBase
                 (self::$selected == $value ? ' selected' : ''),
                 $option
             );
-            unset($option, $index, $value);
         };
-        self::$initialized = true;
-        return;
+        self::$_initialized = true;
     }
+    /**
+     * Initiates the base class for FOG.
+     *
+     * @return this
+     */
     public function __construct()
     {
-        self::init();
+        self::_init();
         return $this;
     }
+    /**
+     * Defines string as class name.
+     *
+     * @return string
+     */
     public function __toString()
     {
-        return (string)get_class($this);
+        return get_class($this);
     }
+    /**
+     * Returns the class after verifying reflection of the class.
+     *
+     * @param string $class the name of the class to load.
+     * @param mixed  $data  the data to load into the class.
+     * @param bool   $props return just properties or full object.
+     *
+     * @throws Exception
+     * @return class Returns the instantiated class.
+     */
     public static function getClass($class, $data = '', $props = false)
     {
+        if (!is_string($class)) {
+            throw new Exception(_('Class name must be a string'));
+        }
+        // Get all args, even unnamed args.
         $args = func_get_args();
         array_shift($args);
-        if (trim(strtolower($class)) === 'reflectionclass') {
+
+        // Trim the class var
+        $class = trim($class);
+
+        // Test what the class is and return if it is Reflection.
+        $lClass = strtolower($class);
+        if ($lClass === 'reflectionclass') {
             return new ReflectionClass(count($args) === 1 ? $args[0] : $args);
         }
+
+        global $sub;
+        // If class is Storage, test if sub is group or node.
         if ($class === 'Storage') {
-            $class = $_REQUEST['sub'] === 'storage-group' ? 'StorageGroup' : 'StorageNode';
+            $class = 'StorageNode';
+            if (preg_match('#storage[-|_]group#i', $sub)) {
+                $class = 'StorageGroup';
+            }
         }
+
+        // Initiate Reflection item.
         $obj = new ReflectionClass($class);
+
+        // If props is set to true return the properties of the class.
         if ($props === true) {
             return $obj->getDefaultProperties();
         }
-        return $obj->getConstructor() ? (count($args) === 1 ? $obj->newInstance($args[0]) : $obj->newInstanceArgs($args)) : $obj->newInstanceWithoutConstructor();
+
+        // Return the main object
+        if ($obj->getConstructor()) {
+            // If there's only one argument return the instance using it.
+            // Otherwise return with full call.
+            if (count($args) === 1) {
+                return $obj->newInstance($args[0]);
+            } else {
+                return $obj->newInstanceArgs($args);
+            }
+        } else {
+            return $obj->newInstanceWithoutConstructor();
+        }
     }
-    public function getHostItem($service = true, $encoded = false, $hostnotrequired = false, $returnmacs = false, $override = false)
-    {
+    /**
+     * Get's the relevant host item.
+     *
+     * @param bool $service         Is this a service request
+     * @param bool $encoded         Is this data encoded
+     * @param bool $hostnotrequired Is the host return needed
+     * @param bool $returnmacs      Only return macs?
+     * @param bool $override        Perform an override of the items?
+     *
+     * @throws Exception
+     * @return array|object Returns either th macs or the host.
+     */
+    public function getHostItem(
+        $service = true,
+        $encoded = false,
+        $hostnotrequired = false,
+        $returnmacs = false,
+        $override = false
+    ) {
+        // Store the mac
         $mac = $_REQUEST['mac'];
+
+        // If encoded decode and store value
         if ($encoded === true) {
             $mac = base64_decode($mac);
         }
+
+        // Trim the mac list.
         $mac = trim($mac);
+
+        // Parsing the macs
         $MACs = $this->parseMacList($mac, !$service, $service);
-        if (!$MACs && !$hostnotrequired) {
-            throw new Exception($service ? '#!im' : sprintf('%s %s', self::$foglang['InvalidMAC'], $_REQUEST['mac']));
+
+        // If no macs are returned and the host is not required,
+        // throw message that it's an invalid mac.
+        if (count($MACs) < 1 && $hostnotrequired === false) {
+            if ($service) {
+                $msg = '#!im';
+            } else {
+                $msg = sprintf('%s %s', self::$foglang, $_REQUEST['mac']);
+            }
+            throw new Exception($msg);
         }
+
+        // If returnmacs parameter is true, return the macs as an array
         if ($returnmacs) {
-            return (is_array($MACs) ? $MACs : array($MACs));
+            if (!is_array($MACs)) {
+                $MACs = (array)$MACs;
+            }
+            return $MACs;
         }
+
+        // Get the host element based on the mac address
         $Host = self::getClass('HostManager')->getHostByMacAddresses($MACs);
-        if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get('pending')) && !$override) {
-            throw new Exception($service ? '#!ih' : _('Invalid Host'));
+        if ($hostnotrequired === false && $override === false) {
+            if ($Host->get('pending')) {
+                $Host = new Host(0);
+            }
+            if (!($Host->isValid())) {
+                if ($service) {
+                    $msg = '#!ih';
+                } else {
+                    $msg = _('Invalid Host');
+                }
+            }
         }
         return $Host;
     }
+    /**
+     * Get's blamed nodes for failures.
+     *
+     * @return array
+     */
     public function getAllBlamedNodes()
     {
-        $DateInterval = self::nice_date()->modify('-5 minutes');
-        $nodeRet = array_map(function (&$NodeFailure) use (&$nodeRet) {
-            if (!$NodeFailure->isValid()) {
-                return;
+        $DateInterval = self::niceDate()->modify('-5 minutes');
+        /**
+         * Returns the node id if still accurate
+         * or will clean up past time nodes.
+         *
+         * @param object $NodeFailure the node that is in failed state.
+         *
+         * @return int|bool
+         */
+        $nodeFail = function ($NodeFailure) use ($DateInterval) {
+            if ($NodeFailure->isValid()) {
+                return false;
             }
-            $DateTime = self::nice_date($NodeFailure->get('failureTime'));
+            $DateTime = self::niceDate($NodeFailure->get('failureTime'));
             if ($DateTime < $DateInterval) {
                 $NodeFailure->destroy();
-                return;
+                return false;
             }
             return $NodeFailure->get('id');
-        }, (array)self::getClass('NodeFailureManager')->find(array('taskID'=>$this->Host->get('task')->get('id'), 'hostID'=>$this->Host->get('id'))));
-        return array_values(array_filter(array_unique((array)$nodeRet)));
+        };
+        $FailedNodes = self::getClass('NodeFailureManager')
+            ->find(
+                array(
+                    'taskID' => $this->Host->get('task')->get('id'),
+                    'hostID' => $this->Host->get('id'),
+                )
+            );
+        $nodeRet = array_map($nodeFail, (array)$FailedNodes);
+        $nodeRet = array_filter($nodeRet);
+        $nodeRet = array_unique($nodeRet);
+        $nodeRet = array_values($nodeRet);
+        return $nodeRet;
     }
+    /**
+     * Returns array of plugins installed.
+     *
+     * @return array
+     */
     protected static function getActivePlugins()
     {
-        return array_map('strtolower', (array)self::getSubObjectIDs('Plugin', array('installed'=>1, 'state'=>1), 'name'));
+        $plugins = self::getSubObjectIDs(
+            'Plugin',
+            array(
+                'installed' => 1,
+                'state' => 1,
+            ),
+            'name'
+        );
+        return array_map('strtolower', (array)$plugins);
     }
+    /**
+     * Converts our string if needed.
+     *
+     * @param string $txt  the string to use.
+     * @param array  $data the data if txt is formatted string.
+     *
+     * @return string
+     */
+    private static function _setString($txt, $data = array())
+    {
+        if (count($data)) {
+            $data = vsprintf($txt, $data);
+        } else {
+            $data = $txt;
+        }
+        return $data;
+    }
+    /**
+     * Prints fatal errors
+     *
+     * @param string $txt  the string to use.
+     * @param array  $data the data if txt is formatted string.
+     *
+     * @return void
+     */
     protected function fatalError($txt, $data = array())
     {
-        $string = sprintf('FOG FATAL ERROR: %s: %s', get_class($this), count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
-        if (self::$service) {
+        if (self::$service || self::$ajax) {
             return;
         }
-        if (self::$ajax) {
-            return;
-        }
+        $data = self::_setString($txt, $data);
+        $string = sprintf(
+            'FOG FATAL ERROR: %s: %s',
+            get_class($this),
+            $data
+        );
         $this->logHistory($string);
         printf('<div class="debug-error">%s</div>', $string);
     }
+    /**
+     * Prints error
+     *
+     * @param string $txt  the string to use.
+     * @param array  $data the data if txt is formatted string.
+     *
+     * @return void
+     */
     protected function error($txt, $data = array())
     {
-        $string = sprintf('FOG ERROR: %s: %s', get_class($this), count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
-        if (!self::$debug) {
+        if ((self::$service || self::$ajax) || !self::$debug) {
             return;
         }
-        if (self::$service) {
-            return;
-        }
-        if (self::$ajax) {
-            return;
-        }
+        $data = self::_setString($txt, $data);
+        $string = sprintf(
+            'FOG ERROR: %s: %s',
+            get_class($this),
+            $data
+        );
         $this->logHistory($string);
         printf('<div class="debug-error">%s</div>', $string);
     }
+    /**
+     * Prints debug
+     *
+     * @param string $txt  the string to use.
+     * @param array  $data the data if txt is formatted string.
+     *
+     * @return void
+     */
     protected function debug($txt, $data = array())
     {
-        $string = sprintf('FOG DEBUG: %s: %s', get_class($this), count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
-        if (!self::$debug) {
+        if ((self::$service || self::$ajax) || !self::$debug) {
             return;
         }
-        if (self::$service) {
-            return;
-        }
-        if (self::$ajax) {
-            return;
-        }
+        $data = self::_setString($txt, $data);
+        $string = sprintf(
+            'FOG DEBUG: %s: %s',
+            get_class($this),
+            $data
+        );
         $this->logHistory($string);
         printf('<div class="debug-error">%s</div>', $string);
     }
+    /**
+     * Prints info
+     *
+     * @param string $txt  the string to use.
+     * @param array  $data the data if txt is formatted string.
+     *
+     * @return void
+     */
     protected function info($txt, $data = array())
     {
-        $string = sprintf('FOG INFO: %s: %s', get_class($this), count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
-        if (!self::$info) {
+        if ((self::$service || self::$ajax) || !self::$info) {
             return;
         }
-        if (self::$service) {
-            return;
-        }
-        if (self::$ajax) {
-            return;
-        }
+        $data = self::_setString($txt, $data);
+        $string = sprintf(
+            'FOG INFO: %s: %s',
+            get_class($this),
+            $data
+        );
         $this->logHistory($string);
         printf('<div class="debug-info">%s</div>', $string);
     }
+    /**
+     * Sets message banner at top of pages.
+     *
+     * @param string $txt  the string to use.
+     * @param array  $data the data if txt is formatted string.
+     *
+     * @return void
+     */
     protected function setMessage($txt, $data = array())
     {
-        $_SESSION['FOG_MESSAGES'] = (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
+        $_SESSION['FOG_MESSAGES'] = self::_setString($txt, $data);
     }
+    /**
+     * Gets message banner and prepares to display it.
+     *
+     * @return string
+     */
     protected function getMessages()
     {
         if (!isset($_SESSION['FOG_MESSAGES'])) {
@@ -216,17 +619,34 @@ abstract class FOGBase
         }
         $messages = (array)$_SESSION['FOG_MESSAGES'];
         unset($_SESSION['FOG_MESSAGES']);
+        // Create a hook in for messages
         if (self::$HookManager instanceof HookManager) {
-            self::$HookManager->processEvent('MessageBox', array('data'=>&$messages));
+            self::$HookManager->processEvent(
+                'MessageBox',
+                array('data' => &$messages)
+            );
         }
-        array_walk($messages, function (&$message, &$i) {
-            if (!$i) {
-                echo '<!-- FOG Messages -->';
-            }
+        /**
+         * Lambda that simply prints the messages as passed.
+         *
+         * @param string $message the message to print
+         *
+         * @return void
+         */
+        $print_messages = function ($message) {
             printf('<div class="fog-message-box">%s</div>', $message);
-        }, $messages);
+        };
+        // Print the messages
+        array_map($print_messages, $message);
         unset($messages);
     }
+    /**
+     * Redirect pages where/when necessary
+     *
+     * @param string $url The url to redirect to.
+     *
+     * @return void
+     */
     protected function redirect($url = '')
     {
         if (self::$service) {
@@ -240,55 +660,97 @@ abstract class FOGBase
         header("Location: $url");
         exit;
     }
-    protected function array_insert_before($key, array &$array, $new_key, $new_value)
+    /**
+     * Insert before key in array
+     *
+     * @param string $key       the key to insert before
+     * @param array  $array     the array to modify
+     * @param string $new_key   the new key to insert.
+     * @param mixed  $new_value the value to insert.
+     *
+     * @throws Exception
+     * @return void
+     */
+    protected function arrayInsertBefore($key, array &$array, $new_key, $new_value)
     {
-        if (in_array($key, $array)) {
-            return;
+        if (!is_string($key)) {
+            throw new Exception(_('Key must be a string or index'));
         }
         $new = array();
-        array_walk($array, function (&$value, &$k) use ($key, $new_key, $new_value, &$new) {
+        foreach ($array AS $k => &$value) {
             if ($k === $key) {
                 $new[$new_key] = $new_value;
             }
             $new[$k] = $value;
             unset($k, $value);
-        });
+        }
         $array = $new;
     }
-    protected function array_insert_after($key, array &$array, $new_key, $new_value)
+    /**
+     * Insert after key in array
+     *
+     * @param string $key       the key to insert after
+     * @param array  $array     the array to modify
+     * @param string $new_key   the new key to insert.
+     * @param mixed  $new_value the value to insert.
+     *
+     * @throws Exception
+     * @return void
+     */
+    protected function arrayInsertAfter($key, array &$array, $new_key, $new_value)
     {
-        if (in_array($key, $array)) {
-            return;
+        if (!is_string($key)) {
+            throw new Exception(_('Key must be a string or index'));
         }
         $new = array();
-        array_walk($array, function (&$value, &$k) use ($key, $new_key, $new_value, &$new) {
+        foreach ($array AS $k => &$value) {
             $new[$k] = $value;
             if ($k === $key) {
                 $new[$new_key] = $new_value;
             }
             unset($k, $value);
-        });
+        }
         $array = $new;
     }
-    protected function array_remove($key, array &$array)
+    /**
+     * Remove value based on the key from array.
+     *
+     * @param string|array $key   the key to remove
+     * @param array        $array the array to work with
+     *
+     * @throws Exception
+     * @return void
+     */
+    protected function arrayRemove($key, array &$array)
     {
+        if (!(is_string($key) || is_array($key))) {
+            throw new Exception(_('Key must be an array of keys or a string.'));
+        }
         if (is_array($key)) {
-            array_map(function (&$value) use (&$array) {
-                unset($array[$value]);
-                unset($value);
-            }, (array)$key);
+            foreach ($key AS &$k) {
+                $this->arrayRemove($k, $array);
+            }
         } else {
-            array_map(function (&$value) use (&$array, &$key) {
+            foreach ($array AS &$value) {
                 if (is_array($value)) {
-                    $this->array_remove($key, $value);
+                    $this->arrayRemove($key, $value);
                 } else {
                     unset($array[$key]);
                 }
                 unset($value);
-            }, (array)$array);
+            }
         }
     }
-    protected function array_find($needle, array $haystack, $ignorecase = false)
+    /**
+     * Find the key of a needle within the haystack that is an array.
+     *
+     * @param mixed      $needle     the needle to find
+     * @param array      $haystack   the array to search in.
+     * @param bool|mixed $ignorecase whether to care about case
+     *
+     * @return key or false
+     */
+    protected function arrayFind($needle, array $haystack, $ignorecase = false)
     {
         $cmd = $ignorecase !== false ? 'stripos' : 'strpos';
         foreach ($haystack as $key => $value) {
@@ -298,6 +760,13 @@ abstract class FOGBase
         }
         return false;
     }
+    /**
+     * Check if isLoaded
+     *
+     * @param string|int $key the key to see if loaded
+     *
+     * @return bool|string
+     */
     protected function isLoaded($key)
     {
         $key = $this->key($key);
@@ -305,6 +774,11 @@ abstract class FOGBase
         $this->isLoaded[$key]++;
         return $result ? $result : false;
     }
+    /**
+     * Reset request variables.
+     *
+     * @return void
+     */
     protected function resetRequest()
     {
         if (!isset($_SESSION['post_request_vals'])) {
@@ -318,6 +792,11 @@ abstract class FOGBase
         array_walk($sesVars, $setReq);
         unset($_SESSION['post_request_vals'], $sesVars, $reqVars);
     }
+    /**
+     * Set request vars particularly for post failures really.
+     *
+     * @return void
+     */
     protected function setRequest()
     {
         if (!isset($_SESSION['post_request_vals'])) {
@@ -327,14 +806,35 @@ abstract class FOGBase
             $_SESSION['post_request_vals'] = $_POST;
         }
     }
+    /**
+     * Return nicely formatted byte sizes.
+     *
+     * @param int|double $size the size to convert
+     *
+     * @return double
+     */
     protected function formatByteSize($size)
     {
         $units = array('iB','KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
         $factor = floor((strlen($size) - 1)/3);
         return sprintf('%3.2f %s', $size/pow(1024, $factor), $units[$factor]);
     }
+    /**
+     * Gets the global module status.
+     *
+     * Can return just the shortnames or the long.
+     *
+     * @param bool $names if set will return the services as set.
+     * @param bool $keys  will return just the shortnames if set.
+     *
+     * @return array
+     */
     protected function getGlobalModuleStatus($names = false, $keys = false)
     {
+        // The shortnames are on the left, the long names are on the right
+        // If the right is true it means the short is accurate.
+        // If the left is not the right caller in form of:
+        //     FOG_CLIENT_<name>_ENABLED in lowercase.
         $services = array(
             'autologout' => 'autologoff',
             'clientupdater' => true,
@@ -350,30 +850,67 @@ abstract class FOGBase
             'usercleanup' => true,
             'usertracker' => true,
         );
+        // If keys is set, return just the keys.
         if ($keys) {
-            return array_values(array_filter(array_unique(array_keys($services))));
+            $keys = array_keys($services);
+            $keys = array_filter($keys);
+            $keys = array_unique($keys);
+            return array_values($keys);
         }
-        array_walk($services, function (&$value, &$short) {
-            $value = sprintf('FOG_CLIENT_%s_ENABLED', strtoupper($value === true ? $short : $value));
-        });
+        // Change the keys values
+        foreach ($services AS $short => &$value) {
+            $tmp = $value === true ? $short : $value;
+            $value = sprintf('FOG_CLIENT_%s_ENABLED', strtoupper($tmp));
+        }
+        // If names is set, send back the short and long names together.
         if ($names) {
             return $services;
         }
-        $serviceEn = self::getSubObjectIDs('Service', array('name'=>array_values($services)), 'value', false, 'AND', 'name', false, false);
-        $serviceEn = array_map(function (&$val) {
-            return $val;
-        }, (array)$serviceEn);
+        // Now lets get their status'
+        $serviceEn = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array_values($services),
+            ),
+            'value',
+            false,
+            'AND',
+            'name',
+            false,
+            false
+        );
         return array_combine(array_keys($services), $serviceEn);
     }
-    public static function nice_date($Date = 'now', $utc = false)
+    /**
+     * Sets the date
+     *
+     * @param mixed $date The date stamp, defaults to now if not set.
+     * @param bool  $utc  Whether to use utc timezone or not.
+     *
+     * @return DateTime
+     */
+    public static function niceDate($date = 'now', $utc = false)
     {
-        $TZ = self::getClass('DateTimeZone', ($utc || empty(self::$TimeZone)? 'UTC' : self::$TimeZone));
-        return self::getClass('DateTime', $Date, $TZ);
+        if ($utc || empty(self::$TimeZone)) {
+            $tz = new DateTimeZone('UTC');
+        } else {
+            $tz = new DateTimeZone(self::$TimeZone);
+        }
+        return new DateTime($date, $tz);
     }
+    /**
+     * Do formatting things.
+     *
+     * @param mixed $time   The time to work from.
+     * @param mixed $format Specified format to return.
+     * @param bool  $utc    Use UTC Timezone?
+     *
+     * @return mixed
+     */
     public function formatTime($time, $format = false, $utc = false)
     {
         if (!$time instanceof DateTime) {
-            $time = self::nice_date($time, $utc);
+            $time = self::niceDate($time, $utc);
         }
         if ($format) {
             if (!$this->validDate($time)) {
@@ -381,7 +918,7 @@ abstract class FOGBase
             }
             return $time->format($format);
         }
-        $now = self::nice_date('now', $utc);
+        $now = self::niceDate('now', $utc);
         // Get difference of the current to supplied.
         $diff = $now->format('U') - $time->format('U');
         $absolute = abs($diff);
@@ -420,132 +957,275 @@ abstract class FOGBase
         }
         return $this->humanify($diff / 31536000, 'year');
     }
-    protected function validDate($Date, $format = '')
+    /**
+     * Checks if the time passed is valid or not.
+     *
+     * @param mixed $date   the date to use.
+     * @param mixed $format the format to test.
+     *
+     * @return object
+     */
+    protected function validDate($date, $format = '')
     {
         if ($format == 'N') {
-            return ($Date instanceof DateTime ? ($Date->format('N') >= 0 && $Date->format('N') <= 7) : $Date >= 0 && $Date <= 7);
+            if ($date instanceof DateTime) {
+                return $date->format('N') >= 0;
+            } else {
+                return $date >= 0 && $date <= 7;
+            }
         }
-        if (!$Date instanceof DateTime) {
-            $Date = self::nice_date($Date);
+        if (!$date instanceof DateTime) {
+            $date = self::niceDate($date);
         }
         if (!$format) {
             $format = 'm/d/Y';
         }
-        return DateTime::createFromFormat($format, $Date->format($format), self::getClass('DateTimeZone', self::$TimeZone));
+        $tz = new DateTimeZone(self::$TimeZone);
+        return DateTime::createFromFormat(
+            $format,
+            $date->format($format),
+            $tz
+        );
     }
+    /**
+     * Simply returns if the item should be with an s or not.
+     *
+     * @param int    $count The count of the element
+     * @param string $text  The string to append to.
+     * @param bool   $space Use a space or not.
+     *
+     * @throws Exception
+     * @return string
+     */
     protected function pluralize($count, $text, $space = false)
     {
-        return sprintf("%d %s%s%s", $count, $text, $count != 1 ? 's' : '', $space === true ? ' ' : '');
+        if (!is_bool($space)) {
+            throw new Exception(_('Space variable must be boolean'));
+        }
+        return sprintf(
+            '%d %s%s%s',
+            $count,
+            $text,
+            $count != 1 ? 's' : '',
+            $space === true ? ' ' : ''
+        );
     }
+    /**
+     * Returns the difference given from a start and end time.
+     *
+     * @param mixed $start the starting date.
+     * @param mixed $end   the ending date.
+     * @param bool  $ago   Return immediate highest down.
+     *
+     * @throws Exception
+     * @return DateTime
+     */
     protected function diff($start, $end, $ago = false)
     {
+        if (!is_bool($ago)) {
+            throw new Exception(_('Ago must be boolean'));
+        }
         if (!$start instanceof DateTime) {
-            $start = self::nice_date($start);
+            $start = self::niceDate($start);
         }
         if (!$end instanceof DateTime) {
-            $end = self::nice_date($end);
+            $end = self::niceDate($end);
         }
         $Duration = $start->diff($end);
         $str = '';
         $suffix = '';
         if ($ago === true) {
+            $str = '%s %s';
             if ($Duration->invert) {
                 $suffix = 'ago';
             }
             if (($v = $Duration->y) > 0) {
-                return sprintf('%s %s', $this->pluralize($v, 'year'), $suffix);
+                return sprintf(
+                    $str,
+                    $this->pluralize($v, 'year'),
+                    $suffix
+                );
             }
             if (($v = $Duration->m) > 0) {
-                return sprintf('%s %s', $this->pluralize($v, 'month'), $suffix);
+                return sprintf(
+                    $str,
+                    $this->pluralize($v, 'month'),
+                    $suffix
+                );
             }
             if (($v = $Duration->d) > 0) {
-                return sprintf('%s %s', $this->pluralize($v, 'day'), $suffix);
+                return sprintf(
+                    $str,
+                    $this->pluralize($v, 'day'),
+                    $suffix
+                );
             }
             if (($v = $Duration->h) > 0) {
-                return sprintf('%s %s', $this->pluralize($v, 'hour'), $suffix);
+                return sprintf(
+                    $str,
+                    $this->pluralize($v, 'hour'),
+                    $suffix
+                );
             }
             if (($v = $Duration->i) > 0) {
-                return sprintf('%s %s', $this->pluralize($v, 'minute'), $suffix);
-            }
-            return sprintf('%s %s', $this->pluralize($Duration->s, 'second'), $suffix);
-        } elseif ($ago === false) {
-            if (($v = $Duration->y) > 0) {
-                $str .= $this->pluralize($v, 'year', true);
-            }
-            if (($v = $Duration->m) > 0) {
-                $str .= $this->pluralize($v, 'month', true);
-            }
-            if (($v = $Duration->d) > 0) {
-                $str .= $this->pluralize($v, 'day', true);
-            }
-            if (($v = $Duration->h) > 0) {
-                $str .= $this->pluralize($v, 'hour', true);
-            }
-            if (($v = $Duration->i) > 0) {
-                $str .= $this->pluralize($v, 'minute', true);
+                return sprintf(
+                    $str,
+                    $this->pluralize($v, 'minute'),
+                    $suffix
+                );
             }
             if (($v = $Duration->s) > 0) {
-                $str .= $this->pluralize($v, 'second');
+                return sprintf(
+                    $str,
+                    $this->pluralize($v, 'second'),
+                    $suffix
+                );
             }
-            return $str;
         }
+        if (($v = $Duration->y) > 0) {
+            $str .= $this->pluralize($v, 'year', true);
+        }
+        if (($v = $Duration->m) > 0) {
+            $str .= $this->pluralize($v, 'month', true);
+        }
+        if (($v = $Duration->d) > 0) {
+            $str .= $this->pluralize($v, 'day', true);
+        }
+        if (($v = $Duration->h) > 0) {
+            $str .= $this->pluralize($v, 'hour', true);
+        }
+        if (($v = $Duration->i) > 0) {
+            $str .= $this->pluralize($v, 'minute', true);
+        }
+        if (($v = $Duration->s) > 0) {
+            $str .= $this->pluralize($v, 'second');
+        }
+        return $str;
     }
+    /**
+     * Return more human friendly time.
+     *
+     * @param int    $diff the difference passed
+     * @param string $unit the unit of time (minute, hour, etc...)
+     *
+     * @throws Exception
+     * @return string
+     */
     protected function humanify($diff, $unit)
     {
-        $before = _($diff < 0 ? 'In ' : '');
-        $after = _($diff > 0 ? ' ago' : '');
+        if (!is_numeric($diff)) {
+            throw new Exception(_('Diff parameter must be numeric'));
+        }
+        if (!is_string($unit)) {
+            throw new Exception(_('Unit of time must be a string'));
+        }
+        $before = $after = '';
+        if ($diff < 0) {
+            $before = sprintf('%s ', _('In'));
+        }
+        if ($diff < 0) {
+            $after = sprintf(' %s', _('ago'));
+        }
         $diff = floor(abs($diff));
-        if ($diff > 1) {
+        if ($diff != 1) {
             $unit .= 's';
         }
-        return sprintf('%s%d %s%s', $before, $diff, $unit, $after);
+        return sprintf(
+            '%s%d %s%s',
+            $before,
+            $diff,
+            $unit,
+            $after
+        );
     }
-    protected function endsWith($str, $sub)
+    /**
+     * Returns size of item after checking via FTP
+     *
+     * @param StorageNode $StorageNode the node to test
+     * @param string      $file        the file to look for.
+     *
+     * @throws Exception
+     * @return double
+     */
+    protected function getFTPByteSize(StorageNode $StorageNode, $file)
     {
-        return (bool)(substr($str, strlen($str)-strlen($sub)) === $sub);
-    }
-    protected function getFTPByteSize($StorageNode, $file)
-    {
-        try {
-            if (!$StorageNode->isValid()) {
-                throw new Exception(_('No storage node'));
-            }
-            self::$FOGFTP
-                ->set('username', $StorageNode->get('user'))
-                ->set('password', $StorageNode->get('pass'))
-                ->set('host', $StorageNode->get('ip'));
-            if (!self::$FOGFTP->connect()) {
-                throw new Exception(_('Cannot connect to node.'));
-            }
-            $size = $this->formatByteSize((double)self::$FOGFTP->size($file));
-        } catch (Exception $e) {
-            return $e->getMessage();
+        if (!$StorageNode->isValid()) {
+            throw new Exception(_('StorageNode must be a valid node'));
         }
+        if (!is_string($file)) {
+            throw new Exception(_('File must be a string'));
+        }
+        self::$FOGFTP
+            ->set('username', $StorageNode->get('user'))
+            ->set('password', $StorageNode->get('pass'))
+            ->set('host', $StorageNode->get('ip'));
+        if (!self::$FOGFTP->connect()) {
+            throw new Exception(_('Cannot connect to node.'));
+        }
+        $size = $this->formatByteSize((double)self::$FOGFTP->size($file));
         self::$FOGFTP->close();
         return $size;
     }
-    protected function array_filter_recursive(&$input, $keepkeys = false)
+    /**
+     * Filters an array recursively
+     *
+     * @param array $input    the array to filter
+     * @param bool  $keepkeys keep the keys
+     *
+     * @throws Exception
+     * @return array
+     */
+    protected function arrayFilterRecursive(array &$input, $keepkeys = false)
     {
-        $input = (array)$input;
-        array_map(function (&$value) {
-            if (is_array($value)) {
-                $value = $this->array_filter_recursive($value, $keepkeys);
-            }
-            unset($input);
-        }, $input);
-        $input = array_filter($input);
-        if (!$keepkeys) {
-            $input = array_values($input);
+        if (!is_bool($keepkeys)) {
+            throw new Exception(_('Keepkeys must be boolean'));
         }
-        return $input;
+        foreach ($input AS $key => &$value) {
+            if (is_array($value)) {
+                $value = $this->arrayFilterRecursive($value, $keepkeys);
+            }
+            unset($value);
+        }
+        $input = array_filter($input);
+        return $keepkeys ? $input : array_values($input);
     }
-    protected function array_change_key(&$array, $old_key, $new_key)
+    /**
+     * Changes the keys around as needed
+     *
+     * @param array  $array   the array to change key for.
+     * @param string $old_key the original key
+     * @param string $new_key the key to change to
+     *
+     * @throws Exception
+     * @return void
+     */
+    protected function arrayChangeKey(array &$array, $old_key, $new_key)
     {
-        $array[$new_key] = !self::$service && is_string($array[$old_key]) ? htmlentities(trim($array[$old_key]), ENT_QUOTES, 'utf-8') : $array[$old_key];
+        if (!is_string($old_key)) {
+            throw new Exception(_('Old key must be a string'));
+        }
+        if (!is_string($new_key)) {
+            throw new Exception(_('New key must be a string'));
+        }
+        $array[$old_key] = trim($array[$old_key]);
+        if (!self::$service && is_string($array[$old_key])) {
+            $array[$new_key] = htmlentities(
+                $array[$old_key],
+                ENT_QUOTES,
+                'utf-8'
+            );
+        }
         if ($old_key != $new_key) {
             unset($array[$old_key]);
         }
     }
+    /**
+     * Converts to bits
+     *
+     * @param int|double $kilobytes the bytes to convert
+     *
+     * @return double
+     */
     protected function byteconvert($kilobytes)
     {
         return (($kilobytes / 8) * 1024);
@@ -717,7 +1397,7 @@ abstract class FOGBase
             return;
         }
         try {
-            if (self::nice_date() >= self::nice_date($this->Host->get('sec_time'))) {
+            if (self::niceDate() >= self::niceDate($this->Host->get('sec_time'))) {
                 $this->Host->set('pub_key', '')->save();
             }
             global $sub;
@@ -751,7 +1431,7 @@ abstract class FOGBase
         if (empty($txt)) {
             return;
         }
-        $txt = sprintf('[%s] %s', self::nice_date()->format('Y-m-d H:i:s'), $txt);
+        $txt = sprintf('[%s] %s', self::niceDate()->format('Y-m-d H:i:s'), $txt);
         if ($this->logLevel >= $level) {
             echo $txt;
         }

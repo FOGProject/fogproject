@@ -129,7 +129,19 @@ class FOGPageManager extends FOGBase
             preg_match("#^($plugins.+/plugins/)(?=.*$dirpath).*$#", $element[0], $match);
             return $match[0];
         };
-        $files = iterator_to_array(self::getClass('RegexIterator', self::getClass('RecursiveIteratorIterator', self::getClass('RecursiveDirectoryIterator', BASEPATH, FileSystemIterator::SKIP_DOTS)), $regext, RegexIterator::GET_MATCH), false);
+        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
+            BASEPATH,
+            FileSystemIterator::SKIP_DOTS
+        );
+        $RecursiveIteratorIterator = new RecursiveIteratorIterator(
+            $RecursiveDirectoryIterator
+        );
+        $RegexIterator = new RegexIterator(
+            $RecursiveIteratorIterator,
+            $regext,
+            RegexIterator::GET_MATCH
+        );
+        $files = iterator_to_array($RegexIterator, false);
         $plugins = '?!';
         $normalfiles = array_values(array_filter(array_map($fileitems, (array)$files)));
         $plugins = '?=';

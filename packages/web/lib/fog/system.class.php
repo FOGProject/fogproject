@@ -3,7 +3,7 @@ class System
 {
     public function __construct()
     {
-        define('FOG_VERSION', '28');
+        define('FOG_VERSION', '29');
         define('FOG_SCHEMA', 233);
         define('FOG_BCACHE_VER', 99);
         define('FOG_SVN_REVISION',5951);

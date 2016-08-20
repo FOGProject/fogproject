@@ -177,7 +177,7 @@ class Group extends FOGController
             throw new Exception(self::$foglang['TaskTypeNotValid']);
         }
         $imagingTypes = in_array($taskTypeID, array(1, 2, 8, 15, 16, 17, 24));
-        $now = $this->nice_date();
+        $now = $this->niceDate();
         if ($TaskType->isMulticast()) {
             $Image = self::getClass('Image', @min(self::getSubObjectIDs('Host', array('id'=>$this->get('hosts')), 'imageID')));
             if (!$Image->isValid()) {

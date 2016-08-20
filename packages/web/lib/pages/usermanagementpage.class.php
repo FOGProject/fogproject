@@ -46,7 +46,7 @@ class UserManagementPage extends FOGPage
     {
         $this->title = _('All Users');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['UserCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') {
-            $this->redirect(sprintf('%s?node=%s&sub=search', self::$urlself, $this->node));
+            $this->redirect(sprintf('%s?node=%s&sub=search', self::$scriptname, $this->node));
         }
         $this->data = array();
         array_map(self::$returnData, self::getClass($this->childClass)->getManager()->find());

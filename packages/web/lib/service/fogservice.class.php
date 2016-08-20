@@ -116,7 +116,7 @@ abstract class FOGService extends FOGBase
     }
     protected static function getDateTime()
     {
-        return self::nice_date()->format('m-d-y g:i:s a');
+        return self::niceDate()->format('m-d-y g:i:s a');
     }
     protected static function wlog($string, $path)
     {
@@ -254,7 +254,7 @@ abstract class FOGService extends FOGBase
                 $test = -1;
                 foreach ((array)$localfilescheck as $j => &$localfile) {
                     usleep(50000);
-                    if (false === ($index = $this->array_find(basename($localfile), $remotefilescheck))) {
+                    if (false === ($index = $this->arrayFind(basename($localfile), $remotefilescheck))) {
                         continue;
                     }
                     self::outall(" | Local File: $localfile");

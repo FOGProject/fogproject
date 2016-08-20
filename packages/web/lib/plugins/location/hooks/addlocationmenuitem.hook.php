@@ -11,7 +11,7 @@ class AddLocationMenuItem extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        $this->array_insert_after('storage', $arguments['main'], $this->node, array(_('Location Management'), 'fa fa-globe fa-2x'));
+        $this->arrayInsertAfter('storage', $arguments['main'], $this->node, array(_('Location Management'), 'fa fa-globe fa-2x'));
         $Service = self::getClass('Service')->set('name', 'FOG_SNAPIN_LOCATION_SEND_ENABLED')->load('name');
         if (!$Service->isValid()) {
             $Service

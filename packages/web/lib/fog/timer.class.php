@@ -27,7 +27,7 @@ class Timer extends FOGCron
     }
     public function toString()
     {
-        $runTime = self::nice_date()->setTimestamp($this->lngSingle);
+        $runTime = self::niceDate()->setTimestamp($this->lngSingle);
         return $runTime->format('r');
     }
     public function setDebug($blDebug)
@@ -36,8 +36,8 @@ class Timer extends FOGCron
     }
     private function shouldSingleRun()
     {
-        $CurrTime = self::nice_date();
-        $Time = self::nice_date()->setTimestamp($this->lngSingle);
+        $CurrTime = self::niceDate();
+        $Time = self::niceDate()->setTimestamp($this->lngSingle);
         return (bool)($Time <= $CurrTime);
     }
     public function shouldRunNow()

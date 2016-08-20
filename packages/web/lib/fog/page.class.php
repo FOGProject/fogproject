@@ -61,7 +61,7 @@ class Page extends FOGBase
                     'logout'=>array(self::$foglang['Logout'],'fa fa-sign-out fa-2x'),
                 );
                 if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
-                    $this->array_insert_after('about', $this->main, 'plugin', array(self::$foglang['Plugin Management'], 'fa fa-cog fa-2x'));
+                    $this->arrayInsertAfter('about', $this->main, 'plugin', array(self::$foglang['Plugin Management'], 'fa fa-cog fa-2x'));
                 }
             } else {
                 $this->main = array(

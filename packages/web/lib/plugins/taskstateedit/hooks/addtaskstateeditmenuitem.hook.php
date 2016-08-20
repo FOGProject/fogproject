@@ -11,7 +11,7 @@ class AddTaskstateeditMenuItem extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        $this->array_insert_after('task', $arguments['main'], $this->node, array(_('Task State Management'), 'fa fa-hourglass-start fa-2x'));
+        $this->arrayInsertAfter('task', $arguments['main'], $this->node, array(_('Task State Management'), 'fa fa-hourglass-start fa-2x'));
     }
     public function addSearch($arguments)
     {

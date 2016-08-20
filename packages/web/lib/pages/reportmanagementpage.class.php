@@ -159,7 +159,7 @@ class ReportManagementPage extends FOGPage
             $date1 = $_REQUEST['date2'];
             $date2 = $_REQUEST['date1'];
         }
-        $date2 = self::nice_date($date2)->modify('+1 day')->format('Y-m-d');
+        $date2 = self::niceDate($date2)->modify('+1 day')->format('Y-m-d');
         $csvHead = array(
             _('Engineer'),
             _('Storage Group'),
@@ -197,8 +197,8 @@ class ReportManagementPage extends FOGPage
                 continue;
             }
             $diff = $this->diff($start, $end);
-            $start = self::nice_date($start);
-            $end = self::nice_date($end);
+            $start = self::niceDate($start);
+            $end = self::niceDate($end);
             $Host = self::getClass('Host', $ImagingLog->get('hostID'));
             if (!$Host->isValid()) {
                 continue;
@@ -646,7 +646,7 @@ class ReportManagementPage extends FOGPage
             $virusName = $Virus->get('name');
             $virusFile = $Virus->get('file');
             $virusMode = ($Virus->get('mode') == 'q' ? _('Quarantine') : _('Report'));
-            $virusDate = self::nice_date($Virus->get('date'));
+            $virusDate = self::niceDate($Virus->get('date'));
             $this->data[] = array(
                 'host_name'=>$hostName,
                 'vir_id'=>$id,
@@ -941,7 +941,7 @@ class ReportManagementPage extends FOGPage
             if (!$Host->isValid()) {
                 continue;
             }
-            $date = self::nice_date($User->get('datetime'));
+            $date = self::niceDate($User->get('datetime'));
             $logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
             $this->data[] = array(
                 'action'=>$logintext,
@@ -1081,8 +1081,8 @@ class ReportManagementPage extends FOGPage
             if (!$SnapinTask->isValid()) {
                 continue;
             }
-            $start = self::nice_date($SnapinTask->get('checkin'));
-            $end = self::nice_date($SnapinTask->get('complete'));
+            $start = self::niceDate($SnapinTask->get('checkin'));
+            $end = self::niceDate($SnapinTask->get('complete'));
             if (!$this->validDate($start) || !$this->validDate($end)) {
                 continue;
             }

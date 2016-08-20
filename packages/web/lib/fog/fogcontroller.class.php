@@ -167,7 +167,7 @@ abstract class FOGController extends FOGBase
         try {
             $insertKeys = $insertValKeys = $insertValues = $updateValKeys = $updateValues = $updateData = $fieldData = array();
             if (count($this->aliasedFields)) {
-                $this->array_remove($this->aliasedFields, $this->databaseFields);
+                $this->arrayRemove($this->aliasedFields, $this->databaseFields);
             }
             array_walk($this->databaseFields, function (&$field, &$name) use (&$insertKeys, &$insertValKeys, &$insertValues, &$updateValKeys, &$updateValues, &$updateData) {
                 $key = sprintf('`%s`', trim($field));
@@ -392,7 +392,7 @@ abstract class FOGController extends FOGBase
             $classData = array_intersect_key((array)$queryData, $this->databaseFields);
         } else {
             array_walk($this->databaseFieldsFlipped, function (&$obj_key, &$db_key) use (&$classData) {
-                $this->array_change_key($classData, $db_key, $obj_key);
+                $this->arrayChangeKey($classData, $db_key, $obj_key);
                 unset($obj_key, $db_key);
             });
         }
