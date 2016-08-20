@@ -107,19 +107,22 @@ class DashboardPage extends FOGPage
         set_time_limit(0);
         $URLs = $StorageName = array();
         $Nodes = self::getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1, 'isEnabled'=>1));
-        array_map(function (&$StorageNode) use (&$URLs, &$StorageName) {
+        $bandwidthPath = self::getSetting('FOG_NFS_BANDWIDTHPATH');
+        foreach ($Nodes AS $StorageNode) {
             if (!$StorageNode->isValid()) {
-                return;
+                continue;
             }
-            $URL = filter_var(sprintf('http://%s/%s?dev=%s', $StorageNode->get('ip'), ltrim(self::getSetting('FOG_NFS_BANDWIDTHPATH'), '/'), $StorageNode->get('interface')), FILTER_SANITIZE_URL);
-            $avail = self::$FOGURLRequests->isAvailable($URL);
-            if (!$avail[0]) {
-                unset($StorageNodes[$index], $StorageNode, $index);
-                return;
-            }
-            $URLs[] = $URL;
+            $url = sprintf(
+                'http://%s/%s?dev=%s',
+                $StorageNode->get('ip'),
+                ltrim($bandwidthPath, '/'),
+                $StorageNode->get('interface')
+            );
+            $url = filter_var($url, FILTER_SANITIZE_URL);
+            $URLs[] = $url;
             $StorageName[] = $StorageNode->get('name');
-        }, (array)$Nodes);
+            unset($StorageNode);
+        }
         $dataSet = array_map(function (&$data) {
             return json_decode($data, true);
         }, self::$FOGURLRequests->process($URLs));

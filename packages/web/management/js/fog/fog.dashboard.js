@@ -116,7 +116,7 @@ $(function() {
     if (typeof(Graph30dayData) != 'undefined') Graph30DayData = [{label: 'Computers Imaged',data: JSONParseFunction(Graph30dayData)}];
     $.plot(Graph30Day,Graph30DayData,Graph30DayOpts);
     // Start counters
-    setInterval(UpdateBandwidth,bandwidthtime);
+    UpdateBandwidth();
     // Bandwidth Graph - TX/RX Filter
     GraphBandwidthFilters.click(function(e) {
         // Blur -> add active class -> remove active class from old active item
@@ -200,7 +200,7 @@ function UpdateBandwidth() {
         },
         dataType: 'json',
         success: function(data) {
-            setTimeout(UpdateBandwidthGraph(data),500);
+            setTimeout(UpdateBandwidthGraph(data), bandwidthtime);
         },
         error: function(jqXHR, textStatus) {
             console.log(textStatus);
@@ -212,7 +212,6 @@ function UpdateBandwidthGraph(data) {
     if (data === null || typeof(data) == 'undefined' || data.length == 0) return;
     //if (!GraphBandwidthOpts.colors) {
     //    GraphBandwidthOpts.colors = $.map(data,function(o,i) {
-    //        console.log(i);
     //        return '#'+('00000'+(Math.random()*(1<<24)|0).toString(16)).slice(-6);
     //    });
     //}
@@ -230,8 +229,6 @@ function UpdateBandwidthGraph(data) {
             GraphBandwidthData[i].dev = new Array();
             GraphBandwidthData[i].tx = new Array();
             GraphBandwidthData[i].rx = new Array();
-            GraphBandwidthData[i].tx_old = 0;
-            GraphBandwidthData[i].rx_old = 0;
         }
         while (GraphBandwidthData[i].tx.length >= GraphBandwidthMaxDataPoints) {
             GraphBandwidthData[i].tx.shift();
@@ -239,27 +236,17 @@ function UpdateBandwidthGraph(data) {
         }
         if (data[i] === null) data[i] = {dev: 'Unknown',tx: 0,rx:0};
         if (data[i].dev === 'Unknown' && GraphBandwidthData[i].dev !== 'Unknown') data[i].dev = GraphBandwidthData[i].dev;
-        if (data[i].tx === 0 && GraphBandwidthData[i].tx_old > 0) data[i].tx = GraphBandwidthData[i].tx_old;
-        if (data[i].rx === 0 && GraphBandwidthData[i].rx_old > 0) data[i].rx = GraphBandwidthData[i].rx_old;
-        data[i].tx = (data[i].tx > 0 ? data[i].tx / bandwidthtime : 0);
-        data[i].rx = (data[i].rx > 0 ? data[i].rx / bandwidthtime : 0);
-        // Set the old values and wait one second.
-        if (GraphBandwidthData[i].tx_old > 0 && data[i].tx > 0) {
-            tx_rate = Math.round(((data[i].tx - GraphBandwidthData[i].tx_old)));
-            GraphBandwidthData[i].tx.push([Now,tx_rate]);
-        } else GraphBandwidthData[i].tx.push([Now,0]);
-        if (GraphBandwidthData[i].rx_old > 0 && data[i].rx > 0) {
-            rx_rate = Math.round(((data[i].rx - GraphBandwidthData[i].rx_old)));
-            GraphBandwidthData[i].rx.push([Now,rx_rate]);
-        } else  GraphBandwidthData[i].rx.push([Now,0]);
+        tx_rate = data[i].tx / bandwidthtime * 8;
+        GraphBandwidthData[i].tx.push([Now,tx_rate]);
+        rx_rate = data[i].rx / bandwidthtime * 8;
+        GraphBandwidthData[i].rx.push([Now,rx_rate]);
         // Reset the old and new values for the next iteration.
         GraphBandwidthData[i].dev = data[i].dev;
-        GraphBandwidthData[i].tx_old = data[i].tx;
-        GraphBandwidthData[i].rx_old = data[i].rx;
     }
     GraphData = new Array();
     for (i in GraphBandwidthData) GraphData.push({label: i+' ('+GraphBandwidthData[i].dev+')', data: (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i].tx : GraphBandwidthData[i].rx)});
     $.plot(GraphBandwidth,GraphData,GraphBandwidthOpts);
+    UpdateBandwidth();
 }
 // Client Count Functions.
 function UpdateClientCount() {

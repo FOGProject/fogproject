@@ -27,6 +27,7 @@ session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
+$bandwidthtime =  FOGCore::getSetting('FOG_BANDWIDTH_TIME');
 /**
  * Lambda for returning the bytes from the file requested.
  *
@@ -67,11 +68,11 @@ $getBytes = function ($dev, $file) {
  *
  * @return int|double
  */
-$retval = function ($data) {
+$retval = function ($data) use ($bandwidthtime) {
     if (!(is_numeric($data) && $data > 0)) {
         return 0;
     } else {
-        return $data * 8 / 1024;
+        return round($data/1024, 2);
     }
 };
 // Make sure a device is set
@@ -127,16 +128,21 @@ if (!$dev) {
     exit;
 }
 // Set our rx and tx data values
-$rx_data = $getBytes($dev, 'rx_bytes');
-$tx_data = $getBytes($dev, 'tx_bytes');
+$rx_data[] = $getBytes($dev, 'rx_bytes');
+$tx_data[] = $getBytes($dev, 'tx_bytes');
+sleep($bandwidthtime);
+$rx_data[] = $getBytes($dev, 'rx_bytes');
+$tx_data[] = $getBytes($dev, 'tx_bytes');
 // Set our return data to converted.
-$rx = $retval($rx_data);
-$tx = $retval($tx_data);
+$rx = $rx_data[1] - $rx_data[0];
+$tx = $tx_data[1] - $tx_data[0];
+$rx = $retval($rx);
+$tx = $retval($tx);
 // Setup our return array
 $ret = array(
     'dev' => $dev,
     'rx' => $rx,
-    'tx' => $tx
+    'tx' => $tx,
 );
 // Return
 echo json_encode($ret);
