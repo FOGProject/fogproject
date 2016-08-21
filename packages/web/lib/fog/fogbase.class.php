@@ -1230,8 +1230,24 @@ abstract class FOGBase
     {
         return (($kilobytes / 8) * 1024);
     }
+    /**
+     * Converts hex to binary equivalent.
+     *
+     * @param mixed $hex the hex to convert.
+     *
+     * @return string
+     */
     protected function hex2bin($hex)
     {
+        /**
+         * Lambda to perform the action.
+         *
+         * If the function hex2bin exists, use it and return.
+         *
+         * @param mixed $keyToUnhex the key to convert
+         *
+         * @return string
+         */
         $hex2bin = function ($keyToUnhex) {
             if (function_exists('hex2bin')) {
                 return hex2bin($keyToUnhex);
@@ -1248,11 +1264,38 @@ abstract class FOGBase
         };
         return $hex2bin($hex);
     }
+    /**
+     * Create security token
+     *
+     * @return string
+     */
     protected function createSecToken()
     {
-        $token = sprintf('%s%s', md5(uniqid(mt_rand(), true)), md5(uniqid(mt_rand(), true)));
-        return trim(bin2hex($token));
+        /**
+         * Lambda to create random data.
+         *
+         * @return string
+         */
+        $randGen = function () {
+            $rand = mt_rand();
+            $uniq = uniqid($rand, true);
+            return md5($uniq);
+        };
+        $token = sprintf(
+            '%s%s',
+            $randGen(),
+            $randGen()
+        );
+        $token = bin2hex($token);
+        return trim($token);
     }
+    /**
+     * Encrypt the data passed.
+     *
+     * @param string $pass the item to encrypt
+     *
+     * @return string
+     */
     protected function encryptpw($pass)
     {
         $decrypt = $this->aesdecrypt($pass);
@@ -1262,8 +1305,22 @@ abstract class FOGBase
         }
         return ($newpass ? $this->aesencrypt($newpass) : '');
     }
-    public function aesencrypt($data, $key = false, $enctype = MCRYPT_RIJNDAEL_128, $mode = MCRYPT_MODE_CBC)
-    {
+    /**
+     * AES Encrypt function
+     *
+     * @param mixed  $data    the item to encrypt
+     * @param string $key     the key to use if false will generate own.
+     * @param int    $enctype the type of encryption to use
+     * @param int    $mode    the mode of encryption
+     *
+     * @return string
+     */
+    public function aesencrypt(
+        $data,
+        $key = false,
+        $enctype = MCRYPT_RIJNDAEL_128,
+        $mode = MCRYPT_MODE_CBC
+    ) {
         $iv_size = mcrypt_get_iv_size($enctype, $mode);
         if (!$key) {
             $addKey = true;
@@ -1273,10 +1330,32 @@ abstract class FOGBase
         }
         $iv = mcrypt_create_iv($iv_size, MCRYPT_DEV_URANDOM);
         $cipher = mcrypt_encrypt($enctype, $key, $data, $mode, $iv);
-        return sprintf('%s|%s%s', bin2hex($iv), bin2hex($cipher), ($addKey ? sprintf('|%s', bin2hex($key)) : ''));
+        $iv = bin2hex($iv);
+        $cipher = bin2hex($cipher);
+        $key = bin2hex($key);
+        return sprintf(
+            '%s|%s%s',
+            $iv,
+            $cipher,
+            $addKey ? sprintf('|%s', $key) : ''
+        );
     }
-    public function aesdecrypt($encdata, $key = false, $enctype = MCRYPT_RIJNDAEL_128, $mode = MCRYPT_MODE_CBC)
-    {
+    /**
+     * AES Decrypt function
+     *
+     * @param mixed  $encdata the item to decrypt
+     * @param string $key     the key to use
+     * @param int    $enctype the type of encryption to use
+     * @param int    $mode    the mode of encryption
+     *
+     * @return string
+     */
+    public function aesdecrypt(
+        $encdata,
+        $key = false,
+        $enctype = MCRYPT_RIJNDAEL_128,
+        $mode = MCRYPT_MODE_CBC
+    ) {
         $iv_size = mcrypt_get_iv_size($enctype, $mode);
         $data = explode('|', $encdata);
         $iv = pack('H*', $data[0]);
@@ -1290,6 +1369,16 @@ abstract class FOGBase
         $decipher = mcrypt_decrypt($enctype, $key, $encoded, $mode, $iv);
         return trim($decipher);
     }
+    /**
+     * Encrypts the data using the host information.
+     * Really just an alias to aesencrypt for now.
+     *
+     * @param mixed $data the data to encrypt
+     * @param Host  $Host the host item to use
+     *
+     * @throws Exception
+     * @return string
+     */
     protected function certEncrypt($data, $Host)
     {
         if (!$Host || !$Host->isValid()) {
@@ -1300,26 +1389,42 @@ abstract class FOGBase
         }
         return $this->aesencrypt($data, $Host->get('pub_key'));
     }
+    /**
+     * Decrypts the information passed.
+     *
+     * @param mixed $dataArr the data to decrypt
+     * @param bool  $padding to use padding or not.
+     *
+     * @throws Exception
+     * @return mixed
+     */
     protected function certDecrypt($dataArr, $padding = true)
     {
-        //$this->getIPAddress();
         if ($padding) {
             $padding = OPENSSL_PKCS1_PADDING;
         } else {
             $padding = OPENSSL_NO_PADDING;
         }
+        $tmpssl = array();
         $sslfile = self::getSubObjectIDs('StorageNode', '', 'sslpath');
-        $tmpssl = array_map(function (&$path) {
+        foreach ($sslfile AS &$path) {
             if (!file_exists($path) || !is_readable($path)) {
-                return null;
+                continue;
             }
-            return $path;
-        }, (array)self::getSubObjectIDs('StorageNode', '', 'sslpath'));
-        $tmpssl = array_values(array_filter($tmpssl));
+            $tmpssl[] = $path;
+        }
         if (count($tmpssl) < 1) {
             throw new Exception(_('Private key path not found'));
         }
-        $sslfile = sprintf('%s%s.srvprivate.key', preg_replace('#[\\/]#', DIRECTORY_SEPARATOR, $tmpssl[0]), DIRECTORY_SEPARATOR);
+        $sslfile = sprintf(
+            '%s%s.srvprivate.key',
+            preg_replace(
+                '#[\\/]#',
+                DIRECTORY_SEPARATOR,
+                $tmpssl[0]
+            ),
+            DIRECTORY_SEPARATOR
+        );
         unset($tmpssl);
         if (!file_exists($sslfile)) {
             throw new Exception(_('Private key not found'));
@@ -1327,29 +1432,47 @@ abstract class FOGBase
         if (!is_readable($sslfile)) {
             throw new Exception(_('Private key not readable'));
         }
-        if (!($priv_key = openssl_pkey_get_private(file_get_contents($sslfile)))) {
+        $sslfilecontents = file_get_contents($sslfile);
+        $priv_key = openssl_pkey_get_private($sslfilecontents);
+        if (!$priv_key) {
             throw new Exception(_('Private key failed'));
         }
         $a_key = openssl_pkey_get_details($priv_key);
-        $chunkSize = ceil($a_key['bits']/8);
-        $output = array_map(function (&$data) use ($chunkSize, $priv_key, $padding) {
+        $chunkSize = ceil($a_key['bits'] / 8);
+        $output = array();
+        foreach ((array)$dataArr AS &$data) {
             $dataun = '';
             while ($data) {
                 $data = $this->hex2bin($data);
                 $chunk = substr($data, 0, $chunkSize);
                 $data = substr($data, $chunkSize);
                 $decrypt = '';
-                if (!openssl_private_decrypt($chunk, $decrypt, $priv_key, $padding)) {
+                $test = openssl_private_decrypt(
+                    $chunk,
+                    $decrypt,
+                    $priv_key,
+                    $padding
+                );
+                if (!$test) {
                     throw new Exception(_('Failed to decrypt data'));
                 }
                 $dataun .= $decrypt;
             }
             unset($data);
-            return $dataun;
-        }, (array)$dataArr);
+            $output[] = $dataun;
+        }
         openssl_free_key($priv_key);
         return (array)$output;
     }
+    /**
+     * Cycle the macs and return valid
+     *
+     * @param string|array $stringlist the macs to parse
+     * @param bool         $image      check if image type ignored
+     * @param bool         $client     check if client type ignored
+     *
+     * @return array
+     */
     public function parseMacList($stringlist, $image = false, $client = false)
     {
         $MAClist = array();
@@ -1357,77 +1480,180 @@ abstract class FOGBase
         $lowerAndTrim = function ($element) {
             return strtolower(trim($element));
         };
-        if (!is_array($stringlist) && strpos($stringlist, '|')) {
-            $MACs = array_values(array_filter(array_unique(array_map($lowerAndTrim, (array)explode('|', $stringlist)))));
+        if (!is_array($stringlist)) {
+            $MACs = array_map($lowerAndTrim, explode('|', $stringlist));
         } else {
-            $MACs = array_values(array_filter(array_unique(array_map($lowerAndTrim, (array)$stringlist))));
+            $MACs = array_map($lowerAndTrim, $stringlist);
         }
-        if (self::getClass('MACAddressAssociationManager')->count(array('mac'=>$MACs))) {
-            $MACs = array_unique(array_merge((array)$MACs, (array)array_values(array_filter(array_unique(array_map($lowerAndTrim, (array)self::getSubObjectIDs('MACAddressAssociation', array('mac'=>$MACs, 'pending'=>array('0', '')), 'mac')))))));
+        $MACs = array_filter($MACs);
+        $MACs = array_unique($MACs);
+        $MACs = array_values($MACs);
+        $count = self::getClass('MACAddressAssociationManager')->count(
+            array(
+                'mac' => $MACs,
+                'pending' => array(0, ''),
+            )
+        );
+        if ($count > 0) {
+            $existingMACs = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array(
+                    'mac' => $MACs,
+                    'pending' => array(0, ''),
+                ),
+                'mac'
+            );
+            $existingMACs = array_map($lowerAndTrim, $existingMACs);
+            $existingMACs = array_filter($existingMACs);
+            $existingMACs = array_unique($existingMACs);
+            $existingMACs = array_values($existingMACs);
+            $MACs = array_merge((array)$MACs, (array)$existingMACs);
+            $MACs = array_unique($MACs);
         }
         if ($client) {
-            $ClientIgnoredMACs = array_map($lowerAndTrim, (array)self::getSubObjectIDs('MACAddressAssociation', array('mac'=>$MACs, 'clientIgnore'=>1), 'mac'));
-            $MACs = array_diff((array)$MACs, (array)$ClientIgnoredMACs);
-            unset($ClientIgnoredMACs);
+            $clientIgnored = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array(
+                    'mac' => $MACs,
+                    'clientIgnore' => 1
+                ),
+                'mac'
+            );
+            $clientIgnored = array_map($lowerAndTrim, $clientIgnored);
+            $MACs = array_diff((array)$MACs, (array)$clientIgnored);
+            unset($clientIgnored);
         }
         if ($image) {
-            $ImageIgnoredMACs = array_map($lowerAndTrim, (array)self::getSubObjectIDs('MACAddressAssociation', array('mac'=>$MACs, 'imageIgnore'=>1), 'mac'));
-            $MACs = array_diff((array)$MACs, (array)$ImageIgnoredMACs);
-            unset($ImageIgnoredMACs);
+            $imageIgnored = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array(
+                    'mac' => $MACs,
+                    'imageIgnore' => 1
+                ),
+                'mac'
+            );
+            $imageIgnored = array_map($lowerAndTrim, (array)$imageIgnored);
+            $MACs = array_diff((array)$MACs, (array)$imageIgnored);
+            unset($imageIgnored);
         }
-        $MACs = array_values(array_unique(array_filter((array)$MACs)));
-        $Ignore = (array)array_filter(array_map($lowerAndTrim, (array)explode(',', self::getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
-        if (count($Ignore)) {
-            $MACs = array_values(array_unique(array_filter(array_diff((array)$MACs, preg_grep(sprintf('#%s#i', implode('|', (array)$Ignore)), $MACs)))));
+        $MACs = array_filter($MACs);
+        $MACs = array_unique($MACs);
+        $MACs = array_values($MACs);
+        $pending_filter = explode(
+            ',',
+            self::getSetting('FOG_QUICKREG_PENDING_MAC_FILTER')
+        );
+        $Ignore = array_map($lowerAndTrim, $pending_filter);
+        $Ignore = array_filter($Ignore);
+        if (count($Ignore) > 0) {
+            $pattern = sprintf(
+                '#%s#i',
+                implode('|', (array)$Ignore)
+            );
+            $found_macs = preg_grep($pattern, $MACs);
+            $MACs = array_diff($MACs, $found_macs);
+            $MACs = array_filter($MACs);
+            $MACs = array_unique($MACs);
+            $MACs = array_values($MACs);
         }
-        $MACs = array_filter(array_map(function (&$MAC) {
+        $validMACs = array();
+        foreach ($MACs AS &$MAC) {
             $MAC = self::getClass('MACAddress', $MAC);
-            if ($MAC->isValid()) {
-                return $MAC;
+            if (!$MAC->isValid()) {
+                continue;
             }
-        }, (array)$MACs));
-        if (!count($MACs)) {
+            $validMACs[] = $MAC;
+        }
+        $validMACs = array_filter($validMACs);
+        if (!count($validMACs)) {
             return false;
         }
-        return (array)$MACs;
+        return $validMACs;
     }
+    /**
+     * Prints the data encrypted as needed.
+     *
+     * @param string $datatosend the data to send
+     * @param bool   $service    if not a service simpy return.
+     *
+     * @return string
+     */
     protected function sendData($datatosend, $service = true)
     {
         if (!$service) {
             return;
         }
         try {
-            if (self::niceDate() >= self::niceDate($this->Host->get('sec_time'))) {
+            $datatosend = trim($datatosend);
+            $curdate = self::niceDate();
+            $secdate = self::niceDate($this->Host->get('sec_time'));
+            if ($curdate >= $secdate) {
                 $this->Host->set('pub_key', '')->save();
             }
             global $sub;
             if ($this->newService) {
-                printf('#!enkey=%s', $this->certEncrypt(trim($datatosend), $this->Host));
+                printf(
+                    '#!enkey=%s',
+                    $this->certEncrypt($datatosend, $this->Host)
+                );
+                exit;
             } else {
-                echo trim($datatosend);
+                echo $datatosend;
+                exit;
             }
-            exit;
         } catch (Exception $e) {
             if ($this->json) {
-                return array('error'=>preg_replace('/^[#][!]?/', '', $e->getMessage()));
+                $repData = preg_replace('/^[#][!]?/', '', $e->getMessage());
+                return array(
+                    'error' => $repData,
+                );
             }
             throw new Exception($e->getMessage());
         }
     }
-    protected function array_strpos($haystack, $needles, $case = true)
+    /**
+     * Checks if an array of needles is found in the main array.
+     *
+     * @param array $haystack the array to search
+     * @param array $needles  the items to test for
+     * @param bool  $case     whether to be case insensitive
+     *
+     * @return bool
+     */
+    protected function arrayStrpos($haystack, $needles, $case = true)
     {
         $cmd = sprintf('str%spos', ($case ? 'i' : ''));
-        $mapinfo = array_map(function (&$needle) use ($haystack, $needles, $cmd) {
-            return (bool)$cmd($haystack, $needle);
-        }, (array)$needles);
-        return (bool)count(array_filter($mapinfo));
+        $mapinfo = array();
+        foreach ((array)$needles AS &$needle) {
+            $mapinfo[] = $cmd($haystack, $needle);
+        }
+        $mapinfo = array_filter($mapinfo);
+        return count($mapinfo) > 0;
     }
+    /**
+     * Log the data
+     *
+     * @param string $txt   the text to log
+     * @param int    $level the level of the logging
+     *
+     * @throws Exception
+     * @return void
+     */
     protected function log($txt, $level = 1)
     {
+        if (!is_string($txt)) {
+            throw new Exception(_('Txt must be a string'));
+        }
+        if (!is_int($level)) {
+            throw new Exception(_('Level must be an integer'));
+        }
         if (self::$ajax) {
             return;
         }
-        $txt = trim(preg_replace(array("#\r#", "#\n#", '#\s+#', '# ,#'), array('', ' ', ' ', ','), $txt));
+        $findStr = array("#\r#", "#\n#", '#\s+#', '# ,#');
+        $repStr = array('', ' ', ' ', ',');
+        $txt = preg_replace($findStr, $repStr, $txt);
+        $txt = trim($txt);
         if (empty($txt)) {
             return;
         }
@@ -1437,8 +1663,18 @@ abstract class FOGBase
         }
         $this->logHistory($txt);
     }
+    /**
+     * Log to history table
+     *
+     * @param string $string the string to store
+     *
+     * @return void
+     */
     protected function logHistory($string)
     {
+        if (!is_string($string)) {
+            throw new Exception(_('String must be a string'));
+        }
         if (!self::$FOGUser->isValid()) {
             return;
         }
@@ -1457,6 +1693,13 @@ abstract class FOGBase
                 ->save();
         }
     }
+    /**
+     * Sets the order by element of sql
+     *
+     * @param string $orderBy the string to order by
+     *
+     * @return void
+     */
     public function orderBy(&$orderBy)
     {
         if (empty($orderBy)) {
@@ -1476,8 +1719,30 @@ abstract class FOGBase
             }
         }
     }
-    public static function getSubObjectIDs($object = 'Host', $findWhere = array(), $getField = 'id', $not = false, $operator = 'AND', $orderBy = 'name', $groupBy = false, $filter = 'array_unique')
-    {
+    /**
+     * Gets the object ids only.
+     *
+     * @param string $object    The object to use
+     * @param array  $findWhere How to find the elements we need
+     * @param string $getField  The field value to return
+     * @param mixed  $not       DB to search with not or no not
+     * @param string $operator  How to join strings (And or Or)
+     * @param mixed  $orderBy   Order the return by
+     * @param mixed  $groupBy   Group the return by
+     * @param string $filter    How to filter the data returning
+     *
+     * @return array
+     */
+    public static function getSubObjectIDs(
+        $object = 'Host',
+        $findWhere = array(),
+        $getField = 'id',
+        $not = false,
+        $operator = 'AND',
+        $orderBy = 'name',
+        $groupBy = false,
+        $filter = 'array_unique'
+    ) {
         if (empty($object)) {
             $object = 'Host';
         }
@@ -1487,42 +1752,120 @@ abstract class FOGBase
         if (empty($operator)) {
             $operator = 'AND';
         }
-        return self::getClass($object)->getManager()->find($findWhere, $operator, $orderBy, '', '', $groupBy, $not, $getField, '', $filter);
+        return self::getClass($object)->getManager()->find(
+            $findWhere,
+            $operator,
+            $orderBy,
+            '',
+            '',
+            $groupBy,
+            $not,
+            $getField,
+            '',
+            $filter
+        );
     }
+    /**
+     * Get global setting value by key
+     *
+     * @param string $key What to get
+     *
+     * @throws Exception
+     * @return string
+     */
     public static function getSetting($key)
     {
-        return trim(str_replace('\r\n', "\n", self::getClass('Service')->set('name', $key)->load('name')->get('value')));
+        if (!is_string($key)) {
+            throw new Exception(_('Key must be a string'));
+        }
+        $findStr = '\r\n';
+        $repStr = "\n";
+        $value = self::getClass('Service')->set('name', $key);
+        $value = $value->load('name')->get('value');
+        return trim(str_replace($findStr, $repStr, $value));
     }
+    /**
+     * Set global setting value by key
+     *
+     * @param string $key   What to set
+     * @param string $value Value to set
+     *
+     * @throws Exception
+     * @return this
+     */
     public function setSetting($key, $value)
     {
-        self::getClass('ServiceManager')->update(array('name'=>$key), '', array('value'=>trim($value)));
+        self::getClass('ServiceManager')->update(
+            array('name' => $key),
+            '',
+            array('value' => trim($value))
+        );
         return $this;
     }
+    /**
+     * Gets queued state ids
+     *
+     * @return array
+     */
     public function getQueuedStates()
     {
         return (array)self::getClass('TaskState')->getQueuedStates();
     }
+    /**
+     * Get queued state main id
+     *
+     * @return int
+     */
     public function getQueuedState()
     {
         return self::getClass('TaskState')->getQueuedState();
     }
+    /**
+     * Get checked in state id
+     *
+     * @return int
+     */
     public function getCheckedInState()
     {
         return self::getClass('TaskState')->getCheckedInState();
     }
+    /**
+     * Get in progress state id
+     *
+     * @return int
+     */
     public function getProgressState()
     {
         return self::getClass('TaskState')->getProgressState();
     }
+    /**
+     * Get complete state id
+     *
+     * @return int
+     */
     public function getCompleteState()
     {
         return self::getClass('TaskState')->getCompleteState();
     }
+    /**
+     * Get cancelled state id
+     *
+     * @return int
+     */
     public function getCancelledState()
     {
         return self::getClass('TaskState')->getCancelledState();
     }
-    public function string_between($string, $start, $end)
+    /**
+     * Put string between two strings
+     *
+     * @param string $string the string to insert
+     * @param string $start  the string to place after
+     * @param string $end    the string to place before
+     *
+     * @return string
+     */
+    public function stringBetween($string, $start, $end)
     {
         $string = " $string";
         $ini = strpos($string, $start);
@@ -1533,50 +1876,85 @@ abstract class FOGBase
         $len = strpos($string, $end, $ini) - $ini;
         return substr($string, $ini, $len);
     }
+    /**
+     * Strips and decodes items
+     *
+     * @param mixed $item the item to strip and decode
+     *
+     * @return mixed
+     */
     public static function stripAndDecode(&$item)
     {
-        $item = (array)$item;
-        array_walk($item, function (&$val, &$key) {
-            $tmp = trim(base64_decode(preg_replace('# #', '+', $val)));
-            if (isset($tmp) && mb_detect_encoding($tmp, 'utf-8', true)) {
+        foreach ((array)$item AS &$val) {
+            $tmp = preg_replace('# #', '+', $val);
+            $tmp = base64_decode($tmp);
+            $tmp = trim($tmp);
+            if (mb_detect_encoding($tmp, 'utf-8', true)) {
                 $val = $tmp;
             }
             unset($tmp);
             $val = trim($val);
-        });
+        }
         return $item;
     }
+    /**
+     * Gets the master interface based on the ip found
+     *
+     * @param string $ip_find the interface ip's to find
+     *
+     * @return string
+     */
     public static function getMasterInterface($ip_find)
     {
         if (count(self::$interface) > 0) {
             return self::$interface;
         }
         self::getIPAddress();
-        exec("/sbin/ip route | grep '$ip_find' | awk -F'[ /]+' '/src/ {print $4}'", $Interfaces, $retVal);
+        exec(
+            "/sbin/ip route | grep '$ip_find' | awk -F'[ /]+' '/src/ {print $4}'",
+            $Interfaces,
+            $retVal
+        );
+        $ip_find = trim($ip_find);
+        if (!$ip_find) {
+            return;
+        }
+        self::$interface = array();
         $index = 0;
-        self::$interface = array_filter(array_map(function (&$IP) use ($Interfaces, &$index, $ip_find) {
-            if (!in_array($IP, self::$ips)) {
-                return;
+        foreach ((array)self::$ips AS &$ip) {
+            $ip = trim($ip);
+            if ($ip_find !== $ip) {
+                continue;
             }
-            if (trim($ip_find) !== trim($IP)) {
-                return;
-            }
-            $ret = $Interfaces[$index];
-            $index++;
-            return $ret;
-        }, (array)self::$ips));
-        self::$interface = array_shift(self::$interface);
-        return self::$interface;
+            self::$interface[] = $Interfaces[$index++];
+        }
+        if (count(self::$interface) < 1) {
+            return false;
+        }
+        return self::$interface[0];
     }
+    /**
+     * Get IP Addresses of the server
+     *
+     * @return array
+     */
     protected static function getIPAddress()
     {
         if (count(self::$ips) > 0) {
             return self::$ips;
         }
         $output = array();
-        exec("/sbin/ip -4 addr | awk -F'[ /]+' '/global/ {print $3}'", $IPs, $retVal);
+        exec(
+            "/sbin/ip -4 addr | awk -F'[ /]+' '/global/ {print $3}'",
+            $IPs,
+            $retVal
+        );
         if (!count($IPs)) {
-            exec("/sbin/ifconfig -a | awk -F'[ /:]+' '/(cast)/ {print $4}'", $IPs, $retVal);
+            exec(
+                "/sbin/ifconfig -a | awk -F'[ /:]+' '/(cast)/ {print $4}'",
+                $IPs,
+                $retVal
+            );
         }
         $sock = fsockopen('ipinfo.io', 80);
         if ($sock !== false) {
@@ -1609,25 +1987,33 @@ abstract class FOGBase
         self::$ips = array_values(array_filter(array_unique((array)$output)));
         return self::$ips;
     }
-    public static function moveFiles($oldname, $newname)
-    {
-        $src = trim($oldname);
-        $dest = trim($newname);
-        if (!$src || !$dest) {
-            return false;
-        }
-        $src = preg_replace('#[\\/]#', DIRECTORY_SEPARATOR, sprintf('%s/%s', dirname($src), basename($src)));
-        $dest = preg_replace('#[\\/]#', DIRECTORY_SEPARATOR, sprintf('%s/%s', dirname($dest), basename($dest)));
-        if (!file_exists($src)) {
-            return false;
-        }
-        return rename($src, $dest);
-    }
+    /**
+     * Returns the last error
+     *
+     * @return string
+     */
     public static function lasterror()
     {
         $error = error_get_last();
-        return sprintf('%s: %s, %s: %s, %s: %s, %s: %s', _('Type'), $error['type'], _('File'), $error['file'], _('Line'), $error['line'], _('Message'), $error['message']);
+        return sprintf(
+            '%s: %s, %s: %s, %s: %s, %s: %s',
+            _('Type'),
+            $error['type'],
+            _('File'),
+            $error['file'],
+            _('Line'),
+            $error['line'],
+            _('Message'),
+            $error['message']
+        );
     }
+    /**
+     * Gets the filesize in a non-arch dependent way
+     *
+     * @param string $file the file to get size of
+     *
+     * @return string|int|double
+     */
     public static function getFilesize($file)
     {
         $fh = fopen($file, 'rb');

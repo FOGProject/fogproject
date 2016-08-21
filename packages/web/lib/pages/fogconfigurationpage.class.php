@@ -914,11 +914,11 @@ class FOGConfigurationPage extends FOGPage
                 $logtype = 'access';
                 array_map($logparse, (array)$apacheacclog);
                 foreach ((array)$imgtransferlogs as &$file) {
-                    $files[$StorageNode->get('name')][sprintf('%s %s', $this->string_between($file, 'transfer.', '.log'), _('Image Transfer Log'))] = $file;
+                    $files[$StorageNode->get('name')][sprintf('%s %s', $this->stringBetween($file, 'transfer.', '.log'), _('Image Transfer Log'))] = $file;
                     unset($file);
                 }
                 foreach ((array)$snptransferlogs as &$file) {
-                    $files[$StorageNode->get('name')][sprintf('%s %s', $this->string_between($file, 'transfer.', '.log'), _('Snapin Transfer Log'))] = $file;
+                    $files[$StorageNode->get('name')][sprintf('%s %s', $this->stringBetween($file, 'transfer.', '.log'), _('Snapin Transfer Log'))] = $file;
                     unset($file);
                 }
                 $files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);

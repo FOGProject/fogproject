@@ -183,7 +183,7 @@ class Host extends FOGController
                 }, (array)$this->get('additionalMACs')))));
                 $DBPriMACs = self::getSubObjectIDs('MACAddressAssociation', array('primary'=>1), 'mac');
                 array_map(function (&$MAC) use ($RealAddMACs) {
-                    if ($this->array_strpos($MAC, $RealAddMACs) !== false) {
+                    if ($this->arrayStrpos($MAC, $RealAddMACs) !== false) {
                         throw new Exception(_('Cannot add Primary mac as additional mac'));
                     }
                     unset($MAC);
@@ -217,7 +217,7 @@ class Host extends FOGController
                     }, (array)$this->get('pendingMACs'));
                     $DBPriMACs = self::getSubObjectIDs('MACAddressAssociation', array('primary'=>1), 'mac');
                     array_map(function (&$DBPriMAC) use ($RealPendMACs) {
-                        if ($this->array_strpos($DBPriMAC, $RealPendMACs) !== false) {
+                        if ($this->arrayStrpos($DBPriMAC, $RealPendMACs) !== false) {
                             throw new Exception(_('Cannot add a pre-existing Primary MAC as a pending MAC'));
                         }
                         unset($DBPriMAC);
