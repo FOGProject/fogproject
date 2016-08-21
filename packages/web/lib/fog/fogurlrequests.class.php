@@ -200,17 +200,6 @@ class FOGURLRequests extends FOGBase
         }
         return $this->execute();
     }
-    public function isAvailable($url)
-    {
-        $this->timeout = 1;
-        $request = self::getClass('FOGRollingURL', $url);
-        $request->options[CURLOPT_HEADER] = true;
-        $request->options[CURLOPT_NOBODY] = true;
-        $request->options[CURLOPT_CONNECTTIMEOUT] = 1;
-        $request->options[CURLOPT_TIMEOUT] = 1;
-        $this->add($request);
-        return $this->execute();
-    }
     public function download($file, $chunks = 2048)
     {
         set_time_limit(0);

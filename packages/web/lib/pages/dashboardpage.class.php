@@ -145,11 +145,6 @@ class DashboardPage extends FOGPage
             $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
             $URL = filter_var(sprintf('http://%s%sstatus/freespace.php?path=%s', $this->obj->get('ip'), $webroot, base64_encode($this->obj->get('path'))), FILTER_SANITIZE_URL);
             unset($curroot, $webroot);
-            $avail = self::$FOGURLRequests->isAvailable($URL);
-            if (!$avail[0]) {
-                unset($StorageNodes[$index], $StorageNode, $index);
-                return;
-            }
             if (!filter_var($URL, FILTER_VALIDATE_URL)) {
                 throw new Exception('%s: %s', _('Invalid URL'), $URL);
             }
@@ -181,12 +176,6 @@ class DashboardPage extends FOGPage
             $curroot = trim(trim($Node->get('webroot'), '/'));
             $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
             $URL = filter_var(sprintf('http://%s%sindex.php', $Node->get('ip'), $webroot), FILTER_SANITIZE_URL);
-            $avail = self::$FOGURLRequests->isAvailable($URL);
-            if (!$avail[0]) {
-                $ActivityTotalClients -= $Node->get('maxClients');
-                unset($StorageNodes[$index], $StorageNode, $index);
-                return;
-            }
             $ActivityActive += $Node->getUsedSlotCount();
             $ActivityQueued += $Node->getQueuedSlotCount();
             if ($ActivityTotalClients <= 0) {
