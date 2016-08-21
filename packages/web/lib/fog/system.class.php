@@ -34,11 +34,12 @@ class System
         $msg = '';
         if (false === version_compare(PHP_VERSION, PHP_REQUIRED, '>=')) {
             $msg = sprintf(
-                '%s. %s %s, %s 5.3.0 %s.',
+                '%s. %s %s, %s %s %s.',
                 _('Your system PHP Version is not sufficient'),
                 _('You have version'),
                 PHP_VERSION,
                 _('version'),
+                PHP_REQUIRED,
                 _('is required')
             );
         }
@@ -54,7 +55,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '38');
+        define('FOG_VERSION', '39');
         define('FOG_SCHEMA', 233);
         define('FOG_BCACHE_VER', 99);
         define('FOG_SVN_REVISION', 5951);
