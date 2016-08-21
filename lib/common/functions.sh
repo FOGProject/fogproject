@@ -1632,35 +1632,69 @@ configureHttpd() {
     [[ -z $snmysqlhost ]] && snmysqlhost='127.0.0.1'
     [[ -z $snmysqluser ]] && snmysqluser='root'
     echo "<?php
-class Config {
-    /** @function __construct() Calls the required functions to define items
+/**
+ * The main configuration FOG uses.
+ *
+ * PHP Version 5
+ *
+ * Constructs the configuration we need to run FOG.
+ *
+ * @category Config
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * The main configuration FOG uses.
+ *
+ * @category Config
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+class Config
+{
+    /**
+     * Calls the required functions to define items
+     *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         self::db_settings();
         self::svc_setting();
-        if (\$_REQUEST['node'] == 'schema') self::init_setting();
+        if (\$_REQUEST['node'] == 'schema') {
+            self::init_setting();
+        }
     }
-    /** @function db_settings() Defines the database settings for FOG
+    /**
+     * Defines the database settings for FOG
+     *
      * @return void
      */
-    private static function db_settings() {
+    private static function db_settings()
+    {
         define('DATABASE_TYPE','mysql'); // mysql or oracle
         define('DATABASE_HOST','$snmysqlhost');
         define('DATABASE_NAME','fog');
         define('DATABASE_USERNAME','$snmysqluser');
         define('DATABASE_PASSWORD',\"$snmysqlpass\");
     }
-    /** @function svc_setting() Defines the service settings
-     * (e.g. FOGMulticastManager)
+    /**
+     * Defines the service settings
+     *
      * @return void
      */
-    private static function svc_setting() {
+    private static function svc_setting()
+    {
         define('UDPSENDERPATH','/usr/local/sbin/udp-sender');
         define('MULTICASTINTERFACE','${interface}');
         define('UDPSENDER_MAXWAIT',null);
     }
-    /** @function init_setting() Initial values if fresh install are set here
+    /**
+     * Initial values if fresh install are set here
      * NOTE: These values are only used on initial
      * installation to set the database values.
      * If this is an upgrade, they do not change
@@ -1668,9 +1702,11 @@ class Config {
      * Please use FOG Configuration->FOG Settings
      * to change these values after everything is
      * setup.
+     *
      * @return void
      */
-    private static function init_setting() {
+    private static function init_setting()
+    {
         define('TFTP_HOST', \"${ipaddress}\");
         define('TFTP_FTP_USERNAME', \"${username}\");
         define('TFTP_FTP_PASSWORD', \"${password}\");
@@ -1696,10 +1732,10 @@ class Config {
         define('QUEUESIZE', '10');
         define('CHECKIN_TIMEOUT',600);
         define('USER_MINPASSLENGTH',4);
-        define('USER_VALIDPASSCHARS','1234567890ABCDEFGHIJKLMNOPQRSTUVWZXYabcdefghijklmnopqrstuvwxyz_()^!#-');
         define('NFS_ETH_MONITOR', \"${interface}\");
         define('UDPCAST_INTERFACE', \"${interface}\");
-        define('UDPCAST_STARTINGPORT', 63100 ); // Must be an even number! recommended between 49152 to 65535
+        // Must be an even number! recommended between 49152 to 65535
+        define('UDPCAST_STARTINGPORT', 63100 );
         define('FOG_MULTICAST_MAX_SESSIONS',64);
         define('FOG_JPGRAPH_VERSION', '2.3');
         define('FOG_REPORT_DIR', './reports/');
