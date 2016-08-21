@@ -200,6 +200,11 @@ class FOGURLRequests extends FOGBase
         }
         return $this->execute();
     }
+    public function isAvailable($url)
+    {
+        $headers = @get_headers($url);
+        return (bool)strpos($headers[0], '404') === false && $headers !== false;
+    }
     public function download($file, $chunks = 2048)
     {
         set_time_limit(0);

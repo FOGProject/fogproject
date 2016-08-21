@@ -74,6 +74,14 @@ class DashboardPage extends FOGPage
                 $curroot = trim(trim($StorageNode->get('webroot'), '/'));
                 $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : '/'));
                 $URL = filter_var(sprintf('http://%s%sservice/getversion.php', $ip, $webroot), FILTER_SANITIZE_URL);
+                $testurl = sprintf(
+                    'http://%s%smanagement/index.php',
+                    $StorageNode->get('ip'),
+                    $webroot
+                );
+                if (!self::$FOGURLRequests->isAvailable($testurl)) {
+                    return;
+                }
                 unset($ip, $curroot, $webroot);
                 printf('<option value="%s" urlcall="%s">%s%s ()</option>', $StorageNode->get('id'), $URL, $StorageNode->get('name'), ($StorageNode->get('isMaster') ? ' *' : ''));
                 unset($version, $StorageNode);
@@ -118,6 +126,16 @@ class DashboardPage extends FOGPage
                 ltrim($bandwidthPath, '/'),
                 $StorageNode->get('interface')
             );
+            $curroot = trim(trim($StorageNode->get('webroot'), '/'));
+            $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
+            $testurl = sprintf(
+                'http://%s%smanagement/index.php',
+                $StorageNode->get('ip'),
+                $webroot
+            );
+            if (!self::$FOGURLRequests->isAvailable($testurl)) {
+                continue;
+            }
             $url = filter_var($url, FILTER_SANITIZE_URL);
             $URLs[] = $url;
             $StorageName[] = $StorageNode->get('name');
@@ -144,6 +162,14 @@ class DashboardPage extends FOGPage
             $curroot = trim(trim($this->obj->get('webroot'), '/'));
             $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
             $URL = filter_var(sprintf('http://%s%sstatus/freespace.php?path=%s', $this->obj->get('ip'), $webroot, base64_encode($this->obj->get('path'))), FILTER_SANITIZE_URL);
+            $testurl = sprintf(
+                'http://%s%smanagement/index.php',
+                $this->obj->get('ip'),
+                $webroot
+            );
+            if (!self::$FOGURLRequests->isAvailable($testurl)) {
+                throw new Exception(_('Node is unavailable'));
+            }
             unset($curroot, $webroot);
             if (!filter_var($URL, FILTER_VALIDATE_URL)) {
                 throw new Exception('%s: %s', _('Invalid URL'), $URL);
@@ -176,6 +202,15 @@ class DashboardPage extends FOGPage
             $curroot = trim(trim($Node->get('webroot'), '/'));
             $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
             $URL = filter_var(sprintf('http://%s%sindex.php', $Node->get('ip'), $webroot), FILTER_SANITIZE_URL);
+            $testurl = sprintf(
+                'http://%s%smanagement/index.php',
+                $Node->get('ip'),
+                $webroot
+            );
+            if (!self::$FOGURLRequests->isAvailable($testurl)) {
+                $ActivityTotalClients -= $Node->get('maxClients');
+                return;
+            }
             $ActivityActive += $Node->getUsedSlotCount();
             $ActivityQueued += $Node->getQueuedSlotCount();
             if ($ActivityTotalClients <= 0) {
