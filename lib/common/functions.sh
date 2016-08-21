@@ -1663,10 +1663,10 @@ class Config
      */
     public function __construct()
     {
-        self::db_settings();
-        self::svc_setting();
+        self::_dbSettings();
+        self::_svcSetting();
         if (\$_REQUEST['node'] == 'schema') {
-            self::init_setting();
+            self::_initSetting();
         }
     }
     /**
@@ -1674,24 +1674,24 @@ class Config
      *
      * @return void
      */
-    private static function db_settings()
+    private static function _dbSettings()
     {
-        define('DATABASE_TYPE','mysql'); // mysql or oracle
-        define('DATABASE_HOST','$snmysqlhost');
-        define('DATABASE_NAME','fog');
-        define('DATABASE_USERNAME','$snmysqluser');
-        define('DATABASE_PASSWORD',\"$snmysqlpass\");
+        define('DATABASE_TYPE', 'mysql'); // mysql or oracle
+        define('DATABASE_HOST', '$snmysqlhost');
+        define('DATABASE_NAME', 'fog');
+        define('DATABASE_USERNAME', '$snmysqluser');
+        define('DATABASE_PASSWORD', \"$snmysqlpass\");
     }
     /**
      * Defines the service settings
      *
      * @return void
      */
-    private static function svc_setting()
+    private static function _svcSetting()
     {
-        define('UDPSENDERPATH','/usr/local/sbin/udp-sender');
-        define('MULTICASTINTERFACE','${interface}');
-        define('UDPSENDER_MAXWAIT',null);
+        define('UDPSENDERPATH', '/usr/local/sbin/udp-sender');
+        define('MULTICASTINTERFACE', '${interface}');
+        define('UDPSENDER_MAXWAIT', null);
     }
     /**
      * Initial values if fresh install are set here
@@ -1705,41 +1705,47 @@ class Config
      *
      * @return void
      */
-    private static function init_setting()
+    private static function _initSetting()
     {
         define('TFTP_HOST', \"${ipaddress}\");
         define('TFTP_FTP_USERNAME', \"${username}\");
-        define('TFTP_FTP_PASSWORD', \"${password}\");
+        define(
+            'TFTP_FTP_PASSWORD',
+            \"${password}\"
+        );
         define('TFTP_PXE_KERNEL_DIR', \"${webdirdest}/service/ipxe/\");
         define('PXE_KERNEL', 'bzImage');
-        define('PXE_KERNEL_RAMDISK',127000);
-        define('USE_SLOPPY_NAME_LOOKUPS',true);
+        define('PXE_KERNEL_RAMDISK', 127000);
+        define('USE_SLOPPY_NAME_LOOKUPS', true);
         define('MEMTEST_KERNEL', 'memtest.bin');
         define('PXE_IMAGE', 'init.xz');
         define('STORAGE_HOST', \"${ipaddress}\");
         define('STORAGE_FTP_USERNAME', \"${username}\");
-        define('STORAGE_FTP_PASSWORD', \"${password}\");
+        define(
+            'STORAGE_FTP_PASSWORD',
+            \"${password}\"
+        );
         define('STORAGE_DATADIR', '${storageLocation}/');
         define('STORAGE_DATADIR_CAPTURE', '${storageLocationCapture}');
-        define('STORAGE_BANDWIDTHPATH', '/${webroot}status/bandwidth.php');
-        define('STORAGE_INTERFACE','${interface}');
-        define('CAPTURERESIZEPCT',5);
+        define('STORAGE_BANDWIDTHPATH', '${webroot}status/bandwidth.php');
+        define('STORAGE_INTERFACE', '${interface}');
+        define('CAPTURERESIZEPCT', 5);
         define('WEB_HOST', \"${ipaddress}\");
         define('WOL_HOST', \"${ipaddress}\");
         define('WOL_PATH', '/${webroot}wol/wol.php');
         define('WOL_INTERFACE', \"${interface}\");
         define('SNAPINDIR', \"${snapindir}/\");
         define('QUEUESIZE', '10');
-        define('CHECKIN_TIMEOUT',600);
-        define('USER_MINPASSLENGTH',4);
+        define('CHECKIN_TIMEOUT', 600);
+        define('USER_MINPASSLENGTH', 4);
         define('NFS_ETH_MONITOR', \"${interface}\");
         define('UDPCAST_INTERFACE', \"${interface}\");
         // Must be an even number! recommended between 49152 to 65535
         define('UDPCAST_STARTINGPORT', 63100 );
-        define('FOG_MULTICAST_MAX_SESSIONS',64);
+        define('FOG_MULTICAST_MAX_SESSIONS', 64);
         define('FOG_JPGRAPH_VERSION', '2.3');
         define('FOG_REPORT_DIR', './reports/');
-        define('FOG_CAPTUREIGNOREPAGEHIBER',true);
+        define('FOG_CAPTUREIGNOREPAGEHIBER', true);
         define('FOG_DONATE_MINING', \"${donate}\");
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
