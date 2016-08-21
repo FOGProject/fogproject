@@ -1741,7 +1741,7 @@ class Config
         define('NFS_ETH_MONITOR', \"${interface}\");
         define('UDPCAST_INTERFACE', \"${interface}\");
         // Must be an even number! recommended between 49152 to 65535
-        define('UDPCAST_STARTINGPORT', 63100 );
+        define('UDPCAST_STARTINGPORT', 63100);
         define('FOG_MULTICAST_MAX_SESSIONS', 64);
         define('FOG_JPGRAPH_VERSION', '2.3');
         define('FOG_REPORT_DIR', './reports/');
