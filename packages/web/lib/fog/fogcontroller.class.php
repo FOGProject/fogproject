@@ -1,33 +1,134 @@
 <?php
+/**
+ * FOGController, individual SQL getters/setters
+ *
+ * PHP Version 5
+ *
+ * Gets and sets data for an individual object.
+ * Generates the SQL Statements more specifically.
+ *
+ * @category FOGController
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * FOGController, individual SQL getters/setters
+ *
+ * Gets and sets data for an individual object.
+ * Generates the SQL Statements more specifically.
+ *
+ * @category FOGController
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 abstract class FOGController extends FOGBase
 {
+    /**
+     * The data to set/get
+     *
+     * @var array
+     */
     protected $data = array();
+    /**
+     * If true, saves the object automatically
+     *
+     * @var bool
+     */
     protected $autoSave = false;
+    /**
+     * The database table to work from.
+     *
+     * @var string
+     */
     protected $databaseTable = '';
+    /**
+     * The database fields to get
+     *
+     * @var array
+     */
     protected $databaseFields = array();
+    /**
+     * The required DB fields
+     *
+     * @var array
+     */
     protected $databaseFieldsRequired = array();
+    /**
+     * Additional elements unrelated to DB side directly for object.
+     *
+     * @var array
+     */
     protected $additionalFields = array();
+    /**
+     * The flipped fields as we commonize names, flipping allows
+     * translation to the main db column.
+     *
+     * @var array
+     */
     protected $databaseFieldsFlipped = array();
-    protected $databaseFieldsToIgnore = array('createdBy','createdTime');
+    /**
+     * Fields to ignore
+     *
+     * @var array
+     */
+    protected $databaseFieldsToIgnore = array(
+        'createdBy',
+        'createdTime'
+    );
+    /**
+     * Not used now, but can be used to setup alternate db aliases.
+     *
+     * @var array
+     */
     protected $aliasedFields = array();
+    /**
+     * Class relationships, for inner joins of data.
+     *
+     * @var array
+     */
     protected $databaseFieldClassRelationships = array();
+    /**
+     * The select query template to use.
+     *
+     * @var string
+     */
     protected $loadQueryTemplate = "SELECT %s FROM `%s` %s WHERE `%s`=%s %s";
+    /**
+     * The insert query template to use.
+     *
+     * @var string
+     */
     protected $insertQueryTemplate = "INSERT INTO `%s` (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s";
+    /**
+     * The delete query template to use.
+     *
+     * @var string
+     */
     protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`=%s";
+    /**
+     * Constructor to set variables.
+     *
+     * @param mixed $data the data to construct from if different
+     *
+     * @throws Exception
+     * @return self
+     */
     public function __construct($data = '')
     {
         parent::__construct();
         $this->databaseTable = trim($this->databaseTable);
-        $this->databaseFields = array_filter(array_unique((array)$this->databaseFields));
+        $this->databaseFields = array_unique($this->databaseFields);
+        $this->databaseFields = array_filter($this->databaseFields);
         try {
             if (!isset($this->databaseTable)) {
-                throw new Exception(_('No database table defined for this class'));
+                throw new Exception(_('Table not defined for this class'));
             }
             if (!count($this->databaseFields)) {
-                throw new Exception(_('No database fields defined for this class'));
-            }
-            if (is_numeric($data) &&  $data < 1) {
-                throw new Exception(_('Improper data passed'));
+                throw new Exception(_('Fields not defined for this class'));
             }
             $this->databaseFieldsFlipped = array_flip($this->databaseFields);
             if (is_numeric($data)) {
@@ -36,10 +137,22 @@ abstract class FOGController extends FOGBase
                 $this->setQuery($data);
             }
         } catch (Exception $e) {
-            $this->error(_('Record not found, Error: %s'), array($e->getMessage()));
+            $str = sprintf(
+                '%s, %s: %s',
+                _('Record not found'),
+                _('Error'),
+                $e->getMessage()
+            );
+            $this->error($str);
+            throw new Exception($e->getMessage());
         }
         return $this;
     }
+    /**
+     * Closes out the object
+     *
+     * @return bool
+     */
     public function __destruct()
     {
         if ($this->autoSave) {
@@ -47,21 +160,52 @@ abstract class FOGController extends FOGBase
         }
         return false;
     }
+    /**
+     * Default way to present object as a string
+     *
+     * @return string
+     */
     public function __toString()
     {
         $str = sprintf('%s ID: %s', get_class($this), $this->get('id'));
         if ($this->get('name')) {
             $str = sprintf('%s %s: %s', $str, _('Name'), $this->get('name'));
         }
-        return (string)$str;
+        return $str;
     }
+    /**
+     * Test our needed fields
+     *
+     * @param string $key the key to test
+     *
+     * @return bool
+     */
+    private function _testFields($key)
+    {
+        $inFields = array_key_exists($key, $this->databaseFields);
+        $inFieldsFlipped = array_key_exists($key, $this->databaseFieldsFlipped);
+        $inAddFields = in_array($key, $this->additionalFields);
+        if (!$inFields && !$inFieldsFlipped && !$inAddFields) {
+            unset($this->data[$key]);
+            return false;
+        }
+        return true;
+    }
+    /**
+     * Gets an item from the key sent, if no key all object data is returned
+     *
+     * @param mixed $key the key to get
+     *
+     * @return object
+     */
     public function get($key = '')
     {
         $key = $this->key($key);
         if (!$key) {
             return $this->data;
         }
-        if (!array_key_exists($key, (array)$this->databaseFields) && !array_key_exists($key, (array)$this->databaseFieldsFlipped) && !in_array($key, (array)$this->additionalFields)) {
+        $test = $this->_testFields($key);
+        if (!$test) {
             unset($this->data[$key]);
             return false;
         }
@@ -72,39 +216,94 @@ abstract class FOGController extends FOGBase
             return $this->data[$key] = '';
         }
         if (is_object($this->data[$key])) {
-            $this->info(sprintf('%s: %s, %s: %s', _('Returning value of key'), $key, _('Object'), $this->data[$key]->__toString()));
-        } elseif (is_array($this->data[$key])) {
-            $this->info(sprintf('%s: %s', _('Returning array within key'), $key));
+            $msg = sprintf(
+                '%s: %s, %s: %s',
+                _('Returning value of key'),
+                $key,
+                _('Object'),
+                $this->data[$key]->__toString()
+            );
+        } else if (is_array($this->data[$key])) {
+            $msg = sprintf(
+                '%s: %s',
+                _('Returning array within key'),
+                $key
+            );
         } else {
-            $this->info(sprintf('%s: %s, %s: %s', _('Returning value of key'), $key, _('Value'), $this->data[$key]));
+            $msg = sprintf(
+                '%s: %s, %s: %s',
+                _('Returning value of key'),
+                $key,
+                _('Value'),
+                $this->data[$key]
+            );
         }
+        $this->info($msg);
         return $this->data[$key];
     }
+    /**
+     * Set value to key
+     *
+     * @param string $key   the key to set
+     * @param mixed  $value the value to set
+     *
+     * @throws Exception
+     * @return object
+     */
     public function set($key, $value)
     {
         try {
             $key = $this->key($key);
             if (!$key) {
                 throw new Exception(_('No key being requested'));
-            } elseif (!array_key_exists($key, (array)$this->databaseFields) && !array_key_exists($key, (array)$this->databaseFieldsFlipped) && !in_array($key, (array)$this->additionalFields)) {
+            }
+            $test = $this->_testFields($key);
+            if (!$test) {
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being set'));
-            } elseif (!$this->isLoaded($key)) {
+            }
+            if (!$this->isLoaded($key)) {
                 $this->loadItem($key);
             }
             if (is_numeric($value) && $value < ($key == 'id' ? 1 : -1)) {
                 throw new Exception(_('Invalid numeric entry'));
             }
             if (is_object($value)) {
-                $this->info(sprintf('%s: %s %s: %s', _('Setting Key'), $key, _('Object'), $value->__toString()));
+                $msg = sprintf(
+                    '%s: %s, %s: %s',
+                    _('Setting Key'),
+                    $key,
+                    _('Object'),
+                    $value->__toString()
+                );
             } elseif (is_array($value)) {
-                $this->info(sprintf('%s: %s %s', _('Setting Key'), $key, _('Array of data')));
+                $msg = sprintf(
+                    '%s: %s %s',
+                    _('Setting Key'),
+                    $key,
+                    _('Array')
+                );
             } else {
-                $this->info(sprintf('%s: %s %s: %s', _('Setting Key'), $key, _('Value'), $value));
+                $msg = sprintf(
+                    '%s: %s, %s: %s',
+                    _('Setting Key'),
+                    $key,
+                    _('Value'),
+                    $value
+                );
             }
+            $this->info($msg);
             $this->data[$key] = $value;
         } catch (Exception $e) {
-            $this->debug(_('Set Failed: Key: %s, Value: %s, Error: %s'), array($key, $value, $e->getMessage()));
+            $str = sprintf(
+                '%s: %s: %s, %s: %s',
+                _('Set failed'),
+                _('Key'),
+                $key,
+                _('Error'),
+                $e->getMessage()
+            );
+            $this->debug($str);
         }
         return $this;
     }

@@ -1,4 +1,24 @@
 <?php
+/**
+ * Boot menu for the fog pxe system
+ *
+ * PHP Version 5
+ *
+ * @category Bootmenu
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Boot menu for the fog pxe system
+ *
+ * @category Bootmenu
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class BootMenu extends FOGBase
 {
     private $Host;
@@ -1021,7 +1041,7 @@ class BootMenu extends FOGBase
         if ($Advanced) {
             array_push($RegArrayOfStuff, ($AdvLogin ? 5 : 4));
         }
-        $Menus = (array)self::getClass('PXEMenuOptionsManager')->find(array('regMenu'=>$RegArrayOfStuff), '', 'id');
+        $Menus = self::getClass('PXEMenuOptionsManager')->find(array('regMenu'=>$RegArrayOfStuff), '', 'id');
         array_map(function (&$Menu) use (&$Send) {
             $Send["item-{$Menu->get(name)}"] = $this->menuItem($Menu, trim($Menu->get('description')));
             unset($Menu);
