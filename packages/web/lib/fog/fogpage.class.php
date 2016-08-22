@@ -445,17 +445,22 @@ abstract class FOGPage extends FOGBase
         }
         if ($this->obj instanceof Group) {
             $hostIDs = $this->obj->get('hosts');
-            array_walk($hostIDs, function (&$id, &$index) {
+            array_walk($hostIDs, function (&$id, &$index) use ($TaskType) {
                 $Host = self::getClass('Host', $id);
                 if (!$Host->isValid()) {
                     return;
                 }
-                $Image = $Host->getImage();
-                if (!$Image->isValid()) {
-                    return;
-                }
-                if (!$Image->get('isEnabled')) {
-                    return;
+                $imageID = $imageName = '';
+                if ($TaskType->isInitNeededTasking()) {
+                    $Image = $Host->getImage();
+                    if (!$Image->isValid()) {
+                        return;
+                    }
+                    if (!$Image->get('isEnabled')) {
+                        return;
+                    }
+                    $imageID = $Image->get('id');
+                    $imageName = $Image->get('name');
                 }
                 $this->data[] = array(
                     'host_link'=>'?node=host&sub=edit&id=${host_id}',
@@ -465,8 +470,8 @@ abstract class FOGPage extends FOGBase
                     'host_mac'=>$Host->get('mac')->__toString(),
                     'image_link'=>'?node=image&sub=edit&id=${image_id}',
                     'image_title'=>sprintf('%s: ${image_name}', _('Edit')),
-                    'image_id'=>$Image->get('id'),
-                    'image_name'=>$Image->get('name'),
+                    'image_id'=>$imageID,
+                    'image_name'=>$imageName,
                 );
                 unset($id, $index, $Host, $Image);
             });
