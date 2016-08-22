@@ -451,7 +451,7 @@ abstract class FOGPage extends FOGBase
                     return;
                 }
                 $imageID = $imageName = '';
-                if ($TaskType->isInitNeededTasking()) {
+                if ($TaskType->isImagingTask()) {
                     $Image = $Host->getImage();
                     if (!$Image->isValid()) {
                         return;
@@ -546,7 +546,7 @@ abstract class FOGPage extends FOGBase
                     throw new Exception(_('There are no hosts to task in this group'));
                 }
             }
-            if ($TaskType->isInitNeededTasking()) {
+            if ($TaskType->isImagingTask()) {
                 if ($this->obj instanceof Host) {
                     $Image = $this->obj->getImage();
                     if (!$Image->isValid()) {
