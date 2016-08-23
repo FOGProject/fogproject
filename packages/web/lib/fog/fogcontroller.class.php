@@ -102,7 +102,8 @@ abstract class FOGController extends FOGBase
      *
      * @var string
      */
-    protected $insertQueryTemplate = "INSERT INTO `%s` (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s";
+    protected $insertQueryTemplate = "INSERT INTO `%s` (%s) "
+        . "VALUES (%s) ON DUPLICATE KEY UPDATE %s";
     /**
      * The delete query template to use.
      *
@@ -439,36 +440,67 @@ abstract class FOGController extends FOGBase
         }
         return $this;
     }
+    /**
+     * Stores data into the database
+     *
+     * @return bool|object
+     */
     public function save()
     {
-        $this->info(sprintf(_('Saving data for %s object'), get_class($this)));
+        $msg = sprintf(
+            '%s %s %s',
+            _('Saving data for'),
+            get_class($this),
+            _('object')
+        );
+        $this->info($msg);
         try {
-            $insertKeys = $insertValKeys = $insertValues = $updateValKeys = $updateValues = $updateData = $fieldData = array();
+            $insertKeys = array();
+            $insertValKeys = $updateValKeys = array();
+            $insertValues = $updateValues = array();
+            $updateData = $fieldData = array();
             if (count($this->aliasedFields)) {
                 $this->arrayRemove($this->aliasedFields, $this->databaseFields);
             }
-            array_walk($this->databaseFields, function (&$field, &$name) use (&$insertKeys, &$insertValKeys, &$insertValues, &$updateValKeys, &$updateValues, &$updateData) {
-                $key = sprintf('`%s`', trim($field));
-                $paramInsert = sprintf(':%s_insert', trim($field));
-                $paramUpdate = sprintf(':%s_update', trim($field));
-                if ($name == 'createdBy' && !$this->get($name)) {
-                    $val = trim($_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog');
-                } elseif ($name == 'createdTime' && (!$this->get('createdTime') || !$this->validDate($this->get($name)))) {
-                    $val = $this->formatTime('now', 'Y-m-d H:i:s');
-                } else {
+            foreach ($this->databaseFields AS $name => &$field) {
+                $field = trim($field);
+                $key = sprintf('`%s`', $field);
+                $paramInsert = sprintf(':%s_insert', $field);
+                $paramUpdate = sprintf(':%s_update', $field);
+                switch ($name) {
+                case 'createdBy':
+                    if (isset($_SESSION['FOG_USERNAME'])) {
+                        $username = trim($_SESSION['FOG_USERNAME']);
+                    } else {
+                        $username = 'fog';
+                    }
+                    if (!$this->get($name)) {
+                        $val = $username;
+                    }
+                    break;
+                case 'createdTime':
+                    if (!$this->validDate($this->get($name))) {
+                        $val = $this->formatTime('now', 'Y-m-d H:i:s');
+                    }
+                    break;
+                default:
                     $val = $this->get($name);
+                    break;
                 }
-                if ($name == 'id' && (empty($val) || $val == null || $val == 0 || $val == false)) {
-                    return;
+                switch (true) {
+                case ($name == 'id' && !$val):
+                    continue 2;
+                default:
+                    break;
                 }
                 $insertKeys[] = $key;
                 $insertValKeys[] = $paramInsert;
                 $insertValues[] = $val;
                 $updateValKeys[] = $paramUpdate;
                 $updateValues[] = $val;
-                $updateData[] = sprintf("%s=%s", $key, $paramUpdate);
-                unset($key, $val, $field, $name);
-            });
+                $updateData[] = sprintf('%s=%s', $key, $paramUpdate);
+                unset($val, $field, $name, $key);
+            }
             $query = sprintf(
                 $this->insertQueryTemplate,
                 $this->databaseTable,
@@ -476,27 +508,78 @@ abstract class FOGController extends FOGBase
                 implode(',', (array)$insertValKeys),
                 implode(',', (array)$updateData)
             );
-            $queryArray = array_combine(array_merge($insertValKeys, $updateValKeys), array_merge($insertValues, $updateValues));
+            $queryArray = array_combine(
+                array_merge(
+                    $insertValKeys,
+                    $updateValKeys
+                ),
+                array_merge(
+                    $insertValues,
+                    $updateValues
+                )
+            );
             self::$DB->query($query, array(), $queryArray);
-            if ($this->get('id') < 1) {
+            if (!$this->get('id') || $this->get('id') < 1) {
                 $this->set('id', self::$DB->insert_id());
             }
             if (!$this instanceof History) {
                 if ($this->get('name')) {
-                    $this->log(sprintf('%s ID: %s NAME: %s %s.', get_class($this), $this->get('id'), $this->get('name'), _('has been successfully updated')));
+                    $msg = sprintf(
+                        '%s %s: %s %s: %s %s.',
+                        get_class($this),
+                        _('ID'),
+                        $this->get('id'),
+                        _('NAME'),
+                        $this->get('name'),
+                        _('has been successfully updated')
+                    );
                 } else {
-                    $this->log(sprintf('%s ID: %s %s.', get_class($this), $this->get('id'), _('has been successfully updated')));
+                    $msg = sprintf(
+                        '%s %s: %s %s.',
+                        get_class($this),
+                        _('ID'),
+                        $this->get('id'),
+                        _('has been successfully updated')
+                    );
                 }
+                $this->log($msg);
             }
         } catch (Exception $e) {
             if (!$this instanceof History) {
                 if ($this->get('name')) {
-                    $this->log(sprintf('%s ID: %s NAME: %s %s. ERROR: %s', get_class($this), $this->get('id'), $this->get('name'), _('has failed to save'), $e->getMessage()));
+                    $msg = sprintf(
+                        '%s %s: %s %s: %s %s. %s: %s',
+                        get_class($this),
+                        _('ID'),
+                        $this->get('id'),
+                        _('NAME'),
+                        $this->get('name'),
+                        _('has failed to save'),
+                        _('ERROR'),
+                        $e->getMessage()
+                    );
                 } else {
-                    $this->log(sprintf('%s ID: %s %s. ERROR: %s', get_class($this), $this->get('id'), _('has failed to save'), $e->getMessage()));
+                    $msg = sprintf(
+                        '%s %s: %s %s. %s: %s',
+                        get_class($this),
+                        _('ID'),
+                        $this->get('id'),
+                        _('has failed to save'),
+                        _('ERROR'),
+                        $e->getMessage()
+                    );
                 }
+                $this->log($msg);
             }
-            $this->debug(_('Database save failed: ID: %s, Error: %s'), array($this->data['id'], $e->getMessage()));
+            $msg = sprintf(
+                '%s: %s: %s, %s: %s',
+                _('Database save failed'),
+                _('ID'),
+                $this->get('id'),
+                _('Error'),
+                $e->getMessage()
+            );
+            $this->debug($msg);
             return false;
         }
         return $this;
@@ -587,6 +670,13 @@ abstract class FOGController extends FOGBase
         }
         return $this;
     }
+    /**
+     * Get's the relevant common key if available.
+     *
+     * @param string|array $key the key to get commonized
+     *
+     * @return mixed
+     */
     protected function key(&$key)
     {
         if (!is_array($key)) {
@@ -598,6 +688,13 @@ abstract class FOGController extends FOGBase
         }
         return array_walk($key, array($this, 'key'));
     }
+    /**
+     * Load the item field
+     *
+     * @param string $key the key to load
+     *
+     * @return object
+     */
     protected function loadItem($key)
     {
         if (!array_key_exists($key, $this->databaseFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !in_array($key, $this->additionalFields)) {
@@ -684,8 +781,14 @@ abstract class FOGController extends FOGBase
         });
         return $this;
     }
+    /**
+     * Get an objects manager class
+     *
+     * @return object
+     */
     public function getManager()
     {
-        return self::getClass(sprintf('%sManager', get_class($this)));
+        $class = sprintf('%sManager', get_class($this));
+        return new $class();
     }
 }

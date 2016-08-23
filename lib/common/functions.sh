@@ -857,15 +857,18 @@ installInitScript() {
 configureMySql() {
     stopInitScript
     dots "Setting up and starting MySQL"
+    for mysqlconf in $(grep -rl '.*skip-networking' /etc); do
+        sed -i '/.*skip-networking/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
+    for mysqlconf in `grep -rl '.*bind-address.*=.*127.0.0.1' /etc`; do
+        sed -e '/.*bind-address.*=.*127.0.0.1/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
     if [[ $systemctl == yes ]]; then
         if [[ $osid -eq 3 ]]; then
             [[ ! -d /var/lib/mysql ]] && mkdir /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             chown -R mysql:mysql /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             mysql_install_db --user=mysql --ldata=/var/lib/mysql/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
-        for mysqlconf in `grep -rl '.*bind-address.*=.*127.0.0.1' /etc`; do
-            sed -e '/.*bind-address.*=.*127.0.0.1/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        done
         systemctl enable mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         systemctl stop mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sleep 2
@@ -1073,7 +1076,7 @@ clearScreen() {
 }
 writeUpdateFile() {
     tmpDte=$(date +%c)
-    replace='s/[]\/$*.^|[]/\\&/g';
+    replace='s/[]"\/$*.^|[]/\\&/g';
     escversion=$(echo $version | sed -e $replace)
     esctmpDte=$(echo $tmpDate | sed -e $replace)
     escipaddress=$(echo $ipaddress | sed -e $replace)
@@ -1163,8 +1166,8 @@ writeUpdateFile() {
                 sed -i "s/snmysqluser=.*/snmysqluser='$escsnmysqluser'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqluser='$snmysqluser'" >> $fogprogramdir/.fogsettings
             grep -q "snmysqlpass=" $fogprogramdir/.fogsettings && \
-                sed -i "s/snmysqlpass=.*/snmysqlpass=\"$escsnmysqlpass\"/g" $fogprogramdir/.fogsettings || \
-                echo "snmysqlpass=\"$escsnmysqlpass\"" >> $fogprogramdir/.fogsettings
+                sed -i "s/snmysqlpass=.*/snmysqlpass='$escsnmysqlpass'/g" $fogprogramdir/.fogsettings || \
+                echo "snmysqlpass='$escsnmysqlpass'" >> $fogprogramdir/.fogsettings
             grep -q "snmysqlhost=" $fogprogramdir/.fogsettings && \
                 sed -i "s/snmysqlhost=.*/snmysqlhost='$escsnmysqlhost'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqlhost='$snmysqlhost'" >> $fogprogramdir/.fogsettings
@@ -1247,7 +1250,7 @@ writeUpdateFile() {
             echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
             echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
             echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
-            echo "snmysqlpass='$snmysqlpass'" >> "$fogprogramdir/.fogsettings"
+            echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
             echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
             echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
             echo "donate='$donate'" >> "$fogprogramdir/.fogsettings"
@@ -1289,7 +1292,7 @@ writeUpdateFile() {
         echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
         echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
-        echo "snmysqlpass='$snmysqlpass'" >> "$fogprogramdir/.fogsettings"
+        echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
         echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
         echo "donate='$donate'" >> "$fogprogramdir/.fogsettings"
