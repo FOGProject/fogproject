@@ -59,7 +59,7 @@ updateDB() {
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            wget -qO - --post-data="confirm&fogverified" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || wget -qO - --post-data="confirm&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            wget -qO - --post-data="confirm&fogverified" --no-proxy http://localhost/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || wget -qO - --post-data="confirm&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             errorStat $?
             ;;
         *)
@@ -1629,7 +1629,7 @@ configureHttpd() {
         echo "Done"
     fi
     dots "Creating config file"
-    [[ -z $snmysqlhost ]] && snmysqlhost='127.0.0.1'
+    [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
     [[ -z $snmysqluser ]] && snmysqluser='root'
     echo "<?php
 /**

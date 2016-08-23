@@ -244,7 +244,7 @@ abstract class FOGController extends FOGBase
     /**
      * Set value to key
      *
-     * @param string $key   the key to set
+     * @param string $key   the key to set to
      * @param mixed  $value the value to set
      *
      * @throws Exception
@@ -307,44 +307,91 @@ abstract class FOGController extends FOGBase
         }
         return $this;
     }
+    /**
+     * Add value to key (array)
+     *
+     * @param string $key   the key to add to
+     * @param mixed  $value the value to add
+     *
+     * @throws Exception
+     * @return object
+     */
     public function add($key, $value)
     {
         try {
             $key = $this->key($key);
             if (!$key) {
                 throw new Exception(_('No key being requested'));
-            } elseif (!array_key_exists($key, (array)$this->databaseFields) && !array_key_exists($key, (array)$this->databaseFieldsFlipped) && !in_array($key, (array)$this->additionalFields)) {
+            }
+            $test = $this->_testFields($key);
+            if (!$test) {
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being added'));
-            } elseif (!$this->isLoaded($key)) {
+            }
+            if (!$this->isLoaded($key)) {
                 $this->loadItem($key);
             }
             if (is_object($value)) {
-                $this->info(sprintf('%s: %s, %s: %s', _('Adding Key'), $key, _('Object'), $value->__toString()));
-                $this->data[$key][] = $value;
+                $msg = sprintf(
+                    '%s: %s, %s: %s',
+                    _('Adding Key'),
+                    $key,
+                    _('Object'),
+                    $value->__toString()
+                );
             } elseif (is_array($value)) {
-                $this->info(sprintf('%s: %s %s', _('Adding Key'), $key, _('Array of data')));
-                $this->data[$key][] = $value;
+                $msg = sprintf(
+                    '%s: %s %s',
+                    _('Adding Key'),
+                    $key,
+                    _('Array')
+                );
             } else {
-                $value = $value;
-                $this->info(sprintf('%s: %s %s: %s', _('Adding Key'), $key, _('Value'), $value));
-                $this->data[$key][] = $value;
+                $msg = sprintf(
+                    '%s: %s, %s: %s',
+                    _('Adding Key'),
+                    $key,
+                    _('Value'),
+                    $value
+                );
             }
+            $this->info($msg);
+            $this->data[$key][] = $value;
         } catch (Exception $e) {
-            $this->debug(_('Add Failed: Key: %s, Value: %s, Error: %s'), array($key, $value, $e->getMessage()));
+            $str = sprintf(
+                '%s: %s: %s, %s: %s',
+                _('Add failed'),
+                _('Key'),
+                $key,
+                _('Error'),
+                $e->getMessage()
+            );
+            $this->debug($str);
         }
         return $this;
     }
+    /**
+     * Remove value from key (array)
+     *
+     * @param string $key   the key to remove from
+     * @param mixed  $value the value to remove
+     *
+     * @throws Exception
+     * @return object
+     */
     public function remove($key, $value)
     {
         try {
             $key = $this->key($key);
             if (!$key) {
                 throw new Exception(_('No key being requested'));
-            } elseif (!array_key_exists($key, (array)$this->databaseFields) && !array_key_exists($key, (array)$this->databaseFieldsFlipped) && !in_array($key, (array)$this->additionalFields)) {
+            }
+            $test = $this->_testFields($key);
+            if (!$test) {
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being removed'));
-            } elseif (!$this->isLoaded($key)) {
+            }
+            if (!$this->isLoaded($key)) {
                 $this->loadItem($key);
             }
             if (!is_array($this->data[$key])) {
@@ -352,11 +399,43 @@ abstract class FOGController extends FOGBase
             }
             $this->data[$key] = array_unique($this->data[$key]);
             $index = array_search($value, $this->data[$key]);
-            $this->info(sprintf(_('Removing Key: %s, Value: %s'), $key, $value));
+            if (is_object($this->data[$key][$index])) {
+                $msg = sprintf(
+                    '%s: %s, %s: %s',
+                    _('Removing Key'),
+                    $key,
+                    _('Object'),
+                    $this->data[$key][$index]->__toString()
+                );
+            } elseif (is_array($this->data[$key][$index])) {
+                $msg = sprintf(
+                    '%s: %s %s',
+                    _('Removing Key'),
+                    $key,
+                    _('Array')
+                );
+            } else {
+                $msg = sprintf(
+                    '%s: %s, %s: %s',
+                    _('Removing Key'),
+                    $key,
+                    _('Value'),
+                    $this->data[$key][$index]
+                );
+            }
+            $this->info($msg);
             unset($this->data[$key][$index]);
             $this->data[$key] = array_values(array_filter($this->data[$key]));
         } catch (Exception $e) {
-            $this->debug(_('Remove Failed: Key: %s, Value: %s, Error: %s'), array($key, $value, $e->getMessage()));
+            $str = sprintf(
+                '%s: %s: %s, %s: %s',
+                _('Remove failed'),
+                _('Key'),
+                $key,
+                _('Error'),
+                $e->getMessage()
+            );
+            $this->debug($str);
         }
         return $this;
     }
