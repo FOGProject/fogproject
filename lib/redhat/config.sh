@@ -21,7 +21,7 @@ command -v dnf >/dev/null 2>&1
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
 case $linuxReleaseName in
     *[Mm][Aa][Gg][Ee][Ii][Aa]*)
-        [[ -z $packages ]] && packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring apache-mod_ssl php-fpm php-pcntl mod_fastcgi php-pdo_mysql php-pdo"
+        [[ -z $packages ]] && packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring apache-mod_ssl php-fpm php-pcntl apache-mod_fastcgi php-pdo_mysql php-pdo"
         [[ -z $packageinstaller ]] && packageinstaller="urpmi --auto"
         [[ -z $packagelist ]] && packagelist="urpmq"
         [[ -z $packageupdater ]] && packageupdater="$packageinstaller"

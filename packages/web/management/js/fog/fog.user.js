@@ -3,9 +3,23 @@ $(function() {
     form = $('.username-input').parents('form');
     validator = form.validate({
         rules: {
-            name: 'required',
+            name: {
+                required: {
+                    depends: function() {
+                        $(this).val($.trim($(this).val()));
+                        return true;
+                    }
+                },
+                minlength: 1,
+                maxlength: 255
+            },
             password: {
-                required: true,
+                required: {
+                    depends: function() {
+                        $(this).val($.trim($(this).val()));
+                        return true;
+                    }
+                },
                 minlength: 4
             },
             password_confirm: {

@@ -5,7 +5,12 @@ $(function() {
     validator = form.validate({
         rules: {
             name: {
-                required: true,
+                required: {
+                    depends: function() {
+                        $(this).val($.trim($(this).val()));
+                        return true;
+                    }
+                },
                 minlength: 1,
                 maxlength: 255
             }

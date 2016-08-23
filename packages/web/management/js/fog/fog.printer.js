@@ -16,7 +16,18 @@ $(function() {
             })
             return false;
         },
-        rules: {alias: {required: true,minlength: 1,maxlength: 255}}
+        rules: {
+            alias: {
+                required: {
+                    depends: function() {
+                        $(this).val($.trim($(this).val()));
+                        return true;
+                    }
+                },
+                minlength: 1,
+                maxlength: 255
+            }
+        }
     };
     if ($_GET['sub'] == 'membership') return;
     $('select[name="printertype"]').change(function(e) {
@@ -30,21 +41,80 @@ $(function() {
             case 'iprint':
                 $('#network,#cups,#local').hide();
                 $('#iprint').show();
-                validatorOpts['rules']['port'] = {required: true,minlength: 1,maxlength: 255};
+                validatorOpts['rules']['port'] = {
+                    required: {
+                        depends: function() {
+                            $(this).val($.trim($(this).val()));
+                            return true;
+                        }
+                    },
+                    minlength: 1,
+                    maxlength: 255
+                };
                 break;
             case 'cups':
                 $('#network,#iprint,#local').hide();
                 $('#cups').show();
-                validatorOpts['rules']['inf'] = {required: true,minlength: 1,maxlength: 255};
-                validatorOpts['rules']['ip'] = {required: true};
+                validatorOpts['rules']['inf'] = {
+                    required: {
+                        depends: function() {
+                            $(this).val($.trim($(this).val()));
+                            return true;
+                        }
+                    },
+                    minlength: 1,
+                    maxlength: 255
+                };
+                validatorOpts['rules']['ip'] = {
+                    required: {
+                        depends: function() {
+                            $(this).val($.trim($(this).val()));
+                            return true;
+                        }
+                    }
+                };
                 break;
             case 'local':
                 $('#network,#iprint,#cups').hide();
                 $('#local').show();
-                validatorOpts['rules']['inf'] = {required: true,minlength: 1,maxlength: 255};
-                validatorOpts['rules']['ip'] = {required: true};
-                validatorOpts['rules']['model'] = {required: true,minlength: 1,maxlength: 255};
-                validatorOpts['rules']['port'] = {required: true,minlength: 1,maxlength: 255};
+                validatorOpts['rules']['inf'] = {
+                    required: {
+                        depends: function() {
+                            $(this).val($.trim($(this).val()));
+                            return true;
+                        }
+                    },
+                    minlength: 1,
+                    maxlength: 255
+                };
+                validatorOpts['rules']['ip'] = {
+                    required: {
+                        depends: function() {
+                            $(this).val($.trim($(this).val()));
+                            return true;
+                        }
+                    }
+                };
+                validatorOpts['rules']['model'] = {
+                    required: {
+                        depends: function() {
+                            $(this).val($.trim($(this).val()));
+                            return true;
+                        }
+                    },
+                    minlength: 1,
+                    maxlength: 255
+                };
+                validatorOpts['rules']['port'] = {
+                    required: {
+                        depends: function() {
+                            $(this).val($.trim($(this).val()));
+                            return true;
+                        }
+                    },
+                    minlength: 1,
+                    maxlength: 255
+                };
                 break;
         }
     });
