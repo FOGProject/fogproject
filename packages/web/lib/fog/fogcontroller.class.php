@@ -447,13 +447,6 @@ abstract class FOGController extends FOGBase
      */
     public function save()
     {
-        $msg = sprintf(
-            '%s %s %s',
-            _('Saving data for'),
-            get_class($this),
-            _('object')
-        );
-        $this->info($msg);
         try {
             $insertKeys = array();
             $insertValKeys = $updateValKeys = array();
@@ -462,44 +455,46 @@ abstract class FOGController extends FOGBase
             if (count($this->aliasedFields)) {
                 $this->arrayRemove($this->aliasedFields, $this->databaseFields);
             }
-            foreach ($this->databaseFields AS $name => &$field) {
-                $field = trim($field);
-                $key = sprintf('`%s`', $field);
-                $paramInsert = sprintf(':%s_insert', $field);
-                $paramUpdate = sprintf(':%s_update', $field);
-                switch ($name) {
+            foreach ($this->databaseFields AS $key => &$column) {
+                $key = $this->key($key);
+                $column = trim($column);
+                $eColumn = sprintf('`%s`', $column);
+                $paramInsert = sprintf(':%s_insert', $column);
+                $paramUpdate = sprintf(':%s_update', $column);
+                $val = $this->get($key);
+                switch ($key) {
                 case 'createdBy':
-                    if (isset($_SESSION['FOG_USERNAME'])) {
-                        $username = trim($_SESSION['FOG_USERNAME']);
-                    } else {
-                        $username = 'fog';
-                    }
-                    if (!$this->get($name)) {
-                        $val = $username;
+                    if (!$val) {
+                        if (isset($_SESSION['FOG_USERNAME'])) {
+                            $val = trim($_SESSION['FOG_USERNAME']);
+                        } else {
+                            $val = 'fog';
+                        }
                     }
                     break;
                 case 'createdTime':
-                    if (!$this->validDate($this->get($name))) {
+                    if (!($val && $this->validDate($val))) {
                         $val = $this->formatTime('now', 'Y-m-d H:i:s');
                     }
                     break;
-                default:
-                    $val = $this->get($name);
-                    break;
+                case 'id':
+                    if (!$val) {
+                        continue;
+                    }
                 }
-                switch (true) {
-                case ($name == 'id' && !$val):
-                    continue 2;
-                default:
-                    break;
-                }
-                $insertKeys[] = $key;
+                $insertKeys[] = $eColumn;
                 $insertValKeys[] = $paramInsert;
-                $insertValues[] = $val;
+                $insertValues[] = $updateValues[] = $val;
                 $updateValKeys[] = $paramUpdate;
-                $updateValues[] = $val;
-                $updateData[] = sprintf('%s=%s', $key, $paramUpdate);
-                unset($val, $field, $name, $key);
+                $updateData[] = sprintf("%s=%s", $eColumn, $paramUpdate);
+                unset(
+                    $column,
+                    $eColumn,
+                    $key,
+                    $val,
+                    $paramInsert,
+                    $paramUpdate
+                );
             }
             $query = sprintf(
                 $this->insertQueryTemplate,
@@ -518,6 +513,13 @@ abstract class FOGController extends FOGBase
                     $updateValues
                 )
             );
+            $msg = sprintf(
+                '%s %s %s',
+                _('Saving data for'),
+                get_class($this),
+                _('object')
+            );
+            $this->info($msg);
             self::$DB->query($query, array(), $queryArray);
             if (!$this->get('id') || $this->get('id') < 1) {
                 $this->set('id', self::$DB->insert_id());
@@ -552,10 +554,10 @@ abstract class FOGController extends FOGBase
                         get_class($this),
                         _('ID'),
                         $this->get('id'),
-                        _('NAME'),
+                        _('Name'),
                         $this->get('name'),
                         _('has failed to save'),
-                        _('ERROR'),
+                        _('Error'),
                         $e->getMessage()
                     );
                 } else {
@@ -565,7 +567,7 @@ abstract class FOGController extends FOGBase
                         _('ID'),
                         $this->get('id'),
                         _('has failed to save'),
-                        _('ERROR'),
+                        _('Error'),
                         $e->getMessage()
                     );
                 }
@@ -584,89 +586,208 @@ abstract class FOGController extends FOGBase
         }
         return $this;
     }
-    public function load($field = 'id')
+    /**
+     * Loads the item from the database
+     *
+     * @param string $key the key to load
+     *
+     * @throws Exception
+     * @return object
+     */
+    public function load($key = 'id')
     {
-        $this->info(sprintf(_('Loading data to field %s'), $field));
         try {
-            if (!is_array($field) && $field && !$this->get($field)) {
-                throw new Exception(_(sprintf(_('Operation Field not set: %s'), $field)));
+            if (!is_string($key)) {
+                throw new Exception(_('Key field must be a string'));
+            }
+            $key = $this->key($key);
+            if (!$key) {
+                throw new Exception(_('No key being requested'));
+            }
+            $test = $this->_testFields($key);
+            if (!$test) {
+                unset($this->data[$key]);
+                throw new Exception(_('Invalid key being added'));
+            }
+            $val = $this->get($key);
+            if (!$val) {
+                throw new Exception(
+                    sprintf(
+                        '%s: %s',
+                        _('Operation field not set'),
+                        $key
+                    )
+                );
             }
             list($join, $where) = $this->buildQuery();
-            if (!is_array($field)) {
-                $field = array($field);
-            }
             $fields = array();
-            $getFields = function (&$dbColumn, $key) use (&$fields, &$table) {
-                $fields[] = sprintf('`%s`.`%s`', $table, trim($dbColumn));
-                unset($dbColumn, $key);
+            /**
+             * Lambda to get the fields to use
+             *
+             * @param string $k      the key (for class relations really)
+             * @param string $column the column name
+             *
+             * @return void
+             */
+            $getFields = function (&$column, $k) use (&$fields, &$table) {
+                $column = trim($column);
+                $fields[] = sprintf('`%s`.`%s`', $table, $column);
+                unset($column, $k);
             };
             $table = $this->databaseTable;
             array_walk($this->databaseFields, $getFields);
-            array_walk($this->databaseFieldClassRelationships, function (&$stuff, $class) use (&$fields, &$table, $getFields) {
+            foreach ($this->databaseFieldClassRelationships AS $class => &$arr) {
                 $class = self::getClass($class);
                 $table = $class->databaseTable;
                 array_walk($class->databaseFields, $getFields);
-            });
-            array_walk($field, function (&$key, &$index) use ($join, $where, $fields) {
-                $key = $this->key($key);
-                $paramKey = sprintf(':%s', $key);
-                $query = sprintf(
-                    $this->loadQueryTemplate,
-                    implode(',', $fields),
-                    $this->databaseTable,
-                    $join,
-                    $this->databaseFields[$key],
-                    $paramKey,
-                    count($where) ? sprintf(' AND %s', implode(' AND ', $where)) : ''
-                );
-                $vals = array();
-                $vals = self::$DB->query($query, array(), array_combine((array)$paramKey, (array)$this->get($key)))->fetch('', 'fetch_assoc')->get();
-                $this->setQuery($vals);
-                unset($vals, $key, $join, $where);
-            });
+            }
+            $paramKey = sprintf(':%s', $key);
+            $query = sprintf(
+                $this->loadQueryTemplate,
+                implode(',', $fields),
+                $this->databaseTable,
+                $join,
+                $this->databaseFields[$key],
+                $paramKey,
+                count($where) ? sprintf(' AND %s', implode(' AND ', $where)) : ''
+            );
+            $msg = sprintf(
+                '%s %s',
+                _('Loading data to field'),
+                $key
+            );
+            $this->info($msg);
+            $queryArray = array_combine(
+                (array)$paramKey,
+                (array)$val
+            );
+            $vals = array();
+            $vals = self::$DB->query($query, array(), $queryArray)
+                ->fetch('', 'fetch_assoc')
+                ->get();
+            $this->setQuery($vals);
         } catch (Exception $e) {
-            $this->debug(_('Load failed: %s'), array($e->getMessage()));
+            $str = sprintf(
+                '%s: %s: %s, %s: %s',
+                _('Load failed'),
+                _('Key'),
+                $key,
+                _('Error'),
+                $e->getMessage()
+            );
+            $this->debug($str);
         }
         return $this;
     }
-    public function destroy($field = 'id')
+    /**
+     * Removes the item from the database
+     *
+     * @param string $key the key to remove
+     *
+     * @throws Exception
+     * @return object
+     */
+    public function destroy($key = 'id')
     {
-        $this->info(sprintf(_('Destroying data from field %s'), $field));
         try {
-            if (!$this->get($field)) {
-                throw new Exception(sprintf(_('Operation Field not set: %s'), $field));
+            if (!is_string($key)) {
+                throw new Exception(_('Key field must be a string'));
             }
-            if (!array_key_exists($field, $this->databaseFields) && !array_key_exists($field, $this->databaseFieldsFlipped)) {
-                throw new Exception(_('Invalid Operation Field set'));
+            $key = $this->key($key);
+            if (!$key) {
+                throw new Exception(_('No key being requested'));
             }
-            if (array_key_exists($field, $this->databaseFields)) {
-                $fieldToGet = $this->databaseFields[$field];
+            $test = $this->_testFields($key);
+            if (!$test) {
+                throw new Exception(_('Invalid key being destroyed'));
             }
-            $paramKey = sprintf(':%s', $fieldToGet);
-            $value = $this->get($this->key($field));
+            $val = $this->get($key);
+            if (!$val) {
+                throw new Exception(
+                    sprintf(
+                        '%s: %s',
+                        _('Operation field not set'),
+                        $key
+                    )
+                );
+            }
+            $column = $this->databaseFields[$key];
+            $eColumn = sprintf(
+                '`%s`.`%s`',
+                $this->databaseTable,
+                $column
+            );
+            $paramKey = sprintf(':%s', $column);
             $query = sprintf(
                 $this->destroyQueryTemplate,
                 $this->databaseTable,
-                $fieldToGet,
+                $eColumn,
                 $paramKey
             );
-            self::$DB->query($query, array(), array_combine((array)$paramKey, (array)$value));
+            $queryArray = array_combine(
+                (array)$paramKey,
+                (array)$value
+            );
+            self::$DB->query($query, array(), $queryArray);
             if (!$this instanceof History) {
                 if ($this->get('name')) {
-                    $this->log(sprintf('%s ID: %s NAME: %s %s.', get_class($this), $this->get('id'), $this->get('name'), _('has been destroyed')));
+                    $msg = sprintf(
+                        '%s %s: %s %s: %s %s.',
+                        get_class($this),
+                        _('ID'),
+                        $this->get('id'),
+                        _('NAME'),
+                        $this->get('name'),
+                        _('has been successfully destroyed')
+                    );
                 } else {
-                    $this->log(sprintf('%s ID: %s %s.', get_class($this), $this->get('id'), _('has been destroyed')));
+                    $msg = sprintf(
+                        '%s %s: %s %s.',
+                        get_class($this),
+                        _('ID'),
+                        $this->get('id'),
+                        _('has been successfully destroyed')
+                    );
                 }
+                $this->log($msg);
             }
         } catch (Exception $e) {
             if (!$this instanceof History) {
                 if ($this->get('name')) {
-                    $this->log(sprintf('%s ID: %s NAME: %s %s. ERROR: %s', get_class($this), $this->get('id'), $this->get('name'), _('has failed to be destroyed'), $e->getMessage()));
+                    $msg = sprintf(
+                        '%s %s: %s %s: %s %s. %s: %s',
+                        get_class($this),
+                        _('ID'),
+                        $this->get('id'),
+                        _('Name'),
+                        $this->get('name'),
+                        _('has failed to destroy'),
+                        _('Error'),
+                        $e->getMessage()
+                    );
                 } else {
-                    $this->log(sprintf('%s ID: %s %s. ERROR: %s', get_class($this), $this->get('id'), _('has failed to be destroyed'), $e->getMessage()));
+                    $msg = sprintf(
+                        '%s %s: %s %s. %s: %s',
+                        get_class($this),
+                        _('ID'),
+                        $this->get('id'),
+                        _('has failed to destroy'),
+                        _('Error'),
+                        $e->getMessage()
+                    );
                 }
+                $this->log($msg);
             }
-            $this->debug(_('Destroy failed: %s'), array($e->getMessage()));
+            $msg = sprintf(
+                '%s: %s: %s, %s: %s',
+                _('Destroy failed'),
+                _('ID'),
+                $this->get('id'),
+                _('Error'),
+                $e->getMessage()
+            );
+            $this->debug($msg);
+            return false;
         }
         return $this;
     }
@@ -693,11 +814,17 @@ abstract class FOGController extends FOGBase
      *
      * @param string $key the key to load
      *
+     * @throws Exception
      * @return object
      */
     protected function loadItem($key)
     {
-        if (!array_key_exists($key, $this->databaseFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !in_array($key, $this->additionalFields)) {
+        $key = $this->key($key);
+        if (!$key) {
+            throw new Exception(_('No key being requested'));
+        }
+        $test = $this->_testFields($key);
+        if (!$test) {
             return $this;
         }
         $methodCall = sprintf('load%s', ucfirst($key));
@@ -707,51 +834,175 @@ abstract class FOGController extends FOGBase
         unset($methodCall);
         return $this;
     }
-    protected function addRemItem($var, $array, $array_type)
+    /**
+     * Adds or removes items from key field
+     *
+     * Example:
+     * Remove:
+     * $this->addRemItem('hosts', $some_var_data, 'diff')
+     * Add:
+     * $this->addRemItem('hosts', $some_var_data, 'merge')
+     *
+     * @param string $key        the key to add/remove from
+     * @param mixed  $array      the data to add/remove from
+     * @param string $array_type the array type to use
+     *
+     * @throws Exception
+     * @return object
+     */
+    protected function addRemItem($key, $array, $array_type)
     {
-        if (!in_array($array_type, array('merge', 'diff'))) {
-            throw new Exception(_('Invalid type'));
+        $key = $this->key($key);
+        if (!$key) {
+            throw new Exception(_('No key being requested'));
         }
-        $array_type = sprintf('array_%s', $array_type);
-        return $this->set($var, array_unique($array_type((array)$this->get($var), $array)));
+        $test = $this->_testFields($key);
+        if (!$test) {
+            throw new Exception(_('Invalid key being requested'));
+        }
+        if (!in_array($array_type, array('merge', 'diff'))) {
+            throw new Exception(
+                _('Invalid type, merge to add, diff to remove')
+            );
+        }
+        $array_type = sprintf(
+            'array_%s',
+            $array_type
+        );
+        if (!is_callable($array_type)) {
+            throw new Exception(
+                sprintf(
+                    '%s %s: %s %s',
+                    _('Array type'),
+                    _('Type'),
+                    $array_type,
+                    _('is not callable')
+                )
+            );
+        }
+        $array = $array_type(
+            (array)$this->get($key),
+            (array)$array
+        );
+        return $this->set($key, $array);
     }
+    /**
+     * Tests if an object is valid.
+     *
+     * @throws Exception
+     * @return bool
+     */
     public function isValid()
     {
         try {
-            array_walk($this->databaseFieldsRequired, function (&$field, &$index) {
-                if (!$this->get($field) === 0 && !$this->get($field)) {
+            foreach ($this->databaseFieldsRequired AS &$key) {
+                $key = $this->key($key);
+                $val = $this->get($key);
+                if (!$val) {
                     throw new Exception(self::$foglang['RequiredDB']);
                 }
-                unset($field);
-            });
-            if ($this->get('id') < 1) {
-                throw new Exception(_('Invalid ID'));
+                unset($key);
             }
-            if (array_key_exists('name', (array)$this->databaseFields) && !$this->get('name')) {
-                throw new Exception(_(get_class($this).' no longer exists'));
+            if ($this->get('id') < 1) {
+                throw new Exception(_('Invalid ID passed'));
+            }
+            if (array_key_exists('name', $this->databaseFields)) {
+                $val = trim($this->get('name'));
+                if (!$val) {
+                    throw new Exception(
+                        sprintf(
+                            '%s %s',
+                            get_class($this),
+                            _('no longer exists')
+                        )
+                    );
+                }
             }
         } catch (Exception $e) {
-            $this->debug('isValid Failed: Error: %s', array($e->getMessage()));
+            $str = sprintf(
+                '%s: %s: %s',
+                _('Failed'),
+                _('Error'),
+                $e->getMessage()
+            );
+            $this->debug($str);
             return false;
         }
         return true;
     }
+    /**
+     * Builds query strings as needed
+     *
+     * @param bool   $not     whether to compare using not operators
+     * @param string $compare the comparator to use
+     *
+     * @return array
+     */
     public function buildQuery($not = false, $compare = '=')
     {
         $join = array();
         $whereArrayAnd = array();
-        $c = null;
-        $whereInfo = function (&$value, &$field) use (&$whereArrayAnd, &$c, $not, $compare) {
+        $c = '';
+        /**
+         * Lambda function to build the where array additionals
+         *
+         * @param string $field the field to work from
+         * @param mixed  $value the value of the field
+         *
+         * @return void
+         */
+        $whereInfo = function (&$value, &$field) use (
+            &$whereArrayAnd,
+            &$c,
+            $not,
+            $compare
+        ) {
             if (is_array($value)) {
-                $whereArrayAnd[] = sprintf("`%s`.`%s` IN ('%s')", $c->databaseTable, $field, implode("','", $value));
+                $whereArrayAnd[] = sprintf(
+                    "`%s`.`%s` IN ('%s')",
+                    $c->databaseTable,
+                    $field,
+                    implode("','", $value)
+                );
             } else {
-                $whereArrayAnd[] = sprintf("`%s`.`%s` %s '%s'", $c->databaseTable, $c->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
+                if (preg_match('#%#', $value)) {
+                    $compare = 'LIKE';
+                }
+                $whereArrayAnd[] = sprintf(
+                    "`%s`.`%s` %s '%s'",
+                    $c->databaseTable,
+                    $c->databaseFields[$field],
+                    $compare,
+                    $value
+                );
             }
             unset($value, $field);
         };
-        $joinInfo = function (&$fields, &$class) use (&$join, &$whereArrayAnd, &$whereInfo, &$c, $not, $compare) {
+        /**
+         * Lambda function to build the join of a query
+         *
+         * @param string $class  the class to work from
+         * @param mixed  $fields the fields to work off
+         *
+         * @return void
+         */
+        $joinInfo = function (&$fields, &$class) use (
+            &$join,
+            &$whereArrayAnd,
+            &$c,
+            $whereInfo,
+            $not,
+            $compare
+        ) {
             $c = self::getClass($class);
-            $join[] = sprintf(' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ', $c->databaseTable, $c->databaseTable, $c->databaseFields[$fields[0]], $this->databaseTable, $this->databaseFields[$fields[1]]);
+            $join[] = sprintf(
+                ' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',
+                $c->databaseTable,
+                $c->databaseTable,
+                $c->databaseFields[$fields[0]],
+                $this->databaseTable,
+                $this->databaseFields[$fields[1]]
+            );
             if ($fields[3]) {
                 array_walk($fields[3], $whereInfo);
             }
@@ -760,25 +1011,44 @@ abstract class FOGController extends FOGBase
         array_walk($this->databaseFieldClassRelationships, $joinInfo);
         return array(implode((array)$join),$whereArrayAnd);
     }
+    /**
+     * Set's the queries data into the object as/where needed
+     *
+     * @param array $queryData the data to work from
+     *
+     * @return object
+     */
     public function setQuery(&$queryData)
     {
-        $classData = array_intersect_key((array)$queryData, (array)$this->databaseFieldsFlipped);
+        $classData = array_intersect_key(
+            (array)$queryData,
+            (array)$this->databaseFieldsFlipped
+        );
         if (count($classData) <= 0) {
-            $classData = array_intersect_key((array)$queryData, $this->databaseFields);
+            $classData = array_intersect_key(
+                (array)$queryData,
+                $this->databaseFields
+            );
         } else {
-            array_walk($this->databaseFieldsFlipped, function (&$obj_key, &$db_key) use (&$classData) {
+            foreach ($this->databaseFieldsFlipped AS $db_key => &$obj_key) {
                 $this->arrayChangeKey($classData, $db_key, $obj_key);
-                unset($obj_key, $db_key);
-            });
+                unset($db_key, $obj_key);
+            }
         }
         array_walk($classData, 'trim');
-        $this->data = array_merge((array)$this->data, (array)$classData);
-        array_walk($this->databaseFieldClassRelationships, function (&$fields, &$class) use (&$queryData) {
+        $this->data = array_merge(
+            (array)$this->data,
+            (array)$classData
+        );
+        foreach ($this->databaseFieldClassRelationships AS $class => &$fields) {
             $class = self::getClass($class);
-            $leftover = array_intersect_key((array)$queryData, (array)$class->databaseFieldsFlipped);
+            $leftover = array_intersect_key(
+                (array)$queryData,
+                (array)$class->databaseFieldsFlipped
+            );
             $this->set($fields[2], $class->setQuery($leftover));
-            unset($fields, $class);
-        });
+            unset($class, $fields);
+        }
         return $this;
     }
     /**

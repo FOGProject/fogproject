@@ -584,7 +584,7 @@ abstract class FOGBase
      */
     protected function info($txt, $data = array())
     {
-        if ((self::$service || self::$ajax) || !self::$info) {
+        if (!self::$info || self::$service || self::$ajax) {
             return;
         }
         $data = self::_setString($txt, $data);
@@ -1678,7 +1678,7 @@ abstract class FOGBase
         if (!is_string($string)) {
             throw new Exception(_('String must be a string'));
         }
-        if (!self::$FOGUser->isValid()) {
+        if (!(self::$FOGUser instanceof User && self::$FOGUser->isValid())) {
             return;
         }
         $string = trim($string);
