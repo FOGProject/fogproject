@@ -219,7 +219,7 @@ abstract class FOGManagerController extends FOGBase
         }, (array)$keys);
         $query = sprintf($this->insertBatchTemplate, $this->databaseTable, implode('`,`', $keys), implode(',', $vals), implode(',', $dups));
         self::$DB->query($query);
-        return array(self::$DB->insert_id(),self::$DB->affected_rows());
+        return array(self::$DB->insertId(),self::$DB->affectedRows());
     }
     public function update($findWhere = array(), $whereOperator = 'AND', $insertData)
     {

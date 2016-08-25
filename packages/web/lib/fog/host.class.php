@@ -121,7 +121,7 @@ class Host extends FOGController
         }
         return parent::add($key, $value);
     }
-    public function destroy($field = 'id')
+    public function destroy($key = 'id')
     {
         $find = array('hostID'=>$this->get('id'));
         self::getClass('NodeFailureManager')->destroy($find);

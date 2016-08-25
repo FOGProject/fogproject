@@ -62,9 +62,9 @@ class SchemaUpdaterPage extends FOGPage
                 unset($update);
             }
             unset($updates);
-            self::$DB->current_db(self::$DB->returnThis());
+            self::$DB->currentDb(self::$DB->returnThis());
             $newSchema = self::getClass('Schema', 1)->set('version', $version);
-            if (!self::$DB->db_name() || !$newSchema->save() || count($this->schema) != $newSchema->get('version')) {
+            if (!self::$DB->dbName() || !$newSchema->save() || count($this->schema) != $newSchema->get('version')) {
                 $errmsg = sprintf('<p>%s</p>', _('Install / Update Failed!'));
                 if (count($errors)) {
                     $errmsg .= sprintf('<h2>%s</h2>%s', _('The following errors occurred'), implode('<hr/>', $errors));

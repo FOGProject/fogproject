@@ -242,16 +242,32 @@ abstract class FOGBase
         $scriptPattern = '#/service/#i';
         $queryPattern = '#sub=requestClientInfo#i';
         if (isset($_SERVER['SCRIPT_NAME'])) {
-            self::$scriptname = $_SERVER['SCRIPT_NAME'];
+            self::$scriptname = htmlspecialchars(
+                $_SERVER['SCRIPT_NAME'],
+                ENT_QUOTES,
+                'utf-8'
+            );
         }
         if (isset($_SERVER['QUERY_STRING'])) {
-            self::$querystring = $_SERVER['QUERY_STRING'];
+            self::$querystring = htmlspecialchars(
+                $_SERVER['QUERY_STRING'],
+                ENT_QUOTES,
+                'utf-8'
+            );
         }
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            self::$httpreqwith = $_SERVER['HTTP_X_REQUESTED_WITH'];
+            self::$httpreqwith = htmlspecialchars(
+                $_SERVER['HTTP_X_REQUESTED_WITH'],
+                ENT_QUOTES,
+                'utf-8'
+            );
         }
         if (isset($_SERVER['REQUEST_METHOD'])) {
-            self::$reqmethod = $_SERVER['REQUEST_METHOD'];
+            self::$reqmethod = htmlspecialchars(
+                $_SERVER['REQUEST_METHOD'],
+                ENT_QUOTES,
+                'utf-8'
+            );
         }
         if (preg_match('#/mobile/#i', self::$scriptname)) {
             self::$isMobile = true;

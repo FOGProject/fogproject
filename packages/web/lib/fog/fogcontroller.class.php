@@ -109,7 +109,7 @@ abstract class FOGController extends FOGBase
      *
      * @var string
      */
-    protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`=%s";
+    protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE %s=%s%s";
     /**
      * Constructor to set variables.
      *
@@ -522,7 +522,7 @@ abstract class FOGController extends FOGBase
             $this->info($msg);
             self::$DB->query($query, array(), $queryArray);
             if (!$this->get('id') || $this->get('id') < 1) {
-                $this->set('id', self::$DB->insert_id());
+                $this->set('id', self::$DB->insertId());
             }
             if (!$this instanceof History) {
                 if ($this->get('name')) {
@@ -690,8 +690,8 @@ abstract class FOGController extends FOGBase
     public function destroy($key = 'id')
     {
         try {
-            if (!is_string($key)) {
-                throw new Exception(_('Key field must be a string'));
+            if (empty($key)) {
+                $key = 'id';
             }
             $key = $this->key($key);
             if (!$key) {
@@ -722,11 +722,12 @@ abstract class FOGController extends FOGBase
                 $this->destroyQueryTemplate,
                 $this->databaseTable,
                 $eColumn,
-                $paramKey
+                $paramKey,
+                ''
             );
             $queryArray = array_combine(
                 (array)$paramKey,
-                (array)$value
+                (array)$val
             );
             self::$DB->query($query, array(), $queryArray);
             if (!$this instanceof History) {
@@ -736,7 +737,7 @@ abstract class FOGController extends FOGBase
                         get_class($this),
                         _('ID'),
                         $this->get('id'),
-                        _('NAME'),
+                        _('Name'),
                         $this->get('name'),
                         _('has been successfully destroyed')
                     );
