@@ -1,10 +1,59 @@
 <?php
+/**
+ * Processes URL requests for our needs
+ *
+ * PHP version 5
+ *
+ * @category FOGURLRequests
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Processes URL requests for our needs
+ *
+ * @category FOGURLRequests
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class FOGURLRequests extends FOGBase
 {
-    private $window_size = 5;
-    private $timeout = 86400;
-    private $callback;
-    private $response = array();
+    /**
+     * The maximum urls to process at one time.
+     *
+     * @var int
+     */
+    private $_windowSize = 5;
+    /**
+     * The timeout value to process each url.
+     *
+     * @var int
+     */
+    private $_timeout = 86400;
+    /**
+     * Defines a specific call back request.
+     *
+     * TODO: Fixup more appropriately to get data
+     * from a callback rather than from an execution
+     * instance.
+     *
+     * @var string
+     */
+    private $_callback = '';
+    /**
+     * Contains the response of our url requests.
+     *
+     * @var array
+     */
+    private $_response = array();
+    /**
+     * Curl options to all url requests.
+     *
+     * @var array
+     */
     public $options = array(
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false,
@@ -12,89 +61,241 @@ class FOGURLRequests extends FOGBase
         CURLOPT_CONNECTTIMEOUT => 15,
         CURLOPT_TIMEOUT => 86400,
     );
-    private $headers = array();
-    private $requests = array();
-    private $requestMap = array();
+    /**
+     * Curl headers to send/request.
+     *
+     * @var array
+     */
+    private $_headers = array();
+    /**
+     * The requests themselves.
+     *
+     * @var array
+     */
+    private $_requests = array();
+    /**
+     * The mapping of requests so we can receive
+     * information in the proper order as requested.
+     *
+     * @var array
+     */
+    private $_requestMap = array();
+    /**
+     * Initializes our url requests object
+     *
+     * @param string $callback Optional callback.
+     *
+     * @return void
+     */
     public function __construct($callback = null)
     {
         parent::__construct();
-        $this->callback = $callback;
+        $this->_callback = $callback;
     }
+    /**
+     * Cleans up when no longer needed
+     *
+     * @return void
+     */
     public function __destruct()
     {
-        unset($this->window_size, $this->callback, $this->options, $this->headers, $this->request);
+        unset(
+            $this->_windowSize,
+            $this->_callback,
+            $this->options,
+            $this->_headers,
+            $this->_requests
+        );
     }
+    /**
+     * Magic caller to get specialized methods
+     * in a common method.
+     *
+     * @param string $name The method to get.
+     *
+     * @return mixed
+     */
     public function __get($name)
     {
         return (isset($this->{$name})) ? $this->{$name} : null;
     }
+    /**
+     * Magic caller to set specialized methods
+     * in a common method.
+     *
+     * @param string $name  The method to set.
+     * @param mixed  $value The value to set.
+     *
+     * @return object
+     */
     public function __set($name, $value)
     {
-        $this->{$name} = in_array($name, array('options', 'headers')) ? $value + $this->{$name} : $value;
-        return true;
+        $addMethods = array(
+            'options',
+            'headers',
+        );
+        if (in_array($name, $addMethods)) {
+            $this->{$name} = $value + $this->{$name};
+        } else {
+            $this->{$name} = $value;
+        }
+        return $this;
     }
+    /**
+     * Add a request to the requests variable
+     *
+     * @param FOGRollingURL $request the request to add
+     *
+     * @return object
+     */
     public function add($request)
     {
-        $this->requests[] = $request;
-        return true;
+        $this->_requests[] = $request;
+        return $this;
     }
-    public function request($url, $method = 'GET', $post_data = null, $headers = null, $options = null)
-    {
-        $this->requests[] = self::getClass('FOGRollingURL', $url, $method, $post_data, $headers, $options);
-        return true;
+    /**
+     * Generates the request and stores to our requests variable.
+     *
+     * @param string $url       The url to request.
+     * @param string $method    The method to call.
+     * @param mixed  $post_data The data to pass.
+     * @param mixed  $headers   Any additional request headers to send.
+     * @param mixed  $options   Any additional request options to use.
+     *
+     * @return object
+     */
+    public function request(
+        $url,
+        $method = 'GET',
+        $post_data = null,
+        $headers = null,
+        $options = null
+    ) {
+        $this->_requests[] = new FOGRollingURL(
+            $url,
+            $method,
+            $post_data,
+            $headers,
+            $options
+        );
+        return $this;
     }
-    public function get($url, $headers = null, $options = null)
-    {
-        return $this->request($url, 'GET', null, $headers, $options);
+    /**
+     * Get method url request definition.
+     *
+     * @param string $url     The url to request to.
+     * @param mixed  $headers The custom headers to send with this.
+     * @param mixed  $options The custom options to send with this.
+     *
+     * @return object
+     */
+    public function get(
+        $url,
+        $headers = null,
+        $options = null
+    ) {
+        return $this->request(
+            $url,
+            'GET',
+            null,
+            $headers,
+            $options
+        );
     }
-    public function post($url, $post_data = null, $headers = null, $options = null)
-    {
-        return $this->request($url, 'POST', $post_data, $headers, $options);
+    /**
+     * Post method url request definition.
+     *
+     * @param string $url       The url to request to.
+     * @param mixed  $post_data The post data to send.
+     * @param mixed  $headers   The custom headers to send with this.
+     * @param mixed  $options   The custom options to send with this.
+     *
+     * @return object
+     */
+    public function post(
+        $url,
+        $post_data = null,
+        $headers = null,
+        $options = null
+    ) {
+        return $this->request(
+            $url,
+            'POST',
+            $post_data,
+            $headers,
+            $options
+        );
     }
+    /**
+     * Actually executes the requests.
+     * If only one request, perform a _singleCurl.
+     * If multiple perform _rollingCurl.
+     *
+     * @param mixed $window_size The window size to allow at run time.
+     *
+     * @return object
+     */
     public function execute($window_size = null)
     {
-        if (sizeof($this->requests) < 1) {
+        if (sizeof($this->_requests) < 1) {
             return;
         }
-        return sizeof($this->requests) == 1 ? $this->single_curl() : $this->rolling_curl($window_size);
+        if (sizeof($this->_requests) === 1) {
+            return $this->_singleCurl();
+        }
+        return $this->_rollingCurl($window_size);
     }
-    private function single_curl()
+    /**
+     * Run a single url request.
+     *
+     * @return mixed
+     */
+    private function _singleCurl()
     {
         $ch = curl_init();
-        $request = array_shift($this->requests);
-        $options = $this->get_options($request);
+        $request = array_shift($this->_requests);
+        $options = $this->_getOptions($request);
         curl_setopt_array($ch, $options);
         $output = curl_exec($ch);
         $info = curl_getinfo($ch);
-        if ($this->callback && is_callable($this->callback)) {
-            $this->callback($output, $info, $request);
+        if ($this->_callback && is_callable($this->_callback)) {
+            $this->_callback($output, $info, $request);
         } else {
             return (array)$output;
         }
         return true;
     }
-    private function rolling_curl($window_size = null)
+    /**
+     * Perform multiple url requests
+     *
+     * @param mixed $window_size The customized window size to use.
+     *
+     * @return mixed
+     */
+    private function _rollingCurl($window_size = null)
     {
         if ($window_size) {
-            $this->window_size = $window_size;
+            $this->_windowSize = $window_size;
         }
-        if (sizeof($this->requests) < $this->window_size) {
-            $this->window_size = sizeof($this->requests);
+        if (sizeof($this->_requests) < $this->_windowSize) {
+            $this->_windowSize = sizeof($this->_requests);
         }
-        if ($this->window_size < 2) {
+        if ($this->_windowSize < 2) {
             throw new Exception(_('Window size must be greater than 1'));
         }
         $master = curl_multi_init();
-        for ($i = 0; $i < $this->window_size; $i++) {
+        for ($i = 0; $i < $this->_windowSize; $i++) {
             $ch = curl_init();
-            $options = $this->get_options($this->requests[$i]);
+            $options = $this->_getOptions($this->_requests[$i]);
             curl_setopt_array($ch, $options);
             curl_multi_add_handle($master, $ch);
             $key = (string)$ch;
-            $this->requestMap[$key] = $i;
+            $this->_requestMap[$key] = $i;
         }
         do {
-            while (($execrun = curl_multi_exec($master, $running)) == CURLM_CALL_MULTI_PERFORM) {
+            $execrun = curl_multi_exec($master, $running);
+            while ($execrun == CURLM_CALL_MULTI_PERFORM) {
+                $execrun = curl_multi_exec($master, $running);
             }
             if ($execrun != CURLM_OK) {
                 break;
@@ -103,39 +304,47 @@ class FOGURLRequests extends FOGBase
                 $info = curl_getinfo($done['handle']);
                 $output = curl_multi_getcontent($done['handle']);
                 $key = (string)$done['handle'];
-                $this->response[$this->requestMap[$key]] = $output;
-                if ($this->callback && is_callable($this->callback)) {
-                    $request = $this->requests[$this->requestMap[$key]];
-                    unset($this->requestMap[$key]);
-                    $this->callback($output, $info, $request);
+                $this->response[$this->_requestMap[$key]] = $output;
+                if ($this->_callback && is_callable($this->_callback)) {
+                    $request = $this->_requests[$this->_requestMap[$key]];
+                    unset($this->_requestMap[$key]);
+                    $this->_callback($output, $info, $request);
                 }
-                if ($i < sizeof($this->requests) && isset($this->requests[$i]) && $i < count($this->requests)) {
+                $sizeof = sizeof($this->_requests);
+                if ($i < $sizeof && isset($this->_requests[$i])) {
                     $ch = curl_init();
-                    $options = $this->get_options($this->requests[$i]);
+                    $options = $this->_getOptions($this->_requests[$i]);
                     curl_setopt_array($ch, $options);
                     curl_multi_add_handle($master, $ch);
                     $key = (string)$ch;
-                    $this->requestMap[$key] = $i;
+                    $this->_requestMap[$key] = $i;
                     $i++;
                 }
                 curl_multi_remove_handle($master, $done['handle']);
             }
             if ($running) {
-                curl_multi_select($master, $this->timeout);
+                curl_multi_select($master, $this->_timeout);
             }
         } while ($running);
         ksort($this->response);
         curl_multi_close($master);
         return $this->response;
     }
-    private function get_options($request)
+    /**
+     * Get options of the request and whole
+     *
+     * @param FOGRollingURL $request the request to get options from.
+     *
+     * @return array
+     */
+    private function _getOptions($request)
     {
         $options = $this->__get('options');
         if (ini_get('safe_mode') == 'Off' || !ini_get('safe_mode')) {
             $options[CURLOPT_FOLLOWLOCATION] = 1;
             $options[CURLOPT_MAXREDIRS] = 5;
         }
-        $url = $this->valid_url($request->url);
+        $url = $this->_validUrl($request->url);
         $headers = $this->__get('headers');
         if ($request->options) {
             $options = $request->options + $options;
@@ -149,30 +358,77 @@ class FOGURLRequests extends FOGBase
             $options[CURLOPT_HEADER] = 0;
             $options[CURLOPT_HTTPHEADER] = $headers;
         }
-        list($ip, $password, $port, $username) = self::getSubObjectIDs('Service', array('name'=>array('FOG_PROXY_IP', 'FOG_PROXY_PASSWORD', 'FOG_PROXY_PORT', 'FOG_PROXY_USERNAME')), 'value', false, 'AND', 'name', false, false);
+        list($ip, $password, $port, $username) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array(
+                    'FOG_PROXY_IP',
+                    'FOG_PROXY_PASSWORD',
+                    'FOG_PROXY_PORT',
+                    'FOG_PROXY_USERNAME'
+                )
+            ),
+            'value',
+            false,
+            'AND',
+            'name',
+            false,
+            false
+        );
         $IPs = self::getSubObjectIDs('StorageNode', '', 'ip');
         if (false !== stripos(implode('|', $IPs), $url)) {
             $options[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
             $options[CURLOPT_PROXYPORT] = $port;
             $options[CURLOPT_PROXY] = $ip;
             if ($username) {
-                $options[CURLOPT_PROXYUSERPWD] = sprintf('%s:%s', $username, $password);
+                $options[CURLOPT_PROXYUSERPWD] = sprintf(
+                    '%s:%s',
+                    $username,
+                    $password
+                );
             }
         }
         return $options;
     }
-    private function valid_url(&$URL)
+    /**
+     * Function simply ensures the url is valid.
+     *
+     * @param string $url The url test check
+     *
+     * @return string
+     */
+    private function _validUrl(&$url)
     {
-        $URL = filter_var($URL, FILTER_SANITIZE_URL);
-        if (filter_var($URL, FILTER_VALIDATE_URL) === false) {
-            unset($URL);
+        $url = filter_var($url, FILTER_SANITIZE_URL);
+        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+            unset($url);
         }
-        return $URL;
+        return $url;
     }
-    public function process($urls, $method = 'GET', $data = null, $sendAsJSON = false, $auth = false, $callback = false, $file = false)
-    {
+    /**
+     * Processes the requests as needed.
+     *
+     * @param mixed  $urls       the urls to process
+     * @param string $method     the method to use for all urls
+     * @param mixed  $data       post/get data possibly.
+     * @param bool   $sendAsJSON Send data as json if needed.
+     * @param mixed  $auth       Any authorization data needed.
+     * @param string $callback   A callback to use if needed.
+     * @param string $file       A filename to use to download a file.
+     *
+     * @return array
+     */
+    public function process(
+        $urls,
+        $method = 'GET',
+        $data = null,
+        $sendAsJSON = false,
+        $auth = false,
+        $callback = false,
+        $file = false
+    ) {
         if ($callback && is_callable($callback)) {
-            $this->callback = $callback;
+            $this->_callback = $callback;
         }
         if ($auth) {
             $this->options[CURLOPT_USERPWD] = $auth;
@@ -200,40 +456,19 @@ class FOGURLRequests extends FOGBase
         }
         return $this->execute();
     }
+    /**
+     * Checks if the url is accessible
+     *
+     * @param string $url the url to check
+     *
+     * @return bool
+     */
     public function isAvailable($url)
     {
         $headers = @get_headers($url);
-        return (bool)strpos($headers[0], '404') === false && $headers !== false;
-    }
-    public function download($file, $chunks = 2048)
-    {
-        set_time_limit(0);
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-disposition: attachment; filename='.basename($file));
-        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Expires: 0');
-        header('Pragma: public');
-        while ($i <= $size) {
-            $this->get_chunk($file, (($i==0) ? $i : $i+1), $i+$chunks);
-            $i += $chunks;
+        if ($headers === false) {
+            return false;
         }
-    }
-    private function get_chunk($file, $start, $end)
-    {
-        $origContext = $this->options;
-        $this->options[CURLOPT_URL] = $file;
-        $this->options[CURLOPT_RANGE] = $start.'-'.$end;
-        $this->options[CURLOPT_BINARYTRANSFER] = true;
-        $this->options[CURLOPT_WRITEFUNCTION] = array($this,'chunk');
-        curl_setopt_array($ch, $this->options);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        $this->options = $origContext;
-    }
-    private function chunk($ch, $str)
-    {
-        echo $str;
-        return strlen($str);
+        return strpos($headers[0], '404') !== false;
     }
 }
