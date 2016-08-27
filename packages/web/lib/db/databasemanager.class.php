@@ -1,54 +1,115 @@
 <?php
+/**
+ * Database Manager Handles communication from fog to db class.
+ *
+ * PHP version 5
+ *
+ * This is what communicates with fog to the db class.
+ *
+ * @category DatabaseManager
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Database Manager Handles communication from fog to db class.
+ *
+ * @category DatabaseManager
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class DatabaseManager extends FOGCore
 {
+    /**
+     * Initiate the connection to the database.
+     *
+     * @return object
+     */
     public function establish()
     {
         if (self::$DB) {
             return $this;
         }
-        try {
-            if (!in_array(trim(strtolower(DATABASE_TYPE)), array('mysql', 'oracle'))) {
-                throw new Exception(_('Unkown database Type. Check the DATABASE_TYPE is set correctly in "%s/lib/fog/Config.class.php"'), BASEPATH);
-            }
-        } catch (Exception $e) {
-            die(sprintf('Failed: %s: Error: %s', __METHOD__, $e->getMessage()));
-        }
-        self::$DB = FOGCore::getClass('PDODB');
-        self::getVersion();
+        self::$DB = new PDODB();
+        self::_getVersion();
         if (self::$mySchema < FOG_SCHEMA) {
             global $sub;
             $okayFiles = array(
                 'checkcredentials.php',
                 'getversion.php',
             );
-            $filename = basename($_SERVER['SCRIPT_NAME']);
+            $filename = basename(self::$scriptname);
             if (!in_array($filename, $okayFiles)) {
-                if (preg_match('#/service/#', $_SERVER['SCRIPT_NAME']) || in_array($sub, array('configure', 'authorize', 'requestClientInfo'))) {
+                $test = preg_match('#/service/#', self::$scriptname);
+                $subs = array(
+                    'configure',
+                    'authorize',
+                    'requestClientInfo'
+                );
+                if (!$test && in_array($sub, $subs)) {
+                    $test = true;
+                }
+                if ($test) {
                     if (isset($_REQUEST['json'])) {
-                        echo json_encode(array('error'=>'db'));
+                        die(
+                            json_encode(
+                                array(
+                                    'error' => 'db'
+                                )
+                            )
+                        );
                     } else {
-                        echo '#!db';
+                        die('#!db');
                     }
-                    exit;
                 }
             }
-            if (!preg_match('#schema#i', htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES, 'utf-8'))) {
+            if (!preg_match('#schema#i', self::$querystring)) {
                 $this->redirect('?node=schema');
             }
         }
         return $this;
     }
+    /**
+     * Returns the DB object
+     *
+     * @return object
+     */
     public function getDB()
     {
         return self::$DB;
     }
-    private static function getVersion()
+    /**
+     * Get's the schema version as stored in the DB.
+     *
+     * @return int
+     */
+    private static function _getVersion()
     {
-        self::$mySchema = self::$DB->query('SELECT `vValue` FROM `schemaVersion`')->fetch()->get('vValue');
+        $query = sprintf(
+            'SELECT `vValue` FROM `%s`.`schemaVersion`',
+            self::$DB->dbName()
+        );
+        self::$mySchema = self::$DB->query($query)->fetch()->get('vValue');
+        return self::$mySchema;
     }
+    /**
+     * Get columns from table testing for a specific column name
+     *
+     * @param string $table_name  the table to search
+     * @param string $column_name the column to search
+     *
+     * @return int
+     */
     public function getColumns($table_name, $column_name)
     {
-        $sql = "SELECT COUNT(`COLUMN_NAME`) AS `total` FROM `information_schema`.`COLUMNS` WHERE `TABLE_SCHEMA`='".DATABASE_NAME."' AND `TABLE_NAME`='$table_name' AND `COLUMN_NAME`='$column_name'";
+        $sql = "SELECT COUNT(`COLUMN_NAME`) AS `total` "
+            . "FROM `information_schema`.`COLUMNS` WHERE "
+            . "`TABLE_SCHEMA`='".DATABASE_NAME."' AND "
+            . "`TABLE_NAME`='$table_name' AND "
+            . "`COLUMN_NAME`='$column_name'";
         return self::$DB->query($sql)->fetch()->get('total');
     }
 }

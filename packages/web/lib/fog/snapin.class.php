@@ -20,9 +20,8 @@ class Snapin extends FOGController
         'hide' => 'sHideLog',
         'timeout' => 'sTimeout',
         'packtype' => 'sPackType',
-        //'hash' => 'sHash',
-        //'stateID' => 'sStateID',
-        //'hashTime' => 'sHashTime',
+        'hash' => 'sHash',
+        'size' => 'sSize',
         'anon3' => 'sAnon3',
     );
     protected $databaseFieldsRequired = array(

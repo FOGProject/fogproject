@@ -2267,9 +2267,6 @@ $this->schema[] = array(
 );
 // 234
 $this->schema[] = array(
-    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sStateID` INT NOT NULL DEFAULT '0'",
-    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sHash` VARCHAR(32) NOT NULL DEFAULT ''",
-    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sHashTime` DATETIME NULL DEFAULT NULL",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings` (`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES
-    ('FOG_SNAPIN_HASH_EXPIRE_TIME','This setting sets the expiration time of snapin hashes.  This time is in seconds.  The default time is 1 week or 604800 seconds.','604800','FOG Client - Snapins')",
+    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sHash` VARCHAR(255) NOT NULL DEFAULT ''",
+    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sSize` BIGINT NOT NULL DEFAULT 0",
 );
