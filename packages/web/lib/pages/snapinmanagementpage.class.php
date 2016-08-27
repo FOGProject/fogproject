@@ -26,7 +26,6 @@ class SnapinManagementPage extends FOGPage
             $this->notes = array(
                 self::$foglang['Snapin'] => $this->obj->get('name'),
                 self::$foglang['File'] => $this->obj->get('file'),
-                _('SHA512 Hash') => $this->obj->get('hash'),
                 _('Filesize') => $this->formatByteSize($this->obj->get('size')),
             );
         }
@@ -165,7 +164,7 @@ class SnapinManagementPage extends FOGPage
             _('Replicate?') => '<input class="snapinreplicate-input" type="checkbox" name="toReplicate" value="1" checked/>',
             _('Reboot after install') => '<input class="snapinreboot-input action" type="radio" name="action" value="reboot"/>',
             _('Shutdown after install') => '<input class="snapinshutdown-input action" type="radio" name="action" value="shutdown"/>',
-            _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
+            sprintf('%s<br/><small>%s</small>',_('Snapin Command'),_('read-only')) => '<textarea class="snapincmd" readonly></textarea>',
             '&nbsp;' => sprintf('<input name="add" type="submit" value="%s"/>', _('Add'))
         );
         unset($files, $selectFiles);
@@ -322,7 +321,8 @@ class SnapinManagementPage extends FOGPage
             _('Replicate?') => sprintf('<input class="snapinreplicate-input" type="checkbox" name="toReplicate" value="1"%s/>', $this->obj->get('toReplicate') ? ' checked' : ''),
             _('Snapin Arguments Hidden?') => sprintf('<input class="snapinhidden-input" type="checkbox" name="isHidden" value="1"%s/>', $this->obj->get('hide') ? ' checked' : ''),
             _('Snapin Timeout (seconds)') => sprintf('<input class="snapintimeout-input" type="text" name="timeout" value="%s"/>', $this->obj->get('timeout')),
-            _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
+            sprintf('%s<br/><small>%s</small>',_('Snapin Command'),_('read-only')) => '<textarea class="snapincmd" readonly></textarea>',
+            sprintf('%s <small>%s</small><br/><small>%s</small>',_('File Hash'),'sha512',_('read-only')) => sprintf('<textarea readonly>%s</textarea>',$this->obj->get('hash')),
             '' => sprintf('<input name="update" type="submit" value="%s"/>', _('Update')),
         );
         echo '<div id="tab-container"><!-- General --><div id="snap-gen">';
