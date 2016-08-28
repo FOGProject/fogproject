@@ -47,7 +47,7 @@ $getBytes = function ($dev, $file) {
     if (!is_string($file)) {
         throw new Exception(_('File must be a string'));
     }
-    if (!in_array($file, array('tx_bytes','rx_bytes'))) {
+    if (!in_array($file, array('tx_bytes', 'rx_bytes'))) {
         throw new Exception(_('Only tx and rx bytes files can be read'));
     }
     $path = "/sys/class/net/$dev/statistics/$file";

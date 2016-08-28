@@ -365,7 +365,7 @@ abstract class FOGBase
 
         // If props is set to true return the properties of the class.
         if ($props === true) {
-             return $obj->getDefaultProperties();
+            return $obj->getDefaultProperties();
         }
 
         // Return the main object

@@ -126,7 +126,7 @@ class PDODB extends DatabaseManager
                 return $this;
             }
             $type = DATABASE_TYPE;
-            $host = str_replace(array('p:','P:'), '', DATABASE_HOST);
+            $host = str_replace(array('p:', 'P:'), '', DATABASE_HOST);
             $user = DATABASE_USERNAME;
             $pass = DATABASE_PASSWORD;
             $dsn = sprintf(

@@ -221,12 +221,12 @@ class ServiceConfigurationPage extends FOGPage
                             continue;
                         }
                         $gftime = self::niceDate($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
-                            $this->data[] = array(
+                        $this->data[] = array(
                                 'gf_time'=>self::niceDate(sprintf('%s:%s', $GreenFog->get('hour'), $GreenFog->get('min')))->format('H:i'),
                                 'gf_action'=>($GreenFog->get('action') == 'r' ? 'Reboot' : ($GreenFog->get('action') == 's' ? _('Shutdown') : _('N/A'))),
                                 'gf_id'=>$GreenFog->get('id'),
                                 );
-                                unset($GreenFog);
+                        unset($GreenFog);
                     }
                         $this->render();
                         echo '</form>';

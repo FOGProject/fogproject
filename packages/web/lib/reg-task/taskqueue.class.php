@@ -189,7 +189,7 @@ class TaskQueue extends TaskingElement
         list(
             $emailAction,
             $emailAddress,
-            $emailBinary,$fromEmail
+            $emailBinary, $fromEmail
         ) = self::getSubObjectIDs(
             'Service',
             array(
