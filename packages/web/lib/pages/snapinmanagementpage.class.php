@@ -1,25 +1,59 @@
 <?php
+/**
+ * This is what presents the user with the Snapin Management
+ * aspect of FOG.
+ *
+ * PHP version 5
+ *
+ * @category SnapinManagementPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * This is what presents the user with the Snapin Management
+ * aspect of FOG.
+ *
+ * @category SnapinManagementPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class SnapinManagementPage extends FOGPage
 {
-    private static $argTypes;
+    private static $_argTypes = array(
+        'MSI' => array('msiexec.exe','/i','/quiet'),
+        'Batch Script' => array('cmd.exe','/c'),
+        'Bash Script' => array('/bin/bash'),
+        'VB Script' => array('cscript.exe'),
+        'Powershell' => array(
+            'powershell.exe',
+            '-ExecutionPolicy Bypass -NoProfile -File'
+        ),
+        'Mono' => array('mono'),
+    );
     public $node = 'snapin';
+    /**
+     * The initializer for the Management Page.
+     *
+     * @param string $name The name to work from.
+     *
+     * @return void
+     */
     public function __construct($name = '')
     {
         $this->name = 'Snapin Management';
         parent::__construct($name);
-        self::$argTypes = array(
-            'MSI' => array('msiexec.exe','/i','/quiet'),
-            'Batch Script' => array('cmd.exe','/c'),
-            'Bash Script' => array('/bin/bash'),
-            'VB Script' => array('cscript.exe'),
-            'Powershell' => array('powershell.exe','-ExecutionPolicy Bypass -NoProfile -File'),
-            'Mono' => array('mono'),
-        );
-        //$this->menu['maker'] = _('SnapinPack Config');
         if ($_REQUEST['id']) {
             $this->subMenu = array(
                 "$this->linkformat#snap-gen" => self::$foglang['General'],
-                "$this->linkformat#snap-storage" => sprintf('%s %s', self::$foglang['Storage'], self::$foglang['Group']),
+                "$this->linkformat#snap-storage" => sprintf(
+                    '%s %s',
+                    self::$foglang['Storage'],
+                    self::$foglang['Group']
+                ),
                 $this->membership => self::$foglang['Membership'],
                 $this->delformat => self::$foglang['Delete'],
             );
@@ -29,16 +63,35 @@ class SnapinManagementPage extends FOGPage
                 _('Filesize') => $this->formatByteSize($this->obj->get('size')),
             );
         }
-        self::$HookManager->processEvent('SUB_MENULINK_DATA', array('menu'=>&$this->menu, 'submenu'=>&$this->subMenu, 'id'=>&$this->id, 'notes'=>&$this->notes, 'object'=>&$this->obj, 'linkformat'=>&$this->linkformat, 'delformat'=>&$this->delformat, 'membership'=>&$this->membership));
+        self::$HookManager->processEvent(
+            'SUB_MENULINK_DATA',
+            array(
+                'menu' => &$this->menu,
+                'submenu' => &$this->subMenu,
+                'id' => &$this->id,
+                'notes' => &$this->notes,
+                'object' => &$this->obj,
+                'linkformat' => &$this->linkformat,
+                'delformat' => &$this->delformat,
+                'membership' => &$this->membership
+            )
+        );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
+            '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction"/>',
             _('Snapin Name'),
             _('Is Pack'),
             _('Storage Group'),
         );
         $this->templates = array(
-            '<input type="checkbox" name="snapin[]" value="${id}" class="toggle-action" />',
-            sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit')),
+            '<input type="checkbox" name="snapin[]" value="${id}" '
+            . 'class="toggle-action"/>',
+            sprintf(
+                '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
+                $this->node,
+                $this->id,
+                _('Edit')
+            ),
             '${packtype}',
             '${storage_group}',
         );
@@ -63,20 +116,52 @@ class SnapinManagementPage extends FOGPage
             unset($Snapin);
         };
     }
-    private function maker()
+    /**
+     * Generates the selector for Snapin Packs.
+     *
+     * @return void
+     */
+    private function _maker()
     {
         $args = array(
-            'MSI'=>array('msiexec.exe','/i &quot;[FOG_SNAPIN_PATH]\MyMSI.msi&quot;'),
-            'MSI + MST'=>array('msiexec.exe','/i &quot;[FOG_SNAPIN_PATH]\MyMST.mst&quot;'),
-            'Batch Script'=>array('cmd.exe','/c &quot;[FOG_SNAPIN_PATH]\MyScript.bat&quot;'),
-            'Bash Script'=>array('/bin/bash','&quot;[FOG_SNAPIN_PATH]/MyScript.sh&quot;'),
-            'VB Script'=>array('cscript.exe','&quot;[FOG_SNAPIN_PATH]\MyScript.vbs&quot;'),
-            'PowerShell Script'=>array('powershell.exe','-ExecutionPolicy Bypass -File &quot;[FOG_SNAPIN_PATH]\MyScript.ps1&quot;'),
-            'EXE'=>array('[FOG_SNAPIN_PATH]\MyFile.exe'),
-            'Mono'=>array('mono','&quot;[FOG_SNAPIN_PATH]/MyFile.exe&quot;'),
+            'MSI' => array(
+                'msiexec.exe',
+                '/i &quot;[FOG_SNAPIN_PATH]\MyMSI.msi&quot;'
+            ),
+            'MSI + MST' => array(
+                'msiexec.exe',
+                '/i &quot;[FOG_SNAPIN_PATH]\MyMST.mst&quot;'
+            ),
+            'Batch Script' => array(
+                'cmd.exe',
+                '/c &quot;[FOG_SNAPIN_PATH]\MyScript.bat&quot;'
+            ),
+            'Bash Script' => array(
+                '/bin/bash',
+                '&quot;[FOG_SNAPIN_PATH]/MyScript.sh&quot;'
+            ),
+            'VB Script' => array(
+                'cscript.exe',
+                '&quot;[FOG_SNAPIN_PATH]\MyScript.vbs&quot;'
+            ),
+            'PowerShell Script' => array(
+                'powershell.exe',
+                '-ExecutionPolicy Bypass -File &quot;'
+                .'[FOG_SNAPIN_PATH]\MyScript.ps1&quot;'
+            ),
+            'EXE' => array(
+                '[FOG_SNAPIN_PATH]\MyFile.exe'
+            ),
+            'Mono' => array(
+                'mono',
+                '&quot;[FOG_SNAPIN_PATH]/MyFile.exe&quot;'
+            ),
         );
         ob_start();
-        printf('<select id="packTypes"><option value="">- %s -</option>', _('Please select an option'));
+        printf(
+            '<select id="packTypes"><option value="">- %s -</option>',
+            _('Please select an option')
+        );
         array_walk($args, function (&$cmd, &$type) {
             printf('<option file="%s" args="%s">%s</option>', $cmd[0], isset($cmd[1]) ? $cmd[1] : '', $type);
         });
@@ -135,7 +220,7 @@ class SnapinManagementPage extends FOGPage
         );
         ob_start();
         printf('<select name="argTypes" id="argTypes"><option value="">- %s -</option>', _('Please select an option'));
-        array_walk(self::$argTypes, function (&$cmd, &$type) {
+        array_walk(self::$_argTypes, function (&$cmd, &$type) {
             printf('<option value="%s" rwargs="%s" args="%s">%s</option>', $cmd[0], $cmd[1], $cmd[2], $type);
         });
         echo '</select>';
@@ -146,7 +231,7 @@ class SnapinManagementPage extends FOGPage
         }
         $StorageGroups = self::getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup'] ? $_REQUEST['storagegroup'] : (isset($groupselect) ? $groupselect : ''));
         $template1 = ob_get_clean();
-        $template2 = $this->maker();
+        $template2 = $this->_maker();
         $fields = array(
             _('Snapin Name') => sprintf('<input class="snapinname-input" type="text" name="name" value="%s"/>', $_REQUEST['name']),
             _('Snapin Storage Group') => $StorageGroups,
@@ -298,12 +383,12 @@ class SnapinManagementPage extends FOGPage
         $selectFiles = sprintf('<select class="snapinfileexist-input cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- %s -</option>%s</select>', _('Please select an option'), ob_get_clean());
         ob_start();
         printf('<select name="argTypes" id="argTypes"><option value="">- %s -</option>', _('Please select an option'));
-        array_walk(self::$argTypes, function (&$cmd, &$type) {
+        array_walk(self::$_argTypes, function (&$cmd, &$type) {
             printf('<option value="%s" rwargs="%s" args="%s">%s</option>', $cmd[0], $cmd[1], $cmd[2], $type);
         });
         echo '</select>';
         $template1 = ob_get_clean();
-        $template2 = $this->maker();
+        $template2 = $this->_maker();
         $fields = array(
             _('Snapin Name') => sprintf('<input class="snapinname-input" type="text" name="name" value="%s"/>', $this->obj->get('name')),
             _('Snapin Type')=> sprintf('<select class="snapinpack-input" name="packtype" id="snapinpack"><option value="0"%s>%s</option><option value="1"%s>%s</option></select>', !$this->obj->get('packtype') ? ' selected' : '', _('Normal Snapin'), $this->obj->get('packtype') ? ' selected' : '', _('Snapin Pack')),
