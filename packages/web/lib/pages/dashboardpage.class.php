@@ -116,7 +116,7 @@ class DashboardPage extends FOGPage
         $URLs = $StorageName = array();
         $Nodes = self::getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1, 'isEnabled'=>1));
         $bandwidthPath = self::getSetting('FOG_NFS_BANDWIDTHPATH');
-        foreach ($Nodes AS $StorageNode) {
+        foreach ($Nodes as $StorageNode) {
             if (!$StorageNode->isValid()) {
                 continue;
             }

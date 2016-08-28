@@ -241,7 +241,7 @@ class FOGSubMenu extends FOGBase
                                         $string,
                                         $link
                                     );
-                                } else if ($this->defaultSubs[$node]) {
+                                } elseif ($this->defaultSubs[$node]) {
                                     printf(
                                         $string,
                                         "{$this->defaultSubs[$node]}&tab=$link"

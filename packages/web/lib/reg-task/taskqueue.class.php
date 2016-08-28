@@ -1,12 +1,38 @@
 <?php
+/**
+ * The queue handling system for FOG's checkin/checkout processes.
+ *
+ * PHP version 5
+ *
+ * @category TaskQueue
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * The queue handling system for FOG's checkin/checkout processes.
+ *
+ * @category TaskQueue
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class TaskQueue extends TaskingElement
 {
+    /**
+     * Handles task checkin
+     *
+     * @throws Exception
+     * @return void
+     */
     public function checkIn()
     {
         try {
             $this->Task
                 ->set('stateID', $this->getCheckedInState())
-                ->set('checkinTime', $this->formatTime('', 'Y-m-d H:i:s'))
+                ->set('checkinTime', $this->formatTime('now', 'Y-m-d H:i:s'))
                 ->save();
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update task'));
@@ -16,48 +42,119 @@ class TaskQueue extends TaskingElement
                     ->getImage()->set('size', '')
                     ->save();
                 if ($this->Task->isMulticast()) {
-                    $msID = @min(self::getSubObjectIDs('MulticastSessionsAssociation', array('taskID'=>$this->Task->get('id')), 'msID'));
-                    $MulticastSession = self::getClass('MulticastSessions', $msID);
+                    $msID = @min(
+                        self::getSubObjectIDs(
+                            'MulticastSessionsAssociation',
+                            array(
+                                'taskID' => $this->Task->get('id')
+                            ),
+                            'msID'
+                        )
+                    );
+                    $MulticastSession = self::getClass(
+                        'MulticastSessions',
+                        $msID
+                    );
                     if (!$MulticastSession->isValid()) {
                         throw new Exception(_('Invalid Multicast Session'));
                     }
+                    if ($MulticastSession->get('clients') < 0) {
+                        $clients = 1;
+                    } else {
+                        $clients = $MulticastSession->get('clients') + 1;
+                    }
                     $MulticastSession
-                        ->set('clients', $MulticastSession->get('clients') < 0 ? 1 : $MulticastSession->get('clients')+1)
+                        ->set('clients', $clients)
                         ->set('stateID', $this->getProgressState());
                     if (!$MulticastSession->save()) {
                         throw new Exception(_('Failed to update Session'));
                     }
                     if ($this->Host->isValid()) {
-                        $this->Host->set('imageID', $MulticastSession->get('image'));
+                        $this->Host
+                            ->set(
+                                'imageID',
+                                $MulticastSession->get('image')
+                            );
                     }
                 } elseif ($this->Task->isForced()) {
-                    self::$HookManager->processEvent('TASK_GROUP', array('StorageGroup'=>&$this->StorageGroup, 'Host'=>&$this->Host));
+                    self::$HookManager->processEvent(
+                        'TASK_GROUP',
+                        array(
+                            'StorageGroup' => &$this->StorageGroup,
+                            'Host' => &$this->Host
+                        )
+                    );
                     $this->StorageNode = null;
-                    self::$HookManager->processEvent('TASK_NODE', array('StorageNode'=>&$this->StorageNode, 'Host'=>&$this->Host));
+                    self::$HookManager->processEvent(
+                        'TASK_NODE',
+                        array(
+                            'StorageNode' => &$this->StorageNode,
+                            'Host' => &$this->Host
+                        )
+                    );
                     if (!$this->StorageNode || !$this->StorageNode->isValid()) {
-                        $this->StorageNode = $this->Image->getStorageGroup()->getOptimalStorageNode($this->Host->get('imageID'));
+                        $this->StorageNode = $this->Image
+                            ->getStorageGroup()
+                            ->getOptimalStorageNode(
+                                $this->Host->get('imageID')
+                            );
                     }
                     if ($this->Task->isCapture()) {
-                        $this->StorageNode = $this->Image->StorageGroup->getMasterStorageNode();
+                        $this->StorageNode = $this->Image
+                            ->getStorageGroup()
+                            ->getMasterStorageNode();
                     }
                 } else {
-                    $this->StorageNode = self::nodeFail(self::getClass('StorageNode', $this->Task->get('NFSMemberID')), $this->Host->get('id'));
-                    if (!$this->StorageNode || !$this->StorageNode->isValid()) {
-                        throw new Exception(_('The node trying to be used is currently unavailable. On reboot we will try to find a new node automatically.'));
+                    $this->StorageNode = self::nodeFail(
+                        self::getClass(
+                            'StorageNode',
+                            $this->Task->get('NFSMemberID')
+                        ),
+                        $this->Host->get('id')
+                    );
+                    $nodeTest = $this->StorageNode instanceof StorageNode &&
+                        $this->StorageNode->isValid();
+
+                    if (!$nodeTest) {
+                        $msg = sprintf(
+                            '%s %s. %s %s.',
+                            _('The node trying to be used is currently'),
+                            _('unavailable'),
+                            _('On reboot we will try to find a new node'),
+                            _('automatically')
+                        );
+                        throw new Exception($msg);
                     }
                     $totalSlots = $this->StorageNode->get('maxClients');
                     $usedSlots = $this->StorageNode->getUsedSlotCount();
                     $inFront = $this->Task->getInFrontOfHostCount();
                     $groupOpenSlots = $totalSlots - $usedSlots;
                     if ($groupOpenSlots < 1) {
-                        throw new Exception(sprintf('%s, %s %d %s', _('No open slots'), _('There are'), $inFront, _('before me.')));
+                        $msg = sprintf(
+                            '%s, %s %d %s.',
+                            _('No open slots'),
+                            _('There are'),
+                            $inFront,
+                            _('before me')
+                        );
+                        throw new Exception($msg);
                     }
                     if ($groupOpenSlots <= $inFront) {
-                        throw new Exception(sprintf('%s %d %s', _('There are open slots, but'), $inFront, _('before me on this node')));
+                        $msg = sprintf(
+                            '%s, %s %d %s.',
+                            _('There are open slots'),
+                            _('but'),
+                            $inFront,
+                            _('before me on this node')
+                        );
+                        throw new Exception($msg);
                     }
                 }
                 $this->Task
-                    ->set('NFSMemberID', $this->StorageNode->get('id'));
+                    ->set(
+                        'NFSMemberID',
+                        $this->StorageNode->get('id')
+                    );
                 if (!$this->ImageLog(true)) {
                     throw new Exception(_('Failed to update/create image log'));
                 }
@@ -71,15 +168,45 @@ class TaskQueue extends TaskingElement
             if (!$this->TaskLog()) {
                 throw new Exception(_('Failed to update/create task log'));
             }
-            self::$EventManager->notify('HOST_CHECKIN', array('Host'=>&$this->Host));
+            self::$EventManager->notify(
+                'HOST_CHECKIN',
+                array(
+                    'Host' => &$this->Host
+                )
+            );
             echo '##@GO';
         } catch (Exception $e) {
             echo $e->getMessage();
         }
     }
-    private function email()
+    /**
+     * Handles the email sending.
+     *
+     * @return void
+     */
+    private function _email()
     {
-        list($emailAction, $emailAddress, $emailBinary, $fromEmail) = self::getSubObjectIDs('Service', array('name'=>array('FOG_EMAIL_ACTION', 'FOG_EMAIL_ADDRESS', 'FOG_EMAIL_BINARY', 'FOG_FROM_EMAIL')), 'value', false, 'AND', 'name', false, '');
+        list(
+            $emailAction,
+            $emailAddress,
+            $emailBinary,$fromEmail
+        ) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array(
+                    'FOG_EMAIL_ACTION',
+                    'FOG_EMAIL_ADDRESS',
+                    'FOG_EMAIL_BINARY',
+                    'FOG_FROM_EMAIL'
+                )
+            ),
+            'value',
+            false,
+            'AND',
+            'name',
+            false,
+            false
+        );
         if (!$emailAction || !$emailAddress) {
             return;
         }
@@ -87,55 +214,175 @@ class TaskQueue extends TaskingElement
             return;
         }
         $SnapinJob = $this->Host->get('snapinjob');
-        $SnapinTasks = self::getSubObjectIDs('SnapinTask', array('stateID'=>$this->getQueuedStates(), 'jobID'=>$SnapinJob->get('id')), 'snapinID');
-        $SnapinNames = $SnapinJob->isValid() ? self::getSubObjectIDs('Snapin', array('id'=>$SnapinTasks), 'name') : array();
+        $SnapinTasks = self::getSubObjectIDs(
+            'SnapinTask',
+            array(
+                'stateID' => $this->getQueuedStates(),
+                'jobID' => $SnapinJob->get('id')
+            ),
+            'snapinID'
+        );
+        $SnapinNames = array();
+        if ($SnapinJob->isValid()) {
+            $SnapinNames = self::getSubObjectIDs(
+                'Snapin',
+                array(
+                    'id' => $SnapinTasks,
+                ),
+                'name'
+            );
+        }
         if (!$emailBinary) {
             $emailBinary = '/usr/sbin/sendmail -t -f noreply@fogserver.com -i';
         }
-        $emailBinary = preg_replace('#\$\{server-name\}#', $this->StorageNode->isValid() ? $this->StorageNode->get('name') : 'fogserver', $emailBinary);
+        $reg = '#\$\{server-name\}#';
+        $nodeName = 'fogserver';
+        if ($this->StorageNode->isValid()) {
+            $nodeName = $this->StorageNode->get('name');
+        }
+        $emailBinary = preg_replace(
+            $reg,
+            $nodeName,
+            $emailBinary
+        );
         if (!$fromEmail) {
             $fromEmail = 'noreply@fogserver.com';
         }
-        $fromEmail = preg_replace('#\$\{server-name\}#', $this->StorageNode->isValid() ? $this->StorageNode->get('name') : 'fogserver', $fromEmail);
-        $headers = sprintf("From: %s\r\nX-Mailer: PHP/%s", $fromEmail, phpversion());
-        $engineer = ucwords($this->Task->get('createdBy'));
-        $primaryUser = ucwords($this->Host->get('inventory')->get('primaryUser'));
-        $email = array(
-            sprintf("%s:-\n", _('Machine Details')) => '',
-            sprintf("\n%s: ", _('Host Name')) => $this->Host->get('name'),
-            sprintf("\n%s: ", _('Computer Model')) => $this->Host->get('inventory')->get('sysproduct'),
-            sprintf("\n%s: ", _('Serial Number')) => $this->Host->get('inventory')->get('sysserial'),
-            sprintf("\n%s: ", _('MAC Address')) => $this->Host->get('mac')->__toString(),
-            "\n" => '',
-            sprintf("\n%s: ", _('Image Used')) => $this->Task->getImage()->get('name'),
-            sprintf("\n%s: ", _('Snapin Used')) => implode(', ', (array)$SnapinNames),
-            "\n" => '',
-            sprintf("\n%s: ", _('Imaged By')) => $engineer,
-            sprintf("\n%s: ", _('Imaged For')) => $primaryUser,
+        $fromEmail = preg_replace(
+            $reg,
+            $nodeName,
+            $fromEmail
         );
-        self::$HookManager->processEvent('EMAIL_ITEMS', array('email'=>&$email, 'Host'=>&$this->Host));
+        $headers = sprintf(
+            "From: %s\r\nX-Mailer: PHP/%s",
+            $fromEmail,
+            phpversion()
+        );
+        $engineer = ucwords(
+            $this->Task->get('createdBy')
+        );
+        $primaryUser = ucwords(
+            $this->Host->get('inventory')->get('primaryUser')
+        );
+        $email = array(
+            sprintf(
+                "%s:-\n",
+                _('Machine Details')
+            ) => '',
+            sprintf(
+                "\n%s: ",
+                _('Host Name')
+            ) => $this->Host->get('name'),
+                sprintf(
+                    "\n%s: ",
+                    _('Computer Model')
+                ) => $this->Host->get('inventory')->get('sysproduct'),
+                    sprintf(
+                        "\n%s: ",
+                        _('Serial Number')
+                    ) => $this->Host->get('inventory')->get('sysserial'),
+                        sprintf(
+                            "\n%s: ",
+                            _('MAC Address')
+                        ) => $this->Host->get('mac')->__toString(),
+                            "\n" => '',
+                            sprintf(
+                                "\n%s: ",
+                                _('Image Used')
+                            ) => $this->Task->getImage()->get('name'),
+                                sprintf(
+                                    "\n%s: ",
+                                    _('Snapin Used')
+                                ) => implode(', ', (array)$SnapinNames),
+                                    "\n" => '',
+                                    sprintf(
+                                        "\n%s: ",
+                                        _('Imaged By')
+                                    ) => $engineer,
+                                    sprintf(
+                                        "\n%s: ",
+                                        _('Imaged For')
+                                    ) => $primaryUser,
+                                );
+        self::$HookManager->processEvent(
+            'EMAIL_ITEMS',
+            array(
+                'email' => &$email,
+                'Host' => &$this->Host
+            )
+        );
         ob_start();
-        array_walk($email, function (&$val, &$key) {
-            printf('%s%s', $key, $val);
-            unset($val, $key);
-        });
+        array_walk(
+            $email,
+            function (&$val, &$key) {
+                printf('%s%s', $key, $val);
+                unset($val, $key);
+            }
+        );
         $emailMe = ob_get_clean();
-        $stat = sprintf('%s - %s', $this->Host->get('name'), _('Image Task Completed'));
+        $stat = sprintf(
+            '%s - %s',
+            $this->Host->get('name'),
+            _('Image Task Completed')
+        );
         if ($this->Host->get('inventory')->get('other1')) {
-            mail($emailAddress, sprintf('ISSUE=%s PROJ=1', $this->Host->get('inventory')->get('other1')), $emailMe, $headers);
-            $emailMe .= sprintf("\n%s (%s): %s", _('Imaged For'), _('Call'), $this->Host->get('inventory')->get('other1'));
+            mail(
+                $emailAddress,
+                sprintf(
+                    'ISSUE=%s PROJ=1',
+                    $this->Host->get('inventory')->get('other1')
+                ),
+                $emailMe,
+                $headers
+            );
+            $emailMe .= sprintf(
+                "\n%s (%s): %s",
+                _('Imaged For'),
+                _('Call'),
+                $this->Host->get('inventory')->get('other1')
+            );
             $this->Host->get('inventory')->set('other1', '')->save();
         }
-        mail($emailAddress, $stat, $emailMe, $headers);
+        mail(
+            $emailAddress,
+            $stat,
+            $emailMe,
+            $headers
+        );
     }
-    private function move_upload()
+    /**
+     * Function moves the images from dev into root when upload
+     * tasking is finished.
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function _moveUpload()
     {
         if (!$this->Task->isCapture()) {
             return;
         }
-        $macftp = strtolower(str_replace(array(':', '-', '.'), '', $_REQUEST['mac']));
-        $src = sprintf('%s/dev/%s', $this->StorageNode->get('ftppath'), $macftp);
-        $dest = sprintf('%s/%s', $this->StorageNode->get('ftppath'), $this->Image->get('path'));
+        $macftp = strtolower(
+            str_replace(
+                array(
+                    ':',
+                    '-',
+                    '.'
+                ),
+                '',
+                $_REQUEST['mac']
+            )
+        );
+        $src = sprintf(
+            '%s/dev/%s',
+            $this->StorageNode->get('ftppath'),
+            $macftp
+        );
+        $dest = sprintf(
+            '%s/%s',
+            $this->StorageNode->get('ftppath'),
+            $this->Image->get('path')
+        );
         self::$FOGFTP
             ->set('host', $this->StorageNode->get('ip'))
             ->set('username', $this->StorageNode->get('user'))
@@ -147,24 +394,49 @@ class TaskQueue extends TaskingElement
         if ($this->Image->get('format') == 1) {
             $this->Image->set('format', 0);
         }
-        $this->Image->set('deployed', self::niceDate()->format('Y-m-d H:i:s'))->save();
+        $this->Image
+            ->set(
+                'deployed',
+                self::niceDate()->format('Y-m-d H:i:s')
+            )->save();
     }
+    /**
+     * Handles task checkout
+     *
+     * @throws Exception
+     * @return void
+     */
     public function checkout()
     {
         if ($this->Task->isSnapinTasking()) {
             die('##');
         }
         if ($this->Task->isMulticast()) {
-            $MCTask = self::getClass('MulticastSessionsAssociation')->set('taskID', $this->Task->get('id'))->load('taskID');
+            $MCTask = self::getClass('MulticastSessionsAssociation')
+                ->set(
+                    'taskID',
+                    $this->Task->get('id')
+                )->load('taskID');
             $MulticastSession = $MCTask->getMulticastSession();
-            $MulticastSession->set('clients', ($MulticastSession->get('clients') < 1 ? 0 : $MulticastSession->get('clients') - 1))->save();
+            if ($MulticastSession->get('clients') < 0) {
+                $clients = 1;
+            } else {
+                $clients = $MulticastSession->get('clients') - 1;
+            }
+            $MulticastSession
+                ->set('clients', $clients)
+                ->save();
         }
-        $this->Host->set('pub_key', '')->set('sec_tok', '');
+        $this->Host
+            ->set('pub_key', '')
+            ->set('sec_tok', '');
         if ($this->Task->isDeploy()) {
-            $this->Host->set('deployed', self::niceDate()->format('Y-m-d H:i:s'));
-            $this->email();
+            $this->Host
+                ->set('deployed', self::niceDate()->format('Y-m-d H:i:s'));
+            $this->_email();
+        } elseif ($this->Task->isCapture()) {
+            $this->_moveUpload();
         }
-        $this->move_upload();
         $this->Task
             ->set('pct', 100)
             ->set('percent', 100)
@@ -181,7 +453,12 @@ class TaskQueue extends TaskingElement
         if (!$this->ImageLog(false)) {
             throw new Exception(_('Failed to update imaging log'));
         }
-        self::$EventManager->notify('HOST_IMAGE_COMPLETE', array('HostName'=>$this->Host->get('name')));
+        self::$EventManager->notify(
+            'HOST_IMAGE_COMPLETE',
+            array(
+                'HostName' => $this->Host->get('name')
+            )
+        );
         echo '##';
     }
 }

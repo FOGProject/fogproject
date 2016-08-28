@@ -224,7 +224,7 @@ abstract class FOGController extends FOGBase
                 _('Object'),
                 $this->data[$key]->__toString()
             );
-        } else if (is_array($this->data[$key])) {
+        } elseif (is_array($this->data[$key])) {
             $msg = sprintf(
                 '%s: %s',
                 _('Returning array within key'),
@@ -455,7 +455,7 @@ abstract class FOGController extends FOGBase
             if (count($this->aliasedFields)) {
                 $this->arrayRemove($this->aliasedFields, $this->databaseFields);
             }
-            foreach ($this->databaseFields AS $key => &$column) {
+            foreach ($this->databaseFields as $key => &$column) {
                 $key = $this->key($key);
                 $column = trim($column);
                 $eColumn = sprintf('`%s`', $column);
@@ -463,24 +463,24 @@ abstract class FOGController extends FOGBase
                 $paramUpdate = sprintf(':%s_update', $column);
                 $val = $this->get($key);
                 switch ($key) {
-                case 'createdBy':
-                    if (!$val) {
-                        if (isset($_SESSION['FOG_USERNAME'])) {
-                            $val = trim($_SESSION['FOG_USERNAME']);
-                        } else {
-                            $val = 'fog';
+                    case 'createdBy':
+                        if (!$val) {
+                            if (isset($_SESSION['FOG_USERNAME'])) {
+                                $val = trim($_SESSION['FOG_USERNAME']);
+                            } else {
+                                $val = 'fog';
+                            }
                         }
-                    }
-                    break;
-                case 'createdTime':
-                    if (!($val && $this->validDate($val))) {
-                        $val = $this->formatTime('now', 'Y-m-d H:i:s');
-                    }
-                    break;
-                case 'id':
-                    if (!$val) {
-                        continue;
-                    }
+                        break;
+                    case 'createdTime':
+                        if (!($val && $this->validDate($val))) {
+                            $val = $this->formatTime('now', 'Y-m-d H:i:s');
+                        }
+                        break;
+                    case 'id':
+                        if (!$val) {
+                            continue;
+                        }
                 }
                 $insertKeys[] = $eColumn;
                 $insertValKeys[] = $paramInsert;
@@ -636,7 +636,7 @@ abstract class FOGController extends FOGBase
             };
             $table = $this->databaseTable;
             array_walk($this->databaseFields, $getFields);
-            foreach ($this->databaseFieldClassRelationships AS $class => &$arr) {
+            foreach ($this->databaseFieldClassRelationships as $class => &$arr) {
                 $class = self::getClass($class);
                 $table = $class->databaseTable;
                 array_walk($class->databaseFields, $getFields);
@@ -896,7 +896,7 @@ abstract class FOGController extends FOGBase
     public function isValid()
     {
         try {
-            foreach ($this->databaseFieldsRequired AS &$key) {
+            foreach ($this->databaseFieldsRequired as &$key) {
                 $key = $this->key($key);
                 $val = $this->get($key);
                 if (!$val) {
@@ -952,7 +952,10 @@ abstract class FOGController extends FOGBase
          *
          * @return void
          */
-        $whereInfo = function (&$value, &$field) use (
+        $whereInfo = function (
+            &$value,
+            &$field
+        ) use (
             &$whereArrayAnd,
             &$c,
             $not,
@@ -987,7 +990,10 @@ abstract class FOGController extends FOGBase
          *
          * @return void
          */
-        $joinInfo = function (&$fields, &$class) use (
+        $joinInfo = function (
+            &$fields,
+            &$class
+        ) use (
             &$join,
             &$whereArrayAnd,
             &$c,
@@ -1031,7 +1037,7 @@ abstract class FOGController extends FOGBase
                 $this->databaseFields
             );
         } else {
-            foreach ($this->databaseFieldsFlipped AS $db_key => &$obj_key) {
+            foreach ($this->databaseFieldsFlipped as $db_key => &$obj_key) {
                 $this->arrayChangeKey($classData, $db_key, $obj_key);
                 unset($db_key, $obj_key);
             }
@@ -1041,7 +1047,7 @@ abstract class FOGController extends FOGBase
             (array)$this->data,
             (array)$classData
         );
-        foreach ($this->databaseFieldClassRelationships AS $class => &$fields) {
+        foreach ($this->databaseFieldClassRelationships as $class => &$fields) {
             $class = self::getClass($class);
             $leftover = array_intersect_key(
                 (array)$queryData,

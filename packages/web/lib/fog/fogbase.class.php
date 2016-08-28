@@ -694,7 +694,7 @@ abstract class FOGBase
             throw new Exception(_('Key must be a string or index'));
         }
         $new = array();
-        foreach ($array AS $k => &$value) {
+        foreach ($array as $k => &$value) {
             if ($k === $key) {
                 $new[$new_key] = $new_value;
             }
@@ -720,7 +720,7 @@ abstract class FOGBase
             throw new Exception(_('Key must be a string or index'));
         }
         $new = array();
-        foreach ($array AS $k => &$value) {
+        foreach ($array as $k => &$value) {
             $new[$k] = $value;
             if ($k === $key) {
                 $new[$new_key] = $new_value;
@@ -744,11 +744,11 @@ abstract class FOGBase
             throw new Exception(_('Key must be an array of keys or a string.'));
         }
         if (is_array($key)) {
-            foreach ($key AS &$k) {
+            foreach ($key as &$k) {
                 $this->arrayRemove($k, $array);
             }
         } else {
-            foreach ($array AS &$value) {
+            foreach ($array as &$value) {
                 if (is_array($value)) {
                     $this->arrayRemove($key, $value);
                 } else {
@@ -875,7 +875,7 @@ abstract class FOGBase
             return array_values($keys);
         }
         // Change the keys values
-        foreach ($services AS $short => &$value) {
+        foreach ($services as $short => &$value) {
             $tmp = $value === true ? $short : $value;
             $value = sprintf('FOG_CLIENT_%s_ENABLED', strtoupper($tmp));
         }
@@ -1197,7 +1197,7 @@ abstract class FOGBase
         if (!is_bool($keepkeys)) {
             throw new Exception(_('Keepkeys must be boolean'));
         }
-        foreach ($input AS $key => &$value) {
+        foreach ($input as $key => &$value) {
             if (is_array($value)) {
                 $value = $this->arrayFilterRecursive($value, $keepkeys);
             }
@@ -1426,7 +1426,7 @@ abstract class FOGBase
         }
         $tmpssl = array();
         $sslfile = self::getSubObjectIDs('StorageNode', '', 'sslpath');
-        foreach ($sslfile AS &$path) {
+        foreach ($sslfile as &$path) {
             if (!file_exists($path) || !is_readable($path)) {
                 continue;
             }
@@ -1459,7 +1459,7 @@ abstract class FOGBase
         $a_key = openssl_pkey_get_details($priv_key);
         $chunkSize = ceil($a_key['bits'] / 8);
         $output = array();
-        foreach ((array)$dataArr AS &$data) {
+        foreach ((array)$dataArr as &$data) {
             $dataun = '';
             while ($data) {
                 $data = $this->hex2bin($data);
@@ -1576,7 +1576,7 @@ abstract class FOGBase
             $MACs = array_values($MACs);
         }
         $validMACs = array();
-        foreach ($MACs AS &$MAC) {
+        foreach ($MACs as &$MAC) {
             $MAC = self::getClass('MACAddress', $MAC);
             if (!$MAC->isValid()) {
                 continue;
@@ -1643,7 +1643,7 @@ abstract class FOGBase
     {
         $cmd = sprintf('str%spos', ($case ? 'i' : ''));
         $mapinfo = array();
-        foreach ((array)$needles AS &$needle) {
+        foreach ((array)$needles as &$needle) {
             $mapinfo[] = $cmd($haystack, $needle);
         }
         $mapinfo = array_filter($mapinfo);
@@ -1906,7 +1906,7 @@ abstract class FOGBase
      */
     public static function stripAndDecode(&$item)
     {
-        foreach ((array)$item AS &$val) {
+        foreach ((array)$item as &$val) {
             $tmp = preg_replace('# #', '+', $val);
             $tmp = base64_decode($tmp);
             $tmp = trim($tmp);
@@ -1942,7 +1942,7 @@ abstract class FOGBase
         }
         self::$interface = array();
         $index = 0;
-        foreach ((array)self::$ips AS &$ip) {
+        foreach ((array)self::$ips as &$ip) {
             $ip = trim($ip);
             if ($ip_find !== $ip) {
                 continue;

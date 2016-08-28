@@ -49,7 +49,7 @@ class PM extends FOGClient
             'onDemand' => $action,
             'tasks' => array(),
         );
-        foreach ((array)$PMTasks AS &$PMTask) {
+        foreach ((array)$PMTasks as &$PMTask) {
             if (!$PMTask->isValid()) {
                 continue;
             }

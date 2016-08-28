@@ -107,9 +107,9 @@ class Initiator
         );
         if (file_exists('/srv/http/fog')) {
             $path = '/srv/http/fog';
-        } else if (file_exists('/var/www/html/fog')) {
+        } elseif (file_exists('/var/www/html/fog')) {
             $path = '/var/www/html/fog';
-        } else if (file_exists('/var/www/fog')) {
+        } elseif (file_exists('/var/www/fog')) {
             $path = '/var/www/fog';
         } else {
             $docroot = trim($_SERVER['DOCUMENT_ROOT'], '/');
