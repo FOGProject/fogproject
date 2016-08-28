@@ -1520,19 +1520,6 @@ configureHttpd() {
                         done
                     fi
                     [[ $snmysqlpass != $dbpass ]] && snmysqlpass=$dbpass
-                    if [[ -z $snmysqlpass ]]; then
-                        sql="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';"
-                        options="-sN"
-                        [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
-                        [[ -n $snmysqluser ]] && options="$options -u$snmysqluser"
-                        [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
-                        mysqlver=$(mysql -V | awk 'match($0,/Distrib[ ](.*)[,]/,a) {print a[1]}')
-                        mariadb=$(echo $mysqlver | grep -oi mariadb)
-                        mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
-                        [[ -n $mariadb && $mysqlver -ge 10.2 ]] && mysql ${options} "$sql"
-                        [[ -z $mariadb && $mysqlver -ge 5.7 ]] && mysql ${options} "$sql"
-
-                    fi
                     ;;
                 *)
                     dummy=""
@@ -1540,6 +1527,18 @@ configureHttpd() {
                     ;;
             esac
         done
+    fi
+    if [[ -z $snmysqlpass ]]; then
+        sql="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';"
+        options="-sN"
+        [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
+        [[ -n $snmysqluser ]] && options="$options -u$snmysqluser"
+        [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
+        mysqlver=$(mysql -V | awk 'match($0,/Distrib[ ](.*)[,]/,a) {print a[1]}')
+        mariadb=$(echo $mysqlver | grep -oi mariadb)
+        mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
+        [[ -n $mariadb && $mysqlver -ge 10.2 ]] && mysql ${options} "$sql"
+        [[ -z $mariadb && $mysqlver -ge 5.7 ]] && mysql ${options} "$sql"
     fi
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
