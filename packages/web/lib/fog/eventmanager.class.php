@@ -1,30 +1,53 @@
 <?php
 /**
- * EventManager extended from HookManager for simplicity
+ * EventManager handles registering and loading
+ * events and hooks.
  *
- * This allows events to be handled/managed as needed.
+ * PHP version 5
+ *
+ * @category EventManager
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licences/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * EventManager handles registering and loading
+ * events and hooks.
+ *
+ * @category EventManager
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licences/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
  */
 class EventManager extends FOGBase
 {
 
     /**
+     * Items log level
+     *
      * @var int
      */
     public $logLevel = 0;
     /**
+     * The data to work from
+     *
      * @var array
      */
     public $data = array();
     /**
+     * The events to work from
+     *
      * @var mixed
      */
     public $events;
-
     /**
      * Registers events and listeners within the system.
      *
-     * @param string $event
-     * @param array|object $listener
+     * @param string       $event    the event name to register
+     * @param array|object $listener the listener to work from
+     *
      * @throws Exception
      * @return bool
      */
@@ -38,33 +61,43 @@ class EventManager extends FOGBase
                 throw new Exception(_('Listener must be an array or an object'));
             }
             switch (get_class($this)) {
-                case 'EventManager':
-                    if (!($listener instanceof Event)) {
-                        throw new Exception(_('Class must extend event'));
-                    }
-                    if (!isset($this->data[$event])) {
-                        $this->data[$event] = array();
-                    }
-                    array_push($this->data[$event], $listener);
-                    break;
-                case 'HookManager':
-                    if (self::$isMobile && !$listener[0]->mobile) {
-                        throw new Exception(_('Not registering to mobile page'));
-                    }
-                    if (!is_array($listener) || count($listener) < 2 || count($listener) > 2) {
-                        throw new Exception(_('Second parameter must be in the form array(Hook class,Function to run)'));
-                    }
-                    if (!($listener[0] instanceof Hook)) {
-                        throw new Exception(_('Class must extend hook'));
-                    }
-                    if (!method_exists($listener[0], $listener[1])) {
-                        throw new Exception(sprintf('%s: %s->%s', _('Method does not exist'), get_class($listener[0]), $listener[1]));
-                    }
-                    $this->data[$event][] = $listener;
-                    break;
-                default:
-                    throw new Exception(_('Register event is not from EventManager or HookManager'));
-                    break;
+            case 'EventManager':
+                if (!($listener instanceof Event)) {
+                    throw new Exception(_('Class must extend event'));
+                }
+                if (!isset($this->data[$event])) {
+                    $this->data[$event] = array();
+                }
+                array_push($this->data[$event], $listener);
+                break;
+            case 'HookManager':
+                if (self::$isMobile && !$listener[0]->mobile) {
+                    throw new Exception(_('Not registering to mobile page'));
+                }
+                if (!is_array($listener) || count($listener) !== 2) {
+                    throw new Exception(
+                        _('Second paramater must be in array(class,function)')
+                    );
+                }
+                if (!($listener[0] instanceof Hook)) {
+                    throw new Exception(_('Class must extend hook'));
+                }
+                if (!method_exists($listener[0], $listener[1])) {
+                    $msg = sprintf(
+                        '%s: %s->%s',
+                        _('Method does not exist'),
+                        get_class($listener[0]),
+                        $listener[1]
+                    );
+                    throw new Exception($msg);
+                }
+                $this->data[$event][] = $listener;
+                break;
+            default:
+                throw new Exception(
+                    _('Register must be managed from hooks or events')
+                );
+                break;
             }
         } catch (Exception $e) {
             $string = sprintf(
@@ -82,12 +115,12 @@ class EventManager extends FOGBase
         }
         return true;
     }
-
     /**
      * Notifies the system of events
      *
-     * @param string $event
-     * @param array $eventData
+     * @param string $event     the event to notify against.
+     * @param array  $eventData the data to pass.
+     *
      * @throws Exception
      * @return bool
      */
@@ -109,10 +142,10 @@ class EventManager extends FOGBase
                 }
                 $element->onEvent($event, $eventData);
             };
-            array_map(
-                $runEvent,
-                (array)$this->data[$event]
-            );
+            foreach ((array)$this->data[$event] as &$element) {
+                $runEvent($element);
+                unset($element);
+            }
         } catch (Exception $e) {
             $string = sprintf(
                 '%s: %s: %s, $s: %s',
@@ -149,44 +182,82 @@ class EventManager extends FOGBase
         $plugins = '';
         // Function simply returns the files based on the regex and data passed.
         $fileitems = function ($element) use ($dirpath, &$plugins) {
-            preg_match("#^($plugins.+/plugins/)(?=.*$dirpath).*$#", $element[0], $match);
+            preg_match(
+                "#^($plugins.+/plugins/)(?=.*$dirpath).*$#",
+                $element[0],
+                $match
+            );
             return $match[0];
         };
-
         // Instantiates our items to get all files based on our regext info.
-        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(BASEPATH, FileSystemIterator::SKIP_DOTS);
-        $RecursiveIteratorIterator = new RecursiveIteratorIterator($RecursiveDirectoryIterator);
-        $RegexIterator = new RegexIterator($RecursiveIteratorIterator, $regext, RegexIterator::GET_MATCH);
-
+        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
+            BASEPATH,
+            FileSystemIterator::SKIP_DOTS
+        );
+        $RecursiveIteratorIterator = new RecursiveIteratorIterator(
+            $RecursiveDirectoryIterator
+        );
+        $RegexIterator = new RegexIterator(
+            $RecursiveIteratorIterator,
+            $regext,
+            RegexIterator::GET_MATCH
+        );
         // Makes all the returned items into an iteratable array
         $files = iterator_to_array($RegexIterator, false);
-
         // First pass we don't care about plugins, only based files
         $plugins = '?!';
         $tFiles = array_map($fileitems, (array)$files);
         $fFiles = array_filter($tFiles);
         $normalfiles = array_values($fFiles);
         unset($tFiles, $fFiles);
-
         // Second pass we only care about plugins.
         $plugins = '?=';
-        $grepString = sprintf('#/(%s)/#', implode('|', $_SESSION['PluginsInstalled']));
+        $grepString = sprintf(
+            '#/(%s)/#',
+            implode(
+                '|',
+                $_SESSION['PluginsInstalled']
+            )
+        );
         $tFiles = array_map($fileitems, (array)$files);
         $fFiles = preg_grep($grepString, $tFiles);
         $fFiles = array_filter($fFiles);
         $pluginfiles = array_values($fFiles);
         unset($tFiles, $fFiles, $files);
-
         // All Data is now set, we have normal and plugin files.
         // startClass simply iterates the passed data and starts the needed
         // hooks or events.
         // Plugins don't need to know if the active flag is set either
         $startClass = function (&$element) use ($strlen) {
-            $className = preg_replace('#[[:space:]]#', '_', substr(basename($element), 0, $strlen));
-            if (in_array($className, get_declared_classes()) || class_exists($className, false)) {
+            $className = preg_replace(
+                '#[[:space:]]#',
+                '_',
+                substr(
+                    basename($element),
+                    0,
+                    $strlen
+                )
+            );
+            $decClasses = get_declared_classes();
+            $exists = in_array(
+                $className,
+                $decClasses
+            ) || class_exists(
+                $className,
+                false
+            );
+            if ($exists) {
                 return;
             }
-            self::getClass(preg_replace('#[[:space:]]#', '_', $className, 0, $strlen));
+            self::getClass(
+                preg_replace(
+                    '#[[:space:]]#',
+                    '_',
+                    $className,
+                    0,
+                    $strlen
+                )
+            );
             unset($element, $key);
         };
         // Plugins should be established first so menus and what not are setup.

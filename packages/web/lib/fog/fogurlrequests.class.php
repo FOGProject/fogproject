@@ -237,10 +237,11 @@ class FOGURLRequests extends FOGBase
      */
     public function execute($window_size = null)
     {
-        if (sizeof($this->_requests) < 1) {
+        $window_count = count($this->_requests);
+        if ($window_count < 1) {
             return;
         }
-        if (sizeof($this->_requests) === 1) {
+        if ($window_count === 1) {
             return $this->_singleCurl();
         }
         return $this->_rollingCurl($window_size);
@@ -293,9 +294,11 @@ class FOGURLRequests extends FOGBase
             $this->_requestMap[$key] = $i;
         }
         do {
-            $execrun = curl_multi_exec($master, $running);
-            while ($execrun == CURLM_CALL_MULTI_PERFORM) {
-                $execrun = curl_multi_exec($master, $running);
+            while ((
+                $execrun = curl_multi_exec(
+                    $master,
+                    $running
+                )) == CURLM_CALL_MULTI_PERFORM) {
             }
             if ($execrun != CURLM_OK) {
                 break;
@@ -304,7 +307,7 @@ class FOGURLRequests extends FOGBase
                 $info = curl_getinfo($done['handle']);
                 $output = curl_multi_getcontent($done['handle']);
                 $key = (string)$done['handle'];
-                $this->response[$this->_requestMap[$key]] = $output;
+                $this->_response[$this->_requestMap[$key]] = $output;
                 if ($this->_callback && is_callable($this->_callback)) {
                     $request = $this->_requests[$this->_requestMap[$key]];
                     unset($this->_requestMap[$key]);
@@ -326,9 +329,9 @@ class FOGURLRequests extends FOGBase
                 curl_multi_select($master, $this->_timeout);
             }
         } while ($running);
-        ksort($this->response);
+        ksort($this->_response);
         curl_multi_close($master);
-        return $this->response;
+        return $this->_response;
     }
     /**
      * Get options of the request and whole
@@ -447,7 +450,9 @@ class FOGURLRequests extends FOGBase
             $this->options[CURLOPT_FILE] = $file;
         }
         foreach ((array)$urls as $url) {
-            $request = self::getClass('FOGRollingURL', $url);
+            $request = new FOGRollingURL(
+                $url
+            );
             if ($method === 'GET') {
                 $this->get($url);
             } else {
@@ -465,10 +470,11 @@ class FOGURLRequests extends FOGBase
      */
     public function isAvailable($url)
     {
+        $url = $this->_validUrl($url);
         $headers = @get_headers($url);
         if ($headers === false) {
             return false;
         }
-        return strpos($headers[0], '404') !== false;
+        return strpos($headers[0], '404') === false;
     }
 }
