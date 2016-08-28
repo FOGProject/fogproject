@@ -653,13 +653,26 @@ class Host extends FOGController
             }
             $isCapture = $TaskType->isCapture();
             $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
+            $Task = $this->get('task');
             $TaskExistsFirst = false;
             if (in_array($TaskType->get('id'), array(12, 13, '12', '13'))) {
-                $Task = $this->get('task');
-                $TaskExistsFirst = true;
+                if ($Task->isValid()) {
+                    $TaskExistsFirst = true;
+                }
             }
             if (!$Task->isValid()) {
-                $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageNode->get('id') : 0, $imagingTypes, $shutdown, $passreset, $debug, $wol);
+                $Task = $this->createTasking(
+                    $taskName,
+                    $taskTypeID,
+                    $username,
+                    $imagingTypes ? $StorageGroup->get('id') : 0,
+                    $imagingTypes ? $StorageNode->get('id') : 0,
+                    $imagingTypes,
+                    $shutdown,
+                    $passreset,
+                    $debug,
+                    $wol
+                );
                 $Task->set('imageID', $this->get('imageID'));
                 if (!$Task->save()) {
                     throw new Exception(self::$foglang['FailedTask']);
@@ -669,10 +682,12 @@ class Host extends FOGController
                 if ($deploySnapins === true) {
                     $deploySnapins = -1;
                 }
-                if ($TaskType->get('id') != '13') {
-                    $this->cancelJobsSnapinsForHost();
-                } elseif ($TaskExistsFirst) {
-                    $Task->set('name', 'Multiple Snapin task -- Altered after single')->set('typeID', 12)->save();
+                if ($TaskExistsFirst) {
+                    if ($TaskType->get('id') != '13') {
+                        $this->cancelJobsSnapinsForHost();
+                    } else {
+                        $Task->set('name', 'Multiple Snapin task -- Altered after single')->set('typeID', 12)->save();
+                    }
                 }
                 $mac = $this->get('mac');
                 if ($deploySnapins) {
