@@ -610,22 +610,59 @@ class Host extends FOGController
         }
         return $this;
     }
-    public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '', $sessionjoin = false, $wol = false)
-    {
+    public function createImagePackage(
+        $taskTypeID,
+        $taskName = '',
+        $shutdown = false,
+        $debug = false,
+        $deploySnapins = false,
+        $isGroupTask = false,
+        $username = '',
+        $passreset = '',
+        $sessionjoin = false,
+        $wol = false
+    ) {
         try {
             if (!$this->isValid()) {
                 throw new Exception(self::$foglang['HostNotValid']);
             }
-            $TaskType = self::getClass('TaskType', $taskTypeID);
+            $Task = $this->get('task');
+            $TaskType = new TaskType($taskTypeID);
             if (!$TaskType->isValid()) {
                 throw new Exception(self::$foglang['TaskTypeNotValid']);
             }
-            if (!$TaskType->isSnapinTasking() && $this->getActiveTaskCount()) {
-                throw new Exception(self::$foglang['InTask']);
+            if ($Task->isValid()) {
+                $iTaskType = $Task->getTaskType()->isImagingTask();
+                if ($iTaskType) {
+                    throw new Exception(self::$foglang['InTask']);
+                } elseif ($Task->isSnapinTasking()) {
+                    if ($TaskType->get('id') == '13') {
+                        $Task
+                            ->set(
+                                'name',
+                                'Multiple Snapin task -- Altered after single'
+                            )
+                            ->set(
+                                'typeID',
+                                12
+                            )->save();
+                    } elseif ($TaskType->get('id') == '12') {
+                        $this->cancelJobsSnapinsForHost();
+                    } else {
+                        $Task->cancel();
+                        $Task = new Task(0);
+                        $this->set('task', $Task);
+                    }
+                } else {
+                    $Task->cancel();
+                    $Task = new Task(0);
+                    $this->set('task', $Task);
+                }
             }
-            $imagingTypes = in_array($taskTypeID, array(1, 2, 8, 15, 16, 17, 24));
+            unset($iTaskType);
+            $Image = $this->getImage();
+            $imagingTypes = $TaskType->isImagingTask();
             if ($imagingTypes) {
-                $Image = $this->getImage();
                 if (!$Image->isValid()) {
                     throw new Exception(self::$foglang['ImageNotValid']);
                 }
@@ -636,46 +673,46 @@ class Host extends FOGController
                 if (!$StorageGroup->isValid()) {
                     throw new Exception(self::$foglang['ImageGroupNotValid']);
                 }
-                $StorageNode = ($TaskType->isCapture() ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode($this->get('imageID')));
-                if (!$StorageNode->isValid()) {
-                    $StorageNode = $StorageGroup->getOptimalStorageNode($this->get('imageID'));
+                if ($TaskType->isCapture()) {
+                    $StorageNode = $StorageGroup->getMasterStorageNode();
+                } else {
+                    $StorageNode = $this->getOptimalStorageNode(
+                        $this->get('imageID')
+                    );
                 }
                 if (!$StorageNode->isValid()) {
-                    throw new Exception(_('Could not find any nodes containing this image'));
+                    $StorageNode = $StorageGroup->getOptimalStorageNode(
+                        $this->get('imageID')
+                    );
+                }
+                if (!$StorageNode->isValid()) {
+                    $msg = sprintf(
+                        '%s %s',
+                        _('Could not find any'),
+                        _('nodes containing this image')
+                    );
+                    throw new Exception($msg);
                 }
                 $imageTaskImgID = $this->get('imageID');
-                $hostsWithImgID = self::getSubObjectIDs('Host', array('imageID'=>$imageTaskImgID));
-                $realImageID = self::getSubObjectIDs('Host', array('id'=>$this->get('id')), 'imageID');
-                if (!in_array($this->get('id'), (array)$hostsWithImgID)) {
-                    $this->set('imageID', array_shift($realImageID))->save();
+                $hostsWithImgID = self::getSubObjectIDs(
+                    'Host',
+                    array('imageID' => $imageTaskImgID)
+                );
+                $realImageID = self::getSubObjectIDs(
+                    'Host',
+                    array('id' => $this->get('id')),
+                    'imageID'
+                );
+                if (!in_array($this->get('id'), $hostsWithImgID)) {
+                    $this->set(
+                        'imageID',
+                        array_shift($realImageID)
+                    )->save();
                 }
                 $this->set('imageID', $imageTaskImgID);
             }
             $isCapture = $TaskType->isCapture();
             $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
-            $Task = $this->get('task');
-            $TaskExistsFirst = false;
-            if (in_array($TaskType->get('id'), array(12, 13, '12', '13'))) {
-                if ($Task->isValid()) {
-                    $TaskExistsFirst = true;
-                }
-            }
-            if ($TaskType->isSnapinTask()) {
-                if ($deploySnapins === true) {
-                    $deploySnapins = -1;
-                }
-                if ($TaskExistsFirst) {
-                    if ($TaskType->get('id') != '13') {
-                        $this->cancelJobsSnapinsForHost();
-                    } else {
-                        $Task->set('name', 'Multiple Snapin task -- Altered after single')->set('typeID', 12)->save();
-                    }
-                }
-                $mac = $this->get('mac');
-                if ($deploySnapins) {
-                    $this->createSnapinTasking($deploySnapins);
-                }
-            }
             if (!$Task->isValid()) {
                 $Task = $this->createTasking(
                     $taskName,
@@ -693,6 +730,16 @@ class Host extends FOGController
                 if (!$Task->save()) {
                     throw new Exception(self::$foglang['FailedTask']);
                 }
+                $this->set('task', $Task);
+            }
+            if ($TaskType->isSnapinTask()) {
+                if ($deploySnapins === true) {
+                    $deploySnapins = -1;
+                }
+                $mac = $this->get('mac');
+                if ($deploySnapins) {
+                    $this->createSnapinTasking($deploySnapins);
+                }
             }
             if ($TaskType->isMulticast()) {
                 $multicastTaskReturn = function (&$MulticastSessions) {
@@ -702,20 +749,43 @@ class Host extends FOGController
                     return $MulticastSessions;
                 };
                 $assoc = false;
+                $showStates = array_merge(
+                    $this->getQueuedStates(),
+                    (array)$this->getProgressState()
+                );
                 if ($sessionjoin) {
-                    $MultiSessJoin = array_values(array_filter(array_map($multicastTaskReturn, (array)self::getClass('MulticastSessionsManager')->find(array('name'=>$taskName, 'stateID'=>array_merge($this->getQueuedStates(), (array)$this->getProgressState()))))));
-                    $MulticastSession = array_shift($MultiSessJoin);
+                    $MCSessions = self::getClass('MulticastSessionsManager')
+                        ->find(
+                            array(
+                                'name' => $taskName,
+                                'stateID' => $showStates
+                            )
+                        );
                     $assoc = true;
                 } else {
-                    $MultiSessJoin = array_values(array_filter(array_map($multicastTaskReturn, (array)self::getClass('MulticastSessionsManager')->find(array('image'=>$this->getImage()->get('id'), 'stateID'=>array_merge($this->getQueuedStates(), (array)$this->getProgressState()))))));
+                    $MCSessions = self::getClass('MulticastSessionsManager')
+                        ->find(
+                            array(
+                                'image' => $Image->get('id'),
+                                'stateID' => $showStates
+                            )
+                        );
                 }
-                if (count($MultiSessJoin)) {
+                $MultiSessJoin = array_map(
+                    $multicastTaskReturn,
+                    $MCSessions
+                );
+                $MultiSessJoin = array_filter($MultiSessJoin);
+                $MultiSessJoin = array_values($MultiSessJoin);
+                if (is_array($MultiSessJoin) && count($MultiSessJoin)) {
                     $MulticastSession = array_shift($MultiSessJoin);
                 }
-                if ($MulticastSession instanceof MulticastSessions && $MulticastSession->isValid()) {
+                unset($MultiSessJoin);
+                if ($MulticastSession instanceof MulticastSessions
+                    && $MulticastSession->isValid()
+                ) {
                     $assoc = true;
-                }
-                if (!($MulticastSession instanceof MulticastSessions && $MulticastSession->isValid())) {
+                } else {
                     $port = self::getSetting('FOG_UDPCAST_STARTINGPORT');
                     $portOverride = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
                     $MulticastSession = self::getClass('MulticastSessions')
@@ -737,7 +807,10 @@ class Host extends FOGController
                             while ($randomnumber == $MulticastSession->get('port')) {
                                 $randomnumber = mt_rand(24576, 32766)*2;
                             }
-                            $this->setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
+                            $this->setSetting(
+                                'FOG_UDPCAST_STARTINGPORT',
+                                $randomnumber
+                            );
                         }
                     }
                 }
@@ -757,7 +830,11 @@ class Host extends FOGController
         if ($taskTypeID == 14) {
             $Task->destroy();
         }
-        return sprintf('<li>%s &ndash; %s</li>', $this->get('name'), $this->getImage()->get('name'));
+        return sprintf(
+            '<li>%s &ndash; %s</li>',
+            $this->get('name'),
+            $this->getImage()->get('name')
+        );
     }
     public function getImageMemberFromHostID()
     {
