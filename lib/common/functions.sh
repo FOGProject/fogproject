@@ -59,7 +59,7 @@ updateDB() {
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            wget -T 300 -qO - --post-data="confirm=1&fogverified" --no-proxy http://localhost/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || wget -T 300 -qO - --post-data="confirm=1&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            wget -qO - --post-data="confirm&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             errorStat $?
             ;;
         *)
@@ -513,7 +513,7 @@ installPackages() {
     case $osid in
         1)
             $packageinstaller epel-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            packages="$packages php-bcmath"
+            packages="$packages php-bcmath bc"
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
             case $linuxReleaseName in
@@ -555,7 +555,7 @@ installPackages() {
                     ;;
                 *)
                     if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
-                        packages="$packages php$php_ver-bcmath"
+                        packages="$packages php$php_ver-bcmath bc"
                         addUbuntuRepo
                         if [[ $? != 0 ]]; then
                             apt-get update >>$workingdir/error_logs/fog_error_${version}.log 2>&1
