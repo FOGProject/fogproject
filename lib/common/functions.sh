@@ -59,7 +59,7 @@ updateDB() {
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            wget -qO - --post-data="sub=index_post&confirm&fogverified" --no-proxy http://localhost/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || wget -qO - --post-data="sub=index_post&confirm&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            wget -T 300 -qO - --post-data="confirm=1&fogverified" --no-proxy http://localhost/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || wget -T 300 -qO - --post-data="confirm=1&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             errorStat $?
             ;;
         *)
