@@ -77,6 +77,7 @@ class SchemaUpdaterPage extends FOGPage
             }
         } catch (Exception $e) {
             printf('<p>%s</p>', $e->getMessage());
+            exit 1;
         }
     }
 }
