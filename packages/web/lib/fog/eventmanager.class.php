@@ -8,7 +8,7 @@
  * @category EventManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licences/gpl-3.0 GPLv3
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
@@ -18,7 +18,7 @@
  * @category EventManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licences/gpl-3.0 GPLv3
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 class EventManager extends FOGBase
@@ -61,42 +61,42 @@ class EventManager extends FOGBase
                 throw new Exception(_('Listener must be an array or an object'));
             }
             switch (get_class($this)) {
-                case 'EventManager':
-                    if (!($listener instanceof Event)) {
-                        throw new Exception(_('Class must extend event'));
-                    }
-                    if (!isset($this->data[$event])) {
-                        $this->data[$event] = array();
-                    }
-                    array_push($this->data[$event], $listener);
-                    break;
-                case 'HookManager':
-                    if (self::$isMobile && !$listener[0]->mobile) {
-                        throw new Exception(_('Not registering to mobile page'));
-                    }
-                    if (!is_array($listener) || count($listener) !== 2) {
-                        throw new Exception(
-                            _('Second paramater must be in array(class,function)')
-                        );
-                    }
-                    if (!($listener[0] instanceof Hook)) {
-                        throw new Exception(_('Class must extend hook'));
-                    }
-                    if (!method_exists($listener[0], $listener[1])) {
-                        $msg = sprintf(
-                            '%s: %s->%s',
-                            _('Method does not exist'),
-                            get_class($listener[0]),
-                            $listener[1]
-                        );
-                        throw new Exception($msg);
-                    }
-                    $this->data[$event][] = $listener;
-                    break;
-                default:
+            case 'EventManager':
+                if (!($listener instanceof Event)) {
+                    throw new Exception(_('Class must extend event'));
+                }
+                if (!isset($this->data[$event])) {
+                    $this->data[$event] = array();
+                }
+                array_push($this->data[$event], $listener);
+                break;
+            case 'HookManager':
+                if (self::$isMobile && !$listener[0]->mobile) {
+                    throw new Exception(_('Not registering to mobile page'));
+                }
+                if (!is_array($listener) || count($listener) !== 2) {
                     throw new Exception(
-                        _('Register must be managed from hooks or events')
+                        _('Second paramater must be in array(class,function)')
                     );
+                }
+                if (!($listener[0] instanceof Hook)) {
+                    throw new Exception(_('Class must extend hook'));
+                }
+                if (!method_exists($listener[0], $listener[1])) {
+                    $msg = sprintf(
+                        '%s: %s->%s',
+                        _('Method does not exist'),
+                        get_class($listener[0]),
+                        $listener[1]
+                    );
+                    throw new Exception($msg);
+                }
+                $this->data[$event][] = $listener;
+                break;
+            default:
+                throw new Exception(
+                    _('Register must be managed from hooks or events')
+                );
                 break;
             }
         } catch (Exception $e) {

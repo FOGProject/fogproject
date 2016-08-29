@@ -8,7 +8,7 @@
  * @category HookManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licences/gpl-3.0 GPLv3
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
@@ -18,7 +18,7 @@
  * @category HookManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licences/gpl-3.0 GPLv3
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 class HookManager extends EventManager

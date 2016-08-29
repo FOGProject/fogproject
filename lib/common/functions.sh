@@ -1535,10 +1535,12 @@ configureHttpd() {
         [[ -n $snmysqluser ]] && options="$options -u$snmysqluser"
         [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
         mysqlver=$(mysql -V | awk 'match($0,/Distrib[ ](.*)[,]/,a) {print a[1]}')
-        mariadb=$(echo $mysqlver | grep -oi mariadb)
+        mariadb=$(echo $mysqlver | grep -oi mariadb | awk -F'([.])' '{print $1"."$2}')
         mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
-        [[ -n $mariadb && $mysqlver -ge 10.2 ]] && mysql ${options} "$sql"
-        [[ -z $mariadb && $mysqlver -ge 5.7 ]] && mysql ${options} "$sql"
+        mariadb=$(echo "$mariadb <= 10.2" | bc)
+        mysqldb=$(echo "$mysqlver <= 5.7" | bc)
+        [[ $mariadb -eq 1 ]] && mysql ${options} "$sql"
+        [[ $mysqldb -eq 1 ]] && mysql ${options} "$sql"
     fi
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
@@ -2008,4 +2010,22 @@ configureDHCP() {
             echo "Skipped"
             ;;
     esac
+}
+vercomp() {
+    [[ $1 == $2 ]] && return 0
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    for ((i=${#ver1[@]}; i<${#ver2}; i++)); do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++)); do
+        [[ -z ${ver2[i]} ]] && ver2[i]=0
+        if ((10#${ver1[i]} > 10#${ver2[i]})); then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]})); then
+            return 2
+        fi
+    done
+    return 0
 }
