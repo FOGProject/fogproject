@@ -1977,7 +1977,7 @@ abstract class FOGBase
                 $retVal
             );
         }
-        $sock = fsockopen('ipinfo.io', 80);
+        $sock = @fsockopen('ipinfo.io', 80);
         if ($sock !== false) {
             fclose($sock);
             $res = self::$FOGURLRequests->process('http://ipinfo.io/ip', 'GET');

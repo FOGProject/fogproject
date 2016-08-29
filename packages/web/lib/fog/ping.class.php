@@ -43,7 +43,7 @@ class Ping
      */
     protected static function execSend($host, $timeout, $port)
     {
-        $fsocket = fsockopen($host, $port, $errno, $errstr, $timeout);
+        $fsocket = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if ($fsocket !== false) {
             fclose($fsocket);
         }

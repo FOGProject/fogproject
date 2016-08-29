@@ -25,7 +25,7 @@ class LDAP extends FOGController
         if (!in_array($this->get('port'), array(389, 636))) {
             throw new Exception(_('Port is not valid ldap/ldaps ports'));
         }
-        $sock = pfsockopen($this->get('address'), $this->get('port'), $errno, $errstr, $timeout);
+        $sock = @pfsockopen($this->get('address'), $this->get('port'), $errno, $errstr, $timeout);
         if ($sock === false) {
             return false;
         }
