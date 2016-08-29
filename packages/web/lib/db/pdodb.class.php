@@ -152,7 +152,7 @@ class PDODB extends DatabaseManager
             self::query("SET SESSION sql_mode=''");
         } catch (PDOException $e) {
             if ($dbexists) {
-                $this->connect(false);
+                $this->_connect(false);
             } else {
                 $msg = sprintf(
                     '%s %s: %s: %s',
@@ -281,12 +281,12 @@ class PDODB extends DatabaseManager
             } else {
                 $fetchType = strtolower($fetchType);
                 switch ($fetchType) {
-                    case 'fetch_all':
-                        self::_all($type);
-                        break;
-                    default:
-                        self::_single($type);
-                        break;
+                case 'fetch_all':
+                    self::_all($type);
+                    break;
+                default:
+                    self::_single($type);
+                    break;
                 }
             }
         } catch (PDOException $e) {
