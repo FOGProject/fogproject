@@ -307,7 +307,7 @@ class BootMenu extends FOGBase
                 'param platform ${platform}',
                 'param username ${username}',
                 'param password ${password}',
-                'param menuaccess 1',
+                'param menuAccess 1',
                 "param debug $debug",
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
@@ -698,7 +698,7 @@ class BootMenu extends FOGBase
                 $this->sessjoin();
             } elseif ($_REQUEST['approveHost']) {
                 $this->aprvConf();
-            } elseif ($_REQUEST['menuaccess']) {
+            } elseif ($_REQUEST['menuAccess']) {
                 unset($this->hiddenmenu);
                 $this->chainBoot(true);
             } elseif ($_REQUEST['debugAccess']) {
