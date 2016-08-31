@@ -1529,8 +1529,8 @@ configureHttpd() {
         done
     fi
     if [[ -z $snmysqlpass ]]; then
-        sql="-e \"ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';\""
-        options="-s $sql"
+        sql="\"ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';\""
+        options="-s"
         [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
         [[ -n $snmysqluser ]] && options="$options -u$snmysqluser"
         [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
@@ -1539,7 +1539,7 @@ configureHttpd() {
         mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
         mariadb=$(echo "$mariadb <= 10.2" | bc)
         mysqldb=$(echo "$mysqlver <= 5.7" | bc)
-        [[ $mariadb -eq 1 || $mysqldb -eq 1 ]] && sudo mysql ${options}
+        [[ $mariadb -eq 1 || $mysqldb -eq 1 ]] && sudo mysql ${options} < $(echo $sql)
     fi
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
