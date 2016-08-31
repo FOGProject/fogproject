@@ -228,9 +228,15 @@ class FOGConfigurationPage extends FOGPage
                 'FOG_PXE_MENU_HIDDEN' => $_REQUEST['hidemenu'],
                 'FOG_PXE_MENU_TIMEOUT' => $timeout,
             );
-            array_walk($ServicesToEdit, function (&$value, &$key) {
-                self::getClass('Service')->set('name', $key)->set('value', $value)->save();
-            });
+            ksort($ServicesToEdit);
+            $ids = self::getSubObjectIDs('Service', array('name' => array_keys($ServicesToEdit)));
+            $items = array();
+            $iteration = 0;
+            foreach ($ServicesToEdit as $key => $value) {
+                $items[] = array($ids[$iteration], $key, $value);
+                $iteration++;
+            }
+            self::getClass('ServiceManager')->insert_batch(array('id', 'name', 'value'), $items);
             throw new Exception(_('PXE Menu has been updated'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());

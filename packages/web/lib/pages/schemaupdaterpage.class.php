@@ -170,13 +170,27 @@ class SchemaUpdaterPage extends FOGPage
             }
             unset($updates);
             self::$DB->currentDb(self::$DB->returnThis());
-            $newSchema = self::getClass('Schema', 1)->set('version', $ver);
-            if (!self::$DB->dbName() || !$newSchema->save() || count($this->schema) != $newSchema->get('version')) {
-                $errmsg = sprintf('<p>%s</p>', _('Install / Update Failed!'));
+            $newSchema = new Schema(1);
+            $newSchema->set('version', $ver);
+            $fatalerrmsg = '';
+            switch(true) {
+            case (!self::$DB->dbName()):
+                // no break
+            case (!self::$newSchema->save()):
+            case ($newSchema->get('version') != FOG_SCHEMA_VERSION):
+                $fatalerrmsg = sprintf(
+                    '<p>%s</p>',
+                    _('Install / Update Failed!')
+                );
                 if (count($errors)) {
-                    $errmsg .= sprintf('<h2>%s</h2>%s', _('The following errors occurred'), implode('<hr/>', $errors));
+                    $fatalerrmsg .= sprintf(
+                        '<h2>%s</h2>%s',
+                        _('The following errors occurred'),
+                        implode('<hr/>', $errors)
+                    );
                 }
-                throw new Exception($errmsg);
+                throw new Exception($fatalerrmsg);
+                break;
             }
             printf('<p>%s</p><p>%s <a href="index.php">%s</a> %s</p>', _('Install / Update Successful!'), _('Click'), _('here'), _('to login'));
             if (count($errors)) {
