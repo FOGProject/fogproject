@@ -53,7 +53,8 @@ class User extends FOGController
                 ->set('id', $tmpUser->get('id'))
                 ->set('name', $tmpUser->get('name'))
                 ->set('password', '', true)
-                ->set('type', $tmpUser->get('type'));
+                ->set('type', $tmpUser->get('type'))
+                ->load();
             unset($tmpUser);
             if (!$this->sessionID) {
                 $this->sessionID = session_id();
