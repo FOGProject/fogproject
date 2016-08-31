@@ -1539,8 +1539,7 @@ configureHttpd() {
         mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
         mariadb=$(echo "$mariadb <= 10.2" | bc)
         mysqldb=$(echo "$mysqlver <= 5.7" | bc)
-        [[ $mariadb -eq 1 ]] && mysql ${options}
-        [[ $mysqldb -eq 1 ]] && mysql ${options}
+        [[ $mariadb -eq 1 || $mysqldb -eq 1 ]] && sudo mysql ${options}
     fi
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
