@@ -159,42 +159,80 @@ class SchemaUpdaterPage extends FOGPage
                     if (is_callable($update)) {
                         $result = $update();
                         if (is_string($result)) {
-                            $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Function Error:</b> <pre>%s</pre></p><p><b>Function:</b> <pre>%s</pre></p>', "$version - $i", $result, print_r($update, 1));
+                            $errors[] = sprintf(
+                                '<p><b>%s %s:</b>'
+                                . ' %s</p><p><b>%s %s:</b>'
+                                . ' <pre>%s</pre></p>'
+                                . '<p><b>%s:</b>'
+                                . ' <pre>%s</pre></p>',
+                                _('Update'),
+                                _('ID'),
+                                $version - $i,
+                                _('Function'),
+                                _('Error'),
+                                $result,
+                                _('Function'),
+                                print_r($update, 1)
+                            );
+                        } elseif (false === self::$DB->query($update)) {
+                            $errors[] = sprintf(
+                                '<p><b>%s %s:</b>'
+                                . ' %s</p><p><b>%s %s:</b>'
+                                . ' <pre>%s</pre></p>'
+                                . '<p><b>%s:</b>'
+                                . ' <pre>%s</pre></p>',
+                                _('Update'),
+                                _('ID'),
+                                $version - $i,
+                                _('Database'),
+                                _('Error'),
+                                self::$DB->sqlerror(),
+                                _('Database SQL'),
+                                print_r($update, 1)
+                            );
                         }
-                    } elseif (false === self::$DB->query($update)) {
-                        $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i", self::$DB->sqlerror(), $update);
                     }
+                    $ver = $version;
+                    unset($update);
                 }
-                $ver = $version;
-                unset($update);
-            }
-            unset($updates);
-            self::$DB->currentDb(self::$DB->returnThis());
-            $newSchema = new Schema(1);
-            $newSchema->set('version', $ver);
-            $fatalerrmsg = '';
-            switch(true) {
-            case (!self::$DB->dbName()):
-                // no break
-            case (!self::$newSchema->save()):
-            case ($newSchema->get('version') != FOG_SCHEMA_VERSION):
-                $fatalerrmsg = sprintf(
-                    '<p>%s</p>',
-                    _('Install / Update Failed!')
+                unset($updates);
+                self::$DB->currentDb(self::$DB->returnThis());
+                $newSchema = new Schema(1);
+                $newSchema->set('version', $ver);
+                $fatalerrmsg = '';
+                switch(true) {
+                case (!self::$DB->dbName()):
+                    // no break
+                case (!self::$newSchema->save()):
+                case ($newSchema->get('version') != FOG_SCHEMA_VERSION):
+                    $fatalerrmsg = sprintf(
+                        '<p>%s</p>',
+                        _('Install / Update Failed!')
+                    );
+                    if (count($errors)) {
+                        $fatalerrmsg .= sprintf(
+                            '<h2>%s</h2>%s',
+                            _('The following errors occurred'),
+                            implode('<hr/>', $errors)
+                        );
+                    }
+                    throw new Exception($fatalerrmsg);
+                    break;
+                }
+                printf(
+                    '<p>%s</p><p>%s <a href="index.php">%s</a> %s</p>',
+                    _('Install / Update Successful!'),
+                    _('Click'),
+                    _('here'),
+                    _('to login')
                 );
                 if (count($errors)) {
-                    $fatalerrmsg .= sprintf(
+                    printf(
                         '<h2>%s</h2>%s',
-                        _('The following errors occurred'),
+                        _('The following errors occured'),
                         implode('<hr/>', $errors)
                     );
                 }
-                throw new Exception($fatalerrmsg);
-                break;
-            }
-            printf('<p>%s</p><p>%s <a href="index.php">%s</a> %s</p>', _('Install / Update Successful!'), _('Click'), _('here'), _('to login'));
-            if (count($errors)) {
-                printf('<h2>%s</h2>%s', _('The following errors occured'), implode('<hr/>', $errors));
             }
         } catch (Exception $e) {
             printf('<p>%s</p>', $e->getMessage());
