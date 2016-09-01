@@ -132,7 +132,7 @@ abstract class FOGController extends FOGBase
                 throw new Exception(_('Fields not defined for this class'));
             }
             $this->databaseFieldsFlipped = array_flip($this->databaseFields);
-            if (is_numeric($data)) {
+            if ($data && is_numeric($data)) {
                 $this->set('id', $data)->load();
             } elseif (is_array($data)) {
                 $this->setQuery($data);
@@ -603,11 +603,6 @@ abstract class FOGController extends FOGBase
             $key = $this->key($key);
             if (!$key) {
                 throw new Exception(_('No key being requested'));
-            }
-            $test = $this->_testFields($key);
-            if (!$test) {
-                unset($this->data[$key]);
-                throw new Exception(_('Invalid key being added'));
             }
             $val = $this->get($key);
             list($join, $where) = $this->buildQuery();
