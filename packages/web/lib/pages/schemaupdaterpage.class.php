@@ -192,9 +192,9 @@ class SchemaUpdaterPage extends FOGPage
                             $update
                         );
                     }
-                    $ver = $version;
                     unset($update);
                 }
+                $ver = $version;
                 unset($updates);
             }
             self::$DB->currentDb(self::$DB->returnThis());
