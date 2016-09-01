@@ -1537,8 +1537,8 @@ configureHttpd() {
         mysqlver=$(mysql -V | awk 'match($0,/Distrib[ ](.*)[,]/,a) {print a[1]}')
         mariadb=$(echo $mysqlver | grep -oi mariadb | awk -F'([.])' '{print $1"."$2}')
         mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
-        mariadb=$(echo $mariadb)
-        mysqlver=$(echo $mysqlver)
+        mariadb=$(echo $mariadb | sed -e 's///g')
+        mysqlver=$(echo $mysqlver | sed -e 's///g')
         mariadb=$(echo "$mariadb <= 10.2" | bc)
         mysqldb=$(echo "$mysqlver <= 5.7" | bc)
         [[ $mariadb -eq 1 || $mysqldb -eq 1 ]] && sudo mysql "${options}" < $(echo "$sql")
