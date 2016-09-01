@@ -174,23 +174,23 @@ class SchemaUpdaterPage extends FOGPage
                                 _('Function'),
                                 print_r($update, 1)
                             );
-                        } elseif (false === self::$DB->query($update)) {
-                            $errors[] = sprintf(
-                                '<p><b>%s %s:</b>'
-                                . ' %s</p><p><b>%s %s:</b>'
-                                . ' <pre>%s</pre></p>'
-                                . '<p><b>%s:</b>'
-                                . ' <pre>%s</pre></p>',
-                                _('Update'),
-                                _('ID'),
-                                $version - $i,
-                                _('Database'),
-                                _('Error'),
-                                self::$DB->sqlerror(),
-                                _('Database SQL'),
-                                print_r($update, 1)
-                            );
                         }
+                    } elseif (false === self::$DB->query($update)) {
+                        $errors[] = sprintf(
+                            '<p><b>%s %s:</b>'
+                            . ' %s</p><p><b>%s %s:</b>'
+                            . ' <pre>%s</pre></p>'
+                            . '<p><b>%s:</b>'
+                            . ' <pre>%s</pre></p>',
+                            _('Update'),
+                            _('ID'),
+                            $version - $i,
+                            _('Database'),
+                            _('Error'),
+                            self::$DB->sqlerror(),
+                            _('Database SQL'),
+                            print_r($update, 1)
+                        );
                     }
                     $ver = $version;
                     unset($update);
