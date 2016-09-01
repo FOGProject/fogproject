@@ -189,11 +189,10 @@ class SchemaUpdaterPage extends FOGPage
                             _('Error'),
                             self::$DB->sqlerror(),
                             _('Database SQL'),
-                            print_r($update, 1)
+                            $update
                         );
                     }
                     $ver = $version;
-                    unset($update);
                 }
                 unset($updates);
                 self::$DB->currentDb(self::$DB->returnThis());
