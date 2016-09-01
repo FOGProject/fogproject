@@ -193,15 +193,16 @@ class SchemaUpdaterPage extends FOGPage
                         );
                     }
                     $ver = $version;
+                    unset($update);
                 }
                 unset($updates);
-                self::$DB->currentDb(self::$DB->returnThis());
-                $newSchema = new Schema(1);
-                $newSchema->set('version', $ver);
-                $fatalerrmsg = '';
-                switch(true) {
-                case
-                    (
+            }
+            self::$DB->currentDb(self::$DB->returnThis());
+            $newSchema = new Schema(1);
+            $newSchema->set('version', $ver);
+            $fatalerrmsg = '';
+            switch (true) {
+                case (
                         !self::$DB->dbName()
                         || !$newSchema->save()
                         || $newSchema->get('version') != FOG_SCHEMA
@@ -218,22 +219,21 @@ class SchemaUpdaterPage extends FOGPage
                         );
                     }
                     throw new Exception($fatalerrmsg);
-                    break;
-                }
+                break;
+            }
+            printf(
+                '<p>%s</p><p>%s <a href="index.php">%s</a> %s</p>',
+                _('Install / Update Successful!'),
+                _('Click'),
+                _('here'),
+                _('to login')
+            );
+            if (count($errors)) {
                 printf(
-                    '<p>%s</p><p>%s <a href="index.php">%s</a> %s</p>',
-                    _('Install / Update Successful!'),
-                    _('Click'),
-                    _('here'),
-                    _('to login')
+                    '<h2>%s</h2>%s',
+                    _('The following errors occured'),
+                    implode('<hr/>', $errors)
                 );
-                if (count($errors)) {
-                    printf(
-                        '<h2>%s</h2>%s',
-                        _('The following errors occured'),
-                        implode('<hr/>', $errors)
-                    );
-                }
             }
         } catch (Exception $e) {
             printf('<p>%s</p>', $e->getMessage());
