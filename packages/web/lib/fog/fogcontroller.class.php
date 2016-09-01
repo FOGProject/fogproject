@@ -610,15 +610,6 @@ abstract class FOGController extends FOGBase
                 throw new Exception(_('Invalid key being added'));
             }
             $val = $this->get($key);
-            if (!$val) {
-                throw new Exception(
-                    sprintf(
-                        '%s: %s',
-                        _('Operation field not set'),
-                        $key
-                    )
-                );
-            }
             list($join, $where) = $this->buildQuery();
             $fields = array();
             /**
