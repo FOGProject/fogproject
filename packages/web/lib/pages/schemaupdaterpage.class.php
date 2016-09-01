@@ -203,7 +203,7 @@ class SchemaUpdaterPage extends FOGPage
                 switch(true) {
                 case (!self::$DB->dbName()):
                     // no break
-                case (!self::$newSchema->save()):
+                case (!$newSchema->save()):
                 case ($newSchema->get('version') != FOG_SCHEMA_VERSION):
                     $fatalerrmsg = sprintf(
                         '<p>%s</p>',
