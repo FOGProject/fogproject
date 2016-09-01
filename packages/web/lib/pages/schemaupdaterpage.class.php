@@ -201,10 +201,12 @@ class SchemaUpdaterPage extends FOGPage
                 $newSchema->set('version', $ver);
                 $fatalerrmsg = '';
                 switch(true) {
-                case (!self::$DB->dbName()):
-                    // no break
-                case (!$newSchema->save()):
-                case ($newSchema->get('version') != FOG_SCHEMA_VERSION):
+                case
+                    (
+                        !self::$DB->dbName()
+                        || !$newSchema->save()
+                        || $newSchema->get('version') != FOG_SCHEMA
+                    ):
                     $fatalerrmsg = sprintf(
                         '<p>%s</p>',
                         _('Install / Update Failed!')
