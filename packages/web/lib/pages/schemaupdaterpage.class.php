@@ -152,9 +152,8 @@ class SchemaUpdaterPage extends FOGPage
                 null,
                 true
             );
-            $ver = 0;
             foreach ((array)$items as $version => &$updates) {
-                foreach ((array)$updates as $i => &$update) {
+                foreach ((array)$updates as &$update) {
                     if (is_callable($update)) {
                         $result = $update();
                         if (is_string($result)) {
@@ -166,7 +165,7 @@ class SchemaUpdaterPage extends FOGPage
                                 . ' <pre>%s</pre></p>',
                                 _('Update'),
                                 _('ID'),
-                                $version - $i,
+                                $version,
                                 _('Function'),
                                 _('Error'),
                                 $result,
@@ -183,7 +182,7 @@ class SchemaUpdaterPage extends FOGPage
                             . ' <pre>%s</pre></p>',
                             _('Update'),
                             _('ID'),
-                            $version - $i,
+                            $version,
                             _('Database'),
                             _('Error'),
                             self::$DB->sqlerror(),
@@ -191,14 +190,11 @@ class SchemaUpdaterPage extends FOGPage
                             $update
                         );
                     }
-                    unset($update);
                 }
-                $ver = $version;
-                unset($updates);
             }
             self::$DB->currentDb(self::$DB->returnThis());
             $newSchema = new Schema(1);
-            $newSchema->set('version', $ver + 1);
+            $newSchema->set('version', ++$version);
             $fatalerrmsg = '';
             switch (true) {
                 case (
