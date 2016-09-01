@@ -153,9 +153,8 @@ class SchemaUpdaterPage extends FOGPage
                 true
             );
             $ver = 0;
-            foreach ($items as $version => &$updates) {
-                $version++;
-                foreach ($updates as $i => &$update) {
+            foreach ((array)$items as $version => &$updates) {
+                foreach ((array)$updates as $i => &$update) {
                     if (is_callable($update)) {
                         $result = $update();
                         if (is_string($result)) {
@@ -199,7 +198,7 @@ class SchemaUpdaterPage extends FOGPage
             }
             self::$DB->currentDb(self::$DB->returnThis());
             $newSchema = new Schema(1);
-            $newSchema->set('version', $ver);
+            $newSchema->set('version', $ver + 1);
             $fatalerrmsg = '';
             switch (true) {
                 case (
