@@ -1535,13 +1535,11 @@ configureHttpd() {
         [[ -n $snmysqluser ]] && options="$options -u'$snmysqluser'"
         [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
         mysqlver=$(mysql -V | awk 'match($0,/Distrib[ ](.*)[,]/,a) {print a[1]}')
-        mariadb=$(echo $mysqlver | grep -oi mariadb | awk -F'([.])' '{print $1"."$2}')
+        mariadb=$(echo $mysqlver | grep -oi mariadb)
         mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
-        mariadb=$(echo $mariadb | sed -e 's///g')
-        mysqlver=$(echo $mysqlver | sed -e 's///g')
-        mariadb=$(echo "$mariadb <= 10.2" | bc)
-        mysqldb=$(echo "$mysqlver <= 5.7" | bc)
-        [[ $mariadb -eq 1 || $mysqldb -eq 1 ]] && sudo mysql "${options}" < $(echo "$sql")
+        [[ -n $mariadb ]] && vertocheck="10.2" || vertocheck="5.7"
+        runTest=$(echo "$mysqlver <= $vertocheck" | bc)
+        [[ $runTest -eq 0 ]] && sudo mysql "${options}" < $(echo "$sql")
     fi
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
