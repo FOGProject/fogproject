@@ -73,10 +73,10 @@ class PDODB extends DatabaseManager
      */
     public function __construct($options = array())
     {
-        parent::__construct();
         if (self::$_link) {
             return $this;
         }
+        parent::__construct();
         try {
             if (count($options) > 0) {
                 self::$_options = $options;
