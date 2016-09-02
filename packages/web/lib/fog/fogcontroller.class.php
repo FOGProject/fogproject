@@ -145,7 +145,6 @@ abstract class FOGController extends FOGBase
                 $e->getMessage()
             );
             $this->error($str);
-            throw new Exception($e->getMessage());
         }
         return $this;
     }
@@ -600,6 +599,7 @@ abstract class FOGController extends FOGBase
             if (!is_string($key)) {
                 throw new Exception(_('Key field must be a string'));
             }
+            $field = $key;
             $key = $this->key($key);
             if (!$key) {
                 throw new Exception(_('No key being requested'));
@@ -609,7 +609,7 @@ abstract class FOGController extends FOGBase
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being added'));
             }
-            $val = $this->get($key);
+            $val = $this->get($field);
             if (!$val) {
                 throw new Exception(
                     sprintf(
