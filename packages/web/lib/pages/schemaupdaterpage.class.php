@@ -194,6 +194,9 @@ class SchemaUpdaterPage extends FOGPage
                 $newSchema = self::getClass('Schema', 1)
                     ->load()
                     ->set('version', $version);
+                if (!$newSchema instanceof Schema) {
+                    continue;
+                }
                 if (!$newSchema->save()) {
                     $fatalerrmsg = '';
                     $fatalerrmsg = sprintf(
