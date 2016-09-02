@@ -59,7 +59,7 @@ updateDB() {
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            wget -T 300 -qO - --post-data="confirm&fogverified" --no-proxy "http://${ipaddress}/${webroot}management/index.php?node=schema" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            wget -qO - --post-data="confirm&fogverified" --no-proxy "http://${ipaddress}/${webroot}management/index.php?node=schema" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             errorStat $?
             ;;
         *)
@@ -1539,7 +1539,7 @@ configureHttpd() {
         mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
         [[ -n $mariadb ]] && vertocheck="10.2" || vertocheck="5.7"
         runTest=$(echo "$mysqlver < $vertocheck" | bc)
-        [[ $runTest -eq 0 ]] && sudo mysql "${options}" < $(echo "$sql")
+        [[ $runTest -eq 0 ]] && sudo mysql "${options}" -e "$sql"
     fi
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then

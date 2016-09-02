@@ -194,13 +194,12 @@ class SchemaUpdaterPage extends FOGPage
             }
             self::$DB->currentDb(self::$DB->returnThis());
             $newSchema = self::getClass('Schema', 1);
-            $newSchema->set('version', ++$version);
+            $newSchema->set('version', FOG_SCHEMA);
             $fatalerrmsg = '';
             switch (true) {
                 case (
                         !self::$DB->dbName()
                         || !$newSchema->save()
-                        || $newSchema->get('version') != FOG_SCHEMA
                     ):
                     $fatalerrmsg = sprintf(
                         '<p>%s</p>',
