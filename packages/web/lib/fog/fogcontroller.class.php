@@ -132,7 +132,10 @@ abstract class FOGController extends FOGBase
                 throw new Exception(_('Fields not defined for this class'));
             }
             $this->databaseFieldsFlipped = array_flip($this->databaseFields);
-            if ($data && is_numeric($data)) {
+            if (is_numeric($data) && $data < 1) {
+                throw new Exception(_('Data passed is invalid'));
+            }
+            if (is_numeric($data) && $data > 0) {
                 $this->set('id', $data)->load();
             } elseif (is_array($data)) {
                 $this->setQuery($data);
@@ -604,7 +607,21 @@ abstract class FOGController extends FOGBase
             if (!$key) {
                 throw new Exception(_('No key being requested'));
             }
+            $test = $this->_testFields($key);
+            if (!$test) {
+                unset($this->data[$key]);
+                throw new Exception(_('Invalid key being added'));
+            }
             $val = $this->get($key);
+            if (!$val) {
+                throw new Exception(
+                    sprintf(
+                        '%s: %s',
+                        _('Operation field not set'),
+                        $key
+                    )
+                );
+            }
             list($join, $where) = $this->buildQuery();
             $fields = array();
             /**
@@ -662,6 +679,7 @@ abstract class FOGController extends FOGBase
                 $e->getMessage()
             );
             $this->debug($str);
+            throw new Exception($e->getMessage());
         }
         return $this;
     }
