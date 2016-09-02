@@ -193,7 +193,7 @@ class SchemaUpdaterPage extends FOGPage
                 }
             }
             self::$DB->currentDb(self::$DB->returnThis());
-            $newSchema = new Schema(1);
+            $newSchema = self::getClass('Schema', 1);
             $newSchema->set('version', ++$version);
             $fatalerrmsg = '';
             switch (true) {

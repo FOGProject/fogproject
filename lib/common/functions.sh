@@ -1538,8 +1538,7 @@ configureHttpd() {
         mariadb=$(echo $mysqlver | grep -oi mariadb)
         mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
         [[ -n $mariadb ]] && vertocheck="10.2" || vertocheck="5.7"
-        runTest=$(echo "$mysqlver <= $vertocheck" | bc)
-        echo "Running sudo mysql ${options} < $sql"
+        runTest=$(echo "$mysqlver < $vertocheck" | bc)
         [[ $runTest -eq 0 ]] && sudo mysql "${options}" < $(echo "$sql")
     fi
     dots "Setting up Apache and PHP files"

@@ -289,7 +289,7 @@ case $installtype in
                     ;;
             esac
         done
-	[[ -z $snmysqlhost ]] && snmysqlhost='127.0.0.1'
+	[[ -z $snmysqlhost ]] && snmysqlhost='localhost'
 	[[ -z $snmysqluser ]] && snmysqluser='root'
         ;;
     [Ss])
