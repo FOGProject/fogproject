@@ -191,25 +191,26 @@ class SchemaUpdaterPage extends FOGPage
                         );
                     }
                 }
+                $newSchema = self::getClass('Schema', 1)
+                    ->load()
+                    ->set('version', $version);
+                if (!$newSchema->save()) {
+                    $fatalerrmsg = '';
+                    $fatalerrmsg = sprintf(
+                        '<p>%s</p>',
+                        _('Install / Update Failed!')
+                    );
+                    if (count($errors)) {
+                        $fatalerrmsg .= sprintf(
+                            '<h2>%s</h2>%s',
+                            _('The following errors occurred'),
+                            implode('<hr/>', $errors)
+                        );
+                    }
+                    throw new Exception($fatalerrmsg);
+                }
             }
             self::$DB->currentDb(self::$DB->returnThis());
-            $newSchema = new Schema(1);
-            $newSchema->set('version', FOG_SCHEMA);
-            if (!($newSchema->save() && self::$DB->dbName())) {
-                $fatalerrmsg = '';
-                $fatalerrmsg = sprintf(
-                    '<p>%s</p>',
-                    _('Install / Update Failed!')
-                );
-                if (count($errors)) {
-                    $fatalerrmsg .= sprintf(
-                        '<h2>%s</h2>%s',
-                        _('The following errors occurred'),
-                        implode('<hr/>', $errors)
-                    );
-                }
-                throw new Exception($fatalerrmsg);
-            }
             printf(
                 '<p>%s</p><p>%s <a href="index.php">%s</a> %s</p>',
                 _('Install / Update Successful!'),
