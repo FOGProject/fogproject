@@ -599,8 +599,6 @@ abstract class FOGController extends FOGBase
             if (!is_string($key)) {
                 throw new Exception(_('Key field must be a string'));
             }
-            $field = $key;
-            $key = $this->key($key);
             if (!$key) {
                 throw new Exception(_('No key being requested'));
             }
@@ -609,7 +607,7 @@ abstract class FOGController extends FOGBase
                 unset($this->data[$key]);
                 throw new Exception(_('Invalid key being added'));
             }
-            $val = $this->get($field);
+            $val = $this->get($key);
             if (!$val) {
                 throw new Exception(
                     sprintf(
@@ -641,6 +639,7 @@ abstract class FOGController extends FOGBase
                 $table = $class->databaseTable;
                 array_walk($class->databaseFields, $getFields);
             }
+            $key = $this->key($key);
             $paramKey = sprintf(':%s', $key);
             $query = sprintf(
                 $this->loadQueryTemplate,
@@ -676,7 +675,6 @@ abstract class FOGController extends FOGBase
                 $e->getMessage()
             );
             $this->debug($str);
-            throw new Exception($e->getMessage());
         }
         return $this;
     }
