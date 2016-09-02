@@ -364,6 +364,7 @@ class PDODB extends DatabaseManager
                 $e->getMessage()
             );
             $this->debug($msg);
+            throw new Exception($msg);
         }
         return self::$_result;
     }
