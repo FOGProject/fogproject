@@ -190,27 +190,27 @@ class SchemaUpdaterPage extends FOGPage
                             $update
                         );
                     }
-                }
-                $newSchema = self::getClass('Schema', 1)
-                    ->load()
-                    ->set('version', $version);
-                if (!$newSchema instanceof Schema) {
-                    continue;
-                }
-                if (!$newSchema->save()) {
-                    $fatalerrmsg = '';
-                    $fatalerrmsg = sprintf(
-                        '<p>%s</p>',
-                        _('Install / Update Failed!')
-                    );
-                    if (count($errors)) {
-                        $fatalerrmsg .= sprintf(
-                            '<h2>%s</h2>%s',
-                            _('The following errors occurred'),
-                            implode('<hr/>', $errors)
-                        );
+                    $newSchema = self::getClass('Schema', 1)
+                        ->load()
+                        ->set('version', ++$version);
+                    if (!$newSchema instanceof Schema) {
+                        continue;
                     }
-                    throw new Exception($fatalerrmsg);
+                    if (!$newSchema->save()) {
+                        $fatalerrmsg = '';
+                        $fatalerrmsg = sprintf(
+                            '<p>%s</p>',
+                            _('Install / Update Failed!')
+                        );
+                        if (count($errors)) {
+                            $fatalerrmsg .= sprintf(
+                                '<h2>%s</h2>%s',
+                                _('The following errors occurred'),
+                                implode('<hr/>', $errors)
+                            );
+                        }
+                        throw new Exception($fatalerrmsg);
+                    }
                 }
             }
             self::$DB->currentDb(self::$DB->returnThis());

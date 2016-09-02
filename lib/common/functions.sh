@@ -60,8 +60,7 @@ updateDB() {
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
             cmd="wget -qO - --post-data=\"confirm&fogverified\" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1"
-            echo $cmd
-            return
+            eval "$cmd"
             errorStat $?
             ;;
         *)
