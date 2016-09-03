@@ -205,7 +205,7 @@ class PDODB extends DatabaseManager
                 _('Error'),
                 $e->getMessage()
             );
-            $this->debug($msg);
+            self::debug($msg);
             self::$_dbName = false;
         }
         return $main;
