@@ -297,13 +297,10 @@ class PDODB extends DatabaseManager
                 throw new PDOException(_('No query result, use query() first'));
             } else {
                 $fetchType = strtolower($fetchType);
-                switch ($fetchType) {
-                    case 'fetch_all':
-                        self::_all($type);
-                        break;
-                    default:
-                        self::_single($type);
-                        break;
+                if ($fetchType === 'fetch_all') {
+                    self::_all($type);
+                } else {
+                    self::_single($type);
                 }
             }
         } catch (PDOException $e) {
@@ -398,7 +395,7 @@ class PDODB extends DatabaseManager
         return $msg;
     }
     /**
-     * Returns the lsat insert ID
+     * Returns the last insert ID
      *
      * @return int
      */
@@ -568,25 +565,20 @@ class PDODB extends DatabaseManager
     {
         self::$_queryResult = self::$_link->prepare(self::$_query);
     }
+    /**
+     * Bind the values as needed
+     *
+     * @param string $param the parameter
+     * @param mixed  $value the value to bind
+     * @param int    $type  the way to bind if needed
+     *
+     * @return void
+     */
     private static function _bind($param, $value, $type = null)
     {
         if (is_null($type)) {
-            switch (true) {
-                case is_int($value):
-                    $type = PDO::PARAM_INT;
-                    break;
-                case is_bool($value):
-                    $type = PDO::PARAM_BOOL;
-                    break;
-                case is_null($value):
-                    $type = PDO::PARAM_NULL;
-                    break;
-                default:
-                    $type = PDO::PARAM_STR;
-                    break;
-            }
+            $type = PDO::PARAM_STR;
         }
-        $type = PDO::PARAM_STR;
         self::$_queryResult->bindParam($param, $value, $type);
     }
 }
