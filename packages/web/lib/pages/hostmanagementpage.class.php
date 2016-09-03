@@ -186,6 +186,7 @@ class HostManagementPage extends FOGPage
         });
         self::$HookManager->processEvent('HOST_ADD_GEN', array('data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes, 'fields'=>&$fields));
         $this->render();
+        if (!isset($_REQUEST['enforcesel'])) $_REQUEST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
         echo $this->adFieldsToDisplay($_REQUEST['domain'], $_REQUEST['domainname'], $_REQUEST['ou'], $_REQUEST['domainuser'], $_REQUEST['domainpassword'], $_REQUEST['domainpasswordlegacy'], intval(isset($_REQUEST['enforcesel'])));
         echo '</form>';
     }
@@ -1008,8 +1009,8 @@ class HostManagementPage extends FOGPage
                     $user = trim($_REQUEST['domainuser']);
                     $pass = trim($_REQUEST['domainpassword']);
                     $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-                    $enforce = intval(isset($_REQUEST['enforcesel']));
                     $this->obj->setAD($useAD, $domain, $ou, $user, $pass, true, true, $passlegacy, $productKey, $enforce);
+                    $enforce = intval(isset($_REQUEST['enforcesel']));
                     break;
                 case 'host-powermanagement':
                     $min = $_REQUEST['scheduleCronMin'];
