@@ -1015,18 +1015,10 @@ configureUsers() {
     fi
     dots "Setting up $username password"
     if [[ -z $password ]]; then
-        password=$(openssl rand -base64 32)
         [[ -f $webdirdest/lib/fog/config.class.php ]] && password="$(awk -F'[(")]' '/TFTP_FTP_PASSWORD/ {print $3}' $webdirdest/lib/fog/config.class.php)"
-        if [[ -z $password ]]; then
-            false
-            errorStat $?
-        fi
+        [[ -z $password ]] && password=$(openssl rand -base64 32)
     fi
     echo -e "$password\n$password" | passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    if [[ ! $? -eq 0 ]]; then
-        false
-        errorStat $?
-    fi
     errorStat $?
 }
 linkOptFogDir() {
