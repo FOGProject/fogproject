@@ -319,6 +319,14 @@ class PDODB extends DatabaseManager
         }
         return $this;
     }
+    /**
+     * Get's the relevante items or item as needed.
+     *
+     * @param string $field the field to get
+     *
+     * @throws PDOException
+     * @return mixed
+     */
     public function get($field = '')
     {
         try {
@@ -349,38 +357,111 @@ class PDODB extends DatabaseManager
                 return $result;
             }
         } catch (Exception $e) {
-            $this->debug(sprintf('%s %s: %s', _('Failed to'), __FUNCTION__, $e->getMessage()));
+            $msg = sprintf(
+                '%s %s: %s: %s',
+                _('Failed to'),
+                __FUNCTION__,
+                _('Error'),
+                $e->getMessage()
+            );
+            $this->debug($msg);
         }
         return self::$_result;
     }
+    /**
+     * Returns error of the last sql command
+     *
+     * @return string
+     */
     public function sqlerror()
     {
-        $message = self::$_link ? sprintf('%s: %s, %s: %s, %s: %s', _('Error Code'), self::$_link->errorCode() ? self::$_link->errorCode() : self::$_queryResult->errorCode(), _('Error Message'), self::$_link->errorCode() ? self::$_link->errorInfo() : self::$_queryResult->errorInfo(), _('Debug'), self::debugDumpParams()) : _('Cannot connect to database');
-        return $message;
+        if (self::$_link) {
+            if (self::$_link->errorCode()) {
+                $errCode = self::$_link->errorCode();
+                $errInfo = self::$_link->errorInfo();
+            } else {
+                $errCode = self::$_queryResult->errorCode();
+                $errInfo = self::$_queryResult->errorInfo();
+            }
+            $msg = sprintf(
+                '%s: %s, %s: %s, %s: %s',
+                _('Error Code'),
+                $errCode,
+                _('Error Message'),
+                $errInfo,
+                _('Debug'),
+                self::_debugDumpParams()
+            );
+        } else {
+            $msg = _('Cannot connect to database');
+        }
+        return $msg;
     }
+    /**
+     * Returns the lsat insert ID
+     *
+     * @return int
+     */
     public function insertId()
     {
         return self::$_link->lastInsertId();
     }
+    /**
+     * Returns the field count
+     *
+     * @return int
+     */
     public function fieldCount()
     {
         return self::$_queryResult->columnCount();
     }
+    /**
+     * Returns affected rows
+     *
+     * @return int
+     */
     public function affectedRows()
     {
         return self::$_queryResult->rowCount();
     }
+    /**
+     * Escapes data passed
+     *
+     * @param mixed $data the data to escape
+     *
+     * @return mixed
+     */
     public function escape($data)
     {
         return $this->sanitize($data);
     }
+    /**
+     * Cleans data passed
+     *
+     * @param mixed $data the data to clean
+     *
+     * @return mixed
+     */
     private function _clean($data)
     {
+        $data = trim($data);
+        $eData = htmlentities(
+            $data,
+            ENT_QUOTES,
+            'utf-8'
+        );
         if (!self::$_link) {
-            return trim(htmlentities($data, ENT_QUOTES, 'utf-8'));
+            return $eData;
         }
         return self::$_link->quote($data);
     }
+    /**
+     * Santizes data passed
+     *
+     * @param mixed $data the data to be sanitized
+     *
+     * @return mixed
+     */
     public function sanitize($data)
     {
         if (!is_array($data)) {
@@ -397,41 +478,92 @@ class PDODB extends DatabaseManager
         }
         return $data;
     }
+    /**
+     * Returns the database name
+     *
+     * @return string
+     */
     public function dbName()
     {
         return self::$_dbName;
     }
+    /**
+     * Returns the primary link
+     *
+     * @return object
+     */
     public function link()
     {
         return self::$_link;
     }
+    /**
+     * Returns the item whatever this is
+     * Could be database manager or pdodb.
+     *
+     * @return object
+     */
     public function returnThis()
     {
         return $this;
     }
+    /**
+     * Dump PDO specific debug information
+     *
+     * @return string
+     */
     private static function _debugDumpParams()
     {
         ob_start();
         self::$_queryResult->debugDumpParams();
         return ob_get_clean();
     }
+    /**
+     * Executes the query.
+     *
+     * @param array $paramvals the parameters if any
+     *
+     * @return bool
+     */
     private static function _execute($paramvals = array())
     {
         if (count($paramvals) > 0) {
-            array_walk($paramvals, function ($value, $param) {
-                is_array($value) ? self::_bind($param, $value[0], $value[1]) : self::_bind($param, $value);
-            });
+            foreach ((array)$paramvals as $param => $value) {
+                if (is_array($value)) {
+                    self::_bind($param, $value[0], $value[1]);
+                } else {
+                    self::_bind($param, $value);
+                }
+            }
         }
         return self::$_queryResult->execute();
     }
+    /**
+     * Fetch all items
+     *
+     * @param int $type the type to fetch
+     *
+     * @return void
+     */
     private static function _all($type = PDO::FETCH_ASSOC)
     {
         self::$_result = self::$_queryResult->fetchAll($type);
     }
+    /**
+     * Fetch single item
+     *
+     * @param int $type the type to fetch
+     *
+     * @return void
+     */
     private static function _single($type = PDO::FETCH_ASSOC)
     {
         self::$_result = self::$_queryResult->fetch($type);
     }
+    /**
+     * Prepare the query
+     *
+     * @return void
+     */
     private static function _prepare()
     {
         self::$_queryResult = self::$_link->prepare(self::$_query);
