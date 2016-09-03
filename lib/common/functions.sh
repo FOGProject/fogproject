@@ -545,6 +545,7 @@ installPackages() {
             packages="${packages// libapache2-mod-evasive/}"
             case $linuxReleaseName in
                 *[Dd][Ee][Bb][Ii][Aa][Nn]*)
+                    packages="$packages php$php_ver-bcmath bc"
                     if [[ $OSVersion -eq 7 ]]; then
                         debcode="wheezy"
                         grep -l "deb http://packages.dotdeb.org $debcode-php56 all" "/etc/apt/sources.list" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
