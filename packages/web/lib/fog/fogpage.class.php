@@ -803,7 +803,7 @@ abstract class FOGPage extends FOGBase
             _('Domain Username') => sprintf('<input id="adUsername" class="smaller" type="text"name="domainuser" value="%s" autocomplete="off"/>', $ADUser),
             sprintf('%s<br/>(%s)', _('Domain Password'), _('Will auto-encrypt plaintext')) => sprintf('<input id="adPassword" class="smaller" type="password" name="domainpassword" value="%s" autocomplete="off"/>', $ADPass),
             sprintf('%s<br/>(%s)', _('Domain Password Legacy'), _('Must be encrypted')) => sprintf('<input id="adPasswordLegacy" class="smaller" type="password" name="domainpasswordlegacy" value="%s" autocomplete="off"/>', $ADPassLegacy),
-            sprintf('%s', _('Make changes even when users are logged on?')) => sprintf('<input name="enforcesel" type="checkbox" autocomplete="off"%s/><input type="hidden" name="enforce"/>', $enforce ? ' checked' : ''),
+            sprintf('%s', _('Reboot host on hostname changes and AD changes even if users are logged in?')) => sprintf('<input name="enforcesel" type="checkbox" autocomplete="off"%s/><input type="hidden" name="enforce"/>', $enforce ? ' checked' : ''),
             '&nbsp;' => sprintf('<input name="updatead" type="submit" value="%s"/>', ($_REQUEST['sub'] == 'add' ? _('Add') : _('Update'))),
         );
         printf('<div id="%s-active-directory"><form method="post" action="%s&tab=%s-active-directory"><h2>%s<div id="adClear"></div></h2>', $this->node, $this->formAction, $this->node, _('Active Directory'));
