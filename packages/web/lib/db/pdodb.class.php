@@ -1,589 +1,277 @@
 <?php
-/**
- * PDODB, the database connector.
- *
- * PHP version 5
- *
- * This is what communicates between FOG and the Database.
- *
- * @category PDODB
- * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
-/**
- * PDODB, the database connector.
- *
- * @category PDODB
- * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
 class PDODB extends DatabaseManager
 {
-    /**
-     * Stores the current connection
-     *
-     * @var resource
-     */
-    private static $_link;
-    /**
-     * Stores the query string
-     *
-     * @var string
-     */
-    private static $_query;
-    /**
-     * Stores the query result
-     *
-     * @var object
-     */
-    private static $_queryResult;
-    /**
-     * Stores the returned results
-     *
-     * @var mixed
-     */
-    private static $_result;
-    /**
-     * Stores the database name
-     *
-     * @var string
-     */
-    private static $_dbName;
-    /**
-     * Options for the connection
-     *
-     * @var array
-     */
-    private static $_options = array(
-        PDO::ATTR_PERSISTENT => true,
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    );
-    /**
-     * Initializes the PDODB class
-     *
-     * @param array $options any custom options you want passed
-     *
-     * @throws PDOException
-     * @return void
-     */
-    public function __construct($options = array())
+    private static $link;
+    private static $query;
+    private static $queryResult;
+    private static $result;
+    private static $db_name;
+    public function __construct()
     {
-        if (self::$_link) {
+        if (self::$link) {
             return $this;
         }
         parent::__construct();
         try {
-            if (count($options) > 0) {
-                self::$_options = $options;
-            }
-            self::$_dbName = DATABASE_NAME;
-            if (!$this->_connect()) {
-                throw new PDOException(_('Failed to connect'));
+            if (!$this->connect()) {
+                throw new Exception(_('Failed to connect'));
             }
         } catch (PDOException $e) {
-            $msg = sprintf(
-                '%s %s: %s, %s: %s',
-                _('Failed to'),
-                __FUNCTION__,
-                $e->getMessage(),
-                _('SQL Error'),
-                $this->sqlerror()
-            );
-            $this->debug($msg);
+            $this->debug(sprintf('%s %s: %s, %s: %s', _('Failed to'), __FUNCTION__, $e->getMessage(), _('SQL Error:'), $this->sqlerror()));
         }
     }
-    /**
-     * Uninitializes the PDODB Class
-     *
-     * @return void
-     */
     public function __destruct()
     {
-        self::$_result = null;
-        self::$_queryResult = null;
-        if (!self::$_link) {
+        self::$result = null;
+        self::$queryResult = null;
+        if (!self::$link) {
             return;
         }
-        self::$_link = null;
+        self::$link = null;
     }
-    /**
-     * Connects the database as needed.
-     *
-     * @param bool $dbexists tests existence of DB
-     *
-     * @throws PDOException
-     * @return object
-     */
-    private function _connect($dbexists = true)
+    private function connect($dbexists = true)
     {
+        $options = array(
+            PDO::ATTR_PERSISTENT => true,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        );
         try {
-            if (self::$_link) {
+            if (self::$link) {
                 return $this;
             }
-            $type = DATABASE_TYPE;
-            $host = str_replace(array('p:', 'P:'), '', DATABASE_HOST);
-            $user = DATABASE_USERNAME;
-            $pass = DATABASE_PASSWORD;
-            $dsn = sprintf(
-                '%s:host=%s;dbname=%s;charset=utf8',
-                $type,
-                $host,
-                self::$_dbName
-            );
-            if (!$dbexists) {
-                $dsn = preg_replace('#dbname=.*[;]#', '', $dsn);
-            }
-            self::$_link = new PDO(
-                $dsn,
-                $user,
-                $pass,
-                self::$_options
-            );
-            if (!self::currentDb($this)) {
-                if (preg_match('#schema#', self::$querystring)) {
-                    self::redirect('?node=schema');
+            if ($dbexists) {
+                self::$link = new PDO(sprintf('%s:host=%s;dbname=%s;charset=utf8', DATABASE_TYPE, preg_replace('#^p[:]#', '', DATABASE_HOST), DATABASE_NAME), DATABASE_USERNAME, DATABASE_PASSWORD, $options);
+            } else {
+                self::$link = new PDO(sprintf('%s:host=%s;charset=utf8', DATABASE_TYPE, preg_replace('#^p[:]#', '', DATABASE_HOST)), DATABASE_USERNAME, DATABASE_PASSWORD, $options);
+                if (!self::currentDb($this) && !preg_match('#schema#', htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES, 'utf-8'))) {
+                    $this->redirect('?node=schema');
                 }
             }
             self::query("SET SESSION sql_mode=''");
         } catch (PDOException $e) {
             if ($dbexists) {
-                $this->_connect(false);
+                $this->connect(false);
             } else {
-                $msg = sprintf(
-                    '%s %s: %s: %s',
-                    _('Failed to'),
-                    __FUNCTION__,
-                    _('Error'),
-                    $e->getMessage()
-                );
-                $this->debug($msg);
+                $this->debug(sprintf('%s %s: %s', _('Failed to'), __FUNCTION__, $e->getMessage()));
             }
         }
         return $this;
     }
-    /**
-     * Gets the current database.
-     *
-     * @param object $main Static method so we need the main element.
-     *
-     * @throws PDOException
-     * @return bool|object
-     */
     public static function currentDb(&$main)
     {
         try {
-            if (!self::$_link) {
-                throw new PDOException(_('No link established to the database'));
+            if (!self::$link) {
+                throw new PDOException('');
             }
-            if (!isset(self::$_dbName) || !self::$_dbName) {
-                $sql = sprintf(
-                    'USE `%s`',
-                    self::$_dbName
-                );
-                $dbTest = self::$_link->query($sql);
-                if (!$test) {
-                    self::$_dbName = false;
-                } elseif (self::$_dbName === false) {
-                    self::$_dbName = DATABASE_NAME;
-                }
+            if (!isset(self::$db_name) || !self::$db_name) {
+                self::$db_name = (self::$link->query(sprintf('USE `%s`', DATABASE_NAME)) ? DATABASE_NAME : false);
             }
         } catch (PDOException $e) {
             return false;
         }
         return $main;
     }
-    /**
-     * The query method.
-     *
-     * @param string $sql       the sql statement to query
-     * @param array  $data      the data as needed
-     * @param array  $paramvals the bound param variables
-     *
-     * @return object|bool
-     */
     public function query($sql, $data = array(), $paramvals = array())
     {
         try {
-            if (!self::$_link) {
+            if (!self::$link) {
                 throw new PDOException($this->sqlerror());
             }
-            self::$_queryResult = null;
+            self::$queryResult = null;
             if (isset($data) && !is_array($data)) {
                 $data = array($data);
             }
             if (count($data)) {
                 $sql = vsprintf($sql, $data);
             }
-            if (!$sql) {
-                throw new PDOException(_('No query passed'));
-            }
-            self::$_query = $sql;
-            self::_prepare();
-            self::_execute($paramvals);
             $this->info($sql);
-            if (!self::$_dbName) {
+            self::$query = $sql;
+            if (!self::$query) {
+                throw new PDOException(_('No query sent'));
+            }
+            self::prepare();
+            self::execute($paramvals);
+            if (!self::$db_name) {
                 self::currentDb($this);
             }
-            if (!self::$_dbName) {
+            if (!self::$db_name) {
                 throw new PDOException(_('No database to work off'));
             }
         } catch (PDOException $e) {
-            $msg = sprintf(
-                '%s %s: %s: %s',
-                _('Failed to'),
-                __FUNCTION__,
-                _('Error'),
-                $e->getMessage()
-            );
+            $this->debug(sprintf('%s %s: %s', _('Failed to'), __FUNCTION__, $e->getMessage()));
             if (stripos($e->getMessage(), _('no database to'))) {
-                $msg = sprintf(
-                    '%s %s',
-                    $msg,
-                    self::_debugDumpParams()
-                );
+                die($e->getMessage().' '.self::debugDumpParams());
             }
-            $this->debug($msg);
         }
         return $this;
     }
-    /**
-     * Fetchs the information into a statement object to parse.
-     *
-     * @param int    $type      the type of fetching PDO int.
-     * @param string $fetchType the type in function calling
-     * @param mixed  $params    any additional parameters needed.
-     *
-     * @throws PDOException
-     * @return object
-     */
-    public function fetch(
-        $type = PDO::FETCH_ASSOC,
-        $fetchType = 'fetch_assoc',
-        $params = false
-    ) {
+    public function fetch($type = PDO::FETCH_ASSOC, $fetchType = 'fetch_assoc', $params = false)
+    {
         try {
-            self::$_result = array();
+            self::$result = array();
             if (empty($type)) {
                 $type = PDO::FETCH_ASSOC;
             }
             if (empty($fetchType)) {
                 $fetchType = 'fetch_assoc';
             }
-            if (is_null(self::$_queryResult)) {
-                throw new PDOException(_('Query method must be run first'));
-            } elseif (is_bool(self::$_queryResult)) {
-                self::$_result = self::$_queryResult;
+            if (!is_object(self::$queryResult) && in_array(self::$queryResult, array(true, false), true)) {
+                self::$result = self::$queryResult;
+            } elseif (empty(self::$queryResult)) {
+                throw new PDOException(_('No query result, use query() first'));
             } else {
-                $fetchType = strtolower($fetchType);
-                switch ($fetchType) {
+                switch (strtolower($fetchType)) {
                     case 'fetch_all':
-                        self::_all($type);
+                        self::all($type);
                         break;
                     default:
-                        self::_single($type);
+                        self::single($type);
                         break;
                 }
             }
         } catch (PDOException $e) {
-            $msg = sprintf(
-                '%s %s: %s: %s',
-                _('Failed to'),
-                __FUNCTION__,
-                _('Error'),
-                $e->getMessage()
-            );
-            $this->debug($msg);
-            self::$_result = false;
+            $this->debug(sprintf('%s %s: %s', _('Failed to'), __FUNCTION__, $e->getMessage()));
+            self::$result = false;
         }
         return $this;
     }
-    /**
-     * Gets the field requested or all fields
-     *
-     * @param array|string $field the field to get
-     *
-     * @throws PDOException
-     * @return mixed
-     */
     public function get($field = '')
     {
         try {
-            if (!self::$_link) {
-                throw new PDOException(_('No connection to the database'));
+            if (!self::$link) {
+                throw new Exception(_('No connection to the database'));
             }
-            if (is_bool(self::$_result)) {
-                if (self::$_result === false) {
-                    throw new PDOException(_('No data returned'));
-                }
-                return self::$_result;
+            if (self::$result === false) {
+                throw new Exception(_('No data returned'));
+            }
+            if (self::$result === true) {
+                return self::$result;
             }
             $result = array();
-            if ($field || count($field) > 0) {
-                if (is_array($field)) {
-                    foreach ((array)$field as &$key) {
-                        $key = trim($key);
-                        if (array_key_exists($key, (array)self::$_result)) {
-                            return self::$_result[$key];
-                        }
-                        foreach ((array)self::$_result as &$value) {
-                            if (array_key_exists($key, (array)$value)) {
-                                $result[] = $value[$key];
-                            }
-                            unset($value);
-                        }
-                        unset($key);
+            if ($field) {
+                foreach ((array)$field as &$key) {
+                    $key = trim($key);
+                    if (array_key_exists($key, (array)self::$result)) {
+                        return self::$result[$key];
                     }
-                } else {
-                    $key = trim($field);
-                    if (array_key_exists($key, (array)self::$_result)) {
-                        return self::$_result[$key];
-                    }
-                    foreach ((array)self::$_result as &$value) {
+                    foreach ((array)self::$result as &$value) {
                         if (array_key_exists($key, (array)$value)) {
                             $result[] = $value[$key];
                         }
-                        unset($value);
                     }
-                    unset($key);
                 }
             }
             if (count($result)) {
                 return $result;
             }
         } catch (Exception $e) {
-            $msg = sprintf(
-                '%s %s: %s: %s',
-                _('Failed to'),
-                __FUNCTION__,
-                _('Error'),
-                $e->getMessage()
-            );
-            $this->debug($msg);
+            $this->debug(sprintf('%s %s: %s', _('Failed to'), __FUNCTION__, $e->getMessage()));
         }
-        return self::$_result;
+        return self::$result;
     }
-    /**
-     * Returns error of the last sql command
-     *
-     * @return string
-     */
     public function sqlerror()
     {
-        if (self::$_link) {
-            if (self::$_link->errorCode()) {
-                $errCode = self::$_link->errorCode();
-                $errInfo = self::$_link->errorInfo();
-            } else {
-                $errCode = self::$_queryResult->errorCode();
-                $errInfo = self::$_queryResult->errorInfo();
-            }
-            $msg = sprintf(
-                '%s: %s, %s: %s, %s: %s',
-                _('Error Code'),
-                $errCode,
-                _('Error Message'),
-                $errInfo,
-                _('Debug'),
-                self::_debugDumpParams()
-            );
-        } else {
-            $msg = _('Cannot connect to database');
-        }
-        return $msg;
+        $message = self::$link ? sprintf('%s: %s, %s: %s, %s: %s', _('Error Code'), self::$link->errorCode() ? self::$link->errorCode() : self::$queryResult->errorCode(), _('Error Message'), self::$link->errorCode() ? self::$link->errorInfo() : self::$queryResult->errorInfo(), _('Debug'), self::debugDumpParams()) : _('Cannot connect to database');
+        return $message;
     }
-    /**
-     * Returns the last insert ID
-     *
-     * @return int
-     */
     public function insertId()
     {
-        return self::$_link->lastInsertId();
+        return self::$link->lastInsertId();
     }
-    /**
-     * Returns the field count
-     *
-     * @return int
-     */
     public function fieldCount()
     {
-        return self::$_queryResult->columnCount();
+        return self::$queryResult->columnCount();
     }
-    /**
-     * Returns the number of affected rows
-     *
-     * @return int
-     */
     public function affectedRows()
     {
-        return self::$_queryResult->rowCount();
+        return self::$queryResult->rowCount();
     }
-    /**
-     * Escapes data passed
-     *
-     * @param mixed $data the data to escape
-     *
-     * @return mixed
-     */
     public function escape($data)
     {
         return $this->sanitize($data);
     }
-    /**
-     * Cleans data passed
-     *
-     * @param mixed $data the data to clean
-     *
-     * @return mixed
-     */
-    private function _clean($data)
+    private function clean($data)
     {
-        $data = trim($data);
-        $eData = htmlentities(
-            $data,
-            ENT_QUOTES,
-            'utf-8'
-        );
-        if (!self::$_link) {
-            return $eData;
+        if (!self::$link) {
+            return trim(htmlentities($data, ENT_QUOTES, 'utf-8'));
         }
-        return self::$_link->quote($data);
+        return self::$link->quote($data);
     }
-    /**
-     * Sanitizes data passed
-     *
-     * @param mixed $data the data to be sanitized
-     *
-     * @return mixed
-     */
     public function sanitize($data)
     {
         if (!is_array($data)) {
-            return $this->_clean($data);
+            return $this->clean($data);
         }
         foreach ($data as $key => &$val) {
             if (is_array($val)) {
                 foreach ($val as $i => $v) {
-                    $data[$this->_clean($key)][$i] = $this->_clean($v);
+                    $data[$this->clean($key)][$i] = $this->clean($v);
                 }
             } else {
-                $data[$this->_clean($key)] = $this->_clean($val);
+                $data[$this->clean($key)] = $this->clean($val);
             }
         }
         return $data;
     }
-    /**
-     * Returns the database name
-     *
-     * @return string
-     */
     public function dbName()
     {
-        return self::$_dbName;
+        return self::$db_name;
     }
-    /**
-     * Returns the primary link
-     *
-     * @return object
-     */
     public function link()
     {
-        return self::$_link;
+        return self::$link;
     }
-    /**
-     * Returns this item whatever this is
-     * Could be database manager or pdodb.
-     *
-     * @return $this
-     */
     public function returnThis()
     {
         return $this;
     }
-    /**
-     * Dump PDO specific debug information
-     *
-     * @return string
-     */
-    private static function _debugDumpParams()
+    private static function debugDumpParams()
     {
         ob_start();
-        self::$_queryResult->debugDumpParams();
+        self::$queryResult->debugDumpParams();
         return ob_get_clean();
     }
-    /**
-     * Executes the query.
-     *
-     * @param array $paramvals the parameters if any
-     *
-     * @return bool
-     */
-    private static function _execute($paramvals = array())
+    private static function execute($paramvals = array())
     {
         if (count($paramvals) > 0) {
-            foreach ((array)$paramvals as $param => &$value) {
-                if (is_array($value)) {
-                    self::_bind($param, $value[0], $value[1]);
-                } else {
-                    self::_bind($param, $value);
-                }
-            }
+            array_walk($paramvals, function ($value, $param) {
+                is_array($value) ? self::bind($param, $value[0], $value[1]) : self::bind($param, $value);
+            });
         }
-        return self::$_queryResult->execute();
+        return self::$queryResult->execute();
     }
-    /**
-     * Fetch all items
-     *
-     * @param int $type the type to fetch
-     *
-     * @return void
-     */
-    private static function _all($type = PDO::FETCH_ASSOC)
+    private static function all($type = PDO::FETCH_ASSOC)
     {
-        self::$_result = self::$_queryResult->fetchAll($type);
+        self::$result = self::$queryResult->fetchAll($type);
     }
-    /**
-     * Fetch single item
-     *
-     * @param int $type the type to fetch
-     *
-     * @return void
-     */
-    private static function _single($type = PDO::FETCH_ASSOC)
+    private static function single($type = PDO::FETCH_ASSOC)
     {
-        self::$_result = self::$_queryResult->fetch($type);
+        self::$result = self::$queryResult->fetch($type);
     }
-    /**
-     * Prepare the query
-     *
-     * @return void
-     */
-    private static function _prepare()
+    private static function prepare()
     {
-        self::$_queryResult = self::$_link->prepare(self::$_query);
+        self::$queryResult = self::$link->prepare(self::$query);
     }
-    /**
-     * Bind the values as needed
-     *
-     * @param string $param the parameter
-     * @param mixed  $value the value to bind
-     * @param int    $type  the way to bind if needed
-     *
-     * @return void
-     */
-    private static function _bind($param, $value, $type = null)
+    private static function bind($param, $value, $type = null)
     {
         if (is_null($type)) {
-            $type = PDO::PARAM_STR;
-            if (is_null($value)) {
-                $type = PDO::PARAM_NULL;
+            switch (true) {
+                case is_int($value):
+                    $type = PDO::PARAM_INT;
+                    break;
+                case is_bool($value):
+                    $type = PDO::PARAM_BOOL;
+                    break;
+                case is_null($value):
+                    $type = PDO::PARAM_NULL;
+                    break;
+                default:
+                    $type = PDO::PARAM_STR;
+                    break;
             }
         }
-        self::$_queryResult->bindParam($param, $value, $type);
+        $type = PDO::PARAM_STR;
+        self::$queryResult->bindParam($param, $value, $type);
     }
 }
