@@ -773,7 +773,7 @@ class BootMenu extends FOGBase
                     $this->Host->set('imageID', $MulticastSession->get('image'));
                 }
             }
-            if (in_array($TaskType->get('id'), $imagingTasks)) {
+            if ($TaskType->isInitNeededTasking()) {
                 $Image = $Task->getImage();
                 $StorageGroup = null;
                 $StorageNode = null;
@@ -799,7 +799,7 @@ class BootMenu extends FOGBase
                     $StorageNode = $StorageGroup->getMasterStorageNode();
                 }
                 self::$HookManager->processEvent('BOOT_TASK_NEW_SETTINGS', array('Host' => &$this->Host, 'StorageNode' => &$StorageNode, 'StorageGroup' => &$StorageGroup));
-                $osid = $Image->get('osID');
+                $osid = (int)$Image->get('osID');
                 $storage = escapeshellcmd(in_array($TaskType->get('id'), $imagingTasks) ? sprintf('%s:/%s/%s', trim($StorageNode->get('ip')), trim($StorageNode->get('path'), '/'), ($TaskType->isCapture() ? 'dev/' : '')) : null);
             }
             if ($this->Host && $this->Host->isValid()) {
