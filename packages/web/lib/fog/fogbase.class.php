@@ -1952,7 +1952,7 @@ abstract class FOGBase
         if (count(self::$interface) < 1) {
             return false;
         }
-        return self::$interface[0];
+        return array_shift(self::$interface);
     }
     /**
      * Get IP Addresses of the server

@@ -1,36 +1,90 @@
 <?php
+/**
+ * Multicast task generator/finder
+ *
+ * PHP version 5
+ *
+ * @category MulticastTask
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Multicast task generator/finder
+ *
+ * @category MulticastTask
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class MulticastTask extends FOGService
 {
     public function getAllMulticastTasks($root, $myStorageNodeID)
     {
         $StorageNode = self::getClass('StorageNode', $myStorageNodeID);
-        self::$HookManager->processEvent('CHECK_NODE_MASTER', array('StorageNode'=>&$StorageNode, 'FOGServiceClass'=>&$this));
+        self::$HookManager->processEvent(
+            'CHECK_NODE_MASTER',
+            array(
+                'StorageNode' => &$StorageNode,
+                'FOGServiceClass' => &$this
+            )
+        );
         if (!$StorageNode->get('isMaster')) {
             return;
         }
-        $Interface = self::getMasterInterface(self::$FOGCore->resolveHostname($StorageNode->get('ip')));
+        $Interface = self::getMasterInterface(
+            self::$FOGCore->resolveHostname(
+                $StorageNode->get('ip')
+            )
+        );
         unset($StorageNode);
         $Tasks = array();
-        $MulticastSessions = self::getClass('MulticastSessionsManager')->find(array('stateID'=>array_merge($this->getQueuedStates(), (array)$this->getProgressState())));
-        array_walk($MulticastSessions, function (&$MultiSess, &$index) use (&$Tasks, $root, $Interface) {
+        $MulticastSessions = self::getClass('MulticastSessionsManager')
+            ->find(
+                array(
+                    'stateID' =>
+                    array_merge(
+                        $this->getQueuedStates(),
+                        (array)$this->getProgressState()
+                    )
+                )
+            );
+        foreach ((array)$MulticastSessions as $index => &$MultiSess) {
             if (!$MultiSess->isValid()) {
                 return;
             }
-            $taskIDs = self::getSubObjectIDs('MulticastSessionsAssociation', array('msID'=>$MultiSess->get('id')), 'taskID');
-            $count = self::getClass('MulticastSessionsAssociationManager')->count(array('msID'=>$MultiSess->get('id')));
+            $taskIDs = self::getSubObjectIDs(
+                'MulticastSessionsAssociation',
+                array(
+                    'msID' => $MultiSess->get('id')
+                ),
+                'taskID'
+            );
+            $count = self::getClass('MulticastSessionsAssociationManager')
+                ->count(
+                    array(
+                        'msID' => $MultiSess->get('id')
+                    )
+                );
             if ($count < 1) {
                 $count = $MultiSess->get('sessclients');
             }
             if ($count < 1) {
                 $MultiSess->set('stateID', $this->getCancelledState())->save();
-                self::outall(_('Task not created as there are no associated Tasks'));
-                self::outall(_('Or there was no number defined for joining session'));
-                return;
+                self::outall(
+                    _('Task not created as there are no associated Tasks')
+                );
+                self::outall(
+                    _('Or there was no number defined for joining session')
+                );
+                continue;
             }
-            $Image = self::getClass('Image', $MultiSess->get('image'));
+            $Image = $MultiSess->getImage();
             $fullPath = sprintf('%s/%s', $root, $MultiSess->get('logpath'));
             if (!file_exists($fullPath)) {
-                return;
+                continue;
             }
             $Tasks[] = new self(
                 $MultiSess->get('id'),
@@ -45,7 +99,7 @@ class MulticastTask extends FOGService
                 $taskIDs
             );
             unset($MultiSess, $index);
-        });
+        }
         return array_filter($Tasks);
     }
     private $intID, $strName, $intPort, $strImage, $strEth, $intClients, $taskIDs;

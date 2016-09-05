@@ -173,7 +173,10 @@ class Group extends FOGController
             ),
             'hostID'
         );
-        $ValidHostIDs = self::getSubObjectIDs('Host');
+        $ValidHostIDs = self::getSubObjectIDs(
+            'Host',
+            array('id' => $GroupHostIDs)
+        );
         $notValid = array_diff((array)$GroupHostIDs, (array)$ValidHostIDs);
         $valid = array_diff((array)$ValidHostIDs, (array)$notValid);
         $this->set('hosts', $valid);
