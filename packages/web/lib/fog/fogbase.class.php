@@ -716,7 +716,7 @@ abstract class FOGBase
      */
     protected function arrayInsertAfter($key, array &$array, $new_key, $new_value)
     {
-        if (!is_string($key)) {
+        if (!is_string($key) && !is_numeric($key)) {
             throw new Exception(_('Key must be a string or index'));
         }
         $new = array();

@@ -1828,7 +1828,7 @@ class BootMenu extends FOGBase
                 . "--right 80 && goto console_set || goto alt_console",
             )
         );
-        $showDebug = $_REQUEST['debug'] === 1;
+        $showDebug = isset($_REQUEST['debug']);
         $hostRegColor = $this->_Host->isValid() ? $hostValid : $hostInvalid;
         $reg_string = 'NOT registered!';
         if ($this->_Host->isValid()) {
