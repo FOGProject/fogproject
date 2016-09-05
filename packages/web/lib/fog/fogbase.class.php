@@ -740,7 +740,6 @@ abstract class FOGBase
      */
     protected function arrayRemove($key, array &$array)
     {
-        throw new Exception($key);
         if (!(is_string($key) || is_array($key))) {
             throw new Exception(_('Key must be an array of keys or a string.'));
         }
