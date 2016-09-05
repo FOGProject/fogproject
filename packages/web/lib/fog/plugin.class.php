@@ -188,7 +188,7 @@ class Plugin extends FOGController
     public function getPlugins()
     {
         $Plugins = array();
-        foreach ((array)$this->_getDirs() AS &$file) {
+        foreach ((array)$this->_getDirs() as &$file) {
             $pluginID = self::getSubObjectIDs(
                 'Plugin',
                 array('name' => basename($file))

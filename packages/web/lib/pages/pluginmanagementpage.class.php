@@ -160,7 +160,7 @@ class PluginManagementPage extends FOGPage
     public function install()
     {
         $this->title = 'Install Plugins';
-        foreach (self::$_plugins AS &$Plugin) {
+        foreach (self::$_plugins as &$Plugin) {
             if (!$Plugin->isActive() || $Plugin->isInstalled()) {
                 continue;
             }
@@ -196,7 +196,7 @@ class PluginManagementPage extends FOGPage
             )
         );
         $this->render();
-        foreach (self::$_plugins AS &$Plugin) {
+        foreach (self::$_plugins as &$Plugin) {
             if (!$_REQUEST['run']) {
                 continue;
             }
@@ -223,7 +223,7 @@ class PluginManagementPage extends FOGPage
     public function installed()
     {
         $this->title = _('Installed Plugins');
-        foreach (self::$_plugins AS &$Plugin) {
+        foreach (self::$_plugins as &$Plugin) {
             if (!$Plugin->isActive() || !$Plugin->isInstalled()) {
                 continue;
             }
@@ -250,7 +250,7 @@ class PluginManagementPage extends FOGPage
             )
         );
         $this->render();
-        foreach (self::$_plugins AS &$Plugin) {
+        foreach (self::$_plugins as &$Plugin) {
             if (!$_REQUEST['run']) {
                 continue;
             }

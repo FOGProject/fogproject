@@ -461,7 +461,9 @@ class HostManagementPage extends FOGPage
         });
         self::$HookManager->processEvent('HOST_ADD_GEN', array('data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes, 'fields'=>&$fields));
         $this->render();
-        if (!isset($_REQUEST['enforcesel'])) $_REQUEST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
+        if (!isset($_REQUEST['enforcesel'])) {
+            $_REQUEST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
+        }
         echo $this->adFieldsToDisplay($_REQUEST['domain'], $_REQUEST['domainname'], $_REQUEST['ou'], $_REQUEST['domainuser'], $_REQUEST['domainpassword'], $_REQUEST['domainpasswordlegacy'], intval(isset($_REQUEST['enforcesel'])));
         echo '</form>';
     }
