@@ -27,7 +27,10 @@ session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
-$bandwidthtime =  FOGCore::getSetting('FOG_BANDWIDTH_TIME');
+$bandwidthtime =  FOGCore::getClass('Service')
+    ->set('name', 'FOG_BANDWIDTH_TIME')
+    ->load('name')
+    ->get('value');
 /**
  * Lambda for returning the bytes from the file requested.
  *

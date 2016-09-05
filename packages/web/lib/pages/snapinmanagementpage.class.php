@@ -179,7 +179,7 @@ class SnapinManagementPage extends FOGPage
         self::$HookManager->processEvent('SNAPIN_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_map(self::$returnData, (array)self::getClass($this->childClass)->getManager()->search('', true));
@@ -267,7 +267,7 @@ class SnapinManagementPage extends FOGPage
         echo '</form>';
         unset($this->data, $this->templates, $this->attributes, $this->headerData);
     }
-    public function add_post()
+    public function addPost()
     {
         self::$HookManager->processEvent('SNAPIN_ADD_POST');
         try {
@@ -487,7 +487,7 @@ class SnapinManagementPage extends FOGPage
         }
         echo '</form></div></div>';
     }
-    public function edit_post()
+    public function editPost()
     {
         self::$HookManager->processEvent('SNAPIN_EDIT_POST', array('Snapin'=>&$this->obj));
         try {

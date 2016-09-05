@@ -53,7 +53,7 @@ class UserManagementPage extends FOGPage
         self::$HookManager->processEvent('USER_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_map(self::$returnData, self::getClass($this->childClass)->getManager()->search('', true));
@@ -87,7 +87,7 @@ class UserManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_post()
+    public function addPost()
     {
         self::$HookManager->processEvent('USER_ADD_POST');
         try {
@@ -137,7 +137,7 @@ class UserManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function edit_post()
+    public function editPost()
     {
         self::$HookManager->processEvent('USER_EDIT_POST', array('User'=>&$this->obj));
         try {

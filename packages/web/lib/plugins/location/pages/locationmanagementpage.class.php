@@ -68,7 +68,7 @@ class LocationManagementPage extends FOGPage
         self::$HookManager->processEvent('LOCATION_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_map(self::$returnData, (array)self::getClass($this->childClass)->getManager()->search('', true));
@@ -101,7 +101,7 @@ class LocationManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_post()
+    public function addPost()
     {
         try {
             $name = trim($_REQUEST['name']);
@@ -164,7 +164,7 @@ class LocationManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function edit_post()
+    public function editPost()
     {
         self::$HookManager->processEvent('LOCATION_EDIT_POST', array('Location'=> &$this->obj));
         try {

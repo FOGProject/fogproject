@@ -120,7 +120,7 @@ class ReportManagementPage extends FOGPage
             $this->render();
         }
     }
-    public function imaging_log_post()
+    public function imaging_logPost()
     {
         $this->title = _('FOG Imaging Log');
         printf(
@@ -566,7 +566,7 @@ class ReportManagementPage extends FOGPage
         }
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
-    public function pend_mac_post()
+    public function pend_macPost()
     {
         if (isset($_REQUEST['approvependmac'])) {
             self::getClass('MACAddressAssociationManager')->update(array('id'=>$_REQUEST['pendmac']), '', array('pending'=>(string)0));
@@ -679,7 +679,7 @@ class ReportManagementPage extends FOGPage
         echo '</form>';
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
-    public function vir_hist_post()
+    public function vir_histPost()
     {
         if ($_REQUEST['delvall'] == 'all') {
             self::getClass('VirusManager')->destroy();
@@ -745,7 +745,7 @@ class ReportManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function user_track_post()
+    public function user_trackPost()
     {
         $this->title = _('Results Found for user and/or hostname search');
         $this->headerData = array(
@@ -883,7 +883,7 @@ class ReportManagementPage extends FOGPage
             $this->render();
         }
     }
-    public function user_track_disp_post()
+    public function user_track_dispPost()
     {
         $this->title = _('FOG User Login History Summary');
         $this->headerData = array(
@@ -1014,7 +1014,7 @@ class ReportManagementPage extends FOGPage
             $this->render();
         }
     }
-    public function snapin_log_post()
+    public function snapin_logPost()
     {
         $this->title = _('FOG Snapin Log');
         printf(
@@ -1173,7 +1173,7 @@ class ReportManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function equip_loan_post()
+    public function equip_loanPost()
     {
         $Inventory = self::getClass('Inventory', $_REQUEST['user']);
         if (!$Inventory->isValid()) {

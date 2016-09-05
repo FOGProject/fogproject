@@ -63,7 +63,7 @@ class TasktypeeditManagementPage extends FOGPage
         self::$HookManager->processEvent('TASKTYPE_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_map(self::$returnData, (array)self::getClass($this->childClass)->getManager()->search('', true));
@@ -114,7 +114,7 @@ class TasktypeeditManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_post()
+    public function addPost()
     {
         try {
             $name = $_REQUEST['name'];
@@ -194,7 +194,7 @@ class TasktypeeditManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function edit_post()
+    public function editPost()
     {
         self::$HookManager->processEvent('TASKTYPE_EDIT_POST', array('TaskType'=>&$this->obj));
         try {

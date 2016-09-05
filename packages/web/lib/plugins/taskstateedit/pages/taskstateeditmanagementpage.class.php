@@ -57,7 +57,7 @@ class TaskstateeditManagementPage extends FOGPage
         self::$HookManager->processEvent('TASKSTATE_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_map(self::$returnData, self::getClass($this->childClass)->getManager()->search('', true));
@@ -96,7 +96,7 @@ class TaskstateeditManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_post()
+    public function addPost()
     {
         try {
             $name = $_REQUEST['name'];
@@ -156,7 +156,7 @@ class TaskstateeditManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function edit_post()
+    public function editPost()
     {
         self::$HookManager->processEvent('TASKSTATE_EDIT_POST', array('TaskState'=>&$this->obj));
         try {

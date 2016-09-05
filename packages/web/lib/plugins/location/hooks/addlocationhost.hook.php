@@ -58,7 +58,7 @@ class AddLocationHost extends Hook
         if ($_REQUEST['node'] != 'host') {
             return;
         }
-        if (!in_array($_REQUEST['sub'], array('add', 'add_post', 'edit', 'edit_post'))) {
+        if (!in_array($_REQUEST['sub'], array('add', 'addPost', 'edit', 'editPost'))) {
             return;
         }
         if (str_replace('_', '-', $_REQUEST['tab']) != 'host-general') {

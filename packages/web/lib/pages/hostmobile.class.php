@@ -69,7 +69,7 @@ class HostMobile extends FOGPage
         $this->render();
         $this->redirect('?node=task');
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_map(self::$returnData, self::getClass('HostManager')->search('', true));

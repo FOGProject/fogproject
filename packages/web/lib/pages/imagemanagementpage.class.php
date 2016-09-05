@@ -105,7 +105,7 @@ class ImageManagementPage extends FOGPage
         self::$HookManager->processEvent('IMAGE_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_map(self::$returnData, self::getClass($this->childClass)->getManager()->search('', true));
@@ -153,7 +153,7 @@ class ImageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_post()
+    public function addPost()
     {
         self::$HookManager->processEvent('IMAGE_ADD_POST');
         try {
@@ -314,7 +314,7 @@ class ImageManagementPage extends FOGPage
         }
         echo '</form></div></div>';
     }
-    public function edit_post()
+    public function editPost()
     {
         self::$HookManager->processEvent('IMAGE_EDIT_POST', array('Image'=>&$this->obj));
         try {
@@ -451,7 +451,7 @@ class ImageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function multicast_post()
+    public function multicastPost()
     {
         try {
             $name = trim($_REQUEST['name']);

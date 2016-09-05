@@ -1,15 +1,85 @@
 <?php
+/**
+ * Plugin class.
+ *
+ * PHP version 5
+ *
+ * @category Plugin
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Plugin class.
+ *
+ * @category Plugin
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class Plugin extends FOGController
 {
-    private $strName;
-    private $strEntryPoint;
-    private $strVersion;
-    private $strPath;
-    private $strIcon;
-    private $strIconHover;
-    private $blIsInstalled;
-    private $blIsActive;
+    /**
+     * The plugin name storage
+     *
+     * @var string
+     */
+    private $_strName;
+    /**
+     * The Plugin entry point/run file
+     *
+     * @var string
+     */
+    private $_strEntryPoint;
+    /**
+     * The version of the plugin
+     *
+     * @var string
+     */
+    private $_strVersion;
+    /**
+     * The path to the plugin
+     *
+     * @var string
+     */
+    private $_strPath;
+    /**
+     * The icon storage
+     *
+     * @var string
+     */
+    private $_strIcon;
+    /**
+     * The icon hover storage
+     *
+     * @var string
+     */
+    private $_strIconHover;
+    /**
+     * Is the plugin installed
+     *
+     * @var bool
+     */
+    private $_blIsInstalled = false;
+    /**
+     * Is the plugin active
+     *
+     * @var bool
+     */
+    private $_blIsActive = false;
+    /**
+     * The database table to look at
+     *
+     * @var string
+     */
     protected $databaseTable = 'plugins';
+    /**
+     * The common and database fields to use
+     *
+     * @var array
+     */
     protected $databaseFields = array(
         'id' => 'pID',
         'name' => 'pName',
@@ -22,108 +92,272 @@ class Plugin extends FOGController
         'pAnon4' => 'pAnon4',
         'pAnon5' => 'pAnon5',
     );
+    /**
+     * The required fields
+     *
+     * @var array
+     */
     protected $databaseFieldsRequired = array(
         'name',
     );
+    /**
+     * Any additional Fields
+     *
+     * @var array
+     */
     protected $additionalFields = array(
         'description',
     );
+    /**
+     * Gets the needed include files to run
+     *
+     * @param string $hash the hash to test for
+     *
+     * @return string
+     */
     public function getRunInclude($hash)
     {
-        $hash = trim($hash);
-        $Plugin = self::getClass('Plugin', 0);
-        array_map(function (&$P) use (&$Plugin, $hash) {
-            $tmphash = trim(md5(trim($P->get('name'))));
-            if ($tmphash !== $hash) {
-                return;
+        foreach ((array)$this->getPlugins() as &$Plugin) {
+            $name = trim($Plugin->get('name'));
+            $tmpHash = md5($name);
+            $tmpHash = trim($tmpHash);
+            if ($tmpHash !== $hash) {
+                continue;
             }
-            $Plugin = $P;
-            unset($P);
-            $_SESSION['fogactiveplugin'] = $Plugin->get('name');
-        }, (array)$this->getPlugins());
-        return $Plugin->getEntryPoint();
+            $_SESSION['fogactiveplugin'] = $name;
+            break;
+        }
+        return $Plugin->_getEntryPoint();
     }
-    private function getActivePlugs()
+    /**
+     * Sets/gets the active plugins
+     *
+     * @return void
+     */
+    private function _getActivePlugs()
     {
-        $this->blIsActive = (bool)($this->get('state'));
-        $this->blIsInstalled = (bool)($this->get('installed'));
+        $this->_blIsActive = (bool)($this->get('state'));
+        $this->_blIsInstalled = (bool)($this->get('installed'));
     }
-    private function getDirs()
+    /**
+     * Gets the directories of plugins
+     *
+     * @return array
+     */
+    private function _getDirs()
     {
-        $dir = trim(self::getSetting('FOG_PLUGINSYS_DIR'));
+        $Service = self::getClass('Service')
+            ->set('name', 'FOG_PLUGINSYS_DIR')
+            ->load('name');
+        $dir = trim($Service->get('value'));
         if ($dir != '../lib/plugins/') {
-            $this->setSetting('FOG_PLUGINSYS_DIR', '../lib/plugins/');
+            $Service
+                ->set('value', '../lib/plugins/')
+                ->save();
             $dir = '../lib/plugins/';
         }
         $patternReplacer = function ($element) {
             return preg_replace('#config/plugin\.config\.php$#i', '', $element[0]);
         };
-        $files = array_map($patternReplacer, (array)iterator_to_array(self::getClass('RegexIterator', self::getClass('RecursiveIteratorIterator', self::getClass('RecursiveDirectoryIterator', $dir, FileSystemIterator::SKIP_DOTS)), '#^.+/config/plugin\.config\.php$#i', RegexIterator::GET_MATCH), false));
+        $regext = '#^.+/config/plugin\.config\.php$#i';
+        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
+            $dir,
+            FileSystemIterator::SKIP_DOTS
+        );
+        $RecursiveIteratorIterator = new RecursiveIteratorIterator(
+            $RecursiveDirectoryIterator
+        );
+        $RegexIterator = new RegexIterator(
+            $RecursiveIteratorIterator,
+            $regext,
+            RegexIterator::GET_MATCH
+        );
+        $files = iterator_to_array($RegexIterator, false);
+        $files = array_map($patternReplacer, (array)$files);
         natcasesort($files);
-        return (array)array_values(array_unique(array_filter($files)));
+        $files = array_filter($files);
+        $files = array_unique($files);
+        $files = array_values($files);
+        return $files;
     }
+    /**
+     * Gets plugins
+     *
+     * @return array
+     */
     public function getPlugins()
     {
-        return array_map(function (&$file) {
-            require sprintf('%s/config/plugin.config.php', rtrim($file, '/'));
-            $p = self::getClass('Plugin', @min(self::getSubObjectIDs('Plugin', array('name'=>$fog_plugin['name']))))
+        $Plugins = array();
+        foreach ((array)$this->_getDirs() AS &$file) {
+            $pluginID = self::getSubObjectIDs(
+                'Plugin',
+                array('name' => basename($file))
+            );
+            $pluginID = @min($pluginID);
+            $configFile = sprintf(
+                '%s/config/plugin.config.php',
+                rtrim($file, '/')
+            );
+            include $configFile;
+            $Plugin = new Plugin($pluginID);
+            $Plugin
                 ->set('name', $fog_plugin['name'])
                 ->set('description', $fog_plugin['description']);
-            $p->strPath = $file;
-            $p->strEntryPoint = sprintf('%s%s', $file, $fog_plugin['entrypoint']);
-            $p->strIcon = preg_match('#^fa[-]?#', $fog_plugin['menuicon']) ? $fog_plugin['menuicon'] : sprintf('%s%s', $file, $fog_plugin['menuicon']);
-            $p->strIconHover = sprintf('%s%s', $file, $fog_plugin['menuicon_hover']);
-            unset($file, $fog_plugin);
-            return $p;
-        }, (array)$this->getDirs());
+            $Plugin->_strPath = $file;
+            $runFile = sprintf(
+                '%s%s',
+                $file,
+                $fog_plugin['entrypoint']
+            );
+            $Plugin->_strEntryPoint = $runFile;
+            $matchIcon = preg_match(
+                '#^fa[-]?#',
+                $fog_plugin['menuicon']
+            );
+            if ($matchIcon != false) {
+                $Plugin->_strIcon = sprintf(
+                    '<i class="%s" width="%d" height="%d" alt="%s"></i>',
+                    $fog_plugin['menuicon'],
+                    66,
+                    66,
+                    $Plugin->get('name')
+                );
+            } else {
+                $Plugin->_strIcon = sprintf(
+                    '<img src="%s" width="%d" height="%d" alt="%s"/>',
+                    sprintf(
+                        '%s%s',
+                        $file,
+                        $fog_plugin['menuicon']
+                    ),
+                    66,
+                    66,
+                    $Plugin->get('name')
+                );
+            }
+            $matchIconHover = preg_match(
+                '#^fa[-]?#',
+                $fog_plugin['menuicon_hover']
+            );
+            if ($matchIconHover != false) {
+                $Plugin->_strIconHover = sprintf(
+                    '<i class="%s" width="%d" height="%d" alt="%s"></i>',
+                    $fog_plugin['menuicon_hover'],
+                    66,
+                    66,
+                    $Plugin->get('name')
+                );
+            } else {
+                $Plugin->_strIconHover = sprintf(
+                    '<img src="%s" width="%d" height="%d" alt="%s"/>',
+                    sprintf(
+                        '%s%s',
+                        $file,
+                        $fog_plugin['menuicon_hover']
+                    ),
+                    66,
+                    66,
+                    $Plugin->get('name')
+                );
+            }
+            $Plugins[] = $Plugin;
+        }
+        return $Plugins;
     }
+    /**
+     * Activate the matching hash named plugin.
+     *
+     * @param string $hash the hash of the name to activate
+     *
+     * @return object
+     */
     public function activatePlugin($hash)
     {
         $hash = trim($hash);
-        array_map(function (&$Plugin) use (&$hash) {
-            $tmphash = trim(md5(trim($Plugin->get('name'))));
-            if ($tmphash !== $hash) {
-                return;
+        foreach ((array)$this->getPlugins() as &$Plugin) {
+            $name = trim($Plugin->get('name'));
+            $tmpHash = md5($name);
+            $tmpHash = trim($tmpHash);
+            if ($tmpHash !== $hash) {
+                continue;
             }
             $Plugin
-                ->set('state', '1')
-                ->set('installed', '0')
-                ->set('name', $Plugin->get('name'))
+                ->set('state', 1)
+                ->set('installed', 0)
                 ->save();
-        }, (array)$this->getPlugins());
+        }
         return $this;
     }
+    /**
+     * Get's the plugin manager class or plugin's manager class as needed.
+     *
+     * @return object
+     */
     public function getManager()
     {
-        if (!class_exists(sprintf('%sManager', $this->get('name')))) {
+        $classManager = sprintf(
+            '%sManager',
+            $this->get('name')
+        );
+        if (!class_exists($classManager)) {
             return parent::getManager();
         }
-        return self::getClass($this->get('name'))->getManager();
+        return new $classManager();
     }
+    /**
+     * Get's the plugin path
+     *
+     * @return string
+     */
     public function getPath()
     {
-        return $this->strPath;
+        return $this->_strPath;
     }
-    private function getEntryPoint()
+    /**
+     * Get's the plugin run point
+     *
+     * @return string
+     */
+    private function _getEntryPoint()
     {
-        return $this->strEntryPoint;
+        return $this->_strEntryPoint;
     }
+    /**
+     * Get's the plugin's icon
+     *
+     * @return string
+     */
     public function getIcon()
     {
-        return $this->strIcon;
+        return $this->_strIcon;
     }
+    /**
+     * Get's the installed status of the plugin
+     *
+     * @return bool
+     */
     public function isInstalled()
     {
-        $this->getActivePlugs();
-        return (bool)$this->blIsInstalled;
+        $this->_getActivePlugs();
+        return (bool)$this->_blIsInstalled;
     }
+    /**
+     * Get's the active status of the plugin
+     *
+     * @return bool
+     */
     public function isActive()
     {
-        $this->getActivePlugs();
-        return (bool)$this->blIsActive;
+        $this->_getActivePlugs();
+        return (bool)$this->_blIsActive;
     }
+    /**
+     * Get's the plugin's version
+     *
+     * @return bool
+     */
     public function getVersion()
     {
-        return $this->strVersion;
+        return $this->_strVersion;
     }
 }

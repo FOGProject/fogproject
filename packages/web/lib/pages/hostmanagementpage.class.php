@@ -1,7 +1,43 @@
 <?php
+/**
+ * Host management page
+ *
+ * PHP version 5
+ *
+ * The host represented to the GUI
+ *
+ * @category HostManagementPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Host management page
+ *
+ * The host represented to the GUI
+ *
+ * @category HostManagementPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class HostManagementPage extends FOGPage
 {
+    /**
+     * The node that uses this class.
+     *
+     * @var string
+     */
     public $node = 'host';
+    /**
+     * Initializes the host page
+     *
+     * @param string $name the name to construct with
+     *
+     * @return void
+     */
     public function __construct($name = '')
     {
         $this->name = 'Host Management';
@@ -9,45 +45,125 @@ class HostManagementPage extends FOGPage
         if ($_SESSION['Pending-Hosts']) {
             $this->menu['pending'] = self::$foglang['PendingHosts'];
         }
-        if ($_REQUEST['id']) {
+        global $id;
+        if ($id) {
+            $linkstr = "$this->linkformat#host-%s";
             $this->subMenu = array(
-                "$this->linkformat#host-general"=>self::$foglang['General'],
+                sprintf(
+                    $linkstr,
+                    'general'
+                ) => self::$foglang['General'],
             );
             if (!$this->obj->get('pending')) {
-                $this->subMenu = array_merge($this->subMenu, array("$this->linkformat#host-tasks"=>self::$foglang['BasicTasks']));
+                $this->subMenu = array_merge(
+                    $this->subMenu,
+                    array(
+                        sprintf(
+                            $linkstr,
+                            'tasks'
+                        ) => self::$foglang['BasicTasks'],
+                    )
+                );
             }
-            $this->subMenu = array_merge($this->subMenu, array(
-                "$this->linkformat#host-active-directory"=>self::$foglang['AD'],
-                "$this->linkformat#host-printers"=>self::$foglang['Printers'],
-                "$this->linkformat#host-snapins"=>self::$foglang['Snapins'],
-                "$this->linkformat#host-service"=>sprintf('%s %s', self::$foglang['Service'], self::$foglang['Settings']),
-                "$this->linkformat#host-powermanagement"=>self::$foglang['PowerManagement'],
-                "$this->linkformat#host-hardware-inventory"=>self::$foglang['Inventory'],
-                "$this->linkformat#host-virus-history"=>self::$foglang['VirusHistory'],
-                "$this->linkformat#host-login-history"=>self::$foglang['LoginHistory'],
-                "$this->linkformat#host-image-history"=>self::$foglang['ImageHistory'],
-                "$this->linkformat#host-snapin-history"=>self::$foglang['SnapinHistory'],
-                $this->membership=>self::$foglang['Membership'],
-                $this->delformat=>self::$foglang['Delete'],
-            ));
-            $this->notes = array(
-                self::$foglang['Host']=>$this->obj->get('name'),
-                self::$foglang['MAC']=>$this->obj->get('mac'),
-                self::$foglang['Image']=>$this->obj->getImageName(),
-                self::$foglang['LastDeployed']=>$this->obj->get('deployed'),
+            $this->subMenu = array_merge(
+                $this->subMenu,
+                array(
+                    sprintf(
+                        $linkstr,
+                        'active-directory'
+                    ) => self::$foglang['AD'],
+                    sprintf(
+                        $linkstr,
+                        'printers'
+                    ) => self::$foglang['Printers'],
+                    sprintf(
+                        $linkstr,
+                        'snapins'
+                    ) => self::$foglang['Snapins'],
+                    sprintf(
+                        $linkstr,
+                        'service'
+                    ) => sprintf(
+                        '%s %s',
+                        self::$foglang['Service'],
+                        self::$foglang['Settings']
+                    ),
+                    sprintf(
+                        $linkstr,
+                        'powermanagement'
+                    ) => self::$foglang['PowerManagement'],
+                    sprintf(
+                        $linkstr,
+                        'hardware-inventory'
+                    ) => self::$foglang['Inventory'],
+                    sprintf(
+                        $linkstr,
+                        'virus-history'
+                    ) => self::$foglang['VirusHistory'],
+                    sprintf(
+                        $linkstr,
+                        'login-history'
+                    ) => self::$foglang['LoginHistory'],
+                    sprintf(
+                        $linkstr,
+                        'image-history'
+                    ) => self::$foglang['ImageHistory'],
+                    sprintf(
+                        $linkstr,
+                        'snapin-history'
+                    ) => self::$foglang['SnapinHistory'],
+                    $this->membership => self::$foglang['Membership'],
+                    $this->delformat => self::$foglang['Delete'],
+                )
             );
-            $Group = self::getClass('Group', @min($this->obj->get('groups')));
+            $this->notes = array(
+                self::$foglang['Host'] => $this->obj->get('name'),
+                self::$foglang['MAC'] => $this->obj->get('mac'),
+                self::$foglang['Image'] => $this->obj->getImageName(),
+                self::$foglang['LastDeployed'] => $this->obj->get('deployed'),
+            );
+            $primaryGroup = @min($this->obj->get('groups'));
+            $Group = new Group($primaryGroup);
             if ($Group->isValid()) {
                 $this->notes[self::$foglang['PrimaryGroup']] = $Group->get('name');
                 unset($Group);
             }
         }
-        $this->exitNorm = Service::buildExitSelector('bootTypeExit', ($this->obj && $this->obj->isValid() ? $this->obj->get('biosexit') : $_REQUEST['bootTypeExit']), true);
-        $this->exitEfi = Service::buildExitSelector('efiBootTypeExit', ($this->obj && $this->obj->isValid() ? $this->obj->get('efiexit') : $_REQUEST['efiBootTypeExit']), true);
-        self::$HookManager->processEvent('SUB_MENULINK_DATA', array('menu'=>&$this->menu, 'submenu'=>&$this->subMenu, 'id'=>&$this->id, 'notes'=>&$this->notes, 'biosexit'=>&$this->exitNorm, 'efiexit'=>&$this->exitEfi, 'object'=>&$this->obj, 'linkformat'=>&$this->linkformat, 'delformat'=>&$this->delformat, 'membership'=>&$this->membership));
+        if (!($this->obj instanceof Host && $this->obj->isValid())) {
+            $this->exitNorm = $_REQUEST['bootTypeExit'];
+            $this->exitEfi = $_REQUEST['efiBootTypeExit'];
+        } else {
+            $this->exitNorm = $this->obj->get('biosexit');
+            $this->exitEfi = $this->obj->get('efiexit');
+        }
+        $this->exitNorm = Service::buildExitSelector(
+            'bootTypeExit',
+            $this->exitNorm,
+            true
+        );
+        $this->exitEfi = Service::buildExitSelector(
+            'efiBootTypeExit',
+            $this->exitEfi,
+            true
+        );
+        self::$HookManager->processEvent(
+            'SUB_MENULINK_DATA',
+            array(
+                'menu' => &$this->menu,
+                'submenu' => &$this->subMenu,
+                'notes' => &$this->notes,
+                'biosexit' => &$this->exitNorm,
+                'efiexit' => &$this->exitEfi,
+                'object' => &$this->obj,
+                'linkformat' => &$this->linkformat,
+                'delformat' => &$this->delformat,
+                'membership' => &$this->membership
+            )
+        );
         $this->headerData = array(
             '',
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
+            '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction"/>',
         );
         $_SESSION['FOGPingActive'] ? array_push($this->headerData, '') : null;
         array_push(
@@ -58,95 +174,254 @@ class HostManagementPage extends FOGPage
             _('Assigned Image')
         );
         $this->templates = array(
-            '<span class="icon fa fa-question hand" title="${host_desc}"></span>',
-            '<input type="checkbox" name="host[]" value="${id}" class="toggle-action"/>',
+            '<span class="icon fa fa-question hand" '
+            . 'title="${host_desc}"></span>',
+            '<input type="checkbox" name="host[]" '
+            . 'value="${id}" class="toggle-action"/>',
         );
-        $_SESSION['FOGPingActive'] ? array_push($this->templates, '${pingstatus}') : null;
-        $up = self::getClass('TaskType', 2);
-        $down = self::getClass('TaskType', 1);
-        $mc = self::getClass('TaskType', 8);
+        if ($_SESSION['FOGPingActive']) {
+            array_push(
+                $this->templates,
+                '${pingstatus}'
+            );
+        }
+        $up = new TaskType(2);
+        $down = new TaskType(1);
+        $mc = new TaskType(8);
         array_push(
             $this->templates,
-            '<a href="?node=host&sub=edit&id=${id}" title="Edit: ${host_name}" id="host-${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
+            '<a href="?node=host&sub=edit&id=${id}" title="Edit: '
+            . '${host_name}" id="host-${host_name}">${host_name}</a>'
+            . '<br /><small>${host_mac}</small>',
             '<small>${deployed}</small>',
-            sprintf('<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=deploy&type=8&id=${id}"><i class="icon fa fa-%s" title="%s"></i></a> <a href="?node=host&sub=edit&id=${id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Goto Task List"></i></a>', $down->get('icon'), $down->get('name'), $up->get('icon'), $up->get('name'), $mc->get('icon'), $mc->get('name')),
-            '<small><a href="?node=image&sub=edit&id=${image_id}">${image_name}</a></small>'
+            sprintf(
+                '<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${id}">'
+                . '<i class="icon fa fa-%s" title="%s"></i></a> '
+                . '<a href="?node=host&sub=deploy&sub=deploy&type=2&id=${id}">'
+                . '<i class="icon fa fa-%s" title="%s"></i></a> '
+                . '<a href="?node=host&sub=deploy&type=8&id=${id}">'
+                . '<i class="icon fa fa-%s" title="%s"></i></a> '
+                . '<a href="?node=host&sub=edit&id=${id}#host-tasks">'
+                . '<i class="icon fa fa-arrows-alt" title="%s"></i></a>',
+                $down->get('icon'),
+                $down->get('name'),
+                $up->get('icon'),
+                $up->get('name'),
+                $mc->get('icon'),
+                $mc->get('name'),
+                _('Goto task list')
+            ),
+            '<small><a href="?node=image&sub=edit&id=${image_id}">'
+            . '${image_name}</a></small>'
         );
         unset($up, $down, $mc);
         $this->attributes = array(
-            array('width'=>16,'id'=>'host-${host_name}','class'=>'l filter-false'),
-            array('class'=>'l filter-false','width'=>16),
+            array(
+                'width' => 16,
+                'id' => 'host-${host_name}',
+                'class' => 'l filter-false'
+            ),
+            array(
+                'class' => 'l filter-false',
+                'width' => 16
+            ),
         );
-        $_SESSION['FOGPingActive'] ? array_push($this->attributes, array('width'=>16, 'class'=>'l filter-false')) : null;
+        if ($_SESSION['FOGPingActive']) {
+            array_push(
+                $this->attributes,
+                array(
+                    'width' => 16,
+                    'class' => 'l filter-false'
+                )
+            );
+        }
         array_push(
             $this->attributes,
-            array('width'=>50),
-            array('width'=>145),
-            array('width'=>60, 'class'=>'r filter-false'),
-            array('width'=>20, 'class'=>'r')
+            array('width' => 50),
+            array('width' => 145),
+            array(
+                'width' => 60,
+                'class' => 'r filter-false'
+            ),
+            array(
+                'width' => 20,
+                'class' => 'r'
+            )
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $Host the object to use.
+         *
+         * @return void
+         */
         self::$returnData = function (&$Host) {
             if (!$Host->isValid()) {
                 return;
             }
             $this->data[] = array(
-                'id'=>$Host->get('id'),
-                'deployed'=>$this->formatTime($Host->get('deployed'), 'Y-m-d H:i:s'),
-                'host_name'=>$Host->get('name'),
-                'host_mac'=>$Host->get('mac')->__toString(),
-                'host_desc'=>$Host->get('description'),
-                'image_id'=>$Host->get('imageID'),
-                'image_name'=>$Host->getImageName(),
-                'pingstatus'=>$Host->getPingCodeStr(),
+                'id' => $Host->get('id'),
+                'deployed' => $this->formatTime(
+                    $Host->get('deployed'),
+                    'Y-m-d H:i:s'
+                ),
+                'host_name' => $Host->get('name'),
+                'host_mac' => $Host->get('mac')->__toString(),
+                'host_desc' => $Host->get('description'),
+                'image_id' => $Host->get('imageID'),
+                'image_name' => $Host->getImageName(),
+                'pingstatus' => $Host->getPingCodeStr(),
             );
             unset($Host);
         };
     }
+    /**
+     * The home page when you go to hosts page.
+     *
+     * @return void
+     */
     public function index()
     {
         $this->title = self::$foglang['AllHosts'];
-        if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') {
-            $this->redirect(sprintf('?node=%s&sub=search', $this->node));
+        global $sub;
+        if ($sub != 'list') {
+            if ($_SESSION['DataReturn'] > 0) {
+                if ($_SESSION['HostCount'] > $_SESSION['DataReturn']) {
+                    $this->redirect('?node=host&sub=search');
+                }
+            }
         }
         $this->data = array();
-        array_map(self::$returnData, self::getClass($this->childClass)->getManager()->find(array('pending'=>array((string)'0', (string)'', null))));
-        self::$HookManager->processEvent('HOST_DATA', array('data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
-        self::$HookManager->processEvent('HOST_HEADER_DATA', array('headerData'=>&$this->headerData, 'title'=>&$this->title));
+        $Hosts = self::getClass('HostManager')->find(
+            array(
+                'pending' => array(0, '', null)
+            )
+        );
+        array_walk($Hosts, self::$returnData);
+        self::$HookManager->processEvent(
+            'HOST_DATA',
+            array(
+                'data' => &$this->data,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
+        );
+        self::$HookManager->processEvent(
+            'HOST_HEADER_DATA',
+            array(
+                'headerData' => &$this->headerData,
+                'title' => &$this->title
+            )
+        );
         $this->render();
     }
-    public function search_post()
+    /**
+     * Search form submission
+     *
+     * @return void
+     */
+    public function searchPost()
     {
         $this->data = array();
-        array_map(self::$returnData, self::getClass($this->childClass)->getManager()->search('', true));
-        self::$HookManager->processEvent('HOST_DATA', array('data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
-        self::$HookManager->processEvent('HOST_HEADER_DATA', array('headerData'=>&$this->headerData));
+        $Hosts = self::getClass('HostManager')->search('', true);
+        array_walk(self::$returnData, $Hosts);
+        self::$HookManager->processEvent(
+            'HOST_DATA',
+            array(
+                'data' => &$this->data,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
+        );
+        self::$HookManager->processEvent(
+            'HOST_HEADER_DATA',
+            array(
+                'headerData' => &$this->headerData
+            )
+        );
         $this->render();
     }
+    /**
+     * Lists the pending hosts
+     *
+     * @return false
+     */
     public function pending()
     {
         $this->title = _('Pending Host List');
         $this->data = array();
-        array_map(self::$returnData, self::getClass($this->childClass)->getManager()->find(array('pending'=>(string)1)));
-        self::$HookManager->processEvent('HOST_DATA', array('data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
-        self::$HookManager->processEvent('HOST_HEADER_DATA', array('headerData'=>&$this->headerData));
+        $Hosts = self::getClass('HostManager')->find(
+            array(
+                'pending' => 1
+            )
+        );
+        array_map(self::$returnData, $Hosts);
+        self::$HookManager->processEvent(
+            'HOST_DATA',
+            array(
+                'data' => &$this->data,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
+        );
+        self::$HookManager->processEvent(
+            'HOST_HEADER_DATA',
+            array(
+                'headerData' => &$this->headerData
+            )
+        );
         if (count($this->data) > 0) {
-            printf('<form method="post" action="%s">', $this->formAction);
+            printf(
+                '<form method="post" action="%s">',
+                $this->formAction
+            );
         }
         $this->render();
         if (count($this->data) > 0) {
-            printf('<p class="c"><input name="approvependhost" type="submit" value="%s"/>&nbsp;&nbsp;<input name="delpendhost" type="submit" value="%s"/></p></form>', _('Approve selected Hosts'), _('Delete selected Hosts'));
+            echo '<p class="c"><input name="approvependhost" type="submit" ';
+            printf(
+                'value="%s"/>&nbsp;&nbsp;'
+                . '<input name="delpendhost" type="submit" value="%s"/>'
+                . '</p></form>',
+                _('Approve selected hosts'),
+                _('Delete selected hosts')
+            );
         }
     }
-    public function pending_post()
+    /**
+     * Pending host form submitting
+     *
+     * @return void
+     */
+    public function pendingPost()
     {
         if (isset($_REQUEST['approvependhost'])) {
-            self::getClass('HostManager')->update(array('id'=>$_REQUEST['host']), '', array('pending'=>(string)0));
+            self::getClass('HostManager')->update(
+                array(
+                    'id' => $_REQUEST['host']
+                ),
+                '',
+                array('pending' => 0)
+            );
         }
         if (isset($_REQUEST['delpendhost'])) {
-            self::getClass('HostManager')->destroy(array('id'=>$_REQUEST['host']));
+            self::getClass('HostManager')->destroy(
+                array(
+                    'id' => $_REQUEST['host']
+                )
+            );
         }
-        $appdel = (isset($_REQUEST['approvependhost']) ? 'approved' : 'deleted');
-        $this->setMessage(_("All hosts $appdel successfully"));
+        if (isset($_REQUEST['approvependhost'])) {
+            $appdel = _('approved');
+        } else {
+            $appdel = _('deleted');
+        }
+        $msg = sprintf(
+            '%s %s %s',
+            _('All hosts'),
+            $appdel,
+            _('successfully')
+        );
         $this->redirect("?node=$this->node");
     }
     public function add()
@@ -190,7 +465,7 @@ class HostManagementPage extends FOGPage
         echo $this->adFieldsToDisplay($_REQUEST['domain'], $_REQUEST['domainname'], $_REQUEST['ou'], $_REQUEST['domainuser'], $_REQUEST['domainpassword'], $_REQUEST['domainpasswordlegacy'], intval(isset($_REQUEST['enforcesel'])));
         echo '</form>';
     }
-    public function add_post()
+    public function addPost()
     {
         self::$HookManager->processEvent('HOST_ADD_POST');
         try {
@@ -948,13 +1223,13 @@ class HostManagementPage extends FOGPage
         $this->render();
         echo '</div></div>';
     }
-    public function edit_ajax()
+    public function editAjax()
     {
         //$this->obj->removeAddMAC($_REQUEST['additionalMACsRM'])->save();
         //echo _('Success');
         exit;
     }
-    public function edit_post()
+    public function editPost()
     {
         self::$HookManager->processEvent('HOST_EDIT_POST', array('Host'=>&$this->obj));
         try {

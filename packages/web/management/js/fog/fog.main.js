@@ -182,7 +182,9 @@ $(function() {
     });
     $('#checkAll').click(function() {
         selectAll = this.checked;
-        $('.checkboxes').each(function(){this.checked = selectAll});
+        $('.checkboxes').each(function () {
+            this.checked = selectAll;
+        });
     });
     // Tabs
     // Blackout - 9:14 AM 30/11/2011

@@ -70,7 +70,7 @@ class GroupManagementPage extends FOGPage
         self::$HookManager->processEvent('GROUP_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_map(self::$returnData, self::getClass($this->childClass)->getManager()->search('', true));
@@ -111,7 +111,7 @@ class GroupManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_post()
+    public function addPost()
     {
         self::$HookManager->processEvent('GROUP_ADD_POST');
         try {
@@ -596,7 +596,7 @@ class GroupManagementPage extends FOGPage
         echo '</div></div>';
         unset($imageID, $imageMatchID, $groupKey, $groupKeyMatch, $aduse, $adDomain, $adOU, $adUser, $adPass, $adPassLegacy, $useAD, $ADOU, $ADDomain, $ADUser, $adPass, $ADPass, $ADPassLegacy, $biosExit, $efiExit, $exitNorm, $exitEfi);
     }
-    public function edit_post()
+    public function editPost()
     {
         self::$HookManager->processEvent('GROUP_EDIT_POST', array('Group'=>&$Group));
         try {

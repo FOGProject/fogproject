@@ -124,7 +124,7 @@ class SchemaUpdaterPage extends FOGPage
      *
      * @return void
      */
-    public function index_post()
+    public function indexPost()
     {
         if (!isset($_POST['fogverified'])) {
             return;

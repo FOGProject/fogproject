@@ -72,7 +72,7 @@ class FOGConfigurationPage extends FOGPage
     }
     public function kernel()
     {
-        $this->kernel_update_post();
+        $this->kernel_updatePost();
     }
     public function kernel_update()
     {
@@ -85,7 +85,7 @@ class FOGConfigurationPage extends FOGPage
     {
         printf('<div class="hostgroup">%s</div><div><form method="post" action="%s"><select name="kernelsel" onchange="this.form.submit()"><option value="pk" %s>%s</option><option value="ok" %s>%s</option></select></form></div>', _('This section allows you to update the Linux kernel which is used to boot the client computers.  In FOG, this kernel holds all the drivers for the client computer, so if you are unable to boot a client you may wish to update to a newer kernel which may have more drivers built in.  This installation process may take a few minutes, as FOG will attempt to go out to the internet to get the requested Kernel, so if it seems like the process is hanging please be patient.'), $this->formAction, ($type == 'pk' ? 'selected' : ''), _('Published Kernel'), ($type == 'ok' ? 'selected' : ''), _('Old Published Kernels'));
     }
-    public function kernel_update_post()
+    public function kernel_updatePost()
     {
         if (in_array($_REQUEST['sub'], array('kernel-update', 'kernel_update'))) {
             switch ($_REQUEST['kernelsel']) {
@@ -192,7 +192,7 @@ class FOGConfigurationPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function pxemenu_post()
+    public function pxemenuPost()
     {
         try {
             array('bgfile','mainColors','hostValid','hostInvalid','mainCpairs','mainFallback','hostCpairs');
@@ -284,7 +284,7 @@ class FOGConfigurationPage extends FOGPage
         }
         echo '</div>';
     }
-    public function customize_edit_post()
+    public function customize_editPost()
     {
         if (isset($_REQUEST['saveform']) && $_REQUEST['menu_id']) {
             self::getClass('PXEMenuOptionsManager')->update(array('id'=>$_REQUEST['menu_id']), '', array('name'=>$_REQUEST['menu_item'], 'description'=>$_REQUEST['menu_description'], 'params'=>$_REQUEST['menu_params'], 'regMenu'=>$_REQUEST['menu_regmenu'], 'args'=>$_REQUEST['menu_options'], 'default'=>$_REQUEST['menu_default']));
@@ -345,7 +345,7 @@ class FOGConfigurationPage extends FOGPage
         $this->render();
         echo "</form>";
     }
-    public function new_menu_post()
+    public function new_menuPost()
     {
         try {
             if (!$_REQUEST['menu_item']) {
@@ -444,7 +444,7 @@ class FOGConfigurationPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function client_updater_post()
+    public function client_updaterPost()
     {
         try {
             if (!self::getClass('ClientUpdaterManager')->destroy(array('id'=>$_REQUEST['delcu']))) {
@@ -488,7 +488,7 @@ class FOGConfigurationPage extends FOGPage
         $this->title = _('MAC Address Manufacturer Listing');
         printf('<div class="hostgroup">%s</div><div class="c"><p>%s: %s</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="%s" value="%s" id="macButtonDel"/>&nbsp;&nbsp;&nbsp;&nbsp;<input class="macButtons" id="macButtonUp" type="button" title="%s" value="%s"/></p><p>%s<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>', _('This section allows you to import known mac address makers into the FOG Database for easier identification.'), _('Current Records'), self::$FOGCore->getMACLookupCount(), _('Delete MACs'), _('Delete Current Records'), _('Update MACs'), _('Update Current Listing'), _('MAC Address listing source: '));
     }
-    public function mac_list_post()
+    public function mac_listPost()
     {
         if ($_REQUEST['update']) {
             self::$FOGCore->clearMACLookupTable();
@@ -714,7 +714,7 @@ class FOGConfigurationPage extends FOGPage
         echo json_encode($osname ? $osname : _('No Image specified'));
         exit;
     }
-    public function settings_post()
+    public function settingsPost()
     {
         $checkbox = array(0,1);
         $regenrange = range(0, 24, .25);
@@ -1000,7 +1000,7 @@ class FOGConfigurationPage extends FOGPage
         echo "</form>";
         unset($this->attributes, $this->templates, $this->data);
     }
-    public function config_post()
+    public function configPost()
     {
         self::$HookManager->processEvent('IMPORT_POST');
         $Schema = self::getClass('Schema');

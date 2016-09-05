@@ -83,7 +83,7 @@ class PushbulletManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_post()
+    public function addPost()
     {
         try {
             $token = trim($_REQUEST['apiToken']);

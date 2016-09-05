@@ -88,11 +88,11 @@ class FOGPageManager extends FOGBase
             if ($this->classValue != 'schema' && $method == 'index' && $displayScreen != 'list' && $this->methodValue != 'list' && method_exists($class, 'search') && in_array($class->node, self::$searchPages)) {
                 $method = 'search';
             }
-            if (self::$ajax && method_exists($class, $method.'_ajax')) {
-                $method = $this->methodValue.'_ajax';
+            if (self::$ajax && method_exists($class, $method.'Ajax')) {
+                $method = $this->methodValue.'Ajax';
             }
-            if (self::$post && method_exists($class, $method.'_post')) {
-                $method = $this->methodValue.'_post';
+            if (self::$post && method_exists($class, $method.'Post')) {
+                $method = $this->methodValue.'Post';
             }
         } catch (Exception $e) {
             $this->debug(_('Failed to Render Page: Node: %s, Error: %s'), array(get_class($class), $e->getMessage()));

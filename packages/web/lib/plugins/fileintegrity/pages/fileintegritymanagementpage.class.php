@@ -63,7 +63,7 @@ class FileIntegrityManagementPage extends FOGPage
         self::$HookManager->processEvent('FILE_INTEGRITY_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_map(self::$returnData, self::getClass($this->childClass)->getManager()->search('', true));

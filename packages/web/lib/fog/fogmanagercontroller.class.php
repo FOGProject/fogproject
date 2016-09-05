@@ -360,7 +360,9 @@ abstract class FOGManagerController extends FOGBase
         }
         $keyword = preg_replace('#[%\+\s\+]#', '%', sprintf('%%%s%%', $keyword));
         $_SESSION['caller'] = __FUNCTION__;
-        $this->arrayRemove($this->aliasedFields, $this->databaseFields);
+        if (count($this->aliasedFields) > 0) {
+            $this->arrayRemove($this->aliasedFields, $this->databaseFields);
+        }
         $findWhere = array_fill_keys(array_keys($this->databaseFields), $keyword);
         $itemIDs = self::getSubObjectIDs($this->childClass, $findWhere, 'id', '', 'OR');
         $HostIDs = self::getSubObjectIDs('Host', array('name'=>$keyword, 'description'=>$keyword, 'ip'=>$keyword), '', '', 'OR');

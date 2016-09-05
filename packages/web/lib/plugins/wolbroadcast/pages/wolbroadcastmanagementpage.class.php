@@ -54,7 +54,7 @@ class WOLBroadcastManagementPage extends FOGPage
         self::$HookManager->processEvent('BROADCAST_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_map(self::$returnData, (array)self::getClass($this->childClass)->getManager()->find());
@@ -91,7 +91,7 @@ class WOLBroadcastManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_post()
+    public function addPost()
     {
         try {
             $name = $_REQUEST['name'];
@@ -151,7 +151,7 @@ class WOLBroadcastManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function edit_post()
+    public function editPost()
     {
         self::$HookManager->processEvent('BROADCAST_EDIT_POST', array('Broadcast'=> &$this->obj));
         try {

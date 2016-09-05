@@ -483,7 +483,7 @@ abstract class FOGPage extends FOGBase
         }
         echo '</form>';
     }
-    public function deploy_post()
+    public function deployPost()
     {
         try {
             // Variable Setup
@@ -665,7 +665,7 @@ abstract class FOGPage extends FOGBase
             $this->redirect(sprintf('?node=%s', $this->node));
         }
     }
-    public function deletemulti_ajax()
+    public function deletemultiAjax()
     {
         if (!self::getClass('User')->password_validate($_POST['fogguiuser'], $_POST['fogguipass'])) {
             die('###'.self::$foglang['InvalidLogin']);
@@ -1108,7 +1108,7 @@ abstract class FOGPage extends FOGBase
         $Hosts = self::getClass('Group', $groupid)->get('hosts');
         self::getClass('PowerManagementManager')->destroy(array('hostID'=>$Hosts));
     }
-    public function delete_post()
+    public function deletePost()
     {
         if (!self::getClass('User')->password_validate($_POST['fogguiuser'], $_POST['fogguipass'])) {
             die('###'.self::$foglang['InvalidLogin']);
@@ -1230,7 +1230,7 @@ abstract class FOGPage extends FOGBase
         }
         session_start();
     }
-    public function membership_post()
+    public function membershipPost()
     {
         if (self::$ajax) {
             return;
@@ -1338,7 +1338,7 @@ abstract class FOGPage extends FOGBase
         $this->render();
         echo '</form>';
     }
-    public function import_post()
+    public function importPost()
     {
         try {
             $mimes = array('application/vnd.ms-excel','text/plain','text/csv','text/tsv');

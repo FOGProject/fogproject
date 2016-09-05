@@ -95,7 +95,7 @@ class PrinterManagementPage extends FOGPage
         self::$HookManager->processEvent('PRINTER_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_map(self::$returnData, (array)self::getClass($this->childClass)->getManager()->search('', true));
@@ -217,7 +217,7 @@ class PrinterManagementPage extends FOGPage
         unset($this->data);
         self::$HookManager->processEvent('PRINTER_ADD', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
     }
-    public function add_post()
+    public function addPost()
     {
         self::$HookManager->processEvent('PRINTER_ADD_POST');
         try {
@@ -395,7 +395,7 @@ class PrinterManagementPage extends FOGPage
         echo '</form></div></div>';
         unset($this->data);
     }
-    public function edit_post()
+    public function editPost()
     {
         self::$HookManager->processEvent('PRINTER_EDIT_POST', array('Printer'=>&$this->obj));
         try {

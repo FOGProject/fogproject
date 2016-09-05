@@ -290,7 +290,7 @@ class ServiceConfigurationPage extends FOGPage
         }
         echo '</div>';
     }
-    public function edit_post()
+    public function editPost()
     {
         $Service = self::getClass('Service')->set('name', $_REQUEST['name'])->load('name');
         $Module = self::getClass('Module')->set('shortName', $_REQUEST['tab'])->load('shortName');
@@ -348,7 +348,7 @@ class ServiceConfigurationPage extends FOGPage
                     }
                     break;
                 case 'clientupdater':
-                    self::getClass('FOGConfigurationPage')->client_updater_post();
+                    self::getClass('FOGConfigurationPage')->client_updaterPost();
                     break;
             }
             if (!$Service->save()) {

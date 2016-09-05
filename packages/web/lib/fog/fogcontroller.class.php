@@ -451,7 +451,7 @@ abstract class FOGController extends FOGBase
             $insertValKeys = $updateValKeys = array();
             $insertValues = $updateValues = array();
             $updateData = $fieldData = array();
-            if (count($this->aliasedFields)) {
+            if (count($this->aliasedFields) > 0) {
                 $this->arrayRemove($this->aliasedFields, $this->databaseFields);
             }
             foreach ($this->databaseFields as $key => &$column) {

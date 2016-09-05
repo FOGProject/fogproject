@@ -42,7 +42,7 @@ class TaskMobile extends FOGPage
     {
         $this->redirect(sprintf('?node=%s&sub=active', $this->node));
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->redirect(sprintf('?node=%s&sub=active', $this->node));
     }

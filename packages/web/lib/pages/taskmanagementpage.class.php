@@ -84,7 +84,7 @@ class TaskManagementPage extends FOGPage
     {
         $this->active();
     }
-    public function search_post()
+    public function searchPost()
     {
         $this->data = array();
         array_shift($this->headerData);
@@ -263,7 +263,7 @@ class TaskManagementPage extends FOGPage
     {
         $this->advanced('group');
     }
-    public function active_post()
+    public function activePost()
     {
         if (!self::$ajax) {
             $this->nonajax();
@@ -338,7 +338,7 @@ class TaskManagementPage extends FOGPage
         self::$HookManager->processEvent('TaskActiveMulticastData', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function active_multicast_post()
+    public function active_multicastPost()
     {
         if (!self::$ajax) {
             $this->nonajax();
@@ -416,7 +416,7 @@ class TaskManagementPage extends FOGPage
         $this->setMessage(_('Cannot cancel tasks this way'));
         $this->redirect($this->formAction);
     }
-    public function active_snapins_post()
+    public function active_snapinsPost()
     {
         if (!self::$ajax) {
             $this->nonajax();
@@ -498,7 +498,7 @@ class TaskManagementPage extends FOGPage
         $this->render();
         unset($this->data);
     }
-    public function active_scheduled_post()
+    public function active_scheduledPost()
     {
         if (!self::$ajax) {
             $this->nonajax();

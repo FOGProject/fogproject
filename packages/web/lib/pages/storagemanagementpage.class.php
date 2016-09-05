@@ -67,17 +67,17 @@ class StorageManagementPage extends FOGPage
     {
         $this->edit_storage_node();
     }
-    public function edit_post()
+    public function editPost()
     {
-        $this->edit_storage_node_post();
+        $this->edit_storage_nodePost();
     }
     public function delete()
     {
         $this->delete_storage_node();
     }
-    public function delete_post()
+    public function deletePost()
     {
-        $this->delete_storage_node_post();
+        $this->delete_storage_nodePost();
     }
     public function index()
     {
@@ -184,7 +184,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_storage_node_post()
+    public function add_storage_nodePost()
     {
         self::$HookManager->processEvent('STORAGE_NODE_ADD_POST');
         try {
@@ -312,7 +312,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo "</form>";
     }
-    public function edit_storage_node_post()
+    public function edit_storage_nodePost()
     {
         self::$HookManager->processEvent('STORAGE_NODE_EDIT_POST', array('StorageNode'=>&$this->obj));
         try {
@@ -403,7 +403,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function delete_storage_node_post()
+    public function delete_storage_nodePost()
     {
         self::$HookManager->processEvent('STORAGE_NODE_DELETE_POST', array('StorageNode'=>&$this->obj));
         try {
@@ -492,7 +492,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_storage_group_post()
+    public function add_storage_groupPost()
     {
         // Hook
         self::$HookManager->processEvent('STORAGE_GROUP_ADD_POST');
@@ -564,7 +564,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function edit_storage_group_post()
+    public function edit_storage_groupPost()
     {
         // Hook
         self::$HookManager->processEvent('STORAGE_GROUP_EDIT_POST', array('StorageGroup'=>&$this->obj));
@@ -633,7 +633,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function delete_storage_group_post()
+    public function delete_storage_groupPost()
     {
         // Hook
         self::$HookManager->processEvent('STORAGE_GROUP_DELETE_POST', array('StorageGroup'=>&$this->obj));
