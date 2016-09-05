@@ -1,16 +1,36 @@
 #!/usr/bin/php -q
 <?php
+/**
+ * FOGScheduler service to start scheduled tasks in FOG
+ *
+ * PHP version 5
+ *
+ * @category FOGScheduler
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * FOGScheduler service to start scheduled tasks in FOG
+ *
+ * @category FOGScheduler
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 @error_reporting(0);
-require_once(dirname(realpath(__FILE__)).'/../etc/config.php');
-require_once(dirname(realpath(__FILE__)).'/../lib/service_lib.php');
+require dirname(realpath(__FILE__)).'/../etc/config.php';
+require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
 $service_name = 'FOGTaskScheduler';
 service_persist($service_name);
 $ServiceClass = $FOGCore::getClass('TaskScheduler');
 $ServiceClass->getBanner();
-$ServiceClass->wait_interface_ready();
-$ServiceClass->wait_db_ready();
+$ServiceClass->waitInterfaceReady();
+$ServiceClass->waitDbReady();
 $ServiceClass->serviceStart();
-while(true) {
+while (true) {
     $ServiceClass->serviceRun();
     sleep($ServiceClass::$zzz ? $ServiceClass::$zzz : 60);
 }

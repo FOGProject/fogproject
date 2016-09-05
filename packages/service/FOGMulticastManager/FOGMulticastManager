@@ -1,8 +1,28 @@
 #!/usr/bin/php -q
 <?php
+/**
+ * FOGMulticastManager service to enabled MC tasks in FOG
+ *
+ * PHP version 5
+ *
+ * @category FOGMulticastManager
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * FOGMulticastManager service to enable MC tasks in FOG
+ *
+ * @category FOGMulticastManager
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 @error_reporting(0);
-require_once(dirname(realpath(__FILE__)).'/../etc/config.php');
-require_once(dirname(realpath(__FILE__)).'/../lib/service_lib.php');
+require dirname(realpath(__FILE__)).'/../etc/config.php';
+require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
 $service_name = 'FOGMulticastManager';
 service_persist($service_name);
 $ServiceClass = FOGCore::getClass('MulticastManager');
@@ -11,8 +31,8 @@ if (!file_exists(UDPSENDERPATH)) {
     exit(1);
 }
 $ServiceClass->getBanner();
-$ServiceClass->wait_interface_ready();
-$ServiceClass->wait_db_ready();
+$ServiceClass->waitInterfaceReady();
+$ServiceClass->waitDbReady();
 $ServiceClass->serviceStart();
 $ServiceClass->serviceRun();
 $ServiceClass::outall(' * Service has ended.');
