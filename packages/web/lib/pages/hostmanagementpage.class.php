@@ -324,7 +324,7 @@ class HostManagementPage extends FOGPage
     {
         $this->data = array();
         $Hosts = self::getClass('HostManager')->search('', true);
-        array_walk(self::$returnData, $Hosts);
+        array_walk($Hosts, self::$returnData);
         self::$HookManager->processEvent(
             'HOST_DATA',
             array(
