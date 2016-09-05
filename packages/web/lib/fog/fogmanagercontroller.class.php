@@ -135,7 +135,7 @@ abstract class FOGManagerController extends FOGBase
         if ($idField) {
             $data = (array)self::$DB->query($query)->fetch('', 'fetch_all')->get($idField);
             if ($filter) {
-                return $filter($data);
+                return @$filter($data);
             }
             if (!is_array($data)) {
                 return $data;
@@ -152,7 +152,7 @@ abstract class FOGManagerController extends FOGBase
             }, (array)self::$DB->query($query)->fetch('', 'fetch_all')->get());
         }
         if ($filter) {
-            return $filter(array_values(array_filter((array)$data)));
+            return @$filter(array_values(array_filter((array)$data)));
         }
         return array_values(array_filter((array)$data));
     }
