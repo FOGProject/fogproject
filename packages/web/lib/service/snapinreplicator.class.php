@@ -50,11 +50,11 @@ class SnapinReplicator extends FOGService
                         self::outall(_(' | This is not the primary group'));
                         continue;
                     }
-                    $this->replicate_items($myStorageGroupID, $myStorageNodeID, $Snapin, true);
+                    $this->replicateItems($myStorageGroupID, $myStorageNodeID, $Snapin, true);
                     unset($Snapin);
                 }
                 foreach ($Snapins as $i => &$Snapin) {
-                    $this->replicate_items($myStorageGroupID, $myStorageNodeID, $Snapin, false);
+                    $this->replicateItems($myStorageGroupID, $myStorageNodeID, $Snapin, false);
                     unset($Snapin);
                 }
                 unset($Snapins, $StorageNode);

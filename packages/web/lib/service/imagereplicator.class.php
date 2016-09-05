@@ -50,10 +50,10 @@ class ImageReplicator extends FOGService
                         self::outall(_(' | This is not the primary group'));
                         continue;
                     }
-                    $this->replicate_items($myStorageGroupID, $myStorageNodeID, $Image, true);
+                    $this->replicateItems($myStorageGroupID, $myStorageNodeID, $Image, true);
                 }
                 foreach ($Images as $i => &$Image) {
-                    $this->replicate_items($myStorageGroupID, $myStorageNodeID, $Image, false);
+                    $this->replicateItems($myStorageGroupID, $myStorageNodeID, $Image, false);
                     unset($Image);
                 }
                 unset($Images);
