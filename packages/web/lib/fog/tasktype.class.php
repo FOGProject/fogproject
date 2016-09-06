@@ -56,7 +56,7 @@ class TaskType extends FOGController
     }
     public function isImagingTask()
     {
-        return (bool)($this->isDeploy() || $this->isCapture);
+        return (bool)($this->isDeploy() || $this->isCapture());
     }
     public function isCapture()
     {

@@ -908,7 +908,7 @@ class BootMenu extends FOGBase
                 ''
             )
         );
-        $storageip = self::$FOGCore->resolveHostname($StorageNode->get('ip'));
+        $storageip = $StorageNode->get('ip');
         $img = escapeshellcmd($Image->get('path'));
         $imgFormat = $Image->get('format');
         $imgType = $Image->getImageType()->get('type');
@@ -1412,8 +1412,6 @@ class BootMenu extends FOGBase
                 $PIGZ_COMP = $globalPIGZ;
                 if ($StorageNode instanceof StorageNode && $StorageNode->isValid()) {
                     $ip = trim($StorageNode->get('ip'));
-                    $ip = self::$FOGCore->resolveHostname($ip);
-                    $ip = trim($ip);
                     $ftp = $ip;
                 }
                 if ($imagingTasks) {

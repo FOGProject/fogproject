@@ -34,18 +34,6 @@ class WakeOnLan extends FOGBase
      */
     private $_arrMAC;
     /**
-     * The hardware address
-     *
-     * @var string
-     */
-    private $_hwaddr;
-    /**
-     * The packet to send
-     *
-     * @var mixed
-     */
-    private $_packet;
-    /**
      * The initializer
      *
      * @param mixed $mac the mac or macs to use
