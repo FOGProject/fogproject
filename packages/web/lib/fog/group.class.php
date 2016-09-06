@@ -588,8 +588,6 @@ class Group extends FOGController
                 'isForced',
                 'stateID',
                 'typeID',
-                'NFSGroupID',
-                'NFSMemberID',
                 'wol',
                 'imageID',
                 'shutdown',
@@ -605,8 +603,6 @@ class Group extends FOGController
                     0,
                     $this->getQueuedState(),
                     $TaskType->get('id'),
-                    $StorageGroup->get('id'),
-                    $StorageNode->get('id'),
                     $wol,
                     $Image->get('id'),
                     $shutdown,
@@ -674,8 +670,6 @@ class Group extends FOGController
                 'isForced',
                 'stateID',
                 'typeID',
-                'NFSGroupID',
-                'NFSMemberID',
                 'wol',
                 'imageID',
                 'shutdown',
@@ -684,21 +678,6 @@ class Group extends FOGController
             );
             $batchTask = array();
             for ($i = 0; $i < $hostCount; $i++) {
-                $Image = new Image($imageIDs[$i]);
-                if (!$Image->isValid()) {
-                    continue;
-                }
-                $StorageGroup = $Image->getStorageGroup();
-                if (!$StorageGroup->isValid()) {
-                    continue;
-                }
-                $StorageNode = $StorageGroup
-                    ->getOptimalStorageNode(
-                        $Image->get('id')
-                    );
-                if (!$StorageNode->isValid()) {
-                    continue;
-                }
                 $batchTask[] = array(
                     $taskName,
                     $username,
@@ -706,10 +685,8 @@ class Group extends FOGController
                     0,
                     $this->getQueuedState(),
                     $TaskType->get('id'),
-                    $StorageGroup->get('id'),
-                    $StorageNode->get('id'),
                     $wol,
-                    $Image->get('id'),
+                    $imageIDs[$i],
                     $shutdown,
                     $debug,
                     $passreset
@@ -776,6 +753,7 @@ class Group extends FOGController
                 '|',
                 $hostMACs
             );
+            $nodeURLs = array();
             $Nodes = self::getClass('StorageNodeManager')
                 ->find(
                     array(
@@ -801,13 +779,12 @@ class Group extends FOGController
                 if (!self::$FOGURLRequests->isAvailable($testurl)) {
                     continue;
                 }
-                $pUrl = sprintf(
+                $nodeURLs[] = sprintf(
                     $url,
                     $ip,
                     $webroot,
                     $macStr
                 );
-                self::$FOGURLRequests->process($pUrl);
             }
             $curroot = trim(trim(self::getSetting('FOG_WEB_ROOT')));
             $webroot = sprintf(
@@ -824,13 +801,13 @@ class Group extends FOGController
             $ip = self::$FOGCore->resolveHostname(
                 self::getSetting('FOG_WEB_HOST')
             );
-            $pUrl = sprintf(
+            $nodeURLs[] = sprintf(
                 $url,
                 $ip,
                 $webroot,
                 $macStr
             );
-            self::$FOGURLRequests->process($pUrl);
+            self::$FOGURLRequests->process($nodeURLs);
         }
         return array('All hosts successfully tasked');
     }
