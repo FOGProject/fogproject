@@ -150,7 +150,7 @@ class Group extends FOGController
                     );
                 if (count($insert_values) > 0) {
                     self::getClass('GroupAssociationManager')
-                        ->insert_batch(
+                        ->insertBatch(
                             $insert_fields,
                             $insert_values
                         );
@@ -238,7 +238,7 @@ class Group extends FOGController
             );
             if (count($insert_values) > 0) {
                 self::getClass('PrinterAssociationManager')
-                    ->insert_batch(
+                    ->insertBatch(
                         $insert_fields,
                         $insert_values
                     );
@@ -273,7 +273,7 @@ class Group extends FOGController
         );
         if (count($insert_values) > 0) {
             self::getClass('SnapinAssociationManager')
-                ->insert_batch(
+                ->insertBatch(
                     $insert_fields,
                     $insert_values
                 );
@@ -325,7 +325,7 @@ class Group extends FOGController
         );
         if (count($insert_values) > 0) {
             self::getClass('ModuleAssociationManager')
-                ->insert_batch(
+                ->insertBatch(
                     $insert_fields,
                     $insert_values
                 );
@@ -379,7 +379,7 @@ class Group extends FOGController
             unset($hostID);
         }
         self::getClass('HostScreenSettingsManager')
-            ->insert_batch(
+            ->insertBatch(
                 $insert_fields,
                 $insert_items
             );
@@ -412,7 +412,7 @@ class Group extends FOGController
             );
         }
         self::getClass('HostAutoLogoutManager')
-            ->insert_batch($insert_fields, $insert_items);
+            ->insertBatch($insert_fields, $insert_items);
         return $this;
     }
     /**
@@ -615,7 +615,7 @@ class Group extends FOGController
                     $first_id,
                     $affected_rows
                 ) = self::getClass('TaskManager')
-                ->insert_batch(
+                ->insertBatch(
                     $batchFields,
                     $batchTask
                 );
@@ -630,7 +630,7 @@ class Group extends FOGController
                 }
                 if (count($multicastsessionassocs) > 0) {
                     self::getClass('MulticastSessionsAssociationManager')
-                        ->insert_batch(
+                        ->insertBatch(
                             array(
                                 'msID',
                                 'taskID'
@@ -694,7 +694,7 @@ class Group extends FOGController
             }
             if (count($batchTask) > 0) {
                 self::getClass('TaskManager')
-                    ->insert_batch(
+                    ->insertBatch(
                         $batchFields,
                         $batchTask
                     );
@@ -733,7 +733,7 @@ class Group extends FOGController
             }
             if (count($batchTask) > 0) {
                 self::getClass('TaskManager')
-                    ->insert_batch($batchFields, $batchTask);
+                    ->insertBatch($batchFields, $batchTask);
             }
         }
         if ($wol) {
@@ -863,7 +863,7 @@ class Group extends FOGController
                 $first_id,
                 $affected_rows
             ) = self::getClass('SnapinJobManager')
-            ->insert_batch(
+            ->insertBatch(
                 array(
                     'hostID',
                     'stateID',
@@ -886,7 +886,7 @@ class Group extends FOGController
             }
             if (count($snapinTasks) > 0) {
                 self::getClass('SnapinTaskManager')
-                    ->insert_batch(
+                    ->insertBatch(
                         array(
                             'jobID',
                             'stateID',

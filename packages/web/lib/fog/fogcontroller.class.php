@@ -102,8 +102,7 @@ abstract class FOGController extends FOGBase
      *
      * @var string
      */
-    protected $insertQueryTemplate = "INSERT INTO `%s` (%s) "
-        . "VALUES (%s) ON DUPLICATE KEY UPDATE %s";
+    protected $insertQueryTemplate = "INSERT INTO `%s` (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s";
     /**
      * The delete query template to use.
      *
@@ -477,7 +476,7 @@ abstract class FOGController extends FOGBase
                         }
                         break;
                     case 'id':
-                        if (!$val) {
+                        if (!is_numeric($val) && !$val) {
                             continue;
                         }
                 }
@@ -701,7 +700,7 @@ abstract class FOGController extends FOGBase
                 throw new Exception(_('Invalid key being destroyed'));
             }
             $val = $this->get($key);
-            if (!$val) {
+            if (!is_numeric($val) && !$val) {
                 throw new Exception(
                     sprintf(
                         '%s: %s',
@@ -898,7 +897,7 @@ abstract class FOGController extends FOGBase
             foreach ($this->databaseFieldsRequired as &$key) {
                 $key = $this->key($key);
                 $val = $this->get($key);
-                if (!$val) {
+                if (!is_numeric($val) && !$val) {
                     throw new Exception(self::$foglang['RequiredDB']);
                 }
                 unset($key);
@@ -908,7 +907,7 @@ abstract class FOGController extends FOGBase
             }
             if (array_key_exists('name', $this->databaseFields)) {
                 $val = trim($this->get('name'));
-                if (!$val) {
+                if (!is_numeric($val) && !$val) {
                     throw new Exception(
                         sprintf(
                             '%s %s',

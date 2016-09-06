@@ -206,7 +206,7 @@ class Host extends FOGController
                     $insert_values[] = array($this->get('id'), $mac, '0', '0');
                 });
                 if (count($insert_values) > 0) {
-                    self::getClass('MACAddressAssociationManager')->insert_batch($insert_fields, $insert_values);
+                    self::getClass('MACAddressAssociationManager')->insertBatch($insert_fields, $insert_values);
                 }
                 unset($DBAddMACs, $RealAddMACs, $RemoveAddMAC);
                 case ($this->isLoaded('pendingMACs')):
@@ -240,7 +240,7 @@ class Host extends FOGController
                         $insert_values[] = array($this->get('id'), $mac, '0', '1');
                     });
                     if (count($insert_values) > 0) {
-                        self::getClass('MACAddressAssociationManager')->insert_batch($insert_fields, $insert_values);
+                        self::getClass('MACAddressAssociationManager')->insertBatch($insert_fields, $insert_values);
                     }
                     unset($DBPendMACs, $RealPendMACs, $RemovePendMAC);
                     case ($this->isLoaded('modules')):
@@ -266,7 +266,7 @@ class Host extends FOGController
                             $insert_values[] = array($this->get('id'), $moduleID, '1');
                         });
                         if (count($insert_values)) {
-                            self::getClass('ModuleAssociationManager')->insert_batch($insert_fields, $insert_values);
+                            self::getClass('ModuleAssociationManager')->insertBatch($insert_fields, $insert_values);
                         }
                         unset($DBModuleIDs, $RemoveModuleIDs, $moduleName);
                         case ($this->isLoaded('printers')):
@@ -291,7 +291,7 @@ class Host extends FOGController
                                 $insert_values[] = array($this->get('id'), $printerID);
                             });
                             if (count($insert_values) > 0) {
-                                self::getClass('PrinterAssociationManager')->insert_batch($insert_fields, $insert_values);
+                                self::getClass('PrinterAssociationManager')->insertBatch($insert_fields, $insert_values);
                             }
                             unset($DBPrinterIDs, $RemovePrinterIDs);
                             case ($this->isLoaded('powermanagementtasks')):
@@ -326,7 +326,7 @@ class Host extends FOGController
                                     $insert_values[] = array($this->get('id'), $snapinID);
                                 });
                                 if (count($insert_values) > 0) {
-                                    self::getClass('SnapinAssociationManager')->insert_batch($insert_fields, $insert_values);
+                                    self::getClass('SnapinAssociationManager')->insertBatch($insert_fields, $insert_values);
                                 }
                                 unset($DBSnapinIDs, $RemoveSnapinIDs);
                                 case ($this->isLoaded('groups')):
@@ -351,7 +351,7 @@ class Host extends FOGController
                                         $insert_values[] = array($this->get('id'), $groupID);
                                     });
                                     if (count($insert_values) > 0) {
-                                        self::getClass('GroupAssociationManager')->insert_batch($insert_fields, $insert_values);
+                                        self::getClass('GroupAssociationManager')->insertBatch($insert_fields, $insert_values);
                                     }
                                     unset($DBGroupIDs, $RemoveGroupIDs);
         }
@@ -603,7 +603,7 @@ class Host extends FOGController
                 return array($SnapinJob->get('id'), $this->getQueuedState(), $snapinID);
             }, $snapin == -1 ? (array)$this->get('snapins') : (array)$snapin);
             if (count($insert_values) > 0) {
-                self::getClass('SnapinTaskManager')->insert_batch($insert_fields, $insert_values);
+                self::getClass('SnapinTaskManager')->insertBatch($insert_fields, $insert_values);
             }
         } catch (Exception $e) {
             if ($error) {

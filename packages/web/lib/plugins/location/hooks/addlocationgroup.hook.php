@@ -64,7 +64,7 @@ class AddLocationGroup extends Hook
             $insert_values[] = array($_REQUEST['location'], $hostID);
         });
         if (count($insert_values) > 0) {
-            self::getClass('LocationAssociationManager')->insert_batch($insert_fields, $insert_values);
+            self::getClass('LocationAssociationManager')->insertBatch($insert_fields, $insert_values);
         }
     }
 }

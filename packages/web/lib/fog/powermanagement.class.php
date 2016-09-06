@@ -63,7 +63,7 @@ class PowerManagement extends FOGController
                     $insert_values[] = array($hostID);
                 });
                 if (count($insert_values) > 0) {
-                    self::getClass('PowerManagementManager')->insert_batch($insert_fields, $insert_values);
+                    self::getClass('PowerManagementManager')->insertBatch($insert_fields, $insert_values);
                 }
                 unset($DBHostIDs, $RemoveHostIDs);
         }

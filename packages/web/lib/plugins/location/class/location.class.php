@@ -51,7 +51,7 @@ class Location extends FOGController
                     $insert_values[] = array($this->get('id'), $hostID);
                 });
                 if (count($insert_values) > 0) {
-                    self::getClass('LocationAssociationManager')->insert_batch($insert_fields, $insert_values);
+                    self::getClass('LocationAssociationManager')->insertBatch($insert_fields, $insert_values);
                 }
                 unset($DBHostIDs, $RemoveHostIDs);
         }

@@ -236,7 +236,7 @@ class FOGConfigurationPage extends FOGPage
                 $items[] = array($ids[$iteration], $key, $value);
                 $iteration++;
             }
-            self::getClass('ServiceManager')->insert_batch(array('id', 'name', 'value'), $items);
+            self::getClass('ServiceManager')->insertBatch(array('id', 'name', 'value'), $items);
             throw new Exception(_('PXE Menu has been updated'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
@@ -513,7 +513,7 @@ class FOGConfigurationPage extends FOGPage
             }
             fclose($fh);
             if (count($items)) {
-                list($first_id, $affected_rows) = self::getClass('OUIManager')->insert_batch(array('prefix', 'name'), $items);
+                list($first_id, $affected_rows) = self::getClass('OUIManager')->insertBatch(array('prefix', 'name'), $items);
                 $imported += $affected_rows;
                 unset($items);
             }
@@ -866,7 +866,7 @@ class FOGConfigurationPage extends FOGPage
             $items[] = array($key, $name, $set);
             unset($Service, $index);
         });
-        self::getClass('ServiceManager')->insert_batch(array('id', 'name', 'value'), $items);
+        self::getClass('ServiceManager')->insertBatch(array('id', 'name', 'value'), $items);
         $this->setMessage('Settings Successfully stored!');
         $this->redirect($this->formAction);
     }

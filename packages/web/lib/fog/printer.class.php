@@ -58,7 +58,7 @@ class Printer extends FOGController
                     $insert_values[] = array($hostID, $this->get('id'), $DefHostIDs[$hostID] == $this->get('id') ? '1' : '0');
                 });
                 if (count($insert_values) > 0) {
-                    self::getClass('PrinterAssociationManager')->insert_batch($insert_fields, $insert_values);
+                    self::getClass('PrinterAssociationManager')->insertBatch($insert_fields, $insert_values);
                 }
         }
         return $this;

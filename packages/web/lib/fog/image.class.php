@@ -72,7 +72,7 @@ class Image extends FOGController
                     $insert_values[] = array($this->get('id'), $groupID, in_array($groupID, $primaryGroupIDs) ? '1' : '0');
                 });
                 if (count($insert_values) > 0) {
-                    self::getClass('ImageAssociationManager')->insert_batch($insert_fields, $insert_values);
+                    self::getClass('ImageAssociationManager')->insertBatch($insert_fields, $insert_values);
                 }
         }
         return $this;

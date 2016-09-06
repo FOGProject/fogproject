@@ -1368,7 +1368,7 @@ class GroupManagementPage extends FOGPage
                         array_map(function ($hostID) use ($min, $hour, $dom, $month, $dow, $onDemand, $action, &$items) {
                             $items[] = array($hostID, $min, $hour, $dom, $month, $dow, $onDemand, $action);
                         }, (array)$hostIDs);
-                        self::getClass('PowerManagementManager')->insert_batch(array('hostID', 'min', 'hour', 'dom', 'month', 'dow', 'onDemand', 'action'), $items);
+                        self::getClass('PowerManagementManager')->insertBatch(array('hostID', 'min', 'hour', 'dom', 'month', 'dow', 'onDemand', 'action'), $items);
                     }
                     break;
             }

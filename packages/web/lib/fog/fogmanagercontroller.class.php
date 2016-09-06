@@ -189,37 +189,68 @@ abstract class FOGManagerController extends FOGBase
         );
         return self::$DB->query($query)->fetch()->get('total');
     }
-    public function insert_batch($fields, $values)
+    /**
+     * Inserts data in mass to the database
+     *
+     * @param array $fields the fields to insert into.
+     * @param array $values the values to insert.
+     *
+     * @return array
+     */
+    public function insertBatch($fields, $values)
     {
         $fieldlength = count($fields);
         $valuelength = count($values);
-        if (!$fieldlength) {
-            die(_('No fields passed'));
+        if ($fieldlength < 1) {
+            throw new Exception(_('No fields passed'));
         }
-        if (!$valuelength) {
-            die(_('No values passed'));
+        if ($valuelength < 1) {
+            throw new Exception(_('No values passed'));
         }
-        array_map(function ($value) use ($fieldlength) {
+        $valarr = $vals = array();
+        foreach ((array)$values as &$value) {
             $valuelength = count((array)$value);
             if ($fieldlength !== $valuelength) {
-                die(_('Field and values do not have equal parameters.'));
+                continue;
             }
-        }, (array)$values);
-        $keys = array_map(function (&$key) {
-            return $this->databaseFields[$key];
-        }, (array)$fields);
-        $vals = array_map(function (&$value) {
-            $value = array_map(function ($value) {
-                return self::$DB->sanitize($value);
-            }, (array)$value);
-            return sprintf("(%s)", implode(',', (array)$value));
-        }, (array)$values);
-        $dups = array_map(function ($value) {
-            return sprintf('`%s`.`%s`=VALUES(`%s`.`%s`)', $this->databaseTable, $value, $this->databaseTable, $value);
-        }, (array)$keys);
-        $query = sprintf($this->insertBatchTemplate, $this->databaseTable, implode('`,`', $keys), implode(',', $vals), implode(',', $dups));
+            foreach ((array)$value as &$v) {
+                $valarr[] = self::$DB->sanitize($v);
+                unset($v);
+            }
+            $vals[] = sprintf('(%s)', implode(',', (array)$valarr));
+            unset($valarr, $value);
+        }
+        if (count($vals) < 1) {
+            throw new Exception(_('No data to insert'));
+        }
+        $keys = array();
+        foreach ((array)$fields as &$key) {
+            $keys[] = $this->databaseFields[$key];
+            unset($key);
+        }
+        foreach ((array)$keys as &$key) {
+            $dups[] = sprintf(
+                '`%s`.`%s`=VALUES(`%s`.`%s`)',
+                $this->databaseTable,
+                $key,
+                $this->databaseTable,
+                $key
+            );
+            unset($key);
+        }
+        $query = sprintf(
+            $this->insertBatchTemplate,
+            $this->databaseTable,
+            implode('`,`', $keys),
+            implode(',', $vals),
+            implode(',', $dups)
+        );
+        unset($vals, $keys, $dups);
         self::$DB->query($query);
-        return array(self::$DB->insertId(),self::$DB->affectedRows());
+        return array(
+            self::$DB->insertId(),
+            self::$DB->affectedRows()
+        );
     }
     public function update($findWhere = array(), $whereOperator = 'AND', $insertData)
     {

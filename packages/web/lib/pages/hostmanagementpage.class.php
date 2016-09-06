@@ -1303,11 +1303,52 @@ class HostManagementPage extends FOGPage
                     $items = array();
                     if (isset($_REQUEST['pmupdate'])) {
                         $pmid = $_REQUEST['pmid'];
-                        array_walk($pmid, function (&$pm, &$index) use (&$min, &$hour, &$dom, &$month, &$dow, &$onDemand, &$action, &$items) {
-                            $onDemandItem = array_search($pm, $onDemand);
-                            $items[] = array($pm, $this->obj->get('id'), $min[$index], $hour[$index], $dom[$index], $month[$index], $dow[$index], $onDemandItem !== -1 && $onDemand[$onDemandItem] === $pm ? '1' : '0', $action[$index]);
-                        });
-                        self::getClass('PowerManagementManager')->insert_batch(array('id', 'hostID', 'min', 'hour', 'dom', 'month', 'dow', 'onDemand', 'action'), $items);
+                        array_walk(
+                            $pmid,
+                            function(
+                                &$pm,
+                                &$index
+                            ) use (
+                                &$min,
+                                &$hour,
+                                &$dom,
+                                &$month,
+                                &$dow,
+                                &$onDemand,
+                                &$action,
+                                &$items
+                            ) {
+                                $onDemandItem = array_search($pm, $onDemand);
+                                $items[] = array(
+                                    $pm,
+                                    $this->obj->get('id'),
+                                    $min[$index],
+                                    $hour[$index],
+                                    $dom[$index],
+                                    $month[$index],
+                                    $dow[$index],
+                                    $onDemandItem !== -1
+                                    && $onDemand[$onDemandItem] === $pm ?
+                                    1 :
+                                    0,
+                                    $action[$index]
+                                );
+                            });
+                        self::getClass('PowerManagementManager')
+                            ->insertBatch(
+                                array(
+                                    'id',
+                                    'hostID',
+                                    'min',
+                                    'hour',
+                                    'dom',
+                                    'month',
+                                    'dow',
+                                    'onDemand',
+                                    'action'
+                                ),
+                                $items
+                            );
                     }
                     if (isset($_REQUEST['pmsubmit'])) {
                         if ($onDemand && $action === 'wol') {
