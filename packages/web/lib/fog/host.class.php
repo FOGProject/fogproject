@@ -582,7 +582,7 @@ class Host extends FOGController
         $MyTask = $this->get('task')->get('id');
         self::getClass('TaskManager')->update(array('id'=>array_diff((array)$AllTasks, (array)$MyTask)), '', array('stateID'=>$this->getCancelledState()));
     }
-    private function createSnapinTasking($snapin = -1)
+    private function createSnapinTasking($snapin = -1, $error = false, $Task = false)
     {
         try {
             if (count($this->get('snapins')) < 1) {
@@ -606,7 +606,10 @@ class Host extends FOGController
                 self::getClass('SnapinTaskManager')->insert_batch($insert_fields, $insert_values);
             }
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            if ($error) {
+                $Task->cancel();
+                throw new Exception($e->getMessage());
+            }
         }
         return $this;
     }
@@ -738,7 +741,7 @@ class Host extends FOGController
                 }
                 $mac = $this->get('mac');
                 if ($deploySnapins) {
-                    $this->createSnapinTasking($deploySnapins);
+                    $this->createSnapinTasking($deploySnapins, $TaskType->isSnapinTasking(), $Task);
                 }
             }
             if ($TaskType->isMulticast()) {
