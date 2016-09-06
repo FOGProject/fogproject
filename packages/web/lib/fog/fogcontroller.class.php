@@ -907,15 +907,6 @@ abstract class FOGController extends FOGBase
             }
             if (array_key_exists('name', $this->databaseFields)) {
                 $val = trim($this->get('name'));
-                if (!is_numeric($val) && !$val) {
-                    throw new Exception(
-                        sprintf(
-                            '%s %s',
-                            get_class($this),
-                            _('no longer exists')
-                        )
-                    );
-                }
             }
         } catch (Exception $e) {
             $str = sprintf(
