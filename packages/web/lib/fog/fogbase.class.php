@@ -1906,7 +1906,7 @@ abstract class FOGBase
      */
     public static function stripAndDecode(&$item)
     {
-        foreach ((array)$item as &$val) {
+        foreach ((array)$item as $key => &$val) {
             $tmp = preg_replace('# #', '+', $val);
             $tmp = base64_decode($tmp);
             $tmp = trim($tmp);
@@ -1914,7 +1914,8 @@ abstract class FOGBase
                 $val = $tmp;
             }
             unset($tmp);
-            $val = trim($val);
+            $item[$key] = trim($val);
+            unset($val);
         }
         return $item;
     }
