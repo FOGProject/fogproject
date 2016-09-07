@@ -1021,11 +1021,11 @@ class Host extends FOGController
     }
     public function clientMacCheck($MAC = false)
     {
-        return self::getClass('MACAddress', self::getSubObjectIDs('MACAddressAssociation', array('mac'=>($MAC ? $MAC : $this->get('mac')), 'hostID'=>$this->get('id'), 'clientIgnore'=>1), 'mac'))->isValid() ? 'checked' : '';
+        return $this->get('mac')->isClientIgnored() ? 'checked' : '';
     }
     public function imageMacCheck($MAC = false)
     {
-        return self::getClass('MACAddress', self::getSubObjectIDs('MACAddressAssociation', array('mac'=>($MAC ? $MAC : $this->get('mac')), 'hostID'=>$this->get('id'), 'imageIgnore'=>1), 'mac'))->isValid() ? 'checked' : '';
+        return $this->get('mac')->isImageIgnored() ? 'checked' : '';
     }
     public function setAD($useAD = '', $domain = '', $ou = '', $user = '', $pass = '', $override = false, $nosave = false, $legacy = '', $productKey = '', $enforce = '')
     {
