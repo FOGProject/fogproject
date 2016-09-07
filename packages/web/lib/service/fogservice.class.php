@@ -540,7 +540,7 @@ abstract class FOGService extends FOGBase
                     }
                     self::outall(" | Local File: $localfile");
                     self::outall(" | Remote File: {$remotefilescheck[$index]}");
-                    $filesize_main = $this->getFilesize($localfile);
+                    $filesize_main = self::getFilesize($localfile);
                     $filesize_rem = self::$FOGFTP->size(
                         $remotefilescheck[$index]
                     );

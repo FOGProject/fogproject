@@ -2038,6 +2038,9 @@ abstract class FOGBase
     public static function getFilesize($file)
     {
         $fh = fopen($file, 'rb');
+        if (false === $fh) {
+            return '0';
+        }
         $size = '0';
         $char = '';
         fseek($fh, 0, SEEK_SET);

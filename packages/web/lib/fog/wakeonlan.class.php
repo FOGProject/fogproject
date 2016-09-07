@@ -81,20 +81,16 @@ class WakeOnLan extends FOGBase
                                 ':'
                             ),
                             '',
-                            $MAC
+                            $mac
                         )
                     ),
                     16
                 )
             );
-            foreach ((array)$BroadCast as &$SendTO) {
+            foreach ((array)$BroadCast as &$SendTo) {
                 if (!($sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP))) {
                     throw new Exception(_('Socket error'));
                 }
-                stream_set_blocking(
-                    $sock,
-                    false
-                );
                 $options = socket_set_option(
                     $sock,
                     SOL_SOCKET,
@@ -115,7 +111,7 @@ class WakeOnLan extends FOGBase
                 }
                 unset($SendTo);
             }
-            unset($MAC);
+            unset($mac);
         }
     }
 }
