@@ -72,9 +72,9 @@ class Snapin extends FOGController
                     self::getClass('SnapinAssociationManager')->insertBatch($insert_fields, $insert_values);
                 }
                 unset($DBHostIDs, $RemoveHostIDs);
-            case ($this->isLoaded('storageGroups')):
-                $DBGroupIDs = self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storageGroupID');
-                $ValidHostIDs = self::getSubObjectIDs('StorageGroup');
+                case ($this->isLoaded('storageGroups')):
+                    $DBGroupIDs = self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storageGroupID');
+                    $ValidHostIDs = self::getSubObjectIDs('StorageGroup');
                         $notValid = array_diff((array)$DBGroupIDs, (array)$ValidHostIDs);
                     if (count($notValid)) {
                         self::getClass('SnapinGroupAssociationManager')->destroy(array('storageGroupID'=>$notValid));

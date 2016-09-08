@@ -232,7 +232,8 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 $SnapinTask = new SnapinTask($tID);
                 if (!($SnapinTask->isValid()
                     && in_array(
-                        $SnapinTask->get('stateID'), array(
+                        $SnapinTask->get('stateID'),
+                        array(
                             $this->getCompleteState(),
                             $this->getCancelledState()
                         )
@@ -295,7 +296,8 @@ class SnapinClient extends FOGClient implements FOGClientSend
             $SnapinTask = new SnapinTask($tID);
             if (!($SnapinTask->isValid()
                 && in_array(
-                    $SnapinTask->get('stateID'), array(
+                    $SnapinTask->get('stateID'),
+                    array(
                         $this->getCompleteState(),
                         $this->getCancelledState()
                     )
