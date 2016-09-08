@@ -1305,7 +1305,7 @@ class HostManagementPage extends FOGPage
                         $pmid = $_REQUEST['pmid'];
                         array_walk(
                             $pmid,
-                            function(
+                            function (
                                 &$pm,
                                 &$index
                             ) use (
@@ -1333,7 +1333,8 @@ class HostManagementPage extends FOGPage
                                     0,
                                     $action[$index]
                                 );
-                            });
+                            }
+                        );
                         self::getClass('PowerManagementManager')
                             ->insertBatch(
                                 array(

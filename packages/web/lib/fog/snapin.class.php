@@ -54,7 +54,7 @@ class Snapin extends FOGController
                 if (count($notValid)) {
                     self::getClass('SnapinAssociationManager')->destroy(array('hostID'=>$notValid));
                 }
-                unset($ValidHostIDs, $notValid);
+                unset($ValidHostIDs, $DBHostIDs);
                 $DBHostIDs = self::getSubObjectIDs('SnapinAssociation', array('snapinID'=>$this->get('id')), 'hostID');
                 $RemoveHostIDs = array_diff((array)$DBHostIDs, (array)$this->get('hosts'));
                 if (count($RemoveHostIDs)) {
@@ -62,20 +62,19 @@ class Snapin extends FOGController
                     $DBHostIDs = self::getSubObjectIDs('SnapinAssociation', array('snapinID'=>$this->get('id')), 'hostID');
                     unset($RemoveHostIDs);
                 }
-                array_map(function (&$Host) {
-                    if (!$Host->isValid()) {
-                        return;
-                    }
-                    self::getClass('SnapinAssociation')
-                    ->set('hostID', $Host->get('id'))
-                    ->set('snapinID', $this->get('id'))
-                    ->save();
-                    unset($Host);
-                }, (array)self::getClass('HostManager')->find(array('id'=>array_diff((array)$this->get('hosts'), (array)$DBHostIDs))));
-                unset($DBHostIDs);
-                case ($this->isLoaded('storageGroups')):
-                        $DBGroupIDs = self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storageGroupID');
-                        $ValidHostIDs = self::getSubObjectIDs('StorageGroup');
+                $insert_fields = array('hostID','snapinID');
+                $insert_values = array();
+                $DBHostIDs = array_diff((array)$this->get('hosts'), (array)$DBHostIDs);
+                array_walk($DBHostIDs, function (&$hostID, $index) use (&$insert_values) {
+                    $insert_values[] = array($hostID, $this->get('id'));
+                });
+                if (count($insert_values) > 0) {
+                    self::getClass('SnapinAssociationManager')->insertBatch($insert_fields, $insert_values);
+                }
+                unset($DBHostIDs, $RemoveHostIDs);
+            case ($this->isLoaded('storageGroups')):
+                $DBGroupIDs = self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storageGroupID');
+                $ValidHostIDs = self::getSubObjectIDs('StorageGroup');
                         $notValid = array_diff((array)$DBGroupIDs, (array)$ValidHostIDs);
                     if (count($notValid)) {
                         self::getClass('SnapinGroupAssociationManager')->destroy(array('storageGroupID'=>$notValid));
