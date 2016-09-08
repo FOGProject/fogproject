@@ -35,7 +35,8 @@ class SnapinClient extends FOGClient implements FOGClientSend
             self::$EventManager->notify(
                 'HOST_SNAPIN_COMPLETE',
                 array(
-                    'Host' => &$this->Host
+                    'Host' => &$this->Host,
+                    'HostName' => &$HostName
                 )
             );
             return array('error' => 'ns');
@@ -260,7 +261,8 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     array(
                         'Snapin' => &$Snapin,
                         'SnapinTask' => &$SnapinTask,
-                        'Host' => &$this->Host
+                        'Host' => &$this->Host,
+                        'HostName' => &$HostName
                     )
                 );
                 $STaskCount = self::getClass('SnapinTaskManager')
@@ -281,21 +283,22 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     self::$EventManager->notify(
                         'HOST_SNAPIN_COMPLETE',
                         array(
-                            'HostName' => &$HostName
+                            'HostName' => &$HostName,
+                            'Host' => &$this->Host
                         )
                     );
                 }
             }
         } elseif (basename(self::$scriptname) === 'snapins.file.php') {
             $tID = $_REQUEST['taskid'];
-            if (!(empty($tID) && is_numeric($tID))) {
+            if (!(!empty($tID) && is_numeric($tID))) {
                 return array(
                     'error' => _('Invalid task id sent')
                 );
             }
             $SnapinTask = new SnapinTask($tID);
             if (!($SnapinTask->isValid()
-                && in_array(
+                && !in_array(
                     $SnapinTask->get('stateID'),
                     array(
                         $this->getCompleteState(),
@@ -375,7 +378,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     $filepath
                 );
                 if ($Task->isValid()) {
-                    $Task->get('task')
+                    $Task
                         ->set('stateID', $this->getProgressState())
                         ->set('checkInTime', $date)
                         ->save();
