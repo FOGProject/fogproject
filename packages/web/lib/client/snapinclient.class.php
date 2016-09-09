@@ -88,14 +88,14 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     );
                 foreach ((array)$Snapins as $index => &$Snapin) {
                     if (!$Snapin->isValid()) {
-                        $info['snapins'] = array(
+                        $info['snapins'][] = array(
                             'error' => _('Invalid Snapin')
                         );
                         continue;
                     }
                     $SnapinTask = $SnapinTasks[$index];
                     if (!$SnapinTask->isValid()) {
-                        $info['snapins'] = array(
+                        $info['snapins'][] = array(
                             'error' => _('Invalid Snapin Task')
                         );
                     }
@@ -121,13 +121,13 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     ) {
                         $StorageGroup = $Snapin->getStorageGroup();
                         if (!$StorageGroup->isValid()) {
-                            $info['snapins'] = array(
+                            $info['snapins'][] = array(
                                 'error' => _('Invalid Storage Group')
                             );
                         }
                         $StorageNode = $StorageGroup->getMasterStorageNode();
                         if (!$StorageNode->isValid()) {
-                            $info['snapins'] = array(
+                            $info['snapins'][] = array(
                                 'error' => _('Invalid Storage Node')
                             );
                         }
@@ -188,13 +188,8 @@ class SnapinClient extends FOGClient implements FOGClientSend
                             ->set('stateID', $this->getCheckedInState())
                             ->save();
                         if (empty($hash)) {
-                            $info['snapins'] = array(
+                            $info['snapins'][] = array(
                                 'error' => _('No hash available')
-                            );
-                        }
-                        if ($size == 0) {
-                            $info['snapins'] = array(
-                                'error' => _('No size available')
                             );
                         }
                     }
@@ -204,7 +199,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     } elseif ($Snapin->get('reboot')) {
                         $action = 'reboot';
                     }
-                    $info['snapins'] = array(
+                    $info['snapins'][] = array(
                         'pack' =>( bool)$Snapin->get('packtype'),
                         'hide' => (bool)$Snapin->get('hide'),
                         'timeout' => $Snapin->get('timeout'),
