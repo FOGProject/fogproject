@@ -87,17 +87,12 @@ class TaskScheduler extends FOGService
                 $findWhere,
                 'hostID'
             );
-            $mergedHostIDs = array_merge(
-                (array)$TaskHosts,
-                (array)$PMHosts
-            );
-            $mergedHostIDs = array_unique($mergedHostIDs);
-            $hostCount = count($mergedHostIDs);
+            $hostCount = count($taskHostIDs);
             if ($hostCount > 0) {
                 $hostMACs = self::getSubObjectIDs(
                     'MACAddressAssociation',
                     array(
-                        'hostID' => $mergedHostIDs,
+                        'hostID' => $taskHostIDs,
                         'pending' => array(
                             '',
                             null,
@@ -125,13 +120,6 @@ class TaskScheduler extends FOGService
                     );
                     self::wakeUp($hostMACs);
                 }
-                self::getClass('PowerManagementManager')
-                    ->destroy(
-                        array(
-                            'action' => 'wol',
-                            'onDemand' => 1
-                        )
-                    );
             }
             $findWhere = array(
                 'isActive' => 1
@@ -176,6 +164,9 @@ class TaskScheduler extends FOGService
                 );
             $Tasks = array_merge((array)$Tasks, (array)$PMs);
             foreach ((array)$Tasks as &$Task) {
+                if (!$Task->isValid()) {
+                    continue;
+                }
                 $Timer = $Task->getTimer();
                 self::outall(
                     sprintf(
