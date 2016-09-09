@@ -75,14 +75,15 @@ class WakeOnLan extends FOGBase
                 $packet .= $hw_addr;
             }
             foreach ((array)$BroadCast as &$SendTo) {
+                sleep(1);
                 $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
                 if ($sock == false) {
                     continue;
                 }
-                $set_opt = socket_set_option(
+                $set_opt = @socket_set_option(
                     $sock,
-                    1,
-                    6,
+                    SOL_SOCKET,
+                    SO_BROADCAST,
                     true
                 );
                 if ($set_opt < 0) {
