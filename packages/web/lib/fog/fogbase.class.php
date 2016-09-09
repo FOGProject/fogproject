@@ -2068,7 +2068,7 @@ abstract class FOGBase
         if (empty($macStr)) {
             return;
         }
-        $url = 'http://%s%smanagement/index.php';
+        $url = 'http://%s%smanagement/index.php?';
         $url .= 'node=client&sub=wakeEmUp';
         $nodeURLs = array();
         $macCount = count($macs);
