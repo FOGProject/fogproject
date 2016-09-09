@@ -2038,31 +2038,8 @@ abstract class FOGBase
      */
     public static function getFilesize($file)
     {
-        $fh = fopen($file, 'rb');
-        if (false === $fh) {
-            return '0';
-        }
-        $size = '0';
-        $char = '';
-        fseek($fh, 0, SEEK_SET);
-        $count = 0;
-        while (true) {
-            fseek($fh, 1048576, SEEK_CUR);
-            if (($char = fgetc($fh)) !== false) {
-                $count ++;
-            } else {
-                fseek($fh, -1048576, SEEK_CUR);
-                break;
-            }
-        }
-        $size = bcmul('1048577', $count);
-        $fine = 0;
-        while (false !== ($char = fgetc($fh))) {
-            $fine++;
-        }
-        $size = bcadd($size, $fine);
-        fclose($fh);
-        return $size;
+        $file = escapeshellarg($file);
+        return shell_exec("ls -l $file | awk '{print $5}'");
     }
     /**
      * Perform enmass wake on lan
@@ -2071,7 +2048,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    public static function wakeUp($macs)
+    public function wakeUp($macs)
     {
         if (!is_array($macs)) {
             $macs = array($macs);
