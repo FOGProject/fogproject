@@ -66,47 +66,37 @@ class WakeOnLan extends FOGBase
             )
         );
         foreach ((array)$this->_arrMAC as &$mac) {
-            $packet = sprintf(
-                '%s%s',
-                str_repeat(
-                    chr(255),
-                    6
-                ),
-                str_repeat(
-                    pack(
-                        'H12',
-                        str_replace(
-                            array(
-                                '-',
-                                ':'
-                            ),
-                            '',
-                            $mac
-                        )
-                    ),
-                    16
-                )
-            );
+            $addr_byte = explode(':', $mac->__toString());
+            for ($a = 0; $a < 6; $a++) {
+                $hw_addr .= chr(hexdec($addr_byte[$a]));
+            }
+            $packet = str_repeat(chr(255), 6);
+            for ($a = 0; $a < 16; $a++) {
+                $packet .= $hw_addr;
+            }
             foreach ((array)$BroadCast as &$SendTo) {
-                if (!($sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP))) {
-                    throw new Exception(_('Socket error'));
+                $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+                if ($sock == false) {
+                    continue;
                 }
-                $options = socket_set_option(
+                $set_opt = socket_set_option(
                     $sock,
-                    SOL_SOCKET,
-                    SO_BROADCAST,
+                    1,
+                    6,
                     true
                 );
-                if ($options >= 0
-                    && socket_sendto(
-                        $sock,
-                        $packet,
-                        strlen($packet),
-                        0,
-                        $SendTo,
-                        self::WOL_UDP_PORT
-                    )
-                ) {
+                if ($set_opt < 0) {
+                    continue;
+                }
+                $sendto = socket_sendto(
+                    $sock,
+                    $packet,
+                    strlen($packet),
+                    0,
+                    $SendTo,
+                    self::WOL_UDP_PORT
+                );
+                if ($sendto) {
                     socket_close($sock);
                 }
                 unset($SendTo);
