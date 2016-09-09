@@ -42,22 +42,24 @@ class PM extends FOGClient
         } elseif (in_array('reboot', $actions)) {
             $action = 'reboot';
         }
-        $PMTasks = self::getClass('PowerManagementManager')->find(
-            array('hostID' => $this->Host->get('id'))
-        );
+        $PMTasks = self::getClass('PowerManagementManager')
+            ->find(
+                array(
+                    'hostID' => $this->Host->get('id'),
+                    'onDemand' => array(
+                        '0',
+                        0,
+                        null,
+                        ''
+                    )
+                )
+            );
         $data = array(
             'onDemand' => $action,
             'tasks' => array(),
         );
         foreach ((array)$PMTasks as &$PMTask) {
             if (!$PMTask->isValid()) {
-                continue;
-            }
-            if ($PMTask->get('onDemand') > 0) {
-                $PMTask->destroy();
-                continue;
-            }
-            if ($PMTask->get('action') === 'wol') {
                 continue;
             }
             $min = trim($PMTask->get('min'));

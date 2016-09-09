@@ -89,7 +89,7 @@ class ScheduledTask extends FOGController
     }
     public function getScheduledType()
     {
-        return $this->get('type') ? _('Cron') : _('Delayed');
+        return $this->get('type') == 'C' ? _('Cron') : _('Delayed');
     }
     public function getTaskType()
     {

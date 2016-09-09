@@ -872,17 +872,7 @@ class Host extends FOGController
     }
     public function wakeOnLAN()
     {
-        $URLs = array();
-        $URLs = array_map(function (&$Node) {
-            $curroot = trim(trim($Node->get('webroot'), '/'));
-            $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
-            return sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s', $Node->get('ip'), $webroot, implode('|', (array)$this->getMyMacs()));
-        }, (array)self::getClass('StorageNodeManager')->find(array('isEnabled'=>1)));
-        $curroot = trim(trim(self::getSetting('FOG_WEB_ROOT'), '/'));
-        $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
-        $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s', self::getSetting('FOG_WEB_HOST'), $webroot, implode('|', (array)$this->getMyMacs()));
-        $URLs = array_values(array_filter(array_unique((array)$URLs)));
-        self::$FOGURLRequests->process($URLs);
+        $this->wakeUp($this->getMyMacs());
         return $this;
     }
     public function addAddMAC($addArray, $pending = false)

@@ -84,6 +84,6 @@ class PowerManagement extends FOGController
     }
     public function getHost()
     {
-        return self::getClass('Host', $this->get('hostID'));
+        return new Host($this->get('hostID'));
     }
 }

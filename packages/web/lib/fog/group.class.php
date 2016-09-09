@@ -741,76 +741,36 @@ class Group extends FOGController
             session_write_close();
             ignore_user_abort(true);
             set_time_limit(0);
-            $url = 'http://%s%smanagement/index.php?'
-                . 'node=client&sub=wakeEmUp&mac=%s';
-            $hostMACs = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                array(
-                    'hostID' => $this->get('hosts')
-                ),
-                'mac'
-            );
-            $macStr = implode(
-                '|',
-                $hostMACs
-            );
-            $nodeURLs = array();
-            $Nodes = self::getClass('StorageNodeManager')
-                ->find(
-                    array(
-                        'isEnabled' => 1
-                    )
-                );
-            foreach ($Nodes as &$Node) {
-                $curroot = trim(trim($Node->get('webroot'), '/'));
-                $webroot = sprintf(
-                    '/%s',
-                    (
-                        strlen($curroot) > 1 ?
-                        sprintf('%s/', $curroot) :
-                        ''
-                    )
-                );
-                $ip = self::$FOGCore->resolveHostname($Node->get('ip'));
-                $testurl = sprintf(
-                    'http://%s%smanagement/index.php',
-                    $ip,
-                    $webroot
-                );
-                if (!self::$FOGURLRequests->isAvailable($testurl)) {
-                    continue;
-                }
-                $nodeURLs[] = sprintf(
-                    $url,
-                    $ip,
-                    $webroot,
-                    $macStr
-                );
-            }
-            $curroot = trim(trim(self::getSetting('FOG_WEB_ROOT')));
-            $webroot = sprintf(
-                '/%s',
-                (
-                    strlen($curroot) > 1 ?
-                    sprintf(
-                        '%s/',
-                        $curroot
-                    ) :
-                    ''
-                )
-            );
-            $ip = self::$FOGCore->resolveHostname(
-                self::getSetting('FOG_WEB_HOST')
-            );
-            $nodeURLs[] = sprintf(
-                $url,
-                $ip,
-                $webroot,
-                $macStr
-            );
-            self::$FOGURLRequests->process($nodeURLs);
+            $this->wakeOnLAN();
         }
         return array('All hosts successfully tasked');
+    }
+    /**
+     * Perform wake on lan to all hosts in group
+     *
+     * @return void
+     */
+    public function wakeOnLAN()
+    {
+        $hostMACs = self::getSubObjectIDs(
+            'MACAddressAssociation',
+            array(
+                'hostID' => $this->get('hosts'),
+                'pending' => array(
+                    '0',
+                    0,
+                    null,
+                    ''
+                )
+            ),
+            'mac'
+        );
+        $hostMACs = $this->parseMacList($hostMACs);
+        $macStr = implode(
+            '|',
+            $hostMACs
+        );
+        $this->wakeUp($hostMACs);
     }
     /**
      * Create snapin tasks for hosts

@@ -2064,4 +2064,131 @@ abstract class FOGBase
         fclose($fh);
         return $size;
     }
+    /**
+     * Perform enmass wake on lan
+     *
+     * @param array $macs The macs to send
+     *
+     * @return void
+     */
+    public static function wakeUp($macs)
+    {
+        if (!is_array($macs)) {
+            $macs = array($macs);
+        }
+        session_write_close();
+        ignore_user_abort(true);
+        set_time_limit(0);
+        $macs = $this->parseMacList($macs);
+        if (count($macs) < 1) {
+            return;
+        }
+        $macStr = implode(
+            '|',
+            $macs
+        );
+        $macStr = trim($macStr);
+        if (empty($macStr)) {
+            return;
+        }
+        $url = 'http://%s%smanagement/index.php';
+        $url .= 'node=client&sub=wakeEmUp';
+        $nodeURLs = array();
+        $macCount = count($macs);
+        if ($macCount < 1) {
+            return;
+        }
+        $Nodes = self::getClass('StorageNodeManager')
+            ->find(
+                array(
+                    'isEnabled' => 1
+                )
+            );
+        foreach ((array)$Nodes as &$Node) {
+            if (!$Node->isValid()) {
+                continue;
+            }
+            $curroot = trim($Node->get('webroot'), '/');
+            $curroot = trim($curroot);
+            $webroot = sprintf(
+                '/%s',
+                (
+                    strlen($curroot) > 1 ?
+                    sprintf(
+                        '%s/',
+                        $curroot
+                    ) :
+                    ''
+                )
+            );
+            $ip = $Node->get('ip');
+            $testurl = sprintf(
+                'http://%s%smanagement/index.php',
+                $ip,
+                $webroot
+            );
+            if (!self::$FOGURLRequests->isAvailable($testurl)) {
+                continue;
+            }
+            $nodeURLs[] = sprintf(
+                $url,
+                $ip,
+                $webroot
+            );
+            unset($Node);
+        }
+        list(
+            $gHost,
+            $gRoot
+        ) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array(
+                    'FOG_WEB_HOST',
+                    'FOG_WEB_ROOT',
+                )
+            ),
+            'value',
+            false,
+            'AND',
+            'name',
+            false,
+            ''
+        );
+        $curroot = $gRoot;
+        $curroot = trim($curroot, '/');
+        $curroot = trim($curroot);
+        $webroot = sprintf(
+            '/%s',
+            (
+                strlen($curroot) > 1 ?
+                sprintf(
+                    '%s/',
+                    $curroot
+                ) :
+                ''
+            )
+        );
+        $ip = $gHost;
+        $testurl = sprintf(
+            'http://%s%smanagement/index.php',
+            $ip,
+            $webroot
+        );
+        if (self::$FOGURLRequests->isAvailable($testurl)) {
+            $nodeURLs[] = sprintf(
+                $url,
+                $ip,
+                $webroot
+            );
+        }
+        if (count($nodeURLs) < 1) {
+            return;
+        }
+        self::$FOGURLRequests->process(
+            $nodeURLs,
+            'POST',
+            array('mac' => $macStr)
+        );
+    }
 }

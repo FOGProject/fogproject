@@ -512,7 +512,7 @@ abstract class FOGPage extends FOGBase
                 throw new Exception(_('Invalid scheduling type'));
             }
             // Time is in the past
-            if ($scheduleType == 'single' && $scheduleDeployTime < self::niceDate()) {
+            if ($scheduleType == 'single' && $scheduleDeployTime > self::niceDate()) {
                 throw new Exception(sprintf('%s<br>%s: %s', _('Scheduled date is in the past'), _('Date'), $scheduleDeployTime->format('Y-m-d H:i:s')));
             } // Cron doesn't validate properly
             elseif ($scheduleType == 'cron') {
