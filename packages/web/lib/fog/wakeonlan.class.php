@@ -66,7 +66,9 @@ class WakeOnLan extends FOGBase
             )
         );
         foreach ((array)$this->_arrMAC as &$mac) {
+            $addr_byte = array();
             $addr_byte = explode(':', $mac->__toString());
+            $hw_addr = '';
             for ($a = 0; $a < 6; $a++) {
                 $hw_addr .= chr(hexdec($addr_byte[$a]));
             }
@@ -75,7 +77,6 @@ class WakeOnLan extends FOGBase
                 $packet .= $hw_addr;
             }
             foreach ((array)$BroadCast as &$SendTo) {
-                sleep(1);
                 $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
                 if ($sock == false) {
                     continue;
