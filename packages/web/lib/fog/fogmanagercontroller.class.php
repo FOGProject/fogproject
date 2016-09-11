@@ -238,7 +238,7 @@ abstract class FOGManagerController extends FOGBase
                         $this->databaseFields[$field],
                         (
                             preg_match('#%#', (string)$value) ?
-                            sprintf('%sLIKE', $not) :
+                            sprintf(' %sLIKE ', $not) :
                             sprintf(
                                 '%s%s',
                                 (
@@ -506,7 +506,7 @@ abstract class FOGManagerController extends FOGBase
                                     '#%#',
                                     $value
                                 ) ?
-                                'LIKE' :
+                                ' LIKE' :
                                 $compare
                             )
                         );
@@ -738,7 +738,7 @@ abstract class FOGManagerController extends FOGBase
                         $this->databaseFields[$field],
                         (
                             preg_match('#%#', (string)$value) ?
-                            'LIKE' :
+                            ' LIKE' :
                             '='
                         ),
                         $findKey
