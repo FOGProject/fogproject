@@ -372,6 +372,7 @@ class PDODB extends DatabaseManager
      */
     public function sqlerror()
     {
+        $msg = '';
         if (self::$_link) {
             if (self::$_link->errorCode()) {
                 $errCode = self::$_link->errorCode();
@@ -380,15 +381,17 @@ class PDODB extends DatabaseManager
                 $errCode = self::$_queryResult->errorCode();
                 $errInfo = self::$_queryResult->errorInfo();
             }
-            $msg = sprintf(
-                '%s: %s, %s: %s, %s: %s',
-                _('Error Code'),
-                $errCode,
-                _('Error Message'),
-                $errInfo,
-                _('Debug'),
-                self::_debugDumpParams()
-            );
+            if ($errCode !== '00000') {
+                $msg = sprintf(
+                    '%s: %s, %s: %s, %s: %s',
+                    _('Error Code'),
+                    json_encode($errCode),
+                    _('Error Message'),
+                    json_encode($errInfo),
+                    _('Debug'),
+                    self::_debugDumpParams()
+                );
+            }
         } else {
             $msg = _('Cannot connect to database');
         }

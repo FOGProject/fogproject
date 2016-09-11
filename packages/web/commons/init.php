@@ -144,6 +144,8 @@ class Initiator
         self::_verCheck();
         self::_extCheck();
         $globalVars = array(
+            'newService',
+            'json',
             'node',
             'sub',
             'printertype',

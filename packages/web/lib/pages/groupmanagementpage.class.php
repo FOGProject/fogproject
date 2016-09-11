@@ -181,7 +181,8 @@ class GroupManagementPage extends FOGPage
     public function searchPost()
     {
         $this->data = array();
-        $Groups = self::getClass('GroupManager')->search('', true);
+        $Groups = self::getClass('GroupManager')
+            ->search('', true);
         array_walk($Groups, self::$returnData);
         self::$HookManager->processEvent(
             'GROUP_DATA',

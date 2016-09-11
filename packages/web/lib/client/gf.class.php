@@ -1,52 +1,71 @@
 <?php
+/**
+ * Handles GreenFog, now only for legacy client
+ *
+ * PHP version 5
+ *
+ * @category Greenfog
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Handles GreenFog, now only for legacy client
+ *
+ * @category Greenfog
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class GF extends FOGClient implements FOGClientSend
 {
-    public function json()
-    {
-        if (self::getClass('GreenFogManager')->count() < 1) {
-            return array('error'=>'na');
-        }
-        return array('tasks'=>array_filter(array_map(function (&$gf) {
-            if (!$gf->isValid()) {
-                return;
-            }
-            $action = (trim(strtolower($gf->get('action'))) === 's' ? 'shutdown' : (trim(strtolower($gf->get('action'))) === 'r' ? 'reboot' : ''));
-            if (empty($action)) {
-                return;
-            }
-            return array(
-                'hour' => $gf->get('hour'),
-                'min' => $gf->get('min'),
-                'action' => $action,
-            );
-        }, (array)self::getClass('GreenFogManager')->find())));
-    }
+    /**
+     * Creates the send string and stores to send variable
+     *
+     * @return void
+     */
     public function send()
     {
-        if (self::getClass('GreenFogManager')->count() < 1) {
+        $gfcount = self::getClass('GreenFogManager')
+            ->count();
+        if ($gfcount < 1) {
             throw new Exception('#!na');
         }
-        $index = 0;
         $Send = array();
-        array_map(function (&$gf) use (&$index, &$Send) {
+        $gfs = self::getClass('GreenFogManager')
+            ->find();
+        foreach ((array)$gfs as $index => &$gf) {
             if (!$gf->isValid()) {
-                return;
+                continue;
             }
-            $action = (trim(strtolower($gf->get('action'))) === 's' ? 'shutdown' : (trim(strtolower($gf->get('action'))) === 'r' ? 'reboot' : ''));
+            $actionTemp = $gf->get('action');
+            $actionTemp = strtolower($actionTemp);
+            $actionTemp = trim($actionTemp);
+            $action = '';
+            switch ($actionTemp) {
+                case 's':
+                    $action = 'shutdown';
+                    break;
+                case 'r':
+                    $action = 'reboot';
+                    break;
+            }
             if (empty($action)) {
-                return;
+                continue;
             }
-            $val = sprintf('%d@%d@%s', $gf->get('hour'), $gf->get('min'), $action);
-            if ($this->newService) {
-                if ($index === 0) {
-                    $Send[$index] = "#!ok\n";
-                }
-                $Send[$index] .= sprintf("#task%d=%s\n", $index, $val);
-            } else {
-                $Send[$index] = sprintf("%s\n", base64_encode($val));
-            }
-            $index++;
-        }, (array)self::getClass('GreenFogManager')->find());
+            $val = sprintf(
+                '%d@%d@%s',
+                $gf->get('hour'),
+                $gf->get('min'),
+                $action
+            );
+            $Send[$index] = sprintf(
+                "%s\n",
+                base64_encode($val)
+            );
+        }
         $this->send = implode($Send);
     }
 }

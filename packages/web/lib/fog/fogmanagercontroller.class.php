@@ -1,34 +1,173 @@
 <?php
+/**
+ * FOG Manager Controller, main object mass getter
+ *
+ * PHP version 5
+ *
+ * @category FOGManagerController
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * FOG Manager Controller, main object mass getter
+ *
+ * @category FOGManagerController
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 abstract class FOGManagerController extends FOGBase
 {
+    /**
+     * The main class for the object
+     *
+     * @var string
+     */
     protected $childClass;
+    /**
+     * The table name for the object
+     *
+     * @var string
+     */
     protected $databaseTable;
-    protected $databaseFields;
+    /**
+     * The common names and fields
+     *
+     * @var array
+     */
+    protected $databaseFields = array();
+    /**
+     * The Flipped fields
+     *
+     * @var array
+     */
     protected $databaseFieldsFlipped = array();
-    protected $databaseFieldsRequired;
-    protected $databaseFieldClassRelationships;
-    protected $additionalFields;
+    /**
+     * The required fields
+     *
+     * @var array
+     */
+    protected $databaseFieldsRequired = array();
+    /**
+     * The Class relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array();
+    /**
+     * The additional fields
+     *
+     * @var array
+     */
+    protected $additionalFields = array();
+    /**
+     * The load template
+     *
+     * SELECT <field(s)> FROM `<table>` <join> <where>
+     *
+     * @var string
+     */
     protected $loadQueryTemplate = 'SELECT %s FROM `%s` %s %s %s %s %s';
+    /**
+     * The load groupby template
+     *
+     * @var string
+     */
     protected $loadQueryGroupTemplate = 'SELECT %s FROM (%s) `%s` %s %s %s %s %s';
+    /**
+     * The count template
+     *
+     * @var string
+     */
     protected $countQueryTemplate = 'SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s`%s LIMIT 1';
+    /**
+     * The update template
+     *
+     * @var string
+     */
     protected $updateQueryTemplate = 'UPDATE `%s` SET %s %s';
-    protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`.`%s` IN ('%s')";
-    protected $existsQueryTemplate = "SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s` WHERE `%s`.`%s`='%s' AND `%s`.`%s` <> '%s'";
+    /**
+     * The destroy template
+     *
+     * @var string
+     */
+    protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`.`%s` IN (%s)";
+    /**
+     * The exists template
+     *
+     * @var string
+     */
+    protected $existsQueryTemplate = "SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s` WHERE `%s`.`%s`=%s AND `%s`.`%s` <> %s";
+    /**
+     * The insert batch template
+     *
+     * @var string
+     */
     protected $insertBatchTemplate = "INSERT INTO `%s` (`%s`) VALUES %s ON DUPLICATE KEY UPDATE %s";
+    /**
+     * Initializes the manager class
+     *
+     * @return void
+     */
     public function __construct()
     {
         parent::__construct();
-        $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
-        $classVars = self::getClass($this->childClass, '', true);
-        $this->databaseTable =& $classVars['databaseTable'];
-        $this->databaseFields =& $classVars['databaseFields'];
+        $this->childClass = preg_replace(
+            '#_?Manager$#',
+            '',
+            get_class($this)
+        );
+        $classVars = self::getClass(
+            $this->childClass,
+            '',
+            true
+        );
+        $classGet = array(
+            'databaseTable',
+            'databaseFields',
+            'additionalFields',
+            'databaseFieldsRequired',
+            'databaseFieldClassRelationships',
+        );
+        $this->databaseTable =& $classVars[$classGet[0]];
+        $this->databaseFields =& $classVars[$classGet[1]];
+        $this->additionalFields =& $classVars[$classGet[2]];
+        $this->databaseFieldsRequired =& $classVars[$classGet[3]];
+        $this->databaseFieldClassRelationships =& $classVars[$classGet[4]];
         $this->databaseFieldsFlipped = array_flip($this->databaseFields);
-        $this->databaseFieldsRequired =& $classVars['databaseFieldsRequired'];
-        $this->databaseFieldClassRelationships =& $classVars['databaseFieldClassRelationships'];
-        $this->additionalFields =& $classVars['additionalFields'];
+        unset($classGet);
     }
-    public function find($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false, $idField = false, $onecompare = true, $filter = 'array_unique')
-    {
+    /**
+     * Finds items related to the main object
+     *
+     * @param array  $findWhere     what to find
+     * @param string $whereOperator how to combine where items
+     * @param string $orderBy       how to order fields
+     * @param string $sort          how the sort order
+     * @param string $compare       how to compare
+     * @param string $groupBy       how to group fields
+     * @param bool   $not           use not operator
+     * @param mixed  $idField       what fields to get
+     * @param bool   $onecompare    second where uses AND
+     * @param string $filter        array function for filter
+     *
+     * @return array
+     */
+    public function find(
+        $findWhere = array(),
+        $whereOperator = 'AND',
+        $orderBy = 'name',
+        $sort = 'ASC',
+        $compare = '=',
+        $groupBy = false,
+        $not = false,
+        $idField = false,
+        $onecompare = true,
+        $filter = 'array_unique'
+    ) {
         // Fail safe defaults
         if (empty($findWhere)) {
             $findWhere = array();
@@ -43,97 +182,240 @@ abstract class FOGManagerController extends FOGBase
         if (empty($compare)) {
             $compare = '=';
         }
-        $not = ($not ? ' NOT ' : ' ');
-        $whereArray = array();
-        $whereArrayAnd = array();
-        if (count($findWhere)) {
+        $not = (
+            $not ?
+            ' NOT ' :
+            ' '
+        );
+        $whereArray = $whereArrayAnd =array();
+        if (count($findWhere) > 0) {
             $count = 0;
-            array_walk($findWhere, function (&$value, &$field) use (&$count, &$onecompare, &$compare, &$whereArray, &$not) {
-                $field = trim($field);
-                if (is_array($value) && count($value)) {
-                    $values = array_map(function (&$val) {
-                        if (is_array($val)) {
-                            return array_filter(array_map(function (&$v) {
-                                $v = trim(self::$DB->sanitize(trim($v)));
-                                if (empty($v)) {
-                                    return "''";
-                                }
-                                return $v;
-                            }, $val));
-                        }
-                        $val = trim(self::$DB->sanitize(trim($val)));
-                        if (empty($val)) {
-                            return "''";
-                        }
-                        return $val;
-                    }, (array)$value);
-                    $whereArray[] = sprintf("`%s`.`%s`%sIN (%s)", $this->databaseTable, $this->databaseFields[$field], $not, implode(',', $values));
-                } else {
-                    $value = count($value) < 1 ? '' : trim(self::$DB->sanitize(trim($value)));
-                    if (empty($value)) {
-                        $value = "''";
+            foreach ($findWhere as $field => $value) {
+                $key = trim($field);
+                if (is_array($value) && count($value) > 0) {
+                    foreach ($value as $i => &$val) {
+                        $val = trim($val);
+                        // Define the key
+                        $k = sprintf(
+                            '%s_%d',
+                            $key,
+                            $i
+                        );
+                        // Define param keys
+                        $findKeys[] = sprintf(
+                            ':%s',
+                            $k
+                        );
+                        // Define the param array
+                        $findVals[$k] = $val;
                     }
-                    $whereArray[] = sprintf("`%s`.`%s`%s%s", $this->databaseTable, $this->databaseFields[$field], (preg_match('#%#', (string)$value) ? $not.'LIKE ' : (trim($not) ? '!' : '').($onecompare ? (!$count ? $compare : '=') : $compare)), ($value === 0 || $value ? $value : null));
+                    $whereArray[] = sprintf(
+                        '`%s`.`%s`%sIN (%s)',
+                        $this->databaseTable,
+                        $this->databaseFields[$field],
+                        $not,
+                        implode(',', $findKeys)
+                    );
+                } else {
+                    if (is_array($value)) {
+                        $value = '';
+                    }
+                    $value = trim($value);
+                    $k = sprintf(
+                        '%s',
+                        $key
+                    );
+                    // Define the param keys
+                    $findKeys[] = $findKey = sprintf(
+                        ':%s',
+                        $key
+                    );
+                    // Define the param array
+                    $findVals[$k] = $value;
+                    $whereArray[] = sprintf(
+                        '`%s`.`%s`%s%s',
+                        $this->databaseTable,
+                        $this->databaseFields[$field],
+                        (
+                            preg_match('#%#', (string)$value) ?
+                            sprintf('%sLIKE', $not) :
+                            sprintf(
+                                '%s%s',
+                                (
+                                    trim($not) ? '!' : ''
+                                ),
+                                (
+                                    $onecompare ?
+                                    (!$count ? $compare : '=') :
+                                    $compare
+                                )
+                            )
+                        ),
+                        $findKey
+                    );
                 }
                 $count++;
-                unset($value);
-                return ($whereArray);
-            });
+            }
         }
         if (!is_array($orderBy)) {
-            $orderBy = sprintf('ORDER BY %s`%s`.`%s`%s', ($orderBy == 'name' ? 'LOWER(' : ''), $this->databaseTable, $this->databaseFields[$orderBy], ($orderBy == 'name' ? ')' : ''));
+            $orderBy = sprintf(
+                'ORDER BY %s`%s`.`%s`%s',
+                ($orderBy == 'name' ? 'LOWER(' : ''),
+                $this->databaseTable,
+                $this->databaseFields[$orderBy],
+                ($orderBy == 'name' ? ')' : '')
+            );
             if ($groupBy) {
-                $groupBy = sprintf('GROUP BY `%s`.`%s`', $this->databaseTable, $this->databaseFields[$groupBy]);
+                $groupBy = sprintf(
+                    'GROUP BY `%s`.`%s`',
+                    $this->databaseTable,
+                    $this->databaseFields[$groupBy]
+                );
             } else {
                 $groupBy = '';
             }
         } else {
             $orderBy = '';
         }
-        list($join, $whereArrayAnd) = self::getClass($this->childClass)->buildQuery($not, $compare);
-        $isEnabled = false;
-        if (!in_array($this->childClass, array('Image', 'Snapin', 'StorageNode')) && array_key_exists('isEnabled', $this->databaseFields)) {
-            $isEnabled = sprintf('`%s`=1', $this->databaseFields['isEnabled']);
+        list(
+            $join,
+            $whereArrayAnd
+        ) = self::getClass($this->childClass)->buildQuery(
+            $not,
+            $compare
+        );
+        $knownEnable = array(
+            'Image',
+            'Snapin',
+            'StorageNode'
+        );
+        $nonEnable = !(in_array($this->childClass, $knownEnable));
+        $isEnabled = array_key_exists(
+            'isEnabled',
+            $this->databaseFields
+        );
+        if ($nonEnable && $isEnabled) {
+            $isEnabled = sprintf(
+                '`%s`=1',
+                $this->databaseFields['isEnabled']
+            );
         }
-        $idField = array_filter(array_map(function (&$item) {
-            return $this->databaseFields[trim($item)];
-        }, (array)$idField));
+        if ($nonEnable && $isEnabled) {
+            $findKeys[] = ':isEnabled';
+            $findVals['isEnabled'] = 1;
+            $isEnabled = sprintf(
+                '`%s`=:isEnabled',
+                $this->databaseFields['isEnabled']
+            );
+        }
+        $idFields = array();
+        foreach ((array)$idField as &$id) {
+            $id = trim($id);
+            $idFields[] = $this->databaseFields[$id];
+            unset($id);
+        }
+        $idFields = array_filter($idFields);
+        $idField = $idFields;
+        unset($idFields);
         $query = sprintf(
             $this->loadQueryTemplate,
-            $idField ? sprintf('`%s`', implode('`,`', $idField)) : '*',
+            (
+                count($idField) > 0 ?
+                sprintf('`%s`', implode('`,`', (array)$idField)) :
+                '*'
+            ),
             $this->databaseTable,
             $join,
-            (count($whereArray) ? sprintf(' WHERE %s%s', implode(sprintf(' %s ', $whereOperator), $whereArray), ($isEnabled ? sprintf(' AND %s', $isEnabled) : '')) : ($isEnabled ? sprintf(' WHERE %s', $isEnabled) : '')),
-            (count($whereArrayAnd) ? (count($whereArray) ? sprintf('AND %s', implode(sprintf(' %s ', $whereOperator), (array)$whereArrayAnd)) : sprintf(' WHERE %s', implode(sprintf(' %s ', $whereOperator), (array)$whereArrayAnd))) : ''),
+            (
+                count($whereArray) > 0 ?
+                sprintf(
+                    ' WHERE %s%s',
+                    implode(" $whereOperator ", (array)$whereArray),
+                    (
+                        $isEnabled ?
+                        sprintf(' AND %s', $isEnabled) :
+                        ''
+                    )
+                ) :
+                (
+                    $isEnabled ?
+                    sprintf(' WHERE %s', $isEnabled) :
+                    ''
+                )
+            ),
+            (
+                count($whereArrayAnd) > 0 ?
+                (
+                    count($whereArray) > 0 ?
+                    sprintf(
+                        'AND %s',
+                        implode(" $whereOperator ", (array)$whereArrayAnd)
+                    ) :
+                    sprintf(
+                        ' WHERE %s',
+                        implode(" $whereOperator ", (array)$whereArrayAnd)
+                    )
+                ) :
+                ''
+            ),
             $orderBy,
             $sort
         );
         if ($groupBy) {
             $query = sprintf(
                 $this->loadQueryGroupTemplate,
-                $idField ? sprintf('`%s`', implode('`,`', $idField)) : '*',
-                sprintf(
-                    $this->loadQueryTemplate,
-                    $idField ? sprintf('`%s`', implode('`,`', $idField)) : '*',
-                    $this->databaseTable,
-                    $join,
-                    (count($whereArray) ? sprintf(' WHERE %s%s', implode(sprintf(' %s ', $whereOperator), $whereArray), ($isEnabled ? sprintf(' AND %s', $isEnabled) : '')) : ($isEnabled ? sprintf(' WHERE %s', $isEnabled) : '')),
-                    (count($whereArrayAnd) ? (count($whereArray) ? sprintf('AND %s', implode(sprintf(' %s ', $whereOperator), (array)$whereArrayAnd)) : sprintf(' WHERE %s', implode(sprintf(' %s ', $whereOperator), (array)$whereArrayAnd))) : ''),
-                    $orderBy,
-                    $sort
+                (
+                    $idField ? sprintf('`%s`', implode('`,`', $idField)) : '*'
                 ),
+                $query,
                 $this->databaseTable,
                 $join,
-                (count($whereArray) ? sprintf(' WHERE %s%s', implode(sprintf(' %s ', $whereOperator), $whereArray), ($isEnabled ? sprintf(' AND %s', $isEnabled) : '')) : ($isEnabled ? sprintf(' WHERE %s', $isEnabled) : '')),
-                (count($whereArrayAnd) ? (count($whereArray) ? sprintf('AND %s', implode(sprintf(' %s ', $whereOperator), (array)$whereArrayAnd)) : sprintf(' WHERE %s', implode(sprintf(' %s ', $whereOperator), (array)$whereArrayAnd))) : ''),
+                (
+                    count($whereArray) > 0?
+                    sprintf(
+                        ' WHERE %s%s',
+                        implode(" $whereOperator ", (array)$whereArray),
+                        (
+                            $isEnabled ?
+                            sprintf(' AND %s', $isEnabled)
+                            : ''
+                        )
+                    ) :
+                    (
+                        $isEnabled ?
+                        sprintf(
+                            ' WHERE %s',
+                            $isEnabled
+                        ) :
+                        ''
+                    )
+                ),
+                (
+                    count($whereArrayAnd) > 0 ?
+                    (
+                        count($whereArray) > 0 ?
+                        sprintf(
+                            'AND %s',
+                            implode(" $whereOperator ", (array)$whereArrayAnd)
+                        ) :
+                        sprintf(
+                            ' WHERE %s',
+                            implode(" $whereOperator ", (array)$whereArrayAnd)
+                        )
+                    ) :
+                    ''
+                ),
                 $groupBy,
                 $orderBy,
                 $sort
             );
         }
         $data = array();
+        self::$DB->query($query, array(), $findVals);
         if ($idField) {
-            $data = (array)self::$DB->query($query)->fetch('', 'fetch_all')->get($idField);
+            $data = (array)self::$DB
+                ->fetch('', 'fetch_all')
+                ->get($idField);
             if ($filter) {
                 return @$filter($data);
             }
@@ -147,47 +429,147 @@ abstract class FOGManagerController extends FOGBase
                 return $data;
             }
         } else {
-            $data = array_map(function (&$item) {
-                return self::getClass($this->childClass)->setQuery($item);
-            }, (array)self::$DB->query($query)->fetch('', 'fetch_all')->get());
+            $vals = self::$DB
+                ->fetch('', 'fetch_all')
+                ->get();
+            foreach ((array)$vals as &$val) {
+                $data[] = self::getClass($this->childClass)
+                    ->setQuery($val);
+                unset($val);
+            }
         }
+        $data = array_filter((array)$data);
+        $data = array_values($data);
         if ($filter) {
-            return @$filter(array_values(array_filter((array)$data)));
+            return @$filter($data);
         }
-        return array_values(array_filter((array)$data));
+        return $data;
     }
-    public function count($findWhere = array(), $whereOperator = 'AND', $compare = '=')
-    {
+    /**
+     * Returns the count of items
+     *
+     * @param array  $findWhere     what to find and count
+     * @param string $whereOperator how to scan for where multiples
+     * @param string $compare       how to compare items
+     *
+     * @return int
+     */
+    public function count(
+        $findWhere = array(),
+        $whereOperator = 'AND',
+        $compare = '='
+    ) {
         if (empty($findWhere)) {
             $findWhere = array();
         }
         if (empty($whereOperator)) {
             $whereOperator = 'AND';
         }
-        $whereArray = array();
-        if (count($findWhere)) {
-            array_walk($findWhere, function (&$value, &$field) use (&$whereArray, $compare) {
-                $field = trim($field);
-                if (is_array($value)) {
-                    $whereArray[] = sprintf("`%s`.`%s` IN ('%s')", $this->databaseTable, $this->databaseFields[$field], implode("','", $value));
-                } else {
-                    $whereArray[] = sprintf("`%s`.`%s`%s'%s'", $this->databaseTable, $this->databaseFields[$field], (preg_match('#%#', (string)$value) ? 'LIKE' : $compare), (string)$value);
-                }
-                unset($value, $field);
-            });
+        if (empty($compare)) {
+            $compare = '=';
         }
-        $isEnabled = false;
-        if (!in_array($this->childClass, array('Image', 'Snapin')) && array_key_exists('isEnabled', $this->databaseFields)) {
-            $isEnabled = sprintf('`%s`=1', $this->databaseFields['isEnabled']);
+        $whereArray = array();
+        $countVals = $countKeys = array();
+        if (count($findWhere)) {
+            array_walk(
+                $findWhere,
+                function (
+                    &$value,
+                    &$field
+                ) use (
+                    &$whereArray,
+                    $compare,
+                    &$countVals,
+                    &$countKeys
+                ) {
+                    $field = trim($field);
+                    if (is_array($value)) {
+                        foreach ((array)$value as $index => &$val) {
+                            $countKeys[] = sprintf(':countVal%d', $index);
+                            $countVals[sprintf('countVal%d', $index)] = $val;
+                            unset($val);
+                        }
+                        $whereArray[] = sprintf(
+                            "`%s`.`%s` IN (%s)",
+                            $this->databaseTable,
+                            $this->databaseFields[$field],
+                            implode(',', $countKeys)
+                        );
+                    } else {
+                        $countVals['countVal'] = $value;
+                        $whereArray[] = sprintf(
+                            '`%s`.`%s`%s:countVal',
+                            $this->databaseTable,
+                            $this->databaseFields[$field],
+                            (
+                                preg_match(
+                                    '#%#',
+                                    $value
+                                ) ?
+                                'LIKE' :
+                                $compare
+                            )
+                        );
+                    }
+                    unset($value, $field);
+                }
+            );
+        }
+        $knownEnable = array(
+            'Image',
+            'Snapin',
+            'StorageNode'
+        );
+        $nonEnable = !(in_array($this->childClass, $knownEnable));
+        $isEnabled = array_key_exists(
+            'isEnabled',
+            $this->databaseFields
+        );
+        if ($nonEnable && $isEnabled) {
+            $isEnabled = sprintf(
+                '`%s`=1',
+                $this->databaseFields['isEnabled']
+            );
         }
         $query = sprintf(
             $this->countQueryTemplate,
             $this->databaseTable,
             $this->databaseFields['id'],
             $this->databaseTable,
-            (count($whereArray) ? sprintf(' WHERE %s%s', implode(sprintf(' %s ', $whereOperator), $whereArray), ($isEnabled ? sprintf(' AND %s', $isEnabled) : '')) : ($isEnabled ? sprintf(' WHERE %s', $isEnabled) : ''))
+            (
+                count($whereArray) ?
+                sprintf(
+                    ' WHERE %s%s',
+                    implode(
+                        sprintf(
+                            ' %s ',
+                            $whereOperator
+                        ),
+                        (array)$whereArray
+                    ),
+                    (
+                        $isEnabled ?
+                        sprintf(
+                            ' AND %s',
+                            $isEnabled
+                        ) :
+                        ''
+                    )
+                ) :
+                (
+                    $isEnabled ?
+                    sprintf(
+                        ' WHERE %s',
+                        $isEnabled
+                    ) :
+                    ''
+                )
+            )
         );
-        return self::$DB->query($query)->fetch()->get('total');
+        return (int)self::$DB
+            ->query($query, array(), $countVals)
+            ->fetch()
+            ->get('total');
     }
     /**
      * Inserts data in mass to the database
@@ -207,28 +589,38 @@ abstract class FOGManagerController extends FOGBase
         if ($valuelength < 1) {
             throw new Exception(_('No values passed'));
         }
-        $valarr = $vals = array();
-        foreach ((array)$values as &$value) {
-            $valuelength = count((array)$value);
-            if ($fieldlength !== $valuelength) {
-                continue;
+        $vals = array();
+        $insertVals = array();
+        foreach ((array)$fields as &$field) {
+            $count = 0;
+            foreach ((array)$values as &$value) {
+                $insertKeys = array();
+                foreach ((array)$value as &$val) {
+                    $key = sprintf(
+                        '%s_%d',
+                        $field,
+                        $count
+                    );
+                    $insertKeys[] = sprintf(
+                        ':%s',
+                        $key
+                    );
+                    $val = trim($val);
+                    $insertVals[$key] = $val;
+                    unset($val);
+                    $count++;
+                }
+                $vals[] = sprintf('(%s)', implode(',', (array)$insertKeys));
+                unset($value);
             }
-            foreach ((array)$value as &$v) {
-                $valarr[] = self::$DB->sanitize($v);
-                unset($v);
-            }
-            $vals[] = sprintf('(%s)', implode(',', (array)$valarr));
-            unset($valarr, $value);
         }
         if (count($vals) < 1) {
             throw new Exception(_('No data to insert'));
         }
         $keys = array();
         foreach ((array)$fields as &$key) {
-            $keys[] = $this->databaseFields[$key];
-            unset($key);
-        }
-        foreach ((array)$keys as &$key) {
+            $key = $this->databaseFields[$key];
+            $keys[] = $key;
             $dups[] = sprintf(
                 '`%s`.`%s`=VALUES(`%s`.`%s`)',
                 $this->databaseTable,
@@ -246,14 +638,26 @@ abstract class FOGManagerController extends FOGBase
             implode(',', $dups)
         );
         unset($vals, $keys, $dups);
-        self::$DB->query($query);
+        self::$DB->query($query, array(), $insertVals);
         return array(
             self::$DB->insertId(),
             self::$DB->affectedRows()
         );
     }
-    public function update($findWhere = array(), $whereOperator = 'AND', $insertData)
-    {
+    /**
+     * Function deals with enmass updating
+     *
+     * @param array  $findWhere     what specific to update
+     * @param string $whereOperator what to join where with
+     * @param array  $insertData    the data to update
+     *
+     * @return bool
+     */
+    public function update(
+        $findWhere = array(),
+        $whereOperator = 'AND',
+        $insertData = array()
+    ) {
         if (empty($findWhere)) {
             $findWhere = array();
         }
@@ -262,97 +666,259 @@ abstract class FOGManagerController extends FOGBase
         }
         $insertArray = array();
         $whereArray = array();
-        array_walk($insertData, function (&$value, &$field) use (&$insertArray) {
+        $updateVals = array();
+        foreach ((array)$insertData as $field => &$value) {
             $field = trim($field);
-            $insertKey = sprintf('`%s`.`%s`', $this->databaseTable, $this->databaseFields[$field]);
-            $insertVal = self::$DB->sanitize($value);
-            $insertArray[] = sprintf("%s=%s", $insertKey, $insertVal);
+            $value = trim($value);
+            $updateKey = sprintf(
+                ':update_%s',
+                $field
+            );
+            $updateVals[sprintf('update_%s', $field)] = $value;
+            $key = sprintf(
+                '`%s`.`%s`',
+                $this->databaseTable,
+                $this->databaseFields[$field]
+            );
+            $insertArray[] = sprintf(
+                '%s=%s',
+                $key,
+                $updateKey
+            );
             unset($value);
-        });
-        if (count($findWhere)) {
-            array_walk($findWhere, function (&$value, &$field) use (&$whereArray) {
-                $field = trim($field);
-                $values = array_map(function (&$val) {
-                    return self::$DB->sanitize($val);
-                }, (array)$value);
-                if (is_array($value) && count($value)) {
-                    $values = array_filter(array_map(function (&$val) {
-                        $val = trim(self::$DB->sanitize(trim($val)));
-                        if (empty($val)) {
-                            return "''";
-                        }
-                        return $val;
-                    }, (array)$value));
-                    $whereArray[] = sprintf("`%s`.`%s` IN (%s)", $this->databaseTable, $this->databaseFields[$field], implode(',', $values));
+        }
+        unset($updateKey);
+        $findVals = array();
+        if (count($findWhere) > 0) {
+            foreach ($findWhere as $field => &$value) {
+                $key = trim($field);
+                if (is_array($value) && count($value) > 0) {
+                    foreach ($value as $i => &$val) {
+                        $val = trim($val);
+                        // Define the key
+                        $k = sprintf(
+                            '%s_%d',
+                            $key,
+                            $i
+                        );
+                        // Define param keys
+                        $findKeys[] = sprintf(
+                            ':%s',
+                            $k
+                        );
+                        // Define the param array
+                        $findVals[$k] = $val;
+                    }
+                    $whereArray[] = sprintf(
+                        '`%s`.`%s` IN (%s)',
+                        $this->databaseTable,
+                        $this->databaseFields[$field],
+                        implode(',', $findKeys)
+                    );
+                    unset($findKeys);
                 } else {
-                    if (is_array($value) && count($value) < 1) {
+                    if (is_array($value)) {
                         $value = '';
                     }
-                    $value = trim(self::$DB->sanitize(trim($value)));
-                    if (empty($value)) {
-                        $value = "''";
-                    }
-                    $whereArray[] = sprintf("`%s`.`%s`%s%s", $this->databaseTable, $this->databaseFields[$field], (preg_match('#%#', (string)$value) ? 'LIKE' : '='), $value);
+                    $value = trim($value);
+                    $k = sprintf(
+                        '%s',
+                        $key
+                    );
+                    // Define the param keys
+                    $findKey = sprintf(
+                        ':%s',
+                        $key
+                    );
+                    // Define the param array
+                    $findVals[$k] = $value;
+                    $whereArray[] = sprintf(
+                        '`%s`.`%s`%s%s',
+                        $this->databaseTable,
+                        $this->databaseFields[$field],
+                        (
+                            preg_match('#%#', (string)$value) ?
+                            'LIKE' :
+                            '='
+                        ),
+                        $findKey
+                    );
                 }
-                unset($value, $field);
-            });
+            }
         }
+        unset($findKeys, $findKey);
         $query = sprintf(
             $this->updateQueryTemplate,
             $this->databaseTable,
             implode(',', (array)$insertArray),
-            (count($whereArray) ? ' WHERE '.implode(' '.$whereOperator.' ', (array)$whereArray) : '')
+            (
+                count($whereArray) ?
+                sprintf(
+                    ' WHERE %s',
+                    implode(" $whereOperator ", (array)$whereArray)
+                ) :
+                ''
+            )
         );
-        return (bool)self::$DB->query($query);
+        $queryVals = array_merge(
+            (array)$updateVals,
+            (array)$findVals
+        );
+        return (bool)self::$DB->query($query, array(), $queryVals);
     }
-    public function destroy($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false)
-    {
+    /**
+     * Destroys items related to the main object
+     *
+     * @param array  $findWhere     what to find
+     * @param string $whereOperator how to combine where items
+     * @param string $orderBy       how to order fields
+     * @param string $sort          how the sort order
+     * @param string $compare       how to compare
+     * @param string $groupBy       how to group fields
+     * @param bool   $not           use not operator
+     *
+     * @return bool
+     */
+    public function destroy(
+        $findWhere = array(),
+        $whereOperator = 'AND',
+        $orderBy = 'name',
+        $sort = 'ASC',
+        $compare = '=',
+        $groupBy = false,
+        $not = false
+    ) {
+        // Fail safe defaults
         if (empty($findWhere)) {
             $findWhere = array();
         }
         if (empty($whereOperator)) {
             $whereOperator = 'AND';
         }
-        $this->orderBy($orderBy);
         if (empty($sort)) {
             $sort = 'ASC';
         }
+        $this->orderBy($orderBy);
         if (empty($compare)) {
             $compare = '=';
         }
         if (array_key_exists('id', $findWhere)) {
             $ids = $findWhere['id'];
         } else {
-            $ids = $this->find($findWhere, $whereOperator, $orderBy, $sort, $compare, $groupBy, $not, 'id');
+            $ids = $this->find(
+                $findWhere,
+                $whereOperator,
+                $orderBy,
+                $sort,
+                $compare,
+                $groupBy,
+                $not,
+                'id'
+            );
+        }
+        $destroyVals = array();
+        foreach ((array)$ids as $index => &$id) {
+            $key = 'id';
+            $destroyKeys[] = sprintf(
+                ':%s_%d',
+                $key,
+                $index
+            );
+            $destroyVals[sprintf('%s_%d', $key, $index)] = $id;
+            unset($id);
         }
         $query = sprintf(
             $this->destroyQueryTemplate,
             $this->databaseTable,
             $this->databaseTable,
             $this->databaseFields['id'],
-            implode("','", (array)$ids)
+            implode(',', (array)$destroyKeys)
         );
-        return self::$DB->query($query);
+        return self::$DB->query($query, array(), $destroyVals);
     }
-    public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '', $template = false)
-    {
-        $matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
+    /**
+     * Builds a select box/option box from the elements
+     *
+     * @param mixed  $matchID     select the matching id
+     * @param string $elementName the name for the select box
+     * @param string $orderBy     how to order
+     * @param string $filter      should we filter existing
+     * @param mixed  $template    should we include a template element
+     *
+     * @return string
+     */
+    public function buildSelectBox(
+        $matchID = '',
+        $elementName = '',
+        $orderBy = 'name',
+        $filter = '',
+        $template = false
+    ) {
+        global $node;
+        if ($node === 'image') {
+            $matchID = (
+                $matchID === 0 ?
+                1 :
+                $matchID
+            );
+        }
+        $elementName = trim($elementName);
         if (empty($elementName)) {
             $elementName = strtolower($this->childClass);
         }
         $this->orderBy($orderBy);
-        $listArray = array_map(function (&$Object) use (&$matchID, &$elementName, &$orderBy, &$filter, &$template) {
+        $items = $this->find(
+            $filter ? array('id' => $filter) : '',
+            '',
+            $orderBy,
+            '',
+            '',
+            '',
+            ($filter ? true : false)
+        );
+        ob_start();
+        foreach ((array)$items as &$Object) {
             if (!$Object->isValid()) {
-                return;
+                continue;
             }
-            if (array_key_exists('isEnabled', $this->databaseFields) && !$Object->get('isEnabled')) {
-                return;
+            if (array_key_exists('isEnabled', $this->databaseFields)
+                && !$Object->get('isEnabled')
+            ) {
+                continue;
             }
-            $listArray = sprintf('<option value="%s"%s>%s</option>', $Object->get('id'), ($matchID == $Object->get('id') ? ' selected' : ($template ? " \${selected_item{$Object->get(id)}" : '')), "{$Object->get(name)} - ({$Object->get(id)})");
-            unset($Object);
-            return $listArray;
-        }, (array)$this->find($filter ? array('id'=>$filter):'', '', $orderBy, '', '', '', ($filter ? true : false)));
-        return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>', ($template ? '${selector_name}' : $elementName), "- ".self::$foglang['PleaseSelect']." -", implode($listArray)) : false);
+            printf(
+                '<option value="%s"%s>%s</option>',
+                $Object->get('id'),
+                (
+                    $matchID == $Object->get('id') ?
+                    ' selected' :
+                    (
+                        $template ?
+                        sprintf('${selected_item%d}', $Object->get('id')) :
+                        ''
+                    )
+                ),
+                sprintf(
+                    '%s - (%d)',
+                    $Object->get('name'),
+                    $Object->get('id')
+                )
+            );
+        }
+        $objOpts = ob_get_clean();
+        $objOpts = trim($objOpts);
+        if (empty($objOpts)) {
+            return _('No items found');
+        }
+        $tmpStr = sprintf(
+            '<select name="%s" autcomplete="off">'
+            . '<option value="">- %s -</option>'
+            . '%s</select>',
+            ($template ? '${selector_name}' : $elementName),
+            self::$foglang['PleaseSelect'],
+            $objOpts
+        );
+        return $tmpStr;
     }
     public function exists($name, $id = 0, $idField = 'name')
     {
