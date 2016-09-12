@@ -464,7 +464,7 @@ class HostManagementPage extends FOGPage
         if (!isset($_REQUEST['enforcesel'])) {
             $_REQUEST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
         }
-        echo $this->adFieldsToDisplay($_REQUEST['domain'], $_REQUEST['domainname'], $_REQUEST['ou'], $_REQUEST['domainuser'], $_REQUEST['domainpassword'], $_REQUEST['domainpasswordlegacy'], intval(isset($_REQUEST['enforcesel'])));
+        echo $this->adFieldsToDisplay($_REQUEST['domain'], $_REQUEST['domainname'], $_REQUEST['ou'], $_REQUEST['domainuser'], $_REQUEST['domainpassword'], $_REQUEST['domainpasswordlegacy'], isset($_REQUEST['enforcesel']));
         echo '</form>';
     }
     public function addPost()
@@ -505,7 +505,7 @@ class HostManagementPage extends FOGPage
             $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
             $productKey = preg_replace('/([\w+]{5})/', '$1-', str_replace('-', '', strtoupper(trim($_REQUEST['key']))));
             $productKey = substr($productKey, 0, 29);
-            $enforce = intval(isset($_REQUEST['enforcesel']));
+            $enforce = isset($_REQUEST['enforcesel']);
             $Host = self::getClass('Host')
                 ->set('name', $hostName)
                 ->set('description', $_REQUEST['description'])
@@ -1286,8 +1286,8 @@ class HostManagementPage extends FOGPage
                     $user = trim($_REQUEST['domainuser']);
                     $pass = trim($_REQUEST['domainpassword']);
                     $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
+                    $enforce = isset($_REQUEST['enforcesel']);
                     $this->obj->setAD($useAD, $domain, $ou, $user, $pass, true, true, $passlegacy, $productKey, $enforce);
-                    $enforce = intval(isset($_REQUEST['enforcesel']));
                     break;
                 case 'host-powermanagement':
                     $min = $_REQUEST['scheduleCronMin'];
