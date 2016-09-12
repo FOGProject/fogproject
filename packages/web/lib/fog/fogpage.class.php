@@ -1054,7 +1054,7 @@ abstract class FOGPage extends FOGBase
                 switch ($key) {
                     case 'greenfog':
                         $class='GF';
-                        break;
+                        return;
                     case 'powermanagement':
                         $class='PM';
                         break;

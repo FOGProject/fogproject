@@ -51,6 +51,10 @@ class PM extends FOGClient
                         0,
                         null,
                         ''
+                    ),
+                    'action' => array(
+                        'shutdown',
+                        'reboot',
                     )
                 )
             );
