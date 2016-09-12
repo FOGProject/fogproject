@@ -40,7 +40,7 @@ class PM extends FOGClient
         if (in_array('shutdown', $actions)) {
             $action = 'shutdown';
         } elseif (in_array('reboot', $actions)) {
-            $action = 'reboot';
+            $action = 'restart';
         }
         $PMTasks = self::getClass('PowerManagementManager')
             ->find(
@@ -72,9 +72,13 @@ class PM extends FOGClient
             $month = trim($PMTask->get('month'));
             $dow = trim($PMTask->get('dow'));
             $cron = sprintf('%s %s %s %s %s', $min, $hour, $dom, $month, $dow);
+            $action = $PMTask->get('action');
+            if ($action == 'reboot') {
+                $action = 'restart';
+            }
             $data['tasks'][] = array(
                 'cron' => $cron,
-                'action' => $PMTask->get('action'),
+                'action' => $action
             );
         }
         return $data;
