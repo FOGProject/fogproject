@@ -42,6 +42,8 @@ class PM extends FOGClient
         } elseif (in_array('reboot', $actions)) {
             $action = 'restart';
         }
+        self::getClass('PowerManagementManager')
+            ->destroy(array('onDemand' => '1', 'hostID' => $this->Host->get('id')));
         $PMTasks = self::getClass('PowerManagementManager')
             ->find(
                 array(
