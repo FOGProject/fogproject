@@ -299,7 +299,6 @@ case $installtype in
             echo "  the fog database?  This is typically the server that also "
             echo -n "  runs the web server, dhcp, and tftp.  IP or Hostname: "
             read snmysqlhost
-            [[ $snmysqlhost == 127.0.0.1 || ! $(validip $snmysqlhost) -eq 0 ]] && snmysqlhost=""
         done
         while [[ -z $snmysqluser ]]; do
             snmysqluser=$strSuggestedSNUser
