@@ -1,6 +1,9 @@
 <?php
 class DashboardPage extends FOGPage
 {
+    private static $_nodeURLs = array();
+    private static $_nodeNames = array();
+    private static $_nodeOpts = '';
     public $node = 'home';
     public function __construct($name = '')
     {
@@ -10,6 +13,29 @@ class DashboardPage extends FOGPage
         $this->menu = array();
         $this->subMenu = array();
         $this->notes = array();
+        $StorageNodes = self::getClass('StorageNodeManager')->find(array('isEnabled'=>1, 'isGraphEnabled'=>1));
+        foreach ((array)$StorageNodes as $i => &$StorageNode) {
+            if (!$StorageNode->isValid()) {
+                continue;
+            }
+            $ip = $StorageNode->get('ip');
+            $curroot = trim(trim($StorageNode->get('webroot'), '/'));
+            $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : '/'));
+            $URL = filter_var(sprintf('http://%s%s', $ip, $webroot), FILTER_SANITIZE_URL);
+            $testurl = sprintf(
+                'http://%s%smanagement/index.php',
+                $StorageNode->get('ip'),
+                $webroot
+            );
+            if (!self::$FOGURLRequests->isAvailable($testurl)) {
+                continue;
+            }
+            unset($ip, $curroot, $webroot);
+            self::$_nodeOpts .= sprintf('<option value="%s" urlcall="%s">%s%s ()</option>', $StorageNode->get('id'), sprintf('%sservice/getversion.php', $URL), $StorageNode->get('name'), ($StorageNode->get('isMaster') ? ' *' : ''));
+            $URL = sprintf('%sstatus/bandwidth.php?dev=%s', $URL, $StorageNode->get('interface'));
+            self::$_nodeNames[] = $StorageNode->get('name');
+            self::$_nodeURLs[] = $URL;
+        }
     }
     public function index()
     {
@@ -65,28 +91,7 @@ class DashboardPage extends FOGPage
             // Disk Usage Pane
             printf('<li><h4 class="box" title="%s">%s</h4><div id="diskusage-selector">', _('The selected node\'s image storage disk usage'), _('Storage Node Disk Usage'));
             $StorageNodes = self::getClass('StorageNodeManager')->find(array('isEnabled'=>1, 'isGraphEnabled'=>1));
-            ob_start();
-            array_walk($StorageNodes, function (&$StorageNode, &$index) use ($data) {
-                if (!$StorageNode->isValid()) {
-                    return;
-                }
-                $ip = $StorageNode->get('ip');
-                $curroot = trim(trim($StorageNode->get('webroot'), '/'));
-                $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : '/'));
-                $URL = filter_var(sprintf('http://%s%sservice/getversion.php', $ip, $webroot), FILTER_SANITIZE_URL);
-                $testurl = sprintf(
-                    'http://%s%smanagement/index.php',
-                    $StorageNode->get('ip'),
-                    $webroot
-                );
-                if (!self::$FOGURLRequests->isAvailable($testurl)) {
-                    return;
-                }
-                unset($ip, $curroot, $webroot);
-                printf('<option value="%s" urlcall="%s">%s%s ()</option>', $StorageNode->get('id'), $URL, $StorageNode->get('name'), ($StorageNode->get('isMaster') ? ' *' : ''));
-                unset($version, $StorageNode);
-            });
-            printf('<select name="nodesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">%s</select></div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li>', ob_get_clean());
+            printf('<select name="nodesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">%s</select></div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li>', self::$_nodeOpts);
         }
         echo '</ul>';
         // 30 Day Usage Graph
@@ -113,38 +118,10 @@ class DashboardPage extends FOGPage
         session_write_close();
         ignore_user_abort(true);
         set_time_limit(0);
-        $URLs = $StorageName = array();
-        $Nodes = self::getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1, 'isEnabled'=>1));
-        $bandwidthPath = self::getSetting('FOG_NFS_BANDWIDTHPATH');
-        foreach ($Nodes as $StorageNode) {
-            if (!$StorageNode->isValid()) {
-                continue;
-            }
-            $url = sprintf(
-                'http://%s/%s?dev=%s',
-                $StorageNode->get('ip'),
-                ltrim($bandwidthPath, '/'),
-                $StorageNode->get('interface')
-            );
-            $curroot = trim(trim($StorageNode->get('webroot'), '/'));
-            $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
-            $testurl = sprintf(
-                'http://%s%smanagement/index.php',
-                $StorageNode->get('ip'),
-                $webroot
-            );
-            if (!self::$FOGURLRequests->isAvailable($testurl)) {
-                continue;
-            }
-            $url = filter_var($url, FILTER_SANITIZE_URL);
-            $URLs[] = $url;
-            $StorageName[] = $StorageNode->get('name');
-            unset($StorageNode);
-        }
         $dataSet = array_map(function (&$data) {
             return json_decode($data, true);
-        }, self::$FOGURLRequests->process($URLs));
-        echo json_encode(array_combine($StorageName, $dataSet));
+        }, self::$FOGURLRequests->process(self::$_nodeURLs));
+        echo json_encode(array_combine(self::$_nodeNames, $dataSet));
         exit;
     }
     public function diskusage()
@@ -197,18 +174,6 @@ class DashboardPage extends FOGPage
         $ActivityTotalClients = $this->obj->getTotalAvailableSlots();
         array_map(function (&$Node) use (&$ActivityActive, &$ActivityQueued, &$ActivityTotalClients) {
             if (!$Node->isValid()) {
-                return;
-            }
-            $curroot = trim(trim($Node->get('webroot'), '/'));
-            $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
-            $URL = filter_var(sprintf('http://%s%sindex.php', $Node->get('ip'), $webroot), FILTER_SANITIZE_URL);
-            $testurl = sprintf(
-                'http://%s%smanagement/index.php',
-                $Node->get('ip'),
-                $webroot
-            );
-            if (!self::$FOGURLRequests->isAvailable($testurl)) {
-                $ActivityTotalClients -= $Node->get('maxClients');
                 return;
             }
             $ActivityActive += $Node->getUsedSlotCount();
