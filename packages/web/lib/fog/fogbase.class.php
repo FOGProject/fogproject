@@ -746,6 +746,7 @@ abstract class FOGBase
         if (is_array($key)) {
             foreach ($key as &$k) {
                 $this->arrayRemove($k, $array);
+                unset($k);
             }
         } else {
             foreach ($array as &$value) {
@@ -770,10 +771,11 @@ abstract class FOGBase
     protected function arrayFind($needle, array $haystack, $ignorecase = false)
     {
         $cmd = $ignorecase !== false ? 'stripos' : 'strpos';
-        foreach ($haystack as $key => $value) {
+        foreach ($haystack as $key => &$value) {
             if (false !== $cmd($value, $needle)) {
                 return $key;
             }
+            unset($value);
         }
         return false;
     }
@@ -878,6 +880,7 @@ abstract class FOGBase
         foreach ($services as $short => &$value) {
             $tmp = $value === true ? $short : $value;
             $value = sprintf('FOG_CLIENT_%s_ENABLED', strtoupper($tmp));
+            unset($value);
         }
         // If names is set, send back the short and long names together.
         if ($names) {
@@ -1431,6 +1434,7 @@ abstract class FOGBase
                 continue;
             }
             $tmpssl[] = $path;
+            unset($path);
         }
         if (count($tmpssl) < 1) {
             throw new Exception(_('Private key path not found'));
@@ -1582,6 +1586,7 @@ abstract class FOGBase
                 continue;
             }
             $validMACs[] = $MAC;
+            unset($MAC);
         }
         $validMACs = array_filter($validMACs);
         if (!count($validMACs)) {
@@ -1645,6 +1650,7 @@ abstract class FOGBase
         $mapinfo = array();
         foreach ((array)$needles as &$needle) {
             $mapinfo[] = $cmd($haystack, $needle);
+            unset($needle);
         }
         $mapinfo = array_filter($mapinfo);
         return count($mapinfo) > 0;
@@ -1949,6 +1955,7 @@ abstract class FOGBase
                 continue;
             }
             self::$interface[] = $Interfaces[$index++];
+            unset($ip);
         }
         if (count(self::$interface) < 1) {
             return false;

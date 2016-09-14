@@ -106,6 +106,7 @@ foreach ($dir_interfaces as &$iface) {
         continue;
     }
     $interfaces[] = $iface;
+    unset($iface);
 };
 // Check up interfaces to see if our specified device is present
 $interface = preg_grep("#^$dev$#", $interfaces);

@@ -190,7 +190,7 @@ abstract class FOGManagerController extends FOGBase
         $whereArray = $whereArrayAnd =array();
         if (count($findWhere) > 0) {
             $count = 0;
-            foreach ($findWhere as $field => $value) {
+            foreach ($findWhere as $field => &$value) {
                 $key = trim($field);
                 if (is_array($value) && count($value) > 0) {
                     foreach ($value as $i => &$val) {
@@ -208,6 +208,7 @@ abstract class FOGManagerController extends FOGBase
                         );
                         // Define the param array
                         $findVals[$k] = $val;
+                        unset($val);
                     }
                     $whereArray[] = sprintf(
                         '`%s`.`%s`%sIN (%s)',
@@ -255,6 +256,7 @@ abstract class FOGManagerController extends FOGBase
                     );
                 }
                 $count++;
+                unset($value);
             }
         }
         if (!is_array($orderBy)) {
@@ -613,6 +615,7 @@ abstract class FOGManagerController extends FOGBase
                 $vals[] = sprintf('(%s)', implode(',', (array)$insertKeys));
                 unset($value);
             }
+            unset($field);
         }
         if (count($vals) < 1) {
             throw new Exception(_('No data to insert'));
@@ -708,6 +711,7 @@ abstract class FOGManagerController extends FOGBase
                         );
                         // Define the param array
                         $findVals[$k] = $val;
+                        unset($val);
                     }
                     $whereArray[] = sprintf(
                         '`%s`.`%s` IN (%s)',
@@ -744,6 +748,7 @@ abstract class FOGManagerController extends FOGBase
                         $findKey
                     );
                 }
+                unset($value);
             }
         }
         unset($findKeys, $findKey);
@@ -904,6 +909,7 @@ abstract class FOGManagerController extends FOGBase
                     $Object->get('id')
                 )
             );
+            unset($Object);
         }
         $objOpts = ob_get_clean();
         $objOpts = trim($objOpts);

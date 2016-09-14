@@ -32,8 +32,9 @@ class Service extends FOGController
             'FOG_CLIENT_DISPLAYMANAGER_Y' => $y,
             'FOG_CLIENT_DISPLAYMANAGER_R' => $r,
         );
-        foreach ($keySettings as $name => $value) {
+        foreach ($keySettings as $name => &$value) {
             $this->setSetting($name, $value);
+            unset($value);
         }
     }
     public function setGreenFog($h, $m, $t)
@@ -93,6 +94,7 @@ class Service extends FOGController
                 $value = '';
             }
             $options .= sprintf('<option value="%s"%s>%s</option>', $value, strtolower($selected) == $value ? 'selected' : '', $show);
+            unset($viewop);
         }
         unset($viewop);
         return $options.'</select>';

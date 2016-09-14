@@ -637,6 +637,7 @@ abstract class FOGController extends FOGBase
                 $class = self::getClass($class);
                 $table = $class->databaseTable;
                 array_walk($class->databaseFields, $getFields);
+                unset($arr);
             }
             $key = $this->key($key);
             $paramKey = sprintf(':%s', $key);

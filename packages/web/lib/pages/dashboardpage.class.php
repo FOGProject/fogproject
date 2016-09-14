@@ -27,6 +27,7 @@ class DashboardPage extends FOGPage
             $URL = sprintf('%sstatus/bandwidth.php?dev=%s', $URL, $StorageNode->get('interface'));
             self::$_nodeNames[] = $StorageNode->get('name');
             self::$_nodeURLs[] = $URL;
+            unset($StorageNode);
         }
     }
     public function index()

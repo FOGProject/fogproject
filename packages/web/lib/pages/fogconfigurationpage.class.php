@@ -232,9 +232,10 @@ class FOGConfigurationPage extends FOGPage
             $ids = self::getSubObjectIDs('Service', array('name' => array_keys($ServicesToEdit)));
             $items = array();
             $iteration = 0;
-            foreach ($ServicesToEdit as $key => $value) {
+            foreach ($ServicesToEdit as $key => &$value) {
                 $items[] = array($ids[$iteration], $key, $value);
                 $iteration++;
+                unset($value);
             }
             self::getClass('ServiceManager')->insertBatch(array('id', 'name', 'value'), $items);
             throw new Exception(_('PXE Menu has been updated'));
@@ -276,7 +277,6 @@ class FOGConfigurationPage extends FOGPage
                 );
                 unset($input);
             }
-            unset($fields);
             self::$HookManager->processEvent(sprintf('BOOT_ITEMS_%s', $divTab), array('data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes, 'headerData'=>&$this->headerData));
             $this->render();
             echo '</form></div>';

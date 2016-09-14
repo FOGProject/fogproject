@@ -95,12 +95,13 @@ class ProcessLogin extends FOGPage
     {
         foreach ($_REQUEST as $key => &$value) {
             $redirect[$key] = $value;
+            unset($value);
         }
         unset($redirect['upass'], $redirect['uname'], $redirect['ulang']);
         if (in_array($redirect['node'], array('login', 'logout'))) {
             unset($redirect['node']);
         }
-        foreach ((array)$redirect as $key => $value) {
+        foreach ((array)$redirect as $key => &$value) {
             if (!$value) {
                 continue;
             }

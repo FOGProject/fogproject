@@ -449,7 +449,7 @@ class FOGURLRequests extends FOGBase
         if ($file) {
             $this->options[CURLOPT_FILE] = $file;
         }
-        foreach ((array)$urls as $url) {
+        foreach ((array)$urls as &$url) {
             $request = new FOGRollingURL(
                 $url
             );
@@ -458,6 +458,7 @@ class FOGURLRequests extends FOGBase
             } else {
                 $this->post($url, $data);
             }
+            unset($url);
         }
         return $this->execute();
     }

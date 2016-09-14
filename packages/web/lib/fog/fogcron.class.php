@@ -113,6 +113,7 @@ class FOGCron extends FOGBase
             if ($res) {
                 $res = self::checkIntValue($_max, $min, $max, true);
             }
+            unset($vv);
         }
         return $res;
     }

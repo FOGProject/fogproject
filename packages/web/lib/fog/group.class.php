@@ -233,6 +233,7 @@ class Group extends FOGController
                 ) {
                     foreach ((array)$printerAdd as &$printerID) {
                         $insert_values[] = array($hostID, $printerID);
+                        unset($printerID);
                     }
                 }
             );

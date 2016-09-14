@@ -261,6 +261,7 @@ class Plugin extends FOGController
                 );
             }
             $Plugins[] = $Plugin;
+            unset($file);
         }
         return $Plugins;
     }
@@ -285,6 +286,7 @@ class Plugin extends FOGController
                 ->set('state', 1)
                 ->set('installed', 0)
                 ->save();
+            unset($Plugin);
         }
         return $this;
     }

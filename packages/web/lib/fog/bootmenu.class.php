@@ -700,7 +700,7 @@ class BootMenu extends FOGBase
     private function _printTasking($kernelArgsArray)
     {
         $kernelArgs = array();
-        foreach ((array)$kernelArgsArray as $arg) {
+        foreach ((array)$kernelArgsArray as &$arg) {
             if (empty($arg)) {
                 continue;
             }
@@ -723,6 +723,7 @@ class BootMenu extends FOGBase
                     $arg
                 );
             }
+            unset($arg);
         }
         $kernelArgs = array_filter($kernelArgs);
         $kernelArgs = array_unique($kernelArgs);
