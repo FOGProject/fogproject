@@ -96,7 +96,6 @@ class PDODB extends DatabaseManager
                 _('SQL Error'),
                 $this->sqlerror()
             );
-            $this->debug($msg);
         }
     }
     /**
@@ -167,7 +166,6 @@ class PDODB extends DatabaseManager
                     _('Error'),
                     $e->getMessage()
                 );
-                $this->debug($msg);
             }
         }
         return $this;
@@ -205,7 +203,6 @@ class PDODB extends DatabaseManager
                 _('Error'),
                 $e->getMessage()
             );
-            self::$FOGCore->debug($msg);
             self::$_dbName = false;
         }
         return $main;
@@ -264,7 +261,6 @@ class PDODB extends DatabaseManager
                     self::_debugDumpParams()
                 );
             }
-            $this->debug($msg);
         }
         return $this;
     }
@@ -311,7 +307,6 @@ class PDODB extends DatabaseManager
                 _('Error'),
                 $e->getMessage()
             );
-            $this->debug($msg);
             self::$_result = false;
         }
         return $this;
@@ -361,7 +356,6 @@ class PDODB extends DatabaseManager
                 _('Error'),
                 $e->getMessage()
             );
-            $this->debug($msg);
         }
         return self::$_result;
     }
