@@ -461,20 +461,4 @@ class FOGURLRequests extends FOGBase
         }
         return $this->execute();
     }
-    /**
-     * Checks if the url is accessible
-     *
-     * @param string $url the url to check
-     *
-     * @return bool
-     */
-    public function isAvailable($url)
-    {
-        $url = $this->_validUrl($url);
-        $headers = @get_headers($url);
-        if ($headers === false) {
-            return false;
-        }
-        return strpos($headers[0], '404') === false;
-    }
 }

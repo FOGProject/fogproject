@@ -2104,9 +2104,6 @@ abstract class FOGBase
                 $ip,
                 $webroot
             );
-            if (!self::$FOGURLRequests->isAvailable($testurl)) {
-                continue;
-            }
             $nodeURLs[] = sprintf(
                 $url,
                 $ip,
@@ -2152,13 +2149,6 @@ abstract class FOGBase
             $ip,
             $webroot
         );
-        if (self::$FOGURLRequests->isAvailable($testurl)) {
-            $nodeURLs[] = sprintf(
-                $url,
-                $ip,
-                $webroot
-            );
-        }
         if (count($nodeURLs) < 1) {
             return;
         }
