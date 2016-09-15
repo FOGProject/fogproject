@@ -299,8 +299,13 @@ class SnapinManagementPage extends FOGPage
             }
             $src = sprintf('%s/%s', dirname($_FILES['snapin']['tmp_name']), basename($_FILES['snapin']['tmp_name']));
             set_time_limit(0);
-            $hash = hash_file('sha512', $src);
-            $size = self::getFilesize($src);
+            if (file_exists($src)) {
+                $hash = hash_file('sha512', $src);
+                $size = self::getFilesize($src);
+            } else {
+                $hash = '';
+                $size = 0;
+            }
             $dest = sprintf('/%s/%s', trim($StorageNode->get('snapinpath'), '/'), $snapinfile);
             if ($uploadfile) {
                 self::$FOGFTP
@@ -515,8 +520,13 @@ class SnapinManagementPage extends FOGPage
                     }
                     $src = sprintf('%s/%s', dirname($_FILES['snapin']['tmp_name']), basename($_FILES['snapin']['tmp_name']));
                     set_time_limit(0);
-                    $hash = hash_file('sha512', $src);
-                    $size = self::getFilesize($src);
+                    if (file_exists($src)) {
+                        $hash = hash_file('sha512', $src);
+                        $size = self::getFilesize($src);
+                    } else {
+                        $hash = '';
+                        $size = 0;
+                    }
                     $dest = sprintf('/%s/%s', trim($StorageNode->get('snapinpath'), '/'), $snapinfile);
                     if ($uploadfile) {
                         self::$FOGFTP

@@ -89,4 +89,20 @@ class Printer extends FOGController
         self::getSubObjectIDs('PrinterAssociationManager')->update(array('hostID'=>$onoff, 'printerID'=>$this->get('id')), '', array('isDefault'=>'1'));
         return $this;
     }
+    public function isValid()
+    {
+        $validTypes = array(
+            'iprint',
+            'network',
+            'local',
+            'cups',
+        );
+        $curtype = $this->get('config');
+        $curtype = trim($this->get('config'));
+        $curtype = strtolower($curtype);
+        if (!in_array($curtype, $validTypes)) {
+            return false;
+        }
+        return parent::isValid();
+    }
 }

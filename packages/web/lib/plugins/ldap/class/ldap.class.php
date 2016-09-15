@@ -34,6 +34,9 @@ class LDAP extends FOGController
     }
     public function authLDAP($user, $pass)
     {
+        if (empty($user) || empty($pass)) {
+            return false;
+        }
         if (!$server = $this->LDAPUp()) {
             return false;
         }

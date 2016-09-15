@@ -863,7 +863,16 @@ class Host extends FOGController
     }
     protected function loadPrinters()
     {
-        $this->set('printers', self::getSubObjectIDs('PrinterAssociation', array('hostID'=>$this->get('id')), 'printerID'));
+        $printerIDs = self::getSubObjectIDs(
+            'PrinterAssociation',
+            array('hostID' => $this->get('id')),
+            'printerID'
+        );
+        $validPrinterIDs = self::getSubObjectIDs(
+            'Printer',
+            array('id' => $printerIDs)
+        );
+        $this->set('printers', $validPrinterIDs);
     }
     protected function loadPrintersnotinme()
     {
