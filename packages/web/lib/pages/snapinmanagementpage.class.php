@@ -299,7 +299,7 @@ class SnapinManagementPage extends FOGPage
             }
             $src = sprintf('%s/%s', dirname($_FILES['snapin']['tmp_name']), basename($_FILES['snapin']['tmp_name']));
             set_time_limit(0);
-            if (file_exists($src)) {
+            if ($uploadfile && file_exists($src)) {
                 $hash = hash_file('sha512', $src);
                 $size = self::getFilesize($src);
             } else {
@@ -520,7 +520,7 @@ class SnapinManagementPage extends FOGPage
                     }
                     $src = sprintf('%s/%s', dirname($_FILES['snapin']['tmp_name']), basename($_FILES['snapin']['tmp_name']));
                     set_time_limit(0);
-                    if (file_exists($src)) {
+                    if ($uploadfile && file_exists($src)) {
                         $hash = hash_file('sha512', $src);
                         $size = self::getFilesize($src);
                     } else {
