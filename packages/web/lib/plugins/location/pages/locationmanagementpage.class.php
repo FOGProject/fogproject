@@ -91,7 +91,10 @@ class LocationManagementPage extends FOGPage
             _('Location Name') => '<input class="smaller" type="text" name="name" />',
             _('Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox(),
             _('Storage Node') => self::getClass('StorageNodeManager')->buildSelectBox(),
-            _('Use inits and kernels from this node') => '<input type="checkbox" name="tftp" value="on"/>',
+            _('Use inits and kernels from this node') => sprintf(
+                '<input type="checkbox" name="tftp" value="on"%s/>',
+                isset($_REQUEST['tftp']) ? ' checked' : ''
+            ),
             '' => sprintf('<input name="add" class="smaller" type="submit" value="%s"/>', _('Add')),
         );
         array_walk($fields, $this->fieldsToData);
@@ -180,7 +183,7 @@ class LocationManagementPage extends FOGPage
                     ->set('name', $_REQUEST['name'])
                     ->set('storageGroupID', $NodeID ? self::getClass('StorageNode', $NodeID)->get('storageGroupID') : $_REQUEST['storagegroup'])
                     ->set('storageNodeID', $NodeID)
-                    ->set('tftp', intval($_REQUEST['tftp']));
+                    ->set('tftp', isset($_REQUEST['tftp']));
                 if (!$this->obj->save()) {
                     throw new Exception(_('Failed to update'));
                 }

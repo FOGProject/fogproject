@@ -264,8 +264,8 @@ abstract class FOGService extends FOGBase
     protected static function wlog($string, $path)
     {
         if (file_exists($path)) {
-            $filesize = self::getFilesize($path);
-            $max_size = self::getSetting('SERVICE_LOG_SIZE');
+            $filesize = (double)self::getFilesize($path);
+            $max_size = (double)self::getSetting('SERVICE_LOG_SIZE');
             if ($filesize >= $max_size) {
                 unlink($path);
             }
@@ -387,7 +387,7 @@ abstract class FOGService extends FOGBase
         $groupOrNodeCount = self::getClass('StorageNodeManager')
             ->count($findWhere);
         $countTest = ($master ? 1 : 0);
-        if ($groupOrNodeCount <= 1) {
+        if ($groupOrNodeCount <= 1 && $countTest) {
             self::outall(_(" * Not syncing $objType between $itemType(s)"));
             self::outall(_(" | $objType Name: {$Obj->get(name)}"));
             self::outall(_(' | I am the only member'));
