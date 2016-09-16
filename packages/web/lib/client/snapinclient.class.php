@@ -1,6 +1,31 @@
 <?php
+/**
+ * Handles snapins for the host
+ *
+ * PHP version 5
+ *
+ * @category SnapinClient
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Handles snapins for the host
+ *
+ * @category SnapinClient
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class SnapinClient extends FOGClient implements FOGClientSend
 {
+    /**
+     * Function returns data that will be translated to json
+     *
+     * @return array
+     */
     public function json()
     {
         $date = $this->formatTime('', 'Y-m-d H:i:s');
@@ -49,7 +74,8 @@ class SnapinClient extends FOGClient implements FOGClientSend
         }
         $SnapinJob->set('stateID', $this->getCheckedInState())->save();
         if ($_REQUEST['sub'] === 'requestClientInfo'
-            || basename(self::$scriptname) === 'snapins.checkin.php') {
+            || basename(self::$scriptname) === 'snapins.checkin.php'
+        ) {
             if (!isset($_REQUEST['exitcode'])
                 && !(isset($_REQUEST['taskid'])
                 && is_numeric($_REQUEST['taskid']))
@@ -65,40 +91,30 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     ),
                     'snapinID'
                 );
-                $snapinTaskIDs = self::getSubObjectIDs(
-                    'SnapinTask',
-                    array(
-                        'stateID' => array_merge(
-                            $this->getQueuedStates(),
-                            (array)$this->getProgressState()
-                        ),
-                        'jobID' => $SnapinJob->get('id'),
-                    )
-                );
                 $Snapins = self::getClass('SnapinManager')
                     ->find(
-                        array('id' => $snapinIDs),
-                        'AND',
-                        'id'
+                        array('id' => $snapinIDs)
                     );
-                $SnapinTasks = self::getClass('SnapinTaskManager')
-                    ->find(
-                        array('id' => $snapinTaskIDs),
-                        'AND',
-                        'id'
-                    );
-                foreach ((array)$Snapins as $index => &$Snapin) {
+                $info = array();
+                foreach ((array)$Snapins as &$Snapin) {
                     if (!$Snapin->isValid()) {
-                        $info['snapins'][] = array(
-                            'error' => _('Invalid Snapin')
-                        );
                         continue;
                     }
-                    $SnapinTask = $SnapinTasks[$index];
+                    $snapinTaskID = self::getSubObjectIDs(
+                        'SnapinTask',
+                        array(
+                            'snapinID' => $Snapin->get('id'),
+                            'jobID' => $SnapinJob->get('id'),
+                            'stateID' => array_merge(
+                                $this->getQueuedStates(),
+                                (array)$this->getProgressState()
+                            )
+                        )
+                    );
+                    $snapinTaskID = array_shift($snapinTaskID);
+                    $SnapinTask = self::getClass('SnapinTask', $snapinTaskID);
                     if (!$SnapinTask->isValid()) {
-                        $info['snapins'][] = array(
-                            'error' => _('Invalid Snapin Task')
-                        );
+                        continue;
                     }
                     $StorageNode = $StorageGroup = null;
                     self::$HookManager->processEvent(
@@ -122,15 +138,11 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     ) {
                         $StorageGroup = $Snapin->getStorageGroup();
                         if (!$StorageGroup->isValid()) {
-                            $info['snapins'][] = array(
-                                'error' => _('Invalid Storage Group')
-                            );
+                            continue;
                         }
                         $StorageNode = $StorageGroup->getMasterStorageNode();
                         if (!$StorageNode->isValid()) {
-                            $info['snapins'][] = array(
-                                'error' => _('Invalid Storage Node')
-                            );
+                            continue;
                         }
                         $path = sprintf(
                             '/%s',
@@ -189,9 +201,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                             ->set('stateID', $this->getCheckedInState())
                             ->save();
                         if (empty($hash)) {
-                            $info['snapins'][] = array(
-                                'error' => _('No hash available')
-                            );
+                            continue;
                         }
                     }
                     $action = '';
@@ -412,6 +422,11 @@ class SnapinClient extends FOGClient implements FOGClientSend
             }
         }
     }
+    /**
+     * Creates the send string and stores to send variable
+     *
+     * @return void
+     */
     public function send()
     {
         $date = $this->formatTime('', 'Y-m-d H:i:s');
