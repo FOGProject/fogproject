@@ -144,65 +144,65 @@ class SnapinClient extends FOGClient implements FOGClientSend
                         if (!$StorageNode->isValid()) {
                             continue;
                         }
-                        $path = sprintf(
+                    }
+                    $path = sprintf(
+                        '/%s',
+                        trim($StorageNode->get('snapinpath'), '/')
+                    );
+                    $file = $Snapin->get('file');
+                    $filepath = sprintf(
+                        '%s/%s',
+                        $path,
+                        $file
+                    );
+                    $hash = $Snapin->get('hash');
+                    if (!$hash) {
+                        $Snapin->set('hash', -1)->save();
+                        $ip = $StorageNode->get('ip');
+                        $curroot = trim(
+                            trim($StorageNode->get('webroot'), '/')
+                        );
+                        $webroot = sprintf(
                             '/%s',
-                            trim($StorageNode->get('snapinpath'), '/')
+                            (
+                                strlen($curroot) > 1 ?
+                                sprintf(
+                                    '%s/',
+                                    $curroot
+                                ) :
+                                ''
+                            )
                         );
-                        $file = $Snapin->get('file');
-                        $filepath = sprintf(
-                            '%s/%s',
-                            $path,
-                            $file
+                        $location = "http://$ip{$webroot}";
+                        $url = "{$location}status/getsnapinhash.php";
+                        unset($curroot, $webroot, $ip);
+                        $response = self::$FOGURLRequests->process(
+                            $url,
+                            'POST',
+                            array(
+                                'filepath' => $filepath
+                            )
                         );
-                        $hash = $Snapin->get('hash');
-                        if (!$hash) {
-                            $Snapin->set('hash', -1)->save();
-                            $ip = $StorageNode->get('ip');
-                            $curroot = trim(
-                                trim($StorageNode->get('webroot'), '/')
-                            );
-                            $webroot = sprintf(
-                                '/%s',
-                                (
-                                    strlen($curroot) > 1 ?
-                                    sprintf(
-                                        '%s/',
-                                        $curroot
-                                    ) :
-                                    ''
-                                )
-                            );
-                            $location = "http://$ip{$webroot}";
-                            $url = "{$location}status/getsnapinhash.php";
-                            unset($curroot, $webroot, $ip);
-                            $response = self::$FOGURLRequests->process(
-                                $url,
-                                'POST',
-                                array(
-                                    'filepath' => $filepath
-                                )
-                            );
-                            $response = array_shift($response);
-                            $data = explode('|', $response);
-                            $hash = (string)array_shift($data);
-                            $size = array_shift($data);
-                            $Snapin
-                                ->set('hash', $hash)
-                                ->set('size', $size)
-                                ->save();
-                        } else {
-                            while ($hash === -1) {
-                                sleep(10);
-                                $hash = $Snapin->get('hash');
-                            }
-                        }
-                        $SnapinTask
-                            ->set('checkin', $date)
-                            ->set('stateID', $this->getCheckedInState())
+                        $response = array_shift($response);
+                        $data = explode('|', $response);
+                        $hash = (string)array_shift($data);
+                        $size = array_shift($data);
+                        $Snapin
+                            ->set('hash', $hash)
+                            ->set('size', $size)
                             ->save();
-                        if (empty($hash)) {
-                            continue;
+                    } else {
+                        while ($hash === -1) {
+                            sleep(10);
+                            $hash = $Snapin->get('hash');
                         }
+                    }
+                    $SnapinTask
+                        ->set('checkin', $date)
+                        ->set('stateID', $this->getCheckedInState())
+                        ->save();
+                    if (empty($hash)) {
+                        continue;
                     }
                     $action = '';
                     if ($Snapin->get('shutdown')) {
