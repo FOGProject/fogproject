@@ -115,7 +115,7 @@ class PrinterManagementPage extends FOGPage
             '${input}',
         );
         if (!isset($_REQUEST['printertype']) || empty($_REQUEST['printertype'])) {
-            $_REQUEST['printertype'] = $this->obj->get('config');
+            $_REQUEST['printertype'] = 'Local';
         }
         $printerTypes = array(
             'Local'=>_('TCP/IP Port Printer'),
@@ -228,7 +228,7 @@ class PrinterManagementPage extends FOGPage
             $_REQUEST['ip'] = trim($_REQUEST['ip']);
             $_REQUEST['configFile'] = trim($_REQUEST['configFile']);
             $_REQUEST['description'] = trim($_REQUEST['description']);
-            $_REQUEST['printertype'] = trim($_REQUEST['printertype']);
+            $_REQUEST['printertype'] = trim(strtolower($_REQUEST['printertype']));
             if (empty($_REQUEST['alias'])) {
                 throw new Exception(_('All printer definitions must have an alias/name associated with it. Unable to create!'));
             }
