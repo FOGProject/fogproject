@@ -192,7 +192,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                             ->set('size', $size)
                             ->save();
                     } else {
-                        while ($hash === -1) {
+                        while ($hash == -1) {
                             sleep(10);
                             $hash = $Snapin->get('hash');
                         }
