@@ -36,7 +36,10 @@ class ImageReplicator extends FOGService
                 $ImageAssocCount = self::getClass('ImageAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID, 'imageID'=>$ImageIDs));
                 $ImageCount = self::getClass('ImageManager')->count();
                 if ($ImageAssocCount <= 0 || $ImageCount <= 0) {
-                    throw new Exception(_('There is nothing to replicate'));
+                    $this->outall(_(' | There is nothing to replicate'));
+                    $this->outall(_(' | Please physically associate images'));
+                    $this->outall(_(' |    to a storage group'));
+                    continue;
                 }
                 unset($ImageAssocCount, $ImageCount);
                 $Images = self::getClass('ImageManager')->find(array('id'=>self::getSubObjectIDs('ImageAssociation', array('storageGroupID'=>$myStorageGroupID, 'imageID'=>$ImageIDs), 'imageID')));

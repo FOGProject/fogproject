@@ -36,7 +36,10 @@ class SnapinReplicator extends FOGService
                 $SnapinAssocCount = self::getClass('SnapinGroupAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID, 'snapinID'=>$SnapinIDs));
                 $SnapinCount = self::getClass('SnapinManager')->count();
                 if ($SnapinAssocCount <= 0 || $SnapinCount <= 0) {
-                    throw new Exception(_('There is nothing to replicate'));
+                    $this->outall(_(' | There is nothing to replicate'));
+                    $this->outall(_(' | Please physically associate snapins'));
+                    $this->outall(_(' |    to a storage group'));
+                    continue;
                 }
                 unset($SnapinAssocCount, $SnapinCount);
                 $Snapins = self::getClass('SnapinManager')->find(array('id'=>self::getSubObjectIDs('SnapinGroupAssociation', array('storageGroupID'=>$myStorageGroupID, 'snapinID'=>$SnapinIDs), 'snapinID')));
