@@ -84,6 +84,8 @@ class Host extends FOGController
         'pendingMACs',
         'groups',
         'groupsnotinme',
+        'hostscreen',
+        'hostalo',
         'optimalStorageNode',
         'printers',
         'printersnotinme',
@@ -119,25 +121,29 @@ class Host extends FOGController
             'id',
             'inventory'
         ),
+        'HostScreenSettings' => array(
+            'hostID',
+            'id',
+            'hostscreen'
+        ),
+        'HostAutoLogout' => array(
+            'hostID',
+            'id',
+            'hostalo'
+        ),
     );
     /**
-     * Private keys
+     * Display val storage
      *
      * @var array
      */
-    private static $_arrayKeys = array(
-        'additionalMACs',
-        'pendingMACs',
-        'groups',
-        'groupsnotinme',
-        'powermanagementtasks',
-        'printers',
-        'printersnotinme',
-        'snapins',
-        'snapinsnotinme',
-        'modules',
-        'users',
-    );
+    private static $_hostscreen = array();
+    /**
+     * ALO time val
+     *
+     * @var int
+     */
+    private static $_hostalo = array();
     /**
      * Set value to key
      *
@@ -289,499 +295,595 @@ class Host extends FOGController
     public function save()
     {
         parent::save();
-        switch (true) {
-            case ($this->isLoaded('mac')):
-                if (!$this->get('mac')->isValid()) {
-                    throw new Exception(self::$foglang['InvalidMAC']);
-                }
-                $RealPriMAC = $this->get('mac')->__toString();
-                $CurrPriMAC = self::getSubObjectIDs(
-                    'MACAddressAssociation',
-                    array(
+        if ($this->isLoaded('mac')) {
+            if (!$this->get('mac')->isValid()) {
+                throw new Exception(self::$foglang['InvalidMAC']);
+            }
+            $RealPriMAC = $this->get('mac')->__toString();
+            $CurrPriMAC = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array(
                     'hostID' => $this->get('id'),
                     'primary' => 1
-                    ),
-                    'mac'
-                );
-                if (count($CurrPriMAC) === 1
-                    && $CurrPriMAC[0] != $RealPriMAC
-                    ) {
-                    self::getClass('MACAddressAssociationManager')
-                        ->update(
-                            array(
+                ),
+                'mac'
+            );
+            if (count($CurrPriMAC) === 1
+                && $CurrPriMAC[0] != $RealPriMAC
+            ) {
+                self::getClass('MACAddressAssociationManager')
+                    ->update(
+                        array(
                             'mac' => $CurrPriMAC[0],
                             'hostID' => $this->get('id'),
                             'primary' => 1
-                            ),
-                            '',
-                            array('primary' => 0)
-                        );
-                }
-                    $HostWithMAC = array_diff(
-                        (array)$this->get('id'),
-                        (array)self::getSubObjectIDs(
-                            'MACAddressAssociation',
-                            array('mac' => $RealPriMAC),
-                            'hostID'
-                        )
-                    );
-                if (count($HostWithMAC)
-                    && !in_array($this->get('id'), (array)$HostWithMAC)
-                    ) {
-                    throw new Exception(_('This MAC Belongs to another host'));
-                }
-                    $DBPriMACs = self::getSubObjectIDs(
-                        'MACAddressAssociation',
-                        array(
-                        'hostID' => $this->get('id'),
-                        'primary' => 1
                         ),
-                        'mac'
+                        '',
+                        array('primary' => 0)
                     );
-                    $RemoveMAC = array_diff(
-                        (array)$RealPriMAC,
-                        (array)$DBPriMACs
+            }
+            $HostWithMAC = array_diff(
+                (array)$this->get('id'),
+                (array)self::getSubObjectIDs(
+                    'MACAddressAssociation',
+                    array('mac' => $RealPriMAC),
+                    'hostID'
+                )
+            );
+            if (count($HostWithMAC)
+                && !in_array($this->get('id'), (array)$HostWithMAC)
+            ) {
+                throw new Exception(_('This MAC Belongs to another host'));
+            }
+            $DBPriMACs = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array(
+                    'hostID' => $this->get('id'),
+                    'primary' => 1
+                ),
+                'mac'
+            );
+            $RemoveMAC = array_diff(
+                (array)$RealPriMAC,
+                (array)$DBPriMACs
+            );
+            if (count($RemoveMAC)) {
+                self::getClass('MACAddressAssociationManager')
+                    ->destroy(
+                        array('mac' => $RemoveMAC)
                     );
-                if (count($RemoveMAC)) {
-                    self::getClass('MACAddressAssociationManager')
-                        ->destroy(
-                            array('mac' => $RemoveMAC)
-                        );
-                        unset($RemoveMAC);
-                        $DBPriMACs = self::getSubObjectIDs(
-                            'MACAddressAssociation',
-                            array(
-                            'hostID' => $this->get('id'),
-                            'primary' => 1
-                            ),
-                            'mac'
-                        );
-                }
-                if (!in_array($RealPriMAC, $DBPriMACs)) {
-                    self::getClass('MACAddressAssociation')
-                        ->set('hostID', $this->get('id'))
-                        ->set('mac', $RealPriMAC)
-                        ->set('primary', 1)
-                        ->save();
-                }
-                    unset(
-                        $DBPriMACs,
-                        $RealPriMAC,
-                        $RemoveMAC,
-                        $HostWithMAC
-                    );
-            case ($this->isLoaded('additionalMACs')):
-                self::_retValidMacs(
-                    $this->get('additionalMACs'),
-                    $addMacs
-                );
-                        $RealAddMACs = array_filter($addMacs);
-                        unset($addMacs);
-                        $RealAddMACs = array_unique($RealAddMACs);
-                        $RealAddMACs = array_filter($RealAddMACs);
-                        $DBPriMACs = self::getSubObjectIDs(
-                            'MACAddressAssociation',
-                            array('primary' => 1),
-                            'mac'
-                        );
-                foreach ((array)$DBPriMACs as &$mac) {
-                    if ($this->arrayStrpos($mac, $RealAddMACs) !== false) {
-                        throw new Exception(
-                            _('Cannot add Primary mac as additional mac')
-                        );
-                    }
-                    unset($mac);
-                }
-                        unset($DBPriMACs);
-                        $PreOwnedMACs = self::getSubObjectIDs(
-                            'MACAddressAssociation',
-                            array(
-                            'hostID' => $this->get('id'),
-                            'pending' => 1
-                            ),
-                            'mac',
-                            true
-                        );
-                        $RealAddMACs = array_diff(
-                            (array)$RealAddMACs,
-                            (array)$PreOwnedMACs
-                        );
-                        unset($PreOwnedMACs);
-                        $DBAddMACs = self::getSubObjectIDs(
-                            'MACAddressAssociation',
-                            array(
-                            'hostID' => $this->get('id'),
-                            'primary' => 0,
-                            'pending' => 0
-                            ),
-                            'mac'
-                        );
-                        $RemoveAddMAC = array_diff(
-                            (array)$DBAddMACs,
-                            (array)$RealAddMACs
-                        );
-                if (count($RemoveAddMAC)) {
-                    self::getClass('MACAddressAssociationManager')
-                        ->destroy(
-                            array(
-                                'hostID' => $this->get('id'),
-                                'mac' => $RemoveAddMAC
-                            )
-                        );
-                            $DBAddMACs = self::getSubObjectIDs(
-                                'MACAddressAssociation',
-                                array(
-                                'hostID' => $this->get('id'),
-                                'primary' => 0,
-                                'pending' => 0,
-                                'mac'
-                                )
-                            );
-                            unset($RemoveAddMAC);
-                }
-                        $insert_fields = array(
-                            'hostID',
-                            'mac',
-                            'primary',
-                            'pending'
-                        );
-                        $insert_values = array();
-                        $RealAddMACs = array_diff(
-                            (array)$RealAddMACs,
-                            (array)$DBAddMACs
-                        );
-                foreach ((array)$RealAddMACs as $index => &$mac) {
-                    $insert_values[] = array(
-                        $this->get('id'),
-                        $mac,
-                        0,
-                        0
-                            );
-                            unset($mac);
-                }
-                if (count($insert_values) > 0) {
-                    self::getClass('MACAddressAssociationManager')
-                        ->insertBatch(
-                            $insert_fields,
-                            $insert_values
-                        );
-                }
-                        unset(
-                            $DBAddMACs,
-                            $RealAddMACs,
-                            $RemoveAddMAC
-                        );
-            case ($this->isLoaded('pendingMACs')):
-                self::_retValidMacs($this->get('pendingMACs'), $pendMacs);
-                $RealPendMACs = array_filter($pendMacs);
-                unset($pendMacs);
-                $RealPendMACs = array_unique($RealPendMACs);
-                $RealPendMACs = array_filter($RealPendMACs);
+                unset($RemoveMAC);
                 $DBPriMACs = self::getSubObjectIDs(
                     'MACAddressAssociation',
-                    array('primary' => 1),
+                    array(
+                        'hostID' => $this->get('id'),
+                        'primary' => 1
+                    ),
                     'mac'
                 );
-                foreach ((array)$DBPriMACs as &$mac) {
-                    if ($this->arrayStrpos($mac, $RealPendMACs)) {
-                        throw new Exception(
-                            _('Cannot add a pre-existing primary mac')
-                        );
-                    }
-                    unset($mac);
+            }
+            if (!in_array($RealPriMAC, $DBPriMACs)) {
+                self::getClass('MACAddressAssociation')
+                    ->set('hostID', $this->get('id'))
+                    ->set('mac', $RealPriMAC)
+                    ->set('primary', 1)
+                    ->save();
+            }
+            unset(
+                $DBPriMACs,
+                $RealPriMAC,
+                $RemoveMAC,
+                $HostWithMAC
+            );
+        }
+        if ($this->isLoaded('additionalMACs')) {
+            self::_retValidMacs(
+                $this->get('additionalMACs'),
+                $addMacs
+            );
+            $RealAddMACs = array_filter($addMacs);
+            unset($addMacs);
+            $RealAddMACs = array_unique($RealAddMACs);
+            $RealAddMACs = array_filter($RealAddMACs);
+            $DBPriMACs = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array('primary' => 1),
+                'mac'
+            );
+            foreach ((array)$DBPriMACs as &$mac) {
+                if ($this->arrayStrpos($mac, $RealAddMACs) !== false) {
+                    throw new Exception(
+                        _('Cannot add Primary mac as additional mac')
+                    );
                 }
-                            unset($DBPriMACs);
-                            $PreOwnedMACs = self::getSubObjectIDs(
-                                'MACAddressAssociation',
-                                array(
-                                    'hostID' => $this->get('id'),
-                                    'pending' => 0,
-                                    'mac',
-                                    true
-                                ),
-                                'mac',
-                                true
-                            );
-                            $RealPendMACs = array_diff(
-                                (array)$RealPendMACs,
-                                (array)$PreOwnedMACs
-                            );
-                            unset($PreOwnedMACs);
-                            $DBPendMACs = self::getSubObjectIDs(
-                                'MACAddressAssociation',
-                                array(
-                                    'hostID' => $this->get('id'),
-                                    'primary' => 0,
-                                    'pending' => 1,
-                                ),
-                                'mac'
-                            );
-                            $RemovePendMAC = array_diff(
-                                (array)$DBPendMACs,
-                                (array)$RealPendMACs
-                            );
-                if (count($RemovePendMAC)) {
-                    self::getClass('MACAddressAssociationManager')
-                        ->destroy(
-                            array(
-                                'hostID' => $this->get('id'),
-                                'mac' => $RemovePendMAC
-                            )
-                        );
-                                    $DBPendMACs = self::getSubObjectIDs(
-                                        'MACAddressAssociation',
-                                        array(
-                                            'primary' => 0,
-                                            'pending' => 1,
-                                        ),
-                                        'mac'
-                                    );
-                                    unset($RemovePendMAC);
+                unset($mac);
+            }
+            unset($DBPriMACs);
+            $PreOwnedMACs = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array(
+                    'hostID' => $this->get('id'),
+                    'pending' => 1
+                ),
+                'mac',
+                true
+            );
+            $RealAddMACs = array_diff(
+                (array)$RealAddMACs,
+                (array)$PreOwnedMACs
+            );
+            unset($PreOwnedMACs);
+            $DBAddMACs = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array(
+                    'hostID' => $this->get('id'),
+                    'primary' => 0,
+                    'pending' => 0
+                ),
+                'mac'
+            );
+            $RemoveAddMAC = array_diff(
+                (array)$DBAddMACs,
+                (array)$RealAddMACs
+            );
+            if (count($RemoveAddMAC)) {
+                self::getClass('MACAddressAssociationManager')
+                    ->destroy(
+                        array(
+                            'hostID' => $this->get('id'),
+                            'mac' => $RemoveAddMAC
+                        )
+                    );
+                $DBAddMACs = self::getSubObjectIDs(
+                    'MACAddressAssociation',
+                    array(
+                        'hostID' => $this->get('id'),
+                        'primary' => 0,
+                        'pending' => 0,
+                        'mac'
+                    )
+                );
+                unset($RemoveAddMAC);
+            }
+            $insert_fields = array(
+                'hostID',
+                'mac',
+                'primary',
+                'pending'
+            );
+            $insert_values = array();
+            $RealAddMACs = array_diff(
+                (array)$RealAddMACs,
+                (array)$DBAddMACs
+            );
+            foreach ((array)$RealAddMACs as $index => &$mac) {
+                $insert_values[] = array(
+                    $this->get('id'),
+                    $mac,
+                    0,
+                    0
+                );
+                unset($mac);
+            }
+            if (count($insert_values) > 0) {
+                self::getClass('MACAddressAssociationManager')
+                    ->insertBatch(
+                        $insert_fields,
+                        $insert_values
+                    );
+            }
+            unset(
+                $DBAddMACs,
+                $RealAddMACs,
+                $RemoveAddMAC
+            );
+        }
+        if ($this->isLoaded('pendingMACs')) {
+            self::_retValidMacs($this->get('pendingMACs'), $pendMacs);
+            $RealPendMACs = array_filter($pendMacs);
+            unset($pendMacs);
+            $RealPendMACs = array_unique($RealPendMACs);
+            $RealPendMACs = array_filter($RealPendMACs);
+            $DBPriMACs = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array('primary' => 1),
+                'mac'
+            );
+            foreach ((array)$DBPriMACs as &$mac) {
+                if ($this->arrayStrpos($mac, $RealPendMACs)) {
+                    throw new Exception(
+                        _('Cannot add a pre-existing primary mac')
+                    );
                 }
-                            $insert_fields = array(
-                                'hostID',
-                                'mac',
-                                'primary',
-                                'pending'
-                            );
-                            $insert_values = array();
-                            $RealPendMACs = array_diff(
-                                (array)$RealPendMACs,
-                                (array)$DBPendMACs
-                            );
-                foreach ((array)$RealPendMACs as &$mac) {
-                    $insert_values[] = array(
-                        $this->get('id'),
-                        $mac,
-                        0,
-                        1
-                                    );
-                                    unset($mac);
-                }
-                if (count($insert_values) > 0) {
-                    self::getClass('MACAddressAssociationManager')
-                        ->insertBatch(
-                            $insert_fields,
-                            $insert_values
-                        );
-                }
-                            unset(
-                                $DBPendMACs,
-                                $RealPendMACs,
-                                $RemovePendMAC
-                            );
-            case ($this->isLoaded('modules')):
+                unset($mac);
+            }
+            unset($DBPriMACs);
+            $PreOwnedMACs = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array(
+                    'hostID' => $this->get('id'),
+                    'pending' => 0,
+                    'mac',
+                    true
+                ),
+                'mac',
+                true
+            );
+            $RealPendMACs = array_diff(
+                (array)$RealPendMACs,
+                (array)$PreOwnedMACs
+            );
+            unset($PreOwnedMACs);
+            $DBPendMACs = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array(
+                    'hostID' => $this->get('id'),
+                    'primary' => 0,
+                    'pending' => 1,
+                ),
+                'mac'
+            );
+            $RemovePendMAC = array_diff(
+                (array)$DBPendMACs,
+                (array)$RealPendMACs
+            );
+            if (count($RemovePendMAC)) {
+                self::getClass('MACAddressAssociationManager')
+                    ->destroy(
+                        array(
+                            'hostID' => $this->get('id'),
+                            'mac' => $RemovePendMAC
+                        )
+                    );
+                $DBPendMACs = self::getSubObjectIDs(
+                    'MACAddressAssociation',
+                    array(
+                        'primary' => 0,
+                        'pending' => 1,
+                    ),
+                    'mac'
+                );
+                unset($RemovePendMAC);
+            }
+            $insert_fields = array(
+                'hostID',
+                'mac',
+                'primary',
+                'pending'
+            );
+            $insert_values = array();
+            $RealPendMACs = array_diff(
+                (array)$RealPendMACs,
+                (array)$DBPendMACs
+            );
+            foreach ((array)$RealPendMACs as &$mac) {
+                $insert_values[] = array(
+                    $this->get('id'),
+                    $mac,
+                    0,
+                    1
+                );
+                unset($mac);
+            }
+            if (count($insert_values) > 0) {
+                self::getClass('MACAddressAssociationManager')
+                    ->insertBatch(
+                        $insert_fields,
+                        $insert_values
+                    );
+            }
+            unset(
+                $DBPendMACs,
+                $RealPendMACs,
+                $RemovePendMAC
+            );
+        }
+        if ($this->isLoaded('modules')) {
+            $DBModuleIDs = self::getSubObjectIDs(
+                'ModuleAssociation',
+                array('hostID' => $this->get('id')),
+                'moduleID'
+            );
+            $ValidModuleIDs = self::getSubObjectIDs('Module');
+            $notValid = array_diff(
+                (array)$DBModuleIDs,
+                (array)$ValidModuleIDs
+            );
+            if (count($notValid)) {
+                self::getClass('ModuleAssociationManager')
+                    ->destroy(array('moduleID' => $notValid));
+            }
+            unset($ValidModuleIDs, $DBModuleIDs);
+            $DBModuleIDs = self::getSubObjectIDs(
+                'ModuleAssociation',
+                array('hostID' => $this->get('id')),
+                'moduleID'
+            );
+            $RemoveModuleIDs = array_diff(
+                (array)$DBModuleIDs,
+                (array)$this->get('modules')
+            );
+            if (count($RemoveModuleIDs)) {
+                self::getClass('ModuleAssociationManager')->destroy(
+                    array(
+                        'moduleID' => $RemoveModuleIDs,
+                        'hostID'=>$this->get('id')
+                    )
+                );
                 $DBModuleIDs = self::getSubObjectIDs(
                     'ModuleAssociation',
                     array('hostID' => $this->get('id')),
                     'moduleID'
                 );
-                                        $ValidModuleIDs = self::getSubObjectIDs('Module');
-                                        $notValid = array_diff(
-                                            (array)$DBModuleIDs,
-                                            (array)$ValidModuleIDs
-                                        );
-                if (count($notValid)) {
-                    self::getClass('ModuleAssociationManager')
-                        ->destroy(array('moduleID' => $notValid));
-                }
-                                        unset($ValidModuleIDs, $DBModuleIDs);
-                                        $DBModuleIDs = self::getSubObjectIDs(
-                                            'ModuleAssociation',
-                                            array('hostID' => $this->get('id')),
-                                            'moduleID'
-                                        );
-                                        $RemoveModuleIDs = array_diff(
-                                            (array)$DBModuleIDs,
-                                            (array)$this->get('modules')
-                                        );
-                if (count($RemoveModuleIDs)) {
-                    self::getClass('ModuleAssociationManager')->destroy(
+                unset($RemoveModuleIDs);
+            }
+            $moduleName = $this->getGlobalModuleStatus();
+            $insert_fields = array(
+                'hostID',
+                'moduleID',
+                'state'
+            );
+            $insert_values = array();
+            $DBModuleIDs = array_diff(
+                (array)$this->get('modules'),
+                (array)$DBModuleIDs
+            );
+            foreach ((array)$DBModuleIDs as &$moduleID) {
+                $insert_values[] = array(
+                    $this->get('id'),
+                    $moduleID,
+                    1
+                );
+                unset($moduleID);
+            }
+            if (count($insert_values)) {
+                self::getClass('ModuleAssociationManager')
+                    ->insertBatch(
+                        $insert_fields,
+                        $insert_values
+                    );
+            }
+            unset($DBModuleIDs, $RemoveModuleIDs, $moduleName);
+        }
+        if ($this->isLoaded('printers')) {
+            $DBPrinterIDs = self::getSubObjectIDs(
+                'PrinterAssociation',
+                array('hostID' => $this->get('id')),
+                'printerID'
+            );
+            $ValidPrinterIDs = self::getSubObjectIDs('Printer');
+            $notValid = array_diff(
+                (array)$DBPrinterIDs,
+                (array)$ValidPrinterIDs
+            );
+            if (count($notValid)) {
+                self::getClass('PrinterAssociationManager')
+                    ->destroy(array('printerID' => $notValid));
+            }
+            unset($ValidPrinterIDs, $DBPrinterIDs);
+            $DBPrinterIDs = self::getSubObjectIDs(
+                'PrinterAssociation',
+                array('hostID' => $this->get('id')),
+                'printerID'
+            );
+            $RemovePrinterIDs = array_diff(
+                (array)$DBPrinterIDs,
+                (array)$this->get('printers')
+            );
+            if (count($RemovePrinterIDs)) {
+                self::getClass('PrinterAssociationManager')
+                    ->destroy(
                         array(
-                        'moduleID' => $RemoveModuleIDs,
-                        'hostID'=>$this->get('id')
+                            'hostID' => $this->get('id'),
+                            'printerID' => $RemovePrinterIDs
                         )
                     );
-                                    $DBModuleIDs = self::getSubObjectIDs(
-                                        'ModuleAssociation',
-                                        array('hostID' => $this->get('id')),
-                                        'moduleID'
-                                    );
-                                    unset($RemoveModuleIDs);
-                }
-                                        $moduleName = $this->getGlobalModuleStatus();
-                                        $insert_fields = array(
-                                            'hostID',
-                                            'moduleID',
-                                            'state'
-                                        );
-                                        $insert_values = array();
-                                        $DBModuleIDs = array_diff(
-                                            (array)$this->get('modules'),
-                                            (array)$DBModuleIDs
-                                        );
-                foreach ((array)$DBModuleIDs as &$moduleID) {
-                    $insert_values[] = array(
-                        $this->get('id'),
-                        $moduleID,
-                        1
-                                    );
-                                    unset($moduleID);
-                }
-                if (count($insert_values)) {
-                    self::getClass('ModuleAssociationManager')
-                        ->insertBatch(
-                            $insert_fields,
-                            $insert_values
-                        );
-                }
-                                        unset($DBModuleIDs, $RemoveModuleIDs, $moduleName);
-            case ($this->isLoaded('printers')):
                 $DBPrinterIDs = self::getSubObjectIDs(
                     'PrinterAssociation',
                     array('hostID' => $this->get('id')),
                     'printerID'
                 );
-                                                                $ValidPrinterIDs = self::getSubObjectIDs('Printer');
-                                                                $notValid = array_diff(
-                                                                    (array)$DBPrinterIDs,
-                                                                    (array)$ValidPrinterIDs
-                                                                );
-                if (count($notValid)) {
-                    self::getClass('PrinterAssociationManager')
-                        ->destroy(array('printerID' => $notValid));
-                }
-                                                                unset($ValidPrinterIDs, $DBPrinterIDs);
-                                                                $DBPrinterIDs = self::getSubObjectIDs(
-                                                                    'PrinterAssociation',
-                                                                    array('hostID' => $this->get('id')),
-                                                                    'printerID'
-                                                                );
-                                                                $RemovePrinterIDs = array_diff(
-                                                                    (array)$DBPrinterIDs,
-                                                                    (array)$this->get('printers')
-                                                                );
-                if (count($RemovePrinterIDs)) {
-                    self::getClass('PrinterAssociationManager')
-                        ->destroy(
-                            array(
-                                'hostID' => $this->get('id'),
-                                'printerID' => $RemovePrinterIDs
-                            )
-                        );
-                                                                                    $DBPrinterIDs = self::getSubObjectIDs(
-                                                                                        'PrinterAssociation',
-                                                                                        array('hostID' => $this->get('id')),
-                                                                                        'printerID'
-                                                                                    );
-                                                                                    unset($RemovePrinterIDs);
-                }
-                                                                $insert_fields = array(
-                                                                    'hostID',
-                                                                    'printerID'
-                                                                );
-                                                                $insert_values = array();
-                                                                $DBPrinterIDs = array_diff(
-                                                                    (array)$this->get('printers'),
-                                                                    (array)$DBPrinterIDs
-                                                                );
-                foreach ((array)$DBPrinterIDs as &$printerID) {
-                    $insert_values[] = array(
-                        $this->get('id'),
-                        $printerID
-                                                                                    );
-                                                                                    unset($printerID);
-                }
-                if (count($insert_values) > 0) {
-                    self::getClass('PrinterAssociationManager')
-                        ->insertBatch(
-                            $insert_fields,
-                            $insert_values
-                        );
-                }
-                                                                unset($DBPrinterIDs, $RemovePrinterIDs);
-            case ($this->isLoaded('powermanagementtasks')):
+                unset($RemovePrinterIDs);
+            }
+            $insert_fields = array(
+                'hostID',
+                'printerID'
+            );
+            $insert_values = array();
+            $DBPrinterIDs = array_diff(
+                (array)$this->get('printers'),
+                (array)$DBPrinterIDs
+            );
+            foreach ((array)$DBPrinterIDs as &$printerID) {
+                $insert_values[] = array(
+                    $this->get('id'),
+                    $printerID
+                );
+                unset($printerID);
+            }
+            if (count($insert_values) > 0) {
+                self::getClass('PrinterAssociationManager')
+                    ->insertBatch(
+                        $insert_fields,
+                        $insert_values
+                    );
+            }
+            unset($DBPrinterIDs, $RemovePrinterIDs);
+        }
+        if ($this->isLoaded('powermanagementtasks')) {
+            $DBPowerManagementIDs = self::getSubObjectIDs(
+                'PowerManagement',
+                array('hostID'=>$this->get('id'))
+            );
+            $RemovePowerManagementIDs = array_diff(
+                (array)$DBPowerManagementIDs,
+                (array)$this->get('powermanagementtasks')
+            );
+            if (count($RemovePowerManagementIDs)) {
+                self::getClass('PowerManagementManager')
+                    ->destroy(
+                        array(
+                            'hostID' => $this->get('id'),
+                            'id' => $RemovePowerManagementIDs
+                        )
+                    );
                 $DBPowerManagementIDs = self::getSubObjectIDs(
                     'PowerManagement',
-                    array('hostID'=>$this->get('id'))
+                    array('hostID' => $this->get('id'))
                 );
-                                                                                                                                                $RemovePowerManagementIDs = array_diff(
-                                                                                                                                                    (array)$DBPowerManagementIDs,
-                                                                                                                                                    (array)$this->get('powermanagementtasks')
-                                                                                                                                                );
-                if (count($RemovePowerManagementIDs)) {
-                    self::getClass('PowerManagementManager')
-                        ->destroy(
-                            array(
-                                'hostID' => $this->get('id'),
-                                'id' => $RemovePowerManagementIDs
-                            )
-                        );
-                                                                                                                                                    $DBPowerManagementIDs = self::getSubObjectIDs(
-                                                                                                                                                        'PowerManagement',
-                                                                                                                                                        array('hostID' => $this->get('id'))
-                                                                                                                                                    );
-                                                                                                                                                    unset($RemovePowerManagementIDs);
-                }
-                                                                                                                                                $objNeeded = false;
-                                                                                                                                                unset($DBPowerManagementIDs, $RemovePowerManagementIDs);
-            case ($this->isLoaded('snapins')):
-                $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation', array('hostID'=>$this->get('id')), 'snapinID');
-                $ValidSnapinIDs = self::getSubObjectIDs('Snapin');
-                $notValid = array_diff((array)$DBSnapinIDs, (array)$ValidSnapinIDs);
-                if (count($notValid)) {
-                    self::getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$notValid));
-                }
-                unset($ValidSnapinIDs, $DBSnapinIDs);
-                $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation', array('hostID'=>$this->get('id')), 'snapinID');
-                $RemoveSnapinIDs = array_diff((array)$DBSnapinIDs, (array)$this->get('snapins'));
-                if (count($RemoveSnapinIDs)) {
-                    self::getClass('SnapinAssociationManager')->destroy(array('hostID'=>$this->get('id'), 'snapinID'=>$RemoveSnapinIDs));
-                    $DBSnapinIDs = self::getSubObjectIDs('SnapinAssociation', array('hostID'=>$this->get('id')), 'snapinID');
-                    unset($RemoveSnapinIDs);
-                }
-                $insert_fields = array('hostID','snapinID');
-                $insert_values = array();
-                $DBSnapinIDs = array_diff((array)$this->get('snapins'), (array)$DBSnapinIDs);
-                array_walk($DBSnapinIDs, function (&$snapinID, $index) use (&$insert_values) {
-                    $insert_values[] = array($this->get('id'), $snapinID);
-                });
-                if (count($insert_values) > 0) {
-                    self::getClass('SnapinAssociationManager')->insertBatch($insert_fields, $insert_values);
-                }
-                                                                unset($DBSnapinIDs, $RemoveSnapinIDs);
-                case ($this->isLoaded('groups')):
-                        $DBGroupIDs = self::getSubObjectIDs('GroupAssociation', array('hostID'=>$this->get('id')), 'groupID');
-                        $ValidGroupIDs = self::getSubObjectIDs('Group');
-                        $notValid = array_diff((array)$DBGroupIDs, (array)$ValidGroupIDs);
-                    if (count($notValid)) {
-                        self::getClass('GroupAssociationManager')->destroy(array('groupID'=>$notValid));
-                    }
-                        unset($ValidGroupIDs, $DBGroupIDs);
-                        $DBGroupIDs = self::getSubObjectIDs('GroupAssociation', array('hostID'=>$this->get('id')), 'groupID');
-                        $RemoveGroupIDs = array_diff((array)$DBGroupIDs, (array)$this->get('groups'));
-                    if (count($RemoveGroupIDs)) {
-                        self::getClass('GroupAssociationManager')->destroy(array('hostID'=>$this->get('id'), 'groupID'=>$RemoveGroupIDs));
-                        $DBGroupIDs = self::getSubObjectIDs('GroupAssociation', array('hostID'=>$this->get('id')), 'groupID');
-                        unset($RemoveGroupIDs);
-                    }
-                        $insert_fields = array('hostID','groupID');
-                        $insert_values = array();
-                        $DBGroupIDs = array_diff((array)$this->get('groups'), (array)$DBGroupIDs);
-                        array_walk($DBGroupIDs, function (&$groupID, $index) use (&$insert_values) {
-                            $insert_values[] = array($this->get('id'), $groupID);
-                        });
-                        if (count($insert_values) > 0) {
-                            self::getClass('GroupAssociationManager')->insertBatch($insert_fields, $insert_values);
-                        }
-                                                        unset($DBGroupIDs, $RemoveGroupIDs);
+                unset($RemovePowerManagementIDs);
+            }
+            $objNeeded = false;
+            unset($DBPowerManagementIDs, $RemovePowerManagementIDs);
+        }
+        if ($this->isLoaded('snapins')) {
+            $DBSnapinIDs = self::getSubObjectIDs(
+                'SnapinAssociation',
+                array('hostID' => $this->get('id')),
+                'snapinID'
+            );
+            $ValidSnapinIDs = self::getSubObjectIDs('Snapin');
+            $notValid = array_diff(
+                (array)$DBSnapinIDs,
+                (array)$ValidSnapinIDs
+            );
+            if (count($notValid)) {
+                self::getClass('SnapinAssociationManager')
+                    ->destroy(array('snapinID' => $notValid));
+            }
+            unset($ValidSnapinIDs, $DBSnapinIDs);
+            $DBSnapinIDs = self::getSubObjectIDs(
+                'SnapinAssociation',
+                array('hostID' => $this->get('id')),
+                'snapinID'
+            );
+            $RemoveSnapinIDs = array_diff(
+                (array)$DBSnapinIDs,
+                (array)$this->get('snapins')
+            );
+            if (count($RemoveSnapinIDs)) {
+                self::getClass('SnapinAssociationManager')
+                    ->destroy(
+                        array(
+                            'hostID' => $this->get('id'),
+                            'snapinID' => $RemoveSnapinIDs
+                        )
+                    );
+                $DBSnapinIDs = self::getSubObjectIDs(
+                    'SnapinAssociation',
+                    array('hostID' => $this->get('id')),
+                    'snapinID'
+                );
+                unset($RemoveSnapinIDs);
+            }
+            $insert_fields = array(
+                'hostID',
+                'snapinID'
+            );
+            $insert_values = array();
+            $DBSnapinIDs = array_diff(
+                (array)$this->get('snapins'),
+                (array)$DBSnapinIDs
+            );
+            foreach ((array)$DBSnapinIDs as &$snapinID) {
+                $insert_values[] = array(
+                    $this->get('id'),
+                    $snapinID
+                );
+                unset($snapinID);
+            }
+            if (count($insert_values) > 0) {
+                self::getClass('SnapinAssociationManager')
+                    ->insertBatch(
+                        $insert_fields,
+                        $insert_values
+                    );
+            }
+            unset($DBSnapinIDs, $RemoveSnapinIDs);
+        }
+        if ($this->isLoaded('groups')) {
+            $DBGroupIDs = self::getSubObjectIDs(
+                'GroupAssociation',
+                array('hostID' => $this->get('id')),
+                'groupID'
+            );
+            $ValidGroupIDs = self::getSubObjectIDs('Group');
+            $notValid = array_diff(
+                (array)$DBGroupIDs,
+                (array)$ValidGroupIDs
+            );
+            if (count($notValid)) {
+                self::getClass('GroupAssociationManager')
+                    ->destroy(array('groupID' => $notValid));
+            }
+            unset($ValidGroupIDs, $DBGroupIDs);
+            $DBSnapinIDs = self::getSubObjectIDs(
+                'GroupAssociation',
+                array('hostID' => $this->get('id')),
+                'groupID'
+            );
+            $RemoveGroupIDs = array_diff(
+                (array)$DBGroupIDs,
+                (array)$this->get('groups')
+            );
+            if (count($RemoveGroupIDs)) {
+                self::getClass('GroupAssociationManager')
+                    ->destroy(
+                        array(
+                            'hostID' => $this->get('id'),
+                            'groupID' => $RemoveGroupIDs
+                        )
+                    );
+                $DBGroupIDs = self::getSubObjectIDs(
+                    'GroupAssociation',
+                    array('hostID' => $this->get('id')),
+                    'groupID'
+                );
+                unset($RemoveGroupIDs);
+            }
+            $insert_fields = array(
+                'hostID',
+                'groupID'
+            );
+            $insert_values = array();
+            $DBGroupIDs = array_diff(
+                (array)$this->get('groups'),
+                (array)$DBGroupIDs
+            );
+            foreach ((array)$DBGroupIDs as &$groupID) {
+                $insert_values[] = array(
+                    $this->get('id'),
+                    $groupID
+                );
+                unset($groupID);
+            }
+            if (count($insert_values) > 0) {
+                self::getClass('GroupAssociationManager')
+                    ->insertBatch(
+                        $insert_fields,
+                        $insert_values
+                    );
+            }
+            unset($DBGroupIDs, $RemoveGroupIDs);
         }
         return $this;
     }
+    /**
+     * Defines if the host is valid
+     *
+     * @return bool
+     */
     public function isValid()
     {
         return parent::isValid() && $this->isHostnameSafe();
     }
+    /**
+     * Tells us if the hostname is safe to use
+     *
+     * @param string $hostname the hostname to test
+     *
+     * @return bool
+     */
     public function isHostnameSafe($hostname = '')
     {
         if (empty($hostname)) {
@@ -790,117 +892,367 @@ class Host extends FOGController
         $pattern = '/^[\\w!@#$%^()\\-\'{}\\.~]{1,15}$/';
         return (bool)preg_match($pattern, $hostname);
     }
+    /**
+     * Returns if the printer is the default
+     *
+     * @param int $printerid the printer id to test
+     *
+     * @return bool
+     */
     public function getDefault($printerid)
     {
-        return (bool)count(self::getSubObjectIDs('PrinterAssociation', array('hostID'=>$this->get('id'), 'printerID'=>$printerid, 'isDefault'=>1), 'printerID'));
+        return (bool)self::getClass('PrinterAssociationManager')
+            ->count(
+                array(
+                    'hostID' => $this->get('id'),
+                    'printerID' => $printerid,
+                    'isDefault' => 1
+                )
+            );
     }
+    /**
+     * Updates the default printer
+     *
+     * @param int   $printerid the printer id to update
+     * @param mixed $onoff     whether to enable or disable
+     *
+     * @return object
+     */
     public function updateDefault($printerid, $onoff)
     {
-        self::getClass('PrinterAssociationManager')->update(array('printerID'=>$this->get('printers'), 'hostID'=>$this->get('id')), '', array('isDefault'=>0));
-        self::getClass('PrinterAssociationManager')->update(array('printerID'=>$printerid, 'hostID'=>$this->get('id')), '', array('isDefault'=>$onoff));
+        self::getClass('PrinterAssociationManager')
+            ->update(
+                array(
+                    'printerID' => $this->get('printers'),
+                    'hostID' => $this->get('id')
+                ),
+                '',
+                array('isDefault' => 0)
+            );
+        self::getClass('PrinterAssociationManager')
+            ->update(
+                array(
+                    'printerID' => $printerid,
+                    'hostID' => $this->get('id')
+                ),
+                '',
+                array('isDefault' => $onoff)
+            );
         return $this;
     }
+    /**
+     * Sets display vals for the host
+     *
+     * @return void
+     */
+    private function _setDispVals()
+    {
+        if (count(self::$_hostscreen)) {
+            return;
+        }
+        if (!$this->get('hostscreen')->isValid()) {
+            list(
+                $refresh,
+                $width,
+                $height
+            ) = self::getSubObjectIDs(
+                'Service',
+                array(
+                    'name' => array(
+                        'FOG_CLIENT_DISPLAYMANAGER_R',
+                        'FOG_CLIENT_DISPLAYMANAGER_X',
+                        'FOG_CLIENT_DISPLAYMANAGER_Y'
+                    )
+                ),
+                'value',
+                false,
+                'AND',
+                'name',
+                false,
+                false
+            );
+        } else {
+            $refresh = $this->get('hostscreen')->get('refresh');
+            $width = $this->get('hostscreen')->get('width');
+            $height = $this->get('hostscreen')->get('height');
+        }
+        self::$_hostscreen = array(
+            'refresh' => $refresh,
+            'width' => $width,
+            'height' => $height
+        );
+    }
+    /**
+     * Gets the display values
+     *
+     * @param string $key the key to get
+     *
+     * @return mixed
+     */
     public function getDispVals($key = '')
     {
-        $keyTran = array(
-            'width'=>'FOG_CLIENT_DISPLAYMANAGER_X',
-            'height'=>'FOG_CLIENT_DISPLAYMANAGER_Y',
-            'refresh'=>'FOG_CLIENT_DISPLAYMANAGER_R',
-        );
-        $HostScreen = self::getClass('HostScreenSettingsManager')->find(array('hostID'=>$this->get('id')));
-        $HostScreen = array_shift($HostScreen);
-        $gScreen = self::getSetting($keyTran[$key]);
-        return ($HostScreen instanceof HostScreenSettings && $HostScreen->isValid() ? $HostScreen->get($key) : $gScreen);
+        $this->_setDispVals();
+        return self::$_hostscreen[$key];
     }
+    /**
+     * Sets the display values
+     *
+     * @param mixed $x the width
+     * @param mixed $y the height
+     * @param mixed $r the refresh
+     *
+     * @return object
+     */
     public function setDisp($x, $y, $r)
     {
-        self::getClass('HostScreenSettingsManager')->destroy(array('hostID'=>$this->get('id')));
-        self::getClass('HostScreenSettings')
-            ->set('hostID', $this->get('id'))
+        if (!$this->get('hostscreen')->isValid()) {
+            $this->get('hostscreen')
+                ->set('hostID', $this->get('id'));
+        }
+        $this->get('hostscreen')
             ->set('width', $x)
             ->set('height', $y)
             ->set('refresh', $r)
             ->save();
         return $this;
     }
+    /**
+     * Sets this hosts alo time (or default to global if needed
+     *
+     * @return void
+     */
+    private function _setAlo()
+    {
+        if (!empty(self::$_hostalo)) {
+            return;
+        }
+        if (!$this->get('hostalo')->isValid()) {
+            self::$_hostalo = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
+        } else {
+            self::$_hostalo = $this->get('hostalo')->get('time');
+        }
+        return;
+    }
+    /**
+     * Gets the auto logout time
+     *
+     * @return int
+     */
     public function getAlo()
     {
-        $HostALO = self::getClass('HostAutoLogoutManager')->find(array('hostID'=>$this->get('id')));
-        $HostALO = array_shift($HostALO);
-        $gTime = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
-        return ($HostALO && $HostALO->isValid() ? $HostALO->get('time') : $gTime);
+        $this->_setAlo();
+        return self::$_hostalo;
     }
+    /**
+     * Sets the auto logout time
+     *
+     * @param int $time the time to set
+     *
+     * @return object
+     */
     public function setAlo($time)
     {
-        self::getClass('HostAutoLogoutManager')->destroy(array('hostID'=>$this->get('id')));
-        self::getClass('HostAutoLogout')
-            ->set('hostID', $this->get('id'))
+        if (!$this->get('hostalo')->isValid()) {
+            $this->get('hostalo')
+                ->set('hostID', $this->get('id'));
+        }
+        $this->get('hostalo')
             ->set('time', $time)
             ->save();
         return $this;
     }
+    /**
+     * Loads the mac additional field
+     *
+     * @return void
+     */
     protected function loadMac()
     {
-        $this->set('mac', self::getClass('MACAddress', $this->get('primac')));
+        $mac = new MACAddress($this->get('primac'));
+        $this->set('mac', $mac);
     }
+    /**
+     * Loads any additional macs
+     *
+     * @return void
+     */
     protected function loadAdditionalMACs()
     {
-        $this->set('additionalMACs', self::getSubObjectIDs('MACAddressAssociation', array('hostID'=>$this->get('id'), 'primary'=>array(null, 0, ''), 'pending'=>array(null, 0, '')), 'mac'));
+        $macs = self::getSubObjectIDs(
+            'MACAddressAssociation',
+            array(
+                'hostID' => $this->get('id'),
+                'primary' => 0,
+                'pending' => 0,
+            ),
+            'mac'
+        );
+        $this->set('additionalMACs', $macs);
     }
+    /**
+     * Loads any pending macs
+     *
+     * @return void
+     */
     protected function loadPendingMACs()
     {
-        $this->set('pendingMACs', self::getSubObjectIDs('MACAddressAssociation', array('hostID'=>$this->get('id'), 'primary'=>array(null, 0, ''), 'pending'=>1), 'mac'));
+        $macs = self::getSubObjectIDs(
+            'MACAddressAssociation',
+            array(
+                'hostID' => $this->get('id'),
+                'primary' => 0,
+                'pending' => 1,
+            ),
+            'mac'
+        );
+        $this->set('pendingMACs', $macs);
     }
+    /**
+     * Loads any groups this host is in
+     *
+     * @return void
+     */
     protected function loadGroups()
     {
-        $this->set('groups', self::getSubObjectIDs('GroupAssociation', array('hostID'=>$this->get('id')), 'groupID'));
+        $groups = self::getSubObjectIDs(
+            'GroupAssociation',
+            array('hostID' => $this->get('id')),
+            'groupID'
+        );
+        $groups = self::getSubObjectIDs(
+            'Group',
+            array('id' => $groups)
+        );
+        $this->set('groups', $groups);
     }
+    /**
+     * Loads any groups this host is not in
+     *
+     * @return void
+     */
     protected function loadGroupsnotinme()
     {
-        $find = array('id'=>$this->get('groups'));
-        $this->set('groupsnotinme', self::getSubObjectIDs('Group', $find, 'id', true));
-        unset($find);
+        $find = array('id' => $this->get('groups'));
+        $groups = self::getSubObjectIDs(
+            'Group',
+            $find,
+            'id',
+            true
+        );
+        $this->set('groupsnotinme', $groups);
     }
+    /**
+     * Loads any printers those host has
+     *
+     * @return void
+     */
     protected function loadPrinters()
     {
-        $printerIDs = self::getSubObjectIDs(
+        $printers = self::getSubObjectIDs(
             'PrinterAssociation',
             array('hostID' => $this->get('id')),
             'printerID'
         );
-        $validPrinterIDs = self::getSubObjectIDs(
+        $printers = self::getSubObjectIDs(
             'Printer',
-            array('id' => $printerIDs)
+            array('id' => $printers)
         );
-        $this->set('printers', $validPrinterIDs);
+        $this->set('printers', $printers);
     }
+    /**
+     * Loads any printers this host does not have
+     *
+     * @return void
+     */
     protected function loadPrintersnotinme()
     {
-        $find = array('id'=>$this->get('printers'));
-        $this->set('printersnotinme', self::getSubObjectIDs('Printer', $find, 'id', true));
+        $find = array('id' => $this->get('printers'));
+        $printers = self::getSubObjectIDs(
+            'Printer',
+            $find,
+            'id',
+            true
+        );
+        $this->set('printersnotinme', $printers);
         unset($find);
     }
+    /**
+     * Loads any snapins this host has
+     *
+     * @return void
+     */
     protected function loadSnapins()
     {
-        $this->set('snapins', self::getSubObjectIDs('SnapinAssociation', array('hostID'=>$this->get('id')), 'snapinID'));
+        $snapins = self::getSubObjectIDs(
+            'SnapinAssociation',
+            array('hostID' => $this->get('id')),
+            'snapinID'
+        );
+        $groups = self::getSubObjectIDs(
+            'Snapin',
+            array('id' => $snapins)
+        );
+        $this->set('snapins', $snapins);
     }
+    /**
+     * Loads any snapins this host does not have
+     *
+     * @return void
+     */
     protected function loadSnapinsnotinme()
     {
-        $find = array('id'=>$this->get('snapins'));
-        $this->set('snapinsnotinme', self::getSubObjectIDs('Snapin', $find, 'id', true));
-        unset($find);
+        $find = array('id' => $this->get('snapins'));
+        $groups = self::getSubObjectIDs(
+            'Snapin',
+            $find,
+            'id',
+            true
+        );
+        $this->set('snapinsnotinme', $groups);
     }
+    /**
+     * Loads any modules this host has
+     *
+     * @return void
+     */
     protected function loadModules()
     {
-        $this->set('modules', self::getSubObjectIDs('ModuleAssociation', array('hostID'=>$this->get('id')), 'moduleID'));
+        $modules = self::getSubObjectIDs(
+            'ModuleAssociation',
+            array('hostID' => $this->get('id')),
+            'moduleID'
+        );
+        $modules = self::getSubObjectIDs(
+            'Module',
+            array('id' => $modules)
+        );
+        $this->set('modules', $modules);
     }
+    /**
+     * Loads any powermanagement tasks this host has
+     *
+     * @return void
+     */
     protected function loadPowermanagementtasks()
     {
-        $this->set('powermanagementtasks', self::getSubObjectIDs('PowerManagement', array('hostID'=>$this->get('id'))));
+        $pms = self::getSubObjectIDs(
+            'PowerManagement',
+            array('hostID' => $this->get('id'))
+        );
+        $this->set('powermanagementtasks', $pms);
     }
+    /**
+     * Loads any users have logged in
+     *
+     * @return void
+     */
     protected function loadUsers()
     {
-        $this->set('users', self::getSubObjectIDs('UserTracking', array('hostID'=>$this->get('id'))));
+        $users = self::getSubObjectIDs(
+            'UserTracking',
+            array('hostID' => $this->get('id'))
+        );
+        $this->set('users', $users);
     }
     protected function loadSnapinjob()
     {

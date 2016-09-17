@@ -830,31 +830,59 @@ class HostManagementPage extends FOGPage
             '${input}',
             '${span}',
         );
-        array_map(function (&$Service) {
-            if (!$Service->isValid()) {
-                return;
-            }
-            switch ($Service->get('name')) {
-                case 'FOG_CLIENT_DISPLAYMANAGER_X':
-                    $name = 'x';
-                    $field = _('Screen Width (in pixels)');
-                    break;
-                case 'FOG_CLIENT_DISPLAYMANAGER_Y':
-                    $name = 'y';
-                    $field = _('Screen Height (in pixels)');
-                    break;
-                case 'FOG_CLIENT_DISPLAYMANAGER_R':
-                    $name = 'r';
-                    $field = _('Screen Refresh Rate (in Hz)');
-                    break;
-            }
+        list(
+            $refresh,
+            $width,
+            $height,
+        ) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array(
+                    'FOG_CLIENT_DISPLAYMANAGER_R',
+                    'FOG_CLIENT_DISPLAYMANAGER_X',
+                    'FOG_CLIENT_DISPLAYMANAGER_Y',
+                )
+            ),
+            'description',
+            false,
+            'AND',
+            'name',
+            false,
+            false
+        );
+        $names = array(
+            'x' => array(
+                'width',
+                $width,
+                _('Screen Width (in pixels)'),
+            ),
+            'y' => array(
+                'height',
+                $height,
+                _('Screen Height (in pixels)'),
+            ),
+            'r' => array(
+                'refresh',
+                $refresh,
+                _('Screen Refresh Rate (in Hz)'),
+            )
+        );
+        foreach ($names as $name => &$get) {
             $this->data[] = array(
-                'input'=>sprintf('<input type="text" name="%s" value="%s"/>', $name, $Service->get('value')),
-                'span'=>sprintf('<span class="icon fa fa-question fa-1x hand" title="%s"></span>', $Service->get('description')),
-                'field'=>$field,
+                'input' => sprintf(
+                    '<input type="text" name="%s" value="%s"/>',
+                    $name,
+                    $this->obj->getDispVals($get[0])
+                ),
+                'span' => sprintf(
+                    '<span class="icon fa fa-question fa-1x hand" '
+                    . 'title="%s"></span>',
+                    $get[1]
+                ),
+                'field' => $get[2],
             );
-            unset($name, $field, $Service);
-        }, self::getClass('ServiceManager')->find(array('name'=>array('FOG_CLIENT_DISPLAYMANAGER_X', 'FOG_CLIENT_DISPLAYMANAGER_Y', 'FOG_CLIENT_DISPLAYMANAGER_R')), 'OR', 'id'));
+            unset($get);
+        }
         $this->data[] = array(
             'field'=>'',
             'input'=>'',
@@ -874,17 +902,17 @@ class HostManagementPage extends FOGPage
             '${input}',
             '${desc}',
         );
-        $Service = self::getClass('Service', @min(self::getSubObjectIDs('Service', array('name'=>'FOG_CLIENT_AUTOLOGOFF_MIN'))));
-        if ($Service->isValid()) {
-            $this->data[] = array(
-                'field'=>_('Auto Log Out Time (in minutes)'),
-                'input'=>'<input type="text" name="tme" value="${value}"/>',
-                'desc'=>'<span class="icon fa fa-question fa-1x hand" title="${serv_desc}"></span>',
-                'value'=>$this->obj->getAlo() ? $this->obj->getAlo() : $Service->get('value'),
-                'serv_desc'=>$Service->get('description'),
-            );
-        }
-        unset($Service);
+        $alodesc = self::getClass('Service')
+            ->set('name', 'FOG_CLIENT_AUTOLOGOFF_MIN')
+            ->load('name')
+            ->get('description');
+        $this->data[] = array(
+            'field'=>_('Auto Log Out Time (in minutes)'),
+            'input'=>'<input type="text" name="tme" value="${value}"/>',
+            'desc'=>'<span class="icon fa fa-question fa-1x hand" title="${serv_desc}"></span>',
+            'value'=>$this->obj->getAlo(),
+            'serv_desc' => $alodesc,
+        );
         $this->data[] = array(
             'field'=>'',
             'input'=>'',
