@@ -21,7 +21,7 @@ command -v dnf >/dev/null 2>&1
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
 case $linuxReleaseName in
     *[Mm][Aa][Gg][Ee][Ii][Aa]*)
-        [[ -z $packages ]] && packages="apache apache-mod_fcgid apache-mod_php apache-mod_ssl curl dhcp-server gcc gcc-c++ gzip htmldoc lftp m4 make mariadb mariadb-common mariadb-common-core mariadb-core net-tools nfs-utils perl perl-Crypt-PasswdMD5 php-cli php-fpm php-gd php-gettext php-mbstring php-mcrypt php-mysqlnd php-pcntl php-pdo php-pdo_mysql tar tftp-server vsftpd wget xinetd"
+        [[ -z $packages ]] && packages="apache apache-mod_fcgid apache-mod_php apache-mod_ssl curl dhcp-server gcc gcc-c++ gzip htmldoc lftp m4 make mariadb mariadb-common mariadb-common-core mariadb-core net-tools nfs-utils perl perl-Crypt-PasswdMD5 php-cli php-fpm php-gd php-gettext php-ldap php-mbstring php-mcrypt php-mysqlnd php-pcntl php-pdo php-pdo_mysql tar tftp-server vsftpd wget xinetd"
         [[ -z $packageinstaller ]] && packageinstaller="urpmi --auto"
         [[ -z $packagelist ]] && packagelist="urpmq"
         [[ -z $packageupdater ]] && packageupdater="$packageinstaller"
@@ -33,7 +33,7 @@ case $linuxReleaseName in
         ;;
     *)
         [[ -z $etcconf ]] && etcconf="/etc/httpd/conf.d/fog.conf"
-        [[ -z $packages ]] && packages="curl dhcp gcc gcc-c++ gzip httpd lftp m4 make mod_fastcgi mod_ssl mysql mysql-server net-tools nfs-utils php php-cli php-common php-fpm php-gd php-mbstring php-mcrypt php-mysqlnd php-process tar tftp-server vsftpd wget xinetd"
+        [[ -z $packages ]] && packages="curl dhcp gcc gcc-c++ gzip httpd lftp m4 make mod_fastcgi mod_ssl mysql mysql-server net-tools nfs-utils php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mcrypt php-mysqlnd php-process tar tftp-server vsftpd wget xinetd"
         command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ $? -eq 0 ]]; then
             [[ -z $packageinstaller ]] && packageinstaller="dnf -y --enablerepo=$repos install"

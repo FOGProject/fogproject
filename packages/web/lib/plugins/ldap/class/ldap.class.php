@@ -49,7 +49,7 @@ class LDAP extends FOGController
         'grpMemberAttr' => 'lsGrpMemberAttr',
         'adminGroup' => 'lsAdminGroup',
         'userGroup' => 'lsUserGroup',
-        'searchScopte' => 'lsSearchScope',
+        'searchScope' => 'lsSearchScope',
         'bindDN' => 'lsBindDN',
         'bindPwd' => 'lsBindPwd',
     );
@@ -61,7 +61,6 @@ class LDAP extends FOGController
     protected $databaseFieldsRequired = array(
         'name',
         'address',
-        'DN',
         'port',
         'searchDN',
         'userNamAttr',
