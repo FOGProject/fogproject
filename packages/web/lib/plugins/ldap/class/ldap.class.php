@@ -219,7 +219,7 @@ class LDAP extends FOGController
         /**
          * Sets our default accessLevel to 0.
          * 0 = fail
-         * 1 = user
+         * 1 = mobile
          * 2 = admin
          */
         $accessLevel = 0;
@@ -229,6 +229,7 @@ class LDAP extends FOGController
         $userSearchDN = $this->get('searchDN');
         $adminGroup = strtolower($this->get('adminGroup'));
         $userGroup = strtolower($this->get('userGroup'));
+        $userNamAttr = strtolower($this->get('userNamAttr'));
         $grpMemberAttr = strtolower($this->get('grpMemberAttr'));
         /**
          * Parse our user search DN
@@ -256,11 +257,9 @@ class LDAP extends FOGController
          */
         $filter = sprintf(
             '(&(%s=%s)(%s=%s)',
-            // Imagein this will be dynamic?
             'objectCategory',
             'person',
-            // Imagine this will be dynamic?
-            'sAMAccountName',
+            $userNamAttr,
             $user
         );
         $attr = array($grpMemberAttr);
