@@ -42,7 +42,7 @@ class DashboardPage extends FOGPage
         } elseif ($_SESSION['Pending-MACs']) {
             $this->setMessage($macPend);
         }
-        $SystemUptime = self::$FOGCore->SystemUptime();
+        $SystemUptime = self::$FOGCore->systemUptime();
         $fields = array(
             _('Username') => $_SESSION['FOG_USERNAME'],
             _('Web Server') => self::getSetting('FOG_WEB_HOST'),

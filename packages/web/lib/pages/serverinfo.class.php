@@ -116,6 +116,7 @@ class ServerInfo extends FOGPage
             sprintf('<b>%s</b>', _('File System Information')) => '&nbsp;',
             _('Total Disk Space') => $arFS[0],
             _('Used Disk Space') => $arFS[1],
+            _('Free Disk Space') => $arFS[2],
             sprintf('<b>%s</b>', _('Network Information')) => '&nbsp;',
         );
         array_walk($NICTrans, function (&$txtran, &$index) use (&$NICTransSized, &$NICRecSized, &$NICErrInfo, &$NICDropInfo, &$NICTrans, &$NICRec, &$NICErr, &$NICDro, &$fields) {

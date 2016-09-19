@@ -1,131 +1,331 @@
 <?php
+/**
+ * The core elements accessible for all else
+ *
+ * PHP version 5
+ *
+ * @category FOGCore
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * The core elements accessible for all else
+ *
+ * @category FOGCore
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class FOGCore extends FOGBase
 {
+    /**
+     * Attempts to login
+     *
+     * @param string $username the username to attempt
+     * @param string $password the password to attempt
+     *
+     * @return object
+     */
     public function attemptLogin($username, $password)
     {
         return self::getClass('User')
             ->validate_pw($username, $password);
     }
-    public function stopScheduledTask($task)
-    {
-        return self::getClass('ScheduledTask', $task->get('id'))->set('isActive', false)->save();
-    }
+    /**
+     * Clears the mac lookup table
+     *
+     * @return bool
+     */
     public function clearMACLookupTable()
     {
         $OUITable = self::getClass('OUI', '', true);
         $OUITable = $OUITable['databaseTable'];
         return self::$DB->query("TRUNCATE TABLE `$OUITable`");
     }
+    /**
+     * Returns the count of mac lookups
+     *
+     * @return int
+     */
     public function getMACLookupCount()
     {
         return self::getClass('OUIManager')->count();
     }
+    /**
+     * Resolves a hostname to its IP address
+     *
+     * @param string $host the item to test
+     *
+     * @return string
+     */
     public function resolveHostname($host)
     {
-        if (filter_var(trim($host), FILTER_VALIDATE_IP)) {
-            return trim($host);
+        $host = trim($host);
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            return $host;
         }
-        return trim(gethostbyname(trim($host)));
+        $host = gethostbyname($host);
+        $host = trim($host);
+        return $host;
     }
-    public function makeTempFilePath()
+    /**
+     * Returns the systems uptime
+     *
+     * @return array
+     */
+    public function systemUptime()
     {
-        return tempnam(sys_get_temp_dir(), 'FOG');
+        exec('uptime', $data);
+        $string = $data[0];
+        $uptime = explode(' ', $string);
+        $up_days = (int)$uptime[3];
+        $hours = explode(':', $uptime[6]);
+        $up_hours = (int)$hours[0];
+        $mins = (int)$hours[1];
+        $up_mins = str_replace(',', '', $mins);
+        $uptime = sprintf(
+            '%d %s %d %s %d %s',
+            $up_days,
+            $up_days == 1 ? _('day') : _('days'),
+            $up_hours,
+            $up_hours == 1 ? _('hr') : _('hrs'),
+            $up_mins,
+            $up_mins == 1 ? _('min') : _('mins')
+        );
+        $loadAvg = sys_getloadavg();
+        $load = sprintf(
+            '%.2f, %.2f, %.2f',
+            $loadAvg[0],
+            $loadAvg[1],
+            $loadAvg[2]
+        );
+        return array(
+            'uptime' => $uptime,
+            'load' => $load
+        );
     }
-    public function SystemUptime()
-    {
-        $data = trim(shell_exec('uptime'));
-        $tmp = explode(' load average: ', $data);
-        $load = end($tmp);
-        $tmp = explode(' up ', $data);
-        $tmp = explode(',', end($tmp));
-        $uptime = $tmp;
-        $uptime = (count($uptime) > 1 ? sprintf('%s, %s', $uptime[0], $uptime[1]) : 'uptime not found');
-        return array('uptime'=>$uptime,'load'=>$load);
-    }
+    /**
+     * Gets the broadcast address of the server
+     *
+     * @return array
+     */
     public function getBroadcast()
     {
         $output = array();
-        exec("/sbin/ip -4 addr | awk -F'[ /]+' '/global/ {print $6}'|grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs, $retVal);
+        $cmd = sprintf(
+            '%s | %s | %s',
+            '/sbin/ip -4 addr',
+            "awk -F'[ /]+' '/global/ {print $6}'",
+            "grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'"
+        );
+        exec($cmd, $IPs, $retVal);
         if (!count($IPs)) {
-            exec("/sbin/ifconfig -a | awk '/(cast)/ {print $3}' | cut -d':' -f2' | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs, $retVal);
+            $cmd = sprintf(
+                '%s | %s | %s | %s',
+                '/sbin/ifconfig -a',
+                "awk '/(cast)/ {print $3}'",
+                "cut -d':' -f2",
+                "grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'"
+            );
+            exec($cmd, $IPs, $retVal);
         }
-        return array_values(array_unique(array_map('trim', (array)$IPs)));
+        $IPs = array_map('trim', (array)$IPs);
+        $IPs = array_filter($IPs);
+        $IPs = array_values($IPs);
+        return $IPs;
     }
+    /**
+     * Gets the hardware information of the selected item
+     *
+     * @return array
+     */
     public function getHWInfo()
     {
         $data['general'] = '@@general';
-        $data['kernel'] = trim(php_uname('r'));
-        $data['hostname'] = trim(php_uname('n'));
-        $data['uptimeload'] = trim(shell_exec('uptime'));
-        $data['cputype'] = trim(shell_exec("cat /proc/cpuinfo | head -n2 | tail -n1 | cut -f2 -d: | sed 's| ||'"));
-        $data['cpucount'] = trim(shell_exec("grep '^processor' /proc/cpuinfo | tail -n 1 | awk '{print \$3+1}'"));
-        $data['cpumodel'] = trim(shell_exec("cat /proc/cpuinfo | head -n5 | tail -n1 | cut -f2 -d: | sed 's| ||'"));
-        $data['cpuspeed'] = trim(shell_exec("cat /proc/cpuinfo | head -n8 | tail -n1 | cut -f2 -d: | sed 's| ||'"));
-        $data['cpucache'] = trim(shell_exec("cat /proc/cpuinfo | head -n9 | tail -n1 | cut -f2 -d: | sed 's| ||'"));
-        $data['totmem'] = $this->formatByteSize(trim(shell_exec("free -b | head -n2 | tail -n1 | awk '{ print \$2 }'")));
-        $data['usedmem'] = $this->formatByteSize(trim(shell_exec("free -b | head -n2 | tail -n1 | awk '{ print \$3 }'")));
-        $data['freemem'] = $this->formatByteSize(trim(shell_exec("free -b | head -n2 | tail -n1 | awk '{ print \$4 }'")));
+        $data['kernel'] = php_uname('r');
+        $data['hostname'] = php_uname('n');
+        $data['uptimeload'] = exec('uptime');
+        $cpucmd = sprintf(
+            '%s | %s | %s | %s | %s',
+            'cat /proc/cpuinfo',
+            'head -n%d',
+            'tail -n1',
+            'cut -f2 -d:',
+            "sed 's| ||'"
+        );
+        $data['cputype'] = shell_exec(sprintf($cpucmd, 2));
+        $data['cpucount'] = shell_exec('nproc');
+        $data['cpumodel'] = shell_exec(sprintf($cpucmd, 5));
+        $data['cpuspeed'] = shell_exec(sprintf($cpucmd, 8));
+        $data['cpucache'] = shell_exec(sprintf($cpucmd, 9));
+        $memcmd = sprintf(
+            '%s | %s | %s | %s',
+            'free -b',
+            'head -n2',
+            'tail -n1',
+            "awk '{print \$%d}'"
+        );
+        $totmem = shell_exec(sprintf($memcmd, 2));
+        $usedmem = shell_exec(sprintf($memcmd, 3));
+        $freemem = shell_exec(sprintf($memcmd, 4));
+        $data['totmem'] = $this->formatByteSize($totmem);
+        $data['usedmem'] = $this->formatByteSize($usedmem);
+        $data['freemem'] = $this->formatByteSize($freemem);
         $data['filesys'] = '@@fs';
         $hdtotal = 0;
         $hdused = 0;
-        array_map(function (&$n) use (&$hdtotal, &$hdused) {
-            if (!preg_match("/(\d+) +(\d+) +(\d+) +\d+%/", $n, $matches)) {
-                return;
+        $freespace = explode(
+            "\n",
+            shell_exec('df | grep -vE "^Filesystem|shm"')
+        );
+        $patmatch = '/(\d+) +(\d+) +(\d+) +\d+%/';
+        $hdtotal = $hdused = $hdfree = 0;
+        foreach ((array)$freespace as &$free) {
+            if (!preg_match($patmatch, $free, $matches)) {
+                continue;
             }
-            $hdtotal +=  $matches[1]*1024;
-            $hdused +=  $matches[2]*1024;
-            unset($n);
-        }, (array)explode("\n", shell_exec('df | grep -vE "^Filesystem|shm"')));
+            $hdtotal += (float)$matches[1] * 1024;
+            $hdused += (float)$matches[2] * 1024;
+            unset($free);
+        }
+        $hdfree = (float)$hdtotal - $hdused;
         $data['totalspace'] = $this->formatByteSize($hdtotal);
         $data['usedspace'] = $this->formatByteSize($hdused);
+        $data['freespace'] = $this->formatByteSize($hdfree);
         $data['nic'] = '@@nic';
-        array_map(function (&$line) use (&$data) {
-            if (!preg_match('#:#', $line)) {
-                return;
+        $netfaces = explode(
+            "\n",
+            shell_exec("cat '/proc/net/dev'")
+        );
+        foreach ((array)$netfaces as $netface) {
+            if (!preg_match('#:#', $netface)) {
+                continue;
             }
-            list($dev_name, $stats_list) = preg_split('/:/', $line, 2);
-            $stats = preg_split('/\s+/', trim($stats_list));
-            $data[$dev_name] = sprintf('%s$$%s$$%s$$%s$$%s', trim($dev_name), $stats[0], $stats[8], ($stats[2]+$stats[10]), ($stats[3]+$stats[11]));
-            unset($line);
-        }, (array)explode("\n", shell_exec('cat "/proc/net/dev"')));
+            list(
+                $dev_name,
+                $stats_list
+            ) = preg_split('/:/', $netface, 2);
+            $stats_list = trim($stats_list);
+            $stats = preg_split(
+                '/\s+/',
+                $stats_list
+            );
+            $dev_name = trim($dev_name);
+            $data[$dev_name] = sprintf(
+                '%s$$%s$$%s$$%s$$%s',
+                $dev_name,
+                $stats[0],
+                $stats[8],
+                ($stats[2] + $stats[10]),
+                ($stats[3] + $stats[11])
+            );
+            unset($netface);
+        }
         $data['end'] = '@@end';
         return $data;
     }
+    /**
+     * Sets the session environment for us
+     *
+     * @return void
+     */
     public static function setSessionEnv()
     {
         $_SESSION['HostCount'] = self::getClass('HostManager')->count();
-        self::$DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
-        self::$DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
-        array_map(function (&$table) {
-            self::$DB->query(sprintf("ALTER TABLE `%s`.`%s` ENGINE=MyISAM", DATABASE_NAME, $table));
+        $incQuery = sprintf(
+            'SET SESSION group_concat_max_len=(1024 * %d)',
+            $_SESSION['HostCount']
+        );
+        self::$DB->query($incQuery);
+        $setEngine = 'SELECT TABLE_NAME from INFORMATION_SCHEMA.TABLES '
+            . "TABLE_SCHEMA = '"
+            . DATABASE_NAME
+            . "' AND ENGINE != 'MyISAM'";
+        $vals = self::$DB
+            ->query($setEngine)
+            ->fetch(MYSQLI_NUM, 'fetch_all')
+            ->get('TABLE_NAME');
+        $alterStr = sprintf(
+            'ALTER TABLE `%s`.`%s` ENGINE=MyISAM',
+            DATABASE_NAME,
+            '%s'
+        );
+        foreach ((array)$vals as &$table) {
+            self::$DB->query(sprintf($alterStr, $table));
             unset($table);
-        }, (array)self::$DB->fetch(MYSQLI_NUM, 'fetch_all')->get('TABLE_NAME'));
+        }
+        $getSettings = array(
+            'FOG_DATA_RETURNED',
+            'FOG_FORMAT_FLAG_IN_GUI',
+            'FOG_FTP_IMAGE_SIZE',
+            'FOG_HOST_LOOKUP',
+            'FOG_MEMORY_LIMIT',
+            'FOG_REPORT_DIR',
+            'FOG_SNAPINDIR',
+            'FOG_TZ_INFO',
+            'FOG_VIEW_DEFAULT_SCREEN'
+        );
+        list(
+            $dataReturn,
+            $formatFlag,
+            $ftpImage,
+            $hostLookup,
+            $memoryLimit,
+            $reportDir,
+            $snapinDir,
+            $tzInfo,
+            $view
+        ) = self::getSubObjectIDs(
+            'Service',
+            $getSettings,
+            'value',
+            false,
+            'AND',
+            'name',
+            false,
+            ''
+        );
+        $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = $view;
+        $_SESSION['FOG_FTP_IMAGE_SIZE'] = $ftpImage;
+        $_SESSION['DataReturn'] = $dataReturn;
+        $_SESSION['FOGPingActive'] = $hostLookup;
+        $_SESSION['memory'] = $memoryLimit;
+        $_SESSION['FOG_SNAPINDIR'] = $snapinDir;
+        $_SESSION['FOG_REPORT_DIR'] = $reportDir;
+        $defTz = ini_get('date.timezone');
+        if (empty($defTz)) {
+            if (empty($tzInfo)) {
+                $_SESSION['TimeZone'] = 'UTC';
+            } else {
+                $_SESSION['TimeZone'] = $tzInfo;
+            }
+        } else {
+            $_SESSION['TimeZone'] = $defTz;
+        }
+        ini_set('max_input_vars', 10000);
         $_SESSION['PluginsInstalled'] = (array)self::getActivePlugins();
-        $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
-        $_SESSION['FOG_FTP_IMAGE_SIZE'] = self::getSetting('FOG_FTP_IMAGE_SIZE');
-        if (self::$DB->getColumns('hosts', 'hostPending') > 0) {
-            $_SESSION['Pending-Hosts'] = self::getClass('HostManager')->count(array('pending'=>1));
-        }
+        $_SESSION['Pending-Hosts'] = self::getClass('HostManager')
+            ->count(array('pending' => 1));
         if (self::$DB->getColumns('hostMAC', 'hmMAC') > 0) {
-            $_SESSION['Pending-MACs'] = self::getClass('MACAddressAssociationManager')->count(array('pending'=>1));
+            $_SESSION['Pending-MACs'] = self::getClass(
+                'MACAddressAssociationManager'
+            )->count(array('pending' => 1));
         }
-        $_SESSION['DataReturn'] = self::getSetting('FOG_DATA_RETURNED');
         $_SESSION['UserCount'] = self::getClass('UserManager')->count();
         $_SESSION['GroupCount'] = self::getClass('GroupManager')->count();
         $_SESSION['ImageCount'] = self::getClass('ImageManager')->count();
         $_SESSION['SnapinCount'] = self::getClass('SnapinManager')->count();
         $_SESSION['PrinterCount'] = self::getClass('PrinterManager')->count();
-        $_SESSION['FOGPingActive'] = self::getSetting('FOG_HOST_LOOKUP');
-        $_SESSION['memory'] = self::getSetting('FOG_MEMORY_LIMIT');
         $memorySet = preg_replace('#M#', '', ini_get('memory_limit'));
         if ($memorySet < $_SESSION['memory']) {
-            ini_set('memory_limit', is_numeric($_SESSION['memory']) ? sprintf('%dM', $_SESSION['memory']) : ini_get('memory_limit'));
+            if (is_numeric($_SESSION['memory'])) {
+                ini_set('memory_limit', sprintf('%dM', $_SESSION['memory']));
+            }
         }
-        $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = self::getSetting('FOG_FORMAT_FLAG_IN_GUI');
-        $_SESSION['FOG_SNAPINDIR'] = self::getSetting('FOG_SNAPINDIR');
-        $_SESSION['FOG_REPORT_DIR'] = self::getSetting('FOG_REPORT_DIR');
-        $_SESSION['TimeZone'] = (ini_get('date.timezone') ? ini_get('date.timezone') : (self::getSetting('FOG_TZ_INFO') ? self::getSetting('FOG_TZ_INFO') : 'UTC'));
-        ini_set('max_input_vars', 5000);
+        $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $formatFlag;
         return self::getClass(__CLASS__);
     }
 }
