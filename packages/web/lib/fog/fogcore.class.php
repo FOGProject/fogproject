@@ -280,7 +280,7 @@ class FOGCore extends FOGBase
             $view
         ) = self::getSubObjectIDs(
             'Service',
-            $getSettings,
+            array('name' => $getSettings),
             'value',
             false,
             'AND',
