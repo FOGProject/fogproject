@@ -15,6 +15,10 @@ $(function() {
 });
 function ldapSetFields(indx) {
     switch (indx) {
+        case 'edir':
+            usrAttr = 'cn';
+            grpAttr = 'uniqueMember';
+            break;
         case 'msad':
             usrAttr = 'samAccountName';
             grpAttr = 'memberOf';
@@ -23,16 +27,11 @@ function ldapSetFields(indx) {
             usrAttr = 'cn';
             grpAttr = 'member';
             break;
-        case 'edir':
-            usrAttr = 'cn';
-            grpAttr = 'uniqueMember';
-            break;
         default:
             usrAttr = '';
             grpAttr = '';
             break;
     }
-    console.log(usrAttr);
     $('#userNamAttr').val(usrAttr);
     $('#grpMemberAttr').val(grpAttr);
 }

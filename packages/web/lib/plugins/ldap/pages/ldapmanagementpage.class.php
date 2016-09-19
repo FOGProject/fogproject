@@ -216,12 +216,12 @@ class LDAPManagementPage extends FOGPage
             .  '</select>',
             _('User Nam Attribute') => '<input class="smaller" type="text" '
             . sprintf(
-                'id="userNamAttr" name="userNamAttr" value="%s" readonly/>',
+                'id="userNamAttr" name="userNamAttr" value="%s"/>',
                 $_REQUEST['userNameAttr']
             ),
             _('Group Member Attribute') => '<input class="smaller" type="text" '
             . sprintf(
-                'id="grpMemberAttr" name="grpMemberAttr" value="%s" readonly/>',
+                'id="grpMemberAttr" name="grpMemberAttr" value="%s"/>',
                 $_REQUEST['grpMemberAttr']
             ),
             /*
@@ -389,12 +389,12 @@ class LDAPManagementPage extends FOGPage
             .  '</select>',
             _('User Nam Attribute') => '<input class="smaller" type="text" '
             . sprintf(
-                'id="userNamAttr" name="userNamAttr" value="%s" readonly/>',
+                'id="userNamAttr" name="userNamAttr" value="%s"/>',
                 $this->obj->get('userNamAttr')
             ),
             _('Group Member Attribute') => '<input class="smaller" type="text" '
             . sprintf(
-                'id="grpMemberAttr" name="grpMemberAttr" value="%s" readonly/>',
+                'id="grpMemberAttr" name="grpMemberAttr" value="%s"/>',
                 $this->obj->get('grpMemberAttr')
             ),
             /*
