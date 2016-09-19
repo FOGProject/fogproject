@@ -207,16 +207,24 @@ class LDAPManagementPage extends FOGPage
                 'name="userGroup" value="%s"/>',
                 $_REQUEST['userGroup']
             ),
+            _('Initial Template') => '<select class="smaller" '
+            . 'id="inittemplate">'
+            . '<option value="pick" selected >Pick a template</option>'
+            . '<option value="msad">Microsoft AD</option>'
+            . '<option value="open">OpenLDAP</option>'
+            . '<option value="edir">Novell eDirectory</option>'
+            .  '</select>',
             _('User Nam Attribute') => '<input class="smaller" type="text" '
             . sprintf(
-                'name="userNamAttr" value="%s"/>',
+                'id="userNamAttr" name="userNamAttr" value="%s" readonly/>',
                 $_REQUEST['userNameAttr']
             ),
             _('Group Member Attribute') => '<input class="smaller" type="text" '
             . sprintf(
-                'name="grpMemberAttr" value="%s"/>',
+                'id="grpMemberAttr" name="grpMemberAttr" value="%s" readonly/>',
                 $_REQUEST['grpMemberAttr']
             ),
+            /*
             _('Search Scope') => '<input class="smaller" type="text" '
             . sprintf(
                 'name="searchScope" value="%s"/>',
@@ -232,6 +240,7 @@ class LDAPManagementPage extends FOGPage
                 'name="bindPwd" value="%s"/>',
                 $_REQUEST['bindPwd']
             ),
+             */
             '&nbsp;' => sprintf(
                 '<input class="smaller" name="add" type="submit" value="%s"/>',
                 _('Add')
@@ -279,6 +288,9 @@ class LDAPManagementPage extends FOGPage
             $adminGroup = trim($_REQUEST['adminGroup']);
             $userGroup = trim($_REQUEST['userGroup']);
             $searchScope = trim($_REQUEST['searchScope']);
+            if (!is_numeric($searchScope)) {
+                $searchScope = 0;
+            }
             $bindDN = trim($_REQUEST['bindDN']);
             $bindPwd = trim($_REQUEST['bindPwd']);
             if (empty($name)) {
@@ -368,16 +380,24 @@ class LDAPManagementPage extends FOGPage
                 'name="userGroup" value="%s"/>',
                 $this->obj->get('userGroup')
             ),
+            _('Initial Template') => '<select class="smaller" '
+            . 'id="inittemplate">'
+            . '<option value="pick" selected >Pick a template</option>'
+            . '<option value="msad">Microsoft AD</option>'
+            . '<option value="open">OpenLDAP</option>'
+            . '<option value="edir">Novell eDirectory</option>'
+            .  '</select>',
             _('User Nam Attribute') => '<input class="smaller" type="text" '
             . sprintf(
-                'name="userNamAttr" value="%s"/>',
+                'id="userNamAttr" name="userNamAttr" value="%s" readonly/>',
                 $this->obj->get('userNamAttr')
             ),
             _('Group Member Attribute') => '<input class="smaller" type="text" '
             . sprintf(
-                'name="grpMemberAttr" value="%s"/>',
+                'id="grpMemberAttr" name="grpMemberAttr" value="%s" readonly/>',
                 $this->obj->get('grpMemberAttr')
             ),
+            /*
             _('Search Scope') => '<input class="smaller" type="text" '
             . sprintf(
                 'name="searchScope" value="%s"/>',
@@ -393,6 +413,7 @@ class LDAPManagementPage extends FOGPage
                 'name="bindPwd" value="%s"/>',
                 $this->obj->get('bindPwd')
             ),
+             */
             '&nbsp;' => sprintf(
                 '<input class="smaller" name="update" type="submit" value="%s"/>',
                 _('Update')
@@ -441,6 +462,9 @@ class LDAPManagementPage extends FOGPage
             $adminGroup = trim($_REQUEST['adminGroup']);
             $userGroup = trim($_REQUEST['userGroup']);
             $searchScope = trim($_REQUEST['searchScope']);
+            if (!is_numeric($searchScope)) {
+                $searchScope = 0;
+            }
             $bindDN = trim($_REQUEST['bindDN']);
             $bindPwd = trim($_REQUEST['bindPwd']);
             if (empty($name)) {

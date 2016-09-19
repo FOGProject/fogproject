@@ -472,7 +472,7 @@ class Group extends FOGController
                     'id' => $this->get('hosts')
                 ),
                 '',
-                array('imageID'=>$imageID)
+                array('imageID' => $imageID)
             );
         return $this;
     }
