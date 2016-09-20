@@ -893,20 +893,12 @@ class Group extends FOGController
      */
     public function doMembersHaveUniformImages()
     {
-        $imageID = self::getSubObjectIDs(
-            'Host',
-            array(
-                'id' => $this->get('hosts')
-            ),
-            'imageID',
-            false,
-            'AND',
-            'name',
-            false,
-            'array_count_values'
-        );
-        $imageID = count($imageID) == 1 ? array_shift($imageID) : 0;
-        return $imageID == $this->getHostCount();
+        $test = self::getClass('HostManager')
+            ->distinct(
+                'imageID',
+                array('id' => $this->get('hosts'))
+            );
+        return $test == 1;
     }
     /**
      * Updates all host's default printers
