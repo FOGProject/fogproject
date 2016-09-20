@@ -3,7 +3,11 @@ require('../commons/base.inc.php');
 FOGCore::stripAndDecode($_REQUEST);
 try {
     $Host = $FOGCore->getHostItem(false, false);
-    $Inventory = $Host->get('inventory')
+    $Inventory = $Host->get('inventory');
+    if (!$Inventory instanceof Inventory) {
+        $Inventory = new Inventory();
+    }
+    $Inventory
         ->set('hostID', $Host->get('id'));
     foreach ($_REQUEST as $var => &$val) {
         if ($var == 'hdinfo') {
