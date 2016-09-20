@@ -166,25 +166,10 @@ class Group extends FOGController
      */
     public function getHostCount()
     {
-        $GroupHostIDs = self::getSubObjectIDs(
-            'GroupAssociation',
-            array(
-                'groupID' => $this->get('id')
-            ),
-            'hostID'
-        );
-        $ValidHostIDs = self::getSubObjectIDs(
-            'Host',
-            array('id' => $GroupHostIDs)
-        );
-        $notValid = array_diff((array)$GroupHostIDs, (array)$ValidHostIDs);
-        $valid = array_diff((array)$ValidHostIDs, (array)$notValid);
-        $this->set('hosts', $valid);
-        return self::getClass('GroupAssociationManager')
+        return self::getClass('HostManager')
             ->count(
                 array(
-                    'hostID' => $valid,
-                    'groupID' => $this->get('id')
+                    'id' => $this->get('hosts'),
                 )
             );
     }

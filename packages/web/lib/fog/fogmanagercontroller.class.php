@@ -108,6 +108,12 @@ abstract class FOGManagerController extends FOGBase
      */
     protected $insertBatchTemplate = "INSERT INTO `%s` (`%s`) VALUES %s ON DUPLICATE KEY UPDATE %s";
     /**
+     * The distinct template
+     *
+     * @var string
+     */
+    protected $distinctTemplate = 'SELECT COUNT(DISTINCT `%s`.`%s`) AS `total` FROM `%s`%s LIMIT 1';
+    /**
      * Initializes the manager class
      *
      * @return void
@@ -1311,5 +1317,117 @@ abstract class FOGManagerController extends FOGBase
             return $this->find(array('id' => $itemIDs));
         }
         return $itemIDs;
+    }
+    /**
+     * Returns the distinct (all matching)
+     *
+     * @param string $field         the field to be distinct
+     * @param array  $findWhere     what to find
+     * @param string $whereOperator how to scan for where multiples
+     * @param string $compare       comparitor
+     *
+     * @return int
+     */
+    public function distinct(
+        $field = '',
+        $findWhere = array(),
+        $whereOperator = 'AND',
+        $compare = '='
+    ) {
+        if (empty($findWhere)) {
+            $findWhere = array();
+        }
+        if (empty($whereOperator)) {
+            $whereOperator = 'AND';
+        }
+        if (empty($compare)) {
+            $compare = '=';
+        }
+        $whereArray = array();
+        $countVals = $countKeys = array();
+        if (count($findWhere)) {
+            array_walk(
+                $findWhere,
+                function (
+                    &$value,
+                    &$field
+                ) use (
+                    &$whereArray,
+                    $compare,
+                    &$countVals,
+                    &$countKeys
+                ) {
+                    $field = trim($field);
+                    if (is_array($value)) {
+                        foreach ((array)$value as $index => &$val) {
+                            $countKeys[] = sprintf(':countVal%d', $index);
+                            $countVals[sprintf('countVal%d', $index)] = $val;
+                            unset($val);
+                        }
+                        $whereArray[] = sprintf(
+                            "`%s`.`%s` IN (%s)",
+                            $this->databaseTable,
+                            $this->databaseFields[$field],
+                            implode(',', $countKeys)
+                        );
+                    } else {
+                        $countVals['countVal'] = $value;
+                        $whereArray[] = sprintf(
+                            '`%s`.`%s`%s:countVal',
+                            $this->databaseTable,
+                            $this->databaseFields[$field],
+                            (
+                                preg_match(
+                                    '#%#',
+                                    $value
+                                ) ?
+                                ' LIKE' :
+                                $compare
+                            )
+                        );
+                    }
+                    unset($value, $field);
+                }
+            );
+        }
+        $query = sprintf(
+            $this->distinctTemplate,
+            $this->databaseTable,
+            $this->databaseFields[$field],
+            $this->databaseTable,
+            (
+                count($whereArray) ?
+                sprintf(
+                    ' WHERE %s%s',
+                    implode(
+                        sprintf(
+                            ' %s ',
+                            $whereOperator
+                        ),
+                        (array)$whereArray
+                    ),
+                    (
+                        $isEnabled ?
+                        sprintf(
+                            ' AND %s',
+                            $isEnabled
+                        ) :
+                        ''
+                    )
+                ) :
+                (
+                    $isEnabled ?
+                    sprintf(
+                        ' WHERE %s',
+                        $isEnabled
+                    ) :
+                    ''
+                )
+            )
+        );
+        return (int)self::$DB
+            ->query($query, array(), $countVals)
+            ->fetch()
+            ->get('total');
     }
 }

@@ -313,7 +313,7 @@ class GroupManagementPage extends FOGPage
      */
     public function edit()
     {
-        $HostCount = count($this->obj->get('hosts'));
+        $HostCount = $this->obj->getHostCount();
         $hostids = $this->obj->get('hosts');
         $Host = new Host(@max($hostids));
         $getItems = array(
@@ -332,16 +332,16 @@ class GroupManagementPage extends FOGPage
         );
         $tmpStorage = array();
         foreach ($getItems as &$idField) {
-            $tmpStorage[] = self::getSubObjectIDs(
-                'Host',
-                array('id' => $hostids),
-                $idField,
-                false,
-                'AND',
-                'name',
-                false,
-                'array_count_values'
-            );
+            $tmp = self::getClass('HostManager')
+                ->distinct(
+                    $idField,
+                    array('id' => $hostids)
+                );
+            if ($tmp == 1) {
+                $tmpStorage[] = true;
+            } else {
+                $tmpStorage[] = false;
+            }
             unset($idField);
         }
         list(
@@ -358,77 +358,65 @@ class GroupManagementPage extends FOGPage
             $biosExit,
             $efiExit
         ) = $tmpStorage;
-        $imageIDs = array_shift($imageIDs);
-        $groupKey = array_shift($groupKey);
-        $printerLevel = array_shift($printerLevel);
-        // Collect AD Information
-        $aduse = in_array(0, array_keys($aduse)) ? 0 : array_shift($aduse);
-        $enforcetest = array_shift($enforcetest);
-        $adDomain = array_shift($adDomain);
-        $adOU = array_shift($adOU);
-        $adUser = array_shift($adUser);
-        $adPass = array_shift($adPass);
-        $adPassLegacy = array_shift($adPassLegacy);
+        unset($tmpStorage);
         // Set Field Information
         $printerLevel = (
-            $printerLevel == $HostCount ?
+            $printerLevel ?
             $Host->get('printerLevel') :
             ''
         );
         $imageMatchID = (
-            $imageIDs == $HostCount ?
+            $imageIDs ?
             $Host->get('imageID') :
             ''
         );
         $useAD = (
-            $aduse == $HostCount ?
+            $aduse ?
             $Host->get('useAD') :
             ''
         );
         $enforce = (
-            $enforcetest == $HostCount ?
+            $enforcetest ?
             $Host->get('enforce') :
             ''
         );
         $ADDomain = (
-            $adDomain == $HostCount ?
+            $adDomain ?
             $Host->get('ADDomain') :
             ''
         );
         $ADOU = (
-            $adOU == $HostCount ?
+            $adOU ?
             $Host->get('ADOU') :
             ''
         );
         $ADUser = (
-            $adUser == $HostCount ?
+            $adUser ?
             $Host->get('ADUser') :
             ''
         );
         $adPass = (
-            $adPass == $HostCount ?
+            $adPass ?
             $Host->get('ADPass') :
             ''
         );
         $ADPass = $this->encryptpw($Host->get('ADPass'));
         $ADPassLegacy = (
-            $adPassLegacy == $HostCount ?
+            $adPassLegacy ?
             $Host->get('ADPassLegacy') :
             ''
         );
         $productKey = (
-            $groupKey == $HostCount ?
+            $groupKey ?
             $Host->get('productKey') :
             ''
         );
         $groupKeyMatch = $this->encryptpw($productKey);
         unset($productKey, $groupKey);
-        $biosExit = array_flip($biosExit);
-        $efiExit = array_flip($efiExit);
         $exitNorm = Service::buildExitSelector(
             'bootTypeExit',
             (
-                count($biosExit) === 1 && isset($biosExit[1]) ?
+                $biosExit ?
                 $Host->get('biosexit') :
                 $_REQUEST['bootTypeExit']
             ),
@@ -437,7 +425,7 @@ class GroupManagementPage extends FOGPage
         $exitEfi = Service::buildExitSelector(
             'efiBootTypeExit',
             (
-                count($efiExit) === 1 && isset($efiExit[1]) ?
+                $efiExit ?
                 $Host->get('efiexit') :
                 $_REQUEST['efiBootTypeExit']
             ),
