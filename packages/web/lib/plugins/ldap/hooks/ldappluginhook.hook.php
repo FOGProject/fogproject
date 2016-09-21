@@ -48,7 +48,7 @@ class LDAPPluginHook extends Hook
         /**
          * If the user exists in FOG already and password is good, return
          */
-        if (self::getClass('User')->password_validate($username, $password)) {
+        if (self::$FOGUser->password_validate($user, $pass)) {
             return;
         }
         /**
@@ -58,6 +58,9 @@ class LDAPPluginHook extends Hook
             return;
         }
         $ldaps = self::getClass('LDAPManager')->find();
+        self::$FOGUser = self::getClass('User')
+            ->set('name', $user)
+            ->load('name');
         foreach ((array)$ldaps as &$ldap) {
             if (!$ldap->isValid()) {
                 continue;
@@ -71,7 +74,6 @@ class LDAPPluginHook extends Hook
                 case 2:
                     // This is an admin account, break the loop
                     self::$FOGUser
-                        ->set('name', $user)
                         ->set('password', $pass)
                         ->set('type', 0);
                     if (!self::$FOGUser->save()) {
@@ -81,7 +83,6 @@ class LDAPPluginHook extends Hook
                 case 1:
                     // This is an unprivileged user account.
                     self::$FOGUser
-                        ->set('name', $user)
                         ->set('password', $pass)
                         ->set('type', 1);
                     if (!self::$FOGUser->save()) {

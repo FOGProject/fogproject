@@ -124,6 +124,7 @@ class LDAP extends FOGController
                     $prefix,
                     $data
                 ) = explode('=', $value);
+                $prefix = strtoupper($prefix);
                 $data = preg_replace(
                     '/\\\([0-9A-Fa-f]{2})/e',
                     "''.chr(hexdec('\\1')).''",
@@ -256,7 +257,7 @@ class LDAP extends FOGController
          * User is authorized, get group membership
          */
         $filter = sprintf(
-            '(&(%s=%s)(%s=%s)',
+            '(&(%s=%s)(%s=%s))',
             'objectCategory',
             'person',
             $userNamAttr,
@@ -318,7 +319,7 @@ class LDAP extends FOGController
          *
          * @return bool
          */
-        if ($accessLevel === 0) {
+        if ($accessLevel == 0) {
             return false;
         }
         /**
