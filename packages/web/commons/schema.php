@@ -2270,3 +2270,19 @@ $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sHash` VARCHAR(255) NOT NULL DEFAULT ''",
     "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD `sSize` BIGINT NOT NULL DEFAULT 0",
 );
+// 235
+$this->schema[] = array(
+    "CREATE TABLE `".DATABASE_NAME."`.`users_new` (
+        `uId` INT NOT NULL AUTO_INCREMENT,
+        `uName` VARCHAR(40) NOT NULL,
+        `uPass` LONGTEXT NOT NULL,
+        `uCreateDate` DATETIME NOT NULL,
+        `uCreateBy` VARCHAR(40) NOT NULL,
+        `uType` INT NOT NULL,
+        PRIMARY KEY(`uId`),
+        UNIQUE INDEX `name` (`uName`)
+    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.`users_new` SELECT * FROM `".DATABASE_NAME."`.`users`",
+    "DROP TABLE `".DATABASE_NAME."`.`users`",
+    "RENAME TABLE `".DATABASE_NAME."`.`users_new` TO `".DATABASE_NAME."`.`users`",
+);

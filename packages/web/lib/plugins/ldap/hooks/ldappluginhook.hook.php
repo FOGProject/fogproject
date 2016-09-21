@@ -46,21 +46,12 @@ class LDAPPluginHook extends Hook
         $user = trim($arguments['username']);
         $pass = trim($arguments['password']);
         /**
-         * If the user exists in FOG already and password is good, return
-         */
-        if (self::$FOGUser->password_validate($user, $pass)) {
-            return;
-        }
-        /**
          * If this user is already signed in, return
          */
         if (self::$FOGUser->isValid()) {
             return;
         }
         $ldaps = self::getClass('LDAPManager')->find();
-        self::$FOGUser = self::getClass('User')
-            ->set('name', $user)
-            ->load('name');
         foreach ((array)$ldaps as &$ldap) {
             if (!$ldap->isValid()) {
                 continue;
@@ -74,20 +65,14 @@ class LDAPPluginHook extends Hook
                 case 2:
                     // This is an admin account, break the loop
                     self::$FOGUser
-                        ->set('password', $pass)
+                        ->set('name', $user)
                         ->set('type', 0);
-                    if (!self::$FOGUser->save()) {
-                        throw new Exception(_('User create/update failed'));
-                    }
                     break 2;
                 case 1:
                     // This is an unprivileged user account.
                     self::$FOGUser
-                        ->set('password', $pass)
+                        ->set('name', $user)
                         ->set('type', 1);
-                    if (!self::$FOGUser->save()) {
-                        throw new Exception(_('User create/update failed'));
-                    }
                     break;
             }
         }
