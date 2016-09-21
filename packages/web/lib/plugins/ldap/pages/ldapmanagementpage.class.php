@@ -52,14 +52,14 @@ class LDAPManagementPage extends FOGPage
                 "$this->delformat" => self::$foglang['Delete'],
             );
             $this->notes = array(
-                _('LDAP Server Name') => $this->obj->get('name'),
+                _('LDAP Connection Name') => $this->obj->get('name'),
                 _('LDAP Server Address') => $this->obj->get('address'),
             );
         }
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction"/>',
-            _('LDAP Server Name'),
+            _('LDAP Connection  Name'),
             _('LDAP Server Description'),
             _('LDAP Server'),
             _('Port'),
@@ -202,7 +202,7 @@ class LDAPManagementPage extends FOGPage
                 'name="adminGroup" value="%s"/>',
                 $_REQUEST['adminGroup']
             ),
-            _('User Group') => '<input class="smaller" type="text" '
+            _('Mobile Group') => '<input class="smaller" type="text" '
             . sprintf(
                 'name="userGroup" value="%s"/>',
                 $_REQUEST['userGroup']
@@ -375,7 +375,7 @@ class LDAPManagementPage extends FOGPage
                 'name="adminGroup" value="%s"/>',
                 $this->obj->get('adminGroup')
             ),
-            _('User Group') => '<input class="smaller" type="text" '
+            _('Mobile Group') => '<input class="smaller" type="text" '
             . sprintf(
                 'name="userGroup" value="%s"/>',
                 $this->obj->get('userGroup')
