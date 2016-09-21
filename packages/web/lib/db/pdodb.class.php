@@ -61,14 +61,15 @@ class PDODB extends DatabaseManager
      * @var array
      */
     private static $_options = array(
-        PDO::ATTR_PERSISTENT => false,
+        PDO::ATTR_PERSISTENT => true,
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES => true
     );
     /**
      * Initializes the PDODB class
      *
-     * @param array $options any custom optoins
+     * @param array $options any custom options
      *
      * @throws PDOException
      * @return void
@@ -80,7 +81,7 @@ class PDODB extends DatabaseManager
         }
         parent::__construct();
         try {
-            if (count($optoins) > 0) {
+            if (count($options) > 0) {
                 self::$_options = $options;
             }
             self::$_dbName = DATABASE_NAME;

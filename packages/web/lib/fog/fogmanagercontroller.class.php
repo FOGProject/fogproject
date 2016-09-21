@@ -223,6 +223,7 @@ abstract class FOGManagerController extends FOGBase
                         $not,
                         implode(',', $findKeys)
                     );
+                    unset($findKeys);
                 } else {
                     if (is_array($value)) {
                         $value = '';
@@ -233,7 +234,7 @@ abstract class FOGManagerController extends FOGBase
                         $key
                     );
                     // Define the param keys
-                    $findKeys[] = $findKey = sprintf(
+                    $findKey = sprintf(
                         ':%s',
                         $key
                     );
@@ -309,7 +310,6 @@ abstract class FOGManagerController extends FOGBase
             );
         }
         if ($nonEnable && $isEnabled) {
-            $findKeys[] = ':isEnabled';
             $findVals['isEnabled'] = 1;
             $isEnabled = sprintf(
                 '`%s`=:isEnabled',
@@ -503,6 +503,7 @@ abstract class FOGManagerController extends FOGBase
                             $this->databaseFields[$field],
                             implode(',', $countKeys)
                         );
+                        unset($countKeys);
                     } else {
                         $countVals['countVal'] = $value;
                         $whereArray[] = sprintf(
@@ -599,29 +600,24 @@ abstract class FOGManagerController extends FOGBase
         }
         $vals = array();
         $insertVals = array();
-        foreach ((array)$fields as &$field) {
-            $count = 0;
-            foreach ((array)$values as &$value) {
-                $insertKeys = array();
-                foreach ((array)$value as &$val) {
-                    $key = sprintf(
-                        '%s_%d',
-                        $field,
-                        $count
-                    );
-                    $insertKeys[] = sprintf(
-                        ':%s',
-                        $key
-                    );
-                    $val = trim($val);
-                    $insertVals[$key] = $val;
-                    unset($val);
-                    $count++;
-                }
-                $vals[] = sprintf('(%s)', implode(',', (array)$insertKeys));
-                unset($value);
+        foreach ((array)$values as $index => &$value) {
+            $insertKeys = array();
+            foreach ((array)$value as $i => &$val) {
+                $key = sprintf(
+                    '%s_%d',
+                    $fields[$i],
+                    $index
+                );
+                $insertKeys[] = sprintf(
+                    ':%s',
+                    $key
+                );
+                $val = trim($val);
+                $insertVals[$key] = $val;
+                unset($val);
             }
-            unset($field);
+            $vals[] = sprintf('(%s)', implode(',', (array)$insertKeys));
+            unset($value);
         }
         if (count($vals) < 1) {
             throw new Exception(_('No data to insert'));
@@ -631,10 +627,8 @@ abstract class FOGManagerController extends FOGBase
             $key = $this->databaseFields[$key];
             $keys[] = $key;
             $dups[] = sprintf(
-                '`%s`.`%s`=VALUES(`%s`.`%s`)',
-                $this->databaseTable,
+                '`%s`=VALUES(`%s`)',
                 $key,
-                $this->databaseTable,
                 $key
             );
             unset($key);
@@ -813,30 +807,25 @@ abstract class FOGManagerController extends FOGBase
         if (empty($compare)) {
             $compare = '=';
         }
-        if (array_key_exists('id', $findWhere)) {
-            $ids = $findWhere['id'];
-        } else {
-            $ids = $this->find(
-                $findWhere,
-                $whereOperator,
-                $orderBy,
-                $sort,
-                $compare,
-                $groupBy,
-                $not,
-                'id'
-            );
-        }
+        $ids = $this->find(
+            $findWhere,
+            $whereOperator,
+            $orderBy,
+            $sort,
+            $compare,
+            $groupBy,
+            $not,
+            'id'
+        );
         $destroyVals = array();
         foreach ((array)$ids as $index => &$id) {
-            $key = 'id';
-            $destroyKeys[] = sprintf(
-                ':%s_%d',
-                $key,
-                $index
-            );
-            $destroyVals[sprintf('%s_%d', $key, $index)] = $id;
+            $keyStr = sprintf('id_%d', $index);
+            $destroyKeys[] = sprintf(':%s', $keyStr);
+            $destroyVals[$keyStr] = $id;
             unset($id);
+        }
+        if (count($findWhere) > 0 && count($ids) < 1) {
+            return true;
         }
         $query = sprintf(
             $this->destroyQueryTemplate,
@@ -845,6 +834,7 @@ abstract class FOGManagerController extends FOGBase
             $this->databaseFields['id'],
             implode(',', (array)$destroyKeys)
         );
+        unset($destroyKeys);
         return self::$DB->query($query, array(), $destroyVals);
     }
     /**

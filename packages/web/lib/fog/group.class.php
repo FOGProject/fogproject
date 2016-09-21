@@ -295,26 +295,23 @@ class Group extends FOGController
     {
         $insert_fields = array('hostID','moduleID','state');
         $insert_values = array();
-        array_walk(
-            $this->get('hosts'),
-            function (
-                &$hostID,
-                $index
-            ) use (
-                &$insert_values,
-                $addArray
-            ) {
-                foreach ($addArray as &$moduleID) {
-                    $insert_values[] = array($hostID, $moduleID, '1');
-                }
+        $hostids = $this->get('hosts');
+        foreach ((array)$hostids as &$hostid) {
+            foreach ((array)$addArray as &$moduleid) {
+                $insert_values[] = array($hostid, $moduleid, 1);
+                unset($moduleid);
             }
-        );
+            unset($hostid);
+        }
         if (count($insert_values) > 0) {
-            self::getClass('ModuleAssociationManager')
-                ->insertBatch(
-                    $insert_fields,
-                    $insert_values
-                );
+            foreach (array_chunk((array)$insert_values, 500) as &$insert_value) {
+                self::getClass('ModuleAssociationManager')
+                    ->insertBatch(
+                        $insert_fields,
+                        $insert_value
+                    );
+                unset($insert_value);
+            }
         }
         return $this;
     }

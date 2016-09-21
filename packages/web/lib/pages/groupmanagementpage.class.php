@@ -1326,14 +1326,57 @@ class GroupManagementPage extends FOGPage
                     }
                     break;
                 case 'group-service':
-                    list($r, $time, $x, $y, ) = self::getSubObjectIDs('Service', array('name'=>array('FOG_CLIENT_DISPLAYMANAGER_R', 'FOG_CLIENT_AUTOLOGOFF_MIN', 'FOG_CLIENT_DISPLAYMANAGER_X', 'FOG_CLIENTDISPLAYMANAGER_Y')), 'value');
-                    $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $x);
-                    $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $y);
-                    $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $r);
-                    $time = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $time);
-                    $modOn = (array)$_REQUEST['modules'];
-                    $modOff = self::getSubObjectIDs('Module', array('id'=>$modOn), 'id', true);
-                    $this->obj->addModule($modOn)->removeModule($modOff)->setDisp($x, $y, $r)->setAlo($time);
+                    list(
+                        $time,
+                        $r,
+                        $x,
+                        $y
+                    ) = self::getSubObjectIDs(
+                        'Service',
+                        array(
+                            'name' => array(
+                                'FOG_CLIENT_AUTOLOGOFF_MIN',
+                                'FOG_CLIENT_DISPLAYMANAGER_R',
+                                'FOG_CLIENT_DISPLAYMANAGER_X',
+                                'FOG_CLIENT_DISPLAYMANAGER_Y'
+                            )
+                        ),
+                        'value'
+                    );
+                    $x = (
+                        is_numeric($_REQUEST['x']) ?
+                        $_REQUEST['x'] :
+                        $x
+                    );
+                    $y = (
+                        is_numeric($_REQUEST['y']) ?
+                        $_REQUEST['y'] :
+                        $y
+                    );
+                    $r = (
+                        is_numeric($_REQUEST['r']) ?
+                        $_REQUEST['r'] :
+                        $r
+                    );
+                    $time = (
+                        is_numeric($_REQUEST['tme']) ?
+                        $_REQUEST['tme'] :
+                        $time
+                    );
+                    $mods = self::getSubObjectIDs('Module');
+                    $modOn = array_intersect(
+                        (array)$mods,
+                        (array)$_REQUEST['modules']
+                    );
+                    $modOff = array_diff(
+                        (array)$mods,
+                        (array)$modOn
+                    );
+                    $this->obj
+                        ->addModule($modOn)
+                        ->removeModule($modOff)
+                        ->setDisp($x, $y, $r)
+                        ->setAlo($time);
                     break;
                 case 'group-powermanagement':
                     $min = $_REQUEST['scheduleCronMin'];
