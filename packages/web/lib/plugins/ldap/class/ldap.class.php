@@ -235,7 +235,7 @@ class LDAP extends FOGController
         /**
          * Parse our user search DN
          */
-        $entries = $this->_ldapParseDN($userSearchDN);
+        $entries = $this->_ldapParseDn($userSearchDN);
         /**
          * Combine to get the Domain in information.
          */
