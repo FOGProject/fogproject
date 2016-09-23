@@ -479,50 +479,43 @@ abstract class FOGManagerController extends FOGBase
         $whereArray = array();
         $countVals = $countKeys = array();
         if (count($findWhere)) {
-            array_walk(
-                $findWhere,
-                function (
-                    &$value,
-                    &$field
-                ) use (
-                    &$whereArray,
-                    $compare,
-                    &$countVals,
-                    &$countKeys
-                ) {
-                    $field = trim($field);
-                    if (is_array($value)) {
-                        foreach ((array)$value as $index => &$val) {
-                            $countKeys[] = sprintf(':countVal%d', $index);
-                            $countVals[sprintf('countVal%d', $index)] = $val;
-                            unset($val);
-                        }
-                        $whereArray[] = sprintf(
-                            "`%s`.`%s` IN (%s)",
-                            $this->databaseTable,
-                            $this->databaseFields[$field],
-                            implode(',', $countKeys)
+            foreach ((array)$findWhere as $field => &$value) {
+                $field = trim($field);
+                if (is_array($value)) {
+                    foreach ((array)$value as $index => &$val) {
+                        $key = sprintf(
+                            '%s_%d',
+                            $field,
+                            $index
                         );
-                        unset($countKeys);
-                    } else {
-                        $countVals['countVal'] = $value;
-                        $whereArray[] = sprintf(
-                            '`%s`.`%s`%s:countVal',
-                            $this->databaseTable,
-                            $this->databaseFields[$field],
-                            (
-                                preg_match(
-                                    '#%#',
-                                    $value
-                                ) ?
-                                ' LIKE' :
-                                $compare
-                            )
-                        );
+                        $countKeys[] = sprintf(':%s', $key);
+                        $countVals[$key] = $val;
+                        unset($val);
                     }
-                    unset($value, $field);
+                    $whereArray[] = sprintf(
+                        '`%s` IN (%s)',
+                        $this->databaseFields[$field],
+                        implode(',', $countKeys)
+                    );
+                    unset($countKeys);
+                } else {
+                    $countVals[$field] = $value;
+                    $whereArray[] = sprintf(
+                        '`%s` %s :%s',
+                        $this->databaseFields[$field],
+                        (
+                            preg_match(
+                                '#%#',
+                                $value
+                            ) ?
+                            'LIKE' :
+                            trim($compare)
+                        ),
+                        $field
+                    );
                 }
-            );
+                unset($value, $field);
+            }
         }
         $knownEnable = array(
             'Image',
