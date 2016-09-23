@@ -62,12 +62,12 @@ class LDAP extends FOGController
         'name',
         'address',
         'port',
-        'searchDN',
-        'userNamAttr',
-        'grpMemberAttr',
-        'adminGroup',
-        'userGroup',
-        'searchScope',
+        // 'searchDN',
+        // 'userNamAttr',
+        // 'grpMemberAttr',
+        // 'adminGroup',
+        // 'userGroup',
+        // 'searchScope',
     );
     /**
      * Tests if the server is up and available
@@ -125,9 +125,13 @@ class LDAP extends FOGController
                     $data
                 ) = explode('=', $value);
                 $prefix = strtoupper($prefix);
-                $data = preg_replace(
-                    '/\\\([0-9A-Fa-f]{2})/e',
-                    "''.chr(hexdec('\\1')).''",
+                $pat = preg_replace_callback(
+                    "/\\\([0-9A-Fa-f]{2})/",
+                    function ($matches) {
+                        foreach ((array)$matches as &$match) {
+                            return chr(hexdec($match));
+                        }
+                    },
                     $data
                 );
                 if (isset($current_prefix)
@@ -240,28 +244,54 @@ class LDAP extends FOGController
          * Combine to get the Domain in information.
          */
         $userDomain = implode('.', $entries['DC']);
-        $userDN = sprintf(
+        $userDN1 = sprintf(
             '%s@%s',
             $user,
             $userDomain
+        );
+        $userDN2 = sprintf(
+            '%s\%s',
+            $userDomain,
+            $user
+        );
+        $userDN3 = sprintf(
+            '%s=%s,dc=%s',
+            $userNamAttr,
+            $user,
+            implode(',dc=', $entries['DC'])
         );
         /**
          * If we cannot bind using the information
          *
          * @return bool
          */
-        if (!ldap_bind($ldapconn, $userDN, $pass)) {
-            return false;
+        if ($this->get('bindDN')) {
+            $bindDN = $this->get('bindDN');
+            $bindPass = $this->aesdecrypt($this->get('bindPwd'));
+            if (!@ldap_bind($ldapconn, $bindDN, $bindPass)) {
+                return false;
+            }
+        } else {
+            if (!@ldap_bind($ldapconn, $userDN1, $pass)
+                && !@ldap_bind($ldapconn, $userDN2, $pass)
+                && !@ldap_bind($ldapconn, $userDN3, $pass)
+            ) {
+                return false;
+            }
         }
         /**
          * User is authorized, get group membership
          */
         $filter = sprintf(
-            '(&(%s=%s)(%s=%s))',
-            'objectCategory',
-            'person',
-            $userNamAttr,
-            $user
+            //'(&(%s=%s)(%s))(&(%s=%s)(%s)))',
+            '(&(%s=%s))',
+            $userSearchDN,
+            //$userNamAttr,
+            //$user,
+            $adminGroup
+            //$userNamAttr,
+            //$user,
+            //$userGroup
         );
         $attr = array($grpMemberAttr);
         /**

@@ -52,6 +52,9 @@ class LDAPPluginHook extends Hook
             return;
         }
         $ldaps = self::getClass('LDAPManager')->find();
+        self::$FOGUser
+            ->set('name', $user)
+            ->load('name');
         foreach ((array)$ldaps as &$ldap) {
             if (!$ldap->isValid()) {
                 continue;
@@ -65,14 +68,16 @@ class LDAPPluginHook extends Hook
                 case 2:
                     // This is an admin account, break the loop
                     self::$FOGUser
-                        ->set('name', $user)
-                        ->set('type', 0);
+                        ->set('password', $pass)
+                        ->set('type', 0)
+                        ->save();
                     break 2;
                 case 1:
                     // This is an unprivileged user account.
                     self::$FOGUser
-                        ->set('name', $user)
-                        ->set('type', 1);
+                        ->set('password', $pass)
+                        ->set('type', 1)
+                        ->save();
                     break;
             }
         }

@@ -187,11 +187,20 @@ class LDAPManagementPage extends FOGPage
                 'name="address" value="%s"/>',
                 $_REQUEST['address']
             ),
-            _('LDAP Server Port') => '<input class="smaller" type="text" '
+            _('LDAP Server Port') => '<select name="port">'
             . sprintf(
-                'name="port" value="%s"/>',
-                $_REQUEST['port']
-            ),
+                '<option value="">- %s -</option>',
+                self::$foglang['PleaseSelect']
+            )
+            . sprintf(
+                '<option value="389"%s>389</option>',
+                $_REQUEST['port'] == 389 ? ' selected' : ''
+            )
+            . sprintf(
+                '<option value="636"%s>636</option>',
+                $_REQUEST['port'] == 636 ? ' selected' : ''
+            )
+            . '</select>',
             _('Search Base DN') => '<input class="smaller" type="text" '
             . sprintf(
                 'name="searchDN" value="%s"/>',
@@ -224,23 +233,33 @@ class LDAPManagementPage extends FOGPage
                 'id="grpMemberAttr" name="grpMemberAttr" value="%s"/>',
                 $_REQUEST['grpMemberAttr']
             ),
-            /*
-            _('Search Scope') => '<input class="smaller" type="text" '
+            _('Search Scope') => '<select name="searchScope">'
             . sprintf(
-                'name="searchScope" value="%s"/>',
-                $_REQUEST['searchScope']
-            ),
+                '<option value="">- %s -</option>',
+                self::$foglang['PleaseSelect']
+            )
+            . sprintf(
+                '<option value="0"%s>%s</option>',
+                isset($_REQUEST['searchScope'])
+                && $_REQUEST['searchScope'] == 0 ? ' selected' : '',
+                _('No')
+            )
+            . sprintf(
+                '<option value="1"%s>%s</option>',
+                $_REQUEST['searchScope'] == 1 ? ' selected' : '',
+                _('Yes')
+            )
+            . '</select>',
             _('Bind DN') => '<input class="smaller" type="text" '
             . sprintf(
                 'name="bindDN" value="%s"/>',
                 $_REQUEST['bindDN']
             ),
-            _('Bind Pwd') => '<input class="smaller" type="text" '
+            _('Bind Password') => '<input class="smaller" type="password" '
             . sprintf(
                 'name="bindPwd" value="%s"/>',
                 $_REQUEST['bindPwd']
             ),
-             */
             '&nbsp;' => sprintf(
                 '<input class="smaller" name="add" type="submit" value="%s"/>',
                 _('Add')
@@ -315,7 +334,7 @@ class LDAPManagementPage extends FOGPage
                 ->set('userGroup', $userGroup)
                 ->set('searchScope', $searchScope)
                 ->set('bindDN', $bindDN)
-                ->set('bindPwd', $bindPwd);
+                ->set('bindPwd', $this->encryptpw($bindPwd));
             if ($LDAP->save()) {
                 $this->setMessage(_('LDAP Server Added, editing!'));
                 $this->redirect(
@@ -360,11 +379,36 @@ class LDAPManagementPage extends FOGPage
                 'name="address" value="%s"/>',
                 $this->obj->get('address')
             ),
-            _('LDAP Server Port') => '<input class="smaller" type="text" '
+            _('LDAP Server Port') => '<select name="port">'
             . sprintf(
-                'name="port" value="%d"/>',
-                $this->obj->get('port')
-            ),
+                '<option value="">- %s -</option>',
+                self::$foglang['PleaseSelect']
+            )
+            . sprintf(
+                '<option value="389"%s>389</option>',
+                (
+                    $_REQUEST['port'] == 389 ?
+                    ' selected' :
+                    (
+                        $this->obj->get('port') == 389 ?
+                        ' selected' :
+                        ''
+                    )
+                )
+            )
+            . sprintf(
+                '<option value="636"%s>636</option>',
+                (
+                    $_REQUEST['port'] == 636 ?
+                    ' selected' :
+                    (
+                        $this->obj->get('port') == 636 ?
+                        ' selected' :
+                        ''
+                    )
+                )
+            )
+            . '</select>',
             _('Search Base DN') => '<input class="smaller" type="text" '
             . sprintf(
                 'name="searchDN" value="%s"/>',
@@ -397,23 +441,49 @@ class LDAPManagementPage extends FOGPage
                 'id="grpMemberAttr" name="grpMemberAttr" value="%s"/>',
                 $this->obj->get('grpMemberAttr')
             ),
-            /*
-            _('Search Scope') => '<input class="smaller" type="text" '
+            _('Search Scope') => '<select name="searchScope">'
             . sprintf(
-                'name="searchScope" value="%s"/>',
-                $this->obj->get('searchScope')
-            ),
+                '<option value="">- %s -</option>',
+                self::$foglang['PleaseSelect']
+            )
+            . sprintf(
+                '<option value="0"%s>%s</option>',
+                (
+                    isset($_REQUEST['searchScope'])
+                    && $_REQUEST['searchScope'] == 0 ?
+                    ' selected' :
+                    (
+                        $this->obj->get('searchScope') == 0 ?
+                        ' selected' :
+                        ''
+                    )
+                ),
+                _('No')
+            )
+            . sprintf(
+                '<option value="1"%s>%s</option>',
+                (
+                    $_REQUEST['searchScope'] == 1 ?
+                    ' selected' :
+                    (
+                        $this->obj->get('searchScope') == 1 ?
+                        ' selected' :
+                        ''
+                    )
+                ),
+                _('Yes')
+            )
+            . '</select>',
             _('Bind DN') => '<input class="smaller" type="text" '
             . sprintf(
                 'name="bindDN" value="%s"/>',
                 $this->obj->get('bindDN')
             ),
-            _('Bind Pwd') => '<input class="smaller" type="text" '
+            _('Bind Password') => '<input class="smaller" type="password" '
             . sprintf(
                 'name="bindPwd" value="%s"/>',
-                $this->obj->get('bindPwd')
+                $this->aesdecrypt($this->obj->get('bindPwd'))
             ),
-             */
             '&nbsp;' => sprintf(
                 '<input class="smaller" name="update" type="submit" value="%s"/>',
                 _('Update')
@@ -485,7 +555,7 @@ class LDAPManagementPage extends FOGPage
                 ->set('userGroup', $userGroup)
                 ->set('searchScope', $searchScope)
                 ->set('bindDN', $bindDN)
-                ->set('bindPwd', $bindPwd);
+                ->set('bindPwd', $this->encryptpw($bindPwd));
             if (!$LDAP->save()) {
                 throw new Exception(_('Database update failed'));
             }
