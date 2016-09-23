@@ -502,12 +502,16 @@ abstract class FOGService extends FOGBase
                 if ($limitsend > 0) {
                     $limitset .= "set net:limit-rate 0:$limitsend;";
                 }
+                unset($limit);
                 $limit = $limitset;
                 unset($limitset);
+                unset($remItem);
+                unset($includeFile);
                 $ftpstart = "ftp://$username:$encpassword@$ip";
                 if (is_file($myAdd)) {
                     $remItem = dirname("$removeDir$removeFile");
-                    $includeFile = sprintf('-R -i %s', $myFile);
+                    $opts = '-R -i';
+                    $includeFile = $myFile;
                     if (!$myAddItem) {
                         $myAddItem = dirname($myAdd);
                     }
@@ -521,7 +525,8 @@ abstract class FOGService extends FOGBase
                     $remItem = "$removeDir$removeFile";
                     $localfilescheck = glob("$myAdd/*");
                     $remotefilescheck = self::$FOGFTP->nlist($remItem);
-                    $includeFile = '-R';
+                    $opts = '-R';
+                    $includeFile = '';
                     if (!$myAddItem) {
                         $myAddItem = $myAdd;
                     }
@@ -581,23 +586,26 @@ abstract class FOGService extends FOGBase
                     self::outall(_(' * Starting Sync Actions'));
                 }
                 $this->killTasking($i, $itemType, $Obj->get('name'));
-                $limit = escapeshellarg($limit);
-                $includeFile = escapeshellarg($includeFile);
-                $myAddItem = escapeshellarg($myAddItem);
-                $remItem = escapeshellarg($remItem);
-                $username = escapeshellarg($username);
-                $password = escapeshellarg($password);
-                $ip = escapeshellarg($ip);
                 $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries ";
-                $cmd .= "10;set net:timeout 30; $limit mirror -c $includeFile ";
-                $cmd .= "--ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' ";
-                $cmd .= "--exclude 'CA/' --delete-first $myAddItem $remItem; ";
-                $cmd .= "exit' -u $username,$password $ip";
+                $cmd .= "10;set net:timeout 30; $limit mirror -c ";
+                $cmd .= "$opts ";
+                if (!empty($includeFile)) {
+                    $cmd .= "\\'$includeFile\\' ";
+                }
+                $cmd .= "--ignore-time -vvv --exclude \"dev/\" --exclude \"ssl/\" ";
+                $cmd .= "--exclude \"CA\" --delete-first \\'$myAddItem\\' ";
+                $cmd .= "\\'$remItem\\'; ";
+                $cmd .= "exit' -u '$username','$password' '$ip'";
                 $cmd2 = "lftp -e 'set ftp:list-options -a;set net:max-retries ";
-                $cmd2 .= "10;set net:timeout 30; $limit mirror -c $includeFile ";
-                $cmd2 .= "--ignore-time -vvv --exclude 'dev/' --exclude 'ssl/' ";
-                $cmd2 .= "--exclude 'CA/' --delete-first $myAddItem $remItem; ";
-                $cmd2 .= "exit' -u $username,[Protected] $ip";
+                $cmd2 .= "10;set net:timeout 30; $limit mirror -c ";
+                $cmd2 .= "$opts ";
+                if (!empty($includeFile)) {
+                    $cmd2 .= "\\'$includeFile\\' ";
+                }
+                $cmd2 .= "--ignore-time -vvv --exclude \"dev/\" --exclude \"ssl/\" ";
+                $cmd2 .= "--exclude \"CA\" --delete-first \\'$myAddItem\\' ";
+                $cmd2 .= "\\'$remItem\\'; ";
+                $cmd2 .= "exit' -u '$username',[Protected] '$ip'";
                 self::outall(" | CMD:\n\t\t\t$cmd2");
                 $this->startTasking(
                     $cmd,
