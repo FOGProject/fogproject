@@ -157,17 +157,8 @@ class DashboardPage extends FOGPage
         }
         $ActivityActive = $ActivityQueued = $ActivityTotalClients = 0;
         $ActivityTotalClients = $this->obj->getTotalAvailableSlots();
-        array_map(function (&$Node) use (&$ActivityActive, &$ActivityQueued, &$ActivityTotalClients) {
-            if (!$Node->isValid()) {
-                return;
-            }
-            $ActivityActive += $Node->getUsedSlotCount();
-            $ActivityQueued += $Node->getQueuedSlotCount();
-            if ($ActivityTotalClients <= 0) {
-                $ActivityTotalClients = 0;
-            }
-            unset($Node);
-        }, self::getClass('StorageNodeManager')->find(array('id'=>$this->obj->get('enablednodes'))));
+        $ActivityQueued = $this->obj->getQueuedSlots();
+        $ActivityActive = $this->obj->getUsedSlots();
         $data = array(
             'ActivityActive'=>$ActivityActive,
             'ActivityQueued'=>$ActivityQueued,

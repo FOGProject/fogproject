@@ -1,109 +1,255 @@
 <?php
+/**
+ * Storage Group object
+ *
+ * PHP version 5
+ *
+ * @category StorageGroup
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLV3
+ * @link     https://fogproject.org
+ */
+/**
+ * Storage Group object
+ *
+ * @category StorageGroup
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLV3
+ * @link     https://fogproject.org
+ */
 class StorageGroup extends FOGController
 {
+    /**
+     * Stores the total count and returns if it is already
+     * set.
+     *
+     * @var array
+     */
+    private static $_tot = array();
+    /**
+     * Stores the queued count and returns if it is already
+     * set.
+     *
+     * @var array
+     */
+    private static $_queued = array();
+    /**
+     * Stores the used count and returns if it is already
+     * set.
+     *
+     * @var array
+     */
+    private static $_used = array();
+    /**
+     * The table for the group info.
+     *
+     * @var string
+     */
     protected $databaseTable = 'nfsGroups';
+    /**
+     * The database fields and common names
+     *
+     * @var array
+     */
     protected $databaseFields = array(
         'id' => 'ngID',
         'name' => 'ngName',
         'description' => 'ngDesc',
     );
+    /**
+     * The required fields
+     *
+     * @var array
+     */
     protected $databaseFieldsRequired = array(
         'name',
     );
+    /**
+     * Additional fields
+     *
+     * @var array
+     */
     protected $additionalFields = array(
         'allnodes',
         'enablednodes',
     );
+    /**
+     * Loads all the nodes in the group
+     *
+     * @return void
+     */
     protected function loadAllnodes()
     {
-        $this->set('allnodes', self::getSubObjectIDs('StorageNode', array('storageGroupID'=>$this->get('id')), 'id'));
+        $this->set(
+            'allnodes',
+            self::getSubObjectIDs(
+                'StorageNode',
+                array('storageGroupID' => $this->get('id')),
+                'id'
+            )
+        );
     }
+    /**
+     * Loads the enabled nodes in the group
+     *
+     * @return void
+     */
     protected function loadEnablednodes()
     {
-        $this->set('enablednodes', self::getSubObjectIDs('StorageNode', array('storageGroupID'=>$this->get('id'), 'id'=>$this->get('allnodes'), 'isEnabled'=>1)));
+        $this->set(
+            'enablednodes',
+            self::getSubObjectIDs(
+                'StorageNode',
+                array(
+                    'storageGroupID' => $this->get('id'),
+                    'id' => $this->get('allnodes'),
+                    'isEnabled' => 1
+                )
+            )
+        );
     }
+    /**
+     * Returns total available slots
+     *
+     * @return int
+     */
     public function getTotalAvailableSlots()
     {
-        $Nodes = self::getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes')));
-        $usedSlotCount = 0;
-        array_walk($Nodes, function (&$StorageNode, &$index) use (&$usedSlotCount) {
-            if (!$StorageNode->isValid()) {
-                return 0;
-            }
-            $usedSlotCount += $StorageNode->getUsedSlotCount() + $StorageNode->getQueuedSlotCount();
-        });
-        if ($usedSlotCount >= $this->getTotalSupportedClients()) {
+        $tot = (
+            $this->getTotalSupportedClients()
+            - $this->getUsedSlots()
+            - $this->getQueuedSlots()
+        );
+        if ($tot < 1) {
             return 0;
         }
-        return $this->getTotalSupportedClients() - $usedSlotCount;
+        return $tot;
     }
+    /**
+     * Returns total used / in tasking slots
+     *
+     * @return int
+     */
+    public function getUsedSlots()
+    {
+        if (isset(self::$_used['tot'])) {
+            return (int)self::$_used['tot'];
+        }
+        $UsedTasks = array_unique(explode(',', self::getSetting('FOG_USED_TASKS')));
+        return (int)self::$_used['tot'] = self::getClass('TaskManager')
+            ->count(
+                array(
+                    'stateID' => $this->getProgressState(),
+                    'NFSMemberID' => $this->get('enablednodes'),
+                    'typeID' => $UsedTasks,
+                )
+            );
+    }
+    /**
+     * Returns total queued slots
+     *
+     * @return int
+     */
+    public function getQueuedSlots()
+    {
+        if (isset(self::$_queued['tot'])) {
+            return (int)self::$_queued['tot'];
+        }
+        $UsedTasks = array_unique(explode(',', self::getSetting('FOG_USED_TASKS')));
+        return (int)self::$_queued['tot'] = self::getClass('TaskManager')
+            ->count(
+                array(
+                    'stateID' => $this->getQueuedStates(),
+                    'NFSMemberID' => $this->get('enablednodes'),
+                    'typeID' => $UsedTasks,
+                )
+            );
+    }
+    /**
+     * Returns total supported clients
+     *
+     * @return int
+     */
     public function getTotalSupportedClients()
     {
-        return self::getSubObjectIDs('StorageNode', array('id'=>$this->get('enablednodes')), 'maxClients', false, 'AND', 'name', false, 'array_sum');
+        if (isset(self::$_tot['tot'])) {
+            return (int)self::$_tot['tot'];
+        }
+        return (int)self::$_tot['tot'] = self::getSubObjectIDs(
+            'StorageNode',
+            array('id' => $this->get('enablednodes')),
+            'maxClients',
+            false,
+            'AND',
+            'name',
+            false,
+            'array_sum'
+        );
     }
+    /**
+     * Get's the groups master storage node
+     *
+     * @return object
+     */
     public function getMasterStorageNode()
     {
-        if (!$this->get('id')) {
-            return;
-        }
-        if (!$this->isLoaded('enablednodes')) {
-            $this->loadEnablednodes();
-        }
-        $masternode = self::getSubObjectIDs('StorageNode', array('id'=>$this->get('enablednodes'), 'isMaster'=>1, 'isEnabled'=>1), 'id');
+        $masternode = self::getSubObjectIDs(
+            'StorageNode',
+            array(
+                'id' => $this->get('enablednodes'),
+                'isMaster' => 1,
+                'isEnabled' => 1
+            ),
+            'id'
+        );
         $masternode = array_shift($masternode);
         if (!$masternode > 0) {
             $masternode = @min($this->get('enablednodes'));
         }
-        return self::getClass('StorageNode', $masternode);
+        return new StorageNode($masternode);
     }
+    /**
+     * Get's the optimal storage node
+     *
+     * @param int $image the image to get optimal node of
+     *
+     * @return object
+     */
     public function getOptimalStorageNode($image)
     {
-        if (!$this->get('id')) {
-            return;
-        }
-        if (!$this->isLoaded('enablednodes')) {
-            $this->loadEnablednodes();
-        }
         $this->winner = null;
-        $Nodes = self::getClass('StorageNodeManager')->find(array('id'=>$this->get('enablednodes')));
-        array_walk($Nodes, function (&$StorageNode, &$index) use ($image) {
-            if (!$StorageNode->isValid()) {
-                return;
+        $Nodes = self::getClass('StorageNodeManager')
+            ->find(
+                array('id' => $this->get('enablednodes'))
+            );
+        $winner = null;
+        foreach ((array)$Nodes as &$Node) {
+            if (!$Node->isValid()) {
+                continue;
             }
-            if (!in_array($image, $StorageNode->get('images'))) {
-                return;
+            if (!in_array($image, $Node->get('images'))) {
+                continue;
             }
-            if ($StorageNode->get('maxClients') < 1) {
-                return;
+            if ($Node->get('maxClients') < 1) {
+                continue;
             }
-            if ($this->winner == null || !$this->winner->isValid()) {
-                $this->winner = $StorageNode;
-                return;
+            if ($winner == null
+                || !$winner->isValid()
+                || $Node->getClientLoad() < $winner->getClientLoad()
+            ) {
+                $winner = $Node;
+                continue;
             }
-            if ($StorageNode->getClientLoad() < $this->winner->getClientLoad()) {
-                $this->winner = $StorageNode;
-            }
-            unset($StorageNode, $index);
-        });
-        if (empty($this->winner) || !($this->winner instanceof StorageNode)) {
-            $this->winner = self::getClass('StorageNode', @min($this->get('enablednodes')));
+            unset($Node);
         }
-        return $this->winner;
-    }
-    public function getUsedSlotCount()
-    {
-        return self::getClass('TaskManager')->count(array(
-            'stateID'=>$this->getProgressState(),
-            'typeID'=>explode(',', self::getSetting('FOG_USED_TASKS')),
-            'NFSGroupID'=>$this->get('id'),
-        ));
-    }
-    public function getQueuedSlotCount()
-    {
-        return self::getClass('TaskManager')->count(array(
-            'stateID'=>$this->getQueuedStates(),
-            'typeID'=>array(1, 2, 8, 15, 16, 17, 24),
-            'NFSGroupID'=>$this->get('id'),
-        ));
+        if (empty($winner)
+            || !$winner instanceof StorageNode
+            || !$winner->isValid()
+        ) {
+            $winner = new StorageNode(@min($this->get('enablednodes')));
+        }
+        return $winner;
     }
 }
