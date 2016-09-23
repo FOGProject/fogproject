@@ -586,16 +586,19 @@ abstract class FOGService extends FOGBase
                     self::outall(_(' * Starting Sync Actions'));
                 }
                 $this->killTasking($i, $itemType, $Obj->get('name'));
+                $myAddItem = escapeshellarg($myAddItem);
+                $remItem = escapeshellarg($remItem);
                 $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries ";
                 $cmd .= "10;set net:timeout 30; $limit mirror -c ";
                 $cmd .= "$opts ";
                 if (!empty($includeFile)) {
-                    $cmd .= "\\'$includeFile\\' ";
+                    $includeFile = escapeshellarg($includeFile);
+                    $cmd .= "$includeFile ";
                 }
                 $cmd .= "--ignore-time -vvv --exclude \"dev/\" --exclude \"ssl/\" ";
-                $cmd .= "--exclude \"CA\" --delete-first \\'$myAddItem\\' ";
-                $cmd .= "\\'$remItem\\'; ";
-                $cmd .= "exit' -u '$username','$password' '$ip'";
+                $cmd .= "--exclude \"CA\" --delete-first $myAddItem ";
+                $cmd .= "$remItem; ";
+                $cmd .= "exit' -u $username,$password $ip";
                 $cmd2 = "lftp -e 'set ftp:list-options -a;set net:max-retries ";
                 $cmd2 .= "10;set net:timeout 30; $limit mirror -c ";
                 $cmd2 .= "$opts ";
@@ -603,9 +606,9 @@ abstract class FOGService extends FOGBase
                     $cmd2 .= "\\'$includeFile\\' ";
                 }
                 $cmd2 .= "--ignore-time -vvv --exclude \"dev/\" --exclude \"ssl/\" ";
-                $cmd2 .= "--exclude \"CA\" --delete-first \\'$myAddItem\\' ";
+                $cmd2 .= "--exclude \"CA\" --delete-first $myAddItem ";
                 $cmd2 .= "\\'$remItem\\'; ";
-                $cmd2 .= "exit' -u '$username',[Protected] '$ip'";
+                $cmd2 .= "exit' -u $username,[Protected] $ip";
                 self::outall(" | CMD:\n\t\t\t$cmd2");
                 $this->startTasking(
                     $cmd,
