@@ -603,13 +603,14 @@ abstract class FOGService extends FOGBase
                 $cmd2 .= "10;set net:timeout 30; $limit mirror -c ";
                 $cmd2 .= "$opts ";
                 if (!empty($includeFile)) {
-                    $cmd2 .= "\\'$includeFile\\' ";
+                    $cmd2 .= "$includeFile ";
                 }
                 $cmd2 .= "--ignore-time -vvv --exclude \"dev/\" --exclude \"ssl/\" ";
                 $cmd2 .= "--exclude \"CA\" --delete-first $myAddItem ";
                 $cmd2 .= "\\'$remItem\\'; ";
                 $cmd2 .= "exit' -u $username,[Protected] $ip";
                 self::outall(" | CMD:\n\t\t\t$cmd2");
+                unset($includeFile, $remItem, $myAddItem);
                 $this->startTasking(
                     $cmd,
                     $logname,
