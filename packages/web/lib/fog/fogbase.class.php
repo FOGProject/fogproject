@@ -1320,6 +1320,10 @@ abstract class FOGBase
      */
     protected function encryptpw($pass)
     {
+        $pass = trim($pass);
+        if (empty($pass)) {
+            return '';
+        }
         $decrypt = $this->aesdecrypt($pass);
         $newpass = $pass;
         if ($decrypt && mb_detect_encoding($decrypt, 'utf-8', true)) {
@@ -1379,6 +1383,9 @@ abstract class FOGBase
         $mode = MCRYPT_MODE_CBC
     ) {
         $iv_size = mcrypt_get_iv_size($enctype, $mode);
+        if (false === strpos($encdata, '|')) {
+            return $encdata;
+        }
         $data = explode('|', $encdata);
         $iv = pack('H*', $data[0]);
         $encoded = pack('H*', $data[1]);

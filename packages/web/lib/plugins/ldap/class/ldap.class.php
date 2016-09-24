@@ -219,7 +219,7 @@ class LDAP extends FOGController
         ldap_set_option(
             $ldapconn,
             LDAP_OPT_REFERRALS,
-            0
+            1
         );
         /**
          * Sets our default accessLevel to 0.
@@ -229,121 +229,321 @@ class LDAP extends FOGController
          */
         $accessLevel = 0;
         /**
-         * Set up our search/group information
+         * Setup bind dn and password
          */
-        $userSearchDN = $this->get('searchDN');
+        $bindDN = strtolower($this->get('bindDN'));
+        $bindPass = $this->get('bindPwd');
+        /**
+         * Setup the admin/user scopes to use for creating
+         * our users later on
+         */
         $adminGroup = strtolower($this->get('adminGroup'));
         $userGroup = strtolower($this->get('userGroup'));
+        /**
+         * The user name attribute in use (e.g. uid=)
+         */
         $userNamAttr = strtolower($this->get('userNamAttr'));
+        /**
+         * The group member attribute in use (e.g. memberOf=)
+         */
         $grpMemberAttr = strtolower($this->get('grpMemberAttr'));
+        /**
+         * How deep to search from the base we're looking into
+         */
+        $searchScope = $this->get('searchScope');
         /**
          * Parse our user search DN
          */
         $entries = $this->_ldapParseDn($userSearchDN);
         /**
-         * Combine to get the Domain in information.
+         * Set up our search/group information
          */
-        $userDomain = implode('.', $entries['DC']);
-        $userDN1 = sprintf(
-            '%s@%s',
-            $user,
-            $userDomain
-        );
-        $userDN2 = sprintf(
-            '%s\%s',
-            $userDomain,
+        $userSearchDN = strtolower($this->get('searchDN'));
+        /**
+         * Set our filter to return our object
+         */
+        $filter = sprintf(
+            '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
+            $userNamAttr,
             $user
         );
-        $userDN3 = sprintf(
-            '%s=%s,dc=%s',
-            $userNamAttr,
-            $user,
-            implode(',dc=', $entries['DC'])
-        );
         /**
-         * If we cannot bind using the information
-         *
-         * @return bool
+         * If binddn is set run:
          */
-        if ($this->get('bindDN')) {
-            $bindDN = $this->get('bindDN');
-            $bindPass = $this->aesdecrypt($this->get('bindPwd'));
-            if (!@ldap_bind($ldapconn, $bindDN, $bindPass)) {
+        if (!empty($bindDN)) {
+            $bindPass = trim($bindPass);
+            $bindPass = $this->aesdecrypt($bindPass);
+            /**
+             * If no bind password return immediately
+             */
+            if (empty($bindPass)) {
                 return false;
             }
+            /**
+             * Make our bindDN/pass connection
+             */
+            $bind = ldap_bind($ldapconn, $bindDN, $bindPass);
+            /**
+             * If we cannot bind return immediately
+             */
+            if (!$bind) {
+                return false;
+            }
+            /**
+             * Setup bind DN attribute
+             */
+            $attr = array('dn');
+            switch ($searchScope) {
+                case 1:
+                    /**
+                     * One level down but not base
+                     */
+                    $result = ldap_list($ldapconn, $userSearchDN, $filter, $attr);
+                    break;
+                case 2:
+                    /**
+                     * Search base and all subtree ous
+                     */
+                    $result = ldap_search($ldapconn, $userSearchDN, $filter, $attr);
+                    break;
+                default:
+                    /**
+                     * Search base only
+                     */
+                    $result = ldap_read($ldapconn, $userSearchDN, $filter, $attr);
+            }
+            $retcount = ldap_count_entries($ldapconn, $result);
+            /**
+             * If multiple entries or no entries return immediately
+             */
+            if ($retcount != 1) {
+                ldap_unbind($ldapconn);
+                return false;
+            }
+            /**
+             * Only one entry
+             */
+            $entries = ldap_get_entries($ldapconn, $result);
+            /**
+             * Pull out the user dn
+             */
+            $userDN = $entries[0]['dn'];
+            /**
+             * Rebind as the user
+             */
+            $bind = @ldap_bind($ldapconn, $userDN, $pass);
+            /**
+             * If user unable to bind return immediately
+             */
+            if (!$bind) {
+                return false;
+            }
+            /**
+             * Setup our new filter
+             */
+            $filter = sprintf(
+                '(%s=*)',
+                $grpMemberAttr
+            );
+            /**
+             * Allows the user to use multiple attributes
+             * via a comma separated list
+             */
+            $attr = array($grpMemberAttr);
+            $attr = array_map('trim', $attr);
+            /**
+             * Read in the attributes
+             */
+            switch ($searchScope) {
+                case 1:
+                    /**
+                     * One level down but not base
+                     */
+                    $result = ldap_list($ldapconn, $userSearchDN, $filter, $attr);
+                    break;
+                case 2:
+                    /**
+                     * Search base and all subtree ous
+                     */
+                    $result = ldap_search($ldapconn, $userSearchDN, $filter, $attr);
+                    break;
+                default:
+                    /**
+                     * Search base only
+                     */
+                    $result = ldap_read($ldapconn, $userSearchDN, $filter, $attr);
+            }
+            /**
+             * Get number of entries returned
+             */
+            $retcount = ldap_count_entries($ldapconn, $result);
+            /**
+             * If no data return immediately
+             */
+            if ($retcount < 1) {
+                ldap_unbind($ldapconn);
+                return false;
+            }
+            /**
+             * Get the entries found
+             */
+            $entries = ldap_get_entries($ldapconn, $result);
+            /**
+             * Setup pattern for later
+             */
+            $pat = sprintf(
+                '#%s#i',
+                $userDN
+            );
+            /**
+             * Check groups for membership
+             */
+            foreach ((array)$entries as &$entry) {
+                if (!isset($entry['dn'])) {
+                    continue;
+                }
+                $dn = $entry['dn'];
+                $users = $entry[$grpMemberAttr];
+                $admin = strpos($dn, $adminGroup);
+                $user = strpos($dn, $userGroup);
+                /**
+                 * If we can't find our relative dn
+                 * set access level to 0 and break loop
+                 */
+                if (false === $admin && false === $user) {
+                    continue;
+                }
+                if (false !== $admin) {
+                    $adm = preg_grep($pat, $users);
+                    if (count($adm) > 0) {
+                        $accessLevel = 2;
+                        break;
+                    }
+                }
+                if (false !== $user) {
+                    $usr = preg_grep($pat, $users);
+                    if (count($usr) > 0) {
+                        $accessLevel = 1;
+                    }
+                }
+            }
+            /**
+             * Close our connection
+             */
+            ldap_unbind($ldapconn);
         } else {
+            /**
+             * Combine to get the Domain in information.
+             */
+            $userDomain = implode('.', $entries['DC']);
+            /**
+             * Setup a multitude of ways to bind
+             */
+            $userDN1 = sprintf(
+                '%s@%s',
+                $user,
+                $userDomain
+            );
+            $userDN2 = sprintf(
+                '%s\%s',
+                $userDomain,
+                $user
+            );
+            $userDN3 = sprintf(
+                '%s=%s,dc=%s',
+                $userNamAttr,
+                $user,
+                implode(',dc=', $entries['DC'])
+            );
+            /**
+             * If our ways here don't work, return immediately
+             */
             if (!@ldap_bind($ldapconn, $userDN1, $pass)
                 && !@ldap_bind($ldapconn, $userDN2, $pass)
                 && !@ldap_bind($ldapconn, $userDN3, $pass)
             ) {
                 return false;
             }
-        }
-        /**
-         * User is authorized, get group membership
-         */
-        $filter = sprintf(
-            //'(&(%s=%s)(%s))(&(%s=%s)(%s)))',
-            '(&(%s=%s))',
-            $userSearchDN,
-            //$userNamAttr,
-            //$user,
-            $adminGroup
-            //$userNamAttr,
-            //$user,
-            //$userGroup
-        );
-        $attr = array($grpMemberAttr);
-        /**
-         * Perform the search
-         */
-        $result = ldap_search(
-            $ldapconn,
-            $userSearchDN,
-            $filter,
-            $attr
-        );
-        /**
-         * Count the number of entries returned
-         */
-        $retcount = ldap_count_entries(
-            $ldapconn,
-            $result
-        );
-        /**
-         * If the count is 0 accesslevel is 0
-         * unbind the login
-         *
-         * @return bool
-         */
-        if ($retcount < 1) {
+            /**
+             * Allows the user to enter multiple attributes
+             * via a comma separated list
+             */
+            $attr = explode(',', $grpMemberAttr);
+            $attr = array_map('trim', $attr);
+            /**
+             * Read in the attributes
+             */
+            switch ($searchScope) {
+                case 1:
+                    /**
+                     * One level down but not base
+                     */
+                    $result = ldap_list($ldapconn, $userSearchDN, $filter, $attr);
+                    break;
+                case 2:
+                    /**
+                     * Search base and all subtree ous
+                     */
+                    $result = ldap_search($ldapconn, $userSearchDN, $filter, $attr);
+                    break;
+                default:
+                    /**
+                     * Search base only
+                     */
+                    $result = ldap_read($ldapconn, $userSearchDN, $filter, $attr);
+            }
+            /**
+             * Get number of entries returned
+             */
+            $retcount = ldap_count_entries($ldapconn, $result);
+            /**
+             * If no data return immediately
+             */
+            if ($retcount < 1) {
+                ldap_unbind($ldapconn);
+                return false;
+            }
+            /**
+             * Get the entries found
+             */
+            $entries = ldap_get_entries($ldapconn, $result);
+            /**
+             * Check groups for membership
+             */
+            foreach ((array)$entries as &$entry) {
+                if (!isset($entry['dn'])) {
+                    continue;
+                }
+                $dn = $entry['dn'];
+                $users = $entry[$grpMemberAttr];
+                $admin = strpos($dn, $adminGroup);
+                $user = strpos($dn, $userGroup);
+                /**
+                 * If we can't find our relative dn
+                 * set access level to 0 and break loop
+                 */
+                if (false === $admin && false === $user) {
+                    continue;
+                }
+                if (false !== $admin) {
+                    $adm = preg_grep($pat, $users);
+                    if (count($adm) > 0) {
+                        $accessLevel = 2;
+                        break;
+                    }
+                }
+                if (false !== $user) {
+                    $usr = preg_grep($pat, $users);
+                    if (count($usr) > 0) {
+                        $accessLevel = 1;
+                    }
+                }
+            }
+            /**
+             * Close our connection
+             */
             ldap_unbind($ldapconn);
-            return false;
         }
-        /**
-         * Get all of our entries
-         */
-        $entries = ldap_get_entries(
-            $ldapconn,
-            $result
-        );
-        /**
-         * Loop the entries to set the accesslevel.
-         */
-        foreach ((array)$entries[0][$grpMemberAttr] as &$grps) {
-            $grps = strtolower($grps);
-            if (false !== strpos($grps, $adminGroup)) {
-                $accessLevel = 2;
-                break;
-            }
-            if (false !== strpos($grps, $userGroup)) {
-                $accessLevel = 1;
-            }
-        }
-        /**
-         * Unbind the login
-         */
-        ldap_unbind($ldapconn);
         /**
          * If access level is not changed
          *
