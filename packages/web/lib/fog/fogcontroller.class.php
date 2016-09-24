@@ -181,11 +181,11 @@ abstract class FOGController extends FOGBase
      */
     private function _testFields($key)
     {
+        $this->key($key);
         $inFields = array_key_exists($key, $this->databaseFields);
         $inFieldsFlipped = array_key_exists($key, $this->databaseFieldsFlipped);
         $inAddFields = in_array($key, $this->additionalFields);
         if (!$inFields && !$inFieldsFlipped && !$inAddFields) {
-            unset($this->data[$key]);
             return false;
         }
         return true;
@@ -800,14 +800,11 @@ abstract class FOGController extends FOGBase
      */
     protected function key(&$key)
     {
-        if (!is_array($key)) {
-            $key = trim($key);
-            if (array_key_exists($key, $this->databaseFieldsFlipped)) {
-                $key = $this->databaseFieldsFlipped[$key];
-            }
-            return $key;
+        $key = trim($key);
+        if (array_key_exists($key, $this->databaseFieldsFlipped)) {
+            $key = $this->databaseFieldsFlipped[$key];
         }
-        return array_walk($key, array($this, 'key'));
+        return $key;
     }
     /**
      * Load the item field

@@ -487,6 +487,7 @@ function ajaxRun(username,password,url,selector,formid,target,fogajax) {
             $(selector).html('<p>Attempting to perform actions.</p>');
         },
         complete: function(data) {
+            console.log(data);
             str = new RegExp('^[#][#][#]');
             if (!str.test(data.responseText)) {
                 if (ids.length > 0) {

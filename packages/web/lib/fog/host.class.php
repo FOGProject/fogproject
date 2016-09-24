@@ -265,7 +265,7 @@ class Host extends FOGController
             ->destroy($find);
         self::getClass('PowerManagementManager')
             ->destroy($find);
-        return parent::destroy($field);
+        return parent::destroy($key);
     }
     /**
      * Returns Valid MACs
