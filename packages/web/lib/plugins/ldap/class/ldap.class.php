@@ -26,6 +26,12 @@
 class LDAP extends FOGController
 {
     /**
+     * Ldap connection itself
+     *
+     * @var resource
+     */
+    private static $_ldapconn;
+    /**
      * The ldap table
      *
      * @var string
@@ -62,13 +68,39 @@ class LDAP extends FOGController
         'name',
         'address',
         'port',
-        // 'searchDN',
-        // 'userNamAttr',
-        // 'grpMemberAttr',
+        'searchDN',
+        'userNamAttr',
+        'grpMemberAttr',
+        'searchScope',
+        /**
+         * I think it's find these are not "required"
+         * What if you want admin group to only be done by
+         * a particular ldap server?
+         *
+         * Same for a "user group" why should we require both?
+         */
         // 'adminGroup',
         // 'userGroup',
-        // 'searchScope',
     );
+    /**
+     * Magic function to enable ldap_ function calls using
+     * an object oriented call structure
+     *
+     * @param string $function the function to call (only the back half).
+     * @param array  $args     the functions required arguments
+     *
+     * @throws Exception
+     * @return function return
+     */
+    private function __call($function, $args)
+    {
+        $function = 'ldap_'.$function;
+        if (!function_exists($function)) {
+            throw new Exception(_('Function does not exist')." $function");
+        }
+        array_unshift($args, self::$_ldapconn);
+        return call_user_func_array($function, $args);
+    }
     /**
      * Tests if the server is up and available
      *
@@ -114,9 +146,9 @@ class LDAP extends FOGController
      *
      * @return array
      */
-    private function _ldapParseDn($dn)
+    private function _ldapParseDn()
     {
-        $parser = ldap_explode_dn($dn, 0);
+        $parser = $this->explode_dn(0);
         $out = array();
         foreach ((array)$parser as $key => &$value) {
             if (false !== strstr($value, '=')) {
@@ -204,22 +236,20 @@ class LDAP extends FOGController
         /**
          * Open connection to the server
          */
-        $ldapconn = ldap_connect(
+        self::$_ldapconn = ldap_connect(
             $server,
             $port
         );
         /**
          * Sets the ldap options we need
          */
-        ldap_set_option(
-            $ldapconn,
+        $this->set_option(
             LDAP_OPT_PROTOCOL_VERSION,
             3
         );
-        ldap_set_option(
-            $ldapconn,
+        $this->set_option(
             LDAP_OPT_REFERRALS,
-            1
+            0
         );
         /**
          * Sets our default accessLevel to 0.
@@ -260,14 +290,6 @@ class LDAP extends FOGController
          */
         $userSearchDN = strtolower($this->get('searchDN'));
         /**
-         * Set our filter to return our object
-         */
-        $filter = sprintf(
-            '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
-            $userNamAttr,
-            $user
-        );
-        /**
          * If binddn is set run:
          */
         if (!empty($bindDN)) {
@@ -282,7 +304,7 @@ class LDAP extends FOGController
             /**
              * Make our bindDN/pass connection
              */
-            $bind = ldap_bind($ldapconn, $bindDN, $bindPass);
+            $bind = @$this->bind($bindDN, $bindPass);
             /**
              * If we cannot bind return immediately
              */
@@ -290,40 +312,51 @@ class LDAP extends FOGController
                 return false;
             }
             /**
+             * Set our filter to return our object
+             */
+            $filter = sprintf(
+                '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
+                $userNamAttr,
+                $user
+            );
+            /**
              * Setup bind DN attribute
              */
             $attr = array('dn');
+            /**
+             * Gather our required information
+             */
             switch ($searchScope) {
                 case 1:
                     /**
                      * One level down but not base
                      */
-                    $result = ldap_list($ldapconn, $userSearchDN, $filter, $attr);
+                    $result = $this->list($userSearchDN, $filter, $attr);
                     break;
                 case 2:
                     /**
                      * Search base and all subtree ous
                      */
-                    $result = ldap_search($ldapconn, $userSearchDN, $filter, $attr);
+                    $result = $this->search($userSearchDN, $filter, $attr);
                     break;
                 default:
                     /**
                      * Search base only
                      */
-                    $result = ldap_read($ldapconn, $userSearchDN, $filter, $attr);
+                    $result = $this->read($userSearchDN, $filter, $attr);
             }
-            $retcount = ldap_count_entries($ldapconn, $result);
+            $retcount = $this->count_entries($result);
             /**
              * If multiple entries or no entries return immediately
              */
             if ($retcount != 1) {
-                ldap_unbind($ldapconn);
+                $this->unbind();
                 return false;
             }
             /**
              * Only one entry
              */
-            $entries = ldap_get_entries($ldapconn, $result);
+            $entries = $this->get_entries($result);
             /**
              * Pull out the user dn
              */
@@ -331,7 +364,7 @@ class LDAP extends FOGController
             /**
              * Rebind as the user
              */
-            $bind = @ldap_bind($ldapconn, $userDN, $pass);
+            $bind = @$this->bind($userDN, $pass);
             /**
              * If user unable to bind return immediately
              */
@@ -349,7 +382,7 @@ class LDAP extends FOGController
              * Allows the user to use multiple attributes
              * via a comma separated list
              */
-            $attr = array($grpMemberAttr);
+            $attr = explode(',', $grpMemberAttr);
             $attr = array_map('trim', $attr);
             /**
              * Read in the attributes
@@ -359,35 +392,35 @@ class LDAP extends FOGController
                     /**
                      * One level down but not base
                      */
-                    $result = ldap_list($ldapconn, $userSearchDN, $filter, $attr);
+                    $result = $this->list($userSearchDN, $filter, $attr);
                     break;
                 case 2:
                     /**
                      * Search base and all subtree ous
                      */
-                    $result = ldap_search($ldapconn, $userSearchDN, $filter, $attr);
+                    $result = $this->search($userSearchDN, $filter, $attr);
                     break;
                 default:
                     /**
                      * Search base only
                      */
-                    $result = ldap_read($ldapconn, $userSearchDN, $filter, $attr);
+                    $result = $this->read($userSearchDN, $filter, $attr);
             }
             /**
              * Get number of entries returned
              */
-            $retcount = ldap_count_entries($ldapconn, $result);
+            $retcount = $this->count_entries($result);
             /**
              * If no data return immediately
              */
             if ($retcount < 1) {
-                ldap_unbind($ldapconn);
+                $this->unbind();
                 return false;
             }
             /**
              * Get the entries found
              */
-            $entries = ldap_get_entries($ldapconn, $result);
+            $entries = $this->get_entries($result);
             /**
              * Setup pattern for later
              */
@@ -399,12 +432,27 @@ class LDAP extends FOGController
              * Check groups for membership
              */
             foreach ((array)$entries as &$entry) {
+                /**
+                 * If this cycle doesn't have the dn, skip it
+                 */
                 if (!isset($entry['dn'])) {
                     continue;
                 }
+                /**
+                 * Get the dn entry we need to test against
+                 */
                 $dn = $entry['dn'];
+                /**
+                 * Get the users related to this dn
+                 */
                 $users = $entry[$grpMemberAttr];
+                /**
+                 * Tests the presence of our admin group
+                 */
                 $admin = strpos($dn, $adminGroup);
+                /**
+                 * Tests the presence of our mobile group
+                 */
                 $user = strpos($dn, $userGroup);
                 /**
                  * If we can't find our relative dn
@@ -413,24 +461,48 @@ class LDAP extends FOGController
                 if (false === $admin && false === $user) {
                     continue;
                 }
+                /**
+                 * If the dn is in the admin scope
+                 */
                 if (false !== $admin) {
+                    /**
+                     * Test if the user dn exists in this group
+                     */
                     $adm = preg_grep($pat, $users);
+                    /**
+                     * Ensure we only return "filled" items
+                     */
+                    $adm = array_filter($adm);
+                    /**
+                     * If so, no need to move on, set access level and break loop
+                     */
                     if (count($adm) > 0) {
                         $accessLevel = 2;
                         break;
                     }
                 }
+                /**
+                 * If the dn is in the mobile scope
+                 */
                 if (false !== $user) {
+                    /**
+                     * Test if the user dn exists in this group
+                     */
                     $usr = preg_grep($pat, $users);
+                    /**
+                     * Ensure we only return "filled" items
+                     */
+                    $usr = array_filter($usr);
+                    /**
+                     * If so, set our access level.  We remain in loop
+                     * so if another ldap server has this same user as admin
+                     * it can get it's proper permissions.
+                     */
                     if (count($usr) > 0) {
                         $accessLevel = 1;
                     }
                 }
             }
-            /**
-             * Close our connection
-             */
-            ldap_unbind($ldapconn);
         } else {
             /**
              * Combine to get the Domain in information.
@@ -458,12 +530,19 @@ class LDAP extends FOGController
             /**
              * If our ways here don't work, return immediately
              */
-            if (!@ldap_bind($ldapconn, $userDN1, $pass)
-                && !@ldap_bind($ldapconn, $userDN2, $pass)
-                && !@ldap_bind($ldapconn, $userDN3, $pass)
+            if (!@$this->bind($userDN1, $pass)
+                && !@$this->bind($userDN2, $pass)
+                && !@$this->bind($userDN3, $pass)
             ) {
                 return false;
             }
+            /**
+             * Setup our new filter
+             */
+            $filter = sprintf(
+                '(%s=*)',
+                $grpMemberAttr
+            );
             /**
              * Allows the user to enter multiple attributes
              * via a comma separated list
@@ -478,45 +557,60 @@ class LDAP extends FOGController
                     /**
                      * One level down but not base
                      */
-                    $result = ldap_list($ldapconn, $userSearchDN, $filter, $attr);
+                    $result = $this->list($userSearchDN, $filter, $attr);
                     break;
                 case 2:
                     /**
                      * Search base and all subtree ous
                      */
-                    $result = ldap_search($ldapconn, $userSearchDN, $filter, $attr);
+                    $result = $this->search($userSearchDN, $filter, $attr);
                     break;
                 default:
                     /**
                      * Search base only
                      */
-                    $result = ldap_read($ldapconn, $userSearchDN, $filter, $attr);
+                    $result = $this->read($userSearchDN, $filter, $attr);
             }
             /**
              * Get number of entries returned
              */
-            $retcount = ldap_count_entries($ldapconn, $result);
+            $retcount = $this->count_entries($result);
             /**
              * If no data return immediately
              */
             if ($retcount < 1) {
-                ldap_unbind($ldapconn);
+                $this->unbind();
                 return false;
             }
             /**
              * Get the entries found
              */
-            $entries = ldap_get_entries($ldapconn, $result);
+            $entries = $this->get_entries($result);
             /**
              * Check groups for membership
              */
             foreach ((array)$entries as &$entry) {
+                /**
+                 * If this cycle doesn't have the dn, skip it
+                 */
                 if (!isset($entry['dn'])) {
                     continue;
                 }
+                /**
+                 * Get the dn entry we need to test against
+                 */
                 $dn = $entry['dn'];
+                /**
+                 * Get the users related to this dn
+                 */
                 $users = $entry[$grpMemberAttr];
+                /**
+                 * Tests the presence of our admin group
+                 */
                 $admin = strpos($dn, $adminGroup);
+                /**
+                 * Tests the presence of our mobile group
+                 */
                 $user = strpos($dn, $userGroup);
                 /**
                  * If we can't find our relative dn
@@ -525,25 +619,53 @@ class LDAP extends FOGController
                 if (false === $admin && false === $user) {
                     continue;
                 }
+                /**
+                 * If the dn is in the admin scope
+                 */
                 if (false !== $admin) {
+                    /**
+                     * Test if the user dn exists in this group
+                     */
                     $adm = preg_grep($pat, $users);
+                    /**
+                     * Ensure we only return "filled" items
+                     */
+                    $adm = array_filter($adm);
+                    /**
+                     * If so, no need to move on, set access level and break loop
+                     */
                     if (count($adm) > 0) {
                         $accessLevel = 2;
                         break;
                     }
                 }
+                /**
+                 * If the dn is in the mobile scope
+                 */
                 if (false !== $user) {
+                    /**
+                     * Test if the user dn exists in this group
+                     */
                     $usr = preg_grep($pat, $users);
+                    /**
+                     * Ensure we only return "filled" items
+                     */
+                    $usr = array_filter($usr);
+                    /**
+                     * If so, set our access level.  We remain in loop
+                     * so if another ldap server has this same user as admin
+                     * it can get it's proper permissions.
+                     */
                     if (count($usr) > 0) {
                         $accessLevel = 1;
                     }
                 }
             }
-            /**
-             * Close our connection
-             */
-            ldap_unbind($ldapconn);
         }
+        /**
+         * Close our connection
+         */
+        $this->unbind();
         /**
          * If access level is not changed
          *
