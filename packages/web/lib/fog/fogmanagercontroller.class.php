@@ -591,30 +591,6 @@ abstract class FOGManagerController extends FOGBase
         if ($valuelength < 1) {
             throw new Exception(_('No values passed'));
         }
-        $vals = array();
-        $insertVals = array();
-        foreach ((array)$values as $index => &$value) {
-            $insertKeys = array();
-            foreach ((array)$value as $i => &$val) {
-                $key = sprintf(
-                    '%s_%d',
-                    $fields[$i],
-                    $index
-                );
-                $insertKeys[] = sprintf(
-                    ':%s',
-                    $key
-                );
-                $val = trim($val);
-                $insertVals[$key] = $val;
-                unset($val);
-            }
-            $vals[] = sprintf('(%s)', implode(',', (array)$insertKeys));
-            unset($value);
-        }
-        if (count($vals) < 1) {
-            throw new Exception(_('No data to insert'));
-        }
         $keys = array();
         foreach ((array)$fields as &$key) {
             $key = $this->databaseFields[$key];
@@ -626,18 +602,49 @@ abstract class FOGManagerController extends FOGBase
             );
             unset($key);
         }
-        $query = sprintf(
-            $this->insertBatchTemplate,
-            $this->databaseTable,
-            implode('`,`', $keys),
-            implode(',', $vals),
-            implode(',', $dups)
-        );
-        unset($vals, $keys, $dups);
-        self::$DB->query($query, array(), $insertVals);
+        $vals = array();
+        $insertVals = array();
+        $values = array_chunk($values, 500);
+        foreach ((array)$values as $ind => &$v) {
+            foreach ((array)$v as $index => &$value) {
+                $insertKeys = array();
+                foreach ((array)$value as $i => &$val) {
+                    $key = sprintf(
+                        '%s_%d',
+                        $fields[$i],
+                        $index
+                    );
+                    $insertKeys[] = sprintf(
+                        ':%s',
+                        $key
+                    );
+                    $val = trim($val);
+                    $insertVals[$key] = $val;
+                    unset($val);
+                }
+                $vals[] = sprintf('(%s)', implode(',', (array)$insertKeys));
+                unset($value);
+            }
+            if (count($vals) < 1) {
+                throw new Exception(_('No data to insert'));
+            }
+            $query = sprintf(
+                $this->insertBatchTemplate,
+                $this->databaseTable,
+                implode('`,`', $keys),
+                implode(',', $vals),
+                implode(',', $dups)
+            );
+            self::$DB->query($query, array(), $insertVals);
+            if ($ind === 0) {
+                $insertID = (int)self::$DB->insertId();
+            }
+            $affectedRows += (int)self::$DB->affectedRows();
+            unset($v, $vals, $insertVals);
+        }
         return array(
-            self::$DB->insertId(),
-            self::$DB->affectedRows()
+            $insertID,
+            $affectedRows
         );
     }
     /**
@@ -811,24 +818,29 @@ abstract class FOGManagerController extends FOGBase
             'id'
         );
         $destroyVals = array();
-        foreach ((array)$ids as $index => &$id) {
-            $keyStr = sprintf('id_%d', $index);
-            $destroyKeys[] = sprintf(':%s', $keyStr);
-            $destroyVals[$keyStr] = $id;
-            unset($id);
+        $ids = array_chunk($ids, 500);
+        foreach ((array)$ids as &$id) {
+            foreach ((array)$id as $index => &$id_1) {
+                $keyStr = sprintf('id_%d', $index);
+                $destroyKeys[] = sprintf(':%s', $keyStr);
+                $destroyVals[$keyStr] = $id_1;
+                unset($id_1);
+            }
+            if (count($findWhere) > 0 && count($ids) < 1) {
+                return true;
+            }
+            $query = sprintf(
+                $this->destroyQueryTemplate,
+                $this->databaseTable,
+                $this->databaseTable,
+                $this->databaseFields['id'],
+                implode(',', (array)$destroyKeys)
+            );
+            unset($destroyKeys);
+            self::$DB->query($query, array(), $destroyVals);
+            unset($destroyVals, $destroyKeys);
         }
-        if (count($findWhere) > 0 && count($ids) < 1) {
-            return true;
-        }
-        $query = sprintf(
-            $this->destroyQueryTemplate,
-            $this->databaseTable,
-            $this->databaseTable,
-            $this->databaseFields['id'],
-            implode(',', (array)$destroyKeys)
-        );
-        unset($destroyKeys);
-        return self::$DB->query($query, array(), $destroyVals);
+        return true;
     }
     /**
      * Builds a select box/option box from the elements

@@ -304,14 +304,12 @@ class Group extends FOGController
             unset($hostid);
         }
         if (count($insert_values) > 0) {
-            foreach (array_chunk((array)$insert_values, 500) as &$insert_value) {
-                self::getClass('ModuleAssociationManager')
-                    ->insertBatch(
-                        $insert_fields,
-                        $insert_value
-                    );
-                unset($insert_value);
-            }
+            self::getClass('ModuleAssociationManager')
+                ->insertBatch(
+                    $insert_fields,
+                    $insert_values
+                );
+            unset($insert_value);
         }
         return $this;
     }

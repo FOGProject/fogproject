@@ -72,15 +72,23 @@ class HostManager extends FOGManagerController
         $groupBy = false,
         $not = false
     ) {
-        if (empty($findWhere)) {
-            return parent::destroy($field);
-        }
+        parent::destroy(
+            $findWhere,
+            $whereOperator,
+            $orderBy,
+            $sort,
+            $compare,
+            $groupBy,
+            $not
+        );
         if (isset($findWhere['id'])) {
-            $fieldWhere = $findWhere;
-            $findWhere = array('hostID'=>$findWhere['id']);
+            $findWhere = array('hostID' => $findWhere['id']);
         }
         $SnapinJobIDs = array(
-            'jobID' => self::getSubObjectIDs('SnapinJob', $findWhere),
+            'jobID' => self::getSubObjectIDs(
+                'SnapinJob',
+                $findWhere
+            ),
         );
         self::getClass('NodeFailureManager')->destroy($findWhere);
         self::getClass('ImagingLogManager')->destroy($findWhere);
@@ -99,6 +107,5 @@ class HostManager extends FOGManagerController
         self::getClass('UserTrackingManager')->destroy($findWhere);
         self::getClass('MACAddressAssociationManager')->destroy($findWhere);
         self::getClass('PowerManagementManager')->destroy($findWhere);
-        return parent::destroy($fieldWhere);
     }
 }
