@@ -45,6 +45,9 @@ class GroupManager extends FOGManagerController
         $groupBy = false,
         $not = false
     ) {
+        /**
+         * Destroy the group entries
+         */
         parent::destroy(
             $findWhere,
             $whereOperator,
@@ -54,10 +57,15 @@ class GroupManager extends FOGManagerController
             $groupBy,
             $not
         );
+        /**
+         * Setup other entries to find
+         */
         if (isset($findWhere['id'])) {
             $findWhere = array('groupID' => $findWhere['id']);
         }
-        self::getClass('GroupAssociationManager')->destroy($findWhere);
-        return true;
+        /**
+         * Remove any group entries
+         */
+        return self::getClass('GroupAssociationManager')->destroy($findWhere);
     }
 }

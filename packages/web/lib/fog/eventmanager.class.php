@@ -23,7 +23,6 @@
  */
 class EventManager extends FOGBase
 {
-
     /**
      * Items log level
      *

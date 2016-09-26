@@ -1,69 +1,182 @@
 <?php
+/**
+ * Manages and presents the page items
+ *
+ * PHP version 5
+ *
+ * @category FOGPageManager
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Manages and presents the page items
+ *
+ * @category FOGPageManager
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class FOGPageManager extends FOGBase
 {
-    private $pageTitle;
-    private $nodes = array();
+    /**
+     * Pages node reference point
+     *
+     * @var array
+     */
+    private $_nodes = array();
+    /**
+     * The pages class value
+     *
+     * @var string
+     */
     protected $classValue;
+    /**
+     * The pages method to use
+     *
+     * @var string
+     */
     protected $methodValue;
-    private $arguments;
-    private $plugin_checked;
-    private function replaceVariable(&$value)
+    /**
+     * Any arguments
+     *
+     * @var mixed
+     */
+    private $_arguments;
+    /**
+     * Replaces the variable passed with nicer names
+     *
+     * @param string $value the valu
+     *
+     * @return string
+     */
+    private function _replaceVariable(&$value)
     {
-        $value = trim(preg_replace('#[^\w]#', '_', urldecode(trim($value))));
+        $value = trim($value);
+        $value = preg_replace(
+            '#[^\w]#',
+            '_',
+            urldecode($value)
+        );
+        $value = trim($value);
         return $value;
     }
+    /**
+     * Initializes the pages
+     */
     public function __construct()
     {
         parent::__construct();
-        $this->classValue = isset($_REQUEST['node']) && $_REQUEST['node'] ? $this->replaceVariable($_REQUEST['node']) : 'home';
-        unset($value);
-        $this->methodValue = $this->replaceVariable($_REQUEST['sub']);
-        self::$HookManager->processEvent('SEARCH_PAGES', array('searchPages'=>&self::$searchPages));
+        global $node;
+        global $sub;
+        if (!empty($node)) {
+            $this->classValue = $this->_replaceVariable($node);
+        } else {
+            $this->classValue = 'home';
+        }
+        $this->methodValue = $this->_replaceVariable($sub);
+        self::$HookManager->processEvent(
+            'SEARCH_PAGES',
+            array('searchPages' => &self::$searchPages)
+        );
     }
+    /**
+     * Gets the page class
+     *
+     * @return object
+     */
     public function getFOGPageClass()
     {
-        return $this->nodes[$this->classValue];
+        return $this->_nodes[$this->classValue];
     }
+    /**
+     * Gets the name of the page
+     *
+     * @return string
+     */
     public function getFOGPageName()
     {
-        return $this->getFOGPageClass()->name;
+        return $this->getFOGPageClass()
+            ->name;
     }
+    /**
+     * Gets the page title
+     *
+     * @return string
+     */
     public function getFOGPageTitle()
     {
-        return $this->getFOGPageClass()->title;
+        return $this->getFOGPageClass()
+            ->title;
     }
-    public function isFOGPageTitleEnabled()
-    {
-        return (bool)$this->getFOGPageClass()->titleEnabled == true && !empty($this->FOGPageClass()->title);
-    }
+    /**
+     * Gets the side menu
+     *
+     * @return void
+     */
     public function getSideMenu()
     {
-        if (self::$FOGUser->isValid()) {
-            $class = $this->getFOGPageClass();
-            self::$FOGSubMenu = self::getClass('FOGSubMenu');
-            array_walk($class->menu, function (&$title, &$link) {
-                self::$FOGSubMenu->addItems($this->classValue, array((string)$title=>(string)$link));
-                unset($title, $link);
-            });
-            if (is_object($class->obj)) {
-                array_walk($class->subMenu, function (&$title, &$link) use ($class) {
-                    self::$FOGSubMenu->addItems($this->classValue, array((string)$title=>(string)$link), $class->id, sprintf(self::$foglang['SelMenu'], get_class($class->obj)));
-                    unset($title, $link);
-                });
-                array_walk($class->notes, function (&$title, &$link) use ($class) {
-                    self::$FOGSubMenu->addNotes($this->classValue, array((string)$title=>(string)$link), $class->id, sprintf(self::$foglang['SelMenu'], get_class($class->obj)));
-                    unset($title, $link);
-                });
-            }
-            return sprintf('<div id="sidebar">%s</div>', self::$FOGSubMenu->get($this->classValue));
+        if (!self::$FOGUser->isValid()) {
+            return $this;
         }
-    }
-    public function render()
-    {
-        if (!(in_array($_REQUEST['node'], array('client', 'schema')) || self::$FOGUser->isValid())) {
+        $class = $this->getFOGPageClass();
+        self::$FOGSubMenu = self::getClass('FOGSubMenu');
+        foreach ((array)$class->menu as $link => &$title) {
+            self::$FOGSubMenu
+                ->addItems(
+                    $this->classValue,
+                    array($title => $link)
+                );
+            unset($title, $link);
+        }
+        if (!is_object($class->obj)) {
             return;
         }
-        $this->loadPageClasses();
+        foreach ((array)$class->subMenu as $link => &$title) {
+            self::$FOGSubMenu->addItems(
+                $this->classValue,
+                array($title => $link),
+                $class->id,
+                sprintf(
+                    self::$foglang['SelMenu'],
+                    get_class($class->obj)
+                )
+            );
+            unset($title, $link);
+        }
+        foreach ((array)$class->notes as $link => &$title) {
+            self::$FOGSubMenu->addNotes(
+                $this->classValue,
+                array($title => $link),
+                $class->id
+            );
+            unset($title, $link);
+        }
+        return sprintf(
+            '<div id="sidebar">%s</div>',
+            self::$FOGSubMenu->get($this->classValue)
+        );
+    }
+    /**
+     * Prints the data to the browser/screen
+     *
+     * @return void
+     */
+    public function render()
+    {
+        global $node;
+        $nodes = array(
+            'client',
+            'schema'
+        );
+        if (!self::$FOGUser->isValid()
+            && !in_array($node, $nodes)
+        ) {
+                return;
+        }
+        $this->_loadPageClasses();
         $method = $this->methodValue;
         try {
             $class = $this->getFOGPageClass();
@@ -73,19 +186,27 @@ class FOGPageManager extends FOGBase
             if (empty($method) || !method_exists($class, $method)) {
                 $method = 'index';
             }
-            $displayScreen = trim(strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']));
-            if (!array_key_exists($this->classValue, $this->nodes)) {
+            $displayScreen = $_SESSION['FOG_VIEW_DEFAULT_SCREEN'];
+            $displayScreen = strtolower($displayScreen);
+            $displayScreen = trim($displayScreen);
+            if (!array_key_exists($this->classValue, $this->_nodes)) {
                 throw new Exception(_('No FOGPage Class found for this node'));
             }
             if (isset($_REQUEST[$class->id]) && $_REQUEST[$class->id]) {
-                $this->arguments = array('id'=>$_REQUEST[$class->id]);
+                $this->_arguments = array('id'=>$_REQUEST[$class->id]);
             }
             if (self::$post) {
                 $this->setRequest();
             } else {
                 $this->resetRequest();
             }
-            if ($this->classValue != 'schema' && $method == 'index' && $displayScreen != 'list' && $this->methodValue != 'list' && method_exists($class, 'search') && in_array($class->node, self::$searchPages)) {
+            if ($this->classValue != 'schema'
+                && $method == 'index'
+                && $displayScreen != 'list'
+                && $this->methodValue != 'list'
+                && method_exists($class, 'search')
+                && in_array($class->node, self::$searchPages)
+            ) {
                 $method = 'search';
             }
             if (self::$ajax && method_exists($class, $method.'Ajax')) {
@@ -95,12 +216,25 @@ class FOGPageManager extends FOGBase
                 $method = $this->methodValue.'Post';
             }
         } catch (Exception $e) {
-            $this->debug(_('Failed to Render Page: Node: %s, Error: %s'), array(get_class($class), $e->getMessage()));
+            $this->debug(
+                _('Failed to Render Page: Node: %s, Error: %s'),
+                array(
+                    get_class($class),
+                    $e->getMessage()
+                )
+            );
         }
         $class->$method();
         $this->resetRequest();
     }
-    private function register($class)
+    /**
+     * Registers the class for display
+     *
+     * @param object $class the page to register
+     *
+     * @return void
+     */
+    private function _register($class)
     {
         if (!$class) {
             die(_('No class value sent'));
@@ -112,21 +246,43 @@ class FOGPageManager extends FOGBase
             if (!$class->node) {
                 throw new Exception(_('No node associated'));
             }
-            $this->info(sprintf(_('Adding FOGPage: %s, Node: %s'), get_class($class), $class->node));
-            $this->nodes[$class->node] = $class;
+            $this->info(
+                sprintf(
+                    _('Adding FOGPage: %s, Node: %s'),
+                    get_class($class),
+                    $class->node
+                )
+            );
+            $this->_nodes[$class->node] = $class;
         } catch (Exception $e) {
-            $this->debug('Failed to add Page: Node: %s, Page Class: %s, Error: $s', array($class->node, get_class($class), $e->getMessage()));
+            $this->debug(
+                'Failed to add Page: Node: %s, Page Class: %s, Error: $s',
+                array(
+                    $class->node,
+                    get_class($class),
+                    $e->getMessage()
+                )
+            );
         }
         return $this;
     }
-    private function loadPageClasses()
+    /**
+     * Loads the page class for us
+     *
+     * @return void
+     */
+    private function _loadPageClasses()
     {
         $regext = '#^.+/pages/.*\.class\.php$#';
         $dirpath = '/pages/';
         $strlen = -strlen('.class.php');
         $plugins = '';
         $fileitems = function ($element) use ($dirpath, &$plugins) {
-            preg_match("#^($plugins.+/plugins/)(?=.*$dirpath).*$#", $element[0], $match);
+            preg_match(
+                "#^($plugins.+/plugins/)(?=.*$dirpath).*$#",
+                $element[0],
+                $match
+            );
             return $match[0];
         };
         $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
@@ -143,10 +299,39 @@ class FOGPageManager extends FOGBase
         );
         $files = iterator_to_array($RegexIterator, false);
         $plugins = '?!';
-        $normalfiles = array_values(array_filter(array_map($fileitems, (array)$files)));
+        $normalfiles = array_values(
+            array_filter(
+                array_map(
+                    $fileitems,
+                    (array)$files
+                )
+            )
+        );
         $plugins = '?=';
-        $pluginfiles = array_values(array_filter(preg_grep(sprintf('#/(%s)/#', implode('|', $_SESSION['PluginsInstalled'])), array_map($fileitems, (array)$files))));
-        $files = array_values(array_filter(array_unique(array_merge($normalfiles, $pluginfiles))));
+        $pluginfiles = array_values(
+            array_filter(
+                preg_grep(
+                    sprintf(
+                        '#/(%s)/#',
+                        implode('|', $_SESSION['PluginsInstalled'])
+                    ),
+                    array_map(
+                        $fileitems,
+                        (array)$files
+                    )
+                )
+            )
+        );
+        $files = array_values(
+            array_filter(
+                array_unique(
+                    array_merge(
+                        $normalfiles,
+                        $pluginfiles
+                    )
+                )
+            )
+        );
         unset($normalfiles, $pluginfiles);
         $startClass = function ($element) use ($strlen) {
             if (substr($element, $strlen) !== '.class.php') {
@@ -156,10 +341,14 @@ class FOGPageManager extends FOGBase
             if (!$className || !isset($className)) {
                 return;
             }
-            if (in_array($className, get_declared_classes()) || class_exists($className, false)) {
+            if (in_array($className, get_declared_classes())
+                || class_exists($className, false)
+            ) {
                 return;
             }
-            if ((self::$isMobile && !preg_match('#mobile#i', $className)) || (!self::$isMobile && preg_match('#mobile#i', $className))) {
+            if ((self::$isMobile && !preg_match('#mobile#i', $className))
+                || (!self::$isMobile && preg_match('#mobile#i', $className))
+            ) {
                 return;
             }
             $vals = get_class_vars($className);
@@ -167,8 +356,10 @@ class FOGPageManager extends FOGBase
                 return;
             }
             unset($vals);
-            $this->nodes[$this->classValue] = $className;
-            $this->register(self::getClass($className));
+            $class = new $className;
+            $this->_nodes[$this->classValue] = $class;
+            $this->_register($class);
+            unset($class);
         };
         array_map($startClass, (array)$files);
     }

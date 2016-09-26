@@ -49,4 +49,5 @@ if (isset($_REQUEST['client'])) {
 } else {
     $ver = FOG_VERSION;
 }
-die($ver);
+echo $ver;
+exit;

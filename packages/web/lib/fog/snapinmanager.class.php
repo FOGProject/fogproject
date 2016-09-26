@@ -84,7 +84,7 @@ class SnapinManager extends FOGManagerController
         self::getClass('SnapinTaskManager')
             ->cancel($findWhere['snapinID']);
         /**
-         * Iterate our jobID's to find out if 
+         * Iterate our jobID's to find out if
          * the job needs to be cancelled or not
          */
         foreach ((array)$snapJobIDs as $i => &$jobID) {
@@ -101,21 +101,24 @@ class SnapinManager extends FOGManagerController
             }
             /**
              * If the snapin job has 0 tasks left over cancel the job
-             */ 
+             */
             unset($snapJobIDs[$i], $jobID);
         }
+        /**
+         * Filter our snapJobIDs
+         */
+        $snapJobIDs = array_filter((array)$snapJobIDs);
         /**
          * Only remove snapin jobs if we have any to remove
          */
         if (count($snapJobIDs) > 0) {
             self::getClass('SnapinJobManager')
-                ->cancel(array('id' => $jobID));
+                ->cancel(array('id' => $snapJobIDs));
         }
         /**
          * Remove the storage group associations for these snapins
          */
-        self::getClass('SnapinAssociationManager')
+        return self::getClass('SnapinAssociationManager')
             ->destroy($findWhere);
-        return true;
     }
 }

@@ -30,10 +30,19 @@ class MulticastSessionsManager extends FOGManagerController
      */
     public function cancel($multicastsessionids)
     {
+        /**
+         * Setup for our finding needs
+         */
         $findWhere = array(
             'id' => (array)$multicastsessionids
         );
+        /**
+         * Get the current id for cancelled state
+         */
         $cancelled = $this->getCancelledState();
+        /**
+         * Set our cancelled state
+         */
         $this->update(
             $findWhere,
             '',
@@ -42,11 +51,17 @@ class MulticastSessionsManager extends FOGManagerController
                 'name' => ''
             )
         );
+        /**
+         * Perform change for alternative data
+         */
         $this->arrayChangeKey(
             $findWhere,
             'id',
             'msID'
         );
+        /**
+         * Remove the other entries
+         */
         self::getClass('MulticastSessionsAssociationManager')
             ->destroy($findWhere);
     }

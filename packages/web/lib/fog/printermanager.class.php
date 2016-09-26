@@ -45,6 +45,9 @@ class PrinterManager extends FOGManagerController
         $groupBy = false,
         $not = false
     ) {
+        /**
+         * Remove the printer entries
+         */
         parent::destroy(
             $findWhere,
             $whereOperator,
@@ -54,10 +57,15 @@ class PrinterManager extends FOGManagerController
             $groupBy,
             $not
         );
+        /**
+         * Setup for alternate removals
+         */
         if (isset($findWhere['id'])) {
             $findWhere = array('printerID' => $findWhere['id']);
         }
-        self::getClass('PrinterAssociationManager')->destroy($findWhere);
-        return true;
+        /**
+         * Remove any printer associations
+         */
+        return self::getClass('PrinterAssociationManager')->destroy($findWhere);
     }
 }

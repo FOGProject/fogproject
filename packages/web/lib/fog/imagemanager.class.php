@@ -96,8 +96,7 @@ class ImageManager extends FOGManagerController
          * Remove the storage group associations with these
          * images.
          */
-        self::getClass('ImageAssociationManager')
+        return self::getClass('ImageAssociationManager')
             ->destroy($findWhere);
-        return true;
     }
 }

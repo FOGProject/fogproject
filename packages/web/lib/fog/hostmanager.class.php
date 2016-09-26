@@ -72,6 +72,9 @@ class HostManager extends FOGManagerController
         $groupBy = false,
         $not = false
     ) {
+        /**
+         * Remove the main host items
+         */
         parent::destroy(
             $findWhere,
             $whereOperator,
@@ -81,31 +84,88 @@ class HostManager extends FOGManagerController
             $groupBy,
             $not
         );
+        /**
+         * Setup for removing associative areas
+         */
         if (isset($findWhere['id'])) {
             $findWhere = array('hostID' => $findWhere['id']);
         }
+        /**
+         * Get the snapin job ids associated
+         */
         $SnapinJobIDs = array(
             'jobID' => self::getSubObjectIDs(
                 'SnapinJob',
                 $findWhere
             ),
         );
+        /**
+         * Remove any host node failure entries
+         */
         self::getClass('NodeFailureManager')->destroy($findWhere);
+        /**
+         * Remove imaging log entries
+         */
         self::getClass('ImagingLogManager')->destroy($findWhere);
+        /**
+         * Remove any snapin task entries
+         */
         self::getClass('SnapinTaskManager')->destroy($SnapinJobIDs);
+        /**
+         * Remove any snapin job entries
+         */
         self::getClass('SnapinJobManager')->destroy($findWhere);
+        /**
+         * Remove any task entries
+         */
         self::getClass('TaskManager')->destroy($findWhere);
+        /**
+         * Remove any scheduled task entries
+         */
         self::getClass('ScheduledTaskManager')->destroy($findWhere);
+        /**
+         * Remove any auto logout entries
+         */
         self::getClass('HostAutoLogoutManager')->destroy($findWhere);
+        /**
+         * Remove any host screen entries
+         */
         self::getClass('HostScreenSettingsManager')->destroy($findWhere);
+        /**
+         * Remove any group entries
+         */
         self::getClass('GroupAssociationManager')->destroy($findWhere);
+        /**
+         * Remove any snapin entries
+         */
         self::getClass('SnapinAssociationManager')->destroy($findWhere);
+        /**
+         * Remove any printer entries
+         */
         self::getClass('PrinterAssociationManager')->destroy($findWhere);
+        /**
+         * Remove any module entries
+         */
         self::getClass('ModuleAssociationManager')->destroy($findWhere);
+        /**
+         * Remove any green fog entries
+         */
         self::getClass('GreenFogManager')->destroy($findWhere);
+        /**
+         * Remove any inventory entries
+         */
         self::getClass('InventoryManager')->destroy($findWhere);
+        /**
+         * Remove any user tracking entries
+         */
         self::getClass('UserTrackingManager')->destroy($findWhere);
+        /**
+         * Remove any mac association entries
+         */
         self::getClass('MACAddressAssociationManager')->destroy($findWhere);
+        /**
+         * Remove any power management entries
+         */
         self::getClass('PowerManagementManager')->destroy($findWhere);
     }
 }
