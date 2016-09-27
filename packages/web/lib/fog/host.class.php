@@ -742,52 +742,39 @@ class Host extends FOGController
         if ($this->isLoaded('snapins')) {
             $DBSnapinIDs = self::getSubObjectIDs(
                 'SnapinAssociation',
-                array('hostID' => $this->get('id')),
+                array(
+                    'hostID' => $this->get('id'),
+                    'snapinID' => $this->get('snapins')
+                ),
                 'snapinID'
             );
-            $ValidSnapinIDs = self::getSubObjectIDs('Snapin');
-            $notValid = array_diff(
-                (array)$DBSnapinIDs,
-                (array)$ValidSnapinIDs
-            );
-            if (count($notValid)) {
-                self::getClass('SnapinAssociationManager')
-                    ->destroy(array('snapinID' => $notValid));
-            }
-            unset($ValidSnapinIDs, $DBSnapinIDs);
             $DBSnapinIDs = self::getSubObjectIDs(
+                'Snapin',
+                array('id' => $DBSnapinIDs)
+            );
+            $RemSnapinIDs = self::getSubObjectIDs(
                 'SnapinAssociation',
-                array('hostID' => $this->get('id')),
-                'snapinID'
+                array(
+                    'hostID' => $this->get('id'),
+                    'snapinID' => $DBSnapinIDs
+                ),
+                'snapinID',
+                true
             );
-            $RemoveSnapinIDs = array_diff(
-                (array)$DBSnapinIDs,
-                (array)$this->get('snapins')
-            );
-            if (count($RemoveSnapinIDs)) {
+            if (count($RemSnapinIDs) > 0) {
                 self::getClass('SnapinAssociationManager')
                     ->destroy(
                         array(
-                            'hostID' => $this->get('id'),
-                            'snapinID' => $RemoveSnapinIDs
+                            'snapinID' => $RemSnapinIDs,
+                            'hostID' => $this->get('id')
                         )
                     );
-                $DBSnapinIDs = self::getSubObjectIDs(
-                    'SnapinAssociation',
-                    array('hostID' => $this->get('id')),
-                    'snapinID'
-                );
-                unset($RemoveSnapinIDs);
             }
             $insert_fields = array(
                 'hostID',
                 'snapinID'
             );
             $insert_values = array();
-            $DBSnapinIDs = array_diff(
-                (array)$this->get('snapins'),
-                (array)$DBSnapinIDs
-            );
             foreach ((array)$DBSnapinIDs as &$snapinID) {
                 $insert_values[] = array(
                     $this->get('id'),
