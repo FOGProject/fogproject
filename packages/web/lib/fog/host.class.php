@@ -741,16 +741,8 @@ class Host extends FOGController
         }
         if ($this->isLoaded('snapins')) {
             $DBSnapinIDs = self::getSubObjectIDs(
-                'SnapinAssociation',
-                array(
-                    'hostID' => $this->get('id'),
-                    'snapinID' => $this->get('snapins')
-                ),
-                'snapinID'
-            );
-            $DBSnapinIDs = self::getSubObjectIDs(
                 'Snapin',
-                array('id' => $DBSnapinIDs)
+                array('id' => $this->get('snapins'))
             );
             $RemSnapinIDs = self::getSubObjectIDs(
                 'SnapinAssociation',
