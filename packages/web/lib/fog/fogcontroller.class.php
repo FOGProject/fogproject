@@ -1055,4 +1055,78 @@ abstract class FOGController extends FOGBase
         $class = sprintf('%sManager', get_class($this));
         return new $class();
     }
+    /**
+     * Set's values for associative fields
+     *
+     * @param string $assocItem the assoc item to work from/with
+     *
+     * @return object
+     */
+    public function assocSetter($assocItem)
+    {
+        $assoc = strtolower($assocItem);
+        $plural = sprintf(
+            '%ss',
+            $assocItem
+        );
+        if (!$this->isLoaded($plural)) {
+            return $this;
+        }
+        $objType = get_class($this);
+        $objtype = strtolower($objType);
+        $objstr = sprintf('%sID', $objtype);
+        $assocstr = sprintf('%sID', $assoc);
+        $DBIDs = self::getSubObjectIDs(
+            $assocItem,
+            array('id' => $this->get($plural)
+        );
+        $RemIDs = self::getSubObjectIDs(
+            sprintf('%sAssociation', $assocItem),
+            array(
+                $objstr => $this->get('id'),
+                $assocstr => $DBIDs
+            ),
+            $assocstr,
+            true
+        );
+        if (count($RemIDs) > 0) {
+            self::getClass(sprintf('%sAssociationManager', $assocItem))
+                ->destroy(
+                    array(
+                        $objstr => $this->get('id'),
+                        $assocstr => $this->get($plural)
+                    )
+                );
+            unset($RemIDs);
+        }
+        $insert_fields = array(
+            $objstr,
+            $assocstr
+        );
+        if ($assocstr == 'moduleID') {
+            array_push($insert_fields, 'state');
+        }
+        $insert_values = array();
+        foreach ((array)$DBIDs as &$id) {
+            $insert_val = array(
+                $this->get('id'),
+                $id
+            );
+            if ($assocstr == 'moduleID') {
+                array_push($insert_val, 1);
+            }
+            $insert_values[] = $insert_val;
+            unset($insert_val,$id);
+        }
+        unset($DBIDs);
+        if (count($insert_values) > 0) {
+            self::getClass(sprintf('%sAssociationManager', $assocItem))
+                ->insertBatch(
+                    $insert_fields,
+                    $insert_values
+                );
+        }
+        unset($insert_values, $insert_fields);
+        return $this;
+    }
 }
