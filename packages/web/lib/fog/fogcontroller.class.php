@@ -1058,13 +1058,20 @@ abstract class FOGController extends FOGBase
     /**
      * Set's values for associative fields
      *
-     * @param string $assocItem the assoc item to work from/with
+     * @param string $assocItem    the assoc item to work from/with
+     * @param string $alterItem    the alternate item to work with
+     * @param bool   $implicitCall call class implicitely instead of appending
+     * with association.
      *
      * @return object
      */
-    public function assocSetter($assocItem)
+    public function assocSetter($assocItem, $alterItem = '', $implicitCall = false)
     {
-        $assoc = strtolower($assocItem);
+        if (empty($alterItem)) {
+            $assoc = strtolower($assocItem);
+        } else {
+            $assoc = $alterItem;
+        }
         $plural = sprintf(
             '%ss',
             $assoc
@@ -1072,29 +1079,44 @@ abstract class FOGController extends FOGBase
         if (!$this->isLoaded($plural)) {
             return $this;
         }
+        if ($implicitCall) {
+            $classCall = $assocItem;
+        } else {
+            $classCall = sprintf(
+                '%sAssociation',
+                $assocItem
+            );
+        }
         $objType = get_class($this);
         $objtype = strtolower($objType);
         $objstr = sprintf('%sID', $objtype);
         $assocstr = sprintf('%sID', $assoc);
-        $DBIDs = self::getSubObjectIDs(
-            $assocItem,
-            array('id' => $this->get($plural))
-        );
-        $RemIDs = self::getSubObjectIDs(
-            sprintf('%sAssociation', $assocItem),
-            array(
-                $objstr => $this->get('id'),
-                $assocstr => $DBIDs
-            ),
-            $assocstr,
-            true
-        );
+        if (count($this->get($plural))) {
+            $DBIDs = self::getSubObjectIDs(
+                $assocItem,
+                array('id' => $this->get($plural))
+            );
+        } else {
+            $RemIDs = self::getSubObjectIDs($assoc);
+        }
+        if (!isset($RemIDs)) {
+            $RemIDs = self::getSubObjectIDs(
+                $classCall,
+                array(
+                    $objstr => $this->get('id'),
+                    $assocstr => $DBIDs
+                ),
+                $assocstr,
+                true
+            );
+        }
+        $RemIDs = array_filter($RemIDs);
         if (count($RemIDs) > 0) {
-            self::getClass(sprintf('%sAssociationManager', $assocItem))
+            self::getClass(sprintf('%sManager', $classCall))
                 ->destroy(
                     array(
                         $objstr => $this->get('id'),
-                        $assocstr => $this->get($plural)
+                        $assocstr => $RemIDs
                     )
                 );
             unset($RemIDs);
@@ -1107,7 +1129,7 @@ abstract class FOGController extends FOGBase
             array_push($insert_fields, 'state');
         }
         $insert_values = array();
-        foreach ((array)$DBIDs as &$id) {
+        foreach ((array)$this->get($plural) as &$id) {
             $insert_val = array(
                 $this->get('id'),
                 $id
@@ -1120,7 +1142,7 @@ abstract class FOGController extends FOGBase
         }
         unset($DBIDs);
         if (count($insert_values) > 0) {
-            self::getClass(sprintf('%sAssociationManager', $assocItem))
+            self::getClass(sprintf('%sManager', $classCall))
                 ->insertBatch(
                     $insert_fields,
                     $insert_values

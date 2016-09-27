@@ -370,11 +370,11 @@ abstract class FOGService extends FOGBase
         $itemType = $master ? 'group' : 'node';
         $groupID = $myStorageGroupID;
         if ($master) {
-            $groupID = $Obj->get('storageGroups');
+            $groupID = $Obj->get('storagegroups');
         }
         $findWhere = array(
             'isEnabled' => 1,
-            'storageGroupID' => $groupID,
+            'storagegroupID' => $groupID,
         );
         if ($master) {
             $findWhere['isMaster'] = 1;
@@ -437,7 +437,7 @@ abstract class FOGService extends FOGBase
                 if (!$PotentialStorageNode->isValid()) {
                     continue;
                 }
-                $groupID = $PotentialStorageNode->get('storageGroupID');
+                $groupID = $PotentialStorageNode->get('storagegroupID');
                 if ($master && $groupID == $myStorageGroupID) {
                     continue;
                 }

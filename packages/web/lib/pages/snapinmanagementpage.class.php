@@ -443,7 +443,7 @@ class SnapinManagementPage extends FOGPage
             array('class'=>'l filter-false','width'=>16),
             array(),
         );
-        $storageGroups = function (&$StorageGroup) {
+        $storagegroups = function (&$StorageGroup) {
             if (!$StorageGroup->isValid()) {
                 return;
             }
@@ -453,7 +453,7 @@ class SnapinManagementPage extends FOGPage
                 'is_primary' => ($this->obj->getPrimaryGroup($StorageGroup->get('id')) ? ' checked' : ''),
             );
         };
-        array_map($storageGroups, self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroupsnotinme'))));
+        array_map($storagegroups, self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storagegroupsnotinme'))));
         if (count($this->data) > 0) {
             self::$HookManager->processEvent('SNAPIN_GROUP_ASSOC', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
             printf(
@@ -483,7 +483,7 @@ class SnapinManagementPage extends FOGPage
             sprintf('<input class="primary" type="radio" name="primary" id="group${storageGroup_id}" value="${storageGroup_id}"${is_primary}/><label for="group${storageGroup_id}" class="icon icon-hand" title="%s">&nbsp;</label>', _('Primary Group Selector')),
             '${storageGroup_name}',
         );
-        array_map($storageGroups, self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroups'))));
+        array_map($storagegroups, self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storagegroups'))));
         self::$HookManager->processEvent('SNAPIN_EDIT_GROUP', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=snap-storage">', $this->formAction);
         $this->render();
@@ -575,7 +575,7 @@ class SnapinManagementPage extends FOGPage
                         $this->obj->setPrimaryGroup($_REQUEST['primary']);
                     }
                     if (isset($_REQUEST['deleteGroup'])) {
-                        if (count($this->obj->get('storageGroups')) < 2) {
+                        if (count($this->obj->get('storagegroups')) < 2) {
                             throw new Exception(_('Snapin must be assigned to one Storage Group'));
                         }
                         $this->obj->removeGroup($_REQUEST['storagegroup-rm']);

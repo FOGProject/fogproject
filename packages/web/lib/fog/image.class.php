@@ -72,8 +72,8 @@ class Image extends FOGController
     protected $additionalFields = array(
         'hosts',
         'hostsnotinme',
-        'storageGroups',
-        'storageGroupsnotinme',
+        'storagegroups',
+        'storagegroupsnotinme',
     );
     /**
      * Removes the item from the database
@@ -105,99 +105,51 @@ class Image extends FOGController
     {
         parent::save();
         if ($this->isLoaded('hosts')) {
-            $DBHostIDs = self::getSubObjectIDs(
-                'Host',
-                array('imageID' => $this->get('id'))
-            );
-            $RemoveHostIDs = array_diff(
-                (array)$DBHostIDs,
-                (array)$this->get('hosts')
-            );
-            if (count($RemoveHostIDs) > 0) {
+            if (count($this->get('hosts')) > 0) {
+                $DBIDs = self::getSubObjectIDs(
+                    'Host',
+                    array('id' => $this->get('hosts'))
+                );
+            } else {
+                $RemIDs = self::getSubObjectIDs('Host');
+            }
+            if (!isset($RemIDs)) {
+                $RemIDs = self::getSubObjectIDs(
+                    'Host',
+                    array(
+                        'imageID' => $this->get('id'),
+                        'id' => $DBIDs
+                    ),
+                    'id',
+                    true
+                );
+            }
+            $RemIDs = array_filter($RemIDs);
+            if (count($RemIDs) > 0) {
                 self::getClass('HostManager')
                     ->update(
                         array(
                             'imageID' => $this->get('id'),
-                            'id' => $RemoveHostIDs
+                            'id' => $RemIDs
                         ),
                         '',
                         array('imageID' => 0)
                     );
-                $DBHostIDs = self::getSubObjectIDs(
-                    'Host',
-                    array('imageID' => $this->get('id'))
-                );
-                unset($RemoveHostIDs);
+                unset($RemIDs);
             }
-            $DBHostIDs = array_diff(
-                (array)$this->get('hosts'),
-                (array)$DBHostIDs
-            );
+            if (count($this->get('hosts')) < 1) {
+                return $this;
+            }
             self::getClass('HostManager')
                 ->update(
-                    array('id' => $DBHostIDs),
+                    array(
+                        'id' => $this->get('hosts')
+                    ),
                     '',
                     array('imageID' => $this->get('id'))
                 );
-            unset($DBHostIDs);
         }
-        if ($this->isLoaded('storageGroups')) {
-            $DBGroupIDs = self::getSubObjectIDs(
-                'ImageAssociation',
-                array('imageID' => $this->get('id')),
-                'storageGroupID'
-            );
-            $RemoveGroupIDs = array_diff(
-                (array)$DBGroupIDs,
-                (array)$this->get('storageGroups')
-            );
-            if (count($RemoveGroupIDs) > 0) {
-                self::getClass('ImageAssociationManager')
-                    ->destroy(
-                        array(
-                            'imageID' => $this->get('id'),
-                            'storageGroupID' => $RemoveGroupIDs
-                        )
-                    );
-                unset($RemoveGroupIDs);
-                $DBGroupIDs = self::getSubObjectIDs(
-                    'ImageAssociation',
-                    array('imageID' => $this->get('id')),
-                    'storageGroupID'
-                );
-            }
-            $primaryGroupIDs = self::getSubObjectIDs(
-                'ImageAssociation',
-                array(
-                    'imageID' => $this->get('id'),
-                    'primary' => 1
-                ),
-                'storageGroupID'
-            );
-            $insert_fields = array('imageID', 'storageGroupID', 'primary');
-            $insert_values = array();
-            $DBGroupIDs = array_diff(
-                (array)$this->get('storageGroups'),
-                (array)$DBGroupIDs
-            );
-            foreach ((array)$DBGroupIDs as &$groupID) {
-                $insert_values[] = array(
-                    $this->get('id'),
-                    $groupID,
-                    in_array($groupID, $primaryGroupIDs) ? 1 : 0
-                );
-                unset($groupID);
-            }
-            unset($DBGroupIDs);
-            if (count($insert_values) > 0) {
-                self::getClass('ImageAssociationManager')
-                    ->insertBatch(
-                        $insert_fields,
-                        $insert_values
-                    );
-            }
-        }
-        return $this;
+        return $this->assocSetter('Image', 'storagegroup');
     }
     /**
      * Deletes the image file
@@ -212,7 +164,7 @@ class Image extends FOGController
         $StorageNodes = self::getClass('StorageNodeManager')
             ->find(
                 array(
-                    'storageGroupID' => $this->get('storageGroups'),
+                    'storagegroupID' => $this->get('storagegroups'),
                     'isEnabled' => 1
                 )
             );
@@ -312,13 +264,13 @@ class Image extends FOGController
         $groupids = self::getSubObjectIDs(
             'ImageAssociation',
             array('imageID' => $this->get('id')),
-            'storageGroupID'
+            'storagegroupID'
         );
         $groupids = self::getSubObjectIDs(
             'StorageGroup',
             array('id' => $groupids)
         );
-        $this->set('storageGroups', $groupids);
+        $this->set('storagegroups', $groupids);
     }
     /**
      * Adds groups to this object
@@ -330,7 +282,7 @@ class Image extends FOGController
     public function addGroup($addArray)
     {
         return $this->addRemItem(
-            'storageGroups',
+            'storagegroups',
             (array)$addArray,
             'merge'
         );
@@ -345,7 +297,7 @@ class Image extends FOGController
     public function removeGroup($removeArray)
     {
         return $this->addRemItem(
-            'storageGroups',
+            'storagegroups',
             (array)$removeArray,
             'diff'
         );
@@ -357,14 +309,14 @@ class Image extends FOGController
      */
     protected function loadStorageGroupsnotinme()
     {
-        $find = array('id' => $this->get('storageGroups'));
+        $find = array('id' => $this->get('storagegroups'));
         $groupids = self::getSubObjectIDs(
             'StorageGroup',
             $find,
             'id',
             true
         );
-        $this->set('storageGroupsnotinme', $groupids);
+        $this->set('storagegroupsnotinme', $groupids);
     }
     /**
      * Gets the storage group
@@ -374,7 +326,7 @@ class Image extends FOGController
      */
     public function getStorageGroup()
     {
-        $groupids = $this->get('storageGroups');
+        $groupids = $this->get('storagegroups');
         $count = count($groupids);
         if ($count < 1) {
             $groupids = self::getSubObjectIDs('StorageGroup');
@@ -382,7 +334,7 @@ class Image extends FOGController
             if ($groupids < 1) {
                 throw new Exception(_('No viable storage groups found'));
             }
-            $this->set('storageGroups', (array)$groupids);
+            $this->set('storagegroups', (array)$groupids);
         }
         $primaryGroup = array();
         foreach ((array)$groupids as &$groupid) {
@@ -469,7 +421,7 @@ class Image extends FOGController
         $assocID = self::getSubObjectIDs(
             'ImageAssociation',
             array(
-                'storageGroupID' => $groupID,
+                'storagegroupID' => $groupID,
                 'imageID' => $this->get('id')
             )
         );
@@ -489,8 +441,8 @@ class Image extends FOGController
             ->update(
                 array(
                     'imageID' => $this->get('id'),
-                    'storageGroupID' => array_diff(
-                        (array)$this->get('storageGroups'),
+                    'storagegroupID' => array_diff(
+                        (array)$this->get('storagegroups'),
                         (array)$groupID
                     )
                 ),
@@ -501,7 +453,7 @@ class Image extends FOGController
             ->update(
                 array(
                     'imageID' => $this->get('id'),
-                    'storageGroupID' => $groupID
+                    'storagegroupID' => $groupID
                 ),
                 '',
                 array('primary' => 1)

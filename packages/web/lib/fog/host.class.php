@@ -1527,7 +1527,7 @@ class Host extends FOGController
                         ->set('starttime', self::niceDate()->format('Y-m-d H:i:s'))
                         ->set('percent', 0)
                         ->set('isDD', $this->getImage()->get('imageTypeID'))
-                        ->set('NFSGroupID', $StorageNode->get('storageGroupID'))
+                        ->set('NFSGroupID', $StorageNode->get('storagegroupID'))
                         ->set('clients', -1);
                     if ($MulticastSession->save()) {
                         $assoc = true;

@@ -31,8 +31,8 @@ class Snapin extends FOGController
     protected $additionalFields = array(
         'hosts',
         'hostsnotinme',
-        'storageGroups',
-        'storageGroupsnotinme',
+        'storagegroups',
+        'storagegroupsnotinme',
         'path',
     );
     public function destroy($field = 'id')
@@ -46,67 +46,16 @@ class Snapin extends FOGController
     public function save()
     {
         parent::save();
-        switch (true) {
-            case ($this->isLoaded('hosts')):
-                $DBHostIDs = self::getSubObjectIDs('SnapinAssociation', array('snapinID'=>$this->get('id')), 'hostID');
-                $ValidHostIDs = self::getSubObjectIDs('Host');
-                $notValid = array_diff((array)$DBHostIDs, (array)$ValidHostIDs);
-                if (count($notValid)) {
-                    self::getClass('SnapinAssociationManager')->destroy(array('hostID'=>$notValid));
-                }
-                unset($ValidHostIDs, $DBHostIDs);
-                $DBHostIDs = self::getSubObjectIDs('SnapinAssociation', array('snapinID'=>$this->get('id')), 'hostID');
-                $RemoveHostIDs = array_diff((array)$DBHostIDs, (array)$this->get('hosts'));
-                if (count($RemoveHostIDs)) {
-                    self::getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$this->get('id'), 'hostID'=>$RemoveHostIDs));
-                    $DBHostIDs = self::getSubObjectIDs('SnapinAssociation', array('snapinID'=>$this->get('id')), 'hostID');
-                    unset($RemoveHostIDs);
-                }
-                $insert_fields = array('hostID','snapinID');
-                $insert_values = array();
-                $DBHostIDs = array_diff((array)$this->get('hosts'), (array)$DBHostIDs);
-                array_walk($DBHostIDs, function (&$hostID, $index) use (&$insert_values) {
-                    $insert_values[] = array($hostID, $this->get('id'));
-                });
-                if (count($insert_values) > 0) {
-                    self::getClass('SnapinAssociationManager')->insertBatch($insert_fields, $insert_values);
-                }
-                unset($DBHostIDs, $RemoveHostIDs);
-                case ($this->isLoaded('storageGroups')):
-                    $DBGroupIDs = self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storageGroupID');
-                    $ValidHostIDs = self::getSubObjectIDs('StorageGroup');
-                        $notValid = array_diff((array)$DBGroupIDs, (array)$ValidHostIDs);
-                    if (count($notValid)) {
-                        self::getClass('SnapinGroupAssociationManager')->destroy(array('storageGroupID'=>$notValid));
-                    }
-                        unset($ValidHostIDs, $notValid);
-                        $DBGroupIDs = self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storageGroupID');
-                        $RemoveGroupIDs = array_diff((array)$DBGroupIDs, (array)$this->get('storageGroups'));
-                    if (count($RemoveGroupIDs)) {
-                        self::getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$this->get('id'), 'storageGroupID'=>$RemoveGroupIDs));
-                        $DBGroupIDs = self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storageGroupID');
-                        unset($RemoveGroupIDs);
-                    }
-                        array_map(function (&$Group) {
-                            if (!$Group->isValid()) {
-                                return;
-                            }
-                            self::getClass('SnapinGroupAssociation')
-                            ->set('snapinID', $this->get('id'))
-                            ->set('storageGroupID', $Group->get('id'))
-                            ->save();
-                            unset($Group);
-                        }, (array)self::getClass('StorageGroupManager')->find(array('id'=>array_diff((array)$this->get('storageGroups'), (array)$DBGroupIDs))));
-                        unset($DBGroupIDs);
-        }
-        return $this;
+        return $this
+            ->assocSetter('Snapin', 'host')
+            ->assocSetter('Snapin', 'storagegroup');
     }
     public function deleteFile()
     {
         if (!$this->get('id')) {
             return;
         }
-        if (!$this->isLoaded('storageGroups')) {
+        if (!$this->isLoaded('storagegroups')) {
             $this->loadStorageGroups();
         }
         if ($this->get('protected')) {
@@ -133,7 +82,7 @@ class Snapin extends FOGController
                 ->delete($delete)
                 ->close();
             unset($StorageNode);
-        }, (array)self::getClass('StorageNodeManager')->find(array('storageGroupID'=>$this->get('storageGroups'), 'isEnabled'=>1)));
+        }, (array)self::getClass('StorageNodeManager')->find(array('storagegroupID'=>$this->get('storagegroups'), 'isEnabled'=>1)));
     }
     public function addHost($addArray)
     {
@@ -145,27 +94,27 @@ class Snapin extends FOGController
     }
     public function addGroup($addArray)
     {
-        return $this->addRemItem('storageGroups', (array)$addArray, 'merge');
+        return $this->addRemItem('storagegroups', (array)$addArray, 'merge');
     }
     public function removeGroup($removeArray)
     {
-        return $this->addRemItem('storageGroups', (array)$removeArray, 'diff');
+        return $this->addRemItem('storagegroups', (array)$removeArray, 'diff');
     }
     public function getStorageGroup()
     {
-        if (!count($this->get('storageGroups'))) {
-            $this->set('storageGroups', (array)@min(self::getSubObjectIDs('StorageGroup')));
+        if (!count($this->get('storagegroups'))) {
+            $this->set('storagegroups', (array)@min(self::getSubObjectIDs('StorageGroup')));
         }
         $Group = array_map(function (&$id) {
             if ($this->getPrimaryGroup($id)) {
                 return self::getClass('StorageGroup', $id);
             }
-        }, (array)$this->get('storageGroups'));
+        }, (array)$this->get('storagegroups'));
         $Group = array_shift($Group);
         if ($Group instanceof StorageGroup && $Group->isValid()) {
             return $Group;
         }
-        return self::getClass('StorageGroup', @min($this->get('storageGroups')));
+        return self::getClass('StorageGroup', @min($this->get('storagegroups')));
     }
     public function getPrimaryGroup($groupID)
     {
@@ -173,13 +122,13 @@ class Snapin extends FOGController
         if ($primaryCount < 1) {
             $this->setPrimaryGroup(@min(self::getSubObjectIDs('StorageGroup')));
         }
-        $assocID = @min(self::getSubObjectIDs('SnapinGroupAssociation', array('storageGroupID'=>$groupID, 'snapinID'=>$this->get('id'))));
+        $assocID = @min(self::getSubObjectIDs('SnapinGroupAssociation', array('storagegroupID'=>$groupID, 'snapinID'=>$this->get('id'))));
         return self::getClass('SnapinGroupAssociation', $assocID)->isPrimary();
     }
     public function setPrimaryGroup($groupID)
     {
-        self::getClass('SnapinGroupAssociationManager')->update(array('snapinID'=>$this->get('id'), 'storageGroupID'=>array_diff((array)$this->get('storageGroups'), (array)$groupID)), '', array('primary'=>0));
-        self::getClass('SnapinGroupAssociationManager')->update(array('snapinID'=>$this->get('id'), 'storageGroupID'=>$groupID), '', array('primary'=>1));
+        self::getClass('SnapinGroupAssociationManager')->update(array('snapinID'=>$this->get('id'), 'storagegroupID'=>array_diff((array)$this->get('storagegroups'), (array)$groupID)), '', array('primary'=>0));
+        self::getClass('SnapinGroupAssociationManager')->update(array('snapinID'=>$this->get('id'), 'storagegroupID'=>$groupID), '', array('primary'=>1));
     }
     protected function loadHosts()
     {
@@ -202,9 +151,9 @@ class Snapin extends FOGController
         if (!$this->get('id')) {
             return;
         }
-        $this->set('storageGroups', self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storageGroupID'));
-        if (!count($this->get('storageGroups'))) {
-            $this->set('storageGroups', (array)@min(self::getSubObjectIDs('StorageGroup', '', 'id')));
+        $this->set('storagegroups', self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storagegroupID'));
+        if (!count($this->get('storagegroups'))) {
+            $this->set('storagegroups', (array)@min(self::getSubObjectIDs('StorageGroup', '', 'id')));
         }
     }
     protected function loadStorageGroupsnotinme()
@@ -212,9 +161,9 @@ class Snapin extends FOGController
         if (!$this->get('id')) {
             return;
         }
-        $this->set('storageGroups', self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storageGroupID'));
-        $find = array('id'=>$this->get('storageGroups'));
-        $this->set('storageGroupsnotinme', self::getSubObjectIDs('StorageGroup', $find, '', true));
+        $this->set('storagegroups', self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storagegroupID'));
+        $find = array('id'=>$this->get('storagegroups'));
+        $this->set('storagegroupsnotinme', self::getSubObjectIDs('StorageGroup', $find, '', true));
         unset($find);
     }
     protected function loadPath()

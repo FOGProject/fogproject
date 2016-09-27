@@ -1,7 +1,37 @@
 <?php
+/**
+ * PowerManagement class handler
+ *
+ * PHP version 5
+ *
+ * @category PowerManagement
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * PowerManagement class handler
+ *
+ * @category PowerManagement
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class PowerManagement extends FOGController
 {
+    /**
+     * The database table to work from
+     *
+     * @var string
+     */
     protected $databaseTable = 'powerManagement';
+    /**
+     * The fields and common name associations
+     *
+     * @var array
+     */
     protected $databaseFields = array(
         'id' => 'pmID',
         'hostID' => 'pmHostID',
@@ -13,6 +43,11 @@ class PowerManagement extends FOGController
         'onDemand' => 'pmOndemand',
         'action' => 'pmAction',
     );
+    /**
+     * The required fields
+     *
+     * @var array
+     */
     protected $databaseFieldsRequired = array(
         'hostID',
         'min',
@@ -22,57 +57,77 @@ class PowerManagement extends FOGController
         'dow',
         'action',
     );
+    /**
+     * Any additional fields
+     *
+     * @var array
+     */
     protected $additionalFields = array(
         'hosts',
     );
+    /**
+     * Add new hosts to the powermanagement system
+     *
+     * @param array $addArray the hosts to add
+     *
+     * @return object
+     */
     public function addHost($addArray)
     {
         return $this->addRemItem('hosts', (array)$addArray, 'merge');
     }
+    /**
+     * Removes hosts from the powermanagement system
+     *
+     * @param array $removeArray the hosts to remove
+     *
+     * @return object
+     */
     public function removeHost($removeArray)
     {
         return $this->addRemItem('hosts', (array)$removeArray, 'diff');
     }
+    /**
+     * Loads an hosts for this pm tasking
+     *
+     * @return void
+     */
     protected function loadHosts()
     {
-        $this->set('hosts', self::getSubObjectIDs('PowerManagement', array('id'=>$this->get('id')), 'hostID'));
+        $this->set(
+            'hosts',
+            self::getSubObjectIDs(
+                'PowerManagement',
+                array(
+                    'id' => $this->get('id')),
+                'hostID'
+            )
+        );
     }
+    /**
+     * Saves the item to the db
+     *
+     * @return object
+     */
     public function save()
     {
         parent::save();
-        switch (true) {
-            case ($this->isLoaded('hosts')):
-                $DBHostIDs = self::getSubObjectIDs('PowerManagement', array('id'=>$this->get('id')), 'hostID');
-                $ValidHostIDs = self::getSubObjectIDs('Host');
-                $notValid = array_diff((array)$DBHostIDs, (array)$ValidHostIDs);
-                if (count($notValid)) {
-                    self::getClass('PowerManagementManager')->destroy(array('hostID'=>$notValid));
-                }
-                unset($ValidHostIDs, $DBHostIDs);
-                $DBHostIDs = self::getSubObjectIDs('PowerManagement', array('id'=>$this->get('id')), 'hostID');
-                $RemoveHostIDs = array_diff((array)$DBHostIDs, (array)$this->get('hosts'));
-                if (count($RemoveHostIDs)) {
-                    self::getClass('PowerManagementManager')->destroy(array('id'=>$this->get('id'), 'hostID'=>$RemoveHostIDs));
-                    $DBHostIDs = self::getSubObjectIDs('PowerManagement', array('id'=>$this->get('id')), 'hostID');
-                    unset($RemoveHostIDs);
-                }
-                $insert_fields = array('hostID');
-                $insert_values = array();
-                $DBHostIDs = array_diff((array)$this->get('hosts'), (array)$DBHostIDs);
-                array_walk($DBHostIDs, function (&$hostID, $index) use (&$insert_values) {
-                    $insert_values[] = array($hostID);
-                });
-                if (count($insert_values) > 0) {
-                    self::getClass('PowerManagementManager')->insertBatch($insert_fields, $insert_values);
-                }
-                unset($DBHostIDs, $RemoveHostIDs);
-        }
-        return $this;
+        return $this->assocSetter('PowerManagement', 'host', true);
     }
+    /**
+     * Gets the action as defined
+     *
+     * @return string
+     */
     public function getActionSelect()
     {
         return $this->getManager()->getActionSelect($this->get('action'), true);
     }
+    /**
+     * Gets the current timer for this pm task
+     *
+     * @return object
+     */
     public function getTimer()
     {
         $min = trim($this->get('min'));
@@ -80,8 +135,13 @@ class PowerManagement extends FOGController
         $dom = trim($this->get('dom'));
         $month = trim($this->get('month'));
         $dow = trim($this->get('dow'));
-        return self::getClass('Timer', $min, $hour, $dom, $month, $dow);
+        return new Timer($min, $hour, $dom, $month, $dow);
     }
+    /**
+     * Returns the host associated to this pm task
+     *
+     * @return object
+     */
     public function getHost()
     {
         return new Host($this->get('hostID'));

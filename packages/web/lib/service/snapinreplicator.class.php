@@ -20,7 +20,7 @@ class SnapinReplicator extends FOGService
             foreach ((array)$StorageNodes as &$StorageNode) {
                 self::out(' * I am the group manager', static::$dev);
                 self::wlog(' * I am the group manager', '/opt/fog/log/groupmanager.log');
-                $myStorageGroupID = $StorageNode->get('storageGroupID');
+                $myStorageGroupID = $StorageNode->get('storagegroupID');
                 $myStorageNodeID = $StorageNode->get('id');
                 self::outall(" * Starting Snapin Replication.");
                 self::outall(sprintf(" * We are group ID: #%s", $myStorageGroupID));
@@ -33,7 +33,7 @@ class SnapinReplicator extends FOGService
                     self::getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$SnapinAssocs));
                 }
                 unset($SnapinAssocs);
-                $SnapinAssocCount = self::getClass('SnapinGroupAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID, 'snapinID'=>$SnapinIDs));
+                $SnapinAssocCount = self::getClass('SnapinGroupAssociationManager')->count(array('storagegroupID'=>$myStorageGroupID, 'snapinID'=>$SnapinIDs));
                 $SnapinCount = self::getClass('SnapinManager')->count();
                 if ($SnapinAssocCount <= 0 || $SnapinCount <= 0) {
                     $this->outall(_(' | There is nothing to replicate'));
@@ -42,7 +42,7 @@ class SnapinReplicator extends FOGService
                     continue;
                 }
                 unset($SnapinAssocCount, $SnapinCount);
-                $Snapins = self::getClass('SnapinManager')->find(array('id'=>self::getSubObjectIDs('SnapinGroupAssociation', array('storageGroupID'=>$myStorageGroupID, 'snapinID'=>$SnapinIDs), 'snapinID')));
+                $Snapins = self::getClass('SnapinManager')->find(array('id'=>self::getSubObjectIDs('SnapinGroupAssociation', array('storagegroupID'=>$myStorageGroupID, 'snapinID'=>$SnapinIDs), 'snapinID')));
                 unset($SnapinIDs);
                 foreach ((array)$Snapins as $i => &$Snapin) {
                     if (!$Snapin->isValid()) {

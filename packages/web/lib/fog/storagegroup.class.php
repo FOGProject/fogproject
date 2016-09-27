@@ -86,7 +86,7 @@ class StorageGroup extends FOGController
             'allnodes',
             self::getSubObjectIDs(
                 'StorageNode',
-                array('storageGroupID' => $this->get('id')),
+                array('storagegroupID' => $this->get('id')),
                 'id'
             )
         );
@@ -103,7 +103,7 @@ class StorageGroup extends FOGController
             self::getSubObjectIDs(
                 'StorageNode',
                 array(
-                    'storageGroupID' => $this->get('id'),
+                    'storagegroupID' => $this->get('id'),
                     'id' => $this->get('allnodes'),
                     'isEnabled' => 1
                 )
