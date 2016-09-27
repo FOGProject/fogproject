@@ -1067,7 +1067,7 @@ abstract class FOGController extends FOGBase
         $assoc = strtolower($assocItem);
         $plural = sprintf(
             '%ss',
-            $assocItem
+            $assoc
         );
         if (!$this->isLoaded($plural)) {
             return $this;
