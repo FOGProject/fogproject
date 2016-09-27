@@ -1078,7 +1078,7 @@ abstract class FOGController extends FOGBase
         $assocstr = sprintf('%sID', $assoc);
         $DBIDs = self::getSubObjectIDs(
             $assocItem,
-            array('id' => $this->get($plural)
+            array('id' => $this->get($plural))
         );
         $RemIDs = self::getSubObjectIDs(
             sprintf('%sAssociation', $assocItem),
