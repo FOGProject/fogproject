@@ -48,7 +48,7 @@ class Snapin extends FOGController
         parent::save();
         return $this
             ->assocSetter('Snapin', 'host')
-            ->assocSetter('Snapin', 'storagegroup');
+            ->assocSetter('SnapinGroup', 'storagegroup');
     }
     public function deleteFile()
     {

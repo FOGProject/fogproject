@@ -1092,10 +1092,18 @@ abstract class FOGController extends FOGBase
         $objstr = sprintf('%sID', $objtype);
         $assocstr = sprintf('%sID', $assoc);
         if (count($this->get($plural))) {
+            if ($assocItem === 'SnapinGroup') {
+                $tmpAssoc = $assocItem;
+                $assocItem = 'StorageGroup';
+            }
             $DBIDs = self::getSubObjectIDs(
                 $assocItem,
                 array('id' => $this->get($plural))
             );
+            if ($tmpAssoc) {
+                $assocItem = $tmpAssoc;
+                unset($tmpAssoc);
+            }
         } else {
             $RemIDs = self::getSubObjectIDs($assoc);
         }
@@ -1103,7 +1111,6 @@ abstract class FOGController extends FOGBase
             $RemIDs = self::getSubObjectIDs(
                 $classCall,
                 array(
-                    $objstr => $this->get('id'),
                     $assocstr => $DBIDs
                 ),
                 $assocstr,

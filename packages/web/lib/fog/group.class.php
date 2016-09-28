@@ -357,7 +357,7 @@ class Group extends FOGController
     public function addImage($imageID)
     {
         $Image = new Image($imageID);
-        if (!$Image->isValid()) {
+        if (!$Image->isValid() && is_numeric($imageID)) {
             throw new Exception(_('Select a valid image'));
         }
         $states = array_merge(
