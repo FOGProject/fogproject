@@ -1,9 +1,35 @@
 <?php
-require('../commons/base.inc.php');
+/**
+ * Checks credentials for init based calls
+ *
+ * PHP version 5
+ *
+ * @category CheckCredentials
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Checks credentials for init based calls
+ *
+ * @category CheckCredentials
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+require '../commons/base.inc.php';
 try {
-    $username = trim(base64_decode(trim($_REQUEST['username'])));
-    $password = trim(base64_decode(trim($_REQUEST['password'])));
-    if (!FOGCore::getClass('User')->password_validate($username, $password)) {
+    $username = trim($_REQUEST['username']);
+    $username = base64_decode($username);
+    $username = trim($username);
+    $password = trim($_REQUEST['password']);
+    $password = base64_decode($password);
+    $password = trim($password);
+    $userTest = FOGCore::getClass('User')
+        ->password_validate($username, $password);
+    if (!$userTest) {
         throw new Exception('#!il');
     }
     echo '#!ok';
