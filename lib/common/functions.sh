@@ -305,10 +305,10 @@ getFirstGoodInterface() {
         [[ ! $? -eq 0 ]] && continue
         ping -c 1 $siteToCheckForInternet -I $interface >/dev/null 2>&1
         if [[ ! $? -eq 0 ]]; then
-            echo "Internet detected on $anInterface but there seems to be a DNS problem." >>$workingdir/error_logs/fog_error_${version}.log
+            echo "Internet detected on $interface but there seems to be a DNS problem." >>$workingdir/error_logs/fog_error_${version}.log
             echo "Check the contents of /etc/resolv." >>$workingdir/error_logs/fog_error_${version}.log
             echo "If this is CentOS, RHEL, or Fedora or an other RH variant," >>$workingdir/error_logs/fog_error_${version}.log
-            echo "also check the DNS entries for /etc/sysconfig/network-scripts/ifcfg-$anInterface" >>$workingdir/error_logs/fog_error_${version}.log
+            echo "also check the DNS entries for /etc/sysconfig/network-scripts/ifcfg-$interface" >>$workingdir/error_logs/fog_error_${version}.log
             continue
         fi
         echo $interface >> $workingdir/goodInterface.txt
@@ -316,7 +316,7 @@ getFirstGoodInterface() {
     done
     [[ -e $workingdir/tempInterfaces.txt ]] && rm -f $workingdir/tempInterfaces.txt >/dev/null 2>&1
     if [[ -e $workingdir/goodInterface.txt ]]; then
-        goodInterface=$(cat $workingdir/goodInterface.txt)
+        goodInterface=$(cat $workingdir/goodInterface.txt | head -1)
         rm -f $workingdir/goodInterface.txt >/dev/null 2>&1
     fi
     [[ -n $goodInterface ]] && echo $goodInterface
