@@ -333,7 +333,7 @@ exitcode=$?
 [[ -z $bldhcp ]] && bldhcp=""
 [[ -z $installtype ]] && installtype=""
 [[ -z $interface ]] && interface=$(getFirstGoodInterface)
-[[ -z $ipaddress  ]] && ipaddress=$(/sbin/ip addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
+[[ -z $ipaddress  ]] && ipaddress=$(/sbin/ip addr show $interface | awk -F'[ /]+' '/global/ {print $3}') && ipaddress=$(echo $ipaddress | cut -f 1 -d " ") 
 [[ -z $routeraddress ]] && routeraddress=$(/sbin/ip route | awk "/$interface/ && /via/ {print \$3}")
 [[ -z $plainrouter ]] && plainrouter=$routeraddress
 [[ -z $blexports ]] && blexports=1
