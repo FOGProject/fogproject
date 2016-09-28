@@ -82,9 +82,15 @@ class FOGFTP extends FOGGetSet
      *
      * @return ftp_alloc
      */
-    public function alloc($filesize, &$result)
-    {
-        return ftp_alloc(self::$_link, $filesize, $result);
+    public function alloc(
+        $filesize,
+        &$result
+    ) {
+        return ftp_alloc(
+            self::$_link,
+            $filesize,
+            $result
+        );
     }
     /**
      * Change to parent directory
@@ -104,16 +110,38 @@ class FOGFTP extends FOGGetSet
      */
     public function chdir($directory)
     {
-        return ftp_chdir(self::$_link, $directory);
+        return ftp_chdir(
+            self::$_link,
+            $directory
+        );
     }
-    public function chmod($mode = 0, $filename)
-    {
+    /**
+     * Change permissions on directory
+     *
+     * @param string $mode     the permissions/mode to set on file
+     * @param string $filename the file to change permissions on
+     *
+     * @return object
+     */
+    public function chmod(
+        $mode,
+        $filename
+    ) {
         if (!$mode) {
             $mode = $this->get('mode');
         }
-        ftp_chmod(self::$_link, $mode, $filename);
+        ftp_chmod(
+            self::$_link,
+            $mode,
+            $filename
+        );
         return $this;
     }
+    /**
+     * Close the current ftp session
+     *
+     * @return object
+     */
     public function close()
     {
         if (self::$_link) {
@@ -122,23 +150,70 @@ class FOGFTP extends FOGGetSet
         self::$_link = null;
         return $this;
     }
-    public function connect($host = '', $port = 0, $timeout = 90, $autologin = true, $connectmethod = 'ftp_connect')
-    {
+    /**
+     * Connect to the ftp server
+     *
+     * @param string $host          the host to connect to
+     * @param int    $port          the port to use
+     * @param int    $timeout       the timeout setting of the connection
+     * @param bool   $autologin     should we auto login
+     * @param string $connectmethod how to connect to the ftp server
+     */
+    public function connect(
+        $host = '',
+        $port = 0,
+        $timeout = 90,
+        $autologin = true,
+        $connectmethod = 'ftp_connect'
+    ) {
         try {
-            self::$_currentConnectionHash = password_hash(serialize($this->data), PASSWORD_BCRYPT, ['cost'=>11]);
-            if (self::$_link && self::$_currentConnectionHash == self::$_lastConnectionHash) {
+            self::$_currentConnectionHash = password_hash(
+                serialize($this->data),
+                PASSWORD_BCRYPT,
+                ['cost'=>11]
+            );
+            if (self::$_link
+                && self::$_currentConnectionHash == self::$_lastConnectionHash
+            ) {
                 return $this;
             }
             if (!$host) {
                 $host = $this->get('host');
             }
+            list(
+                $portOverride,
+                $timeoutOverride
+            ) = self::getSubObjectIDs(
+                'Service',
+                array(
+                    'name' => array(
+                        'FOG_FTP_PORT',
+                        'FOG_FTP_TIMEOUT'
+                    )
+                ),
+                'value',
+                false,
+                'AND',
+                'name',
+                false,
+                ''
+            );
             if (!$port) {
-                $port = self::getSetting('FOG_FTP_PORT') ? self::getSetting('FOG_FTP_PORT') : $this->get('port');
+                if ($portOverride) {
+                    $port = $portOverride;
+                } else {
+                    $port = $this->get('port');
+                }
             }
             if (!$timeout) {
-                $timeout = self::getSetting('FOG_FTP_TIMEOUT') ? self::getSetting('FOG_FTP_TIMEOUT') : $this->get('timeout');
+                if ($timeoutOverride) {
+                    $timeout = $timeoutOverride;
+                } else {
+                    $timeout = $this->get('timeout');
+                }
             }
-            if ((self::$_link = $connectmethod($host, $port, $timeout)) === false) {
+            self::$_link = $connectmethod($host, $port, $timeout);
+            if (self::$_link === false) {
                 self::ftperror($this->data);
             }
             if ($autologin) {
@@ -151,63 +226,172 @@ class FOGFTP extends FOGGetSet
         self::$_lastConnectionHash = self::$_currentConnectionHash;
         return $this;
     }
+    /**
+     * Deletes the item passed
+     *
+     * @param string $path the item to delete
+     *
+     * @return object
+     */
     public function delete($path)
     {
         if (!$this->exists($path)) {
             return $this;
         }
-        if (!ftp_delete(self::$_link, $path) && !$this->rmdir($path)) {
+        if (!ftp_delete(self::$_link, $path)
+            && !$this->rmdir($path)
+        ) {
             $filelist = $this->nlist($path);
-            array_map(function (&$file) {
+            foreach ((array)$filelist as &$file) {
                 $this->delete($file);
                 unset($file);
-            }, (array)$filelist);
+            }
             $rawfilelist = $this->rawlist("-a $path");
-            array_map(function (&$file) use ($path) {
+            $path = trim($path, '/');
+            $path = trim($path);
+            foreach ((array)$rawfilelist as &$file) {
                 $chunk = preg_split("/\s+/", $file);
                 if ($chunk[8] === '.' || $chunk[8] === '..') {
                     return;
                 }
-                $tmpfile = sprintf('%s%s%s%s', DIRECTORY_SEPARATOR, trim(trim($path, '/'), '\\'), DIRECTORY_SEPARATOR, $chunk[8]);
+                $tmpfile = sprintf(
+                    '/%s/%s',
+                    $path,
+                    $chunk[8]
+                );
                 $this->delete($tmpfile);
                 unset($file);
-            }, (array)$rawfilelist);
+            }
         }
         $this->delete($path);
         return $this;
     }
+    /**
+     * Execute command via ftp
+     *
+     * @param string $command the command to execute
+     *
+     * @return bool
+     */
     public function exec($command)
     {
-        return ftp_exec(self::$_link, $command);
+        return ftp_exec(
+            self::$_link,
+            escapeshellcmd($command)
+        );
     }
-    public function fget($handle, $remote_file, $mode = 0, $resumepos = 0)
-    {
+    /**
+     * Get specified portions of a file
+     *
+     * @param resource $handle      the ftp resource
+     * @param string   $remote_file the remote file
+     * @param int      $mode        mode of the connection
+     * @param int      $resumepos   the position to resume from
+     *
+     * @return ftp_fget
+     */
+    public function fget(
+        $handle,
+        $remote_file,
+        $mode = 0,
+        $resumepos = 0
+    ) {
         if (!$mode) {
             $mode = $this->get('mode');
         }
         if ($resumepos) {
-            return ftp_fget(self::$_link, $handle, $remote_file, $mode, $resumepos);
+            return ftp_fget(
+                self::$_link,
+                $handle,
+                $remote_file,
+                $mode,
+                $resumepos
+            );
         }
-        return ftp_fget(self::$_link, $handle, $remote_file, $mode);
+        return ftp_fget(
+            self::$_link,
+            $handle,
+            $remote_file,
+            $mode
+        );
     }
-    public function fput($remote_file, $handle, $mode = 0, $startpos = 0)
-    {
+    /**
+     * Get specified portions of a file
+     *
+     * @param string   $remote_file the remote file
+     * @param resource $handle      the ftp resource
+     * @param int      $mode        mode of the connection
+     * @param int      $startpos    the position to start at
+     *
+     * @return ftp_fget
+     */
+    public function fput(
+        $remote_file,
+        $handle,
+        $mode = 0,
+        $startpos = 0
+    ) {
         if (!$mode) {
             $mode = $this->get('mode');
         }
         if ($startpos) {
-            return ftp_fput(self::$_link, $remote_file, $handle, $mode, $startpos);
+            return ftp_fput(
+                self::$_link,
+                $remote_file,
+                $handle,
+                $mode,
+                $startpos
+            );
         }
-        return ftp_fput(self::$_link, $remote_file, $handle, $mode);
+        return ftp_fput(
+            self::$_link,
+            $remote_file,
+            $handle,
+            $mode
+        );
     }
-    private static function ftperror($data)
+    /**
+     * Returns the ftp error
+     *
+     * @param mixed $data the data info
+     *
+     * @throws Exception
+     * @return void
+     */
+    public static function ftperror($data)
     {
         $error = error_get_last();
-        throw new Exception(sprintf('%s: %s, %s: %s, %s: %s, %s: %s, %s: %s, %s: %s', _('Type'), $error['type'], _('File'), $error['file'], _('Line'), $error['line'], _('Message'), $error['message'], _('Host'), $data['host'], _('Username'), $data['username']));
+        throw new Exception(
+            sprintf(
+                '%s: %s, %s: %s, %s: %s, %s: %s, %s: %s, %s: %s',
+                _('Type'),
+                $error['type'],
+                _('File'),
+                $error['file'],
+                _('Line'),
+                $error['line'],
+                _('Message'),
+                $error['message'],
+                _('Host'),
+                $data['host'],
+                _('Username'),
+                $data['username']
+            )
+        );
     }
-    public function get_option($option)
+    /**
+     * Get ftp options
+     *
+     * @param mixed $option the option to get
+     *
+     * @return ftp_get_option
+     */
+    public function getOption($option)
     {
-        return ftp_get_option(self::$_link, $option);
+        return ftp_get_option(
+            self::$_link,
+            $option
+        );
     }
     public function pull($local_file, $remote_file, $mode = 0, $resumepos = 0)
     {
