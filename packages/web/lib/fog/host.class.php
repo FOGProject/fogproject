@@ -1642,12 +1642,12 @@ class Host extends FOGController
     public function addAddMAC($addArray, $pending = false)
     {
         $addArray = array_map('strtolower', (array)$addArray);
+        $addArray = $this->parseMacList($addArray);
         $addTo = $pending ? 'pendingMACs' : 'additionalMACs';
-        $pushItem = function (&$item) use (&$addTo) {
-            $this->add($addTo, $item);
-            unset($item);
-        };
-        array_map($pushItem, (array)$addArray);
+        foreach ((array)$addArray as &$mac) {
+            $this->add($addTo, $mac);
+            unset($mac);
+        }
         return $this;
     }
     /**
@@ -1726,6 +1726,13 @@ class Host extends FOGController
      */
     public function addPriMAC($mac)
     {
+        $mac = $this->parseMacList($mac);
+        if (count($mac) < 1) {
+            throw new Exception(_('No viable macs to use'));
+        }
+        if (is_array($mac) && count($mac) > 0) {
+            $mac = array_shift($mac);
+        }
         return $this->set('mac', $mac);
     }
     /**

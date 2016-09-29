@@ -78,23 +78,37 @@ class FOGCore extends FOGBase
      */
     public function systemUptime()
     {
-        exec('uptime', $data);
-        $string = $data[0];
-        $uptime = explode(' ', $string);
-        $up_days = (int)$uptime[3];
-        $hours = explode(':', $uptime[6]);
-        $up_hours = (int)$hours[0];
-        $mins = (int)$hours[1];
-        $up_mins = str_replace(',', '', $mins);
-        $uptime = sprintf(
-            '%d %s %d %s %d %s',
-            $up_days,
-            $up_days == 1 ? _('day') : _('days'),
-            $up_hours,
-            $up_hours == 1 ? _('hr') : _('hrs'),
-            $up_mins,
-            $up_mins == 1 ? _('min') : _('mins')
+        exec('cat /proc/uptime', $data);
+        $uptime = explode(' ', $data[0]);
+        $idletime = $uptime[1];
+        $uptime = (float)$uptime[0];
+        $day = 86400;
+        $days = floor($uptime/$day);
+        $uptimestr = sprintf(
+            'Up: %d %s%s ',
+            $days,
+            _('day'),
+            $days != 1 ? 's' : ''
         );
+        $utdelta = $uptime - ($days * $day);
+        $hour = 3600;
+        $hours = floor($utdelta/$hour);
+        $uptimestr .= sprintf(
+            '%d %s%s ',
+            $hours,
+            _('hr'),
+            $hours != 1 ? 's' : ''
+        );
+        $utdelta -= $hours*$hour;
+        $minute = 60;
+        $minutes = floor($utdelta/$minute);
+        $uptimestr .= sprintf(
+            '%d %s%s',
+            $minutes,
+            _('min'),
+            $minutes != 1 ? 's' : ''
+        );
+        $uptime = $uptimestr;
         $loadAvg = sys_getloadavg();
         $load = sprintf(
             '%.2f, %.2f, %.2f',
