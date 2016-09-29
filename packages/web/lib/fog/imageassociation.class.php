@@ -5,12 +5,12 @@ class ImageAssociation extends FOGController
     protected $databaseFields = array(
         'id' => 'igaID',
         'imageID' => 'igaImageID',
-        'storageGroupID' => 'igaStorageGroupID',
+        'storagegroupID' => 'igaStorageGroupID',
         'primary' => 'igaPrimary',
     );
     protected $databaseFieldsRequired = array(
         'imageID',
-        'storageGroupID',
+        'storagegroupID',
     );
     public function getImage()
     {
@@ -18,7 +18,7 @@ class ImageAssociation extends FOGController
     }
     public function getStorageGroup()
     {
-        return self::getClass('StorageGroup', $this->get('storageGroupID'));
+        return self::getClass('StorageGroup', $this->get('storagegroupID'));
     }
     public function isPrimary()
     {

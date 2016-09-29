@@ -127,17 +127,20 @@ class FOGPageManager extends FOGBase
             self::$FOGSubMenu
                 ->addItems(
                     $this->classValue,
-                    array($title => $link)
+                    array((string)$title => (string)$link)
                 );
             unset($title, $link);
         }
         if (!is_object($class->obj)) {
-            return;
+            return sprintf(
+                '<div id="sidebar">%s</div>',
+                self::$FOGSubMenu->get($this->classValue)
+            );
         }
         foreach ((array)$class->subMenu as $link => &$title) {
             self::$FOGSubMenu->addItems(
                 $this->classValue,
-                array($title => $link),
+                array((string)$title => (string)$link),
                 $class->id,
                 sprintf(
                     self::$foglang['SelMenu'],
@@ -149,7 +152,7 @@ class FOGPageManager extends FOGBase
         foreach ((array)$class->notes as $link => &$title) {
             self::$FOGSubMenu->addNotes(
                 $this->classValue,
-                array($title => $link),
+                array((string)$title => (string)$link),
                 $class->id
             );
             unset($title, $link);

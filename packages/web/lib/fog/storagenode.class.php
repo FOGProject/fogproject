@@ -7,7 +7,7 @@ class StorageNode extends FOGController
         'name' => 'ngmMemberName',
         'description' => 'ngmMemberDescription',
         'isMaster' => 'ngmIsMasterNode',
-        'storageGroupID' => 'ngmGroupID',
+        'storagegroupID' => 'ngmGroupID',
         'isEnabled' => 'ngmIsEnabled',
         'isGraphEnabled' => 'ngmGraphEnabled',
         'path' => 'ngmRootPath',
@@ -25,7 +25,7 @@ class StorageNode extends FOGController
         'webroot' => 'ngmWebroot',
     );
     protected $databaseFieldsRequired = array(
-        'storageGroupID',
+        'storagegroupID',
         'ip',
         'path',
         'ftppath',
@@ -46,7 +46,7 @@ class StorageNode extends FOGController
     }
     public function getStorageGroup()
     {
-        return self::getClass('StorageGroup', $this->get('storageGroupID'));
+        return self::getClass('StorageGroup', $this->get('storagegroupID'));
     }
     public function getNodeFailure($Host)
     {

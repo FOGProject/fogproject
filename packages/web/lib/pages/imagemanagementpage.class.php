@@ -128,7 +128,7 @@ class ImageManagementPage extends FOGPage
         if (!(($StorageNode instanceof StorageNode) && $StorageNode)) {
             die(_('There is no active/enabled Storage nodes on this server.'));
         }
-        $StorageGroups = self::getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup'] ? $_REQUEST['storagegroup'] : $StorageNode->get('storageGroupID'));
+        $StorageGroups = self::getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup'] ? $_REQUEST['storagegroup'] : $StorageNode->get('storagegroupID'));
         $OSs = self::getClass('OSManager')->buildSelectBox($_REQUEST['os']);
         $ImageTypes = self::getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'] ? $_REQUEST['imagetype'] : 1, '', 'id');
         $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'] ? $_REQUEST['imagepartitiontype'] : 1, '', 'id');
@@ -267,7 +267,7 @@ class ImageManagementPage extends FOGPage
                 'storageGroup_id'=>$Group->get('id'),
                 'storageGroup_name'=>$Group->get('name'),
             );
-        }, self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroupsnotinme'))));
+        }, self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storagegroupsnotinme'))));
         $GroupDataExists = false;
         if (count($this->data) > 0) {
             $GroupDataExists = true;
@@ -305,7 +305,7 @@ class ImageManagementPage extends FOGPage
                 'storageGroup_name'=>$Group->get('name'),
                 'is_primary'=>$this->obj->getPrimaryGroup($Group->get('id')) ? ' checked' : '',
             );
-        }, self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storageGroups'))));
+        }, self::getClass('StorageGroupManager')->find(array('id'=>$this->obj->get('storagegroups'))));
         self::$HookManager->processEvent('IMAGE_EDIT_GROUP', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         printf('<form method="post" action="%s&tab=image-storage">', $this->formAction);
         $this->render();
@@ -361,7 +361,7 @@ class ImageManagementPage extends FOGPage
                         $this->obj->setPrimaryGroup($_REQUEST['primary']);
                     }
                     if (isset($_REQUEST['deleteGroup'])) {
-                        if (count($this->obj->get('storageGroups')) < 2) {
+                        if (count($this->obj->get('storagegroups')) < 2) {
                             throw new Exception(_('Image must be assigned to one Storage Group'));
                         }
                         $this->obj->removeGroup($_REQUEST['storagegroup-rm']);

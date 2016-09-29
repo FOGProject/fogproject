@@ -83,7 +83,7 @@ class StorageManagementPage extends FOGPage
     {
         $this->title = self::$foglang['AllSN'];
         foreach ((array)self::getClass('StorageNodeManager')->find() as $i => &$StorageNode) {
-            $StorageGroup = self::getClass('StorageGroup', $StorageNode->get('storageGroupID'));
+            $StorageGroup = self::getClass('StorageGroup', $StorageNode->get('storagegroupID'));
             $this->data[] = array_merge((array)$StorageNode->get(), array(
                 'isMasterText'=>($StorageNode->get('isMaster')?'Yes':'No'),
                 'isEnabledText'=>($StorageNode->get('isEnabled')?'Yes':'No'),
@@ -167,7 +167,7 @@ class StorageManagementPage extends FOGPage
                 'node_maxclient'=>$_REQUEST['maxClients']?$_REQUEST['maxClients']:10,
                 'span'=>'<i class="icon fa fa-question hand" title="'.self::$foglang['CautionPhrase'].'"></i>',
                 'span2'=>'<i class="icon fa fa-question hand" title="'.self::$foglang['BandwidthRepHelp'].'"></i>',
-                'node_group'=>self::getClass('StorageGroupManager')->buildSelectBox(1, 'storageGroupID'),
+                'node_group'=>self::getClass('StorageGroupManager')->buildSelectBox(1, 'storagegroupID'),
                 'node_path'=>$_REQUEST['path']?$_REQUEST['path']:'/images/',
                 'node_ftppath'=>$_REQUEST['ftppath']?$_REQUEST['ftppath']:'/images/',
                 'node_snapinpath'=>$_REQUEST['snapinpath']?$_REQUEST['snapinpath']:'/opt/fog/snapins/',
@@ -219,7 +219,7 @@ class StorageManagementPage extends FOGPage
                 ->set('webroot', $_REQUEST['webroot'])
                 ->set('maxClients', $_REQUEST['maxClients'])
                 ->set('isMaster', isset($_REQUEST['isMaster']))
-                ->set('storageGroupID', $_REQUEST['storageGroupID'])
+                ->set('storagegroupID', $_REQUEST['storagegroupID'])
                 ->set('path', $_REQUEST['path'])
                 ->set('ftppath', $_REQUEST['ftppath'])
                 ->set('snapinpath', $_REQUEST['snapinpath'])
@@ -235,7 +235,7 @@ class StorageManagementPage extends FOGPage
                 throw new Exception(self::$foglang['DBupfailed']);
             }
             if ($StorageNode->get('isMaster')) {
-                self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$StorageNode->get('id'), self::getSubObjectIDs('StorageNode', array('isMaster'=>1, 'storageGroupID'=>$StorageNode->get('storageGroupID'))))), '', array('isMaster'=>0));
+                self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$StorageNode->get('id'), self::getSubObjectIDs('StorageNode', array('isMaster'=>1, 'storagegroupID'=>$StorageNode->get('storagegroupID'))))), '', array('isMaster'=>0));
             }
             self::$HookManager->processEvent('STORAGE_NODE_ADD_SUCCESS', array('StorageNode'=>&$StorageNode));
             $this->setMessage(self::$foglang['SNCreated']);
@@ -295,7 +295,7 @@ class StorageManagementPage extends FOGPage
                 'graphenabled'=>$this->obj->get('isGraphEnabled') ? 'checked' : '',
                 'span'=>'<i class="icon fa fa-question hand" title="'.self::$foglang['CautionPhrase'].'"></i>',
                 'span2'=>'<i class="icon fa fa-question hand" title="'.self::$foglang['BandwidthRepHelp'].'"></i>',
-                'node_group'=>self::getClass('StorageGroupManager')->buildSelectBox($this->obj->get('storageGroupID'), 'storageGroupID'),
+                'node_group'=>self::getClass('StorageGroupManager')->buildSelectBox($this->obj->get('storagegroupID'), 'storagegroupID'),
                 'node_bandwidth'=>$this->obj->get('bandwidth'),
                 'node_path'=>$this->obj->get('path'),
                 'node_ftppath'=>$this->obj->get('ftppath'),
@@ -347,7 +347,7 @@ class StorageManagementPage extends FOGPage
                 ->set('webroot', $_REQUEST['webroot'])
                 ->set('maxClients', $_REQUEST['maxClients'])
                 ->set('isMaster', isset($_REQUEST['isMaster']))
-                ->set('storageGroupID', $_REQUEST['storageGroupID'])
+                ->set('storagegroupID', $_REQUEST['storagegroupID'])
                 ->set('path', $_REQUEST['path'])
                 ->set('ftppath', $_REQUEST['ftppath'])
                 ->set('snapinpath', $_REQUEST['snapinpath'])
@@ -364,7 +364,7 @@ class StorageManagementPage extends FOGPage
                 throw new Exception(self::$foglang['DBupfailed']);
             }
             if ($this->obj->get('isMaster')) {
-                self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$this->obj->get('id'), self::getSubObjectIDs('StorageNode', array('isMaster'=>1, 'storageGroupID'=>$this->obj->get('storageGroupID'))))), '', array('isMaster'=>0));
+                self::getClass('StorageNodeManager')->update(array('id'=>array_diff((array)$this->obj->get('id'), self::getSubObjectIDs('StorageNode', array('isMaster'=>1, 'storagegroupID'=>$this->obj->get('storagegroupID'))))), '', array('isMaster'=>0));
             }
             self::$HookManager->processEvent('STORAGE_NODE_EDIT_SUCCESS', array('StorageNode'=>&$this->obj));
             $this->setMessage(self::$foglang['SNUpdated']);
