@@ -2182,27 +2182,6 @@ class Host extends FOGController
         return $this->get('snapinjob');
     }
     /**
-     * Sets the status of the ping
-     *
-     * @return object
-     */
-    public function setPingStatus()
-    {
-        $org_ip = $this->get('ip');
-        if (filter_var($this->get('ip'), FILTER_VALIDATE_IP) === false) {
-            $ip = self::$FOGCore->resolveHostname($this->get('name'));
-            $this->set('ip', $ip);
-        }
-        if (filter_var($this->get('ip'), FILTER_VALIDATE_IP) === false) {
-            $this->set('ip', $this->get('name'));
-        }
-        $ping = new Ping($this->get('ip'));
-        return $this
-            ->set('pingstatus', $ping->execute())
-            ->set('ip', $org_ip)
-            ->save();
-    }
-    /**
      * Translates the ping status code to string
      *
      * @return string
