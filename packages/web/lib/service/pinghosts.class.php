@@ -60,7 +60,7 @@ class PingHosts extends FOGService
             array(
                 'name' => array(
                     'FOG_HOST_LOOKUP',
-                    'FOG_WEB_HOST'
+                    'FOG_WEB_HOST',
                     'PINGHOSTDEVICEOUTPUT',
                     'PINGHOSTLOGFILENAME',
                     self::$sleeptime
@@ -149,7 +149,7 @@ class PingHosts extends FOGService
             $hostids = self::getsubObjectIDs('Host');
             $hostnames = self::getSubObjectIDs(
                 'Host',
-                array('id' => $hostids)
+                array('id' => $hostids),
                 'name'
             );
             $hostips = self::getSubObjectIDs(
@@ -196,10 +196,16 @@ class PingHosts extends FOGService
      */
     public function serviceRun()
     {
-        self::out(' ', static::$dev);
-        self::out(' +---------------------------------------------------------', static::$dev);
+        self::out(' ',
+            static::$dev
+        );
+        $str = sprintf(
+            ' +%s',
+            str_pad('-', 75)
+        );
+        self::out($str, static::$dev);
         $this->commonOutput();
-        self::out(' +---------------------------------------------------------', static::$dev);
+        self::out($str, static::$dev);
         parent::serviceRun();
     }
 }

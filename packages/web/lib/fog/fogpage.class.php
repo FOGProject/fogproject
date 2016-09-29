@@ -1022,7 +1022,23 @@ abstract class FOGPage extends FOGBase
         }
         $this->newService = true;
         if (isset($_REQUEST['configure'])) {
-            $Services = self::getSubObjectIDs('Service', array('name'=>array('FOG_CLIENT_CHECKIN_TIME', 'FOG_CLIENT_MAXSIZE', 'FOG_GRACE_TIMEOUT', 'FOG_TASK_FORCE_REBOOT')), 'value', false, 'AND', 'name', false, '');
+            $Services = self::getSubObjectIDs(
+                'Service',
+                array(
+                    'name' => array(
+                        'FOG_CLIENT_CHECKIN_TIME',
+                        'FOG_CLIENT_MAXSIZE',
+                        'FOG_GRACE_TIMEOUT',
+                        'FOG_TASK_FORCE_REBOOT'
+                    )
+                ),
+                'value',
+                false,
+                'AND',
+                'name',
+                false,
+                ''
+            );
             $vals['sleep'] = $Services[0] + mt_rand(1, 91);
             $vals['maxsize'] = $Services[1];
             $vals['promptTime'] = $Services[2];
@@ -1034,23 +1050,54 @@ abstract class FOGPage extends FOGBase
             $this->authorize(true);
         }
         try {
-            $globalModules = array_diff($this->getGlobalModuleStatus(false, true), array('dircleanup', 'usercleanup', 'clientupdater', 'hostregister'));
+            $igMods = array(
+                'dircleanup',
+                'usercleanup',
+                'clientupdater',
+                'hostregister',
+            );
+            $globalModules = array_diff(
+                $this->getGlobalModuleStatus(false, true),
+                array(
+                    'dircleanup',
+                    'usercleanup',
+                    'clientupdater',
+                    'hostregister'
+                )
+            );
             $globalInfo = $this->getGlobalModuleStatus();
             $globalDisabled = array();
-            array_walk($globalInfo, function (&$en, &$key) use (&$globalDisabled) {
-                if (in_array($key, array('dircleanup', 'usercleanup', 'clientupdater', 'hostregister'))) {
+            foreach ((array)$globalInfo as $key => &$en) {
+                if (in_array($key, $igMods)) {
                     return;
                 }
                 if (!$en) {
                     $globalDisabled[] = $key;
                 }
-            });
-            $this->Host = $this->getHostItem(true, false, false, false, isset($_REQUEST['newService']));
-            $hostModules = self::getSubObjectIDs('Module', array('id'=>$this->Host->get('modules')), 'shortName');
-            $hostEnabled = array_diff((array)$hostModules, array('dircleanup', 'usercleanup', 'clientupdater', 'hostregister'));
-            $hostDisabled = array_diff((array)$globalModules, $hostEnabled);
+                unset($key, $en);
+            }
+            $this->Host = $this->getHostItem(
+                true,
+                false,
+                false,
+                false,
+                isset($_REQUEST['newService'])
+            );
+            $hostModules = self::getSubObjectIDs(
+                'Module',
+                array('id' => $this->Host->get('modules')),
+                'shortName'
+            );
+            $hostEnabled = array_diff(
+                (array)$hostModules,
+                (array)$igMods
+            );
+            $hostDisabled = array_diff(
+                (array)$globalModules,
+                (array)$hostEnabled
+            );
             $array = array();
-            array_walk($globalModules, function (&$key, &$index) use (&$array, $globalDisabled, $hostDisabled) {
+            foreach ($globalModules as $index => &$key) {
                 switch ($key) {
                     case 'greenfog':
                         $class='GF';
@@ -1071,13 +1118,31 @@ abstract class FOGPage extends FOGBase
                         $class=$key;
                         break;
                 }
-                if (in_array($key, array_merge($globalDisabled, $hostDisabled))) {
-                    $array[$key]['error'] = in_array($key, $globalDisabled) ? 'ng' : 'nh';
+                $disabled = in_array(
+                    $key,
+                    array_merge(
+                        (array)$globalDisabled,
+                        (array)$hostDisabled
+                    )
+                );
+                if ($disabled) {
+                    if (in_array($key, $globalDisabled)) {
+                        $array[$key]['error'] = 'ng';
+                    } elseif (in_array($key, $hostDisabled)) {
+                        $array[$key]['error'] = 'nh';
+                    }
                 } else {
-                    $array[$key] = self::getClass($class, true, false, false, false, isset($_REQUEST['newService']))->json();
+                    $array[$key] = self::getClass(
+                        $class,
+                        true,
+                        false,
+                        false,
+                        false,
+                        isset($_REQUEST['newService'])
+                    )->json();
                 }
                 unset($key);
-            });
+            }
             $this->sendData(json_encode($array), true);
             //echo json_encode($array);
         } catch (Exception $e) {
