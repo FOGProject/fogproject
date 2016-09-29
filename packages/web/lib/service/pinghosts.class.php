@@ -51,7 +51,7 @@ class PingHosts extends FOGService
         parent::__construct();
         list(
             self::$_pingOn,
-            self::$_fogWeb
+            self::$_fogWeb,
             $dev,
             $log,
             $zzz
