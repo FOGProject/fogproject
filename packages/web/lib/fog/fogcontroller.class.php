@@ -1040,7 +1040,10 @@ abstract class FOGController extends FOGBase
                 (array)$queryData,
                 (array)$class->databaseFieldsFlipped
             );
-            $this->set($fields[2], $class->setQuery($leftover));
+            if (count($leftover) > 0) {
+                $class->setQuery($leftover);
+            }
+            $this->set($fields[2], $class);
             unset($class, $fields);
         }
         return $this;
