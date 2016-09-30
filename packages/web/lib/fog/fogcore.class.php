@@ -161,7 +161,7 @@ class FOGCore extends FOGBase
         $data['general'] = '@@general';
         $data['kernel'] = php_uname('r');
         $data['hostname'] = php_uname('n');
-        $data['uptimeload'] = exec('uptime');
+        $data['uptimeload'] = implode(' Load: ', $this->systemUptime());
         $cpucmd = sprintf(
             '%s | %s | %s | %s | %s',
             'cat /proc/cpuinfo',

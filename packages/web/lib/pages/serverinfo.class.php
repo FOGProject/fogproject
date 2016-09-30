@@ -79,7 +79,7 @@ class ServerInfo extends FOGPage
                     break;
             }
             unset($line);
-        }, (array)explode("\n", $ret));
+        }, explode("\n", $ret));
         array_map(function (&$nic) use (&$NICTransSized, &$NICRecSized, &$NICErrInfo, &$NICDropInfo, &$NICTrans, &$NICRec, &$NICErr, &$NICDro) {
             $nicparts = explode("$$", $nic);
             if (count($nicparts) == 5) {
