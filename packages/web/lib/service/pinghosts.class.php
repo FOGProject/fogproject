@@ -107,14 +107,18 @@ class PingHosts extends FOGService
      * @throws Exception
      * @return void
      */
-    private function commonOutput()
+    private function _commonOutput()
     {
         try {
             if (self::$_pingOn < 1) {
                 throw new Exception(_(' * Host Ping is not enabled'));
             }
-            $webServerIP = self::$FOGCore->resolveHostName(self::$_fogWeb);
-            self::outall(sprintf(' * FOG Web Host IP: %s', $webServerIP));
+            $webServerIP = self::$FOGCore->resolveHostName(
+                self::$_fogWeb
+            );
+            self::outall(
+                sprintf(' * FOG Web Host IP: %s', $webServerIP)
+            );
             self::getIPAddress();
             if (!in_array($webServerIP, self::$ips)) {
                 throw new Exception(
@@ -196,15 +200,13 @@ class PingHosts extends FOGService
      */
     public function serviceRun()
     {
-        self::out(' ',
+        self::out(
+            ' ',
             static::$dev
         );
-        $str = sprintf(
-            ' +%s',
-            str_pad('-', 75)
-        );
+        $str = str_pad('+', 75, '-');
         self::out($str, static::$dev);
-        $this->commonOutput();
+        $this->_commonOutput();
         self::out($str, static::$dev);
         parent::serviceRun();
     }

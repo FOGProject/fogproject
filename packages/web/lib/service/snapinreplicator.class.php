@@ -13,7 +13,7 @@ class SnapinReplicator extends FOGService
         static::$dev = $dev ? $dev : '/dev/tty4';
         static::$zzz = ($zzz ? $zzz : 600);
     }
-    private function commonOutput()
+    private function _commonOutput()
     {
         try {
             $StorageNodes = $this->checkIfNodeMaster();
@@ -73,7 +73,7 @@ class SnapinReplicator extends FOGService
         self::out(' +---------------------------------------------------------', static::$dev);
         self::out(' * Checking if I am the group manager.', static::$dev);
         self::wlog(' * Checking if I am the group manager.', '/opt/fog/log/groupmanager.log');
-        $this->commonOutput();
+        $this->_commonOutput();
         self::out(' +---------------------------------------------------------', static::$dev);
         parent::serviceRun();
     }

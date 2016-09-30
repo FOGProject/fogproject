@@ -1069,7 +1069,7 @@ abstract class FOGPage extends FOGBase
             $globalDisabled = array();
             foreach ((array)$globalInfo as $key => &$en) {
                 if (in_array($key, $igMods)) {
-                    return;
+                    continue;
                 }
                 if (!$en) {
                     $globalDisabled[] = $key;
@@ -1101,7 +1101,7 @@ abstract class FOGPage extends FOGBase
                 switch ($key) {
                     case 'greenfog':
                         $class='GF';
-                        return;
+                        continue 2;
                     case 'powermanagement':
                         $class='PM';
                         break;

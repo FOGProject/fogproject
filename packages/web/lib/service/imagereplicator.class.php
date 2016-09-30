@@ -1,19 +1,83 @@
 <?php
+/**
+ * Replication service for images
+ *
+ * PHP version 5
+ *
+ * @category ImageReplicator
+ * @package  FOGPackage
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Replication service for images
+ *
+ * @category ImageReplicator
+ * @package  FOGPackage
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class ImageReplicator extends FOGService
 {
+    /**
+     * Where to get the services sleeptime
+     *
+     * @var string
+     */
     public static $sleeptime = 'IMAGEREPSLEEPTIME';
+    /**
+     * Initializes the ImageReplicator Class
+     *
+     * @return void
+     */
     public function __construct()
     {
         parent::__construct();
-        list($dev, $log, $zzz) = self::getSubObjectIDs('Service', array('name'=>array('IMAGEREPLICATORDEVICEOUTPUT', 'IMAGEREPLICATORLOGFILENAME', self::$sleeptime)), 'value', false, 'AND', 'name', false, '');
-        static::$log = sprintf('%s%s', self::$logpath ? self::$logpath : '/opt/fog/log/', $log ? $log : 'fogreplicator.log');
+        list(
+            $dev,
+            $log,
+            $zzz
+        ) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array(
+                    'IMAGEREPLICATORDEVICEOUTPUT',
+                    'IMAGEREPLICATORLOGFILENAME',
+                    self::$sleeptime
+                )
+            ),
+            'value',
+            false,
+            'AND',
+            'name',
+            false,
+            ''
+        );
+        static::$log = sprintf(
+            '%s%s',
+            self::$logpath ?
+            self::$logpath :
+            '/opt/fog/log/',
+            $log ?
+            $log :
+            'fogreplicator.log'
+        );
         if (file_exists(static::$log)) {
             unlink(static::$log);
         }
         static::$dev = $dev ? $dev : '/dev/tty1';
         static::$zzz = ($zzz ? $zzz : 600);
     }
-    private function commonOutput()
+    /**
+     * This is what almost all services have available
+     * but is specific to this service
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function _commonOutput()
     {
         try {
             $StorageNodes = $this->checkIfNodeMaster();
@@ -73,7 +137,7 @@ class ImageReplicator extends FOGService
         self::out(' +---------------------------------------------------------', static::$dev);
         self::out(' * Checking if I am the group manager.', static::$dev);
         self::wlog(' * Checking if I am the group manager.', '/opt/fog/log/groupmanager.log');
-        $this->commonOutput();
+        $this->_commonOutput();
         self::out(' +---------------------------------------------------------', static::$dev);
         parent::serviceRun();
     }
