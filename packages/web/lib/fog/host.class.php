@@ -2159,7 +2159,11 @@ class Host extends FOGController
      */
     public function getImage()
     {
-        return $this->get('imagename');
+        $called = $this->get('imagename');
+        if (!$called instanceof Image) {
+            $called = new Image($this->get('imageID'));
+        }
+        return $called;
     }
     /**
      * Returns the hosts image name
@@ -2168,7 +2172,7 @@ class Host extends FOGController
      */
     public function getImageName()
     {
-        return $this->get('imagename')->get('name');
+        return $this->getImage()->get('name');
     }
     /**
      * Returns the hosts image os name
