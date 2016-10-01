@@ -1,18 +1,43 @@
 <?php
-require('../../commons/base.inc.php');
 /**
- * parseMe($Send)
- * @param $Send the data to be sent.
+ * This presents the advanced menu
+ *
+ * PHP version 5
+ *
+ * @category Advanced
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * This presents the advanced menu
+ *
+ * @category Advanced
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+require '../../commons/base.inc.php';
+header('Content-type: text/plain');
+/**
+ * Parses the statements to print the advanced menu
+ *
+ * @param array $Send the data to be parsed
+ *
  * @return void
  */
-header("Content-type: text/plain");
 $parseMe = function ($Send) {
     foreach ($Send as $ipxe => &$val) {
         printf("%s\n", implode("\n", (array)$val));
         unset($val);
     }
 };
-if (isset($_REQUEST['login'])) {
+$login = isset($_REQUEST['login']);
+$user = trim($_REQUEST['username']);
+$pass = trim($_REQUEST['password']);
+if ($login) {
     $Send['loginstuff'] = array(
         '#!ipxe',
         'clear username',
@@ -26,8 +51,9 @@ if (isset($_REQUEST['login'])) {
     $parseMe($Send);
     unset($_REQUEST['login']);
 }
-if (isset($_REQUEST['username'])) {
-    if ($FOGCore->attemptLogin($_REQUEST['username'], $_REQUEST['password'])) {
+if (!empty($user)) {
+    $tmp = $FOGCore->attemptLogin($user, $pass);
+    if ($tmp) {
         $Send['loginsuccess'] = array(
             '#!ipxe',
             'set userID ${username}',
@@ -43,7 +69,10 @@ if (isset($_REQUEST['username'])) {
             'chain -ar ${boot-url}/service/ipxe/advanced.php',
         );
         $parseMe($Send);
-        unset($_REQUEST['username'], $_REQUEST['password']);
+        unset($user, $pass);
     }
 }
-printf("#!ipxe\n%s", FOGCore::getSetting('FOG_PXE_ADVANCED'));
+printf(
+    "#!ipxe\n%s",
+    FOGCore::getSetting('FOG_PXE_ADVANCED')
+);

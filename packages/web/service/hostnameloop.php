@@ -1,12 +1,47 @@
 <?php
-require('../commons/base.inc.php');
+/**
+ * Hostname loop simply checks the host doesn't
+ * already exist.
+ *
+ * PHP version 5
+ *
+ * @category Hostnameloop
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Hostname loop simply checks the host doesn't
+ * already exist.
+ *
+ * @category Hostnameloop
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+require '../commons/base.inc.php';
 try {
-    $hostname = trim(base64_decode(trim($_REQUEST['host'])));
-    $mac = array_filter((array)FOGCore::getSubObjectIDs('MACAddressAssociation', array('hostID'=>FOGCore::getSubObjectIDs('Host', array('name'=>$hostname))), 'mac'));
-    if (count($mac)) {
-        throw new Exception(sprintf("\t%s\n%s: %s", _('A hostname with that name already exists.'), _('The MAC Address associated with this is'), array_shift($mac)));
+    $host = $_REQUEST['host'];
+    $host = trim($host);
+    $host = base64_decode($host);
+    $host = trim($host);
+    $Host = self::getClass('Host')
+        ->set('name', $host)
+        ->load('name');
+    if ($Host->isValid()) {
+        $msg = sprintf(
+            "\t%s\n\t%s: %s",
+            _('A host with that name already exists'),
+            _('The primary mac associated is'),
+            $Host->get('mac')->__toString()
+        );
+        throw new Exception($msg);
     }
-    throw new Exception('#!ok');
+    $msg = '#!ok';
 } catch (Exception $e) {
-    echo $e->getMessage();
+    $msg = $e->getMessage();
 }
+echo $msg;
+exit;
