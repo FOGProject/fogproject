@@ -25,10 +25,7 @@ ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
 $hwinfo = $FOGCore->getHWInfo();
-array_walk(
-    $hwinfo,
-    function (&$val, &$index) {
-        echo "$val\n";
-        unset($val);
-    }
-);
+foreach ((array)$hwinfo as $index => &$val) {
+    echo "$val\n";
+    unset($val);
+}

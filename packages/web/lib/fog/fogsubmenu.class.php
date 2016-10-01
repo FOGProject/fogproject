@@ -115,13 +115,21 @@ class FOGSubMenu extends FOGBase
      * @throws exception
      * @return void
      */
-    public function addItems($node, $items, $ifVariable = '', $ifVariableTitle = '')
-    {
+    public function addItems(
+        $node,
+        $items,
+        $ifVariable = '',
+        $ifVariableTitle = ''
+    ) {
         if (!is_string($node)) {
-            throw new Exception(_('Node must be a string'));
+            throw new Exception(
+                _('Node must be a string')
+            );
         }
         if (!is_array($items)) {
-            throw new Exception(_('Items must be an array'));
+            throw new Exception(
+                _('Items must be an array')
+            );
         }
         if (!$ifVariable) {
             $variableSetter = self::$foglang['MainMenu'];
@@ -129,21 +137,19 @@ class FOGSubMenu extends FOGBase
             $variableSetter = $ifVariableTitle;
         }
         if (isset($_REQUEST[$ifVariable])) {
-            array_walk(
-                $items,
-                function (&$link, &$title) use ($ifVariable) {
-                    global $$ifVariable;
-                    if (!$this->isExternalLink($link)) {
-                        $link = sprintf(
-                            '%s&%s=%s',
-                            $link,
-                            $ifVariable,
-                            $$ifVariable
-                        );
-                    }
-                    unset($link, $title);
+            global $$ifVariable;
+            foreach ((array)$items as $title => $link) {
+                global $$ifVariable;
+                if (!$this->isExternalLink($link)) {
+                    $link = sprintf(
+                        '%s&%s=%s',
+                        $link,
+                        $ifVariable,
+                        $$ifVariable
+                    );
                 }
-            );
+                unset($link, $title);
+            }
         }
         if (is_array($this->items[$node][$variableSetter])) {
             $this->items[$node][$variableSetter] = array_merge(
@@ -164,30 +170,34 @@ class FOGSubMenu extends FOGBase
      * @throws Exception
      * @return void
      */
-    public function addNotes($node, $data, $ifVariable = '')
-    {
+    public function addNotes(
+        $node,
+        $data,
+        $ifVariable = ''
+    ) {
         if (!is_string($node)) {
-            throw new Exception(_('Node must be a string'));
+            throw new Exception(
+                _('Node must be a string')
+            );
         }
         if (!is_callable($data) && !is_array($data)) {
-            throw new Exception(_('Data must be an array or a callable item.'));
+            throw new Exception(
+                _('Data must be an array or a callable item.')
+            );
         }
         if (is_callable($data)) {
             $data = $data();
         }
         if (is_array($data)) {
             ob_start();
-            array_walk(
-                $data,
-                function (&$title, &$info) {
-                    printf(
-                        '<h3>%s</h3><p>%s</p>',
-                        $this->fixTitle($title),
-                        $info
-                    );
-                    unset($info, $title);
-                }
-            );
+            foreach ((array)$data as $info => &$title) {
+                printf(
+                    '<h3>%s</h3><p>%s</p>',
+                    $this->fixTitle($title),
+                    $info
+                );
+                unset($info, $title);
+            }
         }
         $this->notes[$node][] = ob_get_clean();
     }
@@ -203,69 +213,62 @@ class FOGSubMenu extends FOGBase
     {
         ob_start();
         if ($this->items[$node]) {
-            array_walk(
-                $this->items[$node],
-                function (&$data, &$title) use (&$node, $labelcreator) {
-                    self::$_title = $this->fixTitle($title);
-                    ob_start();
-                    printf(
-                        '<div class="organic-tabs"><h2>%s</h2><ul>',
-                        self::$_title
+            foreach ((array)$this->items[$node] as $title => &$data) {
+                self::$_title = $this->fixTitle($title);
+                printf(
+                    '<div class="organic-tabs"><h2>%s</h2><ul>',
+                    self::$_title
+                );
+                foreach ((array)$data as $label => &$link) {
+                    $string = sprintf(
+                        '<li><a href="%s">%s</a></li>',
+                        '%s',
+                        $label
                     );
-                    array_walk(
-                        $data,
-                        function (&$link, &$label) use (&$node, &$title) {
-                            $string = sprintf(
-                                '<li><a href="%s">%s</a></li>',
-                                '%s',
-                                $label
+                    if ($this->isExternalLink($link)) {
+                        printf(
+                            $string,
+                            $link
+                        );
+                    } elseif (!$link) {
+                        printf(
+                            $string,
+                            "?node=$node"
+                        );
+                    } else {
+                        global $sub;
+                        $string = sprintf(
+                            $string,
+                            "?node=$node&sub=%s"
+                        );
+                        if (!$sub || $title == self::$foglang['MainMenu']) {
+                            printf(
+                                $string,
+                                $link
                             );
-                            if ($this->isExternalLink($link)) {
-                                printf(
-                                    $string,
-                                    $link
-                                );
-                            } elseif (!$link) {
-                                printf(
-                                    $string,
-                                    "?node=$node"
-                                );
-                            } else {
-                                global $sub;
-                                $string = sprintf(
-                                    $string,
-                                    "?node=$node&sub=%s"
-                                );
-                                if (!$sub || $title == self::$foglang['MainMenu']) {
-                                    printf(
-                                        $string,
-                                        $link
-                                    );
-                                } elseif ($this->defaultSubs[$node]) {
-                                    printf(
-                                        $string,
-                                        "{$this->defaultSubs[$node]}&tab=$link"
-                                    );
-                                } else {
-                                    printf(
-                                        $string,
-                                        "$sub&tab=$link"
-                                    );
-                                }
-                            }
-                            unset($link, $label);
+                        } elseif ($this->defaultSubs[$node]) {
+                            printf(
+                                $string,
+                                "{$this->defaultSubs[$node]}&tab=$link"
+                            );
+                        } else {
+                            printf(
+                                $string,
+                                "$sub&tab=$link"
+                            );
                         }
-                    );
-                    printf(
-                        '%s</ul></div>',
-                        ob_get_clean()
-                    );
-                    unset($data, $title);
+                    }
+                    unset($link, $label);
                 }
-            );
+                echo '</ul></div>';
+                unset($data, $title);
+            }
         }
         if ($this->notes[$node]) {
-            printf('<div id="sidenotes">%s</div>', implode($this->notes[$node]));
+            printf(
+                '<div id="sidenotes">%s</div>',
+                implode($this->notes[$node])
+            );
         }
         return ob_get_clean();
     }
