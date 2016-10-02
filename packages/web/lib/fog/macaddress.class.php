@@ -100,7 +100,7 @@ class MACAddress extends FOGBase
             if (!$this->isValid()) {
                 throw new Exception("#!im\n");
             }
-            $splitter = split($this->MAC, 2);
+            $splitter = str_split($this->MAC, 2);
             foreach ((array)$splitter as &$split) {
                 $hwAddr .= chr(hexdec($split));
                 unset($split);
@@ -259,5 +259,8 @@ class MACAddress extends FOGBase
             $ip,
             $port
         );
+        if ($sendto) {
+            socket_close($sock);
+        }
     }
 }
