@@ -32,3 +32,4 @@ $count = self::getClass('PluginManager')->count(
 if ($count > 0) {
     echo '##';
 }
+exit;
