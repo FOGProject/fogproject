@@ -30,6 +30,12 @@ class MACAddress extends FOGBase
      */
     private static $_pattern = '';
     /**
+     * This msg packet
+     *
+     * @var string
+     */
+    private static $_msg = '';
+    /**
      * The host object storage
      *
      * @var object
@@ -94,6 +100,16 @@ class MACAddress extends FOGBase
             if (!$this->isValid()) {
                 throw new Exception("#!im\n");
             }
+            $splitter = split($this->MAC, 2);
+            foreach ((array)$splitter as &$split) {
+                $hwAddr .= chr(hexdec($split));
+                unset($split);
+            }
+            self::$_msg = sprintf(
+                '%s%s',
+                str_repeat(chr(255), 6),
+                str_repeat($hwAddr, 16)
+            );
         } catch (Exception $e) {
             if (self::$debug) {
                 self::$FOGCore->debug($e->getMessage().' MAC: %s', $this->MAC);
@@ -207,5 +223,41 @@ class MACAddress extends FOGBase
     public function getHost()
     {
         return $this->_MAC->getHost();
+    }
+    /**
+     * Wakes this MAC address
+     *
+     * @param string $ip   the ip to send to
+     * @param int    $port the port to sent from
+     *
+     * @return bool|void
+     */
+    public function wake($ip, $port = 9)
+    {
+        $sock = socket_create(
+            AF_INET,
+            SOCK_DGRAM,
+            SOL_UDP
+        );
+        if ($sock == false) {
+            return false;
+        }
+        $set_opt = @socket_set_option(
+            $sock,
+            SOL_SOCKET,
+            SO_BROADCAST,
+            true
+        );
+        if ($set_opt < 0) {
+            return false;
+        }
+        $sendto = socket_sendto(
+            $sock,
+            self::$_msg,
+            strlen(self::$_msg),
+            0,
+            $ip,
+            $port
+        );
     }
 }

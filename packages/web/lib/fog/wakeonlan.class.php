@@ -22,11 +22,11 @@
 class WakeOnLan extends FOGBase
 {
     /**
-     * Constant udp port default is 9
+     * UDP port default is 9
      *
      * @var int
      */
-    const WOL_UDP_PORT = 9;
+    private $_port = 9;
     /**
      * MAC Array holder
      *
@@ -66,41 +66,8 @@ class WakeOnLan extends FOGBase
             )
         );
         foreach ((array)$this->_arrMAC as &$mac) {
-            $addr_byte = array();
-            $addr_byte = explode(':', $mac->__toString());
-            $hw_addr = '';
-            for ($a = 0; $a < 6; $a++) {
-                $hw_addr .= chr(hexdec($addr_byte[$a]));
-            }
-            $packet = str_repeat(chr(255), 6);
-            for ($a = 0; $a < 16; $a++) {
-                $packet .= $hw_addr;
-            }
             foreach ((array)$BroadCast as &$SendTo) {
-                $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-                if ($sock == false) {
-                    continue;
-                }
-                $set_opt = @socket_set_option(
-                    $sock,
-                    SOL_SOCKET,
-                    SO_BROADCAST,
-                    true
-                );
-                if ($set_opt < 0) {
-                    continue;
-                }
-                $sendto = socket_sendto(
-                    $sock,
-                    $packet,
-                    strlen($packet),
-                    0,
-                    $SendTo,
-                    self::WOL_UDP_PORT
-                );
-                if ($sendto) {
-                    socket_close($sock);
-                }
+                $mac->wake($SendTo, self::$_port);
                 unset($SendTo);
             }
             unset($mac);
