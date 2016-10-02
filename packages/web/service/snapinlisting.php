@@ -1,16 +1,52 @@
 <?php
-require('../commons/base.inc.php');
+/**
+ * Returns a listing of all snapins in the system.
+ *
+ * PHP version 5
+ *
+ * @category Snapinlisting
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Returns a listing of all snapins in the system.
+ *
+ * @category Snapinlisting
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+require '../commons/base.inc.php';
 try {
-    if (FOGCore::getClass('SnapinManager')->count(array('isEnabled'=>1)) < 1) {
-        throw new Exception(_('There are no snapins on this server.'));
+    $snapinCount = FOGCore::getClass('SnapinManager')
+        ->count();
+    if ($snapinCount < 1) {
+        throw new Exception(
+            _('There are no snapins on this server')
+        );
     }
-    array_map(function (&$Snapin) {
-        if (!$Snapin->isValid()) {
-            return;
-        }
-        printf('\tID# %d\t-\t%s\n', $Snapin->get('id'), $Snapin->get('name'));
-        unset($Snapin);
-    }, (array)FOGCore::getClass('SnapinManager')->find(array('isEnabled'=>1)));
+    $snapinids = FOGCore::getSubObjectIDs('Snapin');
+    $snapinnames = FOGCore::getSubObjectIDs(
+        'Snapin',
+        array('id' => $snapinids),
+        'name'
+    );
+    foreach ((array)$snapinids as $index => $snapinid) {
+        printf(
+            '\tID# %d\t-\t%s\n',
+            $snapinid,
+            $snapinnames[$index]
+        );
+        unset(
+            $snapinid,
+            $snapinnames[$index],
+            $snapinids[$index]
+        );
+    }
 } catch (Exception $e) {
     echo $e->getMessage();
 }
+exit;
