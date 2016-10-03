@@ -440,16 +440,11 @@ abstract class FOGManagerController extends FOGBase
             $vals = self::$DB
                 ->fetch('', 'fetch_all')
                 ->get();
-            $data = $vals + $this->databaseFieldsFlipped;
-            if (count($data) < 1) {
-                $data = $vals + $this->databaseFields;
+            foreach ((array)$vals as &$val) {
+                $data[] = self::getClass($this->childClass)
+                    ->setQuery($val);
+                unset($val);
             }
-            $data = array_map(
-                function (&$val) {
-                    return self::getClass($this->childClass, $val);
-                },
-                (array)$data
-            );
         }
         $data = array_filter((array)$data);
         $data = array_values($data);
