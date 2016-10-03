@@ -96,6 +96,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                         array('id' => $snapinIDs)
                     );
                 $info = array();
+                $info['snapins'] = array();
                 foreach ((array)$Snapins as &$Snapin) {
                     if (!$Snapin->isValid()) {
                         continue;
