@@ -26,13 +26,13 @@ class WakeOnLan extends FOGBase
      *
      * @var int
      */
-    private $_port = 9;
+    private static $_port = 9;
     /**
      * MAC Array holder
      *
      * @var array
      */
-    private $_arrMAC;
+    private static $_arrMAC;
     /**
      * The initializer
      *
@@ -43,7 +43,7 @@ class WakeOnLan extends FOGBase
     public function __construct($mac)
     {
         parent::__construct();
-        $this->_arrMAC = $this->parseMacList($mac, true);
+        self::$_arrMAC = $this->parseMacList($mac, true);
     }
     /**
      * Send the requests
@@ -52,7 +52,7 @@ class WakeOnLan extends FOGBase
      */
     public function send()
     {
-        if ($this->_arrMAC === false || !count($this->_arrMAC)) {
+        if (self::$_arrMAC === false || !count(self::$_arrMAC)) {
             throw new Exception(self::$foglang['InvalidMAC']);
         }
         $BroadCast = array_merge(
@@ -65,7 +65,7 @@ class WakeOnLan extends FOGBase
                 'broadcast' => &$BroadCast
             )
         );
-        foreach ((array)$this->_arrMAC as &$mac) {
+        foreach ((array)self::$_arrMAC as &$mac) {
             foreach ((array)$BroadCast as &$SendTo) {
                 $mac->wake($SendTo, self::$_port);
                 unset($SendTo);
