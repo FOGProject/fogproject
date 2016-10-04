@@ -44,7 +44,7 @@ class SnapinTaskManager extends FOGManagerController
          * Get any snapin job IDs
          */
         $snapinJobIDs = self::getSubObjectIDs(
-            'SnapinTasks',
+            'SnapinTask',
             $findWhere,
             'jobID'
         );
