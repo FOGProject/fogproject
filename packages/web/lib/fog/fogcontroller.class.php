@@ -1018,7 +1018,7 @@ abstract class FOGController extends FOGBase
             (array)$queryData,
             (array)$this->databaseFieldsFlipped
         );
-        if (count($classData) <= 0) {
+        if (count($classData) < 1) {
             $classData = array_intersect_key(
                 (array)$queryData,
                 $this->databaseFields
@@ -1029,20 +1029,14 @@ abstract class FOGController extends FOGBase
                 unset($db_key, $obj_key);
             }
         }
-        array_walk($classData, 'trim');
-        $this->data = array_merge(
-            (array)$this->data,
-            (array)$classData
-        );
+        $this->data = (array)$this->data + (array)$classData;
         foreach ($this->databaseFieldClassRelationships as $class => &$fields) {
             $class = self::getClass($class);
             $leftover = array_intersect_key(
                 (array)$queryData,
                 (array)$class->databaseFieldsFlipped
             );
-            if (count($leftover) > 0) {
-                $class->setQuery($leftover);
-            }
+            $class->setQuery($leftover);
             $this->set($fields[2], $class);
             unset($class, $fields);
         }

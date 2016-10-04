@@ -319,7 +319,7 @@ abstract class FOGManagerController extends FOGBase
         $idFields = array();
         foreach ((array)$idField as &$id) {
             $id = trim($id);
-            $idFields[] = $this->databaseFields[$id];
+            $idFields += (array)$this->databaseFields[$id];
             unset($id);
         }
         $idFields = array_filter($idFields);
@@ -441,13 +441,14 @@ abstract class FOGManagerController extends FOGBase
                 ->fetch('', 'fetch_all')
                 ->get();
             foreach ((array)$vals as &$val) {
-                $data[] = self::getClass($this->childClass)
-                    ->setQuery($val);
+                $class = self::getClass($this->childClass, $val);
+                if (!$class->isValid()) {
+                    continue;
+                }
+                $data[] = $class;
                 unset($val);
             }
         }
-        $data = array_filter((array)$data);
-        $data = array_values($data);
         if ($filter) {
             return @$filter($data);
         }
