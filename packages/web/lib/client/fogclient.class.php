@@ -74,7 +74,7 @@ abstract class FOGClient extends FOGBase
                 $this->json = $sub === 'requestClientInfo';
             }
             $method = 'send';
-            if ($this->json && method_exists(self, 'json')) {
+            if ($this->json && method_exists($this, 'json')) {
                 $method = 'json';
             }
             $this->Host = $this->getHostItem(

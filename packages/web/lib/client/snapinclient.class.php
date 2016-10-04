@@ -77,10 +77,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
         if ($sub === 'requestClientInfo'
             || basename(self::$scriptname) === 'snapins.checkin.php'
         ) {
-            if (!isset($_REQUEST['exitcode'])
-                && !(isset($_REQUEST['taskid'])
-                && is_numeric($_REQUEST['taskid']))
-            ) {
+            if (!isset($_REQUEST['exitcode'])) {
                 $snapinIDs = self::getSubObjectIDs(
                     'SnapinTask',
                     array(
@@ -248,201 +245,10 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 }
                 return $info;
             } elseif (isset($_REQUEST['exitcode'])) {
-                $tID = $_REQUEST['taskid'];
-                if (!(empty($tID) && is_numeric($tID))) {
-                    $info['snapins'] = array(
-                        'error' => _('Invalid task id sent')
-                    );
-                }
-                $SnapinTask = new SnapinTask($tID);
-                if (!($SnapinTask->isValid()
-                    && in_array(
-                        $SnapinTask->get('stateID'),
-                        array(
-                            $this->getCompleteState(),
-                            $this->getCancelledState()
-                        )
-                    ))
-                ) {
-                    $info['snapins'] = array(
-                        'error' => _('Invalid Snapin Tasking')
-                    );
-                }
-                $Snapin = $SnapinTask->getSnapin();
-                if (!$Snapin->isValid()) {
-                    $info['snapins'] = array(
-                        'error' => _('Invalid Snapin')
-                    );
-                }
-                $SnapinTask
-                    ->set('stateID', $this->getCompleteState())
-                    ->set('return', $_REQUEST['exitcode'])
-                    ->set('details', $_REQUEST['exitdesc'])
-                    ->set('complete', $date)
-                    ->save();
-                self::$EventManager->notify(
-                    'HOST_SNAPINTASK_COMPLETE',
-                    array(
-                        'Snapin' => &$Snapin,
-                        'SnapinTask' => &$SnapinTask,
-                        'Host' => &$this->Host,
-                        'HostName' => &$HostName
-                    )
-                );
-                $STaskCount = self::getClass('SnapinTaskManager')
-                    ->count(
-                        array(
-                            'jobID' => $SnapinJob->get('id'),
-                            'stateID' => array_merge(
-                                $this->getQueuedStates(),
-                                (array)$this->getProgressState()
-                            )
-                        )
-                    );
-                if ($STaskCount < 1) {
-                    if ($Task->isValid()) {
-                        $Task->set('stateID', $this->getCompleteState())->save();
-                    }
-                    $SnapinJob->set('stateID', $this->getCompleteState())->save();
-                    self::$EventManager->notify(
-                        'HOST_SNAPIN_COMPLETE',
-                        array(
-                            'HostName' => &$HostName,
-                            'Host' => &$this->Host
-                        )
-                    );
-                }
+                $this->_closeout($Task, $SnapinJob, $date, $HostName);
             }
         } elseif (basename(self::$scriptname) === 'snapins.file.php') {
-            $tID = $_REQUEST['taskid'];
-            if (!(!empty($tID)
-                && is_numeric($tID))
-            ) {
-                return array(
-                    'error' => _('Invalid task id sent')
-                );
-            }
-            $SnapinTask = new SnapinTask($tID);
-            if (!($SnapinTask->isValid()
-                && !in_array(
-                    $SnapinTask->get('stateID'),
-                    array(
-                        $this->getCompleteState(),
-                        $this->getCancelledState()
-                    )
-                ))
-            ) {
-                return array(
-                    'error' => _('Invalid Snapin Tasking')
-                );
-            }
-            $Snapin = $SnapinTask->getSnapin();
-            if (!$Snapin->isValid()) {
-                return array(
-                    'error' => _('Invalid Snapin')
-                );
-            }
-            $StorageNode = $StorageGroup = null;
-            self::$HookManager->processEvent(
-                'SNAPIN_GROUP',
-                array(
-                    'Host' => &$this->Host,
-                    'Snapin' => &$Snapin,
-                    'StorageGroup' => &$StorageGroup,
-                )
-            );
-            self::$HookManager->processEvent(
-                'SNAPIN_NODE',
-                array(
-                    'Host' => &$this->Host,
-                    'Snapin' => &$Snapin,
-                    'StorageNode' => &$StorageNode,
-                )
-            );
-            if (!($StorageGroup instanceof StorageGroup
-                && $StorageGroup->isValid())
-            ) {
-                $StorageGroup = $Snapin->getStorageGroup();
-                if (!$StorageGroup->isValid()) {
-                    return array(
-                        'error' => _('Invalid Storage Group')
-                    );
-                }
-            }
-            if (!($StorageNode instanceof StorageNode
-                && $StorageNode->isValid())
-            ) {
-                $StorageNode = $StorageGroup->getMasterStorageNode();
-                if (!$StorageNode->isValid()) {
-                    return array(
-                        'error' => _('Invalid Storage Node')
-                    );
-                }
-            }
-            $path = sprintf(
-                '/%s',
-                trim($StorageNode->get('snapinpath'), '/')
-            );
-            $file = $Snapin->get('file');
-            $filepath = sprintf(
-                '%s/%s',
-                $path,
-                $file
-            );
-            $host = $StorageNode->get('ip');
-            $user = $StorageNode->get('user');
-            $pass = $StorageNode->get('pass');
-            self::$FOGFTP
-                ->set('host', $host)
-                ->set('username', $user)
-                ->set('password', $StorageNode->get('pass'));
-            if (!self::$FOGFTP->connect()) {
-                return array('error'=>_('FTP Failed to connect'));
-            }
-            self::$FOGFTP->close();
-            $SnapinFile = sprintf(
-                'ftp://%s:%s@%s%s',
-                $user,
-                urlencode($pass),
-                $host,
-                $filepath
-            );
-            if ($Task->isValid()) {
-                $Task
-                    ->set('stateID', $this->getProgressState())
-                    ->set('checkInTime', $date)
-                    ->save();
-            }
-            $SnapinJob
-                ->set('stateID', $this->getProgressState())
-                ->save();
-            $SnapinTask
-                ->set('stateID', $this->getProgressState())
-                ->set('return', -1)
-                ->set('details', _('Pending...'))
-                ->save();
-            while (ob_get_level()) {
-                ob_end_clean();
-            }
-            header("X-Sendfile: $SnapinFile");
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header("Content-Disposition: attachment; filename=$file");
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            if (($fh = fopen($SnapinFile, 'rb')) === false) {
-                return array('error' => _('Could not read snapin file'));
-            }
-            while (feof($fh) === false) {
-                if (($line = fread($fh, 4096)) === false) {
-                    break;
-                }
-                echo $line;
-                flush();
-            }
-            fclose($fh);
-            exit;
+            $this->_downloadfile($Task, $SnapinJob, $date, $HostName);
         }
     }
     /**
@@ -616,231 +422,260 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 );
                 $this->send = implode("\n", $goodArray);
             } elseif (isset($_REQUEST['exitcode'])) {
-                $tID = $_REQUEST['taskid'];
-                if (!(empty($td) && is_numeric($tID))) {
-                    throw new Exception(
-                        sprintf(
-                            '%s: %s',
-                            '#!er',
-                            _('Invalid task id sent')
-                        )
-                    );
-                }
-                $SnapinTask = new SnapinTask($tID);
-                if (!($SnapinTask->isValid()
-                    && !in_array(
-                        $SnapinTask->get('stateID'),
-                        array(
-                            $this->getCompleteState(),
-                            $this->getCancelledState()
-                        )
-                    ))
-                ) {
-                    throw new Exception(
-                        sprintf(
-                            '%s: %s',
-                            '#!er',
-                            _('Invalid Snapin Tasking')
-                        )
-                    );
-                }
-                $Snapin = $SnapinTask->getSnapin();
-                if (!$Snapin->isValid()) {
-                    throw new Exception(
-                        sprintf(
-                            '%s: %s',
-                            '#!er',
-                            _('Invalid Snapin')
-                        )
-                    );
-                }
-                $SnapinTask
-                    ->set('stateID', $this->getCompleteState())
-                    ->set('return', $_REQUEST['exitcode'])
-                    ->set('details', $_REQUEST['exitdesc'])
-                    ->set('complete', $date)
-                    ->save();
-                self::$EventManager->notify(
-                    'HOST_SNAPINTASK_COMPLETE',
-                    array(
-                        'Snapin' => &$Snapin,
-                        'SnapinTask' => &$SnapinTask,
-                        'Host' => &$this->Host,
-                        'HostName' => &$HostName
-                    )
-                );
-                $STaskCount = self::getClass('SnapinTaskManager')
-                    ->count(
-                        array(
-                            'jobID' => $SnapinJob->get('id'),
-                            'stateID' => array_merge(
-                                $this->getQueuedStates(),
-                                (array)$this->getProgressState()
-                            )
-                        )
-                    );
-                if ($STaskCount < 1) {
-                    if ($Task->isValid()) {
-                        $Task->set('stateID', $this->getCompleteState())->save();
-                    }
-                    $SnapinJob->set('stateID', $this->getCompleteState())->save();
-                    self::$EventManager->notify(
-                        'HOST_SNAPIN_COMPLETE',
-                        array(
-                            'HostName' => &$HostName,
-                            'Host' => &$this->Host
-                        )
-                    );
-                }
+                $this->_closeout($Task, $SnapinJob, $date, $HostName);
             }
+            die('here');
         } elseif (basename(self::$scriptname) === 'snapins.file.php') {
-            $tID = $_REQUEST['taskid'];
-            if (!(!empty($tID) && is_numeric($tID))) {
+            $this->_downloadfile($Task, $SnapinJob, $date, $HostName);
+        }
+    }
+    /**
+     * Closes out the snapin tasks
+     *
+     * @param object $Task      the task object
+     * @param object $SnapinJob the snapin job object
+     * @param string $date      the current date
+     * @param string $HostName  the hostname
+     *
+     * @return void
+     */
+    private function _closeout($Task, $SnapinJob, $date, $HostName)
+    {
+        $tID = $_REQUEST['taskid'];
+        if (!(empty($td) && is_numeric($tID))) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    '#!er',
+                    _('Invalid task id sent')
+                )
+            );
+        }
+        $SnapinTask = new SnapinTask($tID);
+        if (!($SnapinTask->isValid()
+            && !in_array(
+                $SnapinTask->get('stateID'),
+                array(
+                    $this->getCompleteState(),
+                    $this->getCancelledState()
+                )
+            ))
+        ) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    '#!er',
+                    _('Invalid Snapin Tasking')
+                )
+            );
+        }
+        $Snapin = $SnapinTask->getSnapin();
+        if (!$Snapin->isValid()) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    '#!er',
+                    _('Invalid Snapin')
+                )
+            );
+        }
+        $SnapinTask
+            ->set('stateID', $this->getCompleteState())
+            ->set('return', $_REQUEST['exitcode'])
+            ->set('details', $_REQUEST['exitdesc'])
+            ->set('complete', $date)
+            ->save();
+        self::$EventManager->notify(
+            'HOST_SNAPINTASK_COMPLETE',
+            array(
+                'Snapin' => &$Snapin,
+                'SnapinTask' => &$SnapinTask,
+                'Host' => &$this->Host,
+                'HostName' => &$HostName
+            )
+        );
+        $STaskCount = self::getClass('SnapinTaskManager')
+            ->count(
+                array(
+                    'jobID' => $SnapinJob->get('id'),
+                    'stateID' => array_merge(
+                        $this->getQueuedStates(),
+                        (array)$this->getProgressState()
+                    )
+                )
+            );
+        if ($STaskCount < 1) {
+            if ($Task->isValid()) {
+                $Task->set('stateID', $this->getCompleteState())->save();
+            }
+            $SnapinJob->set('stateID', $this->getCompleteState())->save();
+            self::$EventManager->notify(
+                'HOST_SNAPIN_COMPLETE',
+                array(
+                    'HostName' => &$HostName,
+                    'Host' => &$this->Host
+                )
+            );
+        }
+    }
+    /**
+     * Downloads the client file
+     *
+     * @param object $Task      the task object
+     * @param object $SnapinJob the snapin job object
+     * @param string $date      the current date
+     * @param string $HostName  the hostname
+     *
+     * @return void
+     */
+    private function _downloadfile($Task, $SnapinJob, $date, $HostName)
+    {
+        $tID = $_REQUEST['taskid'];
+        if (!(!empty($tID) && is_numeric($tID))) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    '#!er',
+                    _('Invalid task id')
+                )
+            );
+        }
+        $SnapinTask = new SnapinTask($tID);
+        if (!$SnapinTask->isValid()) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    '#!er',
+                    _('Invalid Snapin Tasking object')
+                )
+            );
+        }
+        $Snapin = $SnapinTask->getSnapin();
+        if (!$Snapin->isValid()) {
+            throw new Exception(_('Invalid Snapin'));
+        }
+        $StorageGroup = $StorageNode = null;
+        self::$HookManager->processEvent(
+            'SNAPIN_GROUP',
+            array(
+                'Host' => &$this->Host,
+                'Snapin' => &$Snapin,
+                'StorageGroup' => &$StorageGroup
+            )
+        );
+        self::$HookManager->processEvent(
+            'SNAPIN_NODE',
+            array(
+                'Host' => &$this->Host,
+                'Snapin' => &$Snapin,
+                'StorageNode' => &$StorageNode
+            )
+        );
+        if (!($StorageGroup instanceof StorageGroup
+            && $StorageGroup->isValid())
+        ) {
+            $StorageGroup = $Snapin->getStorageGroup();
+            if (!$StorageGroup->isValid()) {
                 throw new Exception(
                     sprintf(
                         '%s: %s',
                         '#!er',
-                        _('Invalid task id')
+                        _('Invalid Storage Group')
                     )
                 );
             }
-            $SnapinTask = new SnapinTask($tID);
-            if (!$SnapinTask->isValid()) {
-                throw new Exception(
-                    sprintf(
-                        '%s: %s',
-                        '#!er',
-                        _('Invalid Snapin Tasking object')
-                    )
-                );
-            }
-            $Snapin = $SnapinTask->getSnapin();
-            if (!$Snapin->isValid()) {
-                throw new Exception(_('Invalid Snapin'));
-            }
-            $StorageGroup = $StorageNode = null;
-            self::$HookManager->processEvent(
-                'SNAPIN_GROUP',
-                array(
-                    'Host' => &$this->Host,
-                    'Snapin' => &$Snapin,
-                    'StorageGroup' => &$StorageGroup
-                )
-            );
-            self::$HookManager->processEvent(
-                'SNAPIN_NODE',
-                array(
-                    'Host' => &$this->Host,
-                    'Snapin' => &$Snapin,
-                    'StorageNode' => &$StorageNode
-                )
-            );
-            if (!($StorageGroup instanceof StorageGroup
-                && $StorageGroup->isValid())
-            ) {
-                $StorageGroup = $Snapin->getStorageGroup();
-                if (!$StorageGroup->isValid()) {
-                    throw new Exception(
-                        sprintf(
-                            '%s: %s',
-                            '#!er',
-                            _('Invalid Storage Group')
-                        )
-                    );
-                }
-            }
+        }
+        if (!($StorageNode instanceof StorageNode
+            && $StorageNode->isValid())
+        ) {
+            $StorageNode = $StorageGroup->getMasterStorageNode();
             if (!($StorageNode instanceof StorageNode
                 && $StorageNode->isValid())
             ) {
-                $StorageNode = $StorageGroup->getMasterStorageNode();
-                if (!($StorageNode instanceof StorageNode
-                    && $StorageNode->isValid())
-                ) {
-                    throw new Exception(
-                        sprintf(
-                            '%s: %s',
-                            '#!er',
-                            _('Invalid Storage Node')
-                        )
-                    );
-                }
-            }
-            $path = sprintf(
-                '/%s',
-                trim($StorageNode->get('snapinpath'), '/')
-            );
-            $file = $Snapin->get('file');
-            $filepath = sprintf(
-                '%s/%s',
-                $path,
-                $file
-            );
-            $host = $StorageNode->get('ip');
-            $user = $StorageNode->get('user');
-            $pass = $StorageNode->get('pass');
-            self::$FOGFTP
-                ->set('host', $host)
-                ->set('username', $user)
-                ->set('password', $pass);
-            if (!self::$FOGFTP->connect()) {
                 throw new Exception(
                     sprintf(
                         '%s: %s',
                         '#!er',
-                        _('Cannot connect to ftp server')
+                        _('Invalid Storage Node')
                     )
                 );
             }
-            self::$FOGFTP->close();
-            $SnapinFile = sprintf(
-                'ftp://%s:%s@%s%s',
-                $user,
-                urlencode($pass),
-                $host,
-                $filepath
-            );
-            if ($Task->isValid()) {
-                $Task
-                    ->set('stateID', $this->getProgressState())
-                    ->set('checkInTime', $date)
-                    ->save();
-            }
-            $SnapinJob
-                ->set('stateID', $this->getProgressState())
-                ->save();
-            $SnapinTask
-                ->set('stateID', $this->getProgressState())
-                ->set('return', -1)
-                ->set('details', _('Pending...'))
-                ->save();
-            while (ob_get_level()) {
-                ob_end_clean();
-            }
-            header("X-Sendfile: $SnapinFile");
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header("Content-Disposition: attachment; filename=$file");
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            if (($fh = fopen($SnapinFile, 'rb')) === false) {
-                throw new Exception(
-                    sprintf(
-                        '%s: %s',
-                        '#!er',
-                        _('Could not read snapin file')
-                    )
-                );
-            }
-            while (feof($fh) === false) {
-                if (($line = fread($fh, 4096)) === false) {
-                    break;
-                }
-                echo $line;
-                flush();
-            }
-            fclose($fh);
-            exit;
         }
+        $path = sprintf(
+            '/%s',
+            trim($StorageNode->get('snapinpath'), '/')
+        );
+        $file = $Snapin->get('file');
+        $filepath = sprintf(
+            '%s/%s',
+            $path,
+            $file
+        );
+        $host = $StorageNode->get('ip');
+        $user = $StorageNode->get('user');
+        $pass = $StorageNode->get('pass');
+        self::$FOGFTP
+            ->set('host', $host)
+            ->set('username', $user)
+            ->set('password', $pass);
+        if (!self::$FOGFTP->connect()) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    '#!er',
+                    _('Cannot connect to ftp server')
+                )
+            );
+        }
+        self::$FOGFTP->close();
+        $SnapinFile = sprintf(
+            'ftp://%s:%s@%s%s',
+            $user,
+            urlencode($pass),
+            $host,
+            $filepath
+        );
+        if ($Task->isValid()) {
+            $Task
+                ->set('stateID', $this->getProgressState())
+                ->set('checkInTime', $date)
+                ->save();
+        }
+        $SnapinJob
+            ->set('stateID', $this->getProgressState())
+            ->save();
+        $SnapinTask
+            ->set('stateID', $this->getProgressState())
+            ->set('return', -1)
+            ->set('details', _('Pending...'))
+            ->save();
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        header("X-Sendfile: $SnapinFile");
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header("Content-Disposition: attachment; filename=$file");
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        if (($fh = fopen($SnapinFile, 'rb')) === false) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    '#!er',
+                    _('Could not read snapin file')
+                )
+            );
+        }
+        while (feof($fh) === false) {
+            if (($line = fread($fh, 4096)) === false) {
+                break;
+            }
+            echo $line;
+            flush();
+        }
+        fclose($fh);
+        exit;
     }
 }
