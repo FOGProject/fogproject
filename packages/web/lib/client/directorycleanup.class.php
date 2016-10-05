@@ -41,14 +41,7 @@ class DirectoryCleanup extends FOGClient implements FOGClientSend
             }
             $SendEnc = base64_encode($DirectoryCleanup->get('path'));
             $SendEnc .= "\n";
-            if ($this->newService) {
-                if (!$i) {
-                    $Send[$i] = "#!ok\n";
-                }
-                $Send[$i] .= "#dir$i=$SendEnc";
-            } else {
-                $Send[$i] = $SendEnc;
-            }
+            $Send[$i] = $SendEnc;
             unset($DirectoryCleanup);
         }
         unset($DirectoryCleanups);

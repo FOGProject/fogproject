@@ -48,7 +48,11 @@ class PrinterClient extends FOGClient implements FOGClientSend
         if (!in_array($level, array_keys(self::$_modes))) {
             $level = 0;
         }
-        $allPrinters = self::getSubObjectIDs('Printer', '', 'name');
+        $allPrinters = self::getSubObjectIDs(
+            'Printer',
+            '',
+            'name'
+        );
         $printerIDs = $this->Host->get('printers');
         $printerCount = count($printerIDs);
         if ($printerCount < 1) {

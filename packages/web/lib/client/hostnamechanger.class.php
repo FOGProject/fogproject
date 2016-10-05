@@ -1,66 +1,138 @@
 <?php
+/**
+ * Sends the client with the hostname and domain
+ * information needed to perform the client actions.
+ *
+ * PHP version 5
+ *
+ * @category HostnameChanger
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Sends the client with the hostname and domain
+ * information needed to perform the client actions.
+ *
+ * @category HostnameChanger
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class HostnameChanger extends FOGClient implements FOGClientSend
 {
+    /**
+     * Function returns data that will be translated to json
+     *
+     * @return array
+     */
     public function json()
     {
         $password = $this->aesdecrypt($this->Host->get('ADPass'));
         $productKey = $this->aesdecrypt($this->Host->get('productKey'));
         $username = trim($this->Host->get('ADUser'));
-        if (strpos($username, chr(92)) || strpos($username, chr(64))) {
+        if (strpos($username, chr(92))
+            || strpos($username, chr(64))
+        ) {
             $adUser = $username;
         } elseif ($username) {
-            $adUser = sprintf('%s\%s', $this->Host->get('ADDomain'), $username);
+            $adUser = sprintf(
+                '%s\%s',
+                $this->Host->get('ADDomain'),
+                $username
+            );
         } else {
             $adUser = '';
         }
+        $AD = (bool)$this->Host->get('useAD');
+        $enforce = (bool)$this->Host->get('enforce');
+        $hostname = $this->Host->get('name');
+        $ADDom = '';
+        $ADOU = '';
+        $ADUser = '';
+        $ADPass = '';
+        if ($AD === true) {
+            $ADDom = $this->Host->get('ADDomain');
+            $ADOU = str_replace(
+                ';',
+                '',
+                $this->Host->get('ADOU')
+            );
+            $ADUser = $adUser;
+            $ADPass = $password;
+        }
         $this->Host->setAD();
         $val = array(
-            'enforce' => (bool)$this->Host->get('enforce'),
-            'hostname' => (string)$this->Host->get('name'),
-            'AD' => (bool)$this->Host->get('useAD'),
-            'ADDom' => $this->Host->get('useAD') ? (string)$this->Host->get('ADDomain') : '',
-            'ADOU' => $this->Host->get('useAD') ? str_replace(';', '', $this->Host->get('ADOU')) : '',
-            'ADUser' => $this->Host->get('useAD') ? (string)$adUser : '',
-            'ADPass' => $this->Host->get('useAD') ? (string)$password : '',
+            'enforce' => (bool)$enforce,
+            'hostname' => $hostname,
+            'AD' => (bool)$AD,
+            'ADDom' => $ADDom,
+            'ADOU' => $ADOU,
+            'ADUser' => $ADUser,
+            'ADPass' => $ADPass
         );
         if ($productKey) {
             $val['Key'] = $productKey;
         }
         return $val;
     }
+    /**
+     * Creates the send string and stores to send variable
+     *
+     * @return void
+     */
     public function send()
     {
         ob_start();
         echo '#!ok';
-        $productKey = $this->aesdecrypt($this->Host->get('productKey'));
-        if ($this->newService) {
-            $password = $this->aesdecrypt($this->Host->get('ADPass'));
-            printf("\n#hostname=%s\n", $this->Host->get('name'));
-        } else {
-            $password = $this->Host->get('ADPassLegacy');
-            printf("=%s\n", $this->Host->get('name'));
-        }
+        $password = $this->Host->get('ADPassLegacy');
+        printf(
+            "=%s\n",
+            $this->Host->get('name')
+        );
         $this->Host->setAD();
         $username = trim($this->Host->get('ADUser'));
-        if (strpos($username, chr(92)) || strpos($username, chr(64))) {
+        if (strpos($username, chr(92))
+            || strpos($username, chr(64))
+        ) {
             $adUser = $username;
         } elseif ($username) {
-            $adUser = sprintf('%s\%s', $this->Host->get('ADDomain'), $username);
+            $adUser = sprintf(
+                '%s\%s',
+                $this->Host->get('ADDomain'),
+                $username
+            );
         } else {
             $adUser = '';
         }
-        printf(
-            "#AD=%s\n#ADDom=%s\n#ADOU=%s\n#ADUser=%s\n#ADPass=%s%s",
-            $this->Host->get('useAD'),
-            $this->Host->get('ADDomain'),
-            str_replace(';', '', $this->Host->get('ADOU')),
-            $adUser,
-            $password,
-            $this->newService ? sprintf("\n#enforce=%s", $this->Host->get('enforce')) : ''
-        );
-        if ($productKey) {
-            printf("\n#Key=%s", $productKey);
+        $AD = (bool)$this->Host->get('useAD');
+        $hostname = $this->Host->get('name');
+        $ADDom = '';
+        $ADOU = '';
+        $ADUser = '';
+        $ADPass = '';
+        if ($AD === true) {
+            $AD = 1;
+            $ADDom = $this->Host->get('ADDomain');
+            $ADOU = str_replace(
+                ';',
+                '',
+                $this->Host->get('ADOU')
+            );
+            $ADUser = $adUser;
+            $ADPass = $password;
         }
+        $this->Host->setAD();
+        printf(
+            "#AD=%s\n#ADDom=%s\n#ADOU=%s\n#ADUser=%s\n#ADPass=%s",
+            $AD,
+            $ADDom,
+            $ADOU,
+            $ADUser,
+            $ADPass
+        );
         $this->send = ob_get_clean();
     }
 }

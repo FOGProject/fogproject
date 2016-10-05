@@ -1,16 +1,57 @@
 <?php
+/**
+ * Tells the client if there's a task waiting for the host
+ *
+ * PHP version 5
+ *
+ * @category Jobs
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Tells the client if there's a task waiting for the host
+ *
+ * @category Jobs
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class Jobs extends FOGClient implements FOGClientSend
 {
+    /**
+     * Function returns data that will be translated to json
+     *
+     * @return array
+     */
     public function json()
     {
-        if ($this->Host->get('task')->isInitNeededTasking()) {
-            return stripos(strtolower($_SERVER['SCRIPT_NAME']), 'jobs.php') ? array('error'=>'ok') : array('job'=>true);
+        $Task = $this->Host->get('task');
+        $script = strtolower(self::$scriptname);
+        $script = trim($script);
+        if ($script === 'jobs.php') {
+            $field = 'error';
+        } else {
+            $field = 'job';
         }
-        return stripos(strtolower($_SERVER['SCRIPT_NAME']), 'jobs.php') ? array('error'=>'nj') : array('job' => false);
+        if ($Task->isInitNeededTasking()) {
+            $answer = 'ok';
+        } else {
+            $answer = true;
+        }
+        return array($field => $answer);
     }
+    /**
+     * Creates the send string and stores to send variable
+     *
+     * @return void
+     */
     public function send()
     {
-        if ($this->Host->get('task')->isInitNeededTasking()) {
+        $Task = $this->Host->get('task');
+        if ($Task->isInitNeededTasking()) {
             $this->send = '#!ok';
         } else {
             throw new Exception('#!nj');

@@ -1,10 +1,44 @@
 <?php
+/**
+ * The service module checks
+ *
+ * PHP version 5
+ *
+ * @category ServiceModule
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * The service module checks
+ *
+ * @category ServiceModule
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class ServiceModule extends FOGClient implements FOGClientSend
 {
+    /**
+     * Creates the send string and stores to send variable
+     *
+     * @return void
+     */
     public function send()
     {
-        $mods = $this->getGlobalModuleStatus(false, true);
-        $mod = strtolower(htmlspecialchars($_REQUEST['moduleid'], ENT_QUOTES, 'utf-8'));
+        $mods = $this->getGlobalModuleStatus(
+            false,
+            true
+        );
+        $mod = strtolower(
+            htmlspecialchars(
+                $_REQUEST['moduleid'],
+                ENT_QUOTES,
+                'utf-8'
+            )
+        );
         switch ($mod) {
             case 'dircleaner':
                 $mod = 'dircleanup';
@@ -16,22 +50,79 @@ class ServiceModule extends FOGClient implements FOGClientSend
         if (!in_array($mod, $mods)) {
             throw new Exception('#!um');
         }
-        $globalModules = (!$this->newService ? $this->getGlobalModuleStatus(false, true) : array_diff($this->getGlobalModuleStatus(false, true), array('dircleanup', 'usercleanup', 'clientupdater')));
+        $remArr = array(
+            'dircleanup',
+            'usercleanup',
+            'clientupdater'
+        );
+        $globalModules = (
+            !$this->newService ?
+            $this->getGlobalModuleStatus(
+                false,
+                true
+            ) :
+            array_diff(
+                $this->getGlobalModuleStatus(
+                    false,
+                    true
+                ),
+                $remArr
+            )
+        );
         $globalInfo = $this->getGlobalModuleStatus();
         $globalDisabled = array();
-        array_walk($globalInfo, function (&$en, &$key) use (&$globalDisabled) {
-            if ($this->newService && in_array($key, array('dircleanup', 'usercleanup', 'clientupdater'))) {
-                return;
+        array_walk(
+            $globalInfo,
+            function (
+                &$en,
+                &$key
+            ) use (&$globalDisabled) {
+                if ($this->newService
+                    && in_array(
+                        $key,
+                        $remArr
+                    )
+                ) {
+                    return;
+                }
+                if (!$en) {
+                    $globalDisabled[] = $key;
+                }
             }
-            if (!$en) {
-                $globalDisabled[] = $key;
-            }
-        });
-        $hostModules = self::getSubObjectIDs('Module', array('id'=>$this->Host->get('modules')), 'shortName');
-        $hostEnabled = ($this->newService ? array_diff((array)$hostModules, array('dircleanup', 'usercleanup', 'clientupdater')) : $hostModules);
-        $hostDisabled = array_diff((array)$globalModules, $hostEnabled);
-        if (in_array($mod, array_merge((array)$globalDisabled, (array)$hostDisabled))) {
-            throw new Exception(sprintf("#!n%s\n", in_array($mod, $globalDisabled) ? 'g' : 'h'));
+        );
+        $hostModules = self::getSubObjectIDs(
+            'Module',
+            array('id' => $this->Host->get('modules')),
+            'shortName'
+        );
+        $hostEnabled = (
+            $this->newService ?
+            array_diff(
+                (array)$hostModules,
+                $remArr
+            ) :
+            $hostModules
+        );
+        $hostDisabled = array_diff(
+            (array)$globalModules,
+            $hostEnabled
+        );
+        if (in_array(
+            $mod,
+            array_merge(
+                (array)$globalDisabled,
+                (array)$hostDisabled
+            )
+        )
+        ) {
+            throw new Exception(
+                sprintf(
+                    "#!n%s\n",
+                    in_array($mod, $globalDisabled) ?
+                    'g' :
+                    'h'
+                )
+            );
         }
         $this->send = "#!ok\n";
     }
