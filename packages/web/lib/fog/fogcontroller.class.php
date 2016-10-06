@@ -211,9 +211,6 @@ abstract class FOGController extends FOGBase
         if (!$this->isLoaded($key)) {
             $this->loadItem($key);
         }
-        if (!isset($this->data[$key])) {
-            return $this->data[$key] = '';
-        }
         if (is_object($this->data[$key])) {
             $msg = sprintf(
                 '%s: %s, %s: %s',
