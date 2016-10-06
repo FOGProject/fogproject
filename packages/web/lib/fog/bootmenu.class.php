@@ -162,6 +162,7 @@ class BootMenu extends FOGBase
             'grub_first_cdrom' => $grub['1cd'],
             'grub_first_found_windows' => $grub['1fw'],
             'refind_efi' => $refind,
+            'exit' => 'exit',
         );
         list($webserver, $curroot) = self::getSubObjectIDs(
             'Service',
