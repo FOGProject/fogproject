@@ -71,25 +71,15 @@ class ServiceModule extends FOGClient implements FOGClientSend
         );
         $globalInfo = $this->getGlobalModuleStatus();
         $globalDisabled = array();
-        array_walk(
-            $globalInfo,
-            function (
-                &$en,
-                &$key
-            ) use (&$globalDisabled) {
-                if ($this->newService
-                    && in_array(
-                        $key,
-                        $remArr
-                    )
-                ) {
-                    return;
-                }
-                if (!$en) {
-                    $globalDisabled[] = $key;
-                }
+        foreach ((array)$globalInfo as $key => &$en) {
+            if ($this->newService && in_array($key, $remArr)) {
+                continue;
             }
-        );
+            if (!$en) {
+                $globalDisabled[] = $key;
+            }
+            unset($en);
+        }
         $hostModules = self::getSubObjectIDs(
             'Module',
             array('id' => $this->Host->get('modules')),

@@ -147,7 +147,12 @@ class PrinterClient extends FOGClient implements FOGClientSend
         $printerIDs = $this->Host->get('printers');
         $printerCount = count($printerIDs);
         if ($printerCount < 1) {
-            throw new Exception("%s\n", base64_encode("#!mg=$level"));
+            throw new Exception(
+                sprintf(
+                    "%s\n",
+                    base64_encode("#!mg=$level")
+                )
+            );
         }
         $Printers = self::getClass('PrinterManager')
             ->find(array('id' => $printerIDs));
