@@ -1520,7 +1520,7 @@ class BootMenu extends FOGBase
                 "irqpoll",
                 array(
                     'value' => "hostname={$this->_Host->get(name)}",
-                    'active' => count($clientMacs),
+                    'active' => count($clientMacs) > 0,
                 ),
                 array(
                     'value' => "clamav=$clamav",
