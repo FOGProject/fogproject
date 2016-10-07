@@ -455,7 +455,6 @@ abstract class FOGController extends FOGBase
                 $column = trim($column);
                 $eColumn = sprintf('`%s`', $column);
                 $paramInsert = sprintf(':%s_insert', $column);
-                $paramUpdate = sprintf(':%s_update', $column);
                 $val = $this->get($key);
                 switch ($key) {
                     case 'createdBy':
@@ -473,22 +472,27 @@ abstract class FOGController extends FOGBase
                         }
                         break;
                     case 'id':
-                        if (!is_numeric($val) && !$val) {
-                            continue;
+                        if (!(is_numeric($val) && $val > 0)) {
+                            continue 2;
                         }
+                        break;
+                }
+                if (is_null($val)) {
+                    $val = '';
                 }
                 $insertKeys[] = $eColumn;
                 $insertValKeys[] = $paramInsert;
-                $insertValues[] = $updateValues[] = $val;
-                $updateValKeys[] = $paramUpdate;
-                $updateData[] = sprintf("%s=%s", $eColumn, $paramUpdate);
+                $insertValues[] = $val;
+                $updateData[] = sprintf(
+                    "%s=VALUES(%s)",
+                    $eColumn,
+                    $eColumn
+                );
                 unset(
                     $column,
                     $eColumn,
                     $key,
-                    $val,
-                    $paramInsert,
-                    $paramUpdate
+                    $val
                 );
             }
             $query = sprintf(
@@ -499,14 +503,8 @@ abstract class FOGController extends FOGBase
                 implode(',', (array)$updateData)
             );
             $queryArray = array_combine(
-                array_merge(
-                    $insertValKeys,
-                    $updateValKeys
-                ),
-                array_merge(
-                    $insertValues,
-                    $updateValues
-                )
+                $insertValKeys,
+                $insertValues
             );
             $msg = sprintf(
                 '%s %s %s',

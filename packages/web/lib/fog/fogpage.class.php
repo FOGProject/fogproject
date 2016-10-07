@@ -1426,10 +1426,13 @@ abstract class FOGPage extends FOGBase
                 try {
                     $Item = self::getClass($this->childClass);
                     if ($Item instanceof Host) {
-                        $ModuleIDs = self::getSubObjectIDs('Module', '', 'id');
+                        $ModuleIDs = self::getSubObjectIDs('Module');
                         $MACs = $this->parseMacList($data[0]);
-                        $Host = self::getClass('HostManager')->getHostByMacAddresses($MACs);
-                        if ($Host && $Host->isValid()) {
+                        $Host = self::getClass('HostManager')
+                            ->getHostByMacAddresses($MACs);
+                        if ($Host
+                            && $Host->isValid()
+                        ) {
                             throw new Exception(_('Host already exists with at least one of the listed MACs'));
                         }
                         $PriMAC = array_shift($MACs);
