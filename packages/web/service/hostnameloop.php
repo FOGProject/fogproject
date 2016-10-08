@@ -27,7 +27,7 @@ try {
     $host = trim($host);
     $host = base64_decode($host);
     $host = trim($host);
-    $Host = self::getClass('Host')
+    $Host = FOGCore::getClass('Host')
         ->set('name', $host)
         ->load('name');
     if ($Host->isValid()) {

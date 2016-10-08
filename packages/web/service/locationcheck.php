@@ -22,7 +22,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-$count = self::getClass('PluginManager')->count(
+$count = FOGCore::getClass('PluginManager')->count(
     array(
         'installed' => 1,
         'state' => 1,
