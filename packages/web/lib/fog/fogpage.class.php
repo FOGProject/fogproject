@@ -908,7 +908,7 @@ abstract class FOGPage extends FOGBase
                 $type = 1;
             }
             $TaskType = new TaskType($type);
-            $imagingTypes = $TaskType->isImagingType();
+            $imagingTypes = $TaskType->isImagingTask();
             if ($this->obj instanceof Group) {
                 if ($this->obj->getHostCount() < 1) {
                     throw new Exception(
