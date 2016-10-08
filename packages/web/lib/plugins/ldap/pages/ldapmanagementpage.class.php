@@ -415,7 +415,7 @@ class LDAPManagementPage extends FOGPage
             . (
                 $_REQUEST['description'] ?
                 $_REQUEST['description'] :
-                $this->obj->get('description') 
+                $this->obj->get('description')
             )
             . '</textarea>',
             _('LDAP Server Address') => '<input class="smaller" type="text" '

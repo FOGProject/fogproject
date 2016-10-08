@@ -150,22 +150,21 @@ class Initiator
             'sub',
             'printertype',
             'id',
+            'groupid',
             'sub',
             'crit',
             'sort',
             'confirm',
             'tab',
+            'type',
         );
-        array_map(
-            function (&$x) {
-                global $$x;
-                if (isset($_REQUEST[$x])) {
-                    $_REQUEST[$x] = $$x = trim($_REQUEST[$x]);
-                }
-                unset($x);
-            },
-            $globalVars
-        );
+        foreach ($globalVars as &$x) {
+            global $$x;
+            if (isset($_REQUEST[$x])) {
+                $_REQUEST[$x] = $$x = trim($_REQUEST[$x]);
+            }
+            unset($x);
+        }
         new System();
         new Config();
     }
