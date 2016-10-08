@@ -377,7 +377,7 @@ class ImageManagementPage extends FOGPage
             self::$HookManager->processEvent('IMAGE_UPDATE_FAIL', array('Image'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
-        $this->redirect(sprintf('%s#%s', $this->formAction, $_REQUEST['tab']));
+        $this->redirect($this->formAction);
     }
     public function multicast()
     {

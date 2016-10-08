@@ -587,7 +587,7 @@ class SnapinManagementPage extends FOGPage
             }
             self::$HookManager->processEvent('SNAPIN_UPDATE_SUCCESS', array('Snapin'=>&$this->obj));
             $this->setMessage(_('Snapin updated'));
-            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->node, $this->id, $this->obj->get('id'), $_REQUEST['tab']));
+            $this->redirect($this->formAction);
         } catch (Exception $e) {
             self::$FOGFTP->close();
             self::$HookManager->processEvent('SNAPIN_UPDATE_FAIL', array('Snapin'=>&$this->obj));

@@ -360,7 +360,7 @@ class ServiceConfigurationPage extends FOGPage
             self::$HookManager->processEvent('SERVICE_EDIT_FAIL', array('Service'=>&$Service));
             $this->setMessage($e->getMessage());
         }
-        $this->redirect(sprintf('%s#%s', $this->formAction, $_REQUEST['tab']));
+        $this->redirect($this->formAction);
     }
     public function search()
     {

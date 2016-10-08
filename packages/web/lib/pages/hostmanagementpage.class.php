@@ -529,10 +529,9 @@ class HostManagementPage extends FOGPage
         } catch (Exception $e) {
             self::$HookManager->processEvent('HOST_ADD_FAIL', array('Host'=>&$Host));
             $this->setMessage($e->getMessage());
-            $url = $this->formAction;
         }
         unset($Host, $passlegacy, $pass, $user, $ou, $domain, $useAD, $password, $ModuleIDs, $MAC, $hostName);
-        $this->redirect($url);
+        $this->redirect($this->formAction);
     }
     public function edit()
     {
@@ -544,7 +543,7 @@ class HostManagementPage extends FOGPage
             } else {
                 $this->setMessage(_('Host approval failed.'));
             }
-            $this->redirect(sprintf('?node=%s&sub=edit&id=%s#host-general', $this->node, $_REQUEST['id']));
+            $this->redirect($this->formAction);
         }
         if ($this->obj->get('pending')) {
             printf('<h2><a href="%s&approveHost=1">%s</a></h2>', $this->formAction, _('Approve this host?'));
@@ -567,11 +566,11 @@ class HostManagementPage extends FOGPage
             } catch (Exception $e) {
                 $this->setMessage($e->getMessage());
             }
-            $this->redirect(sprintf('?node=%s&sub=edit&id=%s#host-general', $this->node, $_REQUEST['id']));
+            $this->redirect($this->formAction);
         } elseif ($_REQUEST['approveAll']) {
             self::getClass('MACAddressAssociationManager')->update(array('hostID'=>$this->obj->get('id')), '', array('pending'=>(string)0));
             $this->setMessage('All Pending MACs approved.');
-            $this->redirect(sprintf('?node=%s&sub=edit&id=%s#host-general', $this->node, $_REQUEST['id']));
+            $this->redirect($this->formAction);
         }
         ob_start();
         foreach ((array)$this->obj->get('additionalMACs') as $i => &$MAC) {
@@ -1255,57 +1254,115 @@ class HostManagementPage extends FOGPage
     }
     public function editAjax()
     {
-        //$this->obj->removeAddMAC($_REQUEST['additionalMACsRM'])->save();
-        //echo _('Success');
         exit;
     }
     public function editPost()
     {
-        self::$HookManager->processEvent('HOST_EDIT_POST', array('Host'=>&$this->obj));
+        self::$HookManager->processEvent(
+            'HOST_EDIT_POST',
+            array('Host' => &$this->obj)
+        );
         try {
-            switch ($_REQUEST['tab']) {
+            global $tab;
+            switch ($tab) {
                 case 'host-general':
                     $hostName = trim($_REQUEST['host']);
                     if (empty($hostName)) {
-                        throw new Exception('Please enter a hostname');
+                        throw new Exception(
+                            _('Please enter a hostname')
+                        );
                     }
-                    if ($this->obj->get('name') != $hostName && !$this->obj->isHostnameSafe($hostName)) {
-                        throw new Exception(_('Please enter a valid hostname'));
+                    if ($this->obj->get('name') != $hostName
+                        && !$this->obj->isHostnameSafe($hostName)
+                    ) {
+                        throw new Exception(
+                            _('Please enter a valid hostname')
+                        );
                     }
-                    if ($this->obj->get('name') != $hostName && $this->obj->getManager()->exists($hostName)) {
-                        throw new Exception('Hostname Exists already');
+                    if ($this->obj->get('name') != $hostName
+                        && $this->obj->getManager()->exists($hostName)
+                    ) {
+                        throw new Exception(
+                            _('Hostname Exists already')
+                        );
                     }
                     if (empty($_REQUEST['mac'])) {
-                        throw new Exception('MAC Address is required');
+                        throw new Exception(
+                            _('MAC Address is required')
+                        );
                     }
-                    $mac = self::getClass('MACAddress', $_REQUEST['mac']);
-                    $Task = $this->obj->get('task');
+                    $mac = $this->parseMacList($_REQUEST['mac']);
+                    if (count($mac) < 1) {
+                        throw new Exception(
+                            _('No valid macs returned')
+                        );
+                    }
+                    $mac = array_shift($mac);
                     if (!$mac->isValid()) {
-                        throw new Exception(_('MAC Address is not valid'));
+                        throw new Exception(
+                            _('The returned MAC is invalid')
+                        );
                     }
-                    if ((!$_REQUEST['image'] && $Task->isValid()) || ($_REQUEST['image'] && $_REQUEST['image'] != $this->obj->get('imageID') && $Task->isValid())) {
-                        throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
+                    $Task = $this->obj->get('task');
+                    if ($Task->isValid()
+                        && $_REQUEST['image'] != $this->obj->get('imageID')
+                    ) {
+                        throw new Exception(
+                            sprintf(
+                                '%s.<br/>%s.',
+                                _('Cannot change image'),
+                                _('Host is in a tasking')
+                            )
+                        );
                     }
-                    $productKey = preg_replace('/([\w+]{5})/', '$1-', str_replace('-', '', strtoupper(trim($_REQUEST['key']))));
+                    $key = $_REQUEST['key'];
+                    $key = trim($key);
+                    $key = strtoupper($key);
+                    $productKey = preg_replace(
+                        '/([\w+]{5})/',
+                        '$1-',
+                        str_replace(
+                            '-',
+                            '',
+                            $key
+                        )
+                    );
                     $productKey = substr($productKey, 0, 29);
-                    $this->obj
-                    ->set('name', $hostName)
-                    ->set('description', $_REQUEST['description'])
-                    ->set('imageID', $_REQUEST['image'])
-                    ->set('kernel', $_REQUEST['kern'])
-                    ->set('kernelArgs', $_REQUEST['args'])
-                    ->set('kernelDevice', $_REQUEST['dev'])
-                    ->set('init', $_REQUEST['init'])
-                    ->set('biosexit', $_REQUEST['bootTypeExit'])
-                    ->set('efiexit', $_REQUEST['efiBootTypeExit'])
-                    ->set('productKey', $this->encryptpw($productKey));
-                    if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) {
+                    $this
+                        ->obj
+                        ->set('name', $hostName)
+                        ->set('description', $_REQUEST['description'])
+                        ->set('imageID', $_REQUEST['image'])
+                        ->set('kernel', $_REQUEST['kern'])
+                        ->set('kernelArgs', $_REQUEST['args'])
+                        ->set('kernelDevice', $_REQUEST['dev'])
+                        ->set('init', $_REQUEST['init'])
+                        ->set('biosexit', $_REQUEST['bootTypeExit'])
+                        ->set('efiexit', $_REQUEST['efiBootTypeExit'])
+                        ->set('productKey', $this->encryptpw($productKey));
+                    $primac = $this->obj->get('mac')->__toString();
+                    $setmac = $mac->__toString();
+                    if ($primac != $setmac) {
                         $this->obj->addPriMAC($mac->__toString());
                     }
-                    $_REQUEST['additionalMACs'] = array_map('strtolower', (array)$_REQUEST['additionalMACs']);
-                    $removeMACs = array_diff((array)self::getSubObjectIDs('MACAddressAssociation', array('hostID'=>$this->obj->get('id'), 'primary'=>array((string)0, (string)'', null), 'pending'=>array((string)0, (string)'', null)), 'mac'), (array)$_REQUEST['additionalMACs']);
-                    $this->obj->addAddMAC($_REQUEST['additionalMACs'])
-                    ->removeAddMAC($removeMACs);
+                    $addmacs = $this->parseMacList($_REQUEST['additionalMACs']);
+                    $addmacs = array_map(array($this, '__toString()'), (array)$addmacs);
+                    $removeMACs = array_diff(
+                        (array)self::getSubObjectIDs(
+                            'MACAddressAssociation',
+                            array(
+                                'hostID' => $this->obj->get('id'),
+                                'primary' => 0,
+                                'pending' => 0
+                            ),
+                            'mac'
+                        ),
+                        $addmacs
+                    );
+                    $this
+                        ->obj
+                        ->addAddMAC($addmacs)
+                        ->removeAddMAC($removeMACs);
                     break;
                 case 'host-active-directory':
                     $useAD = isset($_REQUEST['domain']);
@@ -1460,7 +1517,7 @@ class HostManagementPage extends FOGPage
                 case 'host-virus-history':
                     if (isset($_REQUEST['delvid']) && $_REQUEST['delvid'] == 'all') {
                         $this->obj->clearAVRecordsForHost();
-                        $this->redirect(sprintf('?node=host&sub=edit&id=%s#%s', $this->obj->get('id'), $_REQUEST['tab']));
+                        $this->redirect($this->formAction);
                     } elseif (isset($_REQUEST['delvid'])) {
                         self::getClass('VirusManager')->destroy(array('id' => $_REQUEST['delvid']));
                     }
@@ -1479,7 +1536,7 @@ class HostManagementPage extends FOGPage
             self::$HookManager->processEvent('HOST_EDIT_FAIL', array('Host'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
-        $this->redirect(sprintf('%s#%s', $this->formAction, $_REQUEST['tab']));
+        $this->redirect($this->formAction);
     }
     public function save_group()
     {

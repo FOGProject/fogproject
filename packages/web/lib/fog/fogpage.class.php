@@ -1,39 +1,228 @@
 <?php
+/**
+ * Presents many defaults for the pages and is
+ * the calling point by all other page items.
+ *
+ * PHP version 5
+ *
+ * @category FOGPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Presents many defaults for the pages and is
+ * the calling point by all other page items.
+ *
+ * @category FOGPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 abstract class FOGPage extends FOGBase
 {
-    protected $databaseTable;
-    protected $databaseFields;
-    protected $databaseFieldsRequired;
-    protected $databaseFieldClassRelationships;
-    protected $additionalFields;
+    /**
+     * Table cell wrapper
+     *
+     * @var string
+     */
+    private $_wrapper = 'td';
+    /**
+     * Header cell wrapper
+     *
+     * @var string
+     */
+    private $_headerWrap = 'th';
+    /**
+     * Name of the page
+     *
+     * @var string
+     */
     public $name = '';
+    /**
+     * Node of the page
+     *
+     * @var string
+     */
     public $node = '';
+    /**
+     * ID of the page
+     *
+     * @var string
+     */
     public $id = 'id';
+    /**
+     * Title for segment
+     *
+     * @var string
+     */
     public $title;
+    /**
+     * The menu (always display)
+     *
+     * @var array
+     */
     public $menu = array();
+    /**
+     * The submenu (Object displayed menus)
+     *
+     * @var array
+     */
     public $subMenu = array();
+    /**
+     * Additional notes for object
+     *
+     * @var array
+     */
     public $notes = array();
-    protected $searchFormURL = '';
-    protected $titleEnabled = true;
+    /**
+     * Table header data
+     *
+     * @var array
+     */
     public $headerData = array();
+    /**
+     * Table data
+     *
+     * @var array
+     */
     public $data = array();
+    /**
+     * Template data to replace
+     *
+     * @var array
+     */
     public $templates = array();
+    /**
+     * Attributes such as class, id, etc...
+     *
+     * @var array
+     */
     public $attributes = array();
-    protected static $returnData;
+    /**
+     * Pages that contain objects
+     *
+     * @var array
+     */
+    protected $PagesWithObjects = array(
+        'user',
+        'host',
+        'image',
+        'group',
+        'snapin',
+        'printer'
+    );
+    /**
+     * The items table
+     *
+     * @var string
+     */
+    protected $databaseTable = '';
+    /**
+     * The items table field and common names
+     *
+     * @var array
+     */
+    protected $databaseFields = array();
+    /**
+     * The items required fields
+     *
+     * @var array
+     */
+    protected $databaseFieldsRequired = array();
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array();
+    /**
+     * The items additional fields
+     *
+     * @var array
+     */
+    protected $additionalFields = array();
+    /**
+     * The forms action placeholder
+     *
+     * @var string
+     */
+    protected $formAction = '';
+    /**
+     * The forms method/action
+     *
+     * @var string
+     */
+    protected $formPostAction = '';
+    /**
+     * The items caller class
+     *
+     * @var string
+     */
+    protected $childClass = '';
+    /**
+     * The report place holder
+     *
+     * @var string
+     */
+    protected $reportString = '';
+    /**
+     * The search form url
+     *
+     * @var string
+     */
+    protected $searchFormURL = '';
+    /**
+     * Is the title enabled
+     *
+     * @var bool
+     */
+    protected $titleEnabled = true;
+    /**
+     * Fields to data
+     *
+     * @var mixed
+     */
     protected $fieldsToData;
-    private $wrapper = 'td';
-    private $headerWrap = 'th';
-    private $result;
+    /**
+     * The request
+     *
+     * @var array
+     */
     protected $request = array();
-    protected $formAction;
-    protected $formPostAction;
-    protected $childClass;
-    protected $reportString;
-    protected static $pdffile;
-    protected static $csvfile;
-    protected static $inventoryCsvHead;
-    protected $PagesWithObjects;
-    private static $initializedController = false;
+    /**
+     * PDF Place holder
+     *
+     * @var string
+     */
+    protected static $pdffile = '';
+    /**
+     * CSV Place holder
+     *
+     * @var string
+     */
+    protected static $csvfile = '';
+    /**
+     * Inventory csv head
+     *
+     * @var string
+     */
+    protected static $inventoryCsvHead = '';
+    /**
+     * Holder for lambda function
+     *
+     * @var function
+     */
+    protected static $returnData;
+    /**
+     * Initializes the page class
+     *
+     * @param mixed $name name of the page to initialize
+     *
+     * @return void
+     */
     public function __construct($name = '')
     {
         parent::__construct();
@@ -42,11 +231,19 @@ abstract class FOGPage extends FOGBase
             ignore_user_abort(true);
             set_time_limit(0);
         }
-        $this->PagesWithObjects = array('user','host','image','group','snapin','printer');
-        self::$HookManager->processEvent('PAGES_WITH_OBJECTS', array('PagesWithObjects'=>&$this->PagesWithObjects));
+        self::$HookManager->processEvent(
+            'PAGES_WITH_OBJECTS',
+            array('PagesWithObjects' => &$this->PagesWithObjects)
+        );
         global $node;
         global $sub;
-        if (in_array($sub, array('configure', 'authorize', 'requestClientInfo'))) {
+        global $id;
+        $subs = array(
+            'configure',
+            'authorize',
+            'requestClientInfo',
+        );
+        if (in_array($sub, $subs)) {
             return $this->{$sub}();
         }
         $this->childClass = ucfirst($this->node);
@@ -55,94 +252,205 @@ abstract class FOGPage extends FOGBase
         }
         $this->title = $this->name;
         if (in_array($this->node, $this->PagesWithObjects)) {
-            $classVars = self::getClass($this->childClass, '', true);
-            $this->databaseTable = $classVars['databaseTable'];
-            $this->databaseFields = $classVars['databaseFields'];
-            $this->databaseFieldsRequired = $classVars['databaseFieldsRequired'];
-            $this->databaseFieldClassRelationships = $classVars['databaseFieldClassRelationships'];
-            $this->additionalFields = $classVars['additionalFields'];
+            $classVars = self::getClass(
+                $this->childClass,
+                '',
+                true
+            );
+            $this->databaseTable
+                = $classVars['databaseTable'];
+            $this->databaseFields
+                = $classVars['databaseFields'];
+            $this->databaseFieldsRequired 
+                = $classVars['databaseFieldsRequired'];
+            $this->databaseFieldClassRelationships
+                = $classVars['databaseFieldClassRelationships'];
+            $this->additionalFields
+                = $classVars['additionalFields'];
             unset($classVars);
-            $this->obj = self::getClass($this->childClass, $_REQUEST['id']);
-            if (isset($_REQUEST['id'])) {
-                $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
-                $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST['id']}";
-                $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST['id']}";
-                if ($_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
+            $this->obj = self::getClass(
+                $this->childClass,
+                $id
+            );
+            if (isset($id)) {
+                $link = sprintf(
+                    '?node=%s&sub=%s&%s=%d',
+                    $this->node,
+                    '%s',
+                    $this->id,
+                    $id
+                );
+                $this->delformat = sprintf(
+                    $link,
+                    'delete'
+                );
+                $this->linkformat = sprintf(
+                    $link,
+                    'edit'
+                );
+                $this->membership = sprintf(
+                    $link,
+                    'membership'
+                );
+                if ($id === 0 || !is_numeric($id) || !$this->obj->isValid()) {
                     unset($this->obj);
-                    $this->setMessage(sprintf(_('%s ID %s is not valid'), $this->childClass, $_REQUEST['id']));
-                    $this->redirect(sprintf('?node=%s', $this->node));
+                    $this->setMessage(
+                        sprintf(
+                            _('%s ID %d is not valid'),
+                            $this->childClass, $id
+                        )
+                    );
+                    $this->redirect(
+                        sprintf(
+                            '?node=%s',
+                            $this->node
+                        )
+                    );
                 }
             }
         }
-        $this->reportString = '<h2><div id="exportDiv"></div><a id="csvsub" href="../management/export.php?filename=%s&type=csv" alt="%s" title="%s" target="_blank">%s</a> <a id="pdfsub" href="../management/export.php?filename=%s&type=pdf" alt="%s" title="%s" target="_blank">%s</a></h2>';
+        $this->reportString = '<h2><div id="exportDiv"></div><a id="csvsub" '
+            . 'href="../management/export.php?filename=%s&type=csv" alt="%s" '
+            . 'title="%s" target="_blank">%s</a> <a id="pdfsub" '
+            . 'href="../management/export.php?filename=%s&type=pdf" alt="%s" '
+            . 'title="%s" target="_blank">%s</a></h2>';
         self::$pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
         self::$csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
         self::$inventoryCsvHead = array(
-            _('Host ID')=>'id',
-            _('Host name')=>'name',
-            _('Host MAC')=>'mac',
-            _('Host Desc')=>'description',
-            _('Inventory ID')=>'id',
-            _('Inventory Desc')=>'description',
-            _('Primary User')=>'primaryUser',
-            _('Other Tag 1')=>'other1',
-            _('Other Tag 2')=>'other2',
-            _('System Manufacturer')=>'sysman',
-            _('System Product')=>'sysproduct',
-            _('System Version')=>'sysversion',
-            _('System Serial')=>'sysserial',
-            _('System Type')=>'systype',
-            _('BIOS Version')=>'biosversion',
-            _('BIOS Vendor')=>'biosvendor',
-            _('BIOS Date')=>'biosdate',
-            _('MB Manufacturer')=>'mbman',
-            _('MB Name')=>'mbproductname',
-            _('MB Version')=>'mbversion',
-            _('MB Serial')=>'mbserial',
-            _('MB Asset')=>'mbasset',
-            _('CPU Manufacturer')=>'cpuman',
-            _('CPU Version')=>'cpuversion',
-            _('CPU Speed')=>'cpucurrent',
-            _('CPU Max Speed')=>'cpumax',
-            _('Memory')=>'mem',
-            _('HD Model')=>'hdmodel',
-            _('HD Firmware')=>'hdfirmware',
-            _('HD Serial')=>'hdserial',
-            _('Chassis Manufacturer')=>'caseman',
-            _('Chassis Version')=>'casever',
-            _('Chassis Serial')=>'caseser',
-            _('Chassis Asset')=>'caseasset',
+            _('Host ID') => 'id',
+            _('Host name') => 'name',
+            _('Host MAC') => 'mac',
+            _('Host Desc') => 'description',
+            _('Inventory ID') => 'id',
+            _('Inventory Desc') => 'description',
+            _('Primary User') => 'primaryUser',
+            _('Other Tag 1') => 'other1',
+            _('Other Tag 2') => 'other2',
+            _('System Manufacturer') => 'sysman',
+            _('System Product') => 'sysproduct',
+            _('System Version') => 'sysversion',
+            _('System Serial') => 'sysserial',
+            _('System Type') => 'systype',
+            _('BIOS Version') => 'biosversion',
+            _('BIOS Vendor') => 'biosvendor',
+            _('BIOS Date') => 'biosdate',
+            _('MB Manufacturer') => 'mbman',
+            _('MB Name') => 'mbproductname',
+            _('MB Version') => 'mbversion',
+            _('MB Serial') => 'mbserial',
+            _('MB Asset') => 'mbasset',
+            _('CPU Manufacturer') => 'cpuman',
+            _('CPU Version') => 'cpuversion',
+            _('CPU Speed') => 'cpucurrent',
+            _('CPU Max Speed') => 'cpumax',
+            _('Memory') => 'mem',
+            _('HD Model') => 'hdmodel',
+            _('HD Firmware') => 'hdfirmware',
+            _('HD Serial') => 'hdserial',
+            _('Chassis Manufacturer') => 'caseman',
+            _('Chassis Version') => 'casever',
+            _('Chassis Serial') => 'caseser',
+            _('Chassis Asset') => 'caseasset',
         );
         $this->menu = array(
-            'search'=>self::$foglang['NewSearch'],
-            'list'=>sprintf(self::$foglang['ListAll'], _(sprintf('%ss', $this->childClass))),
-            'add'=>sprintf(self::$foglang['CreateNew'], _($this->childClass)),
-            'export'=>sprintf(self::$foglang[sprintf('Export%s', $this->childClass)]),
-            'import'=>sprintf(self::$foglang[sprintf('Import%s', $this->childClass)]),
+            'search' => self::$foglang['NewSearch'],
+            'list' => sprintf(
+                self::$foglang['ListAll'],
+                _(
+                    sprintf(
+                        '%ss',
+                        $this->childClass
+                    )
+                )
+            ),
+            'add' => sprintf(
+                self::$foglang['CreateNew'],
+                _($this->childClass)
+            ),
+            'export' => sprintf(
+                self::$foglang[
+                    sprintf(
+                        'Export%s',
+                        $this->childClass
+                    )
+                ]
+            ),
+            'import' => sprintf(
+                self::$foglang[
+                    sprintf(
+                        'Import%s',
+                        $this->childClass
+                    )
+                ]
+            ),
         );
         $this->fieldsToData = function (&$input, &$field) {
             $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
+                'field' => $field,
+                'input' => $input,
             );
             if (is_array($this->span) && count($this->span) === 2) {
                 $this->data[count($this->data)-1][$this->span[0]] = $this->span[1];
             }
             unset($input);
         };
-        $this->formAction = preg_replace('#(&tab.*)$#', '', filter_var(sprintf('%s?%s', self::$scriptname, $_SERVER['QUERY_STRING']), FILTER_SANITIZE_URL));
-        self::$HookManager->processEvent('SEARCH_PAGES', array('searchPages'=>&self::$searchPages));
-        self::$HookManager->processEvent('SUB_MENULINK_DATA', array('menu'=>&$this->menu, 'submenu'=>&$this->subMenu, 'id'=>&$this->id, 'notes'=>&$this->notes));
+        $this->formAction = preg_replace(
+            '#\&tab=#i',
+            '#',
+            filter_var(
+                sprintf(
+                    '%s?%s',
+                    self::$scriptname,
+                    self::$querystring
+                ),
+                FILTER_SANITIZE_URL
+            )
+        );
+        self::$HookManager->processEvent(
+            'SEARCH_PAGES',
+            array('searchPages' => &self::$searchPages)
+        );
+        self::$HookManager->processEvent(
+            'SUB_MENULINK_DATA',
+            array(
+                'menu' => &$this->menu,
+                'submenu' => &$this->subMenu,
+                'id' => &$this->id,
+                'notes' => &$this->notes
+            )
+        );
     }
+    /**
+     * Page default index
+     *
+     * @return void
+     */
     public function index()
     {
         $vals = function (&$value, $key) {
-            return sprintf('%s : %s', $key, $value);
+            return sprintf(
+                '%s : %s',
+                $key,
+                $value
+            );
         };
         printf(
             'Index page of: %s%s',
             get_class($this),
-            (count($args) ? sprintf(', Arguments = %s', implode(', ', array_walk($args, $vals))) : '')
+            (
+                count($args) ?
+                sprintf(
+                    ', Arguments = %s', 
+                    implode(
+                        ', ',
+                        array_walk(
+                            $args,
+                            $vals
+                        )
+                    )
+                ) :
+                ''
+            )
         );
     }
     public function set($key, $value)
@@ -292,11 +600,11 @@ abstract class FOGPage extends FOGBase
         $setHeaderData = function (&$content, $index) {
             printf(
                 '<%s%s data-column="%s">%s</%s>',
-                $this->headerWrap,
+                $this->_headerWrap,
                 ($this->atts[$index] ? $this->atts[$index] : ''),
                 $index,
                 $content,
-                $this->headerWrap
+                $this->_headerWrap
             );
         };
         ob_start();
@@ -305,7 +613,7 @@ abstract class FOGPage extends FOGBase
         echo '</tr></thead>';
         return ob_get_clean();
     }
-    private function replaceNeeds($data)
+    private function _replaceNeeds($data)
     {
         unset($this->dataFind, $this->dataReplace);
         global $node;
@@ -326,16 +634,16 @@ abstract class FOGPage extends FOGBase
     public function buildRow($data)
     {
         unset($this->atts);
-        $this->replaceNeeds($data);
+        $this->_replaceNeeds($data);
         $this->setAtts();
         ob_start();
         array_walk($this->templates, function (&$template, $index) {
             printf(
                 '<%s%s>%s</%s>',
-                $this->wrapper,
+                $this->_wrapper,
                 $this->atts[$index] ? $this->atts[$index] : '',
                 preg_replace($this->dataFind, $this->dataReplace, $template),
-                $this->wrapper
+                $this->_wrapper
             );
         });
         return ob_get_clean();
@@ -1311,41 +1619,26 @@ abstract class FOGPage extends FOGBase
             $this->redirect($this->formAction);
         }
     }
+    /**
+     * Perform wakeup stuff
+     *
+     * @return void
+     */
     public function wakeEmUp()
     {
         self::getClass('WakeOnLan', $_REQUEST['mac'])->send();
     }
-    public function import()
-    {
-        $this->title = sprintf('Import %s List', $this->childClass);
-        unset($this->headerData);
-        $this->attributes = array(
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        echo _('This page allows you to upload a CSV file into FOG to ease migration. It will operate based on the fields that are normally required by each area.  For example, Hosts will have macs, name, description, etc....');
-        printf('<form enctype="multipart/form-data" method="post" action="%s">', $this->formAction);
-        $fields = array(
-            _('CSV File') => '<input class="smaller" type="file" name="file" />',
-            '&nbsp;' => sprintf('<input class="smaller" type="submit" value="%s"/>', _('Upload CSV')),
-        );
-        array_walk($fields, function (&$input, &$field) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        });
-        self::$HookManager->processEvent(sprintf('%s_IMPORT_OUT', strtoupper($this->childClass)), array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
-        $this->render();
-        echo '</form>';
-    }
+    /**
+     * Presents the relevant class items for export
+     *
+     * @return void
+     */
     public function export()
     {
-        $this->title = sprintf('Export %s', $this->childClass);
+        $this->title = sprintf(
+            'Export %s',
+            $this->childClass
+        );
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -1403,82 +1696,221 @@ abstract class FOGPage extends FOGBase
         $this->render();
         echo '</form>';
     }
+    /**
+     * Presents the importer elements
+     *
+     * @return void
+     */
+    public function import()
+    {
+        $this->title = sprintf(
+            'Import %s List',
+            $this->childClass
+        );
+        unset($this->headerData);
+        $this->attributes = array(
+            array(),
+            array(),
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        printf(
+            '%s %s. %s %s. %s, %s, %s, %s, %s...',
+            _('This page allows you to upload a CSV'),
+            _('file into FOG to ease migration'),
+            _('It will operate based on the fields that'),
+            _('are normally required by each area'),
+            _('For example'),
+            _('Hosts will have macs'),
+            _('name'),
+            _('description'),
+            _('etc')
+        );
+        printf(
+            '<form enctype="multipart/form-data" method="post" action="%s">',
+            $this->formAction
+        );
+        $fields = array(
+            _('CSV File') => '<input class="smaller" type="file" name="file" />',
+            '&nbsp;' => sprintf(
+                '<input class="smaller" type="submit" value="%s"/>',
+                _('Upload CSV')
+            ),
+        );
+        foreach ((array)$fields as $field => &$input) {
+            $this->data[] = array(
+                'field' => $field,
+                'input' => $input
+            );
+            unset($input);
+        }
+        $upper = strtoupper($this->childClass);
+        $event = sprintf(
+            '%s_IMPORT_OUT',
+            $upper
+        );
+        $arr = array(
+            'headerData' => &$this->headerData,
+            'data' => &$this->data,
+            'templates' => &$this->templates,
+            'attributes' => &$this->attributes
+        );
+        self::$HookManager->processEvent(
+            $event,
+            $arr
+        );
+        $this->render();
+        echo '</form>';
+    }
+    /**
+     * Perform the import based on the uploaded file
+     *
+     * @return void
+     */
     public function importPost()
     {
         try {
-            $mimes = array('application/vnd.ms-excel','text/plain','text/csv','text/tsv');
-            if (!in_array($_FILES['file']['type'], $mimes)) {
-                $this->setMessage(_('File must be a csv'));
-                $this->redirect($this->formAction);
+            $mimes = array(
+                'text/csv',
+                'text/anytext',
+                'text/comma-separated-values',
+                'application/csv',
+                'application/excel',
+                'application/vnd.msexcel',
+                'application/vnd.ms-excel',
+            );
+            $fileinfo = pathinfo($_FILES['file']['name']);
+            $ext = $fileinfo['extension'];
+            $Item = self::getClass($this->childClass);
+            $mime = $_FILES['file']['type'];
+            if (!in_array($mime, $mimes)) {
+                if ($ext !== 'csv') {
+                    $this->setMessage(_('File must be a csv'));
+                    $this->redirect($this->formAction);
+                }
             }
             if ($_FILES['file']['error'] > 0) {
                 throw new UploadException($_FILES['file']['error']);
             }
-            $file = sprintf('%s%s%s', dirname($_FILES['file']['tmp_name']), DIRECTORY_SEPARATOR, basename($_FILES['file']['tmp_name']));
+            $tmpf = pathinfo($_FILES['file']['tmp_name']);
+            $file = sprintf(
+                '%s%s%s',
+                $tmpf['dirname'],
+                DIRECTORY_SEPARATOR,
+                $tmpf['basename']
+            );
             if (!file_exists($file)) {
                 throw new Exception(_('Could not find temp filename'));
             }
             $numSuccess = $numFailed = $numAlreadExist = 0;
             $fh = fopen($file, 'rb');
-            $this->arrayRemove('id', $this->databaseFields);
+            $this->arrayRemove(
+                'id',
+                $this->databaseFields
+            );
+            $comma_count = count(array_keys($this->databaseFields));
+            $iterator = 0;
+            if ($Item instanceof Host) {
+                $comma_count++;
+                $iterator = 1;
+            }
+            $ItemMan = $Item->getManager();
+            $modules = self::getSubObjectIDs(
+                'Module',
+                array('isDefault' => 1)
+            );
+            $totalRows = 0;
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
-                $totalRows++;
+                if (count($data) != $comma_count) {
+                    throw new Exception(
+                        _('Invalid data being parsed')
+                    );
+                }
                 try {
-                    $Item = self::getClass($this->childClass);
                     if ($Item instanceof Host) {
-                        $ModuleIDs = self::getSubObjectIDs('Module');
-                        $MACs = $this->parseMacList($data[0]);
+                        $macs = $this->parseMacList($data[0]);
                         $Host = self::getClass('HostManager')
-                            ->getHostByMacAddresses($MACs);
+                            ->getHostByMacAddresses($macs);
                         if ($Host
                             && $Host->isValid()
                         ) {
-                            throw new Exception(_('Host already exists with at least one of the listed MACs'));
+                            throw new Exception(
+                                _('One or more macs are associated with a host')
+                            );
                         }
-                        $PriMAC = array_shift($MACs);
-                        $iterator = 1;
-                    } else {
-                        $iterator = 0;
+                        $primac = array_shift($macs);
+                        $dbkeys = array_keys($this->databaseFields);
+                        $index = array_search('productKey', $dbkeys) + 1;
+                        $test_encryption = $this->aesdecrypt($data[$index]);
+                        if ($test_base64 = base64_decode($data[$index])) {
+                            $data[$index] = $this->aesencrypt($test_base64);
+                        } elseif (mb_detect_encoding(
+                            $test_encryption,
+                            'utf-8',
+                            true
+                        )
+                        ) {
+                            $data[$index] = $this->aesencrypt($data[$index]);
+                        }
                     }
-                    if ($Item->getManager()->exists($data[$iterator])) {
-                        throw new Exception(sprintf('%s %s: %s', $this->childClass, _('already exists with this name'), $data[$iterator]));
+                    if ($ItemMan->exists($data[$iterator])) {
+                        throw new Exception(
+                            _('This host already exists')
+                        );
                     }
-                    array_walk(array_keys((array)$this->databaseFields), function (&$field, &$index) use (&$Item, &$data) {
-                        if ($Item instanceof Host) {
-                            $index++;
-                        }
-                        if (isset($field) && $field === 'productKey') {
-                            $test_encryption = $this->aesdecrypt($data[$index]);
-                            if ($test_base64 = base64_decode($data[$index])) {
-                                $data[$index] = $this->aesencrypt($test_base64);
-                            } elseif (empty($test_encryption) || !mb_detect_encoding($test_encryption, 'utf-8', true)) {
-                                $data[$index] = $this->aesencrypt($data[$index]);
-                            }
-                        }
-                        $Item->set($field, $data[$index], ($field == 'password'));
-                    });
+                    foreach ((array)$dbkeys as $ind => &$field) {
+                        $ind += $iterator;
+                        $Item->set($field, $data[$ind], ($field == 'password'));
+                        unset($field);
+                    }
                     if ($Item instanceof Host) {
-                        $Item->addModule($ModuleIDs)
-                            ->addPriMAC($PriMAC)
-                            ->addAddMAC($MACs);
-                        unset($ModuleIDs, $MACs, $PriMAC);
+                        $Item
+                            ->addModule($modules)
+                            ->addPriMAC($primac)
+                            ->addAddMAC($macs);
                     }
                     if ($Item->save()) {
-                        self::$HookManager->processEvent(strtoupper($this->childClass).'_IMPORT', array('data'=>&$data, $this->childClass=>&$Item));
+                        $totalRows++;
+                        $itemCap = strtoupper($this->childClass);
+                        $event = sprintf(
+                            '%s_IMPORT',
+                            $itemCap
+                        );
+                        $arr = array(
+                            'data' => &$data,
+                            $this->childClass => &$Item
+                        );
+                        self::$HookManager->processEvent(
+                            $event,
+                            $arr
+                        );
                         $numSuccess++;
+                        $Item = new $this->childClass();
                     } else {
                         $numFailed++;
                     }
                 } catch (Exception $e) {
                     $numFailed++;
-                    $uploadErrors .= sprintf('%s #%s: %s<br/>', _('Row'), $totalRows, $e->getMessage());
+                    $uploadErrors .= sprintf(
+                        '%s #%s: %s<br/>',
+                        _('Row'),
+                        $totalRows,
+                        $e->getMessage()
+                    );
                 }
             }
             fclose($fh);
         } catch (Exception $e) {
             $error = $e->getMessage();
         }
-        $this->title = sprintf('%s %s %s', _('Import'), $this->childClass, _('Results'));
+        $this->title = sprintf(
+            '%s %s %s',
+            _('Import'),
+            $this->childClass,
+            _('Results')
+        );
         unset($this->headerData);
         $this->templates = array(
             '${field}',
@@ -1490,18 +1922,40 @@ abstract class FOGPage extends FOGBase
         );
         $fields = array(
             _('Total Rows') => $totalRows,
-            sprintf('%s %ss', _('Successful'), $this->childClass) => $numSuccess,
-            sprintf('%s %ss', _('Failed'), $this->childClass) => $numFailed,
+            sprintf(
+                '%s %ss',
+                _('Successful'),
+                $this->childClass
+            ) => $numSuccess,
+            sprintf(
+                '%s %ss',
+                _('Failed'),
+                $this->childClass
+            ) => $numFailed,
             _('Errors') => $uploadErrors,
         );
-        array_walk($fields, function (&$input, &$field) {
+        foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
+                'field' => $field,
+                'input' => $input
             );
-        });
-        unset($input);
-        self::$HookManager->processEvent(sprintf('%s_IMPORT_FIELDS', strtoupper($this->childClass)), array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
+            unset($input);
+        }
+        $upper = strtoupper($this->childClass);
+        $event = sprintf(
+            '%s_IMPORT_FIELDS',
+            $upper
+        );
+        $arr = array(
+            'headerData' => &$this->headerData,
+            'data' => &$this->data,
+            'templates' => &$this->templates,
+            'attributes' => &$this->attributes
+        );
+        self::$HookManager->processEvent(
+            $event,
+            $arr
+        );
         $this->render();
     }
 }

@@ -481,7 +481,7 @@ class FOGConfigurationPage extends FOGPage
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
         }
-        $this->redirect(sprintf('%s#%s', $this->formAction, $_REQUEST['tab']));
+        $this->redirect($this->formAction);
     }
     public function mac_list()
     {

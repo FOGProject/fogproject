@@ -241,29 +241,23 @@ abstract class FOGBase
         self::$FOGUser =& $currentUser;
         $scriptPattern = '#/service/#i';
         $queryPattern = '#sub=requestClientInfo#i';
+        self::$querystring = $_SERVER['QUERY_STRING'];
         if (isset($_SERVER['SCRIPT_NAME'])) {
-            self::$scriptname = htmlspecialchars(
+            self::$scriptname = htmlentities(
                 $_SERVER['SCRIPT_NAME'],
                 ENT_QUOTES,
                 'utf-8'
             );
         }
-        if (isset($_SERVER['QUERY_STRING'])) {
-            self::$querystring = htmlspecialchars(
-                $_SERVER['QUERY_STRING'],
-                ENT_QUOTES,
-                'utf-8'
-            );
-        }
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            self::$httpreqwith = htmlspecialchars(
+            self::$httpreqwith = htmlentities(
                 $_SERVER['HTTP_X_REQUESTED_WITH'],
                 ENT_QUOTES,
                 'utf-8'
             );
         }
         if (isset($_SERVER['REQUEST_METHOD'])) {
-            self::$reqmethod = htmlspecialchars(
+            self::$reqmethod = htmlentities(
                 $_SERVER['REQUEST_METHOD'],
                 ENT_QUOTES,
                 'utf-8'

@@ -158,6 +158,6 @@ class UserManagementPage extends FOGPage
             self::$HookManager->processEvent('USER_UPDATE_FAIL', array('User'=>&$this->obj));
             $this->setMessage($e->getMessage());
         }
-        $this->redirect(sprintf('%s#%s', $this->formAction, $_REQUEST['tab']));
+        $this->redirect($this->formAction);
     }
 }

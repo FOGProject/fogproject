@@ -301,10 +301,9 @@ class GroupManagementPage extends FOGPage
                 array('Group' => &$Group)
             );
             $this->setMessage($e->getMessage());
-            $url = $this->formAction;
         }
         unset($Group);
-        $this->redirect($url);
+        $this->redirect($this->formAction);
     }
     /**
      * The group edit display method
@@ -1412,8 +1411,7 @@ class GroupManagementPage extends FOGPage
             self::$HookManager->processEvent('GROUP_EDIT_FAIL', array('Group' => &$this->obj));
             $this->setMessage($e->getMessage());
         }
-        $url = sprintf('%s#%s', $this->formAction, $_REQUEST['tab']);
-        $this->redirect($url);
+        $this->redirect($this->formAction);
     }
     public function delete_hosts()
     {
