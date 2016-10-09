@@ -1346,7 +1346,14 @@ class HostManagementPage extends FOGPage
                         $this->obj->addPriMAC($mac->__toString());
                     }
                     $addmacs = $this->parseMacList($_REQUEST['additionalMACs']);
-                    $addmacs = array_map(array($this, '__toString()'), (array)$addmacs);
+                    $macs = array();
+                    foreach ((array)$addmacs as &$addmac) {
+                        if (!$addmac->isValid()) {
+                            continue;
+                        }
+                        $macs[] = $addmac->__toString();
+                        unset($addmac);
+                    }
                     $removeMACs = array_diff(
                         (array)self::getSubObjectIDs(
                             'MACAddressAssociation',
@@ -1357,11 +1364,11 @@ class HostManagementPage extends FOGPage
                             ),
                             'mac'
                         ),
-                        $addmacs
+                        $macs
                     );
                     $this
                         ->obj
-                        ->addAddMAC($addmacs)
+                        ->addAddMAC($macs)
                         ->removeAddMAC($removeMACs);
                     break;
                 case 'host-active-directory':

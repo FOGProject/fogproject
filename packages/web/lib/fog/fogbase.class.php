@@ -409,9 +409,17 @@ abstract class FOGBase
         // Parsing the macs
         $MACs = $this->parseMacList($mac, !$service, $service);
 
+        foreach ((array)$MACs as &$mac) {
+            if (!$mac->isValid()) {
+                continue;
+            }
+            $macs[] = $mac->__toString();
+            unset($mac);
+        }
+
         // If no macs are returned and the host is not required,
         // throw message that it's an invalid mac.
-        if (count($MACs) < 1 && $hostnotrequired === false) {
+        if (count($macs) < 1 && $hostnotrequired === false) {
             if ($service) {
                 $msg = '#!im';
             } else {
@@ -422,14 +430,14 @@ abstract class FOGBase
 
         // If returnmacs parameter is true, return the macs as an array
         if ($returnmacs) {
-            if (!is_array($MACs)) {
-                $MACs = (array)$MACs;
+            if (!is_array($macs)) {
+                $macs = (array)$macs;
             }
-            return $MACs;
+            return $macs;
         }
 
         // Get the host element based on the mac address
-        $Host = self::getClass('HostManager')->getHostByMacAddresses($MACs);
+        $Host = self::getClass('HostManager')->getHostByMacAddresses($macs);
         if ($hostnotrequired === false && $override === false) {
             if ($Host->get('pending')) {
                 $Host = new Host(0);

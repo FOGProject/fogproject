@@ -24,12 +24,12 @@ class HostManager extends FOGManagerController
     /**
      * Returns a single host object based on the passed MACs.
      *
-     * @param array $MACs the macs to search for the host.
+     * @param array $macs the macs to search for the host.
      *
      * @throws Exception
      * @return object
      */
-    public function getHostByMacAddresses($MACs)
+    public function getHostByMacAddresses($macs)
     {
         $MACHost = self::getSubObjectIDs(
             'MACAddressAssociation',
@@ -39,7 +39,7 @@ class HostManager extends FOGManagerController
                     '',
                     null
                 ),
-                'mac' => $MACs
+                'mac' => $macs
             ),
             'hostID'
         );

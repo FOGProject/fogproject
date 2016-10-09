@@ -667,12 +667,11 @@ abstract class FOGPage extends FOGBase
                 }
             }
             echo '</tbody></table>';
-            if ((!$sub
-                || $sub === 'storage_group'
+            if (((!$sub
                 || in_array($sub, $defaultScreens))
-                && (in_array($node, self::$searchPages)
-                && !self::$isMobile
+                && in_array($node, self::$searchPages)
                 && in_array($node, $this->PagesWithObjects))
+                && !self::$isMobile
             ) {
                 if ($this->node == 'host') {
                     $actionbox = sprintf(

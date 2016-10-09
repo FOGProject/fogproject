@@ -931,14 +931,14 @@ abstract class FOGManagerController extends FOGBase
     /**
      * Checks if item already exists or not
      *
-     * @param string $name    the value to test
+     * @param string $val    the value to test
      * @param string $id      an ID if already exists
      * @param string $idField the id field to scan
      *
      * @return bool
      */
     public function exists(
-        $name,
+        $val,
         $id = 0,
         $idField = 'name'
     ) {
@@ -949,8 +949,8 @@ abstract class FOGManagerController extends FOGBase
             $idField = 'name';
         }
         $existVals = array(
-            'name' => $name,
-            'id' => $id
+            $idField => $val,
+            'id' => $id,
         );
         $query = sprintf(
             $this->existsQueryTemplate,
@@ -959,7 +959,7 @@ abstract class FOGManagerController extends FOGBase
             $this->databaseTable,
             $this->databaseTable,
             $this->databaseFields[$idField],
-            ':name',
+            sprintf(':%s', $idField),
             $this->databaseTable,
             $this->databaseFields[$idField],
             ':id'
