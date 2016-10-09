@@ -31,6 +31,7 @@ class Jobs extends FOGClient implements FOGClientSend
         $Task = $this->Host->get('task');
         $script = strtolower(self::$scriptname);
         $script = trim($script);
+        $script = basename($script);
         if ($script === 'jobs.php') {
             $field = 'error';
         } else {
