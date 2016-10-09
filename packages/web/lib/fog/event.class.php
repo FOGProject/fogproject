@@ -9,6 +9,7 @@
  * @category Event
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Joe Schmitt <jbob182@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -20,6 +21,7 @@
  * @category Event
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Joe Schmitt <jbob182@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -37,12 +39,6 @@ abstract class Event extends FOGBase
      * @var string
      */
     protected $description;
-    /**
-     * The author creating.
-     *
-     * @var string
-     */
-    protected $author;
     /**
      * The active flag of this.
      *

@@ -7,6 +7,7 @@
  * @category HostList_Event
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Joe Schmitt <jbob182@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -16,6 +17,7 @@
  * @category HostList_Event
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Joe Schmitt <jbob182@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -23,7 +25,6 @@ class HostList extends Event
 {
     public $name = 'HostListEvent';
     public $description = 'Triggers when the hosts are listed';
-    public $author = 'Jbob';
     public $active = false;
 }
 $EventManager->register(

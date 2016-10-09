@@ -1,11 +1,52 @@
 <?php
+/**
+ * The event to call when imaging task fails
+ *
+ * PHP version 5
+ *
+ * @category ImageFail_Slack
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * The event to call when imaging task fails
+ *
+ * @category ImageFail_Slack
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class ImageFail_Slack extends Event
 {
-    // Class variables
+    /**
+     * The name of this event
+     *
+     * @var string
+     */
     public $name = 'ImageFail_Slack';
+    /**
+     * The description of this event
+     *
+     * @var string
+     */
     public $description = 'Triggers when a host fails imaging';
-    public $author = 'Tom Elliott';
+    /**
+     * The event is active
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * Perform action
+     *
+     * @param string $event the event to enact
+     * @param mixed  $data  the data
+     *
+     * @return void
+     */
     public function onEvent($event, $data)
     {
         foreach ((array)self::getClass('SlackManager')->find() as &$Token) {
@@ -21,4 +62,7 @@ class ImageFail_Slack extends Event
         }
     }
 }
-$EventManager->register('HOST_IMAGE_FAIL', new ImageFail_Slack());
+$EventManager->register(
+    'HOST_IMAGE_FAIL',
+    new ImageFail_Slack()
+);
