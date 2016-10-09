@@ -32,7 +32,7 @@ class FOGCore extends FOGBase
     public function attemptLogin($username, $password)
     {
         return self::getClass('User')
-            ->validate_pw($username, $password);
+            ->validatePw($username, $password);
     }
     /**
      * Clears the mac lookup table

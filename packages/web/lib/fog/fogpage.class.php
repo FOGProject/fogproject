@@ -1662,7 +1662,7 @@ abstract class FOGPage extends FOGBase
     public function deletemultiAjax()
     {
         $validate = self::getClass('User')
-            ->password_validate(
+            ->passwordValidate(
                 $_POST['fogguiuser'],
                 $_POST['fogguipass']
             );
@@ -2718,7 +2718,7 @@ abstract class FOGPage extends FOGBase
     public function deletePost()
     {
         $validate = self::getClass('User')
-            ->password_validate(
+            ->passwordValidate(
                 $_POST['fogguiuser'],
                 $_POST['fogguipass']
             );

@@ -13,7 +13,7 @@
 require '../commons/base.inc.php';
 $user = $_POST['fogguiuser'];
 $pass = $_POST['fogguipass'];
-if (!$currentUser->password_validate($user, $pass, true)) {
+if (!$currentUser->passwordValidate($user, $pass, true)) {
     die('###'.$foglang['InvalidLogin']);
 }
 $report = unserialize($_SESSION['foglastreport']);

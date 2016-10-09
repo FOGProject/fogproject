@@ -28,7 +28,7 @@ try {
     $password = base64_decode($password);
     $password = trim($password);
     $userTest = FOGCore::getClass('User')
-        ->password_validate($username, $password);
+        ->passwordValidate($username, $password);
     if (!$userTest) {
         throw new Exception('#!il');
     }
