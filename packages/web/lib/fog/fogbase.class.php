@@ -1598,9 +1598,6 @@ abstract class FOGBase
             unset($MAC);
         }
         $validMACs = array_filter($validMACs);
-        if (!count($validMACs)) {
-            return false;
-        }
         return $validMACs;
     }
     /**
