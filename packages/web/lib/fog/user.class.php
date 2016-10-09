@@ -248,7 +248,6 @@ class User extends FOGController
     {
         if ($this->get('id') < 1) {
             return false;
-
         }
         if (!$this->get('name')) {
             return false;

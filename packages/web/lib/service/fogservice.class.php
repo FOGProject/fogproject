@@ -73,18 +73,6 @@ abstract class FOGService extends FOGBase
             return false;
         }
         return true;
-        $fp_a = fopen($file_a, 'rb');
-        $fp_b = fopen($file_b, 'rb');
-        $a = fgets($fp_a, 10240);
-        $a_hex = bin2hex($a);
-        $b = fgets($fp_b, 10240);
-        $b_hex = bin2hex($b);
-        if ($a_hex !== $b_hex) {
-            $res = false;
-        }
-        fclose($fp_a);
-        fclose($fp_b);
-        return $res;
     }
     /**
      * Initializes the FOGService class

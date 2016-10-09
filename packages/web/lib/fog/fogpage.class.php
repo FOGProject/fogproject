@@ -1733,14 +1733,14 @@ abstract class FOGPage extends FOGBase
                     $this->node
                 ) =>
                 $this->obj->get('id'),
-                'task_type' => sprintf(
-                    '&type=%s',
-                    $TaskType->get('id')
-                ),
-                'task_icon' => $TaskType->get('icon'),
-                'task_name' => $TaskType->get('name'),
-                'task_desc' => $TaskType->get('description'),
-            );
+                    'task_type' => sprintf(
+                        '&type=%s',
+                        $TaskType->get('id')
+                    ),
+                    'task_icon' => $TaskType->get('icon'),
+                    'task_name' => $TaskType->get('name'),
+                    'task_desc' => $TaskType->get('description'),
+                );
             unset($TaskType);
         };
         $TaskTypes = self::getClass('TaskTypeManager')
@@ -1764,18 +1764,18 @@ abstract class FOGPage extends FOGBase
                 '%s_id',
                 $this->node
             ) => $this->obj->get('id'),
-            'task_type' => sprintf(
-                '#%s-tasks" class="advanced-tasks-link',
-                $this->node
-            ),
-            'task_icon' => 'bars',
-            'task_name' => _('Advanced'),
-            'task_desc' => sprintf(
-                '%s %s',
-                _('View advanced tasks for this'),
-                $this->node
-            ),
-        );
+                'task_type' => sprintf(
+                    '#%s-tasks" class="advanced-tasks-link',
+                    $this->node
+                ),
+                'task_icon' => 'bars',
+                'task_name' => _('Advanced'),
+                'task_desc' => sprintf(
+                    '%s %s',
+                    _('View advanced tasks for this'),
+                    $this->node
+                ),
+            );
         self::$HookManager->processEvent(
             sprintf(
                 '%s_EDIT_TASKS',
@@ -1880,13 +1880,8 @@ abstract class FOGPage extends FOGBase
                 $ADDomain = $this->obj->get('ADDomain');
             }
             if (empty($ADOU)) {
-                $ADOU = trim(
-                    preg_replace(
-                        '#;#',
-                        '',
-                        $this->obj->get('ADOU')
-                    )
-                );
+                $ADOU = trim($this->obj->get('ADOU'));
+                $ADOU = preg_replace('#;#', '', $ADOU);
             }
             if (empty($ADUser)) {
                 $ADUser = $this->obj->get('ADUser');
@@ -2495,15 +2490,9 @@ abstract class FOGPage extends FOGBase
                 if ($e->getMessage() == '#!ihc') {
                     die($e->getMessage());
                 }
+                $err = preg_replace('/%[#][!]?/', '', $e->getMessage());
                 echo json_encode(
-                    array(
-                        'error' =>
-                        preg_replace(
-                            '/^[#][!]?/',
-                            '',
-                            $e->getMessage()
-                        )
-                    )
+                    array('error' => $err)
                 );
                 exit;
             }
@@ -2973,10 +2962,10 @@ abstract class FOGPage extends FOGBase
                 . 'value="%s %s(s) to %s" name="addHosts"/></p><br/>',
                 _('Add'),
                 (
-                    $objType ?
-                    _('Group') :
-                    _('Host')
-                ),
+                        $objType ?
+                        _('Group') :
+                        _('Host')
+                    ),
                 $this->node
             );
         }
