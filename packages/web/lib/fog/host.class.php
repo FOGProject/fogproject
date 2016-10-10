@@ -79,6 +79,7 @@ class Host extends FOGController
     protected $additionalFields = array(
         'mac',
         'primac',
+        'imagename',
         'additionalMACs',
         'pendingMACs',
         'groups',
