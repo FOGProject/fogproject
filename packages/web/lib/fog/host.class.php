@@ -2160,7 +2160,9 @@ class Host extends FOGController
     public function getImage()
     {
         $called = $this->get('imagename');
-        if (!$called instanceof Image) {
+        if (!$called instanceof Image
+            || !$called->isValid()
+        ) {
             $called = new Image($this->get('imageID'));
         }
         return $called;
