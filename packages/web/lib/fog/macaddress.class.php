@@ -34,7 +34,7 @@ class MACAddress extends FOGBase
      *
      * @var string
      */
-    private static $_msg = '';
+    private $_msg = '';
     /**
      * The host object storage
      *
@@ -105,7 +105,7 @@ class MACAddress extends FOGBase
                 $hwAddr .= chr(hexdec($split));
                 unset($split);
             }
-            self::$_msg = sprintf(
+            $this->_msg = sprintf(
                 '%s%s',
                 str_repeat(chr(255), 6),
                 str_repeat($hwAddr, 16)
@@ -253,8 +253,8 @@ class MACAddress extends FOGBase
         }
         $sendto = @socket_sendto(
             $sock,
-            self::$_msg,
-            strlen(self::$_msg),
+            $this->_msg,
+            strlen($this->_msg),
             0,
             $ip,
             $port
@@ -262,6 +262,5 @@ class MACAddress extends FOGBase
         if ($sendto) {
             @socket_close($sock);
         }
-        usleep(500000);
     }
 }
