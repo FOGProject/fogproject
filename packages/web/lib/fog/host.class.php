@@ -79,7 +79,6 @@ class Host extends FOGController
     protected $additionalFields = array(
         'mac',
         'primac',
-        'imagename',
         'additionalMACs',
         'pendingMACs',
         'groups',
@@ -115,21 +114,6 @@ class Host extends FOGController
             'id',
             'imageID',
             'imagename'
-        ),
-        'Inventory' => array(
-            'hostID',
-            'id',
-            'inventory'
-        ),
-        'HostScreenSettings' => array(
-            'hostID',
-            'id',
-            'hostscreen'
-        ),
-        'HostAutoLogout' => array(
-            'hostID',
-            'id',
-            'hostalo'
         ),
     );
     /**
@@ -1058,6 +1042,42 @@ class Host extends FOGController
         $taskID = array_shift($taskID);
         $this->set('task', $taskID);
         unset($find);
+    }
+    /**
+     * Loads the inventory for this host
+     *
+     * @return void
+     */
+    protected function loadInventory()
+    {
+        $inventory = self::getClass('Inventory')
+            ->set('hostID', $this->get('id'))
+            ->load('hostID');
+        $this->set('inventory', $inventory);
+    }
+    /**
+     * Loads the hostscreen for this host
+     *
+     * @return void
+     */
+    protected function loadHostscreen()
+    {
+        $hostscreen = self::getClass('HostScreenSettings')
+            ->set('hostID', $this->get('id'))
+            ->load('hostID');
+        $this->set('hostscreen', $hostscreen);
+    }
+    /**
+     * Loads the hostalo for this host
+     *
+     * @return void
+     */
+    protected function loadHostalo()
+    {
+        $hostalo = self::getClass('HostAutoLogout')
+            ->set('hostID', $this->get('id'))
+            ->load('hostID');
+        $this->set('hostalo', $hostalo);
     }
     /**
      * Loads the optimal storage node
@@ -2159,13 +2179,7 @@ class Host extends FOGController
      */
     public function getImage()
     {
-        $called = $this->get('imagename');
-        if (!$called instanceof Image
-            || !$called->isValid()
-        ) {
-            $called = new Image($this->get('imageID'));
-        }
-        return $called;
+        return new Image($this->get('imageID'));
     }
     /**
      * Returns the hosts image name
@@ -2174,7 +2188,9 @@ class Host extends FOGController
      */
     public function getImageName()
     {
-        return $this->getImage()->get('name');
+        return $this
+            ->get('imagename')
+            ->get('name');
     }
     /**
      * Returns the hosts image os name
@@ -2183,7 +2199,7 @@ class Host extends FOGController
      */
     public function getOS()
     {
-        return $this->get('imagename')->getOS()->get('name');
+        return $this->getImage()->getOS()->get('name');
     }
     /**
      * Returns the snapinjob
