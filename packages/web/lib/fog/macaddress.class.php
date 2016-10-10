@@ -262,5 +262,6 @@ class MACAddress extends FOGBase
         if ($sendto) {
             @socket_close($sock);
         }
+        usleep(500000);
     }
 }
