@@ -234,7 +234,7 @@ class MACAddress extends FOGBase
      */
     public function wake($ip, $port = 9)
     {
-        $sock = socket_create(
+        $sock = @socket_create(
             AF_INET,
             SOCK_DGRAM,
             SOL_UDP
@@ -251,7 +251,7 @@ class MACAddress extends FOGBase
         if ($set_opt < 0) {
             return false;
         }
-        $sendto = socket_sendto(
+        $sendto = @socket_sendto(
             $sock,
             self::$_msg,
             strlen(self::$_msg),
@@ -260,7 +260,7 @@ class MACAddress extends FOGBase
             $port
         );
         if ($sendto) {
-            socket_close($sock);
+            @socket_close($sock);
         }
     }
 }
