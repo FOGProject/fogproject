@@ -146,4 +146,13 @@ class PowerManagement extends FOGController
     {
         return new Host($this->get('hostID'));
     }
+    /**
+     * Wakes the host mac
+     *
+     * @return void
+     */
+    public function wakeOnLan()
+    {
+        $this->getHost()->wakeOnLan();
+    }
 }
