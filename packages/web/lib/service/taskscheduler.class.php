@@ -245,6 +245,13 @@ class TaskScheduler extends FOGService
                         ' * Found a wake on lan task that should run.'
                     );
                     $Task->wakeOnLAN();
+                    self::outall(
+                        sprintf(
+                            ' | %s %s',
+                            _('Task sent to'),
+                            $Task->getHost()->get('name')
+                        )
+                    );
                 }
             }
         } catch (Exception $e) {
