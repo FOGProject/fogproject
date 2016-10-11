@@ -205,7 +205,6 @@ abstract class FOGController extends FOGBase
         }
         $test = $this->_testFields($key);
         if (!$test) {
-            unset($this->data[$key]);
             return false;
         }
         if (!$this->isLoaded($key)) {
@@ -255,7 +254,6 @@ abstract class FOGController extends FOGBase
             }
             $test = $this->_testFields($key);
             if (!$test) {
-                unset($this->data[$key]);
                 throw new Exception(_('Invalid key being set'));
             }
             if (!$this->isLoaded($key)) {
@@ -321,7 +319,6 @@ abstract class FOGController extends FOGBase
             }
             $test = $this->_testFields($key);
             if (!$test) {
-                unset($this->data[$key]);
                 throw new Exception(_('Invalid key being added'));
             }
             if (!$this->isLoaded($key)) {
@@ -384,7 +381,6 @@ abstract class FOGController extends FOGBase
             }
             $test = $this->_testFields($key);
             if (!$test) {
-                unset($this->data[$key]);
                 throw new Exception(_('Invalid key being removed'));
             }
             if (!$this->isLoaded($key)) {
@@ -598,7 +594,6 @@ abstract class FOGController extends FOGBase
             }
             $test = $this->_testFields($key);
             if (!$test) {
-                unset($this->data[$key]);
                 throw new Exception(_('Invalid key being added'));
             }
             $val = $this->get($key);

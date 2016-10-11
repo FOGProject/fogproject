@@ -198,6 +198,14 @@ abstract class FOGManagerController extends FOGBase
             $count = 0;
             foreach ($findWhere as $field => &$value) {
                 $key = trim($field);
+                if (!$value) {
+                    $value = array(
+                        '0',
+                        0,
+                        null,
+                        ''
+                    );
+                }
                 if (is_array($value) && count($value) > 0) {
                     foreach ($value as $i => &$val) {
                         $val = trim($val);
