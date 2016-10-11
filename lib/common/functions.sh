@@ -500,7 +500,33 @@ configureTFTPandPXE() {
 }
 configureMinHttpd() {
     configureHttpd
-    #echo "<?php die('This is a storage node, please do not access the web ui here!');" > "$webdirdest/management/index.php"
+    echo "<?php" > "$webdirdest/management/index.php"
+    echo "/**" >> "$webdirdest/management/index.php"
+    echo " * The main index presenter" >> "$webdirdest/management/index.php"
+    echo " *" >> "$webdirdest/management/index.php"
+    echo " * PHP version 5" >> "$webdirdest/management/index.php"
+    echo " *" >> "$webdirdest/management/index.php"
+    echo " * @category Index_Page" >> "$webdirdest/management/index.php"
+    echo " * @package  FOGProject" >> "$webdirdest/management/index.php"
+    echo " * @author   Tom Elliott <tommygunsster@gmail.com>" >> "$webdirdest/management/index.php"
+    echo " * @license  http://opensource.org/licenses/gpl-3.0 GPLv3" >> "$webdirdest/management/index.php"
+    echo " * @link     https://fogproject.org" >> "$webdirdest/management/index.php"
+    echo " */" >> "$webdirdest/management/index.php"
+    echo "/**" >> "$webdirdest/management/index.php"
+    echo " * The main index presenter" >> "$webdirdest/management/index.php"
+    echo " *" >> "$webdirdest/management/index.php"
+    echo " * @category Index_Page" >> "$webdirdest/management/index.php"
+    echo " * @package  FOGProject" >> "$webdirdest/management/index.php"
+    echo " * @author   Tom Elliott <tommygunsster@gmail.com>" >> "$webdirdest/management/index.php"
+    echo " * @license  http://opensource.org/licenses/gpl-3.0 GPLv3" >> "$webdirdest/management/index.php"
+    echo " * @link     https://fogproject.org" >> "$webdirdest/management/index.php"
+    echo " */" >> "$webdirdest/management/index.php"
+    echo "require '../commons/base.inc.php';" >> "$webdirdest/management/index.php"
+    echo "require '../commons/text.php';" >> "$webdirdest/management/index.php"
+    echo "ob_start();" >> "$webdirdest/management/index.php"
+    echo "FOGCore::getClass('FOGPageManager')->render();" >> "$webdirdest/management/index.php"
+    echo "ob_end_clean();" >> "$webdirdest/management/index.php"
+    echo "die(_('This is a storage node, please do not access the web ui here!'));" >> "$webdirdest/management/index.php"
 }
 addUbuntuRepo() {
     DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >>$workingdir/error_logs/fog_error_${version}.log 2>&1
