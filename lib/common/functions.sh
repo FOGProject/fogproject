@@ -500,7 +500,7 @@ configureTFTPandPXE() {
 }
 configureMinHttpd() {
     configureHttpd
-    echo "<?php die('This is a storage node, please do not access the web ui here!');" > "$webdirdest/management/index.php"
+    #echo "<?php die('This is a storage node, please do not access the web ui here!');" > "$webdirdest/management/index.php"
 }
 addUbuntuRepo() {
     DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >>$workingdir/error_logs/fog_error_${version}.log 2>&1
