@@ -894,7 +894,7 @@ configureMySql() {
         if [[ $osid -eq 3 ]]; then
             [[ ! -d /var/lib/mysql ]] && mkdir /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             chown -R mysql:mysql /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            mysql_install_db --user=mysql --ldata=/var/lib/mysql/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
         systemctl enable mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         systemctl stop mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
