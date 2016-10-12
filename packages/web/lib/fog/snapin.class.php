@@ -52,12 +52,6 @@ class Snapin extends FOGController
     }
     public function deleteFile()
     {
-        if (!$this->get('id')) {
-            return;
-        }
-        if (!$this->isLoaded('storagegroups')) {
-            $this->loadStorageGroups();
-        }
         if ($this->get('protected')) {
             throw new Exception(self::$foglang['ProtectedSnapin']);
         }
@@ -146,21 +140,15 @@ class Snapin extends FOGController
         $this->set('hostsnotinme', self::getSubObjectIDs('Host', $find, '', true));
         unset($find);
     }
-    protected function loadStorageGroups()
+    protected function loadStoragegroups()
     {
-        if (!$this->get('id')) {
-            return;
-        }
         $this->set('storagegroups', self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storagegroupID'));
         if (!count($this->get('storagegroups'))) {
             $this->set('storagegroups', (array)@min(self::getSubObjectIDs('StorageGroup', '', 'id')));
         }
     }
-    protected function loadStorageGroupsnotinme()
+    protected function loadStoragegroupsnotinme()
     {
-        if (!$this->get('id')) {
-            return;
-        }
         $this->set('storagegroups', self::getSubObjectIDs('SnapinGroupAssociation', array('snapinID'=>$this->get('id')), 'storagegroupID'));
         $find = array('id'=>$this->get('storagegroups'));
         $this->set('storagegroupsnotinme', self::getSubObjectIDs('StorageGroup', $find, '', true));

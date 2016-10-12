@@ -259,7 +259,7 @@ class Image extends FOGController
      *
      * @return void
      */
-    protected function loadStorageGroups()
+    protected function loadStoragegroups()
     {
         $groupids = self::getSubObjectIDs(
             'ImageAssociation',
@@ -270,6 +270,11 @@ class Image extends FOGController
             'StorageGroup',
             array('id' => $groupids)
         );
+        $groupids = array_filter($groupids);
+        if (count($groupids) < 1) {
+            $groupIDs = self::getSubObjectIDs('StorageGroup');
+            $groupids = @min($groupIDs);
+        }
         $this->set('storagegroups', $groupids);
     }
     /**
@@ -307,7 +312,7 @@ class Image extends FOGController
      *
      * @return void
      */
-    protected function loadStorageGroupsnotinme()
+    protected function loadStoragegroupsnotinme()
     {
         $find = array('id' => $this->get('storagegroups'));
         $groupids = self::getSubObjectIDs(

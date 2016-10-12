@@ -235,7 +235,6 @@ class StorageGroup extends FOGController
      */
     public function getOptimalStorageNode($image)
     {
-        $this->winner = null;
         $Nodes = self::getClass('StorageNodeManager')
             ->find(
                 array('id' => $this->get('enablednodes'))
