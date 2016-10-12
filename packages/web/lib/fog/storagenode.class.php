@@ -193,15 +193,7 @@ class StorageNode extends FOGController
         $paths = self::$FOGURLRequests->process($url);
         $paths = array_shift($paths);
         $paths = json_decode($paths);
-        $pathstring = sprintf(
-            '/%s/',
-            trim($this->get('snapinpath'), '/')
-        );
-        $paths = preg_replace(
-            "#$pathstring#",
-            '',
-            $paths
-        );
+        $paths = array_map('basename', $paths);
         $paths = preg_replace(
             '#dev|postdownloadscripts|ssl#',
             '',
@@ -230,15 +222,7 @@ class StorageNode extends FOGController
         $paths = self::$FOGURLRequests->process($url);
         $paths = array_shift($paths);
         $paths = json_decode($paths);
-        $pathstring = sprintf(
-            '/%s/',
-            trim($this->get('path'), '/')
-        );
-        $paths = preg_replace(
-            "#$pathstring#",
-            '',
-            $paths
-        );
+        $paths = array_map('basename', (array)$paths);
         $paths = preg_replace(
             '#dev|postdownloadscripts|ssl#',
             '',
@@ -250,7 +234,11 @@ class StorageNode extends FOGController
         $paths = array_filter(
             (array)$paths
         );
-        $this->set('images', array_values($paths));
+        $ids = self::getSubObjectIDs(
+            'Image',
+            array('path' => $paths)
+        );
+        $this->set('images', $ids);
     }
     /**
      * Gets this node's load of clients
