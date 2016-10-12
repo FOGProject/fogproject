@@ -74,7 +74,25 @@ class StorageGroup extends FOGController
     protected $additionalFields = array(
         'allnodes',
         'enablednodes',
+        'usedtasks',
     );
+    /**
+     * Load used tasks
+     *
+     * @return void
+     */
+    protected function loadUsedtasks()
+    {
+        $used = explode(',', self::getSetting('FOG_USED_TASKS'));
+        if (count($used) < 1) {
+            $used = array(
+                1,
+                15,
+                17
+            );
+        }
+        $this->set('usedtasks', $used);
+    }
     /**
      * Loads all the nodes in the group
      *
@@ -137,13 +155,12 @@ class StorageGroup extends FOGController
         if (isset(self::$_used['tot'])) {
             return (int)self::$_used['tot'];
         }
-        $UsedTasks = array_unique(explode(',', self::getSetting('FOG_USED_TASKS')));
         return (int)self::$_used['tot'] = self::getClass('TaskManager')
             ->count(
                 array(
                     'stateID' => $this->getProgressState(),
                     'NFSMemberID' => $this->get('enablednodes'),
-                    'typeID' => $UsedTasks,
+                    'typeID' => $this->get('usedtasks'),
                 )
             );
     }
@@ -157,13 +174,12 @@ class StorageGroup extends FOGController
         if (isset(self::$_queued['tot'])) {
             return (int)self::$_queued['tot'];
         }
-        $UsedTasks = array_unique(explode(',', self::getSetting('FOG_USED_TASKS')));
         return (int)self::$_queued['tot'] = self::getClass('TaskManager')
             ->count(
                 array(
                     'stateID' => $this->getQueuedStates(),
                     'NFSMemberID' => $this->get('enablednodes'),
-                    'typeID' => $UsedTasks,
+                    'typeID' => $this->get('usedtasks'),
                 )
             );
     }

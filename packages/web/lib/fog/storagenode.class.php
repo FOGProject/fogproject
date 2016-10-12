@@ -1,7 +1,37 @@
 <?php
+/**
+ * Storage node handler class
+ *
+ * PHP version 5
+ *
+ * @category StorageNode
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Storage node handler class
+ *
+ * @category StorageNode
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class StorageNode extends FOGController
 {
+    /**
+     * The storage node table
+     *
+     * @var string
+     */
     protected $databaseTable = 'nfsGroupMembers';
+    /**
+     * The storage node fields and common names
+     *
+     * @var array
+     */
     protected $databaseFields = array(
         'id' => 'ngmID',
         'name' => 'ngmMemberName',
@@ -24,6 +54,11 @@ class StorageNode extends FOGController
         'bandwidth' => 'ngmBandwidthLimit',
         'webroot' => 'ngmWebroot',
     );
+    /**
+     * The required fields
+     *
+     * @var array
+     */
     protected $databaseFieldsRequired = array(
         'storagegroupID',
         'ip',
@@ -32,114 +67,242 @@ class StorageNode extends FOGController
         'user',
         'pass',
     );
+    /**
+     * Additional fields
+     *
+     * @var array
+     */
     protected $additionalFields = array(
         'images',
         'snapinfiles',
         'logfiles',
+        'usedtasks',
     );
+    /**
+     * Gets an item from the key sent, if no key all object data is returned
+     *
+     * @param mixed $key the key to get
+     *
+     * @return object
+     */
     public function get($key = '')
     {
-        if (in_array($this->key($key), array('path', 'ftppath', 'snapinpath', 'sslpath', 'webroot'))) {
+        $pathvars = array(
+            'path',
+            'ftppath',
+            'snapinpath',
+            'sslpath',
+            'webroot'
+        );
+        if (!in_array($key, $pathvars)) {
             return rtrim(parent::get($key), '/');
         }
         return parent::get($key);
     }
+    /**
+     * Get the storage group of this node
+     *
+     * @return object
+     */
     public function getStorageGroup()
     {
-        return self::getClass('StorageGroup', $this->get('storagegroupID'));
+        return  new StorageGroup($this->get('storagegroupID'));
     }
+    /**
+     * Get the node failure
+     *
+     * @param int $Host the host id
+     *
+     * @return object
+     */
     public function getNodeFailure($Host)
     {
-        $NodeFailure = array_map(function (&$Failed) {
-            $CurrTime = self::niceDate();
-            if ($CurrTime < self::niceDate($Failed->get('failureTime'))) {
+        $Fails = self::getClass('NodeFailureManager')
+            ->find(
+                array(
+                    'storagenodeID' => $this->get('id'),
+                    'hostID' => $Host
+                )
+            );
+        foreach ((array)$Fails as &$Failed) {
+            $curr = self::niceDate();
+            $prev = $Failed->get('failureTime');
+            $prev = self::niceDate($prev);
+            if ($curr < $prev) {
                 return $Failed;
             }
             unset($Failed);
-        }, (array)self::getClass('NodeFailureManager')->find(array('storageNodeID'=>$this->get('id'), 'hostID'=>$Host)));
-        $NodeFailure = array_shift($NodeFailure);
-        if ($NodeFailure instanceof StorageNode && $NodeFailure->isValid()) {
-            return $NodeFailure;
         }
+        return $Failed;
     }
+    /**
+     * Loads the logfiles available on this node
+     *
+     * @return void
+     */
     public function loadLogfiles()
     {
-        $URL = array_map(function (&$path) {
-            return sprintf('http://%s/fog/status/getfiles.php?path=%s', $this->get('ip'), urlencode($path));
-        }, array('/var/log/nginx/', '/var/log/httpd/', '/var/log/apache2/', '/var/log/fog', '/var/log/php7.0-fpm/', '/var/log/php-fpm/', '/var/log/php5-fpm/', '/var/log/php5.6-fpm/'));
-        $paths = self::$FOGURLRequests->process($URL);
+        $url = sprintf(
+            'http://%s/fog/status/getfiles.php?path=%s',
+            $this->get('ip'),
+            '%s'
+        );
+        $paths = array(
+            '/var/log/nginx/',
+            '/var/log/httpd/',
+            '/var/log/apache2/',
+            '/var/log/fog/',
+            '/var/log/php7.0-fpm/',
+            '/var/log/php-fpm/',
+            '/var/log/php5-fpm/',
+            'var/log/php5.6-fpm/'
+        );
+        $urls = array();
+        foreach ($paths as &$path) {
+            $urls[] = sprintf(
+                $url,
+                urlencode($path)
+            );
+            unset($path);
+        }
+        unset($paths);
+        $paths = self::$FOGURLRequests->process($urls);
         $tmppath = array();
-        array_walk($paths, function (&$response, &$index) use (&$tmppath) {
-            $tmppath = array_filter((array)array_merge((array)$tmppath, (array)json_decode($response, true)));
-        }, (array)$paths);
+        foreach ((array)$paths as $index => &$response) {
+            $tmppath[] = json_decode($response, true);
+            unset($response);
+        }
+        $tmppath = array_filter($tmppath);
         $paths = array_unique((array)$tmppath);
         unset($tmppath);
         natcasesort($paths);
         $this->set('logfiles', array_values((array)$paths));
     }
+    /**
+     * Loads the snapins available on this node
+     *
+     * @return void
+     */
     public function loadSnapinfiles()
     {
-        $URL = sprintf('http://%s/fog/status/getfiles.php?path=%s', $this->get('ip'), urlencode($this->get('snapinpath')));
-        $paths = self::$FOGURLRequests->process($URL);
+        $url = sprintf(
+            'http://%s/fog/status/getfiles.php?path=%s',
+            $this->get('ip'),
+            urlencode($this->get('snapinpath'))
+        );
+        $paths = self::$FOGURLRequests->process($url);
         $paths = array_shift($paths);
         $paths = json_decode($paths);
-        $pathstring = sprintf('/%s/', trim($this->get('snapinpath'), '/'));
-        if (count($paths) < 1) {
-            self::$FOGFTP
-                ->set('host', $this->get('ip'))
-                ->set('username', $this->get('user'))
-                ->set('password', $this->get('pass'));
-            if (!self::$FOGFTP->connect()) {
-                return;
-            }
-            $paths = self::$FOGFTP->nlist($pathstring);
-            self::$FOGFTP->close();
-        }
-        $paths = array_values(array_unique(array_filter((array)preg_replace('#dev|postdownloadscripts|ssl#', '', preg_replace("#$pathstring#", '', $paths)))));
-        $this->set('snapinfiles', $paths);
+        $pathstring = sprintf(
+            '/%s/',
+            trim($this->get('snapinpath'), '/')
+        );
+        $paths = preg_replace(
+            "#$pathstring#",
+            '',
+            $paths
+        );
+        $paths = preg_replace(
+            '#dev|postdownloadscripts|ssl#',
+            '',
+            $paths
+        );
+        $paths = array_unique(
+            (array)$paths
+        );
+        $paths = array_filter(
+            (array)$paths
+        );
+        $this->set('snapinfiles', array_values($paths));
     }
+    /**
+     * Loads the snapins available on this node
+     *
+     * @return void
+     */
     public function loadImages()
     {
-        $URL = sprintf('http://%s/fog/status/getfiles.php?path=%s', $this->get('ip'), urlencode($this->get('path')));
-        $paths = self::$FOGURLRequests->process($URL);
+        $url = sprintf(
+            'http://%s/fog/status/getfiles.php?path=%s',
+            $this->get('ip'),
+            urlencode($this->get('path'))
+        );
+        $paths = self::$FOGURLRequests->process($url);
         $paths = array_shift($paths);
         $paths = json_decode($paths);
-        $pathstring = sprintf('/%s/', trim($this->get('path'), '/'));
-        if (count($paths) < 1) {
-            self::$FOGFTP
-                ->set('host', $this->get('ip'))
-                ->set('username', $this->get('user'))
-                ->set('password', $this->get('pass'));
-            if (!self::$FOGFTP->connect()) {
-                return;
-            }
-            $pathstring = sprintf('/%s/', trim($this->get('ftppath'), '/'));
-            $paths = self::$FOGFTP->nlist($pathstring);
-            self::$FOGFTP->close();
-        }
-        $paths = array_values(array_unique(array_filter((array)preg_replace('#dev|postdownloadscripts|ssl#', '', preg_replace("#$pathstring#", '', $paths)))));
-        $this->set('images', self::getSubObjectIDs('Image', array('path'=>$paths)));
+        $pathstring = sprintf(
+            '/%s/',
+            trim($this->get('path'), '/')
+        );
+        $paths = preg_replace(
+            "#$pathstring#",
+            '',
+            $paths
+        );
+        $paths = preg_replace(
+            '#dev|postdownloadscripts|ssl#',
+            '',
+            $paths
+        );
+        $paths = array_unique(
+            (array)$paths
+        );
+        $paths = array_filter(
+            (array)$paths
+        );
+        $this->set('images', array_values($paths));
     }
+    /**
+     * Gets this node's load of clients
+     *
+     * @return double
+     */
     public function getClientLoad()
     {
-        return (double)($this->getUsedSlotCount() + $this->getQueuedSlotCount()) / $this->get('maxClients');
+        return (double)(
+            $this->getUsedSlotCount()
+            +
+            $this->getQueuedSlotCount()
+        )
+        /
+        $this->get('maxClients');
     }
+    /**
+     * Load used tasks
+     *
+     * @return void
+     */
+    protected function loadUsedtasks()
+    {
+        $used = explode(',', self::getSetting('FOG_USED_TASKS'));
+        if (count($used) < 1) {
+            $used = array(
+                1,
+                15,
+                17
+            );
+        }
+        $this->set('usedtasks', $used);
+    }
+    /**
+     * Gets this node's used count
+     *
+     * @return int
+     */
     public function getUsedSlotCount()
     {
-        $UsedTasks = array_unique(explode(',', self::getSetting('FOG_USED_TASKS')));
         $countTasks = 0;
+        $usedtasks = $this->get('usedtasks');
         $findTasks = array(
             'stateID' => $this->getProgressState(),
-            'typeID' => $UsedTasks,
             'NFSMemberID' => $this->get('id'),
+            'typeID' => $usedtasks,
         );
         $countTasks = self::getClass('TaskManager')->count($findTasks);
-        $index = array_search(8, $UsedTasks);
+        $index = array_search(8, $usedtasks);
         if ($index === false) {
             return $countTasks;
         }
-        unset($UsedTasks[$index]);
-        $UsedTasks = array_values(array_filter((array)$UsedTasks));
         $MulticastCount = self::getSubObjectIDs(
             'MulticastSessionsAssociation',
             array(
@@ -156,21 +319,25 @@ class StorageNode extends FOGController
         $countTasks += count($MulticastCount);
         return $countTasks;
     }
+    /**
+     * Gets the queued hosts on this node
+     *
+     * @return int
+     */
     public function getQueuedSlotCount()
     {
-        $UsedTasks = array_unique(explode(',', self::getSetting('FOG_USED_TASKS')));
         $countTasks = 0;
+        $usedtasks = $this->get('usedtasks');
         $findTasks = array(
             'stateID' => $this->getQueuedStates(),
-            'typeID' => $UsedTasks,
             'NFSMemberID' => $this->get('id'),
+            'typeID' => $usedtasks,
         );
         $countTasks = self::getClass('TaskManager')->count($findTasks);
-        $index = array_search(8, $UsedTasks);
+        $index = array_search(8, $usedtasks);
         if ($index === false) {
             return $countTasks;
         }
-        $UsedTasks = array_values(array_filter((array)$UsedTasks));
         $MulticastCount = self::getSubObjectIDs(
             'MulticastSessionsAssociation',
             array(

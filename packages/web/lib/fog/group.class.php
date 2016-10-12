@@ -461,11 +461,29 @@ class Group extends FOGController
             if (!$StorageNode->isValid()) {
                 throw new Exception(_('Unable to find master Storage Node'));
             }
-            $port = (
-                self::getSetting('FOG_MULTICAST_PORT_OVERRIDE') ?
-                self::getSetting('FOG_MULTICAST_PORT_OVERRIDE') :
-                self::getSetting('FOG_UDPCAST_STARTINGPORT')
+            list(
+                $portOverride,
+                $defaultPort
+            ) = self::getSubObjectIDs(
+                'Service',
+                array(
+                    'name' => array(
+                        'FOG_MULTICAST_PORT_OVERRIDE',
+                        'FOG_UDPCAST_STARTINGPORT'
+                    ),
+                ),
+                'value',
+                false,
+                'AND',
+                'name',
+                false,
+                ''
             );
+            if ($portOverride) {
+                $port = $portOverride;
+            } else {
+                $port = $defaultPort;
+            }
             $MulticastSession = self::getClass('MulticastSessions')
                 ->set('name', $taskName)
                 ->set('port', $port)
