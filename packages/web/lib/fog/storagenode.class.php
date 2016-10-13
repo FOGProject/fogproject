@@ -167,16 +167,17 @@ class StorageNode extends FOGController
         unset($paths);
         $paths = self::$FOGURLRequests->process($urls);
         foreach ((array)$paths as $index => &$response) {
-            $tmppath[] = json_decode($response, true);
+            $tmppath = array_merge(
+                (array)$tmppath,
+                (array)json_decode($response, true)
+            );
             unset($response);
         }
-        $tmppath = array_filter($tmppath);
-        $paths = array_shift($tmppath);
-        unset($tmppath);
-        $paths = array_unique((array)$paths);
+        $paths = array_filter($tmppath);
         $paths = array_values($paths);
         natcasesort($paths);
         $this->set('logfiles', $paths);
+        var_dump($this->get('logfiles'));
     }
     /**
      * Loads the snapins available on this node
