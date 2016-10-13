@@ -112,7 +112,8 @@ abstract class FOGPage extends FOGBase
         'image',
         'group',
         'snapin',
-        'printer'
+        'printer',
+        'storage'
     );
     /**
      * The items table
@@ -247,6 +248,13 @@ abstract class FOGPage extends FOGBase
             return $this->{$sub}();
         }
         $this->childClass = ucfirst($this->node);
+        $ref = preg_match(
+            '#node=storage&sub=storage-group#i',
+            $_SERVER['HTTP_REFERER']
+        );
+        if ($ref) {
+            $this->childClass .= 'Group';
+        }
         if (!empty($name)) {
             $this->name = $name;
         }
@@ -668,7 +676,8 @@ abstract class FOGPage extends FOGBase
             }
             echo '</tbody></table>';
             if (((!$sub
-                || in_array($sub, $defaultScreens))
+                || in_array($sub, $defaultScreens)
+                || $sub === 'storage-group')
                 && in_array($node, self::$searchPages)
                 && in_array($node, $this->PagesWithObjects))
                 && !self::$isMobile
@@ -1595,9 +1604,11 @@ abstract class FOGPage extends FOGBase
             '<input type="hidden" value="${id}" name="remitems[]"/>',
         );
         $this->additional = array();
+        global $sub;
+        global $node;
         $reqID = sprintf(
             '%sIDArray',
-            $this->node
+            $node
         );
         $reqID = explode(',', $_REQUEST[$reqID]);
         $reqID = array_unique($reqID);
@@ -1633,8 +1644,14 @@ abstract class FOGPage extends FOGBase
             );
             $this->render();
             printf(
-                '<p class="c"><input type="submit" name="delete" '
+                '<p class="c"><input type="hidden" name="storagegroup" '
+                . 'value="%d"/><input type="submit" name="delete" '
                 . 'value="%s?"/></p>',
+                (
+                    $this->childClass === 'StorageGroup' ?
+                    1 :
+                    0
+                ),
                 _('Are you sure you wish to remove these items')
             );
         } else {
@@ -1676,6 +1693,9 @@ abstract class FOGPage extends FOGBase
             'MULTI_REMOVE',
             array('removing' => &$_REQUEST['remitems'])
         );
+        if ((int)$_REQUEST['storagegroup'] === 1) {
+            $this->childClass .= 'Group';
+        }
         self::getClass($this->childClass)
             ->getManager()
             ->destroy(

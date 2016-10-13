@@ -440,7 +440,7 @@ class StorageManagementPage extends FOGPage
             _('Max'),
         );
         $this->templates = array(
-            '<input type="checkbox" name="group[]" value="${id}" class="toggle-action"/>',
+            '<input type="checkbox" name="storage[]" value="${id}" class="toggle-action"/>',
             sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, self::$foglang['Edit']),
             '${max_clients}',
         );

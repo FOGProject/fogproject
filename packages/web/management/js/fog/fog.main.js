@@ -480,14 +480,14 @@ function ajaxRun(username,password,url,selector,formid,target,fogajax) {
             fogguipass: password,
             fogajaxonly: fogajax,
             andFile: $('#andFile').is(':checked'),
-            remitems: ids
+            remitems: ids,
+            storagegroup: $('input[name="storagegroup"]').val()
         },
         dataType: 'json',
         beforeSend: function() {
             $(selector).html('<p>Attempting to perform actions.</p>');
         },
         complete: function(data) {
-            console.log(data);
             str = new RegExp('^[#][#][#]');
             if (!str.test(data.responseText)) {
                 if (ids.length > 0) {
