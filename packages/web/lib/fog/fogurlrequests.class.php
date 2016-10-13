@@ -378,17 +378,23 @@ class FOGURLRequests extends FOGBase
             false,
             false
         );
-        $IPs = self::getSubObjectIDs('StorageNode', '', 'ip');
-        if (false !== stripos(implode('|', $IPs), $url)) {
-            $options[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
-            $options[CURLOPT_PROXYPORT] = $port;
-            $options[CURLOPT_PROXY] = $ip;
-            if ($username) {
-                $options[CURLOPT_PROXYUSERPWD] = sprintf(
-                    '%s:%s',
-                    $username,
-                    $password
-                );
+        $IPs = self::getSubObjectIDs('StorageNode', array('isEnabled' => 1));
+        $pat = sprintf(
+            '#%s#i',
+            implode('|', $IPs)
+        );
+        if (!preg_match($pat, $url)) {
+            if ($ip) {
+                $options[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
+                $options[CURLOPT_PROXYPORT] = $port;
+                $options[CURLOPT_PROXY] = $ip;
+                if ($username) {
+                    $options[CURLOPT_PROXYUSERPWD] = sprintf(
+                        '%s:%s',
+                        $username,
+                        $password
+                    );
+                }
             }
         }
         return $options;

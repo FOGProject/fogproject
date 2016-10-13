@@ -1,4 +1,6 @@
 #!ipxe
+sleep 3
+ifopen
 isset ${net0/mac} && dhcp net0 || goto dhcpnet1
 echo Received DHCP answer on interface net0 && goto proxycheck
 
