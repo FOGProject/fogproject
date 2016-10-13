@@ -885,10 +885,10 @@ installInitScript() {
 configureMySql() {
     stopInitScript
     dots "Setting up and starting MySQL"
-    for mysqlconf in $(grep -rl '.*skip-networking' /etc); do
+    for mysqlconf in $(grep -rl '.*skip-networking' /etc | grep -v init.d); do
         sed -i '/.*skip-networking/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
-    for mysqlconf in `grep -rl '.*bind-address.*=.*127.0.0.1' /etc`; do
+    for mysqlconf in `grep -rl '.*bind-address.*=.*127.0.0.1' /etc | grep -v init.d`; do
         sed -e '/.*bind-address.*=.*127.0.0.1/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
     if [[ $systemctl == yes ]]; then

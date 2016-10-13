@@ -10,6 +10,15 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+/**
+ * Downloads fog client and utilitie files.
+ *
+ * @category Download
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 if (isset($_REQUEST['legclient'])) {
     $filename = 'FogService.zip';
 }
