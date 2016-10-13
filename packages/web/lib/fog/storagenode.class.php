@@ -177,7 +177,6 @@ class StorageNode extends FOGController
         $paths = array_values($paths);
         natcasesort($paths);
         $this->set('logfiles', $paths);
-        var_dump($this->get('logfiles'));
     }
     /**
      * Loads the snapins available on this node
