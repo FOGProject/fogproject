@@ -436,7 +436,7 @@ class Group extends FOGController
         }
         $imagingTypes = $TaskType->isImagingTask();
         $now = $this->niceDate();
-        if ($TaskType->isMulticast()) {
+        if ($imagingTypes) {
             $imageID = @min(
                 self::getSubObjectIDs(
                     'Host',
@@ -461,184 +461,212 @@ class Group extends FOGController
             if (!$StorageNode->isValid()) {
                 throw new Exception(_('Unable to find master Storage Node'));
             }
-            list(
-                $portOverride,
-                $defaultPort
-            ) = self::getSubObjectIDs(
-                'Service',
-                array(
-                    'name' => array(
-                        'FOG_MULTICAST_PORT_OVERRIDE',
-                        'FOG_UDPCAST_STARTINGPORT'
-                    ),
-                ),
-                'value',
-                false,
-                'AND',
-                'name',
-                false,
-                ''
-            );
-            if ($portOverride) {
-                $port = $portOverride;
-            } else {
-                $port = $defaultPort;
-            }
-            $MulticastSession = self::getClass('MulticastSessions')
-                ->set('name', $taskName)
-                ->set('port', $port)
-                ->set('logpath', $Image->get('path'))
-                ->set('image', $Image->get('id'))
-                ->set('interface', $StorageNode->get('interface'))
-                ->set('stateID', 0)
-                ->set('starttime', $now->format('Y-m-d H:i:s'))
-                ->set('percent', 0)
-                ->set('isDD', $Image->get('imageTypeID'))
-                ->set('NFSGroupID', $StorageGroup->get('id'));
-            if ($MulticastSession->save()) {
-                self::getClass('MulticastSessionsAssociationManager')
-                    ->destroy(
-                        array(
-                            'hostID' => $this->get('hosts')
-                        )
-                    );
-                $randomnumber = mt_rand(24576, 32766) * 2;
-                while ($randomnumber == $MulticastSession->get('port')) {
-                    $randomnumber = mt_rand(24576, 32766) * 2;
-                }
-                $this->setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
-            }
-            $hostIDs = $this->get('hosts');
-            $batchFields = array(
-                'name',
-                'createdBy',
-                'hostID',
-                'isForced',
-                'stateID',
-                'typeID',
-                'wol',
-                'imageID',
-                'shutdown',
-                'isDebug',
-                'passreset'
-            );
-            $batchTask = array();
-            for ($i = 0; $i < $hostCount; $i++) {
-                $batchTask[] = array(
-                    $taskName,
-                    $username,
-                    $hostIDs[$i],
-                    0,
-                    $this->getQueuedState(),
-                    $TaskType->get('id'),
-                    $wol,
-                    $Image->get('id'),
-                    $shutdown,
-                    $debug,
-                    $passreset
-                );
-            }
-            if (count($batchTask) > 0) {
+            if ($TaskType->isMulticast()) {
                 list(
-                    $first_id,
-                    $affected_rows
-                ) = self::getClass('TaskManager')
-                ->insertBatch(
-                    $batchFields,
-                    $batchTask
+                    $portOverride,
+                    $defaultPort
+                ) = self::getSubObjectIDs(
+                    'Service',
+                    array(
+                        'name' => array(
+                            'FOG_MULTICAST_PORT_OVERRIDE',
+                            'FOG_UDPCAST_STARTINGPORT'
+                        ),
+                    ),
+                    'value',
+                    false,
+                    'AND',
+                    'name',
+                    false,
+                    ''
                 );
-                $ids = range($first_id, ($first_id + $affected_rows - 1));
-                $multicastsessionassocs = array();
-                foreach ((array)$batchTask as $index => &$val) {
-                    $multicastsessionassocs[] = array(
-                        $MulticastSession->get('id'),
-                        $ids[$index]
-                    );
-                    unset($val);
+                if ($portOverride) {
+                    $port = $portOverride;
+                } else {
+                    $port = $defaultPort;
                 }
-                if (count($multicastsessionassocs) > 0) {
+                $MulticastSession = self::getClass('MulticastSessions')
+                    ->set('name', $taskName)
+                    ->set('port', $port)
+                    ->set('logpath', $Image->get('path'))
+                    ->set('image', $Image->get('id'))
+                    ->set('interface', $StorageNode->get('interface'))
+                    ->set('stateID', 0)
+                    ->set('starttime', $now->format('Y-m-d H:i:s'))
+                    ->set('percent', 0)
+                    ->set('isDD', $Image->get('imageTypeID'))
+                    ->set('NFSGroupID', $StorageGroup->get('id'));
+                if ($MulticastSession->save()) {
                     self::getClass('MulticastSessionsAssociationManager')
-                        ->insertBatch(
+                        ->destroy(
                             array(
-                                'msID',
-                                'taskID'
-                            ),
-                            $multicastsessionassocs
+                                'hostID' => $this->get('hosts')
+                            )
                         );
+                    $randomnumber = mt_rand(24576, 32766) * 2;
+                    while ($randomnumber == $MulticastSession->get('port')) {
+                        $randomnumber = mt_rand(24576, 32766) * 2;
+                    }
+                    $this->setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
                 }
-            }
-            unset(
-                $hostCount,
-                $hostIDs,
-                $batchTask,
-                $first_id,
-                $affected_rows,
-                $ids,
-                $multicastsessionassocs
-            );
-            $this->_createSnapinTasking($now, -1);
-        } elseif ($TaskType->isDeploy()) {
-            $hostIDs = $this->get('hosts');
-            $imageIDs = self::getSubObjectIDs(
-                'Host',
-                array(
-                    'id' => $hostIDs
-                ),
-                'imageID',
-                false,
-                'AND',
-                'name',
-                false,
-                ''
-            );
-            $batchFields = array(
-                'name',
-                'createdBy',
-                'hostID',
-                'isForced',
-                'stateID',
-                'typeID',
-                'wol',
-                'imageID',
-                'shutdown',
-                'isDebug',
-                'passreset'
-            );
-            $batchTask = array();
-            for ($i = 0; $i < $hostCount; $i++) {
-                $batchTask[] = array(
-                    $taskName,
-                    $username,
-                    $hostIDs[$i],
-                    0,
-                    $this->getQueuedState(),
-                    $TaskType->get('id'),
-                    $wol,
-                    $imageIDs[$i],
-                    $shutdown,
-                    $debug,
-                    $passreset
+                $hostIDs = $this->get('hosts');
+                $batchFields = array(
+                    'name',
+                    'createdBy',
+                    'hostID',
+                    'isForced',
+                    'stateID',
+                    'typeID',
+                    'wol',
+                    'imageID',
+                    'shutdown',
+                    'isDebug',
+                    'passreset'
                 );
-            }
-            if (count($batchTask) > 0) {
-                self::getClass('TaskManager')
+                $batchTask = array();
+                for ($i = 0; $i < $hostCount; $i++) {
+                    $batchTask[] = array(
+                        $taskName,
+                        $username,
+                        $hostIDs[$i],
+                        0,
+                        $this->getQueuedState(),
+                        $TaskType->get('id'),
+                        $wol,
+                        $Image->get('id'),
+                        $shutdown,
+                        $debug,
+                        $passreset
+                    );
+                }
+                if (count($batchTask) > 0) {
+                    list(
+                        $first_id,
+                        $affected_rows
+                    ) = self::getClass('TaskManager')
                     ->insertBatch(
                         $batchFields,
                         $batchTask
                     );
+                    $ids = range($first_id, ($first_id + $affected_rows - 1));
+                    $multicastsessionassocs = array();
+                    foreach ((array)$batchTask as $index => &$val) {
+                        $multicastsessionassocs[] = array(
+                            $MulticastSession->get('id'),
+                            $ids[$index]
+                        );
+                        unset($val);
+                    }
+                    if (count($multicastsessionassocs) > 0) {
+                        self::getClass('MulticastSessionsAssociationManager')
+                            ->insertBatch(
+                                array(
+                                    'msID',
+                                    'taskID'
+                                ),
+                                $multicastsessionassocs
+                            );
+                    }
+                }
+                unset(
+                    $hostCount,
+                    $hostIDs,
+                    $batchTask,
+                    $first_id,
+                    $affected_rows,
+                    $ids,
+                    $multicastsessionassocs
+                );
+                $this->_createSnapinTasking($now, -1);
+            } elseif ($TaskType->isDeploy()) {
+                $hostIDs = $this->get('hosts');
+                $imageIDs = self::getSubObjectIDs(
+                    'Host',
+                    array(
+                        'id' => $hostIDs
+                    ),
+                    'imageID',
+                    false,
+                    'AND',
+                    'name',
+                    false,
+                    ''
+                );
+                $batchFields = array(
+                    'name',
+                    'createdBy',
+                    'hostID',
+                    'isForced',
+                    'stateID',
+                    'typeID',
+                    'wol',
+                    'imageID',
+                    'shutdown',
+                    'isDebug',
+                    'passreset'
+                );
+                $batchTask = array();
+                for ($i = 0; $i < $hostCount; $i++) {
+                    $batchTask[] = array(
+                        $taskName,
+                        $username,
+                        $hostIDs[$i],
+                        0,
+                        $this->getQueuedState(),
+                        $TaskType->get('id'),
+                        $wol,
+                        $imageIDs[$i],
+                        $shutdown,
+                        $debug,
+                        $passreset
+                    );
+                }
+                if (count($batchTask) > 0) {
+                    self::getClass('TaskManager')
+                        ->insertBatch(
+                            $batchFields,
+                            $batchTask
+                        );
+                }
+                unset(
+                    $hostCount,
+                    $hostIDs,
+                    $batchTask,
+                    $first_id,
+                    $affected_rows,
+                    $ids,
+                    $multicastsessionassocs
+                );
+                $this->_createSnapinTasking($now, $deploySnapins);
             }
-            unset(
-                $hostCount,
-                $hostIDs,
-                $batchTask,
-                $first_id,
-                $affected_rows,
-                $ids,
-                $multicastsessionassocs
-            );
-            $this->_createSnapinTasking($now, $deploySnapins);
         } elseif ($TaskType->isSnapinTasking()) {
             $hostIDs = $this->_createSnapinTasking($now, $deploySnapins);
+            $hostCount = count($hostIDs);
+            $batchFields = array(
+                'name',
+                'createdBy',
+                'hostID',
+                'stateID',
+                'typeID',
+                'wol'
+            );
+            $batchTask = array();
+            for ($i = 0; $i < $hostCount; $i++) {
+                $batchTask[] = array(
+                    $taskName,
+                    $username,
+                    $hostIDs[$i],
+                    $this->getQueuedState(),
+                    $TaskType->get('id'),
+                    $wol
+                );
+            }
+            if (count($batchTask) > 0) {
+                self::getClass('TaskManager')
+                    ->insertBatch($batchFields, $batchTask);
+            }
+        } elseif ($TaskType->isInitNeededTasking()) {
+            $hostIDs = $this->get('hosts');
             $hostCount = count($hostIDs);
             $batchFields = array(
                 'name',
