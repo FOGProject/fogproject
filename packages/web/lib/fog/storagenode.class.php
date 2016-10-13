@@ -93,7 +93,7 @@ class StorageNode extends FOGController
             'sslpath',
             'webroot'
         );
-        if (!in_array($key, $pathvars)) {
+        if (in_array($key, $pathvars)) {
             return rtrim(parent::get($key), '/');
         }
         return parent::get($key);
@@ -147,14 +147,14 @@ class StorageNode extends FOGController
             '%s'
         );
         $paths = array(
-            '/var/log/nginx/',
-            '/var/log/httpd/',
-            '/var/log/apache2/',
-            '/var/log/fog/',
-            '/var/log/php7.0-fpm/',
-            '/var/log/php-fpm/',
-            '/var/log/php5-fpm/',
-            'var/log/php5.6-fpm/'
+            '/var/log/nginx',
+            '/var/log/httpd',
+            '/var/log/apache2',
+            '/var/log/fog',
+            '/var/log/php7.0-fpm',
+            '/var/log/php-fpm',
+            '/var/log/php5-fpm',
+            '/var/log/php5.6-fpm'
         );
         $urls = array();
         foreach ($paths as &$path) {
@@ -166,16 +166,17 @@ class StorageNode extends FOGController
         }
         unset($paths);
         $paths = self::$FOGURLRequests->process($urls);
-        $tmppath = array();
         foreach ((array)$paths as $index => &$response) {
             $tmppath[] = json_decode($response, true);
             unset($response);
         }
         $tmppath = array_filter($tmppath);
-        $paths = array_unique((array)$tmppath);
+        $paths = array_shift($tmppath);
         unset($tmppath);
+        $paths = array_unique((array)$paths);
+        $paths = array_values($paths);
         natcasesort($paths);
-        $this->set('logfiles', array_values((array)$paths));
+        $this->set('logfiles', $paths);
     }
     /**
      * Loads the snapins available on this node
