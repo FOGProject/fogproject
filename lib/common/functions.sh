@@ -835,10 +835,10 @@ enableInitScript() {
                 dots "Enabling $serviceItem Service"
                 systemctl enable $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 if [[ ! $? -eq 0 && $osid -eq 2 ]]; then
-                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 2 >>$workingdir/error_logs/fog_error${version}.log 2>&1
-                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 3 >>$workingdir/error_logs/fog_error${version}.log 2>&1
-                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 4 >>$workingdir/error_logs/fog_error${version}.log 2>&1
-                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 5 >>$workingdir/error_logs/fog_error${version}.log 2>&1
+                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 3 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 4 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 5 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
                 ;;
             *)
@@ -1589,19 +1589,19 @@ configureHttpd() {
         fi
         echo -e "<FilesMatch \.php$>\n\tSetHandler \"proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/\"\n</FilesMatch>\n<IfModule dir_module>\n\tDirectoryIndex index.php index.html\n</IfModule>" >> /etc/httpd/conf/httpd.conf
         # Enable Event
-        sed -i '/LoadModule mpm_event_module modules\/mod_mpm_event.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error${version}.log 2>&1
+        sed -i '/LoadModule mpm_event_module modules\/mod_mpm_event.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error_${version}.log 2>&1
         # Disable prefork and worker
-        sed -i '/LoadModule mpm_prefork_module modules\/mod_mpm_prefork.so/s/^/#/g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error${version}.log 2>&1
-        sed -i '/LoadModule mpm_worker_module modules\/mod_mpm_worker.so/s/^/#/g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error${version}.log 2>&1
+        sed -i '/LoadModule mpm_prefork_module modules\/mod_mpm_prefork.so/s/^/#/g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error_${version}.log 2>&1
+        sed -i '/LoadModule mpm_worker_module modules\/mod_mpm_worker.so/s/^/#/g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error_${version}.log 2>&1
         # Enable proxy
-        sed -i '/LoadModule proxy_html_module modules\/mod_proxy_html.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error${version}.log 2>&1
-        sed -i '/LoadModule proxy_module modules\/mod_proxy.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error${version}.log 2>&1
-        sed -i '/LoadModule proxy_http_module modules\/mod_proxy_http.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error${version}.log 2>&1
-        sed -i '/LoadModule proxy_fcgi_module modules\/mod_proxy_fcgi.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error${version}.log 2>&1
+        sed -i '/LoadModule proxy_html_module modules\/mod_proxy_html.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error_${version}.log 2>&1
+        sed -i '/LoadModule proxy_module modules\/mod_proxy.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error_${version}.log 2>&1
+        sed -i '/LoadModule proxy_http_module modules\/mod_proxy_http.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error_${version}.log 2>&1
+        sed -i '/LoadModule proxy_fcgi_module modules\/mod_proxy_fcgi.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error_${version}.log 2>&1
         # Enable socache
-        sed -i '/LoadModule socache_shmcb_module modules\/mod_socache_shmcb.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error${version}.log 2>&1
+        sed -i '/LoadModule socache_shmcb_module modules\/mod_socache_shmcb.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error_${version}.log 2>&1
         # Enable ssl
-        sed -i '/LoadModule ssl_module modules\/mod_ssl.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error${version}.log 2>&1
+        sed -i '/LoadModule ssl_module modules\/mod_ssl.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$working/error_logs/fog_error_${version}.log 2>&1
         # Enable our virtual host file for fog
         echo -e "# FOG Virtual Host\nInclude conf/extra/fog.conf" >> /etc/httpd/conf/httpd.conf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         # Enable php extensions
