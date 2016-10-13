@@ -193,7 +193,7 @@ class FOGCore extends FOGBase
         $hdused = 0;
         $freespace = explode(
             "\n",
-            shell_exec('df | grep -vE "^Filesystem|shm"')
+            shell_exec('df -PB1 | grep -vE "^Filesystem|shm"')
         );
         $patmatch = '/(\d+) +(\d+) +(\d+) +\d+%/';
         $hdtotal = $hdused = $hdfree = 0;
@@ -201,8 +201,8 @@ class FOGCore extends FOGBase
             if (!preg_match($patmatch, $free, $matches)) {
                 continue;
             }
-            $hdtotal += (float)$matches[1] * 1024;
-            $hdused += (float)$matches[2] * 1024;
+            $hdtotal += (float)$matches[1];
+            $hdused += (float)$matches[2];
             unset($free);
         }
         $hdfree = (float)$hdtotal - $hdused;
