@@ -35,6 +35,13 @@ class DatabaseManager extends FOGCore
         }
         self::$DB = new PDODB();
         self::_getVersion();
+        $test = preg_match('#/service|status/#', self::$scriptname);
+        if ($test
+            && !is_object(self::$DB->getLink())
+        ) {
+            echo json_encode(_('A valid database connection could not be made'));
+            exit;
+        }
         if (self::$mySchema < FOG_SCHEMA) {
             global $sub;
             $okayFiles = array(
@@ -43,7 +50,6 @@ class DatabaseManager extends FOGCore
             );
             $filename = basename(self::$scriptname);
             if (!in_array($filename, $okayFiles)) {
-                $test = preg_match('#/service/#', self::$scriptname);
                 $subs = array(
                     'configure',
                     'authorize',
@@ -71,6 +77,15 @@ class DatabaseManager extends FOGCore
             }
         }
         return $this;
+    }
+    /**
+     * Returns the DB Link object
+     *
+     * @return object
+     */
+    public function getLink()
+    {
+        return self::$DB->link();
     }
     /**
      * Returns the DB object
