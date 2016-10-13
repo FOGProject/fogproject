@@ -176,7 +176,7 @@ class Image extends FOGController
             $ftppath = trim($ftppath, '/');
             $deleteFile = sprintf(
                 '/%s/%s',
-                $deleteFile,
+                $ftppath,
                 $this->get('path')
             );
             $ip = $StorageNode->get('ip');
@@ -190,7 +190,7 @@ class Image extends FOGController
                 continue;
             }
             self::$FOGFTP
-                ->delete($delete)
+                ->delete($deleteFile)
                 ->close();
             unset($StorageNode);
         }

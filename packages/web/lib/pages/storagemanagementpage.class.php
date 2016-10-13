@@ -85,6 +85,8 @@ class StorageManagementPage extends FOGPage
         foreach ((array)self::getClass('StorageNodeManager')->find() as $i => &$StorageNode) {
             $StorageGroup = self::getClass('StorageGroup', $StorageNode->get('storagegroupID'));
             $this->data[] = array_merge((array)$StorageNode->get(), array(
+                'name' => $StorageNode->get('name'),
+                'id' => $StorageNode->get('id'),
                 'isMasterText'=>($StorageNode->get('isMaster')?'Yes':'No'),
                 'isEnabledText'=>($StorageNode->get('isEnabled')?'Yes':'No'),
                 'storage_group'=>$StorageGroup->get('name'),
