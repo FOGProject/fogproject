@@ -60,7 +60,6 @@ class StorageNode extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = array(
-        'storagegroupID',
         'ip',
         'path',
         'ftppath',
