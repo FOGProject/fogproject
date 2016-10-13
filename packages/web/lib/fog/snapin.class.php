@@ -346,25 +346,84 @@ class Snapin extends FOGController
         }
         return new StorageGroup($primaryGroup);
     }
+    /**
+     * Gets the snapin's primary group
+     *
+     * @param int $groupID the group id to check
+     *
+     * @return bool
+     */
     public function getPrimaryGroup($groupID)
     {
-        $primaryCount = self::getClass('SnapinGroupAssociationManager')->count(array('snapinID'=>$this->get('id'), 'primary'=>1));
+        $primaryCount = self::getClass('SnapinGroupAssociationManager')
+            ->count(
+                array(
+                    'snapinID' => $this->get('id'),
+                    'prmary' => 1
+                )
+            );
         if ($primaryCount < 1) {
-            $this->setPrimaryGroup(@min(self::getSubObjectIDs('StorageGroup')));
+            $primaryCount = self::getClass('SnapinGroupAssociationManager')
+                ->count(
+                    array(
+                        'snapinID' => $this->get('id')
+                    )
+                );
         }
-        $assocID = @min(self::getSubObjectIDs('SnapinGroupAssociation', array('storagegroupID'=>$groupID, 'snapinID'=>$this->get('id'))));
+        if ($primaryCount < 1) {
+            $groupid = self::getSubObjectIDs('StorageGroup');
+            $groupid = @min($groupid);
+            $this->setPrimaryGroup($groupid);
+        }
+        $assocID = self::getSubObjectIDs(
+            'SnapinGroupAssociation',
+            array(
+                'storagegroupID' => $groupID,
+                'snapinID' => $this->get('id')
+            )
+        );
+        $assocID = @min($assocID);
         return self::getClass('SnapinGroupAssociation', $assocID)->isPrimary();
     }
+    /**
+     * Sets the primary group for the snapin
+     *
+     * @param int $groupID the id to set as primary
+     *
+     * @return array
+     */
     public function setPrimaryGroup($groupID)
     {
-        self::getClass('SnapinGroupAssociationManager')->update(array('snapinID'=>$this->get('id'), 'storagegroupID'=>array_diff((array)$this->get('storagegroups'), (array)$groupID)), '', array('primary'=>0));
-        self::getClass('SnapinGroupAssociationManager')->update(array('snapinID'=>$this->get('id'), 'storagegroupID'=>$groupID), '', array('primary'=>1));
+        self::getClass('SnapinGroupAssociationManager')
+            ->update(
+                array(
+                    'snapinID' => $this->get('id'),
+                    'storagegroupID' => array_diff(
+                        (array)$this->get('storagegroups'),
+                        (array)$groupID
+                    ),
+                    '',
+                    array('primary' => 0)
+                )
+            );
+        self::getClass('SnapinGroupAssociationManager')
+            ->update(
+                array(
+                    'snapinID' => $this->get('id'),
+                    'storagegroupID' => $groupID
+                ),
+                '',
+                array('primary' => 1)
+            );
     }
+    /**
+     * Loads the Path as the file for commonality
+     * in some methods
+     *
+     * @return void
+     */
     protected function loadPath()
     {
-        if (!$this->get('id')) {
-            return;
-        }
         $this->set('path', $this->get('file'));
         return $this;
     }
