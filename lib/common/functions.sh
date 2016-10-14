@@ -536,6 +536,7 @@ addUbuntuRepo() {
     return $?
 }
 installPackages() {
+    [[ $installlang -eq 1 ]] && packages="$packages gettext"
     dots "Adding needed repository"
     case $osid in
         1)
