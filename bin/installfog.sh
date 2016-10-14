@@ -316,6 +316,9 @@ if [[ ! $exitcode -eq 0 ]]; then
                     ;;
             esac
             ;;
+        *[Aa][Rr][Cc][Hh]*)
+            pacman -Sy --noconfirm lsb-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            ;;
     esac
 fi
 [[ -z $OSVersion ]] && OSVersion=$(lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $2}')
@@ -344,7 +347,7 @@ exitcode=$?
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
 [[ -z $forcehttps ]] && forcehttps="#"
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
-clearScreen
+#clearScreen
 if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
     echo > "$workingdir/error_logs/foginstall.log"
     exec &> >(tee -a "$workingdir/error_logs/foginstall.log")
