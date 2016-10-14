@@ -1605,6 +1605,7 @@ configureHttpd() {
         # Enable our virtual host file for fog
         echo -e "# FOG Virtual Host\nInclude conf/extra/fog.conf" >> /etc/httpd/conf/httpd.conf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         # Enable php extensions
+        sed -i 's/;extension=bcmath.so/extension=bcmath.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=curl.so/extension=curl.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=ftp.so/extension=ftp.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=gd.so/extension=gd.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
