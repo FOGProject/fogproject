@@ -24,7 +24,7 @@ if (!(file_exists($decodePath)
 $folder = escapeshellcmd($decodePath);
 $output = `df -PB1 $folder | tail -1`;
 $test = preg_match(
-    '/\d+\s+(\d+)\s+(\d+).*/',
+    '/\d+\s+(\d+)\s+(\d+)\s+\d+\%.*$/',
     $output,
     $match
 );
