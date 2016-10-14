@@ -1932,19 +1932,22 @@ abstract class FOGPage extends FOGBase
             );
             foreach ((array)$OUs as &$OU) {
                 $OU = trim($OU);
-                $OU = preg_replace('#;#', '', $ou);
-                if (!$optFound && $OU === $ADOU) {
-                    $optFound = $OU;
+                $ou = preg_replace('#;#', '', $OU);
+                if (!$optFound && $ou === $ADOU) {
+                    $optFound = $ou;
+                }
+                if (!$optFound && preg_match('#;#', $OU)) {
+                    $optFound = $ou;
                 }
                 printf(
                     '<option value="%s"%s>%s</option>',
-                    $OU,
+                    $ou,
                     (
-                        $optFound === $OU ?
+                        $optFound === $ou ?
                         ' selected' :
                         ''
                     ),
-                    $OU
+                    $ou
                 );
             }
             $OUOptions = sprintf(
