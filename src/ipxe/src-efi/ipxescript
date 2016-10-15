@@ -1,6 +1,4 @@
 #!ipxe
-echo Sleeping 10 seconds to wait for STP/Powersave to switchoff and on
-sleep 10
 ifopen
 isset ${net0/mac} && dhcp net0 || goto dhcpnet1
 echo Received DHCP answer on interface net0 && goto proxycheck
