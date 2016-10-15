@@ -36,8 +36,8 @@ class DatabaseManager extends FOGCore
         self::$DB = new PDODB();
         self::_getVersion();
         $test = preg_match('#/service|status/#', self::$scriptname);
-        if ($test
-            && !is_object(self::$DB->getLink()
+        if (($test
+            && !is_object(self::$DB->getLink())
             && false === strpos(self::$scriptname, 'dbrunning'))
         ) {
             echo json_encode(_('A valid database connection could not be made'));
