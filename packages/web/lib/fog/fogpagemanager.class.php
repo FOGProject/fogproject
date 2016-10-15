@@ -195,8 +195,10 @@ class FOGPageManager extends FOGBase
             if (!array_key_exists($this->classValue, $this->_nodes)) {
                 throw new Exception(_('No FOGPage Class found for this node'));
             }
-            if (isset($_REQUEST[$class->id]) && $_REQUEST[$class->id]) {
-                $this->_arguments = array('id'=>$_REQUEST[$class->id]);
+            if (isset($_REQUEST[$class->id])
+                && $_REQUEST[$class->id]
+            ) {
+                $this->_arguments = array('id' => $_REQUEST[$class->id]);
             }
             if (self::$post) {
                 $this->setRequest();
@@ -276,6 +278,7 @@ class FOGPageManager extends FOGBase
      */
     private function _loadPageClasses()
     {
+        global $node;
         $regext = '#^.+/pages/.*\.class\.php$#';
         $dirpath = '/pages/';
         $strlen = -strlen('.class.php');
@@ -336,7 +339,7 @@ class FOGPageManager extends FOGBase
             )
         );
         unset($normalfiles, $pluginfiles);
-        $startClass = function ($element) use ($strlen) {
+        $startClass = function ($element) use ($strlen, $node) {
             if (substr($element, $strlen) !== '.class.php') {
                 return;
             }
@@ -355,7 +358,7 @@ class FOGPageManager extends FOGBase
                 return;
             }
             $vals = get_class_vars($className);
-            if ($vals['node'] !== trim($_REQUEST['node'])) {
+            if ($vals['node'] !== trim($node)) {
                 return;
             }
             unset($vals);

@@ -10,6 +10,15 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+/**
+ * Gets free space of disk/partition holding images from server
+ *
+ * @category Freespace
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);

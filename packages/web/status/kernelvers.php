@@ -30,7 +30,11 @@ $kernelvers = function ($kernel) {
         BASEPATH,
         $kernel
     );
-    $reppath = preg_replace('#\\|/#', DIRECTORY_SEPARATOR, $currpath);
+    $reppath = preg_replace(
+        '#\\|/#',
+        DIRECTORY_SEPARATOR,
+        $currpath
+    );
     $basepath = escapeshellarg($reppath);
     $findstr = sprintf(
         'strings %s | grep -A1 "%s:" | tail -1 | awk \'{print $1}\'',
@@ -39,5 +43,11 @@ $kernelvers = function ($kernel) {
     );
     return shell_exec($findstr);
 };
-printf("bzImage Version: %s\n", $kernelvers('bzImage'));
-printf("bzImage32 Version: %s\n", $kernelvers('bzImage32'));
+printf(
+    "bzImage Version: %s\n",
+    $kernelvers('bzImage')
+);
+printf(
+    "bzImage32 Version: %s\n",
+    $kernelvers('bzImage32')
+);

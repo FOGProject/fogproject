@@ -26,24 +26,29 @@ if (isset($_SESSION['delitems'])
 ) {
     unset($_SESSION['delitems']);
 }
-FOGCore::getClass('ProcessLogin')->processMainLogin();
+FOGCore::getClass('ProcessLogin')
+    ->processMainLogin();
 require '../commons/text.php';
 $Page = FOGCore::getClass('Page');
 if (!in_array($node, array('schema', 'client'))
     && ($node == 'logout' || !$currentUser->isValid())
 ) {
     $currentUser->logout();
-    $Page->setTitle($foglang['Login']);
-    $Page->setSecTitle($foglang['ManagementLogin']);
-    $Page->startBody();
+    $Page
+        ->setTitle($foglang['Login'])
+        ->setSecTitle($foglang['ManagementLogin'])
+        ->startBody();
     FOGCore::getClass('ProcessLogin')->mobileLoginForm();
-    $Page->endBody();
-    $Page->render();
+    $Page
+        ->endBody()
+        ->render();
 } else {
-    $Page->setTitle($FOGPageManager->getFOGPageTitle());
-    $Page->setSecTitle($FOGPageManager->getFOGPageName());
-    $Page->startBody();
+    $Page
+        ->setTitle($FOGPageManager->getFOGPageTitle())
+        ->setSecTitle($FOGPageManager->getFOGPageName())
+        ->startBody();
     $FOGPageManager->render();
-    $Page->endBody();
-    $Page->render();
+    $Page
+        ->endBody()
+        ->render();
 }

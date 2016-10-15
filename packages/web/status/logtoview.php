@@ -1,4 +1,24 @@
 <?php
+/**
+ * Logtoview handles reading files
+ *
+ * PHP version 5
+ *
+ * @category Logtoview
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Logtoview handles reading files
+ *
+ * @category Logtoview
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 require_once '../commons/base.inc.php';
 session_write_close();
 ignore_user_abort(true);
@@ -7,9 +27,30 @@ header('Content-Type: text/event-stream');
 header('Connection: close');
 $vals = function ($reverse, $HookManager) {
     ini_set("auto_detect_line_endings", true);
-    $folder = sprintf('/%s/', trim(trim(dirname($_REQUEST['file'])), '/'));
-    $pattern = sprintf('#^%s$#', $folder);
-    $folders = array('/var/log/fog/','/opt/fog/log/','/var/log/httpd/','/var/log/apache2/','/var/log/nginx/','/var/log/php-fpm/','/var/log/php5.6-fpm/','/var/log/php5-fpm/','/var/log/php7.0-fpm/');
+    $folder = sprintf(
+        '/%s/',
+        trim(
+            trim(
+                dirname($_REQUEST['file'])
+            ),
+            '/'
+        )
+    );
+    $pattern = sprintf(
+        '#^%s$#',
+        $folder
+    );
+    $folders = array(
+        '/var/log/fog/',
+        '/opt/fog/log/',
+        '/var/log/httpd/',
+        '/var/log/apache2/',
+        '/var/log/nginx/',
+        '/var/log/php-fpm/',
+        '/var/log/php5.6-fpm/',
+        '/var/log/php5-fpm/',
+        '/var/log/php7.0-fpm/'
+    );
     $HookManager->processEvent('LOG_FOLDERS', array('folders'=>&$folders));
     if (!preg_grep($pattern, $folders)) {
         return _('Invalid Folder');
@@ -35,15 +76,32 @@ $vals = function ($reverse, $HookManager) {
         $lines -= substr_count($chunk, "\n");
     }
     while ($lines++ < 0) {
-        $output = substr($output, strpos($output, "\n")+1);
+        $output = substr(
+            $output,
+            strpos(
+                $output,
+                "\n"
+            )
+            + 1
+        );
     }
     fclose($fh);
     if ($reverse) {
-        $output = implode("\n", array_reverse(explode("\n", $output)));
+        $output = implode(
+            "\n",
+            array_reverse(
+                explode(
+                    "\n",
+                    $output
+                )
+            )
+        );
     }
     return trim($output);
 };
-$url = trim($FOGCore->aesdecrypt($_REQUEST['ip']));
+$url = trim(
+    $FOGCore->aesdecrypt($_REQUEST['ip'])
+);
 $ip = $FOGCore->resolveHostname($url);
 if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
     echo json_encode(_('IP Passed is incorrect'));
@@ -57,11 +115,16 @@ if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
     } else {
         $url = sprintf('http://%s/fog/status/logtoview.php', $ip);
         $url = filter_var($url, FILTER_SANITIZE_URL);
-        $response = $FOGURLRequests->process($url, 'POST', array(
-            'ip'=>$FOGCore->aesencrypt($ip),
-            'file'=>$_REQUEST['file'],
-            'lines'=>$_REQUEST['lines'],
-            'reverse'=> $_REQUEST['reverse']));
+        $response = $FOGURLRequests->process(
+            $url,
+            'POST',
+            array(
+                'ip'=>$FOGCore->aesencrypt($ip),
+                'file'=>$_REQUEST['file'],
+                'lines'=>$_REQUEST['lines'],
+                'reverse'=> $_REQUEST['reverse']
+            )
+        );
         echo array_shift($response);
     }
 }
