@@ -1351,7 +1351,6 @@ class TypeAdapterSqlite extends TypeAdapterFactory
 
 class TypeAdapterMysql extends TypeAdapterFactory
 {
-
     private $dbHandler = null;
 
     // Numerical Mysql types

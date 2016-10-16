@@ -344,7 +344,7 @@ class PluginManagementPage extends FOGPage
                         array(),
                         array(),
                     );
-                    list($dbField,$dbShutdown) = self::getSubObjectIDs(
+                    list($dbField, $dbShutdown) = self::getSubObjectIDs(
                         'Service',
                         array(
                             'name' => array(

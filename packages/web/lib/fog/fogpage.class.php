@@ -1777,7 +1777,7 @@ abstract class FOGPage extends FOGBase
         }
         $this->data[] = array(
             'node' => $this
-                ->node,
+            ->node,
             'sub' => 'edit',
             sprintf(
                 '%s_id',

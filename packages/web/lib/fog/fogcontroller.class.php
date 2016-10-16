@@ -1132,7 +1132,7 @@ abstract class FOGController extends FOGBase
                 array_push($insert_val, 1);
             }
             $insert_values[] = $insert_val;
-            unset($insert_val,$id);
+            unset($insert_val, $id);
         }
         unset($DBIDs);
         if (count($insert_values) > 0) {

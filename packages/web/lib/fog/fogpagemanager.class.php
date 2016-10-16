@@ -177,7 +177,7 @@ class FOGPageManager extends FOGBase
         if (!self::$FOGUser->isValid()
             && !in_array($node, $nodes)
         ) {
-                return;
+            return;
         }
         $this->_loadPageClasses();
         $method = $this->methodValue;

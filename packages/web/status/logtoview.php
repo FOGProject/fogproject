@@ -111,7 +111,7 @@ if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
     }
     $pat = sprintf('#%s#', $ip);
     if (preg_match($pat, $_SERVER['HTTP_HOST'])) {
-        echo json_encode($vals( $_REQUEST['reverse'],$HookManager));
+        echo json_encode($vals($_REQUEST['reverse'], $HookManager));
     } else {
         $url = sprintf('http://%s/fog/status/logtoview.php', $ip);
         $url = filter_var($url, FILTER_SANITIZE_URL);

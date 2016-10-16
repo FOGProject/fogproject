@@ -82,7 +82,7 @@ class UpdateClient extends FOGClient implements FOGClientSend
                     && $ClientUpdateFile->isValid()
                 )
                     ) {
-                        throw new Exception(
+                    throw new Exception(
                             sprintf(
                                 '#!er: %s',
                                 _('Invalid data found')
@@ -103,7 +103,7 @@ class UpdateClient extends FOGClient implements FOGClientSend
                     && $ClientUpdateFile->isValid()
                 )
                     ) {
-                        throw new Exception(
+                    throw new Exception(
                             sprintf(
                                 '#!er: %s',
                                 _('Invalid data found')
@@ -125,9 +125,9 @@ class UpdateClient extends FOGClient implements FOGClientSend
                             0
                         )
                     );
-                        header('Content-Description: File Transfer');
-                        header('ContentType: application/octet-stream');
-                        header(
+                    header('Content-Description: File Transfer');
+                    header('ContentType: application/octet-stream');
+                    header(
                             sprintf(
                                 '%s: %s; %s=%s',
                                 'Content-Disposition',
