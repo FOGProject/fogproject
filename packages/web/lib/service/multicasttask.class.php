@@ -21,6 +21,14 @@
  */
 class MulticastTask extends FOGService
 {
+    /**
+     * Gets all the multicast tasks
+     *
+     * @param string $root            root to look for items
+     * @param int    $myStorageNodeID this services storage id
+     *
+     * @return array
+     */
     public function getAllMulticastTasks($root, $myStorageNodeID)
     {
         $StorageNode = self::getClass('StorageNode', $myStorageNodeID);
@@ -102,87 +110,342 @@ class MulticastTask extends FOGService
         }
         return array_filter($Tasks);
     }
-    private $intID, $strName, $intPort, $strImage, $strEth, $intClients, $taskIDs;
-    private $intImageType, $intOSID;
+    /**
+     * Session ID
+     *
+     * @var int
+     */
+    private $_intID;
+    /**
+     * The session name
+     *
+     * @var string
+     */
+    private $_strName;
+    /**
+     * The session port
+     *
+     * @var int
+     */
+    private $_intPort;
+    /**
+     * The session image
+     *
+     * @var string
+     */
+    private $_strImage;
+    /**
+     * The session interface to use
+     *
+     * @var string
+     */
+    private $_strEth;
+    /**
+     * The number of clients
+     *
+     * @var int
+     */
+    private $_intClients;
+    /**
+     * The sessions task ids
+     *
+     * @var array
+     */
+    private $_taskIDs;
+    /**
+     * The sessions image type
+     *
+     * @var int
+     */
+    private $_intImageType;
+    /**
+     * The sessions osid
+     *
+     * @var int
+     */
+    private $_intOSID;
+    /**
+     * Is this session a joined session
+     *
+     * @var bool
+     */
+    private $_isNameSess;
+    /**
+     * The multicast session class
+     *
+     * @var object
+     */
+    private $_MultiSess;
+    /**
+     * This tasks process reference
+     *
+     * @var resource
+     */
     public $procRef;
+    /**
+     * This tasks process piped info
+     *
+     * @var resource
+     */
     public $procPipes;
-    public function __construct($id = '', $name = '', $port = '', $image = '', $eth = '', $clients = '', $imagetype = '', $osid = '', $nameSess = '', $taskIDs = '')
-    {
+    /**
+     * Initializes the task so multicast man can process
+     *
+     * @param int    $id        the id
+     * @param string $name      the name
+     * @param int    $port      the port
+     * @param string $image     the image
+     * @param string $eth       the interface
+     * @param int    $clients   the number of clients
+     * @param int    $imagetype the image type
+     * @param int    $osid      the os id
+     * @param bool   $nameSess  the named session
+     * @param array  $taskIDs   the task ids
+     *
+     * @return void
+     */
+    public function __construct(
+        $id = '',
+        $name = '',
+        $port = '',
+        $image = '',
+        $eth = '',
+        $clients = '',
+        $imagetype = '',
+        $osid = '',
+        $nameSess = '',
+        $taskIDs = ''
+    ) {
         parent::__construct();
-        $this->intID = $id;
-        $this->strName = $name;
-        $this->intPort = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')?self::getSetting('FOG_MULTICAST_PORT_OVERRIDE'):$port;
-        $this->strImage = $image;
-        $this->strEth = $eth;
-        $this->intClients = $clients;
-        $this->intImageType = $imagetype;
-        $this->intOSID = $osid;
-        $this->isNameSess = $nameSess;
-        $this->taskIDs = $taskIDs;
+        $overridePort = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
+        $this->_intID = $id;
+        $this->_strName = $name;
+        if ($overridePort) {
+            $this->_intPort = $overridePort;
+        } else {
+            $this->_intPort = $port;
+        }
+        $this->_strImage = $image;
+        $this->_strEth = $eth;
+        $this->_intClients = $clients;
+        $this->_intImageType = $imagetype;
+        $this->_intOSID = $osid;
+        $this->_isNameSess = $nameSess;
+        $this->_taskIDs = $taskIDs;
+        $this->_MultiSess = new MulticastSessions($this->getID());
     }
+    /**
+     * Get session clients
+     *
+     * @return object
+     */
     public function getSessClients()
     {
-        return self::getClass('MulticastSessions', $this->getID())->get('clients') == 0;
+        return $this->_MultiSess->get('clients') == 0;
     }
+    /**
+     * Is this a named session
+     *
+     * @return bool
+     */
     public function isNamedSession()
     {
-        return (bool)$this->isNameSess;
+        return (bool)$this->_isNameSess;
     }
+    /**
+     * Returns the task ids
+     *
+     * @return array
+     */
     public function getTaskIDs()
     {
-        return $this->taskIDs;
+        return $this->_taskIDs;
     }
+    /**
+     * Returns the id
+     *
+     * @return int
+     */
     public function getID()
     {
-        return $this->intID;
+        return $this->_intID;
     }
+    /**
+     * Returns the name
+     *
+     * @return string
+     */
     public function getName()
     {
-        return $this->strName;
+        return $this->_strName;
     }
+    /**
+     * Returns the image path
+     *
+     * @return string
+     */
     public function getImagePath()
     {
-        return $this->strImage;
+        return $this->_strImage;
     }
+    /**
+     * Returns the image type
+     *
+     * @return int
+     */
     public function getImageType()
     {
-        return $this->intImageType;
+        return $this->_intImageType;
     }
+    /**
+     * Returns the client count
+     *
+     * @return int
+     */
     public function getClientCount()
     {
-        return $this->intClients;
+        return $this->_intClients;
     }
+    /**
+     * Returns the port
+     *
+     * @return int
+     */
     public function getPortBase()
     {
-        return $this->intPort;
+        return $this->_intPort;
     }
+    /**
+     * Returns the interface
+     *
+     * @return string
+     */
     public function getInterface()
     {
-        return $this->strEth;
+        return $this->_strEth;
     }
+    /**
+     * Returns the os id
+     *
+     * @return int
+     */
     public function getOSID()
     {
-        return $this->intOSID;
+        return $this->_intOSID;
     }
+    /**
+     * Returns the udpcast log file
+     *
+     * @return string
+     */
     public function getUDPCastLogFile()
     {
-        return $this->altLog = sprintf('/%s/%s.udpcast.%s', trim(self::getSetting('SERVICE_LOG_PATH'), '/'), self::getSetting('MULTICASTLOGFILENAME'), $this->getID());
+        list(
+            $filenam,
+            $logpath
+        ) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array(
+                    'MULTICASTLOGFILENAME',
+                    'SERVICE_LOG_PATH',
+                )
+            ),
+            'value',
+            false,
+            'AND',
+            'name',
+            false,
+            ''
+        );
+        return $this->altLog = sprintf(
+            '/%s/%s.udpcast.%s',
+            trim($logpath, '/'),
+            $filenam,
+            $this->getID()
+        );
     }
+    /**
+     * Returns the bitrate max
+     *
+     * @return string
+     */
     public function getBitrate()
     {
-        return self::getClass('Image', self::getClass('MulticastSessions', $this->getID())->get('image'))->getStorageGroup()->getMasterStorageNode()->get('bitrate');
+        return self::getClass(
+            'Image',
+            $this->_MultiSess->get('image')
+        )->getStorageGroup()
+        ->getMasterStorageNode()
+        ->get('bitrate');
     }
+    /**
+     * Returns the session class
+     *
+     * @return object
+     */
+    public function getSess()
+    {
+        return $this->_MultiSess;
+    }
+    /**
+     * Sets/Gets the command needed to start the tasking
+     *
+     * @return string
+     */
     public function getCMD()
     {
-        unset($filelist, $buildcmd, $cmd);
-        list($address, $duplex, $maxwait) = self::getSubObjectIDs('Service', array('name'=>array('FOG_MULTICAST_ADDRESS', 'FOG_MULTICAST_DUPLEX', 'FOG_UDPCAST_MAXWAIT')), 'value', false, 'AND', 'name', false, '');
+        unset(
+            $filelist,
+            $buildcmd,
+            $cmd
+        );
+        list(
+            $address,
+            $duplex,
+            $maxwait
+        ) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array(
+                    'FOG_MULTICAST_ADDRESS',
+                    'FOG_MULTICAST_DUPLEX',
+                    'FOG_UDPCAST_MAXWAIT'
+                )
+            ),
+            'value',
+            false,
+            'AND',
+            'name',
+            false,
+            ''
+        );
         $buildcmd = array(
             UDPSENDERPATH,
-            $this->getBitrate() ? sprintf(' --max-bitrate %s', $this->getBitrate()) : null,
-            $this->getInterface() ? sprintf(' --interface %s', $this->getInterface()) : null,
-            sprintf(' --min-receivers %d', ($this->getClientCount()?$this->getClientCount():self::getClass(HostManager)->count())),
+            (
+                $this->getBitrate() ?
+                sprintf(' --max-bitrate %s', $this->getBitrate()) :
+                null
+            ),
+            (
+                $this->getInterface() ?
+                sprintf(' --interface %s', $this->getInterface()) :
+                null
+            ),
+            sprintf(
+                ' --min-receivers %d',
+                (
+                    $this->getClientCount() ?
+                    $this->getClientCount():
+                    self::getClass('HostManager')->count()
+                )
+            ),
             sprintf(' --max-wait %s', '%d'),
-            $address?sprintf(' --mcast-data-address %s', $address):null,
+            (
+                $address ?
+                sprintf(' --mcast-data-address %s', $address) :
+                null
+            ),
             sprintf(' --portbase %s', $this->getPortBase()),
             sprintf(' %s', $duplex),
             ' --ttl 32',
@@ -191,7 +454,7 @@ class MulticastTask extends FOGService
         );
         $buildcmd = array_values(array_filter($buildcmd));
         switch ($this->getImageType()) {
-            case 1:
+           case 1:
                 switch ($this->getOSID()) {
                     case 1:
                     case 2:
@@ -214,28 +477,44 @@ class MulticastTask extends FOGService
                             }
                         } else {
                             $filename = 'd1p%d.%s';
-                            $iterator = self::getClass('DirectoryIterator', $this->getImagePath());
-                            foreach ($iterator as $i => $fileInfo) {
+                            $iterator = self::getClass(
+                                'DirectoryIterator',
+                                $this->getImagePath()
+                            );
+                            foreach ($iterator as $fileInfo) {
                                 if ($fileInfo->isDot()) {
                                     continue;
                                 }
-                                sscanf($fileInfo->getFilename(), $filename, $part, $ext);
+                                sscanf(
+                                    $fileInfo->getFilename(),
+                                    $filename,
+                                    $part,
+                                    $ext
+                                );
                                 if ($ext == 'img') {
                                     $filelist[] = $fileInfo->getFilename();
                                 }
                                 unset($part, $ext);
                             }
                         }
-                            unset($files, $sys, $rec);
+                        unset($files, $sys, $rec);
                         break;
                     default:
                         $filename = 'd1p%d.%s';
-                        $iterator = self::getClass('DirectoryIterator', $this->getImagePath());
+                        $iterator = self::getClass(
+                            'DirectoryIterator',
+                            $this->getImagePath()
+                        );
                         foreach ($iterator as $fileInfo) {
                             if ($fileInfo->isDot()) {
                                 continue;
                             }
-                            sscanf($fileInfo->getFilename(), $filename, $part, $ext);
+                            sscanf(
+                                $fileInfo->getFilename(),
+                                $filename,
+                                $part,
+                                $ext
+                            );
                             if ($ext == 'img') {
                                 $filelist[] = $fileInfo->getFilename();
                             }
@@ -246,12 +525,20 @@ class MulticastTask extends FOGService
                 break;
             case 2:
                 $filename = 'd1p%d.%s';
-                $iterator = self::getClass('DirectoryIterator', $this->getImagePath());
-                foreach ($iterator as $i => $fileInfo) {
+                $iterator = self::getClass(
+                    'DirectoryIterator',
+                    $this->getImagePath()
+                );
+                foreach ($iterator as $fileInfo) {
                     if ($fileInfo->isDot()) {
                         continue;
                     }
-                    sscanf($fileInfo->getFilename(), $filename, $part, $ext);
+                    sscanf(
+                        $fileInfo->getFilename(),
+                        $filename,
+                        $part,
+                        $ext
+                    );
                     if ($ext == 'img') {
                         $filelist[] = $fileInfo->getFilename();
                     }
@@ -260,12 +547,21 @@ class MulticastTask extends FOGService
                 break;
             case 3:
                 $filename = 'd%dp%d.%s';
-                $iterator = self::getClass('DirectoryIterator', $this->getImagePath());
-                foreach ($iterator as $i => $fileInfo) {
+                $iterator = self::getClass(
+                    'DirectoryIterator',
+                    $this->getImagePath()
+                );
+                foreach ($iterator as $fileInfo) {
                     if ($fileInfo->isDot()) {
                         continue;
                     }
-                    sscanf($fileInfo->getFilename(), $filename, $device, $part, $ext);
+                    sscanf(
+                        $fileInfo->getFilename(),
+                        $filename,
+                        $device,
+                        $part,
+                        $ext
+                    );
                     if ($ext == 'img') {
                         $filelist[] = $fileInfo->getFilename();
                     }
@@ -273,7 +569,10 @@ class MulticastTask extends FOGService
                 }
                 break;
             case 4:
-                $iterator = self::getClass('DirectoryIterator', $this->getImagePath());
+                $iterator = self::getClass(
+                    'DirectoryIterator',
+                    $this->getImagePath()
+                );
                 foreach ($iterator as $fileInfo) {
                     if ($fileInfo->isDot()) {
                         continue;
@@ -287,37 +586,79 @@ class MulticastTask extends FOGService
         $filelist = array_values((array)$filelist);
         ob_start();
         foreach ($filelist as $i => &$file) {
-            printf('cat %s%s%s | %s', rtrim($this->getImagePath(), DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR, $file, sprintf(implode($buildcmd), $i == 0 ? $maxwait * 60 : 10));
+            printf(
+                'cat %s%s%s | %s',
+                rtrim(
+                    $this->getImagePath(),
+                    DIRECTORY_SEPARATOR
+                ),
+                DIRECTORY_SEPARATOR,
+                $file,
+                sprintf(
+                    implode($buildcmd),
+                    (
+                        $i == 0 ?
+                        $maxwait * 60 :
+                        10
+                    )
+                )
+            );
             unset($file);
         }
         unset($filelist, $buildcmd);
         return ob_get_clean();
     }
+    /**
+     * Starts our tasking as needed
+     *
+     * @return bool
+     */
     public function startTask()
     {
         unlink($this->getUDPCastLogFile());
         $this->startTasking($this->getCMD(), $this->getUDPCastLogFile());
         $this->procRef = array_shift($this->procRef);
-        self::getClass('MulticastSessions', $this->intID)
+        $this->_MultiSess
             ->set('stateID', $this->getQueuedState())
             ->save();
         return $this->isRunning($this->procRef);
     }
+    /**
+     * Kills the tasking as needed
+     *
+     * @return bool
+     */
     public function killTask()
     {
         $this->killTasking();
         unlink($this->getUDPCastLogFile());
         return true;
     }
+    /**
+     * Updates the stats of the tasking
+     *
+     * @return void
+     */
     public function updateStats()
     {
-        $Tasks = self::getClass('TaskManager')->find(array('id'=>self::getSubObjectIDs('MulticastSessionsAssociation', array('msID'=>$this->intID), 'taskID')));
-        foreach ($Tasks as $i => &$Task) {
+        $Tasks = self::getClass('TaskManager')
+            ->find(
+                array(
+                    'id' => self::getSubObjectIDs(
+                        'MulticastSessionsAssociation',
+                        array('msID' => $this->_intID),
+                        'taskID'
+                    )
+                )
+            );
+        foreach ($Tasks as &$Task) {
             $TaskPercent[] = $Task->get('percent');
             unset($Task);
         }
         unset($Tasks);
         $TaskPercent = array_unique((array)$TaskPercent);
-        self::getClass('MulticastSessions', $this->intID)->set('percent', @max($TaskPercent))->save();
+        $this->_MultiSess
+            ->set('percent', @max($TaskPercent))
+            ->save();
     }
 }

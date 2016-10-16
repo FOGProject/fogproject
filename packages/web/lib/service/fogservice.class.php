@@ -107,7 +107,9 @@ abstract class FOGService extends FOGBase
             if (!$StorageNode->isValid()) {
                 continue;
             }
-            $ip = self::$FOGCore->resolveHostname($StorageNode->get('ip'));
+            $ip = self::$FOGCore->resolveHostname(
+                $StorageNode->get('ip')
+            );
             if (!in_array($ip, self::$ips)) {
                 continue;
             }
@@ -125,7 +127,9 @@ abstract class FOGService extends FOGBase
         if (count($StorageNodes) > 0) {
             return $StorageNodes;
         }
-        throw new Exception(_(' | This is not the master node'));
+        throw new Exception(
+            _(' | This is not the master node')
+        );
     }
     /**
      * Wait to ensure the network interface is ready

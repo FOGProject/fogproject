@@ -35,8 +35,11 @@ class DatabaseManager extends FOGCore
         }
         self::$DB = new PDODB();
         self::_getVersion();
-        $test = preg_match('#/service|status/#', self::$scriptname);
-        if (($test
+        $testscript = preg_match(
+            '#/service|status/#',
+            self::$scriptname
+        );
+        if (($testscript
             && !is_object(self::$DB->link())
             && false === strpos(self::$scriptname, 'dbrunning'))
         ) {
