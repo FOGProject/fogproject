@@ -41,6 +41,7 @@ case $linuxReleaseName in
             [[ -z $packagelist ]] && packagelist="dnf list --enablerepo=$repos"
             [[ -z $packageupdater ]] && packageupdater="dnf -y --enablerepo=$repos update"
             [[ -z $packageUpdate ]] && packmanUpdate="dnf --enablerepo=$repos check-update"
+            [[ -z $repoenable ]] && repoenable="dnf config-manager --set-enabled"
         else
             [[ -z $packageinstaller ]] && packageinstaller="yum -y --enablerepo=$repos install"
             [[ -z $packagelist ]] && packagelist="yum --enablerepo=$repos list"

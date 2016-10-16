@@ -569,7 +569,10 @@ installPackages() {
                 rpm -Uvh $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             fi
-            [[ -n $repoenable ]] && eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+            if [[ -n $repoenable ]]; then
+                eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                eval $repoenable remi-php56 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+            fi
             ;;
         2)
             packages="${packages// libapache2-mod-fastcgi/}"
