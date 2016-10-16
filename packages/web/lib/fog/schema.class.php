@@ -1,21 +1,89 @@
 <?php
+/**
+ * Handles the database insert/export
+ *
+ * PHP version 5
+ *
+ * @category Schema
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Handles the database insert/export
+ *
+ * @category Schema
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class Schema extends FOGController
 {
+    /**
+     * The schema version table
+     *
+     * @var string
+     */
     protected $databaseTable = 'schemaVersion';
+    /**
+     * The schema table and common names
+     *
+     * @var array
+     */
     protected $databaseFields = array(
         'id' => 'vID',
         'version' => 'vValue',
     );
-    public static function create_database_query()
+    /**
+     * Simply returns the database name
+     *
+     * @return string
+     */
+    public static function getDBName()
     {
-        return sprintf('CREATE DATABASE IF NOT EXISTS `%s`', DATABASE_NAME);
+        return DATABASE_NAME;
     }
-    public static function use_database_query()
+    /**
+     * Creates the database creation query
+     *
+     * @return string
+     */
+    public static function createDatabaseQuery()
     {
-        return sprintf('USE `%s`', DATABASE_NAME);
+        return sprintf(
+            'CREATE DATABASE IF NOT EXISTS `%s`',
+            self::getDBName()
+        );
     }
-    public function drop_duplicate_data($dbname, $table = array(), $indexNeeded = false)
+    /**
+     * Ensures we're using the database
+     *
+     * @return string
+     */
+    public static function useDatabaseQuery()
     {
+        return sprintf(
+            'USE `%s`',
+            self::getDBName()
+        );
+    }
+    /**
+     * Recreates the database passed and removes
+     * duplicate data
+     *
+     * @param string $dbname      the database name
+     * @param string $table       the table name
+     * @param bool   $indexNeeded index is needed
+     *
+     * @return void
+     */
+    public function dropDuplicateData(
+        $dbname,
+        $table = array(),
+        $indexNeeded = false
+    ) {
         if (empty($dbname)) {
             return;
         }

@@ -10,508 +10,622 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+/**
+ * Schema layout for creating the database.
+ *
+ * @category Redirect
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 $tmpSchema = self::getClass('Schema');
+self::$DB->query(Schema::useDatabaseQuery());
 // 0
 $this->schema[] = array(
-    "CREATE DATABASE " . DATABASE_NAME ,
-    "CREATE TABLE  `".DATABASE_NAME."`.`groupMembers` (
-        `gmID` int(11) NOT NULL auto_increment,
-        `gmHostID` int(11) NOT NULL,
-        `gmGroupID` int(11) NOT NULL,
-        PRIMARY KEY  (`gmID`),
-        UNIQUE KEY `gmHostID` (`gmHostID`,`gmGroupID`),
-        UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),
-KEY `new_index` (`gmHostID`),
-KEY `new_index1` (`gmGroupID`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
-    "CREATE TABLE  `".DATABASE_NAME."`.`groups` (
-        `groupID` int(11) NOT NULL auto_increment,
-        `groupName` varchar(50) NOT NULL,
-        `groupDesc` longtext NOT NULL,
-        `groupDateTime` datetime NOT NULL,
-        `groupCreateBy` varchar(50) NOT NULL,
-        `groupBuilding` int(11) NOT NULL,
-        PRIMARY KEY  (`groupID`),
-KEY `new_index` (`groupName`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-    "CREATE TABLE  `".DATABASE_NAME."`.`history` (
-        `hID` int(11) NOT NULL auto_increment,
-        `hText` longtext NOT NULL,
-        `hUser` varchar(200) NOT NULL,
-        `hTime` datetime NOT NULL,
-        `hIP` varchar(50) NOT NULL,
-        PRIMARY KEY  (`hID`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-    "CREATE TABLE  `".DATABASE_NAME."`.`hosts` (
-        `hostID` int(11) NOT NULL auto_increment,
-        `hostName` varchar(16) NOT NULL,
-        `hostDesc` longtext NOT NULL,
-        `hostIP` varchar(25) NOT NULL,
-        `hostImage` int(11) NOT NULL,
-        `hostBuilding` int(11) NOT NULL,
-        `hostCreateDate` datetime NOT NULL,
-        `hostCreateBy` varchar(50) NOT NULL,
-        `hostMAC` varchar(20) NOT NULL,
-        `hostOS` int(10) unsigned NOT NULL,
-        PRIMARY KEY  (`hostID`),
-KEY `new_index` (`hostName`),
-KEY `new_index1` (`hostIP`),
-KEY `new_index2` (`hostMAC`),
-KEY `new_index3` (`hostOS`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-    "CREATE TABLE  `".DATABASE_NAME."`.`images` (
-        `imageID` int(11) NOT NULL auto_increment,
-        `imageName` varchar(40) NOT NULL,
-        `imageDesc` longtext NOT NULL,
-        `imagePath` longtext NOT NULL,
-        `imageDateTime` datetime NOT NULL,
-        `imageCreateBy` varchar(50) NOT NULL,
-        `imageBuilding` int(11) NOT NULL,
-        `imageSize` varchar(200) NOT NULL,
-        PRIMARY KEY  (`imageID`),
-KEY `new_index` (`imageName`),
-KEY `new_index1` (`imageBuilding`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-    "CREATE TABLE  `".DATABASE_NAME."`.`schemaVersion` (
-        `vID` int(11) NOT NULL auto_increment,
-        `vValue` int(11) NOT NULL,
-        PRIMARY KEY  (`vID`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
-    "CREATE TABLE  `".DATABASE_NAME."`.`supportedOS` (
-        `osID` int(10) unsigned NOT NULL auto_increment,
-        `osName` varchar(150) NOT NULL,
-        `osValue` int(10) unsigned NOT NULL,
-        PRIMARY KEY  (`osID`),
-KEY `new_index` (`osValue`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-    "CREATE TABLE  `".DATABASE_NAME."`.`tasks` (
-        `taskID` int(11) NOT NULL auto_increment,
-        `taskName` varchar(250) NOT NULL,
-        `taskCreateTime` datetime NOT NULL,
-        `taskCheckIn` datetime NOT NULL,
-        `taskHostID` int(11) NOT NULL,
-        `taskState` int(11) NOT NULL,
-        `taskCreateBy` varchar(200) NOT NULL,
-        `taskForce` varchar(1) NOT NULL,
-        `taskScheduledStartTime` datetime NOT NULL,
-        `taskType` varchar(1) NOT NULL,
-        `taskPCT` int(10) unsigned zerofill NOT NULL,
-        PRIMARY KEY  (`taskID`),
-KEY `new_index` (`taskHostID`),
-KEY `new_index1` (`taskCheckIn`),
-KEY `new_index2` (`taskState`),
-KEY `new_index3` (`taskForce`),
-KEY `new_index4` (`taskType`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-    "CREATE TABLE  `".DATABASE_NAME."`.`users` (
-        `uId` int(11) NOT NULL auto_increment,
-        `uName` varchar(40) NOT NULL,
-        `uPass` varchar(50) NOT NULL,
-        `uCreateDate` datetime NOT NULL,
-        `uCreateBy` varchar(40) NOT NULL,
-        PRIMARY KEY  (`uId`),
-KEY `new_index` (`uName`),
-KEY `new_index1` (`uPass`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`users` VALUES  ('','fog', MD5('password'),NOW(),'')",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`supportedOS` VALUES  ('','"._("Windows XP")."', '1')",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`schemaVersion` VALUES  ('','1')"
+    Schema::createDatabaseQuery(),
+    Schema::useDatabaseQuery(),
+    'CREATE TABLE `groupMembers` ('
+    . '`gmID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`gmHostID` INT(11) NOT NULL,'
+    . '`gmGroupID` INT(11) NOT NULL,'
+    . 'PRIMARY KEY (`gmID`),'
+    . 'UNIQUE KEY `gmHostID` (`gmHostID`,`gmGroupID`),'
+    . 'UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),'
+    . 'KEY `new_index` (`gmHostID`),'
+    . 'KEY `new_index1` (`gmGroupID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `groups` ('
+    . '`groupID` INT(11) NOT NULL auto_increment,'
+    . '`groupName` VARCHAR(50) NOT NULL,'
+    . '`groupDesc` LONGTEXT NOT NULL,'
+    . '`groupDateTime` DATETIME NOT NULL,'
+    . '`groupCreateBy` VARCHAR(50) NOT NULL,'
+    . '`groupBuilding` INT(11) NOT NULL,'
+    . 'PRIMARY KEY (`groupID`),'
+    . 'KEY `new_index` (`groupName`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `history` ('
+    . '`hID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`hText` LONGTEXT NOT NULL,'
+    . '`hUser` VARCHAR(200) NOT NULL,'
+    . '`hTime` DATETIME NOT NULL,'
+    . '`hIP` VARCHAR(50) NOT NULL,'
+    . 'PRIMARY KEY (`hID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `hosts` ('
+    . '`hostID` int(11) NOT NULL auto_increment,'
+    . '`hostName` varchar(16) NOT NULL,'
+    . '`hostDesc` longtext NOT NULL,'
+    . '`hostIP` varchar(25) NOT NULL,'
+    . '`hostImage` int(11) NOT NULL,'
+    . '`hostBuilding` int(11) NOT NULL,'
+    . '`hostCreateDate` datetime NOT NULL,'
+    . '`hostCreateBy` varchar(50) NOT NULL,'
+    . '`hostMAC` varchar(20) NOT NULL,'
+    . '`hostOS` int(10) unsigned NOT NULL,'
+    . 'PRIMARY KEY  (`hostID`),'
+    . 'KEY `new_index` (`hostName`),'
+    . 'KEY `new_index1` (`hostIP`),'
+    . 'KEY `new_index2` (`hostMAC`),'
+    . 'KEY `new_index3` (`hostOS`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `images` ('
+    . '`imageID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`imageName` VARCHAR(40) NOT NULL,'
+    . '`imageDesc` LONGTEXT NOT NULL,'
+    . '`imagePath` LONGTEXT NOT NULL,'
+    . '`imageDateTime` DATETIME NOT NULL,'
+    . '`imageCreateBy` VARCHAR(50) NOT NULL,'
+    . '`imageBuilding` int(11) NOT NULL,'
+    . '`imageSize` VARCHAR(200) NOT NULL,'
+    . 'PRIMARY KEY  (`imageID`),'
+    . 'KEY `new_index` (`imageName`),'
+    . 'KEY `new_index1` (`imageBuilding`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `schemaVersion` ('
+    . '`vID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`vValue` INT(11) NOT NULL,'
+    . 'PRIMARY KEY  (`vID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `supportedOS` ('
+    . '`osID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,'
+    . '`osName` VARCHAR(150) NOT NULL,'
+    . '`osValue` int(10) unsigned NOT NULL,'
+    . 'PRIMARY KEY  (`osID`),'
+    . 'KEY `new_index` (`osValue`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE  `tasks` ('
+    . '`taskID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`taskName` VARCHAR(250) NOT NULL,'
+    . '`taskCreateTime` DATETIME NOT NULL,'
+    . '`taskCheckIn` DATETIME NOT NULL,'
+    . '`taskHostID` INT(11) NOT NULL,'
+    . '`taskState` INT(11) NOT NULL,'
+    . '`taskCreateBy` VARCHAR(200) NOT NULL,'
+    . '`taskForce` VARCHAR(1) NOT NULL,'
+    . '`taskScheduledStartTime` DATETIME NOT NULL,'
+    . '`taskType` VARCHAR(1) NOT NULL,'
+    . '`taskPCT` INT(10) UNSIGNED zerofill NOT NULL,'
+    . 'PRIMARY KEY (`taskID`),'
+    . 'KEY `new_index` (`taskHostID`),'
+    . 'KEY `new_index1` (`taskCheckIn`),'
+    . 'KEY `new_index2` (`taskState`),'
+    . 'KEY `new_index3` (`taskForce`),'
+    . 'KEY `new_index4` (`taskType`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `users` ('
+    . '`uId` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`uName` VARCHAR(40) NOT NULL,'
+    . '`uPass` VARCHAR(50) NOT NULL,'
+    . '`uCreateDate` DATETIME NOT NULL,'
+    . '`uCreateBy` VARCHAR(40) NOT NULL,'
+    . 'PRIMARY KEY (`uId`),'
+    . 'KEY `new_index` (`uName`),'
+    . 'KEY `new_index1` (`uPass`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `users` VALUES ('','fog', MD5('password'), NOW(), '')",
+    "INSERT IGNORE INTO `supportedOS` VALUES ('', 'Windows XP', '1')",
+    "INSERT IGNORE INTO `schemaVersion` VALUES ('', '1')"
 );
 // 2
 $this->schema[] = array(
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`supportedOS` VALUES  ('','"._("Windows Vista")."', '2')",
-
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '2'",
+    "INSERT IGNORE INTO `supportedOS` VALUES ('', 'Windows Vista', '2')",
+    "UPDATE `schemaVersion` SET vValue='2'",
 );
 // 3
 $this->schema[] = array(
-    "ALTER TABLE `".DATABASE_NAME."`.`hosts`
-    ADD COLUMN `hostUseAD` char  NOT NULL AFTER `hostOS`,
-    ADD COLUMN `hostADDomain` VARCHAR(250)  NOT NULL AFTER `hostUseAD`,
-    ADD COLUMN `hostADOU` longtext  NOT NULL AFTER `hostADDomain`,
-    ADD COLUMN `hostADUser` VARCHAR(250)  NOT NULL AFTER `hostADOU`,
-    ADD COLUMN `hostADPass` VARCHAR(250)  NOT NULL AFTER `hostADUser`,
-    ADD COLUMN `hostAnon1` VARCHAR(250)  NOT NULL AFTER `hostADPass`,
-    ADD COLUMN `hostAnon2` VARCHAR(250)  NOT NULL AFTER `hostAnon1`,
-    ADD COLUMN `hostAnon3` VARCHAR(250)  NOT NULL AFTER `hostAnon2`,
-    ADD COLUMN `hostAnon4` VARCHAR(250)  NOT NULL AFTER `hostAnon3`,
-    ADD INDEX `new_index4`(`hostUseAD`)",
-    "CREATE TABLE  `".DATABASE_NAME."`.`snapinAssoc` (
-        `saID` int(11) NOT NULL auto_increment,
-        `saHostID` int(11) NOT NULL,
-        `saSnapinID` int(11) NOT NULL,
-        PRIMARY KEY  (`saID`),
-KEY `new_index` (`saHostID`),
-KEY `new_index1` (`saSnapinID`)
-            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-            "CREATE TABLE  `".DATABASE_NAME."`.`snapinJobs` (
-                `sjID` int(11) NOT NULL auto_increment,
-                `sjHostID` int(11) NOT NULL,
-                `sjCreateTime` datetime NOT NULL,
-                PRIMARY KEY  (`sjID`),
-KEY `new_index` (`sjHostID`)
-            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-            "CREATE TABLE  `".DATABASE_NAME."`.`snapinTasks` (
-                `stID` int(11) NOT NULL auto_increment,
-                `stJobID` int(11) NOT NULL,
-                `stState` int(11) NOT NULL,
-                `stCheckinDate` datetime NOT NULL,
-                `stCompleteDate` datetime NOT NULL,
-                `stSnapinID` int(11) NOT NULL,
-                PRIMARY KEY  (`stID`),
-KEY `new_index` (`stJobID`),
-KEY `new_index1` (`stState`),
-KEY `new_index2` (`stSnapinID`)
-            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-            "CREATE TABLE  `".DATABASE_NAME."`.`snapins` (
-                `sID` int(11) NOT NULL auto_increment,
-                `sName` varchar(200) NOT NULL,
-                `sDesc` longtext NOT NULL,
-                `sFilePath` longtext NOT NULL,
-                `sArgs` longtext NOT NULL,
-                `sCreateDate` datetime NOT NULL,
-                `sCreator` varchar(200) NOT NULL,
-                `sReboot` varchar(1) NOT NULL,
-                `sAnon1` varchar(45) NOT NULL,
-                `sAnon2` varchar(45) NOT NULL,
-                `sAnon3` varchar(45) NOT NULL,
-                PRIMARY KEY  (`sID`),
-KEY `new_index` (`sName`)
-            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-            "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '3'",
-        );
+    'ALTER TABLE `hosts`'
+    . 'ADD COLUMN `hostUseAD` CHAR NOT NULL AFTER `hostOS`,'
+    . 'ADD COLUMN `hostADDomain` VARCHAR(250) NOT NULL AFTER `hostUseAD`,'
+    . 'ADD COLUMN `hostADOU` LONGTEXT NOT NULL AFTER `hostADDomain`,'
+    . 'ADD COLUMN `hostADUser` VARCHAR(250) NOT NULL AFTER `hostADOU`,'
+    . 'ADD COLUMN `hostADPass` VARCHAR(250) NOT NULL AFTER `hostADUser`,'
+    . 'ADD COLUMN `hostAnon1` VARCHAR(250) NOT NULL AFTER `hostADPass`,'
+    . 'ADD COLUMN `hostAnon2` VARCHAR(250) NOT NULL AFTER `hostAnon1`,'
+    . 'ADD COLUMN `hostAnon3` VARCHAR(250) NOT NULL AFTER `hostAnon2`,'
+    . 'ADD COLUMN `hostAnon4` VARCHAR(250) NOT NULL AFTER `hostAnon3`,'
+    . 'ADD INDEX `new_index4` (`hostUseAD`)',
+    'CREATE TABLE `snapinAssoc` ('
+    . '`saID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`saHostID` INT(11) NOT NULL,'
+    . '`saSnapinID` INT(11) NOT NULL,'
+    . 'PRIMARY KEY  (`saID`),'
+    . 'KEY `new_index` (`saHostID`),'
+    . 'KEY `new_index1` (`saSnapinID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `snapinJobs` ('
+    . '`sjID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`sjHostID` INT(11) NOT NULL,'
+    . '`sjCreateTime` DATETIME NOT NULL,'
+    . 'PRIMARY KEY (`sjID`),'
+    . 'KEY `new_index` (`sjHostID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `snapinTasks` ('
+    . '`stID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`stJobID` INT(11) NOT NULL,'
+    . '`stState` INT(11) NOT NULL,'
+    . '`stCheckinDate` DATETIME NOT NULL,'
+    . '`stCompleteDate` DATETIME NOT NULL,'
+    . '`stSnapinID` INT(11) NOT NULL,'
+    . 'PRIMARY KEY (`stID`),'
+    . 'KEY `new_index` (`stJobID`),'
+    . 'KEY `new_index1` (`stState`),'
+    . 'KEY `new_index2` (`stSnapinID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `snapins` ('
+    . '`sID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`sName` VARCHAR(200) NOT NULL,'
+    . '`sDesc` LONGTEXT NOT NULL,'
+    . '`sFilePath` LONGTEXT NOT NULL,'
+    . '`sArgs` LONGTEXT NOT NULL,'
+    . '`sCreateDate` DATETIME NOT NULL,'
+    . '`sCreator` VARCHAR(200) NOT NULL,'
+    . '`sReboot` VARCHAR(1) NOT NULL,'
+    . '`sAnon1` VARCHAR(45) NOT NULL,'
+    . '`sAnon2` VARCHAR(45) NOT NULL,'
+    . '`sAnon3` VARCHAR(45) NOT NULL,'
+    . 'PRIMARY KEY (`sID`),'
+    . 'KEY `new_index` (`sName`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "UPDATE `schemaVersion` SET vValue='3'",
+);
 // 4
 $this->schema[] = array(
-    "CREATE TABLE  `".DATABASE_NAME."`.`multicastSessions` (
-        `msID` int(11) NOT NULL auto_increment,
-        `msName` varchar(250) NOT NULL,
-        `msBasePort` int(11) NOT NULL,
-        `msLogPath` longtext NOT NULL,
-        `msImage` longtext NOT NULL,
-        `msClients` int(11) NOT NULL,
-        `msInterface` varchar(250) NOT NULL,
-        `msStartDateTime` datetime NOT NULL,
-        `msPercent` int(11) NOT NULL,
-        `msState` int(11) NOT NULL,
-        `msCompleteDateTime` datetime NOT NULL,
-        `msAnon1` varchar(250) NOT NULL,
-        `msAnon2` varchar(250) NOT NULL,
-        `msAnon3` varchar(250) NOT NULL,
-        `msAnon4` varchar(250) NOT NULL,
-        `msAnon5` varchar(250) NOT NULL,
-        PRIMARY KEY  (`msID`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-    "CREATE TABLE  `".DATABASE_NAME."`.`multicastSessionsAssoc` (
-        `msaID` int(11) NOT NULL auto_increment,
-        `msID` int(11) NOT NULL,
-        `tID` int(11) NOT NULL,
-        PRIMARY KEY  (`msaID`),
-KEY `new_index` (`msID`),
-KEY `new_index1` (`tID`)
-            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-            "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '4'",
-        );
+    'CREATE TABLE `multicastSessions` ('
+    . '`msID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`msName` VARCHAR(250) NOT NULL,'
+    . '`msBasePort` INT(11) NOT NULL,'
+    . '`msLogPath` LONGTEXT NOT NULL,'
+    . '`msImage` LONGTEXT NOT NULL,'
+    . '`msClients` INT(11) NOT NULL,'
+    . '`msInterface` VARCHAR(250) NOT NULL,'
+    . '`msStartDateTime` DATETIME NOT NULL,'
+    . '`msPercent` INT(11) NOT NULL,'
+    . '`msState` INT(11) NOT NULL,'
+    . '`msCompleteDateTime` DATETIME NOT NULL,'
+    . '`msAnon1` VARCHAR(250) NOT NULL,'
+    . '`msAnon2` VARCHAR(250) NOT NULL,'
+    . '`msAnon3` VARCHAR(250) NOT NULL,'
+    . '`msAnon4` VARCHAR(250) NOT NULL,'
+    . '`msAnon5` VARCHAR(250) NOT NULL,'
+    . 'PRIMARY KEY (`msID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `multicastSessionsAssoc` ('
+    . '`msaID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`msID` INT(11) NOT NULL,'
+    . '`tID` INT(11) NOT NULL,'
+    . 'PRIMARY KEY  (`msaID`),'
+    . 'KEY `new_index` (`msID`),'
+    . 'KEY `new_index1` (`tID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "UPDATE `schemaVersion` set vValue='4'",
+);
 // 5
 $this->schema[] = array(
-    "ALTER TABLE `".DATABASE_NAME."`.`images`
-    ADD COLUMN `imageDD` VARCHAR(1)  NOT NULL AFTER `imageSize`,
-        ADD INDEX `new_index2`(`imageDD`)",
-        "UPDATE `".DATABASE_NAME."`.`supportedOS` set osName = 'Windows 2000/XP' where osValue = '1'",
-        "INSERT IGNORE INTO `".DATABASE_NAME."`.`supportedOS` VALUES  ('','Other', '99')",
-        "ALTER TABLE `".DATABASE_NAME."`.`multicastSessions` CHANGE `msAnon1` `msIsDD` VARCHAR(1)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
-        "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '5'",
-    );
+    'ALTER TABLE `images`'
+    . 'ADD COLUMN `imageDD` VARCHAR(1) NOT NULL AFTER `imageSize`,'
+    . 'ADD INDEX `new_index2` (`imageDD`)',
+    "UPDATE `supportedOS` SET `osName`='Windows 2000/XP' WHERE `osValue`='1'",
+    "INSERT IGNORE INTO `supportedOS` VALUES ('', 'Other', '99')",
+    'ALTER TABLE `multicastSessions`'
+    . 'CHANGE `msAnon1` `msIsDD` VARCHAR(1) CHARACTER SET utf8'
+    . 'COLLATE utf8_general_ci NOT NULL',
+    "UPDATE `schemaVersion` SET vValue='5'",
+);
 // 7
 $this->schema[] = array(
-    "CREATE TABLE `".DATABASE_NAME."`.`virus` (
-        `vID` integer  NOT NULL AUTO_INCREMENT,
-        `vName` varchar(250)  NOT NULL,
-        `vHostMAC` varchar(50)  NOT NULL,
-        `vOrigFile` longtext  NOT NULL,
-        `vDateTime` datetime  NOT NULL,
-        `vMode` varchar(5)  NOT NULL,
-        `vAnon2` varchar(50)  NOT NULL,
-        PRIMARY KEY (`vID`),
-INDEX `new_index`(`vHostMAC`),
-INDEX `new_index2`(`vDateTime`)
-            )
-            ENGINE = MyISAM",
-            "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '6'",
-        );
+    'CREATE TABLE `virus` ('
+    . '`vID` INTEGER NOT NULL AUTO_INCREMENT,'
+    . '`vName` VARCHAR(250) NOT NULL,'
+    . '`vHostMAC` VARCHAR(50) NOT NULL,'
+    . '`vOrigFile` LONGTEXT NOT NULL,'
+    . '`vDateTime` DATETIME NOT NULL,'
+    . '`vMode` VARCHAR(5) NOT NULL,'
+    . '`vAnon2` VARCHAR(50) NOT NULL,'
+    . 'PRIMARY KEY (`vID`),'
+    . 'INDEX `new_index` (`vHostMAC`),'
+    . 'INDEX `new_index2`(`vDateTime`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "UPDATE `schemaVersion` SET `vValue`='6'",
+);
 // 8
 $this->schema[] = array(
-    "CREATE TABLE `".DATABASE_NAME."`.`userTracking` (
-        `utID` integer  NOT NULL AUTO_INCREMENT,
-        `utHostID` integer  NOT NULL,
-        `utUserName` varchar(50)  NOT NULL,
-        `utAction` varchar(2)  NOT NULL,
-        `utDateTime` datetime  NOT NULL,
-        `utDesc` varchar(250)  NOT NULL,
-        `utDate` date  NOT NULL,
-        `utAnon3` varchar(2)  NOT NULL,
-        PRIMARY KEY (`utID`),
-INDEX `new_index`(`utHostID`),
-INDEX `new_index1`(`utUserName`),
-INDEX `new_index2`(`utAction`),
-INDEX `new_index3`(`utDateTime`)
-            )
-            ENGINE = MyISAM",
-            "ALTER TABLE `".DATABASE_NAME."`.`hosts` CHANGE `hostAnon1` `hostPrinterLevel` VARCHAR(2)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
-            "CREATE TABLE `".DATABASE_NAME."`.`printers` (
-                `pID` integer  NOT NULL AUTO_INCREMENT,
-                `pPort` longtext  NOT NULL,
-                `pDefFile` longtext  NOT NULL,
-                `pModel` varchar(250)  NOT NULL,
-                `pAlias` varchar(250)  NOT NULL,
-                `pConfig` varchar(10)  NOT NULL,
-                `pIP` varchar(20)  NOT NULL,
-                `pAnon2` varchar(10)  NOT NULL,
-                `pAnon3` varchar(10)  NOT NULL,
-                `pAnon4` varchar(10)  NOT NULL,
-                `pAnon5` varchar(10)  NOT NULL,
-                PRIMARY KEY (`pID`),
-INDEX `new_index1`(`pModel`),
-INDEX `new_index2`(`pAlias`)
-            )
-            ENGINE = MyISAM",
-            "CREATE TABLE `".DATABASE_NAME."`.`printerAssoc` (
-                `paID` integer  NOT NULL AUTO_INCREMENT,
-                `paHostID` integer  NOT NULL,
-                `paPrinterID` integer  NOT NULL,
-                `paIsDefault` varchar(2)  NOT NULL,
-                `paAnon1` varchar(2)  NOT NULL,
-                `paAnon2` varchar(2)  NOT NULL,
-                `paAnon3` varchar(2)  NOT NULL,
-                `paAnon4` varchar(2)  NOT NULL,
-                `paAnon5` varchar(2)  NOT NULL,
-                PRIMARY KEY (`paID`),
-INDEX `new_index1`(`paHostID`),
-INDEX `new_index2`(`paPrinterID`)
-            )
-            ENGINE = MyISAM",
-            "CREATE TABLE  `".DATABASE_NAME."`.`inventory` (
-                `iID` int(11) NOT NULL auto_increment,
-                `iHostID` int(11) NOT NULL,
-                `iPrimaryUser` varchar(50) NOT NULL,
-                `iOtherTag` varchar(50) NOT NULL,
-                `iOtherTag1` varchar(50) NOT NULL,
-                `iCreateDate` datetime NOT NULL,
-                `iSysman` varchar(250) NOT NULL,
-                `iSysproduct` varchar(250) NOT NULL,
-                `iSysversion` varchar(250) NOT NULL,
-                `iSysserial` varchar(250) NOT NULL,
-                `iSystype` varchar(250) NOT NULL,
-                `iBiosversion` varchar(250) NOT NULL,
-                `iBiosvendor` varchar(250) NOT NULL,
-                `iBiosdate` varchar(250) NOT NULL,
-                `iMbman` varchar(250) NOT NULL,
-                `iMbproductname` varchar(250) NOT NULL,
-                `iMbversion` varchar(250) NOT NULL,
-                `iMbserial` varchar(250) NOT NULL,
-                `iMbasset` varchar(250) NOT NULL,
-                `iCpuman` varchar(250) NOT NULL,
-                `iCpuversion` varchar(250) NOT NULL,
-                `iCpucurrent` varchar(250) NOT NULL,
-                `iCpumax` varchar(250) NOT NULL,
-                `iMem` varchar(250) NOT NULL,
-                `iHdmodel` varchar(250) NOT NULL,
-                `iHdfirmware` varchar(250) NOT NULL,
-                `iHdserial` varchar(250) NOT NULL,
-                `iCaseman` varchar(250) NOT NULL,
-                `iCasever` varchar(250) NOT NULL,
-                `iCaseserial` varchar(250) NOT NULL,
-                `iCaseasset` varchar(250) NOT NULL,
-                PRIMARY KEY  (`iID`)
-            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8",
-            "CREATE TABLE `".DATABASE_NAME."`.`clientUpdates` (
-                `cuID` integer  NOT NULL AUTO_INCREMENT,
-                `cuName` varchar(200)  NOT NULL,
-                `cuMD5` varchar(100)  NOT NULL,
-                `cuType` varchar(3)  NOT NULL,
-                `cuFile` LONGBLOB  NOT NULL,
-                PRIMARY KEY (`cuID`),
-INDEX `new_index`(`cuName`),
-INDEX `new_index1`(`cuType`)
-            )
-            ENGINE = MyISAM",
-            "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '7'",
-        );
+    'CREATE TABLE `userTracking` ('
+    . '`utID` INTEGER NOT NULL AUTO_INCREMENT,'
+    . '`utHostID` INTEGER NOT NULL,'
+    . '`utUserName` VARCHAR(50) NOT NULL,'
+    . '`utAction` VARCHAR(2) NOT NULL,'
+    . '`utDateTime` DATETIME NOT NULL,'
+    . '`utDesc` VARCHAR(250) NOT NULL,'
+    . '`utDate` DATE NOT NULL,'
+    . '`utAnon3` VARCHAR(2) NOT NULL,'
+    . 'PRIMARY KEY (`utID`),'
+    . 'INDEX `new_index` (`utHostID`),'
+    . 'INDEX `new_index1` (`utUserName`),'
+    . 'INDEX `new_index2` (`utAction`),'
+    . 'INDEX `new_index3` (`utDateTime`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'ALTER TABLE `hosts`'
+    . 'CHANGE `hostAnon1` `hostPrinterLevel` VARCHAR(2)'
+    . 'CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL',
+    'CREATE TABLE `printers` ('
+    . '`pID` INTEGER NOT NULL AUTO_INCREMENT,'
+    . '`pPort` LONGTEXT NOT NULL,'
+    . '`pDefFile` LONGTEXT NOT NULL,'
+    . '`pModel` VARCHAR(250) NOT NULL,'
+    . '`pAlias` VARCHAR(250) NOT NULL,'
+    . '`pConfig` VARCHAR(10) NOT NULL,'
+    . '`pIP` VARCHAR(20) NOT NULL,'
+    . '`pAnon2` VARCHAR(10) NOT NULL,'
+    . '`pAnon3` VARCHAR(10) NOT NULL,'
+    . '`pAnon4` VARCHAR(10) NOT NULL,'
+    . '`pAnon5` VARCHAR(10) NOT NULL,'
+    . 'PRIMARY KEY (`pID`),'
+    . 'INDEX `new_index1`(`pModel`),'
+    . 'INDEX `new_index2`(`pAlias`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `printerAssoc` ('
+    . '`paID` INTEGER NOT NULL AUTO_INCREMENT,'
+    . '`paHostID` INTEGER NOT NULL,'
+    . '`paPrinterID` INTEGER NOT NULL,'
+    . '`paIsDefault` VARCHAR(2) NOT NULL,'
+    . '`paAnon1` VARCHAR(2) NOT NULL,'
+    . '`paAnon2` VARCHAR(2) NOT NULL,'
+    . '`paAnon3` VARCHAR(2) NOT NULL,'
+    . '`paAnon4` VARCHAR(2) NOT NULL,'
+    . '`paAnon5` VARCHAR(2) NOT NULL,'
+    . 'PRIMARY KEY (`paID`),'
+    . 'INDEX `new_index1` (`paHostID`),'
+    . 'INDEX `new_index2` (`paPrinterID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `inventory` ('
+    . '`iID` INT(11) NOT NULL AUTO_INCREMENT,'
+    . '`iHostID` INT(11) NOT NULL,'
+    . '`iPrimaryUser` VARCHAR(50) NOT NULL,'
+    . '`iOtherTag` VARCHAR(50) NOT NULL,'
+    . '`iOtherTag1` VARCHAR(50) NOT NULL,'
+    . '`iCreateDate` DATETIME NOT NULL,'
+    . '`iSysman` VARCHAR(250) NOT NULL,'
+    . '`iSysproduct` VARCHAR(250) NOT NULL,'
+    . '`iSysversion` VARCHAR(250) NOT NULL,'
+    . '`iSysserial` VARCHAR(250) NOT NULL,'
+    . '`iSystype` VARCHAR(250) NOT NULL,'
+    . '`iBiosversion` VARCHAR(250) NOT NULL,'
+    . '`iBiosvendor` VARCHAR(250) NOT NULL,'
+    . '`iBiosdate` VARCHAR(250) NOT NULL,'
+    . '`iMbman` VARCHAR(250) NOT NULL,'
+    . '`iMbproductname` VARCHAR(250) NOT NULL,'
+    . '`iMbversion` VARCHAR(250) NOT NULL,'
+    . '`iMbserial` VARCHAR(250) NOT NULL,'
+    . '`iMbasset` VARCHAR(250) NOT NULL,'
+    . '`iCpuman` VARCHAR(250) NOT NULL,'
+    . '`iCpuversion` VARCHAR(250) NOT NULL,'
+    . '`iCpucurrent` VARCHAR(250) NOT NULL,'
+    . '`iCpumax` VARCHAR(250) NOT NULL,'
+    . '`iMem` VARCHAR(250) NOT NULL,'
+    . '`iHdmodel` VARCHAR(250) NOT NULL,'
+    . '`iHdfirmware` VARCHAR(250) NOT NULL,'
+    . '`iHdserial` VARCHAR(250) NOT NULL,'
+    . '`iCaseman` VARCHAR(250) NOT NULL,'
+    . '`iCasever` VARCHAR(250) NOT NULL,'
+    . '`iCaseserial` VARCHAR(250) NOT NULL,'
+    . '`iCaseasset` VARCHAR(250) NOT NULL,'
+    . 'PRIMARY KEY (`iID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `clientUpdates` ('
+    . '`cuID` INTEGER NOT NULL AUTO_INCREMENT,'
+    . '`cuName` VARCHAR(200) NOT NULL,'
+    . '`cuMD5` VARCHAR(100) NOT NULL,'
+    . '`cuType` VARCHAR(3) NOT NULL,'
+    . '`cuFile` LONGBLOB NOT NULL,'
+    . 'PRIMARY KEY (`cuID`),'
+    . 'INDEX `new_index` (`cuName`),'
+    . 'INDEX `new_index1`(`cuType`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "UPDATE `schemaVersion` SET vValue='7'",
+);
 // 8
 $this->schema[] = array(
-    "INSERT IGNORE INTO ".DATABASE_NAME.".supportedOS(osName, osValue) values( '"._("Windows 98")."', '3' )",
-    "INSERT IGNORE INTO ".DATABASE_NAME.".supportedOS(osName, osValue) values( '"._("Windows (other)")."', '4' )",
-    "INSERT IGNORE INTO ".DATABASE_NAME.".supportedOS(osName, osValue) values( '"._("Linux")."', '50' )",
-    "ALTER TABLE `".DATABASE_NAME."`.`multicastSessions` MODIFY COLUMN `msIsDD` integer  NOT NULL",
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '8'",
+    "INSERT IGNORE INTO `supportedOS` (`osName`, `osValue`) VALUES ('"
+    . "('Windows 98','3'),"
+    . "('Windows (other)','4'),"
+    . "('Linux','50')",
+    "ALTER TABLE `multicastSessions` MODIFY COLUMN `msIsDD` INTEGER NOT NULL",
+    "UPDATE `schemaVersion` SET vValue='8'",
 );
 // 9
 $this->schema[] = array(
-    "CREATE TABLE `".DATABASE_NAME."`.`globalSettings` (
-        `settingID` INTEGER  NOT NULL AUTO_INCREMENT,
-        `settingKey` VARCHAR(254)  NOT NULL,
-        `settingDesc` longtext  NOT NULL,
-        `settingValue` varchar(254)  NOT NULL,
-        `settingCategory` varchar(254)  NOT NULL,
-        PRIMARY KEY (`settingID`),
-INDEX `new_index`(`settingKey`)
-            )
-            ENGINE = MyISAM;",
-            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-            values('FOG_TFTP_HOST', '"._("Hostname or IP address of the TFTP Server.")."', '" . TFTP_HOST . "', 'TFTP Server')",
-                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_TFTP_FTP_USERNAME', '"._("Username used to access the tftp server via ftp.")."', '" . TFTP_FTP_USERNAME . "', 'TFTP Server')",
-                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                    values('FOG_TFTP_FTP_PASSWORD', '"._("Password used to access the tftp server via ftp.")."', '" . TFTP_FTP_PASSWORD . "', 'TFTP Server')",
-                        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                        values('FOG_TFTP_PXE_CONFIG_DIR', '"._("Location of pxe boot files on the PXE server.")."', '" . TFTP_PXE_CONFIG_DIR . "', 'TFTP Server')",
-                            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                            values('FOG_TFTP_PXE_KERNEL_DIR', '"._("Location of kernel files on the PXE server.")."', '" . TFTP_PXE_KERNEL_DIR . "', 'TFTP Server')",
-                                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                values('FOG_TFTP_PXE_KERNEL', '"._("Location of kernel file on the PXE server, this should point to the kernel itself.")."', '" . PXE_KERNEL . "', 'TFTP Server')",
-                                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                    values('FOG_KERNEL_RAMDISK_SIZE', '"._("This setting defines the amount of physical memory (in KB) you want to use for the boot image.  This setting needs to be larger than the boot image and smaller that the total physical memory on the client.")."', '" . PXE_KERNEL_RAMDISK . "', 'TFTP Server')",
-                                        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                        values('FOG_USE_SLOPPY_NAME_LOOKUPS', '"._("The settings was added to workaround a partial implementation of DHCP in the boot image.  The boot image is unable to obtain a DNS server address from the DHCP server, so what this setting will do is resolve any hostnames to IP address on the FOG server before writing the config files.")."', '" . USE_SLOPPY_NAME_LOOKUPS . "', 'General Settings')",
-                                            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                            values('FOG_MEMTEST_KERNEL', '"._("The settings defines where the memtest boot image/kernel is located.")."', '" . MEMTEST_KERNEL . "', 'General Settings')",
-                                                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                values('FOG_PXE_BOOT_IMAGE', '"._("The settings defines where the fog boot file system image is located.")."', '" . PXE_IMAGE . "', 'TFTP Server')",
-                                                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                    values('FOG_PXE_IMAGE_DNSADDRESS', '"._("Since the fog boot image has an incomplete dhcp implementation, you can specify a dns address to be used with the boot image.  If you are going to use this settings, you should turn <b>FOG_USE_SLOPPY_NAME_LOOKUPS</b> off.")."', '" . PXE_IMAGE_DNSADDRESS . "', 'TFTP Server')",
-                                                        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                        values('FOG_NFS_HOST', '"._("This setting defines the hostname or ip address of the NFS server used with FOG.")."', '" . STORAGE_HOST . "', 'NFS Server')",
-                                                            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                            values('FOG_NFS_FTP_USERNAME', '"._("This setting defines the username used to access files on the nfs server used with FOG.")."', '" . STORAGE_FTP_USERNAME . "', 'NFS Server')",
-                                                                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                values('FOG_NFS_FTP_PASSWORD', '"._("This setting defines the password used to access flies on the nfs server used with FOG.")."', '" . STORAGE_FTP_PASSWORD . "', 'NFS Server')",
-                                                                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                    values('FOG_NFS_DATADIR', '"._("This setting defines the directory on the NFS server where images are stored.  ")."', '" . STORAGE_DATADIR . "', 'NFS Server')",
-                                                                        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                        values('FOG_NFS_DATADIR_CAPTURE', '"._("This setting defines the directory on the NFS server where images are captured too.")."', '" . STORAGE_DATADIR_CAPTURE . "', 'NFS Server')",
-                                                                            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                            values('FOG_NFS_BANDWIDTHPATH', '"._("This setting defines the web page used to acquire the bandwidth used by the nfs server.")."', '" . STORAGE_BANDWIDTHPATH . "', 'NFS Server')",
-                                                                                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                values('FOG_CAPTURERESIZEPCT', '"._("This setting defines the amount of padding applied to a partition before attempting resize the ntfs volume and capturing it.")."', '" . CAPTURERESIZEPCT . "', 'General Settings')",
-                                                                                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                    values('FOG_WEB_HOST', '"._("This setting defines the hostname or ip address of the web server used with fog.")."', '" . WEB_HOST . "', 'Web Server')",
-                                                                                        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                        values('FOG_WEB_ROOT', '"._("This setting defines the path to the fog webserver\'s root directory.")."', '" . WEB_ROOT . "', 'Web Server')",
-                                                                                            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                            values('FOG_WOL_HOST', '"._("This setting defines the ip address of hostname for the server hosting the Wake-on-lan service.")."', '" . WOL_HOST . "', 'General Settings')",
-                                                                                                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                values('FOG_WOL_PATH', '"._("This setting defines the path to the files performing the WOL tasks.")."', '" . WOL_PATH . "', 'General Settings')",
-                                                                                                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                    values('FOG_WOL_INTERFACE', '"._("This setting defines the network interface used in the WOL process.")."', '" . WOL_INTERFACE . "', 'General Settings')",
-                                                                                                        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                        values('FOG_SNAPINDIR', '"._("This setting defines the location of the snapin files.  These files must be hosted on the web server.")."', '" . SNAPINDIR . "', 'Web Server')",
-                                                                                                            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                            values('FOG_QUEUESIZE', '"._("This setting defines how many unicast tasks to allow to be active at one time.")."', '" . QUEUESIZE . "', 'General Settings')",
-                                                                                                                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                values('FOG_CHECKIN_TIMEOUT', '"._("This setting defines the amount of time between client checks to determine if they are active clients.")."', '" . CHECKIN_TIMEOUT . "', 'General Settings')",
-                                                                                                                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                    values('FOG_USER_MINPASSLENGTH', '"._("This setting defines the minimum number of characters in a user\'s password.")."', '" . USER_MINPASSLENGTH . "', 'User Management')",
-                                                                                                                        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                        values('FOG_USER_VALIDPASSCHARS', '"._("This setting defines the valid characters used in a password.")."', '" . USER_VALIDPASSCHARS . "', 'User Management')",
-                                                                                                                            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                            values('FOG_NFS_ETH_MONITOR', '"._("This setting defines which interface is monitored for traffic summaries.")."', '" . NFS_ETH_MONITOR . "', 'NFS Server')",
-                                                                                                                                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                                values('FOG_UDPCAST_INTERFACE', '"._("This setting defines the interface used in multicast communications.")."', '" . UDPCAST_INTERFACE . "', 'Multicast Settings')",
-                                                                                                                                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                                    values('FOG_UDPCAST_STARTINGPORT', '"._("This setting defines the starting port number used in multicast communications.  This starting port number must be an even number.")."', '" . UDPCAST_STARTINGPORT . "', 'Multicast Settings')",
-                                                                                                                                        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                                        values('FOG_MULTICAST_MAX_SESSIONS', '"._("This setting defines the maximum number of multicast sessions that can be running at one time.")."', '" . FOG_MULTICAST_MAX_SESSIONS . "', 'Multicast Settings')",
-                                                                                                                                            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                                            values('FOG_JPGRAPH_VERSION', '"._("This setting defines ")."', '" . FOG_JPGRAPH_VERSION . "', 'Web Server')",
-                                                                                                                                                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                                                values('FOG_REPORT_DIR', '"._("This setting defines the location on the web server of the FOG reports.")."', '" . FOG_REPORT_DIR . "', 'Web Server')",
-                                                                                                                                                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                                                    values('FOG_THEME', '"._("This setting defines what css style sheet and theme to use for FOG.")."', '" . FOG_THEME . "', 'Web Server')",
-                                                                                                                                                        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                                                        values('FOG_CAPTUREIGNOREPAGEHIBER', '"._("This setting defines if you would like to remove hibernate and swap files before capturing a Windows image.  ")."', '" . FOG_CAPTUREIGNOREPAGEHIBER . "', 'General Settings')",
-                                                                                                                                                            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                                                                                                                                            values('FOG_CLIENT_DIRECTORYCLEANER_ENABLED', '"._("This setting defines if the Windows Service module directory cleaner should be enabled on client computers. This service is clean out the contents of a directory on when a user logs out of the workstation. (Valid values: 0 or 1).")."', '1', 'FOG Client - Directory Cleaner')",
-                                                                                                                                                                "CREATE TABLE `".DATABASE_NAME."`.`moduleStatusByHost` (
-                                                                                                                                                                    `msID` integer  NOT NULL AUTO_INCREMENT,
-                                                                                                                                                                    `msHostID` integer  NOT NULL,
-                                                                                                                                                                    `msModuleID` varchar(50)  NOT NULL,
-                                                                                                                                                                    `msState` varchar(1)  NOT NULL,
-                                                                                                                                                                    PRIMARY KEY (`msID`),
-INDEX `new_index`(`msHostID`),
-INDEX `new_index2`(`msModuleID`)
-                )
-                ENGINE = MyISAM;",
-                "CREATE TABLE `".DATABASE_NAME."`.`dirCleaner` (
-                    `dcID` integer  NOT NULL AUTO_INCREMENT,
-                    `dcPath` longtext  NOT NULL,
-                    PRIMARY KEY (`dcID`)
-                )
-                ENGINE = MyISAM;",
-                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_USE_ANIMATION_EFFECTS', '"._("This setting defines if the FOG management portal uses animation effects on it.  Valid values are 0 or 1")."', '1', 'General Settings')",
-                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                    values('FOG_CLIENT_USERCLEANUP_ENABLED', '"._("This setting defines if user cleanup should be enabled.  The User Cleanup module will remove all local windows users from the workstation on log off accept for users that are whitelisted.  (Valid values are 0 or 1)")."', '0', 'FOG Client - User Cleanup')",
-                        "CREATE TABLE `".DATABASE_NAME."`.`userCleanup` (
-                            `ucID` integer  NOT NULL AUTO_INCREMENT,
-                            `ucName` varchar(254)  NOT NULL,
-                            PRIMARY KEY (`ucID`)
-                        )
-                        ENGINE = MyISAM",
-                        "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'administrator' )",
-                        "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'admin' )",
-                        "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'guest' )",
-                        "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'HelpAssistant' )",
-                        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                        values('FOG_CLIENT_GREENFOG_ENABLED', '"._("This setting defines if the green fog module should be enabled.  The green fog module will shutdown or restart a computer at a set time.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Green Fog')",
-                            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                            values('FOG_CLIENT_AUTOLOGOFF_ENABLED', '"._("This setting defines if the auto log off module should be enabled.  This module will log off any active user after X minutes of inactivity.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Auto Log Off')",
-                                "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'ASPNET' )",
-                                "INSERT IGNORE INTO `".DATABASE_NAME."`.userCleanup( ucName ) values( 'SUPPORT_' )",
-                                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                values('FOG_CLIENT_DISPLAYMANAGER_ENABLED', '"._("This setting defines if the fog display manager should be active.  The fog display manager will reset the clients screen resolution to a fixed size on log off and on computer start up.  (Valid values are 0 or 1)")."', '0', 'FOG Client - Display Manager')",
-                                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                    values('FOG_CLIENT_DISPLAYMANAGER_X', '"._("This setting defines the default width in pixels to reset the computer display to with the fog display manager service.")."', '1024', 'FOG Client - Display Manager')",
-                                        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                        values('FOG_CLIENT_DISPLAYMANAGER_Y', '"._("This setting defines the default height in pixels to reset the computer display to with the fog display manager service.")."', '768', 'FOG Client - Display Manager')",
-                                            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                                            values('FOG_CLIENT_DISPLAYMANAGER_R', '"._("This setting defines the default refresh rate to reset the computer display to with the fog display manager service.")."', '60', 'FOG Client - Display Manager')",
-                                                "CREATE TABLE `".DATABASE_NAME."`.`hostScreenSettings` (
-                                                    `hssID` integer  NOT NULL AUTO_INCREMENT,
-                                                    `hssHostID` integer  NOT NULL,
-                                                    `hssWidth` integer  NOT NULL,
-                                                    `hssHeight` integer  NOT NULL,
-                                                    `hssRefresh` integer  NOT NULL,
-                                                    `hssOrientation` integer  NOT NULL,
-                                                    `hssOther1` integer  NOT NULL,
-                                                    `hssOther2` integer  NOT NULL,
-                                                    PRIMARY KEY (`hssID`),
-INDEX `new_index`(`hssHostID`)
-                )
-                ENGINE = MyISAM",
-                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_CLIENT_AUTOLOGOFF_MIN', '"._("This setting defines the number of minutes to wait before logging a user off of a PC. (Value of 0 will disable this module.)")."', '0', 'FOG Client - Auto Log Off')",
-                    "CREATE TABLE `".DATABASE_NAME."`.`hostAutoLogOut` (
-                        `haloID` integer  NOT NULL AUTO_INCREMENT,
-                        `haloHostID` integer  NOT NULL,
-                        `haloTime` varchar(10) NOT NULL,
-                        PRIMARY KEY (`haloID`),
-INDEX `new_index`(`haloHostID`)
-                )
-                ENGINE = MyISAM",
-                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_CLIENT_AUTOLOGOFF_BGIMAGE', '"._("This setting defines the location of the background image used in the auto log off module.  The image should be 300px x 300px.  This image can be located locally (such as c:\\\\images\\\\myimage.jpg) or on a web server (such as http://freeghost.sf.net/images/image.jpg)")."', 'c:\\\\program files\\\\fog\\\\images\\\\alo-bg.jpg', 'FOG Client - Auto Log Off')",
-                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                    values('FOG_KEYMAP', '"._("This setting defines the keymap used on the client boot image.")."', '', 'General Settings')",
-                        "CREATE TABLE `".DATABASE_NAME."`.`greenFog` (
-                            `gfID` integer  NOT NULL AUTO_INCREMENT,
-                            `gfHostID` integer  NOT NULL,
-                            `gfHour` integer  NOT NULL,
-                            `gfMin` integer  NOT NULL,
-                            `gfAction` varchar(2)  NOT NULL,
-                            `gfDays` varchar(25)  NOT NULL,
-                            PRIMARY KEY (`gfID`),
-INDEX `new_index`(`gfHostID`)
-                )
-                ENGINE = MyISAM",
+    'CREATE TABLE `globalSettings` ('
+    . '`settingID` INTEGER NOT NULL AUTO_INCREMENT,'
+    . '`settingKey` VARCHAR(254) NOT NULL,'
+    . '`settingDesc` LONGTEXT NOT NULL,'
+    . '`settingValue` VARCHAR(254) NOT NULL,'
+    . '`settingCategory` VARCHAR(254) NOT NULL,'
+    . 'PRIMARY KEY (`settingID`),'
+    . 'INDEX `new_index` (`settingKey`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'INSERT IGNORE INTO `globalSettings`'
+    . '(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)'
+    . 'VALUES'
+    . "('FOG_TFTP_HOST','Hostname or IP address of the TFTP Server.','"
+    . TFTP_HOST
+    . "','TFTP Server'),"
+    . "('FOG_TFTP_FTP_USERNAME','Username used to access the tftp server via ftp.','"
+    . TFTP_FTP_USERNAME
+    . "','TFTP Server'),"
+    . "('FOG_TFTP_FTP_PASSWORD','Password used to access the tftp server via ftp.','"
+    . TFTP_FTP_PASSWORD
+    . "','TFTP Server'),"
+    . "('FOG_TFTP_PXE_CONFIG_DIR','Location of pxe boot files on the PXE server.','"
+    . TFTP_PXE_CONFIG_DIR
+    . "','TFTP Server'),"
+    . "('FOG_TFTP_PXE_KERNEL_DIR','Location of kernel files on the PXE server.','"
+    . TFTP_PXE_KERNEL_DIR
+    . "','TFTP Server'),"
+    . "('FOG_TFTP_PXE_KERNEL','Location of kernel file on the PXE server,"
+    . "this should point to the kernel itself.','"
+    . PXE_KERNEL
+    . "','TFTP Server'),"
+    . "('FOG_KERNEL_RAMDISK_SIZE','This setting defines the amount of physical "
+    . "memory (in KB) you want to use for the boot image. This setting needs "
+    . "to be larger than the boot image and smaller that the total physical "
+    . "memory on the client.','"
+    . PXE_KERNEL_RAMDISK
+    . "','TFTP Server'),"
+    . "('FOG_USE_SLOPPY_NAME_LOOKUPS','The settings was added to workaround "
+    . "a partial implementation of DHCP in the boot image. The boot image "
+    . "is unable to obtain a DNS server address from the DHCP server, "
+    . "so what this setting will do is resolve any hostnames to IP "
+    . "address on the FOG server before writing the config files.','"
+    . USE_SLOPPY_NAME_LOOKUPS
+    . "','General Settings'),"
+    . "('FOG_MEMTEST_KERNEL', 'The settings defines where the memtest boot "
+    . "image/kernel is located.','"
+    . MEMTEST_KERNEL
+    . "','General Settings'),"
+    . "('FOG_PXE_BOOT_IMAGE','The settings defines where the fog boot file "
+    . "system image is located.','"
+    . PXE_IMAGE
+    . "','TFTP Server'),"
+    . "('FOG_PXE_IMAGE_DNSADDRESS','Since the fog boot image has an "
+    . "incomplete dhcp implementation, you can specify a dns address "
+    . "to be used with the boot image. If you are going to use this "
+    . "settings, you should turn <b>FOG_USE_SLOPPY_NAME_LOOKUPS</b> off.','"
+    . PXE_IMAGE_DNSADDRESS
+    . "','TFTP Server'),"
+    . "('FOG_NFS_HOST','This setting defines the hostname or ip address "
+    . "of the NFS server used with FOG.','"
+    . STORAGE_HOST
+    . "','NFS Server'),"
+    . "('FOG_NFS_FTP_USERNAME','This setting defines the username "
+    . "used to access files on the nfs server used with FOG.','"
+    . STORAGE_FTP_USERNAME
+    . "','NFS Server'),"
+    . "('FOG_NFS_FTP_PASSWORD','This setting defines the password "
+    . "used to access flies on the nfs server used with FOG.','"
+    . STORAGE_FTP_PASSWORD
+    . "','NFS Server'),"
+    . "('FOG_NFS_DATADIR','This setting defines the directory on "
+    . "the NFS server where images are stored.','"
+    . STORAGE_DATADIR
+    . "','NFS Server'),"
+    . "('FOG_NFS_DATADIR_CAPTURE','This setting defines the directory "
+    . "on the NFS server where images are captured too.','"
+    . STORAGE_DATADIR_CAPTURE
+    . "','NFS Server'),"
+    . "('FOG_NFS_BANDWIDTHPATH','This setting defines the web page "
+    . "used to acquire the bandwidth used by the nfs server.','"
+    . STORAGE_BANDWIDTHPATH
+    . "','NFS Server'),"
+    . "('FOG_CAPTURERESIZEPCT','This setting defines the amount of "
+    . "padding applied to a partition before attempting resize the "
+    . "ntfs volume and capturing it.','"
+    . CAPTURERESIZEPCT
+    . "','General Settings'),"
+    . "('FOG_WEB_HOST','This setting defines the hostname or ip "
+    . "address of the web server used with fog.','"
+    . WEB_HOST
+    . "','Web Server'),"
+    . "('FOG_WEB_ROOT','This setting defines the path to the "
+    . "fog webserver\'s root directory.','"
+    . WEB_ROOT
+    . "','Web Server'),"
+    . "('FOG_WOL_HOST','This setting defines the ip address "
+    . "of hostname for the server hosting the Wake-on-lan service.','"
+    . WOL_HOST
+    . "','General Settings'),"
+    . "('FOG_WOL_PATH','This setting defines the path to the files "
+    . "performing the WOL tasks.','"
+    . WOL_PATH
+    . "','General Settings'),"
+    . "('FOG_WOL_INTERFACE','This setting defines the network interface "
+    . "used in the WOL process.','"
+    . WOL_INTERFACE
+    . "','General Settings'),"
+    . "('FOG_SNAPINDIR','This setting defines the location of the "
+    . "snapin files. These files must be hosted on the web server.','"
+    . SNAPINDIR
+    . "','Web Server'),"
+    . "('FOG_QUEUESIZE','This setting defines how many unicast "
+    . "tasks to allow to be active at one time.','"
+    . QUEUESIZE
+    . "','General Settings'),"
+    . "('FOG_CHECKIN_TIMEOUT','This setting defines the amount "
+    . "of time between client checks to determine if they are "
+    . "active clients.','"
+    . CHECKIN_TIMEOUT
+    . "','General Settings'),"
+    . "('FOG_USER_MINPASSLENGTH','This setting defines the "
+    . "minimum number of characters in a user\'s password.','"
+    . USER_MINPASSLENGTH
+    . "','User Management'),"
+    . "('FOG_USER_VALIDPASSCHARS','This setting defines the "
+    . "valid characters used in a password.','"
+    . USER_VALIDPASSCHARS
+    . "','User Management'),"
+    . "('FOG_NFS_ETH_MONITOR','This setting defines which "
+    . "interface is monitored for traffic summaries.','"
+    . NFS_ETH_MONITOR
+    . "','NFS Server'),"
+    . "('FOG_UDPCAST_INTERFACE', 'This setting defines the "
+    . "interface used in multicast communications.','"
+    . UDPCAST_INTERFACE
+    . "','Multicast Settings'),"
+    . "('FOG_UDPCAST_STARTINGPORT','This setting defines the "
+    . "starting port number used in multicast communications. "
+    . "This starting port number must be an even number.','"
+    . UDPCAST_STARTINGPORT
+    . "','Multicast Settings'),"
+    . "('FOG_MULTICAST_MAX_SESSIONS','This setting defines "
+    . "the maximum number of multicast sessions that can be "
+    . "running at one time.','"
+    . FOG_MULTICAST_MAX_SESSIONS
+    . "', 'Multicast Settings'),"
+    . "('FOG_JPGRAPH_VERSION','This setting defines jpgraph version to use.','"
+    . FOG_JPGRAPH_VERSION
+    . "', 'Web Server'),"
+    . "('FOG_REPORT_DIR','This setting defines the location on the "
+    . "web server of the FOG reports.','"
+    . FOG_REPORT_DIR
+    . "','Web Server'),"
+    . "('FOG_THEME','This setting defines what css style "
+    . "sheet and theme to use for FOG.','"
+    . FOG_THEME
+    . "','Web Server'),"
+    . "('FOG_CAPTUREIGNOREPAGEHIBER','This setting defines if you would "
+    . "like to remove hibernate and swap files before capturing a "
+    . "Windows image.','"
+    . FOG_CAPTUREIGNOREPAGEHIBER
+    . "','General Settings'),"
+    . "('FOG_CLIENT_DIRECTORYCLEANER_ENABLED','This setting defines if "
+    . "the Windows Service module directory cleaner should be enabled "
+    . "on client computers. This service is clean out the contents of "
+    . "a directory on when a user logs out of the workstation. "
+    . "(Valid values: 0 or 1).','1', 'FOG Client - Directory Cleaner')",
+    'CREATE TABLE `moduleStatusByHost` ('
+    . '`msID` INTEGER NOT NULL AUTO_INCREMENT,'
+    . '`msHostID` integer NOT NULL,'
+    . '`msModuleID` VARCHAR(50) NOT NULL,'
+    . '`msState` VARCHAR(1)  NOT NULL,'
+    . 'PRIMARY KEY (`msID`),'
+    . 'INDEX `new_index`(`msHostID`),'
+    . 'INDEX `new_index2`(`msModuleID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `dirCleaner` ('
+    . '`dcID` INTEGER  NOT NULL AUTO_INCREMENT,'
+    . '`dcPath` longtext  NOT NULL,'
+    . 'PRIMARY KEY (`dcID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'INSERT IGNORE INTO `globalSettings`'
+    . '(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)'
+    . 'VALUES'
+    . "('FOG_USE_ANIMATION_EFFECTS','This setting defines if the "
+    . "FOG management portal uses animation effects on it. "
+    . "Valid values are 0 or 1', '1', 'General Settings'),"
+    . "('FOG_CLIENT_USERCLEANUP_ENABLED','This setting defines if "
+    . "user cleanup should be enabled. The User Cleanup module "
+    . "will remove all local windows users from the workstation "
+    . "on log off accept for users that are whitelisted. (Valid "
+    . "values are 0 or 1)','0','FOG Client - User Cleanup')",
+    'CREATE TABLE `userCleanup` ('
+    . '`ucID` INTEGER NOT NULL AUTO_INCREMENT,'
+    . '`ucName` VARCHAR(254) NOT NULL,'
+    . 'PRIMARY KEY (`ucID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `userCleanup` (`ucName`)"
+    . 'VALUES'
+    . "('admin'),"
+    . "('guest'),"
+    . "('administrator'),"
+    . "('HelpAssistant'),"
+    . "('ASPNET'),"
+    . "('SUPPORT_')",
+    'INSERT IGNORE INTO `globalSettings`'
+    . '(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)'
+    . 'VALUES'
+    . "('FOG_CLIENT_GREENFOG_ENABLED','This setting defines if the green "
+    . "fog module should be enabled. The green fog module will shutdown "
+    . "or restart a computer at a set time. (Valid values are 0 or 1)'"
+    . ",'1','FOG Client - Green Fog'),"
+    . "('FOG_CLIENT_AUTOLOGOFF_ENABLED','This setting defines if the "
+    . "auto log off module should be enabled. This module will log "
+    . "off any active user after X minutes of inactivity."
+    . "(Valid values are 0 or 1)','1','FOG Client - Auto Log Off'),"
+    . "('FOG_CLIENT_DISPLAYMANAGER_ENABLED','This setting defines "
+    . "if the fog display manager should be active. The fog display "
+    . "manager will reset the clients screen resolution to a fixed "
+    . "size on log off and on computer start up."
+    . "(Valid values are 0 or 1)','0','FOG Client - Display Manager'),"
+    . "('FOG_CLIENT_DISPLAYMANAGER_X','This setting defines the default "
+    . "width in pixels to reset the computer display to with the fog "
+    . "display manager service.','1024','FOG Client - Display Manager'),"
+    . "('FOG_CLIENT_DISPLAYMANAGER_Y','This setting defines the "
+    . "default height in pixels to reset the computer display to "
+    . "with the fog display manager service.','768','FOG Client - Display Manager'),"
+    . "('FOG_CLIENT_DISPLAYMANAGER_R','This setting defines the "
+    . "default refresh rate to reset the computer display to with "
+    . "the fog display manager service.','60','FOG Client - Display Manager'),"
+    . "('FOG_CLIENT_AUTOLOGOFF_BGIMAGE','This setting defines the "
+    . "location of the background image used in the auto log off "
+    . "module. The image should be 300px x 300px. This image can "
+    . "be located locally (such as c:\\images\\myimage.jpg) "
+    . "or on a web server (such as http://freeghost.sf.net/images/image.jpg)',"
+    . "'c:\\program files\\fog\\images\\alo-bg.jpg','FOG Client - Auto Log Off'),"
+    . "('FOG_CLIENT_AUTOLOGOFF_MIN','This setting defines the number of "
+    . "minutes to wait before logging a user off of a PC."
+    . "(Value of 0 will disable this module.)','0', 'FOG Client - Auto Log Off'),"
+    . "('FOG_KEYMAP','This setting defines the keymap used on "
+    . "the client boot image.','','General Settings'),",
+    "CREATE TABLE `hostScreenSettings` ("
+    . '`hssID` INTEGER NOT NULL AUTO_INCREMENT,'
+    . '`hssHostID` INTEGER  NOT NULL,'
+    . '`hssWidth` INTEGER NOT NULL,'
+    . '`hssHeight` INTEGER NOT NULL,'
+    . '`hssRefresh` INTEGER NOT NULL,'
+    . '`hssOrientation` INTEGER NOT NULL,'
+    . '`hssOther1` INTEGER NOT NULL,'
+    . '`hssOther2` INTEGER NOT NULL,'
+    . 'PRIMARY KEY (`hssID`),'
+    . 'INDEX `new_index`(`hssHostID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `hostAutoLogOut` ('
+    . '`haloID` INTEGER  NOT NULL AUTO_INCREMENT,'
+    . '`haloHostID` INTEGER  NOT NULL,'
+    . '`haloTime` VARCHAR(10) NOT NULL,'
+    . 'PRIMARY KEY (`haloID`),'
+    . 'INDEX `new_index`(`haloHostID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    'CREATE TABLE `greenFog` ('
+    . '`gfID` INTEGER NOT NULL AUTO_INCREMENT,'
+    . '`gfHostID` INTEGER NOT NULL,'
+    . '`gfHour` INTEGER NOT NULL,'
+    . '`gfMin` INTEGER NOT NULL,'
+    . '`gfAction` varchar(2) NOT NULL,'
+    . '`gfDays` varchar(25) NOT NULL,'
+    . 'PRIMARY KEY (`gfID`),'
+    . 'INDEX `new_index`(`gfHostID`)'
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
                 "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
                 values('FOG_CLIENT_HOSTNAMECHANGER_ENABLED', '"._("This setting defines if the fog hostname changer should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Hostname Changer')",
                     "CREATE TABLE `".DATABASE_NAME."`.`aloLog` (
@@ -1594,7 +1708,7 @@ $this->schema[] = array_merge(
     "INSERT IGNORE INTO `" . DATABASE_NAME ."`.`hostMAC` (`hmMAC`,`hmHostID`,`hmPending`) SELECT `pmAddress`,`pmHostID`,'1' FROM `".DATABASE_NAME."`.`pendingMACS` WHERE `pmAddress` IS NOT NULL",
     "ALTER TABLE `" . DATABASE_NAME ."`.`hosts` DROP COLUMN `hostMAC`",
     "DROP TABLE `" . DATABASE_NAME ."`.`pendingMACS`"),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('hostMAC', array('hmHostID', 'hmMAC')), true)
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('hostMAC', array('hmHostID', 'hmMAC')), true)
 );
 // 131
 $this->schema[] = array(
@@ -1640,7 +1754,7 @@ $this->schema[] = array_merge(
     ) ENGINE=MyISAM;",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`imageGroupAssoc` (`igaImageID`,`igaStorageGroupID`) SELECT `imageID`,`imageNFSGroupID` FROM `".DATABASE_NAME."`.`images` WHERE `imageNFSGroupID` IS NOT NULL",
     "ALTER TABLE `".DATABASE_NAME."`.`images` DROP COLUMN `imageNFSGroupID`"),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('imageGroupAssoc', array('igaImageID', 'igaImageID')), true)
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('imageGroupAssoc', array('igaImageID', 'igaImageID')), true)
 );
 // 137
 $this->schema[] = array(
@@ -1669,7 +1783,7 @@ $this->schema[] = array_merge(
     ) ENGINE=MyISAM;",
     "INSERT IGNORE INTO `".DATABASE_NAME."`.`snapinGroupAssoc` (`sgaSnapinID`,`sgaStorageGroupID`) SELECT `sID`,`snapinNFSGroupID` FROM `".DATABASE_NAME."`.`snapins` WHERE `snapinNFSGroupID` IS NOT NULL",
     "ALTER TABLE `".DATABASE_NAME."`.`snapins` DROP COLUMN `snapinNFSGroupID`"),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('snapinGroupAssoc', array('sgaSnapinID', 'sgaSnapinID'), 'sgaSnapinID'), true)
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('snapinGroupAssoc', array('sgaSnapinID', 'sgaSnapinID'), 'sgaSnapinID'), true)
 );
 // 141
 $this->schema[] = array(
@@ -1751,38 +1865,38 @@ $this->schema[] = array();
 $this->schema[] = array();
 // 161
 $this->schema[] = array_merge(
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('greenFog', array('gfHostID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('groups', array('groupName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('hosts', array('hostName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('hostScreenSettings', array('hssHostID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('imagePartitionTypes', array('imagePartitionTypeName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('imageTypes', array('imageTypeValue'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('images', array('imageName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('inventory', array('iHostID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('modules', array('short_name'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('nfsGroups', array('ngName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('os', array('osName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('plugins', array('pName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('printers', array('pAlias'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('snapins', array('sName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('supportedOS', array('osName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('taskStates', array('tsName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('taskTypes', array('ttName'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('groupMembers', array('gmHostID', 'gmGroupID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('hostAutoLogOut', array('haloHostID', 'haloTime'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('hostMAC', array('hmHostID', 'hmMAC'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('imageGroupAssoc', array('igaImageID', 'igaStorageGroupID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('moduleStatusByHost', array('msHostID', 'msModuleID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('multicastSessionsAssoc', array('msID', 'tID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('nfsFailures', array('nfNodeID', 'nfHostID', 'nfTaskID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('nfsGroupMembers', array('ngmMemberName', 'ngmGroupID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('oui', array('ouiMACPrefix', 'ouiMan'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('printerAssoc', array('paHostID', 'paPrinterID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('snapinAssoc', array('saSnapinID', 'saHostID'))),
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('snapinGroupAssoc', array('sgaStorageGroupID', 'sgaSnapinID')))
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('greenFog', array('gfHostID'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('groups', array('groupName'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('hosts', array('hostName'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('hostScreenSettings', array('hssHostID'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('imagePartitionTypes', array('imagePartitionTypeName'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('imageTypes', array('imageTypeValue'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('images', array('imageName'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('inventory', array('iHostID'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('modules', array('short_name'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('nfsGroups', array('ngName'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('os', array('osName'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('plugins', array('pName'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('printers', array('pAlias'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('snapins', array('sName'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('supportedOS', array('osName'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('taskStates', array('tsName'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('taskTypes', array('ttName'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('groupMembers', array('gmHostID', 'gmGroupID'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('hostAutoLogOut', array('haloHostID', 'haloTime'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('hostMAC', array('hmHostID', 'hmMAC'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('imageGroupAssoc', array('igaImageID', 'igaStorageGroupID'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('moduleStatusByHost', array('msHostID', 'msModuleID'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('multicastSessionsAssoc', array('msID', 'tID'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('nfsFailures', array('nfNodeID', 'nfHostID', 'nfTaskID'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('nfsGroupMembers', array('ngmMemberName', 'ngmGroupID'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('oui', array('ouiMACPrefix', 'ouiMan'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('printerAssoc', array('paHostID', 'paPrinterID'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('snapinAssoc', array('saSnapinID', 'saHostID'))),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('snapinGroupAssoc', array('sgaStorageGroupID', 'sgaSnapinID')))
 );
 // 162
-$this->schema[] = $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('snapinTasks', array('stJobID', 'stSnapinID')));
+$this->schema[] = $tmpSchema->dropDuplicateData(DATABASE_NAME, array('snapinTasks', array('stJobID', 'stSnapinID')));
 // 163
 $this->schema[] = array(
     "DROP TABLE IF EXISTS `".DATABASE_NAME."`.`hostFingerprintAssoc`,`".DATABASE_NAME."`.`queueAssoc`,`".DATABASE_NAME."`.`nodeJSconfig`",
@@ -1948,7 +2062,7 @@ $this->schema[] = array(
 );
 // 189
 $this->schema[] = array_merge(
-    $tmpSchema->drop_duplicate_data(DATABASE_NAME, array('globalSettings', array('settingKey', 'settingKey'), 'settingKey'), true),
+    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('globalSettings', array('settingKey', 'settingKey'), 'settingKey'), true),
     array("DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_PATH'",
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_HOST'",
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_INTERFACE'")

@@ -37,7 +37,7 @@ class DatabaseManager extends FOGCore
         self::_getVersion();
         $test = preg_match('#/service|status/#', self::$scriptname);
         if (($test
-            && !is_object(self::$DB->getLink())
+            && !is_object(self::$DB->link())
             && false === strpos(self::$scriptname, 'dbrunning'))
         ) {
             echo json_encode(_('A valid database connection could not be made'));
