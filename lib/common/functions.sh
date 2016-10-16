@@ -540,7 +540,9 @@ installPackages() {
     dots "Adding needed repository"
     case $osid in
         1)
-            $packageinstaller epel-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            pkginst=$(command -v dnf)
+            [[ -z $pkginst ]] && pkginst=$(command -v yum)
+            pkginst=$(echo $pkginst -y install)
             packages="$packages php-bcmath bc"
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
@@ -556,6 +558,7 @@ installPackages() {
                     fi
                     ;;
                 *)
+                    $pkginst epel-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     repo="enterprise"
                     ;;
             esac
