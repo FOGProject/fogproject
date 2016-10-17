@@ -155,7 +155,7 @@ class TaskQueue extends TaskingElement
                         'storagenodeID',
                         $this->StorageNode->get('id')
                     );
-                if (!$this->ImageLog(true)) {
+                if (!$this->imageLog(true)) {
                     throw new Exception(_('Failed to update/create image log'));
                 }
             }
@@ -165,7 +165,7 @@ class TaskQueue extends TaskingElement
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update Task'));
             }
-            if (!$this->TaskLog()) {
+            if (!$this->taskLog()) {
                 throw new Exception(_('Failed to update/create task log'));
             }
             self::$EventManager->notify(
@@ -273,37 +273,37 @@ class TaskQueue extends TaskingElement
                 "\n%s: ",
                 _('Host Name')
             ) => $this->Host->get('name'),
-                sprintf(
-                    "\n%s: ",
-                    _('Computer Model')
-                ) => $this->Host->get('inventory')->get('sysproduct'),
-                    sprintf(
-                        "\n%s: ",
-                        _('Serial Number')
-                    ) => $this->Host->get('inventory')->get('sysserial'),
-                        sprintf(
-                            "\n%s: ",
-                            _('MAC Address')
-                        ) => $this->Host->get('mac')->__toString(),
-                            "\n" => '',
-                            sprintf(
-                                "\n%s: ",
-                                _('Image Used')
-                            ) => $this->Task->getImage()->get('name'),
-                                sprintf(
-                                    "\n%s: ",
-                                    _('Snapin Used')
-                                ) => implode(', ', (array)$SnapinNames),
-                                    "\n" => '',
-                                    sprintf(
-                                        "\n%s: ",
-                                        _('Imaged By')
-                                    ) => $engineer,
-                                    sprintf(
-                                        "\n%s: ",
-                                        _('Imaged For')
-                                    ) => $primaryUser,
-                                );
+            sprintf(
+                "\n%s: ",
+                _('Computer Model')
+            ) => $this->Host->get('inventory')->get('sysproduct'),
+            sprintf(
+                "\n%s: ",
+                _('Serial Number')
+            ) => $this->Host->get('inventory')->get('sysserial'),
+            sprintf(
+                "\n%s: ",
+                _('MAC Address')
+            ) => $this->Host->get('mac')->__toString(),
+            "\n" => '',
+            sprintf(
+                "\n%s: ",
+                _('Image Used')
+            ) => $this->Task->getImage()->get('name'),
+            sprintf(
+                "\n%s: ",
+                _('Snapin Used')
+            ) => implode(', ', (array)$SnapinNames),
+            "\n" => '',
+            sprintf(
+                "\n%s: ",
+                _('Imaged By')
+            ) => $engineer,
+            sprintf(
+                "\n%s: ",
+                _('Imaged For')
+            ) => $primaryUser,
+        );
         self::$HookManager->processEvent(
             'EMAIL_ITEMS',
             array(
@@ -312,13 +312,10 @@ class TaskQueue extends TaskingElement
             )
         );
         ob_start();
-        array_walk(
-            $email,
-            function (&$val, &$key) {
-                printf('%s%s', $key, $val);
-                unset($val, $key);
-            }
-        );
+        foreach ((array)$email as $key => &$val) {
+            printf('%s%s', $key, $val);
+            unset($key, $val);
+        }
         $emailMe = ob_get_clean();
         $stat = sprintf(
             '%s - %s',
@@ -447,10 +444,10 @@ class TaskQueue extends TaskingElement
         if (!$this->Task->save()) {
             throw new Exception(_('Failed to update Task'));
         }
-        if (!$this->TaskLog()) {
+        if (!$this->taskLog()) {
             throw new Exception(_('Failed to update task log'));
         }
-        if (!$this->ImageLog(false)) {
+        if (!$this->imageLog(false)) {
             throw new Exception(_('Failed to update imaging log'));
         }
         self::$EventManager->notify(

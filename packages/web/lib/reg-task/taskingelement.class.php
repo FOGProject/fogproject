@@ -1,36 +1,143 @@
 <?php
+/**
+ * The tasking element base class.
+ *
+ * PHP version 5
+ *
+ * @category TaskingElement
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * The tasking element base class.
+ *
+ * @category TaskingElement
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 abstract class TaskingElement extends FOGBase
 {
+    /**
+     * The host object.
+     *
+     * @var object
+     */
     protected $Host;
+    /**
+     * The task object.
+     *
+     * @var object
+     */
     protected $Task;
+    /**
+     * The image object.
+     *
+     * @var object
+     */
     protected $Image;
+    /**
+     * The storage group object
+     *
+     * @var object
+     */
     protected $StorageGroup;
+    /**
+     * The storage node object
+     *
+     * @var object
+     */
     protected $StorageNode;
+    /**
+     * The storage nodes array
+     *
+     * @var array
+     */
     protected $StorageNodes;
+    /**
+     * The imaging task holder
+     *
+     * @var bool
+     */
     protected $imagingTask;
+    /**
+     * Initializes the Tasking stuff
+     *
+     * @return void
+     */
     public function __construct()
     {
         parent::__construct();
         try {
-            $this->Host = $this->getHostItem(false);
-            $this->Task = $this->Host->get('task');
-            self::checkTasking($this->Task, $this->Host->get('name'), $this->Host->get('mac'));
-            $this->imagingTask = in_array($this->Task->get('typeID'), array(1, 2, 8, 15, 16, 17, 24));
+            $this->Host = $this
+                ->getHostItem(false);
+            $this->Task = $this
+                ->Host
+                ->get('task');
+            self::checkTasking(
+                $this->Task,
+                $this->Host->get('name'),
+                $this->Host->get('mac')
+            );
+            $this->imagingTask = $this
+                ->Task
+                ->isImagingTask();
             $this->StorageGroup = $this->StorageNode = null;
-            self::$HookManager->processEvent('HOST_NEW_SETTINGS', array('Host'=>&$this->Host, 'StorageNode'=>&$this->StorageNode, 'StorageGroup'=>&$this->StorageGroup));
-            if (!$this->StorageGroup || !$this->StorageGroup->isValid()) {
-                $this->StorageGroup = $this->Task->getStorageGroup();
+            self::$HookManager->processEvent(
+                'HOST_NEW_SETTINGS',
+                array(
+                    'Host' => &$this->Host,
+                    'StorageNode' => &$this->StorageNode,
+                    'StorageGroup' => &$this->StorageGroup
+                )
+            );
+            if (!$this->StorageGroup
+                || !$this->StorageGroup->isValid()
+            ) {
+                $this->StorageGroup = $this
+                    ->Task
+                    ->getStorageGroup();
             }
             if ($this->imagingTask) {
-                if (!$this->StorageNode || !$this->StorageNode->isValid()) {
-                    $this->StorageNode = $this->Task->isCapture() || $this->Task->isMulticast() ? $this->StorageGroup->getMasterStorageNode() : $this->StorageGroup->getOptimalStorageNode($this->Host->get('imageID'));
+                if (!$this->StorageNode
+                    || !$this->StorageNode->isValid()
+                ) {
+                    if ($this->Task->isCapture()
+                        || $this->Task->isMulticast()
+                    ) {
+                        $this->StorageNode = $this
+                            ->StorageGroup
+                            ->getMasterStorageNode();
+                    } else {
+                        $this->StorageNode = $this
+                            ->StorageGroup
+                            ->getOptimalStorageNode(
+                                $this->Host->get('imageID')
+                            );
+                    }
                 }
-                self::checkStorageGroup($this->StorageGroup);
-                self::checkStorageNodes($this->StorageGroup);
-                $this->Image = $this->Task->getImage();
-                $this->StorageNodes = self::getClass('StorageNodeManager')->find(array('id'=>$this->StorageGroup->get('enablednodes')));
-                if ($this->Task->isCapture() || $this->Task->isMulticast()) {
-                    $this->StorageNode = $this->StorageGroup->getMasterStorageNode();
+                self::checkStorageGroup(
+                    $this->StorageGroup
+                );
+                self::checkStorageNodes(
+                    $this->StorageGroup
+                );
+                $this->Image = $this
+                    ->Task
+                    ->getImage();
+                $this->StorageNodes = self::getClass('StorageNodeManager')
+                    ->find(
+                        array('id' => $this->StorageGroup->get('enablednodes'))
+                    );
+                if ($this->Task->isCapture()
+                    || $this->Task->isMulticast()
+                ) {
+                    $this->StorageNode = $this
+                        ->StorageGroup
+                        ->getMasterStorageNode();
                 }
             }
         } catch (Exception $e) {
@@ -38,33 +145,105 @@ abstract class TaskingElement extends FOGBase
             exit;
         }
     }
-    protected static function checkTasking(&$Task, $name, $mac)
-    {
+    /**
+     * Checks the tasking of the current task.
+     *
+     * @param object $Task the task to check.
+     * @param string $name the host name.
+     * @param string $mac  the mac address of the host.
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    protected static function checkTasking(
+        &$Task,
+        $name,
+        $mac
+    ) {
         if (!$Task->isValid()) {
-            throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $name, $mac));
+            throw new Exception(
+                sprintf(
+                    '%s: %s (%s)',
+                    _('No Active Task found for Host'),
+                    $name,
+                    $mac
+                )
+            );
         }
     }
+    /**
+     * Checks the storage group.
+     *
+     * @param object $StorageGroup the storage group object.
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
     protected static function checkStorageGroup(&$StorageGroup)
     {
         if (!$StorageGroup->isValid()) {
-            throw new Exception(_('Invalid Storage Group'));
+            throw new Exception(
+                _('Invalid Storage Group')
+            );
         }
     }
+    /**
+     * Checks that there are nodes on the storage group.
+     *
+     * @param object $StorageGroup the storage group object.
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
     protected static function checkStorageNodes(&$StorageGroup)
     {
         if (!$StorageGroup->get('enablednodes')) {
-            throw new Exception(_('Could not find a Storage Node, is there one enabled within this group?'));
+            throw new Exception(
+                sprintf(
+                    '%s, %s?',
+                    _('Could not find a Storage Node in this group'),
+                    _('is there one enabled')
+                )
+            );
         }
     }
-    protected static function nodeFail($StorageNode, $Host)
-    {
+    /**
+     * Checks the node failure status.
+     *
+     * @param object $StorageNode the storage node object.
+     * @param object $Host        the host object.
+     *
+     * @return object
+     */
+    protected static function nodeFail(
+        $StorageNode,
+        $Host
+    ) {
         if ($StorageNode->getNodeFailure($Host)) {
-            $StorageNode = self::getClass('StorageNode', 0);
-            printf('%s %s (%s) %s', _('Storage Node'), $StorageNode->get('name'), $StorageNode->get('ip'), _('is open, but has recently failed for this Host'));
+            $StorageNode = new StorageNode();
+            printf(
+                '%s %s (%s) %s.',
+                _('Storage Node'),
+                $StorageNode->get('name'),
+                $StorageNode->get('ip'),
+                sprintf(
+                    '%s, %s',
+                    _('is open'),
+                    _('but has recently failed for this host')
+                )
+            );
         }
         return $StorageNode;
     }
-    protected function TaskLog()
+    /**
+     * Creates the log record for the task.
+     *
+     * @return bool|object
+     */
+    protected function taskLog()
     {
         return self::getClass('TaskLog', $this->Task)
             ->set('taskID', $this->Task->get('id'))
@@ -73,10 +252,23 @@ abstract class TaskingElement extends FOGBase
             ->set('createdBy', $this->Task->get('createdBy'))
             ->save();
     }
-    protected function ImageLog($checkin = false)
+    /**
+     * Creates the image log record for the task/host.
+     *
+     * @param bool $checkin if this is checkin or checkout.
+     *
+     * @return bool|object
+     */
+    protected function imageLog($checkin = false)
     {
         if ($checkin === true) {
-            self::getClass('ImagingLogManager')->destroy(array('hostID'=>$this->Host->get('id'), 'finish'=>'0000-00-00 00:00:00'));
+            self::getClass('ImagingLogManager')
+                ->destroy(
+                    array(
+                        'hostID' => $this->Host->get('id'),
+                        'finish' => '0000-00-00 00:00:00'
+                    )
+                );
             return self::getClass('ImagingLog')
                 ->set('hostID', $this->Host->get('id'))
                 ->set('start', $this->formatTime('', 'Y-m-d H:i:s'))
@@ -85,7 +277,16 @@ abstract class TaskingElement extends FOGBase
                 ->set('createdBy', $this->Task->get('createdBy'))
                 ->save();
         }
-        return self::getClass('ImagingLog', @max(self::getSubObjectIDs('ImagingLog', array('hostID'=>$this->Host->get('id')))))
+        $ilID = self::getSubObjectIDs(
+            'ImagingLog',
+            array(
+                'hostID' => $this->Host->get('id'),
+                'finish' => '0000-00-00 00:00:00',
+                'image' => $this->Image->get('name'),
+            )
+        );
+        $ilID = @max($ilID);
+        return self::getClass('ImagingLog', $ilID)
             ->set('finish', $this->formatTime('', 'Y-m-d H:i:s'))
             ->save();
     }
