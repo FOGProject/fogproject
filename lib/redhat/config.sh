@@ -16,8 +16,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-command -v dnf >/dev/null 2>&1
-[[ $? -eq 0 ]] && repos="remi" || repos="remi,epel"
+repos="remi"
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
 case $linuxReleaseName in
     *[Mm][Aa][Gg][Ee][Ii][Aa]*)
