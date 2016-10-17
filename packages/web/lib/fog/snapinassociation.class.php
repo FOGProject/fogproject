@@ -1,11 +1,12 @@
 <?php
+
 class SnapinAssociation extends FOGController
 {
     protected $databaseTable = 'snapinAssoc';
     protected $databaseFields = array(
         'id' => 'saID',
         'hostID' => 'saHostID',
-        'snapinID' => 'saSnapinID'
+        'snapinID' => 'saSnapinID',
     );
     protected $databaseFieldsRequired = array(
         'hostID',

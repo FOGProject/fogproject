@@ -1,4 +1,5 @@
 <?php
+
 class UploadException extends Exception
 {
     public function __construct($code)
@@ -35,6 +36,7 @@ class UploadException extends Exception
                 $message = _('Unknown upload error occurred.  Return code: ').$code;
                 break;
         }
+
         return $message;
     }
 }

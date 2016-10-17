@@ -6,9 +6,10 @@
  * PHP version 5
  *
  * @category EventManager
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
@@ -16,27 +17,28 @@
  * events and hooks.
  *
  * @category EventManager
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class EventManager extends FOGBase
 {
     /**
-     * Items log level
+     * Items log level.
      *
      * @var int
      */
     public $logLevel = 0;
     /**
-     * The data to work from
+     * The data to work from.
      *
      * @var array
      */
     public $data = array();
     /**
-     * The events to work from
+     * The events to work from.
      *
      * @var mixed
      */
@@ -48,6 +50,7 @@ class EventManager extends FOGBase
      * @param array|object $listener the listener to work from
      *
      * @throws Exception
+     *
      * @return bool
      */
     public function register($event, $listener)
@@ -110,17 +113,20 @@ class EventManager extends FOGBase
                 $listener[0]
             );
             $this->log($string);
+
             return false;
         }
+
         return true;
     }
     /**
-     * Notifies the system of events
+     * Notifies the system of events.
      *
-     * @param string $event     the event to notify against.
-     * @param array  $eventData the data to pass.
+     * @param string $event     the event to notify against
+     * @param array  $eventData the data to pass
      *
      * @throws Exception
+     *
      * @return bool
      */
     public function notify($event, $eventData = array())
@@ -141,7 +147,7 @@ class EventManager extends FOGBase
                 }
                 $element->onEvent($event, $eventData);
             };
-            foreach ((array)$this->data[$event] as &$element) {
+            foreach ((array) $this->data[$event] as &$element) {
                 $runEvent($element);
                 unset($element);
             }
@@ -155,19 +161,19 @@ class EventManager extends FOGBase
                 $event
             );
             $this->log($string);
+
             return false;
         }
+
         return true;
     }
     /**
-     * Loads the events or hooks
-     *
-     * @return void
+     * Loads the events or hooks.
      */
     public function load()
     {
         // Sets up regex and paths to scan for
-        if ($this instanceof EventManager) {
+        if ($this instanceof self) {
             $regext = '#^.+/events/.*\.event\.php$#';
             $dirpath = '/events/';
             $strlen = -strlen('.event.php');
@@ -186,6 +192,7 @@ class EventManager extends FOGBase
                 $element[0],
                 $match
             );
+
             return $match[0];
         };
         // Instantiates our items to get all files based on our regext info.
@@ -205,7 +212,7 @@ class EventManager extends FOGBase
         $files = iterator_to_array($RegexIterator, false);
         // First pass we don't care about plugins, only based files
         $plugins = '?!';
-        $tFiles = array_map($fileitems, (array)$files);
+        $tFiles = array_map($fileitems, (array) $files);
         $fFiles = array_filter($tFiles);
         $normalfiles = array_values($fFiles);
         unset($tFiles, $fFiles);
@@ -218,7 +225,7 @@ class EventManager extends FOGBase
                 $_SESSION['PluginsInstalled']
             )
         );
-        $tFiles = array_map($fileitems, (array)$files);
+        $tFiles = array_map($fileitems, (array) $files);
         $fFiles = preg_grep($grepString, $tFiles);
         $fFiles = array_filter($fFiles);
         $pluginfiles = array_values($fFiles);
@@ -262,7 +269,7 @@ class EventManager extends FOGBase
         // Plugins should be established first so menus and what not are setup.
         array_map(
             $startClass,
-            (array)$pluginfiles
+            (array) $pluginfiles
         );
         // Cleanup the plugin files
         unset($pluginfiles);

@@ -7,24 +7,26 @@
  * This gives all the rest of the classes a common frame to work from.
  *
  * @category FOGBase
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
  * FOGBase, the base class for pretty much all of fog.
  *
  * @category FOGBase
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 abstract class FOGBase
 {
     /**
-     * Language variables brought in from text.php
+     * Language variables brought in from text.php.
      *
      * @var array
      */
@@ -96,7 +98,7 @@ abstract class FOGBase
      */
     protected static $FOGFTP;
     /**
-     * Core usage elements as FOGBase is abstract
+     * Core usage elements as FOGBase is abstract.
      *
      * @var object
      */
@@ -126,7 +128,7 @@ abstract class FOGBase
      */
     protected static $FOGUser;
     /**
-     * View/Page Controller-Manager
+     * View/Page Controller-Manager.
      *
      * @var object
      */
@@ -162,7 +164,7 @@ abstract class FOGBase
      */
     protected static $httpreqwith;
     /**
-     * Current request method
+     * Current request method.
      *
      * @var string
      */
@@ -214,8 +216,6 @@ abstract class FOGBase
     public static $mySchema = 0;
     /**
      * Initializes the FOG System if needed.
-     *
-     * @return void
      */
     private static function _init()
     {
@@ -232,13 +232,13 @@ abstract class FOGBase
         global $FOGURLRequests;
         global $FOGPageManager;
         global $TimeZone;
-        self::$foglang =& $foglang;
-        self::$FOGFTP =& $FOGFTP;
-        self::$FOGCore =& $FOGCore;
-        self::$DB =& $DB;
-        self::$EventManager =& $EventManager;
-        self::$HookManager =& $HookManager;
-        self::$FOGUser =& $currentUser;
+        self::$foglang = &$foglang;
+        self::$FOGFTP = &$FOGFTP;
+        self::$FOGCore = &$FOGCore;
+        self::$DB = &$DB;
+        self::$EventManager = &$EventManager;
+        self::$HookManager = &$HookManager;
+        self::$FOGUser = &$currentUser;
         $scriptPattern = '#/service/#i';
         $queryPattern = '#sub=requestClientInfo#i';
         self::$querystring = $_SERVER['QUERY_STRING'];
@@ -276,7 +276,7 @@ abstract class FOGBase
         self::$FOGURLRequests = &$FOGURLRequests;
         self::$FOGPageManager = &$FOGPageManager;
         self::$TimeZone = &$TimeZone;
-        /**
+        /*
          * Lambda function to allow building of select boxes.
          *
          * @param string $option the option to iterate
@@ -306,6 +306,7 @@ abstract class FOGBase
     public function __construct()
     {
         self::_init();
+
         return $this;
     }
     /**
@@ -320,12 +321,13 @@ abstract class FOGBase
     /**
      * Returns the class after verifying reflection of the class.
      *
-     * @param string $class the name of the class to load.
-     * @param mixed  $data  the data to load into the class.
-     * @param bool   $props return just properties or full object.
+     * @param string $class the name of the class to load
+     * @param mixed  $data  the data to load into the class
+     * @param bool   $props return just properties or full object
      *
      * @throws Exception
-     * @return class Returns the instantiated class.
+     *
+     * @return class Returns the instantiated class
      */
     public static function getClass($class, $data = '', $props = false)
     {
@@ -374,6 +376,7 @@ abstract class FOGBase
         } else {
             $class = $obj->newInstanceWithoutConstructor();
         }
+
         return $class;
     }
     /**
@@ -386,7 +389,8 @@ abstract class FOGBase
      * @param bool $override        Perform an override of the items?
      *
      * @throws Exception
-     * @return array|object Returns either th macs or the host.
+     *
+     * @return array|object Returns either th macs or the host
      */
     public function getHostItem(
         $service = true,
@@ -409,7 +413,7 @@ abstract class FOGBase
         // Parsing the macs
         $MACs = $this->parseMacList($mac, !$service, $service);
 
-        foreach ((array)$MACs as &$mac) {
+        foreach ((array) $MACs as &$mac) {
             if (!$mac->isValid()) {
                 continue;
             }
@@ -431,8 +435,9 @@ abstract class FOGBase
         // If returnmacs parameter is true, return the macs as an array
         if ($returnmacs) {
             if (!is_array($macs)) {
-                $macs = (array)$macs;
+                $macs = (array) $macs;
             }
+
             return $macs;
         }
 
@@ -450,6 +455,7 @@ abstract class FOGBase
                 }
             }
         }
+
         return $Host;
     }
     /**
@@ -464,7 +470,7 @@ abstract class FOGBase
          * Returns the node id if still accurate
          * or will clean up past time nodes.
          *
-         * @param object $NodeFailure the node that is in failed state.
+         * @param object $NodeFailure the node that is in failed state
          *
          * @return int|bool
          */
@@ -475,8 +481,10 @@ abstract class FOGBase
             $DateTime = self::niceDate($NodeFailure->get('failureTime'));
             if ($DateTime < $DateInterval) {
                 $NodeFailure->destroy();
+
                 return false;
             }
+
             return $NodeFailure->get('id');
         };
         $FailedNodes = self::getClass('NodeFailureManager')
@@ -486,10 +494,11 @@ abstract class FOGBase
                     'hostID' => $this->Host->get('id'),
                 )
             );
-        $nodeRet = array_map($nodeFail, (array)$FailedNodes);
+        $nodeRet = array_map($nodeFail, (array) $FailedNodes);
         $nodeRet = array_filter($nodeRet);
         $nodeRet = array_unique($nodeRet);
         $nodeRet = array_values($nodeRet);
+
         return $nodeRet;
     }
     /**
@@ -507,13 +516,14 @@ abstract class FOGBase
             ),
             'name'
         );
-        return array_map('strtolower', (array)$plugins);
+
+        return array_map('strtolower', (array) $plugins);
     }
     /**
      * Converts our string if needed.
      *
-     * @param string $txt  the string to use.
-     * @param array  $data the data if txt is formatted string.
+     * @param string $txt  the string to use
+     * @param array  $data the data if txt is formatted string
      *
      * @return string
      */
@@ -524,15 +534,14 @@ abstract class FOGBase
         } else {
             $data = $txt;
         }
+
         return $data;
     }
     /**
-     * Prints fatal errors
+     * Prints fatal errors.
      *
-     * @param string $txt  the string to use.
-     * @param array  $data the data if txt is formatted string.
-     *
-     * @return void
+     * @param string $txt  the string to use
+     * @param array  $data the data if txt is formatted string
      */
     protected function fatalError($txt, $data = array())
     {
@@ -549,12 +558,10 @@ abstract class FOGBase
         printf('<div class="debug-error">%s</div>', $string);
     }
     /**
-     * Prints error
+     * Prints error.
      *
-     * @param string $txt  the string to use.
-     * @param array  $data the data if txt is formatted string.
-     *
-     * @return void
+     * @param string $txt  the string to use
+     * @param array  $data the data if txt is formatted string
      */
     protected function error($txt, $data = array())
     {
@@ -571,12 +578,10 @@ abstract class FOGBase
         printf('<div class="debug-error">%s</div>', $string);
     }
     /**
-     * Prints debug
+     * Prints debug.
      *
-     * @param string $txt  the string to use.
-     * @param array  $data the data if txt is formatted string.
-     *
-     * @return void
+     * @param string $txt  the string to use
+     * @param array  $data the data if txt is formatted string
      */
     protected function debug($txt, $data = array())
     {
@@ -593,12 +598,10 @@ abstract class FOGBase
         printf('<div class="debug-error">%s</div>', $string);
     }
     /**
-     * Prints info
+     * Prints info.
      *
-     * @param string $txt  the string to use.
-     * @param array  $data the data if txt is formatted string.
-     *
-     * @return void
+     * @param string $txt  the string to use
+     * @param array  $data the data if txt is formatted string
      */
     protected function info($txt, $data = array())
     {
@@ -617,10 +620,8 @@ abstract class FOGBase
     /**
      * Sets message banner at top of pages.
      *
-     * @param string $txt  the string to use.
-     * @param array  $data the data if txt is formatted string.
-     *
-     * @return void
+     * @param string $txt  the string to use
+     * @param array  $data the data if txt is formatted string
      */
     protected function setMessage($txt, $data = array())
     {
@@ -636,7 +637,7 @@ abstract class FOGBase
         if (!isset($_SESSION['FOG_MESSAGES'])) {
             $_SESSION['FOG_MESSAGES'] = array();
         }
-        $messages = (array)$_SESSION['FOG_MESSAGES'];
+        $messages = (array) $_SESSION['FOG_MESSAGES'];
         unset($_SESSION['FOG_MESSAGES']);
         // Create a hook in for messages
         if (self::$HookManager instanceof HookManager) {
@@ -649,8 +650,6 @@ abstract class FOGBase
          * Lambda that simply prints the messages as passed.
          *
          * @param string $message the message to print
-         *
-         * @return void
          */
         $print_messages = function ($message) {
             printf('<div class="fog-message-box">%s</div>', $message);
@@ -660,11 +659,9 @@ abstract class FOGBase
         unset($messages);
     }
     /**
-     * Redirect pages where/when necessary
+     * Redirect pages where/when necessary.
      *
-     * @param string $url The url to redirect to.
-     *
-     * @return void
+     * @param string $url The url to redirect to
      */
     protected function redirect($url = '')
     {
@@ -680,15 +677,14 @@ abstract class FOGBase
         exit;
     }
     /**
-     * Insert before key in array
+     * Insert before key in array.
      *
      * @param string $key       the key to insert before
      * @param array  $array     the array to modify
-     * @param string $new_key   the new key to insert.
-     * @param mixed  $new_value the value to insert.
+     * @param string $new_key   the new key to insert
+     * @param mixed  $new_value the value to insert
      *
      * @throws Exception
-     * @return void
      */
     protected function arrayInsertBefore($key, array &$array, $new_key, $new_value)
     {
@@ -706,15 +702,14 @@ abstract class FOGBase
         $array = $new;
     }
     /**
-     * Insert after key in array
+     * Insert after key in array.
      *
      * @param string $key       the key to insert after
      * @param array  $array     the array to modify
-     * @param string $new_key   the new key to insert.
-     * @param mixed  $new_value the value to insert.
+     * @param string $new_key   the new key to insert
+     * @param mixed  $new_value the value to insert
      *
      * @throws Exception
-     * @return void
      */
     protected function arrayInsertAfter($key, array &$array, $new_key, $new_value)
     {
@@ -738,7 +733,6 @@ abstract class FOGBase
      * @param array        $array the array to work with
      *
      * @throws Exception
-     * @return void
      */
     protected function arrayRemove($key, array &$array)
     {
@@ -765,7 +759,7 @@ abstract class FOGBase
      * Find the key of a needle within the haystack that is an array.
      *
      * @param mixed      $needle     the needle to find
-     * @param array      $haystack   the array to search in.
+     * @param array      $haystack   the array to search in
      * @param bool|mixed $ignorecase whether to care about case
      *
      * @return key or false
@@ -779,10 +773,11 @@ abstract class FOGBase
             }
             unset($value);
         }
+
         return false;
     }
     /**
-     * Check if isLoaded
+     * Check if isLoaded.
      *
      * @param string|int $key the key to see if loaded
      *
@@ -792,13 +787,12 @@ abstract class FOGBase
     {
         $key = $this->key($key);
         $result = isset($this->isLoaded[$key]) ? $this->isLoaded[$key] : 0;
-        $this->isLoaded[$key]++;
+        ++$this->isLoaded[$key];
+
         return $result ? $result : false;
     }
     /**
      * Reset request variables.
-     *
-     * @return void
      */
     protected function resetRequest()
     {
@@ -815,8 +809,6 @@ abstract class FOGBase
     }
     /**
      * Set request vars particularly for post failures really.
-     *
-     * @return void
      */
     protected function setRequest()
     {
@@ -830,23 +822,24 @@ abstract class FOGBase
     /**
      * Return nicely formatted byte sizes.
      *
-     * @param int|double $size the size to convert
+     * @param int|float $size the size to convert
      *
-     * @return double
+     * @return float
      */
     protected function formatByteSize($size)
     {
-        $units = array('iB','KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
-        $factor = floor((strlen($size) - 1)/3);
-        return sprintf('%3.2f %s', $size/pow(1024, $factor), $units[$factor]);
+        $units = array('iB', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB');
+        $factor = floor((strlen($size) - 1) / 3);
+
+        return sprintf('%3.2f %s', $size / pow(1024, $factor), $units[$factor]);
     }
     /**
      * Gets the global module status.
      *
      * Can return just the shortnames or the long.
      *
-     * @param bool $names if set will return the services as set.
-     * @param bool $keys  will return just the shortnames if set.
+     * @param bool $names if set will return the services as set
+     * @param bool $keys  will return just the shortnames if set
      *
      * @return array
      */
@@ -876,6 +869,7 @@ abstract class FOGBase
             $keys = array_keys($services);
             $keys = array_filter($keys);
             $keys = array_unique($keys);
+
             return array_values($keys);
         }
         // Change the keys values
@@ -901,13 +895,14 @@ abstract class FOGBase
             false,
             false
         );
+
         return array_combine(array_keys($services), $serviceEn);
     }
     /**
-     * Sets the date
+     * Sets the date.
      *
-     * @param mixed $date The date stamp, defaults to now if not set.
-     * @param bool  $utc  Whether to use utc timezone or not.
+     * @param mixed $date The date stamp, defaults to now if not set
+     * @param bool  $utc  Whether to use utc timezone or not
      *
      * @return DateTime
      */
@@ -918,13 +913,14 @@ abstract class FOGBase
         } else {
             $tz = new DateTimeZone(self::$TimeZone);
         }
+
         return new DateTime($date, $tz);
     }
     /**
      * Do formatting things.
      *
-     * @param mixed $time   The time to work from.
-     * @param mixed $format Specified format to return.
+     * @param mixed $time   The time to work from
+     * @param mixed $format Specified format to return
      * @param bool  $utc    Use UTC Timezone?
      *
      * @return mixed
@@ -938,6 +934,7 @@ abstract class FOGBase
             if (!$this->validDate($time)) {
                 return _('No Data');
             }
+
             return $time->format($format);
         }
         $now = self::niceDate('now', $utc);
@@ -977,13 +974,14 @@ abstract class FOGBase
         } elseif ($absolute / 2628000 < 12) {
             return $this->humanify($diff / 2628000, 'month');
         }
+
         return $this->humanify($diff / 31536000, 'year');
     }
     /**
      * Checks if the time passed is valid or not.
      *
-     * @param mixed $date   the date to use.
-     * @param mixed $format the format to test.
+     * @param mixed $date   the date to use
+     * @param mixed $format the format to test
      *
      * @return object
      */
@@ -1003,6 +1001,7 @@ abstract class FOGBase
             $format = 'm/d/Y';
         }
         $tz = new DateTimeZone(self::$TimeZone);
+
         return DateTime::createFromFormat(
             $format,
             $date->format($format),
@@ -1013,10 +1012,11 @@ abstract class FOGBase
      * Simply returns if the item should be with an s or not.
      *
      * @param int    $count The count of the element
-     * @param string $text  The string to append to.
-     * @param bool   $space Use a space or not.
+     * @param string $text  The string to append to
+     * @param bool   $space Use a space or not
      *
      * @throws Exception
+     *
      * @return string
      */
     protected function pluralize($count, $text, $space = false)
@@ -1024,6 +1024,7 @@ abstract class FOGBase
         if (!is_bool($space)) {
             throw new Exception(_('Space variable must be boolean'));
         }
+
         return sprintf(
             '%d %s%s%s',
             $count,
@@ -1035,11 +1036,12 @@ abstract class FOGBase
     /**
      * Returns the difference given from a start and end time.
      *
-     * @param mixed $start the starting date.
-     * @param mixed $end   the ending date.
-     * @param bool  $ago   Return immediate highest down.
+     * @param mixed $start the starting date
+     * @param mixed $end   the ending date
+     * @param bool  $ago   Return immediate highest down
      *
      * @throws Exception
+     *
      * @return DateTime
      */
     protected function diff($start, $end, $ago = false)
@@ -1122,6 +1124,7 @@ abstract class FOGBase
         if (($v = $Duration->s) > 0) {
             $str .= $this->pluralize($v, 'second');
         }
+
         return $str;
     }
     /**
@@ -1131,6 +1134,7 @@ abstract class FOGBase
      * @param string $unit the unit of time (minute, hour, etc...)
      *
      * @throws Exception
+     *
      * @return string
      */
     protected function humanify($diff, $unit)
@@ -1152,6 +1156,7 @@ abstract class FOGBase
         if ($diff != 1) {
             $unit .= 's';
         }
+
         return sprintf(
             '%s%d %s%s',
             $before,
@@ -1161,13 +1166,14 @@ abstract class FOGBase
         );
     }
     /**
-     * Returns size of item after checking via FTP
+     * Returns size of item after checking via FTP.
      *
      * @param StorageNode $StorageNode the node to test
-     * @param string      $file        the file to look for.
+     * @param string      $file        the file to look for
      *
      * @throws Exception
-     * @return double
+     *
+     * @return float
      */
     protected function getFTPByteSize(StorageNode $StorageNode, $file)
     {
@@ -1184,17 +1190,19 @@ abstract class FOGBase
         if (!self::$FOGFTP->connect()) {
             throw new Exception(_('Cannot connect to node.'));
         }
-        $size = $this->formatByteSize((double)self::$FOGFTP->size($file));
+        $size = $this->formatByteSize((float) self::$FOGFTP->size($file));
         self::$FOGFTP->close();
+
         return $size;
     }
     /**
-     * Filters an array recursively
+     * Filters an array recursively.
      *
      * @param array $input    the array to filter
      * @param bool  $keepkeys keep the keys
      *
      * @throws Exception
+     *
      * @return array
      */
     protected function arrayFilterRecursive(array &$input, $keepkeys = false)
@@ -1209,17 +1217,17 @@ abstract class FOGBase
             unset($value);
         }
         $input = array_filter($input);
+
         return $keepkeys ? $input : array_values($input);
     }
     /**
-     * Changes the keys around as needed
+     * Changes the keys around as needed.
      *
-     * @param array  $array   the array to change key for.
+     * @param array  $array   the array to change key for
      * @param string $old_key the original key
      * @param string $new_key the key to change to
      *
      * @throws Exception
-     * @return void
      */
     protected function arrayChangeKey(array &$array, $old_key, $new_key)
     {
@@ -1244,20 +1252,20 @@ abstract class FOGBase
         }
     }
     /**
-     * Converts to bits
+     * Converts to bits.
      *
-     * @param int|double $kilobytes the bytes to convert
+     * @param int|float $kilobytes the bytes to convert
      *
-     * @return double
+     * @return float
      */
     protected function byteconvert($kilobytes)
     {
-        return (($kilobytes / 8) * 1024);
+        return ($kilobytes / 8) * 1024;
     }
     /**
      * Converts hex to binary equivalent.
      *
-     * @param mixed $hex the hex to convert.
+     * @param mixed $hex the hex to convert
      *
      * @return string
      */
@@ -1279,17 +1287,19 @@ abstract class FOGBase
             $n = strlen($keyToUnhex);
             $i = 0;
             $sbin = '';
-            while ($i<$n) {
+            while ($i < $n) {
                 $a = substr($hex, $i, 2);
                 $sbin .= pack('H*', $a);
                 $i += 2;
             }
+
             return $sbin;
         };
+
         return $hex2bin($hex);
     }
     /**
-     * Create security token
+     * Create security token.
      *
      * @return string
      */
@@ -1303,6 +1313,7 @@ abstract class FOGBase
         $randGen = function () {
             $rand = mt_rand();
             $uniq = uniqid($rand, true);
+
             return md5($uniq);
         };
         $token = sprintf(
@@ -1311,6 +1322,7 @@ abstract class FOGBase
             $randGen()
         );
         $token = bin2hex($token);
+
         return trim($token);
     }
     /**
@@ -1331,13 +1343,14 @@ abstract class FOGBase
         if ($decrypt && mb_detect_encoding($decrypt, 'utf-8', true)) {
             $newpass = $decrypt;
         }
-        return ($newpass ? $this->aesencrypt($newpass) : '');
+
+        return $newpass ? $this->aesencrypt($newpass) : '';
     }
     /**
-     * AES Encrypt function
+     * AES Encrypt function.
      *
      * @param mixed  $data    the item to encrypt
-     * @param string $key     the key to use if false will generate own.
+     * @param string $key     the key to use if false will generate own
      * @param int    $enctype the type of encryption to use
      * @param int    $mode    the mode of encryption
      *
@@ -1361,6 +1374,7 @@ abstract class FOGBase
         $iv = bin2hex($iv);
         $cipher = bin2hex($cipher);
         $key = bin2hex($key);
+
         return sprintf(
             '%s|%s%s',
             $iv,
@@ -1369,7 +1383,7 @@ abstract class FOGBase
         );
     }
     /**
-     * AES Decrypt function
+     * AES Decrypt function.
      *
      * @param mixed  $encdata the item to decrypt
      * @param string $key     the key to use
@@ -1398,6 +1412,7 @@ abstract class FOGBase
             return '';
         }
         $decipher = mcrypt_decrypt($enctype, $key, $encoded, $mode, $iv);
+
         return trim($decipher);
     }
     /**
@@ -1408,6 +1423,7 @@ abstract class FOGBase
      * @param Host  $Host the host item to use
      *
      * @throws Exception
+     *
      * @return string
      */
     protected function certEncrypt($data, $Host)
@@ -1418,15 +1434,17 @@ abstract class FOGBase
         if (!$Host->get('pub_key')) {
             throw new Exception('#!ihc');
         }
+
         return $this->aesencrypt($data, $Host->get('pub_key'));
     }
     /**
      * Decrypts the information passed.
      *
      * @param mixed $dataArr the data to decrypt
-     * @param bool  $padding to use padding or not.
+     * @param bool  $padding to use padding or not
      *
      * @throws Exception
+     *
      * @return mixed
      */
     protected function certDecrypt($dataArr, $padding = true)
@@ -1472,7 +1490,7 @@ abstract class FOGBase
         $a_key = openssl_pkey_get_details($priv_key);
         $chunkSize = ceil($a_key['bits'] / 8);
         $output = array();
-        foreach ((array)$dataArr as &$data) {
+        foreach ((array) $dataArr as &$data) {
             $dataun = '';
             while ($data) {
                 $data = $this->hex2bin($data);
@@ -1494,10 +1512,11 @@ abstract class FOGBase
             $output[] = $dataun;
         }
         openssl_free_key($priv_key);
-        return (array)$output;
+
+        return (array) $output;
     }
     /**
-     * Cycle the macs and return valid
+     * Cycle the macs and return valid.
      *
      * @param string|array $stringlist the macs to parse
      * @param bool         $image      check if image type ignored
@@ -1539,7 +1558,7 @@ abstract class FOGBase
             $existingMACs = array_filter($existingMACs);
             $existingMACs = array_unique($existingMACs);
             $existingMACs = array_values($existingMACs);
-            $MACs = array_merge((array)$MACs, (array)$existingMACs);
+            $MACs = array_merge((array) $MACs, (array) $existingMACs);
             $MACs = array_unique($MACs);
         }
         if ($client) {
@@ -1547,12 +1566,12 @@ abstract class FOGBase
                 'MACAddressAssociation',
                 array(
                     'mac' => $MACs,
-                    'clientIgnore' => 1
+                    'clientIgnore' => 1,
                 ),
                 'mac'
             );
             $clientIgnored = array_map($lowerAndTrim, $clientIgnored);
-            $MACs = array_diff((array)$MACs, (array)$clientIgnored);
+            $MACs = array_diff((array) $MACs, (array) $clientIgnored);
             unset($clientIgnored);
         }
         if ($image) {
@@ -1560,12 +1579,12 @@ abstract class FOGBase
                 'MACAddressAssociation',
                 array(
                     'mac' => $MACs,
-                    'imageIgnore' => 1
+                    'imageIgnore' => 1,
                 ),
                 'mac'
             );
-            $imageIgnored = array_map($lowerAndTrim, (array)$imageIgnored);
-            $MACs = array_diff((array)$MACs, (array)$imageIgnored);
+            $imageIgnored = array_map($lowerAndTrim, (array) $imageIgnored);
+            $MACs = array_diff((array) $MACs, (array) $imageIgnored);
             unset($imageIgnored);
         }
         $MACs = array_filter($MACs);
@@ -1580,7 +1599,7 @@ abstract class FOGBase
         if (count($Ignore) > 0) {
             $pattern = sprintf(
                 '#%s#i',
-                implode('|', (array)$Ignore)
+                implode('|', (array) $Ignore)
             );
             $found_macs = preg_grep($pattern, $MACs);
             $MACs = array_diff($MACs, $found_macs);
@@ -1598,13 +1617,14 @@ abstract class FOGBase
             unset($MAC);
         }
         $validMACs = array_filter($validMACs);
+
         return $validMACs;
     }
     /**
      * Prints the data encrypted as needed.
      *
      * @param string $datatosend the data to send
-     * @param bool   $service    if not a service simpy return.
+     * @param bool   $service    if not a service simpy return
      *
      * @return string
      */
@@ -1634,6 +1654,7 @@ abstract class FOGBase
         } catch (Exception $e) {
             if ($this->json) {
                 $repData = preg_replace('/^[#][!]?/', '', $e->getMessage());
+
                 return array(
                     'error' => $repData,
                 );
@@ -1654,21 +1675,21 @@ abstract class FOGBase
     {
         $cmd = sprintf('str%spos', ($case ? 'i' : ''));
         $mapinfo = array();
-        foreach ((array)$needles as &$needle) {
+        foreach ((array) $needles as &$needle) {
             $mapinfo[] = $cmd($haystack, $needle);
             unset($needle);
         }
         $mapinfo = array_filter($mapinfo);
+
         return count($mapinfo) > 0;
     }
     /**
-     * Log the data
+     * Log the data.
      *
      * @param string $txt   the text to log
      * @param int    $level the level of the logging
      *
      * @throws Exception
-     * @return void
      */
     protected function log($txt, $level = 1)
     {
@@ -1695,11 +1716,9 @@ abstract class FOGBase
         $this->logHistory($txt);
     }
     /**
-     * Log to history table
+     * Log to history table.
      *
      * @param string $string the string to store
-     *
-     * @return void
      */
     protected function logHistory($string)
     {
@@ -1725,11 +1744,9 @@ abstract class FOGBase
         }
     }
     /**
-     * Sets the order by element of sql
+     * Sets the order by element of sql.
      *
      * @param string $orderBy the string to order by
-     *
-     * @return void
      */
     public function orderBy(&$orderBy)
     {
@@ -1783,6 +1800,7 @@ abstract class FOGBase
         if (empty($operator)) {
             $operator = 'AND';
         }
+
         return self::getClass($object)->getManager()->find(
             $findWhere,
             $operator,
@@ -1797,11 +1815,12 @@ abstract class FOGBase
         );
     }
     /**
-     * Get global setting value by key
+     * Get global setting value by key.
      *
      * @param string $key What to get
      *
      * @throws Exception
+     *
      * @return string
      */
     public static function getSetting($key)
@@ -1815,15 +1834,17 @@ abstract class FOGBase
             ->set('name', $key)
             ->load('name')
             ->get('value');
+
         return trim(str_replace($findStr, $repStr, $value));
     }
     /**
-     * Set global setting value by key
+     * Set global setting value by key.
      *
      * @param string $key   What to set
      * @param string $value Value to set
      *
      * @throws Exception
+     *
      * @return this
      */
     public function setSetting($key, $value)
@@ -1833,19 +1854,20 @@ abstract class FOGBase
             '',
             array('value' => trim($value))
         );
+
         return $this;
     }
     /**
-     * Gets queued state ids
+     * Gets queued state ids.
      *
      * @return array
      */
     public function getQueuedStates()
     {
-        return (array)self::getClass('TaskState')->getQueuedStates();
+        return (array) self::getClass('TaskState')->getQueuedStates();
     }
     /**
-     * Get queued state main id
+     * Get queued state main id.
      *
      * @return int
      */
@@ -1854,7 +1876,7 @@ abstract class FOGBase
         return self::getClass('TaskState')->getQueuedState();
     }
     /**
-     * Get checked in state id
+     * Get checked in state id.
      *
      * @return int
      */
@@ -1863,7 +1885,7 @@ abstract class FOGBase
         return self::getClass('TaskState')->getCheckedInState();
     }
     /**
-     * Get in progress state id
+     * Get in progress state id.
      *
      * @return int
      */
@@ -1872,7 +1894,7 @@ abstract class FOGBase
         return self::getClass('TaskState')->getProgressState();
     }
     /**
-     * Get complete state id
+     * Get complete state id.
      *
      * @return int
      */
@@ -1881,7 +1903,7 @@ abstract class FOGBase
         return self::getClass('TaskState')->getCompleteState();
     }
     /**
-     * Get cancelled state id
+     * Get cancelled state id.
      *
      * @return int
      */
@@ -1890,7 +1912,7 @@ abstract class FOGBase
         return self::getClass('TaskState')->getCancelledState();
     }
     /**
-     * Put string between two strings
+     * Put string between two strings.
      *
      * @param string $string the string to insert
      * @param string $start  the string to place after
@@ -1907,10 +1929,11 @@ abstract class FOGBase
         }
         $ini += strlen($start);
         $len = strpos($string, $end, $ini) - $ini;
+
         return substr($string, $ini, $len);
     }
     /**
-     * Strips and decodes items
+     * Strips and decodes items.
      *
      * @param mixed $item the item to strip and decode
      *
@@ -1918,7 +1941,7 @@ abstract class FOGBase
      */
     public static function stripAndDecode(&$item)
     {
-        foreach ((array)$item as $key => &$val) {
+        foreach ((array) $item as $key => &$val) {
             $tmp = preg_replace('# #', '+', $val);
             $tmp = base64_decode($tmp);
             $tmp = trim($tmp);
@@ -1929,10 +1952,11 @@ abstract class FOGBase
             $item[$key] = trim($val);
             unset($val);
         }
+
         return $item;
     }
     /**
-     * Gets the master interface based on the ip found
+     * Gets the master interface based on the ip found.
      *
      * @param string $ip_find the interface ip's to find
      *
@@ -1955,7 +1979,7 @@ abstract class FOGBase
         }
         self::$interface = array();
         $index = 0;
-        foreach ((array)self::$ips as &$ip) {
+        foreach ((array) self::$ips as &$ip) {
             $ip = trim($ip);
             if ($ip_find !== $ip) {
                 continue;
@@ -1966,10 +1990,11 @@ abstract class FOGBase
         if (count(self::$interface) < 1) {
             return false;
         }
+
         return array_shift(self::$interface);
     }
     /**
-     * Get IP Addresses of the server
+     * Get IP Addresses of the server.
      *
      * @return array
      */
@@ -2012,24 +2037,27 @@ abstract class FOGBase
             if (filter_var($IP, FILTER_VALIDATE_IP)) {
                 return gethostbyaddr($IP);
             }
+
             return $IP;
         };
-        $IPs = array_map($retIPs, (array)$IPs);
-        $Names = array_map($retNames, (array)$IPs);
+        $IPs = array_map($retIPs, (array) $IPs);
+        $Names = array_map($retNames, (array) $IPs);
         $output = array_merge($IPs, $Names);
         unset($IPs, $Names);
         natcasesort($output);
-        self::$ips = array_values(array_filter(array_unique((array)$output)));
+        self::$ips = array_values(array_filter(array_unique((array) $output)));
+
         return self::$ips;
     }
     /**
-     * Returns the last error
+     * Returns the last error.
      *
      * @return string
      */
     public static function lasterror()
     {
         $error = error_get_last();
+
         return sprintf(
             '%s: %s, %s: %s, %s: %s, %s: %s',
             _('Type'),
@@ -2043,23 +2071,22 @@ abstract class FOGBase
         );
     }
     /**
-     * Gets the filesize in a non-arch dependent way
+     * Gets the filesize in a non-arch dependent way.
      *
      * @param string $file the file to get size of
      *
-     * @return string|int|double
+     * @return string|int|float
      */
     public static function getFilesize($file)
     {
         $file = escapeshellarg($file);
+
         return shell_exec("ls -l $file | awk '{print $5}'");
     }
     /**
-     * Perform enmass wake on lan
+     * Perform enmass wake on lan.
      *
      * @param array $macs The macs to send
-     *
-     * @return void
      */
     public function wakeUp($macs)
     {
@@ -2091,10 +2118,10 @@ abstract class FOGBase
         $Nodes = self::getClass('StorageNodeManager')
             ->find(
                 array(
-                    'isEnabled' => 1
+                    'isEnabled' => 1,
                 )
             );
-        foreach ((array)$Nodes as &$Node) {
+        foreach ((array) $Nodes as &$Node) {
             if (!$Node->isValid()) {
                 continue;
             }
@@ -2133,7 +2160,7 @@ abstract class FOGBase
                 'name' => array(
                     'FOG_WEB_HOST',
                     'FOG_WEB_ROOT',
-                )
+                ),
             ),
             'value',
             false,

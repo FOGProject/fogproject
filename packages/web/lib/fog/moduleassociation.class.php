@@ -1,4 +1,5 @@
 <?php
+
 class ModuleAssociation extends FOGController
 {
     protected $databaseTable = 'moduleStatusByHost';

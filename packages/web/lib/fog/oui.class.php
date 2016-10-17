@@ -1,4 +1,5 @@
 <?php
+
 class OUI extends FOGController
 {
     protected $databaseTable = 'oui';

@@ -1,4 +1,5 @@
 <?php
+
 class TaskLog extends FOGController
 {
     protected $databaseTable = 'taskLog';
@@ -8,11 +9,12 @@ class TaskLog extends FOGController
         'taskStateID' => 'taskStateID',
         'ip' => 'ip',
         'createdTime' => 'createTime',
-        'createdBy' => 'createdBy'
+        'createdBy' => 'createdBy',
     );
     public function __construct($data = '')
     {
         parent::__construct($data);
+
         return $this->set('ip', $_SERVER['REMOTE_ADDR']);
     }
     public function getTask()

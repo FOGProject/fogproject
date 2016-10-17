@@ -1,4 +1,5 @@
 <?php
+
 class PXEMenuOptions extends FOGController
 {
     protected $databaseTable = 'pxeMenu';

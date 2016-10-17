@@ -1,4 +1,5 @@
 <?php
+
 class GroupAssociation extends FOGController
 {
     protected $databaseTable = 'groupMembers';

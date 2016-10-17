@@ -1,4 +1,5 @@
 <?php
+
 class Inventory extends FOGController
 {
     protected $databaseTable = 'inventory';
@@ -46,6 +47,7 @@ class Inventory extends FOGController
     public function getMem()
     {
         $memar = explode(' ', $this->get('mem'));
+
         return $this->formatByteSize(($memar[1] * 1024));
     }
 }

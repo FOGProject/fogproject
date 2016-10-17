@@ -5,78 +5,80 @@
  * PHP version 5
  *
  * @category Plugin
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
  * Plugin class.
  *
  * @category Plugin
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class Plugin extends FOGController
 {
     /**
-     * The plugin name storage
+     * The plugin name storage.
      *
      * @var string
      */
     private $_strName;
     /**
-     * The Plugin entry point/run file
+     * The Plugin entry point/run file.
      *
      * @var string
      */
     private $_strEntryPoint;
     /**
-     * The version of the plugin
+     * The version of the plugin.
      *
      * @var string
      */
     private $_strVersion;
     /**
-     * The path to the plugin
+     * The path to the plugin.
      *
      * @var string
      */
     private $_strPath;
     /**
-     * The icon storage
+     * The icon storage.
      *
      * @var string
      */
     private $_strIcon;
     /**
-     * The icon hover storage
+     * The icon hover storage.
      *
      * @var string
      */
     private $_strIconHover;
     /**
-     * Is the plugin installed
+     * Is the plugin installed.
      *
      * @var bool
      */
     private $_blIsInstalled = false;
     /**
-     * Is the plugin active
+     * Is the plugin active.
      *
      * @var bool
      */
     private $_blIsActive = false;
     /**
-     * The database table to look at
+     * The database table to look at.
      *
      * @var string
      */
     protected $databaseTable = 'plugins';
     /**
-     * The common and database fields to use
+     * The common and database fields to use.
      *
      * @var array
      */
@@ -93,7 +95,7 @@ class Plugin extends FOGController
         'pAnon5' => 'pAnon5',
     );
     /**
-     * The required fields
+     * The required fields.
      *
      * @var array
      */
@@ -101,7 +103,7 @@ class Plugin extends FOGController
         'name',
     );
     /**
-     * Any additional Fields
+     * Any additional Fields.
      *
      * @var array
      */
@@ -109,7 +111,7 @@ class Plugin extends FOGController
         'description',
     );
     /**
-     * Gets the needed include files to run
+     * Gets the needed include files to run.
      *
      * @param string $hash the hash to test for
      *
@@ -117,7 +119,7 @@ class Plugin extends FOGController
      */
     public function getRunInclude($hash)
     {
-        foreach ((array)$this->getPlugins() as &$Plugin) {
+        foreach ((array) $this->getPlugins() as &$Plugin) {
             $name = trim($Plugin->get('name'));
             $tmpHash = md5($name);
             $tmpHash = trim($tmpHash);
@@ -127,20 +129,19 @@ class Plugin extends FOGController
             $_SESSION['fogactiveplugin'] = $name;
             break;
         }
+
         return $Plugin->_getEntryPoint();
     }
     /**
-     * Sets/gets the active plugins
-     *
-     * @return void
+     * Sets/gets the active plugins.
      */
     private function _getActivePlugs()
     {
-        $this->_blIsActive = (bool)($this->get('state'));
-        $this->_blIsInstalled = (bool)($this->get('installed'));
+        $this->_blIsActive = (bool) ($this->get('state'));
+        $this->_blIsInstalled = (bool) ($this->get('installed'));
     }
     /**
-     * Gets the directories of plugins
+     * Gets the directories of plugins.
      *
      * @return array
      */
@@ -173,22 +174,23 @@ class Plugin extends FOGController
             RegexIterator::GET_MATCH
         );
         $files = iterator_to_array($RegexIterator, false);
-        $files = array_map($patternReplacer, (array)$files);
+        $files = array_map($patternReplacer, (array) $files);
         natcasesort($files);
         $files = array_filter($files);
         $files = array_unique($files);
         $files = array_values($files);
+
         return $files;
     }
     /**
-     * Gets plugins
+     * Gets plugins.
      *
      * @return array
      */
     public function getPlugins()
     {
         $Plugins = array();
-        foreach ((array)$this->_getDirs() as &$file) {
+        foreach ((array) $this->_getDirs() as &$file) {
             $pluginID = self::getSubObjectIDs(
                 'Plugin',
                 array('name' => basename($file))
@@ -199,7 +201,7 @@ class Plugin extends FOGController
                 rtrim($file, '/')
             );
             include $configFile;
-            $Plugin = new Plugin($pluginID);
+            $Plugin = new self($pluginID);
             $Plugin
                 ->set('name', $fog_plugin['name'])
                 ->set('description', $fog_plugin['description']);
@@ -263,6 +265,7 @@ class Plugin extends FOGController
             $Plugins[] = $Plugin;
             unset($file);
         }
+
         return $Plugins;
     }
     /**
@@ -275,7 +278,7 @@ class Plugin extends FOGController
     public function activatePlugin($hash)
     {
         $hash = trim($hash);
-        foreach ((array)$this->getPlugins() as &$Plugin) {
+        foreach ((array) $this->getPlugins() as &$Plugin) {
             $name = trim($Plugin->get('name'));
             $tmpHash = md5($name);
             $tmpHash = trim($tmpHash);
@@ -288,6 +291,7 @@ class Plugin extends FOGController
                 ->save();
             unset($Plugin);
         }
+
         return $this;
     }
     /**
@@ -304,10 +308,11 @@ class Plugin extends FOGController
         if (!class_exists($classManager)) {
             return parent::getManager();
         }
+
         return new $classManager();
     }
     /**
-     * Get's the plugin path
+     * Get's the plugin path.
      *
      * @return string
      */
@@ -316,7 +321,7 @@ class Plugin extends FOGController
         return $this->_strPath;
     }
     /**
-     * Get's the plugin run point
+     * Get's the plugin run point.
      *
      * @return string
      */
@@ -325,7 +330,7 @@ class Plugin extends FOGController
         return $this->_strEntryPoint;
     }
     /**
-     * Get's the plugin's icon
+     * Get's the plugin's icon.
      *
      * @return string
      */
@@ -334,27 +339,29 @@ class Plugin extends FOGController
         return $this->_strIcon;
     }
     /**
-     * Get's the installed status of the plugin
+     * Get's the installed status of the plugin.
      *
      * @return bool
      */
     public function isInstalled()
     {
         $this->_getActivePlugs();
-        return (bool)$this->_blIsInstalled;
+
+        return (bool) $this->_blIsInstalled;
     }
     /**
-     * Get's the active status of the plugin
+     * Get's the active status of the plugin.
      *
      * @return bool
      */
     public function isActive()
     {
         $this->_getActivePlugs();
-        return (bool)$this->_blIsActive;
+
+        return (bool) $this->_blIsActive;
     }
     /**
-     * Get's the plugin's version
+     * Get's the plugin's version.
      *
      * @return bool
      */

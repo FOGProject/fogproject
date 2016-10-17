@@ -1,4 +1,5 @@
 <?php
+
 class Timer extends FOGCron
 {
     private $blSingle;
@@ -28,6 +29,7 @@ class Timer extends FOGCron
     public function toString()
     {
         $runTime = self::niceDate()->setTimestamp($this->lngSingle);
+
         return $runTime->format('r');
     }
     public function setDebug($blDebug)
@@ -38,16 +40,17 @@ class Timer extends FOGCron
     {
         $CurrTime = self::niceDate();
         $Time = self::niceDate()->setTimestamp($this->lngSingle);
-        return (bool)($Time <= $CurrTime);
+
+        return (bool) ($Time <= $CurrTime);
     }
     public function shouldRunNow()
     {
-        return (bool)($this->blSingle ? $this->shouldSingleRun() : self::shouldRunCron($this->lngSingle));
+        return (bool) ($this->blSingle ? $this->shouldSingleRun() : self::shouldRunCron($this->lngSingle));
     }
     private function d($s)
     {
         if (self::$debug) {
-            echo($s."\n");
+            echo $s."\n";
         }
     }
 }

@@ -1,33 +1,33 @@
 <?php
 /**
- * System, the basic system layout
+ * System, the basic system layout.
  *
  * PHP Version 5
  *
  * This just presents the system variables
  *
  * @category System
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
- * System, the basic system layout
+ * System, the basic system layout.
  *
  * @category System
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class System
 {
     const PHP_REQUIRED = '5.3.0';
     /**
-     * Checks the php version against what we require
-     *
-     * @return void
+     * Checks the php version against what we require.
      */
     private static function _versionCompare()
     {
@@ -48,14 +48,12 @@ class System
         }
     }
     /**
-     * Constructs the system variables
-     *
-     * @return void
+     * Constructs the system variables.
      */
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '31');
+        define('FOG_VERSION', '32');
         define('FOG_SCHEMA', 235);
         define('FOG_BCACHE_VER', 101);
         define('FOG_SVN_REVISION', 5975);

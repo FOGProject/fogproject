@@ -1,4 +1,5 @@
 <?php
+
 class History extends FOGController
 {
     protected $databaseTable = 'history';

@@ -6,9 +6,10 @@
  * PHP version 5
  *
  * @category HookManager
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
@@ -16,9 +17,10 @@
  * events and hooks.
  *
  * @category HookManager
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class HookManager extends EventManager
@@ -30,21 +32,19 @@ class HookManager extends EventManager
      */
     public $logLevel = 0;
     /**
-     * Data to store and use
+     * Data to store and use.
      *
      * @var mixed
      */
     public $data;
     /**
-     * Events to work off
+     * Events to work off.
      *
      * @var array
      */
     public $events = array();
     /**
      * Get events from other items.
-     *
-     * @return void
      */
     public function getEvents()
     {
@@ -55,8 +55,6 @@ class HookManager extends EventManager
          * and return the registry items called.
          *
          * @param string $file the file to read from
-         *
-         * @return void
          */
         $fileRead = function (&$file) {
             $regexp = '#processEvent\([\'\"](.*?)[\'\"]#';
@@ -77,9 +75,7 @@ class HookManager extends EventManager
          * Lambda to iterate event callers that are dynamic
          * in calling.
          *
-         * @param string $item the item to scan and replace.
-         *
-         * @return void
+         * @param string $item the item to scan and replace
          */
         $specTabs = function (&$item) use (&$eventStart) {
             $divTab = preg_replace(
@@ -155,19 +151,17 @@ class HookManager extends EventManager
         $this->events = array_values($this->events);
     }
     /**
-     * Processes the system for customizable elements
+     * Processes the system for customizable elements.
      *
      * @param string $event     the event to process
      * @param array  $arguments the arguments to pass
-     *
-     * @return void
      */
     public function processEvent($event, $arguments = array())
     {
         if (!isset($this->data[$event])) {
             return;
         }
-        foreach ((array)$this->data[$event] as &$function) {
+        foreach ((array) $this->data[$event] as &$function) {
             $active = false;
             $className = get_class($function[0]);
             $refClass = new ReflectionClass($className);

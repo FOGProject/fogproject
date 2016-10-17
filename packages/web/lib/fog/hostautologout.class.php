@@ -1,4 +1,5 @@
 <?php
+
 class HostAutoLogout extends FOGController
 {
     protected $databaseTable = 'hostAutoLogOut';

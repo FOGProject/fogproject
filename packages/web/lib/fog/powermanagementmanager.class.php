@@ -1,28 +1,30 @@
 <?php
 /**
- * Powermanagement manager mass management class
+ * Powermanagement manager mass management class.
  *
  * PHP version 5
  *
  * @category PowerManagementManager
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
- * Powermanagement manager mass management class
+ * Powermanagement manager mass management class.
  *
  * @category PowerManagementManager
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class PowerManagementManager extends FOGManagerController
 {
     /**
-     * Gets the predefined actions
+     * Gets the predefined actions.
      *
      * @param string $selected the item that is selected
      * @param bool   $array    the item is an array
@@ -34,13 +36,13 @@ class PowerManagementManager extends FOGManagerController
         $array = false
     ) {
         $types = array(
-            'shutdown'=>_('Shutdown'),
-            'reboot'=>_('Reboot'),
-            'wol'=>_('Wake On Lan'),
+            'shutdown' => _('Shutdown'),
+            'reboot' => _('Reboot'),
+            'wol' => _('Wake On Lan'),
         );
-        self::$HookManager->processEvent('PM_ACTION_TYPES', array('types'=>&$types));
+        self::$HookManager->processEvent('PM_ACTION_TYPES', array('types' => &$types));
         ob_start();
-        foreach ((array)$types as $val => &$text) {
+        foreach ((array) $types as $val => &$text) {
             printf(
                 '<option value="%s"%s>%s</option>',
                 trim($val),
@@ -57,6 +59,7 @@ class PowerManagementManager extends FOGManagerController
                 $text
             );
         }
+
         return sprintf(
             '<select name="action%s">%s%s</select>',
             (

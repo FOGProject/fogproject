@@ -1,4 +1,5 @@
 <?php
+
 class Ping
 {
     // ICMP Ping packet with a pre-calculated checksum
@@ -9,8 +10,9 @@ class Ping
     /**
      * @function __construct() Send a ping request to a host.
      *
-     * @param string $host Host name or IP address to ping
+     * @param string     $host    Host name or IP address to ping
      * @param string int $timeout Timeout for ping in seconds
+     *
      * @return bool true if ping succeeds, false if not
      */
     public function __construct($host, $timeout = 2, $port = 445)
@@ -27,6 +29,7 @@ class Ping
     }
     /**
      * @function sockErrToString() error code to string
+     *
      * @param $errCode the code to translate
      * @returns the error string
      */
@@ -36,9 +39,11 @@ class Ping
     /**
      * @function execSend()
      * Use original methods to ping host
-     * @param string $host IP Address or Hostname of host to ping
-     * @param int $timeout Timeout for ping in seconds
-     * @param int $port Port number to send
+     *
+     * @param string $host    IP Address or Hostname of host to ping
+     * @param int    $timeout Timeout for ping in seconds
+     * @param int    $port    Port number to send
+     *
      * @return error codes
      */
     protected static function execSend($host, $timeout, $port)
@@ -50,6 +55,7 @@ class Ping
         if ($errno === 0 && trim($errstr)) {
             return 6;
         }
+
         return  $errno;
     }
     public function execute()

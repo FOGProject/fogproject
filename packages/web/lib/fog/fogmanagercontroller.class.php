@@ -1,70 +1,72 @@
 <?php
 /**
- * FOG Manager Controller, main object mass getter
+ * FOG Manager Controller, main object mass getter.
  *
  * PHP version 5
  *
  * @category FOGManagerController
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
- * FOG Manager Controller, main object mass getter
+ * FOG Manager Controller, main object mass getter.
  *
  * @category FOGManagerController
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 abstract class FOGManagerController extends FOGBase
 {
     /**
-     * The main class for the object
+     * The main class for the object.
      *
      * @var string
      */
     protected $childClass;
     /**
-     * The table name for the object
+     * The table name for the object.
      *
      * @var string
      */
     protected $databaseTable;
     /**
-     * The common names and fields
+     * The common names and fields.
      *
      * @var array
      */
     protected $databaseFields = array();
     /**
-     * The Flipped fields
+     * The Flipped fields.
      *
      * @var array
      */
     protected $databaseFieldsFlipped = array();
     /**
-     * The required fields
+     * The required fields.
      *
      * @var array
      */
     protected $databaseFieldsRequired = array();
     /**
-     * The Class relationships
+     * The Class relationships.
      *
      * @var array
      */
     protected $databaseFieldClassRelationships = array();
     /**
-     * The additional fields
+     * The additional fields.
      *
      * @var array
      */
     protected $additionalFields = array();
     /**
-     * The load template
+     * The load template.
      *
      * SELECT <field(s)> FROM `<table>` <join> <where>
      *
@@ -72,51 +74,49 @@ abstract class FOGManagerController extends FOGBase
      */
     protected $loadQueryTemplate = 'SELECT %s FROM `%s` %s %s %s %s %s';
     /**
-     * The load groupby template
+     * The load groupby template.
      *
      * @var string
      */
     protected $loadQueryGroupTemplate = 'SELECT %s FROM (%s) `%s` %s %s %s %s %s';
     /**
-     * The count template
+     * The count template.
      *
      * @var string
      */
     protected $countQueryTemplate = 'SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s`%s LIMIT 1';
     /**
-     * The update template
+     * The update template.
      *
      * @var string
      */
     protected $updateQueryTemplate = 'UPDATE `%s` SET %s %s';
     /**
-     * The destroy template
+     * The destroy template.
      *
      * @var string
      */
-    protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`.`%s` IN (%s)";
+    protected $destroyQueryTemplate = 'DELETE FROM `%s` WHERE `%s`.`%s` IN (%s)';
     /**
-     * The exists template
+     * The exists template.
      *
      * @var string
      */
-    protected $existsQueryTemplate = "SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s` WHERE `%s`.`%s`=%s AND `%s`.`%s` <> %s";
+    protected $existsQueryTemplate = 'SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s` WHERE `%s`.`%s`=%s AND `%s`.`%s` <> %s';
     /**
-     * The insert batch template
+     * The insert batch template.
      *
      * @var string
      */
-    protected $insertBatchTemplate = "INSERT INTO `%s` (`%s`) VALUES %s ON DUPLICATE KEY UPDATE %s";
+    protected $insertBatchTemplate = 'INSERT INTO `%s` (`%s`) VALUES %s ON DUPLICATE KEY UPDATE %s';
     /**
-     * The distinct template
+     * The distinct template.
      *
      * @var string
      */
     protected $distinctTemplate = 'SELECT COUNT(DISTINCT `%s`.`%s`) AS `total` FROM `%s`%s LIMIT 1';
     /**
-     * Initializes the manager class
-     *
-     * @return void
+     * Initializes the manager class.
      */
     public function __construct()
     {
@@ -138,16 +138,16 @@ abstract class FOGManagerController extends FOGBase
             'databaseFieldsRequired',
             'databaseFieldClassRelationships',
         );
-        $this->databaseTable =& $classVars[$classGet[0]];
-        $this->databaseFields =& $classVars[$classGet[1]];
-        $this->additionalFields =& $classVars[$classGet[2]];
-        $this->databaseFieldsRequired =& $classVars[$classGet[3]];
-        $this->databaseFieldClassRelationships =& $classVars[$classGet[4]];
+        $this->databaseTable = &$classVars[$classGet[0]];
+        $this->databaseFields = &$classVars[$classGet[1]];
+        $this->additionalFields = &$classVars[$classGet[2]];
+        $this->databaseFieldsRequired = &$classVars[$classGet[3]];
+        $this->databaseFieldClassRelationships = &$classVars[$classGet[4]];
         $this->databaseFieldsFlipped = array_flip($this->databaseFields);
         unset($classGet);
     }
     /**
-     * Finds items related to the main object
+     * Finds items related to the main object.
      *
      * @param array  $findWhere     what to find
      * @param string $whereOperator how to combine where items
@@ -193,7 +193,7 @@ abstract class FOGManagerController extends FOGBase
             ' NOT ' :
             ' '
         );
-        $whereArray = $whereArrayAnd =array();
+        $whereArray = $whereArrayAnd = array();
         if (count($findWhere) > 0) {
             $count = 0;
             foreach ($findWhere as $field => &$value) {
@@ -203,7 +203,7 @@ abstract class FOGManagerController extends FOGBase
                         '0',
                         0,
                         null,
-                        ''
+                        '',
                     );
                 }
                 if (is_array($value) && count($value) > 0) {
@@ -253,7 +253,7 @@ abstract class FOGManagerController extends FOGBase
                         $this->databaseTable,
                         $this->databaseFields[$field],
                         (
-                            preg_match('#%#', (string)$value) ?
+                            preg_match('#%#', (string) $value) ?
                             sprintf(' %sLIKE ', $not) :
                             sprintf(
                                 '%s%s',
@@ -270,7 +270,7 @@ abstract class FOGManagerController extends FOGBase
                         $findKey
                     );
                 }
-                $count++;
+                ++$count;
                 unset($value);
             }
         }
@@ -304,7 +304,7 @@ abstract class FOGManagerController extends FOGBase
         $knownEnable = array(
             'Image',
             'Snapin',
-            'StorageNode'
+            'StorageNode',
         );
         $nonEnable = !(in_array($this->childClass, $knownEnable));
         $isEnabled = array_key_exists(
@@ -325,9 +325,9 @@ abstract class FOGManagerController extends FOGBase
             );
         }
         $idFields = array();
-        foreach ((array)$idField as &$id) {
+        foreach ((array) $idField as &$id) {
             $id = trim($id);
-            $idFields += (array)$this->databaseFields[$id];
+            $idFields += (array) $this->databaseFields[$id];
             unset($id);
         }
         $idFields = array_filter($idFields);
@@ -337,7 +337,7 @@ abstract class FOGManagerController extends FOGBase
             $this->loadQueryTemplate,
             (
                 count($idField) > 0 ?
-                sprintf('`%s`', implode('`,`', (array)$idField)) :
+                sprintf('`%s`', implode('`,`', (array) $idField)) :
                 '*'
             ),
             $this->databaseTable,
@@ -346,7 +346,7 @@ abstract class FOGManagerController extends FOGBase
                 count($whereArray) > 0 ?
                 sprintf(
                     ' WHERE %s%s',
-                    implode(" $whereOperator ", (array)$whereArray),
+                    implode(" $whereOperator ", (array) $whereArray),
                     (
                         $isEnabled ?
                         sprintf(' AND %s', $isEnabled) :
@@ -365,11 +365,11 @@ abstract class FOGManagerController extends FOGBase
                     count($whereArray) > 0 ?
                     sprintf(
                         'AND %s',
-                        implode(" $whereOperator ", (array)$whereArrayAnd)
+                        implode(" $whereOperator ", (array) $whereArrayAnd)
                     ) :
                     sprintf(
                         ' WHERE %s',
-                        implode(" $whereOperator ", (array)$whereArrayAnd)
+                        implode(" $whereOperator ", (array) $whereArrayAnd)
                     )
                 ) :
                 ''
@@ -387,10 +387,10 @@ abstract class FOGManagerController extends FOGBase
                 $this->databaseTable,
                 $join,
                 (
-                    count($whereArray) > 0?
+                    count($whereArray) > 0 ?
                     sprintf(
                         ' WHERE %s%s',
-                        implode(" $whereOperator ", (array)$whereArray),
+                        implode(" $whereOperator ", (array) $whereArray),
                         (
                             $isEnabled ?
                             sprintf(' AND %s', $isEnabled)
@@ -412,11 +412,11 @@ abstract class FOGManagerController extends FOGBase
                         count($whereArray) > 0 ?
                         sprintf(
                             'AND %s',
-                            implode(" $whereOperator ", (array)$whereArrayAnd)
+                            implode(" $whereOperator ", (array) $whereArrayAnd)
                         ) :
                         sprintf(
                             ' WHERE %s',
-                            implode(" $whereOperator ", (array)$whereArrayAnd)
+                            implode(" $whereOperator ", (array) $whereArrayAnd)
                         )
                     ) :
                     ''
@@ -429,7 +429,7 @@ abstract class FOGManagerController extends FOGBase
         $data = array();
         self::$DB->query($query, array(), $findVals);
         if ($idField) {
-            $data = (array)self::$DB
+            $data = (array) self::$DB
                 ->fetch('', 'fetch_all')
                 ->get($idField);
             if ($filter) {
@@ -448,7 +448,7 @@ abstract class FOGManagerController extends FOGBase
             $vals = self::$DB
                 ->fetch('', 'fetch_all')
                 ->get();
-            foreach ((array)$vals as &$val) {
+            foreach ((array) $vals as &$val) {
                 $class = self::getClass($this->childClass, $val);
                 if (!$class->isValid()) {
                     continue;
@@ -460,10 +460,11 @@ abstract class FOGManagerController extends FOGBase
         if ($filter) {
             return @$filter($data);
         }
+
         return $data;
     }
     /**
-     * Returns the count of items
+     * Returns the count of items.
      *
      * @param array  $findWhere     what to find and count
      * @param string $whereOperator how to scan for where multiples
@@ -488,10 +489,10 @@ abstract class FOGManagerController extends FOGBase
         $whereArray = array();
         $countVals = $countKeys = array();
         if (count($findWhere)) {
-            foreach ((array)$findWhere as $field => &$value) {
+            foreach ((array) $findWhere as $field => &$value) {
                 $field = trim($field);
                 if (is_array($value)) {
-                    foreach ((array)$value as $index => &$val) {
+                    foreach ((array) $value as $index => &$val) {
                         $key = sprintf(
                             '%s_%d',
                             $field,
@@ -529,7 +530,7 @@ abstract class FOGManagerController extends FOGBase
         $knownEnable = array(
             'Image',
             'Snapin',
-            'StorageNode'
+            'StorageNode',
         );
         $nonEnable = !(in_array($this->childClass, $knownEnable));
         $isEnabled = array_key_exists(
@@ -556,7 +557,7 @@ abstract class FOGManagerController extends FOGBase
                             ' %s ',
                             $whereOperator
                         ),
-                        (array)$whereArray
+                        (array) $whereArray
                     ),
                     (
                         $isEnabled ?
@@ -577,16 +578,17 @@ abstract class FOGManagerController extends FOGBase
                 )
             )
         );
-        return (int)self::$DB
+
+        return (int) self::$DB
             ->query($query, array(), $countVals)
             ->fetch()
             ->get('total');
     }
     /**
-     * Inserts data in mass to the database
+     * Inserts data in mass to the database.
      *
-     * @param array $fields the fields to insert into.
-     * @param array $values the values to insert.
+     * @param array $fields the fields to insert into
+     * @param array $values the values to insert
      *
      * @return array
      */
@@ -601,7 +603,7 @@ abstract class FOGManagerController extends FOGBase
             throw new Exception(_('No values passed'));
         }
         $keys = array();
-        foreach ((array)$fields as &$key) {
+        foreach ((array) $fields as &$key) {
             $key = $this->databaseFields[$key];
             $keys[] = $key;
             $dups[] = sprintf(
@@ -614,10 +616,10 @@ abstract class FOGManagerController extends FOGBase
         $vals = array();
         $insertVals = array();
         $values = array_chunk($values, 500);
-        foreach ((array)$values as $ind => &$v) {
-            foreach ((array)$v as $index => &$value) {
+        foreach ((array) $values as $ind => &$v) {
+            foreach ((array) $v as $index => &$value) {
                 $insertKeys = array();
-                foreach ((array)$value as $i => &$val) {
+                foreach ((array) $value as $i => &$val) {
                     $key = sprintf(
                         '%s_%d',
                         $fields[$i],
@@ -631,7 +633,7 @@ abstract class FOGManagerController extends FOGBase
                     $insertVals[$key] = $val;
                     unset($val);
                 }
-                $vals[] = sprintf('(%s)', implode(',', (array)$insertKeys));
+                $vals[] = sprintf('(%s)', implode(',', (array) $insertKeys));
                 unset($value);
             }
             if (count($vals) < 1) {
@@ -646,18 +648,19 @@ abstract class FOGManagerController extends FOGBase
             );
             self::$DB->query($query, array(), $insertVals);
             if ($ind === 0) {
-                $insertID = (int)self::$DB->insertId();
+                $insertID = (int) self::$DB->insertId();
             }
-            $affectedRows += (int)self::$DB->affectedRows();
+            $affectedRows += (int) self::$DB->affectedRows();
             unset($v, $vals, $insertVals);
         }
+
         return array(
             $insertID,
-            $affectedRows
+            $affectedRows,
         );
     }
     /**
-     * Function deals with enmass updating
+     * Function deals with enmass updating.
      *
      * @param array  $findWhere     what specific to update
      * @param string $whereOperator what to join where with
@@ -679,7 +682,7 @@ abstract class FOGManagerController extends FOGBase
         $insertArray = array();
         $whereArray = array();
         $updateVals = array();
-        foreach ((array)$insertData as $field => &$value) {
+        foreach ((array) $insertData as $field => &$value) {
             $field = trim($field);
             $value = trim($value);
             $updateKey = sprintf(
@@ -750,7 +753,7 @@ abstract class FOGManagerController extends FOGBase
                         $this->databaseTable,
                         $this->databaseFields[$field],
                         (
-                            preg_match('#%#', (string)$value) ?
+                            preg_match('#%#', (string) $value) ?
                             ' LIKE' :
                             '='
                         ),
@@ -764,24 +767,25 @@ abstract class FOGManagerController extends FOGBase
         $query = sprintf(
             $this->updateQueryTemplate,
             $this->databaseTable,
-            implode(',', (array)$insertArray),
+            implode(',', (array) $insertArray),
             (
                 count($whereArray) ?
                 sprintf(
                     ' WHERE %s',
-                    implode(" $whereOperator ", (array)$whereArray)
+                    implode(" $whereOperator ", (array) $whereArray)
                 ) :
                 ''
             )
         );
         $queryVals = array_merge(
-            (array)$updateVals,
-            (array)$findVals
+            (array) $updateVals,
+            (array) $findVals
         );
-        return (bool)self::$DB->query($query, array(), $queryVals);
+
+        return (bool) self::$DB->query($query, array(), $queryVals);
     }
     /**
-     * Destroys items related to the main object
+     * Destroys items related to the main object.
      *
      * @param array  $findWhere     what to find
      * @param string $whereOperator how to combine where items
@@ -828,8 +832,8 @@ abstract class FOGManagerController extends FOGBase
         );
         $destroyVals = array();
         $ids = array_chunk($ids, 500);
-        foreach ((array)$ids as &$id) {
-            foreach ((array)$id as $index => &$id_1) {
+        foreach ((array) $ids as &$id) {
+            foreach ((array) $id as $index => &$id_1) {
                 $keyStr = sprintf('id_%d', $index);
                 $destroyKeys[] = sprintf(':%s', $keyStr);
                 $destroyVals[$keyStr] = $id_1;
@@ -843,16 +847,17 @@ abstract class FOGManagerController extends FOGBase
                 $this->databaseTable,
                 $this->databaseTable,
                 $this->databaseFields['id'],
-                implode(',', (array)$destroyKeys)
+                implode(',', (array) $destroyKeys)
             );
             unset($destroyKeys);
             self::$DB->query($query, array(), $destroyVals);
             unset($destroyVals, $destroyKeys);
         }
+
         return true;
     }
     /**
-     * Builds a select box/option box from the elements
+     * Builds a select box/option box from the elements.
      *
      * @param mixed  $matchID     select the matching id
      * @param string $elementName the name for the select box
@@ -892,7 +897,7 @@ abstract class FOGManagerController extends FOGBase
             ($filter ? true : false)
         );
         ob_start();
-        foreach ((array)$items as &$Object) {
+        foreach ((array) $items as &$Object) {
             if (!$Object->isValid()) {
                 continue;
             }
@@ -928,18 +933,19 @@ abstract class FOGManagerController extends FOGBase
         }
         $tmpStr = sprintf(
             '<select name="%s" autcomplete="off">'
-            . '<option value="">- %s -</option>'
-            . '%s</select>',
+            .'<option value="">- %s -</option>'
+            .'%s</select>',
             ($template ? '${selector_name}' : $elementName),
             self::$foglang['PleaseSelect'],
             $objOpts
         );
+
         return $tmpStr;
     }
     /**
-     * Checks if item already exists or not
+     * Checks if item already exists or not.
      *
-     * @param string $val    the value to test
+     * @param string $val     the value to test
      * @param string $id      an ID if already exists
      * @param string $idField the id field to scan
      *
@@ -972,13 +978,14 @@ abstract class FOGManagerController extends FOGBase
             $this->databaseFields[$idField],
             ':id'
         );
-        return (bool)self::$DB
+
+        return (bool) self::$DB
             ->query($query, array(), $existVals)
             ->fetch()
             ->get('total') > 0;
     }
     /**
-     * Search for items passed to keyword
+     * Search for items passed to keyword.
      *
      * @param string $keyword       what to search for
      * @param bool   $returnObjects use ids or whole objects
@@ -1000,7 +1007,7 @@ abstract class FOGManagerController extends FOGBase
             $keyword
         );
         $mac_keyword = str_split($mac_keyword, 2);
-        $mac_keyword = join(':', $mac_keyword);
+        $mac_keyword = implode(':', $mac_keyword);
         $mac_keyword = preg_replace(
             '#[%\+\s\+]#',
             '%',
@@ -1027,7 +1034,7 @@ abstract class FOGManagerController extends FOGBase
         $findWhere = array_fill_keys(array_keys($this->databaseFields), $keyword);
         $find = array(
             'name' => $keyword,
-            'description' => $keyword
+            'description' => $keyword,
         );
         $itemIDs = self::getSubObjectIDs(
             $this->childClass,
@@ -1041,7 +1048,7 @@ abstract class FOGManagerController extends FOGBase
             array(
                 'name' => $keyword,
                 'description' => $keyword,
-                'ip' => $keyword
+                'ip' => $keyword,
             ),
             'id',
             '',
@@ -1055,7 +1062,7 @@ abstract class FOGManagerController extends FOGBase
                     'MACAddressAssociation',
                     array(
                     'mac' => $mac_keyword,
-                    'description' => $keyword
+                    'description' => $keyword,
                     ),
                     'hostID',
                     '',
@@ -1071,7 +1078,7 @@ abstract class FOGManagerController extends FOGBase
                         'other1' => $keyword,
                         'other2' => $keyword,
                         'sysman' => $keyword,
-                        'sysproduct' => $keyword
+                        'sysproduct' => $keyword,
                         ),
                         'hostID',
                         '',
@@ -1320,10 +1327,11 @@ abstract class FOGManagerController extends FOGBase
         if ($returnObjects) {
             return $this->find(array('id' => $itemIDs));
         }
+
         return $itemIDs;
     }
     /**
-     * Returns the distinct (all matching)
+     * Returns the distinct (all matching).
      *
      * @param string $field         the field to be distinct
      * @param array  $findWhere     what to find
@@ -1363,13 +1371,13 @@ abstract class FOGManagerController extends FOGBase
                 ) {
                     $field = trim($field);
                     if (is_array($value)) {
-                        foreach ((array)$value as $index => &$val) {
+                        foreach ((array) $value as $index => &$val) {
                             $countKeys[] = sprintf(':countVal%d', $index);
                             $countVals[sprintf('countVal%d', $index)] = $val;
                             unset($val);
                         }
                         $whereArray[] = sprintf(
-                            "`%s`.`%s` IN (%s)",
+                            '`%s`.`%s` IN (%s)',
                             $this->databaseTable,
                             $this->databaseFields[$field],
                             implode(',', $countKeys)
@@ -1408,7 +1416,7 @@ abstract class FOGManagerController extends FOGBase
                             ' %s ',
                             $whereOperator
                         ),
-                        (array)$whereArray
+                        (array) $whereArray
                     ),
                     (
                         $isEnabled ?
@@ -1429,7 +1437,8 @@ abstract class FOGManagerController extends FOGBase
                 )
             )
         );
-        return (int)self::$DB
+
+        return (int) self::$DB
             ->query($query, array(), $countVals)
             ->fetch()
             ->get('total');

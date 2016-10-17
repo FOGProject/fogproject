@@ -1,4 +1,5 @@
 <?php
+
 class ImagePartitionType extends FOGController
 {
     protected $databaseTable = 'imagePartitionTypes';

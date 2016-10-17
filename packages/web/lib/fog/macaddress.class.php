@@ -5,9 +5,10 @@
  * PHP version 5
  *
  * @category MACAddress
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
@@ -16,45 +17,46 @@
  * PHP version 5
  *
  * @category MACAddress
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class MACAddress extends FOGBase
 {
     /**
-     * Pattern to validate MACAddresses
+     * Pattern to validate MACAddresses.
      *
      * @var string
      */
     private static $_pattern = '';
     /**
-     * This msg packet
+     * This msg packet.
      *
      * @var string
      */
     private $_msg = '';
     /**
-     * The host object storage
+     * The host object storage.
      *
      * @var object
      */
     private $_Host = null;
     /**
-     * The stored MAC Association if found
+     * The stored MAC Association if found.
      *
      * @var object
      */
     private $_MAC = null;
     /**
-     * Individual MAC Storage
+     * Individual MAC Storage.
      *
      * @var string
      */
     protected $MAC;
     /**
-     * Temporary mac store
+     * Temporary mac store.
      *
      * @var mixed
      */
@@ -63,8 +65,6 @@ class MACAddress extends FOGBase
      * Initializes the mac address class.
      *
      * @param string $mac the mac item(s)
-     *
-     * @return void
      */
     public function __construct($mac)
     {
@@ -80,15 +80,16 @@ class MACAddress extends FOGBase
             ->load('mac');
     }
     /**
-     * Sets the mac
+     * Sets the mac.
      *
      * @throws Exception
+     *
      * @return object
      */
     protected function setMAC()
     {
         try {
-            if ($this->tmpMAC instanceof MACAddress) {
+            if ($this->tmpMAC instanceof self) {
                 $this->MAC = self::normalizeMAC($this->tmpMAC);
             } elseif ($this->tmpMAC instanceof MACAddressAssociation) {
                 $this->MAC = self::normalizeMAC($this->tmpMAC->get('mac'));
@@ -101,7 +102,7 @@ class MACAddress extends FOGBase
                 throw new Exception("#!im\n");
             }
             $splitter = str_split($this->MAC, 2);
-            foreach ((array)$splitter as &$split) {
+            foreach ((array) $splitter as &$split) {
                 $hwAddr .= chr(hexdec($split));
                 unset($split);
             }
@@ -115,6 +116,7 @@ class MACAddress extends FOGBase
                 self::$FOGCore->debug($e->getMessage().' MAC: %s', $this->MAC);
             }
         }
+
         return $this;
     }
     /**
@@ -126,7 +128,7 @@ class MACAddress extends FOGBase
      */
     protected static function normalizeMAC($mac)
     {
-        $mac = preg_grep(self::$_pattern, (array)$mac);
+        $mac = preg_grep(self::$_pattern, (array) $mac);
         if (count($mac) !== 1) {
             return '';
         }
@@ -135,16 +137,17 @@ class MACAddress extends FOGBase
             array(
                 '.',
                 '-',
-                ':'
+                ':',
             ),
             '',
             $mac
         );
         $mac = strtolower($mac);
+
         return $mac;
     }
     /**
-     * Gets the first 6 characters of the mac
+     * Gets the first 6 characters of the mac.
      *
      * @return string
      */
@@ -156,67 +159,69 @@ class MACAddress extends FOGBase
             6
         );
         $strMod = str_split($strMod, 2);
-        $strMod = join('-', $strMod);
+        $strMod = implode('-', $strMod);
+
         return $strMod;
     }
     /**
-     * How to present the mac as a string
+     * How to present the mac as a string.
      *
      * @return string
      */
     public function __toString()
     {
         $strMod = str_split($this->MAC, 2);
-        $strMod = join(':', $strMod);
+        $strMod = implode(':', $strMod);
+
         return $strMod;
     }
     /**
-     * Tests if the mac is valid
+     * Tests if the mac is valid.
      *
      * @return bool
      */
     public function isValid()
     {
-        return (bool)preg_match(self::$_pattern, $this->MAC);
+        return (bool) preg_match(self::$_pattern, $this->MAC);
     }
     /**
-     * Tests if mac is a pending mac
+     * Tests if mac is a pending mac.
      *
      * @return bool
      */
     public function isPending()
     {
-        return (bool)$this->_MAC->isPending();
+        return (bool) $this->_MAC->isPending();
     }
     /**
-     * Tests if mac is to be ignored for client
+     * Tests if mac is to be ignored for client.
      *
      * @return bool
      */
     public function isClientIgnored()
     {
-        return (bool)$this->_MAC->isClientIgnored();
+        return (bool) $this->_MAC->isClientIgnored();
     }
     /**
-     * Tests if mac is primary mac
+     * Tests if mac is primary mac.
      *
      * @return bool
      */
     public function isPrimary()
     {
-        return (bool)$this->_MAC->isPrimary();
+        return (bool) $this->_MAC->isPrimary();
     }
     /**
-     * Tests if mac is to be ignored for imaging
+     * Tests if mac is to be ignored for imaging.
      *
      * @return bool
      */
     public function isImageIgnored()
     {
-        return (bool)$this->_MAC->isImageIgnored();
+        return (bool) $this->_MAC->isImageIgnored();
     }
     /**
-     * Gets mac's associated host
+     * Gets mac's associated host.
      *
      * @return object
      */
@@ -225,7 +230,7 @@ class MACAddress extends FOGBase
         return $this->_MAC->getHost();
     }
     /**
-     * Wakes this MAC address
+     * Wakes this MAC address.
      *
      * @param string $ip   the ip to send to
      * @param int    $port the port to sent from

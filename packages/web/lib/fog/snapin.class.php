@@ -1,34 +1,36 @@
 <?php
 /**
- * The snapin object
+ * The snapin object.
  *
  * PHP version 5
  *
  * @category Snapin
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
- * The snapin object
+ * The snapin object.
  *
  * @category Snapin
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class Snapin extends FOGController
 {
     /**
-     * The snapin table
+     * The snapin table.
      *
      * @var string
      */
     protected $databaseTable = 'snapins';
     /**
-     * The snapin table fields and common names
+     * The snapin table fields and common names.
      *
      * @var array
      */
@@ -55,7 +57,7 @@ class Snapin extends FOGController
         'anon3' => 'sAnon3',
     );
     /**
-     * The required fields
+     * The required fields.
      *
      * @var array
      */
@@ -64,7 +66,7 @@ class Snapin extends FOGController
         'file',
     );
     /**
-     * Additional fields
+     * Additional fields.
      *
      * @var array
      */
@@ -76,11 +78,12 @@ class Snapin extends FOGController
         'path',
     );
     /**
-     * Removes the item from the database
+     * Removes the item from the database.
      *
      * @param string $key the key to remove
      *
      * @throws Exception
+     *
      * @return object
      */
     public function destroy($key = 'id')
@@ -99,15 +102,15 @@ class Snapin extends FOGController
                 'id' => $snapinJobIDs,
                 'stateID' => array_merge(
                     $this->getQueuedStates(),
-                    (array)$this->getProgressState()
+                    (array) $this->getProgressState()
                 ),
             )
         );
-        foreach ((array)$snapinJobIDs as &$sjID) {
+        foreach ((array) $snapinJobIDs as &$sjID) {
             $jobCount = self::getClass('SnapinTaskManager')
                 ->count(
                     array(
-                        'jobID' => $sjID
+                        'jobID' => $sjID,
                     )
                 );
             if ($jobCount > 0) {
@@ -123,22 +126,24 @@ class Snapin extends FOGController
             ->destroy($find);
         self::getClass('SnapinAssociationManager')
             ->destroy($find);
+
         return parent::destroy($key);
     }
     /**
-     * Stores data into the database
+     * Stores data into the database.
      *
      * @return bool|object
      */
     public function save()
     {
         parent::save();
+
         return $this
             ->assocSetter('Snapin', 'host')
             ->assocSetter('SnapinGroup', 'storagegroup');
     }
     /**
-     * Deletes the snapin file
+     * Deletes the snapin file.
      *
      * @return bool
      */
@@ -151,10 +156,10 @@ class Snapin extends FOGController
             ->find(
                 array(
                     'storagegroupID' => $this->get('storagegroups'),
-                    'isEnabled' => 1
+                    'isEnabled' => 1,
                 )
             );
-        foreach ((array)$StorageNodes as &$StorageNode) {
+        foreach ((array) $StorageNodes as &$StorageNode) {
             if (!$StorageNode->isValid()) {
                 continue;
             }
@@ -182,9 +187,7 @@ class Snapin extends FOGController
         }
     }
     /**
-     * Loads hosts
-     *
-     * @return void
+     * Loads hosts.
      */
     protected function loadHosts()
     {
@@ -200,7 +203,7 @@ class Snapin extends FOGController
         $this->set('hsots', $hostids);
     }
     /**
-     * Add hosts to snapin object
+     * Add hosts to snapin object.
      *
      * @param array $addArray the items to add
      *
@@ -210,12 +213,12 @@ class Snapin extends FOGController
     {
         return $this->addRemItem(
             'hosts',
-            (array)$addArray,
+            (array) $addArray,
             'merge'
         );
     }
     /**
-     * Remove hosts from snapin object
+     * Remove hosts from snapin object.
      *
      * @param array $removeArray the items to remove
      *
@@ -225,14 +228,12 @@ class Snapin extends FOGController
     {
         return $this->addRemItem(
             'hosts',
-            (array)$removeArray,
+            (array) $removeArray,
             'diff'
         );
     }
     /**
-     * Loads items not with this object
-     *
-     * @return void
+     * Loads items not with this object.
      */
     protected function loadHostsnotinme()
     {
@@ -246,9 +247,7 @@ class Snapin extends FOGController
         $this->set('hostsnotinme', $hostids);
     }
     /**
-     * Loads storage groups with this object
-     *
-     * @return void
+     * Loads storage groups with this object.
      */
     protected function loadStoragegroups()
     {
@@ -269,7 +268,7 @@ class Snapin extends FOGController
         $this->set('storagegroups', $groupids);
     }
     /**
-     * Adds groups to this object
+     * Adds groups to this object.
      *
      * @param array $addArray the items to add
      *
@@ -279,12 +278,12 @@ class Snapin extends FOGController
     {
         return $this->addRemItem(
             'storagegroups',
-            (array)$addArray,
+            (array) $addArray,
             'merge'
         );
     }
     /**
-     * Removes groups from this object
+     * Removes groups from this object.
      *
      * @param array $removeArray the items to remove
      *
@@ -294,14 +293,12 @@ class Snapin extends FOGController
     {
         return $this->addRemItem(
             'storagegroups',
-            (array)$removeArray,
+            (array) $removeArray,
             'diff'
         );
     }
     /**
-     * Loads groups not with this snapin
-     *
-     * @return void
+     * Loads groups not with this snapin.
      */
     protected function loadStoragegroupsnotinme()
     {
@@ -315,9 +312,10 @@ class Snapin extends FOGController
         $this->set('storagegroupsnotinme', $groupids);
     }
     /**
-     * Gets the storage group
+     * Gets the storage group.
      *
      * @throws Exception
+     *
      * @return object
      */
     public function getStorageGroup()
@@ -332,7 +330,7 @@ class Snapin extends FOGController
             }
         }
         $primaryGroup = array();
-        foreach ((array)$groupids as &$groupid) {
+        foreach ((array) $groupids as &$groupid) {
             if (!$this->getPrimaryGroup($groupid)) {
                 continue;
             }
@@ -340,14 +338,15 @@ class Snapin extends FOGController
             unset($groupid);
         }
         if (count($primaryGroup) < 1) {
-            $primaryGroup = @min((array)$groupids);
+            $primaryGroup = @min((array) $groupids);
         } else {
             $primaryGroup = array_shift($primaryGroup);
         }
+
         return new StorageGroup($primaryGroup);
     }
     /**
-     * Gets the snapin's primary group
+     * Gets the snapin's primary group.
      *
      * @param int $groupID the group id to check
      *
@@ -359,14 +358,14 @@ class Snapin extends FOGController
             ->count(
                 array(
                     'snapinID' => $this->get('id'),
-                    'prmary' => 1
+                    'prmary' => 1,
                 )
             );
         if ($primaryCount < 1) {
             $primaryCount = self::getClass('SnapinGroupAssociationManager')
                 ->count(
                     array(
-                        'snapinID' => $this->get('id')
+                        'snapinID' => $this->get('id'),
                     )
                 );
         }
@@ -379,14 +378,15 @@ class Snapin extends FOGController
             'SnapinGroupAssociation',
             array(
                 'storagegroupID' => $groupID,
-                'snapinID' => $this->get('id')
+                'snapinID' => $this->get('id'),
             )
         );
         $assocID = @min($assocID);
+
         return self::getClass('SnapinGroupAssociation', $assocID)->isPrimary();
     }
     /**
-     * Sets the primary group for the snapin
+     * Sets the primary group for the snapin.
      *
      * @param int $groupID the id to set as primary
      *
@@ -399,18 +399,18 @@ class Snapin extends FOGController
                 array(
                     'snapinID' => $this->get('id'),
                     'storagegroupID' => array_diff(
-                        (array)$this->get('storagegroups'),
-                        (array)$groupID
+                        (array) $this->get('storagegroups'),
+                        (array) $groupID
                     ),
                     '',
-                    array('primary' => 0)
+                    array('primary' => 0),
                 )
             );
         self::getClass('SnapinGroupAssociationManager')
             ->update(
                 array(
                     'snapinID' => $this->get('id'),
-                    'storagegroupID' => $groupID
+                    'storagegroupID' => $groupID,
                 ),
                 '',
                 array('primary' => 1)
@@ -418,13 +418,12 @@ class Snapin extends FOGController
     }
     /**
      * Loads the Path as the file for commonality
-     * in some methods
-     *
-     * @return void
+     * in some methods.
      */
     protected function loadPath()
     {
         $this->set('path', $this->get('file'));
+
         return $this;
     }
 }

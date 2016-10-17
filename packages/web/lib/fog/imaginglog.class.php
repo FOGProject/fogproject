@@ -1,4 +1,5 @@
 <?php
+
 class ImagingLog extends FOGController
 {
     protected $databaseTable = 'imagingLog';

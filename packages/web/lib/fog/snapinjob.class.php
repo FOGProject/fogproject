@@ -1,4 +1,5 @@
 <?php
+
 class SnapinJob extends FOGController
 {
     protected $databaseTable = 'snapinJobs';

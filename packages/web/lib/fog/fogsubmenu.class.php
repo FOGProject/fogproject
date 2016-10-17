@@ -1,19 +1,20 @@
 <?php
 /**
- * FOGSubMenu
+ * FOGSubMenu.
  *
  * PHP version 5
  *
  * This file enables side menus and notes.
  *
  * @category FOGSubMenu
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
- * FOGSubMenu
+ * FOGSubMenu.
  *
  * This file enables the Side menus and notes.
  * To add:
@@ -82,9 +83,10 @@
  * );
  *
  * @category FOGSubMenu
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class FOGSubMenu extends FOGBase
@@ -102,18 +104,17 @@ class FOGSubMenu extends FOGBase
      */
     public $defaultSubs = array(
         'host' => 'edit',
-        'group' => 'edit'
+        'group' => 'edit',
     );
     /**
-     * Add items into the side menu stuff
+     * Add items into the side menu stuff.
      *
-     * @param string $node            node to work on.
+     * @param string $node            node to work on
      * @param array  $items           items to add
      * @param string $ifVariable      tester variable
-     * @param string $ifVariableTitle tester variable title setter.
+     * @param string $ifVariableTitle tester variable title setter
      *
      * @throws exception
-     * @return void
      */
     public function addItems(
         $node,
@@ -138,7 +139,7 @@ class FOGSubMenu extends FOGBase
         }
         if (isset($_REQUEST[$ifVariable])) {
             global $$ifVariable;
-            foreach ((array)$items as $title => $link) {
+            foreach ((array) $items as $title => $link) {
                 global $$ifVariable;
                 if (!$this->isExternalLink($link)) {
                     $link = sprintf(
@@ -164,11 +165,10 @@ class FOGSubMenu extends FOGBase
      * Add nodes to the sub menu.
      *
      * @param string         $node       The node to work for
-     * @param callable|array $data       The data can be a callback or array.
-     * @param string         $ifVariable The variable to test.
+     * @param callable|array $data       The data can be a callback or array
+     * @param string         $ifVariable The variable to test
      *
      * @throws Exception
-     * @return void
      */
     public function addNotes(
         $node,
@@ -190,7 +190,7 @@ class FOGSubMenu extends FOGBase
         }
         if (is_array($data)) {
             ob_start();
-            foreach ((array)$data as $info => &$title) {
+            foreach ((array) $data as $info => &$title) {
                 printf(
                     '<h3>%s</h3><p>%s</p>',
                     $this->fixTitle($title),
@@ -204,22 +204,23 @@ class FOGSubMenu extends FOGBase
     /**
      * Gets the data as setup.
      *
-     * @param string $node The node to get menu for.
+     * @param string $node The node to get menu for
      *
      * @throws Exception
+     *
      * @return string
      */
     public function get($node)
     {
         ob_start();
         if ($this->items[$node]) {
-            foreach ((array)$this->items[$node] as $title => &$data) {
+            foreach ((array) $this->items[$node] as $title => &$data) {
                 self::$_title = $this->fixTitle($title);
                 printf(
                     '<div class="organic-tabs"><h2>%s</h2><ul>',
                     self::$_title
                 );
-                foreach ((array)$data as $label => &$link) {
+                foreach ((array) $data as $label => &$link) {
                     $string = sprintf(
                         '<li><a href="%s">%s</a></li>',
                         '%s',
@@ -270,6 +271,7 @@ class FOGSubMenu extends FOGBase
                 implode($this->notes[$node])
             );
         }
+
         return ob_get_clean();
     }
     /**
@@ -278,6 +280,7 @@ class FOGSubMenu extends FOGBase
      * @param string $title the title to fix
      *
      * @throws Exception
+     *
      * @return string
      */
     public function fixTitle($title)
@@ -288,14 +291,16 @@ class FOGSubMenu extends FOGBase
         $dash = strpos('-', $title) ? '-' : ' ';
         $e = preg_split('#[\s|-]#', $title, null, PREG_SPLIT_NO_EMPTY);
         $e[0] = "<b>$e[0]</b>";
+
         return implode($dash, $e);
     }
     /**
      * Test if the link passed is for an external source.
      *
-     * @param string $link The link to test against.
+     * @param string $link The link to test against
      *
      * @throws Exception
+     *
      * @return bool
      */
     public function isExternalLink($link)
@@ -303,9 +308,10 @@ class FOGSubMenu extends FOGBase
         if (!is_string($link)) {
             throw new Exception(_('Link must be a string'));
         }
-        $https = (bool)(substr($link, 0, 5) == 'https');
-        $http = (bool)(substr($link, 0, 4) == 'http');
-        $extlink = (bool)in_array($link{0}, array('/', '?', '#'));
-        return (bool)$https === true || $http === true || $extlink === true;
+        $https = (bool) (substr($link, 0, 5) == 'https');
+        $http = (bool) (substr($link, 0, 4) == 'http');
+        $extlink = (bool) in_array($link{0}, array('/', '?', '#'));
+
+        return (bool) $https === true || $http === true || $extlink === true;
     }
 }

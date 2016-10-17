@@ -1,44 +1,44 @@
 <?php
 /**
- * Wake on lan management class
+ * Wake on lan management class.
  *
  * PHP version 5
  *
  * @category WakeOnLan
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
- * Wake on lan management class
+ * Wake on lan management class.
  *
  * @category WakeOnLan
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class WakeOnLan extends FOGBase
 {
     /**
-     * UDP port default is 9
+     * UDP port default is 9.
      *
      * @var int
      */
     private static $_port = 9;
     /**
-     * MAC Array holder
+     * MAC Array holder.
      *
      * @var array
      */
     private static $_arrMAC;
     /**
-     * The initializer
+     * The initializer.
      *
      * @param mixed $mac the mac or macs to use
-     *
-     * @return void
      */
     public function __construct($mac)
     {
@@ -46,9 +46,7 @@ class WakeOnLan extends FOGBase
         self::$_arrMAC = $this->parseMacList($mac, true);
     }
     /**
-     * Send the requests
-     *
-     * @return void
+     * Send the requests.
      */
     public function send()
     {
@@ -56,17 +54,17 @@ class WakeOnLan extends FOGBase
             throw new Exception(self::$foglang['InvalidMAC']);
         }
         $BroadCast = array_merge(
-            (array)'255.255.255.255',
+            (array) '255.255.255.255',
             self::$FOGCore->getBroadcast()
         );
         self::$HookManager->processEvent(
             'BROADCAST_ADDR',
             array(
-                'broadcast' => &$BroadCast
+                'broadcast' => &$BroadCast,
             )
         );
-        foreach ((array)self::$_arrMAC as &$mac) {
-            foreach ((array)$BroadCast as &$SendTo) {
+        foreach ((array) self::$_arrMAC as &$mac) {
+            foreach ((array) $BroadCast as &$SendTo) {
                 $mac->wake($SendTo, self::$_port);
                 unset($SendTo);
             }

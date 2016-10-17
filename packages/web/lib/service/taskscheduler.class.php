@@ -67,8 +67,16 @@ class TaskScheduler extends FOGService
         if (file_exists(static::$log)) {
             unlink(static::$log);
         }
-        static::$dev = $dev ? $dev : '/dev/tty5';
-        static::$zzz = ($zzz ? $zzz : 60);
+        static::$dev = (
+            $dev ?
+            $dev :
+            '/dev/tty5'
+        );
+        static::$zzz = (
+            $zzz ?
+            $zzz :
+            60
+        );
     }
     /**
      * Makes the output for this service
@@ -265,16 +273,14 @@ class TaskScheduler extends FOGService
      */
     public function serviceRun()
     {
-        self::out(' ', static::$dev);
         self::out(
-            ' +---------------------------------------------------------',
+            ' ',
             static::$dev
         );
+        $str = str_pad('+', 75, '-');
+        self::out($str, static::$dev);
         $this->_commonOutput();
-        self::out(
-            ' +---------------------------------------------------------',
-            static::$dev
-        );
+        self::out($str, static::$dev);
         parent::serviceRun();
     }
 }

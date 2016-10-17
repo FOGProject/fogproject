@@ -10,9 +10,10 @@
  * PHP version 5
  *
  * @category Hook
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
@@ -22,9 +23,10 @@
  * that is able to be customized.
  *
  * @category Hook
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 abstract class Hook extends Event
@@ -34,9 +36,7 @@ abstract class Hook extends Event
      * to allow plugins, and all hooks really, to tie into
      * report structures.
      *
-     * @param mixed $arguments the item to tie into.
-     *
-     * @return void
+     * @param mixed $arguments the item to tie into
      */
     public function reportTypes($arguments)
     {

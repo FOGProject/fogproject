@@ -1,34 +1,36 @@
 <?php
 /**
- * Storage node handler class
+ * Storage node handler class.
  *
  * PHP version 5
  *
  * @category StorageNode
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
- * Storage node handler class
+ * Storage node handler class.
  *
  * @category StorageNode
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class StorageNode extends FOGController
 {
     /**
-     * The storage node table
+     * The storage node table.
      *
      * @var string
      */
     protected $databaseTable = 'nfsGroupMembers';
     /**
-     * The storage node fields and common names
+     * The storage node fields and common names.
      *
      * @var array
      */
@@ -55,7 +57,7 @@ class StorageNode extends FOGController
         'webroot' => 'ngmWebroot',
     );
     /**
-     * The required fields
+     * The required fields.
      *
      * @var array
      */
@@ -67,7 +69,7 @@ class StorageNode extends FOGController
         'pass',
     );
     /**
-     * Additional fields
+     * Additional fields.
      *
      * @var array
      */
@@ -78,7 +80,7 @@ class StorageNode extends FOGController
         'usedtasks',
     );
     /**
-     * Gets an item from the key sent, if no key all object data is returned
+     * Gets an item from the key sent, if no key all object data is returned.
      *
      * @param mixed $key the key to get
      *
@@ -91,15 +93,16 @@ class StorageNode extends FOGController
             'ftppath',
             'snapinpath',
             'sslpath',
-            'webroot'
+            'webroot',
         );
         if (in_array($key, $pathvars)) {
             return rtrim(parent::get($key), '/');
         }
+
         return parent::get($key);
     }
     /**
-     * Get the storage group of this node
+     * Get the storage group of this node.
      *
      * @return object
      */
@@ -108,7 +111,7 @@ class StorageNode extends FOGController
         return  new StorageGroup($this->get('storagegroupID'));
     }
     /**
-     * Get the node failure
+     * Get the node failure.
      *
      * @param int $Host the host id
      *
@@ -120,10 +123,10 @@ class StorageNode extends FOGController
             ->find(
                 array(
                     'storagenodeID' => $this->get('id'),
-                    'hostID' => $Host
+                    'hostID' => $Host,
                 )
             );
-        foreach ((array)$Fails as &$Failed) {
+        foreach ((array) $Fails as &$Failed) {
             $curr = self::niceDate();
             $prev = $Failed->get('failureTime');
             $prev = self::niceDate($prev);
@@ -132,12 +135,11 @@ class StorageNode extends FOGController
             }
             unset($Failed);
         }
+
         return $Failed;
     }
     /**
-     * Loads the logfiles available on this node
-     *
-     * @return void
+     * Loads the logfiles available on this node.
      */
     public function loadLogfiles()
     {
@@ -154,7 +156,7 @@ class StorageNode extends FOGController
             '/var/log/php7.0-fpm',
             '/var/log/php-fpm',
             '/var/log/php5-fpm',
-            '/var/log/php5.6-fpm'
+            '/var/log/php5.6-fpm',
         );
         $urls = array();
         foreach ($paths as &$path) {
@@ -166,10 +168,10 @@ class StorageNode extends FOGController
         }
         unset($paths);
         $paths = self::$FOGURLRequests->process($urls);
-        foreach ((array)$paths as $index => &$response) {
+        foreach ((array) $paths as $index => &$response) {
             $tmppath = array_merge(
-                (array)$tmppath,
-                (array)json_decode($response, true)
+                (array) $tmppath,
+                (array) json_decode($response, true)
             );
             unset($response);
         }
@@ -179,9 +181,7 @@ class StorageNode extends FOGController
         $this->set('logfiles', $paths);
     }
     /**
-     * Loads the snapins available on this node
-     *
-     * @return void
+     * Loads the snapins available on this node.
      */
     public function loadSnapinfiles()
     {
@@ -200,17 +200,15 @@ class StorageNode extends FOGController
             $paths
         );
         $paths = array_unique(
-            (array)$paths
+            (array) $paths
         );
         $paths = array_filter(
-            (array)$paths
+            (array) $paths
         );
         $this->set('snapinfiles', array_values($paths));
     }
     /**
-     * Loads the snapins available on this node
-     *
-     * @return void
+     * Loads the snapins available on this node.
      */
     public function loadImages()
     {
@@ -222,17 +220,17 @@ class StorageNode extends FOGController
         $paths = self::$FOGURLRequests->process($url);
         $paths = array_shift($paths);
         $paths = json_decode($paths);
-        $paths = array_map('basename', (array)$paths);
+        $paths = array_map('basename', (array) $paths);
         $paths = preg_replace(
             '#dev|postdownloadscripts|ssl#',
             '',
             $paths
         );
         $paths = array_unique(
-            (array)$paths
+            (array) $paths
         );
         $paths = array_filter(
-            (array)$paths
+            (array) $paths
         );
         $ids = self::getSubObjectIDs(
             'Image',
@@ -241,13 +239,13 @@ class StorageNode extends FOGController
         $this->set('images', $ids);
     }
     /**
-     * Gets this node's load of clients
+     * Gets this node's load of clients.
      *
-     * @return double
+     * @return float
      */
     public function getClientLoad()
     {
-        return (double)(
+        return (float) (
             $this->getUsedSlotCount()
             +
             $this->getQueuedSlotCount()
@@ -256,9 +254,7 @@ class StorageNode extends FOGController
         $this->get('maxClients');
     }
     /**
-     * Load used tasks
-     *
-     * @return void
+     * Load used tasks.
      */
     protected function loadUsedtasks()
     {
@@ -267,13 +263,13 @@ class StorageNode extends FOGController
             $used = array(
                 1,
                 15,
-                17
+                17,
             );
         }
         $this->set('usedtasks', $used);
     }
     /**
-     * Gets this node's used count
+     * Gets this node's used count.
      *
      * @return int
      */
@@ -298,17 +294,18 @@ class StorageNode extends FOGController
                     'Task',
                     array(
                         'stateID' => $this->getProgressState(),
-                        'typeID' => 8
+                        'typeID' => 8,
                     )
-                )
+                ),
             ),
             'msID'
         );
         $countTasks += count($MulticastCount);
+
         return $countTasks;
     }
     /**
-     * Gets the queued hosts on this node
+     * Gets the queued hosts on this node.
      *
      * @return int
      */
@@ -333,13 +330,14 @@ class StorageNode extends FOGController
                     'Task',
                     array(
                         'stateID' => $this->getQueuedStates(),
-                        'typeID' => 8
+                        'typeID' => 8,
                     )
-                )
+                ),
             ),
             'msID'
         );
         $countTasks += count($MulticastCount);
+
         return $countTasks;
     }
 }

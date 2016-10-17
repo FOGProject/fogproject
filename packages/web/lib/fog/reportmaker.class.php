@@ -1,52 +1,54 @@
 <?php
 /**
- * Group manager mass management class
+ * Group manager mass management class.
  *
  * PHP version 5
  *
  * @category GroupManager
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
- * Group manager mass management class
+ * Group manager mass management class.
  *
  * @category GroupManager
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class ReportMaker extends FOGBase
 {
     /**
-     * Store the html string
+     * Store the html string.
      *
      * @var array
      */
     private $_strHTML = array();
     /**
-     * Store the csv entries
+     * Store the csv entries.
      *
      * @var array
      */
     private $_strCSV = array();
     /**
-     * Stores the line
+     * Stores the line.
      *
      * @var array
      */
     private $_strLine = array();
     /**
-     * Stores the filename to use
+     * Stores the filename to use.
      *
      * @var string
      */
     private $_filename = '';
     /**
-     * The types of exports
+     * The types of exports.
      *
      * @var array
      */
@@ -64,9 +66,7 @@ class ReportMaker extends FOGBase
         'sqldump' => 5,
     );
     /**
-     * Initializes our report object
-     *
-     * @return void
+     * Initializes our report object.
      */
     public function __construct()
     {
@@ -77,7 +77,7 @@ class ReportMaker extends FOGBase
         );
     }
     /**
-     * Appends html as/where required
+     * Appends html as/where required.
      *
      * @param string $html the string to add
      *
@@ -86,10 +86,11 @@ class ReportMaker extends FOGBase
     public function appendHTML($html)
     {
         $this->_strHTML[] = $html;
+
         return $this;
     }
     /**
-     * Adds a CSV column
+     * Adds a CSV column.
      *
      * @param string $item the data to add
      *
@@ -98,10 +99,11 @@ class ReportMaker extends FOGBase
     public function addCSVCell($item)
     {
         $this->_strCSV[] = $item;
+
         return $this;
     }
     /**
-     * Ends the current row
+     * Ends the current row.
      *
      * @return object
      */
@@ -116,10 +118,11 @@ class ReportMaker extends FOGBase
             "\n"
         );
         unset($this->_strCSV);
+
         return $this;
     }
     /**
-     * Sets the filename
+     * Sets the filename.
      *
      * @param string $filename the name of the file
      *
@@ -128,14 +131,13 @@ class ReportMaker extends FOGBase
     public function setFileName($filename)
     {
         $this->_filename = $filename;
+
         return $this;
     }
     /**
-     * Output the report
+     * Output the report.
      *
      * @param int $intType the type of report
-     *
-     * @return void
      */
     public function outputReport($intType = 0)
     {
@@ -167,13 +169,13 @@ class ReportMaker extends FOGBase
         );
         switch ($intType) {
             case 0:
-                echo implode("\n", (array)$this->_strHTML);
+                echo implode("\n", (array) $this->_strHTML);
                 break;
             case 1:
                 $filename = $this->_filename;
                 header('Content-Type: application/octet-stream');
                 header("Content-Disposition: attachment; filename=$filename.csv");
-                echo implode((array)$this->_strLine);
+                echo implode((array) $this->_strLine);
                 unset($filename, $this->_strLine);
                 break;
             case 2:
@@ -182,16 +184,16 @@ class ReportMaker extends FOGBase
                 header("Content-Disposition: attachment; filename=$filename.pdf");
                 $proc = proc_open(
                     'htmldoc --links --header . '
-                    . '--linkstyle plain --numbered '
-                    . '--size letter --no-localfiles '
-                    . '-t pdf14 --quiet --jpeg --webpage '
-                    . '--size letter --left 0.25in '
-                    . '--right 0.25in --top 0.25in --bottom '
-                    . '0.25in --header ... --footer ... '
-                    . '-',
+                    .'--linkstyle plain --numbered '
+                    .'--size letter --no-localfiles '
+                    .'-t pdf14 --quiet --jpeg --webpage '
+                    .'--size letter --left 0.25in '
+                    .'--right 0.25in --top 0.25in --bottom '
+                    .'0.25in --header ... --footer ... '
+                    .'-',
                     array(
                         0 => array('pipe', 'r'),
-                        1 => array('pipe', 'w')
+                        1 => array('pipe', 'w'),
                     ),
                     $pipes
                 );
@@ -199,7 +201,7 @@ class ReportMaker extends FOGBase
                     $pipes[0],
                     sprintf(
                         '<html><body>%s</body></html>',
-                        implode("\n", (array)$this->_strHTML)
+                        implode("\n", (array) $this->_strHTML)
                     )
                 );
                 fclose($pipes[0]);
@@ -220,10 +222,10 @@ class ReportMaker extends FOGBase
             case 4:
                 header('Content-Type: application/octet-stream');
                 header(
-                    "Content-Disposition: attachment; "
-                    . "filename={$type}_export.csv"
+                    'Content-Disposition: attachment; '
+                    ."filename={$type}_export.csv"
                 );
-                echo implode((array)$this->_strLine);
+                echo implode((array) $this->_strLine);
                 unset($this->_strLine);
                 break;
             case 5:
@@ -266,7 +268,7 @@ class ReportMaker extends FOGBase
                     echo $line;
                 }
                 fclose($fh);
-                $cmd = sprintf("rm -rf %s", escapeshellarg($filepath));
+                $cmd = sprintf('rm -rf %s', escapeshellarg($filepath));
                 exec($cmd);
         }
     }

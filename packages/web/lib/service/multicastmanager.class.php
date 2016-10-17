@@ -592,19 +592,19 @@ class MulticastManager extends FOGService
             $oldCount = $taskCount;
         }
     }
-    /**
-     * This is what runs the service
+    :**
+     * This is what essentially "runs" the service
      *
      * @return void
      */
     public function serviceRun()
     {
-        $str = str_pad('+', 75, '-');
-        self::out(' ', static::$dev);
         self::out(
-            $str,
+            ' ',
             static::$dev
         );
+        $str = str_pad('+', 75, '-');
+        self::out($str, static::$dev);
         self::_serviceLoop();
     }
 }

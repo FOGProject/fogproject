@@ -1,6 +1,6 @@
 <?php
 /**
- * FOGController, individual SQL getters/setters
+ * FOGController, individual SQL getters/setters.
  *
  * PHP Version 5
  *
@@ -8,33 +8,35 @@
  * Generates the SQL Statements more specifically.
  *
  * @category FOGController
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
- * FOGController, individual SQL getters/setters
+ * FOGController, individual SQL getters/setters.
  *
  * Gets and sets data for an individual object.
  * Generates the SQL Statements more specifically.
  *
  * @category FOGController
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 abstract class FOGController extends FOGBase
 {
     /**
-     * The data to set/get
+     * The data to set/get.
      *
      * @var array
      */
     protected $data = array();
     /**
-     * If true, saves the object automatically
+     * If true, saves the object automatically.
      *
      * @var bool
      */
@@ -46,13 +48,13 @@ abstract class FOGController extends FOGBase
      */
     protected $databaseTable = '';
     /**
-     * The database fields to get
+     * The database fields to get.
      *
      * @var array
      */
     protected $databaseFields = array();
     /**
-     * The required DB fields
+     * The required DB fields.
      *
      * @var array
      */
@@ -71,13 +73,13 @@ abstract class FOGController extends FOGBase
      */
     protected $databaseFieldsFlipped = array();
     /**
-     * Fields to ignore
+     * Fields to ignore.
      *
      * @var array
      */
     protected $databaseFieldsToIgnore = array(
         'createdBy',
-        'createdTime'
+        'createdTime',
     );
     /**
      * Not used now, but can be used to setup alternate db aliases.
@@ -96,25 +98,26 @@ abstract class FOGController extends FOGBase
      *
      * @var string
      */
-    protected $loadQueryTemplate = "SELECT %s FROM `%s` %s WHERE `%s`=%s %s";
+    protected $loadQueryTemplate = 'SELECT %s FROM `%s` %s WHERE `%s`=%s %s';
     /**
      * The insert query template to use.
      *
      * @var string
      */
-    protected $insertQueryTemplate = "INSERT INTO `%s` (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s";
+    protected $insertQueryTemplate = 'INSERT INTO `%s` (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s';
     /**
      * The delete query template to use.
      *
      * @var string
      */
-    protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE %s=%s%s";
+    protected $destroyQueryTemplate = 'DELETE FROM `%s` WHERE %s=%s%s';
     /**
      * Constructor to set variables.
      *
      * @param mixed $data the data to construct from if different
      *
      * @throws Exception
+     *
      * @return self
      */
     public function __construct($data = '')
@@ -145,10 +148,11 @@ abstract class FOGController extends FOGBase
             );
             $this->error($str);
         }
+
         return $this;
     }
     /**
-     * Closes out the object
+     * Closes out the object.
      *
      * @return bool
      */
@@ -157,10 +161,11 @@ abstract class FOGController extends FOGBase
         if ($this->autoSave) {
             $this->save();
         }
+
         return false;
     }
     /**
-     * Default way to present object as a string
+     * Default way to present object as a string.
      *
      * @return string
      */
@@ -170,10 +175,11 @@ abstract class FOGController extends FOGBase
         if ($this->get('name')) {
             $str = sprintf('%s %s: %s', $str, _('Name'), $this->get('name'));
         }
+
         return $str;
     }
     /**
-     * Test our needed fields
+     * Test our needed fields.
      *
      * @param string $key the key to test
      *
@@ -188,10 +194,11 @@ abstract class FOGController extends FOGBase
         if (!$inFields && !$inFieldsFlipped && !$inAddFields) {
             return false;
         }
+
         return true;
     }
     /**
-     * Gets an item from the key sent, if no key all object data is returned
+     * Gets an item from the key sent, if no key all object data is returned.
      *
      * @param mixed $key the key to get
      *
@@ -234,15 +241,17 @@ abstract class FOGController extends FOGBase
             );
         }
         $this->info($msg);
+
         return $this->data[$key];
     }
     /**
-     * Set value to key
+     * Set value to key.
      *
      * @param string $key   the key to set to
      * @param mixed  $value the value to set
      *
      * @throws Exception
+     *
      * @return object
      */
     public function set($key, $value)
@@ -299,15 +308,17 @@ abstract class FOGController extends FOGBase
             );
             $this->debug($str);
         }
+
         return $this;
     }
     /**
-     * Add value to key (array)
+     * Add value to key (array).
      *
      * @param string $key   the key to add to
      * @param mixed  $value the value to add
      *
      * @throws Exception
+     *
      * @return object
      */
     public function add($key, $value)
@@ -361,15 +372,17 @@ abstract class FOGController extends FOGBase
             );
             $this->debug($str);
         }
+
         return $this;
     }
     /**
-     * Remove value from key (array)
+     * Remove value from key (array).
      *
      * @param string $key   the key to remove from
      * @param mixed  $value the value to remove
      *
      * @throws Exception
+     *
      * @return object
      */
     public function remove($key, $value)
@@ -429,10 +442,11 @@ abstract class FOGController extends FOGBase
             );
             $this->debug($str);
         }
+
         return $this;
     }
     /**
-     * Stores data into the database
+     * Stores data into the database.
      *
      * @return bool|object
      */
@@ -480,7 +494,7 @@ abstract class FOGController extends FOGBase
                 $insertValKeys[] = $paramInsert;
                 $insertValues[] = $val;
                 $updateData[] = sprintf(
-                    "%s=VALUES(%s)",
+                    '%s=VALUES(%s)',
                     $eColumn,
                     $eColumn
                 );
@@ -494,9 +508,9 @@ abstract class FOGController extends FOGBase
             $query = sprintf(
                 $this->insertQueryTemplate,
                 $this->databaseTable,
-                implode(',', (array)$insertKeys),
-                implode(',', (array)$insertValKeys),
-                implode(',', (array)$updateData)
+                implode(',', (array) $insertKeys),
+                implode(',', (array) $insertValKeys),
+                implode(',', (array) $updateData)
             );
             $queryArray = array_combine(
                 $insertValKeys,
@@ -571,16 +585,19 @@ abstract class FOGController extends FOGBase
                 $e->getMessage()
             );
             $this->debug($msg);
+
             return false;
         }
+
         return $this;
     }
     /**
-     * Loads the item from the database
+     * Loads the item from the database.
      *
      * @param string $key the key to load
      *
      * @throws Exception
+     *
      * @return object
      */
     public function load($key = 'id')
@@ -609,12 +626,10 @@ abstract class FOGController extends FOGBase
             list($join, $where) = $this->buildQuery();
             $fields = array();
             /**
-             * Lambda to get the fields to use
+             * Lambda to get the fields to use.
              *
              * @param string $k      the key (for class relations really)
              * @param string $column the column name
-             *
-             * @return void
              */
             $getFields = function (&$column, $k) use (&$fields, &$table) {
                 $column = trim($column);
@@ -647,8 +662,8 @@ abstract class FOGController extends FOGBase
             );
             $this->info($msg);
             $queryArray = array_combine(
-                (array)$paramKey,
-                (array)$val
+                (array) $paramKey,
+                (array) $val
             );
             $vals = array();
             $vals = self::$DB->query($query, array(), $queryArray)
@@ -666,14 +681,16 @@ abstract class FOGController extends FOGBase
             );
             $this->debug($str);
         }
+
         return $this;
     }
     /**
-     * Removes the item from the database
+     * Removes the item from the database.
      *
      * @param string $key the key to remove
      *
      * @throws Exception
+     *
      * @return object
      */
     public function destroy($key = 'id')
@@ -715,8 +732,8 @@ abstract class FOGController extends FOGBase
                 ''
             );
             $queryArray = array_combine(
-                (array)$paramKey,
-                (array)$val
+                (array) $paramKey,
+                (array) $val
             );
             self::$DB->query($query, array(), $queryArray);
             if (!$this instanceof History) {
@@ -777,8 +794,10 @@ abstract class FOGController extends FOGBase
                 $e->getMessage()
             );
             $this->debug($msg);
+
             return false;
         }
+
         return $this;
     }
     /**
@@ -794,14 +813,16 @@ abstract class FOGController extends FOGBase
         if (array_key_exists($key, $this->databaseFieldsFlipped)) {
             $key = $this->databaseFieldsFlipped[$key];
         }
+
         return $key;
     }
     /**
-     * Load the item field
+     * Load the item field.
      *
      * @param string $key the key to load
      *
      * @throws Exception
+     *
      * @return object
      */
     protected function loadItem($key)
@@ -819,10 +840,11 @@ abstract class FOGController extends FOGBase
             $this->{$methodCall}();
         }
         unset($methodCall);
+
         return $this;
     }
     /**
-     * Adds or removes items from key field
+     * Adds or removes items from key field.
      *
      * Example:
      * Remove:
@@ -835,6 +857,7 @@ abstract class FOGController extends FOGBase
      * @param string $array_type the array type to use
      *
      * @throws Exception
+     *
      * @return object
      */
     protected function addRemItem($key, $array, $array_type)
@@ -868,15 +891,17 @@ abstract class FOGController extends FOGBase
             );
         }
         $array = $array_type(
-            (array)$this->get($key),
-            (array)$array
+            (array) $this->get($key),
+            (array) $array
         );
+
         return $this->set($key, $array);
     }
     /**
      * Tests if an object is valid.
      *
      * @throws Exception
+     *
      * @return bool
      */
     public function isValid()
@@ -904,12 +929,14 @@ abstract class FOGController extends FOGBase
                 $e->getMessage()
             );
             $this->debug($str);
+
             return false;
         }
+
         return true;
     }
     /**
-     * Builds query strings as needed
+     * Builds query strings as needed.
      *
      * @param bool   $not     whether to compare using not operators
      * @param string $compare the comparator to use
@@ -922,12 +949,10 @@ abstract class FOGController extends FOGBase
         $whereArrayAnd = array();
         $c = '';
         /**
-         * Lambda function to build the where array additionals
+         * Lambda function to build the where array additionals.
          *
          * @param string $field the field to work from
          * @param mixed  $value the value of the field
-         *
-         * @return void
          */
         $whereInfo = function (
             &$value,
@@ -960,12 +985,10 @@ abstract class FOGController extends FOGBase
             unset($value, $field);
         };
         /**
-         * Lambda function to build the join of a query
+         * Lambda function to build the join of a query.
          *
          * @param string $class  the class to work from
          * @param mixed  $fields the fields to work off
-         *
-         * @return void
          */
         $joinInfo = function (
             &$fields,
@@ -993,10 +1016,11 @@ abstract class FOGController extends FOGBase
             unset($class, $fields, $c);
         };
         array_walk($this->databaseFieldClassRelationships, $joinInfo);
-        return array(implode((array)$join),$whereArrayAnd);
+
+        return array(implode((array) $join), $whereArrayAnd);
     }
     /**
-     * Set's the queries data into the object as/where needed
+     * Set's the queries data into the object as/where needed.
      *
      * @param array $queryData the data to work from
      *
@@ -1005,12 +1029,12 @@ abstract class FOGController extends FOGBase
     public function setQuery(&$queryData)
     {
         $classData = array_intersect_key(
-            (array)$queryData,
-            (array)$this->databaseFieldsFlipped
+            (array) $queryData,
+            (array) $this->databaseFieldsFlipped
         );
         if (count($classData) < 1) {
             $classData = array_intersect_key(
-                (array)$queryData,
+                (array) $queryData,
                 $this->databaseFields
             );
         } else {
@@ -1019,36 +1043,38 @@ abstract class FOGController extends FOGBase
                 unset($db_key, $obj_key);
             }
         }
-        $this->data = (array)$this->data + (array)$classData;
+        $this->data = (array) $this->data + (array) $classData;
         foreach ($this->databaseFieldClassRelationships as $class => &$fields) {
             $class = self::getClass($class);
             $leftover = array_intersect_key(
-                (array)$queryData,
-                (array)$class->databaseFieldsFlipped
+                (array) $queryData,
+                (array) $class->databaseFieldsFlipped
             );
             $class->setQuery($leftover);
             $this->set($fields[2], $class);
             unset($class, $fields);
         }
+
         return $this;
     }
     /**
-     * Get an objects manager class
+     * Get an objects manager class.
      *
      * @return object
      */
     public function getManager()
     {
         $class = sprintf('%sManager', get_class($this));
+
         return new $class();
     }
     /**
-     * Set's values for associative fields
+     * Set's values for associative fields.
      *
      * @param string $assocItem    the assoc item to work from/with
      * @param string $alterItem    the alternate item to work with
      * @param bool   $implicitCall call class implicitely instead of appending
-     * with association.
+     *                             with association
      *
      * @return object
      */
@@ -1098,7 +1124,7 @@ abstract class FOGController extends FOGBase
             $RemIDs = self::getSubObjectIDs(
                 $classCall,
                 array(
-                    $assocstr => $DBIDs
+                    $assocstr => $DBIDs,
                 ),
                 $assocstr,
                 true
@@ -1110,23 +1136,23 @@ abstract class FOGController extends FOGBase
                 ->destroy(
                     array(
                         $objstr => $this->get('id'),
-                        $assocstr => $RemIDs
+                        $assocstr => $RemIDs,
                     )
                 );
             unset($RemIDs);
         }
         $insert_fields = array(
             $objstr,
-            $assocstr
+            $assocstr,
         );
         if ($assocstr == 'moduleID') {
             array_push($insert_fields, 'state');
         }
         $insert_values = array();
-        foreach ((array)$this->get($plural) as &$id) {
+        foreach ((array) $this->get($plural) as &$id) {
             $insert_val = array(
                 $this->get('id'),
-                $id
+                $id,
             );
             if ($assocstr == 'moduleID') {
                 array_push($insert_val, 1);
@@ -1143,6 +1169,7 @@ abstract class FOGController extends FOGBase
                 );
         }
         unset($insert_values, $insert_fields);
+
         return $this;
     }
 }

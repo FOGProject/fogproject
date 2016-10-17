@@ -1,22 +1,24 @@
 <?php
 /**
- * Processes URL requests for our needs
+ * Processes URL requests for our needs.
  *
  * PHP version 5
  *
  * @category FOGURLRequests
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 /**
- * Processes URL requests for our needs
+ * Processes URL requests for our needs.
  *
  * @category FOGURLRequests
- * @package  FOGProject
+ *
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ *
  * @link     https://fogproject.org
  */
 class FOGURLRequests extends FOGBase
@@ -81,11 +83,9 @@ class FOGURLRequests extends FOGBase
      */
     private $_requestMap = array();
     /**
-     * Initializes our url requests object
+     * Initializes our url requests object.
      *
-     * @param string $callback Optional callback.
-     *
-     * @return void
+     * @param string $callback Optional callback
      */
     public function __construct($callback = null)
     {
@@ -93,9 +93,7 @@ class FOGURLRequests extends FOGBase
         $this->_callback = $callback;
     }
     /**
-     * Cleans up when no longer needed
-     *
-     * @return void
+     * Cleans up when no longer needed.
      */
     public function __destruct()
     {
@@ -111,7 +109,7 @@ class FOGURLRequests extends FOGBase
      * Magic caller to get specialized methods
      * in a common method.
      *
-     * @param string $name The method to get.
+     * @param string $name The method to get
      *
      * @return mixed
      */
@@ -123,8 +121,8 @@ class FOGURLRequests extends FOGBase
      * Magic caller to set specialized methods
      * in a common method.
      *
-     * @param string $name  The method to set.
-     * @param mixed  $value The value to set.
+     * @param string $name  The method to set
+     * @param mixed  $value The value to set
      *
      * @return object
      */
@@ -139,10 +137,11 @@ class FOGURLRequests extends FOGBase
         } else {
             $this->{$name} = $value;
         }
+
         return $this;
     }
     /**
-     * Add a request to the requests variable
+     * Add a request to the requests variable.
      *
      * @param FOGRollingURL $request the request to add
      *
@@ -151,16 +150,17 @@ class FOGURLRequests extends FOGBase
     public function add($request)
     {
         $this->_requests[] = $request;
+
         return $this;
     }
     /**
      * Generates the request and stores to our requests variable.
      *
-     * @param string $url       The url to request.
-     * @param string $method    The method to call.
-     * @param mixed  $post_data The data to pass.
-     * @param mixed  $headers   Any additional request headers to send.
-     * @param mixed  $options   Any additional request options to use.
+     * @param string $url       The url to request
+     * @param string $method    The method to call
+     * @param mixed  $post_data The data to pass
+     * @param mixed  $headers   Any additional request headers to send
+     * @param mixed  $options   Any additional request options to use
      *
      * @return object
      */
@@ -178,14 +178,15 @@ class FOGURLRequests extends FOGBase
             $headers,
             $options
         );
+
         return $this;
     }
     /**
      * Get method url request definition.
      *
-     * @param string $url     The url to request to.
-     * @param mixed  $headers The custom headers to send with this.
-     * @param mixed  $options The custom options to send with this.
+     * @param string $url     The url to request to
+     * @param mixed  $headers The custom headers to send with this
+     * @param mixed  $options The custom options to send with this
      *
      * @return object
      */
@@ -205,10 +206,10 @@ class FOGURLRequests extends FOGBase
     /**
      * Post method url request definition.
      *
-     * @param string $url       The url to request to.
-     * @param mixed  $post_data The post data to send.
-     * @param mixed  $headers   The custom headers to send with this.
-     * @param mixed  $options   The custom options to send with this.
+     * @param string $url       The url to request to
+     * @param mixed  $post_data The post data to send
+     * @param mixed  $headers   The custom headers to send with this
+     * @param mixed  $options   The custom options to send with this
      *
      * @return object
      */
@@ -231,7 +232,7 @@ class FOGURLRequests extends FOGBase
      * If only one request, perform a _singleCurl.
      * If multiple perform _rollingCurl.
      *
-     * @param mixed $window_size The window size to allow at run time.
+     * @param mixed $window_size The window size to allow at run time
      *
      * @return object
      */
@@ -244,6 +245,7 @@ class FOGURLRequests extends FOGBase
         if ($window_count === 1) {
             return $this->_singleCurl();
         }
+
         return $this->_rollingCurl($window_size);
     }
     /**
@@ -262,14 +264,15 @@ class FOGURLRequests extends FOGBase
         if ($this->_callback && is_callable($this->_callback)) {
             $this->_callback($output, $info, $request);
         } else {
-            return (array)$output;
+            return (array) $output;
         }
+
         return true;
     }
     /**
-     * Perform multiple url requests
+     * Perform multiple url requests.
      *
-     * @param mixed $window_size The customized window size to use.
+     * @param mixed $window_size The customized window size to use
      *
      * @return mixed
      */
@@ -285,12 +288,12 @@ class FOGURLRequests extends FOGBase
             throw new Exception(_('Window size must be greater than 1'));
         }
         $master = curl_multi_init();
-        for ($i = 0; $i < $this->_windowSize; $i++) {
+        for ($i = 0; $i < $this->_windowSize; ++$i) {
             $ch = curl_init();
             $options = $this->_getOptions($this->_requests[$i]);
             curl_setopt_array($ch, $options);
             curl_multi_add_handle($master, $ch);
-            $key = (string)$ch;
+            $key = (string) $ch;
             $this->_requestMap[$key] = $i;
         }
         do {
@@ -306,7 +309,7 @@ class FOGURLRequests extends FOGBase
             while ($done = curl_multi_info_read($master)) {
                 $info = curl_getinfo($done['handle']);
                 $output = curl_multi_getcontent($done['handle']);
-                $key = (string)$done['handle'];
+                $key = (string) $done['handle'];
                 $this->_response[$this->_requestMap[$key]] = $output;
                 if ($this->_callback && is_callable($this->_callback)) {
                     $request = $this->_requests[$this->_requestMap[$key]];
@@ -319,9 +322,9 @@ class FOGURLRequests extends FOGBase
                     $options = $this->_getOptions($this->_requests[$i]);
                     curl_setopt_array($ch, $options);
                     curl_multi_add_handle($master, $ch);
-                    $key = (string)$ch;
+                    $key = (string) $ch;
                     $this->_requestMap[$key] = $i;
-                    $i++;
+                    ++$i;
                 }
                 curl_multi_remove_handle($master, $done['handle']);
             }
@@ -331,12 +334,13 @@ class FOGURLRequests extends FOGBase
         } while ($running);
         ksort($this->_response);
         curl_multi_close($master);
+
         return $this->_response;
     }
     /**
-     * Get options of the request and whole
+     * Get options of the request and whole.
      *
-     * @param FOGRollingURL $request the request to get options from.
+     * @param FOGRollingURL $request the request to get options from
      *
      * @return array
      */
@@ -368,8 +372,8 @@ class FOGURLRequests extends FOGBase
                     'FOG_PROXY_IP',
                     'FOG_PROXY_PASSWORD',
                     'FOG_PROXY_PORT',
-                    'FOG_PROXY_USERNAME'
-                )
+                    'FOG_PROXY_USERNAME',
+                ),
             ),
             'value',
             false,
@@ -397,6 +401,7 @@ class FOGURLRequests extends FOGBase
                 }
             }
         }
+
         return $options;
     }
     /**
@@ -412,6 +417,7 @@ class FOGURLRequests extends FOGBase
         if (filter_var($url, FILTER_VALIDATE_URL) === false) {
             unset($url);
         }
+
         return $url;
     }
     /**
@@ -419,11 +425,11 @@ class FOGURLRequests extends FOGBase
      *
      * @param mixed  $urls       the urls to process
      * @param string $method     the method to use for all urls
-     * @param mixed  $data       post/get data possibly.
-     * @param bool   $sendAsJSON Send data as json if needed.
-     * @param mixed  $auth       Any authorization data needed.
-     * @param string $callback   A callback to use if needed.
-     * @param string $file       A filename to use to download a file.
+     * @param mixed  $data       post/get data possibly
+     * @param bool   $sendAsJSON Send data as json if needed
+     * @param mixed  $auth       Any authorization data needed
+     * @param string $callback   A callback to use if needed
+     * @param string $file       A filename to use to download a file
      *
      * @return array
      */
@@ -449,13 +455,13 @@ class FOGURLRequests extends FOGBase
             $this->options[CURLOPT_HTTPHEADER] = array(
                 'Content-Type: application/json',
                 "Content-Length: $datalen",
-                'Expect:'
+                'Expect:',
             );
         }
         if ($file) {
             $this->options[CURLOPT_FILE] = $file;
         }
-        foreach ((array)$urls as &$url) {
+        foreach ((array) $urls as &$url) {
             $request = new FOGRollingURL(
                 $url
             );
@@ -466,6 +472,7 @@ class FOGURLRequests extends FOGBase
             }
             unset($url);
         }
+
         return $this->execute();
     }
 }
