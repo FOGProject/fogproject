@@ -119,7 +119,7 @@ class ImageReplicator extends FOGService
                 );
                 self::outall(
                     sprintf(
-                        ' * %s: %d'."\n".'%s: %s',
+                        ' * %s: %d. %s: %s',
                         _('We are group ID'),
                         $StorageGroup->get('id'),
                         _('We are group name'),
@@ -128,7 +128,7 @@ class ImageReplicator extends FOGService
                 );
                 self::outall(
                     sprintf(
-                        ' * %s: %d'."\n".'%s: %s',
+                        ' * %s: %d. %s: %s',
                         _('We are node ID'),
                         $StorageNode->get('id'),
                         _('We are node name'),
