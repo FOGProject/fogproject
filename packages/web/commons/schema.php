@@ -770,14 +770,14 @@ INDEX `new_index3`(`ngmGroupID`),
 INDEX `new_index4`(`ngmIsEnabled`)
             )
             ENGINE = MyISAM",
-            "ALTER TABLE `".DATABASE_NAME."`.`images` ADD COLUMN `imagestoragegroupID` integer  NOT NULL AFTER `imageDD`,
-            ADD INDEX `new_index3`(`imagestoragegroupID`)",
-            "ALTER TABLE `".DATABASE_NAME."`.`tasks` ADD COLUMN `taskstoragegroupID` integer  NOT NULL AFTER `taskDataTotal`,
-            ADD COLUMN `taskstoragenodeID` integer  NOT NULL AFTER `taskstoragegroupID`,
-            ADD COLUMN `taskNFSFailures` char  NOT NULL AFTER `taskstoragenodeID`,
+            "ALTER TABLE `".DATABASE_NAME."`.`images` ADD COLUMN `imageNFSGroupID` integer  NOT NULL AFTER `imageDD`,
+            ADD INDEX `new_index3`(`imageNFSGroupID`)",
+            "ALTER TABLE `".DATABASE_NAME."`.`tasks` ADD COLUMN `taskNFSGroupID` integer  NOT NULL AFTER `taskDataTotal`,
+            ADD COLUMN `taskNFSMemberID` integer  NOT NULL AFTER `taskNFSGroupID`,
+            ADD COLUMN `taskNFSFailures` char  NOT NULL AFTER `taskNFSMemberID`,
             ADD COLUMN `taskLastMemberID` integer  NOT NULL AFTER `taskNFSFailures`,
-            ADD INDEX `new_index5`(`taskstoragegroupID`),
-ADD INDEX `new_index6`(`taskstoragenodeID`),
+            ADD INDEX `new_index5`(`taskNFSGroupID`),
+ADD INDEX `new_index6`(`taskNFSMemberID`),
 ADD INDEX `new_index7`(`taskNFSFailures`),
 ADD INDEX `new_index8`(`taskLastMemberID`)",
 "CREATE TABLE `".DATABASE_NAME."`.`nfsFailures` (
@@ -796,15 +796,15 @@ INDEX `new_index3`(`nfGroupID`)
             ENGINE = MyISAM",
             "ALTER TABLE `".DATABASE_NAME."`.`nfsFailures` MODIFY COLUMN `nfDateTime` datetime  NOT NULL,
             ADD INDEX `new_index4`(`nfDateTime`)",
-            "ALTER TABLE `".DATABASE_NAME."`.`multicastSessions` CHANGE `msAnon2` `msstoragegroupID` integer  NOT NULL,
-            ADD INDEX `new_index`(`msstoragegroupID`)",
+            "ALTER TABLE `".DATABASE_NAME."`.`multicastSessions` CHANGE `msAnon2` `msNFSGroupID` integer  NOT NULL,
+            ADD INDEX `new_index`(`msNFSGroupID`)",
             "INSERT IGNORE INTO `".DATABASE_NAME."`.nfsGroups (ngName, ngDesc) values ('default', '"._("Auto generated fog nfs group")."' );",
             "INSERT IGNORE INTO
             `".DATABASE_NAME."`.nfsGroupMembers
             (ngmMemberName, ngmMemberDescription, ngmIsMasterNode, ngmGroupID, ngmRootPath, ngmIsEnabled, ngmHostname, ngmMaxClients, ngmUser, ngmPass)
             VALUES
             ('DefaultMember', '"._("Auto generated fog nfs group member")."', '1', '1', '/images/', '1', '" . STORAGE_HOST . "', '10', '" . STORAGE_FTP_USERNAME . "', '" . STORAGE_FTP_PASSWORD . "')",
-                "UPDATE `".DATABASE_NAME."`.images set imagestoragegroupID = '1'",
+                "UPDATE `".DATABASE_NAME."`.images set imageNFSGroupID = '1'",
                 "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_HOST'",
                 "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_FTP_USERNAME'",
                 "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_FTP_PASSWORD'",
@@ -1736,7 +1736,7 @@ $this->schema[] = array(
 );
 // 134
 $this->schema[] = array(
-    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD COLUMN `snapinstoragegroupID` INT(11) NOT NULL",
+    "ALTER TABLE `".DATABASE_NAME."`.`snapins` ADD COLUMN `snapinNFSGroupID` INT(11) NOT NULL",
 );
 // 135
 $this->schema[] = array(
@@ -1752,8 +1752,8 @@ $this->schema[] = array_merge(
         `igaStorageGroupID` mediumint(9) NOT NULL,
         PRIMARY KEY  (`igaID`)
     ) ENGINE=MyISAM;",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`imageGroupAssoc` (`igaImageID`,`igaStorageGroupID`) SELECT `imageID`,`imagestoragegroupID` FROM `".DATABASE_NAME."`.`images` WHERE `imagestoragegroupID` IS NOT NULL",
-    "ALTER TABLE `".DATABASE_NAME."`.`images` DROP COLUMN `imagestoragegroupID`"),
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.`imageGroupAssoc` (`igaImageID`,`igaStorageGroupID`) SELECT `imageID`,`imageNFSGroupID` FROM `".DATABASE_NAME."`.`images` WHERE `imageNFSGroupID` IS NOT NULL",
+    "ALTER TABLE `".DATABASE_NAME."`.`images` DROP COLUMN `imageNFSGroupID`"),
     $tmpSchema->dropDuplicateData(DATABASE_NAME, array('imageGroupAssoc', array('igaImageID', 'igaImageID')), true)
 );
 // 137
@@ -1781,8 +1781,8 @@ $this->schema[] = array_merge(
         `sgaStorageGroupID` mediumint(9) NOT NULL,
         PRIMARY KEY  (`sgaID`)
     ) ENGINE=MyISAM;",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`snapinGroupAssoc` (`sgaSnapinID`,`sgaStorageGroupID`) SELECT `sID`,`snapinstoragegroupID` FROM `".DATABASE_NAME."`.`snapins` WHERE `snapinstoragegroupID` IS NOT NULL",
-    "ALTER TABLE `".DATABASE_NAME."`.`snapins` DROP COLUMN `snapinstoragegroupID`"),
+    "INSERT IGNORE INTO `".DATABASE_NAME."`.`snapinGroupAssoc` (`sgaSnapinID`,`sgaStorageGroupID`) SELECT `sID`,`snapinNFSGroupID` FROM `".DATABASE_NAME."`.`snapins` WHERE `snapinNFSGroupID` IS NOT NULL",
+    "ALTER TABLE `".DATABASE_NAME."`.`snapins` DROP COLUMN `snapinNFSGroupID`"),
     $tmpSchema->dropDuplicateData(DATABASE_NAME, array('snapinGroupAssoc', array('sgaSnapinID', 'sgaSnapinID'), 'sgaSnapinID'), true)
 );
 // 141

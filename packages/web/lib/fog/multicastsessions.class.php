@@ -17,7 +17,7 @@ class MulticastSessions extends FOGController
         'stateID' => 'msState',
         'completetime' => 'msCompleteDateTime',
         'isDD' => 'msIsDD',
-        'storagegroupID' => 'msstoragegroupID',
+        'storagegroupID' => 'msNFSGroupID',
         'anon3' => 'msAnon3',
         'anon4' => 'msAnon4',
         'anon5' => 'msAnon5',
