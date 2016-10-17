@@ -101,12 +101,12 @@ class MulticastManager extends FOGService
         $id
     ) {
         foreach ((array)$KnownTasks as &$Known) {
-            if ($Known->get('id') == $id) {
-                return true;
+            if ($Known->getID() == $id) {
+                return false;
             }
             unset($Known);
         }
-        return false;
+        return true;
     }
     /**
      * Gets the multicast task
@@ -483,7 +483,7 @@ class MulticastManager extends FOGService
                                 ==
                                 $this->getCancelledState();
                             if ($SessCancelled
-                                || $count($inTaskCancelledIDs) > 1
+                                || count($inTaskCancelledIDs) > 1
                             ) {
                                 $jobcancelled = true;
                             }
@@ -501,7 +501,7 @@ class MulticastManager extends FOGService
                                         ' | %s (%s) %s %s: %s.',
                                         _('Task'),
                                         $runningTask->getID(),
-                                        $runnintTask->getName(),
+                                        $runningTask->getName(),
                                         _('is already running with pid'),
                                         $runningTask->getPID($runningTask->procRef)
                                     )
@@ -592,7 +592,7 @@ class MulticastManager extends FOGService
             $oldCount = $taskCount;
         }
     }
-    :**
+    /**
      * This is what essentially "runs" the service
      *
      * @return void
@@ -605,6 +605,6 @@ class MulticastManager extends FOGService
         );
         $str = str_pad('+', 75, '-');
         self::out($str, static::$dev);
-        self::_serviceLoop();
+        $this->_serviceLoop();
     }
 }

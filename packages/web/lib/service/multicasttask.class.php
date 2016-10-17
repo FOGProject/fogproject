@@ -61,7 +61,7 @@ class MulticastTask extends FOGService
             );
         foreach ((array)$MulticastSessions as $index => &$MultiSess) {
             if (!$MultiSess->isValid()) {
-                return;
+                continue;
             }
             $taskIDs = self::getSubObjectIDs(
                 'MulticastSessionsAssociation',
