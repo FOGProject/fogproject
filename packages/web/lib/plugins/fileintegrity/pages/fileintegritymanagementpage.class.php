@@ -27,7 +27,7 @@ class FileIntegrityManagementPage extends FOGPage
         $this->templates = array(
             '${checksum}',
             '${modtime}',
-            '<a href="?node=storage&sub=edit&id=${storageNodeID}" title="Edit: ${storage_name}" id="node-${storage_name}">${storage_name}</a>',
+            '<a href="?node=storage&sub=edit&id=${storagenodeID}" title="Edit: ${storage_name}" id="node-${storage_name}">${storage_name}</a>',
             '${file_path}',
         );
         $this->attributes = array(
@@ -44,7 +44,7 @@ class FileIntegrityManagementPage extends FOGPage
             $this->data[] = array(
                 'checksum'=>$FileIntegrity->get('checksum'),
                 'modtime'=>$FileIntegrity->get('modtime'),
-                'storageNodeID'=>$FileIntegrity->get('storageNode')->get('id'),
+                'storagenodeID'=>$FileIntegrity->get('storageNode')->get('id'),
                 'storage_name'=>$FileIntegrity->get('storageNode')->get('name'),
                 'file_path'=>$FileIntegrity->get('path'),
             );

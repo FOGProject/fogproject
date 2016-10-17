@@ -159,7 +159,7 @@ class StorageGroup extends FOGController
             ->count(
                 array(
                     'stateID' => $this->getProgressState(),
-                    'NFSMemberID' => $this->get('enablednodes'),
+                    'storagenodeID' => $this->get('enablednodes'),
                     'typeID' => $this->get('usedtasks'),
                 )
             );
@@ -178,7 +178,7 @@ class StorageGroup extends FOGController
             ->count(
                 array(
                     'stateID' => $this->getQueuedStates(),
-                    'NFSMemberID' => $this->get('enablednodes'),
+                    'storagenodeID' => $this->get('enablednodes'),
                     'typeID' => $this->get('usedtasks'),
                 )
             );

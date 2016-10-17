@@ -1386,11 +1386,11 @@ class BootMenu extends FOGBase
                     $StorageGroup = $Image->getStorageGroup();
                     $StorageNode = $StorageGroup->getMasterStorageNode();
                 }
-                if ($Task->get('NFSMemberID') != $StorageNode->get('id')) {
-                    $Task->set('NFSMemberID', $StorageNode->get('id'));
+                if ($Task->get('storagenodeID') != $StorageNode->get('id')) {
+                    $Task->set('storagenodeID', $StorageNode->get('id'));
                 }
-                if ($Task->get('NFSGroupID') != $StorageGroup->get('id')) {
-                    $Task->set('NFSGroupID', $StorageGroup->get('id'));
+                if ($Task->get('storagegroupID') != $StorageGroup->get('id')) {
+                    $Task->set('storagegroupID', $StorageGroup->get('id'));
                 }
                 $Task->save();
                 if ($TaskType->isCapture() || $TaskType->isMulticast()) {

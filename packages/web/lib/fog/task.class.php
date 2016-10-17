@@ -21,8 +21,8 @@ class Task extends TaskType
         'dataCopied' => 'taskDataCopied',
         'percent' => 'taskPercentText',
         'dataTotal' => 'taskDataTotal',
-        'NFSGroupID' => 'taskNFSGroupID',
-        'NFSMemberID' => 'taskNFSMemberID',
+        'storagegroupID' => 'taskstoragegroupID',
+        'storagenodeID' => 'taskstoragenodeID',
         'NFSFailures' => 'taskNFSFailures',
         'NFSLastMemberID' => 'taskLastMemberID',
         'shutdown' => 'taskShutdown',
@@ -58,7 +58,7 @@ class Task extends TaskType
                 ++$count;
             }
             unset($Task);
-        }, (array) self::getClass('TaskManager')->find(array('stateID' => array_merge((array) $this->getQueuedStates()), 'typeID' => array(1, 15, 17), 'NFSGroupID' => $this->get('NFSGroupID'), 'NFSMemberID' => $this->get('NFSMemberID'))));
+        }, (array) self::getClass('TaskManager')->find(array('stateID' => array_merge((array) $this->getQueuedStates()), 'typeID' => array(1, 15, 17), 'storagegroupID' => $this->get('storagegroupID'), 'storagenodeID' => $this->get('storagenodeID'))));
 
         return $count;
     }
@@ -96,11 +96,11 @@ class Task extends TaskType
     }
     public function getStorageGroup()
     {
-        return self::getClass('StorageGroup', $this->get('NFSGroupID'));
+        return self::getClass('StorageGroup', $this->get('storagegroupID'));
     }
     public function getStorageNode()
     {
-        return self::getClass('StorageNode', $this->get('NFSMemberID'));
+        return self::getClass('StorageNode', $this->get('storagenodeID'));
     }
     public function getImage()
     {

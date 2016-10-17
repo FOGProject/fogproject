@@ -9,7 +9,7 @@ class Location extends FOGController
         'createdBy' => 'lCreatedBy',
         'createdTime' => 'lCreatedTime',
         'storagegroupID' => 'lStorageGroupID',
-        'storageNodeID' => 'lStorageNodeID',
+        'storagenodeID' => 'lStorageNodeID',
         'tftp' => 'lTftpEnabled',
     );
     protected $databaseFieldsRequired = array(
@@ -44,8 +44,8 @@ class Location extends FOGController
     }
     public function getStorageNode()
     {
-        if ($this->get('storageNodeID')) {
-            return self::getClass('StorageNode', $this->get('storageNodeID'));
+        if ($this->get('storagenodeID')) {
+            return self::getClass('StorageNode', $this->get('storagenodeID'));
         }
         return $this->getStorageGroup()->getOptimalStorageNode(0);
     }

@@ -51,7 +51,7 @@ class LocationManagementPage extends FOGPage
                 'id'=>$Location->get('id'),
                 'name'=>$Location->get('name'),
                 'storageGroup'=>self::getClass('StorageGroup', $Location->get('storagegroupID'))->get('name'),
-                'storageNode'=>$Location->get('storageNodeID')?self::getClass('StorageNode', $Location->get('storageNodeID'))->get('name') : _('Not Set'),
+                'storageNode'=>$Location->get('storagenodeID')?self::getClass('StorageNode', $Location->get('storagenodeID'))->get('name') : _('Not Set'),
                 'tftp'=>$Location->get('tftp') ? _('Yes') : _('No'),
             );
             unset($Location);
@@ -120,7 +120,7 @@ class LocationManagementPage extends FOGPage
             $Location = self::getClass('Location')
                 ->set('name', $name)
                 ->set('storagegroupID', $_REQUEST['storagegroup'])
-                ->set('storageNodeID', $_REQUEST['storagenode'])
+                ->set('storagenodeID', $_REQUEST['storagenode'])
                 ->set('tftp', $_REQUEST['tftp']);
             if ($_REQUEST['storagenode'] && $Location->get('storagegroupID') != self::getClass('StorageNode', $_REQUEST['storagenode'])->get('storagegroupID')) {
                 $Location->set('storagegroupID', self::getClass('StorageNode', $_REQUEST['storagenode'])->get('storagegroupID'));
@@ -150,7 +150,7 @@ class LocationManagementPage extends FOGPage
         $fields = array(
             _('Location Name') => sprintf('<input class="smaller" type="text" name="name" value="%s"/>', $this->obj->get('name')),
             _('Storage Group') => self::getClass('StorageGroupManager')->buildSelectBox($this->obj->get('storagegroupID')),
-            _('Storage Node') => self::getClass('StorageNodeManager')->buildSelectBox($this->obj->get('storageNodeID')),
+            _('Storage Node') => self::getClass('StorageNodeManager')->buildSelectBox($this->obj->get('storagenodeID')),
             _('Use inits and kernels from this node') => sprintf('<input type="checkbox" name="tftp" value="on"%s/>', $this->obj->get('tftp') ? ' checked' : ''),
             '&nbsp;' => sprintf('<input type="submit" class="smaller" name="update" value="%s"/>', _('Update')),
         );
@@ -182,7 +182,7 @@ class LocationManagementPage extends FOGPage
                 $this->obj
                     ->set('name', $_REQUEST['name'])
                     ->set('storagegroupID', $NodeID ? self::getClass('StorageNode', $NodeID)->get('storagegroupID') : $_REQUEST['storagegroup'])
-                    ->set('storageNodeID', $NodeID)
+                    ->set('storagenodeID', $NodeID)
                     ->set('tftp', isset($_REQUEST['tftp']));
                 if (!$this->obj->save()) {
                     throw new Exception(_('Failed to update'));

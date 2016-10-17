@@ -508,7 +508,7 @@ class Group extends FOGController
                     ->set('starttime', $now->format('Y-m-d H:i:s'))
                     ->set('percent', 0)
                     ->set('isDD', $Image->get('imageTypeID'))
-                    ->set('NFSGroupID', $StorageGroup->get('id'));
+                    ->set('storagegroupID', $StorageGroup->get('id'));
                 if ($MulticastSession->save()) {
                     self::getClass('MulticastSessionsAssociationManager')
                         ->destroy(

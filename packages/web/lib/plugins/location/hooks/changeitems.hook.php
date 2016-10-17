@@ -96,7 +96,7 @@ class ChangeItems extends Hook
         if (!$arguments['FOGServiceClass'] instanceof MulticastManager) {
             return;
         }
-        $IDs = array_unique(array_filter(array_merge((array)$arguments['MasterIDs'], (array)self::getSubObjectIDs('Location', '', 'storageNodeID'))));
+        $IDs = array_unique(array_filter(array_merge((array)$arguments['MasterIDs'], (array)self::getSubObjectIDs('Location', '', 'storagenodeID'))));
         $arguments['StorageNodes'] = self::getClass('StorageNodeManager')->find(array('id'=>$IDs));
         foreach ($arguments['StorageNodes'] as &$StorageNode) {
             if (!$StorageNode->isValid()) {

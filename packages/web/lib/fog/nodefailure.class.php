@@ -6,17 +6,17 @@ class NodeFailure extends FOGController
     protected $databaseTable = 'nfsFailures';
     protected $databaseFields = array(
         'id' => 'nfID',
-        'storageNodeID' => 'nfNodeID',
+        'storagenodeID' => 'nfNodeID',
         'taskID' => 'nfTaskID',
         'hostID' => 'nfHostID',
-        'groupID' => 'nfGroupID',
+        'storagegroupID' => 'nfGroupID',
         'failureTime' => 'nfDateTime'
     );
     protected $databaseFieldsRequired = array(
-        'storageNodeID',
+        'storagenodeID',
         'taskID',
         'hostID',
-        'groupID',
+        'storagegroupID',
         'failureTime'
     );
 }

@@ -108,7 +108,7 @@ class TaskQueue extends TaskingElement
                     $this->StorageNode = self::nodeFail(
                         self::getClass(
                             'StorageNode',
-                            $this->Task->get('NFSMemberID')
+                            $this->Task->get('storagenodeID')
                         ),
                         $this->Host->get('id')
                     );
@@ -152,7 +152,7 @@ class TaskQueue extends TaskingElement
                 }
                 $this->Task
                     ->set(
-                        'NFSMemberID',
+                        'storagenodeID',
                         $this->StorageNode->get('id')
                     );
                 if (!$this->ImageLog(true)) {

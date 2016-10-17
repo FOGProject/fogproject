@@ -4,14 +4,14 @@ class FileIntegrity extends FOGController
     protected $databaseTable = 'fileChecksums';
     protected $databaseFields = array(
         'id' => 'fcsID',
-        'storageNodeID' => 'fcsStorageNodeID',
+        'storagenodeID' => 'fcsStorageNodeID',
         'modtime' => 'fcsFileModTime',
         'checksum' => 'fcsFileChecksum',
         'path' => 'fcsFilePath',
         'status' => 'fcsStatus',
     );
     protected $databaseFieldsRequired = array(
-        'storageNodeID',
+        'storagenodeID',
         'path',
     );
     protected $additionalFields = array(
@@ -69,7 +69,7 @@ class FileIntegrity extends FOGController
     {
         array_map(function (&$file) {
             self::getClass(self)
-                ->set('storageNodeID', $this->get('storageNode')->get('id'))
+                ->set('storagenodeID', $this->get('storageNode')->get('id'))
                 ->set('modtime', $this->getModTime($file))
                 ->set('checksum', $this->getHash($file))
                 ->set('path', $file)

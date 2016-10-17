@@ -1199,8 +1199,8 @@ class Host extends FOGController
             ->set('isForced', 0)
             ->set('stateID', $this->getQueuedState())
             ->set('typeID', $taskTypeID)
-            ->set('NFSGroupID', $groupID)
-            ->set('NFSMemberID', $memID)
+            ->set('storagegroupID', $groupID)
+            ->set('storagenodeID', $memID)
             ->set('wol', (string)intval($wol));
         if ($imagingTask) {
             $Task->set('imageID', $this->getImage()->get('id'));
@@ -1548,7 +1548,7 @@ class Host extends FOGController
                         ->set('starttime', self::niceDate()->format('Y-m-d H:i:s'))
                         ->set('percent', 0)
                         ->set('isDD', $this->getImage()->get('imageTypeID'))
-                        ->set('NFSGroupID', $StorageNode->get('storagegroupID'))
+                        ->set('storagegroupID', $StorageNode->get('storagegroupID'))
                         ->set('clients', -1);
                     if ($MulticastSession->save()) {
                         $assoc = true;
@@ -1609,9 +1609,9 @@ class Host extends FOGController
             }
             $Task = self::getClass('Task')
                 ->set('hostID', $this->get('id'))
-                ->set('NFSGroupID', $StorageGroup->get('id'))
+                ->set('storagegroupID', $StorageGroup->get('id'))
                 ->set(
-                    'NFSMemberID',
+                    'storagenodeID',
                     $StorageGroup
                     ->getOptimalStorageNode($this->get('imageID'))
                     ->get('id')

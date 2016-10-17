@@ -279,7 +279,7 @@ class StorageNode extends FOGController
         $usedtasks = $this->get('usedtasks');
         $findTasks = array(
             'stateID' => $this->getProgressState(),
-            'NFSMemberID' => $this->get('id'),
+            'storagenodeID' => $this->get('id'),
             'typeID' => $usedtasks,
         );
         $countTasks = self::getClass('TaskManager')->count($findTasks);
@@ -315,7 +315,7 @@ class StorageNode extends FOGController
         $usedtasks = $this->get('usedtasks');
         $findTasks = array(
             'stateID' => $this->getQueuedStates(),
-            'NFSMemberID' => $this->get('id'),
+            'storagenodeID' => $this->get('id'),
             'typeID' => $usedtasks,
         );
         $countTasks = self::getClass('TaskManager')->count($findTasks);
