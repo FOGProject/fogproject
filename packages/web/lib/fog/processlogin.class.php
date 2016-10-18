@@ -1,14 +1,37 @@
 <?php
+/**
+ * Processes the current login.
+ *
+ * PHP version 5
+ *
+ * @category ProcessLogin
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Processes the current login.
+ *
+ * @category ProcessLogin
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class ProcessLogin extends FOGPage
 {
-    private $username, $password, $rangSet;
-    private $mobileMenu, $langMenu;
+    private $username;
+    private $password;
+    private $rangSet;
+    private $mobileMenu;
+    private $langMenu;
     private $lang;
     private function getLanguages()
     {
         $translang = $this->transLang();
         ob_start();
-        foreach ((array)self::$foglang['Language'] as $i => &$lang) {
+        foreach ((array)self::$foglang['Language'] as &$lang) {
             printf(
                 '<option value="%s"%s>%s</option>',
                 $lang,
@@ -46,7 +69,11 @@ class ProcessLogin extends FOGPage
     }
     private function specLang()
     {
-        $_SESSION['locale'] = isset($_REQUEST['ulang']) ? $_REQUEST['ulang'] : $this->transLang();
+        if (isset($_REQUEST['ulang'])) {
+            $_SESSION['locale'] = $_REQUEST['ulang'];
+        } else {
+            $_SESSION['locale'] = $this->transLang();
+        }
         switch ($_SESSION['locale']) {
             case self::$foglang['Language']['de']:
                 $_SESSION['locale'] = 'de_DE';
@@ -85,10 +112,22 @@ class ProcessLogin extends FOGPage
             'zh_CN' => true,
         );
         $this->specLang();
-        setlocale(LC_MESSAGES, sprintf('%s.UTF-8', $_SESSION['locale']));
+        setlocale(
+            LC_MESSAGES,
+            sprintf(
+                '%s.UTF-8',
+                $_SESSION['locale']
+            )
+        );
         $domain = 'messages';
-        bindtextdomain($domain, './languages');
-        bind_textdomain_codeset($domain, 'UTF-8');
+        bindtextdomain(
+            $domain,
+            './languages'
+        );
+        bind_textdomain_codeset(
+            $domain,
+            'UTF-8'
+        );
         textdomain($domain);
     }
     private function setRedirMode()
@@ -117,23 +156,50 @@ class ProcessLogin extends FOGPage
     {
         global $currentUser;
         $this->setLang();
-        if (!(isset($_REQUEST['uname']) && isset($_REQUEST['upass']))) {
-            return;
-        }
         $this->username = trim($_REQUEST['uname']);
         $this->password = trim($_REQUEST['upass']);
-        self::$HookManager->processEvent('USER_LOGGING_IN', array('username'=>$this->username, 'password'=>$this->password));
-        self::$FOGUser = self::$FOGCore->attemptLogin($this->username, $this->password);
+        if (!($this->username
+            && $this->password)
+        ) {
+            return;
+        }
+        self::$HookManager
+            ->processEvent(
+                'USER_LOGGING_IN',
+                array(
+                    'username' => $this->username,
+                    'password' => $this->password
+                )
+            );
+        if (!self::$FOGUser->isValid()) {
+            self::$FOGUser = self::$FOGCore->attemptLogin(
+                $this->username,
+                $this->password
+            );
+        }
         if (!self::$FOGUser->isValid()) {
             $this->setRedirMode();
         }
         if (!self::$isMobile) {
-            if (self::$FOGUser->get('type')) {
+            $type = self::$FOGUser->get('type');
+            self::$HookManager
+                ->processEvent(
+                    'USER_TYPE_HOOK',
+                    array('type' => &$type)
+                );
+            if ($type) {
                 $this->setMessage(self::$foglang['NotAllowedHere']);
                 $this->redirect('index.php?node=logout');
             }
         }
-        self::$HookManager->processEvent('LoginSuccess', array('username'=>$this->username, 'password'=>$this->password));
+        self::$HookManager
+            ->processEvent(
+                'LoginSuccess',
+                array(
+                    'username' => $this->username,
+                    'password' => $this->password
+                )
+            );
         $this->setRedirMode();
     }
     public function mainLoginForm()
