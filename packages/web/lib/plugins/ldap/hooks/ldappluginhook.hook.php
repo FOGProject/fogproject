@@ -45,19 +45,37 @@ class LDAPPluginHook extends Hook
         }
         $user = trim($arguments['username']);
         $pass = trim($arguments['password']);
-        $ldapType = self::$FOGUser->isValid();
         $ldapTypes = array(990, 991);
         /**
-         * If this user is already signed in, return
+         * Check the user and validate the type is not
+         * our ldap inserted items. If not return as the
+         * user is already allowed.
          */
-        if (!in_array($ldapType, $ldapTypes)
-            && self::$FOGUser->isValid()
-        ) {
-            return;
-        } else {
-            self::$FOGUser->destroy();
+        if (self::$FOGUser->isValid()) {
+            $ldapType = self::$FOGUser->get('type');
+            if (!in_array($ldapType, $ldapTypes)) {
+                return;
+            }
+        }
+        /**
+         * Collects the user ids with our ldap entries.
+         */
+        $userIDs = self::getSubObjectIDs(
+            'User',
+            array('type' => $ldapTypes)
+        );
+        /**
+         * Count the user ids and if any are there,
+         * remove all the entries.
+         */
+        if (count($userIDs) > 0) {
+            self::getClass('UserManager')
+                ->destroy(array('id' => $userIDs));
         }
         $ldaps = self::getClass('LDAPManager')->find();
+        /**
+         * Create our new user (initially at least
+         */
         self::$FOGUser = self::getClass('User')
             ->set('name', $user);
         foreach ((array)$ldaps as &$ldap) {
@@ -68,7 +86,8 @@ class LDAPPluginHook extends Hook
             unset($ldap);
             switch ($access) {
                 case false:
-                    // Skip this
+                    // Reset user object and Skip this
+                    self::$FOGUser = self::getClass('User');
                     continue 2;
                 case 2:
                     // This is an admin account, break the loop
