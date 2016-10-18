@@ -165,12 +165,19 @@ class User extends FOGController
             ) {
                 $tmpUser->set('password', $password)->save();
             }
+            $type = $tmpUser->get('type');
+            self::$HookManager
+                ->processEvent(
+                    'USER_TYPE_HOOK',
+                    array('type' => &$type)
+                );
             $this
                 ->set('id', $tmpUser->get('id'))
                 ->set('name', $tmpUser->get('name'))
                 ->set('password', '', true)
                 ->set('type', $tmpUser->get('type'))
-                ->load();
+                ->load()
+                ->set('type', $type);
             unset($tmpUser);
             if (!$this->_sessionID) {
                 $this->_sessionID = session_id();

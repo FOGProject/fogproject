@@ -165,8 +165,22 @@ class LDAP extends FOGController
      */
     private function _ldapParseDn($dn)
     {
+        /**
+         * Ensure we use the DN in utf-8 format
+         */
+        $dn = mb_convert_encoding($dn, 'utf-8');
+        /**
+         * Explode the DN into it's sub components.
+         */
         $parser = $this->explode_dn($dn, 0);
+        /**
+         * Initialize our out array.
+         */
         $out = array();
+        /**
+         * Loop the parsed information so we get
+         * the values in a mroe usable and joinable form.
+         */
         foreach ((array)$parser as $key => &$value) {
             if (false !== strstr($value, '=')) {
                 list(
@@ -291,6 +305,9 @@ class LDAP extends FOGController
          * Setup bind dn and password
          */
         $bindDN = $this->get('bindDN');
+        /**
+         * The bind password.
+         */
         $bindPass = $this->get('bindPwd');
         /**
          * The user name attribute in use (e.g. uid=)
@@ -309,10 +326,19 @@ class LDAP extends FOGController
          */
         $parsedDN = $this->_ldapParseDn($searchDN);
         /**
-         * If binddn is set run:
+         * If binddn is set run through it.
+         * Of course we don't need to do this if the
+         * use group match isn't set.  We do still need
+         * to run the main parsing checks.
          */
-        if (!empty($bindDN)) {
+        if ($useGroupMatch > 0 && !empty($bindDN)) {
+            /**
+             * Trims the bind pass.
+             */
             $bindPass = trim($bindPass);
+            /**
+             * We need to decrypt the stored pass.
+             */
             $bindPass = $this->aesdecrypt($bindPass);
             /**
              * If no bind password return immediately
@@ -370,11 +396,6 @@ class LDAP extends FOGController
             if (!$bind) {
                 return false;
             }
-            if ($useGroupMatch) {
-                $accessLevel = $this->_getAccessLevel($grpMemAttr, $userDN);
-            } else {
-                $accessLevel = 2;
-            }
         } else {
             /**
              * Parse the search dn
@@ -413,11 +434,16 @@ class LDAP extends FOGController
                 $this->unbind();
                 return false;
             }
-            if ($useGroupMatch) {
-                $accessLevel = $this->_getAccessLevel($grpMemAttr, $userDN);
-            } else {
-                $accessLevel = 2;
-            }
+        }
+        /**
+         * If use group match is used, get access level,
+         * otherwise group scanning isn't used. Assume all
+         * are admins.
+         */
+        if ($useGroupMatch) {
+            $accessLevel = $this->_getAccessLevel($grpMemAttr, $userDN);
+        } else {
+            $accessLevel = 2;
         }
         /**
          * Close our connection
@@ -471,8 +497,11 @@ class LDAP extends FOGController
             '(&(objectcategory=%s)(name=%s)(member=%s))',
             $grpMemAttr,
             $adminGroup,
-            ldap_escape($userDN, null, LDAP_ESCAPE_FILTER)
+            $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
         );
+        /**
+         * The attribute to get.
+         */
         $attr = array('dn');
         /**
          * Read in the attributes
@@ -488,8 +517,12 @@ class LDAP extends FOGController
                 '(&(objectcategory=%s)(name=%s)(member=%s))',
                 $grpMemAttr,
                 $userGroup,
-                ldap_escape($userDN, null, LDAP_ESCAPE_FILTER)
+                $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
             );
+            /**
+             * The attribute to get.
+             */
+            $attr = array('dn');
             /**
              * Execute the ldap query
              */
@@ -505,6 +538,9 @@ class LDAP extends FOGController
                     '(%s=*)',
                     $grpMemAttr
                 );
+                /**
+                 * The attribute to get.
+                 */
                 $attr = array($grpMemAttr);
                 /**
                  * Read in the attributes
@@ -646,6 +682,13 @@ class LDAP extends FOGController
             default:
                 $method = 'read';
         }
+        /**
+         * Ensure our search dn is utf-8 encoded for searching
+         */
+        $searchDN = mb_convert_encoding($searchDN, 'utf-8');
+        /**
+         * Get the results
+         */
         $result = $this->{$method}($searchDN, $filter, $attr);
         /**
          * Count our entries
@@ -674,21 +717,12 @@ class LDAP extends FOGController
         if ($key === 'searchDN'
             || $key === 'grpSearchDN'
             || $key === 'bindDN'
+            || $key === 'adminGroup'
+            || $key === 'userGroup'
         ) {
             $dn = trim(parent::get($key));
             $dn = strtolower($dn);
-            $dn = mb_convert_encoding($dn, 'utf-8');
             $this->set($key, $dn);
-        }
-        if ($key === 'adminGroup'
-            || $key === 'userGroup'
-        ) {
-            $escscan = trim(parent::get($key));
-            $escscan = strtolower($escscan);
-            $escscan = mb_convert_encoding($escscan, 'utf-8');
-            $escscan = ldap_escape($escscan, null, LDAP_ESCAPE_FILTER);
-
-            $this->set($key, $escscan);
         }
         return parent::get($key);
     }

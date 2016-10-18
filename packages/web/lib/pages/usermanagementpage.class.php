@@ -31,8 +31,18 @@ class UserManagementPage extends FOGPage
             array(),
             array('class'=>'c filter-false','width'=>55),
         );
-        self::$returnData = function (&$User) {
+        $types = array();
+        self::$HookManager->processEvent(
+            'USER_TYPES_FILTER',
+            array('types' => &$types)
+        );
+        self::$returnData = function (&$User) use (&$types) {
             if (!$User->isValid()) {
+                return;
+            }
+            if (count($types) > 0
+                && in_array($User->get('type'), $types)
+            ) {
                 return;
             }
             $this->data[] = array(
