@@ -45,16 +45,21 @@ class LDAPPluginHook extends Hook
         }
         $user = trim($arguments['username']);
         $pass = trim($arguments['password']);
+        $ldapType = self::$FOGUser->isValid();
+        $ldapTypes = array(990, 991);
         /**
          * If this user is already signed in, return
          */
-        if (self::$FOGUser->isValid()) {
+        if (!in_array($ldapType, $ldapTypes)
+            && self::$FOGUser->isValid()
+        ) {
             return;
+        } else {
+            self::$FOGUser->destroy();
         }
         $ldaps = self::getClass('LDAPManager')->find();
-        self::$FOGUser
-            ->set('name', $user)
-            ->load('name');
+        self::$FOGUser = self::getClass('User')
+            ->set('name', $user);
         foreach ((array)$ldaps as &$ldap) {
             if (!$ldap->isValid()) {
                 continue;

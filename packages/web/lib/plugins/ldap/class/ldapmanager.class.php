@@ -66,6 +66,14 @@ class LDAPManager extends FOGManagerController
      */
     public function uninstall()
     {
+        $userIDs = self::getSubObjectIDs(
+            'User',
+            array('type' => array(990, 991))
+        );
+        if (count($userIDs) > 0) {
+            self::getClass('UserManager')
+                ->destroy(array('id' => $userIDs));
+        }
         return self::$DB->query("DROP TABLE IF EXISTS `LDAPServers`");
     }
 }
