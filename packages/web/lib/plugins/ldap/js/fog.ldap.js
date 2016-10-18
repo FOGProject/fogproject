@@ -12,6 +12,10 @@ $(function() {
         e.preventDefault();
         ldapSetFields(this.options[this.selectedIndex].value);
     });
+    $('#useGroupMatch').change(function(e) {
+        e.preventDefault();
+        ldapUseGroupToggle(this.options[this.selectedIndex].value);
+    }).trigger('change');
 });
 function ldapSetFields(indx) {
     switch (indx) {
@@ -34,4 +38,16 @@ function ldapSetFields(indx) {
     }
     $('#userNamAttr').val(usrAttr);
     $('#grpMemberAttr').val(grpAttr);
+}
+function ldapUseGroupToggle(indx) {
+    console.log(indx);
+    if (indx == 0) {
+        $('#adminGroup,#userGroup,#userNamAttr,#grpMemberAttr,#bindDN,#bindPwd')
+            .prop('readonly', true)
+            .css({'background-color': 'lightgrey'});
+    } else {
+        $('#adminGroup,#userGroup,#userNamAttr,#grpMemberAttr,#bindDN,#bindPwd')
+            .prop('readonly', false)
+            .css({'background-color': 'white'});
+    }
 }

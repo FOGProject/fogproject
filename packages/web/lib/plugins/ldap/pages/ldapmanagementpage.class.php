@@ -95,11 +95,13 @@ class LDAPManagementPage extends FOGPage
                 'port' => $LDAP->get('port'),
                 'userNamAttr' => $LDAP->get('userNamAttr'),
                 'grpMemberAttr' => $LDAP->get('grpMemberAttr'),
+                'grpSearchDN' => $LDAP->get('grpSearchDN'),
                 'adminGroup' => $LDAP->get('adminGroup'),
                 'userGroup' => $LDAP->get('userGroup'),
                 'searchScope' => $LDAP->get('searchScope'),
                 'bindDN' => $LDAP->get('bindDN'),
                 'bindPwd' => $LDAP->get('bindPwd'),
+                'useGroupMatch' => $LDAP->get('useGroupMatch'),
             );
             unset($LDAP);
         };
@@ -201,10 +203,30 @@ class LDAPManagementPage extends FOGPage
                 $_REQUEST['port'] == 636 ? ' selected' : ''
             )
             . '</select>',
+            _('Use Group Matching (recommended)') => '<select id="useGroupMatch" '
+            . 'name="useGroupMatch">'
+            . sprintf(
+                '<option value="0"%s>%s</option>',
+                isset($_REQUEST['useGroupMatch'])
+                && $_REQUEST['useGroupMatch'] < 1 ? ' selected' : '',
+                _('No')
+            )
+            . sprintf(
+                '<option value="1"%s>%s</option>',
+                !isset($_REQUEST['useGroupMatch'])
+                || $_REQUEST['useGroupMatch'] > 0 ? ' selected' : '',
+                _('Yes')
+            )
+            . '</select>',
             _('Search Base DN') => '<input class="smaller" type="text" '
             . sprintf(
                 'id="searchDN" name="searchDN" value="%s"/>',
                 $_REQUEST['searchDN']
+            ),
+            _('Group Search DN') => '<input class="smaller" type="text" '
+            . sprintf(
+                'id="grpSearchDN" name="grpSearchDN" value="%s"/>',
+                $_REQUEST['grpSearchDN']
             ),
             _('Admin Group') => '<input class="smaller" type="text" '
             . sprintf(
@@ -221,7 +243,7 @@ class LDAPManagementPage extends FOGPage
             . '<option value="pick" selected >Pick a template</option>'
             . '<option value="msad">Microsoft AD</option>'
             . '<option value="open">OpenLDAP</option>'
-            . '<option value="edir">Novell eDirectory</option>'
+            . '<option value="edir">Generic LDAP</option>'
             .  '</select>',
             _('User Name Attribute') => '<input class="smaller" type="text" '
             . sprintf(
@@ -317,6 +339,8 @@ class LDAPManagementPage extends FOGPage
             }
             $bindDN = trim($_REQUEST['bindDN']);
             $bindPwd = trim($_REQUEST['bindPwd']);
+            $grpSearchDN = trim($_REQUEST['grpSearchDN']);
+            $useGroupMatch = trim($_REQUEST['useGroupMatch']);
             if (empty($name)) {
                 throw new Exception(
                     _('Please enter a name for this LDAP server.')
@@ -369,7 +393,9 @@ class LDAPManagementPage extends FOGPage
                 ->set('userGroup', $userGroup)
                 ->set('searchScope', $searchScope)
                 ->set('bindDN', $bindDN)
-                ->set('bindPwd', $this->encryptpw($bindPwd));
+                ->set('bindPwd', $this->encryptpw($bindPwd))
+                ->set('useGroupMatch', $useGroupMatch)
+                ->set('grpSearchDN', $grpSearchDN);
             if ($LDAP->save()) {
                 $this->setMessage(_('LDAP Server Added, editing!'));
                 $this->redirect(
@@ -457,6 +483,35 @@ class LDAPManagementPage extends FOGPage
                 )
             )
             . '</select>',
+            _('Use Group Matching (recommended)') => '<select id="useGroupMatch" '
+            . 'name="useGroupMatch">'
+            . sprintf(
+                '<option value="0"%s>%s</option>',
+                (
+                    $_REQUEST['useGroupMatch'] < 1 ?
+                    ' selected' :
+                    (
+                        $this->obj->get('useGroupMatch') < 1 ?
+                        ' selected' :
+                        ''
+                    )
+                ),
+                _('No')
+            )
+            . sprintf(
+                '<option value="1"%s>%s</option>',
+                (
+                    $_REQUEST['useGroupMatch'] > 0 ?
+                    ' selected' :
+                    (
+                        $this->obj->get('useGroupMatch') > 0 ?
+                        ' selected' :
+                        ''
+                    )
+                ),
+                _('Yes')
+            )
+            . '</select>',
             _('Search Base DN') => '<input class="smaller" type="text" '
             . sprintf(
                 'id="searchDN" name="searchDN" value="%s"/>',
@@ -464,6 +519,15 @@ class LDAPManagementPage extends FOGPage
                     $_REQUEST['searchDN'] ?
                     $_REQUEST['searchDN'] :
                     $this->obj->get('searchDN')
+                )
+            ),
+            _('Group Search DN') => '<input class="smaller" type="text" '
+            . sprintf(
+                'id="grpSearchDN" name="grpSearchDN" value="%s"/>',
+                (
+                    $_REQUEST['grpSearchDN'] ?
+                    $_REQUEST['grpSearchDN'] :
+                    $this->obj->get('grpSearchDN')
                 )
             ),
             _('Admin Group') => '<input class="smaller" type="text" '
@@ -489,8 +553,8 @@ class LDAPManagementPage extends FOGPage
             . '<option value="pick" selected >Pick a template</option>'
             . '<option value="msad">Microsoft AD</option>'
             . '<option value="open">OpenLDAP</option>'
-            . '<option value="edir">Novell eDirectory</option>'
-            .  '</select>',
+            . '<option value="edir">Generic LDAP</option>'
+            . '</select>',
             _('User Nam Attribute') => '<input class="smaller" type="text" '
             . sprintf(
                 'id="userNamAttr" name="userNamAttr" value="%s"/>',
@@ -621,6 +685,8 @@ class LDAPManagementPage extends FOGPage
             $adminGroup = trim($_REQUEST['adminGroup']);
             $userGroup = trim($_REQUEST['userGroup']);
             $searchScope = trim($_REQUEST['searchScope']);
+            $grpSearchDN = trim($_REQUEST['grpSearchDN']);
+            $useGroupMatch = trim($_REQUEST['useGroupMatch']);
             if (!is_numeric($searchScope)) {
                 $searchScope = 0;
             }
@@ -678,7 +744,9 @@ class LDAPManagementPage extends FOGPage
                 ->set('userGroup', $userGroup)
                 ->set('searchScope', $searchScope)
                 ->set('bindDN', $bindDN)
-                ->set('bindPwd', $this->encryptpw($bindPwd));
+                ->set('bindPwd', $this->encryptpw($bindPwd))
+                ->set('useGroupMatch', $useGroupMatch)
+                ->set('grpSearchDN', $grpSearchDN);
             if (!$LDAP->save()) {
                 throw new Exception(_('Database update failed'));
             }

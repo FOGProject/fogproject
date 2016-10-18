@@ -51,6 +51,8 @@ class LDAPManager extends FOGManagerController
             `lsSearchScope` ENUM('0','1','2') NOT NULL DEFAULT '0',
             `lsBindDN` LONGTEXT NOT NULL,
             `lsBindPwd` LONGTEXT NOT NULL,
+            `lsGrpSearchDN` LONGTEXT NOT NULL,
+            `lsUseGroupMatch` ENUM('0','1') NOT NULL DEFAULT '0',
             PRIMARY KEY(`lsID`),
             KEY `address` (`lsAddress`,`lsPort`),
             KEY `name` (`lsName`))
