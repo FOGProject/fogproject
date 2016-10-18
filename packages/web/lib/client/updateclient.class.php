@@ -83,11 +83,11 @@ class UpdateClient extends FOGClient implements FOGClientSend
                 )
                     ) {
                     throw new Exception(
-                            sprintf(
-                                '#!er: %s',
-                                _('Invalid data found')
-                            )
-                        );
+                        sprintf(
+                            '#!er: %s',
+                            _('Invalid data found')
+                        )
+                    );
                 }
                 $this->send = $ClientUpdateFile
                 ->get('md5');
@@ -104,11 +104,11 @@ class UpdateClient extends FOGClient implements FOGClientSend
                 )
                     ) {
                     throw new Exception(
-                            sprintf(
-                                '#!er: %s',
-                                _('Invalid data found')
-                            )
-                        );
+                        sprintf(
+                            '#!er: %s',
+                            _('Invalid data found')
+                        )
+                    );
                 }
                 $filename = basename(
                     $ClientUpdateFile->get('name')
@@ -128,14 +128,14 @@ class UpdateClient extends FOGClient implements FOGClientSend
                     header('Content-Description: File Transfer');
                     header('ContentType: application/octet-stream');
                     header(
-                            sprintf(
-                                '%s: %s; %s=%s',
-                                'Content-Disposition',
-                                'attachment',
-                                'filename',
-                                $filename
-                            )
-                        );
+                        sprintf(
+                            '%s: %s; %s=%s',
+                            'Content-Disposition',
+                            'attachment',
+                            'filename',
+                            $filename
+                        )
+                    );
                 }
                     $this->send = $ClientUpdateFile->get('file');
                 if ($this->newService) {
