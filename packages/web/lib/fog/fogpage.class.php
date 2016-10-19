@@ -3329,7 +3329,10 @@ abstract class FOGPage extends FOGBase
             );
             $totalRows = 0;
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
-                if (count($data) != $comma_count) {
+                $importCount = count($data);
+                if ($importCount > 0
+                    && $importCount <= $comma_count
+                ) {
                     throw new Exception(
                         _('Invalid data being parsed')
                     );
