@@ -203,7 +203,7 @@ function UpdateBandwidth() {
             setTimeout(UpdateBandwidthGraph(data), bandwidthtime);
         },
         error: function(jqXHR, textStatus) {
-            console.log(textStatus);
+            setTimeout(UpdateBandwidthGraph(null), bandwidthtime);
         },
         complete: function() {GraphBandwidth.addClass('loaded');}
     });
