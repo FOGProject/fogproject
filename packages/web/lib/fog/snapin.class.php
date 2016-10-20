@@ -200,7 +200,7 @@ class Snapin extends FOGController
             'Host',
             array('id' => $hostids)
         );
-        $this->set('hsots', $hostids);
+        $this->set('hosts', $hostids);
     }
     /**
      * Add hosts to snapin object.
