@@ -1131,9 +1131,10 @@ class Host extends FOGController
     {
         $TaskType = new TaskType($taskTypeID);
         $isCapture = $TaskType->isCapture();
+        if ($isCapture) {
+            return true;
+        }
         $Image = $this->getImage();
-        $StorageGroup = null;
-        $StorageNode = null;
         self::$HookManager
             ->processEvent(
                 'HOST_NEW_SETTINGS',
@@ -1145,22 +1146,38 @@ class Host extends FOGController
                 )
             );
         if (!$StorageGroup || !$StorageGroup->isValid()) {
-            $StorageGroup = $Image->getStorageGroup();
+            $StorageGroupIDs = self::getSubObjectIDs(
+                'ImageAssociation',
+                array('imageID' => $this->get('imageID')),
+                'storagegroupID'
+            );
+        } else {
+            $StorageGroupIDs = $StorageGroup->get('id');
         }
         if (!$StorageNode || !$StorageNode->isValid()) {
-            $StorageNode = $StorageGroup->getMasterStorageNode();
+            $StorageNodes = self::getClass('StorageNodeManager')
+                ->find(
+                    array(
+                        'storagegroupID' => $StorageGroupIDs,
+                        'isEnabled' => 1
+                    )
+                );
+        } else {
+            $StorageNodes = array($StorageNode);
         }
-        if (!$StorageGroup || !$StorageGroup->isValid()) {
-            throw new Exception(_('No Storage Group found for this image'));
+        foreach ((array)$StorageNodes as &$StorageNode) {
+            if (!$StorageNode->isValid()) {
+                continue;
+            }
+            $hasImageIDs = array_merge(
+                $hasImageIDs,
+                $StorageNode->get('images')
+            );
+            unset($StorageNode);
         }
-        if (!$StorageNode || !$StorageNode->isValid()) {
-            throw new Exception(_('No Storage Node found for this image'));
-        }
-        if (!$TaskType->isDeploy()) {
-            return true;
-        }
-        if (!in_array($Image->get('id'), $StorageNode->get('images'))) {
-            return false;
+        $hasImageIDs = array_unique($hasImageIDs);
+        if (!in_array($this->get('imageID'), $hasImageIDs)) {
+            throw new Exception(_('Image does not exist on any node'));
         }
         return true;
     }

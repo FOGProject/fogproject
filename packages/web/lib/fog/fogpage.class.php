@@ -1423,6 +1423,38 @@ abstract class FOGPage extends FOGBase
                             . _('require all hosts have the same image')
                         );
                     }
+                    $imageIDs = self::getSubObjectIDs(
+                        'Host',
+                        array('id' => $this->get('hosts')),
+                        'imageID'
+                    );
+                    $StorageGroupIDs = self::getSubObjectIDs(
+                        'ImageAssociation',
+                        array('imageID' => $imageIDs),
+                        'storagegroupID'
+                    );
+                    $StorageNodes = self::getClass('StorageNodeManager')
+                        ->find(
+                            array(
+                                'storagegroupID' => $StorageGroupIDs,
+                                'isEnabled' => 1
+                            )
+                        );
+                    foreach ((array)$StorageNodes as &$StorageNode) {
+                        if (!$StorageNode->isValid()) {
+                            continue;
+                        }
+                        $hasImageIDs = array_merge(
+                            $hasImageIDs,
+                            $StorageNode->get('images')
+                        );
+                        unset($StorageNode);
+                    }
+                    $hasImageIDs = array_unique($hasImageIDs);
+                    $storageImageIDs = array_intersect($imageIDs, $hasImageIDs);
+                    if (count($storageImageIDs) < 1) {
+                        throw new Exception(_('Image does not exist on any node'));
+                    }
                 }
             }
         } catch (Exception $e) {
@@ -1443,6 +1475,7 @@ abstract class FOGPage extends FOGBase
                     )
                 )
             );
+            return false;
         }
         try {
             try {
