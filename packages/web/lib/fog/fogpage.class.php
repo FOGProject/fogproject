@@ -1451,11 +1451,27 @@ abstract class FOGPage extends FOGBase
                         );
                         unset($StorageNode);
                     }
+                    $orig_hosts = $this->get('hosts');
                     $hasImageIDs = array_unique($hasImageIDs);
                     $storageImageIDs = array_intersect($imageIDs, $hasImageIDs);
-                    if (count($storageImageIDs) < 1) {
-                        throw new Exception(_('Image does not exist on any node'));
+                    $hostIDs = self::getSubObjectIDs(
+                        'Host',
+                        array(
+                            'id' => $this->get('hosts'),
+                            'imageID' => $storageImageIDs
+                        )
+                    );
+                    if (count($hostIDs) < 1) {
+                        throw new Exception(
+                            sprintf(
+                                '%s %s %s',
+                                _('Theres no image definitions'),
+                                _('available on any node for the'),
+                                _('hosts in this group')
+                            )
+                        );
                     }
+                    $this->obj->set('hosts', $hostIDs);
                 }
             }
         } catch (Exception $e) {
@@ -1476,7 +1492,6 @@ abstract class FOGPage extends FOGBase
                     )
                 )
             );
-            return false;
         }
         try {
             try {
