@@ -1165,6 +1165,7 @@ class Host extends FOGController
         } else {
             $StorageNodes = array($StorageNode);
         }
+        $hasImageIDs = array();
         foreach ((array)$StorageNodes as &$StorageNode) {
             if (!$StorageNode->isValid()) {
                 continue;

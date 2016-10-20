@@ -1440,6 +1440,7 @@ abstract class FOGPage extends FOGBase
                                 'isEnabled' => 1
                             )
                         );
+                    $hasImageIDs = array();
                     foreach ((array)$StorageNodes as &$StorageNode) {
                         if (!$StorageNode->isValid()) {
                             continue;
