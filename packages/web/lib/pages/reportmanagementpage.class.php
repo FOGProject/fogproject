@@ -159,7 +159,9 @@ class ReportManagementPage extends FOGPage
             $date1 = $_REQUEST['date2'];
             $date2 = $_REQUEST['date1'];
         }
-        $date2 = self::niceDate($date2)->modify('+1 day')->format('Y-m-d');
+        $date2 = self::niceDate($date2)
+            ->modify('+1 day')
+            ->format('Y-m-d');
         $csvHead = array(
             _('Engineer'),
             _('Storage Group'),
@@ -187,7 +189,11 @@ class ReportManagementPage extends FOGPage
         }
         $this->ReportMaker->endCSVLine();
         ini_set('display_errors', true);
-        foreach ((array)self::getClass('ImagingLogManager')->find(array('start'=>null, 'finish'=>null), 'OR', '', '', " BETWEEN '$date1' AND '$date2'", '', '', '', false) as $i => &$ImagingLog) {
+        $ImagingLogs = self::getClass('ImagingLogManager')
+            ->find();
+        $date1 = self::niceDate($date1);
+        $date2 = self::niceDate($date2);
+        foreach ((array)$ImagingLogs as &$ImagingLog) {
             if (!$ImagingLog->isValid()) {
                 continue;
             }
@@ -199,7 +205,12 @@ class ReportManagementPage extends FOGPage
             $diff = $this->diff($start, $end);
             $start = self::niceDate($start);
             $end = self::niceDate($end);
-            $Host = self::getClass('Host', $ImagingLog->get('hostID'));
+            if ($start < $date1
+                && $end > $date2
+            ) {
+                continue;
+            }
+            $Host = new Host($ImagingLog->get('hostID'));
             if (!$Host->isValid()) {
                 continue;
             }
@@ -703,6 +714,11 @@ class ReportManagementPage extends FOGPage
             array(),
             array(),
         );
+        $trackCount = self::getClass('UserTrackingManager')
+            ->count();
+        if ($trackCount < 1) {
+            return $this->render();
+        }
         $UserNames = self::getSubObjectIDs('UserTracking', '', 'username');
         $HostNames = self::getSubObjectIDs('Host', '', 'name');
         natcasesort($UserNames);
@@ -932,17 +948,41 @@ class ReportManagementPage extends FOGPage
             $date1 = $_REQUEST['date2'];
             $date2 = $_REQUEST['date1'];
         }
-        $date2 = date('Y-m-d', strtotime("$date2 +1 day"));
-        foreach ((array)self::getClass('UserTrackingManager')->find(array('datetime'=>'', 'username'=>sprintf('%%%s%%', base64_decode($_REQUEST['userID'])), 'hostID'=>($_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%')), '', '', '', "BETWEEN '$date1' AND '$date2'", '', '', '', false) as $i => &$User) {
+        $date1 = self::niceDate($date1);
+        $date2 = self::niceDate('+1 day');
+        $UserLogins = self::getClass('UserTrackingManager')
+            ->find();
+        foreach ((array)$UserLogins as &$User) {
             if (!$User->isValid()) {
                 continue;
             }
-            $Host = self::getClass('Host', $User->get('hostID'));
+            if (!$_REQUEST['hostID']) {
+                $Host = new Host($User->get('hostID'));
+            } else {
+                $Host = new Host($_REQUEST['hostID']);
+            }
             if (!$Host->isValid()) {
                 continue;
             }
             $date = self::niceDate($User->get('datetime'));
-            $logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
+            if ($date < $date1
+                || $date > $date2
+            ) {
+                continue;
+            }
+            $logintext = (
+                $User->get('action') == 1 ?
+                'Login' :
+                (
+                    $User->get('action') == 0 ?
+                    'Logout' :
+                    (
+                        $User->get('action') == 99 ?
+                        'Service Start' :
+                        'N/A'
+                    )
+                )
+            );
             $this->data[] = array(
                 'action'=>$logintext,
                 'username'=>$User->get('username'),
@@ -1077,13 +1117,21 @@ class ReportManagementPage extends FOGPage
             unset($csvHeader);
         }
         $this->ReportMaker->endCSVLine();
-        foreach ((array)self::getClass('SnapinTaskManager')->find(array('checkin'=>null, 'complete'=>null), 'OR', '', '', "BETWEEN '$date1' AND '$date2'", '', '', '', false) as $i => &$SnapinTask) {
+        $date1 = self::niceDate($date1);
+        $date2 = self::niceDate($date2);
+        $SnapinTasks = self::getClass('SnapinTaskManager')->find();
+        foreach ((array)$SnapinTasks as &$SnapinTask) {
             if (!$SnapinTask->isValid()) {
                 continue;
             }
             $start = self::niceDate($SnapinTask->get('checkin'));
             $end = self::niceDate($SnapinTask->get('complete'));
             if (!$this->validDate($start) || !$this->validDate($end)) {
+                continue;
+            }
+            if ($start < $date1
+                || $end > $date2
+            ) {
                 continue;
             }
             $Snapin = $SnapinTask->getSnapin();
