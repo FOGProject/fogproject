@@ -780,8 +780,9 @@ class HostManagementPage extends FOGPage
         $ucnote = _('This module is only used on the old client. The old client is what was distributed with FOG 1.2.0 and earlier. This module did not work past Windows XP due to UAC introduced in Vista and up.');
         $cunote = _('This module is only used (with modules and config) on the old client.');
         $moduleName = $this->getGlobalModuleStatus();
-        $ModuleOn = array_values(self::getSubObjectIDs('ModuleAssociation', array('hostID'=>$this->obj->get('id')), 'moduleID', false, 'AND', 'id', false, ''));
-        array_map(function (&$Module) use ($moduleName, $ModuleOn, $dcnote, $cunote, $gfnote, $ucnote) {
+        $ModuleOn = $this->obj->get('modules');
+        $Modules = self::getClass('ModuleManager')->find();
+        foreach ((array)$Modules as &$Module) {
             if (!$Module->isValid()) {
                 return;
             }
@@ -808,7 +809,7 @@ class HostManagementPage extends FOGPage
                 'mod_name'=>$Module->get('name'),
             );
             unset($Module);
-        }, (array)self::getClass('ModuleManager')->find());
+        }
         unset($moduleName, $ModuleOn);
         $this->data[] = array(
             'mod_name'=>'',
