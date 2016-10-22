@@ -38,7 +38,51 @@ class UserTrack extends FOGClient implements FOGClientSend
      */
     public function json()
     {
-        return $this->send();
+        if (!isset($_REQUEST['action'])
+            && !isset($_REQUEST['user'])
+        ) {
+            return array('' => '');
+        }
+        $action = strtolower(
+            $_REQUEST['action']
+        );
+        $user = strtolower(
+            $_REQUEST['user']
+        );
+        if (isset($_REQUEST['date'])) {
+            $tmpDate = self::niceDate($_REQUEST['date']);
+        } else {
+            $tmpDate = self::niceDate();
+        }
+        if (!in_array($action, array_keys($this->actions))) {
+            return array(
+                'error' => sprintf(
+                    '%s, %s, %s',
+                    _('Postfix requires an action of login'),
+                    _('logout'),
+                    _('or start to operate')
+                )
+            );
+        }
+        if (strpos($user, chr(92))) {
+            $user = explode(chr(92), $user);
+            $user = $user[1];
+        } elseif (strpos($user, chr(64))) {
+            $user = explode(chr(64), $user);
+            $user = $user[0];
+        }
+        if ($user == null) {
+            return array('error' => 'us');
+        }
+        $date = self::niceDate();
+        self::getClass('UserTracking')
+            ->set('hostID', $this->Host->get('id'))
+            ->set('username', $user)
+            ->set('action', $this->actions[$action])
+            ->set('datetime', $tmpDate->format('Y-m-d H:i:s'))
+            ->set('date', $tmpDate->format('Y-m-d'))
+            ->save();
+        return array('' => '');
     }
     /**
      * Sends the data to the client
@@ -49,10 +93,8 @@ class UserTrack extends FOGClient implements FOGClientSend
     {
         if (!isset($_REQUEST['action'])
             && !isset($_REQUEST['user'])
-            && !isset($_REQUEST['date'])
-            && $this->json
         ) {
-            return array('' => '');
+            throw new Exception('#!us');
         }
         $action = strtolower(
             base64_decode($_REQUEST['action'])
@@ -60,15 +102,12 @@ class UserTrack extends FOGClient implements FOGClientSend
         $user = strtolower(
             base64_decode($_REQUEST['user'])
         );
-        $date = base64_decode($_REQUEST['date']);
-        if ($this->newService) {
-            $action = strtolower(
-                $_REQUEST['action']
-            );
-            $user = strtolower(
-                $_REQUEST['user']
-            );
-            $date = $_REQUEST['date'];
+        unset($tmpDate);
+        if (isset($_REQUEST['date'])) {
+            $date = base64_decode($_REQUEST['date']);
+            $tmpDate = self::niceDate($date);
+        } else {
+            $tmpDate = self::niceDate();
         }
         if (!in_array($action, array_keys($this->actions))) {
             throw new Exception(
@@ -85,17 +124,19 @@ class UserTrack extends FOGClient implements FOGClientSend
         if ($user == null) {
             throw new Exception('#!us');
         }
-        $tmpDate = self::niceDate($date);
         $date = self::niceDate();
-        if ($tmpDate < $date) {
-            $desc = sprintf(
-                '%s: %s %s %s: %s',
-                _('Replay from journal'),
-                _('real insert time'),
-                $date->format('M j, Y g:i:s a'),
-                _('Login time'),
-                $tmpDate->format('M j, Y g:i:s a')
-            );
+        $desc = '';
+        if (isset($tmpDate)) {
+            if ($tmpDate < $date) {
+                $desc = sprintf(
+                    '%s: %s %s %s: %s',
+                    _('Replay from journal'),
+                    _('real insert time'),
+                    $date->format('M j, Y g:i:s a'),
+                    _('Login time'),
+                    $tmpDate->format('M j, Y g:i:s a')
+                );
+            }
         }
         if ($action == 'start') {
             $user = '';

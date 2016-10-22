@@ -1564,26 +1564,54 @@ class HostManagementPage extends FOGPage
     }
     public function hostlogins()
     {
-        $MainDate = self::niceDate($_REQUEST['dte'])->getTimestamp();
-        $MainDate_1 = self::niceDate($_REQUEST['dte'])->modify('+1 day')->getTimestamp();
-        foreach ((array)self::getClass('UserTrackingManager')->find(array('hostID'=>$this->obj->get('id'), 'date'=>$_REQUEST['dte'], 'action'=>array(null, 0, 1)), 'AND', 'date', 'DESC') as $i => &$Login) {
+        $MainDate = self::niceDate($_REQUEST['dte'])
+            ->getTimestamp();
+        $MainDate_1 = self::niceDate($_REQUEST['dte'])
+            ->modify('+1 day')
+            ->getTimestamp();
+        $UserTracks = self::getClass('UserTrackingManager')
+            ->find(
+                array(
+                    'hostID' => $this->obj->get('id'),
+                    'date' => $_REQUEST['dte'],
+                    'action' => array(
+                        null,
+                        '',
+                        0,
+                        1
+                    )
+                ),
+                'AND',
+                'date',
+                'DESC'
+            );
+        foreach ((array)$UserTracks as &$Login) {
             if (!$Login->isValid()) {
                 continue;
             }
             if ($Login->get('username') == 'Array') {
                 continue;
             }
-            $time = self::niceDate($Login->get('datetime'))->format('U');
+            $time = self::niceDate($Login->get('datetime'))
+                ->format('U');
             if (!$Data[$Login->get('username')]) {
-                $Data[$Login->get('username')] = array('user'=>$Login->get('username'),'min'=>$MainDate,'max'=>$MainDate_1);
+                $Data[$Login->get('username')] = array(
+                    'user' => $Login->get('username'),
+                    'min' => $MainDate,
+                    'max' => $MainDate_1
+                );
             }
             if ($Login->get('action')) {
                 $Data[$Login->get('username')]['login'] = $time;
             }
-            if (array_key_exists('login', $Data[$Login->get('username')]) && !$Login->get('action')) {
+            if (array_key_exists('login', $Data[$Login->get('username')])
+                && !$Login->get('action')
+            ) {
                 $Data[$Login->get('username')]['logout'] = $time;
             }
-            if (array_key_exists('login', $Data[$Login->get('username')]) && array_key_exists('logout', $Data[$Login->get('username')])) {
+            if (array_key_exists('login', $Data[$Login->get('username')])
+                && array_key_exists('logout', $Data[$Login->get('username')])
+            ) {
                 $data[] = $Data[$Login->get('username')];
                 unset($Data[$Login->get('username')]);
             }

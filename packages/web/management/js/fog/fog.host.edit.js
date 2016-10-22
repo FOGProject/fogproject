@@ -8,29 +8,49 @@ var LoginDateMin = new Array();
 var LoginDateMax = new Array();
 function UpdateLoginGraph() {
     url = location.href.replace('edit','hostlogins');
-    $.post(url,{dte: LoginHistoryDate.val()},function(data) {UpdateLoginGraphPlot();});
+    $.post(
+        url,
+        {
+            dte: LoginHistoryDate.val()
+        },
+        function(data) {
+            UpdateLoginGraphPlot(data);
+        }
+    );
 }
 function UpdateLoginGraphPlot(data) {
-    if (data == null) return;
-    j =0;
-    for (i in data) {
-        LoginDateMin = new Date(new Date(data[i].min * 1000).getTime() - new Date(data[i].min * 1000).getTimezoneOffset() * 60000);
-        LoginDateMax = new Date(new Date(data[i].max * 1000).getTime() - new Date(data[i].max * 1000).getTimezoneOffset() * 60000);
-        LoginTime = new Date(new Date(data[i].login * 1000).getTime() - new Date(data[i].login * 1000).getTimezoneOffset() * 60000);
-        LogoutTime = new Date(new Date(data[i].logout * 1000).getTime() - new Date(data[i].logout * 1000).getTimezoneOffset() * 60000);
+    if (data == null) {
+        return;
+    }
+    data = $.parseJSON(data);
+    j = 0;
+    $.each(data, function (index, value) {
+        min1 = new Date(value.min * 1000).getTime();
+        max1 = new Date(value.max * 1000).getTime();
+        min2 = new Date(value.min * 1000).getTimezoneOffset() * 60000;
+        max2 = new Date(value.max * 1000).getTimezoneOffset() * 60000;
+        log1 = new Date(value.login * 1000).getTime();
+        log2 = new Date(value.login * 1000).getTimezoneOffset() * 60000;
+        loo1 = new Date(value.logout * 1000).getTime();
+        loo2 = new Date(value.logout * 1000).getTimezoneOffset() * 60000;
+        now = new Date();
+        LoginDateMin = new Date(min1 - min2);
+        LoginDateMax = new Date(max1 - max2);
+        LoginTime = new Date(log1 - log2);
+        LogoutTime = new Date(loo1 - loo2);
         if (typeof(Labels) == 'undefined') {
             Labels = new Array();
-            LabelData[i] = new Array();
-            LoginData[i] = new Array();
+            LabelData[index] = new Array();
+            LoginData[index] = new Array();
         }
-        if ($.inArray(data[i].user,Labels) > -1) {
-            LoginData[i] = [LoginTime,$.inArray(data[i].user,Labels)+1,LogoutTime,data[i].user];
+        if ($.inArray(value.user,Labels) > -1) {
+            LoginData[index] = [LoginTime,$.inArray(value.user,Labels)+1,LogoutTime,value.user];
         } else {
-            Labels.push(data[i].user);
-            LabelData[i] = [j+1,data[i].user];
-            LoginData[i] = [LoginTime,++j,LogoutTime,data[i].user];
+            Labels.push(value.user);
+            LabelData[index] = [j+1,value.user];
+            LoginData[index] = [LoginTime,++j,LogoutTime,value.user];
         }
-    }
+    });
     LoginHistoryData = [{label: 'Logged In Time',data:LoginData}];
     var LoginHistoryOpts = {
         colors: ['rgb(0,120,0)'],
