@@ -74,6 +74,9 @@ class Image extends FOGController
         'hostsnotinme',
         'storagegroups',
         'storagegroupsnotinme',
+        'os',
+        'imagepartitiontype',
+        'imagetype',
     );
     /**
      * Removes the item from the database
@@ -357,13 +360,34 @@ class Image extends FOGController
         return new StorageGroup($primaryGroup);
     }
     /**
+     * Loads the os object for this image
+     *
+     * @return void
+     */
+    protected function loadOs()
+    {
+        $this->set('os', new OS($this->get('osID')));
+    }
+    /**
      * Returns the OS object
      *
      * @return object
      */
     public function getOS()
     {
-        return new OS($this->get('osID'));
+        return $this->get('os');
+    }
+    /**
+     * Loads the image type for this image
+     *
+     * @return void
+     */
+    protected function loadImagetype()
+    {
+        $this->set(
+            'imagetype',
+            new ImageType($this->get('imageTypeID'))
+        );
     }
     /**
      * Returns the ImageType object
@@ -372,7 +396,23 @@ class Image extends FOGController
      */
     public function getImageType()
     {
-        return new ImageType($this->get('imageTypeID'));
+        return $this->get('imagetype');
+    }
+    /**
+     * Loads the image partition type
+     *
+     * @return void
+     */
+    protected function loadImagepartitiontype()
+    {
+        $iptID = $this->get('imagePartitionTypeID');
+        if ($iptID < 1) {
+            $iptID = 1;
+        }
+        $this->set(
+            'imagepartitiontype',
+            new ImagePartitionType($iptID)
+        );
     }
     /**
      * Returns the ImagePartitionType object
@@ -381,11 +421,7 @@ class Image extends FOGController
      */
     public function getImagePartitionType()
     {
-        $iptID = $this->get('imagePartitionTypeID');
-        if ($iptID < 1) {
-            $iptID = 1;
-        }
-        return new ImagePartitionType($iptID);
+        return $this->get('imagepartitiontype');
     }
     /**
      * Returns the partition type
@@ -397,7 +433,7 @@ class Image extends FOGController
         return $this->getImagePartitionType()->get('type');
     }
     /**
-     * Gets the image's primar group
+     * Gets the image's primary group
      *
      * @param int $groupID the group id to check
      *

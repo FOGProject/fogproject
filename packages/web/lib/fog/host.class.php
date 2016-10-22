@@ -144,14 +144,14 @@ class Host extends FOGController
         switch ($key) {
             case 'mac':
                 if (!($value instanceof MACAddress)) {
-                    $value = self::getClass('MACAddress', $value);
+                    $value = new MACAddress($value);
                 }
                 break;
             case 'additionalMACs':
             case 'pendingMACs':
                 $newValue = array_map(
                     function (&$mac) {
-                        return self::getClass('MACAddress', $mac);
+                        return new MACAddress($mac);
                     },
                     (array)$value
                 );
@@ -159,17 +159,17 @@ class Host extends FOGController
                 break;
             case 'snapinjob':
                 if (!($value instanceof SnapinJob)) {
-                    $value = self::getClass('SnapinJob', $value);
+                    $value = new SnapinJob($value);
                 }
                 break;
             case 'inventory':
                 if (!($value instanceof Inventory)) {
-                    $value = self::getClass('Inventory', $value);
+                    $value = new Inventory($value);
                 }
                 break;
             case 'task':
                 if (!($value instanceof Task)) {
-                    $value = self::getClass('Task', $value);
+                    $value = new Task($value);
                 }
                 break;
         }
@@ -191,7 +191,7 @@ class Host extends FOGController
             case 'additionalMACs':
             case 'pendingMACs':
                 if (!($value instanceof MACAddress)) {
-                    $value = self::getClass('MACAddress', $value);
+                    $value = new MACAddress($value);
                 }
                 break;
         }
@@ -1055,6 +1055,15 @@ class Host extends FOGController
             ->set('hostID', $this->get('id'))
             ->load('hostID');
         $this->set('inventory', $inventory);
+    }
+    /**
+     * Loads the image object
+     *
+     * @return void
+     */
+    protected function loadImagename()
+    {
+        $this->set('imagename', new Image($this->get('imageID')));
     }
     /**
      * Loads the hostscreen for this host
@@ -2198,7 +2207,7 @@ class Host extends FOGController
      */
     public function getImage()
     {
-        return new Image($this->get('imageID'));
+        return $this->get('imagename');
     }
     /**
      * Returns the hosts image name
