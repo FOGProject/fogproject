@@ -895,19 +895,13 @@ class Group extends FOGController
     {
         $AllGroupHostsPrinters = self::getSubObjectIDs(
             'PrinterAssociation',
-            array(
-                'hostID' => $this->get('hosts'),
-            )
+            array('hostID' => $this->get('hosts'))
         );
         self::getClass('PrinterAssociationManager')
             ->update(
-                array(
-                    'id' => $AllGroupHostsPrinters,
-                ),
+                array('id' => $AllGroupHostsPrinters),
                 '',
-                array(
-                    'isDefault' => '0',
-                )
+                array('isDefault' => '0')
             );
         self::getClass('PrinterAssociationManager')
             ->update(
@@ -916,15 +910,15 @@ class Group extends FOGController
                     'hostID' => $this->get('hosts'),
                 ),
                 '',
-                array(
-                    'isDefault' => 1,
-                )
+                array('isDefault' => 1)
             );
 
         return $this;
     }
     /**
      * Loads hosts in this group.
+     *
+     * @return void
      */
     protected function loadHosts()
     {
@@ -932,9 +926,7 @@ class Group extends FOGController
             'hosts',
             self::getSubObjectIDs(
                 'GroupAssociation',
-                array(
-                    'groupID' => $this->get('id'),
-                ),
+                array('groupID' => $this->get('id')),
                 'hostID'
             )
         );
@@ -942,6 +934,8 @@ class Group extends FOGController
     }
     /**
      * Loads hosts not in this group.
+     *
+     * @return void
      */
     protected function loadHostsnotinme()
     {
