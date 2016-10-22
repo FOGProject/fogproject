@@ -683,356 +683,454 @@ $this->schema[] = array(
 );
 // 12
 $this->schema[] = array(
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_CLIENT_CLIENTUPDATER_ENABLED', '"._("This setting defines if the fog client updater should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Client Updater')",
-        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-        values('FOG_CLIENT_HOSTREGISTER_ENABLED', '"._("This setting defines if the fog host register should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Host Register')",
-            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-            values('FOG_CLIENT_PRINTERMANAGER_ENABLED', '"._("This setting defines if the fog printer maanger should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Printer Manager')",
-                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_CLIENT_TASKREBOOT_ENABLED', '"._("This setting defines if the fog task reboot should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Task Reboot')",
-                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                    values('FOG_CLIENT_USERTRACKER_ENABLED', '"._("This setting defines if the fog user tracker should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - User Tracker')",
-                        "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '12'",
-                    );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_CLIENT_CLIENTUPDATER_ENABLED','This setting defines if "
+    . "the fog client updater should be globally active. "
+    . "(Valid values are 0 or 1)','1','FOG Client - Client Updater'),"
+    . "('FOG_CLIENT_HOSTREGISTER_ENABLED','This setting defines if the "
+    . "fog host register should be globally active. "
+    . "(Valid values are 0 or 1)','1','FOG Client - Host Register'),"
+    . "('FOG_CLIENT_PRINTERMANAGER_ENABLED','This setting defines if the "
+    . "fog printer maanger should be globally active. "
+    . "(Valid values are 0 or 1)','1','FOG Client - Printer Manager'),"
+    . "('FOG_CLIENT_TASKREBOOT_ENABLED','This setting defines if the fog "
+    . "task reboot should be globally active. "
+    . "(Valid values are 0 or 1)','1','FOG Client - Task Reboot'),"
+    . "('FOG_CLIENT_USERTRACKER_ENABLED','This setting defines if the fog "
+    . "user tracker should be globally active. "
+    . "(Valid values are 0 or 1)','1','FOG Client - User Tracker')",
+    "UPDATE `schemaVersion` set vValue = '12'",
+);
 // 13
 $this->schema[] = array(
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_AD_DEFAULT_DOMAINNAME', '"._("This setting defines the default value to populate the host\'s Active Directory domain name value.")."', '', 'Active Directory Defaults')",
-        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-        values('FOG_AD_DEFAULT_OU', '"._("This setting defines the default value to populate the host\'s Active Directory OU value.")."', '', 'Active Directory Defaults')",
-            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-            values('FOG_AD_DEFAULT_USER', '"._("This setting defines the default value to populate the host\'s Active Directory user name value.'").", '', 'Active Directory Defaults')",
-                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_AD_DEFAULT_PASSWORD', '"._("This setting defines the default value to populate the host\'s Active Directory password value.  This settings must be encrypted.")."', '', 'Active Directory Defaults')",
-                    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '13'",
-                );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_AD_DEFAULT_DOMAINNAME','This setting defines the default "
+    . "value to populate the host\'s Active Directory domain name value.',"
+    . "'','Active Directory Defaults'),"
+    . "('FOG_AD_DEFAULT_OU','This setting defines the default value to "
+    . "populate the host\'s Active Directory OU value.',"
+    . "'','Active Directory Defaults'),"
+    . "('FOG_AD_DEFAULT_USER','This setting defines the default value to "
+    . "populate the host\'s Active Directory user name value.',"
+    . "'', 'Active Directory Defaults'),"
+    . "('FOG_AD_DEFAULT_PASSWORD','This setting defines the default value "
+    . "to populate the host\'s Active Directory password value. This "
+    . "settings must be encrypted.','','Active Directory Defaults')",
+    "UPDATE `schemaVersion` set vValue = '13'",
+);
 // 14
 $this->schema[] = array(
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_UTIL_DIR', '"._("This setting defines the location of the fog utility directory.")."', '/opt/fog/utils', 'FOG Utils')",
-        "ALTER TABLE `".DATABASE_NAME."`.`users` ADD COLUMN `uType` varchar(2)  NOT NULL AFTER `uCreateBy`",
-        "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '14'",
-    );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "('FOG_UTIL_DIR','This setting defines the location of the fog "
+    . "utility directory.','/opt/fog/utils','FOG Utils')",
+    "ALTER TABLE `users` ADD COLUMN `uType` VARCHAR(2) NOT NULL AFTER `uCreateBy`",
+    "UPDATE `schemaVersion` set vValue = '14'",
+);
 // 15
 $this->schema[] = array(
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_PLUGINSYS_ENABLED', '"._("This setting defines if the fog plugin system should be enabled.")."', '0', 'Plugin System')",
-        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-        values('FOG_PLUGINSYS_DIR', '"._("This setting defines the base location of fog plugins.")."', './plugins', 'Plugin System')",
-            "CREATE TABLE `".DATABASE_NAME."`.`plugins` (
-                `pID` INTEGER  NOT NULL AUTO_INCREMENT,
-                `pName` VARCHAR(100)  NOT NULL,
-                `pState` CHAR  NOT NULL,
-                `pInstalled` CHAR  NOT NULL,
-                `pVersion` VARCHAR(100)  NOT NULL,
-                `pAnon1` VARCHAR(100)  NOT NULL,
-                `pAnon2` VARCHAR(100)  NOT NULL,
-                `pAnon3` VARCHAR(100)  NOT NULL,
-                `pAnon4` VARCHAR(100)  NOT NULL,
-                `pAnon5` VARCHAR(100)  NOT NULL,
-                PRIMARY KEY (`pID`),
-INDEX `new_index`(`pName`),
-INDEX `new_index1`(`pState`),
-INDEX `new_index2`(`pInstalled`),
-INDEX `new_index3`(`pVersion`)
-                )
-                ENGINE = MyISAM",
-                "ALTER TABLE `".DATABASE_NAME."`.`hosts` CHANGE `hostAnon3` `hostKernel` VARCHAR(250)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-                CHANGE `hostAnon4` `hostDevice` VARCHAR(250)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
-                "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '15'",
-            );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_PLUGINSYS_ENABLED', 'This setting defines if the fog plugin "
+    . "system should be enabled.','0','Plugin System'),"
+    . "('FOG_PLUGINSYS_DIR','This setting defines the base location "
+    . "of fog plugins.','./plugins','Plugin System')",
+    "CREATE TABLE `plugins` ("
+    . "`pID` INTEGER  NOT NULL AUTO_INCREMENT,"
+    . "`pName` VARCHAR(100) NOT NULL,"
+    . "`pState` CHAR NOT NULL,"
+    . "`pInstalled` CHAR NOT NULL,"
+    . "`pVersion` VARCHAR(100) NOT NULL,"
+    . "`pAnon1` VARCHAR(100) NOT NULL,"
+    . "`pAnon2` VARCHAR(100) NOT NULL,"
+    . "`pAnon3` VARCHAR(100) NOT NULL,"
+    . "`pAnon4` VARCHAR(100) NOT NULL,"
+    . "`pAnon5` VARCHAR(100) NOT NULL,"
+    . "PRIMARY KEY (`pID`),"
+    . "INDEX `new_index`(`pName`),"
+    . "INDEX `new_index1`(`pState`),"
+    . "INDEX `new_index2`(`pInstalled`),"
+    . "INDEX `new_index3`(`pVersion`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "ALTER TABLE `hosts` CHANGE `hostAnon3` `hostKernel` VARCHAR(250) "
+    . "CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,"
+    . "CHANGE `hostAnon4` `hostDevice` VARCHAR(250) CHARACTER "
+    . "SET utf8 COLLATE utf8_general_ci NOT NULL",
+    "UPDATE `schemaVersion` set vValue = '15'",
+);
 // 16
 $fogstoragenodeuser = "fogstorage";
-$fogstoragenodepass = "fs" . rand(1000, 100000000000);
+$fogstoragenodepass = "fs".rand(1000, 100000000000);
 $this->schema[] = array(
-    "ALTER TABLE `".DATABASE_NAME."`.`tasks` ADD COLUMN `taskBPM` varchar(250)  NOT NULL AFTER `taskPCT`,
-    ADD COLUMN `taskTimeElapsed` varchar(250)  NOT NULL AFTER `taskBPM`,
-    ADD COLUMN `taskTimeRemaining` varchar(250)  NOT NULL AFTER `taskTimeElapsed`,
-    ADD COLUMN `taskDataCopied` varchar(250)  NOT NULL AFTER `taskTimeRemaining`,
-    ADD COLUMN `taskPercentText` varchar(250)  NOT NULL AFTER `taskDataCopied`,
-    ADD COLUMN `taskDataTotal` VARCHAR(250)  NOT NULL AFTER `taskPercentText`",
-    "CREATE TABLE `".DATABASE_NAME."`.`nfsGroups` (
-        `ngID` integer  NOT NULL AUTO_INCREMENT,
-        `ngName` varchar(250)  NOT NULL,
-        `ngDesc` longtext  NOT NULL,
-        PRIMARY KEY (`ngID`)
-    )
-    ENGINE = MyISAM",
-    "CREATE TABLE `".DATABASE_NAME."`.`nfsGroupMembers` (
-        `ngmID` integer  NOT NULL AUTO_INCREMENT,
-        `ngmMemberName` varchar(250)  NOT NULL,
-        `ngmMemberDescription` longtext  NOT NULL,
-        `ngmIsMasterNode` char  NOT NULL,
-        `ngmGroupID` integer  NOT NULL,
-        `ngmRootPath` longtext  NOT NULL,
-        `ngmIsEnabled` char  NOT NULL,
-        `ngmHostname` varchar(250)  NOT NULL,
-        `ngmMaxClients` integer  NOT NULL,
-        `ngmUser` varchar(250)  NOT NULL,
-        `ngmPass` varchar(250)  NOT NULL,
-        `ngmKey` varchar(250)  NOT NULL,
-        PRIMARY KEY (`ngmID`),
-INDEX `new_index`(`ngmMemberName`),
-INDEX `new_index2`(`ngmIsMasterNode`),
-INDEX `new_index3`(`ngmGroupID`),
-INDEX `new_index4`(`ngmIsEnabled`)
-            )
-            ENGINE = MyISAM",
-            "ALTER TABLE `".DATABASE_NAME."`.`images` ADD COLUMN `imageNFSGroupID` integer  NOT NULL AFTER `imageDD`,
-            ADD INDEX `new_index3`(`imageNFSGroupID`)",
-            "ALTER TABLE `".DATABASE_NAME."`.`tasks` ADD COLUMN `taskNFSGroupID` integer  NOT NULL AFTER `taskDataTotal`,
-            ADD COLUMN `taskNFSMemberID` integer  NOT NULL AFTER `taskNFSGroupID`,
-            ADD COLUMN `taskNFSFailures` char  NOT NULL AFTER `taskNFSMemberID`,
-            ADD COLUMN `taskLastMemberID` integer  NOT NULL AFTER `taskNFSFailures`,
-            ADD INDEX `new_index5`(`taskNFSGroupID`),
-ADD INDEX `new_index6`(`taskNFSMemberID`),
-ADD INDEX `new_index7`(`taskNFSFailures`),
-ADD INDEX `new_index8`(`taskLastMemberID`)",
-"CREATE TABLE `".DATABASE_NAME."`.`nfsFailures` (
-    `nfID` integer  NOT NULL AUTO_INCREMENT,
-    `nfNodeID` integer  NOT NULL,
-    `nfTaskID` integer  NOT NULL,
-    `nfHostID` integer  NOT NULL,
-    `nfGroupID` integer  NOT NULL,
-    `nfDateTime` integer  NOT NULL,
-    PRIMARY KEY (`nfID`),
-INDEX `new_index`(`nfNodeID`),
-INDEX `new_index1`(`nfTaskID`),
-INDEX `new_index2`(`nfHostID`),
-INDEX `new_index3`(`nfGroupID`)
-            )
-            ENGINE = MyISAM",
-            "ALTER TABLE `".DATABASE_NAME."`.`nfsFailures` MODIFY COLUMN `nfDateTime` datetime  NOT NULL,
-            ADD INDEX `new_index4`(`nfDateTime`)",
-            "ALTER TABLE `".DATABASE_NAME."`.`multicastSessions` CHANGE `msAnon2` `msNFSGroupID` integer  NOT NULL,
-            ADD INDEX `new_index`(`msNFSGroupID`)",
-            "INSERT IGNORE INTO `".DATABASE_NAME."`.nfsGroups (ngName, ngDesc) values ('default', '"._("Auto generated fog nfs group")."' );",
-            "INSERT IGNORE INTO
-            `".DATABASE_NAME."`.nfsGroupMembers
-            (ngmMemberName, ngmMemberDescription, ngmIsMasterNode, ngmGroupID, ngmRootPath, ngmIsEnabled, ngmHostname, ngmMaxClients, ngmUser, ngmPass)
-            VALUES
-            ('DefaultMember', '"._("Auto generated fog nfs group member")."', '1', '1', '/images/', '1', '" . STORAGE_HOST . "', '10', '" . STORAGE_FTP_USERNAME . "', '" . STORAGE_FTP_PASSWORD . "')",
-                "UPDATE `".DATABASE_NAME."`.images set imageNFSGroupID = '1'",
-                "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_HOST'",
-                "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_FTP_USERNAME'",
-                "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_FTP_PASSWORD'",
-                "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_DATADIR'",
-                "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE settingKey = 'FOG_NFS_DATADIR_CAPTURE'",
-                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_STORAGENODE_MYSQLUSER', '"._("This setting defines the username the storage nodes should use to connect to the fog server.")."', '$fogstoragenodeuser', 'FOG Storage Nodes')",
-                    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                    values('FOG_STORAGENODE_MYSQLPASS', '"._("This setting defines the password the storage nodes should use to connect to the fog server.")."', '$fogstoragenodepass', 'FOG Storage Nodes')",
-                        // Blackout
-                        // Assumes we are a user with GRANT prilidges
-                        // Will need -> GRANT USAGE ON * . * TO 'fog'@'localhost' WITH GRANT OPTION MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0 ,
-                        "GRANT ALL ON `".DATABASE_NAME."`.* TO '$fogstoragenodeuser'@'%' IDENTIFIED BY '$fogstoragenodepass'",
-                        "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '16'",
-                    );
+    "ALTER TABLE `tasks` ADD COLUMN `taskBPM` varchar(250) NOT NULL AFTER "
+    . "`taskPCT`, ADD COLUMN `taskTimeElapsed` varchar(250) NOT NULL AFTER "
+    . "`taskBPM`, ADD COLUMN `taskTimeRemaining` varchar(250) NOT NULL AFTER "
+    . "`taskTimeElapsed`, ADD COLUMN `taskDataCopied` varchar(250) NOT NULL "
+    . "AFTER `taskTimeRemaining`, ADD COLUMN `taskPercentText` varchar(250) NOT "
+    . "NULL AFTER `taskDataCopied`, ADD COLUMN `taskDataTotal` VARCHAR(250) NOT "
+    . "NULL AFTER `taskPercentText`",
+    "CREATE TABLE `nfsGroups` ("
+    . "`ngID` integer NOT NULL AUTO_INCREMENT,"
+    . "`ngName` varchar(250) NOT NULL,"
+    . "`ngDesc` longtext NOT NULL,"
+    . "PRIMARY KEY (`ngID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "CREATE TABLE `nfsGroupMembers` ("
+    . "`ngmID` integer NOT NULL AUTO_INCREMENT,"
+    . "`ngmMemberName` varchar(250) NOT NULL,"
+    . "`ngmMemberDescription` longtext NOT NULL,"
+    . "`ngmIsMasterNode` char NOT NULL,"
+    . "`ngmGroupID` integer NOT NULL,"
+    . "`ngmRootPath` longtext NOT NULL,"
+    . "`ngmIsEnabled` char NOT NULL,"
+    . "`ngmHostname` varchar(250) NOT NULL,"
+    . "`ngmMaxClients` integer NOT NULL,"
+    . "`ngmUser` varchar(250) NOT NULL,"
+    . "`ngmPass` varchar(250) NOT NULL,"
+    . "`ngmKey` varchar(250) NOT NULL,"
+    . " PRIMARY KEY (`ngmID`),"
+    . "INDEX `new_index`(`ngmMemberName`),"
+    . "INDEX `new_index2`(`ngmIsMasterNode`),"
+    . "INDEX `new_index3`(`ngmGroupID`),"
+    . "INDEX `new_index4`(`ngmIsEnabled`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "ALTER TABLE `images` ADD COLUMN `imageNFSGroupID` integer "
+    . "NOT NULL AFTER `imageDD`,"
+    . "ADD INDEX `new_index3`(`imageNFSGroupID`)",
+    "ALTER TABLE `tasks` ADD COLUMN `taskNFSGroupID` integer "
+    . "NOT NULL AFTER `taskDataTotal`,"
+    . "ADD COLUMN `taskNFSMemberID` integer NOT NULL AFTER `taskNFSGroupID`,"
+    . "ADD COLUMN `taskNFSFailures` char NOT NULL AFTER `taskNFSMemberID`,"
+    . "ADD COLUMN `taskLastMemberID` integer NOT NULL AFTER `taskNFSFailures`,"
+    . "ADD INDEX `new_index5`(`taskNFSGroupID`),"
+    . "ADD INDEX `new_index6`(`taskNFSMemberID`),"
+    . "ADD INDEX `new_index7`(`taskNFSFailures`),"
+    . "ADD INDEX `new_index8`(`taskLastMemberID`)",
+    "CREATE TABLE `nfsFailures` ("
+    . "`nfID` integer NOT NULL AUTO_INCREMENT,"
+    . "`nfNodeID` integer NOT NULL,"
+    . "`nfTaskID` integer NOT NULL,"
+    . "`nfHostID` integer NOT NULL,"
+    . "`nfGroupID` integer NOT NULL,"
+    . "`nfDateTime` integer NOT NULL,"
+    . "PRIMARY KEY (`nfID`),"
+    . "INDEX `new_index`(`nfNodeID`),"
+    . "INDEX `new_index1`(`nfTaskID`),"
+    . "INDEX `new_index2`(`nfHostID`),"
+    . "INDEX `new_index3`(`nfGroupID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "ALTER TABLE `nfsFailures` MODIFY COLUMN `nfDateTime` datetime NOT NULL,"
+    . "ADD INDEX `new_index4`(`nfDateTime`)",
+    "ALTER TABLE `multicastSessions` CHANGE `msAnon2` `msNFSGroupID` integer "
+    . "NOT NULL, ADD INDEX `new_index`(`msNFSGroupID`)",
+    "INSERT IGNORE INTO `nfsGroups` "
+    . "(`ngName`,`ngDesc`) "
+    . "VALUES "
+    . "('default','Auto generated fog nfs group')",
+    "INSERT IGNORE INTO `nfsGroupMembers` "
+    . "(`ngmMemberName`,`ngmMemberDescription`,`ngmIsMasterNode`,"
+    . "`ngmGroupID`,`ngmRootPath`,`ngmIsEnabled`,`ngmHostname`,"
+    . "`ngmMaxClients`,`ngmUser`,`ngmPass`) "
+    . "VALUES "
+    . "('DefaultMember','Auto generated fog nfs group member','1',"
+    . "'1','/images/','1','"
+    . STORAGE_HOST
+    . "','10','"
+    . STORAGE_FTP_USERNAME
+    . "','"
+    . STORAGE_FTP_PASSWORD
+    . "')",
+    "UPDATE `images` set imageNFSGroupID = '1'",
+    "DELETE FROM `globalSettings` WHERE `settingKey` IN "
+    . "('FOG_NFS_HOST','FOG_NFS_FTP_USERNAME','FOG_NFS_FTP_PASSWORD',"
+    . "'FOG_NFS_DATADIR','FOG_NFS_DATADIR_CAPTURE')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_STORAGENODE_MYSQLUSER','This setting defines the username "
+    . "the storage nodes should use to connect to the fog server.',"
+    . "'$fogstoragenodeuser','FOG Storage Nodes'),"
+    . "('FOG_STORAGENODE_MYSQLPASS','This setting defines the password "
+    . "the storage nodes should use to connect to the fog server.',"
+    . "'$fogstoragenodepass','FOG Storage Nodes')",
+    "GRANT ALL ON `"
+    . DATABASE_NAME
+    . "`.* TO '$fogstoragenodeuser'@'%' IDENTIFIED BY '$fogstoragenodepass'",
+    "UPDATE `schemaVersion` set `vValue`='16'",
+);
 // 17
 $this->schema[] = array(
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_SSH_USERNAME', '"._("This setting defines the username used for the ssh client.")."', 'root', 'SSH Client')",
-        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-        values('FOG_SSH_PORT', '"._("This setting defines the port to use for the ssh client.")."', '22', 'SSH Client')",
-            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-            values('FOG_VIEW_DEFAULT_SCREEN', '"._("This setting defines which page is displayed in each section, valid settings includes <b>LIST</b> and <b>SEARCH</b>.")."', 'SEARCH', 'FOG View Settings')",
-                "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '17'",
-            );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_SSH_USERNAME','This setting defines the username used "
+    . "for the ssh client.','root','SSH Client'),"
+    . "('FOG_SSH_PORT','This setting defines the port to use for the ssh client.',"
+    . "'22','SSH Client'),"
+    . "('FOG_VIEW_DEFAULT_SCREEN','This setting defines which page is "
+    . "displayed in each section, valid settings includes <b>LIST</b> "
+    . "and <b>SEARCH</b>.','SEARCH','FOG View Settings')",
+    "UPDATE `schemaVersion` set vValue = '17'",
+);
 // 18
 $this->schema[] = array(
-    "INSERT IGNORE INTO ".DATABASE_NAME.".supportedOS(osName, osValue) values( '"._("Windows 7")."', '5' )",
-    "INSERT IGNORE INTO ".DATABASE_NAME.".supportedOS(osName, osValue) values( '"._("Windows 8")."', '6' )",
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '18'",
+    "INSERT IGNORE INTO `supportedOS` "
+    . "(`osName`,`osValue`) "
+    . "VALUES "
+    . "('Windows 7','5'),"
+    . "('Windows 8','6')",
+    "UPDATE `schemaVersion` set `vValue`='18'",
 );
 // 19
 $this->schema[] = array(
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_PXE_MENU_TIMEOUT', '"._("This setting defines the default value for the pxe menu timeout.")."', '3', 'FOG PXE Settings')",
-        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-        values('FOG_PROXY_IP', '"._("This setting defines the proxy ip address to use.")."', '', 'General Settings')",
-            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-            values('FOG_PROXY_PORT', '"._("This setting defines the proxy port address to use.")."', '', 'General Settings')",
-                "CREATE TABLE `".DATABASE_NAME."`.`scheduledTasks` (
-                    `stID` integer  NOT NULL AUTO_INCREMENT,
-                    `stName` varchar(240)  NOT NULL,
-                    `stDesc` longtext  NOT NULL,
-                    `stType` varchar(24)  NOT NULL,
-                    `stTaskType` varchar(24)  NOT NULL,
-                    `stMinute` varchar(240)  NOT NULL,
-                    `stHour` varchar(240)  NOT NULL,
-                    `stDOM` varchar(240)  NOT NULL,
-                    `stMonth` varchar(240)  NOT NULL,
-                    `stDOW` varchar(240)  NOT NULL,
-                    `stIsGroup` varchar(2)  NOT NULL,
-                    `stGroupHostID` integer  NOT NULL,
-                    `stShutDown` varchar(2)  NOT NULL,
-                    `stOther1` varchar(240)  NOT NULL,
-                    `stOther2` varchar(240)  NOT NULL,
-                    `stOther3` varchar(240)  NOT NULL,
-                    `stOther4` varchar(240)  NOT NULL,
-                    `stOther5` varchar(240)  NOT NULL,
-                    `stDateTime` BIGINT UNSIGNED NOT NULL DEFAULT 0,
-                    `stActive` varchar(2)  NOT NULL DEFAULT 1,
-                    PRIMARY KEY (`stID`)
-                )
-                ENGINE = MyISAM;",
-                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_UTIL_BASE', '"._("This setting defines the location of util base, which is typically /opt/fog/")."', '/opt/fog/', 'FOG Utils')",
-                    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '19'",
-                );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_PXE_MENU_TIMEOUT','This setting defines the default value "
+    . "for the pxe menu timeout.','3','FOG PXE Settings'),"
+    . "('FOG_PROXY_IP','This setting defines the proxy ip address to use.',"
+    . "'','General Settings'),"
+    . "('FOG_PROXY_PORT','This setting defines the proxy port address to use.',"
+    . "'','General Settings')",
+    "CREATE TABLE `scheduledTasks` ("
+    . "`stID` integer NOT NULL AUTO_INCREMENT,"
+    . "`stName` varchar(240) NOT NULL,"
+    . "`stDesc` longtext NOT NULL,"
+    . "`stType` varchar(24) NOT NULL,"
+    . "`stTaskType` varchar(24) NOT NULL,"
+    . "`stMinute` varchar(240) NOT NULL,"
+    . "`stHour` varchar(240) NOT NULL,"
+    . "`stDOM` varchar(240) NOT NULL,"
+    . "`stMonth` varchar(240) NOT NULL,"
+    . "`stDOW` varchar(240) NOT NULL,"
+    . "`stIsGroup` varchar(2) NOT NULL,"
+    . "`stGroupHostID` integer NOT NULL,"
+    . "`stShutDown` varchar(2) NOT NULL,"
+    . "`stOther1` varchar(240) NOT NULL,"
+    . "`stOther2` varchar(240) NOT NULL,"
+    . "`stOther3` varchar(240) NOT NULL,"
+    . "`stOther4` varchar(240) NOT NULL,"
+    . "`stOther5` varchar(240) NOT NULL,"
+    . "`stDateTime` BIGINT UNSIGNED NOT NULL DEFAULT 0,"
+    . "`stActive` varchar(2) NOT NULL DEFAULT 1,"
+    . "PRIMARY KEY (`stID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_UTIL_BASE','This setting defines the location of util base, "
+    . "which is typically /opt/fog/','/opt/fog/','FOG Utils')",
+    "UPDATE `schemaVersion` set vValue = '19'",
+);
 // 20
 $this->schema[] = array(
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_PXE_MENU_HIDDEN', '"._("This setting defines if you would like the FOG pxe menu hidden or displayed")."', '0', 'FOG PXE Settings')",
-        "ALTER TABLE `".DATABASE_NAME."`.`globalSettings` MODIFY COLUMN `settingValue` LONGTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
-        "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-        values('FOG_PXE_ADVANCED', '"._("This setting defines if you would like to append any settings to the end of your PXE default file.")."', '', 'FOG PXE Settings')",
-            "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-            values('FOG_USE_LEGACY_TASKLIST', '"._("This setting defines if you would like to use the legacy active tasks window.  Note:  The legacy screen will no longer be updated.")."', '0', 'General Settings')",
-                "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '20'",
-            );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_PXE_MENU_HIDDEN','This setting defines if you would like the "
+    . "FOG pxe menu hidden or displayed','0','FOG PXE Settings'),"
+    . "('FOG_PXE_ADVANCED','This setting defines if you would like to "
+    . "append any settings to the end of your PXE default file.','',"
+    . "'FOG PXE Settings'),"
+    . "('FOG_USE_LEGACY_TASKLIST','This setting defines if you would like to "
+    . "use the legacy active tasks window. Note: The legacy screen will no "
+    . "longer be updated.','0','General Settings')",
+    "ALTER TABLE `globalSettings` MODIFY COLUMN `settingValue` LONGTEXT "
+    . "CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
+    "UPDATE `schemaVersion` set vValue = '20'",
+);
 // 21
 $this->schema[] = array(
-    "CREATE TABLE `".DATABASE_NAME."`.`hostMAC` (
-        `hmID` integer  NOT NULL AUTO_INCREMENT,
-        `hmHostID` integer  NOT NULL,
-        `hmMAC` varchar(18)  NOT NULL,
-        `hmDesc` longtext  NOT NULL,
-        PRIMARY KEY (`hmID`),
-INDEX `idxHostID`(`hmHostID`),
-INDEX `idxMac`(`hmMAC`)
-                    )
-                    ENGINE = MyISAM",
-                    "CREATE TABLE `".DATABASE_NAME."`.`oui` (
-                        `ouiID` int(11) NOT NULL AUTO_INCREMENT,
-                        `ouiMACPrefix` varchar(8) NOT NULL,
-                        `ouiMan` varchar(254) NOT NULL,
-                        PRIMARY KEY (`ouiID`),
-KEY `idxMac` (`ouiMACPrefix`)
-                    ) ENGINE=MyISAM",
-
-                    "INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings` (`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) VALUES
-                    ('FOG_QUICKREG_AUTOPOP', 'Enable FOG Quick Registration auto population feature (0 = disabled, 1=enabled).  If this feature is enabled, FOG will auto populate the host settings and automatically image the computer without any user intervention.', '0', 'FOG Quick Registration'),
-                        ('FOG_QUICKREG_IMG_ID', 'FOG Quick Registration Image ID.', '-1', 'FOG Quick Registration'),
-('FOG_QUICKREG_OS_ID', 'FOG Quick Registration OS ID.', '-1', 'FOG Quick Registration'),
-('FOG_QUICKREG_SYS_NAME', 'FOG Quick Registration system name template.  Use * for the autonumber feature.', 'PC-*', 'FOG Quick Registration'),
-('FOG_QUICKREG_SYS_NUMBER', 'FOG Quick Registration system name auto number.', '1', 'FOG Quick Registration'),
-('FOG_DEFAULT_LOCALE', 'Default language code to use for FOG.', 'en', 'General Settings'),
-('FOG_HOST_LOCKUP', 'Should FOG attempt to see if a host is active and display it as part of the UI?', '1', 'General Settings'),
-('FOG_UUID', 'This is a unique ID that is used to identify your installation.  In most cases you do not want to change this value.', '" . uniqid("", true) . "', 'General Settings')",
-"CREATE TABLE `".DATABASE_NAME."`.`pendingMACS` (
-    `pmID` INTEGER  NOT NULL AUTO_INCREMENT,
-    `pmAddress` varchar(18)  NOT NULL,
-    `pmHostID` INTEGER  NOT NULL,
-    PRIMARY KEY (`pmID`),
-INDEX `idx_mc`(`pmAddress`),
-INDEX `idx_host`(`pmHostID`)
-                    )
-                    ENGINE = MyISAM;",
-                    "INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings` (`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) VALUES
-                    ('FOG_QUICKREG_MAX_PENDING_MACS', 'This setting defines how many mac addresses will be stored in the pending mac address table for each host.', '4', 'FOG Client - Host Register'),
-('FOG_QUICKREG_PENDING_MAC_FILTER', 'This is a list of MAC address fragments that is used to filter out pending mac address requests.  For example, if you don\'t want to see pending mac address requests for VMWare NICs then you could filter by 00:05:69.  This filter is comma seperated, and is used like a *starts with* filter.', '', 'FOG Client - Host Register')",
-"UPDATE `".DATABASE_NAME."`.`globalSettings` SET settingValue = '3.0.7' WHERE settingKey = 'FOG_JPGRAPH_VERSION'",
-"INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings` (`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) VALUES
-('FOG_ADVANCED_STATISTICS', 'Enable the collection and display of advanced statistics.  This information WILL be sent to a remote server!  This information is used by the FOG team to see how FOG is being used.  The information that will be sent includes the server\'s UUID value, the number of hosts present in FOG, and number of images on your FOG server and well as total image space used. (0 = disabled, 1 = enabled).', '0', 'General Settings')",
-"UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '21'",
+    "CREATE TABLE `hostMAC` ("
+    . "`hmID` integer NOT NULL AUTO_INCREMENT,"
+    . "`hmHostID` integer NOT NULL,"
+    . "`hmMAC` varchar(18) NOT NULL,"
+    . "`hmDesc` longtext NOT NULL,"
+    . "PRIMARY KEY (`hmID`),"
+    . "INDEX `idxHostID`(`hmHostID`),"
+    . "INDEX `idxMac`(`hmMAC`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "CREATE TABLE `oui` ("
+    . "`ouiID` int(11) NOT NULL AUTO_INCREMENT,"
+    . "`ouiMACPrefix` varchar(8) NOT NULL,"
+    . "`ouiMan` varchar(254) NOT NULL,"
+    . "PRIMARY KEY (`ouiID`),"
+    . "KEY `idxMac` (`ouiMACPrefix`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_QUICKREG_AUTOPOP','Enable FOG Quick Registration auto "
+    . "population feature (0 = disabled, 1=enabled). If this feature "
+    . "is enabled, FOG will auto populate the host settings and "
+    . "automatically image the computer without any user intervention.',"
+    . "'0','FOG Quick Registration'),"
+    . "('FOG_QUICKREG_IMG_ID','FOG Quick Registration Image ID.',"
+    . "'-1', 'FOG Quick Registration'),"
+    . "('FOG_QUICKREG_OS_ID','FOG Quick Registration OS ID.',"
+    . "'-1', 'FOG Quick Registration'),"
+    . "('FOG_QUICKREG_SYS_NAME','FOG Quick Registration system name template. "
+    . "Use * for the autonumber feature.', 'PC-*', 'FOG Quick Registration'),"
+    . "('FOG_QUICKREG_SYS_NUMBER','FOG Quick Registration system name auto number.',"
+    . "'1','FOG Quick Registration'),"
+    . "('FOG_DEFAULT_LOCALE','Default language code to use for FOG.',"
+    . "'en', 'General Settings'),"
+    . "('FOG_HOST_LOCKUP','Should FOG attempt to see if a host is active "
+    . "and display it as part of the UI?','1','General Settings'),"
+    . "('FOG_UUID','This is a unique ID that is used to identify your "
+    . "installation. In most cases you do not want to change this value.',"
+    . "'"
+    . uniqid("", true)
+    . "','General Settings')",
+    "CREATE TABLE `pendingMACS` ("
+    . "`pmID` INTEGER  NOT NULL AUTO_INCREMENT,"
+    . "`pmAddress` varchar(18)  NOT NULL,"
+    . "`pmHostID` INTEGER  NOT NULL,"
+    . "PRIMARY KEY (`pmID`),"
+    . "INDEX `idx_mc`(`pmAddress`),"
+    . "INDEX `idx_host`(`pmHostID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_QUICKREG_MAX_PENDING_MACS','This setting defines how many mac "
+    . "addresses will be stored in the pending mac address table for each host.',"
+    . "'4', 'FOG Client - Host Register'),"
+    . "('FOG_QUICKREG_PENDING_MAC_FILTER','This is a list of MAC address "
+    . "fragments that is used to filter out pending mac address requests. "
+    . "For example, if you don\'t want to see pending mac address requests "
+    . "for VMWare NICs then you could filter by 00:05:69. This filter is "
+    . "comma seperated, and is used like a *starts with* filter.',"
+    . "'','FOG Client - Host Register'),"
+    . "('FOG_ADVANCED_STATISTICS','Enable the collection and display of "
+    . "advanced statistics. This information WILL be sent to a remote "
+    . "server! This information is used by the FOG team to see how "
+    . "FOG is being used. The information that will be sent includes "
+    . "the server\'s UUID value, the number of hosts present in FOG, "
+    . "and number of images on your FOG server and well as total "
+    . "image space used. (0 = disabled, 1 = enabled).',"
+    . "'0', 'General Settings')",
+    "UPDATE `schemaVersion` set vValue = '21'",
 );
 // 22
 $this->schema[] = array(
-    "ALTER TABLE `".DATABASE_NAME."`.`inventory` ADD INDEX ( `iHostID` )",
-    "UPDATE `".DATABASE_NAME."`.`globalSettings` set settingKey = 'FOG_HOST_LOOKUP' WHERE settingKey = 'FOG_HOST_LOCKUP'",
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '22'",
+    "ALTER TABLE `inventory` ADD INDEX (`iHostID`)",
+    "UPDATE `globalSettings` set `settingKey`='FOG_HOST_LOOKUP' "
+    . "WHERE `settingKey`='FOG_HOST_LOCKUP'",
+    "UPDATE `schemaVersion` set `vValue`=`'22'",
 );
 // 23
 $this->schema[] = array(
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings` (`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) VALUES
-    ('FOG_DISABLE_CHKDSK', 'This is an experimental feature that will can be used to not set the dirty flag on a NTFS partition after resizing it.  It is recommended to you run chkdsk. (0 = runs chkdsk, 1 = disables chkdsk).', '1', 'General Settings')",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`globalSettings` (`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) VALUES
-    ('FOG_CHANGE_HOSTNAME_EARLY', 'This is an experimental feature that will can be used to change the computers hostname right after imaging the box, without the need for the FOG service.  (1 = enabled, 0 = disabled).', '1', 'General Settings')",
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '23'",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_DISABLE_CHKDSK','This is an experimental feature that will "
+    . "can be used to not set the dirty flag on a NTFS partition after "
+    . "resizing it. It is recommended to you run chkdsk. "
+    . "(0 = runs chkdsk, 1 = disables chkdsk).','1','General Settings'),"
+    . "('FOG_CHANGE_HOSTNAME_EARLY','This is an experimental feature that "
+    . "will can be used to change the computers hostname right after "
+    . "imaging the box, without the need for the FOG service. "
+    . "(1 = enabled, 0 = disabled).','1','General Settings')",
+    "UPDATE `schemaVersion` set `vValue`='23'",
 );
 // 24
 $this->schema[] = array(
-    // 24 - Blackout
-    // Add Kernel, KernelArgs and PrimaryDisk to Group
-    "ALTER TABLE `".DATABASE_NAME."`.`groups` ADD `groupKernel` VARCHAR( 255 ) NOT NULL",
-    "ALTER TABLE `".DATABASE_NAME."`.`groups` ADD `groupKernelArgs` VARCHAR( 255 ) NOT NULL",
-    "ALTER TABLE `".DATABASE_NAME."`.`groups` ADD `groupPrimaryDisk` VARCHAR( 255 ) NOT NULL",
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '24'",
+    "ALTER TABLE `groups` ADD `groupKernel` VARCHAR(255) NOT NULL",
+    "ALTER TABLE `groups` ADD `groupKernelArgs` VARCHAR(255) NOT NULL",
+    "ALTER TABLE `groups` ADD `groupPrimaryDisk` VARCHAR(255) NOT NULL",
+    "UPDATE `schemaVersion` set `vValue`='24'",
 );
 // 25
 $this->schema[] = array(
-    // 25 - Blackout - 8:39 AM 25/09/2011
-    // Add 'os' Table & Data
-    // Add 'imageOSID' field to 'images' table
-    "CREATE TABLE IF NOT EXISTS `".DATABASE_NAME."`.`os` (
-        `osID` mediumint(9) NOT NULL AUTO_INCREMENT,
-        `osName` varchar(30) NOT NULL,
-        `osDescription` text NOT NULL,
-        PRIMARY KEY (`osID`)
-    ) ENGINE=MyISAM  DEFAULT CHARSET=utf8",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`os` (`osID`, `osName`, `osDescription`) VALUES
-    (1, 'Windows 2000/XP', ''),
-(3, 'Windows 98', ''),
-(2, 'Windows Vista', ''),
-(4, 'Windows Other', ''),
-(5, 'Windows 7', ''),
-(50, 'Linux', ''),
-(99, 'Other', '');",
-"ALTER TABLE `".DATABASE_NAME."`.`images` ADD `imageOSID` MEDIUMINT NOT NULL ",
-"ALTER TABLE `".DATABASE_NAME."`.`hosts` ADD UNIQUE (`hostMAC`)",
-"UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '25'",
+    "CREATE TABLE IF NOT EXISTS `os` ("
+    . "`osID` mediumint(9) NOT NULL AUTO_INCREMENT,"
+    . "`osName` varchar(30) NOT NULL,"
+    . "`osDescription` text NOT NULL,"
+    . "PRIMARY KEY (`osID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `os` "
+    . "(`osID`, `osName`, `osDescription`) "
+    . "VALUES "
+    . "(1, 'Windows 2000/XP', ''),"
+    . "(2, 'Windows Vista', ''),"
+    . "(3, 'Windows 98', ''),"
+    . "(4, 'Windows Other', ''),"
+    . "(5, 'Windows 7', ''),"
+    . "(50, 'Linux', ''),"
+    . "(99, 'Other', '')",
+    "ALTER TABLE `images` ADD `imageOSID` MEDIUMINT NOT NULL ",
+    "ALTER TABLE `hosts` ADD UNIQUE (`hostMAC`)",
+    "UPDATE `schemaVersion` set `vValue`='25'",
 );
 // 26
 $this->schema[] = array(
-    // 26 - Blackout - 10:05 AM 30/09/2011
-    // Change `images`.`imageSize` from VARCHAR(200) -> MEDIUMINT(9)
-    "ALTER TABLE `".DATABASE_NAME."`.`images` CHANGE `imageSize` `imageSize` MEDIUMINT NOT NULL",
-    // Add 'ngmInterface' to Storage Node table
-    "ALTER TABLE `".DATABASE_NAME."`.`nfsGroupMembers` ADD `ngmInterface` VARCHAR(25) NOT NULL DEFAULT '".STORAGE_INTERFACE."'",
-    "ALTER TABLE `".DATABASE_NAME."`.`nfsGroupMembers` ADD `ngmGraphEnabled` ENUM( '0', '1' ) NOT NULL DEFAULT '1'",
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '26'",
+    "ALTER TABLE `images` CHANGE `imageSize` `imageSize` MEDIUMINT NOT NULL",
+    "ALTER TABLE `nfsGroupMembers` ADD `ngmInterface` VARCHAR(25) NOT NULL DEFAULT '"
+    . STORAGE_INTERFACE
+    . "'",
+    "ALTER TABLE `nfsGroupMembers` ADD `ngmGraphEnabled` "
+    . "ENUM('0','1') NOT NULL DEFAULT '1'",
+    "UPDATE `schemaVersion` set `vValue`='26'",
 );
 // 27
 $this->schema[] = array(
-    // 27 - Blackout - 2:16 PM 3/10/2011
-    // Convert DATETIME 'createdTime' fields to TIMESTAMP with DEFAULT of CURRENT_TIMESTAMP
-    "ALTER TABLE `".DATABASE_NAME."`.`tasks` CHANGE `taskCreateTime` `taskCreateTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`groups` CHANGE `groupDateTime` `groupDateTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`hosts` CHANGE `hostCreateDate` `hostCreateDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`history` CHANGE `hTime` `hTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`aloLog` CHANGE `alDateTime` `alDateTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`images` CHANGE `imageDateTime` `imageDateTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`inventory` CHANGE `iCreateDate` `iCreateDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`nfsFailures` CHANGE `nfDateTime` `nfDateTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`snapinJobs` CHANGE `sjCreateTime` `sjCreateTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`snapins` CHANGE `sCreateDate` `sCreateDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` CHANGE `stCheckinDate` `stCheckinDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`users` CHANGE `uCreateDate` `uCreateDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`userTracking` CHANGE `utDateTime` `utDateTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "ALTER TABLE `".DATABASE_NAME."`.`virus` CHANGE `vDateTime` `vDateTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '27'",
+    "ALTER TABLE `tasks` CHANGE `taskCreateTime` `taskCreateTime` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `groups` CHANGE `groupDateTime` `groupDateTime` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `hosts` CHANGE `hostCreateDate` `hostCreateDate` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `history` CHANGE `hTime` `hTime` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `aloLog` CHANGE `alDateTime` `alDateTime` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `images` CHANGE `imageDateTime` `imageDateTime` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `inventory` CHANGE `iCreateDate` `iCreateDate` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `nfsFailures` CHANGE `nfDateTime` `nfDateTime` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `snapinJobs` CHANGE `sjCreateTime` `sjCreateTime` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `snapins` CHANGE `sCreateDate` `sCreateDate` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `snapinTasks` CHANGE `stCheckinDate` `stCheckinDate` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `users` CHANGE `uCreateDate` `uCreateDate` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `userTracking` CHANGE `utDateTime` `utDateTime` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `virus` CHANGE `vDateTime` `vDateTime` "
+    . "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    "UPDATE `schemaVersion` set `vValue`='27'",
 );
 // 28
 $this->schema[] = array(
-    // 28 - Blackout - 1:48 PM 1/12/2011
-    // Add 'imageTypes' table and data
-    "CREATE TABLE IF NOT EXISTS `".DATABASE_NAME."`.`imageTypes` (
-        `imageTypeID` mediumint(9) NOT NULL auto_increment,
-        `imageTypeName` varchar(100) NOT NULL,
-        PRIMARY KEY  (`imageTypeID`)
-    ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`imageTypes` (`imageTypeID`, `imageTypeName`) VALUES
-    (1, 'Single Partition (NTFS Only, Resizable)'),
-        (2, 'Multiple Partition Image - Single Disk (Not Resizable)'),
-(3, 'Multiple Partition Image - All Disks  (Not Resizable)'),
-(4, 'Raw Image (Sector By Sector, DD, Slow)');",
-"UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '28'",
+    "CREATE TABLE IF NOT EXISTS `imageTypes` ("
+    . "`imageTypeID` mediumint(9) NOT NULL auto_increment,"
+    . "`imageTypeName` varchar(100) NOT NULL,"
+    . "PRIMARY KEY  (`imageTypeID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `imageTypes` "
+    . "(`imageTypeID`, `imageTypeName`) "
+    . "VALUES "
+    . "(1, 'Single Partition (NTFS Only, Resizable)'),"
+    . "(2, 'Multiple Partition Image - Single Disk (Not Resizable)'),"
+    . "(3, 'Multiple Partition Image - All Disks  (Not Resizable)'),"
+    . "(4, 'Raw Image (Sector By Sector, DD, Slow)')",
+    "UPDATE `schemaVersion` set `vValue`='28'",
 );
 // 29
 if (FOG_SCHEMA < $tmpSchema->get('value')) {
-    self::$DB->query("SELECT DISTINCT `hostImage`,`hostOS` FROM `".DATABASE_NAME."`.`hosts` WHERE hostImage > 0");
+    self::$DB->query(
+        "SELECT DISTINCT `hostImage`,`hostOS` FROM `hosts` WHERE hostImage > 0"
+    );
     while ($Host = self::$DB->fetch()->get()) {
         $allImageID[$Host['hostImage']] = $Host['hostOS'];
     }
@@ -1046,128 +1144,191 @@ if (FOG_SCHEMA < $tmpSchema->get('value')) {
             continue;
         }
         if (!$Image->set('osID', $osID)->save()) {
-            $errors[] = sprintf('<div>Failed updating the osID of imageID: %s, osID: %s</div>', $imageID, $osID);
+            $errors[] = sprintf(
+                '<div>Failed updating the osID of imageID: %s, osID: %s</div>',
+                $imageID,
+                $osID
+            );
         }
     }
 }
+// 29
 $this->schema[] = array(
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` SET `vValue`=29",
+    "UPDATE `schemaVersion` SET `vValue`=29",
 );
 // 30
 $this->schema[] = array(
-    // 30 - Blackout - 10:54 AM 21/12/2011
-    // Add 'imageTypeValue' field to `imageTypes`
-    // Add default data for `imageTypeValue`
-    // Update 'imageDD' (imageType) values to 'imageDD'+1 for new imageType IDs
-    "ALTER TABLE `".DATABASE_NAME."`.`imageTypes` ADD `imageTypeValue` VARCHAR( 10 ) NOT NULL",
-    "UPDATE `".DATABASE_NAME."`.`imageTypes` SET `imageTypeValue` = 'n' WHERE `imageTypes`.`imageTypeID` = 1",
-    "UPDATE `".DATABASE_NAME."`.`imageTypes` SET `imageTypeValue` = 'mps' WHERE `imageTypes`.`imageTypeID` = 2",
-    "UPDATE `".DATABASE_NAME."`.`imageTypes` SET `imageTypeValue` = 'mpa' WHERE `imageTypes`.`imageTypeID` = 3",
-    "UPDATE `".DATABASE_NAME."`.`imageTypes` SET `imageTypeValue` = 'dd' WHERE `imageTypes`.`imageTypeID` = 4",
-    "UPDATE `".DATABASE_NAME."`.`images` SET `imageDD` = '4' WHERE `imageDD` = '3'",
-    "UPDATE `".DATABASE_NAME."`.`images` SET `imageDD` = '3' WHERE `imageDD` = '2'",
-    "UPDATE `".DATABASE_NAME."`.`images` SET `imageDD` = '2' WHERE `imageDD` = '1'",
-    "UPDATE `".DATABASE_NAME."`.`images` SET `imageDD` = '1' WHERE `imageDD` = '0'",
-    "ALTER TABLE `".DATABASE_NAME."`.`images` CHANGE `imageDD` `imageTypeID` MEDIUMINT NOT NULL",
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '30'",
+    "ALTER TABLE `imageTypes` ADD `imageTypeValue` VARCHAR(10) NOT NULL",
+    "UPDATE `imageTypes` SET `imageTypeValue`='n' WHERE `imageTypes`.`imageTypeID`=1",
+    "UPDATE `imageTypes` SET `imageTypeValue`='mps' WHERE `imageTypes`.`imageTypeID`=2",
+    "UPDATE `imageTypes` SET `imageTypeValue`='mpa' WHERE `imageTypes`.`imageTypeID`=3",
+    "UPDATE `imageTypes` SET `imageTypeValue`='dd' WHERE `imageTypes`.`imageTypeID`=4",
+    "UPDATE `images` SET `imageDD`='4' WHERE `imageDD`='3'",
+    "UPDATE `images` SET `imageDD`='3' WHERE `imageDD`='2'",
+    "UPDATE `images` SET `imageDD`='2' WHERE `imageDD`='1'",
+    "UPDATE `images` SET `imageDD`='1' WHERE `imageDD`='0'",
+    "ALTER TABLE `images` CHANGE `imageDD` `imageTypeID` MEDIUMINT NOT NULL",
+    "UPDATE `schemaVersion` set `vValue`='30'",
 );
 // 31
 $this->schema[] = array(
-    // 31 - Blackout - 10:56 AM 28/12/2011
-    // scheduledTasks.stIsGroup now has a default of 0
-    "ALTER TABLE `".DATABASE_NAME."`.`scheduledTasks` CHANGE `stIsGroup` `stIsGroup` VARCHAR( 2 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '0'",
-    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '31'",
+    "ALTER TABLE `scheduledTasks` CHANGE `stIsGroup` `stIsGroup` VARCHAR(2) "
+    . "CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '0'",
+    "UPDATE `schemaVersion` set `vValue`='31'",
 );
 // 32
 $this->schema[] = array(
-    // 32 - Blackout - 11:26 AM 8/01/2012
-    // Add 'taskStates' table and data
-    // Update taskType values -> rename taskType to taskTypeID
-    // Add 'taskTypes' table and data
-    "CREATE TABLE IF NOT EXISTS `".DATABASE_NAME."`.`taskStates` (
-        `tsID` int(11) NOT NULL,
-        `tsName` varchar(30) NOT NULL,
-        `tsDescription` text NOT NULL,
-        `tsOrder` tinyint(4) NOT NULL DEFAULT '0',
-        PRIMARY KEY (`tsID`)
-    ) ENGINE=MyISAM DEFAULT CHARSET=utf8;",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`taskStates` (`tsID`, `tsName`, `tsDescription`, `tsOrder`) VALUES
-    (1, 'Queued', 'Task has been created and FOG is waiting for the Host to check-in.', '1'),
-(2, 'In-Progress', 'Host is currently Imaging.', '2'),
-(3, 'Complete', 'Imaging has been completed.', '3');",
-"ALTER TABLE `".DATABASE_NAME."`.`tasks` CHANGE `taskState` `taskStateID` INT( 11 ) NOT NULL",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '1' WHERE `taskType`='d'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '2' WHERE `taskType`='u'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '3' WHERE `taskType`='x'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '4' WHERE `taskType`='w'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '5' WHERE `taskType`='m'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '6' WHERE `taskType`='t'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '7' WHERE `taskType`='r'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '8' WHERE `taskType`='c'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '9' WHERE `taskType`='v'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '10' WHERE `taskType`='i'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '11' WHERE `taskType`='j'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '12' WHERE `taskType`='s'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '13' WHERE `taskType`='l'",
-"UPDATE `".DATABASE_NAME."`.`tasks` SET `taskType` = '14' WHERE `taskType`='o'",
-"ALTER TABLE `".DATABASE_NAME."`.`tasks` CHANGE `taskType` `taskTypeID` MEDIUMINT NOT NULL ",
-"CREATE TABLE IF NOT EXISTS `".DATABASE_NAME."`.`taskTypes` (
-    `ttID` mediumint(9) NOT NULL AUTO_INCREMENT,
-    `ttName` varchar(30) NOT NULL,
-    `ttDescription` text NOT NULL,
-    `ttIcon` varchar(30) NOT NULL,
-    `ttKernelTemplate` text NOT NULL,
-    `ttType` enum('fog','user') NOT NULL DEFAULT 'user',
-    `ttIsAdvanced` enum('0','1') NOT NULL DEFAULT '0',
-    `ttIsAccess` enum('both','host','group') NOT NULL DEFAULT 'both',
-    PRIMARY KEY (`ttID`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=20 ;",
-"INSERT IGNORE INTO `".DATABASE_NAME."`.`taskTypes` (`ttID`, `ttName`, `ttDescription`, `ttIcon`, `ttKernelTemplate`, `ttType`, `ttIsAdvanced`, `ttIsAccess`) VALUES
-(1, 'Deploy', 'Deploy action will send an image saved on the FOG server to the client computer with all included snapins.', 'senddebug.png', 'type=down', 'fog', '0', 'both'),
-(2, 'Capture', 'Capture will pull an image from a client computer that will be saved on the server.', 'restoredebug.png', 'type=up', 'fog', '0', 'host'),
-(3, 'Debug', 'Debug mode will load the boot image and load a prompt so you can run any commands you wish. When you are done, you must remember to remove the PXE file, by clicking on \"Active Tasks\" and clicking on the \"Kill Task\" button.', 'debug.png', 'type=down mode=debug', 'fog', '1', 'host'),
-(5, 'Memtest86+', 'Memtest86+ loads Memtest86+ on the client computer and will have it continue to run until stopped. When you are done, you must remember to remove the PXE file, by clicking on \"Active Tasks\" and clicking on the \"Kill Task\" button.', 'memtest.png', '', 'fog', '1', 'both'),
-(6, 'Disk Surface Test', 'Disk Surface Test checks the hard drive''s surface sector by sector for any errors and reports back if errors are present.', 'surfacetest.png', '', 'fog', '1', 'both'),
-(7, 'Recover', 'Recover loads the photorec utility that can be used to recover lost files from a hard disk. When recovering files, make sure you save them to your NFS volume (ie: /images).', 'recover.png', '', 'fog', '1', 'both'),
-(8, 'Multi-Cast', 'Deploy action will send an image saved on the FOG server to the client computer with all included snapins.', 'senddebug.png', '', 'fog', '0', 'group'),
-(9, 'Virus Scan', 'Anti-Virus loads Clam AV on the client boot image, updates the scanner and then scans the Windows partition.', 'clam.png', '', 'fog', '1', 'both'),
-(10, 'Hardware Inventory', 'The hardware inventory task will boot the client computer and pull basic hardware information from it and report it back to the FOG server.', 'inventory.png', '', 'fog', '1', 'both'),
-(11, 'Password Reset', 'Password reset will blank out a Windows user password that may have been lost or forgotten.', 'winpass.png', '', 'fog', '1', 'both'),
-(12, 'All Snapins', 'This option allows you to send all the snapins to host without imaging the computer. (Requires FOG Client to be installed on client)', 'snap.png', '', 'fog', '1', 'both'),
-(13, 'Single Snapin', 'This option allows you to send a single snapin to a host. (Requires FOG Client to be installed on client)', 'snap.png', '', 'fog', '1', 'both'),
-(14, 'Wake-Up', 'Wake Up will attempt to send the Wake-On-LAN packet to the computer to turn the computer on. In switched environments, you typically need to configure your hardware to allow for this (iphelper).', 'wake.png', '', 'fog', '1', 'both'),
-(15, 'Deploy - Debug', 'Deploy - Debug mode allows FOG to setup the environment to allow you send a specific image to a computer, but instead of sending the image, FOG will leave you at a prompt right before sending. If you actually wish to send the image all you need to do is type \"fog\" and hit enter.', 'senddebug.png', 'type=down mode=debug', 'fog', '1', 'host'),
-(16, 'Capture - Debug', 'mode allows FOG to setup the environment to allow you capture a specific image to a computer, but instead of capturing the image, FOG will leave you at a prompt right before restoring. If you actually wish to capture the image all you need to do is type \"fog\" and hit enter.', 'restoredebug.png', 'type=up mode=debug', 'fog', '1', 'host'),
-(17, 'Deploy without Snapins', 'Deploy without snapins allows FOG to image the workstation, but after the task is complete any snapins linked to the host or group will NOT be sent.', 'sendnosnapin.png', '', 'fog', '1', 'both'),
-(18, 'Fast Wipe', 'Full Wipe will boot the client computer and perform a full disk wipe. This method writes a few passes of random data to the hard disk.', 'veryfastwipe.png', '', 'fog', '1', 'both'),
-(19, 'Normal Wipe', 'Normal Wipe will boot the client computer and perform a simple disk wipe. This method writes one pass of zero''s to the hard disk.', 'quickwipe.png', '', 'fog', '1', 'both'),
-(20, 'Full Wipe', 'Full Wipe will boot the client computer and perform a full disk wipe. This method writes a few passes of random data to the hard disk.', 'fullwipe.png', '', 'fog', '1', 'both');",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '1' WHERE `stTaskType`='d'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '2' WHERE `stTaskType`='u'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '3' WHERE `stTaskType`='x'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '4' WHERE `stTaskType`='w'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '5' WHERE `stTaskType`='m'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '6' WHERE `stTaskType`='t'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '7' WHERE `stTaskType`='r'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '8' WHERE `stTaskType`='c'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '9' WHERE `stTaskType`='v'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '10' WHERE `stTaskType`='i'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '11' WHERE `stTaskType`='j'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '12' WHERE `stTaskType`='s'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '13' WHERE `stTaskType`='l'",
-"UPDATE `".DATABASE_NAME."`.`scheduledTasks` SET `stTaskType` = '14' WHERE `stTaskType`='o'",
-"ALTER TABLE `".DATABASE_NAME."`.`scheduledTasks` CHANGE `stTaskType` `stTaskTypeID` MEDIUMINT NOT NULL ",
-"UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '32'",
+    "CREATE TABLE IF NOT EXISTS `taskStates` ("
+    . "`tsID` int(11) NOT NULL,"
+    . "`tsName` varchar(30) NOT NULL,"
+    . "`tsDescription` text NOT NULL,"
+    . "`tsOrder` tinyint(4) NOT NULL DEFAULT '0',"
+    . "PRIMARY KEY (`tsID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `taskStates` "
+    . "(`tsID`, `tsName`, `tsDescription`, `tsOrder`) VALUES "
+    . "(1,'Queued','Task has been created and FOG is "
+    . "waiting for the Host to check-in.', '1'),"
+    . "(2, 'In-Progress', 'Host is currently Imaging.', '2'),"
+    . "(3, 'Complete', 'Imaging has been completed.', '3')",
+    "ALTER TABLE `tasks` CHANGE `taskState` `taskStateID` INT( 11 ) NOT NULL",
+    "UPDATE `tasks` SET `taskType` = '1' WHERE `taskType`='d'",
+    "UPDATE `tasks` SET `taskType` = '2' WHERE `taskType`='u'",
+    "UPDATE `tasks` SET `taskType` = '3' WHERE `taskType`='x'",
+    "UPDATE `tasks` SET `taskType` = '4' WHERE `taskType`='w'",
+    "UPDATE `tasks` SET `taskType` = '5' WHERE `taskType`='m'",
+    "UPDATE `tasks` SET `taskType` = '6' WHERE `taskType`='t'",
+    "UPDATE `tasks` SET `taskType` = '7' WHERE `taskType`='r'",
+    "UPDATE `tasks` SET `taskType` = '8' WHERE `taskType`='c'",
+    "UPDATE `tasks` SET `taskType` = '9' WHERE `taskType`='v'",
+    "UPDATE `tasks` SET `taskType` = '10' WHERE `taskType`='i'",
+    "UPDATE `tasks` SET `taskType` = '11' WHERE `taskType`='j'",
+    "UPDATE `tasks` SET `taskType` = '12' WHERE `taskType`='s'",
+    "UPDATE `tasks` SET `taskType` = '13' WHERE `taskType`='l'",
+    "UPDATE `tasks` SET `taskType` = '14' WHERE `taskType`='o'",
+    "ALTER TABLE `tasks` CHANGE `taskType` `taskTypeID` MEDIUMINT NOT NULL ",
+    "CREATE TABLE IF NOT EXISTS `taskTypes` ("
+    . "`ttID` mediumint(9) NOT NULL AUTO_INCREMENT,"
+    . "`ttName` varchar(30) NOT NULL,"
+    . "`ttDescription` text NOT NULL,"
+    . "`ttIcon` varchar(30) NOT NULL,"
+    . "`ttKernelTemplate` text NOT NULL,"
+    . "`ttType` enum('fog','user') NOT NULL DEFAULT 'user',"
+    . "`ttIsAdvanced` enum('0','1') NOT NULL DEFAULT '0',"
+    . "`ttIsAccess` enum('both','host','group') NOT NULL DEFAULT 'both',"
+    . "PRIMARY KEY (`ttID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `taskTypes` "
+    . "(`ttID`,`ttName`,`ttDescription`,`ttIcon`,"
+    . "`ttKernelTemplate`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
+    . "VALUES "
+    . "(1,'Deploy','Deploy action will send an image saved on the "
+    . "FOG server to the client computer with all included snapins.',"
+    . "'senddebug.png', 'type=down', 'fog', '0', 'both'),"
+    . "(2,'Capture','Capture will pull an image from a client computer "
+    . "that will be saved on the server.','restoredebug.png',"
+    . "'type=up','fog','0','host'),"
+    . "(3,'Debug','Debug mode will load the boot image and load a prompt "
+    . "so you can run any commands you wish. When you are done, you must "
+    . "remember to remove the PXE file, by clicking on \"Active Tasks\" "
+    . "and clicking on the \"Kill Task\" button.', 'debug.png',"
+    . "'type=down mode=debug', 'fog', '1', 'host'),"
+    . "(5, 'Memtest86+', 'Memtest86+ loads Memtest86+ on the client computer "
+    . "and will have it continue to run until stopped. When you are done, "
+    . "you must remember to remove the PXE file, by clicking on "
+    . "\"Active Tasks\" and clicking on the \"Kill Task\" button.', "
+    . "'memtest.png', '', 'fog', '1', 'both'),"
+    . "(6, 'Disk Surface Test', 'Disk Surface Test checks the hard "
+    . "drive's surface sector by sector for any errors and reports "
+    . "back if errors are present.', 'surfacetest.png', '',"
+    . "'fog', '1', 'both'),"
+    . "(7, 'Recover', 'Recover loads the photorec utility that can "
+    . "be used to recover lost files from a hard disk. When "
+    . "recovering files, make sure you save them to your "
+    . "NFS volume (ie: /images).', 'recover.png', '', "
+    . "'fog', '1', 'both'),"
+    . "(8, 'Multi-Cast', 'Deploy action will send an image saved on the "
+    . "FOG server to the client computer with all included snapins.', "
+    . "'senddebug.png', '', 'fog', '0', 'group'),"
+    . "(9, 'Virus Scan', 'Anti-Virus loads Clam AV on the client boot "
+    . "image, updates the scanner and then scans the Windows partition.',"
+    . "'clam.png', '', 'fog', '1', 'both'),"
+    . "(10, 'Hardware Inventory', 'The hardware inventory task will "
+    . "boot the client computer and pull basic hardware information "
+    . "from it and report it back to the FOG server.', 'inventory.png', "
+    . "'', 'fog', '1', 'both'),"
+    . "(11, 'Password Reset', 'Password reset will blank out a "
+    . "Windows user password that may have been lost or forgotten.', "
+    . "'winpass.png', '', 'fog', '1', 'both'),"
+    . "(12, 'All Snapins', 'This option allows you to send all the "
+    . "snapins to host without imaging the computer. (Requires FOG "
+    . "Client to be installed on client)', 'snap.png', '', 'fog', "
+    . "'1', 'both'),"
+    . "(13, 'Single Snapin', 'This option allows you to send "
+    . "a single snapin to a host. (Requires FOG Client to be "
+    . "installed on client)', 'snap.png', '', 'fog', "
+    . "'1', 'both'),"
+    . "(14, 'Wake-Up', 'Wake Up will attempt to send the "
+    . "Wake-On-LAN packet to the computer to turn the computer "
+    . "on. In switched environments, you typically need to "
+    . "configure your hardware to allow for this (iphelper).', "
+    . "'wake.png', '', 'fog', '1', 'both'),"
+    . "(15, 'Deploy - Debug', 'Deploy - Debug mode allows FOG to "
+    . "setup the environment to allow you send a specific image "
+    . "to a computer, but instead of sending the image, FOG "
+    . "will leave you at a prompt right before sending. If "
+    . "you actually wish to send the image all you need to "
+    . "do is type \"fog\" and hit enter.', 'senddebug.png', "
+    . "'type=down mode=debug', 'fog', '1', 'host'),"
+    . "(16, 'Capture - Debug', 'mode allows FOG to setup the "
+    . "environment to allow you capture a specific image to a "
+    . "computer, but instead of capturing the image, FOG will "
+    . "leave you at a prompt right before restoring. If you "
+    . "actually wish to capture the image all you need to do is "
+    . "type \"fog\" and hit enter.', 'restoredebug.png', "
+    . "'type=up mode=debug', 'fog', '1', 'host'),"
+    . "(17, 'Deploy without Snapins', 'Deploy without snapins "
+    . "allows FOG to image the workstation, but after the task "
+    . "is complete any snapins linked to the host or group will "
+    . "NOT be sent.', 'sendnosnapin.png', '', 'fog', '1', 'both'),"
+    . "(18, 'Fast Wipe', 'Full Wipe will boot the client computer "
+    . "and perform a full disk wipe. This method writes a few passes "
+    . "of random data to the hard disk.', 'veryfastwipe.png', "
+    . "'', 'fog', '1', 'both'),"
+    . "(19, 'Normal Wipe', 'Normal Wipe will boot the client "
+    . "computer and perform a simple disk wipe. This method "
+    . "writes one pass of zero''s to the hard disk.',"
+    . "'quickwipe.png', '', 'fog', '1', 'both'),"
+    . "(20, 'Full Wipe', 'Full Wipe will boot the client computer "
+    . "and perform a full disk wipe. This method writes a few "
+    . "passes of random data to the hard disk.', 'fullwipe.png',"
+    . "'', 'fog', '1', 'both')",
+    "UPDATE `scheduledTasks` SET `stTaskType`='1' WHERE `stTaskType`='d'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='2' WHERE `stTaskType`='u'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='3' WHERE `stTaskType`='x'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='4' WHERE `stTaskType`='w'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='5' WHERE `stTaskType`='m'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='6' WHERE `stTaskType`='t'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='7' WHERE `stTaskType`='r'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='8' WHERE `stTaskType`='c'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='9' WHERE `stTaskType`='v'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='10' WHERE `stTaskType`='i'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='11' WHERE `stTaskType`='j'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='12' WHERE `stTaskType`='s'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='13' WHERE `stTaskType`='l'",
+    "UPDATE `scheduledTasks` SET `stTaskType`='14' WHERE `stTaskType`='o'",
+    "ALTER TABLE `scheduledTasks` CHANGE `stTaskType` `stTaskTypeID` MEDIUMINT NOT NULL ",
+    "UPDATE `schemaVersion` set `vValue`='32'",
 );
 // 33
 $this->schema[] = array(
-    // 33 - Blackout - 2:31 PM 12/01/2012
-    // More TaskType conversion
-    "ALTER TABLE `".DATABASE_NAME."`.`taskTypes` CHANGE `ttKernelTemplate` `ttKernelArgs` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ",
-    "ALTER TABLE `".DATABASE_NAME."`.`taskTypes` ADD `ttKernel` VARCHAR( 100 ) NOT NULL AFTER `ttIcon`",
-    "TRUNCATE `".DATABASE_NAME."`.`taskTypes`",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.`taskTypes` (`ttID`, `ttName`, `ttDescription`, `ttIcon`, `ttKernel`, `ttKernelArgs`, `ttType`, `ttIsAdvanced`, `ttIsAccess`) VALUES
-    (1, 'Deploy', 'Deploy action will send an image saved on the FOG server to the client computer with all included snapins.', 'senddebug.png', '', 'type=down', 'fog', '0', 'both'),
+    "ALTER TABLE `taskTypes` CHANGE `ttKernelTemplate` `ttKernelArgs` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ",
+    "ALTER TABLE `taskTypes` ADD `ttKernel` VARCHAR( 100 ) NOT NULL AFTER `ttIcon`",
+    "TRUNCATE `taskTypes`",
+    "INSERT IGNORE INTO `taskTypes` "
+    . "(`ttID`, `ttName`, `ttDescription`, `ttIcon`, `ttKernel`, `ttKernelArgs`, `ttType`, `ttIsAdvanced`, `ttIsAccess`)"
+    . "VALUES "
+    . "(1, 'Deploy', 'Deploy action will send an image saved on the FOG server to the client computer with all included snapins.', 'senddebug.png', '', 'type=down', 'fog', '0', 'both'),
 (2, 'Capture', 'Capture will pull an image from a client computer that will be saved on the server.', 'restoredebug.png', '', 'type=up', 'fog', '0', 'host'),
 (3, 'Debug', 'Debug mode will load the boot image and load a prompt so you can run any commands you wish. When you are done, you must remember to remove the PXE file, by clicking on \"Active Tasks\" and clicking on the \"Kill Task\" button.', 'debug.png', '', 'mode=onlydebug', 'fog', '1', 'host'),
 (4, 'Memtest86+', 'Memtest86+ loads Memtest86+ on the client computer and will have it continue to run until stopped. When you are done, you must remember to remove the PXE file, by clicking on \"Active Tasks\" and clicking on the \"Kill Task\" button.', 'memtest.png', 'fog/memtest/memtest', '', 'fog', '1', 'both'),
