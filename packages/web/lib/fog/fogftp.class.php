@@ -40,31 +40,31 @@ class FOGFTP extends FOGGetSet
      *
      * @var resource
      */
-    private static $_link;
+    private $_link;
     /**
      * The connection hash
      *
      * @var string
      */
-    private static $_lastConnectionHash;
+    private $_lastConnectionHash;
     /**
      * The last login hash
      *
      * @var string
      */
-    private static $_lastLoginHash;
+    private $_lastLoginHash;
     /**
      * The current connection hash
      *
      * @var string
      */
-    private static $_currentConnectionHash;
+    private $_currentConnectionHash;
     /**
      * The current login hash
      *
      * @var string
      */
-    private static $_currentLoginHash;
+    private $_currentLoginHash;
     /**
      * Destroy the ftp object
      *
@@ -87,7 +87,7 @@ class FOGFTP extends FOGGetSet
         &$result
     ) {
         return ftp_alloc(
-            self::$_link,
+            $this->_link,
             $filesize,
             $result
         );
@@ -99,7 +99,7 @@ class FOGFTP extends FOGGetSet
      */
     public function cdup()
     {
-        return ftp_cdup(self::$_link);
+        return ftp_cdup($this->_link);
     }
     /**
      * Change directory as requested
@@ -111,7 +111,7 @@ class FOGFTP extends FOGGetSet
     public function chdir($directory)
     {
         return ftp_chdir(
-            self::$_link,
+            $this->_link,
             $directory
         );
     }
@@ -131,7 +131,7 @@ class FOGFTP extends FOGGetSet
             $mode = $this->get('mode');
         }
         ftp_chmod(
-            self::$_link,
+            $this->_link,
             $mode,
             $filename
         );
@@ -144,10 +144,10 @@ class FOGFTP extends FOGGetSet
      */
     public function close()
     {
-        if (self::$_link) {
-            ftp_close(self::$_link);
+        if ($this->_link) {
+            ftp_close($this->_link);
         }
-        self::$_link = null;
+        $this->_link = null;
         return $this;
     }
     /**
@@ -169,13 +169,13 @@ class FOGFTP extends FOGGetSet
         $connectmethod = 'ftp_connect'
     ) {
         try {
-            self::$_currentConnectionHash = password_hash(
+            $this->_currentConnectionHash = password_hash(
                 serialize($this->data),
                 PASSWORD_BCRYPT,
                 ['cost'=>11]
             );
-            if (self::$_link
-                && self::$_currentConnectionHash == self::$_lastConnectionHash
+            if ($this->_link
+                && $this->_currentConnectionHash == $this->_lastConnectionHash
             ) {
                 return $this;
             }
@@ -214,9 +214,9 @@ class FOGFTP extends FOGGetSet
                     $timeout = $this->get('timeout');
                 }
             }
-            self::$_link = $connectmethod($host, $port, $timeout);
-            if (self::$_link === false) {
-                self::ftperror($this->data);
+            $this->_link = $connectmethod($host, $port, $timeout);
+            if ($this->_link === false) {
+                $this->ftperror($this->data);
             }
             if ($autologin) {
                 $this->login();
@@ -225,7 +225,7 @@ class FOGFTP extends FOGGetSet
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
-        self::$_lastConnectionHash = self::$_currentConnectionHash;
+        $this->_lastConnectionHash = $this->_currentConnectionHash;
         return $this;
     }
     /**
@@ -240,21 +240,22 @@ class FOGFTP extends FOGGetSet
         if (!$this->exists($path)) {
             return $this;
         }
-        if (!ftp_delete(self::$_link, $path)
-            && !$this->rmdir($path)
+        if (!$this->rmdir($path)
+            && !@ftp_delete($this->_link, $path)
         ) {
             $filelist = $this->nlist($path);
             foreach ((array)$filelist as &$file) {
                 $this->delete($file);
                 unset($file);
             }
+            $this->rmdir($path);
             $rawfilelist = $this->rawlist("-a $path");
             $path = trim($path, '/');
             $path = trim($path);
             foreach ((array)$rawfilelist as &$file) {
                 $chunk = preg_split("/\s+/", $file);
-                if ($chunk[8] === '.' || $chunk[8] === '..') {
-                    return;
+                if (in_array($chunk[8], array('.', '..'))) {
+                    continue;
                 }
                 $tmpfile = sprintf(
                     '/%s/%s',
@@ -264,8 +265,8 @@ class FOGFTP extends FOGGetSet
                 $this->delete($tmpfile);
                 unset($file);
             }
+            $this->delete($path);
         }
-        $this->delete($path);
         return $this;
     }
     /**
@@ -278,7 +279,7 @@ class FOGFTP extends FOGGetSet
     public function exec($command)
     {
         return ftp_exec(
-            self::$_link,
+            $this->_link,
             escapeshellcmd($command)
         );
     }
@@ -303,7 +304,7 @@ class FOGFTP extends FOGGetSet
         }
         if ($resumepos) {
             return ftp_fget(
-                self::$_link,
+                $this->_link,
                 $handle,
                 $remote_file,
                 $mode,
@@ -311,7 +312,7 @@ class FOGFTP extends FOGGetSet
             );
         }
         return ftp_fget(
-            self::$_link,
+            $this->_link,
             $handle,
             $remote_file,
             $mode
@@ -338,7 +339,7 @@ class FOGFTP extends FOGGetSet
         }
         if ($startpos) {
             return ftp_fput(
-                self::$_link,
+                $this->_link,
                 $remote_file,
                 $handle,
                 $mode,
@@ -346,7 +347,7 @@ class FOGFTP extends FOGGetSet
             );
         }
         return ftp_fput(
-            self::$_link,
+            $this->_link,
             $remote_file,
             $handle,
             $mode
@@ -360,7 +361,7 @@ class FOGFTP extends FOGGetSet
      * @throws Exception
      * @return void
      */
-    public static function ftperror($data)
+    public function ftperror($data)
     {
         $error = error_get_last();
         throw new Exception(
@@ -391,7 +392,7 @@ class FOGFTP extends FOGGetSet
     public function getOption($option)
     {
         return ftp_get_option(
-            self::$_link,
+            $this->_link,
             $option
         );
     }
@@ -417,7 +418,7 @@ class FOGFTP extends FOGGetSet
         }
         if ($resumepos) {
             return ftp_get(
-                self::$_link,
+                $this->_link,
                 $local_file,
                 $remote_file,
                 $mode,
@@ -425,7 +426,7 @@ class FOGFTP extends FOGGetSet
             );
         }
         return ftp_get(
-            self::$_link,
+            $this->_link,
             $local_file,
             $remote_file,
             $mode
@@ -445,12 +446,12 @@ class FOGFTP extends FOGGetSet
         $password = null
     ) {
         try {
-            self::$_currentLoginHash = password_hash(
-                serialize(self::$_link),
+            $this->_currentLoginHash = password_hash(
+                serialize($this->_link),
                 PASSWORD_BCRYPT,
                 ['cost'=>11]
             );
-            if (self::$_currentLoginHash == self::$_lastLoginHash) {
+            if ($this->_currentLoginHash == $this->_lastLoginHash) {
                 return $this;
             }
             if (!$username) {
@@ -459,13 +460,13 @@ class FOGFTP extends FOGGetSet
             if (!$password) {
                 $password = $this->get('password');
             }
-            if (ftp_login(self::$_link, $username, $password) === false) {
-                self::ftperror($this->data);
+            if (ftp_login($this->_link, $username, $password) === false) {
+                $this->ftperror($this->data);
             }
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
-        self::$_lastLoginHash = self::$_currentLoginHash;
+        $this->_lastLoginHash = $this->_currentLoginHash;
         return $this;
     }
     /**
@@ -477,7 +478,7 @@ class FOGFTP extends FOGGetSet
      */
     public function mdtm($remote_file)
     {
-        return ftp_mdtm(self::$_link, $remote_file);
+        return ftp_mdtm($this->_link, $remote_file);
     }
     /**
      * Creates directory on ftp site
@@ -488,7 +489,7 @@ class FOGFTP extends FOGGetSet
      */
     public function mkdir($directory)
     {
-        return ftp_mkdir(self::$_link, $directory);
+        return ftp_mkdir($this->_link, $directory);
     }
     /**
      * Continue non-blocking
@@ -497,7 +498,7 @@ class FOGFTP extends FOGGetSet
      */
     public function nb_continue()
     {
-        return ftp_nb_continue(self::$_link);
+        return ftp_nb_continue($this->_link);
     }
     /**
      * Fget non-blocking
@@ -520,7 +521,7 @@ class FOGFTP extends FOGGetSet
         }
         if ($resumepos) {
             return ftp_nb_fget(
-                self::$_link,
+                $this->_link,
                 $handle,
                 $remote_file,
                 $mode,
@@ -528,7 +529,7 @@ class FOGFTP extends FOGGetSet
             );
         }
         return ftp_nb_fget(
-            self::$_link,
+            $this->_link,
             $handle,
             $remote_file,
             $mode
@@ -555,7 +556,7 @@ class FOGFTP extends FOGGetSet
         }
         if ($startpos) {
             return ftp_nb_fput(
-                self::$_link,
+                $this->_link,
                 $remote_file,
                 $handle,
                 $mode,
@@ -563,7 +564,7 @@ class FOGFTP extends FOGGetSet
             );
         }
         return ftp_nb_fput(
-            self::$_link,
+            $this->_link,
             $remote_file,
             $handle,
             $mode
@@ -590,7 +591,7 @@ class FOGFTP extends FOGGetSet
         }
         if ($resumepos) {
             return ftp_nb_get(
-                self::$_link,
+                $this->_link,
                 $local_file,
                 $remote_file,
                 $mode,
@@ -598,7 +599,7 @@ class FOGFTP extends FOGGetSet
             );
         }
         return ftp_nb_get(
-            self::$_link,
+            $this->_link,
             $local_file,
             $remote_file,
             $mode
@@ -625,7 +626,7 @@ class FOGFTP extends FOGGetSet
         }
         if ($startpos) {
             return ftp_nb_put(
-                self::$_link,
+                $this->_link,
                 $remote_file,
                 $local_file,
                 $mode,
@@ -633,7 +634,7 @@ class FOGFTP extends FOGGetSet
             );
         }
         return ftp_nb_put(
-            self::$_link,
+            $this->_link,
             $remote_file,
             $local_file,
             $mode
@@ -649,7 +650,7 @@ class FOGFTP extends FOGGetSet
     public function nlist($directory)
     {
         return ftp_nlist(
-            self::$_link,
+            $this->_link,
             $directory
         );
     }
@@ -666,7 +667,7 @@ class FOGFTP extends FOGGetSet
             $pasv = $this->get('passive');
         }
         return ftp_pasv(
-            self::$_link,
+            $this->_link,
             $pasv
         );
     }
@@ -691,7 +692,7 @@ class FOGFTP extends FOGGetSet
         }
         if ($startpos) {
             return ftp_put(
-                self::$_link,
+                $this->_link,
                 $remote_file,
                 $local_file,
                 $mode,
@@ -699,7 +700,7 @@ class FOGFTP extends FOGGetSet
             );
         }
         return ftp_put(
-            self::$_link,
+            $this->_link,
             $remote_file,
             $local_file,
             $mode,
@@ -713,7 +714,7 @@ class FOGFTP extends FOGGetSet
      */
     public function pwd()
     {
-        return ftp_pwd(self::$_link);
+        return ftp_pwd($this->_link);
     }
     /**
      * Alias to close the ftp connection
@@ -733,7 +734,7 @@ class FOGFTP extends FOGGetSet
      */
     public function raw($command)
     {
-        return ftp_raw(self::$_link, $command);
+        return ftp_raw($this->_link, $command);
     }
     /**
      * Rawlist essentially ls -la from ftp perspective
@@ -748,7 +749,7 @@ class FOGFTP extends FOGGetSet
         $recursive = false
     ) {
         return ftp_rawlist(
-            self::$_link,
+            $this->_link,
             $directory,
             $recursive
         );
@@ -765,10 +766,10 @@ class FOGFTP extends FOGGetSet
         $oldname,
         $newname
     ) {
-        if (!(ftp_rename(self::$_link, $oldname, $newname)
+        if (!(ftp_rename($this->_link, $oldname, $newname)
             || $this->put($newname, $oldname))
         ) {
-            self::ftperror($this->data);
+            $this->ftperror($this->data);
         }
         return $this;
     }
@@ -781,7 +782,7 @@ class FOGFTP extends FOGGetSet
      */
     public function rmdir($directory)
     {
-        return ftp_rmdir(self::$_link, $directory);
+        return @ftp_rmdir($this->_link, $directory);
     }
     /**
      * Set the options for the ftp session
@@ -795,7 +796,7 @@ class FOGFTP extends FOGGetSet
         $option,
         $value
     ) {
-        return ftp_set_option(self::$_link, $option, $value);
+        return ftp_set_option($this->_link, $option, $value);
     }
     /**
      * Site to run command on
@@ -807,7 +808,7 @@ class FOGFTP extends FOGGetSet
     public function site($command)
     {
         return ftp_site(
-            self::$_link,
+            $this->_link,
             $command
         );
     }
@@ -826,7 +827,7 @@ class FOGFTP extends FOGGetSet
         if ($rawsize) {
             return $this->rawsize($remote_file);
         }
-        return ftp_size(self::$_link, $remote_file);
+        return ftp_size($this->_link, $remote_file);
     }
     /**
      * Size of file raw (string)
@@ -894,7 +895,7 @@ class FOGFTP extends FOGGetSet
      */
     public function systype()
     {
-        return ftp_systype(self::$_link);
+        return ftp_systype($this->_link);
     }
     /**
      * Tests if item exits
