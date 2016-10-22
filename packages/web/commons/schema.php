@@ -562,9 +562,9 @@ $this->schema[] = array(
     . "('ASPNET'),"
     . "('SUPPORT_')",
     'INSERT IGNORE INTO `globalSettings`'
-    . '(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)'
+    . ' (`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)'
     . 'VALUES'
-    . "('FOG_CLIENT_GREENFOG_ENABLED','This setting defines if the green "
+    . " ('FOG_CLIENT_GREENFOG_ENABLED','This setting defines if the green "
     . "fog module should be enabled. The green fog module will shutdown "
     . "or restart a computer at a set time. (Valid values are 0 or 1)'"
     . ",'1','FOG Client - Green Fog'),"
@@ -589,14 +589,15 @@ $this->schema[] = array(
     . "('FOG_CLIENT_AUTOLOGOFF_BGIMAGE','This setting defines the "
     . "location of the background image used in the auto log off "
     . "module. The image should be 300px x 300px. This image can "
-    . "be located locally (such as c:\\images\\myimage.jpg) "
+    . "be located locally (such as c:\\\\images\\\\myimage.jpg) "
     . "or on a web server (such as http://freeghost.sf.net/images/image.jpg)',"
-    . "'c:\\program files\\fog\\images\\alo-bg.jpg','FOG Client - Auto Log Off'),"
+    . "'c:\\\\program files\\\\fog\\\\images\\\\alo-bg.jpg',"
+    . "'FOG Client - Auto Log Off'),"
     . "('FOG_CLIENT_AUTOLOGOFF_MIN','This setting defines the number of "
     . "minutes to wait before logging a user off of a PC."
     . "(Value of 0 will disable this module.)','0', 'FOG Client - Auto Log Off'),"
     . "('FOG_KEYMAP','This setting defines the keymap used on "
-    . "the client boot image.','','General Settings'),",
+    . "the client boot image.','','General Settings')",
     "CREATE TABLE `hostScreenSettings` ("
     . '`hssID` INTEGER NOT NULL AUTO_INCREMENT,'
     . '`hssHostID` INTEGER  NOT NULL,'
@@ -626,52 +627,60 @@ $this->schema[] = array(
     . 'PRIMARY KEY (`gfID`),'
     . 'INDEX `new_index`(`gfHostID`)'
     . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
-                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_CLIENT_HOSTNAMECHANGER_ENABLED', '"._("This setting defines if the fog hostname changer should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Hostname Changer')",
-                    "CREATE TABLE `".DATABASE_NAME."`.`aloLog` (
-                        `alID` integer  NOT NULL AUTO_INCREMENT,
-                        `alUserName` varchar(254)  NOT NULL,
-                        `alHostID` integer  NOT NULL,
-                        `alDateTime` datetime  NOT NULL,
-                        `alAnon1` varchar(254)  NOT NULL,
-                        `alAnon2` varchar(254)  NOT NULL,
-                        `alAnon3` varchar(254)  NOT NULL,
-                        PRIMARY KEY (`alID`),
-INDEX `new_index`(`alUserName`),
-INDEX `new_index2`(`alHostID`),
-INDEX `new_index3`(`alDateTime`)
-                )
-                ENGINE = MyISAM",
-
-                "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '9'",
-            );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_CLIENT_HOSTNAMECHANGER_ENABLED','This setting defines if the fog "
+    . "hostname changer should be globally active. (Valid values are 0 or 1)',"
+    . "'1', 'FOG Client - Hostname Changer')",
+    "CREATE TABLE `aloLog` ("
+    . "`alID` INTEGER  NOT NULL AUTO_INCREMENT,"
+    . "`alUserName` VARCHAR(254) NOT NULL,"
+    . "`alHostID` INTEGER NOT NULL,"
+    . "`alDateTime` DATETIME NOT NULL,"
+    . "`alAnon1` VARCHAR(254) NOT NULL,"
+    . "`alAnon2` VARCHAR(254) NOT NULL,"
+    . "`alAnon3` VARCHAR(254) NOT NULL,"
+    . "PRIMARY KEY (`alID`),"
+    . "INDEX `new_index`(`alUserName`),"
+    . "INDEX `new_index2`(`alHostID`),"
+    . "INDEX `new_index3`(`alDateTime`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "UPDATE `schemaVersion` set vValue = '9'",
+);
 // 10
 $this->schema[] = array(
-    "CREATE TABLE `".DATABASE_NAME."`.`imagingLog` (
-        `ilID` integer  NOT NULL AUTO_INCREMENT,
-        `ilHostID` integer  NOT NULL,
-        `ilStartTime` datetime  NOT NULL,
-        `ilFinishTime` datetime  NOT NULL,
-        `ilImageName` varchar(64)  NOT NULL,
-        PRIMARY KEY (`ilID`),
-INDEX `new_index`(`ilHostID`)
-                )
-                ENGINE = MyISAM",
-                "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-                values('FOG_CLIENT_SNAPIN_ENABLED', '"._("This setting defines if the fog snapin installer should be globally active.  (Valid values are 0 or 1)")."', '1', 'FOG Client - Snapins')",
-                    "ALTER TABLE `".DATABASE_NAME."`.`snapins` CHANGE `sAnon1` `sRunWith` VARCHAR(245) NOT NULL",
-                    "ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` ADD COLUMN `stReturnCode` integer  NOT NULL AFTER `stSnapinID`,
-                    ADD COLUMN `stReturnDetails` varchar(250)  NOT NULL AFTER `stReturnCode`",
-                    "ALTER TABLE `".DATABASE_NAME."`.`snapins` CHANGE `sAnon2` `sRunWithArgs` VARCHAR(200)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
-                    "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '10'",
-                );
+    "CREATE TABLE `imagingLog` ("
+    . "`ilID` INTEGER NOT NULL AUTO_INCREMENT,"
+    . "`ilHostID` INTEGER NOT NULL,"
+    . "`ilStartTime` DATETIME NOT NULL,"
+    . "`ilFinishTime` DATETIME NOT NULL,"
+    . "`ilImageName` VARCHAR(64) NOT NULL,"
+    . "PRIMARY KEY (`ilID`),"
+    . "INDEX `new_index`(`ilHostID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_CLIENT_SNAPIN_ENABLED','This setting defines if the "
+    . "fog snapin installer should be globally active. (Valid values are 0 or 1)'"
+    . ",'1', 'FOG Client - Snapins')",
+    "ALTER TABLE `snapins` CHANGE `sAnon1` `sRunWith` VARCHAR(245) NOT NULL",
+    "ALTER TABLE `snapinTasks` ADD COLUMN `stReturnCode` INTEGER NOT NULL AFTER `stSnapinID`,ADD COLUMN `stReturnDetails` varchar(250)  NOT NULL AFTER `stReturnCode`",
+    "ALTER TABLE `snapins` CHANGE `sAnon2` `sRunWithArgs` VARCHAR(200)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
+    "UPDATE `schemaVersion` set vValue = '10'",
+);
 // 11
 $this->schema[] = array(
-    "ALTER TABLE `".DATABASE_NAME."`.`hosts` CHANGE `hostAnon2` `hostKernelArgs` VARCHAR(250)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
-    "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_KERNEL_ARGS', '"._("This setting allows you to add additional kernel arguments to the client boot image.  This setting is global for all hosts.")."', '', 'General Settings')",
-        "UPDATE `".DATABASE_NAME."`.`schemaVersion` set vValue = '11'",
-    );
+    "ALTER TABLE `hosts` CHANGE `hostAnon2` `hostKernelArgs` VARCHAR(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_KERNEL_ARGS', 'This setting allows you to add additional "
+    . "kernel arguments to the client boot image. This setting is global "
+    . "for all hosts.','', 'General Settings')",
+    "UPDATE `schemaVersion` set vValue = '11'",
+);
 // 12
 $this->schema[] = array(
     "INSERT IGNORE INTO `".DATABASE_NAME."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
