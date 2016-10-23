@@ -195,8 +195,8 @@ class LDAP extends FOGController
                             return chr(hexdec($match));
                         }
                     },
-                    $data
-                );
+                        $data
+                    );
                 if (isset($current_prefix)
                     && $prefix == $current_prefix
                 ) {
@@ -673,14 +673,14 @@ class LDAP extends FOGController
          * Set our method caller
          */
         switch ($searchScope) {
-            case 1:
-                $method = 'list';
-                break;
-            case 2:
-                $method = 'search';
-                break;
-            default:
-                $method = 'read';
+        case 1:
+            $method = 'list';
+            break;
+        case 2:
+            $method = 'search';
+            break;
+        default:
+            $method = 'read';
         }
         /**
          * Ensure our search dn is utf-8 encoded for searching
