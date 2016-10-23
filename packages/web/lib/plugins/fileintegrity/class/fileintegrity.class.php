@@ -1,7 +1,37 @@
 <?php
+/**
+ * Fileintegrity class handling file integrity.
+ *
+ * PHP version 5
+ *
+ * @category FileIntegrity
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Fileintegrity class handling file integrity.
+ *
+ * @category FileIntegrity
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class FileIntegrity extends FOGController
 {
+    /**
+     * The database table.
+     *
+     * @var string
+     */
     protected $databaseTable = 'fileChecksums';
+    /**
+     * The database fields and common names
+     *
+     * @var array
+     */
     protected $databaseFields = array(
         'id' => 'fcsID',
         'storagenodeID' => 'fcsStorageNodeID',
@@ -10,70 +40,175 @@ class FileIntegrity extends FOGController
         'path' => 'fcsFilePath',
         'status' => 'fcsStatus',
     );
+    /**
+     * The required fields
+     *
+     * @var array
+     */
     protected $databaseFieldsRequired = array(
         'storagenodeID',
         'path',
     );
+    /**
+     * The additional fields
+     *
+     * @var array
+     */
     protected $additionalFields = array(
-        'storageNode',
+        'storagenode',
     );
-    private static $imagePaths = array();
-    private static $snapinFiles = array();
+    /**
+     * The image paths
+     *
+     * @var array
+     */
+    private $_imagePaths = array();
+    /**
+     * The snapin files
+     *
+     * @var array
+     */
+    private $_snapinFiles = array();
+    /**
+     * Gets the current running node
+     *
+     * @return void
+     */
     public function getThisNode()
     {
-        $this->set('storageNode', self::getClass('StorageNode'));
+        $this->set('storagenode', self::getClass('StorageNode'));
         self::getIPAddress();
-        foreach ((array)self::getClass('StorageNodeManager')->find(array('isEnabled'=>1)) as &$StorageNode) {
-            if ($StorageNode->isValid() && in_array(self::$FOGCore->resolveHostname($StorageNode->get('ip')), self::$ips)) {
-                $this->set('storageNode', $StorageNode->load());
-                break;
+        $StorageNodes = self::getClass('StorageNodeManager')
+            ->find(array('isEnabled' => 1));
+        foreach ($StorageNodes as &$StorageNode) {
+            if (!$StorageNode->isValid()) {
+                continue;
             }
-            unset($StorageNode);
+            $ip = self::$FOGCore->resolveHostname($StorageNode->get('ip'));
+            if (!in_array($ip, self::$ips)) {
+                continue;
+            }
+            $this->set('storagenode', $StorageNode->load());
+            break;
         }
-        if (!$this->get('storageNode')->isValid()) {
-            die(_('No node associated with any addresses of this system'));
+        if (!$this->get('storagenode')->isValid()) {
+            throw new Exception(
+                _('No node associated with any addresses of this system')
+            );
         }
     }
-    private function getHash($item)
+    /**
+     * Get hash of item.
+     *
+     * @param string $item the item to get hash of
+     *
+     * @return string
+     */
+    private function _getHash($item)
     {
         if (!is_dir($item)) {
-            return hash_file('sha512', $item);
+            return hash_file(
+                'sha512',
+                $item
+            );
         }
         $files = array();
         $dir = dir($item);
         while (false !== ($file = $dir->read())) {
-            if ($file == '.' || $file == '..') {
+            if (in_array($file, array('.', '..'))) {
                 continue;
             }
-            $files[] = $this->getHash(sprintf('%s%s%s', $item, DIRECTORY_SEPARATOR, $file));
+            $files[] = $this->_getHash(
+                sprintf(
+                    '%s%s%s',
+                    $item,
+                    DIRECTORY_SEPARATOR,
+                    $file
+                )
+            );
         }
         $dir->close();
-        return hash('sha512', implode('', $files));
+        return hash(
+            'sha512',
+            implode('', $files)
+        );
     }
-    private function getModTime($item)
+    /**
+     * Gets the last modification time.
+     *
+     * @param string $item the item to get mod time of.
+     *
+     * @return string
+     */
+    private function _getModTime($item)
     {
         $stat = stat($item);
         return $this->formatTime($stat['mtime'], 'Y-m-d H:i:s');
     }
+    /**
+     * Gets image paths
+     *
+     * @return void
+     */
     public function getImagePaths()
     {
-        self::$imagePaths = array_map(function (&$path) {
-            return sprintf('%s%s%s', $this->get('storageNode')->get('path'), DIRECTORY_SEPARATOR, $path);
-        }, self::getSubObjectIDs('Image', array('id'=>self::$this->get('storageNode')->get('images')), 'path'));
+        $imagePaths = self::getSubObjectIDs(
+            'Image',
+            array('id' => $this->get('storagenode')->get('images')),
+            'path'
+        );
+        $str = sprintf(
+            '%s%s%s',
+            $this->get('storagenode')->get('path'),
+            DIRECTORY_SEPARATOR,
+            '%s'
+        );
+        foreach ((array)$imagePaths as &$path) {
+            self::$imagePaths[] = sprintf(
+                $str,
+                $path
+            );
+            unset($path);
+        }
     }
+    /**
+     * Gets snapin files
+     *
+     * @return void
+     */
     public function getSnapinFiles()
     {
-        self::$snapinFiles = $this->get('storageNode')->get('snapinfiles');
+        self::$snapinFiles = $this
+            ->get('storagenode')
+            ->get('snapinfiles');
     }
+    /**
+     * Stores the path files
+     *
+     * @return void
+     */
     public function processPathFiles()
     {
-        array_map(function (&$file) {
-            self::getClass(self)
-                ->set('storagenodeID', $this->get('storageNode')->get('id'))
-                ->set('modtime', $this->getModTime($file))
-                ->set('checksum', $this->getHash($file))
-                ->set('path', $file)
-                ->save();
-        }, array_merge((array)self::$imagePaths, (array)self::$snapinFiles));
+        $files = array_merge(
+            (array)self::$imagePaths,
+            (array)self::$snapinFiles
+        );
+        foreach ((array)$files as &$file) {
+            $this
+                ->set(
+                    'storagenodeID',
+                    $this->get('storagenode')->get('id')
+                )->set(
+                    'modtime',
+                    $this->_getModTime($file)
+                )->set(
+                    'checksum',
+                    $this->_getHash($file)
+                )->set(
+                    'path',
+                    $file
+                )->save();
+            unset($file);
+        }
     }
 }
