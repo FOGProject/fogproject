@@ -273,37 +273,37 @@ class TaskQueue extends TaskingElement
                 "\n%s: ",
                 _('Host Name')
             ) => $this->Host->get('name'),
-            sprintf(
-                "\n%s: ",
-                _('Computer Model')
-            ) => $this->Host->get('inventory')->get('sysproduct'),
-            sprintf(
-                "\n%s: ",
-                _('Serial Number')
-            ) => $this->Host->get('inventory')->get('sysserial'),
-            sprintf(
-                "\n%s: ",
-                _('MAC Address')
-            ) => $this->Host->get('mac')->__toString(),
-            "\n" => '',
-            sprintf(
-                "\n%s: ",
-                _('Image Used')
-            ) => $this->Task->getImage()->get('name'),
-            sprintf(
-                "\n%s: ",
-                _('Snapin Used')
-            ) => implode(', ', (array)$SnapinNames),
-            "\n" => '',
-            sprintf(
-                "\n%s: ",
-                _('Imaged By')
-            ) => $engineer,
-            sprintf(
-                "\n%s: ",
-                _('Imaged For')
-            ) => $primaryUser,
-        );
+                sprintf(
+                    "\n%s: ",
+                    _('Computer Model')
+                ) => $this->Host->get('inventory')->get('sysproduct'),
+                    sprintf(
+                        "\n%s: ",
+                        _('Serial Number')
+                    ) => $this->Host->get('inventory')->get('sysserial'),
+                        sprintf(
+                            "\n%s: ",
+                            _('MAC Address')
+                        ) => $this->Host->get('mac')->__toString(),
+                            "\n" => '',
+                            sprintf(
+                                "\n%s: ",
+                                _('Image Used')
+                            ) => $this->Task->getImage()->get('name'),
+                                sprintf(
+                                    "\n%s: ",
+                                    _('Snapin Used')
+                                ) => implode(', ', (array)$SnapinNames),
+                                    "\n" => '',
+                                    sprintf(
+                                        "\n%s: ",
+                                        _('Imaged By')
+                                    ) => $engineer,
+                                    sprintf(
+                                        "\n%s: ",
+                                        _('Imaged For')
+                                    ) => $primaryUser,
+                                );
         self::$HookManager->processEvent(
             'EMAIL_ITEMS',
             array(
