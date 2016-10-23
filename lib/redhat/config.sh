@@ -18,7 +18,6 @@
 #
 command -v dnf
 [[ $? -eq 0 ]] && repos="remi" || repos="remi,remi-php56,epel"
-repos="remi"
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
 case $linuxReleaseName in
     *[Mm][Aa][Gg][Ee][Ii][Aa]*)

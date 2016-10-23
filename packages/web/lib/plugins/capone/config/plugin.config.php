@@ -23,7 +23,7 @@ $fog_plugin = array();
 $fog_plugin['name'] = 'capone';
 $fog_plugin['description'] = 'Capone is a automation plugin for fog.';
 $fog_plugin['menuicon'] = sprintf(
-    'html/images/%s.png',
+    'html/images/%s.jpg',
     $fog_plugin['name']
 );
 $fog_plugin['menuicon_hover'] = null;
