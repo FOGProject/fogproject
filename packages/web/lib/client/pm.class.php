@@ -80,9 +80,6 @@ class PM extends FOGClient
             $dow = trim($PMTask->get('dow'));
             $cron = sprintf('%s %s %s %s %s', $min, $hour, $dom, $month, $dow);
             $action = $PMTask->get('action');
-            if ($action == 'reboot') {
-                $action = 'restart';
-            }
             $data['tasks'][] = array(
                 'cron' => $cron,
                 'action' => $action
