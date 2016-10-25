@@ -424,7 +424,6 @@ class SnapinClient extends FOGClient implements FOGClientSend
             } elseif (isset($_REQUEST['exitcode'])) {
                 $this->_closeout($Task, $SnapinJob, $date, $HostName);
             }
-            die('here');
         } elseif (basename(self::$scriptname) === 'snapins.file.php') {
             $this->_downloadfile($Task, $SnapinJob, $date, $HostName);
         }
