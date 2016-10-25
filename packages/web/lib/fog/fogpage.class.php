@@ -1425,7 +1425,7 @@ abstract class FOGPage extends FOGBase
                     }
                     $imageIDs = self::getSubObjectIDs(
                         'Host',
-                        array('id' => $this->get('hosts')),
+                        array('id' => $this->obj->get('hosts')),
                         'imageID'
                     );
                     $StorageGroupIDs = self::getSubObjectIDs(
@@ -1457,7 +1457,7 @@ abstract class FOGPage extends FOGBase
                     $hostIDs = self::getSubObjectIDs(
                         'Host',
                         array(
-                            'id' => $this->get('hosts'),
+                            'id' => $this->obj->get('hosts'),
                             'imageID' => $storageImageIDs
                         )
                     );

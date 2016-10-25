@@ -111,21 +111,25 @@ class Image extends FOGController
             if (count($this->get('hosts')) > 0) {
                 $DBIDs = self::getSubObjectIDs(
                     'Host',
-                    array('id' => $this->get('hosts'))
+                    array('imageID' => $this->get('id'))
                 );
             } else {
-                $RemIDs = self::getSubObjectIDs('Host');
-            }
-            if (!isset($RemIDs)) {
                 $RemIDs = self::getSubObjectIDs(
                     'Host',
-                    array(
-                        'imageID' => $this->get('id'),
-                        'id' => $DBIDs
-                    ),
-                    'id',
-                    true
+                    array('imageID' => $this->get('id'))
                 );
+            }
+            if (!isset($RemIDs)) {
+                $DBCount = count($DBIDs);
+                $tokeep = count($this->get('hosts'));
+                if ($DBCount > 0
+                    && $DBCount != $tokeep
+                ) {
+                    $RemIDs = array_diff(
+                        (array)$DBIDs,
+                        (array)$this->get('hosts')
+                    );
+                }
             }
             $RemIDs = array_filter($RemIDs);
             if (count($RemIDs) > 0) {
