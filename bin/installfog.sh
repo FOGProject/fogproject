@@ -335,10 +335,10 @@ exitcode=$?
 [[ -z $dodhcp ]] && dodhcp=""
 [[ -z $bldhcp ]] && bldhcp=""
 [[ -z $installtype ]] && installtype=""
-[[ -z $interface ]] && interface=$(getFirstGoodInterface)
-[[ -z $ipaddress  ]] && ipaddress=$(/sbin/ip addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
-[[ -z $routeraddress ]] && routeraddress=$(/sbin/ip route | awk "/$interface/ && /via/ {print \$3}")
-[[ -z $plainrouter ]] && plainrouter=$routeraddress
+[[ -z $interface ]] && interface="" #interface=$(getFirstGoodInterface)
+[[ -z $ipaddress  ]] && ipaddress="" #ipaddress=$(/sbin/ip addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
+[[ -z $routeraddress ]] && routeraddress="" #routeraddress=$(/sbin/ip route | awk "/$interface/ && /via/ {print \$3}")
+[[ -z $plainrouter ]] && plainrouter="" #plainrouter=$routeraddress
 [[ -z $blexports ]] && blexports=1
 [[ -z $installlang ]] && installlang=0
 [[ -z $bluseralreadyexists ]] && bluseralreadyexists=0
