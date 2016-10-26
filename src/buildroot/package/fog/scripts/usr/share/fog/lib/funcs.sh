@@ -453,10 +453,7 @@ shrinkPartition() {
     case $fstype in
         ntfs)
             tmpoutput=$(ntfsresize -f -i -v -P $part)
-            if [[ -z $size ]]; then
-                tmpoutput=$(ntfsresize -f -i -v -P $part)
-                handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t$tmpoutput"
-            fi
+            [[ -z $size ]] && handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t$tmpoutput"
             size=$(echo $tmpoutput | grep "You might resize" | cut -d" " -f5)
             sizentfsresize=$((size / 1000))
             let sizentfsresize+=3000000
@@ -465,7 +462,13 @@ shrinkPartition() {
             echo " * Possible resize partition size: $sizentfsresize k"
             dots "Running resize test $part"
             tmp_success=$(ntfsresize -f -n -s ${sizentfsresize}k $part </usr/share/fog/lib/EOFNTFSRESTORE)
+            tmp_status=$(ntfsresize -f -n -s ${sizentfsresize}k $part </usr/share/fog/lib/EOFNTFSRESTORE; echo $?)
             test_string=$(echo $tmp_success | egrep -io "(ended successfully|bigger than the device size|volume size is already OK|ERROR|Numerical result out of range)" | tr -d '[[:space:]]')
+            if [[ $tmp_status != 0 ]]; then
+                echo "Failed"
+                debugPause
+                handleError "Resize test failed!\n $tmp_success (${FUNCNAME[0]})\n   Args Passed: $*"
+            fi
             echo "Done"
             debugPause
             case $test_string in
