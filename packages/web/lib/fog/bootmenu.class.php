@@ -1259,6 +1259,8 @@ class BootMenu extends FOGBase
             } else {
                 $this->printDefault();
             }
+            self::$HookManager
+                ->processEvent('ALTERNATE_LOGIN_BOOT_MENU_PARAMS');
         } else {
             $Send['invalidlogin'] = array(
                 "echo Invalid login!",
