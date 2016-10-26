@@ -452,19 +452,20 @@ shrinkPartition() {
     local part_block_size=0
     case $fstype in
         ntfs)
-            size=$(ntfsresize -f -i -P $part | grep "You might resize" | cut -d" " -f5)
+            tmpoutput=$(ntfsresize -f -i -v -P $part)
             if [[ -z $size ]]; then
-                tmpoutput=$(ntfsresize -f -i -P $part)
+                tmpoutput=$(ntfsresize -f -i -v -P $part)
                 handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t$tmpoutput"
             fi
+            size=$(echo $tmpoutput | grep "You might resize" | cut -d" " -f5)
             sizentfsresize=$((size / 1000))
-            let sizentfsresize+=300000
+            let sizentfsresize+=3000000
             sizentfsresize=$((sizentfsresize * 1${percent} / 100))
             sizefd=$((sizentfsresize * 103 / 100))
             echo " * Possible resize partition size: $sizentfsresize k"
             dots "Running resize test $part"
             tmp_success=$(ntfsresize -f -n -s ${sizentfsresize}k $part </usr/share/fog/lib/EOFNTFSRESTORE)
-            test_string=$(echo $tmp_success | egrep -o "(ended successfully|bigger than the device size|volume size is already OK)" | tr -d '[[:space:]]')
+            test_string=$(echo $tmp_success | egrep -io "(ended successfully|bigger than the device size|volume size is already OK|ERROR|Numerical result out of range)" | tr -d '[[:space:]]')
             echo "Done"
             debugPause
             case $test_string in
@@ -473,12 +474,12 @@ shrinkPartition() {
                     do_resizefs=1
                     do_resizepart=1
                     ;;
-                biggerthanthedevicesize)
-                    echo " * Not resizing filesystem $part (part too small)"
-                    ;;
                 volumesizeisalreadyOK)
                     echo " * Not resizing filesystem $part (already OK)"
                     do_resizepart=1
+                    ;;
+                biggerthanthedevicesize)
+                    echo " * Not resizing filesystem $part (part too small)"
                     ;;
                 *)
                     handleError "Resize test failed!\n $tmp_success (${FUNCNAME[0]})\n   Args Passed: $*"
