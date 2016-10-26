@@ -175,7 +175,7 @@ class Registration extends FOGBase
                     'FOG_AD_DEFAULT_DOMAINNAME',
                     'FOG_AD_DEFAULT_OU',
                     'FOG_AD_DEFAULT_PASSWORD',
-                    'FOG_AD_DEFAULT_PASSWORDLEGACY',
+                    'FOG_AD_DEFAULT_PASSWORD_LEGACY',
                     'FOG_AD_DEFAULT_USER',
                     'FOG_ENFORCE_HOST_CHANGES'
                 );
