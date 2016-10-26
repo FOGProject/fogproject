@@ -204,8 +204,10 @@ class Registration extends FOGBase
                     $OUOptions[] = $OU;
                     unset($OU);
                 }
-                if ($OUOptions) {
-                    $OUs = array_unique((array)$OUOptions);
+                $OUOptions = array_unique((array)$OUOptions);
+                $OUOptions = array_values((array)$OUOptions);
+                if (count($OUOptions) > 1) {
+                    $OUs = $OUOptions;
                     foreach ($OUs as &$OU) {
                         $opt = preg_replace('#;#', '', $OU);
                         if ($opt) {
@@ -213,11 +215,12 @@ class Registration extends FOGBase
                         }
                         unset($OU);
                     }
-                    if (!$opt) {
-                        $opt = preg_replace('#;#', '', $OUs[0]);
-                    }
+                }
+                if (!$opt) {
+                    $opt = preg_replace('#;#', '', $OUs[0]);
                 }
                 $useAD = 1;
+                $ADOU = $opt;
             }
             $groupsToJoin = explode(
                 ',',
@@ -231,7 +234,6 @@ class Registration extends FOGBase
                 ->set('name', $host)
                 ->set('description', $this->description)
                 ->set('imageID', $imageid)
-                ->set('productKey', $this->encryptpw($productKey))
                 ->addModule($this->modulesToJoin)
                 ->addGroup($groupsToJoin)
                 ->addSnapin($snapinsToJoin)

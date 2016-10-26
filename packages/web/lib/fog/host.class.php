@@ -1640,8 +1640,8 @@ class Host extends FOGController
                 ->set(
                     'storagenodeID',
                     $StorageGroup
-                    ->getOptimalStorageNode($this->get('imageID'))
-                    ->get('id')
+                        ->getOptimalStorageNode($this->get('imageID'))
+                        ->get('id')
                 )
                 ->set('imageID', $Image->get('id'));
         } catch (Exception $e) {
@@ -2194,10 +2194,10 @@ class Host extends FOGController
             ->set('ADDomain', trim($domain))
             ->set('ADOU', trim($ou))
             ->set('ADUser', trim($user))
-            ->set('ADPass', trim($this->encryptpw($pass)))
+            ->set('ADPass', $pass)
             ->set('ADPassLegacy', $legacy)
             ->set('productKey', trim($this->encryptpw($productKey)))
-            ->set('enforce', (int)$enforce);
+            ->set('enforce', (string)$enforce);
         return $this;
     }
     /**
