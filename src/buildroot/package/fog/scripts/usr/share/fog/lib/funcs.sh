@@ -452,9 +452,14 @@ shrinkPartition() {
     local part_block_size=0
     case $fstype in
         ntfs)
-            tmpoutput=$(ntfsresize -f -i -v -P $part)
-            size=$(echo $tmpoutput | grep "You might resize" | cut -d" " -f5)
-            [[ -z $size ]] && handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t$tmpoutput"
+            ntfsresize -f -i -v -P $part >/tmp/tmpoutput.txt 2>&1
+            if [[ ! $? -eq 0 ]]; then
+                handleError " * (${FUNCNAME[0]})\n    Args Passed: $*\n\nFatal Error, unable to find size data out on $part. Cmd: ntfsresize -f -i -v -P $part"
+            fi
+            tmpoutput=$(cat /tmp/tmpoutput.txt)
+            size=$(cat /tmp/tmpoutput.txt | grep "You might resize" | cut -d" " -f5)
+            [[ -z $size ]] && handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t $(cat /tmp/tmpoutput.txt)"
+            rm /tmp/tmpoutput.txt >/dev/null 2>&1
             sizentfsresize=$((size / 1000))
             let sizentfsresize+=300000
             sizentfsresize=$((sizentfsresize * 1${percent} / 100))
@@ -469,10 +474,10 @@ shrinkPartition() {
                 handleError "Resize test failed!\n    $tmpoutput\n    (${FUNCNAME[0]})\n    Args Passed: $*"
             fi
             tmpoutput=$(cat /tmp/tmpoutput.txt)
-            rm /tmp/tmpoutput.txt >/dev/null
-            test_string=$(echo $tmpoutput | egrep -io "(ended successfully|bigger than the device size|volume size is already OK|ERROR|Numerical result out of range)" | tr -d '[[:space:]]')
+            test_string=$(cat /tmp/tmpoutput.txt | egrep -io "(ended successfully|bigger than the device size|volume size is already OK|ERROR|Numerical result out of range)" | tr -d '[[:space:]]')
             echo "Done"
             debugPause
+            rm /tmp/tmpoutput.txt >/dev/null 2>&1
             case $test_string in
                 endedsuccessfully)
                     echo " * Resize test was successful"
