@@ -206,7 +206,7 @@ class ReportManagementPage extends FOGPage
             $start = self::niceDate($start);
             $end = self::niceDate($end);
             if ($start < $date1
-                && $start > $date2
+                || $start > $date2
             ) {
                 continue;
             }
@@ -966,7 +966,7 @@ class ReportManagementPage extends FOGPage
             }
             $date = self::niceDate($User->get('datetime'));
             if ($date < $date1
-                && $date > $date2
+                || $date > $date2
             ) {
                 continue;
             }
@@ -1130,7 +1130,7 @@ class ReportManagementPage extends FOGPage
                 continue;
             }
             if ($start < $date1
-                && $start > $date2
+                || $start > $date2
             ) {
                 continue;
             }
