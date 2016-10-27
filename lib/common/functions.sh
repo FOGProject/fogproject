@@ -803,7 +803,7 @@ errorStat() {
     local status=$1
     if [[ $status != 0 ]]; then
         echo "Failed!"
-        [[ -z $exitFaile ]] && exit 1
+        [[ -z $exitFail ]] && exit $status
     fi
     echo "OK"
 }
