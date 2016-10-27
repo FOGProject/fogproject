@@ -1295,7 +1295,9 @@ class BootMenu extends FOGBase
             return;
         }
         if ($this->_Host->getImage()->get('id') != $imgID) {
-            $this->_Host->set('imageID', $imgID);
+            $this->_Host
+                ->set('imageID', $imgID)
+                ->set('imagename', new Image($imgID));
         }
         if (!$this->_Host->getImage()->isValid()) {
             return;
