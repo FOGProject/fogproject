@@ -3338,7 +3338,7 @@ abstract class FOGPage extends FOGBase
             );
             $fileinfo = pathinfo($_FILES['file']['name']);
             $ext = $fileinfo['extension'];
-            $Item = self::getClass($this->childClass);
+            $Item = new $this->childClass();
             $mime = $_FILES['file']['type'];
             if (!in_array($mime, $mimes)) {
                 if ($ext !== 'csv') {
@@ -3387,6 +3387,7 @@ abstract class FOGPage extends FOGBase
                     );
                 }
                 try {
+                    $dbkeys = array_keys($this->databaseFields);
                     if ($Item instanceof Host) {
                         $macs = $this->parseMacList($data[0]);
                         $Host = self::getClass('HostManager')
@@ -3399,7 +3400,6 @@ abstract class FOGPage extends FOGBase
                             );
                         }
                         $primac = array_shift($macs);
-                        $dbkeys = array_keys($this->databaseFields);
                         $index = array_search('productKey', $dbkeys) + 1;
                         $test_encryption = $this->aesdecrypt($data[$index]);
                         if ($test_base64 = base64_decode($data[$index])) {
@@ -3420,7 +3420,11 @@ abstract class FOGPage extends FOGBase
                     }
                     foreach ((array)$dbkeys as $ind => &$field) {
                         $ind += $iterator;
-                        $Item->set($field, $data[$ind], ($field == 'password'));
+                        if ($field == 'password') {
+                            $Item->set($field, $data[$ind], true);
+                        } else {
+                            $Item->set($field, $data[$ind]);
+                        }
                         unset($field);
                     }
                     if ($Item instanceof Host) {
