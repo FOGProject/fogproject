@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * @category SnapinReplicator
- * @package  FOGPackage
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
@@ -14,7 +14,7 @@
  * Replication service for snapins
  *
  * @category SnapinReplicator
- * @package  FOGPackage
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
