@@ -185,4 +185,10 @@ $(function() {
             if (!validateCronInputs($(this))) $(this).addClass('error');
         });
     });
+    $('select.loghist-date').change(function(e) {
+        this.form.submit();
+    });
+    $('a.loghist-date, .delvid').click(function(e) {
+        $(this).parents('form').submit();
+    });
 });

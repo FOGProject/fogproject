@@ -693,7 +693,7 @@ abstract class FOGPage extends FOGBase
                         . '<p class="c"><input type="submit" id="processgroup" '
                         . 'value="%s"/></p></form>',
                         sprintf(
-                            '?node=%s&sub=save_group',
+                            '?node=%s&sub=saveGroup',
                             $this->node
                         ),
                         _('Create new group'),
