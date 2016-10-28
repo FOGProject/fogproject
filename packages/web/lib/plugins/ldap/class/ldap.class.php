@@ -195,8 +195,8 @@ class LDAP extends FOGController
                             return chr(hexdec($match));
                         }
                     },
-                        $data
-                    );
+                    $data
+                );
                 if (isset($current_prefix)
                     && $prefix == $current_prefix
                 ) {
@@ -655,8 +655,9 @@ class LDAP extends FOGController
     /**
      * Get the results
      *
-     * @param string $filter filter string
-     * @param array  $attr   attributes to get
+     * @param string $searchDN the search dn
+     * @param string $filter   filter string
+     * @param array  $attr     attributes to get
      *
      * @return resource
      */

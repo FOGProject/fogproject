@@ -21,11 +21,37 @@
  */
 class AddLDAPType extends Hook
 {
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
     public $name = 'AddLDAPType';
+    /**
+     * The description of this hook.
+     *
+     * @var string
+     */
     public $description = 'Add Report Management Type';
-    public $author = 'Tom Elliott';
+    /**
+     * The active flag.
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The node to enact on.
+     *
+     * @var string
+     */
     public $node = 'ldap';
 }
 $AddLDAPType = new AddLDAPType();
-$HookManager->register('REPORT_TYPES', array($AddLDAPType, 'reportTypes'));
+$HookManager
+    ->register(
+        'REPORT_TYPES',
+        array(
+            $AddLDAPType,
+            'reportTypes'
+        )
+    );

@@ -40,7 +40,6 @@ function ldapSetFields(indx) {
     $('#grpMemberAttr').val(grpAttr);
 }
 function ldapUseGroupToggle(indx) {
-    console.log(indx);
     if (indx == 0) {
         $('#adminGroup,#userGroup,#userNamAttr,#grpMemberAttr,#bindDN,#bindPwd')
             .prop('readonly', true)

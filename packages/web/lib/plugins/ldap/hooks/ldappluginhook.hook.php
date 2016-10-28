@@ -25,10 +25,29 @@
  */
 class LDAPPluginHook extends Hook
 {
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
     public $name = 'LDAPPluginHook';
+    /**
+     * The description of this hook.
+     *
+     * @var string
+     */
     public $description = 'LDAP Hook';
-    public $author = 'Fernando Gietz';
+    /**
+     * The active flag.
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The node to enact upon.
+     *
+     * @var string
+     */
     public $node = 'ldap';
     /**
      * Checks and creates users if they're valid
@@ -89,24 +108,24 @@ class LDAPPluginHook extends Hook
             $access = $ldap->authLDAP($user, $pass);
             unset($ldap);
             switch ($access) {
-                case false:
-                    // Reset user object and Skip this
-                    self::$FOGUser = self::getClass('User');
-                    continue 2;
-                case 2:
-                    // This is an admin account, break the loop
-                    self::$FOGUser
-                        ->set('password', $pass)
-                        ->set('type', 990)
-                        ->save();
-                    break 2;
-                case 1:
-                    // This is an unprivileged user account.
-                    self::$FOGUser
-                        ->set('password', $pass)
-                        ->set('type', 991)
-                        ->save();
-                    break;
+            case false:
+                // Reset user object and Skip this
+                self::$FOGUser = self::getClass('User');
+                continue 2;
+            case 2:
+                // This is an admin account, break the loop
+                self::$FOGUser
+                    ->set('password', $pass)
+                    ->set('type', 990)
+                    ->save();
+                break 2;
+            case 1:
+                // This is an unprivileged user account.
+                self::$FOGUser
+                    ->set('password', $pass)
+                    ->set('type', 991)
+                    ->save();
+                break;
             }
         }
         unset($ldaps);

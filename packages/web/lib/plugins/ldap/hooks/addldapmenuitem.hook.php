@@ -25,10 +25,29 @@
  */
 class AddLDAPMenuItem extends Hook
 {
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
     public $name = 'AddLDAPMenuItem';
+    /**
+     * The description of this hook.
+     *
+     * @var string
+     */
     public $description = 'Add menu item for LDAP';
-    public $author = 'Fernando Gietz';
+    /**
+     * The active flag.
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The node to enact on.
+     *
+     * @var string
+     */
     public $node = 'ldap';
     /**
      * Sets the menu item into the menu
@@ -82,6 +101,27 @@ class AddLDAPMenuItem extends Hook
     }
 }
 $AddLDAPMenuItem = new AddLDAPMenuItem();
-$HookManager->register('MAIN_MENU_DATA', array($AddLDAPMenuItem, 'menuData'));
-$HookManager->register('SEARCH_PAGES', array($AddLDAPMenuItem, 'addSearch'));
-$HookManager->register('PAGES_WITH_OBJECTS', array($AddLDAPMenuItem, 'addPageWithObject'));
+$HookManager
+    ->register(
+        'MAIN_MENU_DATA',
+        array(
+            $AddLDAPMenuItem,
+            'menuData'
+        )
+    );
+$HookManager
+    ->register(
+        'SEARCH_PAGES',
+        array(
+            $AddLDAPMenuItem,
+            'addSearch'
+        )
+    );
+$HookManager
+    ->register(
+        'PAGES_WITH_OBJECTS',
+        array(
+            $AddLDAPMenuItem,
+            'addPageWithObject'
+        )
+    );

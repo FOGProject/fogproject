@@ -447,8 +447,10 @@ class TaskQueue extends TaskingElement
         if (!$this->taskLog()) {
             throw new Exception(_('Failed to update task log'));
         }
-        if (!$this->imageLog(false)) {
-            throw new Exception(_('Failed to update imaging log'));
+        if ($this->imagingTask) {
+            if (!$this->imageLog(false)) {
+                throw new Exception(_('Failed to update imaging log'));
+            }
         }
         self::$EventManager->notify(
             'HOST_IMAGE_COMPLETE',

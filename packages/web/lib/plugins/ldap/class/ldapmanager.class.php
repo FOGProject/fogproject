@@ -35,28 +35,29 @@ class LDAPManager extends FOGManagerController
     public function install($name)
     {
         $this->uninstall();
-        $sql = "CREATE TABLE `LDAPServers`
-            (`lsID` INTEGER NOT NULL AUTO_INCREMENT,
-            `lsName` VARCHAR(255) NOT NULL,
-            `lsDesc` LONGTEXT NOT NULL,
-            `lsCreatedBy` VARCHAR(40) NOT NULL,
-            `lsAddress` VARCHAR(255) NOT NULL,
-            `lsCreatedTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `lsUserSearchDN` LONGTEXT NOT NULL,
-            `lsPort` INTEGER NOT NULL,
-            `lsUserNamAttr` VARCHAR(255) NOT NULL,
-            `lsGrpMemberAttr` VARCHAR(255) NOT NULL,
-            `lsAdminGroup` LONGTEXT NOT NULL,
-            `lsUserGroup` LONGTEXT NOT NULL,
-            `lsSearchScope` ENUM('0','1','2') NOT NULL DEFAULT '0',
-            `lsBindDN` LONGTEXT NOT NULL,
-            `lsBindPwd` LONGTEXT NOT NULL,
-            `lsGrpSearchDN` LONGTEXT NOT NULL,
-            `lsUseGroupMatch` ENUM('0','1') NOT NULL DEFAULT '0',
-            PRIMARY KEY(`lsID`),
-            KEY `address` (`lsAddress`,`lsPort`),
-            KEY `name` (`lsName`))
-        ENGINE = MyISAM";
+        $sql = "CREATE TABLE `LDAPServers` ("
+            . "`lsID` INTEGER NOT NULL AUTO_INCREMENT,"
+            . "`lsName` VARCHAR(255) NOT NULL,"
+            . "`lsDesc` LONGTEXT NOT NULL,"
+            . "`lsCreatedBy` VARCHAR(40) NOT NULL,"
+            . "`lsAddress` VARCHAR(255) NOT NULL,"
+            . "`lsCreatedTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+            . "`lsUserSearchDN` LONGTEXT NOT NULL,"
+            . "`lsPort` INTEGER NOT NULL,"
+            . "`lsUserNamAttr` VARCHAR(255) NOT NULL,"
+            . "`lsGrpMemberAttr` VARCHAR(255) NOT NULL,"
+            . "`lsAdminGroup` LONGTEXT NOT NULL,"
+            . "`lsUserGroup` LONGTEXT NOT NULL,"
+            . "`lsSearchScope` ENUM('0','1','2') NOT NULL DEFAULT '0',"
+            . "`lsBindDN` LONGTEXT NOT NULL,"
+            . "`lsBindPwd` LONGTEXT NOT NULL,"
+            . "`lsGrpSearchDN` LONGTEXT NOT NULL,"
+            . "`lsUseGroupMatch` ENUM('0','1') NOT NULL DEFAULT '0',"
+            . "PRIMARY KEY(`lsID`),"
+            . "KEY `address` (`lsAddress`,`lsPort`),"
+            . "KEY `name` (`lsName`)"
+            . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT "
+            . "CHARSET=utf8 ROW_FORMAT=DYNAMIC";
         return self::$DB->query($sql);
     }
     /**

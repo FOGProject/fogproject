@@ -1,7 +1,39 @@
 <?php
+/**
+ * The location class.
+ *
+ * PHP version 5
+ *
+ * @category Location
+ * @package  FOGProject
+ * @author   Lee Rowlett <nope@nope.nope>
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * The location class.
+ *
+ * @category Location
+ * @package  FOGProject
+ * @author   Lee Rowlett <nope@nope.nope>
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class Location extends FOGController
 {
+    /**
+     * The location table
+     *
+     * @var string
+     */
     protected $databaseTable = 'location';
+    /**
+     * The location table fields and common names
+     *
+     * @var array
+     */
     protected $databaseFields = array(
         'id' => 'lID',
         'name' => 'lName',
@@ -12,51 +44,143 @@ class Location extends FOGController
         'storagenodeID' => 'lStorageNodeID',
         'tftp' => 'lTftpEnabled',
     );
+    /**
+     * The required fields
+     *
+     * @var array
+     */
     protected $databaseFieldsRequired = array(
         'name',
         'storagegroupID',
     );
+    /**
+     * The additional fields
+     *
+     * @var array
+     */
     protected $additionalFields = array(
         'hosts',
         'hostsnotinme',
     );
-    public function destroy($field = 'id')
+    /**
+     * Destroy this particular object.
+     *
+     * @param string $key the key to destroy for match
+     *
+     * @return bool
+     */
+    public function destroy($key = 'id')
     {
-        self::getClass('LocationAssociationManager')->destroy(array('locationID'=>$this->get('id')));
-        return parent::destroy($field);
+        self::getClass('LocationAssociationManager')
+            ->destroy(
+                array(
+                    'locationID' => $this->get('id')
+                )
+            );
+        return parent::destroy($key);
     }
+    /**
+     * Stores the item in the DB either stored or updated.
+     *
+     * @return object
+     */
     public function save()
     {
         parent::save();
-        return $this->assocSetter('Location', 'host');
+        return $this->assocSetter(
+            'Location',
+            'host'
+        );
     }
+    /**
+     * Add host to the location.
+     *
+     * @param array $addArray the items to add.
+     *
+     * @return object
+     */
     public function addHost($addArray)
     {
-        return $this->addRemItem('hosts', (array)$addArray, 'merge');
+        return $this->addRemItem(
+            'hosts',
+            (array)$addArray,
+            'merge'
+        );
     }
+    /**
+     * Remove host from the location.
+     *
+     * @param array $removeArray the items to remove.
+     *
+     * @return object
+     */
     public function removeHost($removeArray)
     {
-        return $this->addRemItem('hosts', (array)$removeArray, 'diff');
+        return $this->addRemItem(
+            'hosts',
+            (array)$removeArray,
+            'diff'
+        );
     }
+    /**
+     * Get the current location group.
+     *
+     * @return object
+     */
     public function getStorageGroup()
     {
-        return self::getClass('StorageGroup', $this->get('storagegroupID'));
+        return new StorageGroup($this->get('storagegroupID'));
     }
+    /**
+     * Get the storage node.
+     *
+     * @return object
+     */
     public function getStorageNode()
     {
         if ($this->get('storagenodeID')) {
-            return self::getClass('StorageNode', $this->get('storagenodeID'));
+            return new StorageNode($this->get('storagenodeID'));
         }
         return $this->getStorageGroup()->getOptimalStorageNode(0);
     }
+    /**
+     * Loads the locations hosts.
+     *
+     * @return void
+     */
     protected function loadHosts()
     {
-        $this->set('hosts', self::getSubObjectIDs('LocationAssociation', array('locationID'=>$this->get('id')), 'hostID'));
+        $hostIDs = self::getSubObjectIDs(
+            'LocationAssocation',
+            array('locationID' => $this->get('id')),
+            'hostID'
+        );
+        $hostIDs = self::getSubObjectIDs(
+            'Host',
+            array('id' => $hostIDs)
+        );
+        $this->set(
+            'hosts',
+            $hostIDs
+        );
     }
+    /**
+     * Load the hosts not with this hosts in me.
+     *
+     * @return void
+     */
     protected function loadHostsnotinme()
     {
-        $find = array('id'=>$this->get('hosts'));
-        $this->set('hostsnotinme', self::getSubObjectIDs('Host', $find, 'id', true));
+        $find = array(
+            'id' => $this->get('hosts')
+        );
+        $hostIDs = self::getSubObjectIDs(
+            'Host',
+            $find,
+            'id',
+            true
+        );
+        $this->set('hostsnotinme', $hostIDs);
         unset($find);
     }
 }
