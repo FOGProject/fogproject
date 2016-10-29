@@ -666,13 +666,18 @@ $this->schema[] = array(
     . "fog snapin installer should be globally active. (Valid values are 0 or 1)'"
     . ",'1', 'FOG Client - Snapins')",
     "ALTER TABLE `snapins` CHANGE `sAnon1` `sRunWith` VARCHAR(245) NOT NULL",
-    "ALTER TABLE `snapinTasks` ADD COLUMN `stReturnCode` INTEGER NOT NULL AFTER `stSnapinID`,ADD COLUMN `stReturnDetails` varchar(250)  NOT NULL AFTER `stReturnCode`",
-    "ALTER TABLE `snapins` CHANGE `sAnon2` `sRunWithArgs` VARCHAR(200)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
+    "ALTER TABLE `snapinTasks` ADD COLUMN `stReturnCode` "
+    . "INTEGER NOT NULL AFTER `stSnapinID`,ADD COLUMN "
+    . "`stReturnDetails` varchar(250)  NOT NULL AFTER `stReturnCode`",
+    "ALTER TABLE `snapins` CHANGE `sAnon2` `sRunWithArgs` "
+    . "VARCHAR(200)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
     "UPDATE `schemaVersion` set vValue = '10'",
 );
 // 11
 $this->schema[] = array(
-    "ALTER TABLE `hosts` CHANGE `hostAnon2` `hostKernelArgs` VARCHAR(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL",
+    "ALTER TABLE `hosts` CHANGE `hostAnon2` "
+    . "`hostKernelArgs` VARCHAR(250) CHARACTER "
+    . "SET utf8 COLLATE utf8_general_ci NOT NULL",
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
     . "VALUES "
@@ -1124,8 +1129,8 @@ $this->schema[] = array(
     . "(2, 'Multiple Partition Image - Single Disk (Not Resizable)'),"
     . "(3, 'Multiple Partition Image - All Disks  (Not Resizable)'),"
     . "(4, 'Raw Image (Sector By Sector, DD, Slow)')",
-        "UPDATE `schemaVersion` set `vValue`='28'",
-    );
+    "UPDATE `schemaVersion` set `vValue`='28'",
+);
 // 29
 if (FOG_SCHEMA < $tmpSchema->get('value')) {
     self::$DB->query(
@@ -1159,10 +1164,14 @@ $this->schema[] = array(
 // 30
 $this->schema[] = array(
     "ALTER TABLE `imageTypes` ADD `imageTypeValue` VARCHAR(10) NOT NULL",
-    "UPDATE `imageTypes` SET `imageTypeValue`='n' WHERE `imageTypes`.`imageTypeID`=1",
-    "UPDATE `imageTypes` SET `imageTypeValue`='mps' WHERE `imageTypes`.`imageTypeID`=2",
-    "UPDATE `imageTypes` SET `imageTypeValue`='mpa' WHERE `imageTypes`.`imageTypeID`=3",
-    "UPDATE `imageTypes` SET `imageTypeValue`='dd' WHERE `imageTypes`.`imageTypeID`=4",
+    "UPDATE `imageTypes` SET `imageTypeValue`='n' "
+    . "WHERE `imageTypes`.`imageTypeID`=1",
+    "UPDATE `imageTypes` SET `imageTypeValue`='mps' "
+    . "WHERE `imageTypes`.`imageTypeID`=2",
+    "UPDATE `imageTypes` SET `imageTypeValue`='mpa' "
+    . "WHERE `imageTypes`.`imageTypeID`=3",
+    "UPDATE `imageTypes` SET `imageTypeValue`='dd' "
+    . "WHERE `imageTypes`.`imageTypeID`=4",
     "UPDATE `images` SET `imageDD`='4' WHERE `imageDD`='3'",
     "UPDATE `images` SET `imageDD`='3' WHERE `imageDD`='2'",
     "UPDATE `images` SET `imageDD`='2' WHERE `imageDD`='1'",
@@ -1317,7 +1326,8 @@ $this->schema[] = array(
     "UPDATE `scheduledTasks` SET `stTaskType`='12' WHERE `stTaskType`='s'",
     "UPDATE `scheduledTasks` SET `stTaskType`='13' WHERE `stTaskType`='l'",
     "UPDATE `scheduledTasks` SET `stTaskType`='14' WHERE `stTaskType`='o'",
-    "ALTER TABLE `scheduledTasks` CHANGE `stTaskType` `stTaskTypeID` MEDIUMINT NOT NULL ",
+    "ALTER TABLE `scheduledTasks` CHANGE `stTaskType` "
+    . "`stTaskTypeID` MEDIUMINT NOT NULL",
     "UPDATE `schemaVersion` set `vValue`='32'",
 );
 // 33
@@ -1622,19 +1632,23 @@ $keySequences = array(
     'F12' => '0x197e',
     'ESC' => '0x1b',
 );
-// 45 - 79
+// 45 - 79 setup
+$keys = array();
 foreach ($keySequences as $value => $ascii) {
-    $this->schema[] = array(
-        "INSERT IGNORE INTO `keySequence` "
-        . "(`ksValue`,`ksAscii`) "
-        . "VALUES "
-        . "('"
-        . $value
-        . "','"
-        . $ascii
-        . "')"
+    $this->schema[] = array();
+    $keys[] = sprintf(
+        "('%s','%s')",
+        $value,
+        $ascii
     );
 }
+// 79
+$this->schema[count($this->schema) - 1] = array(
+    "INSERT IGNORE INTO `keySequence` "
+    . "(`ksValue`,`ksAscii`) "
+    . "VALUES "
+    . implode(',', $keys)
+);
 // 80
 $this->schema[] = array(
     "ALTER TABLE `tasks` "
@@ -1793,7 +1807,8 @@ $this->schema[] = array(
     . "WHERE `settingKey`='FOG_MINING_MAX_CORES'",
     "UPDATE `globalSettings` set `settingCategory`='Donations' "
     . "WHERE `settingKey`='FOG_MINING_FULL_RESTART_HOUR'",
-    "UPDATE `globalSettings` set `settingCategory`='Donations' WHERE `settingKey`='FOG_MINING_FULL_RUN_ON_WEEKEND'",
+    "UPDATE `globalSettings` set `settingCategory`='Donations' "
+    . "WHERE `settingKey`='FOG_MINING_FULL_RUN_ON_WEEKEND'",
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
     . "VALUES "
@@ -1838,26 +1853,38 @@ $this->schema[] = array(
 );
 // 105
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_ALWAYS_LOGGED_IN','This setting allows user to be signed in all the time or not. A value of 0 disables it.','0','Login Settings')",
-        "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-        values('FOG_INACTIVITY_TIMEOUT','This setting allows user to be signed in all the time or not. Between 1 and 24 by hours.','1','Login Settings')",
-            "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-            values('FOG_REGENERATE_TIMEOUT','This setting allows user to be signed in all the time or not. Between 0.25 and 24 by hours.','0.5','Login Settings')",
-            );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`)"
+    . "VALUES "
+    . "('FOG_ALWAYS_LOGGED_IN','This setting allows user to "
+    . "be signed in all the time or not. A value of 0 "
+    . "disables it.','0','Login Settings'),"
+    . "('FOG_INACTIVITY_TIMEOUT','This setting allows user to "
+    . "be signed in all the time or not. Between 1 and 24 by "
+    . "hours.','1','Login Settings'),"
+    . "('FOG_REGENERATE_TIMEOUT','This setting allows user to "
+    . "be signed in all the time or not. Between 0.25 and 24 "
+    . "by hours.','0.5','Login Settings')",
+);
 // 106
 $this->schema[] = array(
-    "ALTER TABLE images CHANGE imageLegacy imageFormat char",
-    "UPDATE globalSettings SET settingKey='FOG_FORMAT_FLAG_IN_GUI' WHERE settingKey='FOG_LEGACY_FLAG_IN_GUI'",
+    "ALTER TABLE `images` CHANGE `imageLegacy` `imageFormat` char",
+    "UPDATE `globalSettings` SET `settingKey`='FOG_FORMAT_FLAG_IN_GUI' "
+    . "WHERE `settingKey`='FOG_LEGACY_FLAG_IN_GUI'",
 );
 // 107
 $this->schema[] = array(
-    "DELETE FROM globalSettings WHERE settingCategory='SSH Client'",
-    "UPDATE globalSettings SET settingCategory='FOG Client - Snapins' WHERE settingKey='FOG_SNAPINDIR'",
+    "DELETE FROM `globalSettings` WHERE `settingCategory`='SSH Client'",
+    "UPDATE `globalSettings` SET "
+    . "`settingCategory`='FOG Client - Snapins' WHERE "
+    . "`settingKey`='FOG_SNAPINDIR'",
 );
 // 108
 $this->schema[] = array(
-    "UPDATE globalSettings SET settingDesc='"._("This setting defines if the fog printer manager should be globally active.  (Valid values are 0 or 1)")."' WHERE settingKey='FOG_CLIENT_PRINTERMANAGER_ENABLED'",
+    "UPDATE `globalSettings` SET `settingDesc`='This setting defines "
+    . "if the fog printer manager should be globally active. "
+    . "(Valid values are 0 or 1)' WHERE "
+    . "`settingKey`='FOG_CLIENT_PRINTERMANAGER_ENABLED'",
 );
 // 109
 $this->schema[] = array(
@@ -1869,177 +1896,232 @@ $this->schema[] = array(
     "UPDATE taskTypes SET ttKernelArgs='type=down' WHERE ttID='17'",
 );
 // 111
-// Changes Single Partition (NTFS Only, resizable) to Single Disk - resizable for less confusion
-// Especially now that Linux resizable is there.
-// Of note, linux resizable must be linux, windows resizable must be windows, multi-boot can be either for OS.
 $this->schema[] = array(
-    "UPDATE `imageTypes` SET `imageTypeName` = 'Single Disk - Resizable' WHERE `imageTypes`.`imageTypeName` = 'Single Disk (NTFS Only, Resizable)'",
+    "UPDATE `imageTypes` SET `imageTypeName`='Single Disk - Resizable' "
+    . "WHERE `imageTypes`.`imageTypeName`='Single Disk (NTFS Only, Resizable)'",
 );
 // 112
 $this->schema[] = array(
-    "ALTER TABLE `hosts`
-    ADD COLUMN `hostProductKey` varchar(50) NOT NULL AFTER `hostADPass`",
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN `hostProductKey` varchar(50) NOT NULL AFTER `hostADPass`",
     );
 // 113
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_ADVANCED_MENU_LOGIN','This setting enforces a login parameter to get into the advanced menu.','0','FOG Boot Settings')",
-    );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_ADVANCED_MENU_LOGIN','This setting enforces a login "
+    . "parameter to get into the advanced menu.','0','FOG Boot Settings')",
+);
 // 114
 $this->schema[] = array(
-    "INSERT IGNORE INTO `os` (`osID`, `osName`, `osDescription`) VALUES ('8', 'Apple Mac OS', '')",
+    "INSERT IGNORE INTO `os` "
+    . "(`osID`, `osName`, `osDescription`) "
+    . "VALUES ('8', 'Apple Mac OS', '')",
 );
 // 115
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_TASK_FORCE_REBOOT','This setting enables or disables the Force reboot of tasks.  This only affects if users are logged in. If users are logged in, the host will not reboot if this is disabled.','0','FOG Client - Task Reboot')",
-    );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_TASK_FORCE_REBOOT','This setting enables or disables "
+    . "the Force reboot of tasks. This only affects if users are "
+    . "logged in. If users are logged in, the host will not "
+    . "reboot if this is disabled.','0','FOG Client - Task Reboot')",
+);
 // 116
 $this->schema[] = array(
-    "INSERT IGNORE INTO .globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_CLIENT_CHECKIN_TIME','This setting returns the client service checkin times to the server.','60','FOG Client')",
-        "UPDATE modules SET short_name='snapinclient' WHERE short_name='snapin'",
-    );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_CLIENT_CHECKIN_TIME','This setting returns the client "
+    . "service checkin times to the server.','60','FOG Client')",
+    "UPDATE modules SET short_name='snapinclient' WHERE short_name='snapin'",
+);
 // 117
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-    values('FOG_UDPCAST_MAXWAIT','This setting sets the max time to wait for other clients before starting the session in minutes.','10','Multicast Settings')",
-    );
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_UDPCAST_MAXWAIT','This setting sets the max time to "
+    . "wait for other clients before starting the session in "
+    . "minutes.','10','Multicast Settings')",
+);
 // 118
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values ('FOG_AES_ENCRYPT','This setting turns on or off the FOG Client on the client machine to send the data encrypted with AES.  If you select this and you do not have the new FOG Client installed on your system, the old client will be broken.  This will only be relevant if you have the FOG_NEW_CLIENT enabled as well.','0','FOG Client')",
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_NEW_CLIENT','This setting turns on or off the new client. If this is selected, and the clients do not have the new client installed, things should still work unless you also check the FOG_AES_ENCRYPT box.','0','FOG Client')",
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_CLIENT_MAXSIZE','This setting specifies the MAX size of the fog.log before it rolls over. It will only work for new clients.','204800000','FOG Client')",
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_AES_PASS_ENCRYPT_KEY','This setting just stores the AES Encryption Key. It will only work for new clients.  This is the key used for encrypting all traffic back and forth between the client and server','7NFJUuQTYLZIoea32DsP9V6f0tbWnzMy','FOG Client')",
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_AES_ADPASS_ENCRYPT_KEY','This setting just stores the AES Encryption ADPass encryption key. It will only work for new clients.  This is the key used for encrypting ADPass in AES format. If FOG_NEW_CLIENT is selected, to set the ADPass you simply type the plain text password and click update.  It will automatically encrypt and store the encrypted password in the database for you.','jPlUQRw5vLsrz8I1TuZdWDSiMFqXHtcm','FOG Client')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_AES_ENCRYPT','This setting turns on or off the FOG Client "
+    . "on the client machine to send the data encrypted with AES. If "
+    . "you select this and you do not have the new FOG Client installed "
+    . "on your system, the old client will be broken. This will only be "
+    . "relevant if you have the FOG_NEW_CLIENT enabled as well.'"
+    . ",'0','FOG Client'),"
+    . "('FOG_NEW_CLIENT','This setting turns on or off the new client. "
+    . "If this is selected, and the clients do not have the new client "
+    . "installed, things should still work unless you also check "
+    . "the FOG_AES_ENCRYPT box.','0','FOG Client'),"
+    . "('FOG_CLIENT_MAXSIZE','This setting specifies the MAX size of "
+    . "the fog.log before it rolls over. It will only work for new "
+    . "clients.','204800000','FOG Client'),"
+    . "('FOG_AES_PASS_ENCRYPT_KEY','This setting just stores the AES "
+    . "Encryption Key. It will only work for new clients. This is the "
+    . "key used for encrypting all traffic back and forth between the "
+    . "client and server','7NFJUuQTYLZIoea32DsP9V6f0tbWnzMy','FOG Client'),"
+    . "('FOG_AES_ADPASS_ENCRYPT_KEY','This setting just stores the AES "
+    . "Encryption ADPass encryption key. It will only work for new "
+    . "clients. This is the key used for encrypting ADPass in AES "
+    . "format. If FOG_NEW_CLIENT is selected, to set the ADPass "
+    . "you simply type the plain text password and click update. "
+    . "It will automatically encrypt and store the encrypted "
+    . "password in the database for you.',"
+    . "'jPlUQRw5vLsrz8I1TuZdWDSiMFqXHtcm','FOG Client')",
 );
 // 119
 $column = array_filter((array)self::$DB->getColumns('default', 'modules'));
 $this->schema[] = count($column) > 0 ? array() : array(
-    "ALTER TABLE `modules` ADD COLUMN `default` INT DEFAULT 1 NOT NULL AFTER `description`"
+    "ALTER TABLE `modules` ADD COLUMN `default` INT "
+    . "DEFAULT 1 NOT NULL AFTER `description`"
 );
 // 120
 $this->schema[] = array(
-    "CREATE TABLE IF NOT EXISTS `imagePartitionTypes` (
-        `imagePartitionTypeID` mediumint(9) NOT NULL auto_increment,
-        `imagePartitionTypeName` varchar(100) NOT NULL,
-        `imagePartitionTypeValue` varchar(10) NOT NULL,
-        PRIMARY KEY  (`imagePartitionTypeID`)
-    ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;",
-    "INSERT IGNORE INTO `imagePartitionTypes` (`imagePartitionTypeID`, `imagePartitionTypeName`, `imagePartitionTypeValue`) VALUES (1, 'Everything', 'all'),
-(2, 'Partition Table and MBR only', 'mbr'),
-(3, 'Partition 1 only', '1'),
-(4, 'Partition 2 only', '2'),
-(5, 'Partition 3 only', '3'),
-(6, 'Partition 4 only', '4'),
-(7, 'Partition 5 only', '5'),
-(8, 'Partition 6 only', '6'),
-(9, 'Partition 7 only', '7'),
-(10, 'Partition 8 only', '8'),
-(11, 'Partition 9 only', '9'),
-(12, 'Partition 10 only', '10');",
+    "CREATE TABLE IF NOT EXISTS `imagePartitionTypes` ("
+    . "`imagePartitionTypeID` mediumint(9) NOT NULL auto_increment,"
+    . "`imagePartitionTypeName` varchar(100) NOT NULL,"
+    . "`imagePartitionTypeValue` varchar(10) NOT NULL,"
+    . "PRIMARY KEY  (`imagePartitionTypeID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `imagePartitionTypes` "
+    . "(`imagePartitionTypeID`, `imagePartitionTypeName`,"
+    . "`imagePartitionTypeValue`)"
+    . "VALUES "
+    . "(1, 'Everything', 'all'),"
+    . "(2, 'Partition Table and MBR only', 'mbr'),"
+    . "(3, 'Partition 1 only', '1'),"
+    . "(4, 'Partition 2 only', '2'),"
+    . "(5, 'Partition 3 only', '3'),"
+    . "(6, 'Partition 4 only', '4'),"
+    . "(7, 'Partition 5 only', '5'),"
+    . "(8, 'Partition 6 only', '6'),"
+    . "(9, 'Partition 7 only', '7'),"
+    . "(10, 'Partition 8 only', '8'),"
+    . "(11, 'Partition 9 only', '9'),"
+    . "(12, 'Partition 10 only', '10')"
 );
 // 121
 $this->schema[] = array(
-    "ALTER TABLE `images` ADD COLUMN `imagePartitionTypeID` mediumint(9) NOT NULL AFTER `imageTypeID`",
-    "UPDATE images SET imagePartitionTypeID='1'",
-);
+    "ALTER TABLE `images` ADD COLUMN `imagePartitionTypeID` "
+    . "mediumint(9) NOT NULL AFTER `imageTypeID`",
+        "UPDATE images SET imagePartitionTypeID='1'",
+    );
 // 122
 $this->schema[] = array(
-    "CREATE TABLE IF NOT EXISTS `pxeMenu` (
-        `pxeID` mediumint(9) NOT NULL auto_increment,
-        `pxeName` varchar(100) NOT NULL,
-        `pxeDesc` longtext  NOT NULL,
-        `pxeParams` longtext NOT NULL,
-        `pxeRegOnly` INT DEFAULT 0 NOT NULL,
-        `pxeArgs` varchar(250) NULL,
-        `pxeDefault` INT DEFAULT 0 NOT NULL,
-        PRIMARY KEY  (`pxeID`)
-    ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;",
-    "INSERT IGNORE INTO `pxeMenu` (`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) VALUES (1, 'fog.local', 'Boot from hard disk', '1','2',NULL),
-(2, 'fog.memtest', 'Run Memtest86+', '0','2',NULL),
-(3, 'fog.reginput', 'Perform Full Host Registration and Inventory','0','0','mode=manreg'),
-(4, 'fog.keyreg', 'Update Product Key', '0','1',NULL),
-(5, 'fog.reg', 'Quick Registration and Inventory', '0','0','mode=autoreg'),
-(6, 'fog.deployimage', 'Deploy Image', '0', '1',NULL),
-(7, 'fog.multijoin', 'Join Multicast Session', '0','1',NULL),
-(8, 'fog.quickdel', 'Quick Host Deletion','0','1',NULL),
-(9, 'fog.sysinfo', 'Client System Information (Compatibility)','0','2','mode=sysinfo'),
-(10, 'fog.debug', 'Debug Mode','0','3','mode=onlydebug'),
-(11, 'fog.advanced', 'Advanced Menu','0','4',NULL),
-(12, 'fog.advancedlogin', 'Advanced Menu','0','5',NULL);",
-"UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param qihost 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.deployimage';",
-"UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param delhost 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.quickdel';",
-"UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param keyreg 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.keyreg';",
-"UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param debugAccess 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.debug';",
-"UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param sessionJoin 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.multijoin';",
-"UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param advLog 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.advancedlogin';",
+    "CREATE TABLE IF NOT EXISTS `pxeMenu` ("
+    . "`pxeID` mediumint(9) NOT NULL auto_increment,"
+    . "`pxeName` varchar(100) NOT NULL,"
+    . "`pxeDesc` longtext  NOT NULL,"
+    . "`pxeParams` longtext NOT NULL,"
+    . "`pxeRegOnly` INT DEFAULT 0 NOT NULL,"
+    . "`pxeArgs` varchar(250) NULL,"
+    . "`pxeDefault` INT DEFAULT 0 NOT NULL,"
+    . "PRIMARY KEY (`pxeID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `pxeMenu` "
+    . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
+    . "VALUES "
+    . "(1, 'fog.local', 'Boot from hard disk', '1','2',NULL),"
+    . "(2, 'fog.memtest', 'Run Memtest86+', '0','2',NULL),"
+    . "(3, 'fog.reginput', 'Perform Full Host Registration "
+    . "and Inventory','0','0','mode=manreg'),"
+    . "(4, 'fog.keyreg', 'Update Product Key', '0','1',NULL),"
+    . "(5, 'fog.reg', 'Quick Registration and Inventory', '0','0','mode=autoreg'),"
+    . "(6, 'fog.deployimage', 'Deploy Image', '0', '1',NULL),"
+    . "(7, 'fog.multijoin', 'Join Multicast Session', '0','1',NULL),"
+    . "(8, 'fog.quickdel', 'Quick Host Deletion','0','1',NULL),"
+    . "(9, 'fog.sysinfo', 'Client System Information "
+    . "(Compatibility)','0','2','mode=sysinfo'),"
+    . "(10, 'fog.debug', 'Debug Mode','0','3','mode=onlydebug'),"
+    . "(11, 'fog.advanced', 'Advanced Menu','0','4',NULL),"
+    . "(12, 'fog.advancedlogin', 'Advanced Menu','0','5',NULL)",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param qihost 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.deployimage'",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param delhost 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.quickdel'",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param keyreg 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.keyreg'",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param debugAccess 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.debug'",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param sessionJoin 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.multijoin'",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param advLog 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.advancedlogin'",
 );
 // 123
-$this->schema[] = array(
-);
+$this->schema[] = array();
 // 124
-$this->schema[] = array(
-);
+$this->schema[] = array();
 // 125
 $this->schema[] = array(
-    "UPDATE `taskTypes` SET ttKernelArgs='mc=bt type=down' WHERE ttID='24';",
+    "UPDATE `taskTypes` SET ttKernelArgs='mc=bt type=down' WHERE ttID='24'",
 );
 // 126
 $this->schema[] = array(
-    "ALTER TABLE `tasks` ADD COLUMN `taskIsDebug` mediumint(9) NOT NULL AFTER `taskStateID`",
+    "ALTER TABLE `tasks` ADD COLUMN `taskIsDebug` mediumint(9) "
+    . "NOT NULL AFTER `taskStateID`",
 );
 // 127
 $this->schema[] = array(
-    "ALTER TABLE `images` ADD COLUMN `imageProtect` mediumint(9) NOT NULL AFTER `imagePath`",
+    "ALTER TABLE `images` ADD COLUMN `imageProtect` mediumint(9) "
+    . "NOT NULL AFTER `imagePath`",
 );
 // 128
 $this->schema[] = array(
@@ -2047,16 +2129,20 @@ $this->schema[] = array(
 );
 // 129
 $this->schema[] = array(
-    "INSERT IGNORE INTO `pxeMenu` (`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) VALUES (13, 'fog.approvehost', 'Approve This Host','0','6',NULL);",
-    "UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param approveHost 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.approvehost';",
+    "INSERT IGNORE INTO `pxeMenu` "
+    . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
+    . "VALUES "
+    . "(13, 'fog.approvehost', 'Approve This Host','0','6',NULL)",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param approveHost 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.approvehost'",
 );
 // 130
 $this->schema[] = array_merge(
@@ -2065,35 +2151,72 @@ $this->schema[] = array_merge(
         "ALTER TABLE `hostMAC` ADD COLUMN `hmPending` INT DEFAULT 0 NOT NULL",
         "ALTER TABLE `hostMAC` ADD COLUMN `hmIgnoreClient` INT DEFAULT 0 NOT NULL",
         "ALTER TABLE `hostMAC` ADD COLUMN `hmIgnoreImaging` INT DEFAULT 0 NOT NULL",
-        "INSERT IGNORE INTO `hostMAC` (`hmHostID`,`hmMAC`,`hmIgnoreClient`,`hmIgnoreImaging`,`hmPending`,`hmPrimary`) SELECT `hostID`,`hostMAC`,'0','0','0','1' FROM `hosts` WHERE `hosts`.`hostMAC` IS NOT NULL",
-        "INSERT IGNORE INTO `hostMAC` (`hmMAC`,`hmHostID`,`hmPending`) SELECT `pmAddress`,`pmHostID`,'1' FROM `pendingMACS` WHERE `pmAddress` IS NOT NULL",
+        "INSERT IGNORE INTO `hostMAC` "
+        . "(`hmHostID`,`hmMAC`,`hmIgnoreClient`,`hmIgnoreImaging`,"
+        . "`hmPending`,`hmPrimary`) "
+        . "SELECT `hostID`,`hostMAC`,'0','0','0','1' FROM `hosts` "
+        . "WHERE `hosts`.`hostMAC` IS NOT NULL",
+        "INSERT IGNORE INTO `hostMAC` "
+        . "(`hmMAC`,`hmHostID`,`hmPending`) "
+        . "SELECT `pmAddress`,`pmHostID`,'1' FROM `pendingMACS` "
+        . "WHERE `pmAddress` IS NOT NULL",
         "ALTER TABLE `hosts` DROP COLUMN `hostMAC`",
-        "DROP TABLE `pendingMACS`"),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('hostMAC', array('hmHostID', 'hmMAC')), true)
+        "DROP TABLE `pendingMACS`"
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'hostMAC',
+            array(
+                'hmHostID',
+                'hmMAC'
+            )
+        ),
+        true
+    )
 );
 // 131
 $this->schema[] = array(
-    "CREATE TABLE IF NOT EXISTS `ipxeTable` (
-        `ipxeID` mediumint(9) NOT NULL auto_increment,
-        `ipxeProduct` longtext NOT NULL,
-        `ipxeManufacturer` longtext NOT NULL,
-        `ipxeFilename` longtext NOT NULL,
-        `ipxeMAC` VARCHAR(17) NOT NULL,
-        `ipxeSuccess` VARCHAR(2) NOT NULL,
-        `ipxeFailure` VARCHAR(2) NOT NULL,
-        PRIMARY KEY  (`ipxeID`)
-    ) ENGINE=MyISAM;",
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_DHCP_BOOTFILENAME','This setting just sets what is in use for the boot filename.  It is up to the admin to ensure this setting is correct for their database to be accurate.  Default setting is undionly.kpxe','undionly.kpxe','TFTP Server')",
+    "CREATE TABLE IF NOT EXISTS `ipxeTable` ("
+    . "`ipxeID` mediumint(9) NOT NULL auto_increment,"
+    . "`ipxeProduct` longtext NOT NULL,"
+    . "`ipxeManufacturer` longtext NOT NULL,"
+    . "`ipxeFilename` longtext NOT NULL,"
+    . "`ipxeMAC` VARCHAR(17) NOT NULL,"
+    . "`ipxeSuccess` VARCHAR(2) NOT NULL,"
+    . "`ipxeFailure` VARCHAR(2) NOT NULL,"
+    . "PRIMARY KEY (`ipxeID`)"
+    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_DHCP_BOOTFILENAME','This setting just sets what is "
+    . "in use for the boot filename. It is up to the admin to "
+    . "ensure this setting is correct for their database to be "
+    . "accurate. Default setting is undionly.kpxe',"
+    . "'undionly.kpxe','TFTP Server')",
 );
 // 132
-$column = array_filter((array)self::$DB->getColumns('ipxeVersion', 'ipxeTable'));
+$column = array_filter(
+    (array)self::$DB->getColumns(
+        'ipxeVersion',
+        'ipxeTable'
+    )
+);
 $this->schema[] = count($column) ? array() : array(
     "ALTER TABLE `ipxeTable` ADD COLUMN `ipxeVersion` LONGTEXT NOT NULL",
 );
 // 133
+$snapindir = self::getSetting('FOG_SNAPINDIR');
+if (!$snapindir) {
+    $snapindir = '/opt/fog/snapins';
+}
 $this->schema[] = array(
-    "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmSnapinPath` LONGTEXT NOT NULL AFTER `ngmRootPath`",
-    "UPDATE `nfsGroupMembers` SET `ngmSnapinPath`='".(self::getSetting('FOG_SNAPINDIR') ? self::getSetting('FOG_SNAPINDIR') : '/opt/fog/snapins')."'",
+    "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmSnapinPath` "
+    . "LONGTEXT NOT NULL AFTER `ngmRootPath`",
+    "UPDATE `nfsGroupMembers` SET `ngmSnapinPath`='"
+    . $snapindir
+    . "'",
 );
 // 134
 $this->schema[] = array(
@@ -2101,25 +2224,42 @@ $this->schema[] = array(
 );
 // 135
 $this->schema[] = array(
-    "ALTER TABLE `multicastSessions` ADD COLUMN `msSessClients` INT(11) NOT NULL AFTER msClients",
+    "ALTER TABLE `multicastSessions` ADD COLUMN `msSessClients` "
+    . "INT(11) NOT NULL AFTER msClients",
 );
 // 136
 $this->schema[] = array_merge(
     array(
-        "ALTER TABLE `tasks` ADD COLUMN `taskImageID` INT(11) NOT NULL AFTER `taskHostID`",
-        "CREATE TABLE IF NOT EXISTS `imageGroupAssoc` (
-            `igaID` mediumint(9) NOT NULL auto_increment,
-            `igaImageID` mediumint(9) NOT NULL,
-            `igaStorageGroupID` mediumint(9) NOT NULL,
-            PRIMARY KEY  (`igaID`)
-        ) ENGINE=MyISAM;",
-        "INSERT IGNORE INTO `imageGroupAssoc` (`igaImageID`,`igaStorageGroupID`) SELECT `imageID`,`imageNFSGroupID` FROM `images` WHERE `imageNFSGroupID` IS NOT NULL",
-        "ALTER TABLE `images` DROP COLUMN `imageNFSGroupID`"),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('imageGroupAssoc', array('igaImageID', 'igaImageID')), true)
+        "ALTER TABLE `tasks` ADD COLUMN `taskImageID` "
+        . "INT(11) NOT NULL AFTER `taskHostID`",
+        "CREATE TABLE IF NOT EXISTS `imageGroupAssoc` ("
+        . "`igaID` mediumint(9) NOT NULL auto_increment,"
+        . "`igaImageID` mediumint(9) NOT NULL,"
+        . "`igaStorageGroupID` mediumint(9) NOT NULL,"
+        . "PRIMARY KEY (`igaID`)"
+        . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+        "INSERT IGNORE INTO `imageGroupAssoc` "
+        . "(`igaImageID`,`igaStorageGroupID`) "
+        . "SELECT `imageID`,`imageNFSGroupID` FROM "
+        . "`images` WHERE `imageNFSGroupID` IS NOT NULL",
+        "ALTER TABLE `images` DROP COLUMN `imageNFSGroupID`"
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'imageGroupAssoc',
+            array(
+                'igaImageID',
+                'igaImageID'
+            )
+        ),
+        true
+    )
 );
 // 137
 $this->schema[] = array(
-    "ALTER TABLE `scheduledTasks` ADD COLUMN `stImageID` INT(11) NOT NULL AFTER `stGroupHostID`",
+    "ALTER TABLE `scheduledTasks` ADD COLUMN `stImageID` "
+    . "INT(11) NOT NULL AFTER `stGroupHostID`",
 );
 // 138
 $this->schema[] = array(
@@ -2127,40 +2267,84 @@ $this->schema[] = array(
 );
 // 139
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_MEMORY_LIMIT','Default setting is the memory limit set in php.ini.','128','General Settings')",
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_EMAIL_ACTION','Enables email reports of image actions as they\'re completed.  Default setting is disabled.','0','FOG Email Settings')",
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_EMAIL_ADDRESS','Email address(s) to send the reports to. Multiple emails just separate by comma (e.g. email1@domain.com,email2@domain2.com)','','FOG Email Settings')",
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_EMAIL_BINARY','Path and arguments to the emailing binary php should use for the mail function. Default is \'/usr/sbin/sendmail -t -f noreply@\$\{server-name\}.com -i\'','/usr/sbin/sendmail -t -f noreply@\$\{server-name\}.com -i','FOG Email Settings')",
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_FROM_EMAIL','Email from address. Default is fogserver.  \$\{server-name\} is set to the node name.','noreply@\$\{server-name\}.com','FOG Email Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_MEMORY_LIMIT','Default setting is the memory limit "
+    . "set in php.ini.','128','General Settings'),"
+    . "('FOG_EMAIL_ACTION','Enables email reports of image "
+    . "actions as they\'re completed. Default setting is disabled.',"
+    . "'0','FOG Email Settings'),"
+    . "('FOG_EMAIL_ADDRESS','Email address(s) to send the reports to. "
+    . "Multiple emails just separate by comma "
+    . "(e.g. email1@domain.com,email2@domain2.com)','','FOG Email Settings'),"
+    . "('FOG_EMAIL_BINARY','Path and arguments to the emailing binary "
+    . "php should use for the mail function. Default is "
+    . "\'/usr/sbin/sendmail -t -f noreply@\$\{server-name\}.com "
+    . "-i\'','/usr/sbin/sendmail -t -f "
+    . "noreply@\$\{server-name\}.com -i','FOG Email Settings'),"
+    . "('FOG_FROM_EMAIL','Email from address. Default is fogserver. "
+    . "\$\{server-name\} is set to the node name.',"
+    . "'noreply@\$\{server-name\}.com','FOG Email Settings')",
 );
 // 140
 $this->schema[] = array_merge(
     array(
-        "CREATE TABLE IF NOT EXISTS `snapinGroupAssoc` (
-            `sgaID` mediumint(9) NOT NULL auto_increment,
-            `sgaSnapinID` mediumint(9) NOT NULL,
-            `sgaStorageGroupID` mediumint(9) NOT NULL,
-            PRIMARY KEY  (`sgaID`)
-        ) ENGINE=MyISAM;",
-        "INSERT IGNORE INTO `snapinGroupAssoc` (`sgaSnapinID`,`sgaStorageGroupID`) SELECT `sID`,`snapinNFSGroupID` FROM `snapins` WHERE `snapinNFSGroupID` IS NOT NULL",
-        "ALTER TABLE `snapins` DROP COLUMN `snapinNFSGroupID`"),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('snapinGroupAssoc', array('sgaSnapinID', 'sgaSnapinID'), 'sgaSnapinID'), true)
+        "CREATE TABLE IF NOT EXISTS `snapinGroupAssoc` ("
+        . "`sgaID` mediumint(9) NOT NULL auto_increment,"
+        . "`sgaSnapinID` mediumint(9) NOT NULL,"
+        . "`sgaStorageGroupID` mediumint(9) NOT NULL,"
+        . "PRIMARY KEY (`sgaID`)"
+        . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+        "INSERT IGNORE INTO `snapinGroupAssoc` "
+        . "(`sgaSnapinID`,`sgaStorageGroupID`) "
+        . "SELECT `sID`,`snapinNFSGroupID` FROM `snapins` "
+        . "WHERE `snapinNFSGroupID` IS NOT NULL",
+        "ALTER TABLE `snapins` DROP COLUMN `snapinNFSGroupID`"
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'snapinGroupAssoc',
+            array(
+                'sgaSnapinID',
+                'sgaSnapinID'
+            ),
+            'sgaSnapinID'
+        ),
+        true
+    )
 );
 // 141
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_PXE_HIDDENMENU_TIMEOUT', '"._("This setting defines the default value for the pxe hidden menu timeout.")."', '3', 'FOG Boot Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_PXE_HIDDENMENU_TIMEOUT', 'This setting defines the default "
+    . "value for the pxe hidden menu timeout.', '3', 'FOG Boot Settings')",
 );
 // 142
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_USED_TASKS', '"._("This setting defines tasks to consider \'Used\' in the task count.  Listing is comma separated, using the ID\'s of the tasks.")."', '1,15,17', 'General Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_USED_TASKS', 'This setting defines tasks to consider "
+    . "\'Used\' in the task count. Listing is comma separated, "
+    . "using the ID\'s of the tasks.', '1,15,17', 'General Settings')",
 );
 // 143
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_GRACE_TIMEOUT', '"._("This setting defines the grace period for the reboots and shutdowns.  The value is specified in seconds")."', '60', 'FOG Client')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_GRACE_TIMEOUT', 'This setting defines the grace period "
+    . "for the reboots and shutdowns. The value is specified in seconds.',"
+    . "'60', 'FOG Client')",
 );
 // 144
 $this->schema[] = array(
-    "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmBandwidthLimit` INT(20) NOT NULL AFTER `ngmMaxClients`",
+    "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmBandwidthLimit` "
+    . "INT(20) NOT NULL AFTER `ngmMaxClients`",
 );
 // 145
 $this->schema[] = array(
@@ -2176,7 +2360,12 @@ $this->schema[] = array(
 );
 // 148
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_SNAPIN_LIMIT', '"._("This setting defines the maximum snapins allowed to be assigned to a host.  Value of 0 means unlimted.")."', '0', 'General Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_SNAPIN_LIMIT', 'This setting defines the maximum snapins "
+    . "allowed to be assigned to a host. Value of 0 means unlimted.', "
+    . "'0', 'General Settings')",
 );
 // 149
 $this->schema[] = array(
@@ -2201,20 +2390,39 @@ $this->schema[] = array(
 );
 // 153
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_FTP_IMAGE_SIZE', '"._('This setting defines the global enabling of image on server size.  Checkbox on or off is the enabling element.  Default is off.')."','0','General Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_FTP_IMAGE_SIZE', 'This setting defines the global enabling "
+    . "of image on server size. Checkbox on or off is the enabling element. "
+    . "Default is off.','0','General Settings')",
 );
 // 154
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_MULTICAST_ADDRESS','"._('This setting defines an alternate Multicast Address. Default is 0 which means disabled, value will be ip validated if entered.')."','0','Multicast Settings')",
-    "INSERT IGNORE INTO globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_MULTICAST_PORT_OVERRIDE','"._('This setting defines an override multicast port address, which of course remains static if set. Valid values are 0 thru 65535 and will be checked on save. Default is 0 which is disabled.')."','0','Multicast Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_MULTICAST_ADDRESS','This setting defines an alternate "
+    . "Multicast Address. Default is 0 which means disabled, value "
+    . "will be ip validated if entered.','0','Multicast Settings'),"
+    . "('FOG_MULTICAST_PORT_OVERRIDE','This setting defines an "
+    . "override multicast port address, which of course remains "
+    . "static if set. Valid values are 0 thru 65535 and will be "
+    . "checked on save. Default is 0 which is disabled.','0',"
+    . "'Multicast Settings')",
 );
 // 155
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_MULTICAST_DUPLEX','"._('This setting defines the duplex value. Default is FULL_DUPLEX.')."','--full-duplex','Multicast Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_MULTICAST_DUPLEX','This setting defines the duplex value. "
+    . "Default is FULL_DUPLEX.','--full-duplex','Multicast Settings')",
 );
 // 156
 $this->schema[] = array(
-    "UPDATE globalSettings SET settingValue='default/fog.css' WHERE settingKey='FOG_THEME'",
+    "UPDATE `globalSettings` SET `settingValue`='default/fog.css' "
+    . "WHERE `settingKey`='FOG_THEME'",
 );
 // 157, doesn't do anything but ensure all currently create tables are MyISAM
 $this->schema[] = array();
@@ -2226,38 +2434,258 @@ $this->schema[] = array();
 $this->schema[] = array();
 // 161
 $this->schema[] = array_merge(
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('greenFog', array('gfHostID'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('groups', array('groupName'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('hosts', array('hostName'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('hostScreenSettings', array('hssHostID'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('imagePartitionTypes', array('imagePartitionTypeName'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('imageTypes', array('imageTypeValue'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('images', array('imageName'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('inventory', array('iHostID'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('modules', array('short_name'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('nfsGroups', array('ngName'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('os', array('osName'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('plugins', array('pName'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('printers', array('pAlias'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('snapins', array('sName'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('supportedOS', array('osName'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('taskStates', array('tsName'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('taskTypes', array('ttName'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('groupMembers', array('gmHostID', 'gmGroupID'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('hostAutoLogOut', array('haloHostID', 'haloTime'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('hostMAC', array('hmHostID', 'hmMAC'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('imageGroupAssoc', array('igaImageID', 'igaStorageGroupID'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('moduleStatusByHost', array('msHostID', 'msModuleID'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('multicastSessionsAssoc', array('msID', 'tID'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('nfsFailures', array('nfNodeID', 'nfHostID', 'nfTaskID'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('nfsGroupMembers', array('ngmMemberName', 'ngmGroupID'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('oui', array('ouiMACPrefix', 'ouiMan'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('printerAssoc', array('paHostID', 'paPrinterID'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('snapinAssoc', array('saSnapinID', 'saHostID'))),
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('snapinGroupAssoc', array('sgaStorageGroupID', 'sgaSnapinID')))
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'greenFog',
+            array('gfHostID')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'groups',
+            array('groupName')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'hosts',
+            array('hostName')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'hostScreenSettings',
+            array('hssHostID')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'imagePartitionTypes',
+            array('imagePartitionTypeName')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'imageTypes',
+            array('imageTypeValue')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'images',
+            array('imageName')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'inventory',
+            array('iHostID')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'modules',
+            array('short_name')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'nfsGroups',
+            array('ngName')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'os',
+            array('osName')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'plugins',
+            array('pName')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'printers',
+            array('pAlias')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'snapins',
+            array('sName')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'supportedOS',
+            array('osName')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'taskStates',
+            array('tsName')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'taskTypes',
+            array('ttName')
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'groupMembers',
+            array(
+                'gmHostID',
+                'gmGroupID'
+            )
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'hostAutoLogOut',
+            array(
+                'haloHostID',
+                'haloTime'
+            )
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'hostMAC',
+            array(
+                'hmHostID',
+                'hmMAC'
+            )
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'imageGroupAssoc',
+            array(
+                'igaImageID',
+                'igaStorageGroupID'
+            )
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'moduleStatusByHost',
+            array(
+                'msHostID',
+                'msModuleID'
+            )
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'multicastSessionsAssoc',
+            array(
+                'msID',
+                'tID'
+            )
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'nfsFailures',
+            array(
+                'nfNodeID',
+                'nfHostID',
+                'nfTaskID'
+            )
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'nfsGroupMembers',
+            array(
+                'ngmMemberName',
+                'ngmGroupID'
+            )
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'oui',
+            array(
+                'ouiMACPrefix',
+                'ouiMan'
+            )
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'printerAssoc',
+            array(
+                'paHostID',
+                'paPrinterID'
+            )
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'snapinAssoc',
+            array(
+                'saSnapinID',
+                'saHostID'
+            )
+        )
+    ),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'snapinGroupAssoc',
+            array(
+                'sgaStorageGroupID',
+                'sgaSnapinID'
+            )
+        )
+    )
 );
 // 162
-$this->schema[] = $tmpSchema->dropDuplicateData(DATABASE_NAME, array('snapinTasks', array('stJobID', 'stSnapinID')));
+$this->schema[] = $tmpSchema->dropDuplicateData(
+    DATABASE_NAME,
+    array(
+        'snapinTasks',
+        array(
+            'stJobID',
+            'stSnapinID'
+        )
+    )
+);
 // 163
 $this->schema[] = array(
     "DROP TABLE IF EXISTS `hostFingerprintAssoc`,`queueAssoc`,`nodeJSconfig`",
@@ -2267,11 +2695,21 @@ $this->schema[] = array(
 );
 // 165
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_REGISTRATION_ENABLED','This setting enables the capabilities to allow registration to occur or not.  Default setting is enabled.','1','FOG Boot Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_REGISTRATION_ENABLED','This setting enables the capabilities "
+    . "to allow registration to occur or not. Default setting is enabled.',"
+    . "'1','FOG Boot Settings')",
 );
 // 166
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_TZ_INFO','This setting allows the user to set the system timezone. Default is UTC in the db, but will first try the ini set if possible.','UTC','General Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_TZ_INFO','This setting allows the user to set the "
+    . "system timezone. Default is UTC in the db, but will first "
+    . "try the ini set if possible.','UTC','General Settings')",
 );
 // 167
 $this->schema[] = array(
@@ -2279,16 +2717,31 @@ $this->schema[] = array(
 );
 // 168
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_KERNEL_DEBUG','This setting allows the user to have the kernel debug flag set. Default is off.','0','FOG Boot Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_KERNEL_DEBUG','This setting allows the user to have the "
+    . "kernel debug flag set. Default is off.','0','FOG Boot Settings')",
 );
 // 169
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_KERNEL_LOGLEVEL','This setting allows the user to specify which loglevel the want. Default is 4.','4','FOG Boot Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_KERNEL_LOGLEVEL','This setting allows the user to specify "
+    . "which loglevel the want. Default is 4.','4','FOG Boot Settings')",
 );
 // 170
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_FTP_PORT','This setting allows the user to specify the ftp port to be used.  Default Value is port 21.','21','General Settings')",
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_FTP_TIMEOUT','This setting allows the user to specify the FTP Timeout. This value is entered in seconds. Default is 90.','90','General Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_FTP_PORT','This setting allows the user to specify the "
+    . "ftp port to be used. Default Value is port 21.',"
+    . "'21','General Settings'),"
+    . "('FOG_FTP_TIMEOUT','This setting allows the user to specify "
+    . "the FTP Timeout. This value is entered in seconds. "
+    . "Default is 90.','90','General Settings')",
 );
 // 171
 $this->schema[] = array(
@@ -2313,11 +2766,26 @@ $this->schema[] = array(
     );
 // 176
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey,settingDesc,settingValue,settingCategory) values('FOG_AD_DEFAULT_PASSWORD_LEGACY','This setting defines the default value to populate the hosts Active Directory password value but only uses the old FOGCrypt method of encryption.  This setting must be encrypted.  The FOG_NEW_CLIENT setting will determine if it is going to use this or the other value to populate.','','Active Directory Defaults')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_AD_DEFAULT_PASSWORD_LEGACY','This setting defines the "
+    . "default value to populate the hosts Active Directory "
+    . "password value but only uses the old FOGCrypt method "
+    . "of encryption. This setting must be encrypted. The "
+    . "FOG_NEW_CLIENT setting will determine if it is going "
+    . "to use this or the other value to populate.',"
+    . "'','Active Directory Defaults')",
 );
 // 177
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey,settingDesc,settingValue,settingCategory) values('FOG_NONREG_DEVICE','This setting defines a target disk to apply an image to specifically for non-registered hosts.  If not set, a disk will be selected by the init.','','Non-Registered Host Image')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_NONREG_DEVICE','This setting defines a target disk to "
+    . "apply an image to specifically for non-registered hosts. "
+    . "If not set, a disk will be selected by the init.',"
+    . "'','Non-Registered Host Image')",
 );
 // 178
 $this->schema[] = array(
@@ -2333,84 +2801,111 @@ $this->schema[] = array(
 );
 // 181
 $this->schema[] = array(
-    "INSERT IGNORE INTO `os` (`osID`, `osName`, `osDescription`) VALUES ('9', 'Windows 10', '')",
+    "INSERT IGNORE INTO `os` "
+    . "(`osID`, `osName`, `osDescription`) "
+    . "VALUES "
+    . "('9', 'Windows 10', '')",
 );
 // 182
 $this->schema[] = array(
-    "UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param qihost 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.deployimage';",
-"UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param delhost 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.quickdel';",
-"UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param keyreg 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.keyreg';",
-"UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param debugAccess 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.debug';",
-"UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param sessionJoin 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.multijoin';",
-"UPDATE `pxeMenu` SET `pxeParams`='login
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param username \${username}
-param password \${password}
-param advLog 1
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.advancedlogin';",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param qihost 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.deployimage'",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param delhost 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.quickdel'",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param keyreg 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.keyreg'",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param debugAccess 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.debug'",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param sessionJoin 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.multijoin'",
+    "UPDATE `pxeMenu` SET `pxeParams`='login\n"
+    . "params\n"
+    . "param mac0 \${net0/mac}\n"
+    . "param arch \${arch}\n"
+    . "param username \${username}\n"
+    . "param password \${password}\n"
+    . "param advLog 1\n"
+    . "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n"
+    . "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' "
+    . "WHERE `pxeName`='fog.advancedlogin'",
 );
 // 183
 $this->schema[] = array(
-    "ALTER TABLE `nfsGroupMembers` CHANGE `ngmInterface` `ngmInterface` VARCHAR (25) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '".STORAGE_INTERFACE."'",
+    "ALTER TABLE `nfsGroupMembers` CHANGE `ngmInterface` "
+    . "`ngmInterface` VARCHAR (25) CHARACTER SET utf8 "
+    . "COLLATE utf8_general_ci NOT NULL DEFAULT '"
+    . STORAGE_INTERFACE
+    . "'",
 );
 // 184
 $this->schema[] = array(
-    "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmFTPPath` LONGTEXT NOT NULL AFTER `ngmRootPath`",
-    "UPDATE `nfsGroupMembers` SET `ngmFTPPath`='".STORAGE_DATADIR."'",
+    "ALTER TABLE `nfsGroupMembers` ADD COLUMN "
+    . "`ngmFTPPath` LONGTEXT NOT NULL AFTER `ngmRootPath`",
+    "UPDATE `nfsGroupMembers` SET `ngmFTPPath`='"
+    . STORAGE_DATADIR
+    . "'",
 );
 // 185
 $this->schema[] = array(
-    "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmMaxBitrate` VARCHAR (25) AFTER `ngmFTPPath`",
+    "ALTER TABLE `nfsGroupMembers` ADD COLUMN "
+    . "`ngmMaxBitrate` VARCHAR (25) AFTER `ngmFTPPath`",
 );
 // 186
 $this->schema[] = array(
     "DELETE FROM `globalSettings` WHERE `settingKey`='FOG_NEW_CLIENT'",
     "ALTER TABLE .`hosts` ADD COLUMN `hostADPassLegacy` LONGTEXT AFTER `hostADPass`",
-    "UPDATE `globalSettings` SET `settingDesc`='This setting defines the default value to populate the hosts Active Directory password value but only uses the old FOGCrypt method of encryption.  This setting must be encrypted before stored.' WHERE `settingKey`='FOG_AD_DEFAULT_PASSWORD_LEGACY'",
-    "UPDATE `globalSettings` SET `settingDesc`='This setting defines the default value to populate the host\'s Active Directory password value.  This setting will encrypt and store then encrypted value of the plain text value entered in this field automatically.' WHERE `settingKey`='FOG_AD_DEFAULT_PASSWORD'",
+    "UPDATE `globalSettings` SET "
+    . "`settingDesc`='This setting defines the default value "
+    . "to populate the hosts Active Directory password value "
+    . "but only uses the old FOGCrypt method of encryption. "
+    . "This setting must be encrypted before stored.' "
+    . "WHERE `settingKey`='FOG_AD_DEFAULT_PASSWORD_LEGACY'",
+    "UPDATE `globalSettings` SET "
+    . "`settingDesc`='This setting defines the default value "
+    . "to populate the host\'s Active Directory password value. "
+    . "This setting will encrypt and store then encrypted value "
+    . "of the plain text value entered in this field automatically.' "
+    . "WHERE `settingKey`='FOG_AD_DEFAULT_PASSWORD'",
 );
 // 187
 $this->schema[] = array(
@@ -2423,7 +2918,18 @@ $this->schema[] = array(
 );
 // 189
 $this->schema[] = array_merge(
-    $tmpSchema->dropDuplicateData(DATABASE_NAME, array('globalSettings', array('settingKey', 'settingKey'), 'settingKey'), true),
+    $tmpSchema->dropDuplicateData(
+        DATABASE_NAME,
+        array(
+            'globalSettings',
+            array(
+                'settingKey',
+                'settingKey'
+            ),
+            'settingKey'
+        ),
+        true
+    ),
     array("DELETE FROM `globalSettings` WHERE `settingKey`='FOG_WOL_PATH'",
     "DELETE FROM `globalSettings` WHERE `settingKey`='FOG_WOL_HOST'",
     "DELETE FROM `globalSettings` WHERE `settingKey`='FOG_WOL_INTERFACE'")
@@ -2463,7 +2969,12 @@ $this->schema[] = array(
 );
 // 192
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values('FOG_EFI_BOOT_EXIT_TYPE','The method (U)EFI uses to boot the next boot entry/hard drive.  Most will require exit.','exit','FOG Boot Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_EFI_BOOT_EXIT_TYPE','The method (U)EFI uses to boot the "
+    . "next boot entry/hard drive. Most will require exit.',"
+    . "'exit','FOG Boot Settings')",
 );
 // 193
 $this->schema[] = array(
@@ -2534,33 +3045,77 @@ $this->schema[] = array(
 );
 // 206
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values ('SERVICE_LOG_PATH','The path of which to write logs for the linux side fog services. (Default /opt/fog/log/)','/opt/fog/log/','FOG Linux Service Logs'),
-('SERVICE_LOG_SIZE','The maximum size for logs before starting new in bytes (Default 1000000)','1000000','FOG Linux Service Logs'),
-('MULTICASTLOGFILENAME','Filename to store the multicast log file to (Default multicast.log)','multicast.log','FOG Linux Service Logs'),
-('IMAGEREPLICATORLOGFILENAME','Filename to store the image replicator log file to (Default fogreplicator.log)','fogreplicator.log','FOG Linux Service Logs'),
-('SNAPINREPLICATORLOGFILENAME','Filename to store the snapin replicator log file to (Default fogsnapinrep.log)','fogsnapinrep.log','FOG Linux Service Logs'),
-('SCHEDULERLOGFILENAME','Filename to store the scheduled tasks log file to (Default fogscheduled.log)','fogscheduler.log','FOG Linux Service Logs'),
-('SERVICEMASTERLOGFILENAME','Filename to store the service master log file to (Default servicemaster.log)','servicemaster.log','FOG Linux Service Logs'),
-('PINGHOSTLOGFILENAME','Filename to store the ping host log file to (Default pinghost.log)','pinghost.log','FOG Linux Service Logs')",
-"INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values ('PINGHOSTSLEEPTIME','The amount of time between ping host service runs.  Value is in seconds. (Default 300)','300','FOG Linux Service Sleep Times'),
-('SERVICESLEEPTIME','The amount of time between service master service runs.  Value is in seconds. This is what restarts failed services. (Default 300)','300','FOG Linux Service Sleep Times'),
-('SNAPINREPSLEEPTIME','The amount of time between snapin replicator service runs.  Value is in seconds. (Default 600)','600','FOG Linux Service Sleep Times'),
-('SCHEDULERSLEEPTIME','The amount of time between task scheduler service runs.  Value is in seconds. (Default 60)','60','FOG Linux Service Sleep Times'),
-('IMAGEREPSLEEPTIME','The amount of time between image replicator service runs.  Value is in seconds. (Default 600)','600','FOG Linux Service Sleep Times'),
-('MULTICASTSLEEPTIME','The amount of time between multicast service runs.  Value is in seconds. (Default 10)','10','FOG Linux Service Sleep Times')",
-"INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values ('MULTICASTDEVICEOUTPUT','The tty to output to for multicast.  (Default /dev/tty2)','/dev/tty2','FOG Linux Service TTY Output'),
-('IMAGEREPLICATORDEVICEOUTPUT','The tty to output to for image replicator. (Default /dev/tty3)','/dev/tty3','FOG Linux Service TTY Output'),
-('SCHEDULERDEVICEOUTPUT','The tty to output to for task scheduler. (Default /dev/tty4)','/dev/tty4','FOG Linux Service TTY Output'),
-('SNAPINREPLICATORDEVICEOUTPUT','The tty to output to for snapin replicator. (Default /dev/tty5)','/dev/tty5','FOG Linux Service TTY Output'),
-('PINGHOSTDEVICEOUTPUT','The tty to output to for ping hosts. (Default /dev/tty6)','/dev/tty6','FOG Linux Service TTY Output')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('SERVICE_LOG_PATH','The path of which to write logs for the "
+    . "linux side fog services. (Default /opt/fog/log/)',"
+    . "'/opt/fog/log/','FOG Linux Service Logs'),"
+    . "('SERVICE_LOG_SIZE','The maximum size for logs before "
+    . "starting new in bytes (Default 1000000)','1000000','FOG Linux Service Logs'),"
+    . "('MULTICASTLOGFILENAME','Filename to store the multicast log file to "
+    . "(Default multicast.log)','multicast.log','FOG Linux Service Logs'),"
+    . "('IMAGEREPLICATORLOGFILENAME','Filename to store the image "
+    . "replicator log file to (Default fogreplicator.log)',"
+    . "'fogreplicator.log','FOG Linux Service Logs'),"
+    . "('SNAPINREPLICATORLOGFILENAME','Filename to store the snapin "
+    . "replicator log file to (Default fogsnapinrep.log)',"
+    . "'fogsnapinrep.log','FOG Linux Service Logs'),"
+    . "('SCHEDULERLOGFILENAME','Filename to store the scheduled "
+    . "tasks log file to (Default fogscheduled.log)',"
+    . "'fogscheduler.log','FOG Linux Service Logs'),"
+    . "('SERVICEMASTERLOGFILENAME','Filename to store "
+    . "the service master log file to (Default servicemaster.log)',"
+    . "'servicemaster.log','FOG Linux Service Logs'),"
+    . "('PINGHOSTLOGFILENAME','Filename to store the ping host log "
+    . "file to (Default pinghost.log)','pinghost.log','FOG Linux Service Logs'),"
+    . "('PINGHOSTSLEEPTIME','The amount of time between ping host service runs. "
+    . "Value is in seconds. (Default 300)','300','FOG Linux Service Sleep Times'),"
+    . "('SERVICESLEEPTIME','The amount of time between service master service "
+    . "runs. Value is in seconds. This is what restarts failed services. "
+    . "(Default 300)','300','FOG Linux Service Sleep Times'),"
+    . "('SNAPINREPSLEEPTIME','The amount of time between snapin "
+    . "replicator service runs. Value is in seconds. (Default 600)',"
+    . "'600','FOG Linux Service Sleep Times'),"
+    . "('SCHEDULERSLEEPTIME','The amount of time between task "
+    . "scheduler service runs. Value is in seconds. (Default 60)',"
+    . "'60','FOG Linux Service Sleep Times'),"
+    . "('IMAGEREPSLEEPTIME','The amount of time between image "
+    . "replicator service runs. Value is in seconds. (Default 600)',"
+    . "'600','FOG Linux Service Sleep Times'),"
+    . "('MULTICASTSLEEPTIME','The amount of time between multicast "
+    . "service runs. Value is in seconds. (Default 10)',"
+    . "'10','FOG Linux Service Sleep Times'),"
+    . "('MULTICASTDEVICEOUTPUT','The tty to output to for multicast. "
+    . "(Default /dev/tty2)','/dev/tty2','FOG Linux Service TTY Output'),"
+    . "('IMAGEREPLICATORDEVICEOUTPUT','The tty to output to for image "
+    . "replicator. (Default /dev/tty3)','/dev/tty3',"
+    . "'FOG Linux Service TTY Output'),"
+    . "('SCHEDULERDEVICEOUTPUT','The tty to output to for task scheduler. "
+    . "(Default /dev/tty4)','/dev/tty4','FOG Linux Service TTY Output'),"
+    . "('SNAPINREPLICATORDEVICEOUTPUT','The tty to output to for snapin "
+    . "replicator. (Default /dev/tty5)','/dev/tty5',"
+    . "'FOG Linux Service TTY Output'),"
+    . "('PINGHOSTDEVICEOUTPUT','The tty to output to for ping hosts. " 
+    . "(Default /dev/tty6)','/dev/tty6','FOG Linux Service TTY Output')",
 );
 // 207
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) values ('FOG_WIPE_TIMEOUT', '"._("This setting defines the number of seconds to wait for wiping disks. (Default 60)")."', '60', 'FOG Boot Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_WIPE_TIMEOUT', 'This setting defines the number of "
+    . "seconds to wait for wiping disks. (Default 60)',"
+    . "'60', 'FOG Boot Settings')",
 );
 // 208
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_BANDWIDTH_TIME', '"._("This setting defines how often to refresh the bandwidth chart.  Values are in seconds")."','1','General Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_BANDWIDTH_TIME', 'This setting defines how often to "
+    . "refresh the bandwidth chart. Values are in seconds',"
+    . "'1','General Settings')",
 );
 // 209
 $this->schema[] = array(
@@ -2568,15 +3123,23 @@ $this->schema[] = array(
 );
 // 210
 $this->schema[] = array(
-    "UPDATE `taskTypes` SET `ttDescription`='"._('Fast wipe will boot the client computer and wipe the first few sectors of data on the hard disk.  Data will not be overwritten but the boot up of the disk and partition layout will no longer exist.')."' WHERE `ttID`=18",
+    "UPDATE `taskTypes` SET `ttDescription`='Fast wipe will boot "
+    . "the client computer and wipe the first few sectors of data "
+    . "on the hard disk. Data will not be overwritten but the boot "
+    . "up of the disk and partition layout will no longer exist.' "
+    . "WHERE `ttID`=18",
 );
 // 211
 $this->schema[] = array(
-    "INSERT IGNORE INTO `os` (`osID`, `osName`, `osDescription`) VALUES ('51', 'Chromium OS', 'Chromium OS')",
+    "INSERT IGNORE INTO `os` "
+    . "(`osID`, `osName`, `osDescription`) "
+    . "VALUES "
+    . "('51', 'Chromium OS', 'Chromium OS')",
 );
 // 212
 $this->schema[] = array(
-    "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmSSLPath` LONGTEXT NOT NULL AFTER `ngmRootPath`",
+    "ALTER TABLE `nfsGroupMembers` ADD COLUMN "
+    . "`ngmSSLPath` LONGTEXT NOT NULL AFTER `ngmRootPath`",
     "UPDATE `nfsGroupMembers` SET `ngmSSLPath`='/opt/fog/snapins/ssl'",
 );
 // 213
@@ -2584,22 +3147,35 @@ $this->schema[] = array(
     "DROP TABLE IF EXISTS `peer`",
     "DROP TABLE IF EXISTS `peer_torrent`",
     "DROP TABLE IF EXISTS `torrent`",
-    "DELETE FROM `globalSettings` WHERE `settingKey` IN ('FOG_TORRENT_INTERVAL','FOG_TORRENT_TIMEOUT','FOG_TORRENT_INTERVAL_MIN','FOG_TORRENT_PPR','FOG_TORRENTDIR')",
+    "DELETE FROM `globalSettings` WHERE "
+    . "`settingKey` IN ('FOG_TORRENT_INTERVAL',"
+    . "'FOG_TORRENT_TIMEOUT','FOG_TORRENT_INTERVAL_MIN',"
+    . "'FOG_TORRENT_PPR','FOG_TORRENTDIR')",
     "DELETE FROM `taskTypes` WHERE `ttID`=24",
 );
 // 214
 $this->schema[] = array(
     "ALTER TABLE `snapins` ADD `sShutdown` ENUM('0','1') NOT NULL DEFAULT '0'",
     "ALTER TABLE `hosts` ADD `hostEnforce` ENUM('0','1') NOT NULL DEFAULT '1'",
-    "INSERT IGNORE INTO globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_ENFORCE_HOST_CHANGES','This setting only operates with the new client.  Default value is 1 which allows the new client to enforce name changing on every cycle it checks in, so any change on FOG will take place on the next cycle. If unset (value 0) it will only perform hostname change and/or AD Joining on host restart.',1,'Active Directory Defaults')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_ENFORCE_HOST_CHANGES','This setting only operates with "
+    . "the new client. Default value is 1 which allows the new "
+    . "client to enforce name changing on every cycle it checks "
+    . "in, so any change on FOG will take place on the next cycle. "
+    . "If unset (value 0) it will only perform hostname change "
+    . "and/or AD Joining on host restart.',1,'Active Directory Defaults')",
 );
 // 215
 $this->schema[] = array(
-    "UPDATE `taskTypes` SET `ttKernelArgs`='mode=inventory deployed=1' WHERE `ttID`=10",
+    "UPDATE `taskTypes` SET `ttKernelArgs`='mode=inventory deployed=1' "
+    . "WHERE `ttID`=10",
 );
 // 216
 $this->schema[] = array(
-    "ALTER TABLE `tasks` ADD COLUMN `taskWOL` ENUM('0','1')  NOT NULL AFTER `taskLastMemberID`",
+    "ALTER TABLE `tasks` ADD COLUMN `taskWOL` ENUM('0','1') "
+    . "NOT NULL AFTER `taskLastMemberID`",
 );
 // 217
 $this->schema[] = array(
@@ -2607,27 +3183,39 @@ $this->schema[] = array(
 );
 // 218
 $this->schema[] = array(
-    "INSERT IGNORE INTO globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_CLIENT_AUTOUPDATE','This setting lets the admin choose whether or not the clients on the hosts will be able to auto update. Default is enabled.',1,'FOG Client')",
-    "UPDATE `globalSettings` SET `settingCategory`= REPLACE(`settingCategory`,'FOG Service','FOG Client') WHERE `settingCategory` LIKE '%FOG Service%'",
-    "UPDATE `globalSettings` SET `settingCategory`= REPLACE(`settingCategory`,'FOG Linux Service','FOG Service') WHERE `settingCategory` LIKE '%FOG Linux Service%'",
-    "UPDATE `globalSettings` SET `settingKey`=REPLACE(`settingKey`,'FOG_SERVICE','FOG_CLIENT') WHERE `settingKey` LIKE '%FOG_SERVICE%'",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_CLIENT_AUTOUPDATE','This setting lets the admin choose "
+    . "whether or not the clients on the hosts will be able to auto "
+    . "update. Default is enabled.',1,'FOG Client')",
+    "UPDATE `globalSettings` SET "
+    . "`settingCategory`=REPLACE(`settingCategory`,'FOG Service','FOG Client') "
+    . "WHERE `settingCategory` LIKE '%FOG Service%'",
+    "UPDATE `globalSettings` SET "
+    . "`settingCategory`=REPLACE(`settingCategory`,'FOG Linux Service',"
+    . "'FOG Service') WHERE `settingCategory` LIKE '%FOG Linux Service%'",
+    "UPDATE `globalSettings` SET "
+    . "`settingKey`=REPLACE(`settingKey`,'FOG_SERVICE','FOG_CLIENT') "
+    . "WHERE `settingKey` LIKE '%FOG_SERVICE%'",
 );
 // 219
 $this->schema[] = array(
 );
 // 220
 $this->schema[] = array(
-    "DELETE FROM `globalSettings` WHERE `settingKey` IN('FOG_QUEUESIZE','FOG_PXE_IMAGE_DNSADDRESS')",
-    "CREATE TABLE `groupMembers_new` (
-        `gmID` int(11) NOT NULL AUTO_INCREMENT,
-        `gmHostID` int(11) NOT NULL,
-        `gmGroupID` int(11) NOT NULL,
-        PRIMARY KEY(`gmID`),
-UNIQUE KEY `gmHostID` (`gmHostID`,`gmGroupID`),
-UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),
-KEY `new_index` (`gmHostID`),
-KEY `new_index1` (`gmGroupID`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "DELETE FROM `globalSettings` WHERE `settingKey` "
+    . "IN ('FOG_QUEUESIZE','FOG_PXE_IMAGE_DNSADDRESS')",
+    "CREATE TABLE `groupMembers_new` ("
+    . "`gmID` int(11) NOT NULL AUTO_INCREMENT,"
+    . "`gmHostID` int(11) NOT NULL,"
+    . "`gmGroupID` int(11) NOT NULL,"
+    . "PRIMARY KEY(`gmID`),"
+    . "UNIQUE KEY `gmHostID` (`gmHostID`,`gmGroupID`),"
+    . "UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),"
+    . "KEY `new_index` (`gmHostID`),"
+    . "KEY `new_index1` (`gmGroupID`)"
+    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `groupMembers_new` SELECT * FROM `groupMembers`",
     "DROP TABLE `groupMembers`",
     "RENAME TABLE `groupMembers_new` TO `groupMembers`",
@@ -2640,32 +3228,85 @@ $this->schema[] = array(
 );
 // 223
 $this->schema[] = array(
-    "CREATE TABLE `powerManagement` (
-        `pmID` INT NOT NULL AUTO_INCREMENT,
-        `pmHostID` INT NOT NULL,
-        `pmMin` VARCHAR(50) NOT NULL,
-        `pmHour` VARCHAR(50) NOT NULL,
-        `pmDom` VARCHAR(50) NOT NULL,
-        `pmMonth` VARCHAR(50) NOT NULL,
-        `pmDow` VARCHAR(50) NOT NULL,
-        `pmAction` ENUM('shutdown','reboot','wol') NOT NULL,
-        `pmOndemand` ENUM('0','1') NOT NULL,
-        PRIMARY KEY (`pmID`),
-UNIQUE INDEX `cron` (`pmHostID`,`pmMin`,`pmHour`,`pmDom`,`pmMonth`,`pmDow`,`pmAction`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
-    "INSERT IGNORE INTO `modules` (`id`, `name`, `short_name`, `description`) VALUES (13, 'Power Management', 'powermanagement', 'This setting will enable or disable the power management service module on this specific host.  If the module is globally disabled, this setting is ignored.')",
-    "INSERT IGNORE INTO globalSettings(settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_CLIENT_POWERMANAGEMENT_ENABLED', 'This setting defines if the Windows Service module power management should be enabled on client computers. This service allows an on demand shutdown/reboot/wol of hosts.  It also operates in a cron style setup to allow many different schedules of shutdowns, restarts, and/or wol. (Valid values: 0 or 1).','1','FOG Client - Power Management')",
+    "CREATE TABLE `powerManagement` ("
+    . "`pmID` INT NOT NULL AUTO_INCREMENT,"
+    . "`pmHostID` INT NOT NULL,"
+    . "`pmMin` VARCHAR(50) NOT NULL,"
+    . "`pmHour` VARCHAR(50) NOT NULL,"
+    . "`pmDom` VARCHAR(50) NOT NULL,"
+    . "`pmMonth` VARCHAR(50) NOT NULL,"
+    . "`pmDow` VARCHAR(50) NOT NULL,"
+    . "`pmAction` ENUM('shutdown','reboot','wol') NOT NULL,"
+    . "`pmOndemand` ENUM('0','1') NOT NULL,"
+    . "PRIMARY KEY (`pmID`),"
+    . "UNIQUE INDEX `cron` "
+    . "(`pmHostID`,`pmMin`,`pmHour`,`pmDom`,"
+    . "`pmMonth`,`pmDow`,`pmAction`)"
+    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "INSERT IGNORE INTO `modules` "
+    . "(`id`, `name`, `short_name`, `description`) "
+    . "VALUES "
+    . "(13, 'Power Management', 'powermanagement', 'This setting will "
+    . "enable or disable the power management service module on this "
+    . "specific host. If the module is globally disabled, this "
+    . "setting is ignored.')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_CLIENT_POWERMANAGEMENT_ENABLED', 'This setting defines if "
+    . "the Windows Service module power management should be enabled "
+    . "on client computers. This service allows an on demand "
+    . "shutdown/reboot/wol of hosts. It also operates in a "
+    . "cron style setup to allow many different schedules of "
+    . "shutdowns, restarts, and/or wol. (Valid values: 0 or 1).',"
+    . "'1','FOG Client - Power Management')",
 );
 // 224
 $this->schema[] = array(
-    "INSERT IGNORE INTO `globalSettings` (`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES
-    ('FOG_IPXE_MAIN_COLOURS','This setting allows the admin to define their own color (colour) elements for the iPXE Boot Menu. Each element must have a new line as a separator for multiple items.','colour --rgb 0x00567a 1 ||\ncolour --rgb 0x00567a 2 ||\ncolour --rgb 0x00567a 4 ||','FOG Boot Settings'),
-        ('FOG_IPXE_MAIN_CPAIRS','This setting allows the admin to define their own cpair elements for the iPXE Boot Menu. Each element must have a new line as a separator for multiple items. Fallback will use FOG_IPXE_MAIN_FALLBACK_CPAIRS','cpair --foreground 7 --background 2 2 ||','FOG Boot Settings'),
-('FOG_IPXE_MAIN_FALLBACK_CPAIRS','This setting allows the admin to define their own cpair elements for the iPXE Boot Menu. Each element must have a new line as a separator for multiple items. This is only called in case of failure to load menu with picture.','cpair --background 0 1 ||\ncpair --background 1 2 ||','FOG Boot Settings'),
-('FOG_IPXE_VALID_HOST_COLOURS','This setting allows the admin to define their own color (colour) elements for the iPXE Boot Menu on how the host text will display if the host is registered. Each element must have a new line as a separator for multiple items.','colour --rgb 0x00567a 0 ||','FOG Boot Settings'),
-('FOG_IPXE_INVALID_HOST_COLOURS','This setting allows the admin to define their own color (colour) elements for the iPXE Boot Menu on how the host text will display if the host is not registered. Each element must have a new line as a separator for multiple items.','colour --rgb 0xff0000 0 ||','FOG Boot Settings'),
-('FOG_IPXE_HOST_CPAIRS','This setting allows the admin to define their own cpair elements for the iPXE Boot Menu of the host information. Each element must have a new line as a separator for multiple items.','cpair --foreground 1 1 ||\ncpair --foreground 0 3 ||\ncpair --foreground 4 4 ||','FOG Boot Settings'),
-('FOG_IPXE_BG_FILE','This setting allows the admin to define their own background file.  Files will need to be in the fog web root under service/ipxe. Default file is bg.png.','bg.png','FOG Boot Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_IPXE_MAIN_COLOURS','This setting allows the admin to "
+    . "define their own color (colour) elements for the iPXE "
+    . "Boot Menu. Each element must have a new line as a "
+    . "separator for multiple items.','colour --rgb 0x00567a 1 "
+    . "||\ncolour --rgb 0x00567a 2 ||\ncolour --rgb 0x00567a 4 "
+    . "||','FOG Boot Settings'),"
+    . "('FOG_IPXE_MAIN_CPAIRS','This setting allows the admin "
+    . "to define their own cpair elements for the iPXE Boot Menu. "
+    . "Each element must have a new line as a separator for "
+    . "multiple items. Fallback will use "
+    . "FOG_IPXE_MAIN_FALLBACK_CPAIRS','cpair --foreground 7 "
+    . "--background 2 2 ||','FOG Boot Settings'),"
+    . "('FOG_IPXE_MAIN_FALLBACK_CPAIRS','This setting allows "
+    . "the admin to define their own cpair elements for the "
+    . "iPXE Boot Menu. Each element must have a new line as "
+    . "a separator for multiple items. This is only called "
+    . "in case of failure to load menu with picture.',"
+    . "'cpair --background 0 1 ||\ncpair --background 1 2 ||',"
+    . "'FOG Boot Settings'),"
+    . "('FOG_IPXE_VALID_HOST_COLOURS','This setting allows the "
+    . "admin to define their own color (colour) elements "
+    . "for the iPXE Boot Menu on how the host text will "
+    . "display if the host is registered. Each element "
+    . "must have a new line as a separator for multiple "
+    . "items.','colour --rgb 0x00567a 0 ||','FOG Boot Settings'),"
+    . "('FOG_IPXE_INVALID_HOST_COLOURS','This setting allows the "
+    . "admin to define their own color (colour) elements for "
+    . "the iPXE Boot Menu on how the host text will display "
+    . "if the host is not registered. Each element must have "
+    . "a new line as a separator for multiple items.',"
+    . "'colour --rgb 0xff0000 0 ||','FOG Boot Settings'),"
+    . "('FOG_IPXE_HOST_CPAIRS','This setting allows the admin "
+    . "to define their own cpair elements for the iPXE Boot "
+    . "Menu of the host information. Each element must have "
+    . "a new line as a separator for multiple items.',"
+    . "'cpair --foreground 1 1 ||\ncpair --foreground 0 3 "
+    . "||\ncpair --foreground 4 4 ||','FOG Boot Settings'),"
+    . "('FOG_IPXE_BG_FILE','This setting allows the admin to "
+    . "define their own background file. Files will need to "
+    . "be in the fog web root under service/ipxe. Default "
+    . "file is bg.png.','bg.png','FOG Boot Settings')",
 );
 // 225
 $this->schema[] = array(
@@ -2692,8 +3333,10 @@ $this->schema[] = array(
     "ALTER TABLE `hosts` CHANGE `hostPending` `hostPending` ENUM('0','1') NOT NULL",
     "ALTER TABLE `hostMAC` CHANGE `hmPrimary` `hmPrimary` ENUM('0','1') NOT NULL",
     "ALTER TABLE `hostMAC` CHANGE `hmPending` `hmPending` ENUM('0','1') NOT NULL",
-    "ALTER TABLE `hostMAC` CHANGE `hmIgnoreClient` `hmIgnoreClient` ENUM('0','1') NOT NULL",
-    "ALTER TABLE `hostMAC` CHANGE `hmIgnoreImaging` `hmIgnoreImaging` ENUM('0','1') NOT NULL",
+    "ALTER TABLE `hostMAC` CHANGE `hmIgnoreClient` "
+    . "`hmIgnoreClient` ENUM('0','1') NOT NULL",
+    "ALTER TABLE `hostMAC` CHANGE `hmIgnoreImaging` "
+    . "`hmIgnoreImaging` ENUM('0','1') NOT NULL",
 );
 // 228
 $this->schema[] = array(
@@ -2707,29 +3350,63 @@ $this->schema[] = array(
 );
 // 230
 $this->schema[] = array(
-    "UPDATE `taskTypes` set `ttDescription`='Deploy action will send an image saved on the FOG server to the client computer with all included snapins.' WHERE `ttID`=1",
-    "UPDATE `taskTypes` set `ttDescription`='Capture will pull an image from a client computer that will be saved on the server.' WHERE `ttID`=2",
-    "UPDATE `taskTypes` set `ttDescription`='Deploy - Debug mode allows FOG to setup the environment to allow you send a specific image to a computer, but instead of sending the image, FOG will leave you at a prompt right before sending. If you actually wish to send the image all you need to do is type \"fog\" and hit enter.' WHERE `ttID`=15",
-    "UPDATE `taskTypes` set `ttDescription`='Capture - Debug mode allows FOG to setup the environment to allow you capture a specific image from a computer, but instead of capturing the image, FOG will leave you at a prompt right before restoring. If you actually wish to capture the image all you need to do is type \"fog\" and hit enter.' WHERE `ttID`=16",
-    "UPDATE `taskTypes` set `ttDescription`='Deploy without snapins allows FOG to image the workstation, but after the task is complete any snapins linked to the host or group will NOT be sent.' WHERE `ttID`=17",
-    "UPDATE `pxeMenu` SET `pxeName`='fog.deployimage',`pxeDesc`='Deploy Image' WHERE `pxeName`='fog.quickimage'"
+    "UPDATE `taskTypes` SET "
+    . "`ttDescription`='Deploy action will send an image "
+    . "saved on the FOG server to the client computer with "
+    . "all included snapins.' WHERE `ttID`=1",
+    "UPDATE `taskTypes` SET "
+    . "`ttDescription`='Capture will pull an image from a "
+    . "client computer that will be saved on the server.' WHERE `ttID`=2",
+    "UPDATE `taskTypes` SET "
+    . "`ttDescription`='Deploy - Debug mode allows FOG to "
+    . "setup the environment to allow you send a specific "
+    . "image to a computer, but instead of sending the "
+    . "image, FOG will leave you at a prompt right before "
+    . "sending. If you actually wish to send the image all "
+    . "you need to do is type \"fog\" and hit enter.' WHERE `ttID`=15",
+    "UPDATE `taskTypes` SET "
+    . "`ttDescription`='Capture - Debug mode allows FOG to "
+    . "setup the environment to allow you capture a specific "
+    . "image from a computer, but instead of capturing the image, "
+    . "FOG will leave you at a prompt right before restoring. "
+    . "If you actually wish to capture the image all you need "
+    . "to do is type \"fog\" and hit enter.' WHERE `ttID`=16",
+    "UPDATE `taskTypes` SET `ttDescription`='Deploy without "
+    . "snapins allows FOG to image the workstation, but after "
+    . "the task is complete any snapins linked to the host or "
+    . "group will NOT be sent.' WHERE `ttID`=17",
+    "UPDATE `pxeMenu` SET `pxeName`='fog.deployimage',"
+    . "`pxeDesc`='Deploy Image' WHERE `pxeName`='fog.quickimage'"
 );
 // 231
 $this->schema[] = array(
     "DELETE FROM `moduleStatusByHost` WHERE `msState`='0'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='1' WHERE `msModuleID`='dircleanup'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='2' WHERE `msModuleID`='usercleanup'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='3' WHERE `msModuleID`='displaymanager'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='4' WHERE `msModuleID`='autologout'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='5' WHERE `msModuleID`='greenfog'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='6' WHERE `msModuleID`='snapin'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='7' WHERE `msModuleID`='clientupdater'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='8' WHERE `msModuleID`='hostregister'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='9' WHERE `msModuleID`='hostnamechanger'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='10' WHERE `msModuleID`='printermanager'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='11' WHERE `msModuleID`='taskreboot'",
-    "UPDATE `moduleStatusByHost` SET `msModuleID`='12' WHERE `msModuleID`='usertracker'",
-    "ALTER TABLE `moduleStatusByHost` CHANGE `msModuleID` `msModuleID` INT NOT NULL",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='1' WHERE `msModuleID`='dircleanup'",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='2' WHERE `msModuleID`='usercleanup'",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='3' WHERE `msModuleID`='displaymanager'",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='4' WHERE `msModuleID`='autologout'",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='5' WHERE `msModuleID`='greenfog'",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='6' WHERE `msModuleID`='snapin'",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='7' WHERE `msModuleID`='clientupdater'",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='8' WHERE `msModuleID`='hostregister'",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='9' WHERE `msModuleID`='hostnamechanger'",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='10' WHERE `msModuleID`='printermanager'",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='11' WHERE `msModuleID`='taskreboot'",
+    "UPDATE `moduleStatusByHost` SET "
+    . "`msModuleID`='12' WHERE `msModuleID`='usertracker'",
+    "ALTER TABLE `moduleStatusByHost` CHANGE "
+    . "`msModuleID` `msModuleID` INT NOT NULL",
 );
 // 232
 $this->schema[] = array(
@@ -2737,8 +3414,11 @@ $this->schema[] = array(
 );
 // 233
 $this->schema[] = array(
-    "UPDATE `globalSettings` SET `settingKey`='FOG_CAPTUREIGNOREPAGEHIBER' WHERE `settingKey`='FOG_UPLOADIGNOREPAGEHIBER'",
-    "UPDATE `globalSettings` SET `settingKey`='FOG_CAPTURERESIZEPCT' WHERE `settingKey`='FOG_UPLOADRESIZEPCT'",
+    "UPDATE `globalSettings` SET "
+    . "`settingKey`='FOG_CAPTUREIGNOREPAGEHIBER' "
+    . "WHERE `settingKey`='FOG_UPLOADIGNOREPAGEHIBER'",
+    "UPDATE `globalSettings` SET `settingKey`='FOG_CAPTURERESIZEPCT' "
+    . "WHERE `settingKey`='FOG_UPLOADRESIZEPCT'",
 );
 // 234
 $this->schema[] = array(

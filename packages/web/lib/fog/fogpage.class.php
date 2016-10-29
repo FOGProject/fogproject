@@ -449,13 +449,13 @@ abstract class FOGPage extends FOGBase
             (
                 count($args) ?
                 sprintf(
-                    ', Arguments = %s',
-                    implode(
-                        ', ',
-                        array_walk(
-                            $args,
-                            $vals
-                        )
+', Arguments = %s',
+implode(
+', ',
+array_walk(
+    $args,
+    $vals
+)
                     )
                 ) :
                 ''
@@ -1986,7 +1986,7 @@ abstract class FOGPage extends FOGBase
                     $optFound = $ou;
                 }
                 if (!$optFound && preg_match('#;#', $OU)) {
-                    $optFound = $ou;
+                $optFound = $ou;
                 }
                 printf(
                     '<option value="%s"%s>%s</option>',
@@ -2664,24 +2664,24 @@ abstract class FOGPage extends FOGBase
             $array = array();
             foreach ($globalModules as $index => &$key) {
                 switch ($key) {
-                    case 'greenfog':
-                        $class='GF';
-                        continue 2;
-                    case 'powermanagement':
-                        $class='PM';
-                        break;
-                    case 'printermanager':
-                        $class='PrinterClient';
-                        break;
-                    case 'taskreboot':
-                        $class='Jobs';
-                        break;
-                    case 'usertracker':
-                        $class='UserTrack';
-                        break;
-                    default:
-                        $class=$key;
-                        break;
+                case 'greenfog':
+                    $class='GF';
+                    continue 2;
+                case 'powermanagement':
+                    $class='PM';
+                    break;
+                case 'printermanager':
+                    $class='PrinterClient';
+                    break;
+                case 'taskreboot':
+                    $class='Jobs';
+                    break;
+                case 'usertracker':
+                    $class='UserTrack';
+                    break;
+                default:
+                    $class=$key;
+                    break;
                 }
                 $disabled = in_array(
                     $key,
@@ -2985,16 +2985,16 @@ abstract class FOGPage extends FOGBase
             &$name,
             &$index
         ) use (&$ids) {
-            $this->data[] = array(
+        $this->data[] = array(
             'host_id'=>$ids[$index],
             'host_name'=>$name,
             'check_num'=>1,
-            );
-            unset(
-                $name,
-                $ids[$index],
-                $index
-            );
+        );
+        unset(
+            $name,
+            $ids[$index],
+            $index
+        );
         };
         array_walk($names, $itemParser);
         if (count($this->data) > 0) {
@@ -3031,14 +3031,14 @@ abstract class FOGPage extends FOGBase
             printf(
                 '</div><br/><p class="c"><input type="submit" '
                 . 'value="%s %s(s) to %s" name="addHosts"/></p><br/>',
-                _('Add'),
-                (
+                    _('Add'),
+                    (
                         $objType ?
                         _('Group') :
                         _('Host')
                     ),
-                $this->node
-            );
+                    $this->node
+                );
         }
         unset($this->data);
         $this->headerData = array(
