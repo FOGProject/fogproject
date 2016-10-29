@@ -245,10 +245,11 @@ class EventManager extends FOGBase
                 )
             );
             $decClasses = get_declared_classes();
-            $exists = in_array(
-                $className,
-                $decClasses
-            ) || class_exists(
+            foreach ((array)$decClasses as $key => &$classExist) {
+                $exists[$classExist] = 1;
+                unset($classExist);
+            }
+            $exists = class_exists(
                 $className,
                 false
             );
