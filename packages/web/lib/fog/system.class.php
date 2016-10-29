@@ -53,7 +53,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '26');
+        define('FOG_VERSION', '1.3.0-RC-18');
         define('FOG_SCHEMA', 235);
         define('FOG_BCACHE_VER', 101);
         define('FOG_SVN_REVISION', 5990);
