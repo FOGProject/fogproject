@@ -190,6 +190,15 @@ class StorageNode extends FOGController
             $this->get('ip'),
             urlencode($this->get('snapinpath'))
         );
+        $testurl = sprintf(
+            'http://%s/fog/management/index.php',
+            $this->get('ip')
+        );
+        $handle = curl_init($testurl);
+        if (false === $handle) {
+            return;
+        }
+        @fclose($handle);
         $paths = self::$FOGURLRequests->process($url);
         $paths = array_shift($paths);
         $paths = json_decode($paths);
@@ -217,6 +226,15 @@ class StorageNode extends FOGController
             $this->get('ip'),
             urlencode($this->get('path'))
         );
+        $testurl = sprintf(
+            'http://%s/fog/management/index.php',
+            $this->get('ip')
+        );
+        $handle = curl_init($testurl);
+        if (false === $handle) {
+            return;
+        }
+        @fclose($handle);
         $paths = self::$FOGURLRequests->process($url);
         $paths = array_shift($paths);
         $paths = json_decode($paths);

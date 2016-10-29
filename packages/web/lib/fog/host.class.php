@@ -1099,7 +1099,7 @@ class Host extends FOGController
         $node = $this
             ->getImage()
             ->getStorageGroup()
-            ->getOptimalStorageNode($this->get('imageID'));
+            ->getOptimalStorageNode($this->getImage()->get('id'));
         $this->set('optimalStorageNode', $node);
     }
     /**
@@ -1449,14 +1449,7 @@ class Host extends FOGController
                 if ($TaskType->isCapture()) {
                     $StorageNode = $StorageGroup->getMasterStorageNode();
                 } else {
-                    $StorageNode = $this->getOptimalStorageNode(
-                        $this->get('imageID')
-                    );
-                }
-                if (!$StorageNode->isValid()) {
-                    $StorageNode = $StorageGroup->getOptimalStorageNode(
-                        $this->get('imageID')
-                    );
+                    $StorageNode = $this->getOptimalStorageNode();
                 }
                 if (!$StorageNode->isValid()) {
                     $msg = sprintf(
@@ -1640,7 +1633,7 @@ class Host extends FOGController
                 ->set(
                     'storagenodeID',
                     $StorageGroup
-                        ->getOptimalStorageNode($this->get('imageID'))
+                        ->getOptimalStorageNode($this->getImage()->get('id'))
                         ->get('id')
                 )
                 ->set('imageID', $Image->get('id'));

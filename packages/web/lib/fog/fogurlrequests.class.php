@@ -440,8 +440,13 @@ class FOGURLRequests extends FOGBase
         $sendAsJSON = false,
         $auth = false,
         $callback = false,
-        $file = false
+        $file = false,
+        $timeout = false
     ) {
+        if (false !== $timeout) {
+            $this->_timeout = $timeout;
+            $this->options[CURLOPT_TIMEOUT] = $timeout;
+        }
         if ($callback && is_callable($callback)) {
             $this->_callback = $callback;
         }

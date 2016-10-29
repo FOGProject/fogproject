@@ -2144,6 +2144,11 @@ abstract class FOGBase
                 $ip,
                 $webroot
             );
+            $handle = curl_init($testurl);
+            if (false === $handle) {
+                continue;
+            }
+            @fclose($handle);
             $nodeURLs[] = sprintf(
                 $url,
                 $ip,
@@ -2189,13 +2194,27 @@ abstract class FOGBase
             $ip,
             $webroot
         );
+        $handle = curl_init($testurl);
+        if (false !== $handle) {
+            $nodeURLs[] = sprintf(
+                $url,
+                $ip,
+                $webroot
+            );
+        }
+        @fclose($handle);
         if (count($nodeURLs) < 1) {
             return;
         }
         self::$FOGURLRequests->process(
             $nodeURLs,
             'POST',
-            array('mac' => $macStr)
+            array('mac' => $macStr),
+            false,
+            false,
+            false,
+            false,
+            1
         );
     }
 }
