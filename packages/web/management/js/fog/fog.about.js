@@ -40,4 +40,7 @@ $(function() {
             }
         });
     });
+    $('#kernelsel').change(function(e) {
+        this.form.submit();
+    });
 });

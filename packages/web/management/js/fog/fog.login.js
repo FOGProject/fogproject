@@ -14,26 +14,42 @@ $(function() {
         },
         dataType: 'json',
         success: function (data) {
-            var index = 0;
+            if (!data.sites) {
+                sites = 'Error contacting server';
+            } else {
+                sites = data.sites;
+            }
+            if (!data.version) {
+                version = 'Error contacting server';
+            } else {
+                version = $.parseJSON(data.version);
+            }
+            if (typeof(version.stable) == 'undefined'
+                    || !version.stable) {
+                stable = 'Error contacting server';
+            } else {
+                stable = version.stable;
+            }
+            if (typeof(version.dev) == 'undefined'
+                    || !version.dev) {
+                dev = 'Error contacting server';
+            } else {
+                dev = version.dev;
+            }
+            if (typeof(version.svn) == 'undefined'
+                    || !version.svn) {
+                svn = 'Error contacting server';
+            } else {
+                svn = version.svn;
+            }
             ResultContainers.each(function(ind,val) {
-                if (index === 0) {
-                    if (!data['error-sites']) {
-                        $(this).html(data['sites']);
-                    } else {
-                        $(this).html(data['error-sites']);
-                    }
+                if (ind === 0) {
+                    $(this).html(sites);
                 } else {
-                    if (!data['error-version']) {
-                        if (index === 1) $(this).html(data['version'].stable);
-                        if (index === 2) $(this).html(data['version'].dev);
-                        if (index === 3) $(this).html(data['version'].svn);
-                    } else {
-                        if (index === 1) $(this).html(data['error-version']);
-                        if (index === 2) $(this).html(data['error-version']);
-                        if (index === 3) $(this).html(data['error-version']);
-                    }
+                    if (ind === 1) $(this).html(stable);
+                    if (ind === 2) $(this).html(dev);
+                    if (ind === 3) $(this).html(svn);
                 }
-                index++;
             });
         },
         error: function() {

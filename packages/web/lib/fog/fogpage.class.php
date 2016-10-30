@@ -2326,29 +2326,9 @@ array_walk(
             'http://fogproject.org/globalusers',
             'http://fogproject.org/version/index.php?stable&dev&svn'
         );
-        foreach ($urls as $index => &$testurl) {
-            $test = self::$FOGURLRequests->isAvailable($testurl);
-            if (false === $test) {
-                if ($index < 1) {
-                    $data['error-sites'] = _('FOGProject server unavailable');
-                } else {
-                    $data['error-version'] = _('FOGProject server unavailable');
-                }
-                unset(
-                    $urls[$index],
-                    $testurl
-                );
-            }
-        }
-        $data = self::$FOGURLRequests->process($urls);
-        if (!isset($data['error-sites'])) {
-            $data['sites'] = $data[0];
-            unset($data[0]);
-        }
-        if (!isset($data['error-version'])) {
-            $data['version'] = $data[1];
-            unset($data[1]);
-        }
+        $resp = self::$FOGURLRequests->process($urls);
+        $data['sites'] = $resp[0];
+        $data['version'] = $resp[1];
         echo json_encode($data);
         exit;
     }

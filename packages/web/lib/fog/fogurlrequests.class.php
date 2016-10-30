@@ -501,7 +501,8 @@ class FOGURLRequests extends FOGBase
         $options[CURLOPT_URL] = $url;
         $options[CURLOPT_HEADER] = true;
         $options[CURLOPT_NOBODY] = true;
-        $options[CURLOPT_TIMEOUT] = 1;
+        $options[CURLOPT_TIMEOUT] = 0;
+        $options[CURLOPT_TIMEOUT_MS] = 1500;
         $options[CURLOPT_CONNECTTIMEOUT] = 1;
         curl_setopt_array($ch, $options);
         $resp = curl_exec($ch);

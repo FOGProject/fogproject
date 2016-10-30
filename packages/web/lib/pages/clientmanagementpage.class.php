@@ -105,9 +105,10 @@ class ClientManagementPage extends FOGPage
             _('Network Deployment')
         );
         printf(
-            '<a href="%s?smartinstaller" class="icon icon-hand" '
-            . 'title="%s. %s, %s, %s.">%s (%s)</a>',
+            '<a href="%s?%s" class="%s" title="%s. %s, %s, %s.">%s (%s)</a>',
             $url,
+            'smartinstaller',
+            'icon icon-hand',
             _('This is the recommended installer to use now'),
             _('It can be used on Windows'),
             _('Linux'),
