@@ -190,6 +190,14 @@ class SnapinClient extends FOGClient implements FOGClientSend
                         );
                         $location = "http://$ip{$webroot}";
                         $url = "{$location}status/getsnapinhash.php";
+                        $testurl = sprintf(
+                            'http://%s/fog/management/index.php',
+                            $ip
+                        );
+                        $test = self::$FOGURLRequests->isAvailable($testurl);
+                        if (false === $test) {
+                            continue;
+                        }
                         unset($curroot, $webroot, $ip);
                         $response = self::$FOGURLRequests->process(
                             $url,

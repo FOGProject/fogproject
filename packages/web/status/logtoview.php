@@ -114,7 +114,15 @@ if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
         echo json_encode($vals($_REQUEST['reverse'], $HookManager));
     } else {
         $url = sprintf('http://%s/fog/status/logtoview.php', $ip);
-        $url = filter_var($url, FILTER_SANITIZE_URL);
+        $testurl = sprintf(
+            'http://%s/fog/management/index.php',
+            $ip
+        );
+        $test = $FOGURLRequests->isAvailable($testurl);
+        if (false === $test) {
+            echo _('Node is not available!');
+            exit;
+        }
         $response = $FOGURLRequests->process(
             $url,
             'POST',

@@ -116,16 +116,39 @@ class StorageGroup extends FOGController
      */
     protected function loadEnablednodes()
     {
+        $ips = self::getSubObjectIDs(
+            'StorageNode',
+            array(
+                'storagegroupID' => $this->get('id'),
+                'id' => $this->get('allnodes'),
+                'isEnabled' => 1
+            ),
+            'ip'
+        );
+        $nodeIDs = array();
+        foreach ((array)$ips as &$ip) {
+            $nodeID = self::getSubObjectIDs(
+                'StorageNode',
+                array('ip' => $ip)
+            );
+            $nodeID = @max($nodeID);
+            $node = new StorageNode($nodeID);
+            if (!$node->isValid()) {
+                continue;
+            }
+            $testurl = sprintf(
+                'http://%s/fog/management/index.php',
+                $ip
+            );
+            if (false === self::$FOGURLRequests->isAvailable($testurl)) {
+                continue;
+            }
+            $nodeIDs[] = $nodeID;
+            unset($ip);
+        }
         $this->set(
             'enablednodes',
-            self::getSubObjectIDs(
-                'StorageNode',
-                array(
-                    'storagegroupID' => $this->get('id'),
-                    'id' => $this->get('allnodes'),
-                    'isEnabled' => 1
-                )
-            )
+            $nodeIDs
         );
     }
     /**

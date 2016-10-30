@@ -5,20 +5,18 @@
  * PHP version 5
  *
  * @category FOGURLRequests
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
  * Processes URL requests for our needs.
  *
  * @category FOGURLRequests
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 class FOGURLRequests extends FOGBase
@@ -414,7 +412,7 @@ class FOGURLRequests extends FOGBase
     private function _validUrl(&$url)
     {
         $url = filter_var($url, FILTER_SANITIZE_URL);
-        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+        if (false === filter_var($url, FILTER_VALIDATE_URL)) {
             unset($url);
         }
 
@@ -430,6 +428,7 @@ class FOGURLRequests extends FOGBase
      * @param mixed  $auth       Any authorization data needed
      * @param string $callback   A callback to use if needed
      * @param string $file       A filename to use to download a file
+     * @param mixed  $timeout    allow updating timeout values
      *
      * @return array
      */
@@ -479,5 +478,37 @@ class FOGURLRequests extends FOGBase
         }
 
         return $this->execute();
+    }
+    /**
+     * Quick test if url is available.
+     *
+     * @param string $url the url to check.
+     *
+     * @return void
+     */
+    public function isAvailable($url)
+    {
+        $this->_validUrl($url);
+        if (empty($url)) {
+            return false;
+        }
+        $ch = curl_init($url);
+        if (false == $ch) {
+            return false;
+        }
+        $request = new FOGRollingURL($url);
+        $options = $this->_getOptions($request);
+        $options[CURLOPT_URL] = $url;
+        $options[CURLOPT_HEADER] = true;
+        $options[CURLOPT_NOBODY] = true;
+        $options[CURLOPT_TIMEOUT] = 1;
+        $options[CURLOPT_CONNECTTIMEOUT] = 1;
+        curl_setopt_array($ch, $options);
+        $resp = curl_exec($ch);
+        curl_close($ch);
+        if ($resp) {
+            return true;
+        }
+        return false;
     }
 }

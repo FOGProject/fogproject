@@ -24,30 +24,50 @@ session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
-$kernelvers = function ($kernel) {
-    $currpath = sprintf(
-        '%s/service/ipxe/%s',
-        BASEPATH,
-        $kernel
+if (isset($_REQUEST['url'])) {
+    $url = $_REQUEST['url'];
+    $test = $FOGURLRequests->isAvailable($url);
+    if (false === $test) {
+        echo _('Node is not available!');
+        exit;
+    }
+    $res = $FOGURLRequests
+        ->process($url);
+    foreach ((array)$res as &$response) {
+        echo $response;
+        unset($response);
+    }
+    exit;
+} else {
+    $kernelvers = function ($kernel) {
+        $currpath = sprintf(
+            '%s/service/ipxe/%s',
+            BASEPATH,
+            $kernel
+        );
+        $reppath = preg_replace(
+            '#\\|/#',
+            DIRECTORY_SEPARATOR,
+            $currpath
+        );
+        $basepath = escapeshellarg($reppath);
+        $findstr = sprintf(
+            'strings %s | grep -A1 "%s:" | tail -1 | awk \'{print $1}\'',
+            $basepath,
+            'Undefined video mode number'
+        );
+        return shell_exec($findstr);
+    };
+    printf(
+        "%s\n",
+        FOG_VERSION
     );
-    $reppath = preg_replace(
-        '#\\|/#',
-        DIRECTORY_SEPARATOR,
-        $currpath
+    printf(
+        "bzImage Version: %s\n",
+        $kernelvers('bzImage')
     );
-    $basepath = escapeshellarg($reppath);
-    $findstr = sprintf(
-        'strings %s | grep -A1 "%s:" | tail -1 | awk \'{print $1}\'',
-        $basepath,
-        'Undefined video mode number'
+    printf(
+        "bzImage32 Version: %s",
+        $kernelvers('bzImage32')
     );
-    return shell_exec($findstr);
-};
-printf(
-    "bzImage Version: %s\n",
-    $kernelvers('bzImage')
-);
-printf(
-    "bzImage32 Version: %s\n",
-    $kernelvers('bzImage32')
-);
+}

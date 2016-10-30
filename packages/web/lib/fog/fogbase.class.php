@@ -7,20 +7,18 @@
  * This gives all the rest of the classes a common frame to work from.
  *
  * @category FOGBase
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
  * FOGBase, the base class for pretty much all of fog.
  *
  * @category FOGBase
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 abstract class FOGBase
@@ -216,6 +214,8 @@ abstract class FOGBase
     public static $mySchema = 0;
     /**
      * Initializes the FOG System if needed.
+     *
+     * @return void
      */
     private static function _init()
     {
@@ -542,6 +542,8 @@ abstract class FOGBase
      *
      * @param string $txt  the string to use
      * @param array  $data the data if txt is formatted string
+     *
+     * @return void
      */
     protected function fatalError($txt, $data = array())
     {
@@ -562,6 +564,8 @@ abstract class FOGBase
      *
      * @param string $txt  the string to use
      * @param array  $data the data if txt is formatted string
+     *
+     * @return void
      */
     protected function error($txt, $data = array())
     {
@@ -582,6 +586,8 @@ abstract class FOGBase
      *
      * @param string $txt  the string to use
      * @param array  $data the data if txt is formatted string
+     *
+     * @return void
      */
     protected function debug($txt, $data = array())
     {
@@ -602,6 +608,8 @@ abstract class FOGBase
      *
      * @param string $txt  the string to use
      * @param array  $data the data if txt is formatted string
+     *
+     * @return void
      */
     protected function info($txt, $data = array())
     {
@@ -622,6 +630,8 @@ abstract class FOGBase
      *
      * @param string $txt  the string to use
      * @param array  $data the data if txt is formatted string
+     *
+     * @return void
      */
     protected function setMessage($txt, $data = array())
     {
@@ -662,6 +672,8 @@ abstract class FOGBase
      * Redirect pages where/when necessary.
      *
      * @param string $url The url to redirect to
+     *
+     * @return void
      */
     protected function redirect($url = '')
     {
@@ -685,6 +697,7 @@ abstract class FOGBase
      * @param mixed  $new_value the value to insert
      *
      * @throws Exception
+     * @return void
      */
     protected function arrayInsertBefore($key, array &$array, $new_key, $new_value)
     {
@@ -710,6 +723,7 @@ abstract class FOGBase
      * @param mixed  $new_value the value to insert
      *
      * @throws Exception
+     * @return void
      */
     protected function arrayInsertAfter($key, array &$array, $new_key, $new_value)
     {
@@ -733,6 +747,7 @@ abstract class FOGBase
      * @param array        $array the array to work with
      *
      * @throws Exception
+     * @return void
      */
     protected function arrayRemove($key, array &$array)
     {
@@ -793,6 +808,8 @@ abstract class FOGBase
     }
     /**
      * Reset request variables.
+     *
+     * @return void
      */
     protected function resetRequest()
     {
@@ -809,6 +826,8 @@ abstract class FOGBase
     }
     /**
      * Set request vars particularly for post failures really.
+     * 
+     * @return void
      */
     protected function setRequest()
     {
@@ -1228,6 +1247,7 @@ abstract class FOGBase
      * @param string $new_key the key to change to
      *
      * @throws Exception
+     * @return void
      */
     protected function arrayChangeKey(array &$array, $old_key, $new_key)
     {
@@ -1690,6 +1710,7 @@ abstract class FOGBase
      * @param int    $level the level of the logging
      *
      * @throws Exception
+     * @return void
      */
     protected function log($txt, $level = 1)
     {
@@ -1719,6 +1740,8 @@ abstract class FOGBase
      * Log to history table.
      *
      * @param string $string the string to store
+     *
+     * @return void
      */
     protected function logHistory($string)
     {
@@ -1747,6 +1770,8 @@ abstract class FOGBase
      * Sets the order by element of sql.
      *
      * @param string $orderBy the string to order by
+     *
+     * @return void
      */
     public function orderBy(&$orderBy)
     {
@@ -2019,8 +2044,10 @@ abstract class FOGBase
         $sock = @fsockopen('ipinfo.io', 80);
         if ($sock !== false) {
             fclose($sock);
-            $res = self::$FOGURLRequests->process('http://ipinfo.io/ip', 'GET');
-            $IPs[] = $res[0];
+            if (self::$FOGURLRequests->isAvailable('http://ipinfo.io/ip')) {
+                $res = self::$FOGURLRequests->process('http://ipinfo.io/ip', 'GET');
+                $IPs[] = $res[0];
+            }
         }
         natcasesort($IPs);
         $retIPs = function (&$IP) {
@@ -2087,6 +2114,8 @@ abstract class FOGBase
      * Perform enmass wake on lan.
      *
      * @param array $macs The macs to send
+     *
+     * @return void
      */
     public function wakeUp($macs)
     {
@@ -2144,8 +2173,8 @@ abstract class FOGBase
                 $ip,
                 $webroot
             );
-            $handle = curl_init($testurl);
-            if (false === $handle) {
+            $test = self::$FOGURLRequests->isAvailable($testurl);
+            if (false === $test) {
                 continue;
             }
             @fclose($handle);
@@ -2194,15 +2223,14 @@ abstract class FOGBase
             $ip,
             $webroot
         );
-        $handle = curl_init($testurl);
-        if (false !== $handle) {
+        $test = self::$FOGURLRequests->isAvailable($testurl);
+        if (false !== $test) {
             $nodeURLs[] = sprintf(
                 $url,
                 $ip,
                 $webroot
             );
         }
-        @fclose($handle);
         if (count($nodeURLs) < 1) {
             return;
         }

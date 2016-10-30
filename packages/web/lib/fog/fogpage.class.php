@@ -2209,6 +2209,12 @@ array_walk(
                             _('Error: Failed to open temp file')
                         );
                     }
+                    $test = self::$FOGURLRequests->isAvailable($_SESSION['dl-kernel-file']);
+                    if (false === $test) {
+                        throw new Exception(
+                            _('Error: Failed to connect to server')
+                        );
+                    }
                     self::$FOGURLRequests->process(
                         $_SESSION['dl-kernel-file'],
                         'GET',
@@ -2316,21 +2322,32 @@ array_walk(
      */
     public function loginInfo()
     {
-        $data = self::$FOGURLRequests->process(
-            array(
-                'http://fogproject.org/globalusers',
-                'http://fogproject.org/version/index.php?stable&dev&svn'
-            )
+        $urls = array(
+            'http://fogproject.org/globalusers',
+            'http://fogproject.org/version/index.php?stable&dev&svn'
         );
-        if (!$data[0]) {
-            $data['error-sites'] = _('Error contacting server');
-        } else {
-            $data['sites'] = $data[0];
+        foreach ($urls as $index => &$testurl) {
+            $test = self::$FOGURLRequests->isAvailable($testurl);
+            if (false === $test) {
+                if ($index < 1) {
+                    $data['error-sites'] = _('FOGProject server unavailable');
+                } else {
+                    $data['error-version'] = _('FOGProject server unavailable');
+                }
+                unset(
+                    $urls[$index],
+                    $testurl
+                );
+            }
         }
-        if (!$data[1]) {
-            $data['error-version'] = _('Error contacting server');
-        } else {
-            $data['version'] = json_decode($data[1]);
+        $data = self::$FOGURLRequests->process($urls);
+        if (!isset($data['error-sites'])) {
+            $data['sites'] = $data[0];
+            unset($data[0]);
+        }
+        if (!isset($data['error-version'])) {
+            $data['version'] = $data[1];
+            unset($data[1]);
         }
         echo json_encode($data);
         exit;

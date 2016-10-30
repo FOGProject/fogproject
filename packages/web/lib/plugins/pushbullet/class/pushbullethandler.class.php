@@ -621,8 +621,7 @@ class PushbulletHandler
         $sendAsJSON = false,
         $auth = true
     ) {
-        $Requests = new FOGURLRequests();
-        $data = $Requests->process(
+        $data = self::$FOGURLRequests->process(
             $url,
             $method,
             $data,

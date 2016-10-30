@@ -157,7 +157,13 @@ function GraphDiskUsageUpdate() {
             id:NodeID
         },
         dataType: 'json',
-        beforeSend: function() {GraphDiskUsage.html('').removeClass('loaded').parents('a').prop('href','?node=hwinfo&id='+NodeID);},
+        beforeSend: function() {
+            GraphDiskUsage
+            .html('')
+            .removeClass('loaded')
+            .parents('a')
+            .prop('href','?node=hwinfo&id='+NodeID);
+        },
         success: GraphDiskUsagePlots,
         complete: function() {setTimeout(GraphDiskUsageUpdate,120000);}
     });
@@ -192,20 +198,26 @@ function GraphDiskUsagePlots(data) {
 }
 // Bandwidth Functions
 function UpdateBandwidth() {
+    urls = $('#bandwidthUrls').val().split(',');
+    names= $('#nodeNames').val().split(',');
     $.ajax({
         url: '?node=home',
-        type: 'POST',
         data: {
-            sub: 'bandwidth'
+            sub: 'bandwidth',
+            url: urls,
+            names: names
         },
         dataType: 'json',
         success: function(data) {
+            console.log(data);
             setTimeout(UpdateBandwidthGraph(data), bandwidthtime);
         },
         error: function(jqXHR, textStatus) {
             setTimeout(UpdateBandwidthGraph(null), bandwidthtime);
         },
-        complete: function() {GraphBandwidth.addClass('loaded');}
+        complete: function() {
+            GraphBandwidth.addClass('loaded');
+        }
     });
 }
 function UpdateBandwidthGraph(data) {

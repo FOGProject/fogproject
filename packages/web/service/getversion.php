@@ -43,6 +43,11 @@ if (isset($_REQUEST['client'])) {
         '0.0.0'
     );
 } elseif (isset($_REQUEST['url'])) {
+    $url = $_REQUEST['url'];
+    if (false === $FOGURLRequests->isAvailable($url)) {
+        echo _('Connection appears to be unavailable');
+        exit;
+    }
     $res = $FOGURLRequests
         ->process($_REQUEST['url']);
     $ver = array_shift($res);

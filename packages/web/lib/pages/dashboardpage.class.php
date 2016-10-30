@@ -66,66 +66,81 @@ class DashboardPage extends FOGPage
         $this->menu = array();
         $this->subMenu = array();
         $this->notes = array();
-        $StorageNodes = self::getClass('StorageNodeManager')
-            ->find(
-                array(
-                    'isEnabled' => 1,
-                    'isGraphEnabled' => 1
-                )
-            );
-        foreach ((array)$StorageNodes as $i => &$StorageNode) {
-            if (!$StorageNode->isValid()) {
-                continue;
-            }
-            $ip = $StorageNode->get('ip');
-            $curroot = trim(
-                trim(
-                    $StorageNode->get('webroot'),
-                    '/'
-                )
-            );
-            $webroot = sprintf(
-                '/%s',
-                (
-                    strlen($curroot) > 1 ?
-                    sprintf(
-                        '%s/',
-                        $curroot
-                    ) :
-                    '/'
-                )
-            );
-            $URL = filter_var(
-                sprintf(
+        if (!self::$ajax) {
+            $StorageNodes = self::getClass('StorageNodeManager')
+                ->find(
+                    array(
+                        'isEnabled' => 1,
+                        'isGraphEnabled' => 1
+                    )
+                );
+            foreach ((array)$StorageNodes as $i => &$StorageNode) {
+                if (!$StorageNode->isValid()) {
+                    continue;
+                }
+                $ip = $StorageNode->get('ip');
+                $curroot = trim(
+                    trim(
+                        $StorageNode->get('webroot'),
+                        '/'
+                    )
+                );
+                $webroot = sprintf(
+                    '/%s',
+                    (
+                        strlen($curroot) > 1 ?
+                        sprintf(
+                            '%s/',
+                            $curroot
+                        ) :
+                        '/'
+                    )
+                );
+                $URL = sprintf(
                     'http://%s%s',
                     $ip,
                     $webroot
-                ),
-                FILTER_SANITIZE_URL
+                );
+                $testurl = sprintf(
+                    'http://%s/fog/management/index.php',
+                    $ip
+                );
+                $test = self::$FOGURLRequests->isAvailable($testurl);
+                if (false === $test) {
+                    continue;
+                }
+                unset($ip, $curroot, $webroot);
+                self::$_nodeOpts .= sprintf(
+                    '<option value="%s" urlcall="%s">%s%s ()</option>',
+                    $StorageNode->get('id'),
+                    sprintf(
+                        '%sservice/getversion.php',
+                        $URL
+                    ),
+                    $StorageNode->get('name'),
+                    (
+                        $StorageNode->get('isMaster') ?
+                        ' *' :
+                        ''
+                    )
+                );
+                $URL = sprintf(
+                    '%sstatus/bandwidth.php?dev=%s',
+                    $URL,
+                    $StorageNode->get('interface')
+                );
+                self::$_nodeNames[] = $StorageNode->get('name');
+                self::$_nodeURLs[] = $URL;
+                unset($StorageNode);
+            }
+            printf(
+                '<input id="bandwidthUrls" type="hidden" value="%s"/>',
+                implode(',', self::$_nodeURLs)
             );
-            unset($ip, $curroot, $webroot);
-            self::$_nodeOpts .= sprintf(
-                '<option value="%s" urlcall="%s">%s%s ()</option>',
-                $StorageNode->get('id'),
-                sprintf(
-                    '%sservice/getversion.php',
-                    $URL
-                ),
-                $StorageNode->get('name'),
-                (
-                    $StorageNode->get('isMaster') ?
-                    ' *' :
-                    ''
-                )
+            printf(
+                '<input id="nodeNames" type="hidden" value="%s"/>',
+                implode(',', self::$_nodeNames)
             );
-            $URL = sprintf(
-                '%sstatus/bandwidth.php?dev=%s',
-                $URL,
-                $StorageNode->get('interface')
-            );
-            self::$_nodeNames[] = $StorageNode->get('name');
-            self::$_nodeURLs[] = $URL;
-            unset($StorageNode);
         }
     }
     /**
@@ -179,7 +194,10 @@ class DashboardPage extends FOGPage
             array(),
         );
         // Overview Pane
-        printf('<ul id="dashboard-boxes"><li><h4>%s</h4>', _('System Overview'));
+        printf(
+            '<ul id="dashboard-boxes"><li><h4>%s</h4>',
+            _('System Overview')
+        );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
@@ -219,7 +237,7 @@ class DashboardPage extends FOGPage
             unset($StorageGroup);
         }
         printf(
-            '<select name="groupsel" style="whitespace: no-wrap; width: 100px; i'
+            '<select name="groupsel" style="whitespace: no-wrap; width: 100px; '
             . 'position: relative; top: -22px; left: 140px;">%s</select>'
             . '<div class="fog-variable" id="ActivityActive"></div>'
             . '<div class="fog-variable" id="ActivityQueued"></div>'
@@ -341,6 +359,8 @@ class DashboardPage extends FOGPage
         session_write_close();
         ignore_user_abort(true);
         set_time_limit(0);
+        self::$_nodeURLs = (array)$_REQUEST['url'];
+        self::$_nodeNames = (array)$_REQUEST['names'];
         $datas = self::$FOGURLRequests
             ->process(self::$_nodeURLs);
         $dataSet = array();
@@ -390,36 +410,31 @@ class DashboardPage extends FOGPage
                     ''
                 )
             );
-            $URL = filter_var(
-                sprintf(
-                    'http://%s%sstatus/freespace.php?path=%s',
-                    $this->obj->get('ip'),
-                    $webroot,
-                    base64_encode($this->obj->get('path'))
-                ),
-                FILTER_SANITIZE_URL
+            $URL = sprintf(
+                'http://%s%sstatus/freespace.php?path=%s',
+                $this->obj->get('ip'),
+                $webroot,
+                base64_encode($this->obj->get('path'))
             );
-            unset($curroot, $webroot);
-            if (!filter_var($URL, FILTER_VALIDATE_URL)) {
-                throw new Exception(
-                    sprintf(
-                        '%s: %s',
-                        _('Invalid URL'),
-                        $URL
-                    )
+            $testurl = sprintf(
+                'http://%s/fog/management/index.php',
+                $this->obj->get('ip')
+            );
+            $test = self::$FOGURLRequests->isAvailable($testurl);
+            if (false !== $test) {
+                unset($curroot, $webroot);
+                $Response = self::$FOGURLRequests
+                    ->process($URL);
+                $Response = json_decode(
+                    array_shift($Response),
+                    true
                 );
+                $Data = array(
+                    'free' => $Response['free'],
+                    'used' => $Response['used']
+                );
+                unset($Response);
             }
-            $Response = self::$FOGURLRequests
-                ->process($URL);
-            $Response = json_decode(
-                array_shift($Response),
-                true
-            );
-            $Data = array(
-                'free' => $Response['free'],
-                'used' => $Response['used']
-            );
-            unset($Response);
         } catch (Exception $e) {
             $Data['error'] = $e->getMessage();
         }

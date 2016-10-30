@@ -39,6 +39,17 @@ class ServerInfo extends FOGPage
         $curroot = trim(trim($this->obj->get('webroot'), '/'));
         $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
         $URL = sprintf('http://%s%sstatus/hw.php', $this->obj->get('ip'), $webroot);
+        $testurl = sprintf(
+            'http://%s/fog/management/index.php',
+            $this->obj->get('ip')
+        );
+        $test = self::$FOGURLRequests->isAvailable($testurl);
+        if (false === $test) {
+            printf(
+                '<p>%s</p>',
+                _('Server appears offline')
+            );
+        }
         $ret = self::$FOGURLRequests->process($URL);
         $ret = trim($ret[0]);
         if (empty($ret) || !$ret) {

@@ -1180,13 +1180,14 @@ class Host extends FOGController
                 continue;
             }
             $hasImageIDs = array_merge(
-                $hasImageIDs,
-                $StorageNode->get('images')
+                (array)$hasImageIDs,
+                (array)$StorageNode->get('images')
             );
             unset($StorageNode);
         }
         $hasImageIDs = array_unique($hasImageIDs);
-        if (!in_array($this->get('imageID'), $hasImageIDs)) {
+        $hasImageIDs = array_filter($hasImageIDs);
+        if (!in_array($this->getImage()->get('id'), $hasImageIDs)) {
             throw new Exception(_('Image does not exist on any node'));
         }
         return true;

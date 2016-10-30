@@ -5,20 +5,18 @@
  * PHP version 5
  *
  * @category StorageNode
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
  * Storage node handler class.
  *
  * @category StorageNode
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 class StorageNode extends FOGController
@@ -140,6 +138,8 @@ class StorageNode extends FOGController
     }
     /**
      * Loads the logfiles available on this node.
+     *
+     * @return void
      */
     public function loadLogfiles()
     {
@@ -147,6 +147,10 @@ class StorageNode extends FOGController
             'http://%s/fog/status/getfiles.php?path=%s',
             $this->get('ip'),
             '%s'
+        );
+        $testurl = sprintf(
+            'http://%s/fog/management/index.php',
+            $this->get('ip')
         );
         $paths = array(
             '/var/log/nginx',
@@ -160,6 +164,10 @@ class StorageNode extends FOGController
         );
         $urls = array();
         foreach ($paths as &$path) {
+            $test = self::$FOGURLRequests->isAvailable($testurl);
+            if (false === $test) {
+                continue;
+            }
             $urls[] = sprintf(
                 $url,
                 urlencode($path)
@@ -182,6 +190,8 @@ class StorageNode extends FOGController
     }
     /**
      * Loads the snapins available on this node.
+     *
+     * @return void
      */
     public function loadSnapinfiles()
     {
@@ -194,11 +204,10 @@ class StorageNode extends FOGController
             'http://%s/fog/management/index.php',
             $this->get('ip')
         );
-        $handle = curl_init($testurl);
-        if (false === $handle) {
+        $test = self::$FOGURLRequests->isAvailable($testurl);
+        if (false === $test) {
             return;
         }
-        @fclose($handle);
         $paths = self::$FOGURLRequests->process($url);
         $paths = array_shift($paths);
         $paths = json_decode($paths);
@@ -218,6 +227,8 @@ class StorageNode extends FOGController
     }
     /**
      * Loads the snapins available on this node.
+     *
+     * @return void
      */
     public function loadImages()
     {
@@ -230,11 +241,10 @@ class StorageNode extends FOGController
             'http://%s/fog/management/index.php',
             $this->get('ip')
         );
-        $handle = curl_init($testurl);
-        if (false === $handle) {
+        $test = self::$FOGURLRequests->isAvailable($testurl);
+        if (false === $test) {
             return;
         }
-        @fclose($handle);
         $paths = self::$FOGURLRequests->process($url);
         $paths = array_shift($paths);
         $paths = json_decode($paths);
@@ -273,6 +283,8 @@ class StorageNode extends FOGController
     }
     /**
      * Load used tasks.
+     *
+     * @return void
      */
     protected function loadUsedtasks()
     {

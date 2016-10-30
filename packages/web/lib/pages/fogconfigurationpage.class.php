@@ -1,61 +1,161 @@
 <?php
+/**
+ * The FOG Configuration Page display.
+ *
+ * PHP version 5
+ *
+ * @category FOGConfigurationPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * The FOG Configuration Page display.
+ *
+ * @category FOGConfigurationPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class FOGConfigurationPage extends FOGPage
 {
+    /**
+     * The node this page enacts for.
+     *
+     * @var string
+     */
     public $node = 'about';
+    /**
+     * Initializes the about page.
+     *
+     * @param string $name the name to add.
+     *
+     * @return void
+     */
     public function __construct($name = '')
     {
         $this->name = 'FOG Configuration';
         parent::__construct($this->name);
         $this->menu = array(
-            'license'=>self::$foglang['License'],
-            'kernel-update'=>self::$foglang['KernelUpdate'],
-            'pxemenu'=>self::$foglang['PXEBootMenu'],
-            'customize-edit'=>self::$foglang['PXEConfiguration'],
-            'new-menu'=>self::$foglang['NewMenu'],
-            'client-updater'=>self::$foglang['ClientUpdater'],
-            'mac-list'=>self::$foglang['MACAddrList'],
-            'settings'=>self::$foglang['FOGSettings'],
-            'logviewer'=>self::$foglang['LogViewer'],
-            'config'=>self::$foglang['ConfigSave'],
-            'http://www.sf.net/projects/freeghost'=>self::$foglang['FOGSFPage'],
-            'https://fogproject.org'=>self::$foglang['FOGWebPage'],
-            'https://github.com/fogproject/fogproject.git'=>_('FOG Project on Github'),
-            'https://github.com/fogproject/fog-client.git'=>_('FOG Client on Github'),
-            'https://wiki.fogproject.org/wiki/index.php'=>_('FOG Wiki'),
-            'https://forums.fogproject.org'=>_('FOG Forums'),
-            'https://www.paypal.com/cgi-bin/webscr?item_name=Donation+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations&business=fogproject.org%40gmail.com'=>_('Donate to FOG'),
+            'license' => self::$foglang['License'],
+            'kernel-update' => self::$foglang['KernelUpdate'],
+            'pxemenu' => self::$foglang['PXEBootMenu'],
+            'customize-edit' => self::$foglang['PXEConfiguration'],
+            'new-menu' => self::$foglang['NewMenu'],
+            'client-updater' => self::$foglang['ClientUpdater'],
+            'mac-list' => self::$foglang['MACAddrList'],
+            'settings' => self::$foglang['FOGSettings'],
+            'logviewer' => self::$foglang['LogViewer'],
+            'config' => self::$foglang['ConfigSave'],
+            'http://www.sf.net/projects/freeghost' => self::$foglang['FOGSFPage'],
+            'https://fogproject.org' => self::$foglang['FOGWebPage'],
+            'https://github.com/fogproject/fogproject.git' => _(
+                'FOG Project on Github'
+            ),
+            'https://github.com/fogproject/fog-client.git' => _(
+                'FOG Client on Github'
+            ),
+            'https://wiki.fogproject.org/wiki/index.php' => _('FOG Wiki'),
+            'https://forums.fogproject.org' => _('FOG Forums'),
+            'https://www.paypal.com/cgi-bin/webscr?i'
+            . 'item_name=Donation+to+FOG+-+A+Free+Cloning+'
+            . 'Solution&cmd=_donations&business=fogproject'
+            . '.org%40gmail.com' => _('Donate to FOG'),
         );
-        self::$HookManager->processEvent('SUB_MENULINK_DATA', array('menu'=>&$this->menu, 'submenu'=>&$this->subMenu, 'id'=>&$this->id, 'notes'=>&$this->notes));
+        self::$HookManager
+            ->processEvent(
+                'SUB_MENULINK_DATA',
+                array(
+                    'menu' => &$this->menu,
+                    'submenu' => &$this->subMenu,
+                    'id' => &$this->id,
+                    'notes'=>&$this->notes
+                )
+            );
     }
+    /**
+     * Redirects to the version when initially entering
+     * this page.
+     *
+     * @return void
+     */
     public function index()
     {
         $this->version();
     }
+    /**
+     * Prints the version information for the page.
+     *
+     * @return void
+     */
     public function version()
     {
-        $URLs = array();
-        $Names = array();
         $this->title = _('FOG Version Information');
-        printf('<p>%s: %s</p>', _('Running Version'), FOG_VERSION);
-        printf('<p id="latestInfo" vers="%s"></p>', FOG_VERSION);
-        printf('<h1>%s</h1>', _('Kernel Versions'));
-        $Nodes = (array)self::getClass('StorageNodeManager')->find(array('isEnabled'=>1));
-        array_map(function (&$StorageNode) use (&$URLs) {
+        printf(
+            '<p>%s: %s</p>',
+            _('Running Version'),
+            FOG_VERSION
+        );
+        printf(
+            '<p id="latestInfo" vers="%s"></p>',
+            FOG_VERSION
+        );
+        printf(
+            '<h1>%s</h1>',
+            _('Kernel Versions')
+        );
+        $Nodes = self::getClass('StorageNodeManager')
+            ->find(
+                array(
+                    'isEnabled' => 1
+                )
+            );
+        foreach ((array)$Nodes as &$StorageNode) {
             if (!$StorageNode->isValid()) {
-                return;
+                continue;
             }
-            $curroot = trim(trim($StorageNode->get('webroot'), '/'));
-            $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
-            $url = filter_var(sprintf('http://%s%sstatus/kernelvers.php', $StorageNode->get('ip'), $webroot), FILTER_SANITIZE_URL);
-            $URLs[] = $url;
+            $curroot = trim(
+                trim(
+                    $StorageNode->get('webroot'),
+                    '/'
+                )
+            );
+            $webroot = sprintf(
+                '/%s',
+                (
+                    strlen($curroot) > 1 ?
+                    sprintf(
+                        '%s/',
+                        $curroot
+                    ) :
+                    ''
+                )
+            );
+            $url = filter_var(
+                sprintf(
+                    'http://%s%sstatus/kernelvers.php',
+                    $StorageNode->get('ip'),
+                    $webroot
+                ),
+                FILTER_SANITIZE_URL
+            );
+            printf(
+                '<h2>%s FOG Version: ()</h2>'
+                . '<pre class="kernvers" urlcall="%s"></pre>',
+                $StorageNode->get('name'),
+                $url
+            );
             unset($StorageNode);
-        }, $Nodes);
-        array_walk($Nodes, function (&$StorageNode, &$index) use ($URLs) {
-            printf('<h2>%s</h2><pre class="kernvers" urlcall="%s"></pre>', $StorageNode->get('name'), $URLs[$index]);
-            unset($StorageNode, $index);
-        });
+        }
         unset($Responses, $Nodes);
     }
+    /**
+     * Display the fog license information
+     *
+     * @return void
+     */
     public function license()
     {
         $this->title = _('FOG License Information');
@@ -70,14 +170,31 @@ class FOGConfigurationPage extends FOGPage
         echo '</pre>';
         fclose($fh);
     }
+    /**
+     * Post our kernel download.
+     *
+     * @return void
+     */
     public function kernel()
     {
         $this->kernel_updatePost();
     }
+    /**
+     * Show the kernel update page.
+     *
+     * @return void
+     */
     public function kernel_update()
     {
         $this->kernelselForm('pk');
-        $url = filter_var(sprintf('https://fogproject.org/kernels/kernelupdate.php?version=%s', FOG_VERSION), FILTER_SANITIZE_URL);
+        $url = sprintf(
+            'https://fogproject.org/kernels/kernelupdate.php?version=%s',
+            FOG_VERSION
+        );
+        $test = self::$FOGURLRequests->isAvailable($url);
+        if (false === $test) {
+            echo _('Unable to contact server');
+        }
         $htmlData = self::$FOGURLRequests->process($url, 'GET');
         echo $htmlData[0];
     }
