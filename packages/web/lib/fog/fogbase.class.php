@@ -826,7 +826,7 @@ abstract class FOGBase
     }
     /**
      * Set request vars particularly for post failures really.
-     * 
+     *
      * @return void
      */
     protected function setRequest()

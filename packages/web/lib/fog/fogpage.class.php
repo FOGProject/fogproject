@@ -1986,7 +1986,7 @@ array_walk(
                     $optFound = $ou;
                 }
                 if (!$optFound && preg_match('#;#', $OU)) {
-                $optFound = $ou;
+                    $optFound = $ou;
                 }
                 printf(
                     '<option value="%s"%s>%s</option>',
@@ -3002,12 +3002,12 @@ array_walk(
             &$name,
             &$index
         ) use (&$ids) {
-        $this->data[] = array(
+            $this->data[] = array(
             'host_id'=>$ids[$index],
             'host_name'=>$name,
             'check_num'=>1,
         );
-        unset(
+            unset(
             $name,
             $ids[$index],
             $index

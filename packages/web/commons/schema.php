@@ -3096,7 +3096,7 @@ $this->schema[] = array(
     . "('SNAPINREPLICATORDEVICEOUTPUT','The tty to output to for snapin "
     . "replicator. (Default /dev/tty5)','/dev/tty5',"
     . "'FOG Linux Service TTY Output'),"
-    . "('PINGHOSTDEVICEOUTPUT','The tty to output to for ping hosts. " 
+    . "('PINGHOSTDEVICEOUTPUT','The tty to output to for ping hosts. "
     . "(Default /dev/tty6)','/dev/tty6','FOG Linux Service TTY Output')",
 );
 // 207
