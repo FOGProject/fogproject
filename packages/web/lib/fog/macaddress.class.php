@@ -13,8 +13,6 @@
 /**
  * A mac address verifier and getter.
  *
- * PHP version 5
- *
  * @category MACAddress
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
