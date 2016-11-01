@@ -99,6 +99,16 @@ function AJAXServerTime() {
     setupFogTableInfoFunction();
     AJAXServerTime();
     setInterval(AJAXServerTime,60000);
+    /**
+     * On any form submission, attempt to trim the input fields automatically.
+     *
+    $('form').submit(function() {
+        $('input, textarea').each(function() {
+            $(this).val($.trim($(this).val()));
+        });
+        $(this).submit();
+    });
+    */
 })(jQuery);
 function forceClick(e) {
     $(this).unbind('click').click(function(evt) {evt.preventDefault();});
