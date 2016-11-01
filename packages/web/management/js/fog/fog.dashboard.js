@@ -174,7 +174,7 @@ function GraphDiskUsageUpdate() {
         test2 = test.pathname+test.search;
         $.ajax({
             context: this,
-            url: test.pathname+test.search,
+            url: test2,
             data: {
                 url: URL
             },
@@ -209,11 +209,10 @@ function UpdateBandwidth() {
         },
         dataType: 'json',
         success: function(data) {
-            console.log(data);
-            setTimeout(UpdateBandwidthGraph(data), bandwidthtime);
+            UpdateBandwidthGraph(data);
         },
         error: function(jqXHR, textStatus) {
-            setTimeout(UpdateBandwidthGraph(null), bandwidthtime);
+            UpdateBandwidthGraph(null);
         },
         complete: function() {
             GraphBandwidth.addClass('loaded');
@@ -221,7 +220,10 @@ function UpdateBandwidth() {
     });
 }
 function UpdateBandwidthGraph(data) {
-    if (data === null || typeof(data) == 'undefined' || data.length == 0) return;
+    if (data === null || typeof(data) == 'undefined' || data.length == 0) {
+        setTimeout(UpdateBandwidth(), bandwidthtime);
+        return;
+    }
     //if (!GraphBandwidthOpts.colors) {
     //    GraphBandwidthOpts.colors = $.map(data,function(o,i) {
     //        return '#'+('00000'+(Math.random()*(1<<24)|0).toString(16)).slice(-6);
