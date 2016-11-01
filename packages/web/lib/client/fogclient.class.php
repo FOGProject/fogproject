@@ -28,12 +28,6 @@ abstract class FOGClient extends FOGBase
      */
     protected $send;
     /**
-     * Stores the json data to send
-     *
-     * @var string
-     */
-    protected $json;
-    /**
      * Stores the host item
      *
      * @var object
@@ -118,7 +112,7 @@ abstract class FOGClient extends FOGBase
                 return print $e->getMessage();
             }
             $message = $e->getMessage();
-            json_decode($message);
+            $message = json_decode($message);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $msg = preg_replace('/^[#][!]?/', '', $message);
                 $message = json_encode(

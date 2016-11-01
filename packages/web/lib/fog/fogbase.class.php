@@ -470,6 +470,7 @@ abstract class FOGBase
                     $msg = _('Invalid Host');
                 }
             }
+            throw new Exception($msg);
         }
 
         return $Host;
