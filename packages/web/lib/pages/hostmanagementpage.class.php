@@ -450,8 +450,8 @@ class HostManagementPage extends FOGPage
                 $_REQUEST['host']
             ),
             _('Primary MAC') => sprintf(
-                '<input type="text" id="mac" '
-                . 'name="mac" value="%s"/>*'
+                '<input type="text" name="mac" class="macaddr" '
+                . 'id="mac" value="%s" maxlength="17"/>*'
                 . '<span id="priMaker"></span>'
                 . '<span class="mac-manufactor"></span>'
                 . '<i class="icon add-mac fa fa-plus-circle hand" '
@@ -806,8 +806,9 @@ class HostManagementPage extends FOGPage
                 $this->obj->get('name')
             ),
             _('Primary MAC') => sprintf(
-                '<input type="text" name="mac" '
-                . 'id="mac" value="%s"/>*<span id="priMaker"></span>'
+                '<input type="text" name="mac" class="macaddr" '
+                . 'id="mac" value="%s" maxlength="17"/>*'
+                . '<span id="priMaker"></span>'
                 . '<i class="icon add-mac fa fa-plus-circle hand" '
                 . 'title="%s"></i><span class="icon icon-hand" '
                 . 'title="%s"><input type="checkbox" name="igclient[]" '

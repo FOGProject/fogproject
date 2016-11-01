@@ -91,7 +91,7 @@ class UpdateClient extends FOGClient implements FOGClientSend
                 }
                 $this->send = $ClientUpdateFile
                 ->get('md5');
-                if ($this->newService) {
+                if (self::$newService) {
                     $this->send = "#!ok\n#md5=$this->send";
                 }
                 break;
@@ -113,7 +113,7 @@ class UpdateClient extends FOGClient implements FOGClientSend
                 $filename = basename(
                     $ClientUpdateFile->get('name')
                 );
-                if (!$this->newService) {
+                if (!self::$newService) {
                     header(
                         sprintf(
                             '%s: %s, %s=%d, %s=%d',
@@ -138,7 +138,7 @@ class UpdateClient extends FOGClient implements FOGClientSend
                     );
                 }
                     $this->send = $ClientUpdateFile->get('file');
-                if ($this->newService) {
+                if (self::$newService) {
                     $this->send = sprintf(
                         "#!ok\n#filename=$filename\n#updatefile=%s",
                         bin2hex($this->send)
@@ -153,7 +153,7 @@ class UpdateClient extends FOGClient implements FOGClientSend
                     $filename = base64_encode($ClientUpdate->get('name'));
                     $filename .= "\n";
                     $this->send .= $filename;
-                    if ($this->newService) {
+                    if (self::$newService) {
                         if (!$i) {
                             $this->send = "#!ok\n";
                         }

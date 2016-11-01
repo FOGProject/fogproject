@@ -107,22 +107,6 @@ $(function() {
         });
         this.checked = false;
     });
-    $('.mac-manufactor').each(function() {
-        input = $(this).parent().find('input');
-        var mac = (input.size() ? input.val() : $(this).parent().find('.mac').html());
-        $(this).load('../management/index.php?sub=getmacman&prefix='+mac);
-    });
-    removeMACField();
-    MACUpdate();
-    $('.add-mac').click(function(e) {
-        $('#additionalMACsRow').show();
-        $('#additionalMACsCell').append('<div><input class="additionalMAC" type="text" name="additionalMACs[]" />&nbsp;&nbsp;<i class="icon fa fa-minus-circle remove-mac hand" title="Remove MAC"></i><br/><span class="mac-manufactor"></span></div>');
-        removeMACField();
-        MACUpdate();
-        HookTooltips();
-        e.preventDefault();
-    });
-    if ($('.additionalMAC').size()) $('#additionalMACsRow').show();
     checkboxAssociations('.toggle-checkbox1:checkbox','.toggle-group1:checkbox');
     checkboxAssociations('.toggle-checkbox2:checkbox','.toggle-group2:checkbox');
     checkboxAssociations('#groupMeShow:checkbox','#groupNotInMe:checkbox');

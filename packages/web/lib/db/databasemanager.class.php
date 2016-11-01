@@ -63,7 +63,7 @@ class DatabaseManager extends FOGCore
                     $test = true;
                 }
                 if ($test) {
-                    if (isset($_REQUEST['json'])) {
+                    if (self::$json) {
                         die(
                             json_encode(
                                 array(

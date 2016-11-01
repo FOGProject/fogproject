@@ -22,12 +22,6 @@
 abstract class FOGClient extends FOGBase
 {
     /**
-     * Tells us if client is new
-     *
-     * @var bool
-     */
-    protected $newService;
-    /**
      * Stores the string data to send
      *
      * @var string
@@ -65,16 +59,10 @@ abstract class FOGClient extends FOGBase
     ) {
         try {
             parent::__construct();
-            global $newService;
             global $sub;
             global $json;
-            $this->newService = isset($newService);
-            $this->json = isset($json);
-            if (!$this->json) {
-                $this->json = $sub === 'requestClientInfo';
-            }
             $method = 'send';
-            if ($this->json && method_exists($this, 'json')) {
+            if (self::$json && method_exists($this, 'json')) {
                 $method = 'json';
             }
             $this->Host = $this->getHostItem(
@@ -93,19 +81,19 @@ abstract class FOGClient extends FOGBase
                 'register.php',
             );
             $scriptCheck = basename(self::$scriptname);
-            $new = ($this->json || $this->newService);
+            $new = (self::$json || self::$newService);
             if ($new && !in_array($scriptCheck, $validClientBrowserFiles)) {
                 throw new Exception(_('Not allowed here'));
             }
             $jsonSub = (!isset($sub) || $sub !== 'requestClientInfo');
-            if ($jsonSub && $this->json) {
+            if ($jsonSub && self::$json) {
                 throw new Exception(
                     json_encode(
                         $this->{$method}()
                     )
                 );
             }
-            if ($this->json) {
+            if (self::$json) {
                 return json_encode(
                     $this->{$method}()
                 );
@@ -126,7 +114,7 @@ abstract class FOGClient extends FOGBase
             }
             $this->sendData($this->send);
         } catch (Exception $e) {
-            if (!$this->json) {
+            if (!self::$json) {
                 return print $e->getMessage();
             }
             $message = $e->getMessage();
@@ -138,7 +126,7 @@ abstract class FOGClient extends FOGBase
                 );
             }
             $jsonSub = (!isset($sub) || $sub !== 'requestClientInfo');
-            if ($jsonSub && $this->json) {
+            if ($jsonSub && self::$json) {
                 return print $message;
             }
             return $message;

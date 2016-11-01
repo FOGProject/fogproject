@@ -151,9 +151,6 @@ class UserTrack extends FOGClient implements FOGClientSend
         if (!$UserTracking->save()) {
             throw new Exception('#!db');
         }
-        if ($this->json) {
-            return array('' => '');
-        }
         throw new Exception('#!ok');
     }
 }

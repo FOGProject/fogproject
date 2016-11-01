@@ -449,13 +449,13 @@ abstract class FOGPage extends FOGBase
             (
                 count($args) ?
                 sprintf(
-', Arguments = %s',
-implode(
-', ',
-array_walk(
-    $args,
-    $vals
-)
+                    ', Arguments = %s',
+                    implode(
+                        ', ',
+                        array_walk(
+                            $args,
+                            $vals
+                        )
                     )
                 ) :
                 ''
@@ -1825,8 +1825,7 @@ array_walk(
             unset($TaskType);
         }
         $this->data[] = array(
-            'node' => $this
-            ->node,
+            'node' => $this->node,
             'sub' => 'edit',
             sprintf(
                 '%s_id',
@@ -2209,7 +2208,8 @@ array_walk(
                             _('Error: Failed to open temp file')
                         );
                     }
-                    $test = self::$FOGURLRequests->isAvailable($_SESSION['dl-kernel-file']);
+                    $test = self::$FOGURLRequests
+                        ->isAvailable($_SESSION['dl-kernel-file']);
                     if (false === $test) {
                         throw new Exception(
                             _('Error: Failed to connect to server')
@@ -2578,11 +2578,6 @@ array_walk(
      */
     public function requestClientInfo()
     {
-        if (!isset($_REQUEST['newService'])) {
-            print_r($this->getGlobalModuleStatus(false, true));
-            exit;
-        }
-        $this->newService = true;
         if (isset($_REQUEST['configure'])) {
             $Services = self::getSubObjectIDs(
                 'Service',
@@ -2643,7 +2638,7 @@ array_walk(
                 false,
                 false,
                 false,
-                isset($_REQUEST['newService'])
+                self::$newService || self::$json
             );
             $hostModules = self::getSubObjectIDs(
                 'Module',
@@ -2700,7 +2695,7 @@ array_walk(
                         false,
                         false,
                         false,
-                        isset($_REQUEST['newService'])
+                        self::$newService || self::$json
                     )->json();
                 }
                 unset($key);
@@ -2983,15 +2978,15 @@ array_walk(
             &$index
         ) use (&$ids) {
             $this->data[] = array(
-            'host_id'=>$ids[$index],
-            'host_name'=>$name,
-            'check_num'=>1,
-        );
+                'host_id'=>$ids[$index],
+                'host_name'=>$name,
+                'check_num'=>1,
+            );
             unset(
-            $name,
-            $ids[$index],
-            $index
-        );
+                $name,
+                $ids[$index],
+                $index
+            );
         };
         array_walk($names, $itemParser);
         if (count($this->data) > 0) {
@@ -3028,14 +3023,14 @@ array_walk(
             printf(
                 '</div><br/><p class="c"><input type="submit" '
                 . 'value="%s %s(s) to %s" name="addHosts"/></p><br/>',
-                    _('Add'),
-                    (
-                        $objType ?
-                        _('Group') :
-                        _('Host')
-                    ),
-                    $this->node
-                );
+                _('Add'),
+                (
+                    $objType ?
+                    _('Group') :
+                    _('Host')
+                ),
+                $this->node
+            );
         }
         unset($this->data);
         $this->headerData = array(

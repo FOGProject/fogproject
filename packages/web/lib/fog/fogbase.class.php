@@ -48,6 +48,18 @@ abstract class FOGBase
      */
     public static $service = false;
     /**
+     * Tells if we are json or not
+     *
+     * @var bool
+     */
+    public static $json = false;
+    /**
+     * Tells if we are new service or not
+     *
+     * @var bool
+     */
+    public static $newService = false;
+    /**
      * Tests/sets if a given key is loaded already.
      *
      * @var array
@@ -273,6 +285,10 @@ abstract class FOGBase
         }
         self::$ajax = preg_match('#^xmlhttprequest$#i', self::$httpreqwith);
         self::$post = preg_match('#^post$#i', self::$reqmethod);
+        self::$json = isset($_REQUEST['json'])
+            || $_REQUEST['sub'] == 'requestClientInfo';
+        self::$newService = isset($_REQUEST['newService'])
+            || $_REQUEST['sub'] == 'requestClientInfo';
         self::$FOGURLRequests = &$FOGURLRequests;
         self::$FOGPageManager = &$FOGPageManager;
         self::$TimeZone = &$TimeZone;
@@ -1661,7 +1677,7 @@ abstract class FOGBase
                 $this->Host->set('pub_key', '')->save();
             }
             global $sub;
-            if ($this->newService) {
+            if (self::$newService) {
                 printf(
                     '#!enkey=%s',
                     $this->certEncrypt($datatosend, $this->Host)
@@ -1672,12 +1688,12 @@ abstract class FOGBase
                 exit;
             }
         } catch (Exception $e) {
-            if ($this->json) {
+            if (self::$json) {
                 $repData = preg_replace('/^[#][!]?/', '', $e->getMessage());
-
-                return array(
-                    'error' => $repData,
+                echo json_encode(
+                    array('error' => $repData)
                 );
+                exit;
             }
             throw new Exception($e->getMessage());
         }

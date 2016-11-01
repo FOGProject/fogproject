@@ -56,7 +56,7 @@ class ServiceModule extends FOGClient implements FOGClientSend
             'clientupdater'
         );
         $globalModules = (
-            !$this->newService ?
+            !self::$newService ?
             $this->getGlobalModuleStatus(
                 false,
                 true
@@ -72,7 +72,7 @@ class ServiceModule extends FOGClient implements FOGClientSend
         $globalInfo = $this->getGlobalModuleStatus();
         $globalDisabled = array();
         foreach ((array)$globalInfo as $key => &$en) {
-            if ($this->newService && in_array($key, $remArr)) {
+            if (self::$newService && in_array($key, $remArr)) {
                 continue;
             }
             if (!$en) {
@@ -86,7 +86,7 @@ class ServiceModule extends FOGClient implements FOGClientSend
             'shortName'
         );
         $hostEnabled = (
-            $this->newService ?
+            self::$newService ?
             array_diff(
                 (array)$hostModules,
                 $remArr

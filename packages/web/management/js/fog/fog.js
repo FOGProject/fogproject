@@ -101,14 +101,13 @@ function AJAXServerTime() {
     setInterval(AJAXServerTime,60000);
     /**
      * On any form submission, attempt to trim the input fields automatically.
-     *
-    $('form').submit(function() {
-        $('input, textarea').each(function() {
-            $(this).val($.trim($(this).val()));
-        });
-        $(this).submit();
+     */
+    $('input, textarea').focusout(function() {
+        this.value=$(this).val().trim();
     });
-    */
+    $('form').children().each(function() {
+        this.value=$(this).val().trim();
+    });
 })(jQuery);
 function forceClick(e) {
     $(this).unbind('click').click(function(evt) {evt.preventDefault();});

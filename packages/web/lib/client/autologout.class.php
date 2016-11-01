@@ -48,7 +48,7 @@ class Autologout extends FOGClient implements FOGClientSend
     public function send()
     {
         $time = $this->Host->getAlo();
-        if ($this->newService) {
+        if (self::$newService) {
             if ($time < 5) {
                 throw new Exception('#!time');
             }
