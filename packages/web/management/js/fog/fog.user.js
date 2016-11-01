@@ -4,22 +4,12 @@ $(function() {
     validator = form.validate({
         rules: {
             name: {
-                required: {
-                    depends: function() {
-                        $(this).val($.trim($(this).val()));
-                        return true;
-                    }
-                },
+                required: true,
                 minlength: 1,
                 maxlength: 255
             },
             password: {
-                required: {
-                    depends: function() {
-                        $(this).val($.trim($(this).val()));
-                        return true;
-                    }
-                },
+                required: true,
                 minlength: 4
             },
             password_confirm: {
