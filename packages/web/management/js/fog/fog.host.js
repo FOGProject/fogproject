@@ -10,22 +10,12 @@ $(function() {
     validator = form.validate({
         rules: {
             host: {
-                required: {
-                    depends: function() {
-                        $(this).val($.trim($(this).val()));
-                        return true;
-                    }
-                },
+                required: true,
                 minlength: 1,
                 maxlength: 15
             },
             mac: {
-                required: {
-                    depends: function() {
-                        $(this).val($.trim($(this).val()));
-                        return true;
-                    }
-                },
+                required: true,
                 minlength: 12,
                 maxlength: 17
             }
