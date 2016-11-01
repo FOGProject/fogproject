@@ -18,12 +18,7 @@ $(function() {
         },
         rules: {
             alias: {
-                required: {
-                    depends: function() {
-                        $(this).val($.trim($(this).val()));
-                        return true;
-                    }
-                },
+                required: true,
                 minlength: 1,
                 maxlength: 255
             }
@@ -42,12 +37,7 @@ $(function() {
                 $('#network,#cups,#local').hide();
                 $('#iprint').show();
                 validatorOpts['rules']['port'] = {
-                    required: {
-                        depends: function() {
-                            $(this).val($.trim($(this).val()));
-                            return true;
-                        }
-                    },
+                    required: true,
                     minlength: 1,
                     maxlength: 255
                 };
@@ -56,62 +46,32 @@ $(function() {
                 $('#network,#iprint,#local').hide();
                 $('#cups').show();
                 validatorOpts['rules']['inf'] = {
-                    required: {
-                        depends: function() {
-                            $(this).val($.trim($(this).val()));
-                            return true;
-                        }
-                    },
+                    required: true,
                     minlength: 1,
                     maxlength: 255
                 };
                 validatorOpts['rules']['ip'] = {
-                    required: {
-                        depends: function() {
-                            $(this).val($.trim($(this).val()));
-                            return true;
-                        }
-                    }
+                    required: true
                 };
                 break;
             case 'local':
                 $('#network,#iprint,#cups').hide();
                 $('#local').show();
                 validatorOpts['rules']['inf'] = {
-                    required: {
-                        depends: function() {
-                            $(this).val($.trim($(this).val()));
-                            return true;
-                        }
-                    },
+                    required: true,
                     minlength: 1,
                     maxlength: 255
                 };
                 validatorOpts['rules']['ip'] = {
-                    required: {
-                        depends: function() {
-                            $(this).val($.trim($(this).val()));
-                            return true;
-                        }
-                    }
+                    required: true
                 };
                 validatorOpts['rules']['model'] = {
-                    required: {
-                        depends: function() {
-                            $(this).val($.trim($(this).val()));
-                            return true;
-                        }
-                    },
+                    required: true,
                     minlength: 1,
                     maxlength: 255
                 };
                 validatorOpts['rules']['port'] = {
-                    required: {
-                        depends: function() {
-                            $(this).val($.trim($(this).val()));
-                            return true;
-                        }
-                    },
+                    required: true,
                     minlength: 1,
                     maxlength: 255
                 };
