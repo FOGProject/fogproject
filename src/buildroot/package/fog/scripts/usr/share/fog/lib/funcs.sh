@@ -467,15 +467,9 @@ shrinkPartition() {
             echo " * Possible resize partition size: $sizentfsresize k"
             dots "Running resize test $part"
             ntfsresize -f -n -s ${sizentfsresize}k $part </usr/share/fog/lib/EOFNTFSRESTORE >/tmp/tmpoutput.txt 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                tmpoutput=$(cat /tmp/tmpoutput.txt)
-                echo "Failed"
-                debugPause
-                handleError "Resize test failed!\n    $tmpoutput\n    (${FUNCNAME[0]})\n    Args Passed: $*"
-            fi
+            ntfsstatus="$?"
             tmpoutput=$(cat /tmp/tmpoutput.txt)
-            test_string=$(cat /tmp/tmpoutput.txt | egrep -o "(ended successfully|bigger than the device size|volume size is already OK)" | tr -d '[[:space:]]')
-            err_test=$(cat /tmp/tmpoutput.txt | egrep -o "(ERROR|Numerical result out of range)" | tr -d '[[:space:]]')
+            test_string=$(cat /tmp/tmpoutput.txt | egrep -io "(ended successfully|bigger than the device size|volume size is already OK|ERROR|Numerical result out of range)" | tr -d '[[:space:]]')
             echo "Done"
             debugPause
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
@@ -487,15 +481,17 @@ shrinkPartition() {
                     ;;
                 biggerthanthedevicesize)
                     echo " * Not resizing filesystem $part (part too small)"
-                    do_resizefs=0
-                    do_resizepart=0
                     ;;
                 volumesizeisalreadyOK)
                     echo " * Not resizing filesystem $part (already OK)"
                     do_resizepart=1
                     ;;
                 *)
-                    [[ -n $err_test ]] && handleError "Resize test failed!\n    $tmpoutput (${FUNCNAME[0]})\n   Args Passed: $*"
+                    if [[ ! $ntfsstatus -eq 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Resize test failed!\n    $tmpoutput\n    (${FUNCNAME[0]})\n    Args Passed: $*"
+                    fi
                     ;;
             esac
             if [[ $do_resizefs -eq 1 ]]; then
