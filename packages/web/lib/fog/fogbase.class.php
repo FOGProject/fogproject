@@ -285,9 +285,10 @@ abstract class FOGBase
         }
         self::$ajax = preg_match('#^xmlhttprequest$#i', self::$httpreqwith);
         self::$post = preg_match('#^post$#i', self::$reqmethod);
-        self::$json = isset($_REQUEST['json'])
-            || $_REQUEST['sub'] == 'requestClientInfo';
         self::$newService = isset($_REQUEST['newService'])
+            || $_REQUEST['sub'] == 'requestClientInfo';
+        self::$json = isset($_REQUEST['json'])
+            || self::$newService
             || $_REQUEST['sub'] == 'requestClientInfo';
         self::$FOGURLRequests = &$FOGURLRequests;
         self::$FOGPageManager = &$FOGPageManager;
@@ -1691,10 +1692,7 @@ abstract class FOGBase
         } catch (Exception $e) {
             if (self::$json) {
                 $repData = preg_replace('/^[#][!]?/', '', $e->getMessage());
-                echo json_encode(
-                    array('error' => $repData)
-                );
-                exit;
+                return array('error' => $repData);
             }
             throw new Exception($e->getMessage());
         }

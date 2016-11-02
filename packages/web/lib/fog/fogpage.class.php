@@ -2495,11 +2495,9 @@ abstract class FOGPage extends FOGBase
     /**
      * Authorizes the client with the server
      *
-     * @param mixed $json whether to use json
-     *
      * @return void
      */
-    public function authorize($json = false)
+    public function authorize()
     {
         try {
             $Host = $this->getHostItem(true);
@@ -2535,7 +2533,7 @@ abstract class FOGPage extends FOGBase
                 ->set('pub_key', $key)
                 ->set('sec_tok', $this->createSecToken())
                 ->save();
-            if ($json === true) {
+            if (self::$json === true) {
                 $vals['token'] = $Host->get('sec_tok');
                 printf(
                     '#!en=%s',
@@ -2554,11 +2552,11 @@ abstract class FOGPage extends FOGBase
                 )
             );
         } catch (Exception $e) {
-            if ($json === true) {
+            if (self::$json === true) {
                 if ($e->getMessage() == '#!ihc') {
                     die($e->getMessage());
                 }
-                $err = preg_replace('/%[#][!]?/', '', $e->getMessage());
+                $err = preg_replace('/^[#][!]?/', '', $e->getMessage());
                 echo json_encode(
                     array('error' => $err)
                 );
