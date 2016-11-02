@@ -474,15 +474,15 @@ shrinkPartition() {
             debugPause
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
             case $test_string in
-                endedsuccessfully)
+                *'endedsuccessfully'*)
                     echo " * Resize test was successful"
                     do_resizefs=1
                     do_resizepart=1
                     ;;
-                biggerthanthedevicesize)
+                *'biggerthanthedevicesize'*)
                     echo " * Not resizing filesystem $part (part too small)"
                     ;;
-                volumesizeisalreadyOK)
+                *'volumesizeisalreadyOK'*)
                     echo " * Not resizing filesystem $part (already OK)"
                     do_resizepart=1
                     ;;
