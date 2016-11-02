@@ -467,33 +467,30 @@ shrinkPartition() {
             echo " * Possible resize partition size: $sizentfsresize k"
             dots "Running resize test $part"
             ntfsresize -f -n -s ${sizentfsresize}k $part </usr/share/fog/lib/EOFNTFSRESTORE >/tmp/tmpoutput.txt 2>&1
-            ntfsstatus="$?"
+            local ntfsstatus="$?"
             tmpoutput=$(cat /tmp/tmpoutput.txt)
-            test_string=$(cat /tmp/tmpoutput.txt | egrep -io "(ended successfully|bigger than the device size|volume size is already OK|ERROR|Numerical result out of range)" | tr -d '[[:space:]]')
+            test_string=$(cat /tmp/tmpoutput.txt | egrep -io "(ended successfully|bigger than the device size|volume size is already OK)" | tr -d '[[:space:]]')
             echo "Done"
             debugPause
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
             case $test_string in
-                *'endedsuccessfully'*)
+                endedsuccessfully)
                     echo " * Resize test was successful"
                     do_resizefs=1
                     do_resizepart=1
+                    ntfsstatus=0
                     ;;
-                *'biggerthanthedevicesize'*)
+                biggerthanthedevicesize)
                     echo " * Not resizing filesystem $part (part too small)"
+                    ntfsstatus=0
                     ;;
-                *'volumesizeisalreadyOK'*)
+                volumesizeisalreadyOK)
                     echo " * Not resizing filesystem $part (already OK)"
                     do_resizepart=1
-                    ;;
-                *)
-                    if [[ ! $ntfsstatus -eq 0 ]]; then
-                        echo "Failed"
-                        debugPause
-                        handleError "Resize test failed!\n    $tmpoutput\n    (${FUNCNAME[0]})\n    Args Passed: $*"
-                    fi
+                    ntfsstatus=0
                     ;;
             esac
+            [[ ! $ntfsstatus -eq 0 ]] && handleError "Resize test failed!\n    $tmpoutput\n    (${FUNCNAME[0]})\n    Args Passed: $*"
             if [[ $do_resizefs -eq 1 ]]; then
                 debugPause
                 dots "Resizing filesystem"
