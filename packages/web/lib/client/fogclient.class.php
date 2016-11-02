@@ -112,7 +112,6 @@ abstract class FOGClient extends FOGBase
                 return print $e->getMessage();
             }
             $message = $e->getMessage();
-            $message = json_decode($message);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $msg = preg_replace('/^[#][!]?/', '', $message);
                 $message = json_encode(
