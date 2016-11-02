@@ -474,8 +474,8 @@ shrinkPartition() {
                 handleError "Resize test failed!\n    $tmpoutput\n    (${FUNCNAME[0]})\n    Args Passed: $*"
             fi
             tmpoutput=$(cat /tmp/tmpoutput.txt)
-            test_string=$(cat /tmp/tmpoutput.txt | egrep -io "(ended successfully|bigger than the device size|volume size is already OK)" | tr -d '[[:space:]]')
-            err_test=$(cat /tmp/tmpoutput.txt | egrep -io "(ERROR|Numerical result out of range)" | tr -d '[[:space:]]')
+            test_string=$(cat /tmp/tmpoutput.txt | egrep -o "(ended successfully|bigger than the device size|volume size is already OK)" | tr -d '[[:space:]]')
+            err_test=$(cat /tmp/tmpoutput.txt | egrep -o "(ERROR|Numerical result out of range)" | tr -d '[[:space:]]')
             echo "Done"
             debugPause
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
@@ -487,6 +487,8 @@ shrinkPartition() {
                     ;;
                 biggerthanthedevicesize)
                     echo " * Not resizing filesystem $part (part too small)"
+                    do_resizefs=0
+                    do_resizepart=0
                     ;;
                 volumesizeisalreadyOK)
                     echo " * Not resizing filesystem $part (already OK)"
