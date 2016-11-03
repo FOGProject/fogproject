@@ -2236,12 +2236,14 @@ $this->schema[] = array_merge(
         . "`igaID` mediumint(9) NOT NULL auto_increment,"
         . "`igaImageID` mediumint(9) NOT NULL,"
         . "`igaStorageGroupID` mediumint(9) NOT NULL,"
+        . "`igaPrimary` ENUM('0','1') NOT NULL,"
         . "PRIMARY KEY (`igaID`)"
         . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
         "INSERT IGNORE INTO `imageGroupAssoc` "
         . "(`igaImageID`,`igaStorageGroupID`) "
         . "SELECT `imageID`,`imageNFSGroupID` FROM "
         . "`images` WHERE `imageNFSGroupID` IS NOT NULL",
+        "UPDATE `imageGroupAssoc` SET `igaPrimary`='1'",
         "ALTER TABLE `images` DROP COLUMN `imageNFSGroupID`"
     ),
     $tmpSchema->dropDuplicateData(
@@ -2294,12 +2296,14 @@ $this->schema[] = array_merge(
         . "`sgaID` mediumint(9) NOT NULL auto_increment,"
         . "`sgaSnapinID` mediumint(9) NOT NULL,"
         . "`sgaStorageGroupID` mediumint(9) NOT NULL,"
+        . "`sgaPrimary` ENUM('0','1') NOT NULL,"
         . "PRIMARY KEY (`sgaID`)"
         . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
         "INSERT IGNORE INTO `snapinGroupAssoc` "
         . "(`sgaSnapinID`,`sgaStorageGroupID`) "
         . "SELECT `sID`,`snapinNFSGroupID` FROM `snapins` "
         . "WHERE `snapinNFSGroupID` IS NOT NULL",
+        "UPDATE `snapinGroupAssoc` SET `sgaPrimary`='1'",
         "ALTER TABLE `snapins` DROP COLUMN `snapinNFSGroupID`"
     ),
     $tmpSchema->dropDuplicateData(
@@ -3004,8 +3008,6 @@ $this->schema[] = array(
 );
 // 198
 $this->schema[] = array(
-    "ALTER TABLE `snapinGroupAssoc` ADD COLUMN `sgaPrimary` TINYINT(1)",
-    "ALTER TABLE `imageGroupAssoc` ADD COLUMN `igaPrimary` TINYINT(1)",
 );
 // 199
 $this->schema[] = array(
