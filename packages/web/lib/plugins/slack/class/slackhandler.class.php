@@ -1,5 +1,5 @@
 <?php
-class SlackHandler
+class SlackHandler extends Slack
 {
     private $_apiToken;
     private static $_apiEndpoint = 'https://slack.com/api/<method>';

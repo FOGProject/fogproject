@@ -21,7 +21,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class PushbulletHandler
+class PushbulletHandler extends Pushbullet
 {
     private $_apiKey;
     private $_curlCallback;
