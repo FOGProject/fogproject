@@ -149,9 +149,7 @@ class Image extends FOGController
             }
             self::getClass('HostManager')
                 ->update(
-                    array(
-                        'id' => $this->get('hosts')
-                    ),
+                    array('id' => $this->get('hosts')),
                     '',
                     array('imageID' => $this->get('id'))
                 );
@@ -279,8 +277,8 @@ class Image extends FOGController
         );
         $groupids = array_filter($groupids);
         if (count($groupids) < 1) {
-            $groupIDs = self::getSubObjectIDs('StorageGroup');
-            $groupids = @min($groupIDs);
+            $groupids = self::getSubObjectIDs('StorageGroup');
+            $groupids = @min($groupids);
         }
         $this->set('storagegroups', $groupids);
     }
@@ -346,7 +344,6 @@ class Image extends FOGController
             if ($groupids < 1) {
                 throw new Exception(_('No viable storage groups found'));
             }
-            $this->set('storagegroups', (array)$groupids);
         }
         $primaryGroup = array();
         foreach ((array)$groupids as &$groupid) {
@@ -357,10 +354,11 @@ class Image extends FOGController
             unset($groupid);
         }
         if (count($primaryGroup) < 1) {
-            $primaryGroup = @min((array)$groupids);
+            $primaryGroup = @min((array) $groupids);
         } else {
             $primaryGroup = array_shift($primaryGroup);
         }
+
         return new StorageGroup($primaryGroup);
     }
     /**
@@ -470,7 +468,8 @@ class Image extends FOGController
                 'imageID' => $this->get('id')
             )
         );
-        $assocID = @min($assocID);
+        $assocID = @min((array) $assocID);
+
         return self::getClass('ImageAssociation', $assocID)->isPrimary();
     }
     /**
@@ -482,18 +481,21 @@ class Image extends FOGController
      */
     public function setPrimaryGroup($groupID)
     {
+        /**
+         * Unset all current groups to non-primary
+         */
         self::getClass('ImageAssociationManager')
             ->update(
                 array(
                     'imageID' => $this->get('id'),
-                    'storagegroupID' => array_diff(
-                        (array)$this->get('storagegroups'),
-                        (array)$groupID
-                    )
+                    'storagegroupID' => $this->get('storagegroups')
                 ),
                 '',
                 array('primary' => 0)
             );
+        /**
+         * Set the passed group as primary
+         */
         self::getClass('ImageAssociationManager')
             ->update(
                 array(
