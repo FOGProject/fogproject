@@ -1229,7 +1229,7 @@ class ReportManagementPage extends FOGPage
         }
         $this->title = _('FOG Equipment Loan Form');
         printf(
-            '<h2><a href="export.php?type=pdf&filename=%sEquipmentLoanForm" alt="%s" title="%s" target="_blank">%s</a></h2>',
+            '<h2><div id="exportDiv"></div><a id="pdfsub" href="export.php?type=pdf&filename=%sEquipmentLoanForm" alt="%s" title="%s" target="_blank">%s</a></h2>',
             $Inventory->get('primaryUser'),
             _('Export PDF'),
             _('Export PDF'),
