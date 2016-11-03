@@ -91,7 +91,7 @@ class MulticastTask extends FOGService
             }
             $Image = $MultiSess->getImage();
             $fullPath = sprintf('%s/%s', $root, $MultiSess->get('logpath'));
-            if (!@file_exists($fullPath)) {
+            if (!file_exists($fullPath)) {
                 continue;
             }
             $Tasks[] = new self(

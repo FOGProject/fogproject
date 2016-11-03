@@ -255,7 +255,7 @@ abstract class FOGService extends FOGBase
      */
     protected static function wlog($string, $path)
     {
-        if (@file_exists($path)) {
+        if (file_exists($path)) {
             $filesize = (double)self::getFilesize($path);
             $max_size = (double)self::getSetting('SERVICE_LOG_SIZE');
             if ($filesize >= $max_size) {
@@ -430,25 +430,31 @@ abstract class FOGService extends FOGBase
                     continue;
                 }
                 $groupID = $PotentialStorageNode->get('storagegroupID');
-                if ($master && $groupID == $myStorageGroupID) {
+                if ($master
+                    && $groupID == $myStorageGroupID
+                ) {
                     continue;
                 }
-                $isRunning = $this->isRunning(
-                    $this->procRef[$itemType][$Obj->get('name')][$i]
-                );
-                if ($isRunning) {
-                    self::outall(_(' | Replication not complete'));
-                    self::outall(
-                        sprintf(
-                            _(' | PID: %d'),
-                            $this->getPID(
-                                $this->procRef[$itemType][$Obj->get('name')][$i]
-                            )
-                        )
+                if (isset($this->procRef[$itemType])
+                    && isset($this->procRef[$itemType][$Obj->get('name')][$i])
+                ) {
+                    $isRunning = $this->isRunning(
+                        $this->procRef[$itemType][$Obj->get('name')][$i]
                     );
-                    continue;
+                    if ($isRunning) {
+                        self::outall(_(' | Replication not complete'));
+                        self::outall(
+                            sprintf(
+                                _(' | PID: %d'),
+                                $this->getPID(
+                                    $this->procRef[$itemType][$Obj->get('name')][$i]
+                                )
+                            )
+                        );
+                        continue;
+                    }
                 }
-                if (!@file_exists("$myAdd")) {
+                if (!file_exists("$myAdd")) {
                     self::outall(
                         _(" * Not syncing $objType between $itemType(s)")
                     );

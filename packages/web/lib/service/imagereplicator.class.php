@@ -68,7 +68,7 @@ class ImageReplicator extends FOGService
                 'fogreplicator.log'
             )
         );
-        if (@file_exists(static::$log)) {
+        if (file_exists(static::$log)) {
             unlink(static::$log);
         }
         static::$dev = (
