@@ -509,6 +509,11 @@ class ImageManagementPage extends FOGPage
             if (!$Image->save()) {
                 throw new Exception(_('Database update failed'));
             }
+            /**
+             * During image creation we only allow a single group anyway.
+             * This will set it to be the primary master.
+             */
+            $Image->setPrimaryGroup($_REQUEST['storagegroup']);
             self::$HookManager
                 ->processEvent(
                     'IMAGE_ADD_SUCCESS',
