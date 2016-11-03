@@ -496,20 +496,7 @@ class FOGURLRequests extends FOGBase
         if (false == $ch) {
             return false;
         }
-        $request = new FOGRollingURL($url);
-        $options = $this->_getOptions($request);
-        $options[CURLOPT_URL] = $url;
-        $options[CURLOPT_HEADER] = true;
-        $options[CURLOPT_NOBODY] = true;
-        $options[CURLOPT_TIMEOUT] = 0;
-        $options[CURLOPT_TIMEOUT_MS] = 1500;
-        $options[CURLOPT_CONNECTTIMEOUT] = 1;
-        curl_setopt_array($ch, $options);
-        $resp = curl_exec($ch);
-        curl_close($ch);
-        if ($resp) {
-            return true;
-        }
-        return false;
+        @fclose($ch);
+        return true;
     }
 }

@@ -152,6 +152,10 @@ class StorageNode extends FOGController
             'http://%s/fog/management/index.php',
             $this->get('ip')
         );
+        $test = self::$FOGURLRequests->isAvailable($testurl);
+        if (false === $test) {
+            return;
+        }
         $paths = array(
             '/var/log/nginx',
             '/var/log/httpd',
@@ -164,10 +168,6 @@ class StorageNode extends FOGController
         );
         $urls = array();
         foreach ($paths as &$path) {
-            $test = self::$FOGURLRequests->isAvailable($testurl);
-            if (false === $test) {
-                continue;
-            }
             $urls[] = sprintf(
                 $url,
                 urlencode($path)
