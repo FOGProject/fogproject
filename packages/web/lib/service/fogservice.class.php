@@ -255,7 +255,7 @@ abstract class FOGService extends FOGBase
      */
     protected static function wlog($string, $path)
     {
-        if (file_exists($path)) {
+        if (@file_exists($path)) {
             $filesize = (double)self::getFilesize($path);
             $max_size = (double)self::getSetting('SERVICE_LOG_SIZE');
             if ($filesize >= $max_size) {
@@ -448,7 +448,7 @@ abstract class FOGService extends FOGBase
                     );
                     continue;
                 }
-                if (!file_exists("$myAdd")) {
+                if (!@file_exists("$myAdd")) {
                     self::outall(
                         _(" * Not syncing $objType between $itemType(s)")
                     );

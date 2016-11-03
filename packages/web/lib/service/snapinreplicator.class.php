@@ -68,7 +68,7 @@ class SnapinReplicator extends FOGService
                 'fogsnapinrep.log'
             )
         );
-        if (file_exists(static::$log)) {
+        if (@file_exists(static::$log)) {
             unlink(static::$log);
         }
         static::$dev = (
@@ -86,7 +86,6 @@ class SnapinReplicator extends FOGService
      * This is what almost all services have available
      * but is specific to this service
      *
-     * @throws Exception
      * @return void
      */
     private function _commonOutput()

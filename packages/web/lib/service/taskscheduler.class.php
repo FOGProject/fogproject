@@ -64,7 +64,7 @@ class TaskScheduler extends FOGService
             $log :
             'fogscheduler.log'
         );
-        if (file_exists(static::$log)) {
+        if (@file_exists(static::$log)) {
             unlink(static::$log);
         }
         static::$dev = (

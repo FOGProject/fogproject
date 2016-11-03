@@ -86,7 +86,7 @@ class PingHosts extends FOGService
                 'pinghost.log'
             )
         );
-        if (file_exists(static::$log)) {
+        if (@file_exists(static::$log)) {
             unlink(static::$log);
         }
         static::$dev = (

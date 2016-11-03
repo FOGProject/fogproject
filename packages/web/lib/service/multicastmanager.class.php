@@ -74,7 +74,7 @@ class MulticastManager extends FOGService
                 'multicast.log'
             )
         );
-        if (file_exists(static::$log)) {
+        if (@file_exists(static::$log)) {
             unlink(static::$log);
         }
         static::$dev = (
@@ -328,7 +328,7 @@ class MulticastManager extends FOGService
                                     _('is new')
                                 )
                             );
-                            if (!file_exists($curTask->getImagePath())) {
+                            if (!@file_exists($curTask->getImagePath())) {
                                 self::outall(
                                     sprintf(
                                         '%s (%s) %s %s, %s: %s %s!',
