@@ -113,7 +113,7 @@ class SnapinReplicator extends FOGService
                 self::outall(
                     sprintf(
                         ' * %s.',
-                        _('Starting Image Replication')
+                        _('Starting Snapin Replication')
                     )
                 );
                 self::outall(
@@ -134,6 +134,10 @@ class SnapinReplicator extends FOGService
                         $StorageNode->get('name')
                     )
                 );
+                /**
+                 * Get the snapin ids that are to be replicated.
+                 * NOTE: Must be enabled and have Replication enabled.
+                 */
                 $SnapinIDs = self::getSubObjectIDs(
                     'Snapin',
                     array(
@@ -141,12 +145,19 @@ class SnapinReplicator extends FOGService
                         'toReplicate' => 1
                     )
                 );
+                /**
+                 * Find any snapins that are no longer valid within
+                 * fog, but still existing in the group assoc.
+                 */
                 $SnapinAssocs = self::getSubObjectIDs(
                     'SnapinGroupAssociation',
                     array('snapinID' => $SnapinIDs),
                     'snapinID',
                     true
                 );
+                /**
+                 * If any assocs exist from prior, remove.
+                 */
                 if (count($SnapinAssocs)) {
                     self::getClass('SnapinGroupAssociationManager')
                         ->destroy(array('snapinID' => $SnapinAssocs));
@@ -160,8 +171,8 @@ class SnapinReplicator extends FOGService
                         )
                     );
                 $SnapinCount = self::getClass('SnapinManager')->count();
-                if ($SnapinAssocCount <= 0
-                    || $SnapinCount <= 0
+                if ($SnapinAssocCount < 1
+                    || $SnapinCount < 1
                 ) {
                     $this->outall(
                         sprintf(

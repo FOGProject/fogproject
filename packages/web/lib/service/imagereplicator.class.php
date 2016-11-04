@@ -134,6 +134,10 @@ class ImageReplicator extends FOGService
                         $StorageNode->get('name')
                     )
                 );
+                /**
+                 * Get the image ids that are to be replicated.
+                 * NOTE: Must be enabled and have Replication enabled.
+                 */
                 $ImageIDs = self::getSubObjectIDs(
                     'Image',
                     array(
@@ -141,12 +145,19 @@ class ImageReplicator extends FOGService
                         'toReplicate'=>1
                     )
                 );
+                /**
+                 * Find any images that are no longer valid within
+                 * fog, but still existing in the group assoc.
+                 */
                 $ImageAssocs = self::getSubObjectIDs(
                     'ImageAssociation',
                     array('imageID' => $ImageIDs),
                     'imageID',
                     true
                 );
+                /**
+                 * If any assocs exist from prior, remove
+                 */
                 if (count($ImageAssocs)) {
                     self::getClass('ImageAssociationManager')
                         ->destroy(array('imageID' => $ImageAssocs));
