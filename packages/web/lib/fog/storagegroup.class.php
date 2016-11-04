@@ -136,16 +136,16 @@ class StorageGroup extends FOGController
             if (!$node->isValid()) {
                 continue;
             }
-            $testurl = sprintf(
+            $testurls[] = sprintf(
                 'http://%s/fog/management/index.php',
                 $ip
             );
-            if (false === self::$FOGURLRequests->isAvailable($testurl)) {
-                continue;
-            }
             $nodeIDs[] = $nodeID;
             unset($ip);
         }
+        $test = array_filter(self::$FOGURLRequests->isAvailable($testurls));
+        $nodeIDs = array_intersect_key($nodeIDs, $test);
+        $nodeIDs = array_values($nodeIDs);
         $this->set(
             'enablednodes',
             $nodeIDs

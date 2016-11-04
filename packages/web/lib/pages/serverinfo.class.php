@@ -44,6 +44,7 @@ class ServerInfo extends FOGPage
             $this->obj->get('ip')
         );
         $test = self::$FOGURLRequests->isAvailable($testurl);
+        $test = array_shift($test);
         if (false === $test) {
             printf(
                 '<p>%s</p>',

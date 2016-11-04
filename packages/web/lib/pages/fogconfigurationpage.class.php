@@ -192,6 +192,7 @@ class FOGConfigurationPage extends FOGPage
             FOG_VERSION
         );
         $test = self::$FOGURLRequests->isAvailable($url);
+        $test = array_shift($test);
         if (false === $test) {
             echo _('Unable to contact server');
         }

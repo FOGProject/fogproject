@@ -2056,13 +2056,11 @@ abstract class FOGBase
                 $retVal
             );
         }
-        $sock = @fsockopen('ipinfo.io', 80);
-        if ($sock !== false) {
-            fclose($sock);
-            if (self::$FOGURLRequests->isAvailable('http://ipinfo.io/ip')) {
-                $res = self::$FOGURLRequests->process('http://ipinfo.io/ip', 'GET');
-                $IPs[] = $res[0];
-            }
+        $test = self::$FOGURLRequests->isAvailable('http://ipinfo.io/ip');
+        $test = array_shift($test);
+        if (false !== $test) {
+            $res = self::$FOGURLRequests->process('http://ipinfo.io/ip');
+            $IPs[] = $res[0];
         }
         natcasesort($IPs);
         $retIPs = function (&$IP) {
@@ -2183,16 +2181,11 @@ abstract class FOGBase
                 )
             );
             $ip = $Node->get('ip');
-            $testurl = sprintf(
+            $testurls[] = sprintf(
                 'http://%s%smanagement/index.php',
                 $ip,
                 $webroot
             );
-            $test = self::$FOGURLRequests->isAvailable($testurl);
-            if (false === $test) {
-                continue;
-            }
-            @fclose($handle);
             $nodeURLs[] = sprintf(
                 $url,
                 $ip,
@@ -2233,19 +2226,13 @@ abstract class FOGBase
             )
         );
         $ip = $gHost;
-        $testurl = sprintf(
+        $testurls[] = sprintf(
             'http://%s%smanagement/index.php',
             $ip,
             $webroot
         );
-        $test = self::$FOGURLRequests->isAvailable($testurl);
-        if (false !== $test) {
-            $nodeURLs[] = sprintf(
-                $url,
-                $ip,
-                $webroot
-            );
-        }
+        $test = array_filter(self::$FOGURLRequests->isAvailable($testurls));
+        $nodeURLs = array_intersect_key($nodeURLs, $test);
         if (count($nodeURLs) < 1) {
             return;
         }

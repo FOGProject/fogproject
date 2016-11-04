@@ -195,6 +195,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                             $ip
                         );
                         $test = self::$FOGURLRequests->isAvailable($testurl);
+                        $test = array_shift($test);
                         if (false === $test) {
                             continue;
                         }

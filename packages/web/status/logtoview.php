@@ -119,6 +119,7 @@ if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
             $ip
         );
         $test = $FOGURLRequests->isAvailable($testurl);
+        $test = array_shift($test);
         if (false === $test) {
             echo _('Node is not available!');
             exit;

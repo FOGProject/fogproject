@@ -27,6 +27,7 @@ header('Content-Type: text/event-stream');
 if (isset($_REQUEST['url'])) {
     $url = $_REQUEST['url'];
     $test = $FOGURLRequests->isAvailable($url);
+    $test = array_shift($test);
     if (false === $test) {
         echo _('Node is not available!');
         exit;

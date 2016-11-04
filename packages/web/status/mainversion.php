@@ -24,7 +24,9 @@ session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 $url = 'https://fogproject.org/version/index.php';
-if (false === $FOGURLRequests->isAvailable($url)) {
+$test = $FOGURLRequests->isAvailable($url);
+$test = array_shift($test);
+if (false === $test) {
     echo json_encode('Unavailable');
     exit;
 } else {

@@ -36,9 +36,9 @@ class DashboardPage extends FOGPage
     /**
      * The node options
      *
-     * @var string
+     * @var mixed
      */
-    private static $_nodeOpts = '';
+    private static $_nodeOpts;
     /**
      * The node to display page for
      *
@@ -101,16 +101,12 @@ class DashboardPage extends FOGPage
                     $ip,
                     $webroot
                 );
-                $testurl = sprintf(
+                $testurls[] = sprintf(
                     'http://%s/fog/management/index.php',
                     $ip
                 );
-                $test = self::$FOGURLRequests->isAvailable($testurl);
-                if (false === $test) {
-                    continue;
-                }
                 unset($ip, $curroot, $webroot);
-                self::$_nodeOpts .= sprintf(
+                self::$_nodeOpts[] = sprintf(
                     '<option value="%s" urlcall="%s">%s%s ()</option>',
                     $StorageNode->get('id'),
                     sprintf(
@@ -133,6 +129,11 @@ class DashboardPage extends FOGPage
                 self::$_nodeURLs[] = $URL;
                 unset($StorageNode);
             }
+            $test = array_filter(self::$FOGURLRequests->isAvailable($testurls));
+            self::$_nodeOpts = array_intersect_key(self::$_nodeOpts, $test);
+            self::$_nodeOpts = implode(self::$_nodeOpts);
+            self::$_nodeNames = array_intersect_key(self::$_nodeNames, $test);
+            self::$_nodeURLs = array_intersect_key(self::$_nodeURLs, $test);
             printf(
                 '<input id="bandwidthUrls" type="hidden" value="%s"/>',
                 implode(',', self::$_nodeURLs)
@@ -420,7 +421,8 @@ class DashboardPage extends FOGPage
                 'http://%s/fog/management/index.php',
                 $this->obj->get('ip')
             );
-            $test = self::$FOGURLRequests->isAvailable($testurl);
+            $test = array_filter(self::$FOGURLRequests->isAvailable($testurl));
+            $test = array_shift($test);
             if (false !== $test) {
                 unset($curroot, $webroot);
                 $Response = self::$FOGURLRequests

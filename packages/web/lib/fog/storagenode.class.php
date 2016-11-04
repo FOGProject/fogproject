@@ -153,6 +153,7 @@ class StorageNode extends FOGController
             $this->get('ip')
         );
         $test = self::$FOGURLRequests->isAvailable($testurl);
+        $test = array_shift($test);
         if (false === $test) {
             return;
         }
@@ -205,6 +206,7 @@ class StorageNode extends FOGController
             $this->get('ip')
         );
         $test = self::$FOGURLRequests->isAvailable($testurl);
+        $test = array_shift($test);
         if (false === $test) {
             return;
         }
@@ -242,6 +244,7 @@ class StorageNode extends FOGController
             $this->get('ip')
         );
         $test = self::$FOGURLRequests->isAvailable($testurl);
+        $test = array_shift($test);
         if (false === $test) {
             return;
         }

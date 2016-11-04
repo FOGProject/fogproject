@@ -2210,6 +2210,7 @@ abstract class FOGPage extends FOGBase
                     }
                     $test = self::$FOGURLRequests
                         ->isAvailable($_SESSION['dl-kernel-file']);
+                    $test = array_shift($test);
                     if (false === $test) {
                         throw new Exception(
                             _('Error: Failed to connect to server')

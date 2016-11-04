@@ -280,7 +280,8 @@ class FOGURLRequests extends FOGBase
             $info = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             if ($info < 200
-                || $info >= 400) {
+                || $info >= 400
+            ) {
                 return (array) false;
             }
             return (array) true;
@@ -295,7 +296,7 @@ class FOGURLRequests extends FOGBase
             }
         }
 
-        return true;
+        return (array)true;
     }
     /**
      * Perform multiple url requests.
@@ -323,8 +324,6 @@ class FOGURLRequests extends FOGBase
             if ($available) {
                 unset($options[CURLOPT_TIMEOUT]);
                 unset($options[CURLOPT_CONNECTTIMEOUT]);
-                $options[CURLOPT_TIMEOUT_MS] = 1200;
-                $options[CURLOPT_CONNECTTIMEOUT_MS] = 500;
                 $options[CURLOPT_RETURNTRANSFER] = true;
                 $options[CURLOPT_NOBODY] = true;
                 $options[CURLOPT_HEADER] = true;
@@ -350,7 +349,8 @@ class FOGURLRequests extends FOGBase
                     $output = curl_multi_getcontent($done['handle']);
                     $key = (string) $done['handle'];
                     if ($info < 200
-                        || $info >= 400) {
+                        || $info >= 400
+                    ) {
                         $this->_response[$this->_requestMap[$key]] = false;
                     } else {
                         $this->_response[$this->_requestMap[$key]] = true;
