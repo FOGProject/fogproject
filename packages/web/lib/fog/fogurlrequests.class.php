@@ -268,11 +268,11 @@ class FOGURLRequests extends FOGBase
         if ($available) {
             unset($options[CURLOPT_TIMEOUT]);
             unset($options[CURLOPT_CONNECTTIMEOUT]);
-            $options[CURLOPT_TIMEOUT_MS] = 1200;
             $options[CURLOPT_CONNECTTIMEOUT_MS] = 500;
             $options[CURLOPT_RETURNTRANSFER] = true;
             $options[CURLOPT_NOBODY] = true;
             $options[CURLOPT_HEADER] = true;
+            $options[CURLOPT_NOSIGNAL] = true;
         }
         curl_setopt_array($ch, $options);
         if ($available) {
@@ -324,9 +324,11 @@ class FOGURLRequests extends FOGBase
             if ($available) {
                 unset($options[CURLOPT_TIMEOUT]);
                 unset($options[CURLOPT_CONNECTTIMEOUT]);
+                $options[CURLOPT_CONNECTTIMEOUT_MS] = 500;
                 $options[CURLOPT_RETURNTRANSFER] = true;
                 $options[CURLOPT_NOBODY] = true;
                 $options[CURLOPT_HEADER] = true;
+                $options[CURLOPT_NOSIGNAL] = true;
             }
             curl_setopt_array($ch, $options);
             curl_multi_add_handle($master, $ch);

@@ -2243,8 +2243,7 @@ abstract class FOGBase
             false,
             false,
             false,
-            false,
-            1
+            false
         );
     }
 }

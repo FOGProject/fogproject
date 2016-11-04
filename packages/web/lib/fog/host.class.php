@@ -1164,13 +1164,24 @@ class Host extends FOGController
             $StorageGroupIDs = $StorageGroup->get('id');
         }
         if (!$StorageNode || !$StorageNode->isValid()) {
-            $StorageNodes = self::getClass('StorageNodeManager')
-                ->find(
-                    array(
-                        'storagegroupID' => $StorageGroupIDs,
-                        'isEnabled' => 1
-                    )
-                );
+            if (!$StorageGroup || !$StorageGroup->isValid()) {
+                $Groups = self::getClass('StorageGroupManager')
+                    ->find(array('id' => $StorageGroupIDs));
+                $ennodeids = array();
+                foreach ((array)$Groups as &$Group) {
+                    $ennodeids += $Group->get('enablednodes');
+                    unset($Group);
+                }
+                $StorageNodes = self::getClass('StorageNodeManager')
+                    ->find(
+                        array('id' => $ennodeids)
+                    );
+            } else {
+                $StorageNodes = self::getClass('StorageNodeManager')
+                    ->find(
+                        array('id' => $StorageGroup->get('enablednodes'))
+                    );
+            }
         } else {
             $StorageNodes = array($StorageNode);
         }
