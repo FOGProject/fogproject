@@ -28,7 +28,7 @@ class SnapinReplicator extends FOGService
      */
     public static $sleeptime = 'SNAPINREPSLEEPTIME';
     /**
-     * Initializes the ImageReplicator Class
+     * Initializes the SnapinReplicator Class
      *
      * @return void
      */
@@ -210,7 +210,7 @@ class SnapinReplicator extends FOGService
                             sprintf(
                                 ' | %s: %s',
                                 _('Not syncing Snapin'),
-                                $Image->get('name')
+                                $Snapin->get('name')
                             )
                         );
                         self::outall(
