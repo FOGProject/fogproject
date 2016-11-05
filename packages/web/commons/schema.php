@@ -3445,5 +3445,9 @@ $this->schema[] = array(
 // 236
 $this->schema[] = array(
     'ALTER TABLE `multicastSessions`'
-    . 'CHANGE `msAnon1` `msIsDD` INTEGER NOT NULL'
+    . 'CHANGE `msAnon1` `msIsDD` INTEGER NOT NULL',
+    "ALTER TABLE `imageGroupAssoc` CHANGE `igaPrimary` `igaPrimary` "
+    . "ENUM('0','1') NOT NULL",
+    "ALTER TABLE `snapinGroupAssoc` CHANGE `sgaPrimary` `sgaPrimary` "
+    . "ENUM('0','1') NOT NULL"
 );
