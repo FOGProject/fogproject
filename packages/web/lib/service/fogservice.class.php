@@ -436,6 +436,7 @@ abstract class FOGService extends FOGBase
                     continue;
                 }
                 if (isset($this->procRef[$itemType])
+                    && isset($this->procRef[$itemType][$Obj->get('name')])
                     && isset($this->procRef[$itemType][$Obj->get('name')][$i])
                 ) {
                     $isRunning = $this->isRunning(

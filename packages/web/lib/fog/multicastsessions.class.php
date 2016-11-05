@@ -1,8 +1,37 @@
 <?php
-
+/**
+ * Handles the session in db.
+ *
+ * PHP version 5
+ *
+ * @category MulticastSessions
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Handles the session in db.
+ *
+ * @category MulticastSessions
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class MulticastSessions extends FOGController
 {
+    /**
+     * The multicast sessions table.
+     *
+     * @var string
+     */
     protected $databaseTable = 'multicastSessions';
+    /**
+     * The multicast sessions common and column names.
+     *
+     * @var string
+     */
     protected $databaseFields = array(
         'id' => 'msID',
         'name' => 'msName',
@@ -22,16 +51,52 @@ class MulticastSessions extends FOGController
         'anon4' => 'msAnon4',
         'anon5' => 'msAnon5',
     );
+    /**
+     * Get's the session's associated image object.
+     *
+     * @return object
+     */
     public function getImage()
     {
-        return self::getClass('Image', $this->get('image'));
+        return new Image($this->get('image'));
     }
+    /**
+     * Get's the session's task state.
+     *
+     * @return object
+     */
     public function getTaskState()
     {
-        return self::getClass('TaskState', $this->get('stateID'));
+        return new TaskState($this->get('stateID'));
     }
+    /**
+     * Cancels this particular session.
+     *
+     * @return void
+     */
     public function cancel()
     {
-        return $this->set('stateID', $this->getCancelledState())->set('name', '')->save();
+        $taskIDs = self::getSubObjectIDs(
+            'MulticastSessionsAssociation',
+            array('msID' => $this->get('id')),
+            'taskID'
+        );
+        self::getClass('TaskManager')
+            ->update(
+                array('id' => $taskIDs),
+                '',
+                array(
+                    'stateID' => $this->getCancelledState()
+                )
+            );
+        self::getClass('MulticastSessionsAssociationManager')
+            ->destroy(array('msID' => $this->get('id')));
+        return $this->set(
+            'stateID',
+            $this->getCancelledState()
+        )->set(
+            'name',
+            ''
+        )->save();
     }
 }

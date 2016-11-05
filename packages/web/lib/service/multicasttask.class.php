@@ -615,7 +615,9 @@ class MulticastTask extends FOGService
      */
     public function startTask()
     {
-        unlink($this->getUDPCastLogFile());
+        if (file_exists($this->getUDPCastLogFile())) {
+            unlink($this->getUDPCastLogFile());
+        }
         $this->startTasking($this->getCMD(), $this->getUDPCastLogFile());
         $this->procRef = array_shift($this->procRef);
         $this->_MultiSess
