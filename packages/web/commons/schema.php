@@ -3445,5 +3445,5 @@ $this->schema[] = array(
 // 236
 $this->schema[] = array(
     'ALTER TABLE `multicastSessions`'
-    . 'CHANGE `msAnon1` `msIsDD` VARCHAR(1) NOT NULL'
+    . 'CHANGE `msAnon1` `msIsDD` INTEGER NOT NULL'
 );
