@@ -135,6 +135,19 @@ class SnapinReplicator extends FOGService
                     )
                 );
                 /**
+                 * More implicit defining of type of sync
+                 * currently happening.
+                 */
+                self::outall(
+                    sprintf(
+                        ' * %s %s -> %s %s.',
+                        _('Attempting to perform'),
+                        _('Group'),
+                        _('Group'),
+                        _('snapin replication')
+                    )
+                );
+                /**
                  * Get the snapin ids that are to be replicated.
                  * NOTE: Must be enabled and have Replication enabled.
                  */
@@ -229,6 +242,19 @@ class SnapinReplicator extends FOGService
                     );
                     unset($Snapin);
                 }
+                /**
+                 * More implicit defining of type of sync
+                 * currently happening.
+                 */
+                self::outall(
+                    sprintf(
+                        ' * %s %s -> %s %s.',
+                        _('Attempting to perform'),
+                        _('Group'),
+                        _('Nodes'),
+                        _('snapin replication')
+                    )
+                );
                 foreach ($Snapins as &$Snapin) {
                     $this->replicateItems(
                         $myStorageGroupID,

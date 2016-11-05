@@ -135,6 +135,19 @@ class ImageReplicator extends FOGService
                     )
                 );
                 /**
+                 * More implicit defining of type of sync
+                 * currently happening.
+                 */
+                self::outall(
+                    sprintf(
+                        ' * %s %s -> %s %s.',
+                        _('Attempting to perform'),
+                        _('Group'),
+                        _('Group'),
+                        _('image replication')
+                    )
+                );
+                /**
                  * Get the image ids that are to be replicated.
                  * NOTE: Must be enabled and have Replication enabled.
                  */
@@ -229,6 +242,19 @@ class ImageReplicator extends FOGService
                     );
                     unset($Image);
                 }
+                /**
+                 * More implicit defining of type of sync
+                 * currently happening.
+                 */
+                self::outall(
+                    sprintf(
+                        ' * %s %s -> %s %s.',
+                        _('Attempting to perform'),
+                        _('Group'),
+                        _('Nodes'),
+                        _('image replication')
+                    )
+                );
                 foreach ($Images as &$Image) {
                     $this->replicateItems(
                         $myStorageGroupID,
