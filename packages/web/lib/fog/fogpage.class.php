@@ -239,6 +239,18 @@ abstract class FOGPage extends FOGBase
         global $node;
         global $sub;
         global $id;
+        if (preg_match('#edit#i', $sub)
+            && (!isset($id)
+            || !is_numeric($id)
+            || $id < 1)
+        ) {
+            $this->setMessage(
+                _('ID Must be set to edit')
+            );
+            $this->redirect(
+                "?node=$node"
+            );
+        }
         $subs = array(
             'configure',
             'authorize',

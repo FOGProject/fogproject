@@ -36,17 +36,38 @@ class ImageManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
+        /**
+         * The real name not using our name passer.
+         */
         $this->name = 'Image Management';
+        /**
+         * Pull in the FOGPage class items.
+         */
         parent::__construct($this->name);
+        /**
+         * Add the multicast session items for images.
+         */
         $this->menu['multicast'] = sprintf(
             '%s %s',
             self::$foglang['Multicast'],
             self::$foglang['Image']
         );
+        /**
+         * If we want the Server size taken by the image.
+         */
         $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
+        /**
+         * Get our nicer names.
+         */
         global $id;
         global $sub;
+        /**
+         * If the id is set load our sub-side menu.
+         */
         if ($id) {
+            /**
+             * The other sub menu items.
+             */
             $this->subMenu = array(
                 "$this->linkformat#image-gen" => self::$foglang['General'],
                 "$this->linkformat#image-storage" => sprintf(
@@ -57,6 +78,9 @@ class ImageManagementPage extends FOGPage
                 $this->membership => self::$foglang['Membership'],
                 $this->delformat => self::$foglang['Delete'],
             );
+            /**
+             * The notes for this item.
+             */
             $this->notes = array(
                 self::$foglang['Images'] => $this->obj->get('name'),
                 self::$foglang['LastCaptured'] => $this->obj->get('deployed'),
@@ -75,6 +99,12 @@ class ImageManagementPage extends FOGPage
                 )
             );
         }
+        /**
+         * Allow custom hooks/changes to: Submenu data via.
+         *
+         * Menu, submenu, id, notes, the main object,
+         * linkformat, delformat, and membership information.
+         */
         self::$HookManager
             ->processEvent(
                 'SUB_MENULINK_DATA',
@@ -89,6 +119,9 @@ class ImageManagementPage extends FOGPage
                     'membership' => &$this->membership
                 )
             );
+        /**
+         * The header data for list/search.
+         */
         $this->headerData = array(
             '',
             '<input type="checkbox" name="toggle-checkbox" '
@@ -106,18 +139,27 @@ class ImageManagementPage extends FOGPage
             ),
             _('Image Size: ON CLIENT'),
         );
-        $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
+        /**
+         * If we have the size server enabled
+         * inject the on server element.
+         */
         if ($SizeServer) {
             array_push(
                 $this->headerData,
                 _('Image Size: ON SERVER')
             );
         }
+        /**
+         * Finish our injection of items.
+         */
         array_push(
             $this->headerData,
             _('Format'),
             _('Captured')
         );
+        /**
+         * The template for the list/search elements.
+         */
         $this->templates = array(
             '${protected}',
             '<input type="checkbox" name="image[]" '
@@ -133,17 +175,27 @@ class ImageManagementPage extends FOGPage
             ),
             '${size}',
         );
+        /**
+         * If we have the size server enabled
+         * inject the on server template.
+         */
         if ($SizeServer) {
             array_push(
                 $this->templates,
                 '${serv_size}'
             );
         }
+        /**
+         * Finish our injection of template items.
+         */
         array_push(
             $this->templates,
             '${type}',
             '${deployed}'
         );
+        /**
+         * The attributes for the table items.
+         */
         $this->attributes = array(
             array(
                 'width' => 5,
@@ -162,6 +214,10 @@ class ImageManagementPage extends FOGPage
                 'class' => 'c'
             ),
         );
+        /**
+         * If we have the size server enabled
+         * inject the on server attributes.
+         */
         if ($SizeServer) {
             array_push(
                 $this->attributes,
@@ -171,6 +227,9 @@ class ImageManagementPage extends FOGPage
                 )
             );
         }
+        /**
+         * Finish our injection of attribute items.
+         */
         array_push(
             $this->attributes,
             array(
@@ -182,12 +241,35 @@ class ImageManagementPage extends FOGPage
                 'class' => 'c'
             )
         );
+        /**
+         * Lambda function to manage server size return.
+         *
+         * This particular function only returns false.
+         *
+         * @param string $path the path to test.
+         * @param StorageNode $StorageNode the storage node to check.
+         *
+         * @return bool
+         */
         $servSize = function (&$path, &$StorageNode) {
             return false;
         };
+        /**
+         * If size server adjust our prior lambda to return
+         * bytesize as stored on the master node of the primary
+         * group.
+         */
         if ($SizeServer) {
+            /**
+             * Lambda function to manage server size return.
+             *
+             * @param string $path the path to test.
+             * @param StorageNode $StorageNode the storage node to check.
+             *
+             * @return double
+             */
             $servSize = function (&$path, &$StorageNode) {
-                return $this->getFTPByteSize(
+                return (double)$this->getFTPByteSize(
                     $StorageNode,
                     sprintf(
                         '%s/%s',
@@ -197,20 +279,89 @@ class ImageManagementPage extends FOGPage
                 );
             };
         }
-        self::$returnData = function (&$Image) use (&$servSize) {
+        /**
+         * Lambda functino to manage the output
+         * of search/listed items.
+         *
+         * @param Image $Image the image item.
+         *
+         * @return void
+         */
+        self::$returnData = function (&$Image) use ($SizeServer, &$servSize) {
+            /**
+             * If the image isn't valid return immediately.
+             */
             if (!$Image->isValid()) {
                 return;
             }
-            $imageSize = $this
-                ->formatByteSize(
-                    array_sum(
-                        explode(
-                            ':',
-                            $Image->get('size')
-                        )
+            /**
+             * Stores the image on client size.
+             */
+            $imageSize = $this->formatByteSize(
+                array_sum(
+                    explode(
+                        ':',
+                        $Image->get('size')
                     )
-                );
+                )
+            );
+            /**
+             * Stores the items in a nicer name
+             */
+            /**
+             * The id.
+             */
+            $id = $Image->get('id');
+            /**
+             * The name.
+             */
+            $name = $Image->get('name');
+            /**
+             * The description.
+             */
+            $description = $Image->get('description');
+            /**
+             * The storage group name.
+             */
+            $storageGroup = $Image->getStorageGroup()->get('name');
+            /**
+             * The os name.
+             */
+            $os = $Image->getOS()->get('name');
+            /**
+             * If no os is set/found set to not set.
+             */
+            if (!$os) {
+                $os = _('Not set');
+            }
+            /**
+             * The deployed date.
+             */
+            $date = $Image->get('deployed');
+            /**
+             * If the date is valid format in Y-m-d H:i:s
+             * and if not set to no valid data.
+             */
+            if ($this->validDate($date)) {
+                $date = $this->formatTime($date, 'Y-m-d H:i:s');
+            } else {
+                $date = _('No valid data');
+            }
+            /**
+             * The image type name.
+             */
+            $imageType = $Image->getImageType()->get('name');
+            /**
+             * The image partition type name.
+             */
+            $imagePartitionType = $Image->getImagePartitionType()->get('name');
+            /**
+             * The path.
+             */
             $path = $Image->get('path');
+            /**
+             * If size on server we get our function.
+             */
             if ($SizeServer) {
                 $StorageNode = $Image
                     ->getStorageGroup()
@@ -220,50 +371,65 @@ class ImageManagementPage extends FOGPage
                     $StorageNode
                 );
             }
+            /**
+             * If the image is not protected show
+             * the unlocked symbol and title of not protected
+             * otherwise set as is protected.
+             */
+            if ($Image->get('protected') < 1) {
+                $protected = sprintf(
+                    '<i class="fa fa-unlock fa-1x icon hand" title="%s"></i>',
+                    _('Not protected')
+                );
+            } else {
+                $protected = sprintf(
+                    '<i class="fa fa-lock fa-1x icon hand" title="%s"></i>',
+                    _('Protected')
+                );
+            }
+            /**
+             * If the image format not one, we must
+             * be using partclone otherwise partimage.
+             */
+            if ($Image->get('format') == 1) {
+                $type = _('Partimage');
+            } else {
+                $type = _('Partclone');
+            }
+            /**
+             * Store the data.
+             */
             $this->data[] = array(
-                'id' => $Image->get('id'),
-                'name' => $Image->get('name'),
-                'description' => $Image->get('description'),
-                'storageGroup' => $Image->getStorageGroup()->get('name'),
-                'os' => (
-                    $Image->getOS()->isValid() ?
-                    $Image->getOS()->get('name') :
-                    _('Not set')
-                ),
-                'deployed' => (
-                    $this->validDate($Image->get('deployed')) ?
-                    $this->formatTime($Image->get('deployed'), 'Y-m-d H:i:s') :
-                    _('No Data')
-                ),
+                'id' => $id,
+                'name' => $name,
+                'description' => $description,
+                'storageGroup' => $storageGroup,
+                'os' => $os,
+                'deployed' => $date,
                 'size' => $imageSize,
                 'serv_size' => $serverSize,
-                'image_type'=>$Image->getImageType()->get('name'),
-                'image_partition_type' => $Image->getImagePartitionType()->get(
-                    'name'
-                ),
-                'protected' => sprintf(
-                    '<i class="fa fa-%slock fa-1x icon hand" title="%s"></i>',
-                    (
-                        !$Image->get('protected') ?
-                        'un' :
-                        ''
-                    ),
-                    (
-                        !$Image->get('protected') ?
-                        _('Not Protected') :
-                        _('Protected')
-                    )
-                ),
-                'type' => (
-                    $Image->get('format') ?
-                    _('Partimage') :
-                    _('Partclone')
-                ),
+                'image_type' => $imageType,
+                'image_partition_type' => $imagePartitionType,
+                'protected' => $protected,
+                'type' => $type
             );
+            /**
+             * Cleanup.
+             */
             unset(
-                $Image,
+                $id,
+                $name,
+                $description,
+                $storageGroup,
+                $os,
+                $date,
                 $imageSize,
-                $serverSize
+                $serverSize,
+                $imageType,
+                $imagePartitionType,
+                $protected,
+                $type,
+                $Image
             );
         };
     }
@@ -275,6 +441,16 @@ class ImageManagementPage extends FOGPage
     public function index()
     {
         $this->title = _('All Images');
+        /**
+         * If data return is enabled, test if the count is
+         * greater than the data return.
+         *
+         * This will redirect to the search page, and only
+         * displays for "list" view elements.
+         *
+         * If the user has implicitely chosen list, it is not
+         * used.
+         */
         if ($_SESSION['DataReturn'] > 0
             && $_SESSION['ImageCount'] > $_SESSION['DataReturn']
             && $_REQUEST['sub'] != 'list'
@@ -286,9 +462,25 @@ class ImageManagementPage extends FOGPage
                 )
             );
         }
+        /**
+         * Ensure our data is "clean" first.
+         */
         $this->data = array();
+        /**
+         * Store our objects.
+         */
         $Images = self::getClass('ImageManager')->find();
+        /**
+         * Iterate our objects.
+         */
         array_walk($Images, self::$returnData);
+        /**
+         * Cleanup images.
+         */
+        unset($Images);
+        /**
+         * Create our hook to hook/change items on data.
+         */
         self::$HookManager
             ->processEvent(
                 'IMAGE_DATA',
@@ -299,7 +491,19 @@ class ImageManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        /**
+         * Send to the display.
+         */
         $this->render();
+        /**
+         * Cleanup all the rest.
+         */
+        unset(
+            $this->headerData,
+            $this->data,
+            $this->templates,
+            $this->attributes
+        );
     }
     /**
      * How to return searched items.
@@ -308,9 +512,17 @@ class ImageManagementPage extends FOGPage
      */
     public function searchPost()
     {
-        $this->data = array();
+        /**
+         * Get the images based on the search item.
+         */
         $Images = self::getClass('ImageManager')->search('', true);
+        /**
+         * Iterate our objects.
+         */
         array_walk($Images, self::$returnData);
+        /**
+         * Create our hook to hook/change items on data.
+         */
         self::$HookManager
             ->processEvent(
                 'IMAGE_DATA',
@@ -321,7 +533,19 @@ class ImageManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        /**
+         * Send to the display.
+         */
         $this->render();
+        /**
+         * Cleanup all the rest.
+         */
+        unset(
+            $this->headerData,
+            $this->data,
+            $this->templates,
+            $this->attributes
+        );
     }
     /**
      * The form to display when adding a new image
@@ -331,41 +555,55 @@ class ImageManagementPage extends FOGPage
      */
     public function add()
     {
+        /**
+         * Title of initial/general element.
+         */
         $this->title = _('New Image');
-        unset($this->headerData);
+        /**
+         * The table attributes.
+         */
         $this->attributes = array(
             array(),
             array(),
         );
+        /**
+         * The table template.
+         */
         $this->templates = array(
             '${field}',
             '${input}',
         );
-        if ($_REQUEST['storagegroup']
+        /**
+         * Set the storage group to pre-select.
+         */
+        if (isset($_REQUEST['storagegroup'])
             && is_numeric($_REQUEST['storagegroup'])
+            && $_REQUEST['storagegroup'] > 0
         ) {
             $sgID = $_REQUEST['storagegroup'];
         } else {
             $sgID = @min(self::getSubObjectIDs('StorageGroup'));
         }
+        /**
+         * Set our storage group object.
+         */
         $StorageGroup = new StorageGroup($sgID);
-        $StorageNode = $StorageGroup->getMasterStorageNode();
-        if (!(($StorageNode instanceof StorageNode)
-            && $StorageNode)
-        ) {
-            die(_('There is no active/enabled Storage nodes on this server.'));
-        }
         $StorageGroups = self::getClass('StorageGroupManager')
             ->buildSelectBox(
                 $sgID,
                 '',
                 'id'
             );
+        /**
+         * Get the master storage node.
+         */
+        $StorageNode = $StorageGroup->getMasterStorageNode();
         $OSs = self::getClass('OSManager')
             ->buildSelectBox($_REQUEST['os']);
         $itID = 1;
-        if ($_REQUEST['imagetype']
+        if (isset($_REQUEST['imagetype'])
             && is_numeric($_REQUEST['imagetype'])
+            && $_REQUEST['imagetype'] > 0
         ) {
             $itID = $_REQUEST['imagetype'];
         }
@@ -376,10 +614,13 @@ class ImageManagementPage extends FOGPage
                 'id'
             );
         $iptID = 1;
-        if ($_REQUEST['imagepartitiontype']
+        if (isset($_REQUEST['imagepartitiontype'])
             && is_numeric($_REQUEST['imagepartitiontype'])
+            && $_REQUEST['imagepartitiontype'] > 0
         ) {
             $iptID = $_REQUEST['imagepartitiontype'];
+        } else {
+            $iptID = 1;
         }
         $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')
             ->buildSelectBox(
@@ -525,7 +766,7 @@ class ImageManagementPage extends FOGPage
             $this->redirect(
                 sprintf(
                     '?node=%s&sub=edit&id=%s',
-                    $_REQUEST['node'],
+                    $this->node,
                     $Image->get('id')
                 )
             );
@@ -544,7 +785,7 @@ class ImageManagementPage extends FOGPage
     /**
      * Edit this image
      *
-     * @return voi
+     * @return void
      */
     public function edit()
     {
@@ -885,8 +1126,9 @@ class ImageManagementPage extends FOGPage
                     'Image' => &$this->obj
                 )
             );
+        global $tab;
         try {
-            switch ($_REQUEST['tab']) {
+            switch ($tab) {
             case 'image-gen':
                 $name = trim($_REQUEST['name']);
                 if (!$name) {
@@ -983,12 +1225,18 @@ class ImageManagementPage extends FOGPage
             case 'image-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);
                 if (isset($_REQUEST['update'])) {
-                    $this->obj->setPrimaryGroup($_REQUEST['primary']);
-                }
-                if (isset($_REQUEST['deleteGroup'])) {
-                    if (count($this->obj->get('storagegroups')) < 2) {
+                    $this->obj->setPrimaryGroup(isset($_REQUEST['primary']));
+                } elseif (isset($_REQUEST['deleteGroup'])) {
+                    $groupdel = count($_REQUEST['storagegroup-rm']);
+                    $ingroups = count($this->obj->get('storagegroups'));
+                    if ($groupdel < 1) {
                         throw new Exception(
-                            _('Image must be assigned to one Storage Group')
+                            _('No groups selected to be removed')
+                        );
+                    }
+                    if ($ingroups < 2) {
+                        throw new Exception(
+                            _('You must have at least one group associated')
                         );
                     }
                     $this
@@ -1000,7 +1248,9 @@ class ImageManagementPage extends FOGPage
                 break;
             }
             if (!$this->obj->save()) {
-                throw new Exception(_('Database update failed'));
+                throw new Exception(
+                    _('Database update failed')
+                );
             }
             self::$HookManager
                 ->processEvent(
@@ -1009,7 +1259,9 @@ class ImageManagementPage extends FOGPage
                         'Image' => &$this->obj
                     )
                 );
-            $this->setMessage(_('Image updated'));
+            $this->setMessage(
+                _('Image updated')
+            );
         } catch (Exception $e) {
             self::$HookManager
                 ->processEvent(

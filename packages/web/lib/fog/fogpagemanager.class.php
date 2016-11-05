@@ -229,6 +229,24 @@ class FOGPageManager extends FOGBase
                 )
             );
         }
+        /**
+         * As a new method is being called, ensure the 
+         * alternate methods are clean of their constructed
+         * data of header, attributes, data, and templates.
+         */
+        $nonresetmethods = array(
+            'index',
+            'search'
+        );
+        $methodTest = preg_grep("#$method#i", $nonresetmethods);
+        if (count($methodTest) < 1) {
+            unset(
+                $class->headerData,
+                $class->data,
+                $class->templates,
+                $class->attributes
+            );
+        }
         $class->$method();
         $this->resetRequest();
     }
