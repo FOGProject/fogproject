@@ -236,7 +236,8 @@ class FOGPageManager extends FOGBase
          */
         $nonresetmethods = array(
             'index',
-            'search'
+            'search',
+            'active',
         );
         $methodTest = preg_grep("#$method#i", $nonresetmethods);
         if (count($methodTest) < 1) {

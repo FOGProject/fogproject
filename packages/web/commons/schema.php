@@ -229,8 +229,7 @@ $this->schema[] = array(
     "UPDATE `supportedOS` SET `osName`='Windows 2000/XP' WHERE `osValue`='1'",
     "INSERT IGNORE INTO `supportedOS` VALUES ('', 'Other', '99')",
     'ALTER TABLE `multicastSessions`'
-    . 'CHANGE `msAnon1` `msIsDD` VARCHAR(1) CHARACTER SET utf8'
-    . 'COLLATE utf8_general_ci NOT NULL',
+    . 'CHANGE `msAnon1` `msIsDD` VARCHAR(1) NOT NULL',
     "UPDATE `schemaVersion` SET vValue='5'",
 );
 // 7
@@ -1888,8 +1887,8 @@ $this->schema[] = array(
 );
 // 109
 $this->schema[] = array(
-    "ALTER TABLE `images`
-    ADD COLUMN `imageMagnetUri` longtext  NOT NULL AFTER `imagePath`",
+    "ALTER TABLE `images` "
+    . "ADD COLUMN `imageMagnetUri` longtext  NOT NULL AFTER `imagePath`",
 );
 // 110
 $this->schema[] = array(
@@ -2877,7 +2876,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `nfsGroupMembers` CHANGE `ngmInterface` "
     . "`ngmInterface` VARCHAR (25) CHARACTER SET utf8 "
-    . "COLLATE utf8_general_ci NOT NULL DEFAULT '"
+    . "COLLATE utf8_general_ci NOT NULL DEFAULT"
     . STORAGE_INTERFACE
     . "'",
 );
@@ -3442,4 +3441,9 @@ $this->schema[] = array(
     "INSERT IGNORE INTO `users_new` SELECT * FROM `users`",
     "DROP TABLE `users`",
     "RENAME TABLE `users_new` TO `users`",
+);
+// 236
+$this->schema[] = array(
+    'ALTER TABLE `multicastSessions`'
+    . 'CHANGE `msAnon1` `msIsDD` VARCHAR(1) NOT NULL'
 );
