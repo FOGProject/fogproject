@@ -540,6 +540,9 @@ class SnapinManagementPage extends FOGPage
             _('Please select an option'),
             ob_get_clean()
         );
+        /**
+         * Setup the fields to be used to display.
+         */
         $fields = array(
             _('Snapin Name') => sprintf(
                 '<input class="snapinname-input" type='

@@ -30,15 +30,30 @@ class DatabaseManager extends FOGCore
      */
     public function establish()
     {
+        /**
+         * If the db is already connected,
+         * return immediately.
+         */
         if (self::$DB) {
             return $this;
         }
+        /**
+         * Establish connection.
+         */
         self::$DB = new PDODB();
-        self::_getVersion();
+        /**
+         * Check our caller to see if it's of service
+         * or status dir call.
+         */
         $testscript = preg_match(
             '#/service|status/#',
             self::$scriptname
         );
+        /**
+         * If it is, and we don't have a link and the
+         * script is not using dbrunning, inform the
+         * calling script that the db is unavailable.
+         */
         if (($testscript
             && !is_object(self::$DB->link())
             && false === strpos(self::$scriptname, 'dbrunning'))
@@ -46,41 +61,83 @@ class DatabaseManager extends FOGCore
             echo json_encode(_('A valid database connection could not be made'));
             exit;
         }
-        if (self::$mySchema < FOG_SCHEMA) {
-            global $sub;
-            $okayFiles = array(
-                'checkcredentials.php',
-                'getversion.php',
-            );
-            $filename = basename(self::$scriptname);
-            if (!in_array($filename, $okayFiles)) {
-                $subs = array(
-                    'configure',
-                    'authorize',
-                    'requestClientInfo'
-                );
-                if (!$test && in_array($sub, $subs)) {
-                    $test = true;
-                }
-                if ($test) {
-                    if (self::$json) {
-                        die(
-                            json_encode(
-                                array(
-                                    'error' => 'db'
-                                )
-                            )
-                        );
-                    } else {
-                        die('#!db');
-                    }
-                }
-            }
+        /**
+         * Get the version
+         */
+        self::_getVersion();
+        /**
+         * If the installed schema is greater than or equal to the
+         * installed version, return immediately.
+         */
+        if (self::$mySchema === FOG_SCHEMA) {
+            return $this;
+        }
+        /**
+         * The sub get caller.
+         */
+        global $sub;
+        /**
+         * Files that are okay to get
+         */
+        $okayFiles = array(
+            'checkcredentials.php',
+            'getversion.php',
+        );
+        /**
+         * The script filename
+         */
+        $filename = basename(self::$scriptname);
+        /**
+         * If the filename is okay, just perform our redirect.
+         */
+        if (in_array($filename, $okayFiles)) {
+            /**
+             * If we are not already redirected to schema updater,
+             * perform our redirect.
+             */
             if (!preg_match('#schema#i', self::$querystring)) {
                 $this->redirect('?node=schema');
             }
         }
-        return $this;
+        /**
+         * The subs we allow some form of passthru
+         */
+        $subs = array(
+            'configure',
+            'authorize',
+            'requestClientInfo'
+        );
+        /**
+         * If sub is in the passthru,
+         * set the test to true.
+         */
+        if (in_array($sub, $subs)) {
+            $test = true;
+        }
+        /**
+         * If the test is true let people know the db
+         * is unavailable for now, as the db needs an
+         * update.
+         */
+        if (true === $test) {
+            /**
+             * If the caller is requiring json send
+             * the data in json format.
+             *
+             * Otherwise just print the #!db flag.
+             */
+            if (self::$json) {
+                die(
+                    json_encode(
+                        array(
+                            'error' => 'db'
+                        )
+                    )
+                );
+            } else {
+                die('#!db');
+            }
+        }
     }
     /**
      * Returns the DB Link object
@@ -111,7 +168,10 @@ class DatabaseManager extends FOGCore
             'SELECT `vValue` FROM `%s`.`schemaVersion`',
             self::$DB->dbName()
         );
-        self::$mySchema = self::$DB->query($query)->fetch()->get('vValue');
+        self::$mySchema = (int)self::$DB
+            ->query($query)
+            ->fetch()
+            ->get('vValue');
         return self::$mySchema;
     }
     /**
@@ -122,13 +182,29 @@ class DatabaseManager extends FOGCore
      *
      * @return int
      */
-    public function getColumns($table_name, $column_name)
-    {
-        $sql = "SELECT COUNT(`COLUMN_NAME`) AS `total` "
-            . "FROM `information_schema`.`COLUMNS` WHERE "
-            . "`TABLE_SCHEMA`='".DATABASE_NAME."' AND "
-            . "`TABLE_NAME`='$table_name' AND "
-            . "`COLUMN_NAME`='$column_name'";
-        return self::$DB->query($sql)->fetch()->get('total');
+    public function getColumns(
+        $table_name,
+        $column_name
+    ) {
+        $sql = sprintf(
+            "SELECT COUNT(`%s`)AS`%s`FROM`%s`.`%s`WHERE`%s`='%s'%s",
+            'COLUMN_NAME',
+            'total',
+            'information_schema',
+            'COLUMNS',
+            'TABLE_SCHEMA',
+            self::$DB->dbName(),
+            sprintf(
+                str_repeat("AND`%s`='%s'", 2),
+                'TABLE_NAME',
+                $table_name,
+                'COLUMN_NAME',
+                $column_name
+            )
+        );
+        return self::$DB
+            ->query($sql)
+            ->fetch()
+            ->get('total');
     }
 }

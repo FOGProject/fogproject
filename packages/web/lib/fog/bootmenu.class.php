@@ -1734,9 +1734,9 @@ class BootMenu extends FOGBase
                 $Send = array_merge(
                     $Send,
                     array(
-                    "$this->_memdisk iso raw",
-                    $this->_memtest,
-                    'boot || goto MENU'
+                        "$this->_memdisk iso raw",
+                        $this->_memtest,
+                        'boot || goto MENU'
                     )
                 );
                 break;
@@ -1744,8 +1744,8 @@ class BootMenu extends FOGBase
                 $Send = array_merge(
                     $Send,
                     array(
-                    "chain -ar $this->_booturl/ipxe/advanced.php || "
-                    . "goto MENU"
+                        "chain -ar $this->_booturl/ipxe/advanced.php || "
+                        . "goto MENU"
                     )
                 );
                 break;
