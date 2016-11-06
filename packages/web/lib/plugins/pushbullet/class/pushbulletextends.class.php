@@ -2,6 +2,8 @@
 /**
  * The base class of pushbullet elements
  *
+ * Extends the pushbullet elements into the event class.
+ *
  * PHP version 5
  *
  * @category PushbulletExtends
@@ -13,6 +15,8 @@
  */
 /**
  * The base class of pushbullet elements
+ *
+ * Extends the pushbullet elements into the event class.
  *
  * @category PushbulletExtends
  * @package  FOGProject

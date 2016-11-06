@@ -1303,38 +1303,25 @@ abstract class FOGBase
     /**
      * Converts hex to binary equivalent.
      *
-     * @param mixed $hex the hex to convert
+     * @param mixed $hex The hex to convert.
      *
      * @return string
      */
     protected function hex2bin($hex)
     {
-        /**
-         * Lambda to perform the action.
-         *
-         * If the function hex2bin exists, use it and return.
-         *
-         * @param mixed $keyToUnhex the key to convert
-         *
-         * @return string
-         */
-        $hex2bin = function ($keyToUnhex) {
-            if (function_exists('hex2bin')) {
-                return hex2bin($keyToUnhex);
-            }
-            $n = strlen($keyToUnhex);
-            $i = 0;
-            $sbin = '';
-            while ($i < $n) {
-                $a = substr($hex, $i, 2);
-                $sbin .= pack('H*', $a);
-                $i += 2;
-            }
+        if (function_exists('hex2bin')) {
+            return hex2bin($hex);
+        }
+        $n = strlen($hex);
+        $i = 0;
+        $sbin = '';
+        while ($i < $n) {
+            $a = substr($hex, $i, 2);
+            $sbin .= pack('H*', $a);
+            $i += 2;
+        }
 
-            return $sbin;
-        };
-
-        return $hex2bin($hex);
+        return $sbin;
     }
     /**
      * Create security token.
