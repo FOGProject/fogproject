@@ -90,7 +90,7 @@ class DatabaseManager extends FOGCore
         /**
          * If the filename is okay, just perform our redirect.
          */
-        if (in_array($filename, $okayFiles)) {
+        if (!in_array($filename, $okayFiles)) {
             /**
              * If we are not already redirected to schema updater,
              * perform our redirect.
@@ -138,6 +138,7 @@ class DatabaseManager extends FOGCore
                 die('#!db');
             }
         }
+        return $this;
     }
     /**
      * Returns the DB Link object
