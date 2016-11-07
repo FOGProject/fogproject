@@ -104,8 +104,6 @@ class FOGURLRequests extends FOGBase
     public function __construct($callback = null)
     {
         parent::__construct();
-        $this->options[CURLOPT_CONNECTTIMEOUT] =& $this->_conntimeout;
-        $this->options[CURLOPT_TIMEOUT] =& $this->_timeout;
         list(
             $aconntimeout,
             $conntimeout,
@@ -130,20 +128,22 @@ class FOGURLRequests extends FOGBase
             && is_numeric($aconntimeout)
             && $aconntimeout > 0
         ) {
-            $this->_aconntimeout = $aconntimeout;
+            $this->_aconntimeout = (int)$aconntimeout;
         }
         if ($conntimeout
             && is_numeric($conntimeout)
             && $conntimeout > 0
         ) {
-            $this->_conntimeout = $conntimeout;
+            $this->_conntimeout = (int)$conntimeout;
         }
         if ($timeout
             && is_numeric($timeout)
             && $timeout > 0
         ) {
-            $this->_timeout = $timeout;
+            $this->_timeout = (int)$timeout;
         }
+        $this->options[CURLOPT_CONNECTTIMEOUT] = $this->_conntimeout;
+        $this->options[CURLOPT_TIMEOUT] = $this->_timeout;
         $this->_callback = $callback;
     }
     /**

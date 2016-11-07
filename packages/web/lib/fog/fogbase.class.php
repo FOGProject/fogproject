@@ -1753,6 +1753,11 @@ abstract class FOGBase
         if (!(self::$FOGUser instanceof User && self::$FOGUser->isValid())) {
             return;
         }
+        $string = sprintf(
+            '[%s] %s',
+            self::niceDate()->format('Y-m-d H:i:s'),
+            $string
+        );
         $string = trim($string);
         if (!$string) {
             return;
