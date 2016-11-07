@@ -358,7 +358,6 @@ class FOGURLRequests extends FOGBase
                         $this->_response[$this->_requestMap[$key]] = true;
                     }
                     unset(
-                        $this->_requests[$this->_requestMap[$key]],
                         $this->_requestMap[$key]
                     );
                 } else {
@@ -380,6 +379,8 @@ class FOGURLRequests extends FOGBase
                     $key = (string) $ch;
                     $this->_requestMap[$key] = $i;
                     ++$i;
+                } else {
+                    unset($this->_requestMap[$key]);
                 }
                 curl_multi_remove_handle($master, $done['handle']);
             }
@@ -523,9 +524,6 @@ class FOGURLRequests extends FOGBase
             $this->options[CURLOPT_FILE] = $file;
         }
         foreach ((array) $urls as &$url) {
-            $request = new FOGRollingURL(
-                $url
-            );
             if ($method === 'GET') {
                 $this->get($url);
             } else {
