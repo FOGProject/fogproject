@@ -772,7 +772,7 @@ pre {
     list-style: none;
     padding: 0 2px;
     margin-bottom: 10px;
-    height: 160px;
+    height: 180px;
     font-size: 12px;
 }
 #dashboard-boxes li {
@@ -781,7 +781,7 @@ pre {
     width: 242px;
     padding: 2px;
     margin: 0 3px;
-    height: 150px;
+    height: 160px;
     border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
