@@ -22,9 +22,9 @@ if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
         php_verAdds='-7.0'
     fi
 fi
+[[ -z $repo ]] && repo="php"
 [[ -z $php_ver ]] && php_ver=5
 [[ -z $php_verAdds ]] && php_verAdds="-5.6"
-[[ $php_ver != 5 ]] && repo="php" || repo="php${php_ver}${php_verAdds}"
 [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
 [[ $php_ver != 5 ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
