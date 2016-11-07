@@ -239,7 +239,8 @@ abstract class FOGPage extends FOGBase
         global $node;
         global $sub;
         global $id;
-        if (preg_match('#edit#i', $sub)
+        if ($node !== 'service'
+            && preg_match('#edit#i', $sub)
             && (!isset($id)
             || !is_numeric($id)
             || $id < 1)
