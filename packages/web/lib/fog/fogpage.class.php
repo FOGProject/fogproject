@@ -261,7 +261,7 @@ abstract class FOGPage extends FOGBase
         }
         $this->childClass = ucfirst($this->node);
         $ref = preg_match(
-            '#node=storage&sub=storage-group#i',
+            '#node=storage&sub=storageGroup#i',
             $_SERVER['HTTP_REFERER']
         );
         if ($ref) {
@@ -689,7 +689,7 @@ abstract class FOGPage extends FOGBase
             echo '</tbody></table>';
             if (((!$sub
                 || in_array($sub, $defaultScreens)
-                || $sub === 'storage-group')
+                || $sub === 'storageGroup')
                 && in_array($node, self::$searchPages)
                 && in_array($node, $this->PagesWithObjects))
                 && !self::$isMobile
@@ -732,7 +732,7 @@ abstract class FOGPage extends FOGBase
                                 strtolower($this->node) !== 'storage' ?
                                 strtolower($this->node) :
                                 (
-                                    $sub === 'storage_group' ?
+                                    $sub === 'storageGroup' ?
                                     strtolower($this->node).' group' :
                                     strtolower($this->node).' node'
                                 )
@@ -1646,7 +1646,7 @@ abstract class FOGPage extends FOGBase
                     '%s %s',
                     $this->childClass,
                     (
-                        $sub !== 'storage-group' ?
+                        $sub !== 'storageGroup' ?
                         'Node' :
                         'Group'
                     )

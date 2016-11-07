@@ -1,4 +1,24 @@
 <?php
+/**
+ * Displays the storage group.node information.
+ *
+ * PHP version 5
+ *
+ * @category StorageManagementPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Displays the storage group.node information.
+ *
+ * @category StorageManagementPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class StorageManagementPage extends FOGPage
 {
     // Base variables
@@ -9,26 +29,32 @@ class StorageManagementPage extends FOGPage
         parent::__construct($this->name);
         $this->menu = array(
             '' => self::$foglang['AllSN'],
-            'add-storage-node' => self::$foglang['AddSN'],
-            'storage-group' => self::$foglang['AllSG'],
-            'add-storage-group' => self::$foglang['AddSG'],
+            'addStorageNode' => self::$foglang['AddSN'],
+            'storageGroup' => self::$foglang['AllSG'],
+            'addStorageGroup' => self::$foglang['AddSG'],
         );
         global $sub;
+        global $id;
         switch (strtolower($sub)) {
             case 'edit':
             case 'delete':
-            case 'delete_storage_node':
-            case 'delete-storage-node':
-                if (isset($_REQUEST['id'])) {
-                    $this->obj = self::getClass('StorageNode', $_REQUEST['id']);
-                    if (empty($_REQUEST['id']) || $_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
+            case 'deleteStorageNode':
+                if ($id) {
+                    $this->obj = new StorageNode($id);
+                    if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
                         unset($this->obj);
-                        $this->setMessage(sprintf(_('%s ID %s is not valid'), $this->childClass, $_REQUEST['id']));
+                        $this->setMessage(
+                            sprintf(
+                                _('%s ID %s is not valid'),
+                                $this->childClass,
+                                $id
+                            )
+                        );
                         $this->redirect(sprintf('?node=%s', $this->node));
                     }
                     $this->subMenu = array(
-                    "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => self::$foglang['General'],
-                    "?node={$this->node}&sub=delete-storage-node&id={$_REQUEST['id']}" => self::$foglang['Delete'],
+                        "?node={$this->node}&sub={$sub}&id={$id}" => self::$foglang['General'],
+                        "?node={$this->node}&sub=deleteStorageNode&id={$id}" => self::$foglang['Delete'],
                     );
                     $this->notes = array(
                         sprintf('%s %s', self::$foglang['Storage'], self::$foglang['Node']) => $this->obj->get('name'),
@@ -37,23 +63,26 @@ class StorageManagementPage extends FOGPage
                     );
                 }
                 break;
-            case 'edit-storage-group':
-            case 'edit_storage_group':
-            case 'delete-storage-group':
-            case 'delete_storage_group':
-                if (isset($_REQUEST['id'])) {
-                    $this->obj = self::getClass('StorageGroup', $_REQUEST['id']);
-                    if ($_REQUEST['id'] === 0 || !is_numeric($_REQUEST['id']) || !$this->obj->isValid()) {
+            case 'editStorageGroup':
+            case 'editStorageGroup':
+            case 'deleteStorageGroup':
+                if ($id) {
+                    $this->obj = new StorageGroup($id);
+                    if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
                         unset($this->obj);
                         $this->setMessage(sprintf(_('%s ID %s is not valid'), $this->childClass, $_REQUEST['id']));
                         $this->redirect(sprintf('?node=%s', $this->node));
                     }
                     $this->subMenu = array(
-                    "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => self::$foglang['General'],
-                    "?node={$this->node}&sub=delete-storage-group&id={$_REQUEST['id']}" => self::$foglang['Delete'],
+                    "?node={$this->node}&sub={$sub}&id={$id}" => self::$foglang['General'],
+                    "?node={$this->node}&sub=deleteStorageGroup&id={$id}" => self::$foglang['Delete'],
                     );
                     $this->notes = array(
-                        sprintf('%s %s', self::$foglang['Storage'], self::$foglang['Group']) => $this->obj->get('name'),
+                        sprintf(
+                            '%s %s',
+                            self::$foglang['Storage'],
+                            self::$foglang['Group']
+                        ) => $this->obj->get('name'),
                     );
                 }
                 break;
@@ -65,19 +94,19 @@ class StorageManagementPage extends FOGPage
     }
     public function edit()
     {
-        $this->edit_storage_node();
+        $this->editStorageNode();
     }
     public function editPost()
     {
-        $this->edit_storage_nodePost();
+        $this->editStorageNodePost();
     }
     public function delete()
     {
-        $this->delete_storage_node();
+        $this->deleteStorageNode();
     }
     public function deletePost()
     {
-        $this->delete_storage_nodePost();
+        $this->deleteStorageNodePost();
     }
     public function index()
     {
@@ -123,7 +152,7 @@ class StorageManagementPage extends FOGPage
 
         $this->render();
     }
-    public function add_storage_node()
+    public function addStorageNode()
     {
         $this->title = self::$foglang['AddSN'];
         unset($this->headerData);
@@ -186,7 +215,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_storage_nodePost()
+    public function addStorageNodePost()
     {
         self::$HookManager->processEvent('STORAGE_NODE_ADD_POST');
         try {
@@ -241,14 +270,14 @@ class StorageManagementPage extends FOGPage
             }
             self::$HookManager->processEvent('STORAGE_NODE_ADD_SUCCESS', array('StorageNode'=>&$StorageNode));
             $this->setMessage(self::$foglang['SNCreated']);
-            $this->redirect(sprintf('?node=%s&id=%s', $_REQUEST['node'], $this->id, $StorageNode->get('id')));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s', $_REQUEST['node'], $this->id, $StorageNode->get('id')));
         } catch (Exception $e) {
             self::$HookManager->processEvent('STORAGE_NODE_ADD_FAIL', array('StorageNode'=>&$StorageNode));
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
     }
-    public function edit_storage_node()
+    public function editStorageNode()
     {
         $this->title = sprintf('%s: %s', self::$foglang['Edit'], $this->obj->get('name'));
         unset($this->headerData);
@@ -314,7 +343,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo "</form>";
     }
-    public function edit_storage_nodePost()
+    public function editStorageNodePost()
     {
         self::$HookManager->processEvent('STORAGE_NODE_EDIT_POST', array('StorageNode'=>&$this->obj));
         try {
@@ -377,7 +406,7 @@ class StorageManagementPage extends FOGPage
             $this->redirect($this->formAction);
         }
     }
-    public function delete_storage_node()
+    public function deleteStorageNode()
     {
         $this->title = sprintf('%s: %s', self::$foglang['Remove'], $this->obj->get('name'));
         unset($this->headerData);
@@ -405,7 +434,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function delete_storage_nodePost()
+    public function deleteStorageNodePost()
     {
         self::$HookManager->processEvent('STORAGE_NODE_DELETE_POST', array('StorageNode'=>&$this->obj));
         try {
@@ -421,7 +450,7 @@ class StorageManagementPage extends FOGPage
             $this->redirect($this->formAction);
         }
     }
-    public function storage_group()
+    public function storageGroup()
     {
         $this->title = self::$foglang['AllSG'];
         array_map(function (&$StorageGroup) {
@@ -441,7 +470,7 @@ class StorageManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" name="storage[]" value="${id}" class="toggle-action"/>',
-            sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, self::$foglang['Edit']),
+            sprintf('<a href="?node=%s&sub=editStorageGroup&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, self::$foglang['Edit']),
             '${max_clients}',
         );
         // Row attributes
@@ -456,7 +485,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         $this->data = array();
     }
-    public function add_storage_group()
+    public function addStorageGroup()
     {
         // Set title
         $this->title = self::$foglang['AddSG'];
@@ -494,7 +523,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function add_storage_groupPost()
+    public function addStorageGroupPost()
     {
         // Hook
         self::$HookManager->processEvent('STORAGE_GROUP_ADD_POST');
@@ -520,7 +549,7 @@ class StorageManagementPage extends FOGPage
             // Set session message
             $this->setMessage(self::$foglang['SGCreated']);
             // Redirect to new entry
-            $this->redirect(sprintf('?node=%s&sub=edit-storage-group&%s=%s', $_REQUEST['node'], $this->id, $StorageGroup->get('id')));
+            $this->redirect(sprintf('?node=%s&sub=editStorageGroup&%s=%s', $_REQUEST['node'], $this->id, $StorageGroup->get('id')));
         } catch (Exception $e) {
             // Hook
             self::$HookManager->processEvent('STORAGE_GROUP_ADD_POST_FAIL', array('StorageGroup'=>&$StorageGroup));
@@ -530,7 +559,7 @@ class StorageManagementPage extends FOGPage
             $this->redirect($this->formAction);
         }
     }
-    public function edit_storage_group()
+    public function editStorageGroup()
     {
         // Title
         $this->title = sprintf('%s: %s', self::$foglang['Edit'], $this->obj->get('name'));
@@ -566,7 +595,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function edit_storage_groupPost()
+    public function editStorageGroupPost()
     {
         // Hook
         self::$HookManager->processEvent('STORAGE_GROUP_EDIT_POST', array('StorageGroup'=>&$this->obj));
@@ -592,7 +621,7 @@ class StorageManagementPage extends FOGPage
             // Set session message
             $this->setMessage(self::$foglang['SGUpdated']);
             // Redirect to new entry
-            $this->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST['node'], $this->id, $this->obj->get('id')));
+            $this->redirect(sprintf('?node=%s&sub=storageGroup', $_REQUEST['node'], $this->id, $this->obj->get('id')));
         } catch (Exception $e) {
             // Hook
             self::$HookManager->processEvent('STORAGE_GROUP_EDIT_FAIL', array('StorageGroup'=>&$this->obj));
@@ -602,7 +631,7 @@ class StorageManagementPage extends FOGPage
             $this->redirect($this->formAction);
         }
     }
-    public function delete_storage_group()
+    public function deleteStorageGroup()
     {
         // Title
         $this->title = sprintf('%s: %s', self::$foglang['Remove'], $this->obj->get('name'));
@@ -635,7 +664,7 @@ class StorageManagementPage extends FOGPage
         $this->render();
         echo '</form>';
     }
-    public function delete_storage_groupPost()
+    public function deleteStorageGroupPost()
     {
         // Hook
         self::$HookManager->processEvent('STORAGE_GROUP_DELETE_POST', array('StorageGroup'=>&$this->obj));
@@ -654,7 +683,7 @@ class StorageManagementPage extends FOGPage
             // Set session message
             $this->setMessage(sprintf('%s: %s', self::$foglang['SGDelSuccess'], $this->obj->get('name')));
             // Redirect
-            $this->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST['node']));
+            $this->redirect(sprintf('?node=%s&sub=storageGroup', $_REQUEST['node']));
         } catch (Exception $e) {
             // Hook
             self::$HookManager->processEvent('STORAGE_GROUP_DELETE_POST_FAIL', array('StorageGroup'=>&$this->obj));
