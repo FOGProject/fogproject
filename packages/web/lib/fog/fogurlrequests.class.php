@@ -413,16 +413,10 @@ class FOGURLRequests extends FOGBase
                     } else {
                         $this->_response[$this->_requestMap[$key]] = true;
                     }
-<<<<<<< HEAD
-                    unset(
-                        $this->_requestMap[$key]
-                    );
-=======
                     global $sub;
                     if (false !== strpos($sub, 'add')) {
                         unset($this->_requests[$this->_requestMap[$key]]);
                     }
->>>>>>> working-RC-21
                 } else {
                     $info = curl_getinfo($done['handle']);
                     $output = curl_multi_getcontent($done['handle']);
@@ -443,13 +437,9 @@ class FOGURLRequests extends FOGBase
                     $this->_requestMap[$key] = $i;
                     ++$i;
                 } else {
-<<<<<<< HEAD
-                    unset($this->_requestMap[$key]);
-=======
                     unset(
                         $this->_requestMap[$key]
                     );
->>>>>>> working-RC-21
                 }
                 curl_multi_remove_handle($master, $done['handle']);
             }
