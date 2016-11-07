@@ -239,7 +239,8 @@ class FOGPageManager extends FOGBase
             'search',
             'active',
         );
-        $methodTest = preg_grep("#$method#i", $nonresetmethods);
+        $test = str_replace('Post', '', $method);
+        $methodTest = preg_grep("#$test#i", $nonresetmethods);
         if (count($methodTest) < 1) {
             unset(
                 $class->headerData,

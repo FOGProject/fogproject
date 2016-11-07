@@ -815,7 +815,7 @@ class SnapinManagementPage extends FOGPage
                 }
             }
             $Snapin = self::getClass('Snapin')
-                ->set('name', $snapinName)
+                ->set('name', $name)
                 ->set('packtype', $_REQUEST['packtype'])
                 ->set('description', $_REQUEST['description'])
                 ->set('file', $snapinfile)

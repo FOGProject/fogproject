@@ -42,7 +42,7 @@ class FOGConfigurationPage extends FOGPage
             'license' => self::$foglang['License'],
             'kernelUpdate' => self::$foglang['KernelUpdate'],
             'pxemenu' => self::$foglang['PXEBootMenu'],
-            'customizeEdit' => self::$foglang['PXEConfiguration'],
+            'customizepxe' => self::$foglang['PXEConfiguration'],
             'newMenu' => self::$foglang['NewMenu'],
             'client-updater' => self::$foglang['ClientUpdater'],
             'mac-list' => self::$foglang['MACAddrList'],
@@ -639,7 +639,7 @@ class FOGConfigurationPage extends FOGPage
      *
      * @return void
      */
-    public function customizeEdit()
+    public function customizepxe()
     {
         $this->title = self::$foglang['PXEMenuCustomization'];
         printf(
@@ -780,7 +780,7 @@ class FOGConfigurationPage extends FOGPage
      *
      * @return void
      */
-    public function customizeEditPost()
+    public function customizepxePost()
     {
         if (isset($_REQUEST['saveform'])
             && $_REQUEST['menu_id']

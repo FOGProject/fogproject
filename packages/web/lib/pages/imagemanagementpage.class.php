@@ -1225,7 +1225,7 @@ class ImageManagementPage extends FOGPage
             case 'image-storage':
                 $this->obj->addGroup($_REQUEST['storagegroup']);
                 if (isset($_REQUEST['update'])) {
-                    $this->obj->setPrimaryGroup(isset($_REQUEST['primary']));
+                    $this->obj->setPrimaryGroup($_REQUEST['primary']);
                 } elseif (isset($_REQUEST['deleteGroup'])) {
                     $groupdel = count($_REQUEST['storagegroup-rm']);
                     $ingroups = count($this->obj->get('storagegroups'));
