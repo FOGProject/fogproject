@@ -212,8 +212,8 @@ class StorageNode extends FOGController
         }
         $paths = self::$FOGURLRequests->process($url);
         $paths = array_shift($paths);
-        $paths = json_decode($paths);
-        $paths = array_map('basename', $paths);
+        $paths = json_decode($paths, true);
+        $paths = array_map('basename', (array) $paths);
         $paths = preg_replace(
             '#dev|postdownloadscripts|ssl#',
             '',

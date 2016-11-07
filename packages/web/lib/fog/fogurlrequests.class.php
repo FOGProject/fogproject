@@ -357,6 +357,10 @@ class FOGURLRequests extends FOGBase
                     } else {
                         $this->_response[$this->_requestMap[$key]] = true;
                     }
+                    unset(
+                        $this->_requests[$this->_requestMap[$key]],
+                        $this->_requestMap[$key]
+                    );
                 } else {
                     $info = curl_getinfo($done['handle']);
                     $output = curl_multi_getcontent($done['handle']);
@@ -364,7 +368,6 @@ class FOGURLRequests extends FOGBase
                     $this->_response[$this->_requestMap[$key]] = $output;
                     if ($this->_callback && is_callable($this->_callback)) {
                         $request = $this->_requests[$this->_requestMap[$key]];
-                        unset($this->_requestMap[$key]);
                         $this->_callback($output, $info, $request);
                     }
                 }
@@ -543,9 +546,6 @@ class FOGURLRequests extends FOGBase
     public function isAvailable($urls)
     {
         foreach ((array) $urls as &$url) {
-            $request = new FOGRollingURL(
-                $url
-            );
             $this->get($url);
             unset($url);
         }
