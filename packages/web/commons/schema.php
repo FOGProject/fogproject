@@ -3451,3 +3451,18 @@ $this->schema[] = array(
     "ALTER TABLE `snapinGroupAssoc` CHANGE `sgaPrimary` `sgaPrimary` "
     . "ENUM('0','1') NOT NULL"
 );
+// 237
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_URL_AVAILABLE_TIMEOUT', 'This setting defines the available timeout in "
+    . "thousandths of a second. (Default is 500 milliseconds)',"
+    . "'500','General Settings'),"
+    . "('FOG_URL_BASE_CONNECT_TIMEOUT', 'This setting defines the available timeout "
+    . "to connect to a server to perform real actions.  This is set in seconds. "
+    . "(Default is 15 seconds)','15','General Settings'),"
+    . "('FOG_URL_BASE_TIMEOUT', 'This setting defines the total timeout to perform "
+    . "url based actions, such as download, getting data, etc... This is set in "
+    . "seconds. (Default is 86400 seconds -- 1 day)','86400','General Settings')",
+);

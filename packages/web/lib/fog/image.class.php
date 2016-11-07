@@ -154,7 +154,20 @@ class Image extends FOGController
                     array('imageID' => $this->get('id'))
                 );
         }
-        return $this->assocSetter('Image', 'storagegroup');
+        $primary = self::getSubObjectIDs(
+            'ImageAssociation',
+            array(
+                'imageID' => $this->get('id'),
+                'primary' => 1
+            ),
+            'storagegroupID'
+        );
+        $this->assocSetter('Image', 'storagegroup');
+        if (count($primary) > 0) {
+            $primary = array_shift($primary);
+            $this->setPrimaryGroup($primary);
+        }
+        return $this;
     }
     /**
      * Deletes the image file

@@ -28,7 +28,25 @@ class FOGURLRequests extends FOGBase
      */
     private $_windowSize = 5;
     /**
+     * The available connection timeout.
+     *
+     * Default to 500 milliseconds.
+     *
+     * @var int
+     */
+    private $_aconntimeout = 500;
+    /**
+     * The base conneciton timeout.
+     *
+     * Defaults to 15 seconds.
+     *
+     * @var int
+     */
+    private $_conntimeout = 15;
+    /**
      * The timeout value to process each url.
+     *
+     * Defaults to 86400 seconds or 1 day.
      *
      * @var int
      */
@@ -58,8 +76,6 @@ class FOGURLRequests extends FOGBase
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CONNECTTIMEOUT => 15,
-        CURLOPT_TIMEOUT => 86400,
     );
     /**
      * Curl headers to send/request.
@@ -88,6 +104,46 @@ class FOGURLRequests extends FOGBase
     public function __construct($callback = null)
     {
         parent::__construct();
+        list(
+            $aconntimeout,
+            $conntimeout,
+            $timeout
+        ) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array(
+                    'FOG_URL_AVAILABLE_TIMEOUT',
+                    'FOG_URL_BASE_CONNECT_TIMEOUT',
+                    'FOG_URL_BASE_TIMEOUT'
+                )
+            ),
+            'value',
+            false,
+            'AND',
+            'name',
+            false,
+            ''
+        );
+        if ($aconntimeout
+            && is_numeric($aconntimeout)
+            && $aconntimeout > 0
+        ) {
+            $this->_aconntimeout = (int)$aconntimeout;
+        }
+        if ($conntimeout
+            && is_numeric($conntimeout)
+            && $conntimeout > 0
+        ) {
+            $this->_conntimeout = (int)$conntimeout;
+        }
+        if ($timeout
+            && is_numeric($timeout)
+            && $timeout > 0
+        ) {
+            $this->_timeout = (int)$timeout;
+        }
+        $this->options[CURLOPT_CONNECTTIMEOUT] = $this->_conntimeout;
+        $this->options[CURLOPT_TIMEOUT] = $this->_timeout;
         $this->_callback = $callback;
     }
     /**
@@ -268,7 +324,7 @@ class FOGURLRequests extends FOGBase
         if ($available) {
             unset($options[CURLOPT_TIMEOUT]);
             unset($options[CURLOPT_CONNECTTIMEOUT]);
-            $options[CURLOPT_CONNECTTIMEOUT_MS] = 500;
+            $options[CURLOPT_CONNECTTIMEOUT_MS] = $this->_aconntimeout;
             $options[CURLOPT_RETURNTRANSFER] = true;
             $options[CURLOPT_NOBODY] = true;
             $options[CURLOPT_HEADER] = true;
@@ -324,7 +380,7 @@ class FOGURLRequests extends FOGBase
             if ($available) {
                 unset($options[CURLOPT_TIMEOUT]);
                 unset($options[CURLOPT_CONNECTTIMEOUT]);
-                $options[CURLOPT_CONNECTTIMEOUT_MS] = 500;
+                $options[CURLOPT_CONNECTTIMEOUT_MS] = $this->_aconntimeout;
                 $options[CURLOPT_RETURNTRANSFER] = true;
                 $options[CURLOPT_NOBODY] = true;
                 $options[CURLOPT_HEADER] = true;
@@ -357,9 +413,16 @@ class FOGURLRequests extends FOGBase
                     } else {
                         $this->_response[$this->_requestMap[$key]] = true;
                     }
+<<<<<<< HEAD
                     unset(
                         $this->_requestMap[$key]
                     );
+=======
+                    global $sub;
+                    if (false !== strpos($sub, 'add')) {
+                        unset($this->_requests[$this->_requestMap[$key]]);
+                    }
+>>>>>>> working-RC-21
                 } else {
                     $info = curl_getinfo($done['handle']);
                     $output = curl_multi_getcontent($done['handle']);
@@ -380,7 +443,13 @@ class FOGURLRequests extends FOGBase
                     $this->_requestMap[$key] = $i;
                     ++$i;
                 } else {
+<<<<<<< HEAD
                     unset($this->_requestMap[$key]);
+=======
+                    unset(
+                        $this->_requestMap[$key]
+                    );
+>>>>>>> working-RC-21
                 }
                 curl_multi_remove_handle($master, $done['handle']);
             }

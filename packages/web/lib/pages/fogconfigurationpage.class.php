@@ -1479,6 +1479,9 @@ class FOGConfigurationPage extends FOGPage
             'FOG_FTP_PORT' => range(1, 65535),
             'FOG_FTP_TIMEOUT' => true,
             'FOG_BANDWIDTH_TIME' => true,
+            'FOG_URL_BASE_CONNECT_TIMEOUT' => true,
+            'FOG_URL_BASE_TIMEOUT' => true,
+            'FOG_URL_AVAILABLE_TIMEOUT' => true,
             // Login Settings
             'FOG_ALWAYS_LOGGED_IN' => $checkbox,
             'FOG_INACTIVITY_TIMEOUT' => range(1, 24),

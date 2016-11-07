@@ -136,9 +136,22 @@ class Snapin extends FOGController
     {
         parent::save();
 
-        return $this
+        $primary = self::getSubObjectIDs(
+            'SnapinGroupAssociation',
+            array(
+                'snapinID' => $this->get('id'),
+                'primary' => 1
+            ),
+            'storagegroupID'
+        );
+        $this
             ->assocSetter('Snapin', 'host')
             ->assocSetter('SnapinGroup', 'storagegroup');
+        if (count($primary) > 0) {
+            $primary = array_shift($primary);
+            $this->setPrimaryGroup($primary);
+        }
+        return $this;
     }
     /**
      * Deletes the snapin file.

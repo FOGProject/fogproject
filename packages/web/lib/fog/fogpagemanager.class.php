@@ -238,6 +238,7 @@ class FOGPageManager extends FOGBase
             'index',
             'search',
             'active',
+            'pending',
         );
         $test = str_replace('Post', '', $method);
         $methodTest = preg_grep("#$test#i", $nonresetmethods);
