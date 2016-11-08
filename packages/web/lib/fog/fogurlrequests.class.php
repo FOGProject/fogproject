@@ -151,13 +151,17 @@ class FOGURLRequests extends FOGBase
      */
     public function __destruct()
     {
-        unset(
-            $this->_windowSize,
-            $this->_callback,
-            $this->options,
-            $this->_headers,
-            $this->_requests
+        $this->_windowSize = 5;
+        $this->_callback = '';
+        $this->options = array(
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_RETURNTRANSFER => true,
         );
+        $this->_response = array();
+        $this->_requests = array();
+        $this->_requestMap = array();
+        $this->__construct();
     }
     /**
      * Magic caller to get specialized methods
@@ -335,6 +339,7 @@ class FOGURLRequests extends FOGBase
             curl_exec($ch);
             $info = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
+            $this->__destruct();
             if ($info < 200
                 || $info >= 400
             ) {
@@ -347,9 +352,9 @@ class FOGURLRequests extends FOGBase
             curl_close($ch);
             if ($this->_callback && is_callable($this->_callback)) {
                 $this->_callback($output, $info, $request);
-            } else {
-                return (array) $output;
             }
+            $this->__destruct();
+            return (array)$output;
         }
 
         return (array)true;
@@ -406,16 +411,11 @@ class FOGURLRequests extends FOGBase
                     $info = curl_getinfo($done['handle'], CURLINFO_HTTP_CODE);
                     $output = curl_multi_getcontent($done['handle']);
                     $key = (string) $done['handle'];
+                    $this->_response[$this->_requestMap[$key]] = true;
                     if ($info < 200
                         || $info >= 400
                     ) {
                         $this->_response[$this->_requestMap[$key]] = false;
-                    } else {
-                        $this->_response[$this->_requestMap[$key]] = true;
-                    }
-                    global $sub;
-                    if (false !== strpos($sub, 'add')) {
-                        unset($this->_requests[$this->_requestMap[$key]]);
                     }
                 } else {
                     $info = curl_getinfo($done['handle']);
@@ -438,6 +438,7 @@ class FOGURLRequests extends FOGBase
                     ++$i;
                 } else {
                     unset(
+                        $this->_requests[$this->_requestMap[$key]],
                         $this->_requestMap[$key]
                     );
                 }
@@ -559,6 +560,7 @@ class FOGURLRequests extends FOGBase
         $file = false,
         $timeout = false
     ) {
+        $this->__destruct();
         if (false !== $timeout) {
             $this->_timeout = $timeout;
             $this->options[CURLOPT_TIMEOUT] = $timeout;
@@ -602,6 +604,7 @@ class FOGURLRequests extends FOGBase
      */
     public function isAvailable($urls)
     {
+        $this->__destruct();
         foreach ((array) $urls as &$url) {
             $this->get($url);
             unset($url);
