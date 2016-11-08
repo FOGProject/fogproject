@@ -421,7 +421,7 @@ class DashboardPage extends FOGPage
                 'http://%s/fog/management/index.php',
                 $this->obj->get('ip')
             );
-            $test = array_filter(self::$FOGURLRequests->isAvailable($testurl));
+            $test = self::$FOGURLRequests->isAvailable($testurl);
             $test = array_shift($test);
             if (false !== $test) {
                 unset($curroot, $webroot);

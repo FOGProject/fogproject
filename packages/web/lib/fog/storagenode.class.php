@@ -148,11 +148,7 @@ class StorageNode extends FOGController
             $this->get('ip'),
             '%s'
         );
-        $testurl = sprintf(
-            'http://%s/fog/management/index.php',
-            $this->get('ip')
-        );
-        $test = self::$FOGURLRequests->isAvailable($testurl);
+        $test = self::$FOGURLRequests->isAvailable($url);
         $test = array_shift($test);
         if (false === $test) {
             return;
@@ -235,7 +231,7 @@ class StorageNode extends FOGController
             $this->get('ip'),
             urlencode($this->get('path'))
         );
-        $test = self::$FOGURLRequests->isAvailable($test);
+        $test = self::$FOGURLRequests->isAvailable($url);
         $test = array_shift($test);
         if (false === $test) {
             return;
