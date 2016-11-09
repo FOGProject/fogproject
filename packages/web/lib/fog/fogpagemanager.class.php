@@ -242,7 +242,10 @@ class FOGPageManager extends FOGBase
         );
         $test = str_replace('Post', '', $method);
         $methodTest = preg_grep("#$test#i", $nonresetmethods);
-        if (count($methodTest) < 1) {
+        global $node;
+        if ($node !== 'plugin'
+            && count($methodTest) < 1
+        ) {
             unset(
                 $class->headerData,
                 $class->data,
