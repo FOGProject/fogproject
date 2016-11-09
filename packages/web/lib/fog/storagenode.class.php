@@ -96,6 +96,17 @@ class StorageNode extends FOGController
         if (in_array($key, $pathvars)) {
             return rtrim(parent::get($key), '/');
         }
+        $loaders = array(
+            'snapinfiles' => 'getSnapinfiles',
+            'images' => 'getImages',
+            'logfiles' => 'getLogfiles'
+        );
+        if (in_array($key, array_keys($loaders))
+            && !$this->isLoaded($key)
+        ) {
+            $func = $loaders[$key];
+            $this->{$func}();
+        }
 
         return parent::get($key);
     }
@@ -141,7 +152,7 @@ class StorageNode extends FOGController
      *
      * @return void
      */
-    public function loadLogfiles()
+    public function getLogfiles()
     {
         $url = sprintf(
             'http://%s/fog/status/getfiles.php?path=%s',
@@ -190,7 +201,7 @@ class StorageNode extends FOGController
      *
      * @return void
      */
-    public function loadSnapinfiles()
+    public function getSnapinfiles()
     {
         $url = sprintf(
             'http://%s/fog/status/getfiles.php?path=%s',
@@ -224,7 +235,7 @@ class StorageNode extends FOGController
      *
      * @return void
      */
-    public function loadImages()
+    public function getImages()
     {
         $url = sprintf(
             'http://%s/fog/status/getfiles.php?path=%s',
