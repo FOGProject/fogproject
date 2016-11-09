@@ -209,7 +209,9 @@ function GraphDiskUsageUpdate() {
     });
 }
 function GraphDiskUsagePlots(data) {
-    if (typeof(data.error) != 'undefined') {
+    if (data === null || typeof(data) === 'undefined') {
+        data = '';
+    } else if (typeof(data.error) != 'undefined') {
         GraphDiskUsage.html((data.error ? data.error : 'No error, but no data was returned')).addClass('loaded');
     };
     GraphDiskUsageData = [
@@ -249,6 +251,9 @@ function UpdateBandwidth() {
     });
 }
 function UpdateBandwidthGraph(data) {
+    if (data === null || typeof(data) === 'undefined') {
+        data = '';
+    }
     var d = new Date();
     var tx = new Array();
     var rx = new Array();
@@ -298,6 +303,9 @@ function UpdateClientCount() {
     });
 }
 function UpdateClientCountPlot(data) {
+    if (data === null || typeof(data) === 'undefined') {
+        data = '';
+    }
     UpdateClientCountData = [
         {label:'Active',data:parseInt(data.ActivityActive)},
         {label:'Queued',data:parseInt(data.ActivityQueued)},
