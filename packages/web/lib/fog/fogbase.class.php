@@ -1655,6 +1655,7 @@ abstract class FOGBase
      */
     protected function sendData($datatosend, $service = true)
     {
+        global $sub;
         if (!$service) {
             return;
         }
@@ -1665,7 +1666,6 @@ abstract class FOGBase
             if ($curdate >= $secdate) {
                 $this->Host->set('pub_key', '')->save();
             }
-            global $sub;
             if (self::$newService) {
                 printf(
                     '#!enkey=%s',
@@ -1679,7 +1679,13 @@ abstract class FOGBase
         } catch (Exception $e) {
             if (self::$json) {
                 $repData = preg_replace('/^[#][!]?/', '', $e->getMessage());
-                return array('error' => $repData);
+                $data = json_encode(array('error' => $repData));
+                if ($sub === 'requestClientInfo') {
+                    echo $data;
+                    exit;
+                } else {
+                    return $data;
+                }
             }
             throw new Exception($e->getMessage());
         }
