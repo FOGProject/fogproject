@@ -267,7 +267,7 @@ class StorageGroup extends FOGController
             if (!$Node->isValid()) {
                 continue;
             }
-            if (!in_array($image, $Node->get('images'))) {
+            if (!in_array($image, (array)$Node->get('images'))) {
                 continue;
             }
             if ($Node->get('maxClients') < 1) {

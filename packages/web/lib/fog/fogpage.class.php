@@ -3147,7 +3147,11 @@ abstract class FOGPage extends FOGBase
      */
     public function wakeEmUp()
     {
-        self::getClass('WakeOnLan', $_REQUEST['mac'])->send();
+        $macs = $this->parseMacList($_REQUEST['mac']);
+        if (count($macs) < 1) {
+            return;
+        }
+        self::getClass('WakeOnLan', implode('|', $macs))->send();
     }
     /**
      * Presents the relevant class items for export
