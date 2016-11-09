@@ -18,7 +18,7 @@ function clearMacs() {
             'Yes': function() {
                 $('.macButtons').fadeOut('slow');
                 $(this).dialog('close');
-                location.href = '?node=about&sub=mac-list-post&clear=1';
+                location.href = '?node=about&sub=maclistPost&clear=1';
             },
             'No': function() {
                 $(this).dialog('close');
@@ -36,7 +36,7 @@ function updateMacs() {
             'Yes': function() {
                 $('.macButtons').fadeOut('slow');
                 $(this).dialog('close');
-                location.href = '?node=about&sub=mac-list-post&update=1';
+                location.href = '?node=about&sub=maclistPost&update=1';
             },
             'No': function() {
                 $(this).dialog('close');

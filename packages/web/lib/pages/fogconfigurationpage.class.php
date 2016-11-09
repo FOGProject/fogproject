@@ -44,8 +44,8 @@ class FOGConfigurationPage extends FOGPage
             'pxemenu' => self::$foglang['PXEBootMenu'],
             'customizepxe' => self::$foglang['PXEConfiguration'],
             'newMenu' => self::$foglang['NewMenu'],
-            'client-updater' => self::$foglang['ClientUpdater'],
-            'mac-list' => self::$foglang['MACAddrList'],
+            'clientupdater' => self::$foglang['ClientUpdater'],
+            'maclist' => self::$foglang['MACAddrList'],
             'settings' => self::$foglang['FOGSettings'],
             'logviewer' => self::$foglang['LogViewer'],
             'config' => self::$foglang['ConfigSave'],
@@ -212,8 +212,7 @@ class FOGConfigurationPage extends FOGPage
             '<div class="hostgroup">%s</div>'
             . '<div><form method="post" action="%s">'
             . '<select id="kernelsel" name="kernelsel">'
-            . '<option value="pk" %s>%s</option>'
-            . '<option value="ok" %s>%s</option>'
+            . '<option value="pk"%s>%s</option>'
             . '</select></form></div>',
             sprintf(
                 '%s %s %s. %s, %s, %s %s. %s, %s %s, %s.',
@@ -227,21 +226,15 @@ class FOGConfigurationPage extends FOGPage
                 _('This installation process may take a few minutes'),
                 _('as FOG will attempt to go out to the internet'),
                 _('to get the requested Kernel'),
-                _('so if it seems like the process is hanging please be patient'),
-                $this->formAction,
-                (
-                    $type == 'pk' ?
-                    'selected' :
-                    ''
-                ),
-                _('Published Kernel'),
-                (
-                    $type == 'ok' ?
-                    'selected' :
-                    ''
-                ),
-                _('Old Published Kernels')
-            )
+                _('so if it seems like the process is hanging please be patient')
+            ),
+            $this->formAction,
+            (
+                $type == 'pk' ?
+                ' selected' :
+                ''
+            ),
+            _('Published Kernel')
         );
     }
     /**
@@ -253,23 +246,11 @@ class FOGConfigurationPage extends FOGPage
     {
         global $sub;
         if ($sub == 'kernelUpdate') {
-            switch ($_REQUEST['kernelsel']) {
-            case 'ok':
-                $this->kernelselForm('ok');
-                $url = sprintf(
-                    'https://freeghost.sourceforge.net/kernelupdates/%s?%s=%s',
-                    'index.php',
-                    'version',
-                    FOG_VERSION
-                );
-                break;
-            default:
-                $this->kernelselForm('pk');
-                $url = sprintf(
-                    'https://fogproject.org/kernels/kernelupdate.php?version=%s',
-                    FOG_VERSION
-                );
-            }
+            $this->kernelselForm('pk');
+            $url = sprintf(
+                'https://fogproject.org/kernels/kernelupdate.php?version=%s',
+                FOG_VERSION
+            );
             $htmlData = self::$FOGURLRequests->process($url);
             echo $htmlData[0];
         } elseif ($_REQUEST['install']) {
@@ -950,6 +931,11 @@ class FOGConfigurationPage extends FOGPage
         $this->render();
         echo "</form>";
     }
+    /**
+     * Creates the new Menu items.
+     *
+     * @return void
+     */
     public function newMenuPost()
     {
         try {
@@ -960,7 +946,14 @@ class FOGConfigurationPage extends FOGPage
                 throw new Exception(_('A description needs to be set'));
             }
             if ($_REQUEST['menu_default']) {
-                self::getClass('PXEMenuOptionsManager')->update('', '', array('default'=>0));
+                self::getClass('PXEMenuOptionsManager')
+                    ->update(
+                        '',
+                        '',
+                        array(
+                            'default' => 0
+                        )
+                    );
             }
             $Menu = self::getClass('PXEMenuOptions')
                 ->set('name', $_REQUEST['menu_item'])
@@ -972,20 +965,49 @@ class FOGConfigurationPage extends FOGPage
             if (!$Menu->save()) {
                 throw new Exception(_('Menu create failed'));
             }
-            $countDefault = self::getClass('PXEMenuOptionsManager')->count(array('default'=>1));
+            $countDefault = self::getClass('PXEMenuOptionsManager')
+                ->count(
+                    array(
+                        'default' => 1
+                    )
+                );
             if ($countDefault == 0 || $countDefault > 1) {
                 self::getClass('PXEMenuOptions', 1)->set('default', 1)->save();
             }
-            self::$HookManager->processEvent('MENU_ADD_SUCCESS', array('Menu'=>&$Menu));
+            self::$HookManager
+                ->processEvent(
+                    'MENU_ADD_SUCCESS',
+                    array(
+                        'Menu' => &$Menu
+                    )
+                );
             $this->setMessage(_('Menu Added'));
-            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->node, $this->id, $Menu->get('id')));
+            $this->redirect(
+                sprintf(
+                    '?node=%s&sub=edit&%s=%s',
+                    $this->node,
+                    $this->id,
+                    $Menu->get('id')
+                )
+            );
         } catch (Exception $e) {
-            self::$HookManager->processEvent('MENU_ADD_FAIL', array('Menu'=>&$Menu));
+            self::$HookManager
+                ->processEvent(
+                    'MENU_ADD_FAIL',
+                    array(
+                        'Menu' => &$Menu
+                    )
+                );
             $this->setMessage($e->getMessage());
             $this->redirect($this->formAction);
         }
     }
-    public function client_updater()
+    /**
+     * Client updater element from config page.
+     *
+     * @return void
+     */
+    public function clientupdater()
     {
         $this->title = _("FOG Client Service Updater");
         $this->headerData = array(
@@ -995,10 +1017,19 @@ class FOGConfigurationPage extends FOGPage
             _('Delete'),
         );
         $this->templates = array(
-            '<input type="hidden" name="name" value="FOG_CLIENT_CLIENTUPDATER_ENABLED" />${name}',
+            '<input type="hidden" name="name" value='
+            . '"FOG_CLIENT_CLIENTUPDATER_ENABLED" />${name}',
             '${module}',
             '${type}',
-            sprintf('<input type="checkbox" name="delcu" class="delid" id="delcuid${client_id}" value="${client_id}" /><label for="delcuid${client_id}" class="icon fa fa-minus-circle icon-hand" title="%s">&nbsp;</label>', _('Delete')),
+            sprintf(
+                '<input type="checkbox" name="delcu" class='
+                . '"delid" id="delcuid${client_id}" value='
+                . '"${client_id}" /><label for='
+                . '"delcuid${client_id}" class='
+                . '"icon fa fa-minus-circle icon-hand" title='
+                . '"%s">&nbsp;</label>',
+                _('Delete')
+            )
         );
         $this->attributes = array(
             array(),
@@ -1006,10 +1037,32 @@ class FOGConfigurationPage extends FOGPage
             array(),
             array('class'=>'filter-false'),
         );
-        printf('<br/><br/>%s: %s<br/><br/>', _('NOTICE'), _('The below items are only used for the old client.  The new client only uses the above settings as a means to determine whether the client should automatically update or not. Old clients are the clients that came with FOG Version 1.2.0 and earlier.'));
+        printf(
+            '<br/><br/>%s: %s<br/><br/>',
+            _('NOTICE'),
+            _('The below items are only used for the old client. ')
+            . _('The new client only uses the above settings as a means to ')
+            . _('determine whether the client should ')
+            . _('automatically update or not. ')
+            . _('Old clients are the clients that came with FOG ')
+            . _('Version 1.2.0 and earlier.')
+        );
         echo '<hr/>';
-        printf('<div class="hostgroup">%s</div>', _('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.'));
-        foreach ((array)self::getClass('ClientUpdaterManager')->find() as $i => &$ClientUpdate) {
+        printf(
+            '<div class="hostgroup">%s</div>',
+            _('This section allows you to update the modules and ')
+            . _('config files that run on the client computers. ')
+            . _('The clients will checkin with the server from time ')
+            . _('to time to see if a new module is published. ')
+            . _('If a new module is published the client will ')
+            . _('download the module and use it on the next ')
+            . _('time the service is started.')
+        );
+        $ClientUpdates = self::getClass('ClientUpdaterManager')->find();
+        foreach ((array)$ClientUpdates as &$ClientUpdate) {
+            if (!$ClientUpdate->isValid()) {
+                continue;
+            }
             $this->data[] = array(
                 'name'=>$ClientUpdate->get('name'),
                 'module'=>$ClientUpdate->get('md5'),
@@ -1019,12 +1072,31 @@ class FOGConfigurationPage extends FOGPage
             );
             unset($ClientUpdate);
         }
-        self::$HookManager->processEvent('CLIENT_UPDATE', array('data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
-        printf('<form method="post" action="%s&tab=clientupdater">', $this->formAction);
+        self::$HookManager
+            ->processEvent(
+                'CLIENT_UPDATE',
+                array(
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        printf(
+            '<form method="post" action="%s&tab=clientupdater">',
+            $this->formAction
+        );
         $this->render();
         echo '</form>';
-        unset($this->headerData, $this->attributes, $this->templates, $this->data);
-        printf('<p class="header">%s</p>', _('Upload a new client module/configuration file'));
+        unset(
+            $this->headerData,
+            $this->attributes,
+            $this->templates,
+            $this->data
+        );
+        printf(
+            '<p class="header">%s</p>',
+            _('Upload a new client module/configuration file')
+        );
         $this->attributes = array(
             array(),
             array('class'=>'filter-false'),
@@ -1034,7 +1106,15 @@ class FOGConfigurationPage extends FOGPage
             '${input}',
         );
         $fields = array(
-            sprintf('<input type="file" name="module[]" value="" multiple/> <span class="lightColor">%s%s</span>', _('Max Size:'), ini_get('post_max_size')) => sprintf('<input type="submit" value="%s"/>', _('Upload File')),
+            sprintf(
+                '<input type="file" name="module[]" value='
+                . '"" multiple/> <span class="lightColor">%s%s</span>',
+                _('Max Size:'),
+                ini_get('post_max_size')
+            ) => sprintf(
+                '<input type="submit" value="%s"/>',
+                _('Upload File')
+            )
         );
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
@@ -1044,56 +1124,126 @@ class FOGConfigurationPage extends FOGPage
             unset($input);
         }
         unset($fields);
-        self::$HookManager->processEvent('CLIENT_UPDATE', array('data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
-        printf('<form method="post" action="%s&tab=clientupdater" enctype="multipart/form-data"><input type="hidden" name="name" value="FOG_CLIENT_CLIENTUPDATER_ENABLED"/>', $this->formAction);
+        self::$HookManager
+            ->processEvent(
+                'CLIENT_UPDATE',
+                array(
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        printf(
+            '<form method="post" action="%s&tab=clientupdater" enctype='
+            . '"multipart/form-data"><input type="hidden" name='
+            . '"name" value="FOG_CLIENT_CLIENTUPDATER_ENABLED"/>',
+            $this->formAction
+        );
         $this->render();
         echo '</form>';
     }
-    public function client_updaterPost()
+    /**
+     * Submits the changes as needed.
+     *
+     * @return void
+     */
+    public function clientupdaterPost()
     {
         try {
-            if (!self::getClass('ClientUpdaterManager')->destroy(array('id'=>$_REQUEST['delcu']))) {
-                return _('Failed to delete updater file and definition');
+            if (isset($_REQUEST['delcu'])) {
+                self::getClasee('ClientUpdaterManager')
+                    ->destroy(array('id' => $_REQUEST['delcu']));
+                throw new Exception(_('Item removed successfully'));
             }
             if (count($_FILES['module']['tmp_name']) < 1) {
                 throw new Exception(_('No file uploaded'));
             }
-            array_map(function (&$err) {
+            $error = $_FILES['module']['error'];
+            if ($error > 0) {
+                throw new UploadException($error);
+            }
+            foreach ((array)$error as &$err) {
                 if ($err > 0) {
                     throw new UploadException($err);
                 }
                 unset($err);
-            }, (array)$_FILES['module']['error']);
-            array_walk($_FILES['module']['tmp_name'], function (&$tmp_name, &$index) {
+            }
+            $tmpfiles = $_FILES['module']['tmp_name'];
+            foreach ((array)$tmpfiles as $index => &$tmp_name) {
                 if (!file_exists($tmp_name)) {
-                    return;
+                    continue;
                 }
                 if (!($md5 = md5_file($tmp_name))) {
-                    return;
+                    continue;
                 }
-                $filename = basename($_FILES['module']['name'][$index]);
-                $fp = fopen($tmp_name, 'rb');
-                $content = fread($fp, self::getFilesize($tmp_name));
+                $filename = basename(
+                    $_FILES['module']['name'][$index]
+                );
+                $fp = fopen(
+                    $tmp_name,
+                    'rb'
+                );
+                $content = fread(
+                    $fp,
+                    self::getFilesize($tmp_name)
+                );
                 fclose($fp);
-                self::getClass('ClientUpdater', @max(self::getClass('ClientUpdater', array('name'=>$filename))))
+                $finfo = new finfo(FILEINFO_MIME);
+                $f = $finfo->file($tmp_name);
+                self::getClass('ClientUpdater')
                     ->set('name', $filename)
+                    ->load('name')
                     ->set('md5', $md5)
-                    ->set('type', self::getClass('finfo', FILEINFO_MIME)->file($tmp_name))
+                    ->set('type', $f)
                     ->set('file', $content)
                     ->save();
-            });
+            }
             $this->setMessage(_('Modules added/updated'));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
         }
         $this->redirect($this->formAction);
     }
-    public function mac_list()
+    /**
+     * Presents mac listing information.
+     *
+     * @return void
+     */
+    public function maclist()
     {
         $this->title = _('MAC Address Manufacturer Listing');
-        printf('<div class="hostgroup">%s</div><div class="c"><p>%s: %s</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="%s" value="%s" id="macButtonDel"/>&nbsp;&nbsp;&nbsp;&nbsp;<input class="macButtons" id="macButtonUp" type="button" title="%s" value="%s"/></p><p>%s<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>', _('This section allows you to import known mac address makers into the FOG Database for easier identification.'), _('Current Records'), self::$FOGCore->getMACLookupCount(), _('Delete MACs'), _('Delete Current Records'), _('Update MACs'), _('Update Current Listing'), _('MAC Address listing source: '));
+        printf(
+            '<div class="hostgroup">%s</div>'
+            . '<div class="c"><p>%s: %s</p>'
+            . '<p><div id="delete"></div>'
+            . '<div id="update"></div>'
+            . '<input class="macButtons" type='
+            . '"button" title="%s" value="%s" id='
+            . '"macButtonDel"/>&nbsp;&nbsp;&nbsp;&nbsp;'
+            . '<input class="macButtons" id="macButtonUp" type='
+            . '"button" title="%s" value="%s"/></p><p>%s'
+            . '<a href="http://standards.ieee.org/regauth/oui/oui.txt">'
+            . 'http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>',
+            sprintf(
+                '%s %s.',
+                _('This section allows you to import known mac address makers'),
+                _('into the FOG database for easier identication')
+            ),
+            _('Current Records'),
+            self::$FOGCore->getMACLookupCount(),
+            _('Delete MACs'),
+            _('Delete Current Records'),
+            _('Update MACs'),
+            _('Update Current Listing'),
+            _('MAC Address listing source: ')
+        );
     }
-    public function mac_listPost()
+    /**
+     * Safes the data for real for the mac address stuff.
+     *
+     * @return void
+     */
+    public function maclistPost()
     {
         if ($_REQUEST['update']) {
             self::$FOGCore->clearMACLookupTable();
@@ -1163,8 +1313,13 @@ class FOGConfigurationPage extends FOGPage
             self::$FOGCore->clearMACLookupTable();
         }
         $this->resetRequest();
-        $this->redirect('?node=about&sub=mac-list');
+        $this->redirect('?node=about&sub=maclist');
     }
+    /**
+     * The fog settings
+     *
+     * @return void
+     */
     public function settings()
     {
         $ServiceNames = array(
@@ -1206,14 +1361,32 @@ class FOGConfigurationPage extends FOGPage
             'FOG_KERNEL_DEBUG',
             'FOG_ENFORCE_HOST_CHANGES',
         );
-        self::$HookManager->processEvent('SERVICE_NAMES', array('ServiceNames'=>&$ServiceNames));
+        self::$HookManager
+            ->processEvent(
+                'SERVICE_NAMES',
+                array(
+                    'ServiceNames' => &$ServiceNames
+                )
+            );
         $this->title = _('FOG System Settings');
-        printf('<p class="hostgroup">%s</p><form method="post" action="%s"><div id="tab-container-1">', _('This section allows you to customize or alter the way in which FOG operates. Please be very careful changing any of the following settings, as they can cause issues that are difficult to troubleshoot.'), $this->formAction);
+        printf(
+            '<p class="hostgroup">%s</p><form method='
+            . '"post" action="%s"><div id="tab-container-1">',
+            _('This section allows you to customize or alter ')
+            . _('the way in which FOG operates. ')
+            . _('Please be very careful changing any of ')
+            . _('the following settings, as they can cause ')
+            . _('issues that are difficult to troubleshoot.'),
+            $this->formAction
+        );
         unset($this->headerData);
         $this->attributes = array(
-            array('width'=>270,'height'=>35),
+            array(
+                'width' => 270,
+                'height' => 35
+            ),
             array(),
-            array('class'=>'r'),
+            array('class' => 'r'),
         );
         $this->templates = array(
             '${service_name}',
@@ -1221,75 +1394,180 @@ class FOGConfigurationPage extends FOGPage
             '${span}',
         );
         echo '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
-        foreach ((array)self::getClass('ServiceManager')->getSettingCats() as $i => &$ServiceCAT) {
-            $divTab = preg_replace('#[^\w\-]#', '_', $ServiceCAT);
-            printf('<a id="%s" class="expand_trigger" style="text-decoration:none;" href="#%s"><h3>%s</h3></a><div id="%s">', $divTab, $divTab, $ServiceCAT, $divTab);
-            foreach ((array)self::getClass('ServiceManager')->find(array('category'=>$ServiceCAT), 'AND', 'id') as $i => &$Service) {
+        $ServiceCats = self::getClass('ServiceManager')->getSettingCats();
+        foreach ((array)$ServiceCats as &$ServiceCAT) {
+            $divTab = preg_replace(
+                '#[^\w\-]#',
+                '_',
+                $ServiceCAT
+            );
+            printf(
+                '<a id="%s" class="expand_trigger" style='
+                . '"text-decoration:none;" href="#%s">'
+                . '<h3>%s</h3></a><div id="%s">',
+                $divTab,
+                $divTab,
+                $ServiceCAT,
+                $divTab
+            );
+            $Services = self::getClass('ServiceManager')
+                ->find(
+                    array('category' => $ServiceCAT),
+                    'AND',
+                    'id'
+                );
+            foreach ((array)$Services as &$Service) {
                 if (!$Service->isValid()) {
                     continue;
                 }
                 switch ($Service->get('name')) {
                     case 'FOG_PIGZ_COMP':
-                        $type = '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}"/>';
+                        $type = '<div id="pigz" style="width: 200px; top: 15px;">'
+                            . '</div><input type="text" readonly='
+                            . '"true" name="${service_id}" id='
+                            . '"showVal" maxsize="1" style='
+                            . '"width: 10px; top: -5px; left:'
+                            . '225px; position: relative;" value='
+                            . '"${service_value}"/>';
                         break;
                     case 'FOG_KERNEL_LOGLEVEL':
-                        $type = '<div id="loglvl" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showlogVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}"/>';
+                        $type = '<div id="loglvl" style="width: 200px; top: 15px;">'
+                            . '</div><input type="text" readonly='
+                            . '"true" name="${service_id}" id="showlogVal" maxsize='
+                            . '"1" style="width: 10px; top: -5px; left:'
+                            . '225px; position: relative;" value='
+                            . '"${service_value}"/>';
                         break;
                     case 'FOG_INACTIVITY_TIMEOUT':
-                        $type = '<div id="inact" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValInAct" maxsize="2" style="width: 15px; top: -5px; left:225px; position: relative;" value="${service_value}"/>';
+                        $type = '<div id="inact" style="width: 200px; top: 15px;">'
+                            . '</div><input type="text" readonly='
+                            . '"true" name="${service_id}" id="showValInAct" maxsize'
+                            . '="2" style="width: 15px; top: -5px; left:'
+                            . '225px; position: relative;" value='
+                            . '"${service_value}"/>';
                         break;
                     case 'FOG_REGENERATE_TIMEOUT':
-                        $type = '<div id="regen" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValRegen" maxsize="5" style="width: 25px; top: -5px; left:225px; position: relative;" value="${service_value}"/>';
+                        $type = '<div id="regen" style="width: 200px; top: 15px;">'
+                            . '</div><input type="text" readonly='
+                            . '"true" name="${service_id}" id='
+                            . '"showValRegen" maxsize="5" style='
+                            . '"width: 25px; top: -5px; left:'
+                            . '225px; position: relative;" value='
+                            . '"${service_value}"/>';
                         break;
                     case 'FOG_VIEW_DEFAULT_SCREEN':
                         $screens = array('SEARCH','LIST');
                         ob_start();
-                        foreach ((array)$screens as $i => &$viewop) {
-                            printf('<option value="%s"%s>%s</option>', strtolower($viewop), ($Service->get('value') == strtolower($viewop) ? ' selected' : ''), $viewop);
+                        foreach ((array)$screens as &$viewop) {
+                            printf(
+                                '<option value="%s"%s>%s</option>',
+                                strtolower($viewop),
+                                (
+                                    $Service->get('value') == strtolower($viewop) ?
+                                    ' selected' :
+                                    ''
+                                ),
+                                $viewop
+                            );
                             unset($viewop);
                         }
                         unset($screens);
-                        $type = sprintf('<select name="${service_id}" style="width: 220px" autocomplete="off">%s</select>', ob_get_clean());
+                        $type = sprintf(
+                            '<select name="${service_id}" style='
+                            . '"width: 220px" autocomplete="off">%s</select>',
+                            ob_get_clean()
+                        );
                         break;
                     case 'FOG_MULTICAST_DUPLEX':
                         $duplexTypes = array(
-                        'HALF_DUPLEX' => '--half-duplex',
-                        'FULL_DUPLEX' => '--full-duplex',
-                            );
-                            ob_start();
+                            'HALF_DUPLEX' => '--half-duplex',
+                            'FULL_DUPLEX' => '--full-duplex',
+                        );
+                        ob_start();
                         foreach ((array)$duplexTypes as $types => &$val) {
-                            printf('<option value="%s"%s>%s</option>', $val, ($Service->get('value') == $val ? ' selected' : ''), $types);
+                            printf(
+                                '<option value="%s"%s>%s</option>',
+                                $val,
+                                (
+                                    $Service->get('value') == $val ?
+                                    ' selected' :
+                                    ''
+                                ),
+                                $types
+                            );
                             unset($val);
                         }
-                            $type = sprintf('<select name="${service_id}" style="width: 220px" autocomplete="off">%s</select>', ob_get_clean());
+                        $type = sprintf(
+                            '<select name="${service_id}" style='
+                            . '"width: 220px" autocomplete='
+                            . '"off">%s</select>',
+                            ob_get_clean()
+                        );
                         break;
                     case 'FOG_BOOT_EXIT_TYPE':
                     case 'FOG_EFI_BOOT_EXIT_TYPE':
-                        $type = Service::buildExitSelector($Service->get('id'), $Service->get('value'));
+                        $type = Service::buildExitSelector(
+                            $Service->get('id'),
+                            $Service->get('value')
+                        );
                         break;
                     case 'FOG_DEFAULT_LOCALE':
+                        $locale = self::getSetting('FOG_DEFAULT_LOCALE');
                         ob_start();
                         foreach ((array)self::$foglang['Language'] as $lang => &$humanreadable) {
-                            printf('<option value="%s"%s>%s</option>', $lang, (self::getSetting('FOG_DEFAULT_LOCALE') == $lang || self::getSetting('FOG_DEFAULT_LOCALE') == self::$foglang['Language'][$lang] ? ' selected' : ''), $humanreadable);
+                            printf(
+                                '<option value="%s"%s>%s</option>',
+                                $lang,
+                                (
+                                    $locale == $lang
+                                    || $locale == self::$foglang['Language'][$lang] ?
+                                    ' selected' :
+                                    ''
+                                ),
+                                $humanreadable
+                            );
                             unset($humanreadable);
                         }
-                        $type = sprintf('<select name="${service_id}" autocomplete="off" style="width: 220px">%s</select>', ob_get_clean());
+                        $type = sprintf(
+                            '<select name="${service_id}" autocomplete='
+                            . '"off" style="width: 220px">%s</select>',
+                            ob_get_clean()
+                        );
                         break;
                     case 'FOG_QUICKREG_IMG_ID':
-                        $type = self::getClass('ImageManager')->buildSelectBox($Service->get('value'), sprintf('%s" id="${service_name}"', $Service->get('id')));
+                        $type = self::getClass('ImageManager')->buildSelectBox(
+                            $Service->get('value'),
+                            sprintf(
+                                '%s" id="${service_name}"',
+                                $Service->get('id')
+                            )
+                        );
                         break;
                     case 'FOG_QUICKREG_GROUP_ASSOC':
-                        $type = self::getClass('GroupManager')->buildSelectBox($Service->get('value'), $Service->get('id'));
+                        $type = self::getClass('GroupManager')->buildSelectBox(
+                            $Service->get('value'),
+                            $Service->get('id')
+                        );
                         break;
                     case 'FOG_KEY_SEQUENCE':
-                        $type = self::getClass('KeySequenceManager')->buildSelectBox($Service->get('value'), $Service->get('id'));
+                        $type = self::getClass('KeySequenceManager')
+                            ->buildSelectBox(
+                                $Service->get('value'),
+                                $Service->get('id')
+                            );
                         break;
                     case 'FOG_QUICKREG_OS_ID':
                         $ImageName = _('No image specified');
                         if ($Service->get('value') > 0) {
-                            $ImageName = self::getClass('Image', $Service->get('value'))->get('name');
+                            $ImageName = self::getClass(
+                                'Image',
+                                $Service->get('value')
+                            )->get('name');
                         }
-                        $type = sprintf('<p id="${service_name}">%s</p>', $ImageName);
+                        $type = sprintf(
+                            '<p id="${service_name}">%s</p>',
+                            $ImageName
+                        );
                         break;
                     case 'FOG_TZ_INFO':
                         $dt = self::niceDate('now', $utc);
@@ -1299,36 +1577,89 @@ class FOGConfigurationPage extends FOGPage
                         foreach ((array)$tzIDs as $i => &$tz) {
                             $current_tz = self::getClass('DateTimeZone', $tz);
                             $offset = $current_tz->getOffset($dt);
-                            $transition = $current_tz->getTransitions($dt->getTimestamp(), $dt->getTimestamp());
+                            $transition = $current_tz->getTransitions(
+                                $dt->getTimestamp(),
+                                $dt->getTimestamp()
+                            );
                             $abbr = $transition[0]['abbr'];
-                            $offset = sprintf('%+03d:%02u', floor($offset / 3600), floor(abs($offset) % 3600 / 60));
-                            printf('<option value="%s"%s>%s [%s %s]</option>', $tz, ($Service->get('value') == $tz ? ' selected' : ''), $tz, $abbr, $offset);
-                            unset($current_tz, $offset, $transition, $abbr, $offset, $tz);
+                            $offset = sprintf(
+                                '%+03d:%02u',
+                                floor($offset / 3600),
+                                floor(abs($offset) % 3600 / 60)
+                            );
+                            printf(
+                                '<option value="%s"%s>%s [%s %s]</option>',
+                                $tz,
+                                (
+                                    $Service->get('value') == $tz ?
+                                    ' selected' :
+                                    ''
+                                ),
+                                $tz,
+                                $abbr,
+                                $offset
+                            );
+                            unset(
+                                $current_tz,
+                                $offset,
+                                $transition,
+                                $abbr,
+                                $offset,
+                                $tz
+                            );
                         }
                         echo '</select>';
                         $type = ob_get_clean();
                         break;
-                    case (preg_match('#pass#i', $Service->get('name')) && !preg_match('#(valid|min)#i', $Service->get('name'))):
-                        $Service->get('name') == 'FOG_STORAGENODE_MYSQLPASS' ? $type = '<input type="text" name="${service_id}" value="${service_value}" autocomplete="off"/>' : $type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off"/>';
+                    case (preg_match('#pass#i', $Service->get('name'))
+                        && !preg_match('#(valid|min)#i', $Service->get('name'))):
+                        $Service->get('name') == 'FOG_STORAGENODE_MYSQLPASS' ?
+                        $type = '<input type="text" name="${service_id}" value='
+                        . '"${service_value}" autocomplete="off"/>' :
+                        $type = '<input type="password" name='
+                        . '"${service_id}" value="${service_value}" autocomplete='
+                        . '"off"/>';
                         break;
                     case (in_array($Service->get('name'), $ServiceNames)):
-                        $type = sprintf('<input type="checkbox" name="${service_id}" value="1"%s/>', ($Service->get('value') ? ' checked' : ''));
+                        $type = sprintf(
+                            '<input type="checkbox" name="${service_id}" value='
+                            . '"1"%s/>',
+                            (
+                                $Service->get('value') ?
+                                ' checked' :
+                                ''
+                            )
+                        );
                         break;
                     case 'FOG_AD_DEFAULT_OU':
-                        $type = '<textarea rows="5" name="${service_id}">${service_value}</textarea>';
+                        $type = '<textarea rows="5" name="${service_id}">'
+                            . '${service_value}</textarea>';
                         break;
                     default:
-                        $type = '<input id="${service_name}" type="text" name="${service_id}" value="${service_value}" autocomplete="off"/>';
+                        $type = '<input id="${service_name}" type='
+                            . '"text" name="${service_id}" value='
+                            . '"${service_value}" autocomplete="off"/>';
                         break;
                 }
                 $this->data[] = array(
-                    'input_type'=>(count(explode(chr(10), $Service->get('value'))) <= 1 ? $type : '<textarea rows="5" name="${service_id}">${service_value}</textarea>'),
-                    'service_name'=> $Service->get('name'),
-                    'span'=>'<i class="icon fa fa-question hand" title="${service_desc}"></i>',
-                    'service_id'=>$Service->get('id'),
-                    'id'=>$Service->get('id'),
-                    'service_value'=>$Service->get('value'),
-                    'service_desc'=>$Service->get('description'),
+                    'input_type' => (
+                        count(
+                            explode(
+                                chr(10),
+                                $Service->get('value')
+                            )
+                        ) <= 1 ?
+                        $type :
+                        '<textarea rows="5" name="${service_id}">'
+                        . '${service_value}</textarea>'
+                    ),
+                    'service_name' => $Service->get('name'),
+                    'span' => '<i class="icon fa fa-question hand" title='
+                    . '"${service_desc}"></i>',
+                    'service_id' => $Service->get('id'),
+                    'id' => $Service->get('id'),
+                    'service_value' => $Service->get('value'),
+                    'service_desc' => $Service->get('description'),
                 );
                 unset($Service);
             }
