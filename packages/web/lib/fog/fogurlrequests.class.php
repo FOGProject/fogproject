@@ -161,7 +161,6 @@ class FOGURLRequests extends FOGBase
         $this->_response = array();
         $this->_requests = array();
         $this->_requestMap = array();
-        $this->__construct();
     }
     /**
      * Magic caller to get specialized methods
@@ -324,17 +323,7 @@ class FOGURLRequests extends FOGBase
     {
         $ch = curl_init();
         $request = array_shift($this->_requests);
-        $options = $this->_getOptions($request);
-        if ($available) {
-            unset($options[CURLOPT_TIMEOUT]);
-            unset($options[CURLOPT_CONNECTTIMEOUT]);
-            $options[CURLOPT_TIMEOUT_MS] = $this->_aconntimeout;
-            $options[CURLOPT_CONNECTTIMEOUT_MS] = $this->_aconntimeout;
-            $options[CURLOPT_RETURNTRANSFER] = true;
-            $options[CURLOPT_NOBODY] = true;
-            $options[CURLOPT_HEADER] = true;
-            $options[CURLOPT_NOSIGNAL] = true;
-        }
+        $options = $this->_getOptions($request, $available);
         curl_setopt_array($ch, $options);
         $output = curl_exec($ch);
         $info = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -350,7 +339,6 @@ class FOGURLRequests extends FOGBase
         if ($this->_callback && is_callable($this->_callback)) {
             $this->_callback($output, $info, $request);
         }
-        $this->__destruct();
 
         return (array)$output;
     }
@@ -380,17 +368,7 @@ class FOGURLRequests extends FOGBase
         $master = curl_multi_init();
         for ($i = 0; $i < $this->_windowSize; ++$i) {
             $ch = curl_init();
-            $options = $this->_getOptions($this->_requests[$i]);
-            if ($available) {
-                unset($options[CURLOPT_TIMEOUT]);
-                unset($options[CURLOPT_CONNECTTIMEOUT]);
-                $options[CURLOPT_TIMEOUT_MS] = $this->_aconntimeout;
-                $options[CURLOPT_CONNECTTIMEOUT_MS] = $this->_aconntimeout;
-                $options[CURLOPT_RETURNTRANSFER] = true;
-                $options[CURLOPT_NOBODY] = true;
-                $options[CURLOPT_HEADER] = true;
-                $options[CURLOPT_NOSIGNAL] = true;
-            }
+            $options = $this->_getOptions($this->_requests[$i], $available);
             curl_setopt_array($ch, $options);
             curl_multi_add_handle($master, $ch);
             $key = (string) $ch;
@@ -429,7 +407,7 @@ class FOGURLRequests extends FOGBase
                     && isset($this->_requests[$i])
                 ) {
                     $ch = curl_init();
-                    $options = $this->_getOptions($this->_requests[$i]);
+                    $options = $this->_getOptions($this->_requests[$i], $available);
                     curl_setopt_array($ch, $options);
                     curl_multi_add_handle($master, $ch);
                     $key = (string) $ch;
@@ -455,11 +433,12 @@ class FOGURLRequests extends FOGBase
     /**
      * Get options of the request and whole.
      *
-     * @param FOGRollingURL $request the request to get options from
+     * @param FOGRollingURL $request   the request to get options from
+     * @param bool          $available if we're checking available.
      *
      * @return array
      */
-    private function _getOptions($request)
+    private function _getOptions($request, $available = false)
     {
         $options = $this->__get('options');
         if (ini_get('safe_mode') == 'Off' || !ini_get('safe_mode')) {
@@ -479,6 +458,16 @@ class FOGURLRequests extends FOGBase
         if ($headers) {
             $options[CURLOPT_HEADER] = 0;
             $options[CURLOPT_HTTPHEADER] = $headers;
+        }
+        if ($available) {
+            unset($options[CURLOPT_TIMEOUT]);
+            unset($options[CURLOPT_CONNECTTIMEOUT]);
+            $options[CURLOPT_TIMEOUT_MS] = $this->_aconntimeout;
+            $options[CURLOPT_CONNECTTIMEOUT_MS] = $this->_aconntimeout;
+            $options[CURLOPT_RETURNTRANSFER] = true;
+            $options[CURLOPT_NOBODY] = true;
+            $options[CURLOPT_HEADER] = true;
+            $options[CURLOPT_NOSIGNAL] = true;
         }
         list($ip, $password, $port, $username) = self::getSubObjectIDs(
             'Service',
@@ -561,8 +550,8 @@ class FOGURLRequests extends FOGBase
     ) {
         $this->__destruct();
         if (false !== $timeout) {
-            $this->_timeout = $timeout;
-            $this->options[CURLOPT_TIMEOUT] = $timeout;
+            $this->_timeout = (int)$timeout;
+            $this->options[CURLOPT_TIMEOUT] = (int)$timeout;
         }
         if ($callback && is_callable($callback)) {
             $this->_callback = $callback;
