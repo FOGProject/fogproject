@@ -111,7 +111,7 @@ $(function() {
     UpdateClientCount();
     clientinterval = setInterval(function() {
         UpdateClientCount();
-    }, bandwidthtime);
+    }, 5000);
     UpdateBandwidth();
     bandinterval = setInterval(function() {
         UpdateBandwidth();
@@ -133,7 +133,7 @@ $(function() {
         UpdateClientCount();
         clientinterval = setInterval(function() {
             UpdateClientCount();
-        }, bandwidthtime);
+        }, 5000);
         e.preventDefault();
     });
     // Client Count starter.
@@ -275,9 +275,9 @@ function UpdateBandwidthGraph(data) {
         }
         if (data[i] === null) data[i] = {dev: 'Unknown',tx: 0,rx:0};
         if (data[i].dev === 'Unknown' && GraphBandwidthData[i].dev !== 'Unknown') data[i].dev = GraphBandwidthData[i].dev;
-        tx_rate = Math.round(data[i].tx / bandwidthtime * 8, 2);
+        tx_rate = Math.round(data[i].tx / bandwidthtime, 2);
         GraphBandwidthData[i].tx.push([Now,tx_rate]);
-        rx_rate = Math.round(data[i].rx / bandwidthtime * 8, 2);
+        rx_rate = Math.round(data[i].rx / bandwidthtime, 2);
         GraphBandwidthData[i].rx.push([Now,rx_rate]);
         // Reset the old and new values for the next iteration.
         GraphBandwidthData[i].dev = data[i].dev;

@@ -71,11 +71,11 @@ $getBytes = function ($dev, $file) {
  *
  * @return int|double
  */
-$retval = function ($data) use ($bandwidthtime) {
+$retval = function ($data) {
     if (!(is_numeric($data) && $data > 0)) {
         return 0;
     } else {
-        return round($data/1024, 2);
+        return round(($data / 1024) * 8, 2);
     }
 };
 // Make sure a device is set
