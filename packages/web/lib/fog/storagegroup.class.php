@@ -122,14 +122,29 @@ class StorageGroup extends FOGController
             'id' => $this->get('allnodes'),
             'isEnabled' => 1
         );
-        if ($node === 'home') {
-            $find['isGraphEnabled'] = 1;
+        $nodes = $this->getClass('StorageNodeManager')
+            ->find($nodes);
+        $nodeids = array();
+        $testurls = array();
+        foreach ($nodes as &$node) {
+            if (!$node->isValid()) {
+                unset($node);
+                continue;
+            }
+            if ($node->get('maxClients') < 1) {
+                unset($node);
+                continue;
+            }
+            $testurls[] = sprintf(
+                'http://%s/fog/management/index.php',
+                $node->get('ip')
+            );
+            $nodeids[] = $node->get('id');
+            unset($node);
         }
-        $nodeIDs = self::getSubObjectIDs(
-            'StorageNode',
-            $find
-        );
-        $this->set('enablednodes', $nodeIDs);
+        $test = array_filter(self::$FOGURLRequests->isAvailable($testurls));
+        $nodeids = array_intersect_key($nodeids, $test);
+        $this->set('enablednodes', $nodeids);
     }
     /**
      * Returns total available slots
@@ -162,7 +177,7 @@ class StorageGroup extends FOGController
             ->count(
                 array(
                     'stateID' => $this->getProgressState(),
-                    'storagenodeID' => $this->get('allnodes'),
+                    'storagenodeID' => $this->get('enablednodes'),
                     'typeID' => $this->get('usedtasks'),
                 )
             );
@@ -181,7 +196,7 @@ class StorageGroup extends FOGController
             ->count(
                 array(
                     'stateID' => $this->getQueuedStates(),
-                    'storagenodeID' => $this->get('allnodes'),
+                    'storagenodeID' => $this->get('enablednodes'),
                     'typeID' => $this->get('usedtasks'),
                 )
             );
@@ -198,7 +213,7 @@ class StorageGroup extends FOGController
         }
         return (int)self::$_tot['tot'] = self::getSubObjectIDs(
             'StorageNode',
-            array('id' => $this->get('allnodes')),
+            array('id' => $this->get('enablednodes')),
             'maxClients',
             false,
             'AND',
