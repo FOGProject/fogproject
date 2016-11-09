@@ -162,6 +162,7 @@ class StorageNode extends FOGController
         $test = self::$FOGURLRequests->isAvailable($url);
         $test = array_shift($test);
         if (false === $test) {
+            $this->set('logfiles', array());
             return;
         }
         $paths = array(
@@ -197,76 +198,93 @@ class StorageNode extends FOGController
         $this->set('logfiles', $paths);
     }
     /**
-     * Loads the snapins available on this node.
+     * Get's the storage node snapins, logfiles, and images
+     * in a single multi call rather than three individual calls.
      *
      * @return void
      */
-    public function getSnapinfiles()
+    private function _getData()
     {
         $url = sprintf(
-            'http://%s/fog/status/getfiles.php?path=%s',
-            $this->get('ip'),
-            urlencode($this->get('snapinpath'))
+            'http://%s/fog/status/getfiles.php',
+            $this->get('ip')
         );
         $test = self::$FOGURLRequests->isAvailable($url);
         $test = array_shift($test);
-        if (false === $test) {
+        if ($test === false) {
+            $this
+                ->set('images', array())
+                ->set('logfiles', array())
+                ->set('snapinfiles', array());
             return;
         }
-        $paths = self::$FOGURLRequests->process($url);
-        $paths = array_shift($paths);
-        $paths = json_decode($paths, true);
-        $paths = array_map('basename', (array) $paths);
-        $paths = preg_replace(
-            '#dev|postdownloadscripts|ssl#',
-            '',
-            $paths
+        $keys = array(
+            'images' => urlencode($this->get('path')),
+            'snapinfiles' => urlencode($this->get('snapinpath'))
         );
-        $paths = array_unique(
-            (array) $paths
-        );
-        $paths = array_filter(
-            (array) $paths
-        );
-        $this->set('snapinfiles', array_values($paths));
+        $urls = array();
+        foreach ((array)$keys as $key => &$data) {
+            if ($this->isLoaded($key)) {
+                unset($keys[$key]);
+                unset($data);
+                continue;
+            }
+            $urls[] = sprintf(
+                '%s?path=%s',
+                $url,
+                $data
+            );
+            unset($data);
+        }
+        $paths = self::$FOGURLRequests->process($urls);
+        $pat = '#dev|postdownloadscripts|ssl#';
+        $values = array();
+        $index = 0;
+        foreach ((array)$keys as $key => &$data) {
+            $values = $paths[$index];
+            unset($paths[$index]);
+            $values = json_decode($values, true);
+            $values = array_map('basename', (array)$values);
+            $values = preg_replace(
+                $pat,
+                '',
+                $values
+            );
+            $values = array_unique(
+                (array)$values
+            );
+            $values = array_filter(
+                (array)$values
+            );
+            if ($key === 'images') {
+                $values = self::getSubObjectIDs(
+                    'Image',
+                    array('path' => $values)
+                );
+            }
+            $this->set($key, $values);
+            $index++;
+            unset($data);
+        }
+        unset($values, $paths);
     }
     /**
      * Loads the snapins available on this node.
      *
      * @return void
      */
+    public function getSnapinfiles()
+    {
+        $this->_getData();
+    }
+    /**
+     * Loads the images available on this node.
+     *
+     * @return void
+     */
     public function getImages()
     {
-        $url = sprintf(
-            'http://%s/fog/status/getfiles.php?path=%s',
-            $this->get('ip'),
-            urlencode($this->get('path'))
-        );
-        $test = self::$FOGURLRequests->isAvailable($url);
-        $test = array_shift($test);
-        if (false === $test) {
-            return;
-        }
-        $paths = self::$FOGURLRequests->process($url);
-        $paths = array_shift($paths);
-        $paths = json_decode($paths);
-        $paths = array_map('basename', (array) $paths);
-        $paths = preg_replace(
-            '#dev|postdownloadscripts|ssl#',
-            '',
-            $paths
-        );
-        $paths = array_unique(
-            (array) $paths
-        );
-        $paths = array_filter(
-            (array) $paths
-        );
-        $ids = self::getSubObjectIDs(
-            'Image',
-            array('path' => $paths)
-        );
-        $this->set('images', $ids);
+        $this->_getData();
     }
     /**
      * Gets this node's load of clients.

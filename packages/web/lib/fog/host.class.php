@@ -1138,6 +1138,7 @@ class Host extends FOGController
      */
     public function checkIfExist($taskTypeID)
     {
+        return true;
         $TaskType = new TaskType($taskTypeID);
         $isCapture = $TaskType->isCapture();
         if ($isCapture) {

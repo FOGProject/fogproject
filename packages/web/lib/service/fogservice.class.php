@@ -388,10 +388,12 @@ abstract class FOGService extends FOGBase
         $objType = get_class($Obj);
         $groupOrNodeCount = self::getClass('StorageNodeManager')
             ->count($findWhere);
+        $counttest = 2;
         if (!$master) {
             $groupOrNodeCount--;
+            $counttest = 1;
         }
-        if ($groupOrNodeCount <= 1) {
+        if ($groupOrNodeCount < $counttest) {
             self::outall(
                 sprintf(
                     ' * %s %s %s %s',
@@ -640,8 +642,11 @@ abstract class FOGService extends FOGBase
                     } else {
                         self::outall(
                             sprintf(
-                                ' | %s %s',
-                                _('No need to sync to'),
+                                ' | %s: %s %s %s %s',
+                                $Obj->get('name'),
+                                _('No need to sync'),
+                                basename($localfile),
+                                _('file to'),
                                 $nodename
                             )
                         );
