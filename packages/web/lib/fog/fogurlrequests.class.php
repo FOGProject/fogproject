@@ -328,6 +328,7 @@ class FOGURLRequests extends FOGBase
         if ($available) {
             unset($options[CURLOPT_TIMEOUT]);
             unset($options[CURLOPT_CONNECTTIMEOUT]);
+            $options[CURLOPT_TIMEOUT_MS] = $this->_aconntimeout;
             $options[CURLOPT_CONNECTTIMEOUT_MS] = $this->_aconntimeout;
             $options[CURLOPT_RETURNTRANSFER] = true;
             $options[CURLOPT_NOBODY] = true;
@@ -335,29 +336,23 @@ class FOGURLRequests extends FOGBase
             $options[CURLOPT_NOSIGNAL] = true;
         }
         curl_setopt_array($ch, $options);
+        $output = curl_exec($ch);
+        $info = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
         if ($available) {
-            curl_exec($ch);
-            $info = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-            $this->__destruct();
+            $output = true;
             if ($info < 200
                 || $info >= 400
             ) {
-                return (array) false;
+                $output = false;
             }
-            return (array) true;
-        } else {
-            $output = curl_exec($ch);
-            $info = curl_getinfo($ch);
-            curl_close($ch);
-            if ($this->_callback && is_callable($this->_callback)) {
-                $this->_callback($output, $info, $request);
-            }
-            $this->__destruct();
-            return (array)$output;
         }
+        if ($this->_callback && is_callable($this->_callback)) {
+            $this->_callback($output, $info, $request);
+        }
+        $this->__destruct();
 
-        return (array)true;
+        return (array)$output;
     }
     /**
      * Perform multiple url requests.
@@ -378,6 +373,10 @@ class FOGURLRequests extends FOGBase
         if ($this->_windowSize < 2) {
             throw new Exception(_('Window size must be greater than 1'));
         }
+        $timeout = $this->_timeout;
+        if ($available) {
+            $timeout = $this->_aconntimeout / 1000;
+        }
         $master = curl_multi_init();
         for ($i = 0; $i < $this->_windowSize; ++$i) {
             $ch = curl_init();
@@ -385,6 +384,7 @@ class FOGURLRequests extends FOGBase
             if ($available) {
                 unset($options[CURLOPT_TIMEOUT]);
                 unset($options[CURLOPT_CONNECTTIMEOUT]);
+                $options[CURLOPT_TIMEOUT_MS] = $this->_aconntimeout;
                 $options[CURLOPT_CONNECTTIMEOUT_MS] = $this->_aconntimeout;
                 $options[CURLOPT_RETURNTRANSFER] = true;
                 $options[CURLOPT_NOBODY] = true;
@@ -407,10 +407,9 @@ class FOGURLRequests extends FOGBase
                 break;
             }
             while ($done = curl_multi_info_read($master)) {
+                $info = curl_getinfo($done['handle'], CURLINFO_HTTP_CODE);
+                $key = (string) $done['handle'];
                 if ($available) {
-                    $info = curl_getinfo($done['handle'], CURLINFO_HTTP_CODE);
-                    $output = curl_multi_getcontent($done['handle']);
-                    $key = (string) $done['handle'];
                     $this->_response[$this->_requestMap[$key]] = true;
                     if ($info < 200
                         || $info >= 400
@@ -418,17 +417,17 @@ class FOGURLRequests extends FOGBase
                         $this->_response[$this->_requestMap[$key]] = false;
                     }
                 } else {
-                    $info = curl_getinfo($done['handle']);
                     $output = curl_multi_getcontent($done['handle']);
-                    $key = (string) $done['handle'];
                     $this->_response[$this->_requestMap[$key]] = $output;
-                    if ($this->_callback && is_callable($this->_callback)) {
-                        $request = $this->_requests[$this->_requestMap[$key]];
-                        $this->_callback($output, $info, $request);
-                    }
+                }
+                if ($this->_callback && is_callable($this->_callback)) {
+                    $request = $this->_requests[$this->_requestMap[$key]];
+                    $this->_callback($output, $info, $request);
                 }
                 $sizeof = sizeof($this->_requests);
-                if ($i < $sizeof && isset($this->_requests[$i])) {
+                if ($i < $sizeof
+                    && isset($this->_requests[$i])
+                ) {
                     $ch = curl_init();
                     $options = $this->_getOptions($this->_requests[$i]);
                     curl_setopt_array($ch, $options);
@@ -445,7 +444,7 @@ class FOGURLRequests extends FOGBase
                 curl_multi_remove_handle($master, $done['handle']);
             }
             if ($running) {
-                curl_multi_select($master, $this->_timeout);
+                curl_multi_select($master, $timeout);
             }
         } while ($running);
         ksort($this->_response);
