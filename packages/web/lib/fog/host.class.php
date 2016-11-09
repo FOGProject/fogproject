@@ -1169,7 +1169,13 @@ class Host extends FOGController
                     ->find(array('id' => $StorageGroupIDs));
                 $ennodeids = array();
                 foreach ((array)$Groups as &$Group) {
-                    $ennodeids += $Group->get('enablednodes');
+                    if (!$Group->isValid()) {
+                        continue;
+                    }
+                    $ennodeids = array_merge(
+                        (array)$ennodeids,
+                        (array)$Group->get('enablednodes')
+                    );
                     unset($Group);
                 }
                 $StorageNodes = self::getClass('StorageNodeManager')
