@@ -224,11 +224,6 @@ class StorageNode extends FOGController
         );
         $urls = array();
         foreach ((array)$keys as $key => &$data) {
-            if ($this->isLoaded($key)) {
-                unset($keys[$key]);
-                unset($data);
-                continue;
-            }
             $urls[] = sprintf(
                 '%s?path=%s',
                 $url,

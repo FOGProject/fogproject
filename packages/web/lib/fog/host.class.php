@@ -1138,7 +1138,6 @@ class Host extends FOGController
      */
     public function checkIfExist($taskTypeID)
     {
-        return true;
         $TaskType = new TaskType($taskTypeID);
         $isCapture = $TaskType->isCapture();
         if ($isCapture) {
@@ -1158,7 +1157,7 @@ class Host extends FOGController
         if (!$StorageGroup || !$StorageGroup->isValid()) {
             $StorageGroupIDs = self::getSubObjectIDs(
                 'ImageAssociation',
-                array('imageID' => $this->get('imageID')),
+                array('imageID' => $this->getImage()->get('id')),
                 'storagegroupID'
             );
         } else {
