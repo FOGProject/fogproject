@@ -1679,9 +1679,9 @@ abstract class FOGBase
         } catch (Exception $e) {
             if (self::$json) {
                 $repData = preg_replace('/^[#][!]?/', '', $e->getMessage());
-                $data = json_encode(array('error' => $repData));
+                $data = array('error' => $repData);
                 if ($sub === 'requestClientInfo') {
-                    echo $data;
+                    echo json_encode($data);
                     exit;
                 } else {
                     return $data;
