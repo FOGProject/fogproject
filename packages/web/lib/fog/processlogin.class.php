@@ -132,7 +132,7 @@ class ProcessLogin extends FOGPage
     }
     private function setRedirMode()
     {
-        foreach ($_REQUEST as $key => &$value) {
+        foreach ($_GET as $key => &$value) {
             $redirect[$key] = $value;
             unset($value);
         }
@@ -148,9 +148,15 @@ class ProcessLogin extends FOGPage
             unset($value);
         }
         if (count($http_query) < 1) {
+            unset($_REQUEST['login']);
             $this->redirect('index.php');
         }
-        $this->redirect(sprintf('%s?%s', 'index.php', http_build_query($http_query)));
+        $query = trim(http_build_query($http_query));
+        $redir = 'index.php';
+        if ($query) {
+            $redir .= "?$query";
+        }
+        $this->redirect($redir);
     }
     public function processMainLogin()
     {
@@ -158,10 +164,13 @@ class ProcessLogin extends FOGPage
         $this->setLang();
         $this->username = trim($_REQUEST['uname']);
         $this->password = trim($_REQUEST['upass']);
-        if (!($this->username
-            && $this->password)
+        if (!isset($_REQUEST['login'])
+            || !$this->username
         ) {
             return;
+        }
+        if (!$this->username) {
+            $this->setMessage(_('Username and password are required'));
         }
         self::$HookManager
             ->processEvent(
@@ -189,6 +198,7 @@ class ProcessLogin extends FOGPage
                 );
             if ($type) {
                 $this->setMessage(self::$foglang['NotAllowedHere']);
+                unset($_REQUEST['login']);
                 $this->redirect('index.php?node=logout');
             }
         }
@@ -207,6 +217,7 @@ class ProcessLogin extends FOGPage
         $this->setLang();
         if (in_array($_REQUEST['node'], array('login', 'logout'))) {
             $this->setMessage($_SESSION['FOG_MESSAGES']);
+            unset($_REQUEST['login']);
             $this->redirect('index.php');
         }
         if ($_REQUEST['node'] != 'logout') {
@@ -216,15 +227,16 @@ class ProcessLogin extends FOGPage
             }
         }
         $this->getLanguages();
-        printf('<form method="post" action="%s" id="login-form"><label for="username">%s</label><input type="text" class="input" name="uname" id="username"/><label for="password">%s</label><input type="password" class="input" name="upass" id="password"/><label for="language">%s</label><select name="ulang" id="language">%s</select><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form><div id="login-form-info"><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p></div>', $this->formAction, self::$foglang['Username'], self::$foglang['Password'], self::$foglang['LanguagePhrase'], $this->langMenu, self::$foglang['Login'], self::$foglang['FOGSites'], self::$foglang['LatestVer'], self::$foglang['LatestDevVer'], self::$foglang['LatestSvnVer']);
+        printf('<form method="post" action="%s" id="login-form"><label for="username">%s</label><input type="text" class="input" name="uname" id="username"/><label for="password">%s</label><input type="password" class="input" name="upass" id="password"/><label for="language">%s</label><select name="ulang" id="language">%s</select><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit" name="login"/></form><div id="login-form-info"><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p></div>', $this->formAction, self::$foglang['Username'], self::$foglang['Password'], self::$foglang['LanguagePhrase'], $this->langMenu, self::$foglang['Login'], self::$foglang['FOGSites'], self::$foglang['LatestVer'], self::$foglang['LatestDevVer'], self::$foglang['LatestSvnVer']);
     }
     public function mobileLoginForm()
     {
         $this->setLang();
         if (in_array($_REQUEST['node'], array('login', 'logout'))) {
+            unset($_REQUEST['login']);
             $this->redirect('index.php');
         }
         $this->getLanguages();
-        printf('<div class="c"><p>%s</p><form method="post" action=""><br/><br/><label for="username">%s: </label><input type="text" name="uname" id="username"/><br/><br/><label for="password">%s: </label><input type="password" name="upass" id="password"/><br/><br/><label for="language">%s: </label><select name="ulang" id="language">%s</select><br/><br/><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit"/></form></div>', self::$foglang['FOGMobile'], self::$foglang['Username'], self::$foglang['Password'], self::$foglang['LanguagePhrase'], $this->langMenu, self::$foglang['Login']);
+        printf('<div class="c"><p>%s</p><form method="post" action=""><br/><br/><label for="username">%s: </label><input type="text" name="uname" id="username"/><br/><br/><label for="password">%s: </label><input type="password" name="upass" id="password"/><br/><br/><label for="language">%s: </label><select name="ulang" id="language">%s</select><br/><br/><label for="login-form-submit"> </label><input type="submit" value="%s" id="login-form-submit" name="login"/></form></div>', self::$foglang['FOGMobile'], self::$foglang['Username'], self::$foglang['Password'], self::$foglang['LanguagePhrase'], $this->langMenu, self::$foglang['Login']);
     }
 }
