@@ -1,43 +1,82 @@
 <?php
-
+/**
+ * Handles pinging hosts.
+ *
+ * PHP version 5
+ *
+ * @category Ping
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Handles pinging hosts.
+ *
+ * @category Ping
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class Ping
 {
-    // ICMP Ping packet with a pre-calculated checksum
-    public static $packet = "\x08\x00\x7d\x4b\x00\x00\x00\x00PingHost";
-    private $host;
-    private $port = '445';    // Microsoft netbios port
-    private $timeout;
     /**
-     * @function __construct() Send a ping request to a host.
+     * ICMP Ping packet with a pre-calculated checksum
+     * This will always be the same but allow capability for user to change
+     * they would like.
      *
-     * @param string     $host    Host name or IP address to ping
-     * @param string int $timeout Timeout for ping in seconds
-     *
-     * @return bool true if ping succeeds, false if not
+     * @var string
      */
-    public function __construct($host, $timeout = 2, $port = 445)
-    {
-        $this->host = trim($host);
-        if (!$timeout || !is_numeric($timeout)) {
+    public static $packet = "\x08\x00\x7d\x4b\x00\x00\x00\x00PingHost";
+    /**
+     * The host to ping
+     *
+     * @var string
+     */
+    private $_host = '';
+    /**
+     * The port to use.
+     * Netbios port 445 default.
+     *
+     * @var int
+     */
+    private $_port = 445;
+    /**
+     * The time to wait for host.
+     *
+     * @var int
+     */
+    private $_timeout = 5;
+    /**
+     * Initializes the ping class.
+     *
+     * @param string $host    Host name or IP address to ping.
+     * @param int    $timeout Timeout for ping in seconds.
+     * @param int    $port    The port to use.
+     *
+     * @return void
+     */
+    public function __construct(
+        $host,
+        $timeout = 2,
+        $port = 445
+    ) {
+        $this->_host = trim($host);
+        if (!($timeout
+            && is_numeric($timeout))
+        ) {
             $timeout = 2;
         }
-        if (!$port || !is_numeric($port)) {
+        if (!($port
+            && is_numeric($port))
+        ) {
             $port = 445;
         }
-        $this->timeout = $timeout;
-        $this->port = $port;
+        $this->_timeout = $timeout;
+        $this->_port = $port;
     }
     /**
-     * @function sockErrToString() error code to string
-     *
-     * @param $errCode the code to translate
-     * @returns the error string
-     */
-    protected static function sockErrToString()
-    {
-    }
-    /**
-     * @function execSend()
      * Use original methods to ping host
      *
      * @param string $host    IP Address or Hostname of host to ping
@@ -46,9 +85,18 @@ class Ping
      *
      * @return error codes
      */
-    protected static function execSend($host, $timeout, $port)
-    {
-        $fsocket = @fsockopen($host, $port, $errno, $errstr, $timeout);
+    protected static function execSend(
+        $host,
+        $timeout,
+        $port
+    ) {
+        $fsocket = @fsockopen(
+            $host,
+            $port,
+            $errno,
+            $errstr,
+            $timeout
+        );
         if ($fsocket !== false) {
             fclose($fsocket);
         }
@@ -58,8 +106,17 @@ class Ping
 
         return  $errno;
     }
+    /**
+     * Execute the ping.
+     *
+     * @return int
+     */
     public function execute()
     {
-        return self::execSend($this->host, $this->timeout, $this->port);
+        return self::execSend(
+            $this->_host,
+            $this->_timeout,
+            $this->_port
+        );
     }
 }

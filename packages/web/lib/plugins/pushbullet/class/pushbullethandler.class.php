@@ -150,9 +150,9 @@ class PushbulletHandler extends Pushbullet
     /**
      * Push a checklist.
      *
-     * @param string   $recipient The recipient.
-     * @param string   $title     The list's title.
-     * @param string[] $items     The list items.
+     * @param string $recipient The recipient.
+     * @param string $title     The list's title.
+     * @param array  $items     The list items.
      *
      * @return object Response.
      * @throws PushbulletException

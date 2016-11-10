@@ -5,20 +5,18 @@
  * PHP version 5
  *
  * @category FOGManagerController
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/gpl-3.0 GPLv3
- *
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
  * FOG Manager Controller, main object mass getter.
  *
  * @category FOGManagerController
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/gpl-3.0 GPLv3
- *
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 abstract class FOGManagerController extends FOGBase
