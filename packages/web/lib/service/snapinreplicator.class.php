@@ -148,16 +148,9 @@ class SnapinReplicator extends FOGService
                     )
                 );
                 /**
-                 * Get the snapin ids that are to be replicated.
-                 * NOTE: Must be enabled and have Replication enabled.
+                 * Get the snapin ids that are valid.
                  */
-                $SnapinIDs = self::getSubObjectIDs(
-                    'Snapin',
-                    array(
-                        'isEnabled' => 1,
-                        'toReplicate' => 1
-                    )
-                );
+                $SnapinIDs = self::getSubObjectIDs('Snapin');
                 /**
                  * Find any snapins that are no longer valid within
                  * fog, but still existing in the group assoc.
@@ -176,6 +169,17 @@ class SnapinReplicator extends FOGService
                         ->destroy(array('snapinID' => $SnapinAssocs));
                 }
                 unset($SnapinAssocs);
+                /**
+                 * Get the snapin ids that are to be replicated.
+                 * NOTE: Must be enabled and have Replication enabled.
+                 */
+                $SnapinIDs = self::getSubObjectIDs(
+                    'Snapin',
+                    array(
+                        'isEnabled' => 1,
+                        'toReplicate' => 1
+                    )
+                );
                 $SnapinAssocCount = self::getClass('SnapinGroupAssociationManager')
                     ->count(
                         array(
