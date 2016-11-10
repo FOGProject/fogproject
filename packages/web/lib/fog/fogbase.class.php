@@ -1650,10 +1650,11 @@ abstract class FOGBase
      *
      * @param string $datatosend the data to send
      * @param bool   $service    if not a service simpy return
+     * @param array  $array      The non-encoded array data.
      *
      * @return string
      */
-    protected function sendData($datatosend, $service = true)
+    protected function sendData($datatosend, $service = true, $array = array())
     {
         global $sub;
         if (!$service) {
@@ -1678,10 +1679,15 @@ abstract class FOGBase
             }
         } catch (Exception $e) {
             if (self::$json) {
+                if ($e->getMessage() === '#!ihc') {
+                    echo $e->getMessage();
+                    exit;
+                }
                 $repData = preg_replace('/^[#][!]?/', '', $e->getMessage());
+                $array['error'] = $repData;
                 $data = array('error' => $repData);
                 if ($sub === 'requestClientInfo') {
-                    echo json_encode($data);
+                    echo json_encode($array);
                     exit;
                 } else {
                     return $data;

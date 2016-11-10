@@ -636,6 +636,7 @@ class SnapinManagementPage extends FOGPage
             _('Snapin Enabled') => sprintf(
                 '<input class="snapinenabled-input" type='
                 . '"checkbox" name='
+                . '"isEnabled" checked/>'
             ),
             _('Snapin Arguments Hidden') => sprintf(
                 '<input class="snapinhidden-input" type='
