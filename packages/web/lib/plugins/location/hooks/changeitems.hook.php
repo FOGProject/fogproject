@@ -126,7 +126,6 @@ $HookManager->register('BOOT_TASK_NEW_SETTINGS', array($ChangeItems, 'StorageGro
 $HookManager->register('HOST_NEW_SETTINGS', array($ChangeItems, 'StorageNodeSetting'));
 $HookManager->register('HOST_NEW_SETTINGS', array($ChangeItems, 'StorageGroupSetting'));
 $HookManager->register('BOOT_TASK_NEW_SETTINGS', array($ChangeItems, 'StorageNodeSetting'));
-$HookManager->register('TASK_LIMIT', array($ChangeItems, 'SlotCount'));
 $HookManager->register('CHECK_NODE_MASTERS', array($ChangeItems, 'AlterMasters'));
 $HookManager->register('CHECK_NODE_MASTER', array($ChangeItems, 'MakeMaster'));
 //$HookManager->register('HOST_EDIT_AFTER_SAVE',array($ChangeItems,'HostEditAfterSave'));
