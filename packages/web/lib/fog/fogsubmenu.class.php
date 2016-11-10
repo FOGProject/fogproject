@@ -7,10 +7,9 @@
  * This file enables side menus and notes.
  *
  * @category FOGSubMenu
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
@@ -83,10 +82,9 @@
  * );
  *
  * @category FOGSubMenu
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 class FOGSubMenu extends FOGBase
@@ -115,6 +113,7 @@ class FOGSubMenu extends FOGBase
      * @param string $ifVariableTitle tester variable title setter
      *
      * @throws exception
+     * @return void
      */
     public function addItems(
         $node,
@@ -169,6 +168,7 @@ class FOGSubMenu extends FOGBase
      * @param string         $ifVariable The variable to test
      *
      * @throws Exception
+     * @return void
      */
     public function addNotes(
         $node,

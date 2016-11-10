@@ -5,20 +5,18 @@
  * PHP Version 5
  *
  * @category HostManager
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
  * Manager class for Hosts.
  *
  * @category HostManager
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 class HostManager extends FOGManagerController

@@ -5,20 +5,18 @@
  * PHP version 5
  *
  * @category Group
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
  * Main class for group objects.
  *
  * @category Group
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 class Group extends FOGController
@@ -716,6 +714,8 @@ class Group extends FOGController
     }
     /**
      * Perform wake on lan to all hosts in group.
+     *
+     * @return void
      */
     public function wakeOnLAN()
     {

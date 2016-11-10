@@ -5,20 +5,18 @@
  * PHP version 5
  *
  * @category FOGRollingURL
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
  * The request for rolling urls.
  *
  * @category FOGRollingURL
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 class FOGRollingURL
@@ -28,7 +26,7 @@ class FOGRollingURL
      *
      * @var string
      */
-    public $url = false;
+    public $url = '';
     /**
      * The method (GET, POST, DELETE, etc...).
      *
@@ -40,38 +38,38 @@ class FOGRollingURL
      *
      * @var array
      */
-    public $post_data = null;
+    public $postData = array();
     /**
      * The headers to use for the url.
      *
      * @var array
      */
-    public $headers = null;
+    public $headers = array();
     /**
      * Any special options needed for curl.
      *
      * @var array
      */
-    public $options = null;
+    public $options = array();
     /**
      * Initialize the class at call time.
      *
-     * @param string $url       the url to initialize
-     * @param string $method    the method for the request
-     * @param array  $post_data the data to send
-     * @param array  $headers   the headers to send
-     * @param array  $options   the options to use
+     * @param string $url      the url to initialize
+     * @param string $method   the method for the request
+     * @param array  $postData the data to send
+     * @param array  $headers  the headers to send
+     * @param array  $options  the options to use
      */
     public function __construct(
         $url,
         $method = 'GET',
-        $post_data = null,
-        $headers = null,
-        $options = null
+        $postData = array(),
+        $headers = array(),
+        $options = array()
     ) {
         $this->url = $url;
         $this->method = $method;
-        $this->post_data = $post_data;
+        $this->postData = $postData;
         $this->headers = $headers;
         $this->options = $options;
     }
@@ -80,12 +78,10 @@ class FOGRollingURL
      */
     public function __destruct()
     {
-        unset(
-            $this->url,
-            $this->method,
-            $this->post_data,
-            $this->headers,
-            $this->options
-        );
+        $this->url = '';
+        $this->method = 'GET';
+        $this->postData = array();
+        $this->headers = array();
+        $this->options = array();
     }
 }

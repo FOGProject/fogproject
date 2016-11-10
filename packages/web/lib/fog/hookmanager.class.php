@@ -6,10 +6,9 @@
  * PHP version 5
  *
  * @category HookManager
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
@@ -17,10 +16,9 @@
  * events and hooks.
  *
  * @category HookManager
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 class HookManager extends EventManager
@@ -45,6 +43,8 @@ class HookManager extends EventManager
     public $events = array();
     /**
      * Get events from other items.
+     *
+     * @return void
      */
     public function getEvents()
     {
@@ -155,6 +155,8 @@ class HookManager extends EventManager
      *
      * @param string $event     the event to process
      * @param array  $arguments the arguments to pass
+     *
+     * @return void
      */
     public function processEvent($event, $arguments = array())
     {

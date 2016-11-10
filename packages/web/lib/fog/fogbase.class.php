@@ -1657,7 +1657,7 @@ abstract class FOGBase
     protected function sendData($datatosend, $service = true, $array = array())
     {
         global $sub;
-        if (!$service) {
+        if (false === $service) {
             return;
         }
         try {

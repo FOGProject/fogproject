@@ -213,25 +213,25 @@ class FOGURLRequests extends FOGBase
     /**
      * Generates the request and stores to our requests variable.
      *
-     * @param string $url       The url to request
-     * @param string $method    The method to call
-     * @param mixed  $post_data The data to pass
-     * @param mixed  $headers   Any additional request headers to send
-     * @param mixed  $options   Any additional request options to use
+     * @param string $url      The url to request
+     * @param string $method   The method to call
+     * @param mixed  $postData The data to pass
+     * @param mixed  $headers  Any additional request headers to send
+     * @param mixed  $options  Any additional request options to use
      *
      * @return object
      */
     public function request(
         $url,
         $method = 'GET',
-        $post_data = null,
-        $headers = null,
-        $options = null
+        $postData = array(),
+        $headers = array(),
+        $options = array()
     ) {
         $this->_requests[] = new FOGRollingURL(
             $url,
             $method,
-            $post_data,
+            $postData,
             $headers,
             $options
         );
@@ -451,9 +451,9 @@ class FOGURLRequests extends FOGBase
             $options = $request->options + $options;
         }
         $options[CURLOPT_URL] = $url;
-        if ($request->post_data) {
+        if ($request->postData) {
             $options[CURLOPT_POST] = 1;
-            $options[CURLOPT_POSTFIELDS] = $request->post_data;
+            $options[CURLOPT_POSTFIELDS] = $request->postData;
         }
         if ($headers) {
             $options[CURLOPT_HEADER] = 0;
