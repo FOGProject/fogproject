@@ -164,13 +164,12 @@ class ProcessLogin extends FOGPage
         $this->setLang();
         $this->username = trim($_REQUEST['uname']);
         $this->password = trim($_REQUEST['upass']);
-        if (!isset($_REQUEST['login'])
-            || !$this->username
-        ) {
+        if (!isset($_REQUEST['login'])) {
             return;
         }
         if (!$this->username) {
-            $this->setMessage(_('Username and password are required'));
+            $this->setMessage(self::$foglang['InvalidLogin']);
+            $this->redirect('index.php?node=logout');
         }
         self::$HookManager
             ->processEvent(
