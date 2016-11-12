@@ -1,7 +1,37 @@
 <?php
+/**
+ * The service/global settings class.
+ *
+ * PHP version 5
+ *
+ * @category Service
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * The service/global settings class.
+ *
+ * @category Service
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class Service extends FOGController
 {
+    /**
+     * The service table name.
+     *
+     * @var string
+     */
     protected $databaseTable = 'globalSettings';
+    /**
+     * The service fields and common names.
+     *
+     * @var array
+     */
     protected $databaseFields = array(
         'id' => 'settingID',
         'name' => 'settingKey',
@@ -9,24 +39,58 @@ class Service extends FOGController
         'value' => 'settingValue',
         'category' => 'settingCategory',
     );
+    /**
+     * The required fields.
+     *
+     * @var array
+     */
     protected $databaseFieldsRequired = array(
         'name',
     );
+    /**
+     * Adds a directory for directory cleaner.
+     *
+     * @param string $dir The directory to add.
+     *
+     * @return void
+     */
     public function addDir($dir)
     {
-        if (self::getClass(DirCleanerManager)->count(array('path'=>$dir)) > 0) {
+        $dircount = self::getClass('DirCleanerManager')
+            ->count(array('path' => $dir));
+        if ($dircount > 0) {
             throw new Exception(self::$foglang['n/a']);
         }
-        self::getClass(DirCleaner)
-            ->set(path, $dir)
+        self::getClass('DirCleaner')
+            ->set('path', $dir)
             ->save();
     }
+    /**
+     * Removes a directory for directory cleaner.
+     *
+     * @param int $dir The directory to remove.
+     *
+     * @return void
+     */
     public function remDir($dir)
     {
-        self::getClass(DirCleanerManager)->destroy(array(id=>$dir));
+        self::getClass('DirCleanerManager')
+            ->destroy(array('id' => $dir));
     }
-    public function setDisplay($x, $y, $r)
-    {
+    /**
+     * Set the display settings.
+     *
+     * @param int $x The width of the screen.
+     * @param int $y The height of the screen.
+     * @param int $r The refresh rate.
+     *
+     * @return void
+     */
+    public function setDisplay(
+        $x,
+        $y,
+        $r
+    ) {
         $keySettings = array(
             'FOG_CLIENT_DISPLAYMANAGER_X' => $x,
             'FOG_CLIENT_DISPLAYMANAGER_Y' => $y,
@@ -37,9 +101,25 @@ class Service extends FOGController
             unset($value);
         }
     }
+    /**
+     * Sets the green fog.
+     *
+     * @param int    $h The hour to run 0 - 23
+     * @param int    $m The minute to run 0-59
+     * @param string $t The type shutdown/reboot.
+     *
+     * @return void
+     */
     public function setGreenFog($h, $m, $t)
     {
-        if (self::getClass('GreenFogManager')->count(array('hour'=>$h, 'min'=>$m))>0) {
+        $gfcount = self::getClass('GreenFogManager')
+            ->count(
+                array(
+                    'hour' => $h,
+                    'min' => $m
+                )
+            );
+        if ($gfcount > 0) {
             throw new Exception(self::$foglang['TimeExists']);
         } else {
             self::getClass('GreenFog')
@@ -49,27 +129,75 @@ class Service extends FOGController
                 ->save();
         }
     }
+    /**
+     * Removes green fog.
+     *
+     * @param int $gf The green fog to remove
+     *
+     * @return void
+     */
     public function remGF($gf)
     {
-        self::getClass('GreenFogManager')->destroy(array('id'=>$gf));
+        self::getClass('GreenFogManager')
+            ->destroy(
+                array(
+                    'id' => $gf
+                )
+            );
     }
+    /**
+     * Add a user to prevent cleanup.
+     *
+     * @param string $user The user to add.
+     *
+     * @return object
+     */
     public function addUser($user)
     {
-        if (self::getClass('UserCleanupManager')->count(array('name'=>$user))>0) {
+        $usercount = self::getClass('UserCleanupManager')
+            ->count(
+                array(
+                    'name' => $user
+                )
+            );
+        if ($usercount > 0) {
             throw new Exception(self::$foglang['UserExists']);
         }
-        array_map(function (&$name) {
-            self::getClass('UserCleanup')->set('name', $name)->save();
+        foreach ((array)$user as &$name) {
+            self::getClass('UserCleanup')
+                ->set('name', $name)
+                ->load('name')
+                ->save();
             unset($name);
-        }, (array)$user);
+        }
         return $this;
     }
+    /**
+     * Remove a user.
+     *
+     * @param int $id The user cleanup id to remove.
+     *
+     * @return void
+     */
     public function remUser($id)
     {
-        self::getClass('UserCleanup', $id)->destroy();
+        self::getClass('UserCleanup', $id)
+            ->destroy();
     }
-    public static function buildExitSelector($name = '', $selected = '', $nullField = false)
-    {
+    /**
+     * Builds the exit type selectors for us.
+     *
+     * @param string $name      What to call the form selector (name=)
+     * @param string $selected  Which is the selected item.
+     * @param bool   $nullField Is there going to be a null starter.
+     *
+     * @return string
+     */
+    public static function buildExitSelector(
+        $name = '',
+        $selected = '',
+        $nullField = false
+    ) {
         if (empty($name)) {
             $name = $this->get('name');
         }
@@ -83,17 +211,37 @@ class Service extends FOGController
             'exit',
         );
         if ($nullField) {
-            array_unshift($types, sprintf(' - %s -', _('Please Select an option')));
+            array_unshift(
+                $types,
+                sprintf(
+                    ' - %s -',
+                    _('Please Select an option')
+                )
+            );
         }
-        $options = sprintf('<select name="%s" autocomplete="off">', $name);
+        $options = sprintf(
+            '<select name="%s" autocomplete="off">',
+            $name
+        );
         foreach ($types as $i => &$viewop) {
             $show = strtoupper($viewop);
             $value = $viewop;
-            if ($nullField && $i == 0) {
+            if ($nullField
+                && $i == 0
+            ) {
                 $show = $viewop;
                 $value = '';
             }
-            $options .= sprintf('<option value="%s"%s>%s</option>', $value, strtolower($selected) == $value ? 'selected' : '', $show);
+            $options .= sprintf(
+                '<option value="%s"%s>%s</option>',
+                $value,
+                (
+                    strtolower($selected) == $value ?
+                    ' selected' :
+                    ''
+                ),
+                $show
+            );
             unset($viewop);
         }
         unset($viewop);

@@ -5,20 +5,18 @@
  * PHP version 5
  *
  * @category TaskType
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
  * Task type class.
  *
  * @category TaskType
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 class TaskType extends FOGController
@@ -123,11 +121,11 @@ class TaskType extends FOGController
      */
     public function getIcon()
     {
-        return
+        return (
             $this instanceof Task ?
             $this->getTaskType()->get('icon') :
             $this->get('icon')
-        ;
+        );
     }
     /**
      * Returns if this is an imaging task.
@@ -163,7 +161,7 @@ class TaskType extends FOGController
                     $this->get('kernelArgs')
                 )
             )
-        ;
+            ;
     }
     /**
      * Returns if the task needs the inits.
@@ -178,10 +176,10 @@ class TaskType extends FOGController
             'id'
         );
 
-        return
+        return (
             $this->isValid()
             && !in_array($this->get($id), array(4, 12, 13, 14))
-        ;
+        );
     }
     /**
      * Returns if this is snapin only tasking.
@@ -196,10 +194,10 @@ class TaskType extends FOGController
             'id'
         );
 
-        return
+        return (
             $this->isValid()
             && in_array($this->get($id), array(12, 13))
-        ;
+        );
     }
     /**
      * Returns if we need to task snapins too.
@@ -223,7 +221,7 @@ class TaskType extends FOGController
                 )
                 || in_array($this->get($id), array(12, 13))
             )
-        ;
+            ;
     }
     /**
      * Returns if this is a deploy tasking.
@@ -247,7 +245,7 @@ class TaskType extends FOGController
                     $this->get('kernelArgs')
                 )
             )
-        ;
+            ;
     }
     /**
      * Returns if this is a multicast tasking.
@@ -271,7 +269,7 @@ class TaskType extends FOGController
                     $this->get('kernelArgs')
                 )
             )
-        ;
+            ;
     }
     /**
      * Returns if this is a debug tasking.
@@ -293,6 +291,6 @@ class TaskType extends FOGController
                 || preg_match('#mode=debug#i', $this->get('kernelArgs'))
                 || preg_match('#mode=onlydebug#i', $this->get('kernelArgs'))
             )
-        ;
+            ;
     }
 }

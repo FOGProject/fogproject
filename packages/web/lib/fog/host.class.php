@@ -1677,7 +1677,7 @@ class Host extends FOGController
     {
         self::getClass('VirusManager')
             ->destroy(
-                array('hostMAC' => $this->getMyMacs())
+                array('mac' => $this->getMyMacs())
             );
         return $this;
     }

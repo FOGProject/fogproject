@@ -28,7 +28,7 @@ try {
     $vInfo = explode(' ', trim($string[1]));
     $Virus = FOGCore::getClass('Virus')
         ->set('name', $vInfo[0])
-        ->set('hostMAC', strtolower($_REQUEST['mac']))
+        ->set('mac', strtolower($_REQUEST['mac']))
         ->set('file', $string[0])
         ->set('date', $FOGCore->formatTime('now', 'Y-m-d H:i:s'))
         ->set('mode', $_REQUEST['mode']);

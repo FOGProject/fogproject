@@ -1853,7 +1853,7 @@ class HostManagementPage extends FOGPage
         $virHists = self::getClass('VirusManager')
             ->find(
                 array(
-                    'hostMAC' => $this->obj->getMyMacs()
+                    'mac' => $this->obj->getMyMacs()
                 ),
                 'OR'
             );

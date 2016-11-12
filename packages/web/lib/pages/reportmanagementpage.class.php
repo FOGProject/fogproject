@@ -648,7 +648,7 @@ class ReportManagementPage extends FOGPage
             if (!$Virus->isValid()) {
                 continue;
             }
-            $Host = self::getClass('HostManager')->getHostByMacAddresses($Virus->get('hostMAC'));
+            $Host = self::getClass('HostManager')->getHostByMacAddresses($Virus->get('mac'));
             if (!$Host->isValid()) {
                 continue;
             }

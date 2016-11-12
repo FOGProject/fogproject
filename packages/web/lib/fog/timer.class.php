@@ -1,56 +1,137 @@
 <?php
-
+/**
+ * Creates the timer item so we know when
+ * something is supposed to occur.
+ *
+ * PHP version 5
+ *
+ * @category Timer
+ * @package  FOGPrject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Creates the timer item so we know when
+ * something is supposed to occur.
+ *
+ * @category Timer
+ * @package  FOGPrject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class Timer extends FOGCron
 {
-    private $blSingle;
-    private $cron;
-    private $lngSingle;
-    public function __construct($minute, $hour = null, $dom = null, $month = null, $dow = null)
-    {
+    /**
+     * Is single?
+     *
+     * @var bool
+     */
+    private $_blSingle;
+    /**
+     * Cron time
+     * 
+     * @var string
+     */
+    private $_cron;
+    /**
+     * Line single run.
+     *
+     * @var mixed
+     */
+    private $_lngSingle;
+    /**
+     * Initializes the Timer class.
+     * 
+     * @param mixed $minute The minute field.
+     * @param mixed $hour   The hour field.
+     * @param mixed $dom    The dom field.
+     * @param mixed $month  The motnh field.
+     * @param mixed $dow    The dow field.
+     *
+     * @return void
+     */
+    public function __construct(
+        $minute,
+        $hour = null,
+        $dom = null,
+        $month = null,
+        $dow = null
+    ) {
         parent::__construct();
-        if ($minute != null && $hour == null && $dom == null && $month == null && $dow == null) {
+        if ($minute != null
+            && $hour == null
+            && $dom == null
+            && $month == null
+            && $dow == null
+        ) {
             // Single task based on timestamp
-            $this->lngSingle = $minute;
-            $this->blSingle = true;
+            $this->_lngSingle = $minute;
+            $this->_blSingle = true;
         } else {
-            $this->cron = sprintf('%s %s %s %s %s', $minute, $hour, $dom, $month, $dow);
-            $this->lngSingle = self::parse($this->cron);
-            $this->blSingle = false;
+            $this->_cron = sprintf(
+                '%s %s %s %s %s',
+                $minute,
+                $hour,
+                $dom,
+                $month,
+                $dow
+            );
+            $this->_lngSingle = self::parse($this->_cron);
+            $this->_blSingle = false;
         }
     }
+    /**
+     * Is this a single run or cron?
+     *
+     * @return bool
+     */
     public function isSingleRun()
     {
-        return $this->blSingle;
+        return $this->_blSingle;
     }
+    /**
+     * The time to run single.
+     * 
+     * @return string
+     */
     public function getSingleRunTime()
     {
-        return $this->lngSingle;
+        return $this->_lngSingle;
     }
+    /**
+     * Send the time to string.
+     *
+     * @return string
+     */
     public function toString()
     {
-        $runTime = self::niceDate()->setTimestamp($this->lngSingle);
-
+        $runTime = self::niceDate()->setTimestamp($this->_lngSingle);
         return $runTime->format('r');
     }
-    public function setDebug($blDebug)
-    {
-        self::$debug = $blDebug;
-    }
-    private function shouldSingleRun()
+    /**
+     * Should single run now?
+     *
+     * @return bool
+     */
+    private function _shouldSingleRun()
     {
         $CurrTime = self::niceDate();
-        $Time = self::niceDate()->setTimestamp($this->lngSingle);
-
+        $Time = self::niceDate()->setTimestamp($this->_lngSingle);
         return (bool) ($Time <= $CurrTime);
     }
+    /**
+     * Should run common.
+     *
+     * @return bool
+     */
     public function shouldRunNow()
     {
-        return (bool) ($this->blSingle ? $this->shouldSingleRun() : self::shouldRunCron($this->lngSingle));
-    }
-    private function d($s)
-    {
-        if (self::$debug) {
-            echo $s."\n";
-        }
+        return (bool) (
+            $this->_blSingle ?
+            $this->_shouldSingleRun() :
+            self::shouldRunCron($this->_lngSingle)
+        );
     }
 }
