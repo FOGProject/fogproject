@@ -36,56 +36,56 @@ class StorageManagementPage extends FOGPage
         global $sub;
         global $id;
         switch (strtolower($sub)) {
-            case 'edit':
-            case 'delete':
-            case 'deleteStorageNode':
-                if ($id) {
-                    $this->obj = new StorageNode($id);
-                    if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
-                        unset($this->obj);
-                        $this->setMessage(
-                            sprintf(
-                                _('%s ID %s is not valid'),
-                                $this->childClass,
-                                $id
-                            )
-                        );
-                        $this->redirect(sprintf('?node=%s', $this->node));
-                    }
-                    $this->subMenu = array(
-                        "?node={$this->node}&sub={$sub}&id={$id}" => self::$foglang['General'],
-                        "?node={$this->node}&sub=deleteStorageNode&id={$id}" => self::$foglang['Delete'],
+        case 'edit':
+        case 'delete':
+        case 'deleteStorageNode':
+            if ($id) {
+                $this->obj = new StorageNode($id);
+                if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
+                    unset($this->obj);
+                    $this->setMessage(
+                        sprintf(
+                            _('%s ID %s is not valid'),
+                            $this->childClass,
+                            $id
+                        )
                     );
-                    $this->notes = array(
-                        sprintf('%s %s', self::$foglang['Storage'], self::$foglang['Node']) => $this->obj->get('name'),
-                        self::$foglang['ImagePath'] => $this->obj->get('path'),
-                        self::$foglang['FTPPath'] => $this->obj->get('ftppath'),
-                    );
+                    $this->redirect(sprintf('?node=%s', $this->node));
                 }
-                break;
-            case 'editStorageGroup':
-            case 'editStorageGroup':
-            case 'deleteStorageGroup':
-                if ($id) {
-                    $this->obj = new StorageGroup($id);
-                    if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
-                        unset($this->obj);
-                        $this->setMessage(sprintf(_('%s ID %s is not valid'), $this->childClass, $_REQUEST['id']));
-                        $this->redirect(sprintf('?node=%s', $this->node));
-                    }
-                    $this->subMenu = array(
+                $this->subMenu = array(
+                    "?node={$this->node}&sub={$sub}&id={$id}" => self::$foglang['General'],
+                    "?node={$this->node}&sub=deleteStorageNode&id={$id}" => self::$foglang['Delete'],
+                );
+                $this->notes = array(
+                    sprintf('%s %s', self::$foglang['Storage'], self::$foglang['Node']) => $this->obj->get('name'),
+                    self::$foglang['ImagePath'] => $this->obj->get('path'),
+                    self::$foglang['FTPPath'] => $this->obj->get('ftppath'),
+                );
+            }
+            break;
+        case 'editStorageGroup':
+        case 'editStorageGroup':
+        case 'deleteStorageGroup':
+            if ($id) {
+                $this->obj = new StorageGroup($id);
+                if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
+                    unset($this->obj);
+                    $this->setMessage(sprintf(_('%s ID %s is not valid'), $this->childClass, $_REQUEST['id']));
+                    $this->redirect(sprintf('?node=%s', $this->node));
+                }
+                $this->subMenu = array(
                     "?node={$this->node}&sub={$sub}&id={$id}" => self::$foglang['General'],
                     "?node={$this->node}&sub=deleteStorageGroup&id={$id}" => self::$foglang['Delete'],
+                );
+                $this->notes = array(
+                    sprintf(
+                        '%s %s',
+                        self::$foglang['Storage'],
+                        self::$foglang['Group']
+                    ) => $this->obj->get('name'),
                     );
-                    $this->notes = array(
-                        sprintf(
-                            '%s %s',
-                            self::$foglang['Storage'],
-                            self::$foglang['Group']
-                        ) => $this->obj->get('name'),
-                    );
-                }
-                break;
+            }
+            break;
         }
     }
     public function search()

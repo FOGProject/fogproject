@@ -2816,7 +2816,7 @@ abstract class FOGPage extends FOGBase
                 }
                 if (isset($_REQUEST['massDelHosts'])) {
                     $this->redirect(
-                        "?node=group&sub=delete_hosts&id={$this->obj->get(id)}"
+                        "?node=group&sub=deletehosts&id={$this->obj->get(id)}"
                     );
                 }
             }

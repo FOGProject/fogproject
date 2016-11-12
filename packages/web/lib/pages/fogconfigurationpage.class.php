@@ -63,7 +63,7 @@ class FOGConfigurationPage extends FOGPage
             . 'item_name=Donation+to+FOG+-+A+Free+Cloning+'
             . 'Solution&cmd=_donations&business=fogproject'
             . '.org%40gmail.com' => _('Donate to FOG'),
-        );
+            );
         self::$HookManager
             ->processEvent(
                 'SUB_MENULINK_DATA',
@@ -1421,225 +1421,227 @@ class FOGConfigurationPage extends FOGPage
                     continue;
                 }
                 switch ($Service->get('name')) {
-                    case 'FOG_PIGZ_COMP':
-                        $type = '<div id="pigz" style="width: 200px; top: 15px;">'
-                            . '</div><input type="text" readonly='
-                            . '"true" name="${service_id}" id='
-                            . '"showVal" maxsize="1" style='
-                            . '"width: 10px; top: -5px; left:'
-                            . '225px; position: relative;" value='
-                            . '"${service_value}"/>';
-                        break;
-                    case 'FOG_KERNEL_LOGLEVEL':
-                        $type = '<div id="loglvl" style="width: 200px; top: 15px;">'
-                            . '</div><input type="text" readonly='
-                            . '"true" name="${service_id}" id="showlogVal" maxsize='
-                            . '"1" style="width: 10px; top: -5px; left:'
-                            . '225px; position: relative;" value='
-                            . '"${service_value}"/>';
-                        break;
-                    case 'FOG_INACTIVITY_TIMEOUT':
-                        $type = '<div id="inact" style="width: 200px; top: 15px;">'
-                            . '</div><input type="text" readonly='
-                            . '"true" name="${service_id}" id="showValInAct" maxsize'
-                            . '="2" style="width: 15px; top: -5px; left:'
-                            . '225px; position: relative;" value='
-                            . '"${service_value}"/>';
-                        break;
-                    case 'FOG_REGENERATE_TIMEOUT':
-                        $type = '<div id="regen" style="width: 200px; top: 15px;">'
-                            . '</div><input type="text" readonly='
-                            . '"true" name="${service_id}" id='
-                            . '"showValRegen" maxsize="5" style='
-                            . '"width: 25px; top: -5px; left:'
-                            . '225px; position: relative;" value='
-                            . '"${service_value}"/>';
-                        break;
-                    case 'FOG_VIEW_DEFAULT_SCREEN':
-                        $screens = array('SEARCH','LIST');
-                        ob_start();
-                        foreach ((array)$screens as &$viewop) {
-                            printf(
-                                '<option value="%s"%s>%s</option>',
-                                strtolower($viewop),
-                                (
-                                    $Service->get('value') == strtolower($viewop) ?
-                                    ' selected' :
-                                    ''
-                                ),
-                                $viewop
-                            );
-                            unset($viewop);
-                        }
-                        unset($screens);
-                        $type = sprintf(
-                            '<select name="${service_id}" style='
-                            . '"width: 220px" autocomplete="off">%s</select>',
-                            ob_get_clean()
+                case 'FOG_PIGZ_COMP':
+                    $type = '<div id="pigz" style="width: 200px; top: 15px;">'
+                        . '</div><input type="text" readonly='
+                        . '"true" name="${service_id}" id='
+                        . '"showVal" maxsize="1" style='
+                        . '"width: 10px; top: -5px; left:'
+                        . '225px; position: relative;" value='
+                        . '"${service_value}"/>';
+                    break;
+                case 'FOG_KERNEL_LOGLEVEL':
+                    $type = '<div id="loglvl" style="width: 200px; top: 15px;">'
+                        . '</div><input type="text" readonly='
+                        . '"true" name="${service_id}" id="showlogVal" maxsize='
+                        . '"1" style="width: 10px; top: -5px; left:'
+                        . '225px; position: relative;" value='
+                        . '"${service_value}"/>';
+                    break;
+                case 'FOG_INACTIVITY_TIMEOUT':
+                    $type = '<div id="inact" style="width: 200px; top: 15px;">'
+                        . '</div><input type="text" readonly='
+                        . '"true" name="${service_id}" id="showValInAct" maxsize'
+                        . '="2" style="width: 15px; top: -5px; left:'
+                        . '225px; position: relative;" value='
+                        . '"${service_value}"/>';
+                    break;
+                case 'FOG_REGENERATE_TIMEOUT':
+                    $type = '<div id="regen" style="width: 200px; top: 15px;">'
+                        . '</div><input type="text" readonly='
+                        . '"true" name="${service_id}" id='
+                        . '"showValRegen" maxsize="5" style='
+                        . '"width: 25px; top: -5px; left:'
+                        . '225px; position: relative;" value='
+                        . '"${service_value}"/>';
+                    break;
+                case 'FOG_VIEW_DEFAULT_SCREEN':
+                    $screens = array('SEARCH','LIST');
+                    ob_start();
+                    foreach ((array)$screens as &$viewop) {
+                        printf(
+                            '<option value="%s"%s>%s</option>',
+                            strtolower($viewop),
+                            (
+                                $Service->get('value') == strtolower($viewop) ?
+                                ' selected' :
+                                ''
+                            ),
+                            $viewop
                         );
-                        break;
-                    case 'FOG_MULTICAST_DUPLEX':
-                        $duplexTypes = array(
-                            'HALF_DUPLEX' => '--half-duplex',
-                            'FULL_DUPLEX' => '--full-duplex',
+                        unset($viewop);
+                    }
+                    unset($screens);
+                    $type = sprintf(
+                        '<select name="${service_id}" style='
+                        . '"width: 220px" autocomplete="off">%s</select>',
+                        ob_get_clean()
+                    );
+                    break;
+                case 'FOG_MULTICAST_DUPLEX':
+                    $duplexTypes = array(
+                        'HALF_DUPLEX' => '--half-duplex',
+                        'FULL_DUPLEX' => '--full-duplex',
+                    );
+                    ob_start();
+                    foreach ((array)$duplexTypes as $types => &$val) {
+                        printf(
+                            '<option value="%s"%s>%s</option>',
+                            $val,
+                            (
+                                $Service->get('value') == $val ?
+                                ' selected' :
+                                ''
+                            ),
+                            $types
                         );
-                        ob_start();
-                        foreach ((array)$duplexTypes as $types => &$val) {
-                            printf(
-                                '<option value="%s"%s>%s</option>',
-                                $val,
-                                (
-                                    $Service->get('value') == $val ?
-                                    ' selected' :
-                                    ''
-                                ),
-                                $types
-                            );
-                            unset($val);
-                        }
-                        $type = sprintf(
-                            '<select name="${service_id}" style='
-                            . '"width: 220px" autocomplete='
-                            . '"off">%s</select>',
-                            ob_get_clean()
+                        unset($val);
+                    }
+                    $type = sprintf(
+                        '<select name="${service_id}" style='
+                        . '"width: 220px" autocomplete='
+                        . '"off">%s</select>',
+                        ob_get_clean()
+                    );
+                    break;
+                case 'FOG_BOOT_EXIT_TYPE':
+                case 'FOG_EFI_BOOT_EXIT_TYPE':
+                    $type = Service::buildExitSelector(
+                        $Service->get('id'),
+                        $Service->get('value')
+                    );
+                    break;
+                case 'FOG_DEFAULT_LOCALE':
+                    $locale = self::getSetting('FOG_DEFAULT_LOCALE');
+                    ob_start();
+                    $langs =& self::$foglang['Language'];
+                    foreach ($langs as $lang => &$humanreadable) {
+                        printf(
+                            '<option value="%s"%s>%s</option>',
+                            $lang,
+                            (
+                                $locale == $lang
+                                || $locale == self::$foglang['Language'][$lang] ?
+                                ' selected' :
+                                ''
+                            ),
+                            $humanreadable
                         );
-                        break;
-                    case 'FOG_BOOT_EXIT_TYPE':
-                    case 'FOG_EFI_BOOT_EXIT_TYPE':
-                        $type = Service::buildExitSelector(
-                            $Service->get('id'),
-                            $Service->get('value')
-                        );
-                        break;
-                    case 'FOG_DEFAULT_LOCALE':
-                        $locale = self::getSetting('FOG_DEFAULT_LOCALE');
-                        ob_start();
-                        foreach ((array)self::$foglang['Language'] as $lang => &$humanreadable) {
-                            printf(
-                                '<option value="%s"%s>%s</option>',
-                                $lang,
-                                (
-                                    $locale == $lang
-                                    || $locale == self::$foglang['Language'][$lang] ?
-                                    ' selected' :
-                                    ''
-                                ),
-                                $humanreadable
-                            );
-                            unset($humanreadable);
-                        }
-                        $type = sprintf(
-                            '<select name="${service_id}" autocomplete='
-                            . '"off" style="width: 220px">%s</select>',
-                            ob_get_clean()
-                        );
-                        break;
-                    case 'FOG_QUICKREG_IMG_ID':
-                        $type = self::getClass('ImageManager')->buildSelectBox(
-                            $Service->get('value'),
-                            sprintf(
-                                '%s" id="${service_name}"',
-                                $Service->get('id')
-                            )
-                        );
-                        break;
-                    case 'FOG_QUICKREG_GROUP_ASSOC':
-                        $type = self::getClass('GroupManager')->buildSelectBox(
+                        unset($humanreadable);
+                    }
+                    $type = sprintf(
+                        '<select name="${service_id}" autocomplete='
+                        . '"off" style="width: 220px">%s</select>',
+                        ob_get_clean()
+                    );
+                    break;
+                case 'FOG_QUICKREG_IMG_ID':
+                    $type = self::getClass('ImageManager')->buildSelectBox(
+                        $Service->get('value'),
+                        sprintf(
+                            '%s" id="${service_name}"',
+                            $Service->get('id')
+                        )
+                    );
+                    break;
+                case 'FOG_QUICKREG_GROUP_ASSOC':
+                    $type = self::getClass('GroupManager')->buildSelectBox(
+                        $Service->get('value'),
+                        $Service->get('id')
+                    );
+                    break;
+                case 'FOG_KEY_SEQUENCE':
+                    $type = self::getClass('KeySequenceManager')
+                        ->buildSelectBox(
                             $Service->get('value'),
                             $Service->get('id')
                         );
-                        break;
-                    case 'FOG_KEY_SEQUENCE':
-                        $type = self::getClass('KeySequenceManager')
-                            ->buildSelectBox(
-                                $Service->get('value'),
-                                $Service->get('id')
-                            );
-                        break;
-                    case 'FOG_QUICKREG_OS_ID':
-                        $ImageName = _('No image specified');
-                        if ($Service->get('value') > 0) {
-                            $ImageName = self::getClass(
-                                'Image',
-                                $Service->get('value')
-                            )->get('name');
-                        }
-                        $type = sprintf(
-                            '<p id="${service_name}">%s</p>',
-                            $ImageName
+                    break;
+                case 'FOG_QUICKREG_OS_ID':
+                    $ImageName = _('No image specified');
+                    if ($Service->get('value') > 0) {
+                        $ImageName = self::getClass(
+                            'Image',
+                            $Service->get('value')
+                        )->get('name');
+                    }
+                    $type = sprintf(
+                        '<p id="${service_name}">%s</p>',
+                        $ImageName
+                    );
+                    break;
+                case 'FOG_TZ_INFO':
+                    $dt = self::niceDate('now', $utc);
+                    $tzIDs = DateTimeZone::listIdentifiers();
+                    ob_start();
+                    echo '<select name="${service_id}">';
+                    foreach ((array)$tzIDs as $i => &$tz) {
+                        $current_tz = self::getClass('DateTimeZone', $tz);
+                        $offset = $current_tz->getOffset($dt);
+                        $transition = $current_tz->getTransitions(
+                            $dt->getTimestamp(),
+                            $dt->getTimestamp()
                         );
-                        break;
-                    case 'FOG_TZ_INFO':
-                        $dt = self::niceDate('now', $utc);
-                        $tzIDs = DateTimeZone::listIdentifiers();
-                        ob_start();
-                        echo '<select name="${service_id}">';
-                        foreach ((array)$tzIDs as $i => &$tz) {
-                            $current_tz = self::getClass('DateTimeZone', $tz);
-                            $offset = $current_tz->getOffset($dt);
-                            $transition = $current_tz->getTransitions(
-                                $dt->getTimestamp(),
-                                $dt->getTimestamp()
-                            );
-                            $abbr = $transition[0]['abbr'];
-                            $offset = sprintf(
-                                '%+03d:%02u',
-                                floor($offset / 3600),
-                                floor(abs($offset) % 3600 / 60)
-                            );
-                            printf(
-                                '<option value="%s"%s>%s [%s %s]</option>',
-                                $tz,
-                                (
-                                    $Service->get('value') == $tz ?
-                                    ' selected' :
-                                    ''
-                                ),
-                                $tz,
-                                $abbr,
-                                $offset
-                            );
-                            unset(
-                                $current_tz,
-                                $offset,
-                                $transition,
-                                $abbr,
-                                $offset,
-                                $tz
-                            );
-                        }
-                        echo '</select>';
-                        $type = ob_get_clean();
-                        break;
-                    case (preg_match('#pass#i', $Service->get('name'))
-                        && !preg_match('#(valid|min)#i', $Service->get('name'))):
-                        $Service->get('name') == 'FOG_STORAGENODE_MYSQLPASS' ?
-                        $type = '<input type="text" name="${service_id}" value='
+                        $abbr = $transition[0]['abbr'];
+                        $offset = sprintf(
+                            '%+03d:%02u',
+                            floor($offset / 3600),
+                            floor(abs($offset) % 3600 / 60)
+                        );
+                        printf(
+                            '<option value="%s"%s>%s [%s %s]</option>',
+                            $tz,
+                            (
+                                $Service->get('value') == $tz ?
+                                ' selected' :
+                                ''
+                            ),
+                            $tz,
+                            $abbr,
+                            $offset
+                        );
+                        unset(
+                            $current_tz,
+                            $offset,
+                            $transition,
+                            $abbr,
+                            $offset,
+                            $tz
+                        );
+                    }
+                    echo '</select>';
+                    $type = ob_get_clean();
+                    break;
+                case (preg_match('#pass#i', $Service->get('name'))
+                    && !preg_match('#(valid|min)#i', $Service->get('name'))
+                ):
+                    $Service->get('name') == 'FOG_STORAGENODE_MYSQLPASS' ?
+                    $type = '<input type="text" name="${service_id}" value='
                         . '"${service_value}" autocomplete="off"/>' :
-                        $type = '<input type="password" name='
+                    $type = '<input type="password" name='
                         . '"${service_id}" value="${service_value}" autocomplete='
                         . '"off"/>';
-                        break;
-                    case (in_array($Service->get('name'), $ServiceNames)):
-                        $type = sprintf(
-                            '<input type="checkbox" name="${service_id}" value='
-                            . '"1"%s/>',
-                            (
-                                $Service->get('value') ?
-                                ' checked' :
-                                ''
-                            )
-                        );
-                        break;
-                    case 'FOG_AD_DEFAULT_OU':
-                        $type = '<textarea rows="5" name="${service_id}">'
-                            . '${service_value}</textarea>';
-                        break;
-                    default:
-                        $type = '<input id="${service_name}" type='
-                            . '"text" name="${service_id}" value='
-                            . '"${service_value}" autocomplete="off"/>';
-                        break;
+                    break;
+                case (in_array($Service->get('name'), $ServiceNames)):
+                    $type = sprintf(
+                        '<input type="checkbox" name="${service_id}" value='
+                        . '"1"%s/>',
+                        (
+                            $Service->get('value') ?
+                            ' checked' :
+                            ''
+                        )
+                    );
+                    break;
+                case 'FOG_AD_DEFAULT_OU':
+                    $type = '<textarea rows="5" name="${service_id}">'
+                        . '${service_value}</textarea>';
+                    break;
+                default:
+                    $type = '<input id="${service_name}" type='
+                        . '"text" name="${service_id}" value='
+                        . '"${service_value}" autocomplete="off"/>';
+                    break;
                 }
                 $this->data[] = array(
                     'input_type' => (
