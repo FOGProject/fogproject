@@ -1,21 +1,102 @@
 <?php
+/**
+ * Displays the vnc link on hosts.
+ *
+ * PHP version 5
+ *
+ * @category HostVNCLink
+ * @package  FOGProject
+ * @author   Peter Gilchrist <nah@nah.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Displays the vnc link on hosts.
+ *
+ * @category HostVNCLink
+ * @package  FOGProject
+ * @author   Peter Gilchrist <nah@nah.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class HostVNCLink extends Hook
 {
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
     public $name = 'HostVNCLink';
+    /**
+     * The description of this hook.
+     *
+     * @var string
+     */
     public $description = 'Adds a "VNC" link to the Host Lists';
-    public $author = 'Blackout';
+    /**
+     * Is this hook active?
+     *
+     * @var bool
+     */
     public $active = false;
+    /**
+     * Port to use for the link.
+     *
+     * @var int
+     */
     public $port = 5800;
-    public function HostData($arguments)
+    /**
+     * The data to alter.
+     *
+     * @param mixed $arguments The items to alter.
+     *
+     * @return void
+     */
+    public function hostData($arguments)
     {
-        $arguments['templates'][9] = sprintf('<a href="vnc://%s:%d" target="_blank" title="%s: ${host_name}">VNC</a>', '${host_name}', $this->port, _('Open VNC connection to'));
-        $arguments['attributes'][9] = array('class' => 'c');
+        global $node;
+        if ($node != 'host') {
+            return;
+        }
+        $arguments['templates'][]
+            = sprintf(
+                '<a href="vnc://%s:%d" target="_blank" title='
+                . '"%s: ${host_name}">VNC</a>', '${host_name}',
+                $this->port,
+                _('Open VNC connection to')
+            );
+        $arguments['attributes'][] = array('class' => 'c');
     }
-    public function HostTableHeader($arguments)
+    /**
+     * The table header to alter
+     *
+     * @param mixed $arguments The items to alter.
+     *
+     * @return void
+     */
+    public function hostTableHeader($arguments)
     {
-        $arguments['headerData'][9] = 'VNC';
+        global $node;
+        if ($node != 'host') {
+            return;
+        }
+        $arguments['headerData'][] = _('VNC');
     }
 }
 $HostVNCLink = new HostVNCLink();
-$HookManager->register('HOST_DATA', array($HostVNCLink, 'HostData'));
-$HookManager->register('HOST_HEADER_DATA', array($HostVNCLink, 'HostTableHeader'));
+$HookManager
+    ->register(
+        'HOST_DATA',
+        array(
+            $HostVNCLink,
+            'hostData'
+        )
+    );
+$HookManager
+    ->register(
+        'HOST_HEADER_DATA',
+        array(
+            $HostVNCLink,
+            'hostTableHeader'
+        )
+    );
