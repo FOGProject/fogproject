@@ -22,6 +22,19 @@
 class Schema extends FOGController
 {
     /**
+     * All of the available comparators.
+     *
+     * @var array
+     */
+    protected $operators = [
+        '=', '<', '>', '<=', '>=', '<>', '!=',
+        'like', 'like binary', 'not like', 'between', 'ilike',
+        '&', '|', '^', '<<', '>>',
+        'rlike', 'regexp', 'not regexp',
+        '~', '~*', '!~', '!~*', 'similar to',
+        'not similar to', 'not ilike', '~~*', '!~~*'
+    ];
+    /**
      * The schema version table
      *
      * @var string
@@ -52,10 +65,7 @@ class Schema extends FOGController
      */
     public static function createDatabaseQuery()
     {
-        return sprintf(
-            'CREATE DATABASE IF NOT EXISTS `%s`',
-            self::getDBName()
-        );
+        return self::createDatabase(self::getDBName(), false);
     }
     /**
      * Ensures we're using the database
@@ -98,30 +108,88 @@ class Schema extends FOGController
             if (count($indexes) < 1) {
                 return;
             } elseif (count($indexes) === 1) {
-                $ending = sprintf('INDEX `%s`', array_shift($indexes));
+                $ending = sprintf(
+                    'INDEX `%s`',
+                    array_shift($indexes)
+                );
             } else {
-                $ending = sprintf('INDEX `%s` (`%s`)', array_shift($indexes), implode('`,`', $indexes));
+                $ending = sprintf(
+                    'INDEX `%s` (`%s`)',
+                    array_shift($indexes),
+                    implode('`,`', $indexes)
+                );
             }
         } else {
-            $ending = sprintf('(`%s`)', implode('`,`', $indexes));
+            $ending = sprintf(
+                '(`%s`)',
+                implode('`,`', $indexes)
+            );
         }
-        $queries[] = "CREATE TABLE `$dbname`.`_$tablename` LIKE `$dbname`.`$tablename`";
-        $queries[] = "ALTER TABLE `$dbname`.`_$tablename` ADD UNIQUE $ending";
-        $queries[] = "INSERT IGNORE INTO `$dbname`.`_$tablename` SELECT * FROM `$dbname`.`$tablename`";
-        $queries[] = "DROP TABLE `$dbname`.`$tablename`";
-        $queries[] = "RENAME TABLE `$dbname`.`_$tablename` TO `$dbname`.`$tablename`";
+        $queries[] = sprintf(
+            'CREATE TABLE `%s`.`_%s` LIKE `%s`.`%s`',
+            $dbname,
+            $tablename,
+            $dbname,
+            $tablename
+        );
+        $queries[] = sprintf(
+            'ALTER TABLE `%s`.`_%s` ADD UNIQUE %s',
+            $dbname,
+            $tablename,
+            $ending
+        );
+        $queries[] = sprintf(
+            'INSERT IGNORE INTO `%s`.`_%s` %s',
+            $dbname,
+            $tablename,
+            sprintf(
+                'SELECT * FROM `%s`.`%s`',
+                $dbname,
+                $tablename
+            )
+        );
+        $queries[] = sprintf(
+            'DROP TABLE `%s`.`%s`',
+            $dbname,
+            $tablename
+        );
+        $queries[] = sprintf(
+            'RENAME TABLE `%s`.`_%s` TO `%s`.`%s`',
+            $dbname,
+            $tablename,
+            $dbname,
+            $tablename
+        );
         if ($dropIndex) {
-            $queries[] = "ALTER TABLE `$dbname`.`$tablename` DROP INDEX `$dropIndex`";
+            $queries[] = sprintf(
+                'ALTER TABLE `%s`.`%s` DROP INDEX `%s`',
+                $dbname,
+                $tablename,
+                $dropIndex
+            );
         }
         return $queries;
     }
-    public function export_db($backup_name = '', $remove_file = true)
-    {
+    /**
+     * Export the db and present it as a file.
+     *
+     * @param string $backup_name The backup name to use.
+     * @param bool   $remove_file Remove the backup when done.
+     *
+     * @return string The filename to export from.
+     */
+    public function exportdb(
+        $backup_name = '',
+        $remove_file = true
+    ) {
         $orig_exec_time = ini_get('max_execution_time');
         set_time_limit(0);
         $file = '/tmp/fog_backup_tmp.sql';
         if (!$backup_name) {
-            $backup_name = sprintf('fog_backup_%s.sql', $this->formatTime('', 'Ymd_His'));
+            $backup_name = sprintf(
+                'fog_backup_%s.sql',
+                $this->formatTime('', 'Ymd_His')
+            );
         }
         $dump = self::getClass('Mysqldump');
         $dump->start($file);
@@ -148,7 +216,14 @@ class Schema extends FOGController
         set_time_limit($orig_exec_time);
         return $file;
     }
-    public function import_db($file)
+    /**
+     * Imports the database and updates the db.
+     *
+     * @param string $file The filename to import from.
+     *
+     * @return string|bool
+     */
+    public function importdb($file)
     {
         $orig_exec_time = ini_get('max_execution_time');
         set_time_limit(0);
@@ -162,7 +237,12 @@ class Schema extends FOGController
             $tmpline .= $line;
             if (substr(trim($line), -1, 1) == ';') {
                 if (false === self::$DB->query($tmpline)) {
-                    $error .= _('Error performing query').'\'<strong>'.$line.'\': '.$mysqli->sqlerror().'</strong><br/><br/>';
+                    $error .= sprintf(
+                        "%s '<strong>%s': %s</strong><br/><br/>",
+                        _('Error performing query'),
+                        $line,
+                        self::$DB->sqlerror()
+                    );
                 }
                 $tmpline = '';
             }
@@ -173,5 +253,54 @@ class Schema extends FOGController
             return $error;
         }
         return true;
+    }
+    /**
+     * SQL create database syntax.
+     *
+     * @param string $name   What are we calling it?
+     * @param bool   $exists If not exists?
+     *
+     * @return string
+     */
+    public static function createDatabase(
+        $name,
+        $exists
+    ) {
+        if (!is_bool($exists)) {
+            throw new Exception(_('Exists item must be boolean'));
+        }
+        $string = sprintf(
+            'CREATE DATABASE %s`%s`',
+            (
+                false == $exists ?
+                ' IF NOT EXISTS' :
+                ''
+            ),
+            $name
+        );
+        return $string;
+    }
+    /**
+     * SQL create table syntax
+     *
+     * @param string $name   What are we calling the table?
+     * @param bool   $exists If not exists?
+     * @param array  $fields The fields and names.
+     * @param array  $types  The types for the fields.
+     * @param array  $unique The unique fields.
+     * @param string $prime  The primary field, if one.
+     * @param string $autoin The auto increment field.
+     *
+     * @return string
+     */
+    public static function createTable(
+        $name,
+        $exists,
+        $fields,
+        $types,
+        $unique,
+        $prime = false,
+        $autoin = false
+    ) {
     }
 }

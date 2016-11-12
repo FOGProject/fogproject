@@ -1490,7 +1490,7 @@ class BootMenu extends FOGBase
             );
             if ($this->_Host->get('useAD')) {
                 $addomain = preg_replace(
-                    '#\ #',
+                    '#\s#',
                     '+_+',
                     $this->_Host->get('ADDomain')
                 );
@@ -1498,18 +1498,18 @@ class BootMenu extends FOGBase
                     ';',
                     '',
                     preg_replace(
-                        '#\ #',
+                        '#\s#',
                         '+_+',
                         $this->_Host->get('ADOU')
                     )
                 );
                 $aduser = preg_replace(
-                    '#\ #',
+                    '#\s#',
                     '+_+',
                     $this->_Host->get('ADUser')
                 );
                 $adpass = preg_replace(
-                    '#\ #',
+                    '#\s#',
                     '+_+',
                     $this->_Host->get('ADPass')
                 );
@@ -1724,31 +1724,31 @@ class BootMenu extends FOGBase
             $Send = array_merge($Send, array($params));
         }
         switch ($option->get('id')) {
-            case 1:
-                $Send = array_merge(
-                    $Send,
-                    array("$this->_bootexittype || goto MENU")
-                );
-                break;
-            case 2:
-                $Send = array_merge(
-                    $Send,
-                    array(
-                        "$this->_memdisk iso raw",
-                        $this->_memtest,
-                        'boot || goto MENU'
-                    )
-                );
-                break;
-            case 11:
-                $Send = array_merge(
-                    $Send,
-                    array(
-                        "chain -ar $this->_booturl/ipxe/advanced.php || "
-                        . "goto MENU"
-                    )
-                );
-                break;
+        case 1:
+            $Send = array_merge(
+                $Send,
+                array("$this->_bootexittype || goto MENU")
+            );
+            break;
+        case 2:
+            $Send = array_merge(
+                $Send,
+                array(
+                    "$this->_memdisk iso raw",
+                    $this->_memtest,
+                    'boot || goto MENU'
+                )
+            );
+            break;
+        case 11:
+            $Send = array_merge(
+                $Send,
+                array(
+                    "chain -ar $this->_booturl/ipxe/advanced.php || "
+                    . "goto MENU"
+                )
+            );
+            break;
         }
         if (!$params) {
             $Send = array_merge(

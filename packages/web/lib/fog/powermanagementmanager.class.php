@@ -5,20 +5,18 @@
  * PHP version 5
  *
  * @category PowerManagementManager
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
  * Powermanagement manager mass management class.
  *
  * @category PowerManagementManager
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 class PowerManagementManager extends FOGManagerController
@@ -40,7 +38,10 @@ class PowerManagementManager extends FOGManagerController
             'reboot' => _('Reboot'),
             'wol' => _('Wake On Lan'),
         );
-        self::$HookManager->processEvent('PM_ACTION_TYPES', array('types' => &$types));
+        self::$HookManager->processEvent(
+            'PM_ACTION_TYPES',
+            array('types' => &$types)
+        );
         ob_start();
         foreach ((array) $types as $val => &$text) {
             printf(

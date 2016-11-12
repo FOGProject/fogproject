@@ -465,10 +465,7 @@ abstract class FOGPage extends FOGBase
                     ', Arguments = %s',
                     implode(
                         ', ',
-                        array_walk(
-                            $args,
-                            $vals
-                        )
+                        array_walk($args, $vals)
                     )
                 ) :
                 ''

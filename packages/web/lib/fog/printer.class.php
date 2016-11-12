@@ -65,7 +65,9 @@ class Printer extends FOGController
         'hostsnotinme',
     );
     /**
-     * Removes the printer
+     * Removes the printer.
+     *
+     * @param string $key The key to match for removing.
      *
      * @return bool
      */
@@ -153,6 +155,9 @@ class Printer extends FOGController
     }
     /**
      * Update the default printer for the host.
+     * 
+     * @param int  $hostid the host id to update for.
+     * @param bool $onoff  if the printer is on or off.
      *
      * @return object
      */

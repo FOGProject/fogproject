@@ -46,4 +46,13 @@ class HostAutoLogout extends FOGController
         'hostID',
         'time',
     );
+    /**
+     * Return the host object.
+     *
+     * @return object
+     */
+    public function getHost()
+    {
+        return new Host($this->get('hostID'));
+    }
 }

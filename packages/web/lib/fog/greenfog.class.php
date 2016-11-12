@@ -40,4 +40,13 @@ class GreenFog extends FOGController
         'action' => 'gfAction',
         'days'    => 'gfDays',
     );
+    /**
+     * Returns the Host object.
+     *
+     * @return object
+     */
+    public function getHost()
+    {
+        return new Host($this->get('hostID'));
+    }
 }

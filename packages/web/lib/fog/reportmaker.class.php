@@ -5,20 +5,18 @@
  * PHP version 5
  *
  * @category GroupManager
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
  * Group manager mass management class.
  *
  * @category GroupManager
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 class ReportMaker extends FOGBase
@@ -138,6 +136,8 @@ class ReportMaker extends FOGBase
      * Output the report.
      *
      * @param int $intType the type of report
+     *
+     * @return void
      */
     public function outputReport($intType = 0)
     {
@@ -168,108 +168,108 @@ class ReportMaker extends FOGBase
             0
         );
         switch ($intType) {
-            case 0:
-                echo implode("\n", (array) $this->_strHTML);
-                break;
-            case 1:
-                $filename = $this->_filename;
-                header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=$filename.csv");
-                echo implode((array) $this->_strLine);
-                unset($filename, $this->_strLine);
-                break;
-            case 2:
-                $filename = $this->_filename;
-                header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=$filename.pdf");
-                $proc = proc_open(
-                    'htmldoc --links --header . '
-                    .'--linkstyle plain --numbered '
-                    .'--size letter --no-localfiles '
-                    .'-t pdf14 --quiet --jpeg --webpage '
-                    .'--size letter --left 0.25in '
-                    .'--right 0.25in --top 0.25in --bottom '
-                    .'0.25in --header ... --footer ... '
-                    .'-',
-                    array(
-                        0 => array('pipe', 'r'),
-                        1 => array('pipe', 'w'),
-                    ),
-                    $pipes
-                );
-                fwrite(
-                    $pipes[0],
-                    sprintf(
-                        '<html><body>%s</body></html>',
-                        implode("\n", (array) $this->_strHTML)
-                    )
-                );
-                fclose($pipes[0]);
-                fpassthru($pipes[1]);
-                $status = proc_close($proc);
-                unset($status, $this->_strHTML);
-                break;
-            case 3:
-                $SchemaSave = FOGCore::getClass('Schema');
-                global $FOGCore;
-                $backup_name = sprintf(
-                    'fog_backup_%s.sql',
-                    $FOGCore->formatTime('', 'Ymd_His')
-                );
-                $SchemaSave->export_db($backup_name);
-                unset($SchemaSave);
-                break;
-            case 4:
-                header('Content-Type: application/octet-stream');
-                header(
-                    'Content-Disposition: attachment; '
-                    ."filename={$type}_export.csv"
-                );
-                echo implode((array) $this->_strLine);
-                unset($this->_strLine);
-                break;
-            case 5:
-                while (ob_get_level()) {
-                    ob_end_clean();
-                }
-                $filename = 'fog_backup.sql';
-                $path = sprintf('%s/management/other/', BASEPATH);
-                $filepath = "{$path}{$filename}";
-                $ip = preg_replace('#p:#', '', DATABASE_HOST);
-                if (false === filter_var($ip, FILTER_VALIDATE_IP)) {
-                    $ip = gethostbyname($ip);
-                }
-                if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-                    return;
-                }
+        case 0:
+            echo implode("\n", (array) $this->_strHTML);
+            break;
+        case 1:
+            $filename = $this->_filename;
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=$filename.csv");
+            echo implode((array) $this->_strLine);
+            unset($filename, $this->_strLine);
+            break;
+        case 2:
+            $filename = $this->_filename;
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=$filename.pdf");
+            $proc = proc_open(
+                'htmldoc --links --header . '
+                .'--linkstyle plain --numbered '
+                .'--size letter --no-localfiles '
+                .'-t pdf14 --quiet --jpeg --webpage '
+                .'--size letter --left 0.25in '
+                .'--right 0.25in --top 0.25in --bottom '
+                .'0.25in --header ... --footer ... '
+                .'-',
+                array(
+                    0 => array('pipe', 'r'),
+                    1 => array('pipe', 'w'),
+                ),
+                $pipes
+            );
+            fwrite(
+                $pipes[0],
+                sprintf(
+                    '<html><body>%s</body></html>',
+                    implode("\n", (array) $this->_strHTML)
+                )
+            );
+            fclose($pipes[0]);
+            fpassthru($pipes[1]);
+            $status = proc_close($proc);
+            unset($status, $this->_strHTML);
+            break;
+        case 3:
+            $SchemaSave = FOGCore::getClass('Schema');
+            global $FOGCore;
+            $backup_name = sprintf(
+                'fog_backup_%s.sql',
+                $FOGCore->formatTime('', 'Ymd_His')
+            );
+            $SchemaSave->exportdb($backup_name);
+            unset($SchemaSave);
+            break;
+        case 4:
+            header('Content-Type: application/octet-stream');
+            header(
+                'Content-Disposition: attachment; '
+                ."filename={$type}_export.csv"
+            );
+            echo implode((array) $this->_strLine);
+            unset($this->_strLine);
+            break;
+        case 5:
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+            $filename = 'fog_backup.sql';
+            $path = sprintf('%s/management/other/', BASEPATH);
+            $filepath = "{$path}{$filename}";
+            $ip = preg_replace('#p:#', '', DATABASE_HOST);
+            if (false === filter_var($ip, FILTER_VALIDATE_IP)) {
+                $ip = gethostbyname($ip);
+            }
+            if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+                return;
+            }
+            $cmd = sprintf(
+                "mysqldump --opt -u%s -h'$ip' %s > $filepath",
+                escapeshellarg(DATABASE_USERNAME),
+                escapeshellarg(DATABASE_NAME)
+            );
+            if (DATABASE_PASSWORD) {
                 $cmd = sprintf(
-                    "mysqldump --opt -u%s -h'$ip' %s > $filepath",
+                    "mysqldump --opt -u%s -p%s -h'$ip' %s > %s",
                     escapeshellarg(DATABASE_USERNAME),
-                    escapeshellarg(DATABASE_NAME)
+                    escapeshellarg(DATABASE_PASSWORD),
+                    escapeshellarg(DATABASE_NAME),
+                    escapeshellarg($filepath)
                 );
-                if (DATABASE_PASSWORD) {
-                    $cmd = sprintf(
-                        "mysqldump --opt -u%s -p%s -h'$ip' %s > %s",
-                        escapeshellarg(DATABASE_USERNAME),
-                        escapeshellarg(DATABASE_PASSWORD),
-                        escapeshellarg(DATABASE_NAME),
-                        escapeshellarg($filepath)
-                    );
-                }
-                exec($cmd);
-                if (($fh = fopen($filepath, 'rb')) === false) {
-                    return;
-                }
-                header("X-Sendfile: $filepath");
-                header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=$filename");
-                while (feof($fh) === false) {
-                    $line = fread($fh, 4096);
-                    echo $line;
-                }
-                fclose($fh);
-                $cmd = sprintf('rm -rf %s', escapeshellarg($filepath));
-                exec($cmd);
+            }
+            exec($cmd);
+            if (($fh = fopen($filepath, 'rb')) === false) {
+                return;
+            }
+            header("X-Sendfile: $filepath");
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=$filename");
+            while (feof($fh) === false) {
+                $line = fread($fh, 4096);
+                echo $line;
+            }
+            fclose($fh);
+            $cmd = sprintf('rm -rf %s', escapeshellarg($filepath));
+            exec($cmd);
         }
     }
 }

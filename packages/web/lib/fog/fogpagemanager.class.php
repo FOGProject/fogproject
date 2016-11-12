@@ -230,7 +230,7 @@ class FOGPageManager extends FOGBase
             );
         }
         /**
-         * As a new method is being called, ensure the 
+         * As a new method is being called, ensure the
          * alternate methods are clean of their constructed
          * data of header, attributes, data, and templates.
          */

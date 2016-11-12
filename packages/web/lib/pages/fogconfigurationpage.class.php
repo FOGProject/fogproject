@@ -2225,7 +2225,7 @@ class FOGConfigurationPage extends FOGPage
             if ($_FILES['dbFile']['error'] > 0) {
                 throw new UploadException($_FILES['dbFile']['error']);
             }
-            $original = $Schema->export_db('', false);
+            $original = $Schema->exportdb('', false);
             $tmp_name = $_FILES['dbFile']['tmp_name'];
             $filename = sprintf(
                 '%s%s%s',
@@ -2233,13 +2233,13 @@ class FOGConfigurationPage extends FOGPage
                 DIRECTORY_SEPARATOR,
                 basename($tmp_name)
             );
-            $result = self::getClass('Schema')->import_db($filename);
+            $result = self::getClass('Schema')->importdb($filename);
             if ($result === true) {
                 printf('<h2>%s</h2>', _('Database Imported and added successfully'));
             } else {
                 printf('<h2>%s</h2>', _('Errors detected on import'));
                 $origres = $result;
-                $result = $Schema->import_db($original);
+                $result = $Schema->importdb($original);
                 unlink($original);
                 unset($original);
                 if ($result === true) {

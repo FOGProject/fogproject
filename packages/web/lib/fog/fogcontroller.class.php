@@ -8,10 +8,9 @@
  * Generates the SQL Statements more specifically.
  *
  * @category FOGController
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 /**
@@ -21,10 +20,9 @@
  * Generates the SQL Statements more specifically.
  *
  * @category FOGController
- *
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- *
  * @link     https://fogproject.org
  */
 abstract class FOGController extends FOGBase
@@ -104,7 +102,7 @@ abstract class FOGController extends FOGBase
      *
      * @var string
      */
-    protected $insertQueryTemplate = 'INSERT INTO `%s` (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s';
+    protected $insertQueryTemplate = 'INSERT INTO `%s` (%s) VALUES (%s) %s %s';
     /**
      * The delete query template to use.
      *
@@ -467,25 +465,25 @@ abstract class FOGController extends FOGBase
                 $paramInsert = sprintf(':%s_insert', $column);
                 $val = $this->get($key);
                 switch ($key) {
-                    case 'createdBy':
-                        if (!$val) {
-                            if (isset($_SESSION['FOG_USERNAME'])) {
-                                $val = trim($_SESSION['FOG_USERNAME']);
-                            } else {
-                                $val = 'fog';
-                            }
+                case 'createdBy':
+                    if (!$val) {
+                        if (isset($_SESSION['FOG_USERNAME'])) {
+                            $val = trim($_SESSION['FOG_USERNAME']);
+                        } else {
+                            $val = 'fog';
                         }
-                        break;
-                    case 'createdTime':
-                        if (!($val && $this->validDate($val))) {
-                            $val = $this->formatTime('now', 'Y-m-d H:i:s');
-                        }
-                        break;
-                    case 'id':
-                        if (!(is_numeric($val) && $val > 0)) {
-                            continue 2;
-                        }
-                        break;
+                    }
+                    break;
+                case 'createdTime':
+                    if (!($val && $this->validDate($val))) {
+                        $val = $this->formatTime('now', 'Y-m-d H:i:s');
+                    }
+                    break;
+                case 'id':
+                    if (!(is_numeric($val) && $val > 0)) {
+                        continue 2;
+                    }
+                    break;
                 }
                 if (is_null($val)) {
                     $val = '';
@@ -510,6 +508,7 @@ abstract class FOGController extends FOGBase
                 $this->databaseTable,
                 implode(',', (array) $insertKeys),
                 implode(',', (array) $insertValKeys),
+                'ON DUPLICATE KEY UPDATE',
                 implode(',', (array) $updateData)
             );
             $queryArray = array_combine(

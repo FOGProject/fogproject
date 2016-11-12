@@ -30,11 +30,11 @@ class FOGURLRequests extends FOGBase
     /**
      * The available connection timeout.
      *
-     * Default to 500 milliseconds.
+     * Default to 2000 milliseconds.
      *
      * @var int
      */
-    private $_aconntimeout = 500;
+    private $_aconntimeout = 2000;
     /**
      * The base conneciton timeout.
      *
@@ -127,6 +127,7 @@ class FOGURLRequests extends FOGBase
         if ($aconntimeout
             && is_numeric($aconntimeout)
             && $aconntimeout > 0
+            && $aconntimeout > $this->_aconntimeout
         ) {
             $this->_aconntimeout = (int)$aconntimeout;
         }
