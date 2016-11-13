@@ -39,6 +39,7 @@ class FOGConfigurationPage extends FOGPage
         $this->name = 'FOG Configuration';
         parent::__construct($this->name);
         $this->menu = array(
+            'home' => self::$foglang['Home'],
             'license' => self::$foglang['License'],
             'kernelUpdate' => self::$foglang['KernelUpdate'],
             'pxemenu' => self::$foglang['PXEBootMenu'],

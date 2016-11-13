@@ -127,27 +127,4 @@ class FileIntegrityManagementPage extends FOGPage
             );
         $this->render();
     }
-    /**
-     * The search element.
-     *
-     * @return void
-     */
-    public function searchPost()
-    {
-        $this->data = array();
-        $FileIntegrities = (array)self::getClass('FileIntegrityManager')
-            ->search('', true);
-        array_walk($FileIntegrities, self::$returnData);
-        self::$HookManager
-            ->processEvent(
-                'FILE_INTEGRITY_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->render();
-    }
 }

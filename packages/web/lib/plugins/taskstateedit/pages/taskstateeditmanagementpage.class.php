@@ -57,13 +57,6 @@ class TaskstateeditManagementPage extends FOGPage
         self::$HookManager->processEvent('TASKSTATE_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function searchPost()
-    {
-        $this->data = array();
-        array_map(self::$returnData, self::getClass($this->childClass)->getManager()->search('', true));
-        self::$HookManager->processEvent('TASKSTATE_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
-        $this->render();
-    }
     public function add()
     {
         $this->title = _('New Task State');

@@ -63,13 +63,6 @@ class TasktypeeditManagementPage extends FOGPage
         self::$HookManager->processEvent('TASKTYPE_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function searchPost()
-    {
-        $this->data = array();
-        array_map(self::$returnData, (array)self::getClass($this->childClass)->getManager()->search('', true));
-        self::$HookManager->processEvent('TASKTYPE_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
-        $this->render();
-    }
     public function add()
     {
         $this->title = _('New Task Type');

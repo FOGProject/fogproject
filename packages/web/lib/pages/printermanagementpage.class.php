@@ -1,14 +1,55 @@
 <?php
+/**
+ * Printer management page.
+ *
+ * PHP version 5
+ *
+ * @category PrinterManagementPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Printer management page.
+ *
+ * @category PrinterManagementPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class PrinterManagementPage extends FOGPage
 {
+    /**
+     * The node this page operates from.
+     *
+     * @var string
+     */
     public $node = 'printer';
-    private $config;
+    /**
+     * The printer config type.
+     *
+     * @var string
+     */
+    private $_config;
+    /**
+     * Initializes the class.
+     *
+     * @param string $name The name to initialize with.
+     *
+     * @return void
+     */
     public function __construct($name = '')
     {
+        global $id;
         $this->name = 'Printer Management';
         parent::__construct($this->name);
-        if ($_REQUEST['id']) {
-            $this->config = stripos($this->obj->get('config'), 'local') !== false ? _('TCP/IP') : $this->obj->get('config');
+        if ($id) {
+            $this->_config = _('TCP/IP');
+            if (false === stripos($this->obj->get('config'), 'local')) {
+                $this->_config = $this->obj->get('config');
+            }
             $this->subMenu = array(
                 "$this->linkformat#$this->node-gen" => self::$foglang['General'],
                 $this->membership => self::$foglang['Membership'],
@@ -16,25 +57,39 @@ class PrinterManagementPage extends FOGPage
             );
             $this->notes = array(
                 self::$foglang['Printer'] => $this->obj->get('name'),
-                self::$foglang['Type'] => $this->config,
+                self::$foglang['Type'] => $this->_config,
             );
         }
-        self::$HookManager->processEvent('SUB_MENULINK_DATA', array('menu'=>&$this->menu, 'submenu'=>&$this->subMenu, 'id'=>&$this->id, 'notes'=>&$this->notes));
-        self::$HookManager->processEvent('SUB_MENULINK_DATA', array('menu'=>&$this->menu, 'submenu'=>&$this->subMenu, 'id'=>&$this->id, 'notes'=>&$this->notes, 'object'=>&$this->obj, 'linkformat'=>&$this->linkformat, 'delformat'=>&$this->delformat, 'membership'=>&$this->membership));
+        self::$HookManager
+            ->processEvent(
+                'SUB_MENULINK_DATA',
+                array(
+                    'menu' => &$this->menu,
+                    'submenu' => &$this->subMenu,
+                    'id' => &$this->id,
+                    'notes' => &$this->notes,
+                    'object' => &$this->obj,
+                    'linkformat' => &$this->linkformat,
+                    'delformat' => &$this->delformat,
+                    'membership' => &$this->membership
+                )
+            );
         $this->headerData = array(
             '',
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
-            'Printer Name',
-            'Printer Type',
-            'Model',
-            'Port',
-            'File',
-            'IP',
-            'Config File',
+            '<input type="checkbox" name="toggle-checkbox" class='
+            . '"toggle-checkboxAction" />',
+            _('Printer Name'),
+            _('Printer Type'),
+            _('Model'),
+            _('Port'),
+            _('File'),
+            _('IP'),
+            _('Config File'),
         );
         $this->templates = array(
             '<span class="icon fa fa-question hand" title="${desc}"></span>',
-            '<input type="checkbox" name="printer[]" value="${id}" class="toggle-action" />',
+            '<input type="checkbox" name="printer[]" value='
+            . '"${id}" class="toggle-action"/>',
             '<a href="?node=printer&sub=edit&id=${id}" title="Edit">${name}</a>',
             '${config}',
             '${model}',
@@ -44,8 +99,13 @@ class PrinterManagementPage extends FOGPage
             '${configFile}',
         );
         $this->attributes = array(
-            array('class'=>'l filter-false','width'=>16),
-            array('class'=>'filter-false'),
+            array(
+                'class' => 'l filter-false',
+                'width' => 16
+            ),
+            array(
+                'class' => 'filter-false'
+            ),
             array(),
             array(),
             array(),
@@ -58,48 +118,72 @@ class PrinterManagementPage extends FOGPage
             if (!$Printer->isValid()) {
                 return;
             }
-            $config = stripos($Printer->get('config'), 'local') !== false ? _('TCP/IP') : $Printer->get('config');
+            $config = _('TCP/IP');
+            if (false === stripos($Printer->get('config'), 'local')) {
+                $config = $Printer->get('config');
+            }
             $this->data[] = array(
-                'id'=>$Printer->get('id'),
-                'name'=>$Printer->get('name'),
-                'config'=>$config,
-                'model'=>$Printer->get('model'),
-                'port'=>$Printer->get('port'),
-                'file'=>$Printer->get('file'),
-                'ip'=>$Printer->get('ip'),
-                'configFile'=>$Printer->get('configFile'),
-                'desc'=>$Printer->get('description'),
+                'id' => $Printer->get('id'),
+                'name' => $Printer->get('name'),
+                'config' => $config,
+                'model' => $Printer->get('model'),
+                'port' => $Printer->get('port'),
+                'file' => $Printer->get('file'),
+                'ip' => $Printer->get('ip'),
+                'configFile' => $Printer->get('configFile'),
+                'desc' => $Printer->get('description'),
             );
             unset($Printer);
         };
     }
+    /**
+     * Gets the printer information.
+     *
+     * @return void
+     */
     public function getPrinterInfo()
     {
-        die(json_encode(array(
-            'file'=>$this->obj->get('file'),
-            'port'=>$this->obj->get('port'),
-            'model'=>$this->obj->get('model'),
-            'ip'=>$this->obj->get('ip'),
-            'config'=>strtolower($this->obj->get('config')),
-            'configFile'=>$this->obj->get('configFile'),
-        )));
+        echo json_encode(
+            array(
+                'file' => $this->obj->get('file'),
+                'port' => $this->obj->get('port'),
+                'model' => $this->obj->get('model'),
+                'ip' => $this->obj->get('ip'),
+                'config' => strtolower($this->obj->get('config')),
+                'configFile' => $this->obj->get('configFile'),
+            )
+        );
+        exit;
     }
+    /**
+     * The 'home' page of printer management page.
+     *
+     * @return void
+     */
     public function index()
     {
         $this->title = _('All printers');
-        if ($_SESSION['DataReturn'] > 0 && $_SESSION['PrinterCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') {
-            $this->redirect(sprintf('?node=%s&sub=search', $this->node));
+        global $sub;
+        if ($sub != 'list') {
+            if ($_SESSION['DataReturn'] > 0) {
+                if ($_SESSION['PrinterCount'] > $_SESSION['DataReturn']) {
+                    $this->redirect('?node=printer&sub=search');
+                }
+            }
         }
         $this->data = array();
-        array_map(self::$returnData, (array)self::getClass($this->childClass)->getManager()->find());
-        self::$HookManager->processEvent('PRINTER_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
-        $this->render();
-    }
-    public function searchPost()
-    {
-        $this->data = array();
-        array_map(self::$returnData, (array)self::getClass($this->childClass)->getManager()->search('', true));
-        self::$HookManager->processEvent('PRINTER_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
+        $Printers = self::getClass('PrinterManager')->find();
+        array_walk($Printers, self::$returnData);
+        self::$HookManager
+            ->processEvent(
+                'PRINTER_DATA',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
         $this->render();
     }
     public function add()

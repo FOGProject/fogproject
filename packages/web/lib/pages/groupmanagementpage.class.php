@@ -174,28 +174,6 @@ class GroupManagementPage extends FOGPage
         $this->render();
     }
     /**
-     * Search filtered results
-     *
-     * @return void
-     */
-    public function searchPost()
-    {
-        $this->data = array();
-        $Groups = self::getClass('GroupManager')
-            ->search('', true);
-        array_walk($Groups, self::$returnData);
-        self::$HookManager->processEvent(
-            'GROUP_DATA',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        $this->render();
-    }
-    /**
      * Create new group
      *
      * @return void

@@ -506,48 +506,6 @@ class ImageManagementPage extends FOGPage
         );
     }
     /**
-     * How to return searched items.
-     *
-     * @return void
-     */
-    public function searchPost()
-    {
-        /**
-         * Get the images based on the search item.
-         */
-        $Images = self::getClass('ImageManager')->search('', true);
-        /**
-         * Iterate our objects.
-         */
-        array_walk($Images, self::$returnData);
-        /**
-         * Create our hook to hook/change items on data.
-         */
-        self::$HookManager
-            ->processEvent(
-                'IMAGE_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        /**
-         * Send to the display.
-         */
-        $this->render();
-        /**
-         * Cleanup all the rest.
-         */
-        unset(
-            $this->headerData,
-            $this->data,
-            $this->templates,
-            $this->attributes
-        );
-    }
-    /**
      * The form to display when adding a new image
      * definition.
      *

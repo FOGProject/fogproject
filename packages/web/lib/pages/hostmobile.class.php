@@ -1,7 +1,39 @@
 <?php
+/**
+ * Host page for mobile presentation.
+ *
+ * PHP version 5
+ *
+ * @category HostMobile
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Host page for mobile presentation.
+ *
+ * @category HostMobile
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class HostMobile extends FOGPage
 {
+    /**
+     * The node this enacts upon.
+     *
+     * @var string
+     */
     public $node = 'host';
+    /**
+     * Initializes the host mobile page.
+     *
+     * @param string $name The name to load with.
+     *
+     * @return void
+     */
     public function __construct($name = '')
     {
         $this->name = 'Host Management';
@@ -15,8 +47,9 @@ class HostMobile extends FOGPage
             self::$foglang['MAC'],
             self::$foglang['Image'],
         );
-        if ($_REQUEST['id']) {
-            $this->obj = self::getClass('Host', $_REQUEST['id']);
+        global $id;
+        if ($id) {
+            $this->obj = new Host($id);
         }
         $this->attributes = array(
             array(),
@@ -29,7 +62,11 @@ class HostMobile extends FOGPage
             '${id}',
             '${host_name}',
             '${host_mac}',
-            sprintf('<a href="index.php?node=${node}&sub=deploy&id=${id}"><i class="fa fa-%s fa-2x"></i></a>', $icon),
+            sprintf(
+                '<a href="index.php?node=${node}&sub=deploy&id=${id}">'
+                . '<i class="fa fa-%s fa-2x"></i></a>',
+                $icon
+            )
         );
         self::$returnData = function (&$Host) {
             if (!$Host->isValid()) {
@@ -44,10 +81,20 @@ class HostMobile extends FOGPage
             unset($Host);
         };
     }
+    /**
+     * The page first presented.
+     *
+     * @return void
+     */
     public function index()
     {
         $this->search();
     }
+    /**
+     * The deploy form.
+     *
+     * @return void
+     */
     public function deploy()
     {
         try {
@@ -59,7 +106,23 @@ class HostMobile extends FOGPage
             if (!$this->obj->getImageMemberFromHostID($_REQUEST['id'])) {
                 throw new Exception(self::$foglang['ErrorImageAssoc']);
             }
-            if (!$this->obj->createImagePackage('1', "Mobile: {$this->obj->get(name)}", false, false, true, false, $_SESSION['FOG_USERNAME'], false, false, true)) {
+            $success = $this->obj->createImagePackage(
+                '1',
+                sprintf(
+                    '%s: %s',
+                    _('Mobile'),
+                    $this->obj->get('name')
+                ),
+                false,
+                false,
+                true,
+                false,
+                self::$FOGUser->get('name'),
+                false,
+                false,
+                true
+            );
+            if (!$success) {
                 throw new Exception(self::$foglang['FailedTask']);
             }
             $this->data[] = array(self::$foglang['TaskStarted'],);
@@ -68,13 +131,5 @@ class HostMobile extends FOGPage
         }
         $this->render();
         $this->redirect('?node=task');
-    }
-    public function searchPost()
-    {
-        $this->data = array();
-        array_map(self::$returnData, self::getClass('HostManager')->search('', true));
-        self::$HookManager->processEvent('HOST_DATA', array('data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
-        self::$HookManager->processEvent('HOST_HEADER_DATA', array('headerData'=>&$this->headerData));
-        $this->render();
     }
 }

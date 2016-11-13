@@ -138,28 +138,6 @@ class LDAPManagementPage extends FOGPage
         $this->render();
     }
     /**
-     * Search filtered results
-     *
-     * @return void
-     */
-    public function searchPost()
-    {
-        $this->data = array();
-        $LDAPs = self::getClass('LDAPManager')
-            ->search('', true);
-        array_walk($LDAPs, self::$returnData);
-        self::$HookManager->processEvent(
-            'LDAP_DATA',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        $this->render();
-    }
-    /**
      * Create new ldap
      *
      * @return void

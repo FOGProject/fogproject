@@ -2901,6 +2901,45 @@ abstract class FOGPage extends FOGBase
         $this->render();
     }
     /**
+     * Search form submission
+     *
+     * @return void
+     */
+    public function searchPost()
+    {
+        $this->data = array();
+        $manager = sprintf(
+            '%sManager',
+            $this->childClass
+        );
+        $items = self::getClass($manager)->search('', true);
+        array_walk($items, static::$returnData);
+        $event = sprintf(
+            '%s_DATA',
+            strtoupper($this->node)
+        );
+        self::$HookManager->processEvent(
+            $event,
+            array(
+                'data' => &$this->data,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes,
+                'headerData' => &$this->headerData
+            )
+        );
+        $event = sprintf(
+            '%s_HEADER_DATA',
+            strtoupper($this->node)
+        );
+        self::$HookManager->processEvent(
+            $event,
+            array(
+                'headerData' => &$this->headerData
+            )
+        );
+        $this->render();
+    }
+    /**
      * Presents the membership information
      *
      * @return void

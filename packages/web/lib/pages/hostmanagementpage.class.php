@@ -316,32 +316,6 @@ class HostManagementPage extends FOGPage
         $this->render();
     }
     /**
-     * Search form submission
-     *
-     * @return void
-     */
-    public function searchPost()
-    {
-        $this->data = array();
-        $Hosts = self::getClass('HostManager')->search('', true);
-        array_walk($Hosts, self::$returnData);
-        self::$HookManager->processEvent(
-            'HOST_DATA',
-            array(
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        self::$HookManager->processEvent(
-            'HOST_HEADER_DATA',
-            array(
-                'headerData' => &$this->headerData
-            )
-        );
-        $this->render();
-    }
-    /**
      * Lists the pending hosts
      *
      * @return false

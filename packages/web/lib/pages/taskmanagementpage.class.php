@@ -90,10 +90,7 @@ class TaskManagementPage extends FOGPage
         array_shift($this->headerData);
         array_shift($this->templates);
         array_shift($this->attributes);
-        array_map(self::$returnData, self::getClass($this->childClass)->getManager()->search('', true));
-        self::$HookManager->processEvent('HOST_DATA', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
-        $this->render();
-        unset($this->data);
+        parent::searchPost();
     }
     public function active()
     {

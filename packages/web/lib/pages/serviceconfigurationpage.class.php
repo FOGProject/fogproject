@@ -119,7 +119,7 @@ class ServiceConfigurationPage extends FOGPage
                 break;
             case 'clientupdater':
                 unset($this->data, $this->headerData, $this->attributes, $this->templates);
-                self::getClass('FOGConfigurationPage')->client_updater();
+                self::getClass('FOGConfigurationPage')->clientupdater();
                 break;
             case 'dircleanup':
                 printf('%s: %s', _('NOTICE'), _('This module is only used on the old client.  The old client is what was distributed with FOG 1.2.0 and earlier.  This module did not work past Windows XP due to UAC introduced in Vista and up.'));

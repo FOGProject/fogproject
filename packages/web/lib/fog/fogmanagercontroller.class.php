@@ -1179,13 +1179,6 @@ abstract class FOGManagerController extends FOGBase
                 '',
                 'OR'
             );
-            $TaskStateIDs = self::getSubObjectIDs(
-                'TaskType',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
             $ImageIDs = self::getSubObjectIDs(
                 'Image',
                 $find,

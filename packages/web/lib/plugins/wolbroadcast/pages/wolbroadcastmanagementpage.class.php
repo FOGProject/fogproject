@@ -54,13 +54,6 @@ class WOLBroadcastManagementPage extends FOGPage
         self::$HookManager->processEvent('BROADCAST_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
     }
-    public function searchPost()
-    {
-        $this->data = array();
-        array_map(self::$returnData, (array)self::getClass($this->childClass)->getManager()->find());
-        self::$HookManager->processEvent('BROADCAST_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-        $this->render();
-    }
     public function add()
     {
         $this->title = _('New Broadcast Address');
