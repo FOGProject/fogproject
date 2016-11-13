@@ -48,14 +48,6 @@ class SlackManagementPage extends FOGPage
             unset($Slack);
         };
     }
-    public function index()
-    {
-        $this->title = _('Accounts');
-        $this->data = array();
-        array_map(self::$returnData, (array)self::getClass($this->childClass)->getManager()->find());
-        self::$HookManager->processEvent('SLACK_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-        $this->render();
-    }
     public function search()
     {
         $this->index();

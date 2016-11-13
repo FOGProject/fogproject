@@ -276,46 +276,6 @@ class HostManagementPage extends FOGPage
         };
     }
     /**
-     * The home page when you go to hosts page.
-     *
-     * @return void
-     */
-    public function index()
-    {
-        $this->title = self::$foglang['AllHosts'];
-        global $sub;
-        if ($sub != 'list') {
-            if ($_SESSION['DataReturn'] > 0) {
-                if ($_SESSION['HostCount'] > $_SESSION['DataReturn']) {
-                    $this->redirect('?node=host&sub=search');
-                }
-            }
-        }
-        $this->data = array();
-        $Hosts = self::getClass('HostManager')->find(
-            array(
-                'pending' => array(0, '', null)
-            )
-        );
-        array_walk($Hosts, self::$returnData);
-        self::$HookManager->processEvent(
-            'HOST_DATA',
-            array(
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        self::$HookManager->processEvent(
-            'HOST_HEADER_DATA',
-            array(
-                'headerData' => &$this->headerData,
-                'title' => &$this->title
-            )
-        );
-        $this->render();
-    }
-    /**
      * Lists the pending hosts
      *
      * @return false

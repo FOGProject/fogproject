@@ -155,37 +155,6 @@ class PrinterManagementPage extends FOGPage
         );
         exit;
     }
-    /**
-     * The 'home' page of printer management page.
-     *
-     * @return void
-     */
-    public function index()
-    {
-        $this->title = _('All printers');
-        global $sub;
-        if ($sub != 'list') {
-            if ($_SESSION['DataReturn'] > 0) {
-                if ($_SESSION['PrinterCount'] > $_SESSION['DataReturn']) {
-                    $this->redirect('?node=printer&sub=search');
-                }
-            }
-        }
-        $this->data = array();
-        $Printers = self::getClass('PrinterManager')->find();
-        array_walk($Printers, self::$returnData);
-        self::$HookManager
-            ->processEvent(
-                'PRINTER_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->render();
-    }
     public function add()
     {
         $this->title = 'New Printer';

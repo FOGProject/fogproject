@@ -146,34 +146,6 @@ class GroupManagementPage extends FOGPage
         };
     }
     /**
-     * Home page for the group page
-     *
-     * @return void
-     */
-    public function index()
-    {
-        $this->title = _('All Groups');
-        if ($_SESSION['DataReturn'] > 0
-            && $_SESSION['GroupCount'] > $_SESSION['DataReturn']
-            && $_REQUEST['sub'] != 'list'
-        ) {
-            $this->redirect(sprintf('?node=%s&sub=search', $this->node));
-        }
-        $this->data = array();
-        $Groups = self::getClass('GroupManager')->find();
-        array_walk($Groups, self::$returnData);
-        self::$HookManager->processEvent(
-            'GROUP_DATA',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        $this->render();
-    }
-    /**
      * Create new group
      *
      * @return void

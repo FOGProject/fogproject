@@ -92,39 +92,4 @@ class FileIntegrityManagementPage extends FOGPage
             unset($FileIntegrity);
         };
     }
-    /**
-     * The "home" page of this item.
-     *
-     * @return void
-     */
-    public function index()
-    {
-        $this->title = _('All Recorded Integrities');
-        $dataRet = self::getSetting('FOG_DATA_RETURNED');
-        if ($dataRet > 0
-            && self::getClass($this->childClass)->getManager()->count() > $dataRet
-            && $_REQUEST['sub'] != 'list'
-        ) {
-            $this->redirect(
-                sprintf(
-                    '?node=%s&sub=search',
-                    $this->node
-                )
-            );
-        }
-        $this->data = array();
-        $FileIntegrities = (array)self::getClass('FileIntegrityManager')->find();
-        array_walk($FileIntegrities, self::$returnData);
-        self::$HookManager
-            ->processEvent(
-                'FILE_INTEGRITY_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->render();
-    }
 }

@@ -46,7 +46,8 @@ class LDAPManagementPage extends FOGPage
         self::$foglang['ExportLDAP'] = _('Export LDAPs');
         self::$foglang['ImportLDAP'] = _('Import LDAPs');
         parent::__construct($name);
-        if ($_REQUEST['id']) {
+        global $id;
+        if ($id) {
             $this->subMenu = array(
                 "$this->linkformat" => self::$foglang['General'],
                 "$this->delformat" => self::$foglang['Delete'],
@@ -105,37 +106,6 @@ class LDAPManagementPage extends FOGPage
             );
             unset($LDAP);
         };
-    }
-    /**
-     * The starting page
-     *
-     * @return void
-     */
-    public function index()
-    {
-        global $sub;
-        $this->title = _('All LDAPs');
-        $count = self::getClass('LDAPManager')
-            ->count();
-        if ($_SESSION['DataReturn'] > 0
-            && $count > $_SESSION['DataReturn']
-            && $sub != 'list'
-        ) {
-            $this->redirect(sprintf('?node=%s&sub=search', $this->node));
-        }
-        $this->data = array();
-        $LDAPs = $this->getClass('LDAPManager')->find();
-        array_walk($LDAPs, self::$returnData);
-        self::$HookManager->processEvent(
-            'LDAP_DATA',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        $this->render();
     }
     /**
      * Create new ldap

@@ -263,7 +263,7 @@ abstract class FOGPage extends FOGBase
         $this->childClass = ucfirst($this->node);
         $ref = preg_match(
             '#node=storage&sub=storageGroup#i',
-            $_SERVER['HTTP_REFERER']
+            self::$querystring
         );
         if ($ref) {
             $this->childClass .= 'Group';
@@ -449,28 +449,98 @@ abstract class FOGPage extends FOGBase
      */
     public function index()
     {
-        $vals = function (&$value, $key) {
-            return sprintf(
-                '%s : %s',
-                $key,
-                $value
+        if (in_array($this->node, self::$searchPages)) {
+            $this->title = sprintf(
+                '%s %s',
+                _('All'),
+                _("{$this->childClass}s")
             );
-        };
-        printf(
-            'Index page of: %s%s',
-            get_class($this),
-            (
-                count($args) ?
-                sprintf(
-                    ', Arguments = %s',
-                    implode(
-                        ', ',
-                        array_walk($args, $vals)
-                    )
-                ) :
-                ''
-            )
-        );
+            global $sub;
+            $manager = sprintf(
+                '%sManager',
+                $this->childClass
+            );
+            if ($sub != 'list') {
+                if ($_SESSION['DataReturn'] > 0) {
+                    $objCount = $this->getClass($manager)->count();
+                    if ($objCount > $_SESSION['DataReturn']) {
+                        $this->redirect(
+                            sprintf(
+                                '?node=%s&sub=search',
+                                $this->node
+                            )
+                        );
+                    }
+                }
+            }
+            $this->data = array();
+            if ($this->childClass === 'Host') {
+                $Items = self::getClass($manager)
+                    ->find(
+                        array(
+                            'pending' => array(0, '')
+                        )
+                    );
+            } else {
+                $Items = self::getClass($manager)
+                    ->find();
+            }
+            array_walk($Items, static::$returnData);
+            unset($Items);
+            $event = sprintf(
+                '%s_DATA',
+                strtoupper($this->node)
+            );
+            self::$HookManager->processEvent(
+                $event,
+                array(
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes,
+                    'headerData' => &$this->headerData
+                )
+            );
+            $event = sprintf(
+                '%s_HEADER_DATA',
+                strtoupper($this->node)
+            );
+            self::$HookManager->processEvent(
+                $event,
+                array(
+                    'headerData' => &$this->headerData
+                )
+            );
+            $this->render();
+            unset(
+                $this->headerData,
+                $this->data,
+                $this->templates,
+                $this->attributes
+            );
+        } else {
+            $vals = function (&$value, $key) {
+                return sprintf(
+                    '%s : %s',
+                    $key,
+                    $value
+                );
+            };
+            printf(
+                'Index page of: %s%s',
+                get_class($this),
+                (
+                    count($args) ?
+                    sprintf(
+                        ', Arguments = %s',
+                        implode(
+                            ', ',
+                            array_walk($args, $vals)
+                        )
+                    ) :
+                    ''
+                )
+            );
+        }
     }
     /**
      * Set's value to key
@@ -2938,6 +3008,12 @@ abstract class FOGPage extends FOGBase
             )
         );
         $this->render();
+        unset(
+            $this->headerData,
+            $this->data,
+            $this->templates,
+            $this->attributes
+        );
     }
     /**
      * Presents the membership information

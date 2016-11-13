@@ -79,29 +79,6 @@ class PushbulletManagementPage extends FOGPage
         };
     }
     /**
-     * The 'home' page
-     *
-     * @return void
-     */
-    public function index()
-    {
-        $this->title = _('Accounts');
-        $this->data = array();
-        $Objects = self::getClass('PushbulletManager')
-            ->find();
-        array_walk($Objects, self::$returnData);
-        self::$HookManager->processEvent(
-            'PUSHBULLET_DATA',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        $this->render();
-    }
-    /**
      * Presents for creating a new link
      *
      * @return void

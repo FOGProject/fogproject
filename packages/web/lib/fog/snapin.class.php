@@ -146,7 +146,7 @@ class Snapin extends FOGController
         );
         $this
             ->assocSetter('Snapin', 'host')
-            ->assocSetter('SnapinGroup', 'storagegroup');
+            ->assocSetter('SnapinGroupAssociation', 'storagegroup');
         if (count($primary) > 0) {
             $primary = array_shift($primary);
             $this->setPrimaryGroup($primary);
