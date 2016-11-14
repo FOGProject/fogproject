@@ -33,20 +33,20 @@ class StorageManagementPage extends FOGPage
             'storageGroup' => self::$foglang['AllSG'],
             'addStorageGroup' => self::$foglang['AddSG'],
         );
+        global $node;
         global $sub;
         global $id;
-        switch (strtolower($sub)) {
+        switch ($sub) {
         case 'edit':
         case 'delete':
         case 'deleteStorageNode':
             if ($id) {
-                $this->obj = new StorageNode($id);
                 if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
                     unset($this->obj);
                     $this->setMessage(
                         sprintf(
                             _('%s ID %s is not valid'),
-                            $this->childClass,
+                            _('Storage Node'),
                             $id
                         )
                     );
@@ -67,7 +67,6 @@ class StorageManagementPage extends FOGPage
         case 'editStorageGroup':
         case 'deleteStorageGroup':
             if ($id) {
-                $this->obj = new StorageGroup($id);
                 if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
                     unset($this->obj);
                     $this->setMessage(sprintf(_('%s ID %s is not valid'), $this->childClass, $_REQUEST['id']));

@@ -123,7 +123,7 @@ class StorageGroup extends FOGController
             'isEnabled' => 1
         );
         $nodes = $this->getClass('StorageNodeManager')
-            ->find($nodes);
+            ->find($find);
         $nodeids = array();
         $testurls = array();
         foreach ($nodes as &$node) {

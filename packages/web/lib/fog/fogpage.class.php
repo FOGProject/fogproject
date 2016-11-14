@@ -251,6 +251,7 @@ abstract class FOGPage extends FOGBase
             $this->redirect(
                 "?node=$node"
             );
+            exit;
         }
         $subs = array(
             'configure',
@@ -262,11 +263,13 @@ abstract class FOGPage extends FOGBase
         }
         $this->childClass = ucfirst($this->node);
         $ref = preg_match(
-            '#node=storage&sub=storageGroup#i',
+            '#node=storage&sub=.*storageGroup#i',
             self::$querystring
         );
         if ($ref) {
             $this->childClass .= 'Group';
+        } elseif ($node == 'storage') {
+            $this->childClass = 'StorageNode';
         }
         if (!empty($name)) {
             $this->name = $name;
@@ -474,17 +477,12 @@ abstract class FOGPage extends FOGBase
                 }
             }
             $this->data = array();
-            if ($this->childClass === 'Host') {
-                $Items = self::getClass($manager)
-                    ->find(
-                        array(
-                            'pending' => array(0, '')
-                        )
-                    );
-            } else {
-                $Items = self::getClass($manager)
-                    ->find();
-            }
+            $Items = self::getClass($manager)
+                ->find(
+                    array(
+                        'pending' => array(0, '')
+                    )
+                );
             array_walk($Items, static::$returnData);
             unset($Items);
             $event = sprintf(
