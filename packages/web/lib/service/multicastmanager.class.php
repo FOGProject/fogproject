@@ -580,7 +580,7 @@ class MulticastManager extends FOGService
                     sprintf(
                         ' | %s %s %s.',
                         _('Wait time has changed to'),
-                        static::$zzz
+                        static::$zzz,
                         (
                             static::$zzz != 1 ?
                             _('seconds') :
