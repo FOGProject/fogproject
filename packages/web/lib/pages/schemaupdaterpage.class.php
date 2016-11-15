@@ -211,7 +211,7 @@ class SchemaUpdaterPage extends FOGPage
                 throw new Exception($fatalerrmsg);
             }
             self::$DB->currentDb(self::$DB->returnThis());
-            printf(
+            $text = sprintf(
                 '<p>%s</p><p>%s <a href="index.php">%s</a> %s</p>',
                 _('Install / Update Successful!'),
                 _('Click'),
@@ -219,15 +219,20 @@ class SchemaUpdaterPage extends FOGPage
                 _('to login')
             );
             if (count($errors)) {
-                printf(
+                $text = sprintf(
                     '<h2>%s</h2>%s',
                     _('The following errors occured'),
                     implode('<hr/>', $errors)
                 );
             }
+            if (self::$ajax) {
+                echo json_encode($text);
+                exit;
+            }
+            echo $text;
         } catch (Exception $e) {
             printf('<p>%s</p>', $e->getMessage());
-            die(1);
+            exit(1);
         }
     }
 }
