@@ -86,9 +86,13 @@ abstract class FOGService extends FOGBase
     public function __construct()
     {
         parent::__construct();
+        $logpath = trim(trim(self::getSetting('SERVICE_LOG_PATH'), '/'));
+        if (!$logpath) {
+            $logpath = 'opt/fog/log';
+        }
         self::$logpath = sprintf(
             '/%s/',
-            trim(self::getSetting('SERVICE_LOG_PATH'), '/')
+            $logpath
         );
     }
     /**
@@ -145,16 +149,14 @@ abstract class FOGService extends FOGBase
         self::getIPAddress();
         if (!count(self::$ips)) {
             self::outall(
-                _('Interface not ready, waiting.'),
-                static::$dev
+                _('Interface not ready, waiting.')
             );
             sleep(10);
             $this->waitInterfaceReady();
         }
         foreach (self::$ips as &$ip) {
             self::outall(
-                _("Interface Ready with IP Address: $ip"),
-                static::$dev
+                _("Interface Ready with IP Address: $ip")
             );
             unset($ip);
         }
@@ -166,16 +168,12 @@ abstract class FOGService extends FOGBase
      */
     public function waitDbReady()
     {
-        if (!self::$DB->link()->connect_errno) {
-            return;
-        }
         self::outall(
             sprintf(
                 'FOGService: %s - %s',
                 get_class($this),
                 _('Waiting for mysql to be available')
-            ),
-            static::$dev
+            )
         );
         sleep(10);
         $this->waitDbReady();
