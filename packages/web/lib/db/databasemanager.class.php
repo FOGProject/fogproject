@@ -59,7 +59,9 @@ class DatabaseManager extends FOGCore
             && false === strpos(self::$scriptname, 'dbrunning'))
         ) {
             echo json_encode(_('A valid database connection could not be made'));
-            exit;
+            if (self::$json || self::$ajax) {
+                exit;
+            }
         }
         /**
          * Get the version

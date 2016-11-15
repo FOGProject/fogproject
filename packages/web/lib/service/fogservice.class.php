@@ -263,6 +263,9 @@ abstract class FOGService extends FOGBase
         if (file_exists($path)) {
             $filesize = (double)self::getFilesize($path);
             $max_size = (double)self::getSetting('SERVICE_LOG_SIZE');
+            if (!$max_size) {
+                $max_size = 500000;
+            }
             if ($filesize >= $max_size) {
                 unlink($path);
             }

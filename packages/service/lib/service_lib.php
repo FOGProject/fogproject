@@ -25,6 +25,9 @@ $service_logpath = sprintf(
     trim(FOGCore::getSetting('SERVICE_LOG_PATH'), '/'),
     FOGCore::getSetting('SERVICEMASTERLOGFILENAME')
 );
+if (!is_file($service_logpath)) {
+    $service_logpath = '/opt/fog/log/servicemaster.log';
+}
 $service_sleep_time = (int)FOGCore::getSetting('SERVICESLEEPTIME');
 if (!$service_sleep_time) {
     $service_sleep_time = 10;
