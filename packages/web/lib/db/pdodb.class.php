@@ -158,6 +158,7 @@ class PDODB extends DatabaseManager
             }
             self::query("SET SESSION sql_mode=''");
         } catch (PDOException $e) {
+            self::$_link = false;
             if ($dbexists) {
                 $this->_connect(false);
             } else {
