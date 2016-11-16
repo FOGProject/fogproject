@@ -49,6 +49,11 @@ class DatabaseManager extends FOGCore
             '#/service|status/#',
             self::$scriptname
         );
+        if (self::$reqmethod === 'post'
+            && !$this->getLink()
+        ) {
+            http_response_code(406);
+        }
         /**
          * If it is, and we don't have a link and the
          * script is not using dbrunning, inform the
@@ -59,7 +64,9 @@ class DatabaseManager extends FOGCore
             && false === strpos(self::$scriptname, 'dbrunning'))
         ) {
             echo json_encode(_('A valid database connection could not be made'));
-            if (self::$json || self::$ajax) {
+            if (self::$json
+                || self::$ajax
+            ) {
                 exit(10);
             }
         }
