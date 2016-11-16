@@ -49,7 +49,7 @@ class DatabaseManager extends FOGCore
             '#/service|status/#',
             self::$scriptname
         );
-        if (self::$reqmethod === 'post'
+        if (strtolower(self::$reqmethod) === 'post'
             && !$this->getLink()
         ) {
             http_response_code(406);
