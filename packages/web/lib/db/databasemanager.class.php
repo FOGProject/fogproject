@@ -55,7 +55,7 @@ class DatabaseManager extends FOGCore
          * calling script that the db is unavailable.
          */
         if (($testscript
-            && $this->getLink()
+            && !$this->getLink()
             && false === strpos(self::$scriptname, 'dbrunning'))
         ) {
             echo json_encode(_('A valid database connection could not be made'));

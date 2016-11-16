@@ -140,7 +140,7 @@ class SchemaUpdaterPage extends FOGPage
         );
         $errors = array();
         try {
-            if (!self::$DB->link()) {
+            if (!self::$DB->getLink()) {
                 throw new Exception(_('No connection available'));
             }
             if (count($this->schema) <= self::$mySchema) {
