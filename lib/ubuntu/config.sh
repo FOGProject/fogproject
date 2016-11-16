@@ -16,17 +16,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+[[ -z $repo ]] && repo="php"
+[[ -z $php_ver ]] && php_ver=5
+[[ -z $php_verAdds ]] && php_verAdds="-5.6"
 if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
+    [[ $php_ver != 5 ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5.6-fpm"
     if [[ $OSVersion -ge 16  && -z $php_ver ]]; then
         php_ver='7.0'
         php_verAdds='-7.0'
     fi
+else
+    [[ $php_ver != 5 ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
 fi
-[[ -z $repo ]] && repo="php"
-[[ -z $php_ver ]] && php_ver=5
-[[ -z $php_verAdds ]] && php_verAdds="-5.6"
 [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
-[[ $php_ver != 5 ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5.6-fpm"
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 case $linuxReleaseName in
     *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
