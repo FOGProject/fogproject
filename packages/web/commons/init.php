@@ -429,6 +429,10 @@ Initiator::startInit();
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
 $DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
+if (!$DB->getLink()) {
+    echo 'Cannot connect to database';
+    exit(10);
+}
 FOGCore::setSessionEnv();
 $TimeZone = $_SESSION['TimeZone'];
 if (isset($_SESSION['FOG_USER'])) {
