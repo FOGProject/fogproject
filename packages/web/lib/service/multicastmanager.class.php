@@ -158,6 +158,7 @@ class MulticastManager extends FOGService
     private function _serviceLoop()
     {
         while (true) {
+            $this->waitDbReady();
             $queuedStates = array_merge(
                 $this->getQueuedStates(),
                 (array)$this->getProgressState()

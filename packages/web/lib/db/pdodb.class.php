@@ -117,14 +117,15 @@ class PDODB extends DatabaseManager
      * Connects the database as needed.
      *
      * @param bool $dbexists does db exist
+     * @param bool $always   always test connection.
      *
      * @throws PDOException
      * @return object
      */
-    private function _connect($dbexists = true)
+    private function _connect($dbexists = true, $always = false)
     {
         try {
-            if (self::$_link) {
+            if (self::$_link && !$always) {
                 return $this;
             }
             $type = DATABASE_TYPE;
@@ -389,6 +390,7 @@ class PDODB extends DatabaseManager
             }
         } else {
             $msg = _('Cannot connect to database');
+            self::$_link = false;
         }
         return $msg;
     }
@@ -489,6 +491,7 @@ class PDODB extends DatabaseManager
      */
     public function link()
     {
+        $this->_connect(true, true);
         return self::$_link;
     }
     /**

@@ -168,6 +168,9 @@ abstract class FOGService extends FOGBase
      */
     public function waitDbReady()
     {
+        if (self::$DB->getLink()) {
+            return;
+        }
         self::outall(
             sprintf(
                 'FOGService: %s - %s',
@@ -319,6 +322,7 @@ abstract class FOGService extends FOGBase
      */
     public function serviceRun()
     {
+        $this->waitDbReady();
         $tmpTime = self::getSetting(static::$sleeptime);
         if (static::$zzz != $tmpTime) {
             static::$zzz = $tmpTime;
