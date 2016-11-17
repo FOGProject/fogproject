@@ -151,7 +151,15 @@ $(function() {
     // Placeholder support
     $('input[placeholder]').placeholder();
     // Nav Menu: Add hover label
-    $('.menu li a').each(function() {$(this).tipsy({gravity: $.fn.tipsy.autoNS});});
+    $('.menu li a').each(function() {
+        $(this).tipsy({
+            gravity: $.fn.tipsy.autoNS
+        }).mouseenter(function() {
+            $('.tipsy').css({
+                'min-width': '35px'
+            });
+        });
+    });
     // Tooltips
     HookTooltips();
     // Search boxes
@@ -217,7 +225,13 @@ function debug(txt) {
 function HookTooltips() {
     setTimeout(function() {
         $('.tipsy').remove();
-        $('a[title],.remove-mac[title], .add-mac[title], .icon-help[title], .task-name[title], .icon[title], .icon-ping[title], .icon-ping-down[title], .icon-ping-up[title], img[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS});
+        $('a[title],.remove-mac[title], .add-mac[title], .icon-help[title], .task-name[title], .icon[title], .icon-ping[title], .icon-ping-down[title], .icon-ping-up[title], img[title]', Content).tipsy({
+            gravity: $.fn.tipsy.autoNS
+        }).mouseenter(function() {
+            $('.tipsy').css({
+                'min-width': '35px'
+            });
+        });
     }, 400);
 }
 function validateCronInputs(selector) {

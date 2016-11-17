@@ -43,7 +43,11 @@ function getChecked() {
 }
 function setTipsyStuff() {
     $('.box,.icon,.icon-ping-up,.icon-ping-down,#logo > h1 > a > img').tipsy({
-        gravity: $.fn.tipsy.autoNS,
+        gravity: $.fn.tipsy.autoNS
+    }).mouseenter(function() {
+        $('.tipsy').css({
+            'min-width': '35px',
+        });
     });
 }
 function setEditFocus() {
