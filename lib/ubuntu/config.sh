@@ -34,7 +34,7 @@ if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
                 rm -rf /etc/php* /etc/apache2*
                 echo "Done"
                 dots "Removing the apache and php packages"
-                apt-get purge apache* php5* php7* libapache*php* >/dev/null 2>&1
+                apt-get purge 'apache*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
                 [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
                 dots "Resetting our variables to specify php version 7.1"
                 php_ver='7.1'
