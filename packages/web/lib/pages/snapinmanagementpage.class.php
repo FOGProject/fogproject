@@ -679,9 +679,7 @@ class SnapinManagementPage extends FOGPage
                         );
                     }
                 }
-                if (is_file($dest)) {
-                    self::$FOGFTP->delete($dest);
-                }
+                self::$FOGFTP->delete($dest);
                 if (!self::$FOGFTP->put($dest, $src)) {
                     throw new Exception(_('Failed to add/update snapin file'));
                 }
