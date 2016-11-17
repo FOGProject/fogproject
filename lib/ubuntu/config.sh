@@ -20,11 +20,35 @@
 [[ -z $php_ver ]] && php_ver=5
 [[ -z $php_verAdds ]] && php_verAdds="-5.6"
 if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
-    [[ $php_ver != 5 ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5.6-fpm"
-    [[ $php_ver != 5 ]] && phpldap="php${php_ver}-ldap" || phpldap="php5.6-ldap"
-    if [[ $OSVersion -ge 16  && -z $php_ver ]]; then
-        php_ver='7.0'
-        php_verAdds='-7.0'
+    if [[ -z $php_ver || $php_ver == 5 || $php_ver == '5.6' ]]; then
+        echo " *** Detected a potential need to reinstall apache and php files."
+        echo " *** This will remove the /etc/php* and /etc/apache2* directories"
+        echo " ***  and remove/purge the apache and php files from this system."
+        echo " *** If you're okay with this please type Y, anything else will"
+        echo " ***  break the installation and you will have to remove the files yourself"
+        echo " ***  and make proper changes as necessary. (Y/N)"
+        read dummy
+        case $dummy in
+            [Yy])
+                dots "Removing apache and php files"
+                rm -rf /etc/php* /etc/apache2*
+                echo "Done"
+                dots "Removing the apache and php packages"
+                apt-get purge apache* php5* php7* libapache*php* >/dev/null 2>&1
+                echo "Done"
+                dots "Resetting our variables to specify php version 7.1"
+                php_ver='7.1'
+                php_verAdds='-7.1'
+                phpfpm="php${php_ver}-fpm"
+                phpldap="php${php_ver}-ldap"
+                packages="apache2 build-essential cpp curl g++ gawk gcc gzip htmldoc isc-dhcp-server lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 m4 mysql-client mysql-server net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mcrypt php${php_ver}-mysqlnd sysv-rc-conf tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
+                echo "Done"
+                ;;
+            *)
+                echo "Invalid entry aborting"
+                exit 15
+                ;;
+        esac
     fi
 else
     [[ $php_ver != 5 ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
