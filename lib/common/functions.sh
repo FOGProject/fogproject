@@ -1890,21 +1890,21 @@ class Config
     if [[ $osid -eq 2 ]]; then
         php -m | grep mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
-            php${php_ver}enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            ${phpcmd}enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             if [[ ! $? -eq 0 ]]; then
                 if [[ -e /etc/php${php_ver}/conf.d/mysqlnd.ini ]]; then
                     cp -f "/etc/php${php_ver}/conf.d/mysqlnd.ini" "/etc/php${php_ver}/mods-available/php${php_ver}-mysqlnd.ini" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    php${php_ver}enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    ${phpcmd}enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
             fi
         fi
         php -m | grep mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
-            php${php_ver}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            ${phpcmd}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             if [[ ! $? -eq 0 ]]; then
                 if [[ -e /etc/php${php_ver}/conf.d/mcrypt.ini ]]; then
                     cp -f "/etc/php${php_ver}/conf.d/mcrypt.ini" "/etc/php${php_ver}/mods-available/php${php_ver}-mcrypt.ini" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    php${php_ver}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    ${phpcmd}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
             fi
         fi
