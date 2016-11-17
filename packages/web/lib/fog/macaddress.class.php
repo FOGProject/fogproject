@@ -160,6 +160,7 @@ class MACAddress extends FOGBase
                 )
             );
         }
+        $hwAddr = '';
         return $this;
     }
     /**
