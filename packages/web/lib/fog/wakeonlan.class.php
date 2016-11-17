@@ -50,7 +50,9 @@ class WakeOnLan extends FOGBase
      */
     public function send()
     {
-        if (self::$_arrMAC === false || !count(self::$_arrMAC)) {
+        if (self::$_arrMAC === false
+            || count(self::$_arrMAC) < 0
+        ) {
             throw new Exception(self::$foglang['InvalidMAC']);
         }
         $BroadCast = array_merge(

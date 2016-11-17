@@ -153,6 +153,6 @@ class PowerManagement extends FOGController
      */
     public function wakeOnLAN()
     {
-        $this->getHost()->wakeOnLan();
+        $this->getHost()->wakeOnLAN();
     }
 }
