@@ -52,7 +52,9 @@ if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
     fi
 fi
 [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
-[[ $php_ver != 5 && -z $phpcmd ]] && phpcmd="php" || phpcmd="php5"
+if [[ -z $phpcmd ]]; then
+    [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
+fi
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 case $linuxReleaseName in
     *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
