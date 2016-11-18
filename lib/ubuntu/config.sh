@@ -26,7 +26,7 @@ if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
         echo " ***  and remove/purge the apache and php files from this system."
         echo " *** If you're okay with this please type Y, anything else will"
         echo " ***  break the installation and you will have to remove the files yourself"
-        echo -n " ***  and make proper changes as necessary. (Y/N)"
+        echo -n " ***  and make proper changes as necessary. (Y/N): "
         read dummy
         case $dummy in
             [Yy])
@@ -51,9 +51,9 @@ if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
         esac
     fi
 fi
-[[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
 if [[ -z $phpcmd ]]; then
     [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
+    [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
 fi
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 case $linuxReleaseName in
