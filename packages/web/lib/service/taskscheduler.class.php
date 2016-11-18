@@ -101,15 +101,11 @@ class TaskScheduler extends FOGService
                     'MACAddressAssociation',
                     array(
                         'hostID' => $taskHostIDs,
-                        'pending' => array(
-                            '',
-                            null,
-                            0,
-                            '0'
-                        )
+                        'pending' => array(0, ''),
                     ),
                     'mac'
                 );
+                $hostMACs = $this->parseMacList($hostMACs);
                 $macCount = count($hostMACs);
                 if ($macCount > 0) {
                     self::outall(
@@ -162,12 +158,7 @@ class TaskScheduler extends FOGService
                 ->find(
                     array(
                         'action' => 'wol',
-                        'onDemand' => array(
-                            '0',
-                            0,
-                            null,
-                            ''
-                        )
+                        'onDemand' => array(0, '')
                     )
                 );
             $Tasks = array_merge((array)$Tasks, (array)$PMs);

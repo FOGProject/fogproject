@@ -739,21 +739,18 @@ class Group extends FOGController
             'MACAddressAssociation',
             array(
                 'hostID' => $this->get('hosts'),
-                'pending' => array(
-                    '0',
-                    0,
-                    null,
-                    '',
-                ),
+                'pending' => array(0, '')
             ),
             'mac'
         );
         $hostMACs = $this->parseMacList($hostMACs);
-        $macStr = implode(
-            '|',
-            $hostMACs
-        );
-        $this->wakeUp($hostMACs);
+        if (count($hostMACs) > 0) {
+            $macStr = implode(
+                '|',
+                $hostMACs
+            );
+            $this->wakeUp($hostMACs);
+        }
     }
     /**
      * Create snapin tasks for hosts.
