@@ -1564,6 +1564,9 @@ abstract class FOGBase
         $MACs = array_filter($MACs);
         $MACs = array_unique($MACs);
         $MACs = array_values($MACs);
+        if (count($MACs) < 1) {
+            return array();
+        }
         $count = self::getClass('MACAddressAssociationManager')->count(
             array(
                 'mac' => $MACs,
