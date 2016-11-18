@@ -78,6 +78,11 @@ class Image extends FOGController
         'imagepartitiontype',
         'imagetype',
     );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
     protected $databaseFieldClassRelationships = array(
         'OS' => array(
             'id',

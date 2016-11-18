@@ -76,6 +76,19 @@ class StorageNode extends FOGController
         'snapinfiles',
         'logfiles',
         'usedtasks',
+        'storagegroup',
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'StorageGroup' => array(
+            'id',
+            'storagegroupID',
+            'storagegroup'
+        )
     );
     /**
      * Gets an item from the key sent, if no key all object data is returned.
@@ -117,7 +130,7 @@ class StorageNode extends FOGController
      */
     public function getStorageGroup()
     {
-        return  new StorageGroup($this->get('storagegroupID'));
+        return $this->get('storagegroup');
     }
     /**
      * Get the node failure.

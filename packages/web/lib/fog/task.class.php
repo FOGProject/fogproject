@@ -71,6 +71,56 @@ class Task extends TaskType
         'hostID',
     );
     /**
+     * Additional fields.
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'image',
+        'host',
+        'type',
+        'state',
+        'storagenode',
+        'storagegroup'
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'Host' => array(
+            'id',
+            'hostID',
+            'host'
+        ),
+        'Image' => array(
+            'id',
+            'imageID',
+            'image'
+        ),
+        'TaskType' => array(
+            'id',
+            'typeID',
+            'type'
+        ),
+        'TaskState' => array(
+            'id',
+            'stateID',
+            'state'
+        ),
+        'StorageNode' => array(
+            'id',
+            'storagenodeID',
+            'storagenode'
+        ),
+        'StorageGroup' => array(
+            'id',
+            'storagegroupID',
+            'storagegroup'
+        )
+    );
+    /**
      * Returns the in front of number.
      *
      * @return int
@@ -196,7 +246,7 @@ class Task extends TaskType
      */
     public function getHost()
     {
-        return new Host($this->get('hostID'));
+        return $this->get('host');
     }
     /**
      * Returns the storage group object.
@@ -205,7 +255,7 @@ class Task extends TaskType
      */
     public function getStorageGroup()
     {
-        return new StorageGroup($this->get('storagegroupID'));
+        return $this->get('storagegroup');
     }
     /**
      * Returns the storage node object.
@@ -214,7 +264,7 @@ class Task extends TaskType
      */
     public function getStorageNode()
     {
-        return new StorageNode($this->get('storagenodeID'));
+        return $this->get('storagenode');
     }
     /**
      * Returns the image object.
@@ -223,7 +273,7 @@ class Task extends TaskType
      */
     public function getImage()
     {
-        return new Image($this->get('imageID'));
+        return $this->get('image');
     }
     /**
      * Returns the task type object.
@@ -232,7 +282,7 @@ class Task extends TaskType
      */
     public function getTaskType()
     {
-        return new TaskType($this->get('typeID'));
+        return $this->get('type');
     }
     /**
      * Returns the the type text
@@ -250,7 +300,7 @@ class Task extends TaskType
      */
     public function getTaskState()
     {
-        return new TaskState($this->get('stateID'));
+        return $this->get('state');
     }
     /**
      * Returns the state text.

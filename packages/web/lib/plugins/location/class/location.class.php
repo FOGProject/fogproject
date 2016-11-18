@@ -54,13 +54,32 @@ class Location extends FOGController
         'storagegroupID',
     );
     /**
-     * The additional fields
+     * Additional fields.
      *
      * @var array
      */
     protected $additionalFields = array(
         'hosts',
         'hostsnotinme',
+        'storagenode',
+        'storagegroup'
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'StorageNode' => array(
+            'id',
+            'storagenodeID',
+            'storagenode'
+        ),
+        'StorageGroup' => array(
+            'id',
+            'storagegroupID',
+            'storagegroup'
+        )
     );
     /**
      * Destroy this particular object.
@@ -129,7 +148,7 @@ class Location extends FOGController
      */
     public function getStorageGroup()
     {
-        return new StorageGroup($this->get('storagegroupID'));
+        return $this->get('storagegroup');
     }
     /**
      * Get the storage node.
@@ -139,7 +158,7 @@ class Location extends FOGController
     public function getStorageNode()
     {
         if ($this->get('storagenodeID')) {
-            return new StorageNode($this->get('storagenodeID'));
+            return $this->get('storagenode');
         }
         return $this->getStorageGroup()->getOptimalStorageNode(0);
     }
