@@ -264,46 +264,23 @@ class TaskQueue extends TaskingElement
         $primaryUser = ucwords(
             $this->Host->get('inventory')->get('primaryUser')
         );
+        $Inventory = $this->Host->get('inventory');
+        $mac = $this->Host->get('mac')->__toString();
+        $ImageName = $this->Task->getImage()->get('name');
+        $Snapins = implode(',', (array)$SnapinNames);
         $email = array(
-            sprintf(
-                "%s:-\n",
-                _('Machine Details')
-            ) => '',
-            sprintf(
-                "\n%s: ",
-                _('Host Name')
-            ) => $this->Host->get('name'),
-                sprintf(
-                    "\n%s: ",
-                    _('Computer Model')
-                ) => $this->Host->get('inventory')->get('sysproduct'),
-                    sprintf(
-                        "\n%s: ",
-                        _('Serial Number')
-                    ) => $this->Host->get('inventory')->get('sysserial'),
-                        sprintf(
-                            "\n%s: ",
-                            _('MAC Address')
-                        ) => $this->Host->get('mac')->__toString(),
-                            "\n" => '',
-                            sprintf(
-                                "\n%s: ",
-                                _('Image Used')
-                            ) => $this->Task->getImage()->get('name'),
-                                sprintf(
-                                    "\n%s: ",
-                                    _('Snapin Used')
-                                ) => implode(', ', (array)$SnapinNames),
-                                    "\n" => '',
-                                    sprintf(
-                                        "\n%s: ",
-                                        _('Imaged By')
-                                    ) => $engineer,
-                                    sprintf(
-                                        "\n%s: ",
-                                        _('Imaged For')
-                                    ) => $primaryUser,
-                                );
+            sprintf("%s:-\n", _('Machine Details')) => '',
+            sprintf("\n%s: ", _('Host Name')) => $this->Host->get('name'),
+            sprintf("\n%s: ", _('Computer Model')) => $Inventory->get('sysproduct'),
+            sprintf("\n%s: ", _('Serial Number')) => $Inventory->get('sysserial'),
+            sprintf("\n%s: ", _('MAC Address')) => $mac,
+            "\n" => '',
+            sprintf("\n%s: ", _('Image Used')) => $ImageName,
+            sprintf("\n%s: ", _('Snapin Used')) => $Snapins,
+            "\n" => '',
+            sprintf("\n%s: ", _('Imaged By')) => $engineer,
+            sprintf("\n%s: ", _('Imaged For')) => $primaryUser
+        );
         self::$HookManager->processEvent(
             'EMAIL_ITEMS',
             array(
@@ -322,12 +299,12 @@ class TaskQueue extends TaskingElement
             $this->Host->get('name'),
             _('Image Task Completed')
         );
-        if ($this->Host->get('inventory')->get('other1')) {
+        if ($Inventory->get('other1')) {
             mail(
                 $emailAddress,
                 sprintf(
                     'ISSUE=%s PROJ=1',
-                    $this->Host->get('inventory')->get('other1')
+                    $Inventory->get('other1')
                 ),
                 $emailMe,
                 $headers
@@ -336,9 +313,9 @@ class TaskQueue extends TaskingElement
                 "\n%s (%s): %s",
                 _('Imaged For'),
                 _('Call'),
-                $this->Host->get('inventory')->get('other1')
+                $Inventory->get('other1')
             );
-            $this->Host->get('inventory')->set('other1', '')->save();
+            $Inventory->set('other1', '')->save();
         }
         mail(
             $emailAddress,
