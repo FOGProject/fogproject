@@ -660,7 +660,7 @@ installPackages() {
                 done
                 ;;
             php${php_ver}-mysqlnd)
-                for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
+                for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql php${php_ver}-mysqli); do
                     eval $packagelist "$phpmysql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$phpmysql
@@ -720,7 +720,7 @@ confirmPackageInstallation() {
                 done
                 ;;
             php${php_ver}-mysqlnd)
-                for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
+                for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql php${php_ver}-mysqli); do
                     x=$phpmysql
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     [[ $? -eq 0 ]] && break
