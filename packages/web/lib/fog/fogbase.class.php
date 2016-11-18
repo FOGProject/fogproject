@@ -574,7 +574,6 @@ abstract class FOGBase
             get_class($this),
             $data
         );
-        $this->logHistory($string);
         printf('<div class="debug-error">%s</div>', $string);
     }
     /**
@@ -596,7 +595,6 @@ abstract class FOGBase
             get_class($this),
             $data
         );
-        $this->logHistory($string);
         printf('<div class="debug-error">%s</div>', $string);
     }
     /**
@@ -618,7 +616,6 @@ abstract class FOGBase
             get_class($this),
             $data
         );
-        $this->logHistory($string);
         printf('<div class="debug-error">%s</div>', $string);
     }
     /**
@@ -640,7 +637,6 @@ abstract class FOGBase
             get_class($this),
             $data
         );
-        $this->logHistory($string);
         printf('<div class="debug-info">%s</div>', $string);
     }
     /**
