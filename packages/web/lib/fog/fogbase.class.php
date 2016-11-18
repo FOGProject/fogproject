@@ -1567,6 +1567,26 @@ abstract class FOGBase
         if (count($MACs) < 1) {
             return array();
         }
+        $pending_filter = explode(
+            ',',
+            self::getSetting('FOG_QUICKREG_PENDING_MAC_FILTER')
+        );
+        $Ignore = array_map($lowerAndTrim, $pending_filter);
+        $Ignore = array_filter($Ignore);
+        if (count($Ignore) > 0) {
+            $pattern = sprintf(
+                '#%s#i',
+                implode('|', (array) $Ignore)
+            );
+            $found_macs = preg_grep($pattern, $MACs);
+            $MACs = array_diff($MACs, $found_macs);
+            $MACs = array_filter($MACs);
+            $MACs = array_unique($MACs);
+            $MACs = array_values($MACs);
+        }
+        if (count($MACs) < 1) {
+            return array();
+        }
         $count = self::getClass('MACAddressAssociationManager')->count(
             array(
                 'mac' => $MACs,
@@ -1618,22 +1638,8 @@ abstract class FOGBase
         $MACs = array_filter($MACs);
         $MACs = array_unique($MACs);
         $MACs = array_values($MACs);
-        $pending_filter = explode(
-            ',',
-            self::getSetting('FOG_QUICKREG_PENDING_MAC_FILTER')
-        );
-        $Ignore = array_map($lowerAndTrim, $pending_filter);
-        $Ignore = array_filter($Ignore);
-        if (count($Ignore) > 0) {
-            $pattern = sprintf(
-                '#%s#i',
-                implode('|', (array) $Ignore)
-            );
-            $found_macs = preg_grep($pattern, $MACs);
-            $MACs = array_diff($MACs, $found_macs);
-            $MACs = array_filter($MACs);
-            $MACs = array_unique($MACs);
-            $MACs = array_values($MACs);
+        if (count($MACs) < 1) {
+            return array();
         }
         $validMACs = array();
         foreach ($MACs as &$MAC) {
