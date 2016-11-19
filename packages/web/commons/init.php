@@ -61,11 +61,10 @@ class Initiator
          * If we are not a service file
          * and we have a user agent string
          * and the Session hasn't been started,
-         * Start the session and make sure no cache is stored.
+         * Start the session.
          */
         if ($self && $useragent && !isset($_SESSION)) {
             session_start();
-            session_cache_limiter('nocache');
         }
         /**
          * Define our base path (/var/www/, /var/www/html/, etc...)

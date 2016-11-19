@@ -26,6 +26,12 @@ header('X-Frame-Options: sameorigin');
 header('X-XSS-Protection: 1; mode=block');
 header('X-Content-Type-Options: nosniff');
 header('Strict-Transport-Security: max-age=31536000');
+header(
+    "Content-Security-Policy: default-src 'none';"
+    . "script-src 'self'; connect-src 'self';"
+    . "img-src 'self'; style-src 'self' 'unsafe-inline';"
+    . "font-src 'self';"
+);
 header('Access-Control-Allow-Origin: *');
 /**
  * Our required files, text for language and init to initialize system.

@@ -195,7 +195,7 @@ class LocationManagementPage extends FOGPage
                 ->set('name', $name)
                 ->set('storagegroupID', $sgID)
                 ->set('storagenodeID', $NodeID)
-                ->set('tftp', $_REQUEST['tftp']);
+                ->set('tftp', isset($_REQUEST['tftp']));
             if (!$Location->save()) {
                 throw new Exception(_('Failed to create'));
             }

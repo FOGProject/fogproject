@@ -283,14 +283,19 @@ class Schema extends FOGController
     /**
      * SQL create table syntax
      *
-     * @param string $name   What are we calling the table?
-     * @param bool   $exists If not exists?
-     * @param array  $fields The fields and names.
-     * @param array  $types  The types for the fields.
-     * @param array  $unique The unique fields.
-     * @param string $prime  The primary field, if one.
-     * @param string $autoin The auto increment field.
+     * @param string $name    What are we calling the table?
+     * @param bool   $exists  If not exists?
+     * @param array  $fields  The fields and names.
+     * @param array  $types   The types for the fields.
+     * @param array  $nulls   Which fields to have null or not.
+     * @param array  $default Default values for field(s).
+     * @param array  $unique  The unique fields.
+     * @param string $engine  The db engine for the table.
+     * @param string $charset The charset to use for the table.
+     * @param string $prime   The primary field, if one.
+     * @param string $autoin  The auto increment field.
      *
+     * @throws Exception
      * @return string
      */
     public static function createTable(
@@ -298,9 +303,114 @@ class Schema extends FOGController
         $exists,
         $fields,
         $types,
+        $nulls,
+        $default,
         $unique,
-        $prime = false,
-        $autoin = false
+        $engine = 'MyISAM',
+        $charset = 'utf8',
+        $prime = '',
+        $autoin = ''
     ) {
+        if (empty($name)) {
+            throw new Exception(_('Must have a name to create the table'));
+        }
+        $fieldCount = count($fields);
+        $typeCount = count($types);
+        if ($fieldCount !== $typeCount) {
+            throw new Exception(_('Fields and types must have equal count'));
+        }
+        if (empty($engine)) {
+            $engine = 'MyISAM';
+        }
+        if (empty($charset)) {
+            $charset = 'utf8';
+        }
+        $sql = sprintf(
+            'CREATE TABLE%s `%s` (',
+            (
+                $exists ?
+                ' IF NOT EXISTS' :
+                ''
+            ),
+            $name
+        );
+        foreach ((array)$fields as $i => &$field) {
+            $sql .= sprintf(
+                '`%s` %s%s%s%s,',
+                $field,
+                $types[$i],
+                (
+                    $nulls[$i] === false ?
+                    ' NOT NULL' : 
+                    ''
+                ),
+                (
+                    $default[$i] ?
+                    sprintf(
+                        ' DEFAULT %s',
+                        $default[$i]
+                    ) :
+                    ''
+                ),
+                (
+                    $field === $autoin ?
+                    ' AUTO_INCREMENT' :
+                    ''
+                )
+            );
+            unset($field);
+        }
+        if ($prime) {
+            $sql .= sprintf(
+                'PRIMARY KEY (`%s`)',
+                $prime
+            );
+        }
+        foreach ((array)$unique as $i => &$uniq) {
+            if (!$uniq) {
+                continue;
+            }
+            if (is_array($uniq)) {
+                $uniq = implode('`,`', $uniq);
+            }
+            $sql .= sprintf(
+                ',UNIQUE INDEX `index%d` (`%s`)',
+                $i,
+                $uniq
+            );
+            unset($uniq);
+        }
+        $sql .= ') ';
+        $sql .= sprintf(
+            'ENGINE=%s',
+            $engine
+        );
+        if ($autoin) {
+            $sql .= ' AUTO_INCREMENT=1';
+        }
+        $sql .= ' DEFAULT ';
+        $sql .= sprintf(
+            'CHARSET=%s',
+            $charset
+        );
+        $sql .= ' ROW_FORMAT=DYNAMIC';
+        return $sql;
+    }
+    /**
+     * The sql to drop the table passed.
+     *
+     * @param string $name The table name to drop.
+     *
+     * @return string
+     */
+    public static function dropTable($name)
+    {
+        if (empty($name)) {
+            throw new Exception(_('Need the table name to drop'));
+        }
+        return sprintf(
+            'DROP TABLE IF EXISTS `%s`',
+            $name
+        );
     }
 }
