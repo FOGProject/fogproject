@@ -135,7 +135,7 @@ abstract class FOGController extends FOGBase
             if (is_numeric($data) && $data > 0) {
                 $this->set('id', $data)->load();
             } elseif (is_array($data)) {
-                $this->setQuery($data);
+                $this->setQuery($data, get_class($this));
             }
         } catch (Exception $e) {
             $str = sprintf(
@@ -668,7 +668,7 @@ abstract class FOGController extends FOGBase
             $vals = self::$DB->query($query, array(), $queryArray)
                 ->fetch('', 'fetch_assoc')
                 ->get();
-            $this->setQuery($vals);
+            $this->setQuery($vals, get_class($this));
         } catch (Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',
@@ -1021,11 +1021,12 @@ abstract class FOGController extends FOGBase
     /**
      * Set's the queries data into the object as/where needed.
      *
-     * @param array $queryData the data to work from
+     * @param array  $queryData the data to work from
+     * @param string $origClass the original class set.
      *
      * @return object
      */
-    public function setQuery(&$queryData)
+    public function setQuery(&$queryData, $origClass)
     {
         $classData = array_intersect_key(
             (array) $queryData,
@@ -1043,13 +1044,18 @@ abstract class FOGController extends FOGBase
             }
         }
         $this->data = (array) $this->data + (array) $classData;
+        $origName = strtolower($origClass);
         foreach ($this->databaseFieldClassRelationships as $class => &$fields) {
+            $className = strtolower($class);
             $class = self::getClass($class);
             $leftover = array_intersect_key(
                 (array) $queryData,
                 (array) $class->databaseFieldsFlipped
             );
-            $class->setQuery($leftover);
+            if ($origName === $className) {
+                continue;
+            }
+            $class->setQuery($leftover, $origName);
             $this->set($fields[2], $class);
             unset($class, $fields);
         }

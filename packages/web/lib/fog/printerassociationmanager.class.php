@@ -67,6 +67,7 @@ class PrinterAssociationManager extends FOGManagerController
             array(
             ),
             array(
+                'paID',
                 array(
                     'paPrinterID',
                     'paHostID'

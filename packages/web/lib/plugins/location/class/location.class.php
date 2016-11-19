@@ -170,7 +170,7 @@ class Location extends FOGController
     protected function loadHosts()
     {
         $hostIDs = self::getSubObjectIDs(
-            'LocationAssocation',
+            'LocationAssociation',
             array('locationID' => $this->get('id')),
             'hostID'
         );
