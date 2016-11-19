@@ -22,6 +22,187 @@
 class HostManager extends FOGManagerController
 {
     /**
+     * Install our table.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        $sql = Schema::createTable(
+            'hosts',
+            true,
+            array(
+                'hostID',
+                'hostName',
+                'hostDesc',
+                'hostIP',
+                'hostImage',
+                'hostBuilding',
+                'hostCreateDate',
+                'hostCreateBy',
+                'hostLastDeploy',
+                'hostUseAD',
+                'hostADDomain',
+                'hostADOU',
+                'hostADUser',
+                'hostADPass',
+                'hostADPassLegacy',
+                'hostProductKey',
+                'hostPrinterLevel',
+                'hostKernelArgs',
+                'hostKernel',
+                'hostDevice',
+                'hostInit',
+                'hostPending',
+                'hostPubKey',
+                'hostSecToken',
+                'hostSecTime',
+                'hostPingCode',
+                'hostExitBios',
+                'hostExitEfi',
+                'hostEnforce',
+            ),
+            array(
+                'INTEGER',
+                'VARCHAR(16)',
+                'LONGTEXT',
+                'VARCHAR(25)',
+                'INTEGER',
+                'INTEGER',
+                'TIMESTAMP',
+                'VARCHAR(40)',
+                'DATETIME',
+                "ENUM('0', '1')",
+                'VARCHAR(255)',
+                'LONGTEXT',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'LONGTEXT',
+                'LONGTEXT',
+                'VARCHAR(2)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'LONGTEXT',
+                "ENUM('0', '1')",
+                'LONGTEXT',
+                'LONGTEXT',
+                'TIMESTAMP',
+                'VARCHAR(20)',
+                'LONGTEXT',
+                'LONGTEXT',
+                "ENUM('0', '1')"
+            ),
+            array(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ),
+            array(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                'CURRENT_TIMESTAMP',
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                '0000-00-00 00:00:00',
+                false,
+                false,
+                false,
+                '1'
+            ),
+            array(
+                '',
+                'hostName',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                ''
+            ),
+            'MyISAM',
+            'utf8',
+            'hostID',
+            'hostID'
+        );
+    }
+    /**
+     * Uninstalls the table.
+     *
+     * @return bool
+     */
+    public function uninstall()
+    {
+        $sql = Schema::dropTable('hosts');
+        return self::$DB->query($sql);
+    }
+    /**
      * Returns a single host object based on the passed MACs.
      *
      * @param array $macs the macs to search for the host
