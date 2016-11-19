@@ -52,13 +52,33 @@ class MACAddressAssociation extends FOGController
         'mac',
     );
     /**
+     * Additional fields
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'host'
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'Host' => array(
+            'id',
+            'hostID',
+            'host'
+        )
+    );
+    /**
      * Returns the host associated
      *
      * @return object
      */
     public function getHost()
     {
-        return new Host($this->get('hostID'));
+        return $this->get('host');
     }
     /**
      * Returns if mac is pending
@@ -94,6 +114,7 @@ class MACAddressAssociation extends FOGController
      */
     public function isPrimary()
     {
-        return (bool)$this->get('primary') && !$this->get('pending');
+        return (bool)$this->get('primary')
+            && !$this->get('pending');
     }
 }

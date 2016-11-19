@@ -75,17 +75,12 @@ class LocationManager extends FOGManagerController
                 false
             ),
             array(
-                '',
+                'lID',
                 'lName',
-                '',
                 array(
                     'lStorageGroupID',
                     'lStorageNodeID'
-                ),
-                '',
-                '',
-                '',
-                ''
+                )
             ),
             'MyISAM',
             'utf8',

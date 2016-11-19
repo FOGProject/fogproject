@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category GroupManager
+ * @category ReportMaker
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,7 +13,7 @@
 /**
  * Group manager mass management class.
  *
- * @category GroupManager
+ * @category ReportMaker
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -69,10 +69,11 @@ class ReportMaker extends FOGBase
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager->processEvent(
-            'REPORT_TYPES',
-            array('types' => &$this->types)
-        );
+        self::$HookManager
+            ->processEvent(
+                'REPORT_TYPES',
+                array('types' => &$this->types)
+            );
     }
     /**
      * Appends html as/where required.
@@ -144,7 +145,11 @@ class ReportMaker extends FOGBase
         $keys = array_keys($this->types);
         $type = (
             isset($_REQUEST['type']) ?
-            htmlspecialchars($_REQUEST['type'], ENT_QUOTES, 'utf-8') :
+            htmlspecialchars(
+                $_REQUEST['type'],
+                ENT_QUOTES,
+                'utf-8'
+            ) :
             $keys[$intType]
         );
         if (!in_array($type, $keys)) {
@@ -152,7 +157,11 @@ class ReportMaker extends FOGBase
         }
         $file = basename(
             trim(
-                htmlspecialchars($_REQUEST['filename'], ENT_QUOTES, 'utf-8')
+                htmlspecialchars(
+                    $_REQUEST['filename'],
+                    ENT_QUOTES,
+                    'utf-8'
+                )
             )
         );
         if (!isset($_REQUEST['export'])) {
