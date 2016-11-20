@@ -34,7 +34,7 @@ class DirCleanerManager extends FOGManagerController
      */
     public function install()
     {
-        $this->uninstall($this->tablename);
+        $this->uninstall();
         $sql = Schema::createTable(
             $this->tablename,
             true,

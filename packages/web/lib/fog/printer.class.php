@@ -155,7 +155,7 @@ class Printer extends FOGController
     }
     /**
      * Update the default printer for the host.
-     * 
+     *
      * @param int  $hostid the host id to update for.
      * @param bool $onoff  if the printer is on or off.
      *

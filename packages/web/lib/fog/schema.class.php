@@ -341,7 +341,7 @@ class Schema extends FOGController
                 $types[$i],
                 (
                     $nulls[$i] === false ?
-                    ' NOT NULL' : 
+                    ' NOT NULL' :
                     ''
                 ),
                 (

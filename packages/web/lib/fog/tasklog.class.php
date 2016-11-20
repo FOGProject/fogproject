@@ -42,7 +42,7 @@ class TaskLog extends FOGController
     );
     /**
      * Initializes the class to set the ip from the remote.
-     * 
+     *
      * @param mixed $data the data to initialize with.
      *
      * @return void

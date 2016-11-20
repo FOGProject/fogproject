@@ -332,7 +332,7 @@ class ProcessLogin extends FOGPage
     }
     /**
      * Display the login form for the mobile page.
-     * 
+     *
      * @return void
      */
     public function mobileLoginForm()

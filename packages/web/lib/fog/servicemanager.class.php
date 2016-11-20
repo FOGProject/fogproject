@@ -28,30 +28,13 @@ class ServiceManager extends FOGManagerController
      */
     public $tablename = 'globalSettings';
     /**
-     * Gets the setting categories.
-     *
-     * @return array
-     */
-    public function getSettingCats()
-    {
-        return self::getSubObjectIDs(
-            'Service',
-            '',
-            'category',
-            false,
-            'id',
-            'category',
-            'category'
-        );
-    }
-    /**
      * Install our table.
      *
      * @return bool
      */
     public function install()
     {
-        $this->uninstall($this->tablename);
+        $this->uninstall();
         $sql = Schema::createTable(
             $this->tablename,
             true,
@@ -93,5 +76,22 @@ class ServiceManager extends FOGManagerController
             'settingID'
         );
         return self::$DB->query($sql);
+    }
+    /**
+     * Gets the setting categories.
+     *
+     * @return array
+     */
+    public function getSettingCats()
+    {
+        return self::getSubObjectIDs(
+            'Service',
+            '',
+            'category',
+            false,
+            'id',
+            'category',
+            'category'
+        );
     }
 }

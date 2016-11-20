@@ -31,7 +31,7 @@ class Timer extends FOGCron
     private $_blSingle;
     /**
      * Cron time
-     * 
+     *
      * @var string
      */
     private $_cron;
@@ -43,7 +43,7 @@ class Timer extends FOGCron
     private $_lngSingle;
     /**
      * Initializes the Timer class.
-     * 
+     *
      * @param mixed $minute The minute field.
      * @param mixed $hour   The hour field.
      * @param mixed $dom    The dom field.
@@ -93,7 +93,7 @@ class Timer extends FOGCron
     }
     /**
      * The time to run single.
-     * 
+     *
      * @return string
      */
     public function getSingleRunTime()

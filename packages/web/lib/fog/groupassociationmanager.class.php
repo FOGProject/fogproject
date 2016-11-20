@@ -22,6 +22,12 @@
 class GroupAssociationManager extends FOGManagerController
 {
     /**
+     * The base table name.
+     *
+     * @var string
+     */
+    public $tablename = 'groupMembers';
+    /**
      * Install our table.
      *
      * @return bool
@@ -30,7 +36,7 @@ class GroupAssociationManager extends FOGManagerController
     {
         $this->uninstall();
         $sql = Schema::createTable(
-            'groupMembers',
+            $this->tablename,
             true,
             array(
                 'gmID',
