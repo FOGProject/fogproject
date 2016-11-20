@@ -135,7 +135,7 @@ abstract class FOGController extends FOGBase
             if (is_numeric($data) && $data > 0) {
                 $this->set('id', $data)->load();
             } elseif (is_array($data)) {
-                $this->setQuery($data, get_class($this));
+                $this->setQuery($data);
             }
         } catch (Exception $e) {
             $str = sprintf(
@@ -668,7 +668,7 @@ abstract class FOGController extends FOGBase
             $vals = self::$DB->query($query, array(), $queryArray)
                 ->fetch('', 'fetch_assoc')
                 ->get();
-            $this->setQuery($vals, get_class($this));
+            $this->setQuery($vals);
         } catch (Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',
@@ -1021,12 +1021,11 @@ abstract class FOGController extends FOGBase
     /**
      * Set's the queries data into the object as/where needed.
      *
-     * @param array  $queryData the data to work from
-     * @param string $origClass the original class set.
+     * @param array $queryData The data to work from.
      *
      * @return object
      */
-    public function setQuery(&$queryData, $origClass)
+    public function setQuery(&$queryData)
     {
         $classData = array_intersect_key(
             (array) $queryData,
@@ -1044,18 +1043,21 @@ abstract class FOGController extends FOGBase
             }
         }
         $this->data = (array) $this->data + (array) $classData;
-        $origName = strtolower($origClass);
+        $origName = strtolower(get_class($this));
+        global $node;
         foreach ($this->databaseFieldClassRelationships as $class => &$fields) {
             $className = strtolower($class);
-            $class = self::getClass($class);
+            if ($node === $className
+                || $origName === $className
+            ) {
+                continue;
+            }
+            $class = new $class();
             $leftover = array_intersect_key(
                 (array) $queryData,
                 (array) $class->databaseFieldsFlipped
             );
-            if ($origName === $className) {
-                continue;
-            }
-            $class->setQuery($leftover, $origName);
+            $class->setQuery($leftover);
             $this->set($fields[2], $class);
             unset($class, $fields);
         }

@@ -60,24 +60,15 @@ class MACAddressAssociation extends FOGController
         'host'
     );
     /**
-     * Database -> Class field relationships
-     *
-     * @var array
-     */
-    protected $databaseFieldClassRelationships = array(
-        'Host' => array(
-            'id',
-            'hostID',
-            'host'
-        )
-    );
-    /**
      * Returns the host associated
      *
      * @return object
      */
     public function getHost()
     {
+        if (!$this->isLoaded('host')) {
+            $this->set('host', new Host($this->get('hostID')));
+        }
         return $this->get('host');
     }
     /**

@@ -2005,7 +2005,7 @@ class HostManagementPage extends FOGPage
             $taskID = @max($TaskIDs);
             unset($TaskIDs);
             $Task = new Task($taskID);
-            if ($Task->isValid()) {
+            if (!$Task->isValid()) {
                 continue;
             }
             $groupName = $Task->getStorageGroup()->get('name');
