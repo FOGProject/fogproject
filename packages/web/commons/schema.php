@@ -3466,3 +3466,7 @@ $this->schema[] = array(
     . "url based actions, such as download, getting data, etc... This is set in "
     . "seconds. (Default is 86400 seconds -- 1 day)','86400','General Settings')",
 );
+// 238
+$this->schema[] = array(
+    Schema::dropTable('aloLog')
+);

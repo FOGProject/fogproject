@@ -22,6 +22,12 @@
 class ServiceManager extends FOGManagerController
 {
     /**
+     * The base table name.
+     *
+     * @var string
+     */
+    public $tablename = 'globalSettings';
+    /**
      * Gets the setting categories.
      *
      * @return array
@@ -37,5 +43,55 @@ class ServiceManager extends FOGManagerController
             'category',
             'category'
         );
+    }
+    /**
+     * Install our table.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        $this->uninstall($this->tablename);
+        $sql = Schema::createTable(
+            $this->tablename,
+            true,
+            array(
+                'settingID',
+                'settingKey',
+                'settingDesc',
+                'settingValue',
+                'settingCategory'
+            ),
+            array(
+                'INTEGER',
+                'VARCHAR(255)',
+                'LONGTEXT',
+                'LONGTEXT',
+                'LONGTEXT'
+            ),
+            array(
+                false,
+                false,
+                false,
+                false,
+                false
+            ),
+            array(
+                false,
+                false,
+                false,
+                false,
+                false
+            ),
+            array(
+                'settingID',
+                'settingKey'
+            ),
+            'MyISAM',
+            'utf8',
+            'settingID',
+            'settingID'
+        );
+        return self::$DB->query($sql);
     }
 }

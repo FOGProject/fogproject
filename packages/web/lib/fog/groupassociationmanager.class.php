@@ -21,4 +21,49 @@
  */
 class GroupAssociationManager extends FOGManagerController
 {
+    /**
+     * Install our table.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        $this->uninstall();
+        $sql = Schema::createTable(
+            'groupMembers',
+            true,
+            array(
+                'gmID',
+                'gmHostID',
+                'gmGroupID'
+            ),
+            array(
+                'INTEGER',
+                'INTEGER',
+                'INTEGER'
+            ),
+            array(
+                false,
+                false,
+                false
+            ),
+            array(
+                false,
+                false,
+                false
+            ),
+            array(
+                'gmID',
+                array(
+                    'gmHostID',
+                    'gmGroupID'
+                )
+            ),
+            'MyISAM',
+            'utf8',
+            'gmID',
+            'gmID'
+        );
+        return self::$DB->query($sql);
+    }
 }

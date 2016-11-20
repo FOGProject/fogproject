@@ -22,6 +22,57 @@
 class GroupManager extends FOGManagerController
 {
     /**
+     * The base table name.
+     *
+     * @var string
+     */
+    public $tablename = 'groupMembers';
+    /**
+     * Install our table.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        $this->uninstall($this->tablename);
+        $sql = Schema::createTable(
+            $this->tablename,
+            true,
+            array(
+                'gmID',
+                'gmHostID',
+                'gmGroupID'
+            ),
+            array(
+                'INTEGER',
+                'INTEGER',
+                'INTEGER'
+            ),
+            array(
+                false,
+                false,
+                false
+            ),
+            array(
+                false,
+                false,
+                false
+            ),
+            array(
+                'gmID',
+                array(
+                    'gmHostID',
+                    'gmGroupID'
+                )
+            ),
+            'MyISAM',
+            'utf8',
+            'gmID',
+            'gmID'
+        );
+        return self::$DB->query($sql);
+    }
+    /**
      * Removes fields.
      *
      * Customized for hosts

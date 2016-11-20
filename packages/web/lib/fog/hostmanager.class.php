@@ -22,14 +22,21 @@
 class HostManager extends FOGManagerController
 {
     /**
+     * The base table name.
+     *
+     * @var string
+     */
+    public $tablename = 'hosts';
+    /**
      * Install our table.
      *
      * @return bool
      */
     public function install()
     {
+        $this->uninstall($this->tablename);
         $sql = Schema::createTable(
-            'hosts',
+            $this->tablename,
             true,
             array(
                 'hostID',
@@ -164,16 +171,6 @@ class HostManager extends FOGManagerController
             'hostID',
             'hostID'
         );
-    }
-    /**
-     * Uninstalls the table.
-     *
-     * @return bool
-     */
-    public function uninstall()
-    {
-        $sql = Schema::dropTable('hosts');
-        return self::$DB->query($sql);
     }
     /**
      * Returns a single host object based on the passed MACs.

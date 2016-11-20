@@ -1434,4 +1434,14 @@ abstract class FOGManagerController extends FOGBase
             ->fetch()
             ->get('total');
     }
+    /**
+     * Uninstalls the table.
+     *
+     * @return bool
+     */
+    public function uninstall()
+    {
+        $sql = Schema::dropTable($this->tablename);
+        return self::$DB->query($sql);
+    }
 }

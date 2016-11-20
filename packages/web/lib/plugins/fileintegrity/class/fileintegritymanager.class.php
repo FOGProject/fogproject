@@ -22,35 +22,62 @@
 class FileIntegrityManager extends FOGManagerController
 {
     /**
+     * The base table name.
+     *
+     * @var string
+     */
+    public $tablename = 'fileChecksums';
+    /**
      * Install the database and plugin
      *
-     * @param string $name the name of the plugin.
-     *
      * @return bool
      */
-    public function install($name)
+    public function install()
     {
-        $this->uninstall();
-        $sql = "CREATE TABLE `fileChecksums` ("
-            . "`fcsID` INTEGER NOT NULL AUTO_INCREMENT,"
-            . "`fcsStorageNodeID` INTEGER NOT NULL,"
-            . "`fcsFileModTime` DATETIME NOT NULL,"
-            . "`fcsFileChecksum` VARCHAR(255) NOT NULL,"
-            . "`fcsFilePath` VARCHAR(255) NOT NULL,"
-            . "`fcsStatus` ENUM('0','1','2') NOT NULL,"
-            . "PRIMARY KEY(`fcsID`),"
-            . "UNIQUE INDEX `nodeFiles` (`fcsStorageNodeID`,`fcsFilePath`)"
-            . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT "
-            . "CHARSET=utf8 ROW_FORMAT=DYNAMIC";
+        $this->uninstall($this->tablename);
+        $sql = Schema::createTable(
+            'fileChecksums',
+            true,
+            array(
+                'fcsID',
+                'fcsStorageNodeID',
+                'fcsFileModTime',
+                'fcsFileChecksum',
+                'fcsFilePath',
+                'fcsStatus'
+            ),
+            array(
+                'INTEGER',
+                'INTEGER',
+                'DATETIME',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                "ENUM('0', '1', '2')"
+            ),
+            array(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ),
+            array(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ),
+            array(
+                'fcsID'
+            ),
+            'MyISAM',
+            'utf8',
+            'fcsID',
+            'fcsID'
+        );
         return self::$DB->query($sql);
-    }
-    /**
-     * Uninstall the database and plugin.
-     *
-     * @return bool
-     */
-    public function uninstall()
-    {
-        return self::$DB->query("DROP TABLE IF EXISTS `fileChecksums`");
     }
 }

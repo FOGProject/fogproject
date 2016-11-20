@@ -22,14 +22,21 @@
 class MACAddressAssociationManager extends FOGManagerController
 {
     /**
+     * The base table name.
+     *
+     * @var string
+     */
+    public $tablename = 'hostMAC';
+    /**
      * Install our table.
      *
      * @return bool
      */
     public function install()
     {
+        $this->uninstall($this->tablename);
         $sql = Schema::createTable(
-            'hostMAC',
+            $this->tablename,
             true,
             array(
                 'hmID',
@@ -82,15 +89,5 @@ class MACAddressAssociationManager extends FOGManagerController
             'hmID',
             'hmID'
         );
-    }
-    /**
-     * Uninstalls the table.
-     *
-     * @return bool
-     */
-    public function uninstall()
-    {
-        $sql = Schema::dropTable('hostMAC');
-        return self::$DB->query($sql);
     }
 }

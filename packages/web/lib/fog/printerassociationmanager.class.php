@@ -22,14 +22,21 @@
 class PrinterAssociationManager extends FOGManagerController
 {
     /**
+     * The base table name.
+     *
+     * @var string
+     */
+    public $tablename = 'printerAssoc';
+    /**
      * Install our table.
      *
      * @return bool
      */
     public function install()
     {
+        $this->uninstall($this->tablename);
         $sql = Schema::createTable(
-            'printerAssoc',
+            $this->tablename,
             true,
             array(
                 'paID',
@@ -78,16 +85,6 @@ class PrinterAssociationManager extends FOGManagerController
             'paID',
             'paID'
         );
-        return self::$DB->query($sql);
-    }
-    /**
-     * Uninstalls the table.
-     *
-     * @return bool
-     */
-    public function uninstall()
-    {
-        $sql = Schema::dropTable('printerAssoc');
         return self::$DB->query($sql);
     }
 }
