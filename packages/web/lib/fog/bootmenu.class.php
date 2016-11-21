@@ -1448,8 +1448,7 @@ class BootMenu extends FOGBase
                         ->getImageType()
                         ->get('type');
                     $imgPartitionType = $Image
-                        ->getImagePartitionType()
-                        ->get('type');
+                        ->getPartitionType();
                     $imgid = $Image
                         ->get('id');
                     $image_PIGZ = $Image->get('compress');

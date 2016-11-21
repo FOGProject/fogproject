@@ -1034,7 +1034,7 @@ abstract class FOGController extends FOGBase
         if (count($classData) < 1) {
             $classData = array_intersect_key(
                 (array) $queryData,
-                $this->databaseFields
+                (array)$this->databaseFields
             );
         } else {
             foreach ($this->databaseFieldsFlipped as $db_key => &$obj_key) {
@@ -1058,6 +1058,7 @@ abstract class FOGController extends FOGBase
                 (array) $class->databaseFieldsFlipped
             );
             $class->setQuery($leftover);
+            $class->load();
             $this->set($fields[2], $class);
             unset($class, $fields);
         }
