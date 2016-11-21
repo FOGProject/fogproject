@@ -33,8 +33,12 @@ if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
                 dots "Removing apache and php files"
                 rm -rf /etc/php* /etc/apache2*
                 echo "Done"
+                dots "Stopping web services"
+                systemctl=$(command -v systemctl)
+                [[ -z $systemctl ]] && systemctl stop apache2 >/dev/null 2>&1 || service apache2 stop >/dev/null 2>&1
+                [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
                 dots "Removing the apache and php packages"
-                apt-get purge -yq 'apache2*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
+                DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'apache2*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
                 [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
                 dots "Resetting our variables to specify php version 7.1"
                 php_ver="7.1"
