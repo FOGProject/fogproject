@@ -115,6 +115,6 @@ class LocationAssociation extends FOGController
      */
     public function isTFTP()
     {
-        return (bool)$Location->get('tftp');
+        return (bool)$this->getLocation()->get('tftp');
     }
 }
