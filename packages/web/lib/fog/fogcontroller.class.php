@@ -1043,25 +1043,14 @@ abstract class FOGController extends FOGBase
             }
         }
         $this->data = (array) $this->data + (array) $classData;
-        $origName = strtolower(get_class($this));
-        global $node;
         foreach ($this->databaseFieldClassRelationships as $class => &$fields) {
-            $className = strtolower($class);
-            if ($node === $className
-                || $origName === $className
-            ) {
-                continue;
-            }
-            $class = new $class();
-            $leftover = array_intersect_key(
-                (array) $queryData,
-                (array) $class->databaseFieldsFlipped
+            $this->set(
+                $fields[2],
+                self::getClass($class, $queryData)->load()
             );
-            $class->setQuery($leftover);
-            $class->load();
-            $this->set($fields[2], $class);
             unset($class, $fields);
         }
+        unset($queryData);
 
         return $this;
     }
