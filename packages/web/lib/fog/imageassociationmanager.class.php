@@ -26,7 +26,7 @@ class ImageAssociationManager extends FOGManagerController
      *
      * @var string
      */
-    public $tablename = 'dirCleaner';
+    public $tablename = 'imageGroupAssoc';
     /**
      * Install our table.
      *
@@ -39,29 +39,40 @@ class ImageAssociationManager extends FOGManagerController
             $this->tablename,
             true,
             array(
-                'dcID',
-                'dcPath'
+                'igaID',
+                'igaImageID',
+                'igaStorageGroupID',
+                'igaPrimary'
             ),
             array(
                 'INTEGER',
-                'LONGTEXT'
+                'INTEGER',
+                'INTEGER',
+                "ENUM('0', '1')"
             ),
             array(
+                false,
+                false,
                 false,
                 false
             ),
             array(
                 false,
+                false,
+                false,
                 false
             ),
             array(
-                'dcID',
-                'dcPath'
+                'igaID',
+                array(
+                    'igaImageID',
+                    'igaStorageGroupID'
+                )
             ),
             'MyISAM',
             'utf8',
-            'dcID',
-            'dcID'
+            'igaID',
+            'igaID'
         );
         return self::$DB->query($sql);
     }

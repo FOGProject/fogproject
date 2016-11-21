@@ -26,7 +26,7 @@ class ImageManager extends FOGManagerController
      *
      * @var string
      */
-    public $tablename = 'dirCleaner';
+    public $tablename = 'images';
     /**
      * Install our table.
      *
@@ -35,33 +35,104 @@ class ImageManager extends FOGManagerController
     public function install()
     {
         $this->uninstall();
+        $compress = sprintf(
+            "ENUM('%s')",
+            implode("','", range(0, 9))
+        );
         $sql = Schema::createTable(
             $this->tablename,
             true,
             array(
-                'dcID',
-                'dcPath'
+                'imageID',
+                'imageName',
+                'imageDesc',
+                'imagePath',
+                'imageProtect',
+                'imageMagnetUri',
+                'imageDateTime',
+                'imageCreateBy',
+                'imageBuilding',
+                'imageSize',
+                'imageTypeID',
+                'imagePartitionTypeID',
+                'imageOSID',
+                'imageFormat',
+                'imageLastDeploy',
+                'imageCompress',
+                'imageEnabled',
+                'imageReplicate'
             ),
             array(
                 'INTEGER',
-                'LONGTEXT'
+                'VARCHAR(40)',
+                'LONGTEXT',
+                'LONGTEXT',
+                "ENUM('0', '1')",
+                'LONGTEXT',
+                'TIMESTAMP',
+                'VARCHAR(40)',
+                'INTEGER',
+                'VARCHAR(255)',
+                'INTEGER',
+                'INTEGER',
+                'INTEGER',
+                'VARCHAR(2)',
+                'DATETIME',
+                $compress,
+                "ENUM('0', '1')",
+                "ENUM('0', '1')"
             ),
             array(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
                 false,
                 false
             ),
             array(
                 false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                'CURRENT_TIMESTAMP',
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
                 false
             ),
             array(
-                'dcID',
-                'dcPath'
+                'imageID',
+                array(
+                    'imageName',
+                    'imageTypeID'
+                )
             ),
             'MyISAM',
             'utf8',
-            'dcID',
-            'dcID'
+            'imageID',
+            'imageID'
         );
         return self::$DB->query($sql);
     }
