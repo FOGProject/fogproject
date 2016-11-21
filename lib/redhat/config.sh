@@ -45,7 +45,7 @@ case $linuxReleaseName in
             [[ -z $packageinstaller ]] && packageinstaller="yum -y --enablerepo=$repos install"
             [[ -z $packagelist ]] && packagelist="yum --enablerepo=$repos list"
             [[ -z $packageupdater ]] && packageupdater="yum -y --enablerepo=$repos update"
-            [[ -z $packmanUpdate ]] && packmanUpdate="yum check-update"
+            [[ -z $packmanUpdate ]] && packmanUpdate="yum -y --enablerepo=$repos check-update"
             command -v yum-config-manager >/dev/null 2>&1
             [[ ! $? -eq 0 ]] && $packageinstaller yum-utils >/dev/null 2>&1
             command -v yum-config-manager >/dev/null 2>&1
