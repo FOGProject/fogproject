@@ -42,7 +42,7 @@ if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
                 phpfpm="php${php_ver}-fpm"
                 phpldap="php${php_ver}-ldap"
                 phpcmd="php"
-                packages="apache2 build-essential cpp curl g++ gawk gcc gzip htmldoc isc-dhcp-server lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 m4 mysql-client mysql-server net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mcrypt php${php_ver}-mysqli php${php_ver}-mysqlnd sysv-rc-conf tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
+                packages="apache2 build-essential cpp curl g++ gawk gcc gzip htmldoc isc-dhcp-server lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 m4 mysql-client mysql-server net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mcrypt php${php_ver}-mysql php${php_ver}-mysqlnd sysv-rc-conf tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
                 echo "Done"
                 ;;
             *)
