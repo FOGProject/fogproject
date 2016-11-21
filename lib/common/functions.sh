@@ -627,7 +627,7 @@ installPackages() {
         fi
     fi
     errorStat $?
-    packages=$(echo "${packages[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+    packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
     newPackList=""
     for x in $packages; do
@@ -688,8 +688,8 @@ installPackages() {
         DEBIAN_FRONTEND=noninteractive $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
     done
-    packages=$(echo $newPackList)
-    packages=$(echo "${packages[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+    packages=$newPackList
+    packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
     dots "Updating packages as needed"
     DEBIAN_FRONTEND=noninteractive $packageupdater $packages >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     echo "OK"
@@ -697,36 +697,6 @@ installPackages() {
 confirmPackageInstallation() {
     for x in $packages; do
         dots "Checking package: $x"
-        case $x in
-            mysql)
-                for sqlclient in $sqlclientlist; do
-                    x=$sqlclient
-                    eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    [[ $? -eq 0 ]] && break
-                done
-                ;;
-            mysql-server)
-                for sqlserver in $sqlserverlist; do
-                    x=$sqlserver
-                    eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    [[ $? -eq 0 ]] && break
-                done
-                ;;
-            php${php_ver}-json)
-                for json in $jsontest; do
-                    x=$json
-                    eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    [[ $? -eq 0 ]] && break
-                done
-                ;;
-            php${php_ver}-mysqlnd|php${php_ver}-mysql)
-                for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
-                    x=$phpmysql
-                    eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    [[ $? -eq 0 ]] && break
-                done
-                ;;
-        esac
         eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
     done
@@ -1136,7 +1106,7 @@ writeUpdateFile() {
     escstartrange=$(echo $startrange | sed -e $replace)
     escendrange=$(echo $endrange | sed -e $replace)
     escbootfilename=$(echo $bootfilename | sed -e $replace)
-    escpackages=$(echo "$packages" | sed -e $replace)
+    escpackages=$(echo $packages | sed -e $replace)
     escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
     escnotpxedefaultfile=$(echo $notpxedefaultfile | sed -e $replace)
     escsslpath=$(echo $sslpath | sed -e $replace)
