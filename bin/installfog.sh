@@ -481,6 +481,11 @@ while [[ -z $blGo ]]; do
                 done
                 packages="$(echo $newpackagelist)"
             fi
+            case $installtype in
+                [Ss])
+                    packages=$(echo $packages | sed -e 's/[-a-zA-Z]*dhcp[-a-zA-Z]*//g' -e 's/mysql[-a-zA-Z]*//g' -e 's/mariadb[-a-zA-Z]*//g')
+                    ;;
+            esac
             installPackages
             echo
             echo " * Confirming package installation"
@@ -510,7 +515,6 @@ while [[ -z $blGo ]]; do
             configureUsers
             case $installtype in
                 [Ss])
-                    packages=$(echo $packages | sed -e 's/[a-zA-Z-]*dhcp[-a-zA-Z]*//g' -e 's/[a-zA-Z-]*mysql[-a-zA-Z]*//g')
                     backupReports
                     configureMinHttpd
                     configureStorage

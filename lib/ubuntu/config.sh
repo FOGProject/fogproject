@@ -59,7 +59,7 @@ fi
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 case $linuxReleaseName in
     *[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Bb][Uu][Nn][Tt][Uu]*)
-        [[ -z $packages ]] && packages="apache2 build-essential cpp curl g++ gawk gcc gzip htmldoc isc-dhcp-server lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 m4 mysql-client mysql-server net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mcrypt php${php_ver}-mysqlnd sysv-rc-conf tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
+        [[ -z $packages ]] && packages="apache2 build-essential cpp curl g++ gawk gcc gzip htmldoc isc-dhcp-server lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 m4 mysql-client mysql-server net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mcrypt php${php_ver}-mysql php${php_ver}-mysqlnd sysv-rc-conf tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
         [[ -z $packageinstaller ]] && packageinstaller="apt-get -yq install -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
         [[ -z $packagelist ]] && packagelist="apt-cache pkgnames | grep"
         [[ -z $packageupdater ]] && packageupdater="apt-get -yq upgrade -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
