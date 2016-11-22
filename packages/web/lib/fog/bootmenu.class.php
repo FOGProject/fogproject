@@ -1349,7 +1349,7 @@ class BootMenu extends FOGBase
             if ($this->_Host->get('mac')->isImageIgnored()) {
                 $this->_printImageIgnored();
             }
-            $TaskType = new TaskType($Task->get('typeID'));
+            $TaskType = $Task->getTaskType();
             $imagingTasks = $TaskType->isImagingTask();
             if ($TaskType->isMulticast()) {
                 $msaID = @max(

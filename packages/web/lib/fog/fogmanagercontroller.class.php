@@ -292,13 +292,17 @@ abstract class FOGManagerController extends FOGBase
         } else {
             $orderBy = '';
         }
-        list(
+        $join = $whereArrayAnd = array();
+        $c = null;
+        self::getClass($this->childClass)->buildQuery(
             $join,
-            $whereArrayAnd
-        ) = self::getClass($this->childClass)->buildQuery(
+            $whereArrayAnd,
+            $c,
             $not,
             $compare
         );
+        $join = array_filter((array) $join);
+        $join = implode((array) $join);
         $knownEnable = array(
             'Image',
             'Snapin',

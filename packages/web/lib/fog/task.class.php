@@ -89,15 +89,15 @@ class Task extends TaskType
      * @var array
      */
     protected $databaseFieldClassRelationships = array(
-        'Host' => array(
-            'id',
-            'hostID',
-            'host'
-        ),
         'Image' => array(
             'id',
             'imageID',
             'image'
+        ),
+        'Host' => array(
+            'id',
+            'hostID',
+            'host'
         ),
         'TaskType' => array(
             'id',
