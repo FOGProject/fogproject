@@ -99,6 +99,11 @@ class Initiator
          * Set our iterator items into an array format.
          */
         $paths = iterator_to_array($RegexIterator, true);
+        unset(
+            $RecursiveDirectoryIterator,
+            $RecursiveIteratorIterator,
+            $RegexIterator
+        );
         /**
          * Define all paths as an array.
          */

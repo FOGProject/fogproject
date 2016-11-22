@@ -174,6 +174,11 @@ class Plugin extends FOGController
             RegexIterator::GET_MATCH
         );
         $files = iterator_to_array($RegexIterator, false);
+        unset(
+            $RecursiveDirectoryIterator,
+            $RecursiveIteratorIterator,
+            $RegexIterator
+        );
         $files = array_map($patternReplacer, (array) $files);
         natcasesort($files);
         $files = array_filter($files);

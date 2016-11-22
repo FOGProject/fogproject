@@ -328,6 +328,11 @@ class FOGPageManager extends FOGBase
             RegexIterator::GET_MATCH
         );
         $files = iterator_to_array($RegexIterator, false);
+        unset(
+            $RecursiveDirectoryIterator,
+            $RecursiveIteratorIterator,
+            $RegexIterator
+        );
         $plugins = '?!';
         $normalfiles = array_values(
             array_filter(
