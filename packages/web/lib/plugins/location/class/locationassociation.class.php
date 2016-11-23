@@ -47,13 +47,39 @@ class LocationAssociation extends FOGController
         'hostID',
     );
     /**
+     * Additional fields
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'host',
+        'location'
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'Host' => array(
+            'id',
+            'hostID',
+            'host'
+        ),
+        'Location' => array(
+            'id',
+            'locationID',
+            'location'
+        )
+    );
+    /**
      * Return the associated location.
      *
      * @return object
      */
     public function getLocation()
     {
-        return new Location($this->get('locationID'));
+        return $this->get('location');
     }
     /**
      * Return the associated host.
@@ -62,7 +88,7 @@ class LocationAssociation extends FOGController
      */
     public function getHost()
     {
-        return new Host($this->get('hostID'));
+        return $this->get('host');
     }
     /**
      * Return the locations storage group.
