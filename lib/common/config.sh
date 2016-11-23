@@ -41,5 +41,6 @@ if [[ $systemctl == yes ]]; then
     initdIRfullname="FOGImageReplicator.service"
     initdSDfullname="FOGScheduler.service"
     initdSRfullname="FOGSnapinReplicator.service"
+    initdSHfullname="FOGSnapinHash.service"
     initdPHfullname="FOGPingHosts.service"
 fi

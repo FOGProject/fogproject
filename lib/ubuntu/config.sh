@@ -88,6 +88,7 @@ else
     initdSDfullname="FOGScheduler"
     initdSRfullname="FOGSnapinReplicator"
     initdPHfullname="FOGPingHosts"
+    initdSHfullname="FOGSnapinHash"
 fi
 if [[ -z $webdirdest ]]; then
     if [[ -z $docroot ]]; then

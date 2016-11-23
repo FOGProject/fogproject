@@ -1,20 +1,20 @@
 #!/usr/bin/php -q
 <?php
 /**
- * FOGSnapinReplicator service to replicate snapins in FOG
+ * FOGSnapinHash service to get the hash of snapins in FOG
  *
  * PHP version 5
  *
- * @category FOGSnapinReplicator
+ * @category FOGSnapinHash
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * FOGSnapinReplicator service to replicate snapins in FOG
+ * FOGSnapinHash service to get the hash of snapins in FOG
  *
- * @category FOGSnapinReplicator
+ * @category FOGSnapinHash
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -23,9 +23,9 @@
 @error_reporting(0);
 require dirname(realpath(__FILE__)).'/../etc/config.php';
 require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
-$service_name = 'FOGSnapinReplicator';
+$service_name = 'FOGSnapinHash';
 service_persist($service_name);
-$ServiceClass = $FOGCore::getClass('SnapinReplicator');
+$ServiceClass = $FOGCore::getClass('SnapinHash');
 $ServiceClass->getBanner();
 $ServiceClass->waitInterfaceReady();
 $ServiceClass->waitDbReady();

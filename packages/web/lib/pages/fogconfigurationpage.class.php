@@ -1945,6 +1945,11 @@ class FOGConfigurationPage extends FOGPage
                     $fogfiles
                 );
                 $snapinreplog = array_shift($snapinreplog);
+                $snapinhashlog = preg_grep(
+                    '#(fogsnapinhash.log$)#i',
+                    $fogfiles
+                );
+                $snapinhashlog = array_shift($snapinhashlog);
                 $pinghostlog = preg_grep(
                     '#(pinghosts.log$)#i',
                     $fogfiles
@@ -2007,6 +2012,15 @@ class FOGConfigurationPage extends FOGPage
                     ) => (
                         $snapinreplog ?
                         $snapinreplog :
+                        null
+                    ),
+                    (
+                        $snapinhashlog ?
+                        _('Snapin Hash') :
+                        null
+                    ) => (
+                        $snapinhashlog ?
+                        $snapinhashlog :
                         null
                     ),
                     (
