@@ -131,7 +131,7 @@ class SnapinHash extends FOGService
                 $snapinIDs = self::getSubObjectIDs(
                     'SnapinGroupAssociation',
                     array(
-                        'isPrimary' => 1,
+                        'primary' => 1,
                         'storagegroupID' => $myStorageGroupID
                     ),
                     'snapinID'
