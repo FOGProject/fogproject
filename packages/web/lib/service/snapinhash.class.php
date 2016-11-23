@@ -132,7 +132,8 @@ class SnapinHash extends FOGService
                     'SnapinGroupAssociation',
                     array(
                         'primary' => 1,
-                        'storagegroupID' => $myStorageGroupID
+                        'storagegroupID' => $myStorageGroupID,
+                        'hash' => array(-1, '', null, '0', 0)
                     ),
                     'snapinID'
                 );

@@ -74,7 +74,9 @@ class SnapinClient extends FOGClient implements FOGClientSend
         }
         $SnapinJob->set('stateID', $this->getCheckedInState())->save();
         global $sub;
-        if (basename(self::$scriptname) === 'snapins.checkin.php') {
+        if ($sub === 'requestClientInfo'
+            || basename(self::$scriptname) === 'snapins.checkin.php'
+        ) {
             if (!isset($_REQUEST['exitcode'])) {
                 $snapinIDs = self::getSubObjectIDs(
                     'SnapinTask',
