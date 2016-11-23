@@ -66,10 +66,7 @@ class MACAddressAssociation extends FOGController
      */
     public function getHost()
     {
-        if (!$this->isLoaded('host')) {
-            $this->set('host', new Host($this->get('hostID')));
-        }
-        return $this->get('host');
+        return new Host($this->get('hostID'));
     }
     /**
      * Returns if mac is pending
