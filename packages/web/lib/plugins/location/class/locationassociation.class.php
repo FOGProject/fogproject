@@ -61,11 +61,6 @@ class LocationAssociation extends FOGController
      * @var array
      */
     protected $databaseFieldClassRelationships = array(
-        'Host' => array(
-            'id',
-            'hostID',
-            'host'
-        ),
         'Location' => array(
             'id',
             'locationID',
@@ -88,7 +83,7 @@ class LocationAssociation extends FOGController
      */
     public function getHost()
     {
-        return $this->get('host');
+        return new Host($this->get('hostID'));
     }
     /**
      * Return the locations storage group.
