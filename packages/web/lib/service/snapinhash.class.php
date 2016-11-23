@@ -128,7 +128,7 @@ class SnapinHash extends FOGService
                         _('as its primary group')
                     )
                 );
-                $snapinIDs = self::getSubObjectID(
+                $snapinIDs = self::getSubObjectIDs(
                     'SnapinGroupAssociation',
                     array(
                         'isPrimary' => 1,
