@@ -94,11 +94,6 @@ class Task extends TaskType
             'imageID',
             'image'
         ),
-        'Host' => array(
-            'id',
-            'hostID',
-            'host'
-        ),
         'TaskType' => array(
             'id',
             'typeID',
@@ -113,11 +108,6 @@ class Task extends TaskType
             'id',
             'storagenodeID',
             'storagenode'
-        ),
-        'StorageGroup' => array(
-            'id',
-            'storagegroupID',
-            'storagegroup'
         )
     );
     /**
@@ -246,7 +236,7 @@ class Task extends TaskType
      */
     public function getHost()
     {
-        return $this->get('host');
+        return new Host($this->get('hostID'));
     }
     /**
      * Returns the storage group object.
@@ -255,7 +245,7 @@ class Task extends TaskType
      */
     public function getStorageGroup()
     {
-        return $this->get('storagegroup');
+        return $this->get('storagenode')->getStorageGroup();
     }
     /**
      * Returns the storage node object.
