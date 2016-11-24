@@ -132,8 +132,7 @@ class SnapinHash extends FOGService
                     'SnapinGroupAssociation',
                     array(
                         'primary' => 1,
-                        'storagegroupID' => $myStorageGroupID,
-                        'hash' => array(-1, '', null, '0', 0)
+                        'storagegroupID' => $myStorageGroupID
                     ),
                     'snapinID'
                 );
@@ -162,7 +161,7 @@ class SnapinHash extends FOGService
                             _('snapins') :
                             _('snapin')
                         ),
-                        _('To update hash values')
+                        _('to update hash values as needed')
                     )
                 );
                 $Snapins = self::getClass('SnapinManager')->find(
@@ -172,6 +171,15 @@ class SnapinHash extends FOGService
                     )
                 );
                 foreach ((array)$Snapins as &$Snapin) {
+                    if (strlen($Snapin->get('hash')) > 10) {
+                        self::outall(
+                            sprintf(
+                                ' | %s',
+                                _('Snapin hash already set')
+                            )
+                        );
+                        continue;
+                    }
                     $path = sprintf(
                         '/%s',
                         trim($StorageNode->get('snapinpath'), '/')
