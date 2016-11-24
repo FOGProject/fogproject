@@ -902,6 +902,35 @@ class BootMenu extends FOGBase
             $Image = $mc->getImage();
             $TaskType = new TaskType(8);
         }
+        $serviceNames = array(
+            'FOG_DISABLE_CHKDSK',
+            'FOG_KERNEL_ARGS',
+            'FOG_KERNEL_DEBUG',
+            'FOG_MINING_ENABLE',
+            'FOG_MINING_MAX_CORES',
+            'FOG_MINING_PACKAGE_PATH',
+            'FOG_NONREG_DEVICE'
+        );
+        list(
+            $chkdsk,
+            $kargs,
+            $kdebug,
+            $miningen,
+            $miningcr,
+            $miningpp,
+            $nondev
+        ) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => $serviceNames
+            ),
+            'value',
+            false,
+            'AND',
+            'name',
+            false,
+            ''
+        );
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
         $osid = $Image->get('osID');
@@ -919,7 +948,7 @@ class BootMenu extends FOGBase
         $imgType = $Image->getImageType()->get('type');
         $imgPartitionType = $Image->getPartitionType();
         $imgid = $Image->get('id');
-        $chkdsk = self::getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
+        $chkdsk = $chkdsk == 1 ? 0 : 1;
         $ftp = $StorageNode->get('ip');
         $port = ($mc ? $mc->get('port') : null);
         $kernelArgsArray = array(
@@ -945,36 +974,23 @@ class BootMenu extends FOGBase
                 'active' => $mc,
             ),
             array(
-                'value' => vsprintf(
+                'value' => sprintf(
                     'mining=1 miningcores=%s miningpath=%s',
-                    self::getSubObjectIDs(
-                        'Service',
-                        array(
-                            'name' => array(
-                                'FOG_MINING_MAX_CORES',
-                                'FOG_MINING_PACKAGE_PATH'
-                            )
-                        ),
-                        'value',
-                        false,
-                        'AND',
-                        'name',
-                        false,
-                        ''
-                    )
+                    $miningcr,
+                    $miningpp
                 ),
-                'active' => self::getSetting('FOG_MINING_ENABLE'),
+                'active' => $miningen,
             ),
             array(
                 'value' => 'debug',
-                'active' => self::getSetting('FOG_KERNEL_DEBUG'),
+                'active' => $kdebug,
             ),
             array(
-                'value' => 'fdrive='.self::getSetting('FOG_NONREG_DEVICE'),
-                'active' => self::getSetting('FOG_NONREG_DEVICE'),
+                'value' => 'fdrive='.$nondev,
+                'active' => $nondev,
             ),
             $TaskType->get('kernelArgs'),
-            self::getSetting('FOG_KERNEL_ARGS'),
+            $kargs
         );
         $this->_printTasking($kernelArgsArray);
     }
@@ -1807,7 +1823,9 @@ class BootMenu extends FOGBase
      */
     public function printDefault()
     {
-        if ($this->_Host->isValid() && self::getSetting('FOG_NO_MENU')) {
+        if ($this->_Host->isValid()
+            && self::getSetting('FOG_NO_MENU')
+        ) {
             $this->noMenu();
         }
         if ($this->_hiddenmenu) {
