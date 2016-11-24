@@ -1114,6 +1114,7 @@ writeUpdateFile() {
     escphp_ver=$(echo $php_ver | sed -e $replace)
     escphp_verAdds=$(echo $php_verAdds | sed -e $replace)
     escsslprivkey=$(echo $sslprivkey | sed -e $replace)
+    [[ -z $copybackold || $copybackold -lt 1 ]] && copybackold=0
     if [[ -f $fogprogramdir/.fogsettings ]]; then
         grep -q "^## Start of FOG Settings" $fogprogramdir/.fogsettings || grep -q "^## Version:.*" $fogprogramdir/.fogsettings
         if [[ $? == 0 ]]; then
@@ -1123,6 +1124,9 @@ writeUpdateFile() {
             grep -q "ipaddress=" $fogprogramdir/.fogsettings && \
                 sed -i "s/ipaddress=.*/ipaddress='$escipaddress'/g" $fogprogramdir/.fogsettings || \
                 echo "ipaddress='$ipaddress'" >> $fogprogramdir/.fogsettings
+            grep -q "copybackold=" $fogprogramdir/.fogsettings && \
+                sed -i "s/copybackold=.*/copybackold='$copybackold'/g" $fogprogramdir/.fogsettings || \
+                echo "copybackold='$copybackold'" >> $fogprogramdir/.fogsettings
             grep -q "interface=" $fogprogramdir/.fogsettings && \
                 sed -i "s/interface=.*/interface='$escinterface'/g" $fogprogramdir/.fogsettings || \
                 echo "interface='$interface'" >> $fogprogramdir/.fogsettings
@@ -1238,6 +1242,7 @@ writeUpdateFile() {
             echo "## Version: $version" >> "$fogprogramdir/.fogsettings"
             echo "## Install time: $tmpDte" >> "$fogprogramdir/.fogsettings"
             echo "ipaddress='$ipaddress'" >> "$fogprogramdir/.fogsettings"
+            echo "copybackold='$copybackold'" >> "$fogprogramdir/.fogsettings"
             echo "interface='$interface'" >> "$fogprogramdir/.fogsettings"
             echo "submask='$submask'" >> "$fogprogramdir/.fogsettings"
             echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
@@ -1281,6 +1286,7 @@ writeUpdateFile() {
         echo "## Version: $version" >> "$fogprogramdir/.fogsettings"
         echo "## Install time: $tmpDte" >> "$fogprogramdir/.fogsettings"
         echo "ipaddress='$ipaddress'" >> "$fogprogramdir/.fogsettings"
+        echo "copybackold='$copybackold'" >> "$fogprogramdir/.fogsettings"
         echo "interface='$interface'" >> "$fogprogramdir/.fogsettings"
         echo "submask='$submask'" >> "$fogprogramdir/.fogsettings"
         echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
@@ -1630,21 +1636,23 @@ configureHttpd() {
         ln -s $webdirdest  ${docroot}/fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     errorStat $?
-    if [[ -d ${backupPath}/fog_web_${version}.BACKUP ]]; then
-        dots "Copying back old web folder as is";
-        cp -Rf ${backupPath}/fog_web_${version}.BACKUP/* $webdirdest/
-        errorStat $?
-        dots "Ensuring all classes are lowercased"
-        for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php"); do
-            mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        done
-        for i in $(find $webdirdest -type f -name "*[A-Z]*\.event\.php"); do
-            mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        done
-        for i in $(find $webdirdest -type f -name "*[A-Z]*\.hook\.php"); do
-            mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        done
-        errorStat $?
+    if [[ $copybackold -gt 0 ]]; then
+        if [[ -d ${backupPath}/fog_web_${version}.BACKUP ]]; then
+            dots "Copying back old web folder as is";
+            cp -Rf ${backupPath}/fog_web_${version}.BACKUP/* $webdirdest/
+            errorStat $?
+            dots "Ensuring all classes are lowercased"
+            for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php"); do
+                mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            done
+            for i in $(find $webdirdest -type f -name "*[A-Z]*\.event\.php"); do
+                mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            done
+            for i in $(find $webdirdest -type f -name "*[A-Z]*\.hook\.php"); do
+                mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            done
+            errorStat $?
+        fi
     fi
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/

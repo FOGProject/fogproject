@@ -28,6 +28,7 @@ help() {
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
     echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
+    echo -e "\t-o    --oldcopy\t\t\tCopy back old data"
     echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
     echo -e "\t-U    --no-upgrade\t\tDon't attempt to upgrade"
     echo -e "\t-H    --no-htmldoc\t\tNo htmldoc, means no PDFs"
@@ -55,7 +56,7 @@ help() {
     echo -e "\t-P    --no-pxedefault\t\tDo not overwrite pxe default file"
     exit 0
 }
-optspec="h?dEUHSCKYyXxTPf:c:-:W:D:B:s:e:b:"
+optspec="h?odEUHSCKYyXxTPf:c:-:W:D:B:s:e:b:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -100,6 +101,9 @@ while getopts "$optspec" o; do
                     docroot="${docroot#'/'}"
                     docroot="${docroot%'/'}"
                     docroot="/${docroot}/"
+                    ;;
+                oldcopy)
+                    copybackold=1
                     ;;
                 webroot)
                     if [[ $OPTARG != *('/')* ]]; then
@@ -171,6 +175,9 @@ while getopts "$optspec" o; do
         h|'?')
             help
             exit 0
+            ;;
+        o)
+            copybackold=1
             ;;
         c)
             sslpath="${OPTARG}"
