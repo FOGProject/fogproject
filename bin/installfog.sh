@@ -483,7 +483,7 @@ while [[ -z $blGo ]]; do
             fi
             case $installtype in
                 [Ss])
-                    packages=$(echo $packages | sed -e 's/[-a-zA-Z]*dhcp[-a-zA-Z]*//g' -e 's/ mysql[-a-zA-Z]*//g' -e 's/ mariadb[-a-zA-Z]*//g')
+                    packages=$(echo $packages | sed -e 's/[-a-zA-Z]*dhcp[-a-zA-Z]*//g')
                     ;;
             esac
             installPackages
