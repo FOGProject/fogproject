@@ -1662,8 +1662,11 @@ abstract class FOGBase
      *
      * @return string
      */
-    protected function sendData($datatosend, $service = true, $array = array())
-    {
+    protected function sendData(
+        $datatosend,
+        $service = true,
+        $array = array()
+    ) {
         global $sub;
         if (false === $service) {
             return;

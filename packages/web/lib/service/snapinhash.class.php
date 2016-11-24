@@ -182,25 +182,6 @@ class SnapinHash extends FOGService
                         $path,
                         $file
                     );
-                    unset($path, $file);
-                    $ip = $StorageNode->get('ip');
-                    $curroot = trim(
-                        trim($StorageNode->get('webroot'), '/')
-                    );
-                    $webroot = sprintf(
-                        '/%s',
-                        (
-                            strlen($curroot) > 1 ?
-                            sprintf(
-                                '%s/',
-                                $curroot
-                            ) :
-                            ''
-                        )
-                    );
-                    $location = "http://$ip{$webroot}";
-                    $url = "{$location}status/getsnapinhash.php";
-                    unset($curroot, $webroot, $ip, $location);
                     self::outall(
                         sprintf(
                             ' * %s: %s.',
@@ -208,17 +189,9 @@ class SnapinHash extends FOGService
                             $Snapin->get('name')
                         )
                     );
-                    $response = self::$FOGURLRequests->process(
-                        $url,
-                        'POST',
-                        array(
-                            'filepath' => $filepath
-                        )
-                    );
-                    $response = array_shift($response);
-                    $response = explode('|', $response);
-                    $hash = (string)array_shift($response);
-                    $size = array_shift($response);
+                    $hash = hash_file('sha512', $filepath);
+                    $size = self::getFilesize($filepath);
+                    unset($path, $file);
                     self::outall(
                         sprintf(
                             ' | %s: %s',
