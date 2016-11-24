@@ -1499,7 +1499,7 @@ configureHttpd() {
         rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
     fi
-    if [[ $installtype == N && ! $fogupdateloaded -eq 1 && -z $autoaccept ]]; then
+    if [[ $installtype == +([Nn]) && ! $fogupdateloaded -eq 1 && -z $autoaccept ]]; then
         dummy=""
         while [[ -z $dummy ]]; do
             echo -n " * Is the MySQL password blank? (Y/n) "
@@ -1537,18 +1537,18 @@ configureHttpd() {
                     ;;
             esac
         done
+        sql="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
+        options="-s"
+        [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
+        [[ -n $snmysqluser ]] && options="$options -u'$snmysqluser'"
+        [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
+        mysqlver=$(mysql -V | awk 'match($0,/Distrib[ ](.*)[,]/,a) {print a[1]}')
+        mariadb=$(echo $mysqlver | grep -oi mariadb)
+        mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
+        [[ -n $mariadb ]] && vertocheck="10.2" || vertocheck="5.7"
+        runTest=$(echo "$mysqlver < $vertocheck" | bc)
+        [[ $runTest -eq 0 ]] && mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
-    sql="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
-    options="-s"
-    [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
-    [[ -n $snmysqluser ]] && options="$options -u'$snmysqluser'"
-    [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
-    mysqlver=$(mysql -V | awk 'match($0,/Distrib[ ](.*)[,]/,a) {print a[1]}')
-    mariadb=$(echo $mysqlver | grep -oi mariadb)
-    mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
-    [[ -n $mariadb ]] && vertocheck="10.2" || vertocheck="5.7"
-    runTest=$(echo "$mysqlver < $vertocheck" | bc)
-    [[ $runTest -eq 0 ]] && mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
         echo "Failed"
