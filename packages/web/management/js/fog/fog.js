@@ -88,13 +88,10 @@ function AJAXServerTime() {
         "Invalid Input"
     );
     $('.list,.search,.storageGroup,.listhosts,.listgroups').click(function(e) {
-        if (sub && sub != 'search' && sub != 'list' && sub != 'listhosts' && sub != 'listgroups') {
+        if (sub && $.inArray(sub,['list','search','storageGroup','listhosts','listgroups']) < 0) {
             return;
         }
         e.preventDefault();
-        if (typeof(Container) === null || typeof(Container) === 'undefined') {
-            Container = $('#content-inner');
-        }
         url = $(this).prop('href');
         this.listAJAX = $.ajax({
             cache: false,
@@ -144,7 +141,7 @@ function AJAXServerTime() {
     ActionBox = $('#action-box');
     ActionBoxDel = $('#action-boxdel');
     var callme = 'hide';
-    if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search','storageGroup']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
+    if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search','storageGroup','listhosts','listgroups']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
     ActionBox[callme]();
     ActionBoxDel[callme]();
     setupParserInfo();
@@ -331,6 +328,9 @@ function showProgressBar() {
     });
 }
 function buildHeaderRow(data,attributes,wrapper) {
+    if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
+        Container = $('#search-content,#active-tasks');
+    }
     savedFilters = Container.find('.tablesorter-filter').map(function(){
         return this.value || '';
     }).get();
@@ -381,6 +381,9 @@ function buildRow(data,templates,attributes,wrapper) {
     HookTooltips();
 }
 function TableCheck() {
+    if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
+        Container = $('#search-content,#active-tasks');
+    }
     var callme = 'hide';
     if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
     if (LastCount > 0) {
@@ -395,7 +398,7 @@ function TableCheck() {
     ActionBox[callme]();
     ActionBoxDel[callme]();
     thead[callme]();
-    if (node == 'task' && sub != 'search') {
+    if (node == 'task' && $.inArray(sub, ['search', 'listhosts', 'listgroups']) < 0) {
         pauseUpdate[callme]();
         cancelTasks[callme]();
     }
