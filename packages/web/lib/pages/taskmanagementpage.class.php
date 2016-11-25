@@ -11,9 +11,9 @@ class TaskManagementPage extends FOGPage
             'active' => self::$foglang['ActiveTasks'],
             'listhosts' => sprintf(self::$foglang['ListAll'], self::$foglang['Hosts']),
             'listgroups' => sprintf(self::$foglang['ListAll'], self::$foglang['Groups']),
-            'active-multicast' => self::$foglang['ActiveMCTasks'],
-            'active-snapins' => self::$foglang['ActiveSnapins'],
-            'active-scheduled' => self::$foglang['ScheduledTasks'],
+            'activemulticast' => self::$foglang['ActiveMCTasks'],
+            'activesnapins' => self::$foglang['ActiveSnapins'],
+            'activescheduled' => self::$foglang['ScheduledTasks'],
         );
         self::$HookManager->processEvent('SUB_MENULINK_DATA', array('menu'=>&$this->menu, 'submenu'=>&$this->subMenu, 'id'=>&$this->id, 'notes'=>&$this->notes));
         $this->headerData = array(
@@ -287,7 +287,7 @@ class TaskManagementPage extends FOGPage
         }
         $result['error'] ? $this->fatalError($result['error']) : $this->redirect(sprintf('?node=%s', $this->node));
     }
-    public function active_multicast()
+    public function activemulticast()
     {
         $this->title = 'Active Multi-cast Tasks';
         $this->headerData = array(
@@ -335,7 +335,7 @@ class TaskManagementPage extends FOGPage
         self::$HookManager->processEvent('TaskActiveMulticastData', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
-    public function active_multicastPost()
+    public function activemulticastPost()
     {
         if (!self::$ajax) {
             $this->nonajax();
@@ -347,7 +347,7 @@ class TaskManagementPage extends FOGPage
         unset($MulticastSessionIDs);
         exit;
     }
-    public function active_snapins()
+    public function activesnapins()
     {
         $this->title = 'Active Snapins';
         $this->headerData = array(
@@ -413,7 +413,7 @@ class TaskManagementPage extends FOGPage
         $this->setMessage(_('Cannot cancel tasks this way'));
         $this->redirect($this->formAction);
     }
-    public function active_snapinsPost()
+    public function activesnapinsPost()
     {
         if (!self::$ajax) {
             $this->nonajax();
@@ -430,7 +430,7 @@ class TaskManagementPage extends FOGPage
         }
         exit;
     }
-    public function active_scheduled()
+    public function activescheduled()
     {
         $this->title = 'Scheduled Tasks';
         $this->headerData = array(
@@ -495,7 +495,7 @@ class TaskManagementPage extends FOGPage
         $this->render();
         unset($this->data);
     }
-    public function active_scheduledPost()
+    public function activescheduledPost()
     {
         if (!self::$ajax) {
             $this->nonajax();

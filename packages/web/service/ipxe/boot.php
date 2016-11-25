@@ -21,16 +21,15 @@
  */
 require '../../commons/base.inc.php';
 header("Content-type: text/plain");
-$mac = array(
-    $_REQUEST['mac'],
-    $_REQUEST['mac0'],
-    $_REQUEST['mac1'],
-    $_REQUEST['mac2']
+$mac = array_merge(
+    explode('|', $_REQUEST['mac']),
+    explode('|', $_REQUEST['mac0']),
+    explode('|', $_REQUEST['mac1']),
+    explode('|', $_REQUEST['mac2'])
 );
 $mac = array_filter($mac);
 $mac = array_unique($mac);
 $mac = array_values($mac);
-$mac = $FOGCore->parseMacList($mac, true, false);
 $_REQUEST['mac'] = implode('|', (array)$mac);
 $Host = $FOGCore->getHostItem(false, false, true);
 FOGCore::getClass('BootMenu', $Host);

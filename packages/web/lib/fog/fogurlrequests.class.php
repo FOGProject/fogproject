@@ -26,7 +26,7 @@ class FOGURLRequests extends FOGBase
      *
      * @var int
      */
-    private $_windowSize = 5;
+    private $_windowSize = 20;
     /**
      * The available connection timeout.
      *
@@ -152,7 +152,7 @@ class FOGURLRequests extends FOGBase
      */
     public function __destruct()
     {
-        $this->_windowSize = 5;
+        $this->_windowSize = 20;
         $this->_callback = '';
         $this->options = array(
             CURLOPT_SSL_VERIFYPEER => false,

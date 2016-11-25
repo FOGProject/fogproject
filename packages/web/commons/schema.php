@@ -3062,6 +3062,9 @@ $this->schema[] = array(
     . "('SNAPINREPLICATORLOGFILENAME','Filename to store the snapin "
     . "replicator log file to (Default fogsnapinrep.log)',"
     . "'fogsnapinrep.log','FOG Linux Service Logs'),"
+    . "('SNAPINHASHLOGFILENAME','Filename to store the snapin hash log "
+    . "file to (Default fogsnapinhash.log)','fogsnapinhash.log',"
+    . "'FOG Linux Service Logs'),"
     . "('SCHEDULERLOGFILENAME','Filename to store the scheduled "
     . "tasks log file to (Default fogscheduled.log)',"
     . "'fogscheduler.log','FOG Linux Service Logs'),"
@@ -3078,6 +3081,9 @@ $this->schema[] = array(
     . "('SNAPINREPSLEEPTIME','The amount of time between snapin "
     . "replicator service runs. Value is in seconds. (Default 600)',"
     . "'600','FOG Linux Service Sleep Times'),"
+    . "('SNAPINHASHSLEEPTIME','The amount of time between snapin "
+    . "hash service runs. Value is in seconds. (Default 1800)',"
+    . "'1800','FOG Linux Service Sleep Times'),"
     . "('SCHEDULERSLEEPTIME','The amount of time between task "
     . "scheduler service runs. Value is in seconds. (Default 60)',"
     . "'60','FOG Linux Service Sleep Times'),"
@@ -3096,6 +3102,9 @@ $this->schema[] = array(
     . "(Default /dev/tty4)','/dev/tty4','FOG Linux Service TTY Output'),"
     . "('SNAPINREPLICATORDEVICEOUTPUT','The tty to output to for snapin "
     . "replicator. (Default /dev/tty5)','/dev/tty5',"
+    . "'FOG Linux Service TTY Output'),"
+    . "('SNAPINHASHDEVICEOUTPUT','The tty to output to for snapin "
+    . "replicator. (Default /dev/tty5)','/dev/tty6',"
     . "'FOG Linux Service TTY Output'),"
     . "('PINGHOSTDEVICEOUTPUT','The tty to output to for ping hosts. "
     . "(Default /dev/tty6)','/dev/tty6','FOG Linux Service TTY Output')",
@@ -3469,4 +3478,28 @@ $this->schema[] = array(
 // 238
 $this->schema[] = array(
     Schema::dropTable('aloLog')
+);
+// 239
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('SNAPINHASHLOGFILENAME','Filename to store the snapin hash log "
+    . "file to (Default fogsnapinhash.log)','fogsnapinhash.log',"
+    . "'FOG Linux Service Logs'),"
+    . "('SNAPINHASHSLEEPTIME','The amount of time between snapin "
+    . "hash service runs. Value is in seconds. (Default 1800)',"
+    . "'1800','FOG Linux Service Sleep Times'),"
+    . "('SNAPINHASHDEVICEOUTPUT','The tty to output to for snapin "
+    . "replicator. (Default /dev/tty5)','/dev/tty6',"
+    . "'FOG Linux Service TTY Output')",
+    "UPDATE `globalSettings` SET `settingCategory`="
+    . "'FOG Linux Service Logs' WHERE `settingCategory`="
+    . "'FOG Service Logs'",
+    "UPDATE `globalSettings` SET `settingCategory`="
+    . "'FOG Linux Service Sleep Times' WHERE `settingCategory`="
+    . "'FOG Service Sleep Times'",
+    "UPDATE `globalSettings` SET `settingCategory`="
+    . "'FOG Linux Service TTY Output' WHERE `settingCategory`="
+    . "'FOG Service TTY Output'"
 );

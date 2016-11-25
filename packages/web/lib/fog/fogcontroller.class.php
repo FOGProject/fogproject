@@ -622,27 +622,13 @@ abstract class FOGController extends FOGBase
                     )
                 );
             }
-            list($join, $where) = $this->buildQuery();
+            $join = $whereArrayAnd = array();
+            $c = null;
+            $this->buildQuery($join, $whereArrayAnd, $c);
+            $join = array_filter((array) $join);
+            $join = implode((array) $join);
             $fields = array();
-            /**
-             * Lambda to get the fields to use.
-             *
-             * @param string $k      the key (for class relations really)
-             * @param string $column the column name
-             */
-            $getFields = function (&$column, $k) use (&$fields, &$table) {
-                $column = trim($column);
-                $fields[] = sprintf('`%s`.`%s`', $table, $column);
-                unset($column, $k);
-            };
-            $table = $this->databaseTable;
-            array_walk($this->databaseFields, $getFields);
-            foreach ($this->databaseFieldClassRelationships as $class => &$arr) {
-                $class = self::getClass($class);
-                $table = $class->databaseTable;
-                array_walk($class->databaseFields, $getFields);
-                unset($arr);
-            }
+            $this->getcolumns($fields);
             $key = $this->key($key);
             $paramKey = sprintf(':%s', $key);
             $query = sprintf(
@@ -652,7 +638,14 @@ abstract class FOGController extends FOGBase
                 $join,
                 $this->databaseFields[$key],
                 $paramKey,
-                count($where) ? sprintf(' AND %s', implode(' AND ', $where)) : ''
+                (
+                    count($whereArrayAnd) ?
+                    sprintf(
+                        ' AND %s',
+                        implode(' AND ', $whereArrayAnd)
+                    ) :
+                    ''
+                )
             );
             $msg = sprintf(
                 '%s %s',
@@ -682,6 +675,34 @@ abstract class FOGController extends FOGBase
         }
 
         return $this;
+    }
+    /**
+     * Gets the columns.
+     *
+     * @param array $fields The fields to get.
+     *
+     * @return void
+     */
+    public function getcolumns(&$fields)
+    {
+        /**
+         * Lambda to get the fields to use.
+         *
+         * @param string $k      The key (for class relations).
+         * @param string $column The column name.
+         */
+        $getFields = function (&$column, $k) use (&$fields, &$table) {
+            $column = trim($column);
+            $fields[] = sprintf('`%s`.*', $table);
+            unset($column, $k);
+        };
+        $table = $this->databaseTable;
+        array_walk($this->databaseFields, $getFields);
+        foreach ((array)$this->databaseFieldClassRelationships as $class => &$arr) {
+            self::getClass($class)->getcolumns($fields);
+            unset($arr);
+        }
+        $fields = array_unique($fields);
     }
     /**
      * Removes the item from the database.
@@ -889,6 +910,9 @@ abstract class FOGController extends FOGBase
                 )
             );
         }
+        if (count($array) < 1) {
+            return $this;
+        }
         $array = $array_type(
             (array) $this->get($key),
             (array) $array
@@ -937,16 +961,21 @@ abstract class FOGController extends FOGBase
     /**
      * Builds query strings as needed.
      *
-     * @param bool   $not     whether to compare using not operators
-     * @param string $compare the comparator to use
+     * @param array  $join          The join array.
+     * @param array  $whereArrayAnd The where array.
+     * @param array  $c             The join object.
+     * @param bool   $not           Whether to compare using not operator.
+     * @param string $compare       The comparator to use.
      *
      * @return array
      */
-    public function buildQuery($not = false, $compare = '=')
-    {
-        $join = array();
-        $whereArrayAnd = array();
-        $c = '';
+    public function buildQuery(
+        &$join,
+        &$whereArrayAnd,
+        &$c,
+        $not = false,
+        $compare = '='
+    ) {
         /**
          * Lambda function to build the where array additionals.
          *
@@ -1000,20 +1029,28 @@ abstract class FOGController extends FOGBase
             $not,
             $compare
         ) {
+            $className = strtolower($class);
             $c = self::getClass($class);
-            $join[] = sprintf(
-                ' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',
-                $c->databaseTable,
-                $c->databaseTable,
-                $c->databaseFields[$fields[0]],
-                $this->databaseTable,
-                $this->databaseFields[$fields[1]]
-            );
+            if (!array_key_exists($className, $join)) {
+                $join[$className] = sprintf(
+                    ' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',
+                    $c->databaseTable,
+                    $c->databaseTable,
+                    $c->databaseFields[$fields[0]],
+                    $this->databaseTable,
+                    $this->databaseFields[$fields[1]]
+                );
+            }
             if ($fields[3]) {
                 array_walk($fields[3], $whereInfo);
             }
+            $c->buildQuery($join, $whereArrayAnd, $c, $not, $compare);
             unset($class, $fields, $c);
         };
+        $className = strtolower(get_class($this));
+        if (!array_key_exists($className, $join)) {
+            $join[$className] = false;
+        }
         array_walk($this->databaseFieldClassRelationships, $joinInfo);
 
         return array(implode((array) $join), $whereArrayAnd);
@@ -1043,25 +1080,14 @@ abstract class FOGController extends FOGBase
             }
         }
         $this->data = (array) $this->data + (array) $classData;
-        $origName = strtolower(get_class($this));
-        global $node;
         foreach ($this->databaseFieldClassRelationships as $class => &$fields) {
-            $className = strtolower($class);
-            if ($node === $className
-                || $origName === $className
-            ) {
-                continue;
-            }
-            $class = new $class();
-            $leftover = array_intersect_key(
-                (array) $queryData,
-                (array) $class->databaseFieldsFlipped
+            $this->set(
+                $fields[2],
+                self::getClass($class)->setQuery($queryData)
             );
-            $class->setQuery($leftover);
-            $class->load();
-            $this->set($fields[2], $class);
             unset($class, $fields);
         }
+        unset($queryData);
 
         return $this;
     }

@@ -222,7 +222,8 @@ class FOGSubMenu extends FOGBase
                 );
                 foreach ((array) $data as $label => &$link) {
                     $string = sprintf(
-                        '<li><a href="%s">%s</a></li>',
+                        '<li><a class="%s" href="%s">%s</a></li>',
+                        $link,
                         '%s',
                         $label
                     );

@@ -29,9 +29,7 @@ try {
     $SnapinJob = $Host
         ->get('snapinjob');
     if (!$SnapinJob->isValid()) {
-        throw new Exception(
-            _('Invalid Snapin Job')
-        );
+        throw new Exception(0);
     }
     $snapinids = FOGCore::getSubObjectIDs(
         'SnapinTask',

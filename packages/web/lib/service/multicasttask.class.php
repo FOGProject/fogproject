@@ -477,8 +477,7 @@ class MulticastTask extends FOGService
                     }
                 } else {
                     $filename = 'd1p%d.%s';
-                    $iterator = self::getClass(
-                        'DirectoryIterator',
+                    $iterator = new DirectoryIterator(
                         $this->getImagePath()
                     );
                     foreach ($iterator as $fileInfo) {
@@ -496,13 +495,13 @@ class MulticastTask extends FOGService
                         }
                         unset($part, $ext);
                     }
+                    unset($iterator);
                 }
                 unset($files, $sys, $rec);
                 break;
             default:
                 $filename = 'd1p%d.%s';
-                $iterator = self::getClass(
-                    'DirectoryIterator',
+                $iterator = new DirectoryIterator(
                     $this->getImagePath()
                 );
                 foreach ($iterator as $fileInfo) {
@@ -520,13 +519,13 @@ class MulticastTask extends FOGService
                     }
                     unset($part, $ext);
                 }
+                unset($iterator);
                 break;
             }
             break;
         case 2:
             $filename = 'd1p%d.%s';
-            $iterator = self::getClass(
-                'DirectoryIterator',
+            $iterator = new DirectoryIterator(
                 $this->getImagePath()
             );
             foreach ($iterator as $fileInfo) {
@@ -544,11 +543,11 @@ class MulticastTask extends FOGService
                 }
                 unset($part, $ext);
             }
+            unset($iterator);
             break;
         case 3:
             $filename = 'd%dp%d.%s';
-            $iterator = self::getClass(
-                'DirectoryIterator',
+            $iterator = new DirectoryIterator(
                 $this->getImagePath()
             );
             foreach ($iterator as $fileInfo) {
@@ -567,10 +566,10 @@ class MulticastTask extends FOGService
                 }
                 unset($device, $part, $ext);
             }
+            unset($iterator);
             break;
         case 4:
-            $iterator = self::getClass(
-                'DirectoryIterator',
+            $iterator = new DirectoryIterator(
                 $this->getImagePath()
             );
             foreach ($iterator as $fileInfo) {

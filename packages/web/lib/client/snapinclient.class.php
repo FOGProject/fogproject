@@ -171,63 +171,10 @@ class SnapinClient extends FOGClient implements FOGClientSend
                         $file
                     );
                     $hash = $Snapin->get('hash');
-                    if (!$hash) {
-                        $Snapin->set('hash', -1)->save();
-                        $ip = $StorageNode->get('ip');
-                        $curroot = trim(
-                            trim($StorageNode->get('webroot'), '/')
-                        );
-                        $webroot = sprintf(
-                            '/%s',
-                            (
-                                strlen($curroot) > 1 ?
-                                sprintf(
-                                    '%s/',
-                                    $curroot
-                                ) :
-                                ''
-                            )
-                        );
-                        $location = "http://$ip{$webroot}";
-                        $url = "{$location}status/getsnapinhash.php";
-                        $testurl = sprintf(
-                            'http://%s/fog/management/index.php',
-                            $ip
-                        );
-                        $test = self::$FOGURLRequests->isAvailable($testurl);
-                        $test = array_shift($test);
-                        if (false === $test) {
-                            continue;
-                        }
-                        unset($curroot, $webroot, $ip);
-                        $response = self::$FOGURLRequests->process(
-                            $url,
-                            'POST',
-                            array(
-                                'filepath' => $filepath
-                            )
-                        );
-                        $response = array_shift($response);
-                        $data = explode('|', $response);
-                        $hash = (string)array_shift($data);
-                        $size = array_shift($data);
-                        $Snapin
-                            ->set('hash', $hash)
-                            ->set('size', $size)
-                            ->save();
-                    } else {
-                        while ($hash == -1) {
-                            sleep(10);
-                            $hash = $Snapin->get('hash');
-                        }
-                    }
                     $SnapinTask
                         ->set('checkin', $date)
                         ->set('stateID', $this->getCheckedInState())
                         ->save();
-                    if (empty($hash)) {
-                        continue;
-                    }
                     $action = '';
                     if ($Snapin->get('shutdown')) {
                         $action = 'shutdown';

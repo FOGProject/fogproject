@@ -26,7 +26,7 @@ class HostScreenSettingsManager extends FOGManagerController
      *
      * @var string
      */
-    public $tablename = 'dirCleaner';
+    public $tablename = 'hostScreenSettings';
     /**
      * Install our table.
      *
@@ -39,29 +39,53 @@ class HostScreenSettingsManager extends FOGManagerController
             $this->tablename,
             true,
             array(
-                'dcID',
-                'dcPath'
+                'hssID',
+                'hssHostID',
+                'hssWidth',
+                'hssHeight',
+                'hssRefresh',
+                'hssOrientation',
+                'hssOther1',
+                'hssOther2'
             ),
             array(
                 'INTEGER',
-                'LONGTEXT'
+                'INTEGER',
+                'INTEGER',
+                'INTEGER',
+                'INTEGER',
+                'INTEGER',
+                'INTEGER',
+                'INTEGER'
             ),
             array(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
                 false,
                 false
             ),
             array(
                 false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
                 false
             ),
             array(
-                'dcID',
-                'dcPath'
+                'hssID',
+                'hssHostID'
             ),
             'MyISAM',
             'utf8',
-            'dcID',
-            'dcID'
+            'hssID',
+            'hssID'
         );
         return self::$DB->query($sql);
     }

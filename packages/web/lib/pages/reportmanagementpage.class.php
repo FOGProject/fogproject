@@ -7,7 +7,24 @@ class ReportManagementPage extends FOGPage
         $regext = '#^.+/reports/.*\.report\.php$#';
         $dirpath = $_SESSION['FOG_REPORT_DIR'];
         $strlen = -strlen('.report.php');
-        $files = iterator_to_array(self::getClass('RegexIterator', self::getClass('RecursiveIteratorIterator', self::getClass('RecursiveDirectoryIterator', $dirpath, FileSystemIterator::SKIP_DOTS)), $regext, RegexIterator::GET_MATCH), false);
+        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
+            $dirpath,
+            FileSystemIterator::SKIP_DOTS
+        );
+        $RecursiveIteratorIterator = new RecursiveIteratorIterator(
+            $RecursiveDirectoryIterator
+        );
+        $RegexIterator = new RegexIterator(
+            $RecursiveIteratorIterator,
+            $regext,
+            RegexIterator::GET_MATCH
+        );
+        $files = iterator_to_array($RegexIterator, false);
+        unset(
+            $RecursiveDirectoryIterator,
+            $RecursiveIteratorIterator,
+            $RegexIterator
+        );
         $getNiceNameReports = function ($element) use ($strlen) {
             return str_replace('_', ' ', substr(basename($element[0]), 0, $strlen));
         };

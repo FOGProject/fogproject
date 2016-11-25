@@ -1545,8 +1545,11 @@ abstract class FOGBase
      *
      * @return array
      */
-    public function parseMacList($stringlist, $image = false, $client = false)
-    {
+    public function parseMacList(
+        $stringlist,
+        $image = false,
+        $client = false
+    ) {
         $MAClist = array();
         $MACs = $stringlist;
         $lowerAndTrim = function ($element) {
@@ -1659,8 +1662,11 @@ abstract class FOGBase
      *
      * @return string
      */
-    protected function sendData($datatosend, $service = true, $array = array())
-    {
+    protected function sendData(
+        $datatosend,
+        $service = true,
+        $array = array()
+    ) {
         global $sub;
         if (false === $service) {
             return;

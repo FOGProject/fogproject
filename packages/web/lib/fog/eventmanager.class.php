@@ -210,6 +210,11 @@ class EventManager extends FOGBase
         );
         // Makes all the returned items into an iteratable array
         $files = iterator_to_array($RegexIterator, false);
+        unset(
+            $RecursiveDirectoryIterator,
+            $RecursiveIteratorIterator,
+            $RegexIterator
+        );
         // First pass we don't care about plugins, only based files
         $plugins = '?!';
         $tFiles = array_map($fileitems, (array) $files);

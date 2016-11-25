@@ -96,13 +96,61 @@ function AJAXServerTime() {
     ActionBox = $('#action-box');
     ActionBoxDel = $('#action-boxdel');
     var callme = 'hide';
-    if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search','storageGroup']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
+    if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search','storageGroup','listhosts','listgroups']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
     ActionBox[callme]();
     ActionBoxDel[callme]();
     setupParserInfo();
     setupFogTableInfoFunction();
     AJAXServerTime();
     setInterval(AJAXServerTime,60000);
+    $('.list,.search,.storageGroup,.listhosts,.listgroups').click(function(e) {
+        if (sub && $.inArray(sub,['list','search','storageGroup','listhosts','listgroups']) < 0) {
+            return;
+        }
+        e.preventDefault();
+        url = $(this).prop('href');
+        this.listAJAX = $.ajax({
+            cache: false,
+            context: this,
+            url: $(this).prop('href'),
+            dataType: 'json',
+            beforeSend: function() {
+                Loader
+                .addClass('loading')
+            },
+            success: function(response) {
+                history.pushState(null, null, url);
+                if (response === null || response.data === null) {
+                    dataLength = 0;
+                } else {
+                    dataLength = response.data.length;
+                }
+                $('.title').html(response.title);
+                thead = $('thead', Container);
+                tbody = $('tbody', Container);
+                LastCount = dataLength;
+                Loader.removeClass('loading')
+                    .fogStatusUpdate(_L['SEARCH_RESULTS_FOUND']
+                        .replace(/%1/,LastCount)
+                        .replace(/%2/,LastCount != 1 ? 's' : '')
+                    )
+                    .find('i')
+                    .removeClass()
+                    .addClass('fa fa-exclamation-circle');
+                if (dataLength > 0) {
+                    buildHeaderRow(response.headerData, response.attributes, 'th');
+                    thead = $('thead', Container);
+                    buildRow(response.data, response.templates, response.attributes, 'td');
+                }
+                TableCheck();
+                this.listAJAX = null;
+                checkboxToggleSearchListPages();
+            }
+        });
+    });
+    if ($.inArray(sub,['list','listhosts','listgroups','storageGroup']) > -1) {
+        $('.list,.storageGroup,.listhosts,.listgroups').trigger('click');
+    }
     /**
      * On any form submission, attempt to trim the input fields automatically.
      */
@@ -253,10 +301,14 @@ $.fn.fogStatusUpdate = function(txt, opts) {
     var i = Loader.find('i');
     var p = Loader.find('p');
     var ProgressBar = $('#progress',this);
-    if (Options.Progress) ProgressBar.show().progressBar(Options.Progress);
-    else ProgressBar.hide().progressBar(0);
-    if (!txt) p.remove().end().hide();
-    else {
+    if (Options.Progress) {
+        ProgressBar.show().progressBar(Options.Progress);
+    } else {
+        ProgressBar.hide().progressBar(0);
+    }
+    if (!txt) {
+        p.remove().end().hide();
+    } else {
         i.addClass('fa fa-exclamation-circle fw');
         p.remove().end().append((Options.Raw ? txt : '<p>'+txt+'</p>')).show();
     }
@@ -283,6 +335,9 @@ function showProgressBar() {
     });
 }
 function buildHeaderRow(data,attributes,wrapper) {
+    if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
+        Container = $('#search-content,#active-tasks');
+    }
     savedFilters = Container.find('.tablesorter-filter').map(function(){
         return this.value || '';
     }).get();
@@ -333,6 +388,9 @@ function buildRow(data,templates,attributes,wrapper) {
     HookTooltips();
 }
 function TableCheck() {
+    if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
+        Container = $('#search-content,#active-tasks');
+    }
     var callme = 'hide';
     if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
     if (LastCount > 0) {
@@ -347,7 +405,7 @@ function TableCheck() {
     ActionBox[callme]();
     ActionBoxDel[callme]();
     thead[callme]();
-    if (node == 'task' && sub != 'search') {
+    if (node == 'task' && $.inArray(sub, ['search', 'listhosts', 'listgroups']) < 0) {
         pauseUpdate[callme]();
         cancelTasks[callme]();
     }

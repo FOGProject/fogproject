@@ -116,6 +116,21 @@ class Host extends FOGController
             'imageID',
             'imagename'
         ),
+        'HostScreenSettings' => array(
+            'hostID',
+            'id',
+            'hostscreen'
+        ),
+        'HostAutoLogout' => array(
+            'hostID',
+            'id',
+            'hostalo'
+        ),
+        'Inventory' => array(
+            'hostID',
+            'id',
+            'inventory'
+        )
     );
     /**
      * Display val storage
@@ -1043,51 +1058,6 @@ class Host extends FOGController
         $taskID = array_shift($taskID);
         $this->set('task', $taskID);
         unset($find);
-    }
-    /**
-     * Loads the inventory for this host
-     *
-     * @return void
-     */
-    protected function loadInventory()
-    {
-        $inventory = self::getClass('Inventory')
-            ->set('hostID', $this->get('id'))
-            ->load('hostID');
-        $this->set('inventory', $inventory);
-    }
-    /**
-     * Loads the image object
-     *
-     * @return void
-     */
-    protected function loadImagename()
-    {
-        $this->set('imagename', new Image($this->get('imageID')));
-    }
-    /**
-     * Loads the hostscreen for this host
-     *
-     * @return void
-     */
-    protected function loadHostscreen()
-    {
-        $hostscreen = self::getClass('HostScreenSettings')
-            ->set('hostID', $this->get('id'))
-            ->load('hostID');
-        $this->set('hostscreen', $hostscreen);
-    }
-    /**
-     * Loads the hostalo for this host
-     *
-     * @return void
-     */
-    protected function loadHostalo()
-    {
-        $hostalo = self::getClass('HostAutoLogout')
-            ->set('hostID', $this->get('id'))
-            ->load('hostID');
-        $this->set('hostalo', $hostalo);
     }
     /**
      * Loads the optimal storage node

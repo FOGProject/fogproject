@@ -186,11 +186,7 @@ class HostManager extends FOGManagerController
         $MACHost = self::getSubObjectIDs(
             'MACAddressAssociation',
             array(
-                'pending' => array(
-                    0,
-                    '',
-                    null,
-                ),
+                'pending' => array(0, ''),
                 'mac' => $macs,
             ),
             'hostID'

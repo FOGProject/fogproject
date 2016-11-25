@@ -104,6 +104,11 @@ class HookManager extends EventManager
             RegexIterator::GET_MATCH
         );
         $files = iterator_to_array($RegexIterator);
+        unset(
+            $RecursiveDirectoryIterator,
+            $RecursiveIteratorIterator,
+            $RegexIterator
+        );
         foreach ($files as &$file) {
             $fileRead($file);
             unset($file);
