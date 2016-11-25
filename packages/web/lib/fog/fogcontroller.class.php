@@ -910,6 +910,9 @@ abstract class FOGController extends FOGBase
                 )
             );
         }
+        if (count($array) < 1) {
+            return $this;
+        }
         $array = $array_type(
             (array) $this->get($key),
             (array) $array
