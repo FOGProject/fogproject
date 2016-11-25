@@ -87,8 +87,8 @@ function AJAXServerTime() {
         },
         "Invalid Input"
     );
-    $('.list,.search,.storageGroup').click(function(e) {
-        if (sub && sub != 'search' && sub != 'list') {
+    $('.list,.search,.storageGroup,.listhosts,.listgroups').click(function(e) {
+        if (sub && sub != 'search' && sub != 'list' && sub != 'listhosts' && sub != 'listgroups') {
             return;
         }
         e.preventDefault();
@@ -98,13 +98,16 @@ function AJAXServerTime() {
         url = $(this).prop('href');
         this.listAJAX = $.ajax({
             cache: false,
+            context: this,
             url: $(this).prop('href'),
             dataType: 'json',
             beforeSend: function() {
-                Loader.fogStatusUpdate();
-                Loader.addClass('loading')
+                Loader
+                    .addClass('loading')
+                    .fogStatusUpdate()
             },
             success: function(response) {
+                history.pushState(null, null, url);
                 if (response === null || response.data === null) {
                     dataLength = 0;
                 } else {

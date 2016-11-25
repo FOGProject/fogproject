@@ -112,7 +112,15 @@ class SnapinTaskManager extends FOGManagerController
              * Get the snapin task count
              */
             $jobCount = self::getClass('SnapinTaskManager')
-                ->count(array('jobID' => $jobID));
+                ->count(
+                    array(
+                        'jobID' => $jobID,
+                        'stateID' => array_merge(
+                            (array) $this->getQueuedStates(),
+                            (array) $this->getProgressState()
+                        )
+                    )
+                );
             /**
              * If we still have tasks start with the next job ID.
              */
