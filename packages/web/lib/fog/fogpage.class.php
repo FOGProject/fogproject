@@ -596,11 +596,86 @@ abstract class FOGPage extends FOGBase
     {
         try {
             unset($actionbox);
+            global $sub;
+            global $node;
             $defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
             $defaultScreens = array(
                 'search',
                 'list'
             );
+            if (((!$sub
+                || in_array($sub, $defaultScreens)
+                || $sub === 'storageGroup')
+                && in_array($node, self::$searchPages)
+                && in_array($node, $this->PagesWithObjects))
+                && !self::$isMobile
+            ) {
+                if ($node == 'host') {
+                    $actionbox = sprintf(
+                        '<form method="post" action="%s" id="action-box">'
+                        . '<input type="hidden" name="hostIDArray" value="" '
+                        . 'autocomplete="off"/><p><label for="group_new">%s'
+                        . '</label><input type="text" name="group_new" '
+                        . 'id="group_new" autocomplete="off"/></p><p class="c">'
+                        . 'OR</p><p><label for="group">%s</label>%s</p>'
+                        . '<p class="c"><input type="submit" id="processgroup" '
+                        . 'value="%s"/></p></form>',
+                        sprintf(
+                            '?node=%s&sub=saveGroup',
+                            $node
+                        ),
+                        _('Create new group'),
+                        _('Add to group'),
+                        self::getClass('GroupManager')->buildSelectBox(),
+                        _('Process Group Changes')
+                    );
+                }
+                if ($node != 'task') {
+                    $actionbox .= sprintf(
+                        '<form method="post" class="c" id="action-boxdel" '
+                        . 'action="%s"><p>%s</p><input type="hidden" '
+                        . 'name="%sIDArray" value="" autocomplete="off"/>'
+                        . '<input type="submit" value="%s?"/></form>',
+                        sprintf(
+                            '?node=%s&sub=deletemulti',
+                            $node
+                        ),
+                        _('Delete all selected items'),
+                        strtolower($node),
+                        sprintf(
+                            _('Delete all selected %ss'),
+                            (
+                                strtolower($node) !== 'storage' ?
+                                strtolower($node) :
+                                (
+                                    $sub === 'storageGroup' ?
+                                    strtolower($node).' group' :
+                                    strtolower($node).' node'
+                                )
+                            )
+                        )
+                    );
+                }
+            }
+            self::$HookManager->processEvent(
+                'ACTIONBOX',
+                array('actionbox' => &$actionbox)
+            );
+            if (self::$ajax) {
+                echo json_encode(
+                    array(
+                        'data' => &$this->data,
+                        'templates' => &$this->templates,
+                        'headerData' => &$this->headerData,
+                        'title' => &$this->title,
+                        'attributes' => &$this->attributes,
+                        'form' => &$this->form,
+                        'searchFormURL' => &$this->searchFormURL,
+                        'actionbox' => &$actionbox,
+                    )
+                );
+                exit;
+            }
             if (!count($this->templates)) {
                 throw new Exception(
                     _('Requires templates to process')
@@ -758,80 +833,7 @@ abstract class FOGPage extends FOGBase
                 }
             }
             echo '</tbody></table>';
-            if (((!$sub
-                || in_array($sub, $defaultScreens)
-                || $sub === 'storageGroup')
-                && in_array($node, self::$searchPages)
-                && in_array($node, $this->PagesWithObjects))
-                && !self::$isMobile
-            ) {
-                if ($this->node == 'host') {
-                    $actionbox = sprintf(
-                        '<form method="post" action="%s" id="action-box">'
-                        . '<input type="hidden" name="hostIDArray" value="" '
-                        . 'autocomplete="off"/><p><label for="group_new">%s'
-                        . '</label><input type="text" name="group_new" '
-                        . 'id="group_new" autocomplete="off"/></p><p class="c">'
-                        . 'OR</p><p><label for="group">%s</label>%s</p>'
-                        . '<p class="c"><input type="submit" id="processgroup" '
-                        . 'value="%s"/></p></form>',
-                        sprintf(
-                            '?node=%s&sub=saveGroup',
-                            $this->node
-                        ),
-                        _('Create new group'),
-                        _('Add to group'),
-                        self::getClass('GroupManager')->buildSelectBox(),
-                        _('Process Group Changes')
-                    );
-                }
-                if ($this->node != 'task') {
-                    $actionbox .= sprintf(
-                        '<form method="post" class="c" id="action-boxdel" '
-                        . 'action="%s"><p>%s</p><input type="hidden" '
-                        . 'name="%sIDArray" value="" autocomplete="off"/>'
-                        . '<input type="submit" value="%s?"/></form>',
-                        sprintf(
-                            '?node=%s&sub=deletemulti',
-                            $this->node
-                        ),
-                        _('Delete all selected items'),
-                        strtolower($this->node),
-                        sprintf(
-                            _('Delete all selected %ss'),
-                            (
-                                strtolower($this->node) !== 'storage' ?
-                                strtolower($this->node) :
-                                (
-                                    $sub === 'storageGroup' ?
-                                    strtolower($this->node).' group' :
-                                    strtolower($this->node).' node'
-                                )
-                            )
-                        )
-                    );
-                }
-            }
-            self::$HookManager->processEvent(
-                'ACTIONBOX',
-                array('actionbox' => &$actionbox)
-            );
             $text = ob_get_clean();
-            if (self::$ajax) {
-                echo json_encode(
-                    array(
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'headerData' => &$this->headerData,
-                        'title' => &$this->title,
-                        'attributes' => &$this->attributes,
-                        'form' => &$this->form,
-                        'searchFormURL' => &$this->searchFormURL,
-                        'actionbox' => &$actionbox,
-                    )
-                );
-                exit;
-            }
             $text .= $actionbox;
             return $text;
         } catch (Exception $e) {
