@@ -538,8 +538,8 @@ processSfdisk() {
 getPartitionTableType() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    local mbr=$(gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
-    local gpt=$(gdisk -l $disk | awk '/^\ *GPT:/{print $2}')
+    local mbr=$(yes '' | gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
+    local gpt=$(yes '' | gdisk -l $disk | awk '/^\ *GPT:/{print $2}')
     local type=""
     local mbrtype=""
     local gpttype=""
