@@ -452,6 +452,10 @@ abstract class FOGPage extends FOGBase
      */
     public function index()
     {
+        $this->title = _('Search');
+        if (in_array($this->node, self::$searchPages)) {
+            $this->searchFormURL = sprintf('?node=%s&sub=search', $this->node);
+        }
         if (in_array($this->node, self::$searchPages)) {
             $this->title = sprintf(
                 '%s %s',

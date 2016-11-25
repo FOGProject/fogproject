@@ -87,6 +87,51 @@ function AJAXServerTime() {
         },
         "Invalid Input"
     );
+    $('.list,.search,.storageGroup').click(function(e) {
+        if (sub && sub != 'search' && sub != 'list') {
+            return;
+        }
+        e.preventDefault();
+        if (typeof(Container) === null || typeof(Container) === 'undefined') {
+            Container = $('#content-inner');
+        }
+        url = $(this).prop('href');
+        this.listAJAX = $.ajax({
+            cache: false,
+            url: $(this).prop('href'),
+            dataType: 'json',
+            beforeSend: function() {
+                Loader.fogStatusUpdate();
+                Loader.addClass('loading')
+            },
+            success: function(response) {
+                if (response === null || response.data === null) {
+                    dataLength = 0;
+                } else {
+                    dataLength = response.data.length;
+                }
+                $('.title').html(response.title);
+                thead = $('thead', Container);
+                tbody = $('tbody', Container);
+                LastCount = dataLength;
+                Loader.removeClass('loading')
+                    .fogStatusUpdate(_L['SEARCH_RESULTS_FOUND']
+                    .replace(/%1/,LastCount)
+                    .replace(/%2/,LastCount != 1 ? 's' : ''))
+                    .find('i')
+                    .removeClass()
+                    .addClass('fa fa-exclamation-circle');
+                if (dataLength > 0) {
+                    buildHeaderRow(response.headerData, response.attributes, 'th');
+                    thead = $('thead', Container);
+                    buildRow(response.data, response.templates, response.attributes, 'td');
+                }
+                TableCheck();
+                this.listAJAX = null;
+                checkboxToggleSearchListPages();
+            }
+        });
+    });
     setTipsyStuff();
     setEditFocus();
     Content = $('#content');

@@ -28,7 +28,7 @@ class StorageManagementPage extends FOGPage
         $this->name = 'Storage Management';
         parent::__construct($this->name);
         $this->menu = array(
-            '' => self::$foglang['AllSN'],
+            'list' => self::$foglang['AllSN'],
             'addStorageNode' => self::$foglang['AddSN'],
             'storageGroup' => self::$foglang['AllSG'],
             'addStorageGroup' => self::$foglang['AddSG'],
