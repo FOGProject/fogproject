@@ -21,10 +21,12 @@
  */
 require '../../commons/base.inc.php';
 header("Content-type: text/plain");
-$mac = explode('|', $_REQUEST['mac']) +
-    explode('|', $_REQUEST['mac0']) +
-    explode('|', $_REQUEST['mac1']) +
-    explode('|', $_REQUEST['mac2']);
+$mac = array_merge(
+    explode('|', $_REQUEST['mac']),
+    explode('|', $_REQUEST['mac0']),
+    explode('|', $_REQUEST['mac1']),
+    explode('|', $_REQUEST['mac2'])
+);
 $mac = array_filter($mac);
 $mac = array_unique($mac);
 $mac = array_values($mac);
