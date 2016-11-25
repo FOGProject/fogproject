@@ -73,4 +73,4 @@ Download the source with either git or SVN and checkout the `dev-branch` for the
 As you are running a development branch, please post bugs to either:
 
 - A new issue on https://github.com/FOGProject/fogproject/issues
-- http://fogproject.org/forum/forums/bug-reports.17
+- https://forums.fogproject.org/category/17/bug-reports
