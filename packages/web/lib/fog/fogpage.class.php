@@ -664,14 +664,18 @@ abstract class FOGPage extends FOGBase
             if (self::$ajax) {
                 echo json_encode(
                     array(
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'headerData' => &$this->headerData,
-                        'title' => &$this->title,
-                        'attributes' => &$this->attributes,
-                        'form' => &$this->form,
-                        'searchFormURL' => &$this->searchFormURL,
-                        'actionbox' => &$actionbox,
+                        'data' => $this->data,
+                        'templates' => $this->templates,
+                        'headerData' => $this->headerData,
+                        'title' => $this->title,
+                        'attributes' => $this->attributes,
+                        'form' => $this->form,
+                        'searchFormURL' => $this->searchFormURL,
+                        'actionbox' => (
+                            count($this->data) > 0 ?
+                            $actionbox :
+                            ''
+                        ),
                     )
                 );
                 exit;
