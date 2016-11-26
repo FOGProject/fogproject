@@ -76,6 +76,12 @@ esac
 [[ $php_ver != 5 ]] && packages="$packages php${php_ver}-mbstring"
 [[ -z $langPackages ]] && langPackages="language-pack-it language-pack-en language-pack-es language-pack-zh-hans"
 if [[ $systemctl == yes ]]; then
+    initdMCfullname="FOGMulticastManager.service"
+    initdIRfullname="FOGImageReplicator.service"
+    initdSDfullname="FOGScheduler.service"
+    initdSRfullname="FOGSnapinReplicator.service"
+    initdPHfullname="FOGPingHosts.service"
+    initdSHfullname="FOGSnapinHash.service"
     if [[ -e /lib/systemd/system/mariadb.service ]]; then
         ln -s /lib/systemd/system/mariadb.service /lib/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         ln -s /lib/systemd/system/mariadb.service /lib/systemd/system/mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
