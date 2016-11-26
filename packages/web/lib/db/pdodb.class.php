@@ -151,7 +151,7 @@ class PDODB extends DatabaseManager
                 $pass,
                 self::$_options
             );
-            if (!self::currentDb($this)) {
+            if (self::$_link && !self::currentDb($this)) {
                 if (preg_match('#schema#', self::$querystring)) {
                     self::redirect('?node=schema');
                 }
@@ -159,6 +159,7 @@ class PDODB extends DatabaseManager
             self::query("SET SESSION sql_mode=''");
         } catch (PDOException $e) {
             if ($dbexists) {
+                self::$_link = false;
                 $this->_connect(false);
             } else {
                 $msg = sprintf(
@@ -168,7 +169,6 @@ class PDODB extends DatabaseManager
                     _('Error'),
                     $e->getMessage()
                 );
-                self::$_link = false;
             }
         }
         return $this;

@@ -1410,8 +1410,8 @@ EOF
         ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ $osid -eq 2 ]]; then
             a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_err_${version}.log 2>&1
-            a2enmod $phpfpm >>$workingdir/error_logs/fog_err_${version}.log 2>&1
+            a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            a2enmod $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
