@@ -20,14 +20,18 @@
 [[ -z $php_ver ]] && php_ver=5
 [[ -z $php_verAdds ]] && php_verAdds="-5.6"
 if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
-    if [[ -z $php_ver || $php_ver == 5 || $php_ver == '5.6' ]]; then
-        echo " *** Detected a potential need to reinstall apache and php files."
-        echo " *** This will remove the /etc/php* and /etc/apache2* directories"
-        echo " ***  and remove/purge the apache and php files from this system."
-        echo " *** If you're okay with this please type Y, anything else will"
-        echo " ***  break the installation and you will have to remove the files yourself"
-        echo -n " ***  and make proper changes as necessary. (Y/N): "
-        read dummy
+    if [[ $fogupdateloaded -gt 0 ]] && [[ -z $php_ver || $php_ver == 5 || $php_ver == '5.6' ]]; then
+        if [[ $autoaccept != yes ]]; then
+            echo " *** Detected a potential need to reinstall apache and php files."
+            echo " *** This will remove the /etc/php* and /etc/apache2* directories"
+            echo " ***  and remove/purge the apache and php files from this system."
+            echo " *** If you're okay with this please type Y, anything else will"
+            echo " ***  break the installation and you will have to remove the files yourself"
+            echo -n " ***  and make proper changes as necessary. (Y/N): "
+            read dummy
+        else
+            dummy="y"
+        fi
         case $dummy in
             [Yy])
                 dots "Removing apache and php files"
@@ -47,6 +51,7 @@ if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
                 phpldap="php${php_ver}-ldap"
                 phpcmd="php"
                 packages="apache2 build-essential cpp curl g++ gawk gcc gzip htmldoc isc-dhcp-server lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 m4 mysql-client mysql-server net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mcrypt php${php_ver}-mysql php${php_ver}-mysqlnd sysv-rc-conf tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
+                apt-get clean -yq >/dev/null 2>&1
                 echo "Done"
                 ;;
         esac
