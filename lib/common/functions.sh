@@ -1543,7 +1543,6 @@ configureHttpd() {
                     ;;
             esac
         done
-        sql="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
         options="-s"
         [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
         [[ -n $snmysqluser ]] && options="$options -u'$snmysqluser'"
@@ -1553,7 +1552,12 @@ configureHttpd() {
         mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
         [[ -n $mariadb ]] && vertocheck="10.2" || vertocheck="5.7"
         runTest=$(echo "$mysqlver < $vertocheck" | bc)
-        [[ $runTest -eq 0 ]] && mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ $runTest -eq 0 ]]; then
+            [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
+            [[ -z $snmysqluser ]] && snmysqluser='root'
+            sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
+            mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
     fi
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
