@@ -659,7 +659,7 @@ installPackages() {
                     fi
                 done
                 ;;
-            php${php_ver}-mysqlnd|php${php_ver}-mysql)
+            php${php_ver}-mysql*)
                 for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
                     eval $packagelist "$phpmysql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
