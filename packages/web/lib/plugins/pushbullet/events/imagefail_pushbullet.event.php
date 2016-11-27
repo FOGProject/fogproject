@@ -1,15 +1,52 @@
 <?php
-/****************************************************
- *  Called when imaging fails
- *	Author:		Jbob
- ***/
+/**
+ * Pushes notification on imaging failure.
+ *
+ * PHP version 5
+ *
+ * @category ImageFail_PushBullet
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Pushes notification on imaging failure.
+ *
+ * @category ImageFail_PushBullet
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class ImageFail_PushBullet extends PushbulletExtends
 {
-    // Class variables
+    /**
+     * The name of the event.
+     *
+     * @var string
+     */
     protected $name = 'ImageFail_PushBullet';
+    /**
+     * The description of the event.
+     *
+     * @var string
+     */
     protected $description = 'Triggers when a host fails imaging';
-    protected $author = 'Jbob';
+    /**
+     * Active flag.
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * Perform action when event met.
+     *
+     * @param string $event The event to perform from.
+     * @param mixed  $data  The data to send.
+     *
+     * @return void
+     */
     public function onEvent($event, $data)
     {
         self::$message = 'This host has failed to image';
@@ -17,4 +54,8 @@ class ImageFail_PushBullet extends PushbulletExtends
         parent::onEvent($event, $data);
     }
 }
-$EventManager->register('HOST_IMAGE_FAIL', new ImageFail_PushBullet());
+$EventManager
+    ->register(
+        'HOST_IMAGE_FAIL',
+        new ImageFail_PushBullet()
+    );

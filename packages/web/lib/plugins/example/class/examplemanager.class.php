@@ -35,15 +35,6 @@ class ExampleManager extends FOGManagerController
          * This is commented out so we don't actually
          * create anything.
          *
-         * $sql = "CREATE TABLE `example` ("
-         *     . "`eID` INTEGER NOT NULL AUTO_INCREMENT,"
-         *     . "`eName` VARCHAR(250) NOT NULL,"
-         *     . "`eOther` VARCHAR(250) NOT NULL,"
-         *     . "`eHostID` INTEGER NOT NULL,"
-         *     . "PRIMARY KEY(`eID`),"
-         *     . "INDEX `new_index` (`eHostID`)"
-         *     . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT '
-         *     . 'CHARSET=utf8 ROW_FORMAT=DYNAMIC';
          * $sql = Schema::createTable(
          *     'example',
          *     true,
