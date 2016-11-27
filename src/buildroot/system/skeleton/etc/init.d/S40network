@@ -10,9 +10,11 @@ if [[ -n $has_usb_nic ]]; then
     sleep 5
 fi
 # Enable loopback interface
-echo -e "auto lo\niface lo inet loopback\n\n" >> /etc/network/interfaces
+echo -e "auto lo\niface lo inet loopback\n\n" > /etc/network/interfaces
 /sbin/ip addr add 127.0.0.1/8 dev lo
 /sbin/ip link set lo up
+
+sleep 10
 
 # Generated a sorted list with primary interfaces first
 read p_ifaces <<< $(/sbin/ip -0 -o addr show | awk -F'[: ]+' 'tolower($0) ~ /link[/]?ether/ && tolower($0) ~ /'$mac'/ {print $2}')
