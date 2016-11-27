@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/i386 4.8.1 Kernel Configuration
+# Linux/i386 4.8.11 Kernel Configuration
 #
 # CONFIG_64BIT is not set
 CONFIG_X86_32=y
@@ -1496,7 +1496,7 @@ CONFIG_USB_NET_MCS7830=y
 # CONFIG_USB_NET_INT51X1 is not set
 # CONFIG_USB_IPHETH is not set
 # CONFIG_USB_SIERRA_NET is not set
-# CONFIG_USB_NET_CH9200 is not set
+CONFIG_USB_NET_CH9200=y
 # CONFIG_WLAN is not set
 
 #
