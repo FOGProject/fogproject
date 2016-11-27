@@ -780,7 +780,6 @@ errorStat() {
     echo "OK"
 }
 stopInitScript() {
-    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname"
     for serviceItem in $serviceList; do
         dots "Stopping $serviceItem Service"
         if [ "$systemctl" == "yes" ]; then
@@ -792,7 +791,6 @@ stopInitScript() {
     done
 }
 startInitScript() {
-    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname"
     for serviceItem in $serviceList; do
         dots "Starting $serviceItem Service"
         if [[ $systemctl == yes ]]; then
@@ -804,7 +802,6 @@ startInitScript() {
     done
 }
 enableInitScript() {
-    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname"
     for serviceItem in $serviceList; do
         case $systemctl in
             yes)

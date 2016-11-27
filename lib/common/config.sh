@@ -72,3 +72,4 @@ else
             ;;
     esac
 fi
+serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname"
