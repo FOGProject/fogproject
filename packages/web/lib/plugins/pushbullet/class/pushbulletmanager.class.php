@@ -24,34 +24,60 @@
 class PushbulletManager extends FOGManagerController
 {
     /**
+     * The base table name.
+     *
+     * @var string
+     */
+    public $tablename = 'pushbullet';
+    /**
      * Perform the database and plugin installation
      *
-     * @param string $name the name of the plugin
-     *
      * @return bool
      */
-    public function install($name)
+    public function install()
     {
         $this->uninstall();
-        $sql = "CREATE TABLE `pushbullet` ("
-            . "`pID` INTEGER NOT NULL AUTO_INCREMENT,"
-            . "`pToken` VARCHAR(250) NOT NULL,"
-            . "`pName` VARCHAR(250) NOT NULL,"
-            . "`pEmail` VARCHAR(250) NOT NULL,"
-            . "PRIMARY KEY(`pID`),"
-            . "UNIQUE INDEX `token` (`pToken`)"
-            . ") ENGINE=MyISAM AUTO_INCREMENT=1 "
-            . "DEFAULT CHARSET=utf8 ROW FORMAT=DYNAMIC";
+        $fields = array(
+            'pID',
+            'pToken',
+            'pName',
+            'pEmail'
+        );
+        $types = array(
+            'INTEGER',
+            'VARCHAR(255)',
+            'VARCHAR(255)',
+            'VARCHAR(255)'
+        );
+        $notnulls = array(
+            false,
+            false,
+            false,
+            false
+        );
+        $defaults = array(
+            false,
+            false,
+            false,
+            false
+        );
+        $keys = array(
+            'pID',
+            'pToken'
+        );
+        $sql = Schema::createTable(
+            $this->tablename,
+            true,
+            $fields,
+            $types,
+            $notnulls,
+            $defaults,
+            $keys,
+            'MyISAM',
+            'utf8',
+            'pID',
+            'pID'
+        );
         return self::$DB->query($sql);
-    }
-    /**
-     * Remove the database and uninstall
-     * the plugin.
-     *
-     * @return bool
-     */
-    public function uninstall()
-    {
-        return self::$DB->query("DROP TABLE IF EXISTS `pushbullet`");
     }
 }

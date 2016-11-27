@@ -44,33 +44,56 @@ class ExampleManager extends FOGManagerController
          *     . "INDEX `new_index` (`eHostID`)"
          *     . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT '
          *     . 'CHARSET=utf8 ROW_FORMAT=DYNAMIC';
-         * // ACTUALLY CREATES THE DATABASE TABLE FROM ABOVE
+         * $sql = Schema::createTable(
+         *     'example',
+         *     true,
+         *     array(
+         *         'eID',
+         *         'eName',
+         *         'eOther',
+         *         'eHostID'
+         *     ),
+         *     array(
+         *         'INTEGER',
+         *         'VARCHAR(255)',
+         *         'VARCHAR(255)',
+         *         'INTEGER'
+         *     ),
+         *     array(
+         *         false,
+         *         false,
+         *         false,
+         *         false
+         *     ),
+         *     array(
+         *         false,
+         *         false,
+         *         false,
+         *         false
+         *     ),
+         *     array(
+         *         'eID',
+         *         'eHostID'
+         *     ),
+         *     'MyISAM',
+         *     'utf8',
+         *     'eID',
+         *     'eID'
+         * );
+         * if (!self::$DB->query($sql)) {
+         *     return false;
+         * }
          * if (self::$DB->query($sql)) {
-         *     // IF NEEDED CREATE GLOBAL ENTRIES
-         *     $Example1 = new Service(
-         *         array(
-         *             'name' => 'FOG_EXAMPLE_ONE',
-         *             'description' => 'Example one global entry.',
-         *             'value' => '',
-         *             'category' => 'Plugin: '.$name,
-         *         )
-         *     );
-         *     // SAVE THE NEW ENTRY
-         *     $Example1->save();
+         *     self::getClass('Service')
+         *         ->set('name', 'FOG_EXAMPLE_ONE')
+         *         ->set('description', 'Example one global description')
+         *         ->set('value', 'Some value')
+         *         ->set('category', 'Plugin: example')
+         *         ->save();
          *     return true;
          * }
          * return false;
          */
-        return true;
-    }
-    /**
-     * Uninstalls the plugin.
-     * Typically used to remove database and other entries needed.
-     *
-     * @return bool
-     */
-    public function uninstall()
-    {
         return true;
     }
 }

@@ -26,11 +26,9 @@ class PersistentGroupsManager extends FOGManagerController
     /**
      * Installs the database for the plugin.
      *
-     * @param string $name the name of the plugin.
-     *
      * @return bool
      */
-    public function install($name)
+    public function install()
     {
         $this->uninstall();
         $sql = "CREATE TRIGGER `persistentGroups` 

@@ -24,14 +24,21 @@
 class LocationAssociationManager extends FOGManagerController
 {
     /**
+     * The base table name.
+     *
+     * @var string
+     */
+    public $tablename = 'locationAssoc';
+    /**
      * Install our table.
      *
      * @return bool
      */
     public function install()
     {
+        $this->uninstall();
         $sql = Schema::createTable(
-            'locationAssoc',
+            $this->tablename,
             true,
             array(
                 'laID',
@@ -65,16 +72,6 @@ class LocationAssociationManager extends FOGManagerController
             'laID',
             'laID'
         );
-        return self::$DB->query($sql);
-    }
-    /**
-     * Uninstalls the assoc table.
-     *
-     * @return bool
-     */
-    public function uninstall()
-    {
-        $sql = Schema::dropTable('locationAssoc');
         return self::$DB->query($sql);
     }
 }

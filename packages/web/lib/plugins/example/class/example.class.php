@@ -47,4 +47,33 @@ class Example extends FOGController
         'name',
         'hostID',
     );
+    /**
+     * Additional fields
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'host',
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'Host' => array(
+            'id',
+            'hostID',
+            'host'
+        )
+    );
+    /**
+     * Return the host object.
+     *
+     * @return object
+     */
+    public function getHost()
+    {
+        return $this->get('host');
+    }
 }

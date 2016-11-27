@@ -88,7 +88,7 @@ class FileIntegrity extends FOGController
             if (!in_array($ip, self::$ips)) {
                 continue;
             }
-            $this->set('storagenode', $StorageNode->load());
+            $this->set('storagenode', $StorageNode);
             break;
         }
         if (!$this->get('storagenode')->isValid()) {

@@ -22,17 +22,21 @@
 class LocationManager extends FOGManagerController
 {
     /**
-     * Install our database
+     * The base table name.
      *
-     * @param string $name the name of the plugin
+     * @var string
+     */
+    public $tablename = 'location';
+    /**
+     * Install our database
      *
      * @return bool
      */
-    public function install($name)
+    public function install()
     {
         $this->uninstall();
         $sql = Schema::createTable(
-            'location',
+            $this->tablename,
             true,
             array(
                 'lID',
@@ -52,7 +56,7 @@ class LocationManager extends FOGManagerController
                 'INTEGER',
                 'VARCHAR(40)',
                 'TIMESTAMP',
-                "ENUM('0','1')"
+                "ENUM('0', '1')"
             ),
             array(
                 false,
@@ -106,8 +110,7 @@ class LocationManager extends FOGManagerController
             ->load('name')
             ->destroy();
         self::getClass('LocationAssociationManager')->uninstall();
-        $sql = schema::dropTable('location');
-        return self::$DB->query($sql);
+        return parent::uninstall();
     }
     /**
      * Removes fields.

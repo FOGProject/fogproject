@@ -26,38 +26,111 @@
 class LDAPManager extends FOGManagerController
 {
     /**
-     * Install the plugin, creates the table for us.
+     * The base table name.
      *
-     * @param string $name the name of the plugin
+     * @var string
+     */
+    public $tablename = 'LDAPServers';
+    /**
+     * Install the plugin, creates the table for us.
      *
      * @return bool
      */
-    public function install($name)
+    public function install()
     {
         $this->uninstall();
-        $sql = "CREATE TABLE `LDAPServers` ("
-            . "`lsID` INTEGER NOT NULL AUTO_INCREMENT,"
-            . "`lsName` VARCHAR(255) NOT NULL,"
-            . "`lsDesc` LONGTEXT NOT NULL,"
-            . "`lsCreatedBy` VARCHAR(40) NOT NULL,"
-            . "`lsAddress` VARCHAR(255) NOT NULL,"
-            . "`lsCreatedTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            . "`lsUserSearchDN` LONGTEXT NOT NULL,"
-            . "`lsPort` INTEGER NOT NULL,"
-            . "`lsUserNamAttr` VARCHAR(255) NOT NULL,"
-            . "`lsGrpMemberAttr` VARCHAR(255) NOT NULL,"
-            . "`lsAdminGroup` LONGTEXT NOT NULL,"
-            . "`lsUserGroup` LONGTEXT NOT NULL,"
-            . "`lsSearchScope` ENUM('0','1','2') NOT NULL DEFAULT '0',"
-            . "`lsBindDN` LONGTEXT NOT NULL,"
-            . "`lsBindPwd` LONGTEXT NOT NULL,"
-            . "`lsGrpSearchDN` LONGTEXT NOT NULL,"
-            . "`lsUseGroupMatch` ENUM('0','1') NOT NULL DEFAULT '0',"
-            . "PRIMARY KEY(`lsID`),"
-            . "KEY `address` (`lsAddress`,`lsPort`),"
-            . "KEY `name` (`lsName`)"
-            . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT "
-            . "CHARSET=utf8 ROW_FORMAT=DYNAMIC";
+        $sql = Schema::createTable(
+            $this->tablename,
+            true,
+            array(
+                'lsID',
+                'lsName',
+                'lsDesc',
+                'lsCreatedBy',
+                'lsAddress',
+                'lsCreatedTime',
+                'lsUserSearchDN',
+                'lsPort',
+                'lsUserNamAttr',
+                'lsGrpMemberAttr',
+                'lsAdminGroup',
+                'lsUserGroup',
+                'lsSearchScope',
+                'lsBindDN',
+                'lsBindPwd',
+                'lsGrpSearchDN',
+                'lsUseGroupMatch'
+            ),
+            array(
+                'INTEGER',
+                'VARCHAR(255)',
+                'LONGTEXT',
+                'VARCHAR(40)',
+                'VARCHAR(255)',
+                'TIMESTAMP',
+                'LONGTEXT',
+                'INTEGER',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'LONGTEXT',
+                'LONGTEXT',
+                "ENUM('0', '1', '2')",
+                'LONGTEXT',
+                'LONGTEXT',
+                'LONGTEXT',
+                "ENUM('0', '1')",
+            ),
+            array(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ),
+            array(
+                false,
+                false,
+                false,
+                false,
+                false,
+                'CURRENT_TIMESTAMP',
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                '0',
+                false,
+                false,
+                false,
+                '0'
+            ),
+            array(
+                'lsID',
+                array(
+                    'lsAddress',
+                    'lsPort'
+                ),
+                'lsName'
+            ),
+            'MyISAM',
+            'utf8',
+            'lsID',
+            'lsID'
+        );
         return self::$DB->query($sql);
     }
     /**
@@ -75,6 +148,6 @@ class LDAPManager extends FOGManagerController
             self::getClass('UserManager')
                 ->destroy(array('id' => $userIDs));
         }
-        return self::$DB->query("DROP TABLE IF EXISTS `LDAPServers`");
+        return parent::uninstall();
     }
 }

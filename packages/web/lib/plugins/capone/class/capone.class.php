@@ -36,7 +36,7 @@ class Capone extends FOGController
         'id' => 'cID',
         'imageID' => 'cImageID',
         'osID' => 'cOSID',
-        'key' => 'cKey',
+        'key' => 'cKey'
     );
     /**
      * Additional fields
@@ -48,6 +48,23 @@ class Capone extends FOGController
         'os',
         'storagegroup',
         'storagenode',
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseClassFieldRelationships = array(
+        'Image' => array(
+            'id',
+            'imageID',
+            'image'
+        ),
+        'OS' => array(
+            'id',
+            'osID',
+            'os'
+        )
     );
     /**
      * Returns the image object
@@ -86,31 +103,16 @@ class Capone extends FOGController
         return $this->get('storagenode');
     }
     /**
-     * Loads the image for this capone
-     *
-     * @return void
-     */
-    protected function loadImage()
-    {
-        $this->set('image', new Image($this->get('imageID')));
-    }
-    /**
-     * Loads the os for this capone
-     *
-     * @return void
-     */
-    protected function loadOs()
-    {
-        $this->set('os', new OS($this->get('osID')));
-    }
-    /**
      * Loads the storage group for this capone
      *
      * @return void
      */
     protected function loadStoragegroup()
     {
-        $this->set('storagegroup', $this->get('image')->getStorageGroup());
+        $this->set(
+            'storagegroup',
+            $this->get('image')->getStorageGroup()
+        );
     }
     /**
      * Loads the storage node for this capone
