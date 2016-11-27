@@ -1,12 +1,60 @@
 <?php
+/**
+ * Changes the elements we need.
+ *
+ * PHP version 5
+ *
+ * @category ChangeItems
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Lee Rowlett <nah@nah.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Changes the elements we need.
+ *
+ * @category ChangeItems
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Lee Rowlett <nah@nah.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class ChangeItems extends Hook
 {
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
     public $name = 'ChangeItems';
+    /**
+     * The description of this hook.
+     *
+     * @var string
+     */
     public $description = 'Add Location to Active Tasks';
-    public $author = 'Rowlett';
+    /**
+     * The active flag.
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The node this hook enacts with.
+     *
+     * @var string
+     */
     public $node = 'location';
-    public function StorageNodeSetting($arguments)
+    /**
+     * Sets up storage node.
+     *
+     * @param mixed $arguments The items to change.
+     *
+     * @return void
+     */
+    public function storageNodeSetting($arguments)
     {
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
@@ -14,27 +62,61 @@ class ChangeItems extends Hook
         if (!$arguments['Host']->isValid()) {
             return;
         }
-        $LA = self::getClass('LocationAssociation', @max(self::getSubObjectIDs('LocationAssociation', array('hostID'=>$arguments['Host']->get('id')))));
-        if (!$LA->isValid()) {
-            return;
-        }
+        $Locations = self::getClass('LocationAssociationManager')->find(
+            array(
+                'hostID' => $arguments['Host']->get('id')
+            )
+        );
         $method = false;
-        if ($arguments['Host']->get('task')->isValid() && ($arguments['Host']->get('task')->isCapture() || $arguments['Host']->get('task')->isMulticast())) {
-            $method = 'getMasterStorageNode';
-        } elseif ($arguments['TaskType'] instanceof TaskType && $arguments['TaskType']->isValid() && ($arguments['TaskType']->isCapture() || $arguments['TaskType']->isMulticast())) {
-            $method = 'getMasterStorageNode';
-        }
-        if ($LA->getStorageGroup()->isValid()) {
-            if (!isset($arguments['snapin']) || ($arguments['snapin'] === true && self::getSetting('FOG_SNAPIN_LOCATION_SEND_ENABLED') > 0)) {
-                $arguments['StorageNode'] = $LA->getStorageNode();
+        foreach ((array)$Locations as $Location) {
+            if (!$Location->isValid()) {
+                continue;
             }
-            if (!$method) {
-                return;
+            $Host =& $arguments['Host'];
+            $Task = $Host->get('task');
+            $TaskType =& $arguments['TaskType'];
+            if ($Task->isValid()
+                && ($Task->isCapture()
+                || $Task->isMulticast())
+            ) {
+                $method = 'getMasterStorageNode';
+            } elseif ($TaskType->isValid()
+                && ($TaskType->isCapture()
+                || $TaskType->isMulticast())
+            ) {
+                $method = 'getMasterStorageNode';
             }
-            $arguments['StorageNode'] = $LA->getStorageGroup()->{$method}();
+            $StorageGroup = $Location
+                ->getLocation()
+                ->getStorageGroup();
+            if ($StorageGroup->isValid()) {
+                if (!isset($arguments['snapin'])
+                    || ($arguments['snapin'] === true
+                    && self::getSetting('FOG_SNAPIN_LOCATION_SEND_ENABLED') > 0)
+                ) {
+                    $arguments['StorageNode'] = $Location
+                        ->getLocation()
+                        ->getStorageNode();
+                }
+                if (!$method) {
+                    continue;
+                }
+                $arguments['StorageNode'] = $Location
+                    ->getLocation()
+                    ->getStorageGroup()
+                    ->{$method}();
+            }
+            unset($Location);
         }
     }
-    public function StorageGroupSetting($arguments)
+    /**
+     * Sets up storage group.
+     *
+     * @param mixed $arguments The items to change.
+     *
+     * @return void
+     */
+    public function storageGroupSetting($arguments)
     {
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
@@ -42,16 +124,33 @@ class ChangeItems extends Hook
         if (!$arguments['Host']->isValid()) {
             return;
         }
-        $LA = self::getClass('LocationAssociation', @max(self::getSubObjectIDs('LocationAssociation', array('hostID'=>$arguments['Host']->get('id')))));
-        if (!$LA->isValid()) {
-            return;
+        $Locations = self::getClass('LocationAssociationManager')->find(
+            array(
+                'hostID' => $arguments['Host']->get('id')
+            )
+        );
+        foreach ((array)$Locations as &$Location) {
+            if (!$Location->isValid()) {
+                continue;
+            }
+            $StorageGroup = $Location
+                ->getLocation()
+                ->getStorageGroup();
+            if (!$StorageGroup->isValid()) {
+                continue;
+            }
+            $arguments['StorageGroup'] = $StorageGroup;
+            unset($Location);
         }
-        if (!$LA->getStorageGroup()->isValid()) {
-            return;
-        }
-        $arguments['StorageGroup'] = $LA->getStorageGroup();
     }
-    public function BootItemSettings($arguments)
+    /**
+     * Sets up boot item information.
+     *
+     * @param mixed $arguments The items to change.
+     *
+     * @return void
+     */
+    public function bootItemSettings($arguments)
     {
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
@@ -59,36 +158,57 @@ class ChangeItems extends Hook
         if (!$arguments['Host']->isValid()) {
             return;
         }
-        $LA = self::getClass('LocationAssociation', @max(self::getSubObjectIDs('LocationAssociation', array('hostID'=>$arguments['Host']->get('id')))));
-        if (!$LA->isValid()) {
-            return;
+        $Locations = self::getClass('LocationAssociationManager')->find(
+            array(
+                'hostID' => $arguments['Host']->get('id')
+            )
+        );
+        foreach ((array)$Locations as $Location) {
+            if (!$Location->isValid()) {
+                continue;
+            }
+            if (!$Location->isTFTP()) {
+                continue;
+            }
+            $StorageNode = $Location
+                ->getLocation()
+                ->getStorageNode();
+            if (!$StorageNode->isValid()) {
+                continue;
+            }
+            $ip = $StorageNode->get('ip');
+            $curroot = trim(
+                trim($StorageNode->get('webroot'), '/')
+            );
+            $webroot = sprintf(
+                '/%s',
+                (
+                    strlen($curroot) > 1 ?
+                    sprintf('%s/', $curroot) :
+                    ''
+                )
+            );
+            $memtest = $arguments['memtest'];
+            $memdisk = $arguments['memdisk'];
+            $bzImage = $arguments['bzImage'];
+            $initrd = $arguments['initrd'];
+            $arguments['webserver'] = $ip;
+            $arguments['webroot'] = $webroot;
+            $arguments['memdisk'] = "http://${ip}${webroot}service/ipxe/$memdisk";
+            $arguments['memtest'] = "http://${ip}${webroot}service/ipxe/$memtest";
+            $arguments['bzImage'] = "http://${ip}${webroot}service/ipxe/$bzImage";
+            $arguments['imagefile'] = "http://${ip}${webroot}service/ipxe/$initrd";
+            unset($Location);
         }
-        $Location = $LA->getLocation();
-        if (!$Location->isValid()) {
-            return;
-        }
-        $StorageNode = $LA->getStorageNode();
-        if (!$StorageNode->isValid()) {
-            return;
-        }
-        $ip = $StorageNode->get('ip');
-        $curroot = trim(trim($StorageNode->get('webroot'), '/'));
-        $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
-        if (!$LA->isTFTP()) {
-            return;
-        }
-        $memtest = $arguments['memtest'];
-        $memdisk = $arguments['memdisk'];
-        $bzImage = $arguments['bzImage'];
-        $initrd = $arguments['initrd'];
-        $arguments['webserver'] = $ip;
-        $arguments['webroot'] = $webroot;
-        $arguments['memdisk'] = "http://${ip}${webroot}service/ipxe/$memdisk";
-        $arguments['memtest'] = "http://${ip}${webroot}service/ipxe/$memtest";
-        $arguments['bzImage'] = "http://${ip}${webroot}service/ipxe/$bzImage";
-        $arguments['imagefile'] = "http://${ip}${webroot}service/ipxe/$initrd";
     }
-    public function AlterMasters($arguments)
+    /**
+     * Alters master nodes.
+     *
+     * @param mixed $arguments The items to change.
+     *
+     * @return void
+     */
+    public function alterMasters($arguments)
     {
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
@@ -96,8 +216,23 @@ class ChangeItems extends Hook
         if (!$arguments['FOGServiceClass'] instanceof MulticastManager) {
             return;
         }
-        $IDs = array_unique(array_filter(array_merge((array)$arguments['MasterIDs'], (array)self::getSubObjectIDs('Location', '', 'storagenodeID'))));
-        $arguments['StorageNodes'] = self::getClass('StorageNodeManager')->find(array('id'=>$IDs));
+        $storagenodeIDs = self::getSubObjectIDs(
+            'Location',
+            '',
+            'storagenodeID'
+        );
+        $storagenodeIDs = array_merge(
+            (array) $storagenodeIDs,
+            (array) $arguments['MasterIDs']
+        );
+        $storagenodeIDs = array_filter($storagenodeIDs);
+        $storagenodeIDs = array_unique($storagenodeIDs);
+        $arguments['StorageNodes'] = self::getClass('StorageNodeManager')
+            ->find(
+                array(
+                    'id' => $storagenodeIDs
+                )
+            );
         foreach ($arguments['StorageNodes'] as &$StorageNode) {
             if (!$StorageNode->isValid()) {
                 continue;
@@ -105,9 +240,17 @@ class ChangeItems extends Hook
             if (!$StorageNode->get('isMaster')) {
                 $StorageNode->set('isMaster', 1);
             }
+            unset($StorageNode);
         }
     }
-    public function MakeMaster($arguments)
+    /**
+     * Makes master nodes.
+     *
+     * @param mixed $arguments The items to change.
+     *
+     * @return void
+     */
+    public function makeMaster($arguments)
     {
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
@@ -119,13 +262,85 @@ class ChangeItems extends Hook
     }
 }
 $ChangeItems = new ChangeItems();
-$HookManager->register('SNAPIN_NODE', array($ChangeItems, 'StorageNodeSetting'));
-$HookManager->register('SNAPIN_GROUP', array($ChangeItems, 'StorageGroupSetting'));
-$HookManager->register('BOOT_ITEM_NEW_SETTINGS', array($ChangeItems, 'BootItemSettings'));
-$HookManager->register('BOOT_TASK_NEW_SETTINGS', array($ChangeItems, 'StorageGroupSetting'));
-$HookManager->register('HOST_NEW_SETTINGS', array($ChangeItems, 'StorageNodeSetting'));
-$HookManager->register('HOST_NEW_SETTINGS', array($ChangeItems, 'StorageGroupSetting'));
-$HookManager->register('BOOT_TASK_NEW_SETTINGS', array($ChangeItems, 'StorageNodeSetting'));
-$HookManager->register('CHECK_NODE_MASTERS', array($ChangeItems, 'AlterMasters'));
-$HookManager->register('CHECK_NODE_MASTER', array($ChangeItems, 'MakeMaster'));
-//$HookManager->register('HOST_EDIT_AFTER_SAVE',array($ChangeItems,'HostEditAfterSave'));
+$HookManager
+    ->register(
+        'SNAPIN_NODE',
+        array(
+            $ChangeItems,
+            'storageNodeSetting'
+        )
+    );
+$HookManager
+    ->register(
+        'SNAPIN_GROUP',
+        array(
+            $ChangeItems,
+            'storageGroupSetting'
+        )
+    );
+$HookManager
+    ->register(
+        'BOOT_ITEM_NEW_SETTINGS',
+        array(
+            $ChangeItems,
+            'bootItemSettings'
+        )
+    );
+$HookManager
+    ->register(
+        'BOOT_TASK_NEW_SETTINGS',
+        array(
+            $ChangeItems,
+            'storageGroupSetting'
+        )
+    );
+$HookManager
+    ->register(
+        'HOST_NEW_SETTINGS',
+        array(
+            $ChangeItems,
+            'storageNodeSetting'
+        )
+    );
+$HookManager
+    ->register(
+        'HOST_NEW_SETTINGS',
+        array(
+            $ChangeItems,
+            'storageGroupSetting'
+        )
+    );
+$HookManager
+    ->register(
+        'BOOT_TASK_NEW_SETTINGS',
+        array(
+            $ChangeItems,
+            'storageNodeSetting'
+        )
+    );
+$HookManager
+    ->register(
+        'CHECK_NODE_MASTERS',
+        array(
+            $ChangeItems,
+            'alterMasters'
+        )
+    );
+$HookManager
+    ->register(
+        'CHECK_NODE_MASTER',
+        array(
+            $ChangeItems,
+            'makeMaster'
+        )
+    );
+/**
+ * $HookManager
+ *     ->register(
+ *         'HOST_EDIT_AFTER_SAVE',
+ *         array(
+ *             $ChangeItems,
+ *             'hostEditAfterSave'
+ *         )
+ *     );
+ */

@@ -56,13 +56,15 @@ class AddLocationHost extends Hook
      */
     public function hostTableHeader($arguments)
     {
+        global $node;
+        global $sub;
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        if ($_REQUEST['node'] != 'host') {
+        if ($node != 'host') {
             return;
         }
-        if ($_REQUEST['sub'] == 'pending') {
+        if ($sub == 'pending') {
             return;
         }
         $arguments['headerData'][4] = _('Location/Deployed');
@@ -76,29 +78,33 @@ class AddLocationHost extends Hook
      */
     public function hostData($arguments)
     {
+        global $node;
+        global $sub;
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        if ($_REQUEST['node'] != 'host') {
+        if ($node != 'host') {
             return;
         }
-        if ($_REQUEST['sub'] == 'pending') {
+        if ($sub == 'pending') {
             return;
         }
         $arguments['templates'][4] = '${location}<br/><small>${deployed}</small>';
         foreach ((array)$arguments['data'] as $index => &$vals) {
-            $locationID = self::getSubObjectIDs(
-                'LocationAssociation',
+            $Locations = self::getClass('LocationAssociationManager')->find(
                 array(
-                    'hostID' => $arguments['data'][$index]['id']
-                ),
-                'locationID'
+                    'hostID' => $vals['id']
+                )
             );
-            $locID = array_shift($locationID);
-            $arguments['data'][$index]['location'] = self::getClass(
-                'Location',
-                $locID
-            )->get('name');
+            foreach ((array)$Locations as &$Location) {
+                if (!$Location->isValid()) {
+                    continue;
+                }
+                $arguments['data'][$index]['location'] = $Location
+                    ->getLocation()
+                    ->get('name');
+                unset($Location);
+            }
             unset($vals);
         }
     }
@@ -111,26 +117,33 @@ class AddLocationHost extends Hook
      */
     public function hostFields($arguments)
     {
+        global $node;
+        global $sub;
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        if ($_REQUEST['node'] != 'host') {
+        if ($node != 'host') {
             return;
         }
-        $locationID = self::getSubObjectIDs(
-            'LocationAssociation',
+        $Locations = self::getClass('LocationAssociationManager')->find(
             array(
                 'hostID' => $arguments['Host']->get('id')
-            ),
-            'locationID'
+            )
         );
-        $locID = array_shift($locationID);
-        $this->arrayInsertAfter(
-            _('Host Product Key'),
-            $arguments['fields'],
-            _('Host Location'),
-            self::getClass('LocationManager')->buildSelectBox($locID)
-        );
+        foreach ((array)$Locations as &$Location) {
+            if (!$Location->isValid()) {
+                continue;
+            }
+            $this->arrayInsertAfter(
+                _('Host Product Key'),
+                $arguments['fields'],
+                _('Host Location'),
+                self::getClass('LocationManager')->buildSelectBox(
+                    $Location->getLocation()->get('id')
+                )
+            );
+            unset($Location);
+        }
     }
     /**
      * Adds the location selector to the host.
@@ -146,6 +159,7 @@ class AddLocationHost extends Hook
         }
         global $node;
         global $sub;
+        global $tab;
         $subs = array(
             'add',
             'edit',
@@ -158,16 +172,22 @@ class AddLocationHost extends Hook
         if (!in_array($sub, $subs)) {
             return;
         }
-        if (str_replace('_', '-', $_REQUEST['tab']) != 'host-general') {
+        if (str_replace('_', '-', $tab) != 'host-general') {
             return;
         }
-        self::getClass('LocationAssociationManager')->destroy(
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            )
-        );
+        if (!($_REQUEST['location']
+            && is_numeric($_REQUEST['location'])
+            && $_REQUEST['location'] > 0)
+        ) {
+            self::getClass('LocationAssociationManager')->destroy(
+                array(
+                    'hostID' => $arguments['Host']->get('id')
+                )
+            );
+        }
         self::getClass('LocationAssociation')
             ->set('hostID', $arguments['Host']->get('id'))
+            ->load('hostID')
             ->set('locationID', $_REQUEST['location'])
             ->save();
     }
@@ -185,6 +205,7 @@ class AddLocationHost extends Hook
         }
         self::getClass('LocationAssociation')
             ->set('hostID', $arguments['Host']->get('id'))
+            ->load('hostID')
             ->set('locationID', $arguments['data'][5])
             ->save();
     }
@@ -200,15 +221,20 @@ class AddLocationHost extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        $locationID = self::getSubObjectIDs(
-            'LocationAssociation',
+        $Locations = self::getClass('LocationAssociationManager')->find(
             array(
                 'hostID' => $arguments['Host']->get('id')
-            ),
-            'locationID'
+            )
         );
-        $locID = array_shift($locationID);
-        $arguments['report']->addCSVCell($locID > 0 ? $locID : null);
+        foreach ((array)$Locations as &$Location) {
+            if (!$Location->isValid()) {
+                continue;
+            }
+            $arguments['report']->addCSVCell(
+                $Location->getLocation()->get('id')
+            );
+            unset($Location);
+        }
     }
     /**
      * Removes location when host is destroyed.
@@ -240,23 +266,23 @@ class AddLocationHost extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        $locationID = self::getSubObjectIDs(
-            'LocationAssociation',
+        $Locations = self::getClass('LocationAssociationManager')->find(
             array(
                 'hostID' => $arguments['Host']->get('id')
-            ),
-            'locationID'
+            )
         );
-        $locID = array_shift($locationID);
-        if (!self::getClass('Location', $locID)->isValid()) {
-            return;
+        foreach ((array)$Locations as $Location) {
+            if (!$Location->isValid()) {
+                continue;
+            }
+            $this->arrayInsertAfter(
+                "\nSnapin Used: ",
+                $arguments['email'],
+                "\nImaged From (Location): ",
+                $Location->getLocation()->get('name')
+            );
+            unset($Location);
         }
-        $this->arrayInsertAfter(
-            "\nSnapin Used: ",
-            $arguments['email'],
-            "\nImaged From (Location): ",
-            self::getClass('Location', $locID)->get('name')
-        );
     }
     /**
      * Adds lcoation to host register.
@@ -295,17 +321,20 @@ class AddLocationHost extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        $locationID = self::getSubObjectIDs(
-            'Location',
+        $Locations = self::getClass('LocationAssociationManager')->find(
             array(
                 'hostID' => $arguments['Host']->get('id')
             )
         );
-        $locationID = @min($locationID);
-        $arguments['repFields']['location'] = self::getClass(
-            'Location',
-            $locationID
-        )->get('name');
+        foreach ((array)$Locations as &$Location) {
+            if (!$Location->isValid()) {
+                continue;
+            }
+            $arguments['repFields']['location'] = $Location
+                ->getLocation()
+                ->get('name');
+            unset($Location);
+        }
     }
 }
 $AddLocationHost = new AddLocationHost();

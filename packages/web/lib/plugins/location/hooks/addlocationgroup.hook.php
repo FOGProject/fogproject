@@ -56,10 +56,11 @@ class AddLocationGroup extends Hook
      */
     public function groupSideMenu($arguments)
     {
+        global $node;
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        if ($_REQUEST['node'] != 'group') {
+        if ($node != 'group') {
             return;
         }
         $link = $arguments['linkformat'];
@@ -82,17 +83,23 @@ class AddLocationGroup extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        if ($_REQUEST['node'] != 'group') {
+        global $node;
+        if ($node != 'group') {
             return;
         }
-        $locationID = self::getSubObjectIDs(
-            'LocationAssociation',
+        $Locations = self::getClass('LocationAssociationManager')->find(
             array(
                 'hostID' => $arguments['Group']->get('hosts')
-            ),
-            'locationID'
+            )
         );
-        $locID = array_shift($locationID);
+        foreach ((array)$Locations as &$Location) {
+            if (!$Location->isValid()) {
+                continue;
+            }
+            $locID = $Location->getLocation()->get('id');
+            unset($Location);
+            break;
+        }
         echo '<!-- Location --><div id="group-location">';
         printf(
             '<h2>%s: %s</h2>',
@@ -131,32 +138,40 @@ class AddLocationGroup extends Hook
      */
     public function groupAddLocation($arguments)
     {
+        global $node;
+        global $tab;
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        if ($_REQUEST['node'] != 'group') {
+        if ($node != 'group') {
             return;
         }
-        if ($_REQUEST['tab'] != 'group-location') {
+        if ($tab != 'group-location') {
             return;
         }
-        self::getClass('LocationAssociationManager')->destroy(
-            array(
-                'hostID' => $arguments['Group']->get('hosts')
-            )
-        );
-        $insert_fields = array('locationID','hostID');
-        $insert_values = array();
-        foreach ((array)$arguments['Group']->get('hosts') as &$hostID) {
-            $insert_values[] = array($_REQUEST['location'], $hostID);
-            unset($hostID);
-        }
-        if (count($insert_values) > 0) {
-            self::getClass('LocationAssociationManager')
-                ->insertBatch(
-                    $insert_fields,
-                    $insert_values
-                );
+        if (!($_REQUEST['location']
+            && is_numeric($_REQUEST['location'])
+            && $_REQUEST['location'] > 0)
+        ) {
+            self::getClass('LocationAssociationManager')->destroy(
+                array(
+                    'hostID' => $arguments['Group']->get('hosts')
+                )
+            );
+        } else {
+            $insert_fields = array('locationID','hostID');
+            $insert_values = array();
+            foreach ((array)$arguments['Group']->get('hosts') as &$hostID) {
+                $insert_values[] = array($_REQUEST['location'], $hostID);
+                unset($hostID);
+            }
+            if (count($insert_values) > 0) {
+                self::getClass('LocationAssociationManager')
+                    ->insertBatch(
+                        $insert_fields,
+                        $insert_values
+                    );
+            }
         }
     }
 }
