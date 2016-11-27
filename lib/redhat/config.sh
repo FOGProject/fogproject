@@ -55,26 +55,6 @@ case $linuxReleaseName in
         ;;
 esac
 [[ -z $langPackages ]] && langPackages="iso-codes"
-if [[ $systemctl == yes ]]; then
-    if [[ -e /usr/lib/systemd/system/mariadb.service ]]; then
-        ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s /usr/lib/systemd/system/mariadb.service /etc/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s /usr/lib/systemd/system/mariadb.service /etc/systemd/system/mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    elif [[ -e /usr/lib/systemd/system/mysqld.service ]]; then
-        ln -s /usr/lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
-else
-    initdpath="/etc/rc.d/init.d"
-    initdsrc="../packages/init.d/redhat"
-    initdMCfullname="FOGMulticastManager"
-    initdIRfullname="FOGImageReplicator"
-    initdSDfullname="FOGScheduler"
-    initdSRfullname="FOGSnapinReplicator"
-    initdPHfullname="FOGPingHosts"
-    initdSHfullname="FOGSnapinHash"
-fi
 if [[ -z $webdirdest ]]; then
     if [[ -z $docroot ]]; then
         docroot="/var/www/html/"

@@ -330,9 +330,6 @@ if [[ ! $exitcode -eq 0 ]]; then
 fi
 [[ -z $OSVersion ]] && OSVersion=$(lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $2}')
 echo "Done"
-command -v systemctl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-exitcode=$?
-[[ $exitcode -eq 0 ]] && systemctl="yes"
 . ../lib/common/config.sh
 [[ -z $dnsaddress ]] && dnsaddress=""
 [[ -z $username ]] && username=""

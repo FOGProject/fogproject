@@ -38,8 +38,7 @@ if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
                 rm -rf /etc/php* /etc/apache2*
                 echo "Done"
                 dots "Stopping web services"
-                systemctl=$(command -v systemctl)
-                [[ -z $systemctl ]] && systemctl stop apache2 >/dev/null 2>&1 || service apache2 stop >/dev/null 2>&1
+                [[ $systemctl == yes ]] && systemctl stop apache2 >/dev/null 2>&1 || service apache2 stop >/dev/null 2>&1
                 [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
                 dots "Removing the apache and php packages"
                 DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'apache2*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
@@ -75,32 +74,6 @@ case $linuxReleaseName in
 esac
 [[ $php_ver != 5 ]] && packages="$packages php${php_ver}-mbstring"
 [[ -z $langPackages ]] && langPackages="language-pack-it language-pack-en language-pack-es language-pack-zh-hans"
-if [[ $systemctl == yes ]]; then
-    initdMCfullname="FOGMulticastManager.service"
-    initdIRfullname="FOGImageReplicator.service"
-    initdSDfullname="FOGScheduler.service"
-    initdSRfullname="FOGSnapinReplicator.service"
-    initdPHfullname="FOGPingHosts.service"
-    initdSHfullname="FOGSnapinHash.service"
-    if [[ -e /lib/systemd/system/mariadb.service ]]; then
-        ln -s /lib/systemd/system/mariadb.service /lib/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s /lib/systemd/system/mariadb.service /lib/systemd/system/mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s /lib/systemd/system/mariadb.service /etc/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s /lib/systemd/system/mariadb.service /etc/systemd/system/mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    elif [[ -e /lib/systemd/system/mysqld.service ]]; then
-        ln -s /lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s /lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
-else
-    initdpath="/etc/init.d"
-    initdsrc="../packages/init.d/ubuntu"
-    initdMCfullname="FOGMulticastManager"
-    initdIRfullname="FOGImageReplicator"
-    initdSDfullname="FOGScheduler"
-    initdSRfullname="FOGSnapinReplicator"
-    initdPHfullname="FOGPingHosts"
-    initdSHfullname="FOGSnapinHash"
-fi
 if [[ -z $webdirdest ]]; then
     if [[ -z $docroot ]]; then
         docroot="/var/www/html/"
