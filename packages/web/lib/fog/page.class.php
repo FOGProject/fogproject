@@ -22,6 +22,12 @@
 class Page extends FOGBase
 {
     /**
+     * The title element.
+     *
+     * @var string
+     */
+    protected $title;
+    /**
      * The body container
      *
      * @var string
@@ -119,6 +125,12 @@ class Page extends FOGBase
                 ->addCSS($dispTheme);
         } else {
             $this->addCSS('../mobile/css/main.css');
+            $this->title = sprintf(
+                'FOG :: %s :: %s %s',
+                _('Mobile Manager'),
+                _('Version'),
+                FOG_VERSION
+            );
         }
         $this
             ->addCSS('css/font-awesome.min.css')
@@ -469,6 +481,21 @@ class Page extends FOGBase
      */
     public function render()
     {
+        if (!self::$isMobile) {
+            $this->title = sprintf(
+                '%s%s &gt; FOG &gt; %s',
+                (
+                    $this->pageTitle ?
+                    sprintf(
+                        '%s &gt; ',
+                        $this->pageTitle
+                    ) :
+                    ''
+                ),
+                $this->sectionTitle,
+                self::$foglang['Slogan']
+            );
+        }
         include '../management/other/index.php';
         return $this;
     }

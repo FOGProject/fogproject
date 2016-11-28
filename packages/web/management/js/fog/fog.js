@@ -5,7 +5,9 @@
  *	Revision:	$Revision: 2430 $
  *	Last Update:	$LastChangedDate: 2014-10-16 11:55:06 -0400 (Thu, 16 Oct 2014) $
  ***/
-var validatoropts;
+var validatoropts,
+    screenview,
+    callme;
 var $_GET = getQueryParams(document.location.search),
     node = $_GET['node'],
     sub = $_GET['sub'],
@@ -80,13 +82,14 @@ function AJAXServerTime() {
 }
 (function($) {
     $.validator.addMethod(
-        'regex',
-        function(value, element,regexp) {
-            var re = new RegExp(regexp);
-            return this.optional(element) || re.test(value);
-        },
-        "Invalid Input"
-    );
+            'regex',
+            function(value, element,regexp) {
+                var re = new RegExp(regexp);
+                return this.optional(element) || re.test(value);
+            },
+            "Invalid Input"
+            );
+    screenview = $('#screenview').attr('value');
     setTipsyStuff();
     setEditFocus();
     Content = $('#content');
@@ -95,7 +98,7 @@ function AJAXServerTime() {
     i = Loader.find('i');
     ActionBox = $('#action-box');
     ActionBoxDel = $('#action-boxdel');
-    var callme = 'hide';
+    callme = 'hide';
     if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search','storageGroup','listhosts','listgroups']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
     ActionBox[callme]();
     ActionBoxDel[callme]();
@@ -116,7 +119,7 @@ function AJAXServerTime() {
             dataType: 'json',
             beforeSend: function() {
                 Loader
-                .addClass('loading')
+                    .addClass('loading')
             },
             success: function(response) {
                 history.pushState(null, null, url);
@@ -131,9 +134,9 @@ function AJAXServerTime() {
                 LastCount = dataLength;
                 Loader.removeClass('loading')
                     .fogStatusUpdate(_L['SEARCH_RESULTS_FOUND']
-                        .replace(/%1/,LastCount)
-                        .replace(/%2/,LastCount != 1 ? 's' : '')
-                    )
+                            .replace(/%1/,LastCount)
+                            .replace(/%2/,LastCount != 1 ? 's' : '')
+                            )
                     .find('i')
                     .removeClass()
                     .addClass('fa fa-exclamation-circle');
@@ -160,6 +163,9 @@ function AJAXServerTime() {
     $('form').children().each(function() {
         this.value=$(this).val().trim();
     });
+    if (screenview == 'list') {
+        $('.list,.search,.storageGroup,.listhosts,.listgroups').trigger('click');
+    }
 })(jQuery);
 function forceClick(e) {
     $(this).unbind('click').click(function(evt) {evt.preventDefault();});
@@ -391,9 +397,9 @@ function TableCheck() {
     if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
         Container = $('#search-content,#active-tasks');
     }
-    var callme = 'hide';
+    callme = 'hide';
     if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
-    if (LastCount > 0) {
+    if (typeof(LastCount) != 'undefined' && LastCount > 0) {
         if ($('.not-found').length > 0) $('.not-found').remove();
         callme = 'show';
     }
