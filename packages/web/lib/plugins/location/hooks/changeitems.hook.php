@@ -80,7 +80,8 @@ class ChangeItems extends Hook
                 || $Task->isMulticast())
             ) {
                 $method = 'getMasterStorageNode';
-            } elseif ($TaskType->isValid()
+            } elseif ($TaskType instanceof TaskType
+                && $TaskType->isValid()
                 && ($TaskType->isCapture()
                 || $TaskType->isMulticast())
             ) {
