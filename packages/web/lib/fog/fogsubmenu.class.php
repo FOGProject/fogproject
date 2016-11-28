@@ -222,41 +222,46 @@ class FOGSubMenu extends FOGBase
                 );
                 foreach ((array) $data as $label => &$link) {
                     $string = sprintf(
-                        '<li><a class="%s" href="%s">%s</a></li>',
+                        '<li><a class="%s" href="${link}">%s</a></li>',
                         $link,
-                        '%s',
                         $label
                     );
                     if ($this->isExternalLink($link)) {
-                        printf(
-                            $string,
-                            $link
+                        echo preg_replace(
+                            '#\$\{link\}#',
+                            $link,
+                            $string
                         );
                     } elseif (!$link) {
-                        printf(
-                            $string,
-                            "?node=$node"
+                        echo preg_replace(
+                            '#\$\{link\}#',
+                            "?node=$node",
+                            $string
                         );
                     } else {
                         global $sub;
-                        $string = sprintf(
-                            $string,
-                            "?node=$node&sub=%s"
+                        $string = preg_replace(
+                            '#\$\{link\}#',
+                            "?node=$node&sub=\${link}",
+                            $string
                         );
                         if (!$sub || $title == self::$foglang['MainMenu']) {
-                            printf(
-                                $string,
-                                $link
+                            echo preg_replace(
+                                '#\$\{link\}#',
+                                $link,
+                                $string
                             );
                         } elseif ($this->defaultSubs[$node]) {
-                            printf(
-                                $string,
-                                "{$this->defaultSubs[$node]}&tab=$link"
+                            echo preg_replace(
+                                '#\$\{link\}#',
+                                "{$this->defaultSubs[$node]}&tab=$link",
+                                $string
                             );
                         } else {
-                            printf(
-                                $string,
-                                "$sub&tab=$link"
+                            echo preg_replace(
+                                '#\$\{link\}#',
+                                "$sub&tab=$link",
+                                $string
                             );
                         }
                     }
