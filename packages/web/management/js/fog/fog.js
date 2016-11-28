@@ -164,7 +164,7 @@ function AJAXServerTime() {
         this.value=$(this).val().trim();
     });
     if (screenview == 'list') {
-        $('.list,.search,.storageGroup,.listhosts,.listgroups').trigger('click');
+        $('.list').trigger('click');
     }
 })(jQuery);
 function forceClick(e) {
