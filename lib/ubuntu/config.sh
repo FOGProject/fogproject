@@ -34,7 +34,7 @@ if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
                 rm -rf /etc/php* /etc/apache2*
                 echo "Done"
                 dots "Stopping web services"
-                systemctl=$(command -v systemctl)
+                command -v systemctl && systemctl="yes"
                 [[ -z $systemctl ]] && systemctl stop apache2 >/dev/null 2>&1 || service apache2 stop >/dev/null 2>&1
                 [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
                 dots "Removing the apache and php packages"
