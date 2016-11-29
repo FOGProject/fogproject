@@ -932,7 +932,7 @@ class BootMenu extends FOGBase
             ''
         );
         $StorageGroup = $Image->getStorageGroup();
-        $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
+        $StorageNode = $StorageGroup->getOptimalStorageNode();
         $osid = $Image->get('osID');
         $storage = escapeshellcmd(
             sprintf(
@@ -1401,12 +1401,9 @@ class BootMenu extends FOGBase
                     $StorageGroup = $Image->getStorageGroup();
                 }
                 if (!$StorageNode || !$StorageNode->isValid()) {
-                    $StorageNode = $StorageGroup->getOptimalStorageNode(
-                        $Image->get('id')
-                    );
+                    $StorageNode = $StorageGroup->getOptimalStorageNode();
                 }
                 if ($Task->isCapture()) {
-                    $StorageGroup = $Image->getStorageGroup();
                     $StorageNode = $StorageGroup->getMasterStorageNode();
                 }
                 if ($Task->get('storagenodeID') != $StorageNode->get('id')) {

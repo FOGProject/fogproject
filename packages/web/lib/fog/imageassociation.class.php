@@ -48,13 +48,39 @@ class ImageAssociation extends FOGController
         'storagegroupID',
     );
     /**
+     * Additional fields
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'image',
+        'storagegroup'
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'Image' => array(
+            'id',
+            'imageID',
+            'image'
+        ),
+        'StorageGroup' => array(
+            'id',
+            'storagegroupID',
+            'storagegroup'
+        )
+    );
+    /**
      * Returns the image object
      *
      * @return object
      */
     public function getImage()
     {
-        return new Image($this->get('imageID'));
+        return $this->get('image');
     }
     /**
      * Returns the storage group object
@@ -63,7 +89,7 @@ class ImageAssociation extends FOGController
      */
     public function getStorageGroup()
     {
-        return new StorageGroup($this->get('storagegroupID'));
+        return $this->get('storagegroup');
     }
     /**
      * Returns if we're primary or not

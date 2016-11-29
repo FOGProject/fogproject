@@ -64,7 +64,7 @@ if ($TaskType->isInitNeededTasking()) {
         $StorageGroup = $Image->getStorageGroup();
     }
     if (!$StorageNode || !$StorageNode->isValid()) {
-        $StorageNode = $StorageGroup->getOptimalStorageNode($Image->get('id'));
+        $StorageNode = $StorageGroup->getOptimalStorageNode();
     }
     $osid = $Image->get('osID');
     $storage = sprintf(

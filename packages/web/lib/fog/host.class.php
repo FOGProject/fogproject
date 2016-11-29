@@ -1069,7 +1069,7 @@ class Host extends FOGController
         $node = $this
             ->getImage()
             ->getStorageGroup()
-            ->getOptimalStorageNode($this->getImage()->get('id'));
+            ->getOptimalStorageNode();
         $this->set('optimalStorageNode', $node);
     }
     /**
@@ -1622,7 +1622,7 @@ class Host extends FOGController
                 ->set(
                     'storagenodeID',
                     $StorageGroup
-                        ->getOptimalStorageNode($this->getImage()->get('id'))
+                        ->getOptimalStorageNode()
                         ->get('id')
                 )
                 ->set('imageID', $Image->get('id'));

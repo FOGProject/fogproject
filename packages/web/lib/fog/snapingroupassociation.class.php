@@ -48,13 +48,39 @@ class SnapinGroupAssociation extends FOGController
         'storagegroupID',
     );
     /**
+     * Additional fields
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'snapin',
+        'storagegroup'
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'Snapin' => array(
+            'id',
+            'snapinID',
+            'snapin'
+        ),
+        'StorageGroup' => array(
+            'id',
+            'storagegroupID',
+            'storagegroup'
+        )
+    );
+    /**
      * Get's the snapin object
      *
      * @return object
      */
     public function getSnapin()
     {
-        return new Snapin($this->get('snapinID'));
+        return $this->get('snapin');
     }
     /**
      * Get's the associated storage group.
@@ -63,7 +89,7 @@ class SnapinGroupAssociation extends FOGController
      */
     public function getStorageGroup()
     {
-        return new StorageGroup($this->get('storagegroupID'));
+        return $this->get('storagegroup');
     }
     /**
      * Returns whether this is the primary group or not.

@@ -92,17 +92,16 @@ class TaskQueue extends TaskingElement
                             'Host' => &$this->Host
                         )
                     );
+                    $method = 'getOptimalStorageNode';
+                    if ($this->Task->isCapture()
+                        || $this->Task->isMulticast()
+                    ) {
+                        $method = 'getMasterStorageNode';
+                    }
                     if (!$this->StorageNode || !$this->StorageNode->isValid()) {
                         $this->StorageNode = $this->Image
                             ->getStorageGroup()
-                            ->getOptimalStorageNode(
-                                $this->Host->get('imageID')
-                            );
-                    }
-                    if ($this->Task->isCapture()) {
-                        $this->StorageNode = $this->Image
-                            ->getStorageGroup()
-                            ->getMasterStorageNode();
+                            ->{$method}();
                     }
                 } else {
                     $this->StorageNode = self::nodeFail(

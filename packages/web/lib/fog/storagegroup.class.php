@@ -122,8 +122,12 @@ class StorageGroup extends FOGController
             'id' => $this->get('allnodes'),
             'isEnabled' => 1
         );
-        $nodes = $this->getClass('StorageNodeManager')
-            ->find($find);
+        $nodes = $this->getSubObjectIDs(
+            'StorageNode',
+            $find
+        );
+        $this->set('enablednodes', $nodes);
+        return;
         $nodeids = array();
         $testurls = array();
         foreach ($nodes as &$node) {
@@ -248,11 +252,9 @@ class StorageGroup extends FOGController
     /**
      * Get's the optimal storage node
      *
-     * @param int $image the image to get optimal node of
-     *
      * @return object
      */
-    public function getOptimalStorageNode($image)
+    public function getOptimalStorageNode()
     {
         $Nodes = self::getClass('StorageNodeManager')
             ->find(
@@ -263,25 +265,17 @@ class StorageGroup extends FOGController
             if (!$Node->isValid()) {
                 continue;
             }
-            if (!in_array($image, (array)$Node->get('images'))) {
-                continue;
-            }
             if ($Node->get('maxClients') < 1) {
                 continue;
             }
             if ($winner == null
-                || !$winner->isValid()
                 || $Node->getClientLoad() < $winner->getClientLoad()
             ) {
                 $winner = $Node;
-                continue;
             }
             unset($Node);
         }
-        if (empty($winner)
-            || !$winner instanceof StorageNode
-            || !$winner->isValid()
-        ) {
+        if (empty($winner)) {
             $winner = new StorageNode(@min($this->get('enablednodes')));
         }
         return $winner;

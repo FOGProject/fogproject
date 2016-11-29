@@ -59,13 +59,51 @@ class NodeFailure extends FOGController
         'failureTime'
     );
     /**
+     * Additional fields.
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'storagenode',
+        'storagegroup',
+        'host',
+        'task'
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'StorageNode' => array(
+            'id',
+            'storagenodeID',
+            'storagenode'
+        ),
+        'StorageGroup' => array(
+            'id',
+            'storagegroupID',
+            'storagegroup'
+        ),
+        'Host' => array(
+            'id',
+            'hostID',
+            'host'
+        ),
+        'Task' => array(
+            'id',
+            'taskID',
+            'task'
+        )
+    );
+    /**
      * Returns storage node object.
      *
      * @return object
      */
     public function getStorageNode()
     {
-        return new StorageNode($this->get('storagenodeID'));
+        return $this->get('storagenode');
     }
     /**
      * Returns task object.
@@ -74,7 +112,7 @@ class NodeFailure extends FOGController
      */
     public function getTask()
     {
-        return new Task($this->get('taskID'));
+        return $this->get('task');
     }
     /**
      * Returns host object.
@@ -83,7 +121,7 @@ class NodeFailure extends FOGController
      */
     public function getHost()
     {
-        return new Host($this->get('hostID'));
+        return $this->get('host');
     }
     /**
      * Returns the storage group object.
@@ -92,6 +130,6 @@ class NodeFailure extends FOGController
      */
     public function getStorageGroup()
     {
-        return new StorageGroup($this->get('storagegroupID'));
+        return $this->get('storagegroup');
     }
 }

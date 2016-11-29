@@ -504,11 +504,13 @@ abstract class FOGManagerController extends FOGBase
                         $countVals[$key] = $val;
                         unset($val);
                     }
-                    $whereArray[] = sprintf(
-                        '`%s` IN (%s)',
-                        $this->databaseFields[$field],
-                        implode(',', $countKeys)
-                    );
+                    if (count($countKeys) > 0) {
+                        $whereArray[] = sprintf(
+                            '`%s` IN (%s)',
+                            $this->databaseFields[$field],
+                            implode(',', $countKeys)
+                        );
+                    }
                     unset($countKeys);
                 } else {
                     $countVals[$field] = $value;

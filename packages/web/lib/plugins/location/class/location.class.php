@@ -160,7 +160,7 @@ class Location extends FOGController
         if ($this->get('storagenodeID')) {
             return $this->get('storagenode');
         }
-        return $this->getStorageGroup()->getOptimalStorageNode(0);
+        return $this->getStorageGroup()->getOptimalStorageNode();
     }
     /**
      * Loads the locations hosts.

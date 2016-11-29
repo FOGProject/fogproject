@@ -123,7 +123,7 @@ class Capone extends FOGController
     {
         $group = $this->get('storagegroup');
         $node = $group
-            ->getOptimalStorageNode($this->get('imageID'));
+            ->getOptimalStorageNode();
         $this->set('storagenode', $node);
     }
 }
