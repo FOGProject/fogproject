@@ -134,16 +134,19 @@ class AddLocationHost extends Hook
             if (!$Location->isValid()) {
                 continue;
             }
-            $this->arrayInsertAfter(
-                _('Host Product Key'),
-                $arguments['fields'],
-                _('Host Location'),
-                self::getClass('LocationManager')->buildSelectBox(
-                    $Location->getLocation()->get('id')
-                )
-            );
+            $locID = $Location->getLocation()->get('id');
             unset($Location);
+            break;
         }
+        unset($Locations);
+        $this->arrayInsertAfter(
+            _('Host Product Key'),
+            $arguments['fields'],
+            _('Host Location'),
+            self::getClass('LocationManager')->buildSelectBox(
+                $locID
+            )
+        );
     }
     /**
      * Adds the location selector to the host.
@@ -235,6 +238,7 @@ class AddLocationHost extends Hook
             );
             unset($Location);
         }
+        unset($Locations);
     }
     /**
      * Removes location when host is destroyed.
@@ -275,14 +279,16 @@ class AddLocationHost extends Hook
             if (!$Location->isValid()) {
                 continue;
             }
-            $this->arrayInsertAfter(
-                "\nSnapin Used: ",
-                $arguments['email'],
-                "\nImaged From (Location): ",
-                $Location->getLocation()->get('name')
-            );
+            $locName = $Location->getLocation()->get('id');
             unset($Location);
+            break;
         }
+        $this->arrayInsertAfter(
+            "\nSnapin Used: ",
+            $arguments['email'],
+            "\nImaged From (Location): ",
+            $locName
+        );
     }
     /**
      * Adds lcoation to host register.
