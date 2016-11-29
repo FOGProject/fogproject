@@ -289,6 +289,12 @@ class AddLocationHost extends Hook
             "\nImaged From (Location): ",
             $locName
         );
+        $this->arrayInsertAfter(
+            "\nImaged From (Location): ",
+            $arguments['email'],
+            "\nImageLocation=",
+            $locName
+        );
     }
     /**
      * Adds lcoation to host register.
