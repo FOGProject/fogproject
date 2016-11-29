@@ -166,6 +166,12 @@ if (!self::$isMobile) {
         unset($javascript);
     }
     unset($this->javascripts);
+    printf(
+        '<!-- <div id="footer">Memory Usage: %s</div> -->'
+        . '<!-- <div id="footer">Memory Peak: %s</div> -->',
+        $this->formatByteSize(memory_get_usage(true)),
+        $this->formatByteSize(memory_get_peak_usage())
+    );
 } else {
     echo '<div id="header"></div>';
     if (self::$FOGUser->isValid()) {

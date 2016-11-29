@@ -26,7 +26,7 @@ class SnapinJobManager extends FOGManagerController
      *
      * @var string
      */
-    public $tablename = 'dirCleaner';
+    public $tablename = 'snapinJobs';
     /**
      * Install our table.
      *
@@ -39,29 +39,37 @@ class SnapinJobManager extends FOGManagerController
             $this->tablename,
             true,
             array(
-                'dcID',
-                'dcPath'
+                'sjID',
+                'sjHostID',
+                'sjStateID',
+                'sjCreateTime'
             ),
             array(
                 'INTEGER',
-                'LONGTEXT'
+                'INTEGER',
+                'INTEGER',
+                'TIMESTAMP'
             ),
             array(
+                false,
+                false,
                 false,
                 false
             ),
             array(
                 false,
-                false
+                false,
+                false,
+                'CURRENT_TIMESTAMP'
             ),
             array(
-                'dcID',
-                'dcPath'
+                'sjID',
+                'sjHostID'
             ),
             'MyISAM',
             'utf8',
-            'dcID',
-            'dcID'
+            'sjID',
+            'sjID'
         );
         return self::$DB->query($sql);
     }

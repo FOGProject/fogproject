@@ -26,7 +26,7 @@ class ModuleManager extends FOGManagerController
      *
      * @var string
      */
-    public $tablename = 'dirCleaner';
+    public $tablename = 'modules';
     /**
      * Install our table.
      *
@@ -39,29 +39,41 @@ class ModuleManager extends FOGManagerController
             $this->tablename,
             true,
             array(
-                'dcID',
-                'dcPath'
+                'id',
+                'name',
+                'short_name',
+                'description',
+                'default'
             ),
             array(
                 'INTEGER',
-                'LONGTEXT'
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'LONGTEXT',
+                'INTEGER'
             ),
             array(
+                false,
+                false,
+                false,
                 false,
                 false
             ),
             array(
                 false,
+                false,
+                false,
+                false,
                 false
             ),
             array(
-                'dcID',
-                'dcPath'
+                'id',
+                'short_name'
             ),
             'MyISAM',
             'utf8',
-            'dcID',
-            'dcID'
+            'id',
+            'id'
         );
         return self::$DB->query($sql);
     }

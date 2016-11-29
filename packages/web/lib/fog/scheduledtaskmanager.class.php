@@ -26,7 +26,7 @@ class ScheduledTaskManager extends FOGManagerController
      *
      * @var string
      */
-    public $tablename = 'dirCleaner';
+    public $tablename = 'scheduledTasks';
     /**
      * Install our table.
      *
@@ -39,29 +39,104 @@ class ScheduledTaskManager extends FOGManagerController
             $this->tablename,
             true,
             array(
-                'dcID',
-                'dcPath'
+                'stID',
+                'stName',
+                'stDesc',
+                'stType',
+                'stTaskTypeID',
+                'stMinute',
+                'stHour',
+                'stDOM',
+                'stMonth',
+                'stDOW',
+                'stIsGroup',
+                'stGroupHostID',
+                'stImageID',
+                'stShutDown',
+                'stOther1',
+                'stOther2',
+                'stOther3',
+                'stOther4',
+                'stOther5',
+                'stDateTime',
+                'stActive'
             ),
             array(
                 'INTEGER',
-                'LONGTEXT'
+                'VARCHAR(250)',
+                'LONGTEXT',
+                'VARCHAR(24)',
+                'MEDIUMINT(9)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                "ENUM('0', '1')",
+                'INTEGER',
+                'INTEGER',
+                "ENUM('0', '1')",
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'TIMESTAMP',
+                "ENUM('0', '1')"
             ),
             array(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
                 false,
                 false
             ),
             array(
                 false,
-                false
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                '0',
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                'CURRENT_TIMESTAMP',
+                '1'
             ),
             array(
-                'dcID',
-                'dcPath'
+                'stID'
             ),
             'MyISAM',
             'utf8',
-            'dcID',
-            'dcID'
+            'stID',
+            'stID'
         );
         return self::$DB->query($sql);
     }

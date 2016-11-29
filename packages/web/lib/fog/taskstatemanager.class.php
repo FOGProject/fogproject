@@ -26,7 +26,7 @@ class TaskStateManager extends FOGManagerController
      *
      * @var string
      */
-    public $tablename = 'dirCleaner';
+    public $tablename = 'taskStates';
     /**
      * Install our table.
      *
@@ -39,29 +39,41 @@ class TaskStateManager extends FOGManagerController
             $this->tablename,
             true,
             array(
-                'dcID',
-                'dcPath'
+                'tsID',
+                'tsName',
+                'tsDescription',
+                'tsOrder',
+                'tsIcon'
             ),
             array(
                 'INTEGER',
-                'LONGTEXT'
+                'VARCHAR(50)',
+                'LONGTEXT',
+                'TINYINT(4)',
+                'VARCHAR(255)'
             ),
             array(
+                false,
+                false,
+                false,
                 false,
                 false
             ),
             array(
                 false,
+                false,
+                false,
+                false,
                 false
             ),
             array(
-                'dcID',
-                'dcPath'
+                'tsID',
+                'tsName'
             ),
             'MyISAM',
             'utf8',
-            'dcID',
-            'dcID'
+            'tsID',
+            'tsID'
         );
         return self::$DB->query($sql);
     }

@@ -26,7 +26,7 @@ class PowerManagementManager extends FOGManagerController
      *
      * @var string
      */
-    public $tablename = 'dirCleaner';
+    public $tablename = 'powerManagement';
     /**
      * Install our table.
      *
@@ -39,29 +39,56 @@ class PowerManagementManager extends FOGManagerController
             $this->tablename,
             true,
             array(
-                'dcID',
-                'dcPath'
+                'pmID',
+                'pmHostID',
+                'pmMin',
+                'pmHour',
+                'pmDom',
+                'pmMonth',
+                'pmDow',
+                'pmAction',
+                'pmOndemand'
             ),
             array(
                 'INTEGER',
-                'LONGTEXT'
+                'INTEGER',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                'VARCHAR(255)',
+                "ENUM('shutdown', 'reboot', 'wol')",
+                "ENUM('0', '1')"
             ),
             array(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
                 false,
                 false
             ),
             array(
                 false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
                 false
             ),
             array(
-                'dcID',
-                'dcPath'
+                'pmID',
             ),
             'MyISAM',
             'utf8',
-            'dcID',
-            'dcID'
+            'pmID',
+            'pmID'
         );
         return self::$DB->query($sql);
     }
