@@ -96,6 +96,9 @@ class AddLocationHost extends Hook
                     'hostID' => $vals['id']
                 )
             );
+            if (count($Locations) < 1) {
+                $arguments['data'][$index]['location'] = '';
+            }
             foreach ((array)$Locations as &$Location) {
                 if (!$Location->isValid()) {
                     continue;
@@ -130,6 +133,7 @@ class AddLocationHost extends Hook
                 'hostID' => $arguments['Host']->get('id')
             )
         );
+        $locID = 0;
         foreach ((array)$Locations as &$Location) {
             if (!$Location->isValid()) {
                 continue;

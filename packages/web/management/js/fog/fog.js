@@ -152,7 +152,7 @@ function AJAXServerTime() {
         });
     });
     if ($.inArray(sub,['list','listhosts','listgroups','storageGroup']) > -1) {
-        $('.list,.storageGroup,.listhosts,.listgroups').trigger('click');
+        $('.'+sub).trigger('click');
     }
     /**
      * On any form submission, attempt to trim the input fields automatically.

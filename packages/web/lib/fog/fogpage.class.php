@@ -933,24 +933,12 @@ abstract class FOGPage extends FOGBase
             $urlvars,
             (array)$data
         );
-        foreach ((array)$foundchanges[1] as &$arrayReplace) {
-            $this->dataFind[] = sprintf(
-                '#\$\{%s\}#',
-                $name
-            );
-            if (isset($arrayReplace[$name])) {
-                $this->dataReplace[] = $arrayReplace[$name];
-            } else {
-                $this->dataReplace[] = '';
-            }
-            unset($arrayReplace);
-        }
         foreach ((array)$arrayReplace as $name => &$val) {
             $this->dataFind[] = sprintf(
                 '#\$\{%s\}#',
                 $name
             );
-            if (isset($val)) {
+            if (!empty($val)) {
                 $this->dataReplace[] = str_replace('\\', '\\\\', $val);
             } else {
                 $this->dataReplace[] = '';

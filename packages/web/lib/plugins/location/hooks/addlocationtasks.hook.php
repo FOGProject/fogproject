@@ -89,6 +89,9 @@ class AddLocationTasks extends Hook
                     'hostID' => $data['host_id']
                 )
             );
+            if (count($Locations) < 1) {
+                $arguments['data'][$i]['location'] = '';
+            }
             foreach ((array)$Locations as &$Location) {
                 if (!$Location->isValid()) {
                     continue;
