@@ -1118,7 +1118,9 @@ class BootMenu extends FOGBase
         $msImage = $MultiSess->getImage()->get('id');
         $h_Image = $this->_Host->getImage()->get('id');
         if ($msImage != $h_Image) {
-            $this->_Host->set('imageID', $MultiSess->getImage()->get('id'));
+            $this->_Host
+                ->set('imagename', $MultiSess->getImage())
+                ->set('imageID', $msImage);
         }
         $shutdown = stripos('shutdown=1', $_SESSION['extraargs']);
         $isdebug = preg_match(

@@ -1079,11 +1079,15 @@ abstract class FOGController extends FOGBase
                 unset($db_key, $obj_key);
             }
         }
-        $this->data = (array) $this->data + (array) $classData;
+        $this->data = array_merge(
+            (array) $this->data,
+            (array) $classData
+        );
         foreach ($this->databaseFieldClassRelationships as $class => &$fields) {
+            $class = self::getClass($class);
             $this->set(
                 $fields[2],
-                self::getClass($class)->setQuery($queryData)
+                $class->setQuery($queryData)
             );
             unset($class, $fields);
         }
