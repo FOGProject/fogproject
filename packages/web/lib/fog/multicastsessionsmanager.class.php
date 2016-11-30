@@ -88,7 +88,7 @@ class MulticastSessionsManager extends FOGManagerController
          * Get sessions's associated task IDs (if any)
          */
         $taskIDs = self::getSubObjectIDs(
-            'MulticastSessionsAssociations',
+            'MulticastSessionsAssociation',
             array('msID' => $multicastsessionids),
             'taskID'
         );
