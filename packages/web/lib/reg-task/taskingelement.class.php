@@ -109,11 +109,11 @@ abstract class TaskingElement extends FOGBase
                         || $this->Task->isMulticast()
                     ) {
                         $this->StorageNode = $this
-                            ->StorageGroup()
+                            ->StorageGroup
                             ->getMasterStorageNode();
                     } else {
                         $this->StorageNode = $this
-                            ->StorageGroup()
+                            ->StorageGroup
                             ->getOptimalStorageNode();
                     }
                 }
