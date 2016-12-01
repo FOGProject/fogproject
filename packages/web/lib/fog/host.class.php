@@ -177,11 +177,6 @@ class Host extends FOGController
                 $value = new SnapinJob($value);
             }
             break;
-        case 'inventory':
-            if (!($value instanceof Inventory)) {
-                $value = new Inventory($value);
-            }
-            break;
         case 'task':
             if (!($value instanceof Task)) {
                 $value = new Task($value);
@@ -1606,6 +1601,9 @@ class Host extends FOGController
     {
         try {
             $Image = $this->getImage();
+            if (!$Image instanceof Image) {
+                $Image = new Image($this->get('imageID'));
+            }
             if (!$Image->isValid()) {
                 throw new Exception(_('No valid Image defined for this host'));
             }
