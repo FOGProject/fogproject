@@ -880,7 +880,7 @@ class TaskManagementPage extends FOGPage
                     'TaskState',
                     $SnapinTask->get('stateID')
                 )->get('name'),
-            );
+                );
             unset($SnapinTask, $Snapin, $SnapinJob, $Host);
         }
         self::$HookManager
@@ -908,28 +908,64 @@ class TaskManagementPage extends FOGPage
         );
         $this->redirect($this->formAction);
     }
+    /**
+     * Cancels and snapin taskings.
+     *
+     * @return void
+     */
     public function activesnapinsPost()
     {
         if (!self::$ajax) {
             $this->_nonajax();
         }
         $SnapinTaskIDs = (array)$_REQUEST['task'];
-        $SnapinJobIDs = self::getSubObjectIDs('SnapinTask', array('id'=>$SnapinTaskIDs), 'jobID');
-        $SnapinJobIDs = self::getSubObjectIDs('SnapinTask', array('id'=>$SnapinTaskIDs), 'jobID');
-        $HostIDs = self::getSubObjectIDs('SnapinJob', array('id'=>(array)$SnapinJobIDs), 'hostID');
-        $TaskIDs = self::getSubObjectIDs('Task', array('hostID'=>$HostIDs, 'typeID'=>array(12, 13)));
-        self::getClass('TaskManager')->cancel($TaskIDs);
-        self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
-        if (self::getClass('SnapinTaskManager')->count(array('jobID'=>$SnapinJobIDs)) < 1) {
-            self::getClass('SnapinJobManager')->cancel($SnapinJobIDs);
+        if (count($SnapinTaskIDs) > 0) {
+            $SnapinJobIDs = self::getSubObjectIDs(
+                'SnapinTask',
+                array(
+                    'id' => $SnapinTaskIDs
+                ),
+                'jobID'
+            );
+            self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
+        }
+        if (count($SnapinJobIDs) > 0) {
+            $HostIDs = self::getSubObjectIDs(
+                'SnapinJob',
+                array(
+                    'id' => $SnapinJobIDs
+                ),
+                'hostID'
+            );
+        }
+        if (count($HostIDs) > 0) {
+            $TaskIDs = self::getSubObjectIDs(
+                'Task',
+                array(
+                    'hostID' => $HostIDs,
+                    'typeID' => array(
+                        12,
+                        13
+                    )
+                )
+            );
+        }
+        if (count($TaskIDs)) {
+            self::getClass('TaskManager')->cancel($TaskIDs);
         }
         exit;
     }
+    /**
+     * Active scheduled tasks (delayed or cron)
+     *
+     * @return void
+     */
     public function activescheduled()
     {
         $this->title = 'Scheduled Tasks';
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
+            '<input type="checkbox" name="toggle-checkbox" class='
+            . '"toggle-checkboxAction"/>',
             _('Host/Group Name'),
             _('Is Group'),
             _('Task Name'),
@@ -939,8 +975,10 @@ class TaskManagementPage extends FOGPage
             _('Type'),
         );
         $this->templates = array(
-            '<input type="checkbox" name="task[]" value="${id}" class="toggle-action"/>',
-            '<a href="?node=${hostgroup}&sub=edit&id=${hostgroupid}" title="Edit ${nametype}: ${hostgroupname}">${hostgroupname}</a>${extra}',
+            '<input type="checkbox" name="task[]" value="${id}" class='
+            . '"toggle-action"/>',
+            '<a href="?node=${hostgroup}&sub=edit&id=${hostgroupid}" title='
+            . '"Edit ${nametype}: ${hostgroupname}">${hostgroupname}</a>${extra}',
             '${groupbased}',
             '${details_taskname}',
             '${task_type}',
@@ -949,20 +987,50 @@ class TaskManagementPage extends FOGPage
             '${type}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false','task-id'=>'${id}'),
-            array('width'=>100,'class'=>'l'),
-            array('width'=>25,'class'=>'l'),
-            array('width'=>110,'class'=>'l'),
-            array('width'=>80,'class'=>'c'),
-            array('width'=>70,'class'=>'c'),
-            array('width'=>30,'class'=>'c'),
-            array('width'=>80,'class'=>'c'),
+            array(
+                'width' => 16,
+                'class' => 'l filter-false',
+                'task-id' => '${id}'
+            ),
+            array(
+                'width' => 100,
+                'class' => 'l'
+            ),
+            array(
+                'width' => 25,
+                'class' => 'l'
+            ),
+            array(
+                'width' => 110,
+                'class' => 'l'
+            ),
+            array(
+                'width' => 80,
+                'class' => 'c'
+            ),
+            array(
+                'width' => 70,
+                'class' => 'c'
+            ),
+            array(
+                'width' => 30,
+                'class' => 'c'
+            ),
+            array(
+                'width' => 80,
+                'class' => 'c'
+            ),
         );
-        foreach (self::getClass('ScheduledTaskManager')->find() as &$ScheduledTask) {
+        $ScheduledTasks = self::getClass('ScheduledTaskManager')->find();
+        foreach ((array)$ScheduledTasks as &$ScheduledTask) {
             if (!$ScheduledTask->isValid()) {
                 continue;
             }
-            $ObjTest = $ScheduledTask->isGroupBased() ? $ScheduledTask->getGroup() : $ScheduledTask->getHost();
+            $method = 'getHost';
+            if ($ScheduledTask->isGroupBased()) {
+                $method = 'getGroup';
+            }
+            $ObjTest = $ScheduledTask->{$method}();
             if (!$ObjTest->isValid()) {
                 continue;
             }
@@ -973,29 +1041,65 @@ class TaskManagementPage extends FOGPage
             $this->data[] = array(
                 'id' => $ScheduledTask->get('id'),
                 'start_time' => $ScheduledTask->getTime(),
-                'groupbased' => $ScheduledTask->isGroupBased() ? _('Yes') : _('No'),
-                'active' => $ScheduledTask->isActive() ? _('Yes') : _('No'),
+                'groupbased' => (
+                    $ScheduledTask->isGroupBased() ?
+                    _('Yes') :
+                    _('No')
+                ),
+                'active' => (
+                    $ScheduledTask->isActive() ?
+                    _('Yes') :
+                    _('No')
+                ),
                 'type' => $ScheduledTask->getScheduledType(),
-                'hostgroup' => $ScheduledTask->isGroupBased() ? 'group' : 'host',
+                'hostgroup' => (
+                    $ScheduledTask->isGroupBased() ?
+                    _('group') :
+                    _('host')
+                ),
                 'hostgroupname' => $ObjTest->get('name'),
                 'hostgroupid' => $ObjTest->get('id'),
                 'details_taskname' => $ScheduledTask->get('name'),
                 'task_type' => $TaskType->get('name'),
-                'extra' => $ScheduledTask->isGroupBased() ? '' : sprintf('<br/><small>%s</small>', $ObjTest->get('mac')->__toString()),
+                'extra' => (
+                    $ScheduledTask->isGroupBased() ?
+                    '' :
+                    sprintf(
+                        '<br/><small>%s</small>',
+                        $ObjTest->get('mac')->__toString()
+                    )
+                ),
                 'nametype' => get_class($ObjTest),
             );
             unset($ScheduledTask, $ObjTest, $TaskType);
         }
-        self::$HookManager->processEvent('TaskScheduledData', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
+        self::$HookManager
+            ->processEvent(
+                'TaskScheduledData',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
         $this->render();
         unset($this->data);
     }
+    /**
+     * Canceled tasks for us.
+     *
+     * @return void
+     */
     public function activescheduledPost()
     {
         if (!self::$ajax) {
             $this->_nonajax();
         }
-        self::getClass('ScheduledTaskManager')->destroy(array('id'=>(array)$_REQUEST['task']));
+        self::getClass('ScheduledTaskManager')
+            ->destroy(
+                array('id' => $_REQUEST['task'])
+            );
         exit;
     }
 }
