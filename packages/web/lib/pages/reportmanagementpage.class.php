@@ -1,8 +1,38 @@
 <?php
+/**
+ * Displays 'reports' for the admins.
+ *
+ * PHP version 5
+ *
+ * @category ReportManagementPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Displays 'reports' for the admins.
+ *
+ * @category ReportManagementPage
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class ReportManagementPage extends FOGPage
 {
+    /**
+     * The node this page displays from.
+     *
+     * @var string
+     */
     public $node = 'report';
-    private static function loadCustomReports()
+    /**
+     * Loads custom reports.
+     *
+     * @return array
+     */
+    private static function _loadCustomReports()
     {
         $regext = '#^.+/reports/.*\.report\.php$#';
         $dirpath = $_SESSION['FOG_REPORT_DIR'];
@@ -26,46 +56,117 @@ class ReportManagementPage extends FOGPage
             $RegexIterator
         );
         $getNiceNameReports = function ($element) use ($strlen) {
-            return str_replace('_', ' ', substr(basename($element[0]), 0, $strlen));
+            return str_replace(
+                '_',
+                ' ',
+                substr(
+                    basename($element[0]),
+                    0,
+                    $strlen
+                )
+            );
         };
-        return array_map($getNiceNameReports, (array)$files);
+        return array_map(
+            $getNiceNameReports,
+            (array) $files
+        );
     }
-    public function __construct()
+    /**
+     * Initializes the report page.
+     *
+     * @param string $name The name if other than this.
+     *
+     * @return void
+     */
+    public function __construct($name = '')
     {
         $this->name = 'Report Management';
         parent::__construct($this->name);
         $this->menu = array(
             'home' => self::$foglang['Home'],
             'equip-loan' => self::$foglang['EquipLoan'],
-            'host-list' => self::$foglang['HostList'],
-            'imaging-log' => self::$foglang['ImageLog'],
+            'hostlist' => self::$foglang['HostList'],
+            'imaginglog' => self::$foglang['ImageLog'],
             'inventory' => self::$foglang['Inventory'],
-            'pend-mac' => self::$foglang['PendingMACs'],
+            'pendmac' => self::$foglang['PendingMACs'],
             'snapin-log' => self::$foglang['SnapinLog'],
             'user-track' => self::$foglang['LoginHistory'],
-            'vir-hist' => self::$foglang['VirusHistory'],
+            'virhist' => self::$foglang['VirusHistory'],
         );
         $reportlink = "?node={$this->node}&sub=file&f=";
-        array_map(function (&$report) use (&$reportlink) {
-            $this->menu = array_merge($this->menu, array(sprintf('%s%s', $reportlink, base64_encode($report))=>implode(' ', array_map(function (&$item) {
-                return ucfirst($item);
-            }, (array)explode(' ', strtolower($report))))));
-        }, (array)self::loadCustomReports());
-        $this->menu = array_merge($this->menu, array('upload'=>self::$foglang['UploadRprts']));
-        self::$HookManager->processEvent('SUB_MENULINK_DATA', array('menu'=>&$this->menu, 'submenu'=>&$this->subMenu, 'id'=>&$this->id, 'notes'=>&$this->notes));
+        array_map(
+            function (&$report) use (&$reportlink) {
+                $this->menu = array_merge(
+                    (array) $this->menu,
+                    array(
+                        sprintf(
+                            '%s%s',
+                            $reportlink,
+                            base64_encode($report)
+                        ) => implode(
+                            ' ',
+                            array_map(
+                                function (&$item) {
+                                    return ucfirst($item);
+                                },
+                                explode(
+                                    ' ',
+                                    strtolower($report)
+                                )
+                            )
+                        )
+                    )
+                );
+            },
+            (array) self::_loadCustomReports()
+        );
+        $this->menu = array_merge(
+            (array) $this->menu,
+            array('upload' => self::$foglang['UploadRprts'])
+        );
+        self::$HookManager
+            ->processEvent(
+                'SUB_MENULINK_DATA',
+                array(
+                    'menu' => &$this->menu,
+                    'submenu' => &$this->subMenu,
+                    'id' => &$this->id,
+                    'notes' => &$this->notes
+                )
+            );
         $_SESSION['foglastreport'] = null;
         $this->ReportMaker = self::getClass('ReportMaker');
     }
+    /**
+     * Presents when the user hit's the home link.
+     *
+     * @return void
+     */
     public function home()
     {
         $this->index();
     }
+    /**
+     * Allows the user to upload new reports if they created one.
+     *
+     * @return void
+     */
     public function upload()
     {
         $this->title = _('Upload FOG Reports');
         printf(
-            '<div class="hostgroup">%s</div><p class="titleBottomLeft">%s</p><form method="post" action="%s" enctype="multipart/form-data"><input type="file" name="report"/><span class="lightColor">%s: %s</span><p><input type="submit" value="%s"/></p></form>',
-            _('This section allows you to upload user defined reports that may not be part of the base FOG package. The report files should end in .php'),
+            '<div class="hostgroup">%s</div>'
+            . '<p class="titleBottomLeft">%s</p>'
+            . '<form method="post" action="%s" enctype="multipart/form-data">'
+            . '<input type="file" name="report"/>'
+            . '<span class="lightColor">%s: %s</span>'
+            . '<p><input type="submit" value="%s"/></p></form>',
+            _(
+                'This section allows you to upload user '
+                . 'defined reports that may not be part of '
+                . 'the base FOG package. The report files '
+                . 'should end in .php'
+            ),
             _('Upload a FOG Report'),
             $this->formAction,
             _('Max Size'),
@@ -73,18 +174,48 @@ class ReportManagementPage extends FOGPage
             _('Upload File')
         );
     }
+    /**
+     * The actual index presentation.
+     *
+     * @return void
+     */
     public function index()
     {
         $this->title = _('About FOG Reports');
-        printf('<p>%s</p>', _('FOG Reports exist to give you information about what is going on with your FOG System. To view a report, select an item from the menu on the left-hand side of this page.'));
+        printf(
+            '<p>%s</p>',
+            _(
+                'FOG Reports exist to give you information '
+                . 'about what is going on with your FOG System. '
+                . 'To view a report, select an item from the menu '
+                . 'on the left-hand side of this page.'
+            )
+        );
     }
+    /**
+     * Works with a file.
+     *
+     * @return void
+     */
     public function file()
     {
-        array_map(function ($className) {
-            self::getClass($className);
-        }, (array)preg_replace('#[[:space:]]#', '_', base64_decode($_REQUEST['f'])));
+        array_map(
+            function ($className) {
+                self::getClass($className);
+            },
+            (array) preg_replace(
+                '#[[:space:]]#',
+                '_',
+                base64_decode($_REQUEST['f'])
+            )
+        );
     }
-    public function imaging_log()
+    /**
+     * Initial presentation for imaging log.
+     *
+     * @return void
+     */
+    public function imaginglog()
     {
         $this->title = _('FOG Imaging Log - Select Date Range');
         unset($this->headerData);
@@ -92,8 +223,25 @@ class ReportManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $AllDates = array_merge(self::$DB->query("SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM `imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM, 'fetch_all')->get('start'), self::$DB->query("SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM `imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM, 'fetch_all')->get('start'));
-        foreach ((array)$AllDates as $i => &$Date) {
+        $AllDates = array_merge(
+            (array) self::$DB->query(
+                "SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM "
+                . "`imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') "
+                . "!= '0000-00-00' GROUP BY start ORDER BY start DESC"
+            )->fetch(
+                MYSQLI_NUM,
+                'fetch_all'
+            )->get('start'),
+            (array) self::$DB->query(
+                "SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM "
+                . "`imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') "
+                . "!= '0000-00-00' GROUP BY finish ORDER BY finish DESC"
+            )->fetch(
+                MYSQLI_NUM,
+                'fetch_all'
+            )->get('start')
+        );
+        foreach ((array)$AllDates as &$Date) {
             if (is_string($Date)) {
                 $Date = array($Date);
             }
@@ -109,18 +257,33 @@ class ReportManagementPage extends FOGPage
         rsort($Dates);
         if (count($Dates) > 0) {
             ob_start();
-            foreach ((array)$Dates as $i => &$Date) {
-                printf('<option value="%s">%s</option>', $Date, $Date);
+            foreach ((array)$Dates as &$Date) {
+                printf(
+                    '<option value="%s">%s</option>',
+                    $Date,
+                    $Date
+                );
                 unset($Date);
             }
             unset($Dates);
             $dates = ob_get_clean();
-            $date1 = sprintf('<select name="%s" size="1">%s</select>', 'date1', $dates);
-            $date2 = sprintf('<select name="%s" size="1">%s</select>', 'date2', $dates);
+            $date1 = sprintf(
+                '<select name="%s" size="1">%s</select>',
+                'date1',
+                $dates
+            );
+            $date2 = sprintf(
+                '<select name="%s" size="1">%s</select>',
+                'date2',
+                $dates
+            );
             $fields = array(
                 _('Select Start Date') => $date1,
                 _('Select End Date') => $date2,
-                '&nbsp;' => sprintf('<input type="submit" value="%s"/>', _('Search for Entries')),
+                '&nbsp;' => sprintf(
+                    '<input type="submit" value="%s"/>',
+                    _('Search for Entries')
+                ),
             );
             foreach ((array)$fields as $field => &$input) {
                 $this->data[] = array(
@@ -137,7 +300,12 @@ class ReportManagementPage extends FOGPage
             $this->render();
         }
     }
-    public function imaging_logPost()
+    /**
+     * Present based on the selections of dates.
+     *
+     * @return void
+     */
+    public function imaginglogPost()
     {
         $this->title = _('FOG Imaging Log');
         printf(
@@ -162,7 +330,8 @@ class ReportManagementPage extends FOGPage
         );
         $this->templates = array(
             '${createdBy}',
-            '${host_name}<br/><small>Storage Group: ${group_name}</small><br/><small>Storage Node: ${node_name}</small>',
+            '${host_name}<br/><small>Storage Group: ${group_name}'
+            . '</small><br/><small>Storage Node: ${node_name}</small>',
             '<small>${start_date} ${start_time}</small>',
             '<small>${end_date} ${end_time}</small>',
             '${duration}',
@@ -200,7 +369,7 @@ class ReportManagementPage extends FOGPage
             'up' => _('Capture'),
             'down' => _('Deploy'),
         );
-        foreach ((array)$csvHead as $i => &$csvHeader) {
+        foreach ((array)$csvHead as &$csvHeader) {
             $this->ReportMaker->addCSVCell($csvHeader);
             unset($csvHeader);
         }
@@ -211,12 +380,12 @@ class ReportManagementPage extends FOGPage
         $date1 = self::niceDate($date1);
         $date2 = self::niceDate($date2);
         foreach ((array)$ImagingLogs as &$ImagingLog) {
-            if (!$ImagingLog->isValid()) {
-                continue;
-            }
+            $Host = $ImagingLog->getHost();
             $start = $ImagingLog->get('start');
             $end = $ImagingLog->get('finish');
-            if (!$this->validDate($start) || !$this->validDate($end)) {
+            if (!$this->validDate($start)
+                || !$this->validDate($end)
+            ) {
                 continue;
             }
             $diff = $this->diff($start, $end);
@@ -227,16 +396,20 @@ class ReportManagementPage extends FOGPage
             ) {
                 continue;
             }
-            $Host = new Host($ImagingLog->get('hostID'));
-            if (!$Host->isValid()) {
-                continue;
-            }
             $hostName = $Host->get('name');
             $hostId = $Host->get('id');
             $hostMac = $Host->get('mac');
             $hostDesc = $Host->get('description');
             unset($Host);
-            $Task = self::getClass('Task', @max(self::getSubObjectIDs('Task', array('checkInTime'=>$ImagingLog->get('start'), 'hostID'=>$ImagingLog->get('hostID')))));
+            $TaskIDs = self::getSubObjectIDs(
+                'Task',
+                array(
+                    'checkInTime' => $ImagingLog->get('start'),
+                    'hostID' => $Host->get('id')
+                )
+            );
+            $TaskID = @max($TaskIDs);
+            $Task = new Task($TaskID);
             $groupName = $Task->getStorageGroup()->get('name');
             $nodeName = $Task->getStorageNode()->get('name');
             $typeName = $Task->getTaskType()->get('name');
@@ -247,8 +420,14 @@ class ReportManagementPage extends FOGPage
             if (in_array($typeName, array('up', 'down'))) {
                 $typeName = $imgTypes[$typeName];
             }
-            $createdBy = ($ImagingLog->get('createdBy') ? $ImagingLog->get('createdBy') : $_SESSION['FOG_USERNAME']);
-            $Image = self::getClass('Image')->set('name', $ImagingLog->get('image'))->load('name');
+            $createdBy = (
+                $ImagingLog->get('createdBy') ?
+                $ImagingLog->get('createdBy') :
+                $_SESSION['FOG_USERNAME']
+            );
+            $Image = self::getClass('Image')
+                ->set('name', $ImagingLog->get('image'))
+                ->load('name');
             if ($Image->isValid()) {
                 $imgName = $Image->get('name');
                 $imgPath = $Image->get('path');
@@ -259,17 +438,17 @@ class ReportManagementPage extends FOGPage
             unset($Image);
             unset($ImagingLog);
             $this->data[] = array(
-                'createdBy'=>$createdBy,
-                'group_name'=>$groupName,
-                'node_name'=>$nodeName,
-                'host_name'=>$hostName,
-                'start_date'=>$start->format('Y-m-d'),
-                'start_time'=>$start->format('H:i:s'),
-                'end_date'=>$end->format('Y-m-d'),
-                'end_time'=>$end->format('H:i:s'),
-                'duration'=>$diff,
-                'image_name'=>$imgName,
-                'type'=>$typeName,
+                'createdBy' => $createdBy,
+                'group_name' => $groupName,
+                'node_name' => $nodeName,
+                'host_name' => $hostName,
+                'start_date' => $start->format('Y-m-d'),
+                'start_time' => $start->format('H:i:s'),
+                'end_date' => $end->format('Y-m-d'),
+                'end_time' => $end->format('H:i:s'),
+                'duration' => $diff,
+                'image_name' => $imgName,
+                'type' => $typeName,
             );
             $this->ReportMaker
                 ->addCSVCell($createdBy)
@@ -294,7 +473,12 @@ class ReportManagementPage extends FOGPage
         $this->ReportMaker->outputReport(0);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
-    public function host_list()
+    /**
+     * Host listing.
+     *
+     * @return void
+     */
+    public function hostlist()
     {
         $this->title = _('Host Listing Export');
         printf(
@@ -339,10 +523,8 @@ class ReportManagementPage extends FOGPage
             '${host_mac}',
             '${image_name}',
         );
-        foreach ((array)self::getClass('HostManager')->find() as $i => &$Host) {
-            if (!$Host->isValid()) {
-                continue;
-            }
+        $Hosts = self::getClass('HostManager')->find();
+        foreach ((array)$Hosts as &$Host) {
             $Image = $Host->getImage();
             $imgID = $Image->get('id');
             $imgName = $Image->get('name');
@@ -365,7 +547,13 @@ class ReportManagementPage extends FOGPage
                         $this->ReportMaker->addCSVCell($imgDesc);
                         break;
                     case _('AD Join'):
-                        $this->ReportMaker->addCSVCell(($Host->get('useAD') == 1 ? _('Yes') : _('No')));
+                        $this->ReportMaker->addCSVCell(
+                            (
+                                $Host->get('useAD') == 1 ?
+                                _('Yes') :
+                                _('No')
+                            )
+                        );
                         break;
                     default:
                         $this->ReportMaker->addCSVCell($Host->get($classGet));
@@ -380,6 +568,11 @@ class ReportManagementPage extends FOGPage
         $this->ReportMaker->outputReport(0);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
+    /**
+     * Presents and reports all Inventory data for hosts.
+     *
+     * @return void
+     */
     public function inventory()
     {
         $this->title = _('Full Inventory Export');
@@ -394,46 +587,13 @@ class ReportManagementPage extends FOGPage
             _('Export PDF'),
             self::$pdffile
         );
-        $csvHead = array(
-            _('Host ID')=>'id',
-            _('Host name')=>'name',
-            _('Host MAC')=>'mac',
-            _('Host Desc')=>'description',
-            _('Inventory ID')=>'id',
-            _('Inventory Desc')=>'description',
-            _('Primary User')=>'primaryUser',
-            _('Other Tag 1')=>'other1',
-            _('Other Tag 2')=>'other2',
-            _('System Manufacturer')=>'sysman',
-            _('System Product')=>'sysproduct',
-            _('System Version')=>'sysversion',
-            _('System Serial')=>'sysserial',
-            _('System Type')=>'systype',
-            _('BIOS Version')=>'biosversion',
-            _('BIOS Vendor')=>'biosvendor',
-            _('BIOS Date')=>'biosdate',
-            _('MB Manufacturer')=>'mbman',
-            _('MB Name')=>'mbproductname',
-            _('MB Version')=>'mbversion',
-            _('MB Serial')=>'mbserial',
-            _('MB Asset')=>'mbasset',
-            _('CPU Manufacturer')=>'cpuman',
-            _('CPU Version')=>'cpuversion',
-            _('CPU Speed')=>'cpucurrent',
-            _('CPU Max Speed')=>'cpumax',
-            _('Memory')=>'mem',
-            _('HD Model')=>'hdmodel',
-            _('HD Firmware')=>'hdfirmware',
-            _('HD Serial')=>'hdserial',
-            _('Chassis Manufacturer')=>'caseman',
-            _('Chassis Version')=>'casever',
-            _('Chassis Serial')=>'caseser',
-            _('Chassis Asset')=>'caseasset',
+        array_walk(
+            self::$inventoryCsvHead,
+            function (&$classGet, &$csvHeader) {
+                $this->ReportMaker->addCSVCell($csvHeader);
+                unset($classGet, $csvHeader);
+            }
         );
-        array_walk(self::$inventoryCsvHead, function (&$classGet, &$csvHeader) {
-            $this->ReportMaker->addCSVCell($csvHeader);
-            unset($classGet, $csvHeader);
-        });
         $this->ReportMaker->endCSVLine();
         $this->headerData = array(
             _('Host name'),
@@ -453,22 +613,18 @@ class ReportManagementPage extends FOGPage
             array(),
             array(),
         );
-        foreach ((array)self::getClass('HostManager')->find() as $i => &$Host) {
-            if (!$Host->isValid()) {
-                continue;
-            }
-            if (!$Host->get('inventory')->isValid()) {
-                continue;
-            }
+        $Hosts = self::getClass('HostManager')->find();
+        foreach ((array)$Hosts as &$Host) {
             $Image = $Host->getImage();
+            $Inventory = $Host->get('inventory');
             $this->data[] = array(
-                'host_name'=>$Host->get('name'),
-                'host_mac'=>$Host->get('mac'),
-                'memory'=>$Host->get('inventory')->getMem(),
-                'sysprod'=>$Host->get('inventory')->get('sysproduct'),
-                'sysser'=>$Host->get('inventory')->get('sysserial'),
+                'host_name' => $Host->get('name'),
+                'host_mac' => $Host->get('mac'),
+                'memory' => $Inventory->getMem(),
+                'sysprod' => $Inventory->get('sysproduct'),
+                'sysser' => $Inventory->get('sysserial'),
             );
-            foreach ((array)$csvHead as $head => &$classGet) {
+            foreach (self::$inventoryCsvHead as $head => &$classGet) {
                 switch ($head) {
                     case _('Host ID'):
                         $this->ReportMaker->addCSVCell($Host->get('id'));
@@ -483,27 +639,39 @@ class ReportManagementPage extends FOGPage
                         $this->ReportMaker->addCSVCell($Host->get('description'));
                         break;
                     case _('Memory'):
-                        $this->ReportMaker->addCSVCell($Host->get('inventory')->getMem());
+                        $this->ReportMaker->addCSVCell($Inventory->getMem());
                         break;
                     default:
-                        $this->ReportMaker->addCSVCell($Host->get('inventory')->get($classGet));
+                        $this->ReportMaker->addCSVCell($Inventory->get($classGet));
                         break;
                 }
+                unset($classGet, $head);
             }
-            unset($classGet);
             $this->ReportMaker->endCSVLine();
+            unset($Inventory, $Host);
         }
-        unset($id, $HostIDs);
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
-    public function pend_mac()
+    /**
+     * Shows any pending mac addresses.
+     *
+     * @return void
+     */
+    public function pendmac()
     {
         if ($_REQUEST['aprvall'] == 1) {
-            self::getClass('MACAddressAssociationManager')->update('', '', array('pending'=>(string)0));
+            self::getClass('MACAddressAssociationManager')
+                ->update(
+                    '',
+                    '',
+                    array(
+                        'pending' => 0
+                    )
+                );
             $this->setMessage(_('All Pending MACs approved.'));
-            $this->redirect('?node=report&sub=pend-mac');
+            $this->redirect('?node=report&sub=pendmac');
         }
         $this->title = _('Pending MAC Export');
         printf(
@@ -518,7 +686,10 @@ class ReportManagementPage extends FOGPage
             self::$pdffile
         );
         if ($_SESSION['Pending-MACs']) {
-            printf('<a href="?node=report&sub=pend-mac&aprvall=1">%s</a>', _('Approve All Pending MACs for all hosts'));
+            printf(
+                '<a href="?node=report&sub=pendmac&aprvall=1">%s</a>',
+                _('Approve All Pending MACs for all hosts')
+            );
         }
         echo '</h2>';
         $csvHead = array(
@@ -534,32 +705,34 @@ class ReportManagementPage extends FOGPage
         unset($classGet);
         $this->ReportMaker->endCSVLine();
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
+            '<input type="checkbox" name="toggle-checkbox" class='
+            . '"toggle-checkboxAction"/>',
             _('Host name'),
             _('Host Primary MAC'),
             _('Host Pending MAC'),
         );
         $this->templates = array(
-            '<input type="checkbox" name="pendmac[]" value="${id}" class="toggle-action"/>',
+            '<input type="checkbox" name="pendmac[]" value='
+            . '"${id}" class="toggle-action"/>',
             '${host_name}',
             '${host_mac}',
             '${host_pend}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
+            array(
+                'width' => 16,
+                'class' => 'l filter-false'
+            ),
             array(),
             array(),
             array(),
         );
-        foreach ((array)self::getClass('MACAddressAssociationManager')->find(array('pending'=>(string)1)) as &$Pending) {
-            if (!$Pending->isValid()) {
-                continue;
-            }
-            $PendingMAC = self::getClass('MACAddress', $Pending->get('mac'));
-            if (!$PendingMAC->isValid()) {
-                continue;
-            }
-            $Host = $PendingMAC->getHost();
+        $Pendings = self::getClass('MACAddressAssociationManager')->find(
+            array('pending' => 1)
+        );
+        foreach ((array)$Pendings as &$Pending) {
+            $PendingMAC = new MACAddress($Pending->get('mac'));
+            $Host = $Pending->getHost();
             if (!$Host->isValid()) {
                 continue;
             }
@@ -585,28 +758,63 @@ class ReportManagementPage extends FOGPage
             unset($Host, $PendingMAC);
         }
         if (count($this->data) > 0) {
-            printf('<form method="post" action="%s">', $this->formAction);
+            printf(
+                '<form method="post" action="%s">',
+                $this->formAction
+            );
         }
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
         if (count($this->data) > 0) {
-            printf('<p class="c"><input name="approvependmac" type="submit" value="%s"/>&nbsp;&nbsp;<input name="delpendmac" type="submit" value="%s"/></p></form>', _('Approve selected pending macs'), _('Delete selected pending macs'));
+            printf(
+                '<p class="c"><input name="approvependmac" type='
+                . '"submit" value="%s"/>&nbsp;&nbsp;<input name='
+                . '"delpendmac" type="submit" value="%s"/></p></form>',
+                _('Approve selected pending macs'),
+                _('Delete selected pending macs')
+            );
         }
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
-    public function pend_macPost()
+    /**
+     * Approves pending macs
+     *
+     * @return void
+     */
+    public function pendmacPost()
     {
         if (isset($_REQUEST['approvependmac'])) {
-            self::getClass('MACAddressAssociationManager')->update(array('id'=>$_REQUEST['pendmac']), '', array('pending'=>(string)0));
+            self::getClass('MACAddressAssociationManager')->update(
+                array('id' => $_REQUEST['pendmac']),
+                '',
+                array('pending' => 0)
+            );
         }
         if (isset($_REQUEST['delpendmac'])) {
-            self::getClass('MACAddressAssociationManager')->destroy(array('id'=>$_REQUEST['pendmac']));
+            self::getClass('MACAddressAssociationManager')->destroy(
+                array('id' => $_REQUEST['pendmac'])
+            );
         }
-        $appdel = (isset($_REQUEST['approvependmac']) ? 'approved' : 'deleted');
-        $this->setMessage(_("All pending macs $appdel successfully"));
+        $appdel = (
+            isset($_REQUEST['approvependmac']) ?
+            _('approved') : _('deleted')
+        );
+        $this->setMessage(
+            sprintf(
+                '%s %s %s',
+                _('All pending macs'),
+                $appdel,
+                _('successfully')
+            )
+        );
         $this->redirect("?node=$this->node");
     }
-    public function vir_hist()
+    /**
+     * Display virus history.
+     *
+     * @return void
+     */
+    public function virhist()
     {
         $this->title = _('FOG Virus Summary');
         printf(
@@ -621,16 +829,20 @@ class ReportManagementPage extends FOGPage
             self::$pdffile
         );
         printf(
-            '<form method="post" action="%s"><h2><a href="#"><input onclick="this.form.submit()" type="checkbox" class="delvid" name="delvall" id="delvid" value="all"/><label for="delvid">(%s)</label></a></h2></form>',
+            '<form method="post" action="%s"><h2><a href="#">'
+            . '<input onclick="this.form.submit()" type='
+            . '"checkbox" class="delvid" name="delvall" id='
+            . '"delvid" value="all"/><label for="delvid">(%s)'
+            . '</label></a></h2></form>',
             $this->formAction,
             _('clear all history')
         );
         $csvHead = array(
-            _('Host Name')=>'name',
-            _('Virus Name')=>'name',
-            _('File')=>'file',
-            _('Mode')=>'mode',
-            _('Date')=>'date',
+            _('Host Name') => 'name',
+            _('Virus Name') => 'name',
+            _('File') => 'file',
+            _('Mode') => 'mode',
+            _('Date') => 'date'
         );
         $this->headerData = array(
             _('Host name'),
@@ -638,7 +850,7 @@ class ReportManagementPage extends FOGPage
             _('File'),
             _('Mode'),
             _('Date'),
-            _('Clear'),
+            _('Clear')
         );
         $this->templates = array(
             '${host_name}',
@@ -646,7 +858,14 @@ class ReportManagementPage extends FOGPage
             '${vir_file}',
             '${vir_mode}',
             '${vir_date}',
-            sprintf('<input type="checkbox" onclick="this.form.submit()" class="delvid" value="${vir_id}" id="vir${vir_id}" name="delvid"/><label for="for${vir_id}" class="icon icon-hand" title="%s ${vir_name}"><i class="fa fa-minus-circle link"></i></label>', _('Delete')),
+            sprintf(
+                '<input type="checkbox" onclick="this.form.submit()" class='
+                . '"delvid" value="${vir_id}" id="vir${vir_id}" name='
+                . '"delvid"/><label for="for${vir_id}" class='
+                . '"icon icon-hand" title="%s ${vir_name}">'
+                . '<i class="fa fa-minus-circle link"></i></label>',
+                _('Delete')
+            )
         );
         $this->attributes = array(
             array(),
@@ -654,18 +873,17 @@ class ReportManagementPage extends FOGPage
             array(),
             array(),
             array(),
-            array('class'=>'filter-false'),
+            array('class' => 'filter-false')
         );
         foreach ((array)$csvHead as $csvHeader => &$classGet) {
             $this->ReportMaker->addCSVCell($csvHeader);
             unset($classGet);
         }
         $this->ReportMaker->endCSVLine();
-        foreach ((array)self::getClass('VirusManager')->find() as $i => &$Virus) {
-            if (!$Virus->isValid()) {
-                continue;
-            }
-            $Host = self::getClass('HostManager')->getHostByMacAddresses($Virus->get('mac'));
+        $Viruses = self::getClass('VirusManager')->find();
+        foreach ((array)$Viruses as &$Virus) {
+            $Host = self::getClass('HostManager')
+                ->getHostByMacAddresses($Virus->get('mac'));
             if (!$Host->isValid()) {
                 continue;
             }
@@ -673,15 +891,22 @@ class ReportManagementPage extends FOGPage
             unset($Host);
             $virusName = $Virus->get('name');
             $virusFile = $Virus->get('file');
-            $virusMode = ($Virus->get('mode') == 'q' ? _('Quarantine') : _('Report'));
+            $virusMode = (
+                $Virus->get('mode') == 'q' ?
+                _('Quarantine') :
+                _('Report')
+            );
             $virusDate = self::niceDate($Virus->get('date'));
             $this->data[] = array(
-                'host_name'=>$hostName,
-                'vir_id'=>$id,
-                'vir_name'=>$virusName,
-                'vir_file'=>$virusFile,
-                'vir_mode'=>$virusMode,
-                'vir_date'=>$this->formatTime($virusDate, 'Y-m-d H:i:s'),
+                'host_name' => $hostName,
+                'vir_id' => $id,
+                'vir_name' => $virusName,
+                'vir_file' => $virusFile,
+                'vir_mode' => $virusMode,
+                'vir_date' => $this->formatTime(
+                    $virusDate,
+                    'Y-m-d H:i:s'
+                ),
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
@@ -702,12 +927,20 @@ class ReportManagementPage extends FOGPage
         }
         unset($Virus);
         $this->ReportMaker->appendHTML($this->__toString());
-        printf('<form method="post" action="%s">', $this->formAction);
+        printf(
+            '<form method="post" action="%s">',
+            $this->formAction
+        );
         $this->ReportMaker->outputReport(false);
         echo '</form>';
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
-    public function vir_histPost()
+    /**
+     * Clear/remove particular history.
+     *
+     * @return void
+     */
+    public function virhistPost()
     {
         if ($_REQUEST['delvall'] == 'all') {
             self::getClass('VirusManager')->destroy();

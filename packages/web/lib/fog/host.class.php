@@ -1601,9 +1601,6 @@ class Host extends FOGController
     {
         try {
             $Image = $this->getImage();
-            if (!$Image instanceof Image) {
-                $Image = new Image($this->get('imageID'));
-            }
             if (!$Image->isValid()) {
                 throw new Exception(_('No valid Image defined for this host'));
             }
