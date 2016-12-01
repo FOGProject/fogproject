@@ -112,7 +112,9 @@ class PowerManagement extends FOGController
     public function save()
     {
         parent::save();
-        return $this->assocSetter('PowerManagement', 'host', true);
+        return $this
+            ->assocSetter('PowerManagement', 'host', true)
+            ->load();
     }
     /**
      * Gets the action as defined

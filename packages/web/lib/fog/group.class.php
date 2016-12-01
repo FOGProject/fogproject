@@ -85,7 +85,9 @@ class Group extends FOGController
     public function save()
     {
         parent::save();
-        return $this->assocSetter('Group', 'host');
+        return $this
+            ->assocSetter('Group', 'host')
+            ->load();
     }
     /**
      * Returns the host count.

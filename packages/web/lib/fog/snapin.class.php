@@ -151,7 +151,7 @@ class Snapin extends FOGController
             $primary = array_shift($primary);
             $this->setPrimaryGroup($primary);
         }
-        return $this;
+        return $this->load();
     }
     /**
      * Deletes the snapin file.

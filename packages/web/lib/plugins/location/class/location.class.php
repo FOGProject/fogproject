@@ -106,10 +106,9 @@ class Location extends FOGController
     public function save()
     {
         parent::save();
-        return $this->assocSetter(
-            'Location',
-            'host'
-        );
+        return $this
+            ->assocSetter('Location', 'host')
+            ->load();
     }
     /**
      * Add host to the location.

@@ -85,7 +85,9 @@ class Printer extends FOGController
     public function save()
     {
         parent::save();
-        return $this->assocSetter('Printer', 'host');
+        return $this
+            ->assocSetter('Printer', 'host')
+            ->load();
     }
     /**
      * Adds the host to the printer.

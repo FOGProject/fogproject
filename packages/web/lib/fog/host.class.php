@@ -602,12 +602,12 @@ class Host extends FOGController
             $objNeeded = false;
             unset($DBPowerManagementIDs, $RemovePowerManagementIDs);
         }
-        $this
+        return $this
             ->assocSetter('Module')
             ->assocSetter('Printer')
             ->assocSetter('Snapin')
-            ->assocSetter('Group');
-        return $this;
+            ->assocSetter('Group')
+            ->load();
     }
     /**
      * Defines if the host is valid
