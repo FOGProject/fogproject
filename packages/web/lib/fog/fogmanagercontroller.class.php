@@ -493,7 +493,7 @@ abstract class FOGManagerController extends FOGBase
         if (count($findWhere)) {
             foreach ((array) $findWhere as $field => &$value) {
                 $field = trim($field);
-                if (is_array($value)) {
+                if (is_array($value) && count($value) > 0) {
                     foreach ((array) $value as $index => &$val) {
                         $key = sprintf(
                             '%s_%d',
@@ -513,6 +513,9 @@ abstract class FOGManagerController extends FOGBase
                     }
                     unset($countKeys);
                 } else {
+                    if (is_array($value)) {
+                        $value = '';
+                    }
                     $countVals[$field] = $value;
                     $whereArray[] = sprintf(
                         '`%s` %s :%s',
@@ -1367,7 +1370,7 @@ abstract class FOGManagerController extends FOGBase
                     &$countKeys
                 ) {
                     $field = trim($field);
-                    if (is_array($value)) {
+                    if (is_array($value) && count($value) > 0) {
                         foreach ((array) $value as $index => &$val) {
                             $countKeys[] = sprintf(':countVal%d', $index);
                             $countVals[sprintf('countVal%d', $index)] = $val;
@@ -1380,6 +1383,9 @@ abstract class FOGManagerController extends FOGBase
                             implode(',', $countKeys)
                         );
                     } else {
+                        if (is_array($value)) {
+                            $value = '';
+                        }
                         $countVals['countVal'] = $value;
                         $whereArray[] = sprintf(
                             '`%s`.`%s`%s:countVal',
