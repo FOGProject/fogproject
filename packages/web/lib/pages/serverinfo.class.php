@@ -1,27 +1,65 @@
 <?php
+/**
+ * Presents server information when clicked.
+ *
+ * PHP version 5
+ *
+ * @category ServerInfo
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Presents server information when clicked.
+ *
+ * @category ServerInfo
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class ServerInfo extends FOGPage
 {
+    /**
+     * The node this works off of.
+     *
+     * @var string
+     */
     public $node = 'hwinfo';
+    /**
+     * Initializes the server information.
+     *
+     * @param string $name The name this initializes with.
+     *
+     * @return void
+     */
     public function __construct($name = '')
     {
         $this->name = 'Hardware Information';
         parent::__construct($this->name);
-        $this->obj = self::getClass('StorageNode', $_REQUEST['id']);
+        global $id;
+        $this->obj = new StorageNode($id);
         $this->menu = array(
-            "?node=storage&sub=edit&id={$_REQUEST['id']}" => _('Edit Node')
+            "?node=storage&sub=edit&id={$id}" => _('Edit Node')
         );
         $this->notes = array(
-            sprintf('%s %s', self::$foglang['Storage'], self::$foglang['Node']) => $this->obj->get('name'),
-            _('Hostname / IP') => $this->obj->get('ip'),
-            self::$foglang['ImagePath'] => $this->obj->get('path'),
-            self::$foglang['FTPPath'] => $this->obj->get('ftppath')
-        );
+            sprintf(
+                '%s %s',
+                self::$foglang['Storage'],
+                self::$foglang['Node']
+            ) => $this->obj->get('name'),
+                _('Hostname / IP') => $this->obj->get('ip'),
+                self::$foglang['ImagePath'] => $this->obj->get('path'),
+                self::$foglang['FTPPath'] => $this->obj->get('ftppath')
+            );
     }
+    /**
+     * The index page.
+     *
+     * @return void
+     */
     public function index()
-    {
-        $this->home();
-    }
-    public function home()
     {
         unset($this->headerData);
         $this->attributes = array(
@@ -33,12 +71,34 @@ class ServerInfo extends FOGPage
             '${input}',
         );
         if (!$this->obj->isValid()) {
-            printf('<p>%s</p>', _('Invalid Server Information!'));
+            printf(
+                '<p>%s</p>',
+                _('Invalid Server Information!')
+            );
             return;
         }
-        $curroot = trim(trim($this->obj->get('webroot'), '/'));
-        $webroot = sprintf('/%s', (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : ''));
-        $URL = sprintf('http://%s%sstatus/hw.php', $this->obj->get('ip'), $webroot);
+        $curroot = trim(
+            trim(
+                $this->obj->get('webroot'),
+                '/'
+            )
+        );
+        $webroot = sprintf(
+            '/%s',
+            (
+                strlen($curroot) > 1 ?
+                sprintf(
+                    '%s/',
+                    $curroot
+                ) :
+                ''
+            )
+        );
+        $URL = sprintf(
+            'http://%s%sstatus/hw.php',
+            $this->obj->get('ip'),
+            $webroot
+        );
         $testurl = sprintf(
             'http://%s/fog/management/index.php',
             $this->obj->get('ip')
@@ -54,14 +114,18 @@ class ServerInfo extends FOGPage
         $ret = self::$FOGURLRequests->process($URL);
         $ret = trim($ret[0]);
         if (empty($ret) || !$ret) {
-            printf('<p>%s</p>', _('Unable to pull server information!'));
+            printf(
+                '<p>%s</p>',
+                _('Unable to pull server information!')
+            );
             return;
         }
         $section = 0;
         $arGeneral = array();
         $arFS = array();
         $arNIC = array();
-        array_map(function (&$line) use (&$section, &$arGeneral, &$arFS, &$arNIC) {
+        $lines = explode("\n", $ret);
+        foreach ((array)$lines as &$line) {
             $line = trim($line);
             switch ($line) {
             case '@@start':
@@ -91,8 +155,8 @@ class ServerInfo extends FOGPage
                 break;
             }
             unset($line);
-        }, explode("\n", $ret));
-        array_map(function (&$nic) use (&$NICTransSized, &$NICRecSized, &$NICErrInfo, &$NICDropInfo, &$NICTrans, &$NICRec, &$NICErr, &$NICDro) {
+        }
+        foreach ((array)$arNIC as &$nic) {
             $nicparts = explode("$$", $nic);
             if (count($nicparts) == 5) {
                 $NICTransSized[] = $this->formatByteSize($nicparts[2]);
@@ -105,7 +169,7 @@ class ServerInfo extends FOGPage
                 $NICDro[] = sprintf('%s %s', $nicparts[0], _('Dropped'));
             }
             unset($nic);
-        }, (array)$arNIC);
+        }
         if (count($arGeneral) < 1) {
             printf(_('Unable to find basic information'));
             return;
@@ -131,24 +195,46 @@ class ServerInfo extends FOGPage
             _('Free Disk Space') => $arFS[2],
             sprintf('<b>%s</b>', _('Network Information')) => '&nbsp;',
         );
-        array_walk($NICTrans, function (&$txtran, &$index) use (&$NICTransSized, &$NICRecSized, &$NICErrInfo, &$NICDropInfo, &$NICTrans, &$NICRec, &$NICErr, &$NICDro, &$fields) {
+        foreach ((array)$NICTrans as $index => &$txtran) {
             $ethName = explode(' ', $txtran);
-            $fields[sprintf('<b>%s %s</b>', $ethName[0], _('Information'))] = '&nbsp;';
+            $fields[
+                sprintf(
+                    '<b>%s %s</b>',
+                    $ethName[0],
+                    _('Information')
+                )
+            ] = '&nbsp;';
             $fields[$NICTrans[$index]] = $NICTransSized[$index];
             $fields[$NICRec[$index]] = $NICRecSized[$index];
             $fields[$NICErr[$index]] = $NICErrInfo[$index];
             $fields[$NICDro[$index]] = $NICDropInfo[$index];
             unset($txtran, $index);
-        });
-        unset($arGeneral, $arNIC, $arFS, $NICTransSized, $NICRecSized, $NICErrInfo, $NICDropInfo, $NICTrans, $NICRec, $NICErr, $NICDro);
+        }
+        unset(
+            $arGeneral,
+            $arNIC,
+            $arFS,
+            $NICTransSized,
+            $NICRecSized,
+            $NICErrInfo,
+            $NICDropInfo,
+            $NICTrans,
+            $NICRec,
+            $NICErr,
+            $NICDro
+        );
         $this->data = array();
-        array_walk($fields, function (&$input, &$field) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager
+            ->processEvent(
+                'SERVER_INFO_DISP',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
             );
-        });
-        self::$HookManager->processEvent('SERVER_INFO_DISP', array('headerData'=>&$this->headerData, 'data'=>&$this->data, 'templates'=>&$this->templates, 'attributes'=>&$this->attributes));
         $this->render();
     }
 }

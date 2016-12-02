@@ -802,7 +802,7 @@ abstract class FOGPage extends FOGBase
                     || (in_array($sub, $defaultScreens)
                     && in_array($node, self::$searchPages))
                 ) {
-                    if ($this->node != 'home') {
+                    if (!in_array($this->node, array('home', 'hwinfo'))) {
                         $this->setMessage(
                             sprintf(
                                 '%s %s%s found',

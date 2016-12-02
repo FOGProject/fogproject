@@ -1,7 +1,39 @@
 <?php
+/**
+ * Presents the tasks to mobile.
+ *
+ * PHP version 5
+ *
+ * @category TaskMobile
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Presents the tasks to mobile.
+ *
+ * @category TaskMobile
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class TaskMobile extends FOGPage
 {
+    /**
+     * The node this page displays on.
+     *
+     * @var string
+     */
     public $node = 'task';
+    /**
+     * Initializes the task mobile page.
+     *
+     * @param string $name The name if different to load.
+     *
+     * @return void
+     */
     public function __construct($name = '')
     {
         $this->name = 'Task Management';
@@ -20,7 +52,9 @@ class TaskMobile extends FOGPage
             array(),
             array(),
             array(),
-            array('class'=>'filter-false'),
+            array(
+                'class' => 'filter-false'
+            ),
         );
         $this->templates = array(
             '${task_force}',
@@ -28,56 +62,126 @@ class TaskMobile extends FOGPage
             '${host_name}',
             '${task_type}',
             '${task_state}',
-            '<a href="?node=${node}&sub=killtask&id=${id}"><i class="fa fa-minus-circle fa-2x task"></i></a>',
+            '<a href="?node=${node}&sub=killtask&id=${id}">'
+            . '<i class="fa fa-minus-circle fa-2x task"></i></a>',
         );
-        if (isset($_REQUEST['id'])) {
-            $this->obj = self::getClass('Task', $_REQUEST['id']);
+        global $id;
+        if (isset($id)) {
+            $this->obj = new Task($id);
         }
     }
+    /**
+     * The page to display.
+     *
+     * @return void
+     */
     public function index()
     {
         $this->active();
     }
+    /**
+     * Redirect to index.
+     *
+     * @return void
+     */
     public function search()
     {
-        $this->redirect(sprintf('?node=%s&sub=active', $this->node));
+        $this->redirect(
+            sprintf(
+                '?node=%s&sub=active',
+                $this->node
+            )
+        );
     }
+    /**
+     * Redirect to index.
+     *
+     * @return void
+     */
     public function searchPost()
     {
-        $this->redirect(sprintf('?node=%s&sub=active', $this->node));
+        $this->redirect(
+            sprintf(
+                '?node=%s&sub=active',
+                $this->node
+            )
+        );
     }
+    /**
+     * Set forced status.
+     *
+     * @return void
+     */
     public function force()
     {
-        $this->obj->set('isForced', 1)->save();
-        $this->redirect(sprintf('?node=%s', $this->node));
+        $this->obj
+            ->set('isForced', 1)
+            ->save();
+        $this->redirect(
+            sprintf(
+                '?node=%s',
+                $this->node
+            )
+        );
     }
+    /**
+     * Cancels/kills the tasks.
+     *
+     * @return void
+     */
     public function killtask()
     {
         $this->obj->cancel();
-        $this->redirect(sprintf('?node=%s', $this->node));
+        $this->redirect(
+            sprintf(
+                '?node=%s',
+                $this->node
+            )
+        );
     }
+    /**
+     * The stuff to display.
+     *
+     * @return void
+     */
     public function active()
     {
-        array_map(function (&$Task) {
-            if (!$Task->isValid()) {
-                return;
-            }
+        $Tasks = self::getClass('TaskManager')->find(
+            array(
+                'stateID' => array_merge(
+                    (array) $this->getQueuedStates(),
+                    (array) $this->getProgressState()
+                )
+            )
+        );
+        foreach ((array)$Tasks as &$Task) {
             $Host = $Task->getHost();
-            if (!$Host->isValid()) {
-                return;
-            }
-            $name = sprintf('%s %s', $Task->isForced() ? '*' : '', $Host->get('name'));
+            $name = sprintf(
+                '%s %s',
+                (
+                    $Task->isForced() ?
+                    '*' :
+                    ''
+                ),
+                $Host->get('name')
+            );
             unset($Host);
             $this->data[] = array(
-                'id'=>$Task->get('id'),
-                'task_name'=>$Task->get('name'),
-                'host_name'=>$name,
-                'task_type'=> $Task->getTaskTypeText(),
-                'task_state'=> $Task->getTaskStateText(),
-                'task_force'=>(!$Task->isForced() ? '<a href="?node=${node}&sub=force&id=${id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
+                'id' => $Task->get('id'),
+                'task_name' => $Task->get('name'),
+                'host_name' => $name,
+                'task_type' => $Task->getTaskTypeText(),
+                'task_state' => $Task->getTaskStateText(),
+                'task_force' =>
+                (
+                    !$Task->isForced() ?
+                    '<a href="?node=${node}&sub=force&id=${id}">'
+                    . '<i class="fa fa-step-forward fa-2x task"></i></a>' :
+                    '<i class="fa fa-play fa-2x task"></i>'
+                )
             );
             unset($Task);
-        }, (array)self::getClass($this->childClass)->getManager()->find(array('stateID'=>array_merge($this->getQueuedStates(), (array)$this->getProgressState()))));
+        }
         $this->render();
     }
 }
