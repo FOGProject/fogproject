@@ -69,9 +69,9 @@ while getopts "$optspec" o; do
                     exit 0
                     ;;
                 ssl-path)
-                    sslpath="${OPTARG}"
-                    sslpath="${sslpath#'/'}"
-                    sslpath="${sslpath%'/'}"
+                    ssslpath="${OPTARG}"
+                    ssslpath="${sslpath#'/'}"
+                    ssslpath="${sslpath%'/'}"
                     sslpath="/${sslpath}/"
                     ;;
                 no-defaults)
@@ -81,29 +81,29 @@ while getopts "$optspec" o; do
                     doupdate=0
                     ;;
                 no-htmldoc)
-                    ignorehtmldoc=1
+                    signorehtmldoc=1
                     ;;
                 force-https)
-                    forcehttps="yes"
+                    sforcehttps="yes"
                     ;;
                 recreate-keys)
-                    recreateKeys="yes"
+                    srecreateKeys="yes"
                     ;;
                 recreate-[Cc][Aa])
-                    recreateCA="yes"
+                    srecreateCA="yes"
                     ;;
                 autoaccept)
                     autoaccept="yes"
                     dbupdate="yes"
                     ;;
                 docroot)
-                    docroot="${OPTARG}"
-                    docroot="${docroot#'/'}"
-                    docroot="${docroot%'/'}"
-                    docroot="/${docroot}/"
+                    sdocroot="${OPTARG}"
+                    sdocroot="${docroot#'/'}"
+                    sdocroot="${docroot%'/'}"
+                    sdocroot="/${docroot}/"
                     ;;
                 oldcopy)
-                    copybackold=1
+                    scopybackold=1
                     ;;
                 webroot)
                     if [[ $OPTARG != *('/')* ]]; then
@@ -111,9 +111,9 @@ while getopts "$optspec" o; do
                         help
                         exit 2
                     fi
-                    webroot="${OPTARG}"
-                    webroot="${webroot#'/'}"
-                    webroot="${webroot%'/'}"
+                    swebroot="${OPTARG}"
+                    swebroot="${webroot#'/'}"
+                    swebroot="${webroot%'/'}"
                     ;;
                 file)
                     if [[ -f $OPTARG ]]; then
@@ -130,7 +130,7 @@ while getopts "$optspec" o; do
                         help
                         exit 4
                     fi
-                    backupPath=$OPTARG
+                    sbackupPath=$OPTARG
                     ;;
                 startrange)
                     if [[ $(validip $OPTARG) != 0 ]]; then
@@ -138,7 +138,7 @@ while getopts "$optspec" o; do
                         help
                         exit 5
                     fi
-                    startrange=$OPTARG
+                    sstartrange=$OPTARG
                     ;;
                 endrange)
                     if [[ $(validip $OPTARG) != 0 ]]; then
@@ -146,22 +146,22 @@ while getopts "$optspec" o; do
                         help
                         exit 6
                     fi
-                    endrange=$OPTARG
+                    sendrange=$OPTARG
                     ;;
                 bootfile)
-                    bootfilename=$OPTARG
+                    sbootfilename=$OPTARG
                     ;;
                 no-exportbuild)
-                    blexports=0
+                    sblexports=0
                     ;;
                 exitFail)
-                    exitFail=1
+                    sexitFail=1
                     ;;
                 no-tftpbuild)
-                    noTftpBuild="true"
+                    snoTftpBuild="true"
                     ;;
                 no-pxedefault)
-                    notpxedefaultfile="true"
+                    snotpxedefaultfile="true"
                     ;;
                 *)
                     if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
@@ -177,13 +177,13 @@ while getopts "$optspec" o; do
             exit 0
             ;;
         o)
-            copybackold=1
+            scopybackold=1
             ;;
         c)
-            sslpath="${OPTARG}"
-            sslpath="${sslpath#'/'}"
-            sslpath="${sslpath%'/'}"
-            sslpath="/${sslpath}/"
+            ssslpath="${OPTARG}"
+            ssslpath="${sslpath#'/'}"
+            ssslpath="${sslpath%'/'}"
+            ssslpath="/${sslpath}/"
             ;;
         d)
             guessdefaults=0
@@ -192,26 +192,26 @@ while getopts "$optspec" o; do
             doupdate=0
             ;;
         H)
-            ignorehtmldoc=1
+            signorehtmldoc=1
             ;;
         S)
-            forcehttps="yes"
+            sforcehttps="yes"
             ;;
         K)
-            recreateKeys="yes"
+            srecreateKeys="yes"
             ;;
         C)
-            recreateCA="yes"
+            srecreateCA="yes"
             ;;
         [yY])
             autoaccept="yes"
             dbupdate="yes"
             ;;
         D)
-            docroot=$OPTARG
-            docroot=${docroot#'/'}
-            docroot=${docroot%'/'}
-            docroot=/${docroot}/
+            sdocroot=$OPTARG
+            sdocroot=${docroot#'/'}
+            sdocroot=${docroot%'/'}
+            sdocroot=/${docroot}/
             ;;
         W)
             if [[ $OPTARG != *('/')* ]]; then
@@ -219,9 +219,9 @@ while getopts "$optspec" o; do
                 help
                 exit 2
             fi
-            webroot=$OPTARG
-            webroot=${webroot#'/'}
-            webroot=${webroot%'/'}
+            swebroot=$OPTARG
+            swebroot=${webroot#'/'}
+            swebroot=${webroot%'/'}
             ;;
         f)
             if [[ ! -f $OPTARG ]]; then
@@ -237,7 +237,7 @@ while getopts "$optspec" o; do
                 help
                 exit 4
             fi
-            backupPath=$OPTARG
+            sbackupPath=$OPTARG
             ;;
         s)
             if [[ $(validip $OPTARG) != 0 ]]; then
@@ -245,7 +245,7 @@ while getopts "$optspec" o; do
                 help
                 exit 5
             fi
-            startrange=$OPTARG
+            sstartrange=$OPTARG
             ;;
         e)
             if [[ $(validip $OPTARG) != 0 ]]; then
@@ -253,22 +253,22 @@ while getopts "$optspec" o; do
                 help
                 exit 6
             fi
-            endrange=$OPTARG
+            sendrange=$OPTARG
             ;;
         b)
-            bootfilename=$OPTARG
+            sbootfilename=$OPTARG
             ;;
         E)
-            blexports=0
+            sblexports=0
             ;;
         X)
             exitFail=1
             ;;
         T)
-            noTftpBuild="true"
+            snoTftpBuild="true"
             ;;
         P)
-            notpxedefaultfile="true"
+            snotpxedefaultfile="true"
             ;;
         :)
             echo "Option -$OPTARG requires a value"
@@ -365,13 +365,28 @@ case $doupdate in
             echo -n " * Performing upgrade using these settings"
             . "$fogpriorconfig"
             doOSSpecificIncludes
+            [[ -n $sblexports ]] && blexports=$sblexports
+            [[ -n $snotpxedefaultfile ]] && notpxedefaultfile=$snotpxedefaultfile
+            [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
+            [[ -n $sbootfilename ]] && bootfilename=$sbootfilename
+            [[ -n $sendrange ]] && endrange=$sendrange
+            [[ -n $sstartrange ]] && startrange=$sstartrange
+            [[ -n $sbackupPath ]] && backupPath=$sbackupPath
+            [[ -n $swebroot ]] && webroot=$swebroot
+            [[ -n $sdocroot ]] && docroot=$sdocroot
+            [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
+            [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
+            [[ -n $sforcehttps ]] && forcehttps=$sforcehttps
+            [[ -n $signorehtmldoc ]] && ignorehtmldoc=$signorehtmldoc
+            [[ -n $ssslpath ]] && sslpath=$ssslpath
+            [[ -n $scopybackold ]] && copybackold=$scopybackold
         fi
         ;;
     *)
         echo -e "\n * FOG Installer will NOT attempt to upgrade from\n    previous version of FOG."
         ;;
 esac
-[[ -f /opt/fog/.fogsettings ]] && grep -l webroot /opt/fog/.fogsettings >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+[[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 case $? in
     0)
         if [[ -n $webroot ]]; then
