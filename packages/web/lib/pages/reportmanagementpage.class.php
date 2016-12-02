@@ -84,13 +84,13 @@ class ReportManagementPage extends FOGPage
         parent::__construct($this->name);
         $this->menu = array(
             'home' => self::$foglang['Home'],
-            'equip-loan' => self::$foglang['EquipLoan'],
+            'equiploan' => self::$foglang['EquipLoan'],
             'hostlist' => self::$foglang['HostList'],
             'imaginglog' => self::$foglang['ImageLog'],
             'inventory' => self::$foglang['Inventory'],
             'pendmac' => self::$foglang['PendingMACs'],
-            'snapin-log' => self::$foglang['SnapinLog'],
-            'user-track' => self::$foglang['LoginHistory'],
+            'snapinlog' => self::$foglang['SnapinLog'],
+            'usertrack' => self::$foglang['LoginHistory'],
             'virhist' => self::$foglang['VirusHistory'],
         );
         $reportlink = "?node={$this->node}&sub=file&f=";
@@ -224,7 +224,7 @@ class ReportManagementPage extends FOGPage
             '${input}',
         );
         $AllDates = array_merge(
-            (array) self::$DB->query(
+            self::$DB->query(
                 "SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM "
                 . "`imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') "
                 . "!= '0000-00-00' GROUP BY start ORDER BY start DESC"
@@ -232,7 +232,7 @@ class ReportManagementPage extends FOGPage
                 MYSQLI_NUM,
                 'fetch_all'
             )->get('start'),
-            (array) self::$DB->query(
+            self::$DB->query(
                 "SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM "
                 . "`imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') "
                 . "!= '0000-00-00' GROUP BY finish ORDER BY finish DESC"
@@ -405,7 +405,7 @@ class ReportManagementPage extends FOGPage
                 'Task',
                 array(
                     'checkInTime' => $ImagingLog->get('start'),
-                    'hostID' => $Host->get('id')
+                    'hostID' => $hostId
                 )
             );
             $TaskID = @max($TaskIDs);
@@ -537,27 +537,27 @@ class ReportManagementPage extends FOGPage
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
-                    case _('Image ID'):
-                        $this->ReportMaker->addCSVCell($imgID);
-                        break;
-                    case _('Image Name'):
-                        $this->ReportMaker->addCSVCell($imgName);
-                        break;
-                    case _('Image Desc'):
-                        $this->ReportMaker->addCSVCell($imgDesc);
-                        break;
-                    case _('AD Join'):
-                        $this->ReportMaker->addCSVCell(
-                            (
-                                $Host->get('useAD') == 1 ?
-                                _('Yes') :
-                                _('No')
-                            )
-                        );
-                        break;
-                    default:
-                        $this->ReportMaker->addCSVCell($Host->get($classGet));
-                        break;
+                case _('Image ID'):
+                    $this->ReportMaker->addCSVCell($imgID);
+                    break;
+                case _('Image Name'):
+                    $this->ReportMaker->addCSVCell($imgName);
+                    break;
+                case _('Image Desc'):
+                    $this->ReportMaker->addCSVCell($imgDesc);
+                    break;
+                case _('AD Join'):
+                    $this->ReportMaker->addCSVCell(
+                        (
+                            $Host->get('useAD') == 1 ?
+                            _('Yes') :
+                            _('No')
+                        )
+                    );
+                    break;
+                default:
+                    $this->ReportMaker->addCSVCell($Host->get($classGet));
+                    break;
                 }
                 unset($classGet);
             }
@@ -626,24 +626,24 @@ class ReportManagementPage extends FOGPage
             );
             foreach (self::$inventoryCsvHead as $head => &$classGet) {
                 switch ($head) {
-                    case _('Host ID'):
-                        $this->ReportMaker->addCSVCell($Host->get('id'));
-                        break;
-                    case _('Host name'):
-                        $this->ReportMaker->addCSVCell($Host->get('name'));
-                        break;
-                    case _('Host MAC'):
-                        $this->ReportMaker->addCSVCell($Host->get('mac'));
-                        break;
-                    case _('Host Desc'):
-                        $this->ReportMaker->addCSVCell($Host->get('description'));
-                        break;
-                    case _('Memory'):
-                        $this->ReportMaker->addCSVCell($Inventory->getMem());
-                        break;
-                    default:
-                        $this->ReportMaker->addCSVCell($Inventory->get($classGet));
-                        break;
+                case _('Host ID'):
+                    $this->ReportMaker->addCSVCell($Host->get('id'));
+                    break;
+                case _('Host name'):
+                    $this->ReportMaker->addCSVCell($Host->get('name'));
+                    break;
+                case _('Host MAC'):
+                    $this->ReportMaker->addCSVCell($Host->get('mac'));
+                    break;
+                case _('Host Desc'):
+                    $this->ReportMaker->addCSVCell($Host->get('description'));
+                    break;
+                case _('Memory'):
+                    $this->ReportMaker->addCSVCell($Inventory->getMem());
+                    break;
+                default:
+                    $this->ReportMaker->addCSVCell($Inventory->get($classGet));
+                    break;
                 }
                 unset($classGet, $head);
             }
@@ -910,15 +910,15 @@ class ReportManagementPage extends FOGPage
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
-                    case _('Host name'):
-                        $this->ReportMaker->addCSVCell($hostName);
-                        break;
-                    case _('Mode'):
-                        $this->ReportMaker->addCSVCell($virusMode);
-                        break;
-                    default:
-                        $this->ReportMaker->addCSVCell($Virus->get($classGet));
-                        break;
+                case _('Host name'):
+                    $this->ReportMaker->addCSVCell($hostName);
+                    break;
+                case _('Mode'):
+                    $this->ReportMaker->addCSVCell($virusMode);
+                    break;
+                default:
+                    $this->ReportMaker->addCSVCell($Virus->get($classGet));
+                    break;
                 }
                 unset($classGet);
             }
@@ -952,7 +952,12 @@ class ReportManagementPage extends FOGPage
             $this->redirect($this->formAction);
         }
     }
-    public function user_track()
+    /**
+     * User tracking log search page.
+     *
+     * @return void
+     */
+    public function usertrack()
     {
         $this->title = _('FOG User Login History Summary - Search');
         unset($this->headerData);
@@ -979,26 +984,51 @@ class ReportManagementPage extends FOGPage
             ob_start();
             foreach ((array)$UserNames as $i => &$Username) {
                 if ($Username) {
-                    printf('<option value="%s">%s</option>', $Username, $Username);
+                    printf(
+                        '<option value="%s">%s</option>',
+                        $Username,
+                        $Username
+                    );
                 }
                 unset($Username);
             }
-            $userSelForm = sprintf('<select name="usersearch"><option value="">- %s -</option>%s</select>', _('Please select an option'), ob_get_clean());
+            $userSelForm = sprintf(
+                '<select name="usersearch">'
+                . '<option value="">- %s -</option>'
+                . '%s'
+                . '</select>',
+                _('Please select an option'),
+                ob_get_clean()
+            );
         }
         if (count($HostNames) > 0) {
             ob_start();
             foreach ((array)$HostNames as $i => &$Hostname) {
                 if ($Hostname) {
-                    printf('<option value="%s">%s</option>', $Hostname, $Hostname);
+                    printf(
+                        '<option value="%s">%s</option>',
+                        $Hostname,
+                        $Hostname
+                    );
                 }
                 unset($Hostname);
             }
-            $hostSelForm = sprintf('<select name="hostsearch"><option value="">- %s -</option>%s</select>', _('Please select an option'), ob_get_clean());
+            $hostSelForm = sprintf(
+                '<select name="hostsearch">'
+                . '<option value="">- %s -</option>'
+                . '%s'
+                . '</select>',
+                _('Please select an option'),
+                ob_get_clean()
+            );
         }
         $fields = array(
             _('Enter a username to search for') => $userSelForm,
             _('Enter a hostname to search for') => $hostSelForm,
-            '' => sprintf('<input type="submit" value="%s"/>', _('Search')),
+            '&nbsp;' => sprintf(
+                '<input type="submit" value="%s"/>',
+                _('Search')
+            ),
         );
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
@@ -1007,11 +1037,19 @@ class ReportManagementPage extends FOGPage
             );
             unset($input);
         }
-        printf('<form method="post" action="%s">', $this->formAction);
+        printf(
+            '<form method="post" action="%s">',
+            $this->formAction
+        );
         $this->render();
         echo '</form>';
     }
-    public function user_trackPost()
+    /**
+     * Submit the searched requests and return the info.
+     * 
+     * @return void
+     */
+    public function usertrackPost()
     {
         $this->title = _('Results Found for user and/or hostname search');
         $this->headerData = array(
@@ -1019,84 +1057,130 @@ class ReportManagementPage extends FOGPage
             _('Username'),
         );
         $this->templates = array(
-            sprintf('<a href="?node=%s&sub=user-track-disp&hostID=${host_id}&userID=${user_id}">${hostuser_name}</a>', $this->node),
+            sprintf(
+                '<a href="?node=%s&sub=usertrackdisp&hostID='
+                . '${host_id}&userID=${user_id}">${hostuser_name}</a>',
+                $this->node
+            ),
             '${user_name}',
         );
         $this->attributes = array(
             array(),
             array(),
         );
-        $hostsearch = str_replace('*', '%', sprintf('%%%s%%', trim($_REQUEST['hostsearch'])));
-        $usersearch = str_replace('*', '%', sprintf('%%%s%%', trim($_REQUEST['usersearch'])));
-        if (trim($_REQUEST['hostsearch']) && !trim($_REQUEST['usersearch'])) {
-            foreach ((array)self::getClass('HostManager')->find(array('name'=>$hostsearch)) as $i => &$Host) {
-                if (!$Host->isValid()) {
-                    continue;
-                }
+        $hostsearch = str_replace(
+            '*',
+            '%',
+            sprintf(
+                '%%%s%%',
+                trim($_REQUEST['hostsearch'])
+            )
+        );
+        $usersearch = str_replace(
+            '*',
+            '%',
+            sprintf(
+                '%%%s%%',
+                trim($_REQUEST['usersearch'])
+            )
+        );
+        if (trim($_REQUEST['hostsearch'])
+            && !trim($_REQUEST['usersearch'])
+        ) {
+            $Hosts = self::getClass('HostManager')->find(
+                array(
+                    'name' => $hostsearch
+                )
+            );
+            foreach ((array)$Hosts as &$Host) {
                 $this->data[] = array(
-                    'host_id'=>$id,
-                    'hostuser_name'=>$Host->get('name'),
-                    'user_id'=>base64_encode('%'),
-                    'user_name'=>'',
+                    'host_id' => $Host->get('id'),
+                    'hostuser_name' => $Host->get('name'),
+                    'user_id' => base64_encode('%'),
+                    'user_name' => '',
                 );
                 unset($Host);
             }
-        } elseif (!trim($_REQUEST['hostsearch']) && trim($_REQUEST['usersearch'])) {
-            $ids = self::getSubObjectIDs('UserTracking', array('username'=>$usersearch), array('id', 'hostID'), false, 'AND', 'name', false, '');
-            $lastUser = '';
-            foreach ((array)self::getClass('HostManager')->find(array('id'=>$ids['hostID'])) as $i => &$Host) {
-                if (!$Host->isValid()) {
-                    $ids['hostID'] = array_diff((array)$Host->get('id'), (array)$ids['hostID']);
-                }
-                unset($Host);
-            }
-            foreach ((array)self::getClass('UserTrackingManager')->find(array('id'=>$ids['id'])) as $i => &$User) {
-                if (!$User->isValid()) {
-                    continue;
-                }
-                if (!count($ids['hostID'])) {
-                    continue;
-                }
+        } elseif (!trim($_REQUEST['hostsearch'])
+            && trim($_REQUEST['usersearch'])
+        ) {
+            $ids = self::getSubObjectIDs(
+                'UserTracking',
+                array(
+                    'username' => $usersearch
+                ),
+                array(
+                    'id',
+                    'hostID'
+                )
+            );
+            $hostIDs = self::getSubObjectIDs(
+                'Host',
+                array('id' => $ids['hostID'])
+            );
+            $UserTracks = self::getClass('UserTrackingManager')->find(
+                array(
+                    'id' => $ids['id'],
+                    'hostID' => $hostIDs
+                )
+            );
+            foreach ((array)$UserTracks as &$User) {
                 $Username = trim($User->get('username'));
                 unset($User);
                 if ($lastUser != $Username) {
                     $this->data[] = array(
-                        'host_id'=>0,
-                        'hostuser_name'=>$Username,
-                        'user_id'=>base64_encode($Username),
-                        'user_name'=>'',
+                        'host_id' => 0,
+                        'hostuser_name' => $Username,
+                        'user_id' => base64_encode($Username),
+                        'user_name' => '',
                     );
                 }
                 $lastUser = $Username;
                 unset($Username);
             }
             unset($lastUser);
-        } elseif (trim($_REQUEST['hostsearch']) && trim($_REQUEST['usersearch'])) {
-            $HostIDs = self::getSubObjectIDs('Host', array('name'=>$hostsearch));
-            foreach ((array)self::getClass('UserTrackingManager')->find(array('username'=>$usersearch, 'hostID'=>$HostIDs)) as $i => &$User) {
-                if (!$User->isValid()) {
-                    continue;
-                }
-                $Host = self::getClass('Host', $User->get('hostID'));
-                if (!$Host->isValid()) {
-                    continue;
-                }
+        } elseif (trim($_REQUEST['hostsearch'])
+            && trim($_REQUEST['usersearch'])
+        ) {
+            $hostIDs = self::getSubObjectIDs(
+                'Host',
+                array('name' => $hostsearch)
+            );
+            $UserTracks = self::getClass('UserTrackingManager')->find(
+                array(
+                    'username' => $usersearch,
+                    'hostID' => $hostIDs
+                )
+            );
+            unset($hostIDs);
+            foreach ((array)$UserTracks as &$User) {
+                $Host = new Host($User->get('hostID'));
                 $userName = $User->get('name');
                 $this->data[] = array(
-                    'host_id'=>$Host->get('id'),
-                    'hostuser_name'=>$Host->get('name'),
-                    'user_id'=>base64_encode($userName),
-                    'user_name'=>$userName,
+                    'host_id' => $Host->get('id'),
+                    'hostuser_name' => $Host->get('name'),
+                    'user_id' => base64_encode($userName),
+                    'user_name' => $userName,
                 );
                 unset($userName, $Host, $User);
             }
             unset($HostIDs);
         } elseif (!$hostsearch && !$usersearch) {
-            $this->redirect(sprintf('?node=%s&sub=user-track', $this->node));
+            $this->redirect(
+                sprintf(
+                    '?node=%s&sub=usertrack',
+                    $this->node
+                )
+            );
         }
         $this->render();
     }
-    public function user_track_disp()
+    /**
+     * Actually display more refined info pertinent to dates.
+     *
+     * @return void
+     */
+    public function usertrackdisp()
     {
         $this->title = _('FOG User Login History Summary - Select Date Range');
         unset($this->headerData);
@@ -1104,20 +1188,42 @@ class ReportManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $_REQUEST['userID'] = trim(base64_decode($_REQUEST['userID']));
-        $_REQUEST['hostID'] = trim($_REQUEST['hostID']);
-        if ($_REQUEST['userID'] && !$_REQUEST['hostID']) {
-            $UserSearchDates = self::getSubObjectIDs('UserTracking', array('username'=>$_REQUEST['userID']), 'datetime');
-        } elseif (!$_REQUEST['userID'] && $_REQUEST['hostID']) {
-            $UserSearchDates = self::getSubObjectIDs('UserTracking', array('hostID'=>$_REQUEST['hostID']), 'datetime');
-        } elseif ($_REQUEST['userID'] && $_REQUEST['hostID']) {
-            $UserSearchDates = self::getSubObjectIDs('UserTracking', array('username'=>$_REQUEST['userID'], 'hostID'=>$_REQUEST['hostID']), 'datetime');
+        $userid = trim(base64_decode($_REQUEST['userID']));
+        $hostid = trim($_REQUEST['hostID']);
+        if ($userid
+            && !$hostid
+        ) {
+            $UserSearchDates = self::getSubObjectIDs(
+                'UserTracking',
+                array('username' => $userid),
+                'datetime'
+            );
+        } elseif (!$userid
+            && $hostid
+        ) {
+            $UserSearchDates = self::getSubObjectIDs(
+                'UserTracking',
+                array('hostID' => $hostid),
+                'datetime'
+            );
+        } elseif ($userid
+            && $hostid
+        ) {
+            $UserSearchDates = self::getSubObjectIDs(
+                'UserTracking',
+                array(
+                    'username' => $userid,
+                    'hostID' => $hostid
+                ),
+                'datetime'
+            );
         }
-        foreach ((array)$UserSearchDates as $i => &$DateTime) {
+        foreach ((array)$UserSearchDates as &$DateTime) {
             if (!$this->validDate($DateTime)) {
                 continue;
             }
             $Dates[] = $this->formatTime($DateTime, 'Y-m-d');
+            unset($DateTime);
         }
         unset($DateTime);
         if ($Dates) {
@@ -1125,15 +1231,28 @@ class ReportManagementPage extends FOGPage
             rsort($Dates);
             ob_start();
             foreach ((array)$Dates as $i => &$Date) {
-                printf('<option value="%s">%s</option>', $Date, $Date);
+                printf(
+                    '<option value="%s">%s</option>',
+                    $Date,
+                    $Date
+                );
                 unset($Date);
             }
             unset($Dates);
             $dates = ob_get_clean();
             $fields = array(
-                _('Select Start Date') => sprintf('<select name="date1" size="1">%s</select>', $dates),
-                _('Select End Date') => sprintf('<select name="date2" size="1">%s</select>', $dates),
-                '' => sprintf('<input type="submit" value="%s"/>', _('Search for Entries')),
+                _('Select Start Date') => sprintf(
+                    '<select name="date1" size="1">%s</select>',
+                    $dates
+                ),
+                _('Select End Date') => sprintf(
+                    '<select name="date2" size="1">%s</select>',
+                    $dates
+                ),
+                '&nbsp;' => sprintf(
+                    '<input type="submit" value="%s"/>',
+                    _('Search for Entries')
+                ),
             );
             foreach ((array)$fields as $field => &$input) {
                 $this->data[] = array(
@@ -1142,14 +1261,22 @@ class ReportManagementPage extends FOGPage
                 );
             }
             unset($input);
-            printf('<form method="post" action="%s">', $this->formAction);
+            printf(
+                '<form method="post" action="%s">',
+                $this->formAction
+            );
             $this->render();
             echo '</form>';
         } else {
             $this->render();
         }
     }
-    public function user_track_dispPost()
+    /**
+     * Finally display the chosen data.
+     *
+     * @return void
+     */
+    public function usertrackdispPost()
     {
         $this->title = _('FOG User Login History Summary');
         $this->headerData = array(
@@ -1245,7 +1372,12 @@ class ReportManagementPage extends FOGPage
             $this->ReportMaker->addCSVCell($Host->get('name'));
             $this->ReportMaker->addCSVCell($Host->get('mac'));
             $this->ReportMaker->addCSVCell($Host->get('description'));
-            $this->ReportMaker->addCSVCell($this->formatTime($User->get('datetime'), 'Y-m-d H:i:s'));
+            $this->ReportMaker->addCSVCell(
+                $this->formatTime(
+                    $User->get('datetime'),
+                    'Y-m-d H:i:s'
+                )
+            );
             $this->ReportMaker->addCSVCell($User->get('description'));
             $this->ReportMaker->endCSVLine();
             unset($User, $Host, $date, $logintext);
@@ -1254,7 +1386,12 @@ class ReportManagementPage extends FOGPage
         $this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
-    public function snapin_log()
+    /**
+     * Display selector for snapin log.
+     *
+     * @return void
+     */
+    public function snapinlog()
     {
         $this->title = _('FOG Snapin Log - Select Date Range');
         unset($this->headerData);
@@ -1262,9 +1399,32 @@ class ReportManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $AllDates = array_merge(self::$DB->query("SELECT DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') start FROM `snapinTasks` WHERE DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM, 'fetch_all')->get('start'), self::$DB->query("SELECT DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') finish FROM `snapinTasks` WHERE DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM, 'fetch_all')->get('start'));
+        $AllDates = array_merge(
+            self::$DB->query(
+                "SELECT DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') "
+                . "start FROM `snapinTasks` WHERE DATE_FORMAT("
+                . "`stCheckinDate`,'%Y-%m-%d') != '0000-00-00' "
+                . "GROUP BY start ORDER BY start DESC"
+            )->fetch(
+                MYSQLI_NUM,
+                'fetch_all'
+            )->get('start'),
+            self::$DB->query(
+                "SELECT DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') "
+                . "finish FROM `snapinTasks` WHERE DATE_FORMAT("
+                . "`stCompleteDate`,'%Y-%m-%d') != '0000-00-00' "
+                . "GROUP BY finish ORDER BY finish DESC"
+            )->fetch(
+                MYSQLI_NUM,
+                'fetch_all'
+            )->get('start')
+        );
         foreach ((array)$AllDates as &$Date) {
-            $tmp = !is_array($Date) ? $Date : array_shift($Date);
+            $tmp = (
+                !is_array($Date) ?
+                $Date :
+                array_shift($Date)
+            );
             if (!$this->validDate($tmp)) {
                 continue;
             }
@@ -1276,18 +1436,33 @@ class ReportManagementPage extends FOGPage
         rsort($Dates);
         if (count($Dates) > 0) {
             ob_start();
-            foreach ((array)$Dates as $i => &$Date) {
-                printf('<option value="%s">%s</option>', $Date, $Date);
+            foreach ((array)$Dates as &$Date) {
+                printf(
+                    '<option value="%s">%s</option>',
+                    $Date,
+                    $Date
+                );
                 unset($Date);
             }
             unset($Dates);
             $dates = ob_get_clean();
-            $date1 = sprintf('<select name="%s" size="1">%s</select>', 'date1', $dates);
-            $date2 = sprintf('<select name="%s" size="1">%s</select>', 'date2', $dates);
+            $date1 = sprintf(
+                '<select name="%s" size="1">%s</select>',
+                'date1',
+                $dates
+            );
+            $date2 = sprintf(
+                '<select name="%s" size="1">%s</select>',
+                'date2',
+                $dates
+            );
             $fields = array(
                 _('Select Start Date') => $date1,
                 _('Select End Date') => $date2,
-                '&nbsp;' => sprintf('<input type="submit" value="%s"/>', _('Search for Entries')),
+                '&nbsp;' => sprintf(
+                    '<input type="submit" value="%s"/>',
+                    _('Search for Entries')
+                ),
             );
             foreach ((array)$fields as $field => &$input) {
                 $this->data[] = array(
@@ -1297,14 +1472,22 @@ class ReportManagementPage extends FOGPage
                 unset($input);
             }
             unset($fields);
-            printf('<form method="post" action="%s">', $this->formAction);
+            printf(
+                '<form method="post" action="%s">',
+                $this->formAction
+            );
             $this->render();
             echo '</form>';
         } else {
             $this->render();
         }
     }
-    public function snapin_logPost()
+    /**
+     * Display filtered snapin log history.
+     *
+     * @return void
+     */
+    public function snapinlogPost()
     {
         $this->title = _('FOG Snapin Log');
         printf(
@@ -1376,7 +1559,9 @@ class ReportManagementPage extends FOGPage
             }
             $start = self::niceDate($SnapinTask->get('checkin'));
             $end = self::niceDate($SnapinTask->get('complete'));
-            if (!$this->validDate($start) || !$this->validDate($end)) {
+            if (!$this->validDate($start)
+                || !$this->validDate($end)
+            ) {
                 continue;
             }
             if ($start < $date1
@@ -1396,13 +1581,20 @@ class ReportManagementPage extends FOGPage
             if (!$Host->isValid()) {
                 continue;
             }
+            $State = new TaskState($SnapinTask->get('stateID'));
             $this->data[] = array(
-                'snap_name'=>$Snapin->get('name'),
-                'snap_state'=>self::getClass('TaskState', $SnapinTask->get('stateID'))->get('name'),
-                'snap_return'=>$SnapinTask->get('return'),
-                'snap_detail'=>$SnapinTask->get('detail'),
-                'snap_create'=>$this->formatTime($Snapin->get('createdTime'), 'Y-m-d'),
-                'snap_time'=>$this->formatTime($Snapin->get('createdTime'), 'H:i:s'),
+                'snap_name' => $Snapin->get('name'),
+                'snap_state' => $State->get('name'),
+                'snap_return' => $SnapinTask->get('return'),
+                'snap_detail' => $SnapinTask->get('detail'),
+                'snap_create' => $this->formatTime(
+                    $Snapin->get('createdTime'),
+                    'Y-m-d'
+                ),
+                'snap_time'=>$this->formatTime(
+                    $Snapin->get('createdTime'),
+                    'H:i:s'
+                )
             );
             $this->ReportMaker->addCSVCell($Host->get('id'));
             $this->ReportMaker->addCSVCell($Host->get('name'));
@@ -1414,23 +1606,64 @@ class ReportManagementPage extends FOGPage
             $this->ReportMaker->addCSVCell($Snapin->get('args'));
             $this->ReportMaker->addCSVCell($Snapin->get('runWith'));
             $this->ReportMaker->addCSVCell($Snapin->get('runWithArgs'));
-            $this->ReportMaker->addCSVCell(self::getClass('TaskState', $SnapinTask->get('stateID'))->get('name'));
+            $this->ReportMaker->addCSVCell($State->get('name'));
             $this->ReportMaker->addCSVCell($SnapinTask->get('return'));
             $this->ReportMaker->addCSVCell($SnapinTask->get('detail'));
-            $this->ReportMaker->addCSVCell($this->formatTime($Snapin->get('createdTime'), 'Y-m-d'));
-            $this->ReportMaker->addCSVCell($this->formatTime($Snapin->get('createdTime'), 'H:i:s'));
-            $this->ReportMaker->addCSVCell($this->formatTime($SnapinJob->get('createdTime'), 'Y-m-d'));
-            $this->ReportMaker->addCSVCell($this->formatTime($SnapinJob->get('createdTime'), 'H:i:s'));
-            $this->ReportMaker->addCSVCell($this->formatTime($SnapinTask->get('checkin'), 'Y-m-d'));
-            $this->ReportMaker->addCSVCell($this->formatTime($SnapinTask->get('checkin'), 'H:i:s'));
+            $this->ReportMaker->addCSVCell(
+                $this->formatTime(
+                    $Snapin->get('createdTime'),
+                    'Y-m-d'
+                )
+            );
+            $this->ReportMaker->addCSVCell(
+                $this->formatTime(
+                    $Snapin->get('createdTime'),
+                    'H:i:s'
+                )
+            );
+            $this->ReportMaker->addCSVCell(
+                $this->formatTime(
+                    $SnapinJob->get('createdTime'),
+                    'Y-m-d'
+                )
+            );
+            $this->ReportMaker->addCSVCell(
+                $this->formatTime(
+                    $SnapinJob->get('createdTime'),
+                    'H:i:s'
+                )
+            );
+            $this->ReportMaker->addCSVCell(
+                $this->formatTime(
+                    $SnapinTask->get('checkin'),
+                    'Y-m-d'
+                )
+            );
+            $this->ReportMaker->addCSVCell(
+                $this->formatTime(
+                    $SnapinTask->get('checkin'),
+                    'H:i:s'
+                )
+            );
             $this->ReportMaker->endCSVLine();
-            unset($Host, $Snapin, $SnapinJob, $SnapinTask);
+            unset(
+                $Host,
+                $Snapin,
+                $SnapinJob,
+                $SnapinTask,
+                $State
+            );
         }
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
-    public function equip_loan()
+    /**
+     * Present selector for equipment load form printing.
+     *
+     * @return void
+     */
+    public function equiploan()
     {
         $this->title = _('FOG Equipment Loan Form');
         unset($this->headerData);
@@ -1443,22 +1676,31 @@ class ReportManagementPage extends FOGPage
             array(),
         );
         ob_start();
-        foreach ((array)self::getClass('InventoryManager')->find() as $i => &$Inventory) {
-            if (!$Inventory->isValid()) {
-                continue;
-            }
+        $Inventories = self::getClass('InventoryManager')->find();
+        foreach ((array)$Inventories as &$Inventory) {
             if (!$Inventory->get('primaryUser')) {
                 continue;
             }
-            if (!($Inventory->isValid() && $Inventory->get('primaryUser'))) {
-                continue;
-            }
-            printf('<option value="%s">%s</option>', $Inventory->get('id'), $Inventory->get('primaryUser'));
+            printf(
+                '<option value="%s">%s</option>',
+                $Inventory->get('id'),
+                $Inventory->get('primaryUser')
+            );
             unset($Inventory);
         }
         $fields = array(
-            _('Select User') => sprintf('<select name="user" size="1"><option value="">- %s -</option>%s</select>', _('Please select an option'), ob_get_clean()),
-            '' => sprintf('<input type="submit" value="%s"/>', _('Create Report')),
+            _('Select User') => sprintf(
+                '<select name="user" size="1">'
+                . '<option value="">- %s -</option>'
+                . '%s'
+                . '</select>',
+                _('Please select an option'),
+                ob_get_clean()
+            ),
+            '&nbsp;' => sprintf(
+                '<input type="submit" value="%s"/>',
+                _('Create Report')
+            )
         );
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
@@ -1467,78 +1709,152 @@ class ReportManagementPage extends FOGPage
             );
         }
         unset($input);
-        printf('<form method="post" action="%s">', $this->formAction);
+        printf(
+            '<form method="post" action="%s">',
+            $this->formAction
+        );
         $this->render();
         echo '</form>';
     }
-    public function equip_loanPost()
+    /**
+     * Present our form based on the selected data.
+     *
+     * @return void
+     */
+    public function equiploanPost()
     {
-        $Inventory = self::getClass('Inventory', $_REQUEST['user']);
+        $Inventory = new Inventory($_REQUEST['user']);
         if (!$Inventory->isValid()) {
             return;
         }
         $this->title = _('FOG Equipment Loan Form');
         printf(
-            '<h2><div id="exportDiv"></div><a id="pdfsub" href="export.php?type=pdf&filename=%sEquipmentLoanForm" alt="%s" title="%s" target="_blank">%s</a></h2>',
+            '<h2>'
+            . '<div id="exportDiv"></div>'
+            . '<a id="pdfsub" href="export.php?type='
+            . 'pdf&filename=%sEquipmentLoanForm" alt='
+            . '"%s" title="%s" target="_blank">%s</a></h2>',
             $Inventory->get('primaryUser'),
             _('Export PDF'),
             _('Export PDF'),
             self::$pdffile
         );
-        $this->ReportMaker->appendHTML(sprintf(
-            '<!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" --><p class="c"><h3>%s</h3></p><hr/><p class="c"><h2>%s</h2></p><p class="c"><h3>%s</h3></p><p class="c"><h2><u>%s</u></h2></p><p class="c"><h4><u>%s</u></h4></p><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><p class="c"><h4><u>%s</u></h4></p><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><h4><b>%s: </b><u>%s</u></h4><p class="c"><h4><b>%s / %s / %s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><p class="c"><h4><b>%s</b></h4></p><br/><hr/><h4><b>%s: </b>%s</h4><p class="c"><h4>(%s %s)</h4></p><p class="c"><h4>%s</h4></p><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4><!-- NEW PAGE --><!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" --><p class="c"><h3>%s</h3></p><hr/><h4>%s</h4><h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4>',
-            _('of'),
-            _('Printed'),
-            $this->formatTime('', 'D M j G:i:s T Y'),
-            _('Equipment Loan'),
-            _('[Organization Here]'),
-            _('[sub-unit here]'),
-            _('PC Check-out Agreement'),
-            _('Personal Information'),
-            _('Name'),
-            $Inventory->get('primaryUser'),
-            _('Location'),
-            _('Your Location Here'),
-            str_pad(_('Home Address'), 25),
-            str_repeat('_', 65),
-            str_pad(_('City/State/Zip'), 25),
-            str_repeat('_', 65),
-            str_pad(_('Extension'), 25),
-            str_repeat('_', 65),
-            str_pad(_('Home Phone'), 25),
-            str_repeat('_', 65),
-            _('Computer Information'),
-            str_pad(sprintf('%s / %s', _('Serial Number'), _('Service Tag')), 25),
-            str_pad(sprintf('%s / %s', $Inventory->get('sysserial'), $Inventory->get('caseasset')), 65, '_'),
-            str_pad(_('Barcode Numbers'), 25),
-            str_pad(sprintf('%s %s', $Inventory->get('other1'), $Inventory->get('other2')), 65, '_'),
-            str_pad(_('Date of checkout'), 25),
-            str_repeat('_', 65),
-            _('Notes'),
-            _('Miscellaneous'),
-            _('Included Items'),
-            str_repeat('_', 75),
-            str_repeat('_', 75),
-            str_repeat('_', 75),
-            str_pad(_('Releasing Staff Initials'), 25),
-            str_repeat('_', 65),
-            _('To be released only by'),
-            str_repeat('_', 20),
-            _('I have read, understood, and agree to all the Terms and Conditions on the following pages of this document.'),
-            str_pad(_('Signed'), 25),
-            str_repeat('_', 65),
-            str_pad(_('Date'), 25),
-            str_repeat('_', 65),
-            _('of'),
-            _('Printed'),
-            $this->formatTime('', 'D M j G:i:s T Y'),
-            _('Terms and Conditions'),
-            _('Your terms and conditions here'),
-            str_pad(_('Signed'), 25),
-            str_repeat('_', 65),
-            str_pad(_('Date'), 25),
-            str_repeat('_', 65)
-        ));
+        $this->ReportMaker->appendHTML(
+            sprintf(
+                '<!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" -->'
+                . '<p class="c"><h3>%s</h3></p><hr/><p class="c">'
+                . '<h2>%s</h2></p><p class="c"><h3>%s</h3></p>'
+                . '<p class="c"><h2><u>%s</u></h2></p>'
+                . '<p class="c"><h4><u>%s</u></h4></p>'
+                . '<h4><b>%s: </b><u>%s</u></h4><h4>'
+                . '<b>%s: </b><u>%s</u></h4><h4>'
+                . '<b>%s: </b>%s</h4><h4><b>%s: </b>'
+                . '%s</h4><h4><b>%s: </b>%s</h4><h4>'
+                . '<b>%s: </b>%s</h4><p class="c">'
+                . '<h4><u>%s</u></h4></p><h4><b>%s: </b>'
+                . '<u>%s</u></h4><h4><b>%s: </b><u>%s</u>'
+                . '</h4><h4><b>%s: </b><u>%s</u></h4>'
+                . '<p class="c"><h4><b>%s / %s / %s</b></h4></p>'
+                . '<p class="c"><h4><b>%s</b></h4></p>'
+                . '<p class="c"><h4><b>%s</b></h4></p>'
+                . '<p class="c"><h4><b>%s</b></h4></p>'
+                . '<br/><hr/><h4><b>%s: </b>%s</h4>'
+                . '<p class="c"><h4>(%s %s)</h4></p>'
+                . '<p class="c"><h4>%s</h4></p><h4><b>%s: </b>%s</h4>'
+                . '<h4><b>%s: </b>%s</h4>'
+                . '<!-- NEW PAGE -->'
+                . '<!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" -->'
+                . '<p class="c"><h3>%s</h3></p><hr/><h4>%s</h4>'
+                . '<h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4>',
+                _('of'),
+                _('Printed'),
+                $this->formatTime('', 'D M j G:i:s T Y'),
+                _('Equipment Loan'),
+                _('[Organization Here]'),
+                _('[sub-unit here]'),
+                _('PC Check-out Agreement'),
+                _('Personal Information'),
+                _('Name'),
+                $Inventory->get('primaryUser'),
+                _('Location'),
+                _('Your Location Here'),
+                str_pad(_('Home Address'), 25),
+                str_repeat('_', 65),
+                str_pad(_('City/State/Zip'), 25),
+                str_repeat('_', 65),
+                str_pad(_('Extension'), 25),
+                str_repeat('_', 65),
+                str_pad(_('Home Phone'), 25),
+                str_repeat('_', 65),
+                _('Computer Information'),
+                str_pad(
+                    sprintf(
+                        '%s / %s',
+                        _('Serial Number'),
+                        _('Service Tag')
+                    ),
+                    25
+                ),
+                str_pad(
+                    sprintf(
+                        '%s / %s',
+                        $Inventory->get('sysserial'),
+                        $Inventory->get('caseasset')
+                    ),
+                    65,
+                    '_'
+                ),
+                str_pad(
+                    _('Barcode Numbers'),
+                    25
+                ),
+                str_pad(
+                    sprintf(
+                        '%s %s',
+                        $Inventory->get('other1'),
+                        $Inventory->get('other2')
+                    ),
+                    65,
+                    '_'
+                ),
+                str_pad(
+                    _('Date of checkout'),
+                    25
+                ),
+                str_repeat('_', 65),
+                _('Notes'),
+                _('Miscellaneous'),
+                _('Included Items'),
+                str_repeat('_', 75),
+                str_repeat('_', 75),
+                str_repeat('_', 75),
+                str_pad(_('Releasing Staff Initials'), 25),
+                str_repeat('_', 65),
+                _('To be released only by'),
+                str_repeat('_', 20),
+                sprintf(
+                    '%s, %s, %s %s %s.',
+                    _('I have read'),
+                    _('understood'),
+                    _('and agree to all the'),
+                    _('Terms and Conditions'),
+                    _('on the following pages of this document')
+                ),
+                str_pad(_('Signed'), 25),
+                str_repeat('_', 65),
+                str_pad(_('Date'), 25),
+                str_repeat('_', 65),
+                _('of'),
+                _('Printed'),
+                $this->formatTime('', 'D M j G:i:s T Y'),
+                _('Terms and Conditions'),
+                _('Your terms and conditions here'),
+                str_pad(_('Signed'), 25),
+                str_repeat('_', 65),
+                str_pad(_('Date'), 25),
+                str_repeat('_', 65)
+            )
+        );
         printf('<p>%s</p>', _('Your form is ready.'));
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
