@@ -562,29 +562,17 @@ class HostManagementPage extends FOGPage
             if (!$Host->save()) {
                 throw new Exception(_('Host create failed'));
             }
-            self::$HookManager
-                ->processEvent(
-                    'HOST_ADD_SUCCESS',
-                    array(
-                        'Host' => &$Host
-                    )
-                );
-            $this->setMessage(_('Host added'));
-            $url = sprintf(
-                '?node=%s&sub=edit&id=%s',
-                $this->node,
-                $Host->get('id')
-            );
+            $hook = 'HOST_ADD_SUCCESS';
+            $msg = _('Host added');
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    'HOST_ADD_FAIL',
-                    array(
-                        'Host' => &$Host
-                    )
-                );
-            $this->setMessage($e->getMessage());
+            $hook = 'HOST_ADD_FAIL';
+            $msg = $e->getMessage();
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('HOst' => &$Host)
+            );
         unset(
             $Host,
             $passlegacy,
@@ -598,6 +586,7 @@ class HostManagementPage extends FOGPage
             $MAC,
             $hostName
         );
+        $this->setMessage($msg);
         $this->redirect($this->formAction);
     }
     /**
@@ -2146,15 +2135,6 @@ class HostManagementPage extends FOGPage
         echo '</div></div>';
     }
     /**
-     * Returns from ajax callers.
-     *
-     * @return void
-     */
-    public function editAjax()
-    {
-        exit;
-    }
-    /**
      * Updates the host when form is submitted
      *
      * @return void
@@ -2492,24 +2472,18 @@ class HostManagementPage extends FOGPage
             if ($_REQUEST['tab'] == 'host-general') {
                 $this->obj->ignore($_REQUEST['igimage'], $_REQUEST['igclient']);
             }
-            self::$HookManager
-                ->processEvent(
-                    'HOST_EDIT_SUCCESS',
-                    array(
-                        'Host' => &$this->obj
-                    )
-                );
-            $this->setMessage('Host updated!');
+            $hook = 'HOST_EDIT_SUCCESS';
+            $msg = _('Host updated');
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    'HOST_EDIT_FAIL',
-                    array(
-                        'Host' => &$this->obj
-                    )
-                );
-            $this->setMessage($e->getMessage());
+            $hook = 'HOST_EDIT_FAIL';
+            $msg = $e->getMessage();
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('Host' => &$this->obj)
+            );
+        $this->setMessage($msg);
         $this->redirect($this->formAction);
     }
     /**

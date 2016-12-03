@@ -127,15 +127,19 @@ class GroupManagementPage extends FOGPage
             ),
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
+            array(
+                'width' => 16,
+                'class' => 'l filter-false'),
             array(),
-            array('width'=>30,'class'=>'c'),
-            array('width'=>90,'class'=>'c filter-false'),
+            array(
+                'width' => 30,
+                'class' => 'c'),
+            array(
+                'width' => 90,
+                'class' => 'c filter-false'
+            ),
         );
         self::$returnData = function (&$Group) {
-            if (!$Group->isValid()) {
-                return;
-            }
             $this->data[] = array(
                 'id' => $Group->get('id'),
                 'name' => $Group->get('name'),
@@ -235,24 +239,18 @@ class GroupManagementPage extends FOGPage
             if (!$Group->save()) {
                 throw new Exception(_('Group create failed'));
             }
-            self::$HookManager->processEvent(
-                'GROUP_ADD_SUCCESS',
-                array('Group' => &$Group)
-            );
-            $this->setMessage(_('Group added'));
-            $url = sprintf(
-                '?node=%s&sub=edit&id=%s',
-                $_REQUEST['node'],
-                $Group->get('id')
-            );
+            $hook = 'GROUP_ADD_SUCCESS';
+            $msg = _('Group added');
         } catch (Exception $e) {
-            self::$HookManager->processEvent(
-                'GROUP_ADD_FAIL',
-                array('Group' => &$Group)
-            );
-            $this->setMessage($e->getMessage());
+            $hook = 'GROUP_ADD_FAIL';
+            $msg = $e->getMessage();
         }
+        self::$HookManager->processEvent(
+            $hook,
+            array('Group' => &$Group)
+        );
         unset($Group);
+        $this->setMessage($msg);
         $this->redirect($this->formAction);
     }
     /**
@@ -1224,9 +1222,7 @@ class GroupManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 'GROUP_EDIT_POST',
-                array(
-                    'Group' => &$Group
-                )
+                array('Group' => &$this->obj)
             );
         try {
             $hostids = $this->obj->get('hosts');
@@ -1443,20 +1439,18 @@ class GroupManagementPage extends FOGPage
             if (!$this->obj->save()) {
                 throw new Exception(_('Database update failed'));
             }
-            self::$HookManager
-                ->processEvent(
-                    'GROUP_EDIT_SUCCESS',
-                    array('Group' => &$this->obj)
-                );
-            $this->setMessage('Group information updated!');
+            $hook = 'GROUP_EDIT_SUCCESS';
+            $msg = _('Group information updated');
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    'GROUP_EDIT_FAIL',
-                    array('Group' => &$this->obj)
-                );
-            $this->setMessage($e->getMessage());
+            $hook = 'GROUP_EDIT_FAIL';
+            $msg = $e->getMessage();
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('Group' => &$this->obj)
+            );
+        $this->setMessage($msg);
         $this->redirect($this->formAction);
     }
     /**

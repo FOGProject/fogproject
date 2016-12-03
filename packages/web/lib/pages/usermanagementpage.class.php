@@ -212,12 +212,12 @@ class UserManagementPage extends FOGPage
             $hook = 'USER_ADD_FAIL';
             $msg = $e->getMessage();
         }
-        unset($User);
         self::$HookManager
             ->processEvent(
                 $hook,
                 array('User' => &$User)
             );
+        unset($User);
         $this->setMessage($msg);
         $this->redirect($this->formAction);
     }

@@ -641,32 +641,26 @@ class ImageManagementPage extends FOGPage
              * This will set it to be the primary master.
              */
             $Image->setPrimaryGroup($_REQUEST['storagegroup']);
-            self::$HookManager
-                ->processEvent(
-                    'IMAGE_ADD_SUCCESS',
-                    array(
-                        'Image' => &$Image
-                    )
-                );
-            $this->setMessage(_('Image created'));
-            $this->redirect(
-                sprintf(
-                    '?node=%s&sub=edit&id=%s',
-                    $this->node,
-                    $Image->get('id')
-                )
+            $hook = 'IMAGE_ADD_SUCCESS';
+            $msg = _('Image created');
+            $url = sprintf(
+                '?node=%s&sub=edit&id=%s',
+                $this->node,
+                $Image->get('id')
             );
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    'IMAGE_ADD_FAIL',
-                    array(
-                        'Image' => &$Image
-                    )
-                );
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            $hook = 'IMAGE_ADD_FAIL';
+            $msg = $e->getMessage();
+            $url = $this->formAction;
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('Image' => &$Image)
+            );
+        unset($Image);
+        $this->setMessage($msg);
+        $this->redirect($url);
     }
     /**
      * Edit this image
@@ -1135,29 +1129,21 @@ class ImageManagementPage extends FOGPage
             }
             if (!$this->obj->save()) {
                 throw new Exception(
-                    _('Database update failed')
+                    _('Image update failed')
                 );
             }
-            self::$HookManager
-                ->processEvent(
-                    'IMAGE_UPDATE_SUCCESS',
-                    array(
-                        'Image' => &$this->obj
-                    )
-                );
-            $this->setMessage(
-                _('Image updated')
-            );
+            $hook = 'IMAGE_UPDATE_SUCCESS';
+            $msg = _('Image updated');
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    'IMAGE_UPDATE_FAIL',
-                    array(
-                        'Image' => &$this->obj
-                    )
-                );
-            $this->setMessage($e->getMessage());
+            $hook = 'IMAGE_UPDATE_FAIL';
+            $msg = $e->getMessage();
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('Image' => &$this->obj)
+            );
+        $this->setMessage($msg);
         $this->redirect($this->formAction);
     }
     /**

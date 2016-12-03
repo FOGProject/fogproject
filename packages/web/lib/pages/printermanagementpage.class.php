@@ -419,24 +419,22 @@ class PrinterManagementPage extends FOGPage
             if (!$Printer->save()) {
                 throw new Exception(_('Printer create/updated failed!'));
             }
-            global $sub;
-            self::$HookManager->processEvent(
-                "PRINTER_{$sub}_SUCCESS",
-                array('Printer' => &$Printer)
-            );
-            echo json_encode(
-                array(
-                    'msg' => _("Printer {$sub}ed")
-                )
+            $hook = 'PRINTER_ADD_SUCCESS';
+            $msg = json_encode(
+                array('msg' => _('Printer added'))
             );
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    "PRINTER_{$sub}_FAIL",
-                    array('Printer' => &$Printer)
-                );
-            echo json_encode(array('error'=>$e->getMessage()));
+            $hook = 'PRINTER_ADD_FAIL';
+            $msg = json_encode(
+                array('error' => $e->getMessage())
+            );
         }
+        self::$HookManager->processEvent(
+            $hook,
+            array('Printer' => &$Printer)
+        );
+        unset($Printer);
+        echo $msg;
         exit;
     }
     /**
@@ -728,25 +726,22 @@ class PrinterManagementPage extends FOGPage
             if (!$this->obj->save()) {
                 throw new Exception(_('Printer update failed!'));
             }
-            self::$HookManager
-                ->processEvent(
-                    'PRINTER_UPDATE_SUCCESS',
-                    array('Printer' => &$this->obj)
-                );
-
-            echo json_encode(
+            $hook = 'PRINTER_UPDATE_SUCCESS';
+            $msg = json_encode(
                 array('msg' => _('Printer updated!'))
             );
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    'PRINTER_UPDATE_FAIL',
-                    array('Printer' => &$this->obj)
-                );
-            echo json_encode(
+            $hook = 'PRINTER_UPDATE_FAIL';
+            $msg = json_encode(
                 array('error' => $e->getMessage())
             );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('Printer' => &$this->obj)
+            );
+        echo $msg;
         exit;
     }
 }
