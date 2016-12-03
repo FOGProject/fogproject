@@ -52,3 +52,6 @@ if (!in_array($node, array('schema', 'client'))
     $Page->endBody();
     $Page->render();
 }
+foreach (array_keys($GLOBALS) as $var) {
+    unset($$var);
+}

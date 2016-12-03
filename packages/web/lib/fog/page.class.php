@@ -497,6 +497,9 @@ class Page extends FOGBase
             );
         }
         include '../management/other/index.php';
+        foreach (array_keys(get_defined_vars()) as $var) {
+            unset($$var);
+        }
         return $this;
     }
 }

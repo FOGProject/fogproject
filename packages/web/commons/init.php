@@ -58,15 +58,6 @@ class Initiator
             $useragent = $_SERVER['HTTP_USER_AGENT'];
         }
         /**
-         * If we are not a service file
-         * and we have a user agent string
-         * and the Session hasn't been started,
-         * Start the session.
-         */
-        if ($self && $useragent && !isset($_SESSION)) {
-            session_start();
-        }
-        /**
          * Define our base path (/var/www/, /var/www/html/, etc...)
          */
         define('BASEPATH', self::_determineBasePath());
@@ -130,13 +121,48 @@ class Initiator
             )
         );
         /**
-         * Define with extenstions we need to auto load.
-         */
-        spl_autoload_extensions('.class.php,.event.php,.hook.php,.report.php');
-        /**
          * Pass our autoloaded items through our custom loader method.
          */
-        spl_autoload_register(array($this, '_fogLoader'));
+        spl_autoload_register(
+            function ($className) {
+                /**
+                 * Sanity check, if the classname is not a string fail.
+                 */
+                if (!is_string($className)) {
+                    throw new Exception(_('Classname must be a string'));
+                }
+                /**
+                 * If the class exists, we know it's already been loaded.
+                 * Return as we don't need to do anything.
+                 */
+                if (class_exists($className, false)) {
+                    return;
+                }
+                /**
+                 * Ensure the event and hook managers are available.
+                 * Really only needed for the respective class but
+                 * doesn't hurt to have in either case.
+                 */
+                global $EventManager;
+                global $HookManager;
+                /**
+                 * Load the class.
+                 */
+                spl_autoload(
+                    $className,
+                    '.class.php,.event.php,.hook.php,.report.php'
+                );
+            }
+        );
+        /**
+         * If we are not a service file
+         * and we have a user agent string
+         * and the Session hasn't been started,
+         * Start the session.
+         */
+        if ($self && $useragent && !isset($_SESSION)) {
+            session_start();
+        }
     }
     /**
      * Gets the base path and sets WEB_ROOT constant
@@ -189,15 +215,6 @@ class Initiator
             );
         }
         return $path;
-    }
-    /**
-     * Cleanup after no longer needed
-     *
-     * @return void
-     */
-    public function __destruct()
-    {
-        spl_autoload_unregister(array($this, '_fogLoader'));
     }
     /**
      * Initiates the environment
@@ -359,41 +376,6 @@ class Initiator
         }
     }
     /**
-     * Loads the class files as they're needed
-     *
-     * @param string $className the class to include as called.
-     *
-     * @throws Exception
-     * @return void
-     */
-    private function _fogLoader($className)
-    {
-        /**
-         * Sanity check, if the classname is not a string fail.
-         */
-        if (!is_string($className)) {
-            throw new Exception(_('Classname must be a string'));
-        }
-        /**
-         * If the class exists, we know it's already been loaded.
-         * Return as we don't need to do anything.
-         */
-        if (class_exists($className, false)) {
-            return;
-        }
-        /**
-         * Ensure the event and hook managers are available.
-         * Really only needed for the respective class but
-         * doesn't hurt to have in either case.
-         */
-        global $EventManager;
-        global $HookManager;
-        /**
-         * Load the class.
-         */
-        spl_autoload($className);
-    }
-    /**
      * Cleans the buffer
      *
      * @param string $buffer buffer to clean
@@ -421,7 +403,11 @@ class Initiator
         /**
          * Perform our replace.
          */
-        $buffer = preg_replace($search, $replace, $buffer);
+        $buffer = preg_replace(
+            $search,
+            $replace,
+            $buffer
+        );
         /**
          * Returns the cleaned data.
          */
@@ -432,7 +418,9 @@ Initiator::sanitizeItems();
 Initiator::startInit();
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
-$DB = FOGCore::getClass('DatabaseManager')->establish()->getDB();
+$DB = FOGCore::getClass('DatabaseManager')
+    ->establish()
+    ->getDB();
 FOGCore::setSessionEnv();
 $TimeZone = $_SESSION['TimeZone'];
 if (isset($_SESSION['FOG_USER'])) {
@@ -441,11 +429,20 @@ if (isset($_SESSION['FOG_USER'])) {
     $currentUser = new User(0);
 }
 $HookManager = FOGCore::getClass('HookManager');
-$HookManager->load();
+$HookManager
+    ->load();
 $EventManager = FOGCore::getClass('EventManager');
-$EventManager->load();
+$EventManager
+    ->load();
 $FOGURLRequests = FOGCore::getClass('FOGURLRequests');
-if (in_array($sub, array('configure', 'authorize', 'requestClientInfo'))) {
+$subs = array(
+    'configure',
+    'authorize',
+    'requestClientInfo'
+);
+if (in_array($sub, $subs)) {
     new DashboardPage();
+    unset($subs);
     exit;
 }
+unset($subs);

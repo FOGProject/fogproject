@@ -115,7 +115,7 @@ class MySQL extends DatabaseManager
                         self::$result = self::$queryResult->$fetchType();
                         break;
                     case 'fetch_object':
-                        if (isset($type) && !class_exists($type)) {
+                        if (isset($type) && !class_exists($type, false)) {
                             throw new Exception(_('No valid class sent'));
                         } else {
                             self::$result = self::$queryResult->$fetchType();

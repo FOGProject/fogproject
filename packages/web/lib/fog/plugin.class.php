@@ -310,7 +310,7 @@ class Plugin extends FOGController
             '%sManager',
             $this->get('name')
         );
-        if (!class_exists($classManager)) {
+        if (!class_exists($classManager, false)) {
             return parent::getManager();
         }
 
